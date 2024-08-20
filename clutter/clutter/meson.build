@@ -70,7 +70,6 @@ clutter_headers = [
   'clutter-swipe-action.h',
   'clutter-snap-constraint.h',
   'clutter-stage.h',
-  'clutter-stage-manager.h',
   'clutter-stage-view.h',
   'clutter-tap-action.h',
   'clutter-text.h',

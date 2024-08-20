@@ -38,7 +38,7 @@
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage-private.h"
-#include "clutter/clutter-stage-manager.h"
+#include "clutter/clutter-stage-manager-private.h"
 
 struct _ClutterStageManagerAccessible {
   AtkGObjectAccessible parent;

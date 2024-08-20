@@ -38,7 +38,6 @@
 #include "clutter/clutter-layout-manager.h"
 #include "clutter/clutter-pipeline-cache.h"
 #include "clutter/clutter-settings.h"
-#include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage.h"
 
 G_BEGIN_DECLS

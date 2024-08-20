@@ -92,7 +92,6 @@
 #include "clutter/clutter-swipe-action.h"
 #include "clutter/clutter-snap-constraint.h"
 #include "clutter/clutter-stage.h"
-#include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-tap-action.h"
 #include "clutter/clutter-text.h"

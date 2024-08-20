@@ -24,14 +24,26 @@
 
 #pragma once
 
-#include "clutter/clutter-stage-manager.h"
+#include "clutter/clutter-types.h"
 
 G_BEGIN_DECLS
 
-/* stage manager */
-void _clutter_stage_manager_add_stage         (ClutterStageManager *stage_manager,
-                                               ClutterStage        *stage);
-void _clutter_stage_manager_remove_stage      (ClutterStageManager *stage_manager,
-                                               ClutterStage        *stage);
+#define CLUTTER_TYPE_STAGE_MANAGER              (clutter_stage_manager_get_type ())
+
+G_DECLARE_FINAL_TYPE (ClutterStageManager,
+                      clutter_stage_manager,
+                      CLUTTER,
+                      STAGE_MANAGER,
+                      GObject)
+
+ClutterStageManager * clutter_stage_manager_get_default (void);
+
+const GSList * clutter_stage_manager_peek_stages (ClutterStageManager *stage_manager);
+
+void _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
+                                       ClutterStage        *stage);
+
+void _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
+                                          ClutterStage        *stage);
 
 G_END_DECLS

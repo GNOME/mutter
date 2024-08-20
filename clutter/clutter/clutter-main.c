@@ -38,7 +38,6 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-settings-private.h"
 #include "clutter/clutter-stage.h"
-#include "clutter/clutter-stage-manager.h"
 #include "clutter/clutter-stage-private.h"
 #include "clutter/clutter-backend-private.h"
 
