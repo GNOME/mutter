@@ -438,10 +438,13 @@ warp_grab_pointer (MetaWindowDrag *window_drag,
 {
   MtkRectangle rect;
   MtkRectangle display_rect = { 0 };
-  MetaDisplay *display;
+  MetaDisplay *display = window->display;
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  MetaBackend *backend = meta_compositor_get_backend (compositor);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
 
-  display = window->display;
   meta_display_get_size (display,
                          &display_rect.width,
                          &display_rect.height);
@@ -485,7 +488,7 @@ warp_grab_pointer (MetaWindowDrag *window_drag,
   window_drag->latest_motion_x = *x;
   window_drag->latest_motion_y = *y;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   clutter_seat_warp_pointer (seat, *x, *y);
 
   return TRUE;
