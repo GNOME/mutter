@@ -797,7 +797,9 @@ static void
 build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
                            MtkRegion          *shape_region)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterContext *clutter_context =
+    clutter_actor_get_context (CLUTTER_ACTOR (actor_x11));
+  ClutterBackend *backend = clutter_context_get_backend (clutter_context);
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   CoglContext *ctx = clutter_backend_get_cogl_context (backend);

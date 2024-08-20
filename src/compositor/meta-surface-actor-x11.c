@@ -118,7 +118,10 @@ static void
 set_pixmap (MetaSurfaceActorX11 *self,
             Pixmap               pixmap)
 {
-  CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  ClutterContext *clutter_context =
+    clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend = clutter_context_get_backend (clutter_context);
+  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
   GError *error = NULL;
   CoglTexture *cogl_texture;
