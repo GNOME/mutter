@@ -548,8 +548,10 @@ ensure_color_texture (MetaBackground *self)
 {
   if (self->color_texture == NULL)
     {
-      ClutterBackend *backend = clutter_get_default_backend ();
-      CoglContext *ctx = clutter_backend_get_cogl_context (backend);
+      MetaContext *context = meta_display_get_context (self->display);
+      MetaBackend *backend = meta_context_get_backend (context);
+      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+      CoglContext *ctx = clutter_backend_get_cogl_context (clutter_backend);
       GError *error = NULL;
       uint8_t pixels[6];
       int width, height;
