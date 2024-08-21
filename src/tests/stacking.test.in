@@ -1,9 +1,5 @@
 [Test]
 Description=Mutter stacking test: @stacking_test@
-# Can't use TestEnvironment for GSETTINGS_BACKEND=memory until there's
-# a solution for
-# https://gitlab.gnome.org/GNOME/gnome-desktop-testing/-/issues/1,
-# and anyway that wouldn't be sufficient to handle XDG_RUNTIME_DIR
-Exec=sh -ec 'env GSETTINGS_BACKEND=memory XDG_CURRENT_DESKTOP= XDG_RUNTIME_DIR="$(mktemp -d -t mutter-@apiversion@-@stacking_test@-XXXXXX)" @libexecdir@/installed-tests/mutter-@apiversion@/mutter-installed-dbus-session.py -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner @tests_datadir@/stacking/@stacking_test@.metatest'
+Exec=sh -ec '@libexecdir@/installed-tests/mutter-@apiversion@/mutter-installed-dbus-session.py -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner @tests_datadir@/stacking/@stacking_test@.metatest'
 Type=session
 Output=TAP
