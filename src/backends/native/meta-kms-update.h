@@ -157,6 +157,13 @@ void meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
                                      MetaKmsCrtc        *crtc,
                                      const MetaGammaLut *gamma);
 
+int
+meta_kms_update_get_sync_fd (MetaKmsUpdate *update);
+
+void
+meta_kms_update_set_sync_fd (MetaKmsUpdate *update,
+                             int            sync_fd);
+
 void meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
                                               const int              *rectangles,
                                               int                     n_rectangles);

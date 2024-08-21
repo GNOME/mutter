@@ -20,6 +20,8 @@
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-update-private.h"
 
+#include <glib/gstdio.h>
+
 #include "backends/meta-display-config-shared.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
@@ -51,6 +53,8 @@ struct _MetaKmsUpdate
   gboolean needs_modeset;
 
   MetaKmsImplDevice *impl_device;
+
+  int sync_fd;
 };
 
 void
@@ -1136,6 +1140,8 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
   merge_custom_page_flip_from (update, other_update);
   merge_page_flip_listeners_from (update, other_update);
   merge_result_listeners_from (update, other_update);
+
+  meta_kms_update_set_sync_fd (update, g_steal_fd (&other_update->sync_fd));
 }
 
 gboolean
@@ -1152,6 +1158,7 @@ meta_kms_update_new (MetaKmsDevice *device)
   update = g_new0 (MetaKmsUpdate, 1);
   update->device = device;
   update->is_latchable = TRUE;
+  update->sync_fd = -1;
 
   return update;
 }
@@ -1175,6 +1182,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->crtc_color_updates,
                     (GDestroyNotify) meta_kms_crtc_color_updates_free);
   g_clear_pointer (&update->custom_page_flip, meta_kms_custom_page_flip_free);
+  g_clear_fd (&update->sync_fd, NULL);
 
   g_free (update);
 }
@@ -1198,6 +1206,23 @@ MetaKmsCrtc *
 meta_kms_update_get_latch_crtc (MetaKmsUpdate *update)
 {
   return update->latch_crtc;
+}
+
+int
+meta_kms_update_get_sync_fd (MetaKmsUpdate *update)
+{
+  return update->sync_fd;
+}
+
+void
+meta_kms_update_set_sync_fd (MetaKmsUpdate *update,
+                             int            sync_fd)
+{
+  if (update->sync_fd == sync_fd)
+    return;
+
+  g_clear_fd (&update->sync_fd, NULL);
+  update->sync_fd = sync_fd;
 }
 
 gboolean
