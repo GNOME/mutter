@@ -260,7 +260,7 @@ ret = logind_helpers.open_file_direct(major, minor)
         raise FileNotFoundError(f'Couldnt find a {template_name} template')
 
 
-def wrap_call(args, wrapper):
+def wrap_call(args, wrapper, extra_env):
     env = {}
     env.update(os.environ)
     env['NO_AT_BRIDGE'] = '1'
@@ -268,6 +268,9 @@ def wrap_call(args, wrapper):
     env['GSETTINGS_BACKEND'] = 'memory'
     env['XDG_CURRENT_DESKTOP'] = ''
     env['META_DBUS_RUNNER_ACTIVE'] = '1'
+
+    if extra_env:
+        env |= extra_env
 
     if wrapper == 'gdb':
         args = ['gdb', '-ex', 'r', '-ex', 'bt full', '--args'] + args
@@ -281,14 +284,19 @@ def wrap_call(args, wrapper):
     return p.wait()
 
 
-def meta_run(klass):
+def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
     DBusGMainLoop(set_as_default=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--kvm', action='store_true', default=False)
     parser.add_argument('--launch', action='append', default=[])
     parser.add_argument('--no-isolate-dirs', action='store_true', default=False)
+    if setup_argparse:
+        setup_argparse(parser)
     (args, rest) = parser.parse_known_args(sys.argv)
+
+    if handle_argparse:
+        handle_argparse(args)
 
     rest.pop(0)
     if not rest:
@@ -303,12 +311,12 @@ def meta_run(klass):
         args.launch.append(launch.split(','))
 
     if args.no_isolate_dirs:
-        return meta_run_klass(klass, args, rest)
+        return meta_run_klass(klass, args, rest, extra_env)
 
     test_root = os.getenv('MUTTER_DBUS_RUNNER_TEST_ROOT')
     if test_root:
         print('Reusing MUTTER_DBUS_RUNNER_TEST_ROOT', test_root, file=sys.stderr)
-        return meta_run_klass(klass, args, rest)
+        return meta_run_klass(klass, args, rest, extra_env)
 
     with tempfile.TemporaryDirectory(prefix='mutter-testroot-',
                                      ignore_cleanup_errors=True) as test_root:
@@ -320,9 +328,9 @@ def meta_run(klass):
             os.mkdir(directory, mode=0o700)
             os.environ[env_dir] = directory
             print('Setup', env_dir, 'as', directory, file=sys.stderr)
-        return meta_run_klass(klass, args, rest)
+        return meta_run_klass(klass, args, rest, extra_env)
 
-def meta_run_klass(klass, args, rest):
+def meta_run_klass(klass, args, rest, extra_env):
     result = 1
 
     if os.getenv('META_DBUS_RUNNER_ACTIVE') == None:
@@ -333,7 +341,7 @@ def meta_run_klass(klass, args, rest):
 
         try:
             print('Running test case...', file=sys.stderr)
-            result = wrap_call(rest, wrapper)
+            result = wrap_call(rest, wrapper, extra_env)
         finally:
             MutterDBusRunner.tearDownClass()
     else:
@@ -342,7 +350,7 @@ def meta_run_klass(klass, args, rest):
                    'Not re-creating mocked environment.'),
                   file=sys.stderr)
             print('Running test case...', file=sys.stderr)
-            result = wrap_call(rest, None)
+            result = wrap_call(rest, None, extra_env)
         finally:
             pass
 
