@@ -138,11 +138,6 @@ subdir('protocol')
 subdir('drm-mock')
 subdir('wayland-test-clients')
 
-if have_installed_tests
-  stacking_files_datadir = pkgdatadir / 'tests'
-  install_subdir('stacking', install_dir: stacking_files_datadir)
-endif
-
 test_env = environment()
 
 test_env_variables = {
@@ -765,22 +760,6 @@ foreach stacking_test: stacking_tests
     timeout: 60,
     should_fail: stacking_test.startswith('fixme-'),
   )
-
-  if have_installed_tests
-    installed_tests_cdata = configuration_data()
-    installed_tests_cdata.set('apiversion', libmutter_api_version)
-    installed_tests_cdata.set('libexecdir', libexecdir)
-    installed_tests_cdata.set('tests_datadir', tests_datadir)
-    installed_tests_cdata.set('stacking_test', stacking_test)
-
-    configure_file(
-      input: 'stacking.test.in',
-      output: stacking_test + '.test',
-      configuration: installed_tests_cdata,
-      install: true,
-      install_dir: mutter_installed_tests_datadir,
-    )
-  endif
 endforeach
 
 if have_kvm_tests or have_tty_tests
@@ -911,3 +890,25 @@ test('get-state-tool-gdbus', mutter,
   is_parallel: false,
   timeout: 60,
 )
+
+# Installed tests
+
+if have_installed_tests
+  install_subdir('stacking', install_dir: tests_datadir)
+
+  foreach stacking_test: stacking_tests
+    stacking_installed_tests_cdata = configuration_data()
+    stacking_installed_tests_cdata.set('apiversion', libmutter_api_version)
+    stacking_installed_tests_cdata.set('libexecdir', libexecdir)
+    stacking_installed_tests_cdata.set('tests_datadir', tests_datadir)
+    stacking_installed_tests_cdata.set('stacking_test', stacking_test)
+
+    configure_file(
+      input: 'stacking.test.in',
+      output: stacking_test + '.test',
+      configuration: stacking_installed_tests_cdata,
+      install: true,
+      install_dir: mutter_installed_tests_datadir,
+    )
+  endforeach
+endif
