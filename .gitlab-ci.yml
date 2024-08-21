@@ -137,12 +137,6 @@ variables:
       dnf builddep -y gi-docgen --setopt=install_weak_deps=False
       dnf builddep -y wayland --setopt=install_weak_deps=False
 
-      # FIXME: we downgrade xlib to 1.8.7 because somewhere on the way to
-      # version 1.8.10, a bug was introdcued
-      # https://gitlab.freedesktop.org/xorg/lib/libx11/-/merge_requests/264
-      # Remove when we have a fixed version!
-      dnf install -y libX11-common-1.8.7
-
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/glib.git \
         2.81.1
