@@ -79,20 +79,10 @@ meta_stage_impl_unrealize (ClutterStageWindow *stage_window)
 static gboolean
 meta_stage_impl_realize (ClutterStageWindow *stage_window)
 {
-  ClutterBackend *backend;
-
   meta_topic (META_DEBUG_BACKEND,
               "Realizing stage '%s' [%p]",
               G_OBJECT_TYPE_NAME (stage_window),
               stage_window);
-
-  backend = clutter_get_default_backend ();
-
-  if (backend->cogl_context == NULL)
-    {
-      g_warning ("Failed to realize stage: missing Cogl context");
-      return FALSE;
-    }
 
   return TRUE;
 }
