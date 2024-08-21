@@ -628,7 +628,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
                    GList               **leases_to_revoke_out)
 {
   MetaKms *kms = lease_manager->kms;
-  GList *new_connectors;
+  GList *new_connectors = NULL;
   GHashTable *new_leased_connectors;
   MetaDrmLease *lease = NULL;
   GList *l;
@@ -639,7 +639,6 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
   MetaKmsConnector *kms_connector;
   GHashTableIter iter;
 
-  new_connectors = g_list_copy (lease_manager->connectors);
   new_leased_connectors =
     g_hash_table_new_similar (lease_manager->leased_connectors);
 
