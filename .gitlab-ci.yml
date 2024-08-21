@@ -100,8 +100,8 @@ variables:
   extends:
     - .skip-git-clone
   variables:
-    FDO_DISTRIBUTION_VERSION: 40
-    BASE_TAG: '2024-08-29.2'
+    FDO_DISTRIBUTION_VERSION: 41
+    BASE_TAG: '2024-09-20.2'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       clang
@@ -143,10 +143,6 @@ variables:
       dnf builddep -y wayland --setopt=install_weak_deps=False
 
       ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/glib.git \
-        2.81.1
-
-      ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/jadahl/catch.git \
         main
 
@@ -176,6 +172,9 @@ variables:
       git config --system --add safe.directory "$CI_PROJECT_DIR"
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
+        # deprecated header no longer included in openssl-devel
+        dnf install -y openssl-devel-engine
+
         if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
           git clone --depth $MUTTER_CLONE_DEPTH \
             $CI_MERGE_REQUEST_SOURCE_PROJECT_URL.git mutter-src \

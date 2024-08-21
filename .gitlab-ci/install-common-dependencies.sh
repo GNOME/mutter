@@ -56,44 +56,11 @@ done
 
 SCRIPTS_DIR="$(dirname $0)"
 
-if ! pkgconf --atleast-version 1.2.3 libpipewire-0.3
-then
-     ./$SCRIPTS_DIR/install-meson-project.sh \
-       "${OPTIONS[@]}" \
-       -Dalsa=disabled \
-       -Dbluez5=disabled \
-       -Dexamples=disabled \
-       -Dgstreamer=disabled \
-       -Djack=disabled \
-       -Dman=disabled \
-       -Dpipewire-alsa=disabled \
-       -Dpipewire-jack=disabled \
-       -Dsystemd=enabled \
-       -Dtests=disabled \
-       https://gitlab.freedesktop.org/pipewire/pipewire.git \
-       1.2.3
-fi
-
-if ! pkgconf --atleast-version 1.23.0 wayland-server
-then
-     ./$SCRIPTS_DIR/install-meson-project.sh \
-       "${OPTIONS[@]}" \
-       https://gitlab.freedesktop.org/wayland/wayland.git \
-       1.23.0
-fi
-
-if ! pkgconf --atleast-version 1.36 wayland-protocols
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-      1.36
-fi
-
-if ! pkgconf --atleast-version 47.beta gsettings-desktop-schemas
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-      master
-fi
+## Add necessary dependencies here, for example
+# if ! pkgconf --atleast-version 1.23.0 wayland-server
+# then
+#     ./$SCRIPTS_DIR/install-meson-project.sh \
+#       "${OPTIONS[@]}" \
+#       https://gitlab.freedesktop.org/wayland/wayland.git \
+#       1.23.0
+# fi
