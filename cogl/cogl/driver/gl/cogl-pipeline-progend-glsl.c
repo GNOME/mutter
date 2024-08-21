@@ -124,6 +124,10 @@ typedef struct
      uniform is actually set */
   GArray *uniform_locations;
 
+  /* Stores the updated uniform values only for debugging purposes.
+   * key: uniform_name from CoglContext, value: boxed value  */
+  GHashTable *uniform_values;
+
   /* Array of attribute locations. */
   GArray *attribute_locations;
 
@@ -243,6 +247,13 @@ clear_flushed_matrix_stacks (CoglPipelineProgramState *program_state)
   _cogl_matrix_entry_cache_init (&program_state->modelview_cache);
 }
 
+static void
+_cogl_boxed_value_free (CoglBoxedValue *bv)
+{
+  _cogl_boxed_value_destroy (bv);
+  g_free (bv);
+}
+
 static CoglPipelineProgramState *
 program_state_new (int n_layers,
                    CoglPipelineCacheEntry *cache_entry)
@@ -255,6 +266,9 @@ program_state_new (int n_layers,
   program_state->unit_state = g_new (UnitState, n_layers);
   program_state->uniform_locations = NULL;
   program_state->attribute_locations = NULL;
+  program_state->uniform_values =
+    g_hash_table_new_full (NULL, NULL, NULL,
+                           (GDestroyNotify) _cogl_boxed_value_free);
   program_state->cache_entry = cache_entry;
   _cogl_matrix_entry_cache_init (&program_state->modelview_cache);
   _cogl_matrix_entry_cache_init (&program_state->projection_cache);
@@ -294,6 +308,8 @@ destroy_program_state (void *user_data)
 
       if (program_state->uniform_locations)
         g_array_free (program_state->uniform_locations, TRUE);
+
+      g_hash_table_destroy (program_state->uniform_values);
 
       g_free (program_state);
     }
@@ -488,6 +504,7 @@ update_builtin_uniforms (CoglContext *context,
 
 typedef struct
 {
+  CoglPipeline *pipeline;
   CoglPipelineProgramState *program_state;
   unsigned long *uniform_differences;
   int n_differences;
@@ -500,6 +517,8 @@ static gboolean
 flush_uniform_cb (int uniform_num, void *user_data)
 {
   FlushUniformsClosure *data = user_data;
+  char *uniform_name = g_ptr_array_index (data->ctx->uniform_names,
+                                          uniform_num);
 
   if (COGL_FLAGS_GET (data->uniform_differences, uniform_num))
     {
@@ -530,9 +549,6 @@ flush_uniform_cb (int uniform_num, void *user_data)
 
       if (uniform_location == UNIFORM_LOCATION_UNKNOWN)
         {
-          const char *uniform_name =
-            g_ptr_array_index (data->ctx->uniform_names, uniform_num);
-
           uniform_location =
             data->ctx->glGetUniformLocation (data->program_state->program,
                                              uniform_name);
@@ -541,9 +557,39 @@ flush_uniform_cb (int uniform_num, void *user_data)
         }
 
       if (uniform_location != -1)
-        _cogl_boxed_value_set_uniform (data->ctx,
-                                       uniform_location,
-                                       data->values + data->value_index);
+        {
+          if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SHOW_UNIFORMS)))
+            {
+              const CoglBoxedValue *pipeline_uniform;
+              CoglBoxedValue *program_uniform;
+              CoglBoxedValue *pipeline_uniform_copy;
+
+              pipeline_uniform = data->values + data->value_index;
+              program_uniform =
+                g_hash_table_lookup (data->program_state->uniform_values,
+                                     uniform_name);
+
+              if (!_cogl_boxed_value_equal (pipeline_uniform, program_uniform))
+                {
+                  pipeline_uniform_copy = g_malloc (sizeof (CoglBoxedValue));
+                  _cogl_boxed_value_copy (pipeline_uniform_copy,
+                                          pipeline_uniform);
+                  g_hash_table_insert (data->program_state->uniform_values,
+                                       uniform_name,
+                                       pipeline_uniform_copy);
+
+                  g_message ("Updated uniform on pipeline %s (program %i): %s;",
+                             data->pipeline->name ? data->pipeline->name : "N\\A",
+                             data->program_state->program,
+                             _cogl_boxed_value_to_string (pipeline_uniform,
+                                                          uniform_name));
+                }
+            }
+
+          _cogl_boxed_value_set_uniform (data->ctx,
+                                         uniform_location,
+                                         data->values + data->value_index);
+      }
 
       data->n_differences--;
       COGL_FLAGS_SET (data->uniform_differences, uniform_num, FALSE);
@@ -571,6 +617,7 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
   else
     uniforms_state = NULL;
 
+  data.pipeline = pipeline;
   data.program_state = program_state;
   data.ctx = ctx;
 
