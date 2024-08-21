@@ -114,7 +114,6 @@ variables:
       zenity
       python3-dbusmock
       gnome-desktop-testing
-      "pkgconfig(libdisplay-info)"
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
