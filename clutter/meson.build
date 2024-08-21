@@ -44,12 +44,6 @@ clutter_pkg_private_deps = [
   pangocairo_dep,
 ]
 
-if have_pango_ft2
-  clutter_pkg_private_deps += [
-    pangoft2_dep,
-  ]
-endif
-
 clutter_deps = [
   clutter_pkg_deps,
   clutter_pkg_private_deps,

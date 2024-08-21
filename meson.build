@@ -304,11 +304,6 @@ else
   have_libwacom_get_num_rings = false
 endif
 
-have_pango_ft2 = get_option('pango_ft2')
-if have_pango_ft2
-  pangoft2_dep = dependency('pangoft2')
-endif
-
 have_startup_notification = get_option('startup_notification') and have_x11_client
 if have_startup_notification
   libstartup_notification_dep = dependency('libstartup-notification-1.0',
@@ -563,7 +558,6 @@ cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
 cdata.set('HAVE_LIBDISPLAY_INFO', have_libdisplay_info)
-cdata.set('HAVE_PANGO_FT2', have_pango_ft2)
 cdata.set('HAVE_TIMERFD', have_timerfd)
 cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 cdata.set('HAVE_EVENTFD', have_eventfd)

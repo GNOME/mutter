@@ -19,11 +19,6 @@
 
 #include "clutter/clutter-settings.h"
 
-#ifdef HAVE_PANGO_FT2
-/* for pango_fc_font_map_cache_clear() */
-#include <pango/pangofc-fontmap.h>
-#endif /* HAVE_PANGO_FT2 */
-
 #include "clutter/clutter-context-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-settings-private.h"
@@ -98,8 +93,6 @@ enum
   PROP_FONT_RGBA,
 
   PROP_LONG_PRESS_DURATION,
-
-  PROP_FONTCONFIG_TIMESTAMP,
 
   PROP_PASSWORD_HINT_TIME,
 
@@ -218,48 +211,6 @@ settings_update_resolution (ClutterSettings *self)
 
   if (self->backend != NULL)
     g_signal_emit_by_name (self->backend, "resolution-changed");
-}
-
-static void
-settings_update_fontmap (ClutterSettings *self,
-                         guint            stamp)
-{
-  if (self->backend == NULL)
-    return;
-
-#ifdef HAVE_PANGO_FT2
-  CLUTTER_NOTE (BACKEND, "Update fontmaps (stamp: %d)", stamp);
-
-  if (self->last_fontconfig_timestamp != stamp)
-    {
-      ClutterContext *context;
-      gboolean update_needed = FALSE;
-
-      context = _clutter_context_get_default ();
-
-      /* If there is no font map yet then we don't need to do anything
-       * because the config for fontconfig will be read when it is
-       * created */
-      if (context->font_map)
-        {
-          PangoFontMap *fontmap = PANGO_FONT_MAP (context->font_map);
-
-          if (PANGO_IS_FC_FONT_MAP (fontmap) &&
-              !FcConfigUptoDate (NULL))
-            {
-              pango_fc_font_map_cache_clear (PANGO_FC_FONT_MAP (fontmap));
-
-              if (FcInitReinitialize ())
-                update_needed = TRUE;
-            }
-        }
-
-      self->last_fontconfig_timestamp = stamp;
-
-      if (update_needed)
-        g_signal_emit_by_name (self->backend, "font-changed");
-    }
-#endif /* HAVE_PANGO_FT2 */
 }
 
 static void
@@ -648,10 +599,6 @@ clutter_settings_set_property (GObject      *gobject,
       self->long_press_duration = g_value_get_int (value);
       break;
 
-    case PROP_FONTCONFIG_TIMESTAMP:
-      settings_update_fontmap (self, g_value_get_uint (value));
-      break;
-
     case PROP_PASSWORD_HINT_TIME:
       self->password_hint_time = g_value_get_uint (value);
       break;
@@ -899,12 +846,6 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                       G_PARAM_READWRITE |
                       G_PARAM_STATIC_STRINGS);
 
-  obj_props[PROP_FONTCONFIG_TIMESTAMP] =
-    g_param_spec_uint ("fontconfig-timestamp", NULL, NULL,
-                       0, G_MAXUINT,
-                       0,
-                       G_PARAM_WRITABLE |
-                       G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterText:password-hint-time:
