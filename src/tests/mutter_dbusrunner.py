@@ -298,6 +298,10 @@ def meta_run(klass):
     else:
         print('WARNING: Command or separator `--` not found', file=sys.stderr)
 
+    launch = os.getenv('MUTTER_DBUS_RUNNER_LAUNCH')
+    if launch:
+        args.launch.append(launch.split(','))
+
     if args.no_isolate_dirs:
         return meta_run_klass(klass, args, rest)
 

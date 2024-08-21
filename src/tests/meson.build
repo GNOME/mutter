@@ -370,6 +370,7 @@ test_cases += [
     'depends': [
       screen_cast_client,
     ],
+    'launch': [ 'pipewire', 'wireplumber' ],
   },
   {
     'name': 'pointer-constraints',
@@ -682,9 +683,19 @@ foreach test_case: test_cases
 
   test_depends = [ default_plugin ] + test_case.get('depends', [])
 
+  test_case_env = environment()
+  test_case_env_variables = test_env_variables
+  test_case_env_variables += {
+    'MUTTER_DBUS_RUNNER_LAUNCH': ','.join(test_case.get('launch', []))
+  }
+
+  foreach name, value: test_case_env_variables
+    test_case_env.set(name, value)
+  endforeach
+
   test(test_case['name'], test_executable,
     suite: ['core', 'mutter/' + test_case['suite']],
-    env: test_env,
+    env: test_case_env,
     depends: test_depends,
     is_parallel: false,
     timeout: 60,
