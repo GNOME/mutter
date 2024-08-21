@@ -1,11 +1,26 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 
 sys.path.insert(1, '@tests_datadir@')
 
 from mutter_dbusrunner import MutterDBusRunner, meta_run
 
+def add_extra_args(parser):
+    parser.add_argument('--compile-schemas', action='store_true', default=[])
+
+def handle_extra_args(args):
+    if args.compile_schemas:
+        print('Compiling schemas in @tests_datadir@')
+        os.system('glib-compile-schemas @tests_datadir@')
+
 if __name__ == '__main__':
-    result = meta_run(MutterDBusRunner)
+    extra_env = {}
+    extra_env['GSETTINGS_SCHEMA_DIR'] = '@tests_datadir@'
+
+    result = meta_run(MutterDBusRunner,
+                      extra_env=extra_env,
+                      setup_argparse=add_extra_args,
+                      handle_argparse=handle_extra_args)
     sys.exit(result)
