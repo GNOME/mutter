@@ -71,7 +71,6 @@ main (int argc, char **argv)
   clutter_actor_set_size (stage, 512, 512);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
                                       &COGL_COLOR_INIT (0, 0, 0, 255));
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Picking");
 
   printf ("Picking performance test with "
           "%d actors and %d events per frame\n",

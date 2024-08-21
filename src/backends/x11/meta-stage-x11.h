@@ -58,8 +58,6 @@ struct _MetaStageX11
 
   CoglFrameClosure *frame_closure;
 
-  gchar *title;
-
   guint clipped_redraws_cool_off;
 
   MetaStageX11State wm_state;

@@ -92,7 +92,7 @@ my_thing_set_property (GObject      *gobject,
       break;
     }
 
-  /* setting spacing or padding queues a relayout 
+  /* setting spacing or padding queues a relayout
      because they are supposed to change the internal
      allocation of children */
   if (needs_relayout)
@@ -292,9 +292,9 @@ my_thing_allocate (ClutterActor           *self,
   current_y = priv->padding;
   max_row_height = 0;
 
-  /* The allocation logic here is to horizontally place children 
-   * side-by-side and reflow into a new row when we run out of 
-   * space 
+  /* The allocation logic here is to horizontally place children
+   * side-by-side and reflow into a new row when we run out of
+   * space
    */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
@@ -358,8 +358,8 @@ my_thing_allocate (ClutterActor           *self,
         }
 
       /* Record the maximum child height on current row to know
-       * what's the increment that should be used for the next  
-       * row 
+       * what's the increment that should be used for the next
+       * row
        */
       if (natural_height > max_row_height)
         max_row_height = natural_height;
@@ -441,7 +441,7 @@ toggle_property_value (ClutterActor *actor,
 }
 
 static void
-increase_property_value (ClutterActor *actor, 
+increase_property_value (ClutterActor *actor,
                          const char   *property_name)
 {
   gfloat value;
@@ -454,7 +454,7 @@ increase_property_value (ClutterActor *actor,
 }
 
 static void
-decrease_property_value (ClutterActor *actor, 
+decrease_property_value (ClutterActor *actor,
                          const char   *property_name)
 {
   gfloat value;
@@ -470,9 +470,9 @@ static ClutterActor *
 create_item (void)
 {
   ClutterActor *clone = clutter_clone_new (icon);
-  
+
   gint32 size = g_random_int_range (MIN_SIZE, MAX_SIZE);
-  
+
   clutter_actor_set_size (clone, size, size);
   clutter_actor_animate_with_timeline (clone, CLUTTER_EASE_OUT_CUBIC,
                                        main_timeline,
@@ -498,7 +498,7 @@ keypress_cb (ClutterActor *actor,
       {
         if (icon != NULL)
           {
-            ClutterActor *clone = create_item (); 
+            ClutterActor *clone = create_item ();
 
             /* Add one item to container */
             clutter_actor_add_child (box, clone);
@@ -597,7 +597,6 @@ test_layout_main (int argc, char *argv[])
 
   stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, 800, 600);
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Layout");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   main_timeline = clutter_timeline_new_for_actor (stage, 2000);
@@ -631,7 +630,7 @@ test_layout_main (int argc, char *argv[])
 
   for (i = 1; i < 33; i++)
     {
-      ClutterActor *clone = create_item (); 
+      ClutterActor *clone = create_item ();
 
       clutter_actor_add_child (box, clone);
     }

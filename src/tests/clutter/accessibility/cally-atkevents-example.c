@@ -170,14 +170,12 @@ main (int argc, char *argv[])
   atk_add_global_event_listener (window_event_listener, "Atk:AtkWindow:deactivate");
 
   stage_main = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage_main), "Cally - AtkEvents/1");
   g_signal_connect (stage_main, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   make_ui (stage_main);
 
   clutter_actor_show (stage_main);
 
   stage = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkEvents/2");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   make_ui (stage);

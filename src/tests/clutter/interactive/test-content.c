@@ -182,7 +182,6 @@ test_content_main (int argc, char *argv[])
 
   stage = clutter_test_get_stage ();
   clutter_actor_set_name (stage, "Stage");
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Content");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   clutter_actor_show (stage);
 

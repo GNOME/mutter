@@ -167,7 +167,6 @@ make_ui (ClutterActor *stage)
 {
   ClutterActor *button      = NULL;
 
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkEditable Test");
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
                                       &COGL_COLOR_INIT (255, 255, 255, 255));
   clutter_actor_set_size (stage, WIDTH, HEIGHT);

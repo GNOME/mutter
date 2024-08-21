@@ -23,9 +23,6 @@ struct _ClutterStageWindowInterface
   /*< private >*/
   GTypeInterface parent_iface;
 
-  void              (* set_title)               (ClutterStageWindow *stage_window,
-                                                 const gchar        *title);
-
   gboolean          (* realize)                 (ClutterStageWindow *stage_window);
   void              (* unrealize)               (ClutterStageWindow *stage_window);
 

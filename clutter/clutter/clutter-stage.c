@@ -117,7 +117,6 @@ typedef struct _ClutterStagePrivate
   graphene_matrix_t view;
   float viewport[4];
 
-  gchar *title;
   ClutterActor *key_focused_actor;
 
   ClutterGrab *topmost_grab;
@@ -147,7 +146,6 @@ enum
   PROP_0,
 
   PROP_PERSPECTIVE,
-  PROP_TITLE,
   PROP_KEY_FOCUS,
   PROP_IS_GRABBED,
 
@@ -1235,7 +1233,6 @@ clutter_stage_constructed (GObject *gobject)
   clutter_stage_queue_actor_relayout (self, CLUTTER_ACTOR (self));
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
-  clutter_stage_set_title (self, g_get_prgname ());
   clutter_stage_set_key_focus (self, NULL);
   clutter_stage_set_viewport (self, geom.width, geom.height);
 
@@ -1262,9 +1259,6 @@ clutter_stage_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_TITLE:
-      clutter_stage_set_title (stage, g_value_get_string (value));
-      break;
 
     case PROP_KEY_FOCUS:
       clutter_stage_set_key_focus (stage, g_value_get_object (value));
@@ -1289,10 +1283,6 @@ clutter_stage_get_property (GObject    *gobject,
     {
     case PROP_PERSPECTIVE:
       g_value_set_boxed (value, &priv->perspective);
-      break;
-
-    case PROP_TITLE:
-      g_value_set_string (value, priv->title);
       break;
 
     case PROP_KEY_FOCUS:
@@ -1368,8 +1358,6 @@ clutter_stage_finalize (GObject *object)
 
   g_hash_table_destroy (priv->pointer_devices);
   g_hash_table_destroy (priv->touch_sequences);
-
-  g_free (priv->title);
 
   G_OBJECT_CLASS (clutter_stage_parent_class)->finalize (object);
 }
@@ -1467,18 +1455,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                           G_PARAM_READABLE |
                           G_PARAM_STATIC_STRINGS |
                           G_PARAM_EXPLICIT_NOTIFY);
-
-  /**
-   * ClutterStage:title:
-   *
-   * The stage's title - usually displayed in stage windows title decorations.
-   */
-  obj_props[PROP_TITLE] =
-      g_param_spec_string ("title", NULL, NULL,
-                           NULL,
-                           G_PARAM_READWRITE |
-                           G_PARAM_STATIC_STRINGS |
-                           G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterStage:key-focus:
@@ -2026,55 +2002,6 @@ clutter_stage_get_actor_at_pos (ClutterStage    *stage,
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 
   return _clutter_stage_do_pick (stage, x, y, pick_mode, NULL);
-}
-
-/**
- * clutter_stage_set_title:
- * @stage: A #ClutterStage
- * @title: A utf8 string for the stage windows title.
- *
- * Sets the stage title.
- **/
-void
-clutter_stage_set_title (ClutterStage       *stage,
-			 const gchar        *title)
-{
-  ClutterStagePrivate *priv;
-  ClutterStageWindow *impl;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = clutter_stage_get_instance_private (stage);
-
-  g_free (priv->title);
-  priv->title = g_strdup (title);
-
-  impl = CLUTTER_STAGE_WINDOW (priv->impl);
-  if (CLUTTER_STAGE_WINDOW_GET_IFACE(impl)->set_title != NULL)
-    CLUTTER_STAGE_WINDOW_GET_IFACE (impl)->set_title (impl, priv->title);
-
-  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_TITLE]);
-}
-
-/**
- * clutter_stage_get_title:
- * @stage: A #ClutterStage
- *
- * Gets the stage title.
- *
- * Return value: pointer to the title string for the stage. The
- * returned string is owned by the actor and should not
- * be modified or freed.
- **/
-const gchar *
-clutter_stage_get_title (ClutterStage       *stage)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
-
-  priv = clutter_stage_get_instance_private (stage);
-  return priv->title;
 }
 
 /**

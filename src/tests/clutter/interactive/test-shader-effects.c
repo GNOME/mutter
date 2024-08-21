@@ -22,7 +22,6 @@ test_shader_effects_main (int argc, char *argv[])
   clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Rotations");
   clutter_actor_set_background_color (stage, &COGL_COLOR_INIT (186, 189, 182, 255));
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 

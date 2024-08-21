@@ -324,7 +324,6 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   actor = g_object_new (CLUTTER_TYPE_TEST_ACTOR, NULL);
   clutter_actor_add_child (stage, actor);
 
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Assembly Shader Test");
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);

@@ -91,7 +91,6 @@ main (int argc, char *argv[])
   clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Random Text");
 
   clutter_actor_show (stage);
 

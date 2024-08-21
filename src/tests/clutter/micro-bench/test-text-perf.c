@@ -135,7 +135,6 @@ main (int argc, char *argv[])
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
                                       &COGL_COLOR_INIT (0, 0, 0, 255));
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Performance");
 
   g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 

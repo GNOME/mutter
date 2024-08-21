@@ -154,7 +154,6 @@ test_cogl_tex_tile_main (int argc, char *argv[])
   /* Stage */
   stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, 400, 400);
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Cogl Texture Tiling");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   /* Cogl Box */

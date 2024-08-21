@@ -226,27 +226,19 @@ set_wm_title (MetaStageX11 *stage_x11)
   MetaClutterBackendX11 *clutter_backend_x11 =
     clutter_backend_x11_from_stage (stage_x11);
   Display *xdisplay = xdisplay_from_stage (stage_x11);
+  const char *title = g_get_prgname ();
 
-  if (stage_x11->xwin == None)
+  if (stage_x11->xwin == None || title == NULL)
     return;
 
-  if (stage_x11->title == NULL)
-    {
-      XDeleteProperty (xdisplay,
-                       stage_x11->xwin,
-                       clutter_backend_x11->atom_NET_WM_NAME);
-    }
-  else
-    {
-      XChangeProperty (xdisplay,
-                       stage_x11->xwin,
-                       clutter_backend_x11->atom_NET_WM_NAME,
-                       clutter_backend_x11->atom_UTF8_STRING,
-                       8,
-                       PropModeReplace,
-                       (unsigned char *) stage_x11->title,
-                       (int) strlen (stage_x11->title));
-    }
+  XChangeProperty (xdisplay,
+                   stage_x11->xwin,
+                   clutter_backend_x11->atom_NET_WM_NAME,
+                   clutter_backend_x11->atom_UTF8_STRING,
+                   8,
+                   PropModeReplace,
+                   (unsigned char *) title,
+                   (int) strlen (title));
 }
 
 static void
@@ -385,17 +377,6 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   return TRUE;
 }
 
-static void
-meta_stage_x11_set_title (ClutterStageWindow *stage_window,
-                          const char         *title)
-{
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-
-  g_free (stage_x11->title);
-  stage_x11->title = g_strdup (title);
-  set_wm_title (stage_x11);
-}
-
 static inline void
 update_wm_hints (MetaStageX11 *stage_x11)
 {
@@ -514,21 +495,8 @@ meta_stage_x11_redraw_view (ClutterStageWindow *stage_window,
 }
 
 static void
-meta_stage_x11_finalize (GObject *object)
-{
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (object);
-
-  g_free (stage_x11->title);
-
-  G_OBJECT_CLASS (meta_stage_x11_parent_class)->finalize (object);
-}
-
-static void
 meta_stage_x11_class_init (MetaStageX11Class *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->finalize = meta_stage_x11_finalize;
 }
 
 static void
@@ -539,8 +507,6 @@ meta_stage_x11_init (MetaStageX11 *stage)
   stage->xwin_height = 480;
 
   stage->wm_state = STAGE_X11_WITHDRAWN;
-
-  stage->title = NULL;
 }
 
 static void
@@ -548,7 +514,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
 {
   clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
 
-  iface->set_title = meta_stage_x11_set_title;
   iface->show = meta_stage_x11_show;
   iface->hide = meta_stage_x11_hide;
   iface->resize = meta_stage_x11_resize;

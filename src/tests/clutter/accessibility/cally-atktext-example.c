@@ -235,7 +235,6 @@ main (int argc, char *argv[])
   cally_util_a11y_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkText Test");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   make_ui (stage);

@@ -70,7 +70,6 @@ test_rotate_zoom_main (int argc, char *argv[])
   /* create a resizable stage */
   stage = clutter_test_get_stage ();
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Rotate and Zoom actions");
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_reactive (stage, FALSE);
   clutter_actor_show (stage);

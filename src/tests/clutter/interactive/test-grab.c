@@ -214,7 +214,6 @@ test_grab_main (int argc, char *argv[])
   g_print ("Cyan  box:  toggle grab (from cyan box) for keyboard events.\n\n");
 
   stage = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Grabs");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   g_signal_connect (stage, "event",
                     G_CALLBACK (debug_event_cb), (char *) "stage");

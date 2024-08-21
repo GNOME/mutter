@@ -261,7 +261,6 @@ test_binding_pool_main (int argc, char *argv[])
   clutter_test_init (&argc, &argv);
 
   stage = clutter_test_get_stage ();
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Key Binding Pool");
   g_signal_connect (stage,
                     "button-press-event", G_CALLBACK (clutter_test_quit),
                     NULL);

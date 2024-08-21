@@ -159,8 +159,6 @@ test_actors_main (int argc, char *argv[])
   clutter_actor_set_background_color (oh->stage, &COGL_COLOR_INIT (114, 159, 207, 255));
   g_signal_connect (oh->stage, "destroy", G_CALLBACK (stop_and_quit), oh);
 
-  clutter_stage_set_title (CLUTTER_STAGE (oh->stage), "Actors");
-
   /* Create a timeline to manage animation */
   oh->timeline = clutter_timeline_new_for_actor (oh->stage, 6000);
   clutter_timeline_set_repeat_count (oh->timeline, -1);

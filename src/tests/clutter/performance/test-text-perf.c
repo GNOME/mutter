@@ -109,7 +109,6 @@ main (int argc, char *argv[])
   stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Performance");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   label = create_label ();

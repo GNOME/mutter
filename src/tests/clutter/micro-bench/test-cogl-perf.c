@@ -140,7 +140,6 @@ main (int argc, char *argv[])
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
                                       &COGL_COLOR_INIT (255, 255, 255, 255));
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Cogl Performance Test");
 
   /* We want continuous redrawing of the stage... */
   clutter_threads_add_idle (queue_redraw, stage);

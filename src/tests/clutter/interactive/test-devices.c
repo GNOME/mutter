@@ -171,7 +171,6 @@ test_devices_main (int argc, char **argv)
 
   stage = clutter_test_get_stage ();
   clutter_actor_set_background_color (stage, &COGL_COLOR_INIT (114, 159, 207, 255));
-  clutter_stage_set_title (CLUTTER_STAGE (stage), "Devices");
   g_signal_connect (stage,
                     "destroy", G_CALLBACK (clutter_test_quit),
                     NULL);
