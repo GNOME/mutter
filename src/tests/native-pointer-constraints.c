@@ -24,8 +24,6 @@
 #include "meta-test/meta-context-test.h"
 #include "meta/meta-backend.h"
 #include "tests/meta-test-utils.h"
-#include "tests/native-screen-cast.h"
-#include "tests/native-virtual-monitor.h"
 
 static MetaContext *test_context;
 

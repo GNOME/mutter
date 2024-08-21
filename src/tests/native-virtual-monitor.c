@@ -18,14 +18,13 @@
 
 #include "config.h"
 
-#include "tests/native-virtual-monitor.h"
-
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-renderer-native.h"
 #include "tests/meta-ref-test.h"
+#include "tests/meta-test/meta-context-test.h"
 
 static MetaContext *test_context;
 
@@ -127,11 +126,27 @@ meta_test_virtual_monitor_create (void)
   clutter_actor_destroy (actor);
 }
 
-void
-init_virtual_monitor_tests (MetaContext *context)
+static void
+init_tests (MetaContext *context)
 {
   test_context = context;
 
   g_test_add_func ("/backends/native/virtual-monitor/create",
                    meta_test_virtual_monitor_create);
+}
+
+int
+main (int    argc,
+      char **argv)
+{
+  g_autoptr (MetaContext) context = NULL;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  init_tests (context);
+
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                      META_TEST_RUN_FLAG_NONE);
 }

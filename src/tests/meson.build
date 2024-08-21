@@ -353,20 +353,29 @@ test_cases += [
     'sources': [ 'kms-utils-unit-tests.c', ],
   },
   {
-    'name': 'native-unit',
+    'name': 'native-virtual-monitor',
     'suite': 'backends/native',
     'sources': [
-      'native-headless.c',
-      'native-screen-cast.c',
-      'native-screen-cast.h',
       'native-virtual-monitor.c',
-      'native-virtual-monitor.h',
-      'native-bezier-tests.c',
+    ],
+  },
+  {
+    'name': 'native-screen-cast',
+    'suite': 'backends/native',
+    'sources': [
+      'native-screen-cast.c',
     ],
     'depends': [
       screen_cast_client,
     ],
     'launch': [ 'pipewire', 'wireplumber' ],
+  },
+  {
+    'name': 'bezier',
+    'suite': 'backends/native',
+    'sources': [
+      'native-bezier-tests.c',
+    ],
   },
   {
     'name': 'pointer-constraints',

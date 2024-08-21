@@ -31,8 +31,6 @@
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
-#include "tests/native-screen-cast.h"
-#include "tests/native-virtual-monitor.h"
 #include "wayland/meta-cursor-sprite-wayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"

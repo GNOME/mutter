@@ -18,9 +18,8 @@
 
 #include "config.h"
 
-#include "native-bezier-tests.h"
-
 #include "backends/native/meta-bezier.h"
+#include "tests/meta-test/meta-context-test.h"
 
 static void
 meta_test_bezier_linear (void)
@@ -116,8 +115,8 @@ meta_test_bezier_snake (void)
     }
 }
 
-void
-init_bezier_tests (void)
+static void
+init_tests (void)
 {
   g_test_add_func ("/backends/bezier/linear", meta_test_bezier_linear);
   g_test_add_func ("/backends/bezier/steep", meta_test_bezier_steep);
@@ -125,3 +124,18 @@ init_bezier_tests (void)
   g_test_add_func ("/backends/bezier/snake", meta_test_bezier_snake);
 }
 
+int
+main (int    argc,
+      char **argv)
+{
+  g_autoptr (MetaContext) context = NULL;
+
+  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
+                                      META_CONTEXT_TEST_FLAG_NO_X11);
+  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+
+  init_tests ();
+
+  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                      META_TEST_RUN_FLAG_NONE);
+}
