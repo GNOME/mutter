@@ -55,8 +55,6 @@ meta_test_screen_cast_record_virtual (void)
   meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
 
   test_client_path = g_test_build_filename (G_TEST_BUILT,
-                                            "src",
-                                            "tests",
                                             "mutter-screen-cast-client",
                                             NULL);
   g_subprocess_launcher_setenv (launcher,

@@ -142,7 +142,7 @@ test_env = environment()
 
 test_env_variables = {
   'G_TEST_SRCDIR': mutter_srcdir / 'src',
-  'G_TEST_BUILDDIR': mutter_builddir,
+  'G_TEST_BUILDDIR': mutter_builddir / 'src' / 'tests',
   'XDG_CONFIG_HOME': mutter_builddir / '.config',
   'MUTTER_TEST_PLUGIN_PATH': '@0@'.format(default_plugin.full_path()),
   'MUTTER_REF_TEST_RESULT_DIR': mutter_builddir / 'meson-logs' / 'tests' / 'ref-tests',

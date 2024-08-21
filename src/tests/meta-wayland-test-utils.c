@@ -35,8 +35,6 @@ static char *
 get_test_client_path (const char *test_client_name)
 {
   return g_test_build_filename (G_TEST_BUILT,
-                                "src",
-                                "tests",
                                 "wayland-test-clients",
                                 test_client_name,
                                 NULL);

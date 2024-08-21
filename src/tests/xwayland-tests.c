@@ -283,8 +283,6 @@ meta_test_xwayland_compositor_selection (void)
                                 TRUE);
 
   x11_compositor_checker = g_test_build_filename (G_TEST_BUILT,
-                                                  "src",
-                                                  "tests",
                                                   "x11-compositor-checker",
                                                   NULL);
 

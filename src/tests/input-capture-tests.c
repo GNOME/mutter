@@ -50,8 +50,6 @@ input_capture_test_client_new (const char *test_case)
   GDataOutputStream *line_writer;
 
   test_client_path = g_test_build_filename (G_TEST_BUILT,
-                                            "src",
-                                            "tests",
                                             "mutter-input-capture-test-client",
                                             NULL);
   launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
