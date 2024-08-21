@@ -531,6 +531,7 @@ meta_ref_test_verify_view (ClutterStageView *view,
           g_autofree char *ref_image_copy_path = NULL;
           g_autofree char *result_image_path = NULL;
           g_autofree char *diff_image_path = NULL;
+          int ret;
 
           diff_image = visualize_difference (ref_image, view_image,
                                              &gl_fuzz);
@@ -550,7 +551,13 @@ meta_ref_test_verify_view (ClutterStageView *view,
                              ref_test_result_dir,
                              test_name, test_seq_no);
 
-          g_mkdir_with_parents (ref_test_result_dir, 0755);
+          ret = g_mkdir_with_parents (ref_test_result_dir, 0755);
+          if (ret == -1)
+            {
+              g_error ("Failed to create directory %s: %s",
+                       ref_test_result_dir,
+                       g_strerror (errno));
+            }
 
           g_assert_cmpint (cairo_surface_write_to_png (ref_image,
                                                        ref_image_copy_path),
