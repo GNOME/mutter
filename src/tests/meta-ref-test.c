@@ -527,7 +527,7 @@ meta_ref_test_verify_view (ClutterStageView *view,
                            &diff_stat))
         {
           cairo_surface_t *diff_image;
-          const char *build_dir;
+          const char *ref_test_result_dir;
           g_autofree char *ref_image_copy_path = NULL;
           g_autofree char *result_image_path = NULL;
           g_autofree char *diff_image_path = NULL;
@@ -535,22 +535,22 @@ meta_ref_test_verify_view (ClutterStageView *view,
           diff_image = visualize_difference (ref_image, view_image,
                                              &gl_fuzz);
 
-          build_dir = g_test_get_dir (G_TEST_BUILT);
+          ref_test_result_dir = g_getenv ("MUTTER_REF_TEST_RESULT_DIR");
+          g_assert_nonnull (ref_test_result_dir);
           ref_image_copy_path =
-            g_strdup_printf ("%s/meson-logs/tests/ref-tests/%s_%d.ref.png",
-                             build_dir,
+            g_strdup_printf ("%s/%s_%d.ref.png",
+                             ref_test_result_dir,
                              test_name, test_seq_no);
           result_image_path =
-            g_strdup_printf ("%s/meson-logs/tests/ref-tests/%s_%d.result.png",
-                             build_dir,
+            g_strdup_printf ("%s/%s_%d.result.png",
+                             ref_test_result_dir,
                              test_name, test_seq_no);
           diff_image_path =
-            g_strdup_printf ("%s/meson-logs/tests/ref-tests/%s_%d.diff.png",
-                             build_dir,
+            g_strdup_printf ("%s/%s_%d.diff.png",
+                             ref_test_result_dir,
                              test_name, test_seq_no);
 
-          g_mkdir_with_parents (g_path_get_dirname (ref_image_copy_path),
-                                0755);
+          g_mkdir_with_parents (ref_test_result_dir, 0755);
 
           g_assert_cmpint (cairo_surface_write_to_png (ref_image,
                                                        ref_image_copy_path),
