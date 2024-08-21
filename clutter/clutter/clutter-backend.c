@@ -312,7 +312,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
     g_signal_new (I_("font-changed"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterBackendClass, font_changed),
+                  0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
@@ -327,7 +327,7 @@ clutter_backend_class_init (ClutterBackendClass *klass)
     g_signal_new (I_("settings-changed"),
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterBackendClass, settings_changed),
+                  0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 

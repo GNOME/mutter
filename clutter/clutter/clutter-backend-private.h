@@ -78,8 +78,6 @@ struct _ClutterBackendClass
 
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
-  void (* font_changed)       (ClutterBackend *backend);
-  void (* settings_changed)   (ClutterBackend *backend);
 };
 
 ClutterStageWindow *    _clutter_backend_create_stage                   (ClutterBackend         *backend,
