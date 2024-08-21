@@ -424,16 +424,6 @@ if have_tests
       have_x11_tests = true
     endif
   endif
-
-  add_test_setup('CI',
-    env: [
-      'MUTTER_DEBUG_DUMMY_MODE_SPECS=800x600@10.0',
-    ],
-    exe_wrapper: [
-      default_test_wrappers,
-    ],
-    timeout_multiplier: 10,
-  )
 endif
 
 have_profiler = get_option('profiler')
