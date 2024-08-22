@@ -227,7 +227,7 @@ option('catch',
 
 option('libdisplay_info',
   type: 'feature',
-  value: 'auto',
+  value: 'enabled',
   deprecated: {'true': 'enabled', 'false': 'disabled'},
   description: 'Build with or without libdisplay-info'
 )
