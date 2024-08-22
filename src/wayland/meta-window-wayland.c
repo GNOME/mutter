@@ -1342,10 +1342,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
       meta_window_actor_set_tied_to_drag (window_actor, TRUE);
     }
 
-  meta_window_move_resize_internal (window,
-                                    flags,
-                                    META_PLACE_FLAG_NONE,
-                                    rect);
+  meta_window_move_resize (window, flags, rect);
 }
 
 void

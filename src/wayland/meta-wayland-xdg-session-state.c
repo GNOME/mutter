@@ -425,13 +425,12 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
 
   if (rect)
     {
-      meta_window_move_resize_internal (window,
-                                        (META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE |
-                                         META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE |
-                                         META_MOVE_RESIZE_MOVE_ACTION |
-                                         META_MOVE_RESIZE_RESIZE_ACTION),
-                                        META_PLACE_FLAG_NONE,
-                                        *rect);
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE |
+                                META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE |
+                                META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION),
+                               *rect);
     }
 
   window->placed = TRUE;
