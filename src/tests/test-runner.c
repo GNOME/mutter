@@ -1400,6 +1400,86 @@ test_case_do (TestCase    *test,
       if (!test_case_assert_focused (test, argv[1], error))
         return FALSE;
     }
+  else if (strcmp (argv[0], "wait_focused") == 0)
+    {
+      MetaDisplay *display = meta_context_get_display (test->context);
+      MetaWindow *old_focus;
+      const char *expected_window;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>|none", argv[0]);
+
+      expected_window  = argv[1];
+      old_focus = display->focus_window;
+
+      if (g_strcmp0 (expected_window, "none") == 0)
+        {
+          while (TRUE)
+            {
+              if (display->focus_window &&
+                  display->focus_window != old_focus)
+                {
+                  const char *focused = display->focus_window->title;
+
+                  if (g_str_has_prefix (focused, "test/"))
+                    focused += 5;
+
+                  g_set_error (error,
+                               META_TEST_CLIENT_ERROR,
+                               META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                               "focus: expected='none', actual='%s'",
+                               focused);
+                  return FALSE;
+                }
+              else if (!display->focus_window)
+                {
+                  break;
+                }
+
+              g_main_context_iteration (NULL, TRUE);
+            }
+        }
+      else
+        {
+          while (TRUE)
+            {
+              if (display->focus_window != old_focus &&
+                  !display->focus_window)
+                {
+                  g_set_error (error,
+                               META_TEST_CLIENT_ERROR,
+                               META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                               "focus: expected='%s', actual='none'",
+                               expected_window);
+                  return FALSE;
+                }
+              else if (display->focus_window)
+                {
+                  const char *focused;
+
+                  focused = display->focus_window->title;
+                  if (g_str_has_prefix (focused, "test/"))
+                    focused += 5;
+
+                  if (g_strcmp0 (focused, expected_window) == 0)
+                    {
+                      break;
+                    }
+                  else if (old_focus != display->focus_window)
+                    {
+                      g_set_error (error,
+                                   META_TEST_CLIENT_ERROR,
+                                   META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                                   "focus: expected='%s', actual='%s'",
+                                   expected_window, focused);
+                      return FALSE;
+                    }
+                }
+
+              g_main_context_iteration (NULL, TRUE);
+            }
+        }
+    }
   else if (strcmp (argv[0], "assert_size") == 0)
     {
       MetaWindow *window;
