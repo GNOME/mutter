@@ -346,7 +346,7 @@ int main (int argc, char ** argv) {
 }
 ''', name : 'timerfd_create(2) system call')
 
-have_malloc_trim = meson.get_compiler('c').has_function('malloc_trim')
+have_malloc_trim = cc.has_function('malloc_trim')
 
 have_documentation = get_option('docs')
 have_tests = get_option('tests').enable_auto_if(have_native_backend).enabled()
