@@ -30,8 +30,5 @@ wait
 assert_focused 2/1
 assert_stacking 1/1 1/2 2/1
 
-sleep 250
-wait
-
-assert_focused 2/1
+wait_focused 2/1
 assert_stacking 1/1 1/2 2/1
