@@ -96,7 +96,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 40
-    BASE_TAG: '2024-08-15.1'
+    BASE_TAG: '2024-08-22.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       asciidoc
@@ -113,6 +113,7 @@ variables:
       busybox
       zenity
       python3-dbusmock
+      gnome-desktop-testing
       "pkgconfig(libgcrypt)"
       "pkgconfig(libdisplay-info)"
 
@@ -728,6 +729,39 @@ dist-mutter:
     when: always
     paths:
       - build/meson-private/dist-build/meson-logs
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
+      when: manual
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+        - "**/meson.build"
+        - meson/*
+      when: on_success
+    - if: '$GITLAB_USER_LOGIN == "marge-bot"'
+      when: on_success
+    - if: '$CI_MERGE_REQUEST_ASSIGNEES == "marge-bot"'
+      when: on_success
+
+installed-tests-mutter@x86_64:
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora@x86_64
+    - .build-mutter-base
+    - .test-setup
+  stage: deploy
+  needs:
+    - build-mutter@x86_64
+  script:
+    - meson install -C build --no-rebuild
+    - mkdir -m 1777 /tmp/.X11-unix
+    - mkdir installed-tests-logs
+    - gnome-desktop-testing-runner -L installed-tests-logs mutter
+  artifacts:
+    expire_in: 7 day
+    name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: always
+    paths:
+      - installed-tests-logs
   rules:
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: manual
