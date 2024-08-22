@@ -1088,11 +1088,10 @@ process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
                                                    gravity,
                                                    flags);
 
-      meta_window_resize_frame_with_gravity (window,
-                                             TRUE,
-                                             width,
-                                             height,
-                                             gravity);
+      meta_window_resize_frame (window,
+				TRUE,
+				width,
+				height);
 
       update_keyboard_resize (window_drag, FALSE);
     }
@@ -1553,9 +1552,8 @@ update_resize (MetaWindowDrag          *window_drag,
                                                gravity,
                                                flags);
 
-  meta_window_resize_frame_with_gravity (window, TRUE,
-                                         new_rect.width, new_rect.height,
-                                         gravity);
+  meta_window_resize_frame (window, TRUE,
+			    new_rect.width, new_rect.height);
 }
 
 static gboolean

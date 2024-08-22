@@ -660,11 +660,10 @@ gboolean    meta_window_has_fullscreen_monitors (MetaWindow *window);
 void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
                                                         MtkRectangle  *monitor_rect);
 
-void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
-                                                   gboolean     user_op,
-                                                   int          w,
-                                                   int          h,
-                                                   MetaGravity  gravity);
+void        meta_window_resize_frame (MetaWindow  *window,
+                                      gboolean     user_op,
+                                      int          w,
+                                      int          h);
 
 gboolean    meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                                         MetaWorkspace *workspace);
