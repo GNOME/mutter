@@ -178,6 +178,11 @@ static void set_hidden_suspended_state (MetaWindow *window);
 
 static void initable_iface_init (GInitableIface *initable_iface);
 
+static void meta_window_move_resize_internal (MetaWindow          *window,
+                                              MetaMoveResizeFlags  flags,
+                                              MetaPlaceFlag        place_flags,
+                                              MtkRectangle         frame_rect);
+
 typedef struct _MetaWindowPrivate
 {
   MetaQueueType queued_types;
@@ -3972,7 +3977,7 @@ meta_window_update_monitor (MetaWindow                   *window,
     g_signal_emit (window, window_signals[HIGHEST_SCALE_MONITOR_CHANGED], 0);
 }
 
-void
+static void
 meta_window_move_resize_internal (MetaWindow          *window,
                                   MetaMoveResizeFlags  flags,
                                   MetaPlaceFlag        place_flags,

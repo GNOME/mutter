@@ -791,11 +791,6 @@ void meta_window_update_monitor (MetaWindow                   *window,
 void meta_window_set_urgent (MetaWindow *window,
                              gboolean    urgent);
 
-void meta_window_move_resize_internal (MetaWindow          *window,
-                                       MetaMoveResizeFlags  flags,
-                                       MetaPlaceFlag        place_flags,
-                                       MtkRectangle         frame_rect);
-
 void meta_window_move_resize (MetaWindow          *window,
                               MetaMoveResizeFlags  flags,
                               MtkRectangle         frame_rect);
