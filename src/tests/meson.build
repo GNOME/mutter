@@ -303,6 +303,9 @@ test_cases += [
     'name': 'keybindings',
     'suite': 'input',
     'sources': [ 'keybindings.c' ],
+    'installed_runner_args': [
+      '--compile-schemas',
+    ],
   },
 ]
 
@@ -911,4 +914,43 @@ if have_installed_tests
       install_dir: mutter_installed_tests_datadir,
     )
   endforeach
+
+  install_subdir('monitor-configs', install_dir: tests_datadir)
+  install_subdir('migration', install_dir: tests_datadir)
+  install_subdir('ref-tests', install_dir: tests_datadir)
+  install_subdir('icc-profiles', install_dir: tests_datadir)
+
+  install_data('org.gnome.mutter.test.gschema.xml', install_dir: tests_datadir)
+
+  foreach test_case: test_cases
+    if test_case.has_key('installed_runner_args')
+      runner_args = test_case['installed_runner_args']
+    else
+      runner_args = []
+    endif
+
+    if test_case.has_key('launch')
+      foreach service: test_case['launch']
+        runner_args += '--launch=@0@'.format(service)
+      endforeach
+    endif
+
+    installed_tests_cdata = configuration_data()
+    installed_tests_cdata.set('apiversion', libmutter_api_version)
+    installed_tests_cdata.set('libexecdir', libexecdir)
+    installed_tests_cdata.set('pkgdatadir', pkgdatadir)
+    installed_tests_cdata.set('reftestresultdir', '/tmp/mutter-ref-test-results')
+    installed_tests_cdata.set('testname', test_case['name'])
+    installed_tests_cdata.set('testexecutable', 'mutter-' + test_case['name'])
+    installed_tests_cdata.set('runnerargs', ' '.join(runner_args))
+
+    configure_file(
+      input: 'generic.test.in',
+      output: test_case['name'] + '.test',
+      configuration: installed_tests_cdata,
+      install: true,
+      install_dir: mutter_installed_tests_datadir,
+    )
+  endforeach
+
 endif

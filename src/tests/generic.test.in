@@ -1,0 +1,5 @@
+[Test]
+Description=Mutter test: @testname@
+Exec=sh -ec 'env G_TEST_SRCDIR=@pkgdatadir@ G_TEST_BUILDDIR=@libexecdir@/installed-tests/mutter-@apiversion@ MUTTER_REF_TEST_RESULT_DIR=@reftestresultdir@ @libexecdir@/installed-tests/mutter-@apiversion@/mutter-installed-dbus-session.py @runnerargs@ -- @libexecdir@/installed-tests/mutter-@apiversion@/@testexecutable@'
+Type=session
+Output=TAP
