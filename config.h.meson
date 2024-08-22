@@ -48,6 +48,9 @@
 /* Building with libwacom for advanced tablet management */
 #mesondefine HAVE_LIBWACOM
 
+/* libwacom has get_num_rings() */
+#mesondefine HAVE_LIBWACOM_GET_NUM_RINGS
+
 /* Building with libsystemd */
 #mesondefine HAVE_LIBSYSTEMD
 

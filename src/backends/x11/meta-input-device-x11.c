@@ -195,6 +195,20 @@ meta_input_device_x11_get_property (GObject    *object,
     }
 }
 
+#ifndef HAVE_LIBWACOM_GET_NUM_RINGS
+static int
+libwacom_get_num_rings (WacomDevice *device)
+{
+  if (libwacom_has_ring2 (device))
+    return 2;
+
+  if (libwacom_has_ring (device))
+    return 1;
+
+  return 0;
+}
+#endif
+
 static int
 meta_input_device_x11_get_group_n_modes (ClutterInputDevice *device,
                                          int                 group)
@@ -208,14 +222,14 @@ meta_input_device_x11_get_group_n_modes (ClutterInputDevice *device,
     {
       if (group == 0)
         {
-          if (libwacom_has_ring (wacom_device))
+          if (libwacom_get_num_rings (wacom_device) >= 1)
             return libwacom_get_ring_num_modes (wacom_device);
           else if (libwacom_get_num_strips (wacom_device) >= 1)
             return libwacom_get_strips_num_modes (wacom_device);
         }
       else if (group == 1)
         {
-          if (libwacom_has_ring2 (wacom_device))
+          if (libwacom_get_num_rings (wacom_device) >= 2)
             return libwacom_get_ring2_num_modes (wacom_device);
           else if (libwacom_get_num_strips (wacom_device) >= 2)
             return libwacom_get_strips_num_modes (wacom_device);

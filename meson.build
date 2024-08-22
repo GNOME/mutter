@@ -298,6 +298,10 @@ endif
 have_libwacom = get_option('libwacom')
 if have_libwacom
   libwacom_dep = dependency('libwacom', version: libwacom_req)
+  have_libwacom_get_num_rings = cc.has_function('libwacom_get_num_rings',
+    dependencies: libwacom_dep)
+else
+  have_libwacom_get_num_rings = false
 endif
 
 have_pango_ft2 = get_option('pango_ft2')
@@ -553,6 +557,7 @@ cdata.set('HAVE_EGL_DEVICE', have_egl_device)
 cdata.set('HAVE_WAYLAND_EGLSTREAM', have_wayland_eglstream)
 cdata.set('HAVE_LIBGUDEV', have_libgudev)
 cdata.set('HAVE_LIBWACOM', have_libwacom)
+cdata.set('HAVE_LIBWACOM_GET_NUM_RINGS', have_libwacom_get_num_rings)
 cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
