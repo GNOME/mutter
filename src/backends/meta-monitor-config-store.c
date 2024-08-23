@@ -2297,10 +2297,10 @@ generate_config_xml (MetaMonitorConfigStore *config_store)
       switch (config->layout_mode)
         {
         case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-          g_string_append (buffer, "    <layout_mode>logical</layout_mode>\n");
+          g_string_append (buffer, "    <layoutmode>logical</layoutmode>\n");
           break;
         case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
-          g_string_append (buffer, "    <layout_mode>physical</layout_mode>\n");
+          g_string_append (buffer, "    <layoutmode>physical</layoutmode>\n");
           break;
         }
 
