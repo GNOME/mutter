@@ -22,6 +22,7 @@
 
 #include <X11/extensions/Xfixes.h>
 
+#include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "meta/meta-x11-display.h"
 
@@ -128,6 +129,8 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
   CoglTexture *texture;
   uint8_t *cursor_data;
   gboolean free_cursor_data;
+  MetaCompositor *compositor;
+  MetaBackend *backend;
   ClutterBackend *clutter_backend;
   CoglContext *cogl_context;
 
@@ -172,7 +175,9 @@ meta_cursor_sprite_xfixes_initable_init (GInitable     *initable,
       free_cursor_data = TRUE;
     }
 
-  clutter_backend = clutter_get_default_backend ();
+  compositor = meta_display_get_compositor (sprite_xfixes->display);
+  backend = meta_compositor_get_backend (compositor);
+  clutter_backend = meta_backend_get_clutter_backend (backend);
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   texture = cogl_texture_2d_new_from_data (cogl_context,
                                            cursor_image->width,
