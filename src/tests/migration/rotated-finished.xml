@@ -1,6 +1,6 @@
 <monitors version="2">
   <configuration>
-    <layout_mode>logical</layout_mode>
+    <layoutmode>logical</layoutmode>
     <logicalmonitor>
       <x>0</x>
       <y>0</y>
@@ -62,7 +62,7 @@
     </logicalmonitor>
   </configuration>
   <configuration>
-    <layout_mode>physical</layout_mode>
+    <layoutmode>physical</layoutmode>
     <logicalmonitor>
       <x>0</x>
       <y>0</y>
