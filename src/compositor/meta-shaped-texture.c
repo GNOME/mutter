@@ -1629,8 +1629,10 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
 {
   MtkRectangle *image_clip = NULL;
   CoglTexture *texture;
+  ClutterBackend *clutter_backend =
+    clutter_context_get_backend (stex->clutter_context);
   CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+    clutter_backend_get_cogl_context (clutter_backend);
   cairo_surface_t *surface;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
