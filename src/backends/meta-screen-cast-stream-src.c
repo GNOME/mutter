@@ -391,8 +391,8 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
 
   texture_width = cogl_texture_get_width (cursor_texture);
   texture_height = cogl_texture_get_height (cursor_texture);
-  width = texture_width * scale;
-  height = texture_height * scale;
+  width = ceilf (texture_width * scale);
+  height = ceilf (texture_height * scale);
 
   if (texture_width == width &&
       texture_height == height &&
