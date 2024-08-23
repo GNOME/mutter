@@ -150,13 +150,11 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
 
 static CoglTexture*
 clutter_offscreen_effect_real_create_texture (ClutterOffscreenEffect *effect,
+                                              CoglContext            *cogl_context,
                                               gfloat                  width,
                                               gfloat                  height)
 {
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
-  return cogl_texture_2d_new_with_size (ctx,
+  return cogl_texture_2d_new_with_size (cogl_context,
                                         (int) MAX (width, 1),
                                         (int) MAX (height, 1));
 }
@@ -228,6 +226,9 @@ update_fbo (ClutterEffect *effect,
     clutter_offscreen_effect_get_instance_private (self);
   ClutterActor *stage_actor;
   CoglOffscreen *offscreen;
+  ClutterContext *context;
+  ClutterBackend *backend;
+  CoglContext *cogl_context;
   g_autoptr (GError) error = NULL;
 
   stage_actor = clutter_actor_get_stage (priv->actor);
@@ -268,8 +269,12 @@ update_fbo (ClutterEffect *effect,
   g_clear_object (&priv->texture);
   g_clear_object (&priv->offscreen);
 
+  context = clutter_actor_get_context (priv->actor);
+  backend = clutter_context_get_backend (context);
+  cogl_context = clutter_backend_get_cogl_context (backend);
   priv->texture =
-    clutter_offscreen_effect_create_texture (self, target_width, target_height);
+    clutter_offscreen_effect_create_texture (self, cogl_context,
+                                             target_width, target_height);
   if (priv->texture == NULL)
     return FALSE;
 
@@ -717,13 +722,16 @@ clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
  */
 CoglTexture*
 clutter_offscreen_effect_create_texture (ClutterOffscreenEffect *effect,
+                                         CoglContext            *context,
                                          gfloat                  width,
                                          gfloat                  height)
 {
   g_return_val_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect),
                         NULL);
+  g_return_val_if_fail (COGL_IS_CONTEXT (context), NULL);
 
   return CLUTTER_OFFSCREEN_EFFECT_GET_CLASS (effect)->create_texture (effect,
+                                                                      context,
                                                                       width,
                                                                       height);
 }

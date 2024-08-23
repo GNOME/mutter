@@ -56,6 +56,7 @@ struct _ClutterOffscreenEffectClass
 
   /*< public >*/
   CoglTexture* (* create_texture) (ClutterOffscreenEffect *effect,
+                                   CoglContext            *cogl_context,
                                    gfloat                  width,
                                    gfloat                  height);
   CoglPipeline* (* create_pipeline) (ClutterOffscreenEffect *effect,
@@ -77,6 +78,7 @@ void            clutter_offscreen_effect_paint_target           (ClutterOffscree
                                                                  ClutterPaintContext    *paint_context);
 CLUTTER_EXPORT
 CoglTexture* clutter_offscreen_effect_create_texture         (ClutterOffscreenEffect *effect,
+                                                              CoglContext            *context,
                                                               gfloat                  width,
                                                               gfloat                  height);
 
