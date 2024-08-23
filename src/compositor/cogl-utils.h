@@ -22,7 +22,8 @@
 
 #include "cogl/cogl.h"
 
-CoglPipeline * meta_create_texture_pipeline (CoglTexture *texture);
+CoglPipeline * meta_create_texture_pipeline (CoglContext *cogl_context,
+                                             CoglTexture *texture);
 
 typedef enum
 {

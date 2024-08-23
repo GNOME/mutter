@@ -306,7 +306,8 @@ on_background_changed (MetaBackground        *background,
 }
 
 static CoglPipeline *
-make_pipeline (PipelineFlags pipeline_flags)
+make_pipeline (CoglContext   *cogl_context,
+               PipelineFlags  pipeline_flags)
 {
   static CoglPipeline *templates[PIPELINE_ALL + 1];
   CoglPipeline **templatep;
@@ -320,7 +321,7 @@ make_pipeline (PipelineFlags pipeline_flags)
        * so we need to prevent identical pipelines from getting cached
        * separately, by reusing the same shader snippets.
        */
-      *templatep = COGL_PIPELINE (meta_create_texture_pipeline (NULL));
+      *templatep = COGL_PIPELINE (meta_create_texture_pipeline (cogl_context, NULL));
 
       if ((pipeline_flags & PIPELINE_VIGNETTE) != 0)
         {
@@ -393,6 +394,8 @@ setup_pipeline (MetaBackgroundContent *self,
 {
   MetaContext *context = meta_display_get_context (self->display);
   MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   PipelineFlags pipeline_flags = 0;
   guint8 opacity;
   float color_component;
@@ -416,7 +419,7 @@ setup_pipeline (MetaBackgroundContent *self,
   if (self->pipeline == NULL)
     {
       self->pipeline_flags = pipeline_flags;
-      self->pipeline = make_pipeline (pipeline_flags);
+      self->pipeline = make_pipeline (cogl_context, pipeline_flags);
       self->changed = CHANGED_ALL;
     }
 

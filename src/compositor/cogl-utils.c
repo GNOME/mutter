@@ -28,6 +28,7 @@
 
 /**
  * meta_create_texture_pipeline:
+ * @cogl_context: A #CoglContext
  * @src_texture: (nullable): texture to use initially for the layer
  *
  * Creates a pipeline with a single layer. Using a common template
@@ -37,7 +38,8 @@
  * Return value: (transfer full): a newly created #CoglPipeline
  */
 CoglPipeline *
-meta_create_texture_pipeline (CoglTexture *src_texture)
+meta_create_texture_pipeline (CoglContext *cogl_context,
+                              CoglTexture *src_texture)
 {
   static CoglPipeline *texture_pipeline_template = NULL;
   CoglPipeline *pipeline;
@@ -50,10 +52,7 @@ meta_create_texture_pipeline (CoglTexture *src_texture)
      pipeline ancestry instead of resorting to the shader cache. */
   if (G_UNLIKELY (texture_pipeline_template == NULL))
     {
-      CoglContext *ctx =
-        clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
-      texture_pipeline_template = cogl_pipeline_new (ctx);
+      texture_pipeline_template = cogl_pipeline_new (cogl_context);
       cogl_pipeline_set_layer_null_texture (texture_pipeline_template, 0);
     }
 

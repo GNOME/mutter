@@ -611,7 +611,8 @@ typedef enum
 } PipelineType;
 
 static CoglPipeline *
-create_pipeline (PipelineType type)
+create_pipeline (CoglContext  *cogl_context,
+                 PipelineType  type)
 {
   const char * const blend_strings[3] = {
     [PIPELINE_REPLACE] = "RGBA = ADD (SRC_COLOR, 0)",
@@ -622,7 +623,7 @@ create_pipeline (PipelineType type)
 
   if (templates[type] == NULL)
     {
-      templates[type] = meta_create_texture_pipeline (NULL);
+      templates[type] = meta_create_texture_pipeline (cogl_context, NULL);
       cogl_pipeline_set_blend (templates[type], blend_strings[type], NULL);
     }
 
@@ -663,6 +664,8 @@ ensure_wallpaper_texture (MetaBackground *self,
     {
       int width = cogl_texture_get_width (texture);
       int height = cogl_texture_get_height (texture);
+      CoglContext *cogl_context =
+        cogl_texture_get_context (texture);
       CoglOffscreen *offscreen;
       CoglFramebuffer *fbo;
       GError *catch_error = NULL;
@@ -692,7 +695,7 @@ ensure_wallpaper_texture (MetaBackground *self,
       cogl_framebuffer_orthographic (fbo, 0, 0,
                                      width, height, -1., 1.);
 
-      pipeline = create_pipeline (PIPELINE_REPLACE);
+      pipeline = create_pipeline (cogl_context, PIPELINE_REPLACE);
       cogl_pipeline_set_layer_texture (pipeline, 0, texture);
       cogl_framebuffer_draw_textured_rectangle (fbo, pipeline, 0, 0, width, height,
                                                 0., 0., 1., 1.);
@@ -702,7 +705,7 @@ ensure_wallpaper_texture (MetaBackground *self,
         {
           ensure_color_texture (self);
 
-          pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
+          pipeline = create_pipeline (cogl_context, PIPELINE_OVER_REVERSE);
           cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
           cogl_framebuffer_draw_rectangle (fbo, pipeline, 0, 0, width, height);
           g_object_unref (pipeline);
@@ -762,6 +765,10 @@ meta_background_get_texture (MetaBackground       *self,
   MtkRectangle monitor_area;
   CoglTexture *texture1, *texture2;
   float monitor_scale;
+  MetaContext *context = meta_display_get_context (self->display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
   g_return_val_if_fail (META_IS_BACKGROUND (self), NULL);
   g_return_val_if_fail (monitor_index >= 0 && monitor_index < self->n_monitors, NULL);
@@ -802,8 +809,6 @@ meta_background_get_texture (MetaBackground       *self,
 
   if (monitor->dirty)
     {
-      MetaContext *context = meta_display_get_context (self->display);
-      MetaBackend *backend = meta_context_get_backend (context);
       GError *catch_error = NULL;
       gboolean bare_region_visible = FALSE;
       int texture_width, texture_height;
@@ -860,7 +865,7 @@ meta_background_get_texture (MetaBackground       *self,
 
       if (texture2 != NULL && self->blend_factor != 0.0f)
         {
-          CoglPipeline *pipeline = create_pipeline (PIPELINE_REPLACE);
+          CoglPipeline *pipeline = create_pipeline (cogl_context, PIPELINE_REPLACE);
           int mipmap_level;
           CoglColor color;
 
@@ -892,7 +897,7 @@ meta_background_get_texture (MetaBackground       *self,
 
       if (texture1 != NULL && self->blend_factor != 1.0)
         {
-          CoglPipeline *pipeline = create_pipeline (PIPELINE_ADD);
+          CoglPipeline *pipeline = create_pipeline (cogl_context, PIPELINE_ADD);
           int mipmap_level;
           CoglColor color;
 
@@ -918,7 +923,7 @@ meta_background_get_texture (MetaBackground       *self,
 
       if (bare_region_visible)
         {
-          CoglPipeline *pipeline = create_pipeline (PIPELINE_OVER_REVERSE);
+          CoglPipeline *pipeline = create_pipeline (cogl_context, PIPELINE_OVER_REVERSE);
 
           ensure_color_texture (self);
           cogl_pipeline_set_layer_texture (pipeline, 0, self->color_texture);
