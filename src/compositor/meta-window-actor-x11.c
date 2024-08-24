@@ -41,12 +41,6 @@
 #include "x11/meta-x11-frame.h"
 #include "x11/window-x11-private.h"
 
-enum
-{
-  PROP_SHADOW_MODE = 1,
-  PROP_SHADOW_CLASS
-};
-
 struct _MetaWindowActorX11
 {
   MetaWindowActor parent;
@@ -83,11 +77,8 @@ struct _MetaWindowActorX11
 
   /* Extracted size-invariant shape used for shadows */
   MetaWindowShape *shadow_shape;
-  char *shadow_class;
 
   MetaShadowFactory *shadow_factory;
-
-  MetaShadowMode shadow_mode;
 
   gboolean needs_reshape;
   gboolean recompute_focused_shadow;
@@ -390,11 +381,6 @@ has_shadow (MetaWindowActorX11 *actor_x11)
   MetaWindowX11Private *priv =
     meta_window_x11_get_private (x11_window);
 
-  if (actor_x11->shadow_mode == META_SHADOW_MODE_FORCED_OFF)
-    return FALSE;
-  if (actor_x11->shadow_mode == META_SHADOW_MODE_FORCED_ON)
-    return TRUE;
-
   /* Leaving out shadows for maximized and fullscreen windows is an efficiency
    * win and also prevents the unsightly effect of the shadow of maximized
    * window appearing on an adjacent window */
@@ -483,32 +469,25 @@ meta_window_actor_x11_set_unredirected (MetaWindowActorX11 *actor_x11,
 static const char *
 get_shadow_class (MetaWindowActorX11 *actor_x11)
 {
-  if (actor_x11->shadow_class)
-    {
-      return actor_x11->shadow_class;
-    }
-  else
-    {
-      MetaWindow *window =
-        meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-      MetaWindowType window_type;
+  MetaWindow *window =
+    meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+  MetaWindowType window_type;
 
-      window_type = meta_window_get_window_type (window);
-      switch (window_type)
-        {
-        case META_WINDOW_DROPDOWN_MENU:
-        case META_WINDOW_COMBO:
-          return "dropdown-menu";
-        case META_WINDOW_POPUP_MENU:
-          return "popup-menu";
-        default:
-          {
-            MetaFrameType frame_type;
+  window_type = meta_window_get_window_type (window);
+  switch (window_type)
+    {
+    case META_WINDOW_DROPDOWN_MENU:
+    case META_WINDOW_COMBO:
+      return "dropdown-menu";
+    case META_WINDOW_POPUP_MENU:
+      return "popup-menu";
+    default:
+      {
+        MetaFrameType frame_type;
 
-            frame_type = meta_window_get_frame_type (window);
-            return meta_frame_type_to_string (frame_type);
-          }
-        }
+        frame_type = meta_window_get_frame_type (window);
+        return meta_frame_type_to_string (frame_type);
+      }
     }
 }
 
@@ -1449,69 +1428,6 @@ meta_window_actor_x11_sync_geometry (MetaWindowActor *actor)
 }
 
 static void
-meta_window_actor_x11_set_property (GObject      *object,
-                                    guint         prop_id,
-                                    const GValue *value,
-                                    GParamSpec   *pspec)
-{
-  MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
-
-  switch (prop_id)
-    {
-    case PROP_SHADOW_MODE:
-      {
-        MetaShadowMode newv = g_value_get_enum (value);
-
-        if (newv == actor_x11->shadow_mode)
-          return;
-
-        actor_x11->shadow_mode = newv;
-
-        invalidate_shadow (actor_x11);
-      }
-      break;
-    case PROP_SHADOW_CLASS:
-      {
-        const char *newv = g_value_get_string (value);
-
-        if (g_strcmp0 (newv, actor_x11->shadow_class) == 0)
-          return;
-
-        g_free (actor_x11->shadow_class);
-        actor_x11->shadow_class = g_strdup (newv);
-
-        invalidate_shadow (actor_x11);
-      }
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_window_actor_x11_get_property (GObject      *object,
-                                    guint         prop_id,
-                                    GValue       *value,
-                                    GParamSpec   *pspec)
-{
-  MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
-
-  switch (prop_id)
-    {
-    case PROP_SHADOW_MODE:
-      g_value_set_enum (value, actor_x11->shadow_mode);
-      break;
-    case PROP_SHADOW_CLASS:
-      g_value_set_string (value, actor_x11->shadow_class);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
 meta_window_actor_x11_constructed (GObject *object)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
@@ -1586,7 +1502,6 @@ meta_window_actor_x11_dispose (GObject *object)
   g_clear_pointer (&actor_x11->shadow_clip, mtk_region_unref);
   g_clear_pointer (&actor_x11->frame_bounds, mtk_region_unref);
 
-  g_clear_pointer (&actor_x11->shadow_class, g_free);
   g_clear_pointer (&actor_x11->focused_shadow, meta_shadow_unref);
   g_clear_pointer (&actor_x11->unfocused_shadow, meta_shadow_unref);
   g_clear_pointer (&actor_x11->shadow_shape, meta_window_shape_unref);
@@ -1600,7 +1515,6 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
-  GParamSpec *pspec;
 
   window_actor_class->frame_complete = meta_window_actor_x11_frame_complete;
   window_actor_class->get_scanout_candidate = meta_window_actor_x11_get_scanout_candidate;
@@ -1619,26 +1533,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   actor_class->get_paint_volume = meta_window_actor_x11_get_paint_volume;
 
   object_class->constructed = meta_window_actor_x11_constructed;
-  object_class->set_property = meta_window_actor_x11_set_property;
-  object_class->get_property = meta_window_actor_x11_get_property;
   object_class->dispose = meta_window_actor_x11_dispose;
-
-  pspec = g_param_spec_enum ("shadow-mode", NULL, NULL,
-                             META_TYPE_SHADOW_MODE,
-                             META_SHADOW_MODE_AUTO,
-                             G_PARAM_READWRITE);
-
-  g_object_class_install_property (object_class,
-                                   PROP_SHADOW_MODE,
-                                   pspec);
-
-  pspec = g_param_spec_string ("shadow-class", NULL, NULL,
-                               NULL,
-                               G_PARAM_READWRITE);
-
-  g_object_class_install_property (object_class,
-                                   PROP_SHADOW_CLASS,
-                                   pspec);
 }
 
 static void

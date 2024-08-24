@@ -60,10 +60,3 @@ void meta_window_actor_freeze (MetaWindowActor *self);
 
 META_EXPORT
 void meta_window_actor_thaw (MetaWindowActor *self);
-
-typedef enum
-{
-  META_SHADOW_MODE_AUTO,
-  META_SHADOW_MODE_FORCED_OFF,
-  META_SHADOW_MODE_FORCED_ON,
-} MetaShadowMode;
