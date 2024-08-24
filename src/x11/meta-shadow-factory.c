@@ -818,11 +818,10 @@ make_border_region (MtkRegion *region,
 }
 
 static void
-make_shadow (MetaShadow *shadow,
-             MtkRegion  *region)
+make_shadow (MetaShadow  *shadow,
+             CoglContext *cogl_context,
+             MtkRegion   *region)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
-  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   GError *error = NULL;
   int d = get_box_filter_size (shadow->key.radius);
   int spread = get_shadow_spread (shadow->key.radius);
@@ -913,7 +912,7 @@ make_shadow (MetaShadow *shadow,
    * in the case of top_fade >= 0. We also account for padding at the left for symmetry
    * though that doesn't currently occur.
    */
-  shadow->texture = cogl_texture_2d_new_from_data (ctx,
+  shadow->texture = cogl_texture_2d_new_from_data (cogl_context,
                                                    shadow->outer_border_left + extents.width + shadow->outer_border_right,
                                                    shadow->outer_border_top + extents.height + shadow->outer_border_bottom,
                                                    COGL_PIXEL_FORMAT_A_8,
@@ -931,7 +930,7 @@ make_shadow (MetaShadow *shadow,
 
   g_free (buffer);
 
-  shadow->pipeline = meta_create_texture_pipeline (ctx, shadow->texture);
+  shadow->pipeline = meta_create_texture_pipeline (cogl_context, shadow->texture);
   cogl_pipeline_set_static_name (shadow->pipeline, "MetaShadowFactory");
 }
 
@@ -990,7 +989,8 @@ meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
                                 int                width,
                                 int                height,
                                 const char        *class_name,
-                                gboolean           focused)
+                                gboolean           focused,
+                                CoglContext       *cogl_context)
 {
   MetaShadowParams *params;
   MetaShadowCacheKey key;
@@ -1096,7 +1096,7 @@ meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
   g_assert (center_width >= 0 && center_height >= 0);
 
   region = meta_window_shape_to_region (shape, center_width, center_height);
-  make_shadow (shadow, region);
+  make_shadow (shadow, cogl_context, region);
 
   if (cacheable)
     g_hash_table_insert (factory->shadows, &shadow->key, shadow);

@@ -647,6 +647,12 @@ check_needs_shadow (MetaWindowActorX11 *actor_x11)
       MetaShadowFactory *factory = actor_x11->shadow_factory;
       const char *shadow_class = get_shadow_class (actor_x11);
       MtkRectangle shape_bounds;
+      ClutterContext *clutter_context =
+        clutter_actor_get_context (CLUTTER_ACTOR (actor_x11));
+      ClutterBackend *clutter_backend =
+        clutter_context_get_backend (clutter_context);
+      CoglContext *cogl_context =
+        clutter_backend_get_cogl_context (clutter_backend);
 
       if (!actor_x11->shadow_shape)
         {
@@ -659,7 +665,8 @@ check_needs_shadow (MetaWindowActorX11 *actor_x11)
         meta_shadow_factory_get_shadow (factory,
                                         actor_x11->shadow_shape,
                                         shape_bounds.width, shape_bounds.height,
-                                        shadow_class, appears_focused);
+                                        shadow_class, appears_focused,
+                                        cogl_context);
     }
 
   if (old_shadow)

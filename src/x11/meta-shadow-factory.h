@@ -112,4 +112,5 @@ MetaShadow *meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
                                             int                width,
                                             int                height,
                                             const char        *class_name,
-                                            gboolean           focused);
+                                            gboolean           focused,
+                                            CoglContext       *cogl_context);
