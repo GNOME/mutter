@@ -21,8 +21,9 @@
 #include <math.h>
 #include <string.h>
 
+#include "x11/meta-shadow-factory.h"
+
 #include "compositor/cogl-utils.h"
-#include "meta/meta-shadow-factory.h"
 #include "meta/util.h"
 
 /* This file implements blurring the shape of a window to produce a

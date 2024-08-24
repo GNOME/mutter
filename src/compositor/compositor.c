@@ -68,7 +68,6 @@
 #include "meta/meta-background-actor.h"
 #include "meta/meta-background-group.h"
 #include "meta/meta-context.h"
-#include "meta/meta-shadow-factory.h"
 #include "meta/prefs.h"
 #include "meta/window.h"
 

@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#include "meta/meta-window-shape.h"
+#include "x11/meta-window-shape.h"
 
 #include <string.h>
 
