@@ -37,6 +37,8 @@ struct _MetaWaylandSeat
 {
   MetaWaylandCompositor *compositor;
 
+  ClutterSeat *clutter_seat;
+
   struct wl_list base_resource_list;
   struct wl_display *wl_display;
 

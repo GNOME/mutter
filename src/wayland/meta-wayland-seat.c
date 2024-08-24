@@ -274,14 +274,18 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
                        struct wl_display     *display)
 {
   MetaWaylandSeat *seat;
-  ClutterSeat *clutter_seat;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
 
   seat = g_new0 (MetaWaylandSeat, 1);
   seat->compositor = compositor;
 
   wl_list_init (&seat->base_resource_list);
   seat->wl_display = display;
-
+  seat->clutter_seat = clutter_backend_get_default_seat (clutter_backend);
   seat->pointer = g_object_new (META_TYPE_WAYLAND_POINTER,
                                 "seat", seat,
                                 NULL);
@@ -297,11 +301,10 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
   meta_wayland_data_device_init (&seat->data_device, seat);
   meta_wayland_data_device_primary_init (&seat->primary_data_device, seat);
 
-  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  meta_wayland_seat_update_capabilities (seat, clutter_seat);
-  g_signal_connect (clutter_seat, "device-added",
+  meta_wayland_seat_update_capabilities (seat, seat->clutter_seat);
+  g_signal_connect (seat->clutter_seat, "device-added",
                     G_CALLBACK (meta_wayland_seat_devices_updated), seat);
-  g_signal_connect (clutter_seat, "device-removed",
+  g_signal_connect (seat->clutter_seat, "device-removed",
                     G_CALLBACK (meta_wayland_seat_devices_updated), seat);
 
   wl_global_create (display, &wl_seat_interface, META_WL_SEAT_VERSION, seat, bind_seat);
@@ -328,12 +331,10 @@ meta_wayland_seat_init (MetaWaylandCompositor *compositor)
 void
 meta_wayland_seat_free (MetaWaylandSeat *seat)
 {
-  ClutterSeat *clutter_seat;
 
   g_clear_object (&seat->input_handler);
 
-  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  g_signal_handlers_disconnect_by_data (clutter_seat, seat);
+  g_signal_handlers_disconnect_by_data (seat->clutter_seat, seat);
   meta_wayland_seat_set_capabilities (seat, 0);
 
   g_object_unref (seat->pointer);
@@ -547,8 +548,6 @@ void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
-  ClutterSeat *clutter_seat;
-
   if (seat->input_focus == surface)
     return;
 
@@ -569,9 +568,8 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                           seat);
     }
 
-  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   meta_wayland_input_invalidate_focus (seat->input_handler,
-                                       clutter_seat_get_keyboard (clutter_seat),
+                                       clutter_seat_get_keyboard (seat->clutter_seat),
                                        NULL);
 }
 
@@ -600,11 +598,8 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                                         serial);
       if (sequence)
         {
-          ClutterSeat *clutter_seat =
-            clutter_backend_get_default_seat (clutter_get_default_backend ());
-
           if (device_out)
-            *device_out = clutter_seat_get_pointer (clutter_seat);
+            *device_out = clutter_seat_get_pointer (seat->clutter_seat);
           if (sequence_out)
             *sequence_out = sequence;
 

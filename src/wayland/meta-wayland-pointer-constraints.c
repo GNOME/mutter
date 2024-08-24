@@ -961,12 +961,7 @@ locked_pointer_destroy (struct wl_client   *client,
   wl_resource_destroy (resource);
 
   if (warp_pointer)
-    {
-      ClutterSeat *seat;
-
-      seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-      clutter_seat_warp_pointer (seat, warp_x, warp_y);
-    }
+    clutter_seat_warp_pointer (constraint->seat->clutter_seat, warp_x, warp_y);
 }
 
 static void
