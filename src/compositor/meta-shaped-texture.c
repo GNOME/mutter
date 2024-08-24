@@ -176,6 +176,20 @@ meta_shaped_texture_get_property (GObject    *object,
 }
 
 static void
+meta_shaped_texture_constructed (GObject *object)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (object);
+  ClutterBackend *clutter_backend =
+    clutter_context_get_backend (stex->clutter_context);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+
+  G_OBJECT_CLASS (meta_shaped_texture_parent_class)->constructed (object);
+
+  stex->texture_mipmap = meta_texture_mipmap_new (cogl_context);
+}
+
+static void
 meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
 {
   GObjectClass *object_class = (GObjectClass *) klass;
@@ -183,6 +197,7 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
   object_class->dispose = meta_shaped_texture_dispose;
   object_class->set_property = meta_shaped_texture_set_property;
   object_class->get_property = meta_shaped_texture_get_property;
+  object_class->constructed = meta_shaped_texture_constructed;
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (klass),
@@ -215,7 +230,6 @@ invalidate_size (MetaShapedTexture *stex)
 static void
 meta_shaped_texture_init (MetaShapedTexture *stex)
 {
-  stex->texture_mipmap = meta_texture_mipmap_new ();
   stex->buffer_scale = 1;
   stex->texture = NULL;
   stex->mask_texture = NULL;

@@ -36,6 +36,7 @@ struct _MetaTextureMipmap
   MetaMultiTexture *mipmap_texture;
   CoglPipeline *pipeline;
   CoglFramebuffer *fb;
+  CoglContext *cogl_context;
   gboolean invalid;
 };
 
@@ -48,11 +49,12 @@ struct _MetaTextureMipmap
  * Return value: the new texture mipmap handler. Free with meta_texture_mipmap_free()
  */
 MetaTextureMipmap *
-meta_texture_mipmap_new (void)
+meta_texture_mipmap_new (CoglContext *cogl_context)
 {
   MetaTextureMipmap *mipmap;
 
   mipmap = g_new0 (MetaTextureMipmap, 1);
+  mipmap->cogl_context = cogl_context;
 
   return mipmap;
 }
@@ -132,8 +134,6 @@ meta_texture_mipmap_clear (MetaTextureMipmap *mipmap)
 static void
 ensure_mipmap_texture (MetaTextureMipmap *mipmap)
 {
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   int width, height;
 
   /* Let's avoid spending any texture memory copying the base level texture
@@ -172,7 +172,7 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
 
       free_mipmaps (mipmap);
 
-      tex = cogl_texture_2d_new_with_size (ctx, width, height);
+      tex = cogl_texture_2d_new_with_size (mipmap->cogl_context, width, height);
       if (!tex)
         return;
 
@@ -212,7 +212,7 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
           CoglSnippet *fragment_globals_snippet;
           CoglSnippet *fragment_snippet;
 
-          mipmap->pipeline = cogl_pipeline_new (ctx);
+          mipmap->pipeline = cogl_pipeline_new (mipmap->cogl_context);
           cogl_pipeline_set_blend (mipmap->pipeline,
                                    "RGBA = ADD (SRC_COLOR, 0)",
                                    NULL);

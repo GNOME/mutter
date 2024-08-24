@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 
 typedef struct _MetaTextureMipmap MetaTextureMipmap;
 
-MetaTextureMipmap *meta_texture_mipmap_new (void);
+MetaTextureMipmap *meta_texture_mipmap_new (CoglContext *cogl_context);
 
 void meta_texture_mipmap_free (MetaTextureMipmap *mipmap);
 
