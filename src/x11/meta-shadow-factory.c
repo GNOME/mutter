@@ -100,15 +100,6 @@ struct _MetaShadowFactory
   GHashTable *shadow_classes;
 };
 
-enum
-{
-  CHANGED,
-
-  LAST_SIGNAL
-};
-
-static guint signals[LAST_SIGNAL] = { 0 };
-
 /* The first element in this array also defines the default parameters
  * for newly created classes */
 MetaShadowClassInfo default_shadow_classes[] = {
@@ -439,20 +430,6 @@ meta_shadow_factory_class_init (MetaShadowFactoryClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_shadow_factory_finalize;
-
-  signals[CHANGED] =
-    g_signal_new ("changed",
-                  G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
-}
-
-MetaShadowFactory *
-meta_shadow_factory_new (void)
-{
-  return g_object_new (META_TYPE_SHADOW_FACTORY, NULL);
 }
 
 /**
@@ -466,7 +443,7 @@ meta_shadow_factory_get_default (void)
   static MetaShadowFactory *factory;
 
   if (factory == NULL)
-    factory = meta_shadow_factory_new ();
+    factory = g_object_new (META_TYPE_SHADOW_FACTORY, NULL);
 
   return factory;
 }
@@ -1125,43 +1102,6 @@ meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
     g_hash_table_insert (factory->shadows, &shadow->key, shadow);
 
   return shadow;
-}
-
-/**
- * meta_shadow_factory_set_params:
- * @factory: a #MetaShadowFactory
- * @class_name: name of the class of shadow to set the params for.
- *  the default shadow classes are the names of the different
- *  theme frame types (normal, dialog, modal_dialog, utility,
- *  border, menu, attached) and in addition, popup-menu
- *  and dropdown-menu.
- * @focused: whether the shadow is for a focused window
- * @params: new parameter values
- *
- * Updates the shadow parameters for a particular class of shadows
- * for either the focused or unfocused state. If the class name
- * does not name an existing class, a new class will be created
- * (the other focus state for that class will have default values
- * assigned to it.)
- */
-void
-meta_shadow_factory_set_params (MetaShadowFactory *factory,
-                                const char        *class_name,
-                                gboolean           focused,
-                                MetaShadowParams  *params)
-{
-  MetaShadowParams *stored_params;
-
-  g_return_if_fail (META_IS_SHADOW_FACTORY (factory));
-  g_return_if_fail (class_name != NULL);
-  g_return_if_fail (params != NULL);
-  g_return_if_fail (params->radius >= 0);
-
-  stored_params = get_shadow_params (factory, class_name, focused, TRUE);
-
-  *stored_params = *params;
-
-  g_signal_emit (factory, signals[CHANGED], 0);
 }
 
 /**

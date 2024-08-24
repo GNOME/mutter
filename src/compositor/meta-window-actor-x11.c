@@ -86,7 +86,6 @@ struct _MetaWindowActorX11
   char *shadow_class;
 
   MetaShadowFactory *shadow_factory;
-  gulong shadow_factory_changed_handler_id;
 
   MetaShadowMode shadow_mode;
 
@@ -1570,9 +1569,6 @@ meta_window_actor_x11_dispose (GObject *object)
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
   MetaSurfaceActor *surface_actor;
 
-  g_clear_signal_handler (&actor_x11->shadow_factory_changed_handler_id,
-                          actor_x11->shadow_factory);
-
   if (actor_x11->send_frame_messages_timer != 0)
     remove_frame_messages_timer (actor_x11);
 
@@ -1655,9 +1651,4 @@ meta_window_actor_x11_init (MetaWindowActorX11 *self)
                     G_CALLBACK (handle_stage_views_changed), NULL);
 
   self->shadow_factory = meta_shadow_factory_get_default ();
-  self->shadow_factory_changed_handler_id =
-    g_signal_connect_swapped (self->shadow_factory,
-                              "changed",
-                              G_CALLBACK (invalidate_shadow),
-                              self);
 }

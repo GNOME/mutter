@@ -70,11 +70,6 @@ G_DECLARE_FINAL_TYPE (MetaShadowFactory,
  */
 MetaShadowFactory *meta_shadow_factory_get_default (void);
 
-void meta_shadow_factory_set_params (MetaShadowFactory *factory,
-                                     const char        *class_name,
-                                     gboolean           focused,
-                                     MetaShadowParams  *params);
-
 void meta_shadow_factory_get_params (MetaShadowFactory *factory,
                                      const char        *class_name,
                                      gboolean           focused,
@@ -111,8 +106,6 @@ void        meta_shadow_get_bounds  (MetaShadow   *shadow,
                                      int           window_width,
                                      int           window_height,
                                      MtkRectangle *bounds);
-
-MetaShadowFactory *meta_shadow_factory_new (void);
 
 MetaShadow *meta_shadow_factory_get_shadow (MetaShadowFactory *factory,
                                             MetaWindowShape   *shape,
