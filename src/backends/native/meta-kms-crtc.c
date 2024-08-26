@@ -700,6 +700,8 @@ meta_kms_crtc_update_shortterm_max_dispatch_duration (MetaKmsCrtc *crtc,
 {
   int64_t refresh_interval_us;
 
+  g_return_if_fail (crtc->current_state.is_drm_mode_valid);
+
   /* meta_kms_crtc_determine_deadline doesn't use deadline evasion with VRR */
   if (crtc->current_state.vrr.enabled)
     return;
