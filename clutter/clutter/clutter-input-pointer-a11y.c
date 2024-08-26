@@ -732,8 +732,8 @@ void
 clutter_input_pointer_a11y_update (ClutterInputDevice *device,
                                    const ClutterEvent *event)
 {
-
-  ClutterContext *clutter_context;
+  ClutterSeat *seat;
+  ClutterContext *context;
   ClutterBackend *backend;
   ClutterEventType event_type;
 
@@ -745,8 +745,9 @@ clutter_input_pointer_a11y_update (ClutterInputDevice *device,
   if ((clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_SYNTHETIC) != 0)
     return;
 
-  clutter_context = _clutter_context_get_default ();
-  backend = clutter_context->backend;
+  seat = clutter_input_device_get_seat (device);
+  context = clutter_seat_get_context (seat);
+  backend = context->backend;
 
   if (!clutter_backend_is_display_server (backend))
     return;
