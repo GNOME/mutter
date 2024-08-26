@@ -52,6 +52,7 @@ enum
 {
   PROP_0,
 
+  PROP_CONTEXT,
   PROP_NAME,
   PROP_TOUCH_MODE,
 
@@ -64,6 +65,8 @@ typedef struct _ClutterSeatPrivate ClutterSeatPrivate;
 
 struct _ClutterSeatPrivate
 {
+  ClutterContext *context;
+
   unsigned int inhibit_unfocus_count;
 
   /* Pointer a11y */
@@ -85,6 +88,9 @@ clutter_seat_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_CONTEXT:
+      priv->context = g_value_get_object (value);
+      break;
     case PROP_NAME:
       priv->name = g_value_dup_string (value);
       break;
@@ -105,11 +111,14 @@ clutter_seat_get_property (GObject    *object,
 
   switch (prop_id)
     {
-    case PROP_TOUCH_MODE:
-      g_value_set_boolean (value, FALSE);
+    case PROP_CONTEXT:
+      g_value_set_object (value, priv->context);
       break;
     case PROP_NAME:
       g_value_set_string (value, priv->name);
+      break;
+    case PROP_TOUCH_MODE:
+      g_value_set_boolean (value, FALSE);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -119,7 +128,8 @@ clutter_seat_get_property (GObject    *object,
 static void
 clutter_seat_constructed (GObject *object)
 {
-  ClutterContext *context = _clutter_context_get_default ();
+  ClutterContext *context =
+    clutter_seat_get_context (CLUTTER_SEAT (object));
   ClutterSettings *settings = clutter_context_get_settings (context);
 
   G_OBJECT_CLASS (clutter_seat_parent_class)->constructed (object);
@@ -313,6 +323,13 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                          NULL,
                          G_PARAM_STATIC_STRINGS |
                          G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+
+  props[PROP_CONTEXT] =
+    g_param_spec_object ("context", NULL, NULL,
+                         CLUTTER_TYPE_CONTEXT,
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
                          G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
@@ -794,4 +811,17 @@ clutter_seat_get_name (ClutterSeat *seat)
   ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
 
   return priv->name;
+}
+
+/**
+ * clutter_seat_get_context:
+ *
+ * Returns: (transfer none): The %ClutterContext
+ */
+ClutterContext *
+clutter_seat_get_context (ClutterSeat *seat)
+{
+  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
+
+  return priv->context;
 }

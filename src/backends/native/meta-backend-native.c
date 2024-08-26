@@ -137,6 +137,8 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (backend_native);
+  ClutterContext *clutter_context =
+    meta_backend_get_clutter_context (backend);
   const char *seat_id = NULL;
   MetaSeatNativeFlag flags;
 
@@ -159,6 +161,7 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
 
   return CLUTTER_SEAT (g_object_new (META_TYPE_SEAT_NATIVE,
                                      "backend", backend,
+                                     "context", clutter_context,
                                      "seat-id", seat_id,
                                      "name", seat_id,
                                      "flags", flags,

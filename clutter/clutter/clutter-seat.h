@@ -112,6 +112,8 @@ struct _ClutterSeatClass
 };
 
 CLUTTER_EXPORT
+ClutterContext * clutter_seat_get_context (ClutterSeat *seat);
+CLUTTER_EXPORT
 ClutterInputDevice * clutter_seat_get_pointer  (ClutterSeat *seat);
 CLUTTER_EXPORT
 ClutterInputDevice * clutter_seat_get_keyboard (ClutterSeat *seat);
