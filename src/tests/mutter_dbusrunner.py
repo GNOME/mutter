@@ -60,6 +60,7 @@ class MutterDBusRunner(DBusTestCase):
         print('Launching required services...', file=sys.stderr)
         klass.service_processes = []
         for service in launch:
+            print('  - Launching {}'.format(service), file=sys.stderr)
             klass.service_processes += [subprocess.Popen(service)]
 
         print('Starting mocked services...', file=sys.stderr)
@@ -89,7 +90,9 @@ class MutterDBusRunner(DBusTestCase):
             mock_server.terminate()
             mock_server.wait()
 
+        print('Terminating services...', file=sys.stderr)
         for process in klass.service_processes:
+            print('  - Terminating {}'.format(' '.join(process.args)), file=sys.stderr)
             process.terminate()
             process.wait()
 
