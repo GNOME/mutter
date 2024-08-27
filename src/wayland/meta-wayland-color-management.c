@@ -120,6 +120,7 @@ typedef struct _MetaWaylandCreatorParams
 
   ClutterColorspace colorspace;
   ClutterTransferFunction transfer_function;
+  float min_lum, max_lum, ref_lum;
 } MetaWaylandCreatorParams;
 
 static void meta_wayland_color_management_surface_free (MetaWaylandColorManagementSurface *cm_surface);
@@ -159,6 +160,18 @@ get_clutter_color_manager (MetaWaylandColorManager *color_manager)
   ClutterContext *clutter_context = get_clutter_context (color_manager);
 
   return clutter_context_get_color_manager (clutter_context);
+}
+
+static float
+scaled_uint32_to_float (uint32_t value)
+{
+  return value * 0.0001f;
+}
+
+static uint32_t
+float_to_scaled_uint32 (float value)
+{
+  return (uint32_t) (value * 10000);
 }
 
 static gboolean
@@ -326,17 +339,26 @@ static void
 send_information (struct wl_resource *info_resource,
                   ClutterColorState  *color_state)
 {
-  ClutterColorspace clutter_colorspace =
-    clutter_color_state_get_colorspace (color_state);
-  ClutterTransferFunction clutter_tf =
-    clutter_color_state_get_transfer_function (color_state);
-  enum xx_color_manager_v4_primaries primaries =
-    clutter_primaries_to_wayland (clutter_colorspace);
-  enum xx_color_manager_v4_transfer_function tf =
-    clutter_tf_to_wayland (clutter_tf);
+  ClutterColorspace clutter_colorspace;
+  enum xx_color_manager_v4_primaries primaries;
+  ClutterTransferFunction clutter_tf;
+  enum xx_color_manager_v4_transfer_function tf;
+  float min_lum, max_lum, ref_lum;
 
+  clutter_colorspace = clutter_color_state_get_colorspace (color_state);
+  primaries = clutter_primaries_to_wayland (clutter_colorspace);
   xx_image_description_info_v4_send_primaries_named (info_resource, primaries);
+
+  clutter_tf = clutter_color_state_get_transfer_function (color_state);
+  tf = clutter_tf_to_wayland (clutter_tf);
   xx_image_description_info_v4_send_tf_named (info_resource, tf);
+
+  clutter_color_state_get_luminances (color_state,
+                                      &min_lum, &max_lum, &ref_lum);
+  xx_image_description_info_v4_send_luminances (info_resource,
+                                                float_to_scaled_uint32 (min_lum),
+                                                (uint32_t) max_lum,
+                                                (uint32_t) ref_lum);
 }
 
 static void
@@ -784,6 +806,10 @@ meta_wayland_creator_params_new (MetaWaylandColorManager *color_manager,
   creator_params->colorspace = CLUTTER_COLORSPACE_DEFAULT;
   creator_params->transfer_function = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
 
+  creator_params->min_lum = -1.0f;
+  creator_params->max_lum = -1.0f;
+  creator_params->ref_lum = -1.0f;
+
   return creator_params;
 }
 
@@ -829,9 +855,13 @@ creator_params_create (struct wl_client   *client,
                         wl_resource_get_version (resource),
                         id);
 
-  color_state = clutter_color_state_new (clutter_context,
-                                         creator_params->colorspace,
-                                         creator_params->transfer_function);
+  color_state =
+    clutter_color_state_new_full (clutter_context,
+                                  creator_params->colorspace,
+                                  creator_params->transfer_function,
+                                  creator_params->min_lum,
+                                  creator_params->max_lum,
+                                  creator_params->ref_lum);
 
   image_desc =
     meta_wayland_image_description_new_color_state (color_manager,
@@ -937,9 +967,43 @@ creator_params_set_luminance (struct wl_client   *client,
                               uint32_t            max_lum,
                               uint32_t            reference_lum)
 {
-  wl_resource_post_error (resource,
-                          XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_LUMINANCE,
-                          "Setting luminance is not supported");
+  MetaWaylandCreatorParams *creator_params =
+    wl_resource_get_user_data (resource);
+  float min, max, ref;
+
+  if (creator_params->min_lum >= 0.0f ||
+      creator_params->max_lum >= 0.0f ||
+      creator_params->ref_lum >= 0.0f)
+    {
+      wl_resource_post_error (resource,
+                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              "The luminance was already set");
+      return;
+    }
+
+  min = scaled_uint32_to_float (min_lum);
+  max = (float) max_lum;
+  ref = (float) reference_lum;
+
+  if (max < ref)
+    {
+      wl_resource_post_error (resource,
+                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_LUMINANCE,
+                              "The maximum luminance is smaller than the reference luminance");
+      return;
+    }
+
+  if (ref <= min)
+    {
+      wl_resource_post_error (resource,
+                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_LUMINANCE,
+                              "The reference luminance is less or equal to the minimum luminance");
+      return;
+    }
+
+  creator_params->min_lum = min;
+  creator_params->max_lum = max;
+  creator_params->ref_lum = ref;
 }
 
 static void
@@ -1216,6 +1280,8 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                              XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL);
   xx_color_manager_v4_send_supported_feature (resource,
                                               XX_COLOR_MANAGER_V4_FEATURE_PARAMETRIC);
+  xx_color_manager_v4_send_supported_feature (resource,
+                                              XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES);
   xx_color_manager_v4_send_supported_tf_named (resource,
                                                XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB);
   xx_color_manager_v4_send_supported_tf_named (resource,
