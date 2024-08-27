@@ -23,7 +23,48 @@
 
 #include <gdk/x11/gdkx.h>
 #include <glib-unix.h>
+#include <gmodule.h>
 #include <X11/extensions/Xfixes.h>
+
+typedef void (* InitFunc) (void);
+
+static gboolean
+should_load_libadwaita (void)
+{
+  g_auto(GStrv) desktops = NULL;
+  const char *current_desktop;
+  const char *platform_library;
+
+  platform_library = g_getenv ("MUTTER_FRAMES_PLATFORM_LIBRARY");
+
+  if (g_strcmp0 (platform_library, "none") == 0)
+    return FALSE;
+
+  if (g_strcmp0 (platform_library, "adwaita") == 0)
+    return TRUE;
+
+  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+  if (current_desktop != NULL)
+    desktops = g_strsplit (current_desktop, ":", -1);
+
+  return desktops && g_strv_contains ((const char * const *) desktops, "GNOME");
+}
+
+static void
+load_libadwaita (GdkDisplay *display)
+{
+  GModule *libadwaita;
+  InitFunc adw_init;
+
+  libadwaita = g_module_open ("libadwaita-1.so.0", G_MODULE_BIND_LAZY);
+  if (!libadwaita)
+    return;
+
+  if (!g_module_symbol (libadwaita, "adw_init", (gpointer *) &adw_init))
+    return;
+
+  adw_init ();
+}
 
 static gboolean
 on_sigterm (gpointer user_data)
@@ -56,6 +97,9 @@ main (int   argc,
   gtk_init ();
 
   display = gdk_display_get_default ();
+
+  if (should_load_libadwaita ())
+    load_libadwaita (display);
 
   xdisplay = gdk_x11_display_get_xdisplay (display);
   XFixesSetClientDisconnectMode (xdisplay,

@@ -527,6 +527,8 @@ meta_frame_class_init (MetaFrameClass *klass)
 static void
 meta_frame_init (MetaFrame *frame)
 {
+  gtk_widget_add_css_class (GTK_WIDGET (frame), "ssd-frame");
+
   g_signal_connect (frame, "close-request",
                     G_CALLBACK (on_frame_close_request), NULL);
 }
