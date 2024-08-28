@@ -60,8 +60,7 @@ class MutterDBusRunner(DBusTestCase):
         print('Launching required services...', file=sys.stderr)
         klass.service_processes = []
         for service in launch:
-            print('  - Launching {}'.format(service), file=sys.stderr)
-            klass.service_processes += [subprocess.Popen(service)]
+            klass.launch_service([service])
 
         print('Starting mocked services...', file=sys.stderr)
         (klass.mocks_manager, klass.mock_obj) = klass.start_from_local_template(
@@ -261,6 +260,11 @@ ret = logind_helpers.open_file_direct(major, minor)
             if template_file.is_file():
                 return template_path
         raise FileNotFoundError(f'Couldnt find a {template_name} template')
+
+    @classmethod
+    def launch_service(klass, args):
+        print('  - Launching {}'.format(' '.join(args)), file=sys.stderr)
+        klass.service_processes += [subprocess.Popen(args)]
 
 
 def wrap_call(args, wrapper, extra_env):
