@@ -37,7 +37,7 @@ class MutterDBusRunner(DBusTestCase):
             return os.path.join(os.path.dirname(__file__), 'dbusmock-templates')
 
     @classmethod
-    def setUpClass(klass, enable_kvm, launch):
+    def setUpClass(klass, enable_kvm=False, launch=[]):
         klass.templates_dirs = [klass.__get_templates_dir()]
 
         klass.mocks = OrderedDict()
@@ -266,7 +266,6 @@ ret = logind_helpers.open_file_direct(major, minor)
         print('  - Launching {}'.format(' '.join(args)), file=sys.stderr)
         klass.service_processes += [subprocess.Popen(args)]
 
-
 def wrap_call(args, wrapper, extra_env):
     env = {}
     env.update(os.environ)
@@ -318,12 +317,15 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
         args.launch += launch.split(',')
 
     if args.no_isolate_dirs:
-        return meta_run_klass(klass, args, rest, extra_env)
+        return meta_run_klass(klass, rest,
+                              enable_kvm=args.kvm,
+                              extra_env=extra_env)
 
     test_root = os.getenv('MUTTER_DBUS_RUNNER_TEST_ROOT')
     if test_root:
         print('Reusing MUTTER_DBUS_RUNNER_TEST_ROOT', test_root, file=sys.stderr)
-        return meta_run_klass(klass, args, rest, extra_env)
+        return meta_run_klass(klass, rest,
+                              extra_env=extra_env)
 
     with tempfile.TemporaryDirectory(prefix='mutter-testroot-',
                                      ignore_cleanup_errors=True) as test_root:
@@ -335,13 +337,18 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
             os.mkdir(directory, mode=0o700)
             os.environ[env_dir] = directory
             print('Setup', env_dir, 'as', directory, file=sys.stderr)
-        return meta_run_klass(klass, args, rest, extra_env)
 
-def meta_run_klass(klass, args, rest, extra_env):
+        return meta_run_klass(klass, rest,
+                              enable_kvm=args.kvm,
+                              launch=args.launch,
+                              extra_env=extra_env)
+
+def meta_run_klass(klass, rest, enable_kvm=False, launch=[], extra_env=None):
     result = 1
 
     if os.getenv('META_DBUS_RUNNER_ACTIVE') == None:
-        klass.setUpClass(args.kvm, args.launch)
+        klass.setUpClass(enable_kvm=enable_kvm,
+                         launch=launch)
         runner = klass()
         runner.assertGreater(len(rest), 0)
         wrapper = os.getenv('META_DBUS_RUNNER_WRAPPER')
