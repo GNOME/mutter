@@ -1811,6 +1811,8 @@ meta_kms_impl_device_disable (MetaKmsImplDevice *impl_device)
   if (!priv->device_file)
     return;
 
+  disarm_all_deadline_timers (impl_device);
+
   meta_kms_impl_device_hold_fd (impl_device);
   meta_thread_inhibit_realtime_in_impl (thread);
   klass->disable (impl_device);
