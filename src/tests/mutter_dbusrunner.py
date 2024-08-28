@@ -411,10 +411,6 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
     else:
         print('WARNING: Command or separator `--` not found', file=sys.stderr)
 
-    launch = os.getenv('MUTTER_DBUS_RUNNER_LAUNCH')
-    if launch:
-        args.launch += launch.split(',')
-
     if args.no_isolate_dirs:
         return meta_run_klass(klass, rest,
                               enable_kvm=args.kvm,
