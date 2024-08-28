@@ -9,11 +9,23 @@ import getpass
 import argparse
 import logind_helpers
 import tempfile
+import select
+import socket
+import threading
+import configparser
 from collections import OrderedDict
 from dbusmock import DBusTestCase
 from dbus.mainloop.glib import DBusGMainLoop
 from pathlib import Path
 from gi.repository import Gio
+
+
+class MultiOrderedDict(OrderedDict):
+    def __setitem__(self, key, value):
+        if isinstance(value, list) and key in self:
+            self[key].extend(value)
+        else:
+            super(OrderedDict, self).__setitem__(key, value)
 
 
 def escape_object_path(path):
@@ -37,7 +49,7 @@ class MutterDBusRunner(DBusTestCase):
             return os.path.join(os.path.dirname(__file__), 'dbusmock-templates')
 
     @classmethod
-    def setUpClass(klass, enable_kvm=False, launch=[]):
+    def setUpClass(klass, enable_kvm=False, launch=[], bind_sockets=False):
         klass.templates_dirs = [klass.__get_templates_dir()]
 
         klass.mocks = OrderedDict()
@@ -56,6 +68,11 @@ class MutterDBusRunner(DBusTestCase):
         DBusTestCase.setUpClass()
         klass.start_session_bus()
         klass.start_system_bus()
+
+        klass.sockets = []
+        klass.poll_thread = None
+        if bind_sockets:
+            klass.enable_pipewire_sockets()
 
         print('Launching required services...', file=sys.stderr)
         klass.service_processes = []
@@ -88,6 +105,9 @@ class MutterDBusRunner(DBusTestCase):
         for (mock_server, mock_obj) in reversed(klass.mocks.values()):
             mock_server.terminate()
             mock_server.wait()
+
+        print('Closing PipeWire socket...', file=sys.stderr)
+        klass.disable_pipewire_sockets()
 
         print('Terminating services...', file=sys.stderr)
         for process in klass.service_processes:
@@ -262,9 +282,88 @@ ret = logind_helpers.open_file_direct(major, minor)
         raise FileNotFoundError(f'Couldnt find a {template_name} template')
 
     @classmethod
-    def launch_service(klass, args):
+    def launch_service(klass, args, env=None, pass_fds=()):
         print('  - Launching {}'.format(' '.join(args)), file=sys.stderr)
-        klass.service_processes += [subprocess.Popen(args)]
+        klass.service_processes += [subprocess.Popen(args, env=env, pass_fds=pass_fds)]
+
+    @classmethod
+    def poll_pipewire_sockets_in_thread(klass, sockets):
+        poller = select.poll()
+        for socket in sockets:
+            poller.register(socket.fileno(), select.POLLIN | select.POLLHUP)
+
+        should_spawn = False
+        should_poll = True
+        while should_poll:
+            results = poller.poll()
+            for result in results:
+                if result[1] == select.POLLIN:
+                    should_spawn = True
+                    should_poll = False
+                else:
+                    should_poll = False
+
+        if not should_spawn:
+            return
+
+        print("Noticed activity on a PipeWire socket, launching services...", file=sys.stderr);
+
+        pipewire_env = os.environ
+        pipewire_env['LISTEN_FDS'] = f'{len(sockets)}'
+        pipewire_fds = {}
+        subprocess_fd = 3
+        for sock in sockets:
+            pipewire_fds[subprocess_fd] = sock.fileno()
+            subprocess_fd += 1
+
+        socket_launch = os.path.join(os.path.dirname(__file__), 'socket-launch.sh')
+        klass.launch_service([socket_launch, 'pipewire'],
+                             env=pipewire_env,
+                             pass_fds=pipewire_fds)
+        klass.launch_service(['wireplumber'])
+
+    @classmethod
+    def get_pipewire_socket_names(klass):
+        pipewire_socket_unit = '/usr/lib/systemd/user/pipewire.socket'
+
+        config = configparser.ConfigParser(strict=False,
+                                           empty_lines_in_values=False,
+                                           dict_type=MultiOrderedDict,
+                                           interpolation=None)
+        res = config.read([pipewire_socket_unit])
+
+        runtime_dir = os.environ['XDG_RUNTIME_DIR']
+        return [socket_name.replace('%t', runtime_dir)
+                for socket_name in config.get('Socket', 'ListenStream')]
+
+    @classmethod
+    def enable_pipewire_sockets(klass):
+        runtime_dir = os.environ['XDG_RUNTIME_DIR']
+
+        sockets = []
+        for socket_name in klass.get_pipewire_socket_names():
+            sock = socket.socket(socket.AF_UNIX)
+            print("Binding {} for socket activation".format(socket_name), file=sys.stderr)
+            sock.bind(socket_name)
+            sock.listen()
+            sockets.append(sock)
+
+        poll_closure = lambda: klass.poll_pipewire_sockets_in_thread(sockets)
+
+        klass.poll_thread = threading.Thread(target=poll_closure)
+        klass.poll_thread.start()
+
+        klass.sockets = sockets
+
+    @classmethod
+    def disable_pipewire_sockets(klass):
+        for sock in klass.sockets:
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
+
+        if klass.poll_thread:
+            klass.poll_thread.join()
+
 
 def wrap_call(args, wrapper, extra_env):
     env = {}
@@ -341,14 +440,16 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
         return meta_run_klass(klass, rest,
                               enable_kvm=args.kvm,
                               launch=args.launch,
+                              bind_sockets=True,
                               extra_env=extra_env)
 
-def meta_run_klass(klass, rest, enable_kvm=False, launch=[], extra_env=None):
+def meta_run_klass(klass, rest, enable_kvm=False, launch=[], bind_sockets=False, extra_env=None):
     result = 1
 
     if os.getenv('META_DBUS_RUNNER_ACTIVE') == None:
         klass.setUpClass(enable_kvm=enable_kvm,
-                         launch=launch)
+                         launch=launch,
+                         bind_sockets=bind_sockets)
         runner = klass()
         runner.assertGreater(len(rest), 0)
         wrapper = os.getenv('META_DBUS_RUNNER_WRAPPER')
