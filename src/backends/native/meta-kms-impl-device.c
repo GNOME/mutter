@@ -1697,6 +1697,25 @@ needs_flush:
   meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
 }
 
+static void
+disarm_all_deadline_timers (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  GHashTableIter iter;
+  CrtcFrame *crtc_frame;
+
+  g_hash_table_iter_init (&iter, priv->crtc_frames);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
+    {
+      crtc_frame->deadline.is_deadline_page_flip = FALSE;
+      crtc_frame->await_flush = FALSE;
+      crtc_frame->pending_page_flip = FALSE;
+      g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
+      disarm_crtc_frame_deadline_timer (crtc_frame);
+    }
+}
+
 static MetaKmsFeedback *
 process_mode_set_update (MetaKmsImplDevice *impl_device,
                          MetaKmsUpdate     *update,
@@ -1710,7 +1729,6 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
   MetaKmsFeedback *feedback;
   CrtcFrame *crtc_frame;
   GList *l;
-  GHashTableIter iter;
 
   for (l = meta_kms_update_get_mode_sets (update); l; l = l->next)
     {
@@ -1729,15 +1747,7 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
       update = g_steal_pointer (&crtc_frame->pending_update);
     }
 
-  g_hash_table_iter_init (&iter, priv->crtc_frames);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
-    {
-      crtc_frame->deadline.is_deadline_page_flip = FALSE;
-      crtc_frame->await_flush = FALSE;
-      crtc_frame->pending_page_flip = FALSE;
-      g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
-      disarm_crtc_frame_deadline_timer (crtc_frame);
-    }
+  disarm_all_deadline_timers (impl_device);
 
   meta_thread_inhibit_realtime_in_impl (thread);
   feedback = do_process (impl_device, NULL, update, flags);
