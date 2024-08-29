@@ -87,21 +87,14 @@ Renderdoc is usually the better tool to debug something with, but it's also hard
     dnf install -y gdb
     ```
 
-4. Replicate a environment and run the test inside gdb. What you need here depends on the test that needs investigation. In the simplest case, the following is enough:
+4. Run the test case
 
     ```sh
-    export XDG_RUNTIME_DIR=$PWD/runtime-dir
-    mkdir -p $XDG_RUNTIME_DIR
-    ./src/tests/meta-dbus-runner.py meson test -C build --setup plain --gdb failing-test-case
+    meson test -C build failing-test-case
     ```
 
-    If it involves screen casting, it becomes a bit more complicated:
+5. Run the test case in gdb
 
     ```sh
-    export XDG_RUNTIME_DIR=$PWD/runtime-dir
-    mkdir -p $XDG_RUNTIME_DIR
-    ./src/tests/meta-dbus-runner.py bash -l
-    pipewire&
-    wireplumber&
-    meson test -C build --setup plain --gdb failing-test-case
+    ./src/tests/meta-dbus-runner.py meson test -C build --setup plain --gdb failing-test-case
     ```
