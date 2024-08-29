@@ -547,8 +547,6 @@ build-wayland-only@x86_64:
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - mkdir -m 1777 /tmp/.X11-unix
     - ./src/tests/meta-dbus-runner.py
-        --launch=pipewire
-        --launch=wireplumber
         --
         meson test
           -C build
@@ -717,8 +715,6 @@ dist-mutter:
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - mkdir -m 1777 /tmp/.X11-unix
     - ./src/tests/meta-dbus-runner.py
-        --launch=pipewire
-        --launch=wireplumber
         --
         meson dist -C build
   artifacts:
