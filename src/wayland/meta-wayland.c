@@ -660,6 +660,17 @@ meta_wayland_log_func (const char *fmt,
   g_free (str);
 }
 
+static void
+on_client_created (struct wl_listener *listener,
+                   void               *user_data)
+{
+  struct wl_client *client = user_data;
+  MetaWaylandCompositor *compositor =
+    wl_container_of (listener, compositor, client_created_listener);
+
+  wl_client_set_user_data (client, compositor, NULL);
+}
+
 void
 meta_wayland_compositor_prepare_shutdown (MetaWaylandCompositor *compositor)
 {
@@ -717,6 +728,10 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
   compositor->wayland_display = wl_display_create ();
   if (compositor->wayland_display == NULL)
     g_error ("Failed to create the global wl_display");
+
+  compositor->client_created_listener.notify = on_client_created;
+  wl_display_add_client_created_listener (compositor->wayland_display,
+                                          &compositor->client_created_listener);
 
   priv->filter_manager = meta_wayland_filter_manager_new (compositor);
   priv->frame_callback_sources =
