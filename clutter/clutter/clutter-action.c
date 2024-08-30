@@ -99,10 +99,11 @@ gboolean
 clutter_action_handle_event (ClutterAction      *action,
                              const ClutterEvent *event)
 {
-  gboolean retval;
+  gboolean retval = CLUTTER_EVENT_PROPAGATE;
 
   g_object_ref (action);
-  retval = CLUTTER_ACTION_GET_CLASS (action)->handle_event (action, event);
+  if (clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action)))
+    retval = CLUTTER_ACTION_GET_CLASS (action)->handle_event (action, event);
   g_object_unref (action);
 
   return retval;
