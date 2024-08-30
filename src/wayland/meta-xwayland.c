@@ -1050,6 +1050,29 @@ meta_xwayland_shutdown (MetaWaylandCompositor *compositor)
     }
 }
 
+static void
+update_highest_monitor_scale (MetaXWaylandManager *manager)
+{
+  MetaWaylandCompositor *compositor = manager->compositor;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  GList *logical_monitors;
+  GList *l;
+  double scale = 1.0;
+
+  logical_monitors = meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+
+      scale = MAX (scale, meta_logical_monitor_get_scale (logical_monitor));
+    }
+
+  manager->highest_monitor_scale = scale;
+}
+
 gboolean
 meta_xwayland_init (MetaXWaylandManager    *manager,
                     MetaWaylandCompositor  *compositor,
@@ -1057,6 +1080,9 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
                     GError                **error)
 {
   MetaContext *context = compositor->context;
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaX11DisplayPolicy policy;
   int display = 0;
 
@@ -1119,6 +1145,10 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
 
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   meta_xwayland_grab_keyboard_init (compositor);
+
+  g_signal_connect_swapped (monitor_manager, "monitors-changed-internal",
+                            G_CALLBACK (update_highest_monitor_scale), manager);
+  update_highest_monitor_scale (manager);
 
   return TRUE;
 }
@@ -1299,4 +1329,30 @@ meta_xwayland_set_should_enable_ei_portal (MetaXWaylandManager  *manager,
                                            gboolean              should_enable_ei_portal)
 {
   manager->should_enable_ei_portal = should_enable_ei_portal;
+}
+
+int
+meta_xwayland_get_effective_scale (MetaXWaylandManager *manager)
+{
+  MetaWaylandCompositor *compositor = manager->compositor;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaSettings *settings = meta_backend_get_settings (backend);
+
+  switch (meta_monitor_manager_get_layout_mode (monitor_manager))
+    {
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
+      break;
+
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
+      if (meta_settings_is_experimental_feature_enabled (settings,
+                                                         META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING) &&
+          meta_settings_is_experimental_feature_enabled (settings,
+                                                         META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER))
+        return (int) ceil (manager->highest_monitor_scale);
+    }
+
+  return 1;
 }

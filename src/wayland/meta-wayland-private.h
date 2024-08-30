@@ -77,6 +77,8 @@ struct _MetaXWaylandManager
   int rr_error_base;
 
   gboolean should_enable_ei_portal;
+
+  double highest_monitor_scale;
 };
 
 struct _MetaWaylandCompositor
