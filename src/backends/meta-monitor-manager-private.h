@@ -432,3 +432,5 @@ gboolean meta_monitor_manager_apply_monitors_config (MetaMonitorManager        *
                                                      MetaMonitorsConfig        *config,
                                                      MetaMonitorsConfigMethod   method,
                                                      GError                   **error);
+
+MetaLogicalMonitorLayoutMode meta_monitor_manager_get_layout_mode (MetaMonitorManager *manager);

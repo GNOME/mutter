@@ -4001,3 +4001,9 @@ meta_monitor_manager_get_virtual_monitors (MetaMonitorManager *manager)
 
   return priv->virtual_monitors;
 }
+
+MetaLogicalMonitorLayoutMode
+meta_monitor_manager_get_layout_mode (MetaMonitorManager *manager)
+{
+  return manager->layout_mode;
+}
