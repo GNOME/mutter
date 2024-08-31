@@ -230,7 +230,7 @@ update_ui_scaling_factor (MetaX11Display *x11_display)
         MetaXWaylandManager *xwayland_manager =
           &wayland_compositor->xwayland_manager;
 
-        ui_scaling_factor = meta_xwayland_get_effective_scale (xwayland_manager);
+        ui_scaling_factor = meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
 #endif
         break;
       }
