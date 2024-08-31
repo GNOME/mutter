@@ -1356,3 +1356,24 @@ meta_xwayland_get_effective_scale (MetaXWaylandManager *manager)
 
   return 1;
 }
+
+int
+meta_xwayland_get_x11_ui_scaling_factor (MetaXWaylandManager *manager)
+{
+  MetaWaylandCompositor *compositor = manager->compositor;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaSettings *settings = meta_backend_get_settings (backend);
+
+  switch (meta_monitor_manager_get_layout_mode (monitor_manager))
+    {
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
+      return meta_settings_get_ui_scaling_factor (settings);
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
+      return meta_xwayland_get_effective_scale (manager);
+    }
+
+  g_assert_not_reached ();
+}
