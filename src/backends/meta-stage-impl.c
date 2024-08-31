@@ -682,6 +682,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       paint_stage (stage_impl, stage_view, redraw_clip, frame);
     }
 
+#ifdef HAVE_PROFILER
   if (G_UNLIKELY (cogl_is_tracing_enabled ()))
     {
       g_autoptr (GString) rects_str = NULL;
@@ -708,6 +709,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
       COGL_TRACE_DESCRIBE (RedrawViewPrimary, rects_str->str);
       COGL_TRACE_SET_COUNTER_INT (RedrawViewPrimaryDamageArea, area);
     }
+#endif
 
   g_clear_pointer (&redraw_clip, mtk_region_unref);
   g_clear_pointer (&fb_clip_region, mtk_region_unref);

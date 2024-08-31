@@ -240,6 +240,10 @@ cogl_trace_counter_data_double (gpointer user_data)
 #define COGL_TRACE_SCOPED_ANCHOR(Name) (void) 0
 #define COGL_TRACE_BEGIN_ANCHORED(Name, name) (void) 0
 #define COGL_TRACE_MESSAGE(name, ...) (void) 0
+#define COGL_TRACE_DEFINE_COUNTER_INT(Name, name, description) (void) 0
+#define COGL_TRACE_DEFINE_COUNTER_DOUBLE(Name, name, description) (void) 0
+#define COGL_TRACE_SET_COUNTER_INT(Name, value) (void) 0
+#define COGL_TRACE_SET_COUNTER_DOUBLE(Name, value) (void) 0
 
 COGL_EXPORT
 gboolean cogl_start_tracing_with_path (const char  *filename,
