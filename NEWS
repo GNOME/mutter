@@ -1,3 +1,45 @@
+47.rc
+=====
+* Add experimental color management protocol support
+  [Sebastian W.; !3904, !3930, !3941, !3893, !3953]
+* Merge Cally into Clutter [Bilal; !3917]
+* Fix drag and drop between X11 and wayland clients [Carlos; !3821]
+* Fix drag and drop from grabbing popups [Carlos; !3937]
+* Fix EGLDevice support [Daniel; !3939]
+* Improve cursor smoothness under load [Jonas Å., Michel; !3184, !3934, !3958]
+* Fix frozen cursor on some hybrid machines [Daniel; !3950]
+* Fix touch window dragging with pointer lock enabled [Carlos; !3889]
+* Store the layout mode in monitor config [Jonas & Jonas; !3596]
+* Fix keys sometimes getting stuck after using global shortcut [Carlos; !3935]
+* Fix propagating tablet device removals to clients [Peter; !3955]
+* Fix tablet input in maximized windows [Peter; !3956]
+* Reduce damage on window movement [Christian; !3975]
+* Install mutter tests [Jonas Å.; !3973]
+* Use libadwaita for server-side decorations on GNOME [Georges; !3981]
+* Fix frozen cursor after suspend [Jonas Å.; !3982]
+* Let scaling-aware Xwayland clients scale themselves [Jonas & Jonas; !3567]
+* Add initial PipeWire explicit sync support [Michel, Wim; !3876]
+* Trace damage reason in sysprof [Sebastian W.; !3952]
+* Expose new backlight API to gnome-settings-daemon [Jonas Å.; !3861]
+* Fixed crashes [Jonas Å., Daniel; !3960, !3928]
+* Plugged leaks [Sebastian K.; !3994]
+* Misc. bug fixes and cleanups [Bilal, Sebastian W., Jonas Å., Marco, Daniel,
+  Georges, sid, Florian, José, Sophie, Michel, Robert, Lukáš, Martin, Carlos,
+  Sebastian K.; !3915, !3907, !3923, !3925, !3924, !3694, !3912, !3916, !3931,
+  !3918, !3922, !3940, !3946, !3945, !3949, !3942, !3914, !3899, !3954, !3957,
+  !3963, !3967, !3966, !3971, !3962, !3974, !3969, !3976, !3983, !3977, !3979,
+  !3986, !3987, !3988, !3991, !3989, !3992]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Jonas Dreßler, Bilal Elmoussaoui, José Expósito,
+  Carlos Garnacho, Christian Hergert, Sophie Herold, Peter Hutterer,
+  Sebastian Keller, Martin Abente Lahaye, Robert Mader, Florian Müllner,
+  Georges Basile Stavracas Neto, sid, Wim Taymans, Marco Trevisan (Treviño),
+  Lukáš Tyrychtr, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Daniel Șerbănescu [ro], Quentin PAGÈS [oc], Vasil Pupkin [be]
+
 47.beta
 =======
 * Fix visibility of Xwayland windows [Michel; !3862]
