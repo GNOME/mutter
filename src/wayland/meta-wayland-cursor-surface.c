@@ -103,8 +103,19 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
     meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
   if (logical_monitor)
     {
-      int surface_scale = surface->applied_state.scale;
+      int surface_scale;
       float texture_scale;
+#ifdef HAVE_XWAYLAND
+      MetaWaylandCompositor *wayland_compositor =
+        meta_context_get_wayland_compositor (context);
+      MetaXWaylandManager *xwayland_manager =
+        &wayland_compositor->xwayland_manager;
+
+      if (meta_wayland_surface_is_xwayland (surface))
+        surface_scale = meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
+      else
+#endif /* HAVE_XWAYLAND */
+        surface_scale = surface->applied_state.scale;
 
       if (meta_backend_is_stage_views_scaled (backend))
         texture_scale = 1.0f / surface_scale;
