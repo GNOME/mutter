@@ -22,6 +22,7 @@
 #include <sys/mman.h>
 
 #include "core/meta-session-state.h"
+#include "core/util-private.h"
 #include "meta/window.h"
 
 #define META_TYPE_SESSION_MANAGER (meta_session_manager_get_type ())
@@ -33,6 +34,7 @@ G_DECLARE_FINAL_TYPE (MetaSessionManager,
 MetaSessionManager * meta_session_manager_new (const gchar  *name,
                                                GError      **error);
 
+META_EXPORT_TEST
 MetaSessionManager * meta_session_manager_new_for_fd (const gchar  *name,
                                                       int           fd,
                                                       GError      **error);

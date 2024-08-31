@@ -24,6 +24,7 @@
 #include <gio/gio.h>
 #define G_SETTINGS_ENABLE_BACKEND
 #include <gio/gsettingsbackend.h>
+#include <fcntl.h>
 
 #include "core/meta-context-private.h"
 #include "meta/meta-x11-display.h"
@@ -51,6 +52,7 @@ typedef struct _MetaContextTestPrivate
 {
   MetaContextTestType type;
   MetaContextTestFlag flags;
+  MetaSessionManager *session_manager;
 } MetaContextTestPrivate;
 
 struct _MetaContextTestClass
@@ -74,6 +76,18 @@ ensure_gsettings_memory_backend (void)
   default_backend = g_settings_backend_get_default ();
   g_assert_true (G_TYPE_FROM_INSTANCE (memory_backend) ==
                  G_TYPE_FROM_INSTANCE (default_backend));
+}
+
+static void
+meta_context_test_finalize (GObject *object)
+{
+  MetaContextTest *context_test = META_CONTEXT_TEST (object);
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
+
+  g_clear_object (&priv->session_manager);
+
+  G_OBJECT_CLASS (meta_context_test_parent_class)->finalize (object);
 }
 
 static gboolean
@@ -219,6 +233,33 @@ meta_context_test_notify_ready (MetaContext *context)
 {
 }
 
+static MetaSessionManager *
+meta_context_test_get_session_manager (MetaContext *context)
+{
+  MetaContextTest *context_test = META_CONTEXT_TEST (context);
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
+
+  if (!priv->session_manager)
+    {
+      g_autoptr (GError) error = NULL;
+      g_autofree char *template = NULL;
+      int fd;
+
+      template = g_build_filename (g_get_tmp_dir (),
+                                   "session.gvdb.XXXXXX",
+                                   NULL);
+
+      fd = g_mkstemp (template);
+      unlink (template);
+      priv->session_manager =
+        meta_session_manager_new_for_fd (NULL, fd, &error);
+      g_assert_no_error (error);
+    }
+
+  return priv->session_manager;
+}
+
 #ifdef HAVE_X11
 static gboolean
 meta_context_test_is_x11_sync (MetaContext *context)
@@ -343,7 +384,10 @@ meta_create_test_context (MetaContextTestType type,
 static void
 meta_context_test_class_init (MetaContextTestClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaContextClass *context_class = META_CONTEXT_CLASS (klass);
+
+  object_class->finalize = meta_context_test_finalize;
 
   context_class->configure = meta_context_test_configure;
   context_class->get_compositor_type = meta_context_test_get_compositor_type;
@@ -356,6 +400,7 @@ meta_context_test_class_init (MetaContextTestClass *klass)
 #ifdef HAVE_X11
   context_class->is_x11_sync = meta_context_test_is_x11_sync;
 #endif
+  context_class->get_session_manager = meta_context_test_get_session_manager;
 
   signals[BEFORE_TESTS] =
     g_signal_new ("before-tests",
