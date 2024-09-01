@@ -1056,7 +1056,7 @@ foreach dbus_interface: dbus_interfaces
   endif
   interface_file = directory / interface
 
-  prefix = dbus_interface['prefix']
+  interface_prefix = dbus_interface['prefix']
 
   if dbus_interface.has_key('object_manager')
     object_manager = dbus_interface['object_manager']
@@ -1065,7 +1065,7 @@ foreach dbus_interface: dbus_interfaces
   endif
 
   dbus_sources = gnome.gdbus_codegen(name, interface_file,
-    interface_prefix: prefix,
+    interface_prefix: interface_prefix,
     namespace: 'MetaDBus',
     object_manager: object_manager,
   )
