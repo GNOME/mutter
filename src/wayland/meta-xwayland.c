@@ -1279,8 +1279,11 @@ meta_xwayland_set_primary_output (MetaX11Display *x11_display)
         {
           XRRSetOutputPrimary (xdisplay, DefaultRootWindow (xdisplay),
                                output_id);
+          XRRFreeOutputInfo (xrandr_output);
           break;
         }
+
+      XRRFreeOutputInfo (xrandr_output);
     }
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
