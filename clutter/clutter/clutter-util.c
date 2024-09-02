@@ -297,18 +297,3 @@ _clutter_find_base_dir (const gchar *text,
 
   return dir;
 }
-
-PangoDirection
-clutter_text_direction_to_pango_direction (ClutterTextDirection dir)
-{
-  switch (dir)
-    {
-    case CLUTTER_TEXT_DIRECTION_RTL:
-      return PANGO_DIRECTION_RTL;
-    case CLUTTER_TEXT_DIRECTION_LTR:
-      return PANGO_DIRECTION_LTR;
-    default:
-    case CLUTTER_TEXT_DIRECTION_DEFAULT:
-      return PANGO_DIRECTION_NEUTRAL;
-    }
-}
