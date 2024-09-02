@@ -25,5 +25,3 @@
 META_EXPORT
 int meta_settings_get_ui_scaling_factor (MetaSettings *settings);
 
-META_EXPORT
-int meta_settings_get_font_dpi (MetaSettings *settings);

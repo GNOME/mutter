@@ -54,8 +54,6 @@
 
 enum
 {
-  RESOLUTION_CHANGED,
-  FONT_CHANGED,
   SETTINGS_CHANGED,
 
   LAST_SIGNAL
@@ -91,8 +89,6 @@ clutter_backend_dispose (GObject *gobject)
     }
 
   g_clear_pointer (&backend->cogl_source, g_source_destroy);
-  g_clear_pointer (&backend->font_name, g_free);
-  g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
   g_clear_object (&backend->input_method);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
@@ -268,36 +264,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   gobject_class->set_property = clutter_backend_set_property;
 
   /**
-   * ClutterBackend::resolution-changed:
-   * @backend: the #ClutterBackend that emitted the signal
-   *
-   * The signal is emitted each time the font
-   * resolutions has been changed through #ClutterSettings.
-   */
-  backend_signals[RESOLUTION_CHANGED] =
-    g_signal_new (I_("resolution-changed"),
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_FIRST,
-                  G_STRUCT_OFFSET (ClutterBackendClass, resolution_changed),
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
-
-  /**
-   * ClutterBackend::font-changed:
-   * @backend: the #ClutterBackend that emitted the signal
-   *
-   * The signal is emitted each time the font options
-   * have been changed through #ClutterSettings.
-   */
-  backend_signals[FONT_CHANGED] =
-    g_signal_new (I_("font-changed"),
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_FIRST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
-
-  /**
    * ClutterBackend::settings-changed:
    * @backend: the #ClutterBackend that emitted the signal
    *
@@ -390,105 +356,6 @@ clutter_get_default_backend (void)
   clutter_context = _clutter_context_get_default ();
 
   return clutter_context->backend;
-}
-
-/**
- * clutter_backend_get_resolution:
- * @backend: a #ClutterBackend
- *
- * Gets the resolution for font handling on the screen.
- *
- * The resolution is a scale factor between points specified in a
- * #PangoFontDescription and cairo units. The default value is 96.0,
- * meaning that a 10 point font will be 13 units
- * high (10 * 96. / 72. = 13.3).
- *
- * Clutter will set the resolution using the current backend when
- * initializing; the resolution is also stored in the
- * #ClutterSettings:font-dpi property.
- *
- * Return value: the current resolution, or -1 if no resolution
- *   has been set.
- */
-gdouble
-clutter_backend_get_resolution (ClutterBackend *backend)
-{
-  ClutterSettings *settings;
-  gint resolution;
-
-  g_return_val_if_fail (CLUTTER_IS_BACKEND (backend), -1.0);
-
-  settings = clutter_context_get_settings (backend->context);
-  g_object_get (settings, "font-dpi", &resolution, NULL);
-
-  if (resolution < 0)
-    return 96.0;
-
-  return resolution / 1024.0;
-}
-
-/**
- * clutter_backend_set_font_options:
- * @backend: a #ClutterBackend
- * @options: Cairo font options for the backend, or %NULL
- *
- * Sets the new font options for @backend. The #ClutterBackend will
- * copy the #cairo_font_options_t.
- *
- * If @options is %NULL, the first following call to
- * [method@Clutter.Backend.get_font_options] will return the default font
- * options for @backend.
- *
- * This function is intended for actors creating a Pango layout
- * using the PangoCairo API.
- */
-void
-clutter_backend_set_font_options (ClutterBackend             *backend,
-                                  const cairo_font_options_t *options)
-{
-  g_return_if_fail (CLUTTER_IS_BACKEND (backend));
-
-  if (backend->font_options != options)
-    {
-      if (backend->font_options)
-        cairo_font_options_destroy (backend->font_options);
-
-      if (options)
-        backend->font_options = cairo_font_options_copy (options);
-      else
-        backend->font_options = NULL;
-
-      g_signal_emit (backend, backend_signals[FONT_CHANGED], 0);
-    }
-}
-
-/**
- * clutter_backend_get_font_options:
- * @backend: a #ClutterBackend
- *
- * Retrieves the font options for @backend.
- *
- * Return value: (transfer none): the font options of the #ClutterBackend.
- *   The returned #cairo_font_options_t is owned by the backend and should
- *   not be modified or freed
- */
-const cairo_font_options_t *
-clutter_backend_get_font_options (ClutterBackend *backend)
-{
-  g_return_val_if_fail (CLUTTER_IS_BACKEND (backend), NULL);
-
-  if (G_LIKELY (backend->font_options))
-    return backend->font_options;
-
-  backend->font_options = cairo_font_options_create ();
-
-  cairo_font_options_set_hint_style (backend->font_options, CAIRO_HINT_STYLE_NONE);
-  cairo_font_options_set_subpixel_order (backend->font_options, CAIRO_SUBPIXEL_ORDER_DEFAULT);
-  cairo_font_options_set_antialias (backend->font_options, CAIRO_ANTIALIAS_DEFAULT);
-
-  g_signal_emit (backend, backend_signals[FONT_CHANGED], 0);
-
-  return backend->font_options;
 }
 
 /**

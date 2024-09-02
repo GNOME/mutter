@@ -47,9 +47,6 @@ struct _ClutterBackend
 
   CoglOnscreen *dummy_onscreen;
 
-  cairo_font_options_t *font_options;
-
-  gchar *font_name;
 
   float fallback_resource_scale;
 
@@ -75,9 +72,6 @@ struct _ClutterBackendClass
   ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
   gboolean              (* is_display_server)  (ClutterBackend *backend);
-
-  /* signals */
-  void (* resolution_changed) (ClutterBackend *backend);
 };
 
 ClutterStageWindow *    _clutter_backend_create_stage                   (ClutterBackend         *backend,

@@ -67,8 +67,6 @@ struct _MetaSettings
   int ui_scaling_factor;
   int global_scaling_factor;
 
-  int font_dpi;
-
   gboolean privacy_screen;
 
   MetaExperimentalFeature experimental_features;
@@ -169,58 +167,6 @@ meta_settings_get_global_scaling_factor (MetaSettings *settings,
   return TRUE;
 }
 
-static gboolean
-update_font_dpi (MetaSettings *settings)
-{
-  ClutterContext *clutter_context;
-  ClutterSettings *clutter_settings;
-  double text_scaling_factor;
-  /* Number of logical pixels on an inch when unscaled */
-  const double dots_per_inch = 96;
-  /* Being based on Xft, API users expect the DPI to be 1/1024th of an inch. */
-  const double xft_factor = 1024;
-  int font_dpi;
-
-  text_scaling_factor = g_settings_get_double (settings->interface_settings,
-                                               "text-scaling-factor");
-  font_dpi = (int) (text_scaling_factor *
-                    dots_per_inch *
-                    xft_factor *
-                    settings->ui_scaling_factor);
-
-  if (font_dpi != settings->font_dpi)
-    {
-      settings->font_dpi = font_dpi;
-      clutter_context = meta_backend_get_clutter_context (settings->backend);
-      clutter_settings = clutter_context_get_settings (clutter_context);
-
-      g_object_set (clutter_settings,
-                    "font-dpi", font_dpi,
-                    NULL);
-
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
-}
-
-static void
-meta_settings_update_font_dpi (MetaSettings *settings)
-{
-  if (update_font_dpi (settings))
-    g_signal_emit (settings, signals[FONT_DPI_CHANGED], 0);
-}
-
-int
-meta_settings_get_font_dpi (MetaSettings *settings)
-{
-  g_assert (settings->font_dpi != 0);
-
-  return settings->font_dpi;
-}
-
 static void
 interface_settings_changed (GSettings    *interface_settings,
                             const char   *key,
@@ -230,10 +176,6 @@ interface_settings_changed (GSettings    *interface_settings,
     {
       if (update_global_scaling_factor (settings))
         g_signal_emit (settings, signals[GLOBAL_SCALING_FACTOR_CHANGED], 0);
-    }
-  else if (g_str_equal (key, "text-scaling-factor"))
-    {
-      meta_settings_update_font_dpi (settings);
     }
 }
 
@@ -574,8 +516,6 @@ meta_settings_init (MetaSettings *settings)
   /* Chain up inter-dependent settings. */
   g_signal_connect (settings, "global-scaling-factor-changed",
                     G_CALLBACK (meta_settings_update_ui_scaling_factor), NULL);
-  g_signal_connect (settings, "ui-scaling-factor-changed",
-                    G_CALLBACK (meta_settings_update_font_dpi), NULL);
 
   experimental_features_env = getenv ("MUTTER_DEBUG_EXPERIMENTAL_FEATURES");
   if (experimental_features_env)
@@ -615,7 +555,6 @@ meta_settings_post_init (MetaSettings *settings)
     meta_backend_get_monitor_manager (settings->backend);
 
   update_ui_scaling_factor (settings);
-  update_font_dpi (settings);
 
   g_signal_connect_object (monitor_manager, "monitors-changed-internal",
                            G_CALLBACK (on_monitors_changed),
