@@ -2057,24 +2057,27 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
   MetaThreadImpl *thread_impl = META_THREAD_IMPL (kms_impl);
   MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
   MetaKmsFeedback *feedback;
+  GHashTableIter iter;
   CrtcFrame *crtc_frame;
-  GList *l;
 
-  for (l = meta_kms_update_get_mode_sets (update); l; l = l->next)
+  g_hash_table_iter_init (&iter, priv->crtc_frames);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
     {
-      MetaKmsModeSet *mode_set = l->data;
-      MetaKmsCrtc *crtc = mode_set->crtc;
+      if (crtc_frame->submitted_update.kms_update)
+        {
+          meta_kms_update_merge_from (crtc_frame->submitted_update.kms_update,
+                                      update);
+          meta_kms_update_free (update);
+          update = g_steal_pointer (&crtc_frame->submitted_update.kms_update);
+          g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
+        }
 
-      crtc_frame = get_crtc_frame (impl_device, crtc);
-      if (!crtc_frame)
-        continue;
-
-      if (!crtc_frame->pending_update)
-        continue;
-
-      meta_kms_update_merge_from (crtc_frame->pending_update, update);
-      meta_kms_update_free (update);
-      update = g_steal_pointer (&crtc_frame->pending_update);
+      if (crtc_frame->pending_update)
+        {
+          meta_kms_update_merge_from (crtc_frame->pending_update, update);
+          meta_kms_update_free (update);
+          update = g_steal_pointer (&crtc_frame->pending_update);
+        }
     }
 
   disarm_all_deadline_timers (impl_device);
