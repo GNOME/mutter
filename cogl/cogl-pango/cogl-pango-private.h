@@ -42,4 +42,6 @@ G_BEGIN_DECLS
 PangoRenderer *
 _cogl_pango_renderer_new (CoglContext *context);
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoRenderer, g_object_unref)
+
 G_END_DECLS

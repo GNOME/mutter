@@ -82,16 +82,15 @@ struct _CoglPangoRenderer
   CoglPangoDisplayList *display_list;
 };
 
-struct _CoglPangoRendererClass
-{
-  PangoRendererClass class_instance;
-};
-
-typedef struct _CoglPangoLayoutQdata CoglPangoLayoutQdata;
+G_DECLARE_FINAL_TYPE (CoglPangoRenderer,
+                      cogl_pango_renderer,
+                      COGL_PANGO,
+                      RENDERER,
+                      PangoRenderer)
 
 /* An instance of this struct gets attached to each PangoLayout to
    cache the VBO and to detect changes to the layout */
-struct _CoglPangoLayoutQdata
+typedef struct _CoglPangoLayoutQdata
 {
   CoglPangoRenderer *renderer;
   /* The cache of the geometry for the layout */
@@ -103,7 +102,7 @@ struct _CoglPangoLayoutQdata
      need to regenerate the display list if the mipmapping value is
      changed because it will be using a different set of textures */
   gboolean mipmapping_used;
-};
+} CoglPangoLayoutQdata;
 
 typedef struct
 {
@@ -114,7 +113,7 @@ typedef struct
 PangoRenderer *
 _cogl_pango_renderer_new (CoglContext *context)
 {
-  return PANGO_RENDERER (g_object_new (COGL_PANGO_TYPE_RENDERER,
+  return PANGO_RENDERER (g_object_new (cogl_pango_renderer_get_type (),
                                        "context", context, NULL));
 }
 
@@ -175,8 +174,7 @@ cogl_pango_renderer_draw_glyph (CoglPangoRenderer        *priv,
                                        &data);
 }
 
-
-G_DEFINE_TYPE (CoglPangoRenderer, cogl_pango_renderer, PANGO_TYPE_RENDERER);
+G_DEFINE_FINAL_TYPE (CoglPangoRenderer, cogl_pango_renderer, PANGO_TYPE_RENDERER);
 
 static void
 cogl_pango_renderer_init (CoglPangoRenderer *priv)

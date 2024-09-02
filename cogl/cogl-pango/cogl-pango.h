@@ -151,17 +151,4 @@ cogl_pango_show_layout (CoglFramebuffer        *framebuffer,
                         gpointer                pipeline_setup_userdata);
 
 
-#define COGL_PANGO_TYPE_RENDERER                (cogl_pango_renderer_get_type ())
-#define COGL_PANGO_RENDERER(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_PANGO_TYPE_RENDERER, CoglPangoRenderer))
-#define COGL_PANGO_RENDERER_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), COGL_PANGO_TYPE_RENDERER, CoglPangoRendererClass))
-#define COGL_PANGO_IS_RENDERER(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_PANGO_TYPE_RENDERER))
-#define COGL_PANGO_IS_RENDERER_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_PANGO_TYPE_RENDERER))
-#define COGL_PANGO_RENDERER_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), COGL_PANGO_TYPE_RENDERER, CoglPangoRendererClass))
-
-/* opaque types */
-typedef struct _CoglPangoRenderer      CoglPangoRenderer;
-typedef struct _CoglPangoRendererClass CoglPangoRendererClass;
-
-COGL_EXPORT GType cogl_pango_renderer_get_type (void) G_GNUC_CONST;
-
 G_END_DECLS
