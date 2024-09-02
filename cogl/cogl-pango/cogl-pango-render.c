@@ -105,9 +105,6 @@ struct _CoglPangoLayoutQdata
   gboolean mipmapping_used;
 };
 
-static void
-_cogl_pango_ensure_glyph_cache_for_layout_line (PangoLayoutLine *line);
-
 typedef struct
 {
   CoglPangoDisplayList *display_list;
@@ -178,27 +175,6 @@ cogl_pango_renderer_draw_glyph (CoglPangoRenderer        *priv,
                                        &data);
 }
 
-static void cogl_pango_renderer_dispose (GObject *object);
-static void cogl_pango_renderer_finalize (GObject *object);
-static void cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
-                                             PangoFont        *font,
-                                             PangoGlyphString *glyphs,
-                                             int               x,
-                                             int               y);
-static void cogl_pango_renderer_draw_rectangle (PangoRenderer    *renderer,
-                                                PangoRenderPart   part,
-                                                int               x,
-                                                int               y,
-                                                int               width,
-                                                int               height);
-static void cogl_pango_renderer_draw_trapezoid (PangoRenderer    *renderer,
-                                                PangoRenderPart   part,
-                                                double            y1,
-                                                double            x11,
-                                                double            x21,
-                                                double            y2,
-                                                double            x12,
-                                                double            x22);
 
 G_DEFINE_TYPE (CoglPangoRenderer, cogl_pango_renderer, PANGO_TYPE_RENDERER);
 
@@ -246,31 +222,6 @@ cogl_pango_renderer_set_property (GObject      *object,
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
-}
-
-static void
-cogl_pango_renderer_class_init (CoglPangoRendererClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  PangoRendererClass *renderer_class = PANGO_RENDERER_CLASS (klass);
-  GParamSpec *pspec;
-
-  object_class->set_property = cogl_pango_renderer_set_property;
-  object_class->constructed = _cogl_pango_renderer_constructed;
-  object_class->dispose = cogl_pango_renderer_dispose;
-  object_class->finalize = cogl_pango_renderer_finalize;
-
-  pspec = g_param_spec_object ("context", NULL, NULL,
-                               COGL_TYPE_CONTEXT,
-                               G_PARAM_WRITABLE |
-                               G_PARAM_STATIC_STRINGS |
-                               G_PARAM_CONSTRUCT_ONLY);
-
-  g_object_class_install_property (object_class, PROP_COGL_CONTEXT, pspec);
-
-  renderer_class->draw_glyphs = cogl_pango_renderer_draw_glyphs;
-  renderer_class->draw_rectangle = cogl_pango_renderer_draw_rectangle;
-  renderer_class->draw_trapezoid = cogl_pango_renderer_draw_trapezoid;
 }
 
 static void
@@ -446,47 +397,6 @@ cogl_pango_show_layout (CoglFramebuffer        *fb,
     }
 }
 
-void
-cogl_pango_show_layout_line (CoglFramebuffer        *fb,
-                             PangoLayoutLine        *line,
-                             float                   x,
-                             float                   y,
-                             const CoglColor        *color,
-                             CoglPangoPipelineSetup  pipeline_setup,
-                             gpointer                pipeline_setup_userdata)
-{
-  PangoContext *context;
-  CoglPangoRenderer *priv;
-  CoglPangoRendererCaches *caches;
-  int pango_x = (int) (x * PANGO_SCALE);
-  int pango_y = (int) (y * PANGO_SCALE);
-
-  context = pango_layout_get_context (line->layout);
-  priv = cogl_pango_get_renderer_from_context (context);
-  if (G_UNLIKELY (!priv))
-    return;
-
-  caches = (priv->use_mipmapping ?
-            &priv->mipmap_caches :
-            &priv->no_mipmap_caches);
-
-  priv->display_list = _cogl_pango_display_list_new (caches->pipeline_cache);
-
-  _cogl_pango_ensure_glyph_cache_for_layout_line (line);
-
-  pango_renderer_draw_layout_line (PANGO_RENDERER (priv), line,
-                                   pango_x, pango_y);
-
-  cogl_pango_display_list_render (fb,
-                                  priv->display_list,
-                                  pipeline_setup,
-                                  pipeline_setup_userdata,
-                                  color);
-
-  _cogl_pango_display_list_free (priv->display_list);
-  priv->display_list = NULL;
-}
-
 static CoglPangoGlyphCacheValue *
 cogl_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
                                       gboolean       create,
@@ -640,22 +550,6 @@ _cogl_pango_set_dirty_glyphs (CoglPangoRenderer *priv)
     (priv->mipmap_caches.glyph_cache, cogl_pango_renderer_set_dirty_glyph);
   _cogl_pango_glyph_cache_set_dirty_glyphs
     (priv->no_mipmap_caches.glyph_cache, cogl_pango_renderer_set_dirty_glyph);
-}
-
-static void
-_cogl_pango_ensure_glyph_cache_for_layout_line (PangoLayoutLine *line)
-{
-  PangoContext *context;
-  CoglPangoRenderer *priv;
-
-  context = pango_layout_get_context (line->layout);
-  priv = cogl_pango_get_renderer_from_context (context);
-
-  _cogl_pango_ensure_glyph_cache_for_layout_line_internal (line);
-
-  /* Now that we know all of the positions are settled we'll fill in
-     any dirty glyphs */
-  _cogl_pango_set_dirty_glyphs (priv);
 }
 
 void
@@ -900,4 +794,29 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
 
       xi += gi->geometry.width;
     }
+}
+
+static void
+cogl_pango_renderer_class_init (CoglPangoRendererClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  PangoRendererClass *renderer_class = PANGO_RENDERER_CLASS (klass);
+  GParamSpec *pspec;
+
+  object_class->set_property = cogl_pango_renderer_set_property;
+  object_class->constructed = _cogl_pango_renderer_constructed;
+  object_class->dispose = cogl_pango_renderer_dispose;
+  object_class->finalize = cogl_pango_renderer_finalize;
+
+  pspec = g_param_spec_object ("context", NULL, NULL,
+                               COGL_TYPE_CONTEXT,
+                               G_PARAM_WRITABLE |
+                               G_PARAM_STATIC_STRINGS |
+                               G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_property (object_class, PROP_COGL_CONTEXT, pspec);
+
+  renderer_class->draw_glyphs = cogl_pango_renderer_draw_glyphs;
+  renderer_class->draw_rectangle = cogl_pango_renderer_draw_rectangle;
+  renderer_class->draw_trapezoid = cogl_pango_renderer_draw_trapezoid;
 }
