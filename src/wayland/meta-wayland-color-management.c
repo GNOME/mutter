@@ -1204,6 +1204,9 @@ color_management_feedback_surface_destructor (struct wl_resource *resource)
   MetaWaylandColorManagementSurface *cm_surface =
     wl_resource_get_user_data (resource);
 
+  if (!cm_surface)
+    return;
+
   cm_surface->feedback_resources =
     g_list_remove (cm_surface->feedback_resources, resource);
 }
