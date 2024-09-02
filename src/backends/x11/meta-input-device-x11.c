@@ -195,6 +195,7 @@ meta_input_device_x11_get_property (GObject    *object,
     }
 }
 
+#ifdef HAVE_LIBWACOM
 #ifndef HAVE_LIBWACOM_GET_NUM_RINGS
 static int
 libwacom_get_num_rings (WacomDevice *device)
@@ -207,6 +208,7 @@ libwacom_get_num_rings (WacomDevice *device)
 
   return 0;
 }
+#endif
 #endif
 
 static int
