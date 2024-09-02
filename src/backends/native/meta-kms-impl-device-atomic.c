@@ -643,7 +643,8 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
             return FALSE;
         }
 
-      if (plane_assignment->flags & META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC)
+      if (plane_assignment->flags & META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC &&
+          !meta_kms_update_get_mode_sets (update))
         {
           int signaled_sync_file;
 
