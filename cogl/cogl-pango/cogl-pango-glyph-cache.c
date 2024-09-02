@@ -154,17 +154,6 @@ cogl_pango_glyph_cache_reorganize_cb (void *user_data)
 }
 
 void
-cogl_pango_glyph_cache_clear (CoglPangoGlyphCache *cache)
-{
-  g_slist_foreach (cache->atlases, (GFunc) g_object_unref, NULL);
-  g_slist_free (cache->atlases);
-  cache->atlases = NULL;
-  cache->has_dirty_glyphs = FALSE;
-
-  g_hash_table_remove_all (cache->hash_table);
-}
-
-void
 cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache)
 {
   if (cache->using_global_atlas)
@@ -174,8 +163,12 @@ cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache)
                                   cogl_pango_glyph_cache_reorganize_cb, cache);
     }
 
-  cogl_pango_glyph_cache_clear (cache);
+  g_slist_foreach (cache->atlases, (GFunc) g_object_unref, NULL);
+  g_slist_free (cache->atlases);
+  cache->atlases = NULL;
+  cache->has_dirty_glyphs = FALSE;
 
+  g_hash_table_remove_all (cache->hash_table);
   g_hash_table_unref (cache->hash_table);
 
   g_hook_list_clear (&cache->reorganize_callbacks);

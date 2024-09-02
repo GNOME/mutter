@@ -80,9 +80,6 @@ cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
                                PangoFont           *font,
                                PangoGlyph           glyph);
 
-COGL_EXPORT void
-cogl_pango_glyph_cache_clear (CoglPangoGlyphCache *cache);
-
 void
 _cogl_pango_glyph_cache_add_reorganize_callback (CoglPangoGlyphCache *cache,
                                                  GHookFunc func,

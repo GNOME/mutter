@@ -480,18 +480,12 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
   g_free (node);
 }
 
-static void
-_cogl_pango_display_list_clear (CoglPangoDisplayList *dl)
+void
+_cogl_pango_display_list_free (CoglPangoDisplayList *dl)
 {
   g_slist_free_full (dl->nodes, (GDestroyNotify)
                      _cogl_pango_display_list_node_free);
   dl->nodes = NULL;
   dl->last_node = NULL;
-}
-
-void
-_cogl_pango_display_list_free (CoglPangoDisplayList *dl)
-{
-  _cogl_pango_display_list_clear (dl);
   g_free (dl);
 }

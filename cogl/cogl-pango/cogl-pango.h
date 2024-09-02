@@ -150,26 +150,6 @@ cogl_pango_show_layout (CoglFramebuffer        *framebuffer,
                         CoglPangoPipelineSetup  pipeline_setup,
                         gpointer                pipeline_setup_userdata);
 
-/**
- * cogl_pango_show_layout_line: (skip)
- * @framebuffer: A #CoglFramebuffer to draw too.
- * @line: a #PangoLayoutLine
- * @x: X coordinate to render the line at
- * @y: Y coordinate to render the line at
- * @color: color to use when rendering the line
- *
- * Draws a solidly coloured @line on the given @framebuffer at (@x,
- * @y) within the `framebuffer`'s current model-view coordinate space.
- */
-COGL_EXPORT void
-cogl_pango_show_layout_line (CoglFramebuffer        *framebuffer,
-                             PangoLayoutLine        *line,
-                             float                   x,
-                             float                   y,
-                             const CoglColor        *color,
-                             CoglPangoPipelineSetup  pipeline_setup,
-                             gpointer                pipeline_setup_userdata);
-
 
 #define COGL_PANGO_TYPE_RENDERER                (cogl_pango_renderer_get_type ())
 #define COGL_PANGO_RENDERER(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_PANGO_TYPE_RENDERER, CoglPangoRenderer))
