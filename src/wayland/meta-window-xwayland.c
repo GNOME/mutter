@@ -337,6 +337,22 @@ meta_window_xwayland_stage_to_protocol (MetaWindow *window,
     *protocol_y = stage_y * scale;
 }
 
+static int
+scale_and_handle_overflow (int      protocol,
+                           float    scale,
+                           float (* rounding_function) (float value))
+{
+  float value;
+
+  value = rounding_function (protocol * scale);
+  if (value >= (float) INT_MAX)
+    return INT_MAX;
+  else if (value <= (float) INT_MIN)
+    return INT_MIN;
+  else
+    return (int) value;
+}
+
 static void
 meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
                                         int                  protocol_x,
@@ -360,21 +376,21 @@ meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
     {
     case MTK_ROUNDING_STRATEGY_SHRINK:
       if (stage_x)
-        *stage_x = (int) floorf (protocol_x * scale);
+        *stage_x = scale_and_handle_overflow (protocol_x, scale, floorf);
       if (stage_y)
-        *stage_y = (int) floorf (protocol_y * scale);
+        *stage_y = scale_and_handle_overflow (protocol_y, scale, floorf);
       break;
     case MTK_ROUNDING_STRATEGY_GROW:
       if (stage_x)
-        *stage_x = (int) ceilf (protocol_x * scale);
+        *stage_x = scale_and_handle_overflow (protocol_x, scale, ceilf);
       if (stage_y)
-        *stage_y = (int) ceilf (protocol_y * scale);
+        *stage_y = scale_and_handle_overflow (protocol_y, scale, ceilf);
       break;
     case MTK_ROUNDING_STRATEGY_ROUND:
       if (stage_x)
-        *stage_x = (int) roundf (protocol_x * scale);
+        *stage_x = scale_and_handle_overflow (protocol_x, scale, roundf);
       if (stage_y)
-        *stage_y = (int) roundf (protocol_y * scale);
+        *stage_y = scale_and_handle_overflow (protocol_y, scale, roundf);
       break;
     }
 }
