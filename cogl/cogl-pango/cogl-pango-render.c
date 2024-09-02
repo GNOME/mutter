@@ -199,8 +199,7 @@ _cogl_pango_renderer_constructed (GObject *gobject)
 
   renderer->use_mipmapping = FALSE;
 
-  if (G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->constructed)
-    G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->constructed (gobject);
+  G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->constructed (gobject);
 }
 
 static void
