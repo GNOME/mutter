@@ -23,9 +23,11 @@
 
 #pragma once
 
+
 #include "clutter/clutter.h"
 #include "meta/common.h"
 #include "meta/meta-multi-texture.h"
+#include <cairo/cairo.h>
 
 G_BEGIN_DECLS
 

@@ -1292,6 +1292,7 @@ if have_introspection
   endforeach
 
   libmutter_gir_includes = [
+    'cairo-1.0',
     'Gio-2.0',
     'GObject-2.0',
     'GDesktopEnums-3.0',
