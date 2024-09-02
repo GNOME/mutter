@@ -109,7 +109,6 @@ graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
 cairo_dep = dependency('cairo', version: cairo_req)
 pixman_dep = dependency('pixman-1', version: pixman_req)
-fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
                                            version: gsettings_desktop_schemas_req)
 glib_dep = dependency('glib-2.0', version: glib_req)
@@ -158,6 +157,7 @@ if have_x11_client
   xau_dep = dependency('xau')
 
   if have_x11
+    fribidi_dep = dependency('fribidi', version: fribidi_req)
     ice_dep = dependency('ice')
     xcb_randr_dep = dependency('xcb-randr')
     xkbcommon_x11_dep = dependency('xkbcommon-x11')

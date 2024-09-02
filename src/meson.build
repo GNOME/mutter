@@ -124,6 +124,7 @@ if have_x11
     xkbfile_dep,
     xkbcommon_x11_dep,
     xtst_dep,
+    fribidi_dep,
   ]
 
   if have_sm
