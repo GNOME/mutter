@@ -302,29 +302,6 @@ clutter_context_get_backend (ClutterContext *context)
   return context->backend;
 }
 
-CoglPangoFontMap *
-clutter_context_get_pango_fontmap (ClutterContext *context)
-{
-  CoglPangoFontMap *font_map;
-  gdouble resolution;
-  ClutterBackend *backend;
-  CoglContext *cogl_context;
-
-  if (G_LIKELY (context->font_map != NULL))
-    return context->font_map;
-
-  backend = clutter_context_get_backend (context);
-  cogl_context = clutter_backend_get_cogl_context (backend);
-  font_map = COGL_PANGO_FONT_MAP (cogl_pango_font_map_new (cogl_context));
-
-  resolution = clutter_backend_get_resolution (context->backend);
-  cogl_pango_font_map_set_resolution (font_map, resolution);
-
-  context->font_map = font_map;
-
-  return context->font_map;
-}
-
 ClutterTextDirection
 clutter_context_get_text_direction (ClutterContext *context)
 {

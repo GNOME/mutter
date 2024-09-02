@@ -53,11 +53,6 @@ void clutter_context_destroy (ClutterContext *context);
 CLUTTER_EXPORT
 ClutterBackend * clutter_context_get_backend (ClutterContext *context);
 
-/**
- * clutter_context_get_pango_fontmap: (skip)
- */
-CoglPangoFontMap * clutter_context_get_pango_fontmap (ClutterContext *context);
-
 ClutterTextDirection clutter_context_get_text_direction (ClutterContext *context);
 
 CLUTTER_EXPORT

@@ -136,25 +136,6 @@ clutter_backend_set_property (GObject      *object,
     }
 }
 
-static void
-clutter_backend_real_resolution_changed (ClutterBackend *backend)
-{
-  ClutterContext *context = backend->context;
-  ClutterSettings *settings = clutter_context_get_settings (context);
-  gdouble resolution;
-  gint dpi;
-
-  g_object_get (settings, "font-dpi", &dpi, NULL);
-
-  if (dpi < 0)
-    resolution = 96.0;
-  else
-    resolution = dpi / 1024.0;
-
-  if (context->font_map != NULL)
-    cogl_pango_font_map_set_resolution (context->font_map, resolution);
-}
-
 static gboolean
 clutter_backend_do_real_create_context (ClutterBackend  *backend,
                                         CoglDriver       driver_id,
@@ -339,8 +320,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
                          G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, N_PROPS, pspecs);
-
-  klass->resolution_changed = clutter_backend_real_resolution_changed;
 
   klass->create_context = clutter_backend_real_create_context;
 }
