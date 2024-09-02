@@ -73,7 +73,6 @@ static const GDebugKey cogl_behavioural_debug_keys[] = {
   { "disable-pbos", COGL_DEBUG_DISABLE_PBOS },
   { "disable-software-transform", COGL_DEBUG_DISABLE_SOFTWARE_TRANSFORM },
   { "disable-atlas", COGL_DEBUG_DISABLE_ATLAS },
-  { "disable-shared-atlas", COGL_DEBUG_DISABLE_SHARED_ATLAS },
   { "disable-texturing", COGL_DEBUG_DISABLE_TEXTURING},
   { "disable-blending", COGL_DEBUG_DISABLE_BLENDING},
   { "wireframe", COGL_DEBUG_WIREFRAME},

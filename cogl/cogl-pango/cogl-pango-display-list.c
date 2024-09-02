@@ -33,7 +33,7 @@
 
 #include "cogl-pango/cogl-pango-display-list.h"
 #include "cogl-pango/cogl-pango-pipeline-cache.h"
-#include "cogl/cogl-context-private.h"
+#include "cogl/cogl.h"
 
 typedef enum
 {

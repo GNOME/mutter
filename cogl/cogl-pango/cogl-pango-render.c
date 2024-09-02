@@ -41,12 +41,10 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 
-#include "cogl/cogl-debug.h"
-#include "cogl/cogl-context-private.h"
-#include "cogl/cogl-texture-private.h"
 #include "cogl-pango/cogl-pango-private.h"
 #include "cogl-pango/cogl-pango-glyph-cache.h"
 #include "cogl-pango/cogl-pango-display-list.h"
+#include "cogl/cogl.h"
 
 #define PANGO_UNKNOWN_GLYPH_WIDTH 10
 #define PANGO_UNKNOWN_GLYPH_HEIGHT 14
@@ -440,7 +438,7 @@ cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
   cairo_format_t format_cairo;
   CoglPixelFormat format_cogl;
 
-  COGL_NOTE (PANGO, "redrawing glyph %i", glyph);
+  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "redrawing glyph %i", glyph);
 
   /* Glyphs that don't take up any space will end up without a
      texture. These should never become dirty so they shouldn't end up

@@ -32,8 +32,6 @@
 
 #include "cogl-pango/cogl-pango-glyph-cache.h"
 #include "cogl-pango/cogl-pango-private.h"
-#include "cogl/cogl-atlas.h"
-#include "cogl/cogl-atlas-texture-private.h"
 
 typedef struct _CoglPangoGlyphCacheKey     CoglPangoGlyphCacheKey;
 
@@ -219,9 +217,6 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
   CoglTexture *texture;
   GError *ignore_error = NULL;
 
-  if (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_SHARED_ATLAS))
-    return FALSE;
-
   /* If the cache is using mipmapping then we can't use the global
      atlas because it would just get migrated back out */
   if (cache->use_mipmapping)
@@ -288,7 +283,7 @@ cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
                               COGL_ATLAS_CLEAR_TEXTURE |
                               COGL_ATLAS_DISABLE_MIGRATION,
                               cogl_pango_glyph_cache_update_position_cb);
-      COGL_NOTE (ATLAS, "Created new atlas for glyphs: %p", atlas);
+      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "Created new atlas for glyphs: %p", atlas);
       /* If we still can't reserve space then something has gone
          seriously wrong so we'll just give up */
       if (!cogl_atlas_reserve_space (atlas,

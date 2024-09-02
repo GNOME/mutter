@@ -31,7 +31,7 @@
 #include <glib.h>
 #include <pango/pango-font.h>
 
-#include "cogl/cogl-texture.h"
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 

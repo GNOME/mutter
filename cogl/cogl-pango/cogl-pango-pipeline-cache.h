@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include "cogl/cogl-context-private.h"
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 
