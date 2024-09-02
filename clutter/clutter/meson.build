@@ -289,7 +289,6 @@ if have_introspection
       'GL-1.0',
       'Gio-2.0',
       'GObject-2.0',
-      'cairo-1.0',
       'Atk-1.0',
     ],
     dependencies: [cogl_deps],

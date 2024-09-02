@@ -29,7 +29,6 @@ clutter_c_args += clutter_debug_c_args
 
 clutter_pkg_deps = [
   atk_dep,
-  cairo_dep,
   glib_dep,
   gobject_dep,
   gio_dep,
@@ -41,7 +40,6 @@ clutter_pkg_private_deps = [
   fribidi_dep,
   gthread_dep,
   gmodule_no_export_dep,
-  pangocairo_dep,
 ]
 
 clutter_deps = [

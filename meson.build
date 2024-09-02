@@ -24,7 +24,6 @@ gtk4_req = '>= 4.0.0'
 gdk_pixbuf_req = '>= 2.0'
 pango_req = '>= 1.46.0'
 cairo_req = '>= 1.10.0'
-pangocairo_req = '>= 1.20'
 pixman_req = '>= 0.42'
 gsettings_desktop_schemas_req = '>= 47.beta'
 x11_req = '>= 1.7.0'
@@ -110,7 +109,6 @@ graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
 pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
-pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
 pixman_dep = dependency('pixman-1', version: pixman_req)
 fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
