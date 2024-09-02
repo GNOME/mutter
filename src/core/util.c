@@ -70,6 +70,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "input-events", META_DEBUG_INPUT_EVENTS },
   { "eis", META_DEBUG_EIS },
   { "kms-deadline", META_DEBUG_KMS_DEADLINE },
+  { "session-management", META_DEBUG_SESSION_MANAGEMENT },
 };
 
 static gint verbose_topics = 0;
@@ -329,6 +330,8 @@ meta_topic_to_string (MetaDebugTopic topic)
       return "EIS";
     case META_DEBUG_KMS_DEADLINE:
       return "KMS_DEADLINE";
+    case META_DEBUG_SESSION_MANAGEMENT:
+      return "SESSION_MANAGEMENT";
     }
 
   return "WM";

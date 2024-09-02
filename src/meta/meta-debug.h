@@ -51,6 +51,7 @@
  * @META_DEBUG_INPUT_EVENTS: input events
  * @META_DEBUG_EIS: eis state
  * @META_DEBUG_KMS_DEADLINE: KMS deadline timers
+ * @META_DEBUG_SESSION_MANAGEMENT: session management
  */
 typedef enum
 {
@@ -85,6 +86,7 @@ typedef enum
   META_DEBUG_INPUT_EVENTS    = 1 << 27,
   META_DEBUG_EIS             = 1 << 28,
   META_DEBUG_KMS_DEADLINE    = 1 << 29,
+  META_DEBUG_SESSION_MANAGEMENT = 1 << 30,
 } MetaDebugTopic;
 
 META_EXPORT
