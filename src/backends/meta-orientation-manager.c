@@ -214,19 +214,17 @@ accelerometer_claimed (GObject      *source,
                        gpointer      user_data)
 {
   MetaOrientationManager *self = user_data;
-  GVariant *v;
-  GError *error = NULL;
+  g_autoptr (GVariant) v = NULL;
+  g_autoptr (GError) error = NULL;
 
   v = g_dbus_proxy_call_finish (G_DBUS_PROXY (source), res, &error);
   if (!v)
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         g_warning ("Failed to claim accelerometer: %s", error->message);
-      g_error_free (error);
+
       return;
     }
-
-  g_variant_unref (v);
 
   sync_state (self);
 }
@@ -238,14 +236,14 @@ iio_proxy_ready (GObject      *source,
 {
   MetaOrientationManager *self = user_data;
   GDBusProxy *proxy;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   proxy = g_dbus_proxy_new_finish (res, &error);
   if (!proxy)
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         g_warning ("Failed to obtain IIO DBus proxy: %s", error->message);
-      g_error_free (error);
+
       return;
     }
 
