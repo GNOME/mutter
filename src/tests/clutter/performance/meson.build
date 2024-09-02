@@ -8,7 +8,6 @@ clutter_tests_performance_c_args += clutter_debug_c_args
 
 clutter_tests_performance_tests = [
   'test-picking',
-  'test-text-perf',
 ]
 
 foreach test : clutter_tests_performance_tests

@@ -82,54 +82,22 @@ static void
 make_ui (ClutterActor *stage)
 {
   gint             i             = 0;
-  ClutterActor    *editable      = NULL;
   ClutterActor    *rectangle     = NULL;
-  ClutterActor    *label         = NULL;
-  CoglColor color_sel = { 0x00, 0xff, 0x00, 0x55 };
-  CoglColor color_label = { 0x00, 0xff, 0x55, 0xff };
   CoglColor color_rect = { 0x00, 0xff, 0xff, 0x55 };
-  float label_geom_y, editable_geom_y;
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
                                       &COGL_COLOR_INIT (255, 255, 255, 255));
   clutter_actor_set_size (stage, WIDTH, HEIGHT);
 
-  label_geom_y = 50;
-  editable_geom_y = 50;
-
   for (i = 0; i < NUM_ENTRIES; i++)
     {
-      /* label */
-      label = clutter_text_new_full ("Sans Bold 32px",
-                                     "Entry",
-                                     &color_label);
-      clutter_actor_set_position (label, 0, label_geom_y);
-
-      /* editable */
-      editable = clutter_text_new_full ("Sans Bold 32px",
-                                        "ddd",
-                                        &COGL_COLOR_INIT (255, 0, 0, 255));
-      clutter_actor_set_position (editable, 150, editable_geom_y);
-      clutter_actor_set_size (editable, 500, 75);
-      clutter_text_set_editable (CLUTTER_TEXT (editable), TRUE);
-      clutter_text_set_selectable (CLUTTER_TEXT (editable), TRUE);
-      clutter_text_set_selection_color (CLUTTER_TEXT (editable),
-                                        &color_sel);
-      clutter_actor_grab_key_focus (editable);
-      clutter_actor_set_reactive (editable, TRUE);
-
       /* rectangle: to create a entry "feeling" */
       rectangle = clutter_actor_new ();
       clutter_actor_set_background_color (rectangle, &color_rect);
-      clutter_actor_set_position (rectangle, 150, editable_geom_y);
       clutter_actor_set_size (rectangle, 500, 75);
 
-      clutter_actor_add_child (stage, label);
-      clutter_actor_add_child (stage, editable);
       clutter_actor_add_child (stage, rectangle);
 
-      label_geom_y += HEIGHT_STEP;
-      editable_geom_y += HEIGHT_STEP;
     }
 }
 

@@ -99,19 +99,6 @@ attach_action (ClutterActor *actor, guint axis)
   g_signal_connect (action, "gesture-cancel", G_CALLBACK (gesture_cancel_cb), NULL);
 }
 
-static ClutterActor *
-create_label (const char *markup)
-{
-  return CLUTTER_ACTOR (g_object_new (CLUTTER_TYPE_TEXT,
-                                      "text", markup,
-                                      "use-markup", TRUE,
-                                      "x-expand", TRUE,
-                                      "y-expand", TRUE,
-                                      "x-align", CLUTTER_ACTOR_ALIGN_START,
-                                      "y-align", CLUTTER_ACTOR_ALIGN_CENTER,
-                                      NULL));
-}
-
 G_MODULE_EXPORT int
 test_swipe_action_main (int argc, char *argv[])
 {
@@ -161,15 +148,6 @@ test_swipe_action_main (int argc, char *argv[])
 
     box = clutter_actor_new ();
     clutter_actor_set_layout_manager (box, layout);
-
-    clutter_actor_add_child (box,
-                             create_label ("<b>Red</b>: vertical swipes only"));
-
-    clutter_actor_add_child (box,
-                             create_label ("<b>Blue</b>: horizontal swipes only"));
-
-    clutter_actor_add_child (box,
-                             create_label ("<b>Green</b>: both"));
 
     offset =
       clutter_actor_get_height (stage) -

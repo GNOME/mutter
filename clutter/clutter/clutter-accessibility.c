@@ -262,19 +262,8 @@ check_key_visibility (ClutterStage *stage)
   if (atk_object_get_role (accessible) != ATK_ROLE_PASSWORD_TEXT)
     return 0;
 
-  /* If it is a clutter text, we use his password char.  Note that
-     although at Clutter toolkit itself, only ClutterText exposes a
-     password role, nothing prevents on any derived toolkit (like st)
-     to create a new actor that can behave like a password entry. And
-     the key event will still be emitted here. Although in that case
-     we would lose any password char from the derived toolkit, it is
-     still better fill this with a default unichar that the original
-     one */
-
-  if (CLUTTER_IS_TEXT (focus))
-    return clutter_text_get_password_char (CLUTTER_TEXT (focus));
-  else
-    return DEFAULT_PASSWORD_CHAR;
+  /* This won't use a specific password char that would be set by StText for example */
+  return DEFAULT_PASSWORD_CHAR;
 }
 
 gboolean

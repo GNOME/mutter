@@ -10,7 +10,6 @@ struct _TestDestroy
   ClutterActor parent_instance;
 
   ClutterActor *bg;
-  ClutterActor *label;
 
   GList *children;
 };
@@ -36,17 +35,6 @@ test_destroy_destroy (ClutterActor *self)
 
       clutter_actor_destroy (test->bg);
       test->bg = NULL;
-    }
-
-  if (test->label != NULL)
-    {
-      if (!g_test_quiet ())
-        g_print ("Destroying '%s' (type:%s)\n",
-                 clutter_actor_get_name (test->label),
-                 G_OBJECT_TYPE_NAME (test->label));
-
-      clutter_actor_destroy (test->label);
-      test->label = NULL;
     }
 
   children = clutter_actor_get_children (self);
@@ -75,10 +63,6 @@ test_destroy_init (TestDestroy *self)
   self->bg = clutter_actor_new ();
   clutter_actor_add_child (CLUTTER_ACTOR (self), self->bg);
   clutter_actor_set_name (self->bg, "Background");
-
-  self->label = clutter_text_new ();
-  clutter_actor_add_child (CLUTTER_ACTOR (self), self->label);
-  clutter_actor_set_name (self->label, "Label");
 }
 
 static void

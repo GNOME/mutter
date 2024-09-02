@@ -27,10 +27,6 @@ clutter_conform_tests_actor_tests = [
   'actor-size',
 ]
 
-clutter_conform_tests_classes_tests = [
-  'text',
-]
-
 clutter_conform_tests_general_tests = [
   'binding-pool',
   'event-delivery',
@@ -49,7 +45,6 @@ clutter_conform_tests_general_tests = [
 
 clutter_conform_tests = []
 clutter_conform_tests +=  clutter_conform_tests_actor_tests
-clutter_conform_tests += clutter_conform_tests_classes_tests
 clutter_conform_tests += clutter_conform_tests_general_tests
 
 test_env = environment()

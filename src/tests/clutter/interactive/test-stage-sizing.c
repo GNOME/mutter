@@ -31,7 +31,7 @@ expand_clicked_cb (ClutterActor *stage)
 G_MODULE_EXPORT int
 test_stage_sizing_main (int argc, char *argv[])
 {
-  ClutterActor *stage, *rect, *label, *box;
+  ClutterActor *stage, *rect, *actor, *box;
   ClutterMargin margin = { 12.f, 12.f, 6.f, 6.f };
 
   clutter_test_init (&argc, &argv);
@@ -50,9 +50,9 @@ test_stage_sizing_main (int argc, char *argv[])
   clutter_actor_set_reactive (rect, TRUE);
   g_signal_connect_swapped (rect, "button-press-event",
                             G_CALLBACK (shrink_clicked_cb), stage);
-  label = clutter_text_new_with_text ("Sans 16", "Shrink");
-  clutter_actor_set_margin (label, &margin);
-  clutter_actor_add_child (rect, label);
+  actor = clutter_actor_new ();
+  clutter_actor_set_margin (actor, &margin);
+  clutter_actor_add_child (rect, actor);
   clutter_actor_add_child (box, rect);
 
   rect = clutter_actor_new ();
@@ -61,9 +61,9 @@ test_stage_sizing_main (int argc, char *argv[])
   clutter_actor_set_reactive (rect, TRUE);
   g_signal_connect_swapped (rect, "button-press-event",
                             G_CALLBACK (expand_clicked_cb), stage);
-  label = clutter_text_new_with_text ("Sans 16", "Expand");
-  clutter_actor_set_margin (label, &margin);
-  clutter_actor_add_child (rect, label);
+  actor = clutter_actor_new ();
+  clutter_actor_set_margin (actor, &margin);
+  clutter_actor_add_child (rect, actor);
   clutter_actor_add_child (box, rect);
 
   clutter_actor_show (stage);

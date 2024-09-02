@@ -72,9 +72,6 @@ clutter_headers = [
   'clutter-stage.h',
   'clutter-stage-view.h',
   'clutter-tap-action.h',
-  'clutter-text.h',
-  'clutter-text-buffer.h',
-  'clutter-texture-content.h',
   'clutter-timeline.h',
   'clutter-transition-group.h',
   'clutter-transition.h',
@@ -164,9 +161,6 @@ clutter_sources = [
   'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
-  'clutter-text-accessible.c',
-  'clutter-text.c',
-  'clutter-text-buffer.c',
   'clutter-texture-content.c',
   'clutter-transition-group.c',
   'clutter-transition.c',
@@ -210,7 +204,6 @@ clutter_private_headers = [
   'clutter-stage-private.h',
   'clutter-stage-view-private.h',
   'clutter-stage-window.h',
-  'clutter-text-accessible-private.h',
   'clutter-timeline-private.h',
 ]
 
