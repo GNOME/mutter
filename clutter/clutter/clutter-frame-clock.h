@@ -105,6 +105,7 @@ float clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock);
 void clutter_frame_clock_record_flip_time (ClutterFrameClock *frame_clock,
                                            int64_t            flip_time_us);
 
+CLUTTER_EXPORT
 GString * clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clock);
 
 CLUTTER_EXPORT
