@@ -29,7 +29,6 @@
 
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage.h"
-#include <pango/pango.h>
 
 G_BEGIN_DECLS
 

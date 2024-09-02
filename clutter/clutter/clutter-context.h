@@ -21,7 +21,6 @@
 
 #include "clutter-backend.h"
 #include "clutter-settings.h"
-#include "cogl-pango/cogl-pango.h"
 
 
 typedef ClutterBackend * (* ClutterBackendConstructor) (ClutterContext *context,

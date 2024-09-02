@@ -21,6 +21,7 @@
 #include "clutter/clutter-context-private.h"
 
 #include <hb-glib.h>
+#include <pango/pango.h>
 
 #include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-backend-private.h"

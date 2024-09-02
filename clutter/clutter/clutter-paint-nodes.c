@@ -27,8 +27,6 @@
 
 #include "clutter/clutter-paint-node-private.h"
 
-#include <pango/pango.h>
-
 #include "cogl/cogl.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-blur-private.h"
