@@ -32,8 +32,6 @@ clutter_pkg_deps = [
   glib_dep,
   gobject_dep,
   gio_dep,
-  pango_dep,
-  harfbuzz_dep,
 ]
 
 clutter_pkg_private_deps = [

@@ -20,9 +20,6 @@
 
 #include "clutter/clutter-context-private.h"
 
-#include <hb-glib.h>
-#include <pango/pango.h>
-
 #include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-color-manager.h"
@@ -124,40 +121,30 @@ ClutterTextDirection
 clutter_get_text_direction (void)
 {
   ClutterTextDirection dir = CLUTTER_TEXT_DIRECTION_LTR;
-  const gchar *direction;
+  const char *direction, *locale;
+  g_autofree char **locale_parts = NULL;
 
   direction = g_getenv ("CLUTTER_TEXT_DIRECTION");
-  if (direction && *direction != '\0')
+  locale = g_getenv ("LC_CTYPE");
+  if (!locale || *locale != '\0' )
+    locale = g_getenv ("LANG");
+
+  if (direction && *direction != '\0'  && strcmp (direction, "rtl") == 0)
     {
-      if (strcmp (direction, "rtl") == 0)
-        dir = CLUTTER_TEXT_DIRECTION_RTL;
-      else if (strcmp (direction, "ltr") == 0)
-        dir = CLUTTER_TEXT_DIRECTION_LTR;
+      dir = CLUTTER_TEXT_DIRECTION_RTL;
     }
-  else
+  else if (locale && *locale != '\0')
     {
-      PangoLanguage *language;
-      const PangoScript *scripts;
-      int n_scripts, i;
+      // Extract the language code from the locale (e.g., "en_US.UTF-8" -> "en")
+      locale_parts = g_strsplit (locale, "_", 2);
 
-      language = pango_language_get_default ();
-      scripts = pango_language_get_scripts (language, &n_scripts);
-
-      for (i = 0; i < n_scripts; i++)
-        {
-          hb_script_t script;
-          hb_direction_t text_dir;
-
-          script = hb_glib_script_to_script ((GUnicodeScript) scripts[i]);
-          text_dir = hb_script_get_horizontal_direction (script);
-
-          if (text_dir == HB_DIRECTION_LTR)
-            dir = CLUTTER_TEXT_DIRECTION_LTR;
-          else if (text_dir == HB_DIRECTION_RTL)
-            dir = CLUTTER_TEXT_DIRECTION_RTL;
-          else
-            continue;
-        }
+      // Determine the direction based on the language code
+      if (g_ascii_strcasecmp (locale_parts[0], "ar") == 0 ||  // Arabic
+          g_ascii_strcasecmp (locale_parts[0], "he") == 0 ||  // Hebrew
+          g_ascii_strcasecmp (locale_parts[0], "fa") == 0 ||  // Persian
+          g_ascii_strcasecmp (locale_parts[0], "ur") == 0) {  // Urdu
+          dir = CLUTTER_TEXT_DIRECTION_RTL;
+      }
     }
 
   CLUTTER_NOTE (MISC, "Text direction: %s",
