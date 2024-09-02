@@ -44,7 +44,6 @@ documentation and API references below first.
 - Meta: <https://mutter.gnome.org/meta/>
 - Clutter: <https://mutter.gnome.org/clutter/>
 - Cogl: <https://mutter.gnome.org/cogl/>
-- CoglPango: <https://mutter.gnome.org/cogl-pango/>
 - Mtk: <https://mutter.gnome.org/mtk/>
 
 ## Meetings
