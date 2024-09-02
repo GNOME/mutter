@@ -605,11 +605,6 @@ struct _ClutterActorPrivate
 
   gchar *name; /* a non-unique name, used for debugging */
 
-  /* a back-pointer to the Pango context that we can use
-   * to create pre-configured PangoLayout
-   */
-  PangoContext *pango_context;
-
   /* the text direction configured for this child - either by
    * application code, or by the actor's parent
    */
@@ -680,8 +675,6 @@ struct _ClutterActorPrivate
   gpointer create_child_data;
   GDestroyNotify create_child_notify;
 
-  gulong resolution_changed_id;
-  gulong font_changed_id;
   gulong layout_changed_id;
 
   GList *stage_views;
@@ -5334,8 +5327,6 @@ clutter_actor_dispose (GObject *object)
 {
   ClutterActor *self = CLUTTER_ACTOR (object);
   ClutterActorPrivate *priv = self->priv;
-  ClutterContext *context = clutter_actor_get_context (self);
-  ClutterBackend *backend = clutter_context_get_backend (context);
 
   CLUTTER_NOTE (MISC, "Dispose actor (name='%s', ref_count:%d) of type '%s'",
                 _clutter_actor_get_debug_name (self),
@@ -5366,12 +5357,8 @@ clutter_actor_dispose (GObject *object)
       g_assert (!clutter_actor_is_realized (self));
     }
 
-  g_clear_signal_handler (&priv->resolution_changed_id, backend);
-  g_clear_signal_handler (&priv->font_changed_id, backend);
-
   g_clear_pointer (&priv->accessible_name, g_free);
 
-  g_clear_object (&priv->pango_context);
   g_clear_object (&priv->actions);
   g_clear_object (&priv->color_state);
   g_clear_object (&priv->constraints);
@@ -13022,159 +13009,6 @@ clutter_actor_grab_key_focus (ClutterActor *self)
   stage = _clutter_actor_get_stage_internal (self);
   if (stage != NULL)
     clutter_stage_set_key_focus (CLUTTER_STAGE (stage), self);
-}
-
-static void
-update_pango_context (ClutterBackend *backend,
-                      PangoContext   *context)
-{
-  ClutterSettings *settings;
-  PangoFontDescription *font_desc;
-  const cairo_font_options_t *font_options;
-  ClutterTextDirection dir;
-  PangoDirection pango_dir;
-  gchar *font_name;
-  gdouble resolution;
-
-  settings = clutter_context_get_settings (backend->context);
-
-  /* update the text direction */
-  dir = clutter_get_default_text_direction ();
-  pango_dir = clutter_text_direction_to_pango_direction (dir);
-
-  pango_context_set_base_dir (context, pango_dir);
-
-  g_object_get (settings, "font-name", &font_name, NULL);
-
-  /* get the configuration for the PangoContext from the backend */
-  font_options = clutter_backend_get_font_options (backend);
-  resolution = clutter_backend_get_resolution (backend);
-
-  font_desc = pango_font_description_from_string (font_name);
-
-  if (resolution < 0)
-    resolution = 96.0; /* fall back */
-
-  pango_context_set_font_description (context, font_desc);
-  pango_cairo_context_set_font_options (context, font_options);
-  pango_cairo_context_set_resolution (context, resolution);
-
-  pango_font_description_free (font_desc);
-  g_free (font_name);
-}
-
-/**
- * clutter_actor_get_pango_context:
- * @self: a #ClutterActor
- *
- * Retrieves the #PangoContext for @self. The actor's #PangoContext
- * is already configured using the appropriate font map, resolution
- * and font options.
- *
- * Unlike clutter_actor_create_pango_context(), this context is owend
- * by the #ClutterActor and it will be updated each time the options
- * stored by the #ClutterBackend change.
- *
- * You can use the returned #PangoContext to create a #PangoLayout
- * and render text using cogl_pango_show_layout() to reuse the
- * glyphs cache also used by Clutter.
- *
- * Return value: (transfer none): the #PangoContext for a #ClutterActor.
- *   The returned #PangoContext is owned by the actor and should not be
- *   unreferenced by the application code
- */
-PangoContext *
-clutter_actor_get_pango_context (ClutterActor *self)
-{
-  ClutterActorPrivate *priv;
-  ClutterContext *context = clutter_actor_get_context (self);
-  ClutterBackend *backend = clutter_context_get_backend (context);
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
-
-  priv = self->priv;
-
-  if (G_UNLIKELY (priv->pango_context == NULL))
-    {
-      priv->pango_context = clutter_actor_create_pango_context (self);
-
-      priv->resolution_changed_id =
-        g_signal_connect (backend, "resolution-changed",
-                          G_CALLBACK (update_pango_context), priv->pango_context);
-      priv->font_changed_id =
-        g_signal_connect (backend, "font-changed",
-                          G_CALLBACK (update_pango_context), priv->pango_context);
-    }
-  else
-    update_pango_context (backend, priv->pango_context);
-
-  return priv->pango_context;
-}
-
-/**
- * clutter_actor_create_pango_context:
- * @self: a #ClutterActor
- *
- * Creates a #PangoContext for the given actor. The #PangoContext
- * is already configured using the appropriate font map, resolution
- * and font options.
- *
- * See also [method@Clutter.Actor.get_pango_context].
- *
- * Return value: (transfer full): the newly created #PangoContext.
- *   Use g_object_unref() on the returned value to deallocate its
- *   resources
- */
-PangoContext *
-clutter_actor_create_pango_context (ClutterActor *self)
-{
-  CoglPangoFontMap *font_map;
-  ClutterContext *context = clutter_actor_get_context (self);
-  PangoContext *pango_context;
-
-  font_map = clutter_context_get_pango_fontmap (context);
-
-  pango_context = cogl_pango_font_map_create_context (font_map);
-  update_pango_context (clutter_context_get_backend (context), pango_context);
-  pango_context_set_language (pango_context, pango_language_get_default ());
-
-  return pango_context;
-}
-
-/**
- * clutter_actor_create_pango_layout:
- * @self: a #ClutterActor
- * @text: (nullable): the text to set on the #PangoLayout, or %NULL
- *
- * Creates a new #PangoLayout from the same #PangoContext used
- * by the #ClutterActor. The #PangoLayout is already configured
- * with the font map, resolution and font options, and the
- * given @text.
- *
- * If you want to keep around a #PangoLayout created by this
- * function you will have to connect to the #ClutterBackend::font-changed
- * and #ClutterBackend::resolution-changed signals, and call
- * pango_layout_context_changed() in response to them.
- *
- * Return value: (transfer full): the newly created #PangoLayout.
- *   Use g_object_unref() when done
- */
-PangoLayout *
-clutter_actor_create_pango_layout (ClutterActor *self,
-                                   const gchar  *text)
-{
-  PangoContext *context;
-  PangoLayout *layout;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
-
-  context = clutter_actor_get_pango_context (self);
-  layout = pango_layout_new (context);
-
-  if (text)
-    pango_layout_set_text (layout, text, -1);
-
-  return layout;
 }
 
 /**
