@@ -39,7 +39,6 @@ typedef enum
   CLUTTER_DEBUG_TEXTURE             = 1 << 2,
   CLUTTER_DEBUG_EVENT               = 1 << 3,
   CLUTTER_DEBUG_PAINT               = 1 << 4,
-  CLUTTER_DEBUG_PANGO               = 1 << 5,
   CLUTTER_DEBUG_BACKEND             = 1 << 6,
   CLUTTER_DEBUG_SCHEDULER           = 1 << 7,
   CLUTTER_DEBUG_SCRIPT              = 1 << 8,

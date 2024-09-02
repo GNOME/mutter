@@ -43,7 +43,6 @@ static const GDebugKey clutter_debug_keys[] = {
   { "event", CLUTTER_DEBUG_EVENT },
   { "paint", CLUTTER_DEBUG_PAINT },
   { "pick", CLUTTER_DEBUG_PICK },
-  { "pango", CLUTTER_DEBUG_PANGO },
   { "backend", CLUTTER_DEBUG_BACKEND },
   { "scheduler", CLUTTER_DEBUG_SCHEDULER },
   { "script", CLUTTER_DEBUG_SCRIPT },
