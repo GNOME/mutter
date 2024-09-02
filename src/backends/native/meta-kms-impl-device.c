@@ -2028,7 +2028,7 @@ needs_flush:
 }
 
 static void
-disarm_all_deadline_timers (MetaKmsImplDevice *impl_device)
+disarm_all_frame_sources (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
@@ -2043,6 +2043,9 @@ disarm_all_deadline_timers (MetaKmsImplDevice *impl_device)
       crtc_frame->pending_page_flip = FALSE;
       g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
       disarm_crtc_frame_deadline_timer (crtc_frame);
+
+      g_clear_pointer (&crtc_frame->submitted_update.kms_update, meta_kms_update_free);
+      g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
     }
 }
 
@@ -2069,7 +2072,6 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
                                       update);
           meta_kms_update_free (update);
           update = g_steal_pointer (&crtc_frame->submitted_update.kms_update);
-          g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
         }
 
       if (crtc_frame->pending_update)
@@ -2080,7 +2082,7 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
         }
     }
 
-  disarm_all_deadline_timers (impl_device);
+  disarm_all_frame_sources (impl_device);
 
   meta_thread_inhibit_realtime_in_impl (thread);
   feedback = do_process (impl_device, NULL, update, flags);
@@ -2144,7 +2146,7 @@ meta_kms_impl_device_disable (MetaKmsImplDevice *impl_device)
   if (!priv->device_file)
     return;
 
-  disarm_all_deadline_timers (impl_device);
+  disarm_all_frame_sources (impl_device);
 
   meta_kms_impl_device_hold_fd (impl_device);
   meta_thread_inhibit_realtime_in_impl (thread);
