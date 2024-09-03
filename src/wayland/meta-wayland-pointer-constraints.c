@@ -958,10 +958,11 @@ locked_pointer_destroy (struct wl_client   *client,
       warp_x = (int) x;
       warp_y = (int) y;
     }
-  wl_resource_destroy (resource);
 
   if (warp_pointer)
     clutter_seat_warp_pointer (constraint->seat->clutter_seat, warp_x, warp_y);
+
+  wl_resource_destroy (resource);
 }
 
 static void
