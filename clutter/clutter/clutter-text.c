@@ -46,7 +46,7 @@
 
 #include "clutter/clutter-text.h"
 
-#include "clutter/pango/cogl-pango-private.h"
+#include "clutter/pango/clutter-pango-private.h"
 #include "clutter/clutter-text-accessible-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"

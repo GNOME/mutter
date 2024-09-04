@@ -84,10 +84,10 @@ clutter_headers = [
 ]
 
 clutter_sources = [
-  'pango/cogl-pango-display-list.c',
-  'pango/cogl-pango-glyph-cache.c',
-  'pango/cogl-pango-pipeline-cache.c',
-  'pango/cogl-pango-render.c',
+  'pango/clutter-pango-display-list.c',
+  'pango/clutter-pango-glyph-cache.c',
+  'pango/clutter-pango-pipeline-cache.c',
+  'pango/clutter-pango-render.c',
   'clutter-accessibility.c',
   'clutter-action.c',
   'clutter-actor-box.c',
@@ -181,10 +181,10 @@ clutter_sources = [
 ]
 
 clutter_private_headers = [
-  'pango/cogl-pango-display-list.h',
-  'pango/cogl-pango-glyph-cache.h',
-  'pango/cogl-pango-pipeline-cache.h',
-  'pango/cogl-pango-private.h',
+  'pango/clutter-pango-display-list.h',
+  'pango/clutter-pango-glyph-cache.h',
+  'pango/clutter-pango-pipeline-cache.h',
+  'pango/clutter-pango-private.h',
   'clutter-accessibility-private.h',
   'clutter-actor-meta-private.h',
   'clutter-actor-private.h',

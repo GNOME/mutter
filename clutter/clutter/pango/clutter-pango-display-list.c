@@ -31,39 +31,36 @@
 #include <glib.h>
 #include <string.h>
 
-#include "clutter/pango/cogl-pango-display-list.h"
-#include "clutter/pango/cogl-pango-pipeline-cache.h"
+#include "clutter/pango/clutter-pango-display-list.h"
+#include "clutter/pango/clutter-pango-pipeline-cache.h"
 #include "cogl/cogl.h"
 
 typedef enum
 {
-  COGL_PANGO_DISPLAY_LIST_TEXTURE,
-  COGL_PANGO_DISPLAY_LIST_RECTANGLE,
-  COGL_PANGO_DISPLAY_LIST_TRAPEZOID
-} CoglPangoDisplayListNodeType;
+  PANGO_DISPLAY_LIST_TEXTURE,
+  PANGO_DISPLAY_LIST_RECTANGLE,
+  PANGO_DISPLAY_LIST_TRAPEZOID
+} PangoDisplayListNodeType;
 
-typedef struct _CoglPangoDisplayListNode CoglPangoDisplayListNode;
-typedef struct _CoglPangoDisplayListRectangle CoglPangoDisplayListRectangle;
-
-struct _CoglPangoDisplayList
+struct _ClutterPangoDisplayList
 {
-  gboolean                color_override;
-  CoglColor               color;
+  gboolean color_override;
+  CoglColor color;
   GSList                 *nodes;
   GSList                 *last_node;
-  CoglPangoPipelineCache *pipeline_cache;
+  ClutterPangoPipelineCache *pipeline_cache;
 };
 
 /* This matches the format expected by cogl_rectangles_with_texture_coords */
-struct _CoglPangoDisplayListRectangle
+typedef struct _PangoDisplayListRectangle
 {
   float x_1, y_1, x_2, y_2;
   float s_1, t_1, s_2, t_2;
-};
+} PangoDisplayListRectangle;
 
-struct _CoglPangoDisplayListNode
+typedef struct _PangoDisplayListNode
 {
-  CoglPangoDisplayListNodeType type;
+  PangoDisplayListNodeType type;
 
   gboolean color_override;
   CoglColor color;
@@ -95,12 +92,12 @@ struct _CoglPangoDisplayListNode
       CoglPrimitive *primitive;
     } trapezoid;
   } d;
-};
+} PangoDisplayListNode;
 
-CoglPangoDisplayList *
-_cogl_pango_display_list_new (CoglPangoPipelineCache *pipeline_cache)
+ClutterPangoDisplayList *
+clutter_pango_display_list_new (ClutterPangoPipelineCache *pipeline_cache)
 {
-  CoglPangoDisplayList *dl = g_new0 (CoglPangoDisplayList, 1);
+  ClutterPangoDisplayList *dl = g_new0 (ClutterPangoDisplayList, 1);
 
   dl->pipeline_cache = pipeline_cache;
 
@@ -108,8 +105,8 @@ _cogl_pango_display_list_new (CoglPangoPipelineCache *pipeline_cache)
 }
 
 static void
-_cogl_pango_display_list_append_node (CoglPangoDisplayList *dl,
-                                      CoglPangoDisplayListNode *node)
+clutter_pango_display_list_append_node (ClutterPangoDisplayList *dl,
+                                        PangoDisplayListNode    *node)
 {
   if (dl->last_node)
     dl->last_node = dl->last_node->next = g_slist_prepend (NULL, node);
@@ -118,34 +115,38 @@ _cogl_pango_display_list_append_node (CoglPangoDisplayList *dl,
 }
 
 void
-_cogl_pango_display_list_set_color_override (CoglPangoDisplayList *dl,
-                                             const CoglColor *color)
+clutter_pango_display_list_set_color_override (ClutterPangoDisplayList *dl,
+                                               const CoglColor         *color)
 {
   dl->color_override = TRUE;
   dl->color = *color;
 }
 
 void
-_cogl_pango_display_list_remove_color_override (CoglPangoDisplayList *dl)
+clutter_pango_display_list_remove_color_override (ClutterPangoDisplayList *dl)
 {
   dl->color_override = FALSE;
 }
 
 void
-_cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
-                                      CoglTexture *texture,
-                                      float x_1, float y_1,
-                                      float x_2, float y_2,
-                                      float tx_1, float ty_1,
-                                      float tx_2, float ty_2)
+clutter_pango_display_list_add_texture (ClutterPangoDisplayList *dl,
+                                        CoglTexture             *texture,
+                                        float                    x_1,
+                                        float                    y_1,
+                                        float                    x_2,
+                                        float                    y_2,
+                                        float                    tx_1,
+                                        float                    ty_1,
+                                        float                    tx_2,
+                                        float                    ty_2)
 {
-  CoglPangoDisplayListNode *node;
-  CoglPangoDisplayListRectangle *rectangle;
+  PangoDisplayListNode *node;
+  PangoDisplayListRectangle *rectangle;
 
   /* Add to the last node if it is a texture node with the same
      target texture */
   if (dl->last_node
-      && (node = dl->last_node->data)->type == COGL_PANGO_DISPLAY_LIST_TEXTURE
+      && (node = dl->last_node->data)->type == PANGO_DISPLAY_LIST_TEXTURE
       && node->d.texture.texture == texture
       && (dl->color_override
           ? (node->color_override && cogl_color_equal (&dl->color, &node->color))
@@ -157,24 +158,24 @@ _cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
   else
     {
       /* Otherwise create a new node */
-      node = g_new0 (CoglPangoDisplayListNode, 1);
+      node = g_new0 (PangoDisplayListNode, 1);
 
-      node->type = COGL_PANGO_DISPLAY_LIST_TEXTURE;
+      node->type = PANGO_DISPLAY_LIST_TEXTURE;
       node->color_override = dl->color_override;
       node->color = dl->color;
       node->pipeline = NULL;
       node->d.texture.texture = g_object_ref (texture);
       node->d.texture.rectangles
-        = g_array_new (FALSE, FALSE, sizeof (CoglPangoDisplayListRectangle));
+        = g_array_new (FALSE, FALSE, sizeof (PangoDisplayListRectangle));
       node->d.texture.primitive = NULL;
 
-      _cogl_pango_display_list_append_node (dl, node);
+      clutter_pango_display_list_append_node (dl, node);
     }
 
   g_array_set_size (node->d.texture.rectangles,
                     node->d.texture.rectangles->len + 1);
   rectangle = &g_array_index (node->d.texture.rectangles,
-                              CoglPangoDisplayListRectangle,
+                              PangoDisplayListRectangle,
                               node->d.texture.rectangles->len - 1);
   rectangle->x_1 = x_1;
   rectangle->y_1 = y_1;
@@ -187,13 +188,15 @@ _cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
 }
 
 void
-_cogl_pango_display_list_add_rectangle (CoglPangoDisplayList *dl,
-                                        float x_1, float y_1,
-                                        float x_2, float y_2)
+clutter_pango_display_list_add_rectangle (ClutterPangoDisplayList *dl,
+                                          float                    x_1,
+                                          float                    y_1,
+                                          float                    x_2,
+                                          float                    y_2)
 {
-  CoglPangoDisplayListNode *node = g_new0 (CoglPangoDisplayListNode, 1);
+  PangoDisplayListNode *node = g_new0 (PangoDisplayListNode, 1);
 
-  node->type = COGL_PANGO_DISPLAY_LIST_RECTANGLE;
+  node->type = PANGO_DISPLAY_LIST_RECTANGLE;
   node->color_override = dl->color_override;
   node->color = dl->color;
   node->d.rectangle.x_1 = x_1;
@@ -202,20 +205,20 @@ _cogl_pango_display_list_add_rectangle (CoglPangoDisplayList *dl,
   node->d.rectangle.y_2 = y_2;
   node->pipeline = NULL;
 
-  _cogl_pango_display_list_append_node (dl, node);
+  clutter_pango_display_list_append_node (dl, node);
 }
 
 void
-_cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
-                                        float y_1,
-                                        float x_11,
-                                        float x_21,
-                                        float y_2,
-                                        float x_12,
-                                        float x_22)
+clutter_pango_display_list_add_trapezoid (ClutterPangoDisplayList *dl,
+                                          float                    y_1,
+                                          float                    x_11,
+                                          float                    x_21,
+                                          float                    y_2,
+                                          float                    x_12,
+                                          float                    x_22)
 {
   CoglContext *ctx = dl->pipeline_cache->ctx;
-  CoglPangoDisplayListNode *node = g_new0 (CoglPangoDisplayListNode, 1);
+  PangoDisplayListNode *node = g_new0 (PangoDisplayListNode, 1);
   CoglVertexP2 vertices[4] = {
         { x_11, y_1 },
         { x_12, y_2 },
@@ -223,7 +226,7 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
         { x_21, y_1 }
   };
 
-  node->type = COGL_PANGO_DISPLAY_LIST_TRAPEZOID;
+  node->type = PANGO_DISPLAY_LIST_TRAPEZOID;
   node->color_override = dl->color_override;
   node->color = dl->color;
   node->pipeline = NULL;
@@ -234,13 +237,13 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
                            4,
                            vertices);
 
-  _cogl_pango_display_list_append_node (dl, node);
+  clutter_pango_display_list_append_node (dl, node);
 }
 
 static void
 emit_rectangles_through_journal (CoglFramebuffer *fb,
                                  CoglPipeline *pipeline,
-                                 CoglPangoDisplayListNode *node)
+                                 PangoDisplayListNode *node)
 {
   const float *rectangles = (const float *)node->d.texture.rectangles->data;
 
@@ -253,7 +256,7 @@ emit_rectangles_through_journal (CoglFramebuffer *fb,
 static void
 emit_vertex_buffer_geometry (CoglFramebuffer *fb,
                              CoglPipeline *pipeline,
-                             CoglPangoDisplayListNode *node)
+                             PangoDisplayListNode *node)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (fb);
 
@@ -297,9 +300,9 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
          vertices instead of just two */
       for (i = 0; i < node->d.texture.rectangles->len; i++)
         {
-          const CoglPangoDisplayListRectangle *rectangle
+          const PangoDisplayListRectangle *rectangle
             = &g_array_index (node->d.texture.rectangles,
-                              CoglPangoDisplayListRectangle, i);
+                              PangoDisplayListRectangle, i);
 
           v->x = rectangle->x_1;
           v->y = rectangle->y_1;
@@ -373,7 +376,7 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
 static void
 _cogl_framebuffer_draw_display_list_texture (CoglFramebuffer *fb,
                                              CoglPipeline *pipeline,
-                                             CoglPangoDisplayListNode *node)
+                                             PangoDisplayListNode *node)
 {
   /* For small runs of text like icon labels, we can get better performance
    * going through the Cogl journal since text may then be batched together
@@ -387,30 +390,30 @@ _cogl_framebuffer_draw_display_list_texture (CoglFramebuffer *fb,
 }
 
 void
-cogl_pango_display_list_render (CoglFramebuffer        *fb,
-                                CoglPangoDisplayList   *dl,
-                                ClutterColorState       *color_state,
-                                ClutterColorState       *target_color_state,
-                                const CoglColor        *color)
+clutter_pango_display_list_render (CoglFramebuffer          *fb,
+                                   ClutterPangoDisplayList  *dl,
+                                   ClutterColorState        *color_state,
+                                   ClutterColorState        *target_color_state,
+                                   const CoglColor          *color)
 {
   GSList *l;
 
   for (l = dl->nodes; l; l = l->next)
     {
-      CoglPangoDisplayListNode *node = l->data;
+      PangoDisplayListNode *node = l->data;
       CoglColor draw_color;
       g_autoptr (CoglPipeline) pipeline = NULL;
 
       if (node->pipeline == NULL)
         {
-          if (node->type == COGL_PANGO_DISPLAY_LIST_TEXTURE)
+          if (node->type == PANGO_DISPLAY_LIST_TEXTURE)
             node->pipeline =
-              _cogl_pango_pipeline_cache_get (dl->pipeline_cache,
-                                              node->d.texture.texture);
+              clutter_pango_pipeline_cache_get (dl->pipeline_cache,
+                                                node->d.texture.texture);
           else
             node->pipeline =
-              _cogl_pango_pipeline_cache_get (dl->pipeline_cache,
-                                              NULL);
+              clutter_pango_pipeline_cache_get (dl->pipeline_cache,
+                                                NULL);
         }
 
       pipeline = cogl_pipeline_copy (node->pipeline);
@@ -437,11 +440,11 @@ cogl_pango_display_list_render (CoglFramebuffer        *fb,
 
       switch (node->type)
         {
-        case COGL_PANGO_DISPLAY_LIST_TEXTURE:
+        case PANGO_DISPLAY_LIST_TEXTURE:
           _cogl_framebuffer_draw_display_list_texture (fb, pipeline, node);
           break;
 
-        case COGL_PANGO_DISPLAY_LIST_RECTANGLE:
+        case PANGO_DISPLAY_LIST_RECTANGLE:
           cogl_framebuffer_draw_rectangle (fb,
                                            pipeline,
                                            node->d.rectangle.x_1,
@@ -450,7 +453,7 @@ cogl_pango_display_list_render (CoglFramebuffer        *fb,
                                            node->d.rectangle.y_2);
           break;
 
-        case COGL_PANGO_DISPLAY_LIST_TRAPEZOID:
+        case PANGO_DISPLAY_LIST_TRAPEZOID:
           cogl_primitive_draw (node->d.trapezoid.primitive,
                                fb,
                                pipeline);
@@ -460,15 +463,15 @@ cogl_pango_display_list_render (CoglFramebuffer        *fb,
 }
 
 static void
-_cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
+clutter_pango_display_list_node_free (PangoDisplayListNode *node)
 {
-  if (node->type == COGL_PANGO_DISPLAY_LIST_TEXTURE)
+  if (node->type == PANGO_DISPLAY_LIST_TEXTURE)
     {
       g_array_free (node->d.texture.rectangles, TRUE);
       g_clear_object (&node->d.texture.texture);
       g_clear_object (&node->d.texture.primitive);
     }
-  else if (node->type == COGL_PANGO_DISPLAY_LIST_TRAPEZOID)
+  else if (node->type == PANGO_DISPLAY_LIST_TRAPEZOID)
     g_clear_object (&node->d.trapezoid.primitive);
 
   g_clear_object (&node->pipeline);
@@ -477,10 +480,10 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
 }
 
 void
-_cogl_pango_display_list_free (CoglPangoDisplayList *dl)
+clutter_pango_display_list_free (ClutterPangoDisplayList *dl)
 {
   g_slist_free_full (dl->nodes, (GDestroyNotify)
-                     _cogl_pango_display_list_node_free);
+                     clutter_pango_display_list_node_free);
   dl->nodes = NULL;
   dl->last_node = NULL;
   g_free (dl);

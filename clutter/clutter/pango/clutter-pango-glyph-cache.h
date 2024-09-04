@@ -35,10 +35,9 @@
 
 G_BEGIN_DECLS
 
-typedef struct _CoglPangoGlyphCache      CoglPangoGlyphCache;
-typedef struct _CoglPangoGlyphCacheValue CoglPangoGlyphCacheValue;
+typedef struct _ClutterPangoGlyphCache ClutterPangoGlyphCache;
 
-struct _CoglPangoGlyphCacheValue
+typedef struct
 {
   CoglTexture *texture;
 
@@ -60,32 +59,32 @@ struct _CoglPangoGlyphCacheValue
   guint dirty : 1;
   /* Set to TRUE if the glyph has colors (eg. emoji) */
   guint has_color : 1;
-};
+} PangoGlyphCacheValue;
 
-CoglPangoGlyphCache *
-cogl_pango_glyph_cache_new (CoglContext *ctx);
-
-void
-cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache);
-
-CoglPangoGlyphCacheValue *
-cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
-                               CoglContext         *context,
-                               gboolean             create,
-                               PangoFont           *font,
-                               PangoGlyph           glyph);
+ClutterPangoGlyphCache *
+clutter_pango_glyph_cache_new (CoglContext *ctx);
 
 void
-_cogl_pango_glyph_cache_add_reorganize_callback (CoglPangoGlyphCache *cache,
-                                                 GHookFunc func,
-                                                 void *user_data);
+clutter_pango_glyph_cache_free (ClutterPangoGlyphCache *cache);
+
+PangoGlyphCacheValue *
+clutter_pango_glyph_cache_lookup (ClutterPangoGlyphCache *cache,
+                                  CoglContext            *context,
+                                  gboolean                create,
+                                  PangoFont              *font,
+                                  PangoGlyph              glyph);
 
 void
-_cogl_pango_glyph_cache_remove_reorganize_callback (CoglPangoGlyphCache *cache,
-                                                    GHookFunc func,
-                                                    void *user_data);
+clutter_pango_glyph_cache_add_reorganize_callback (ClutterPangoGlyphCache *cache,
+                                                   GHookFunc               func,
+                                                   void                   *user_data);
 
 void
-_cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache);
+clutter_pango_glyph_cache_remove_reorganize_callback (ClutterPangoGlyphCache *cache,
+                                                      GHookFunc               func,
+                                                      void                   *user_data);
+
+void
+clutter_pango_glyph_cache_set_dirty_glyphs (ClutterPangoGlyphCache *cache);
 
 G_END_DECLS

@@ -43,7 +43,7 @@
 G_BEGIN_DECLS
 
 PangoRenderer *
-_cogl_pango_renderer_new (CoglContext *context);
+clutter_pango_renderer_new (CoglContext *context);
 
 /**
  * clutter_ensure_glyph_cache_for_layout:

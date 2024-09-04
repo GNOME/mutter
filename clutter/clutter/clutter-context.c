@@ -31,7 +31,7 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-paint-node-private.h"
 #include "clutter/clutter-settings-private.h"
-#include "clutter/pango/cogl-pango-private.h"
+#include "clutter/pango/clutter-pango-private.h"
 
 static gboolean clutter_show_fps = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;
@@ -321,7 +321,7 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
   backend = clutter_context_get_backend (context);
   cogl_context = clutter_backend_get_cogl_context (backend);
   font_map = pango_cairo_font_map_new ();
-  font_renderer = _cogl_pango_renderer_new (cogl_context);
+  font_renderer = clutter_pango_renderer_new (cogl_context);
 
   resolution = clutter_backend_get_resolution (context->backend);
   pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (font_map),

@@ -39,7 +39,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _CoglPangoPipelineCache
+typedef struct
 {
   CoglContext *ctx;
 
@@ -47,20 +47,20 @@ typedef struct _CoglPangoPipelineCache
 
   CoglPipeline *base_texture_alpha_pipeline;
   CoglPipeline *base_texture_rgba_pipeline;
-} CoglPangoPipelineCache;
+} ClutterPangoPipelineCache;
 
 
-CoglPangoPipelineCache *
-_cogl_pango_pipeline_cache_new (CoglContext *ctx);
+ClutterPangoPipelineCache *
+clutter_pango_pipeline_cache_new (CoglContext *ctx);
 
 /* Returns a pipeline that can be used to render glyphs in the given
    texture. The pipeline has a new reference so it is up to the caller
    to unref it */
 CoglPipeline *
-_cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
-                                CoglTexture *texture);
+clutter_pango_pipeline_cache_get (ClutterPangoPipelineCache *cache,
+                                  CoglTexture               *texture);
 
 void
-_cogl_pango_pipeline_cache_free (CoglPangoPipelineCache *cache);
+clutter_pango_pipeline_cache_free (ClutterPangoPipelineCache *cache);
 
 G_END_DECLS
