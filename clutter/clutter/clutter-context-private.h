@@ -35,6 +35,7 @@ struct _ClutterContext
    * ordered from least recently added to most recently added */
   GList *event_filters;
 
+  PangoRenderer *font_renderer;
   PangoFontMap *font_map;
 
   GSList *current_event;
@@ -50,3 +51,5 @@ struct _ClutterContext
 ClutterStageManager * clutter_context_get_stage_manager (ClutterContext *context);
 
 gboolean clutter_context_get_show_fps (ClutterContext *context);
+
+PangoRenderer * clutter_context_get_font_renderer (ClutterContext *context);

@@ -164,16 +164,6 @@ typedef void (* ClutterPipelineSetup) (CoglPipeline *pipeline,
                                        gpointer      user_data);
 
 /**
- * clutter_font_map_new:
- *
- * Creates a new font map.
- *
- * Return value: (transfer full): the newly created #PangoFontMap
- */
-CLUTTER_EXPORT PangoFontMap *
-clutter_font_map_new (CoglContext *context);
-
-/**
  * clutter_ensure_glyph_cache_for_layout:
  * @layout: A #PangoLayout
  *

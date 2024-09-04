@@ -42,6 +42,8 @@
 #include <cairo-ft.h>
 
 #include "clutter/clutter-debug.h"
+#include "clutter/clutter-context-private.h"
+#include "clutter/clutter-private.h"
 #include "clutter/pango/cogl-pango-private.h"
 #include "clutter/pango/cogl-pango-glyph-cache.h"
 #include "clutter/pango/cogl-pango-display-list.h"
@@ -245,22 +247,6 @@ cogl_pango_renderer_finalize (GObject *object)
   G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->finalize (object);
 }
 
-static CoglPangoRenderer *
-cogl_pango_get_renderer_from_context (PangoContext *context)
-{
-  PangoFontMap *font_map;
-  PangoRenderer *renderer;
-
-  font_map = pango_context_get_font_map (context);
-  g_return_val_if_fail (PANGO_IS_FONT_MAP (font_map), NULL);
-
-  renderer = cogl_pango_font_map_get_renderer (font_map);
-
-  g_return_val_if_fail (COGL_PANGO_IS_RENDERER (renderer), NULL);
-
-  return COGL_PANGO_RENDERER (renderer);
-}
-
 static GQuark
 cogl_pango_layout_get_qdata_key (void)
 {
@@ -310,13 +296,13 @@ clutter_show_layout (CoglFramebuffer        *fb,
                      ClutterPipelineSetup    pipeline_setup,
                      gpointer                pipeline_setup_userdata)
 {
-  PangoContext *context;
-  CoglPangoRenderer *priv;
+  CoglPangoRenderer *renderer;
   CoglPangoLayoutQdata *qdata;
+  ClutterContext *context;
 
-  context = pango_layout_get_context (layout);
-  priv = cogl_pango_get_renderer_from_context (context);
-  if (G_UNLIKELY (!priv))
+  context = _clutter_context_get_default ();
+  renderer = COGL_PANGO_RENDERER (clutter_context_get_font_renderer (context));
+  if (G_UNLIKELY (!renderer))
     return;
 
   qdata = g_object_get_qdata (G_OBJECT (layout),
@@ -325,7 +311,7 @@ clutter_show_layout (CoglFramebuffer        *fb,
   if (qdata == NULL)
     {
       qdata = g_new0 (CoglPangoLayoutQdata, 1);
-      qdata->renderer = priv;
+      qdata->renderer = renderer;
       g_object_set_qdata_full (G_OBJECT (layout),
                                cogl_pango_layout_get_qdata_key (),
                                qdata,
@@ -339,14 +325,14 @@ clutter_show_layout (CoglFramebuffer        *fb,
   if (qdata->display_list &&
       ((qdata->first_line &&
         qdata->first_line->layout != layout) ||
-       qdata->mipmapping_used != priv->use_mipmapping))
+       qdata->mipmapping_used != renderer->use_mipmapping))
     cogl_pango_layout_qdata_forget_display_list (qdata);
 
   if (qdata->display_list == NULL)
     {
-      CoglPangoRendererCaches *caches = priv->use_mipmapping ?
-        &priv->mipmap_caches :
-        &priv->no_mipmap_caches;
+      CoglPangoRendererCaches *caches = renderer->use_mipmapping ?
+        &renderer->mipmap_caches :
+        &renderer->no_mipmap_caches;
 
       clutter_ensure_glyph_cache_for_layout (layout);
 
@@ -360,11 +346,11 @@ clutter_show_layout (CoglFramebuffer        *fb,
          (GHookFunc) cogl_pango_layout_qdata_forget_display_list,
          qdata);
 
-      priv->display_list = qdata->display_list;
-      pango_renderer_draw_layout (PANGO_RENDERER (priv), layout, 0, 0);
-      priv->display_list = NULL;
+      renderer->display_list = qdata->display_list;
+      pango_renderer_draw_layout (PANGO_RENDERER (renderer), layout, 0, 0);
+      renderer->display_list = NULL;
 
-      qdata->mipmapping_used = priv->use_mipmapping;
+      qdata->mipmapping_used = renderer->use_mipmapping;
     }
 
   cogl_framebuffer_push_matrix (fb);
@@ -506,13 +492,12 @@ cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
 static void
 _cogl_pango_ensure_glyph_cache_for_layout_line_internal (PangoLayoutLine *line)
 {
-  PangoContext *context;
+  ClutterContext *context;
   PangoRenderer *renderer;
   GSList *l;
 
-  context = pango_layout_get_context (line->layout);
-  renderer =
-    PANGO_RENDERER (cogl_pango_get_renderer_from_context (context));
+  context = _clutter_context_get_default ();
+  renderer = clutter_context_get_font_renderer (context);
 
   for (l = line->runs; l; l = l->next)
     {
@@ -549,12 +534,12 @@ _cogl_pango_set_dirty_glyphs (CoglPangoRenderer *priv)
 void
 clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 {
-  PangoContext *context;
-  CoglPangoRenderer *priv;
+  ClutterContext *context;
+  PangoRenderer *renderer;
   PangoLayoutIter *iter;
 
-  context = pango_layout_get_context (layout);
-  priv = cogl_pango_get_renderer_from_context (context);
+  context = _clutter_context_get_default ();
+  renderer = clutter_context_get_font_renderer (context);
 
   g_return_if_fail (PANGO_IS_LAYOUT (layout));
 
@@ -575,7 +560,7 @@ clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 
   /* Now that we know all of the positions are settled we'll fill in
      any dirty glyphs */
-  _cogl_pango_set_dirty_glyphs (priv);
+  _cogl_pango_set_dirty_glyphs (COGL_PANGO_RENDERER (renderer));
 }
 
 static void
