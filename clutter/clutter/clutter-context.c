@@ -21,6 +21,7 @@
 #include "clutter/clutter-context-private.h"
 
 #include <hb-glib.h>
+#include <pango/pangocairo.h>
 
 #include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-backend-private.h"
@@ -319,7 +320,8 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
   font_map = COGL_PANGO_FONT_MAP (cogl_pango_font_map_new (cogl_context));
 
   resolution = clutter_backend_get_resolution (context->backend);
-  cogl_pango_font_map_set_resolution (font_map, resolution);
+  pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (font_map),
+                                       resolution);
 
   context->font_map = font_map;
 

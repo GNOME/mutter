@@ -39,6 +39,8 @@
 
 #include "config.h"
 
+#include <pango/pangocairo.h>
+
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-context-private.h"
 #include "clutter/clutter-debug.h"
@@ -152,7 +154,8 @@ clutter_backend_real_resolution_changed (ClutterBackend *backend)
     resolution = dpi / 1024.0;
 
   if (context->font_map != NULL)
-    cogl_pango_font_map_set_resolution (context->font_map, resolution);
+    pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (context->font_map),
+                                         resolution);
 }
 
 static gboolean

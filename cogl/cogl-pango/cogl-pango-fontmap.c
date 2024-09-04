@@ -74,14 +74,6 @@ cogl_pango_font_map_new (CoglContext *context)
   return fm;
 }
 
-PangoContext *
-cogl_pango_font_map_create_context (CoglPangoFontMap *fm)
-{
-  g_return_val_if_fail (COGL_PANGO_IS_FONT_MAP (fm), NULL);
-
-  return pango_font_map_create_context (PANGO_FONT_MAP (fm));
-}
-
 PangoRenderer *
 cogl_pango_font_map_get_renderer (CoglPangoFontMap *fm)
 {
@@ -90,15 +82,6 @@ cogl_pango_font_map_get_renderer (CoglPangoFontMap *fm)
   if (G_UNLIKELY (!priv->renderer))
     priv->renderer = _cogl_pango_renderer_new (priv->ctx);
   return priv->renderer;
-}
-
-void
-cogl_pango_font_map_set_resolution (CoglPangoFontMap *font_map,
-				    double            dpi)
-{
-  g_return_if_fail (COGL_PANGO_IS_FONT_MAP (font_map));
-
-  pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (font_map), dpi);
 }
 
 static GQuark

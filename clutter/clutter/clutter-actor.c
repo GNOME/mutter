@@ -482,6 +482,7 @@
 #include <math.h>
 
 #include <gobject/gvaluecollector.h>
+#include <pango/pangocairo.h>
 
 #include "cogl/cogl.h"
 
@@ -13112,7 +13113,7 @@ clutter_actor_create_pango_context (ClutterActor *self)
 
   font_map = clutter_context_get_pango_fontmap (context);
 
-  pango_context = cogl_pango_font_map_create_context (font_map);
+  pango_context = pango_font_map_create_context (PANGO_FONT_MAP (font_map));
   update_pango_context (clutter_context_get_backend (context), pango_context);
   pango_context_set_language (pango_context, pango_language_get_default ());
 
