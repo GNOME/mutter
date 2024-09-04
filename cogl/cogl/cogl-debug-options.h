@@ -69,11 +69,6 @@ OPT (DRAW,
      "draw",
      N_("Trace Misc Drawing"),
      N_("Trace some misc drawing operations"))
-OPT (PANGO,
-     N_("Cogl Tracing"),
-     "pango",
-     N_("Trace Pango Renderer"),
-     N_("Trace the Cogl Pango renderer"))
 OPT (TEXTURE_PIXMAP,
      N_("Cogl Tracing"),
      "texture-pixmap",

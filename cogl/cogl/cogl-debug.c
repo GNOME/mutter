@@ -53,7 +53,6 @@ static const GDebugKey cogl_log_debug_keys[] = {
   { "matrices", COGL_DEBUG_MATRICES },
   { "draw", COGL_DEBUG_DRAW },
   { "opengl", COGL_DEBUG_OPENGL },
-  { "pango", COGL_DEBUG_PANGO },
   { "show-source", COGL_DEBUG_SHOW_SOURCE},
   { "show-uniforms", COGL_DEBUG_SHOW_UNIFORMS},
   { "framebuffer", COGL_DEBUG_FRAMEBUFFER },
