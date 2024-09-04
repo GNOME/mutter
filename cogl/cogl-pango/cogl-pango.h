@@ -107,17 +107,6 @@ COGL_EXPORT void
 cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout);
 
 /**
- * cogl_pango_font_map_get_renderer:
- * @font_map: a #CoglPangoFontMap
- *
- * Retrieves the [class@CoglPango.Renderer] for the passed @font_map.
- *
- * Return value: (transfer none): a #PangoRenderer
- */
-COGL_EXPORT PangoRenderer *
-cogl_pango_font_map_get_renderer (CoglPangoFontMap *font_map);
-
-/**
  * cogl_pango_show_layout: (skip)
  * @framebuffer: A #CoglFramebuffer to draw too.
  * @layout: a #PangoLayout
