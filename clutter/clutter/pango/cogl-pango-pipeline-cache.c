@@ -73,8 +73,7 @@ _cogl_pango_pipeline_cache_value_destroy (void *data)
 }
 
 CoglPangoPipelineCache *
-_cogl_pango_pipeline_cache_new (CoglContext *ctx,
-                                gboolean use_mipmapping)
+_cogl_pango_pipeline_cache_new (CoglContext *ctx)
 {
   CoglPangoPipelineCache *cache = g_new (CoglPangoPipelineCache, 1);
 
@@ -92,8 +91,6 @@ _cogl_pango_pipeline_cache_new (CoglContext *ctx,
   cache->base_texture_rgba_pipeline = NULL;
   cache->base_texture_alpha_pipeline = NULL;
 
-  cache->use_mipmapping = use_mipmapping;
-
   return cache;
 }
 
@@ -110,12 +107,6 @@ get_base_texture_rgba_pipeline (CoglPangoPipelineCache *cache)
 
       cogl_pipeline_set_layer_wrap_mode (pipeline, 0,
                                          COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-
-      if (cache->use_mipmapping)
-        cogl_pipeline_set_layer_filters
-          (pipeline, 0,
-           COGL_PIPELINE_FILTER_LINEAR_MIPMAP_LINEAR,
-           COGL_PIPELINE_FILTER_LINEAR);
     }
 
   return cache->base_texture_rgba_pipeline;

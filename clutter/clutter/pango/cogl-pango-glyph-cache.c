@@ -59,10 +59,6 @@ struct _CoglPangoGlyphCache
      optimization in _cogl_pango_glyph_cache_set_dirty_glyphs to avoid
      iterating the hash table if we know none of them are dirty */
   gboolean          has_dirty_glyphs;
-
-  /* Whether mipmapping is being used for this cache. This only
-     affects whether we decide to put the glyph in the global atlas */
-  gboolean          use_mipmapping;
 };
 
 struct _CoglPangoGlyphCacheKey
@@ -115,8 +111,7 @@ cogl_pango_glyph_cache_equal_func (const void *a, const void *b)
 }
 
 CoglPangoGlyphCache *
-cogl_pango_glyph_cache_new (CoglContext *ctx,
-                            gboolean use_mipmapping)
+cogl_pango_glyph_cache_new (CoglContext *ctx)
 {
   CoglPangoGlyphCache *cache;
 
@@ -138,8 +133,6 @@ cogl_pango_glyph_cache_new (CoglContext *ctx,
   cache->has_dirty_glyphs = FALSE;
 
   cache->using_global_atlas = FALSE;
-
-  cache->use_mipmapping = use_mipmapping;
 
   return cache;
 }
@@ -210,11 +203,6 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
 {
   CoglTexture *texture;
   GError *ignore_error = NULL;
-
-  /* If the cache is using mipmapping then we can't use the global
-     atlas because it would just get migrated back out */
-  if (cache->use_mipmapping)
-    return FALSE;
 
   texture = cogl_atlas_texture_new_with_size (cache->ctx,
                                               value->draw_width,

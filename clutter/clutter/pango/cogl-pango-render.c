@@ -60,24 +60,14 @@ enum
   PROP_LAST
 };
 
-typedef struct
-{
-  CoglPangoGlyphCache *glyph_cache;
-  CoglPangoPipelineCache *pipeline_cache;
-} CoglPangoRendererCaches;
-
 struct _CoglPangoRenderer
 {
   PangoRenderer parent_instance;
 
   CoglContext *ctx;
 
-  /* Two caches of glyphs as textures and their corresponding pipeline
-     caches, one with mipmapped textures and one without */
-  CoglPangoRendererCaches no_mipmap_caches;
-  CoglPangoRendererCaches mipmap_caches;
-
-  gboolean use_mipmapping;
+  CoglPangoGlyphCache *glyph_cache;
+  CoglPangoPipelineCache *pipeline_cache;
 
   /* The current display list that is being built */
   CoglPangoDisplayList *display_list;
@@ -102,10 +92,6 @@ typedef struct _CoglPangoLayoutQdata
   /* A reference to the first line of the layout. This is just used to
      detect changes */
   PangoLayoutLine *first_line;
-  /* Whether mipmapping was previously used to render this layout. We
-     need to regenerate the display list if the mipmapping value is
-     changed because it will be using a different set of textures */
-  gboolean mipmapping_used;
 } CoglPangoLayoutQdata;
 
 typedef struct
@@ -189,17 +175,8 @@ _cogl_pango_renderer_constructed (GObject *gobject)
   CoglPangoRenderer *renderer = COGL_PANGO_RENDERER (gobject);
   CoglContext *ctx = renderer->ctx;
 
-  renderer->no_mipmap_caches.pipeline_cache =
-    _cogl_pango_pipeline_cache_new (ctx, FALSE);
-  renderer->mipmap_caches.pipeline_cache =
-    _cogl_pango_pipeline_cache_new (ctx, TRUE);
-
-  renderer->no_mipmap_caches.glyph_cache =
-    cogl_pango_glyph_cache_new (ctx, FALSE);
-  renderer->mipmap_caches.glyph_cache =
-    cogl_pango_glyph_cache_new (ctx, TRUE);
-
-  renderer->use_mipmapping = FALSE;
+  renderer->pipeline_cache = _cogl_pango_pipeline_cache_new (ctx);
+  renderer->glyph_cache = cogl_pango_glyph_cache_new (ctx);
 
   G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->constructed (gobject);
 }
@@ -238,11 +215,8 @@ cogl_pango_renderer_finalize (GObject *object)
 {
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (object);
 
-  cogl_pango_glyph_cache_free (priv->no_mipmap_caches.glyph_cache);
-  cogl_pango_glyph_cache_free (priv->mipmap_caches.glyph_cache);
-
-  _cogl_pango_pipeline_cache_free (priv->no_mipmap_caches.pipeline_cache);
-  _cogl_pango_pipeline_cache_free (priv->mipmap_caches.pipeline_cache);
+  cogl_pango_glyph_cache_free (priv->glyph_cache);
+  _cogl_pango_pipeline_cache_free (priv->pipeline_cache);
 
   G_OBJECT_CLASS (cogl_pango_renderer_parent_class)->finalize (object);
 }
@@ -263,12 +237,8 @@ cogl_pango_layout_qdata_forget_display_list (CoglPangoLayoutQdata *qdata)
 {
   if (qdata->display_list)
     {
-      CoglPangoRendererCaches *caches = qdata->mipmapping_used ?
-        &qdata->renderer->mipmap_caches :
-        &qdata->renderer->no_mipmap_caches;
-
       _cogl_pango_glyph_cache_remove_reorganize_callback
-        (caches->glyph_cache,
+        (qdata->renderer->glyph_cache,
          (GHookFunc) cogl_pango_layout_qdata_forget_display_list,
          qdata);
 
@@ -324,33 +294,26 @@ clutter_show_layout (CoglFramebuffer        *fb,
      http://mail.gnome.org/archives/gtk-i18n-list/2009-May/msg00019.html */
   if (qdata->display_list &&
       ((qdata->first_line &&
-        qdata->first_line->layout != layout) ||
-       qdata->mipmapping_used != renderer->use_mipmapping))
+        qdata->first_line->layout != layout)))
     cogl_pango_layout_qdata_forget_display_list (qdata);
 
   if (qdata->display_list == NULL)
     {
-      CoglPangoRendererCaches *caches = renderer->use_mipmapping ?
-        &renderer->mipmap_caches :
-        &renderer->no_mipmap_caches;
-
       clutter_ensure_glyph_cache_for_layout (layout);
 
       qdata->display_list =
-        _cogl_pango_display_list_new (caches->pipeline_cache);
+        _cogl_pango_display_list_new (renderer->pipeline_cache);
 
       /* Register for notification of when the glyph cache changes so
          we can rebuild the display list */
       _cogl_pango_glyph_cache_add_reorganize_callback
-        (caches->glyph_cache,
+        (renderer->glyph_cache,
          (GHookFunc) cogl_pango_layout_qdata_forget_display_list,
          qdata);
 
       renderer->display_list = qdata->display_list;
       pango_renderer_draw_layout (PANGO_RENDERER (renderer), layout, 0, 0);
       renderer->display_list = NULL;
-
-      qdata->mipmapping_used = renderer->use_mipmapping;
     }
 
   cogl_framebuffer_push_matrix (fb);
@@ -384,11 +347,8 @@ cogl_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
                                       PangoGlyph     glyph)
 {
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (renderer);
-  CoglPangoRendererCaches *caches = (priv->use_mipmapping ?
-                                     &priv->mipmap_caches :
-                                     &priv->no_mipmap_caches);
 
-  return cogl_pango_glyph_cache_lookup (caches->glyph_cache,
+  return cogl_pango_glyph_cache_lookup (priv->glyph_cache,
                                         priv->ctx,
                                         create, font, glyph);
 }
@@ -526,9 +486,7 @@ static void
 _cogl_pango_set_dirty_glyphs (CoglPangoRenderer *priv)
 {
   _cogl_pango_glyph_cache_set_dirty_glyphs
-    (priv->mipmap_caches.glyph_cache, cogl_pango_renderer_set_dirty_glyph);
-  _cogl_pango_glyph_cache_set_dirty_glyphs
-    (priv->no_mipmap_caches.glyph_cache, cogl_pango_renderer_set_dirty_glyph);
+    (priv->glyph_cache, cogl_pango_renderer_set_dirty_glyph);
 }
 
 void

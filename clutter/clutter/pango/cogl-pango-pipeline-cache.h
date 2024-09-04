@@ -47,14 +47,11 @@ typedef struct _CoglPangoPipelineCache
 
   CoglPipeline *base_texture_alpha_pipeline;
   CoglPipeline *base_texture_rgba_pipeline;
-
-  gboolean use_mipmapping;
 } CoglPangoPipelineCache;
 
 
 CoglPangoPipelineCache *
-_cogl_pango_pipeline_cache_new (CoglContext *ctx,
-                                gboolean use_mipmapping);
+_cogl_pango_pipeline_cache_new (CoglContext *ctx);
 
 /* Returns a pipeline that can be used to render glyphs in the given
    texture. The pipeline has a new reference so it is up to the caller
