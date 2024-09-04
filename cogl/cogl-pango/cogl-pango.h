@@ -38,20 +38,7 @@
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
 
-/* XXX: Currently this header may be included both as an internal
- * header (within the cogl-pango implementation) and as a public
- * header.
- *
- * Since <cogl/cogl.h> should not be included for internal use we
- * determine the current context and switch between including cogl.h
- * or specific internal cogl headers here...
- */
-#ifndef COGL_COMPILATION
 #include "cogl/cogl.h"
-#else
-#include "cogl/cogl-context.h"
-#include "cogl/cogl-macros.h"
-#endif
 
 G_BEGIN_DECLS
 
