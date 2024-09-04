@@ -393,8 +393,8 @@ _cogl_framebuffer_draw_display_list_texture (CoglFramebuffer *fb,
 void
 cogl_pango_display_list_render (CoglFramebuffer        *fb,
                                 CoglPangoDisplayList   *dl,
-                                ClutterPipelineSetup    pipeline_setup,
-                                gpointer                pipeline_setup_user_data,
+                                ClutterColorState       *color_state,
+                                ClutterColorState       *target_color_state,
                                 const CoglColor        *color)
 {
   GSList *l;
@@ -434,7 +434,10 @@ cogl_pango_display_list_render (CoglFramebuffer        *fb,
 
       cogl_pipeline_set_color (pipeline, &draw_color);
 
-      pipeline_setup (pipeline, pipeline_setup_user_data);
+
+      clutter_color_state_add_pipeline_transform (color_state,
+                                                  target_color_state,
+                                                  pipeline);
 
       switch (node->type)
         {

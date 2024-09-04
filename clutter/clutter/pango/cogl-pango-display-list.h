@@ -73,8 +73,8 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
 void
 cogl_pango_display_list_render (CoglFramebuffer        *framebuffer,
                                 CoglPangoDisplayList   *dl,
-                                ClutterPipelineSetup    pipeline_setup,
-                                gpointer                pipeline_setup_user_data,
+                                ClutterColorState      *color_state,
+                                ClutterColorState      *target_color_state,
                                 const CoglColor        *color);
 
 void

@@ -258,13 +258,13 @@ cogl_pango_render_qdata_destroy (CoglPangoLayoutQdata *qdata)
 }
 
 void
-clutter_show_layout (CoglFramebuffer        *fb,
-                     PangoLayout            *layout,
-                     float                   x,
-                     float                   y,
-                     const CoglColor        *color,
-                     ClutterPipelineSetup    pipeline_setup,
-                     gpointer                pipeline_setup_userdata)
+clutter_show_layout (CoglFramebuffer   *fb,
+                     PangoLayout       *layout,
+                     float              x,
+                     float              y,
+                     const CoglColor   *color,
+                     ClutterColorState *color_state,
+                     ClutterColorState *target_color_state)
 {
   CoglPangoRenderer *renderer;
   CoglPangoLayoutQdata *qdata;
@@ -321,7 +321,7 @@ clutter_show_layout (CoglFramebuffer        *fb,
 
   cogl_pango_display_list_render (fb,
                                   qdata->display_list,
-                                  pipeline_setup, pipeline_setup_userdata,
+                                  color_state, target_color_state,
                                   color);
 
   cogl_framebuffer_pop_matrix (fb);

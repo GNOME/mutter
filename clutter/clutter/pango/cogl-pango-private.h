@@ -37,6 +37,7 @@
 
 #include <pango/pango.h>
 
+#include "clutter/clutter-color-state.h"
 #include "cogl/cogl.h"
 
 G_BEGIN_DECLS
@@ -57,10 +58,6 @@ _cogl_pango_renderer_new (CoglContext *context);
 void
 clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
 
-
-typedef void (* ClutterPipelineSetup) (CoglPipeline *pipeline,
-                                       gpointer      user_data);
-
 /**
  * clutter_show_layout: (skip)
  * @framebuffer: A #CoglFramebuffer to draw too.
@@ -73,13 +70,13 @@ typedef void (* ClutterPipelineSetup) (CoglPipeline *pipeline,
  * @y) within the `framebuffer`'s current model-view coordinate space.
  */
 void
-clutter_show_layout (CoglFramebuffer        *framebuffer,
-                     PangoLayout            *layout,
-                     float                   x,
-                     float                   y,
-                     const CoglColor        *color,
-                     ClutterPipelineSetup    pipeline_setup,
-                     gpointer                pipeline_setup_userdata);
+clutter_show_layout (CoglFramebuffer   *framebuffer,
+                     PangoLayout       *layout,
+                     float              x,
+                     float              y,
+                     const CoglColor   *color,
+                     ClutterColorState *color_state,
+                     ClutterColorState *target_color_state);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoRenderer, g_object_unref)
 
