@@ -353,102 +353,6 @@ cogl_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
                                         create, font, glyph);
 }
 
-static gboolean
-font_has_color_glyphs (const PangoFont *font)
-{
-  cairo_scaled_font_t *scaled_font;
-  gboolean has_color = FALSE;
-
-  scaled_font = pango_cairo_font_get_scaled_font ((PangoCairoFont *) font);
-
-  if (cairo_scaled_font_get_type (scaled_font) == CAIRO_FONT_TYPE_FT)
-    {
-      FT_Face ft_face = cairo_ft_scaled_font_lock_face (scaled_font);
-      has_color = (FT_HAS_COLOR (ft_face) != 0);
-      cairo_ft_scaled_font_unlock_face (scaled_font);
-    }
-
-  return has_color;
-}
-
-static void
-cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
-                                     PangoGlyph glyph,
-                                     CoglPangoGlyphCacheValue *value)
-{
-  cairo_surface_t *surface;
-  cairo_t *cr;
-  cairo_scaled_font_t *scaled_font;
-  cairo_glyph_t cairo_glyph;
-  cairo_format_t format_cairo;
-  CoglPixelFormat format_cogl;
-
-  CLUTTER_NOTE (PANGO, "redrawing glyph %i", glyph);
-
-  /* Glyphs that don't take up any space will end up without a
-     texture. These should never become dirty so they shouldn't end up
-     here */
-  g_return_if_fail (value->texture != NULL);
-
-  if (cogl_texture_get_format (value->texture) == COGL_PIXEL_FORMAT_A_8)
-    {
-      format_cairo = CAIRO_FORMAT_A8;
-      format_cogl = COGL_PIXEL_FORMAT_A_8;
-    }
-  else
-    {
-      format_cairo = CAIRO_FORMAT_ARGB32;
-
-      /* Cairo stores the data in native byte order as ARGB but Cogl's
-         pixel formats specify the actual byte order. Therefore we
-         need to use a different format depending on the
-         architecture */
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-      format_cogl = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
-#else
-      format_cogl = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
-#endif
-    }
-
-  surface = cairo_image_surface_create (format_cairo,
-                                        value->draw_width,
-                                        value->draw_height);
-  cr = cairo_create (surface);
-
-  scaled_font = pango_cairo_font_get_scaled_font (PANGO_CAIRO_FONT (font));
-  cairo_set_scaled_font (cr, scaled_font);
-
-  cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 1.0);
-
-  cairo_glyph.x = -value->draw_x;
-  cairo_glyph.y = -value->draw_y;
-  /* The PangoCairo glyph numbers directly map to Cairo glyph
-     numbers */
-  cairo_glyph.index = glyph;
-  cairo_show_glyphs (cr, &cairo_glyph, 1);
-
-  cairo_destroy (cr);
-  cairo_surface_flush (surface);
-
-  /* Copy the glyph to the texture */
-  cogl_texture_set_region (value->texture,
-                           0, /* src_x */
-                           0, /* src_y */
-                           value->tx_pixel, /* dst_x */
-                           value->ty_pixel, /* dst_y */
-                           value->draw_width, /* dst_width */
-                           value->draw_height, /* dst_height */
-                           value->draw_width, /* width */
-                           value->draw_height, /* height */
-                           format_cogl,
-                           cairo_image_surface_get_stride (surface),
-                           cairo_image_surface_get_data (surface));
-
-  cairo_surface_destroy (surface);
-
-  value->has_color = font_has_color_glyphs (font);
-}
-
 static void
 _cogl_pango_ensure_glyph_cache_for_layout_line_internal (PangoLayoutLine *line)
 {
@@ -482,22 +386,15 @@ _cogl_pango_ensure_glyph_cache_for_layout_line_internal (PangoLayoutLine *line)
     }
 }
 
-static void
-_cogl_pango_set_dirty_glyphs (CoglPangoRenderer *priv)
-{
-  _cogl_pango_glyph_cache_set_dirty_glyphs
-    (priv->glyph_cache, cogl_pango_renderer_set_dirty_glyph);
-}
-
 void
 clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 {
   ClutterContext *context;
-  PangoRenderer *renderer;
+  CoglPangoRenderer *renderer;
   PangoLayoutIter *iter;
 
   context = _clutter_context_get_default ();
-  renderer = clutter_context_get_font_renderer (context);
+  renderer = COGL_PANGO_RENDERER (clutter_context_get_font_renderer (context));
 
   g_return_if_fail (PANGO_IS_LAYOUT (layout));
 
@@ -518,7 +415,7 @@ clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 
   /* Now that we know all of the positions are settled we'll fill in
      any dirty glyphs */
-  _cogl_pango_set_dirty_glyphs (COGL_PANGO_RENDERER (renderer));
+  _cogl_pango_glyph_cache_set_dirty_glyphs (renderer->glyph_cache);
 }
 
 static void

@@ -28,7 +28,9 @@
 
 #include "config.h"
 
+#include <cairo-ft.h>
 #include <glib.h>
+#include <pango/pangocairo.h>
 
 #include "clutter/clutter-debug.h"
 #include "clutter/pango/cogl-pango-glyph-cache.h"
@@ -353,6 +355,24 @@ cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
   return value;
 }
 
+static gboolean
+font_has_color_glyphs (const PangoFont *font)
+{
+  cairo_scaled_font_t *scaled_font;
+  gboolean has_color = FALSE;
+
+  scaled_font = pango_cairo_font_get_scaled_font ((PangoCairoFont *) font);
+
+  if (cairo_scaled_font_get_type (scaled_font) == CAIRO_FONT_TYPE_FT)
+    {
+      FT_Face ft_face = cairo_ft_scaled_font_lock_face (scaled_font);
+      has_color = (FT_HAS_COLOR (ft_face) != 0);
+      cairo_ft_scaled_font_unlock_face (scaled_font);
+    }
+
+  return has_color;
+}
+
 static void
 _cogl_pango_glyph_cache_set_dirty_glyphs_cb (void *key_ptr,
                                              void *value_ptr,
@@ -360,19 +380,85 @@ _cogl_pango_glyph_cache_set_dirty_glyphs_cb (void *key_ptr,
 {
   CoglPangoGlyphCacheKey *key = key_ptr;
   CoglPangoGlyphCacheValue *value = value_ptr;
-  CoglPangoGlyphCacheDirtyFunc func = user_data;
+  cairo_surface_t *surface;
+  cairo_t *cr;
+  cairo_scaled_font_t *scaled_font;
+  cairo_glyph_t cairo_glyph;
+  cairo_format_t format_cairo;
+  CoglPixelFormat format_cogl;
 
   if (value->dirty)
     {
-      func (key->font, key->glyph, value);
+      CLUTTER_NOTE (PANGO, "redrawing glyph %i", key->glyph);
 
+      /* Glyphs that don't take up any space will end up without a
+        texture. These should never become dirty so they shouldn't end up
+        here */
+      g_return_if_fail (value->texture != NULL);
+
+      if (cogl_texture_get_format (value->texture) == COGL_PIXEL_FORMAT_A_8)
+        {
+          format_cairo = CAIRO_FORMAT_A8;
+          format_cogl = COGL_PIXEL_FORMAT_A_8;
+        }
+      else
+        {
+          format_cairo = CAIRO_FORMAT_ARGB32;
+
+          /* Cairo stores the data in native byte order as ARGB but Cogl's
+            pixel formats specify the actual byte order. Therefore we
+            need to use a different format depending on the
+            architecture */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+          format_cogl = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+#else
+          format_cogl = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+#endif
+        }
+
+      surface = cairo_image_surface_create (format_cairo,
+                                            value->draw_width,
+                                            value->draw_height);
+      cr = cairo_create (surface);
+
+      scaled_font = pango_cairo_font_get_scaled_font (PANGO_CAIRO_FONT (key->font));
+      cairo_set_scaled_font (cr, scaled_font);
+
+      cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, 1.0);
+
+      cairo_glyph.x = -value->draw_x;
+      cairo_glyph.y = -value->draw_y;
+      /* The PangoCairo glyph numbers directly map to Cairo glyph
+        numbers */
+      cairo_glyph.index = key->glyph;
+      cairo_show_glyphs (cr, &cairo_glyph, 1);
+
+      cairo_destroy (cr);
+      cairo_surface_flush (surface);
+
+      /* Copy the glyph to the texture */
+      cogl_texture_set_region (value->texture,
+                              0, /* src_x */
+                              0, /* src_y */
+                              value->tx_pixel, /* dst_x */
+                              value->ty_pixel, /* dst_y */
+                              value->draw_width, /* dst_width */
+                              value->draw_height, /* dst_height */
+                              value->draw_width, /* width */
+                              value->draw_height, /* height */
+                              format_cogl,
+                              cairo_image_surface_get_stride (surface),
+                              cairo_image_surface_get_data (surface));
+
+      cairo_surface_destroy (surface);
+
+      value->has_color = font_has_color_glyphs (key->font);
       value->dirty = FALSE;
     }
 }
 
 void
-_cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache,
-                                          CoglPangoGlyphCacheDirtyFunc func)
+_cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache)
 {
   /* If we know that there are no dirty glyphs then we can shortcut
      out early */
@@ -381,7 +467,7 @@ _cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache,
 
   g_hash_table_foreach (cache->hash_table,
                         _cogl_pango_glyph_cache_set_dirty_glyphs_cb,
-                        func);
+                        NULL);
 
   cache->has_dirty_glyphs = FALSE;
 }

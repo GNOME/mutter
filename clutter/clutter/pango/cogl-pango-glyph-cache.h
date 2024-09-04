@@ -62,10 +62,6 @@ struct _CoglPangoGlyphCacheValue
   guint has_color : 1;
 };
 
-typedef void (* CoglPangoGlyphCacheDirtyFunc) (PangoFont *font,
-                                               PangoGlyph glyph,
-                                               CoglPangoGlyphCacheValue *value);
-
 CoglPangoGlyphCache *
 cogl_pango_glyph_cache_new (CoglContext *ctx);
 
@@ -90,7 +86,6 @@ _cogl_pango_glyph_cache_remove_reorganize_callback (CoglPangoGlyphCache *cache,
                                                     void *user_data);
 
 void
-_cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache,
-                                          CoglPangoGlyphCacheDirtyFunc func);
+_cogl_pango_glyph_cache_set_dirty_glyphs (CoglPangoGlyphCache *cache);
 
 G_END_DECLS
