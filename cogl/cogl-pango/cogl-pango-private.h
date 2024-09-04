@@ -45,14 +45,14 @@ _cogl_pango_renderer_new (CoglContext *context);
 
 /**
  * cogl_pango_font_map_get_renderer:
- * @font_map: a #CoglPangoFontMap
+ * @font_map: a #PangoFontMap
  *
  * Retrieves the [class@CoglPango.Renderer] for the passed @font_map.
  *
  * Return value: (transfer none): a #PangoRenderer
  */
 PangoRenderer *
-cogl_pango_font_map_get_renderer (CoglPangoFontMap *font_map);
+cogl_pango_font_map_get_renderer (PangoFontMap *font_map);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoRenderer, g_object_unref)
 

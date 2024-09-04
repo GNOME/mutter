@@ -75,7 +75,7 @@ cogl_pango_font_map_new (CoglContext *context)
 }
 
 PangoRenderer *
-cogl_pango_font_map_get_renderer (CoglPangoFontMap *fm)
+cogl_pango_font_map_get_renderer (PangoFontMap *fm)
 {
   CoglPangoFontMapPriv *priv = g_object_get_qdata (G_OBJECT (fm),
                                                    cogl_pango_font_map_get_priv_key ());

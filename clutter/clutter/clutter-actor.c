@@ -13107,13 +13107,13 @@ clutter_actor_get_pango_context (ClutterActor *self)
 PangoContext *
 clutter_actor_create_pango_context (ClutterActor *self)
 {
-  CoglPangoFontMap *font_map;
+  PangoFontMap *font_map;
   ClutterContext *context = clutter_actor_get_context (self);
   PangoContext *pango_context;
 
   font_map = clutter_context_get_pango_fontmap (context);
 
-  pango_context = pango_font_map_create_context (PANGO_FONT_MAP (font_map));
+  pango_context = pango_font_map_create_context (font_map);
   update_pango_context (clutter_context_get_backend (context), pango_context);
   pango_context_set_language (pango_context, pango_language_get_default ());
 

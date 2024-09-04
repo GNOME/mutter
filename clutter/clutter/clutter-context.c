@@ -304,10 +304,10 @@ clutter_context_get_backend (ClutterContext *context)
   return context->backend;
 }
 
-CoglPangoFontMap *
+PangoFontMap *
 clutter_context_get_pango_fontmap (ClutterContext *context)
 {
-  CoglPangoFontMap *font_map;
+  PangoFontMap *font_map;
   gdouble resolution;
   ClutterBackend *backend;
   CoglContext *cogl_context;
@@ -317,7 +317,7 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
 
   backend = clutter_context_get_backend (context);
   cogl_context = clutter_backend_get_cogl_context (backend);
-  font_map = COGL_PANGO_FONT_MAP (cogl_pango_font_map_new (cogl_context));
+  font_map = cogl_pango_font_map_new (cogl_context);
 
   resolution = clutter_backend_get_resolution (context->backend);
   pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (font_map),

@@ -42,16 +42,6 @@
 
 G_BEGIN_DECLS
 
-/* It's too difficult to actually subclass the pango cairo font
- * map. Instead we just make a fake set of macros that actually just
- * directly use the original type
- */
-#define COGL_PANGO_TYPE_FONT_MAP        PANGO_TYPE_CAIRO_FONT_MAP
-#define COGL_PANGO_FONT_MAP(obj)        (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_PANGO_TYPE_FONT_MAP, CoglPangoFontMap))
-#define COGL_PANGO_IS_FONT_MAP(obj)     (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_PANGO_TYPE_FONT_MAP))
-
-typedef PangoCairoFontMap CoglPangoFontMap;
-
 typedef void (* CoglPangoPipelineSetup) (CoglPipeline *pipeline,
                                          gpointer      user_data);
 

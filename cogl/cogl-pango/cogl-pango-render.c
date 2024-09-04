@@ -248,15 +248,12 @@ static CoglPangoRenderer *
 cogl_pango_get_renderer_from_context (PangoContext *context)
 {
   PangoFontMap *font_map;
-  CoglPangoFontMap *cogl_font_map;
   PangoRenderer *renderer;
 
   font_map = pango_context_get_font_map (context);
-  g_return_val_if_fail (COGL_PANGO_IS_FONT_MAP (font_map), NULL);
+  g_return_val_if_fail (PANGO_IS_FONT_MAP (font_map), NULL);
 
-  cogl_font_map = COGL_PANGO_FONT_MAP (font_map);
-
-  renderer = cogl_pango_font_map_get_renderer (cogl_font_map);
+  renderer = cogl_pango_font_map_get_renderer (font_map);
 
   g_return_val_if_fail (COGL_PANGO_IS_RENDERER (renderer), NULL);
 
