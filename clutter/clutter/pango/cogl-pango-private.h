@@ -44,6 +44,43 @@ G_BEGIN_DECLS
 PangoRenderer *
 _cogl_pango_renderer_new (CoglContext *context);
 
+/**
+ * clutter_ensure_glyph_cache_for_layout:
+ * @layout: A #PangoLayout
+ *
+ * This updates any internal glyph cache textures as necessary to be
+ * able to render the given @layout.
+ *
+ * This api should be used to avoid mid-scene modifications of
+ * glyph-cache textures which can lead to undefined rendering results.
+ */
+void
+clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
+
+
+typedef void (* ClutterPipelineSetup) (CoglPipeline *pipeline,
+                                       gpointer      user_data);
+
+/**
+ * clutter_show_layout: (skip)
+ * @framebuffer: A #CoglFramebuffer to draw too.
+ * @layout: a #PangoLayout
+ * @x: X coordinate to render the layout at
+ * @y: Y coordinate to render the layout at
+ * @color: color to use when rendering the layout
+ *
+ * Draws a solidly coloured @layout on the given @framebuffer at (@x,
+ * @y) within the `framebuffer`'s current model-view coordinate space.
+ */
+void
+clutter_show_layout (CoglFramebuffer        *framebuffer,
+                     PangoLayout            *layout,
+                     float                   x,
+                     float                   y,
+                     const CoglColor        *color,
+                     ClutterPipelineSetup    pipeline_setup,
+                     gpointer                pipeline_setup_userdata);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoRenderer, g_object_unref)
 
 G_END_DECLS

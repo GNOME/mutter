@@ -30,6 +30,7 @@
 #include <pango/pango.h>
 
 #include "cogl/cogl.h"
+#include "clutter/pango/cogl-pango-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-blur-private.h"
 #include "clutter/clutter-debug.h"

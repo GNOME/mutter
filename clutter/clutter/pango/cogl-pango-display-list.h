@@ -31,7 +31,7 @@
 #include <glib.h>
 
 #include "clutter/pango/cogl-pango-pipeline-cache.h"
-#include "clutter/clutter-main.h"
+#include "clutter/pango/cogl-pango-private.h"
 
 
 G_BEGIN_DECLS

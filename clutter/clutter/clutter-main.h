@@ -27,9 +27,6 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <pango/pango.h>
-#include <pango/pangocairo.h>
-
 #include "clutter/clutter-actor.h"
 #include "clutter/clutter-stage.h"
 #include "cogl/cogl.h"
@@ -159,41 +156,5 @@ void                    clutter_debug_set_max_render_time_constant (int max_rend
 
 CLUTTER_EXPORT
 ClutterTextDirection    clutter_get_text_direction (void);
-
-typedef void (* ClutterPipelineSetup) (CoglPipeline *pipeline,
-                                       gpointer      user_data);
-
-/**
- * clutter_ensure_glyph_cache_for_layout:
- * @layout: A #PangoLayout
- *
- * This updates any internal glyph cache textures as necessary to be
- * able to render the given @layout.
- *
- * This api should be used to avoid mid-scene modifications of
- * glyph-cache textures which can lead to undefined rendering results.
- */
-CLUTTER_EXPORT void
-clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
-
-/**
- * clutter_show_layout: (skip)
- * @framebuffer: A #CoglFramebuffer to draw too.
- * @layout: a #PangoLayout
- * @x: X coordinate to render the layout at
- * @y: Y coordinate to render the layout at
- * @color: color to use when rendering the layout
- *
- * Draws a solidly coloured @layout on the given @framebuffer at (@x,
- * @y) within the `framebuffer`'s current model-view coordinate space.
- */
-CLUTTER_EXPORT void
-clutter_show_layout (CoglFramebuffer        *framebuffer,
-                     PangoLayout            *layout,
-                     float                   x,
-                     float                   y,
-                     const CoglColor        *color,
-                     ClutterPipelineSetup    pipeline_setup,
-                     gpointer                pipeline_setup_userdata);
 
 G_END_DECLS
