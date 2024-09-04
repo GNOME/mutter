@@ -101,6 +101,7 @@ clutter_context_dispose (GObject *object)
   g_clear_pointer (&context->backend, clutter_backend_destroy);
   g_clear_object (&context->stage_manager);
   g_clear_object (&context->settings);
+  g_clear_object (&context->font_map);
 
   G_OBJECT_CLASS (clutter_context_parent_class)->dispose (object);
 }
