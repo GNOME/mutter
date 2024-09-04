@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2011 Intel Corporation.
  *
@@ -35,7 +35,7 @@
 
 #include <glib.h>
 
-#include "cogl-pango/cogl-pango-pipeline-cache.h"
+#include "clutter/pango/cogl-pango-pipeline-cache.h"
 
 typedef struct _CoglPangoPipelineCacheEntry CoglPangoPipelineCacheEntry;
 

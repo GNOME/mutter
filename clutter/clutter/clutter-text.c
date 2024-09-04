@@ -56,7 +56,7 @@
 #include "clutter/clutter-keysyms.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-marshal.h"
-#include "clutter/clutter-private.h"    /* includes <cogl-pango/cogl-pango.h> */
+#include "clutter/clutter-private.h"
 #include "clutter/clutter-property-transition.h"
 #include "clutter/clutter-text-buffer.h"
 #include "clutter/clutter-paint-volume-private.h"
@@ -1073,7 +1073,7 @@ clutter_text_create_layout (ClutterText *text,
   oldest_cache->layout =
     clutter_text_create_layout_no_cache (text, width, height, ellipsize);
 
-  cogl_pango_ensure_glyph_cache_for_layout (oldest_cache->layout);
+  clutter_ensure_glyph_cache_for_layout (oldest_cache->layout);
 
   /* Mark the 'time' this cache was created and advance the time */
   oldest_cache->age = priv->cache_age++;
@@ -2030,9 +2030,9 @@ paint_selection_rectangle (ClutterText           *self,
                            color->blue / 255.0f,
                            paint_opacity / 255.0f * color->alpha / 255.0f);
 
-  cogl_pango_show_layout (fb, layout, priv->text_x, 0, &cogl_color,
-                          setup_pango_pipeline,
-                          &pango_pipeline_data);
+  clutter_show_layout (fb, layout, priv->text_x, 0, &cogl_color,
+                       setup_pango_pipeline,
+                       &pango_pipeline_data);
 
   cogl_framebuffer_pop_clip (fb);
   g_object_unref (color_pipeline);
@@ -2863,9 +2863,9 @@ clutter_text_paint (ClutterActor        *self,
     .color_state = color_state,
     .target_color_state = target_color_state,
   };
-  cogl_pango_show_layout (fb, layout, priv->text_x, priv->text_y, &color,
-                          setup_pango_pipeline,
-                          &pango_pipeline_data);
+  clutter_show_layout (fb, layout, priv->text_x, priv->text_y, &color,
+                       setup_pango_pipeline,
+                       &pango_pipeline_data);
 
   selection_paint (text, fb, paint_context);
 

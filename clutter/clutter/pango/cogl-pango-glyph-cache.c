@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2008 OpenedHand
  *
@@ -30,8 +30,9 @@
 
 #include <glib.h>
 
-#include "cogl-pango/cogl-pango-glyph-cache.h"
-#include "cogl-pango/cogl-pango-private.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/pango/cogl-pango-glyph-cache.h"
+#include "clutter/pango/cogl-pango-private.h"
 
 typedef struct _CoglPangoGlyphCacheKey     CoglPangoGlyphCacheKey;
 
@@ -276,7 +277,7 @@ cogl_pango_glyph_cache_add_to_local_atlas (CoglPangoGlyphCache *cache,
                               COGL_ATLAS_CLEAR_TEXTURE |
                               COGL_ATLAS_DISABLE_MIGRATION,
                               cogl_pango_glyph_cache_update_position_cb);
-      g_log (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "Created new atlas for glyphs: %p", atlas);
+      CLUTTER_NOTE (PANGO, "Created new atlas for glyphs: %p", atlas);
       /* If we still can't reserve space then something has gone
          seriously wrong so we'll just give up */
       if (!cogl_atlas_reserve_space (atlas,

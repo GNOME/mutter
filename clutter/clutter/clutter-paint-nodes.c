@@ -812,13 +812,13 @@ clutter_text_node_draw (ClutterPaintNode    *node,
               clipped = TRUE;
             }
 
-          cogl_pango_show_layout (fb,
-                                  tnode->layout,
-                                  op->op.texrect[0],
-                                  op->op.texrect[1],
-                                  &tnode->color,
-                                  setup_pango_pipeline,
-                                  &pango_pipeline_data);
+          clutter_show_layout (fb,
+                               tnode->layout,
+                               op->op.texrect[0],
+                               op->op.texrect[1],
+                               &tnode->color,
+                               setup_pango_pipeline,
+                               &pango_pipeline_data);
 
           if (clipped)
             cogl_framebuffer_pop_clip (fb);

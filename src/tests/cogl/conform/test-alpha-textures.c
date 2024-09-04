@@ -30,7 +30,7 @@ create_pipeline (CoglTexture **tex_out,
                                      0, /* layer */
                                      COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
 
-  /* This is the layer combine used by cogl-pango */
+  /* This is the layer combine used by clutter text rendering */
   cogl_pipeline_set_layer_combine (pipeline,
                                    0, /* layer */
                                    "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",

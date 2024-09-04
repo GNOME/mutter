@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2009  Intel Corporation.
  *
@@ -30,9 +30,9 @@
 
 #include <glib.h>
 
-#include "cogl-pango/cogl-pango-pipeline-cache.h"
+#include "clutter/pango/cogl-pango-pipeline-cache.h"
+#include "clutter/clutter-main.h"
 
-#include "cogl-pango/cogl-pango.h"
 
 G_BEGIN_DECLS
 
@@ -73,7 +73,7 @@ _cogl_pango_display_list_add_trapezoid (CoglPangoDisplayList *dl,
 void
 cogl_pango_display_list_render (CoglFramebuffer        *framebuffer,
                                 CoglPangoDisplayList   *dl,
-                                CoglPangoPipelineSetup  pipeline_setup,
+                                ClutterPipelineSetup    pipeline_setup,
                                 gpointer                pipeline_setup_user_data,
                                 const CoglColor        *color);
 

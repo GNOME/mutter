@@ -92,4 +92,3 @@ cogl_debug_c_args = cc.get_supported_arguments(cogl_debug_c_args)
 cogl_c_args += cogl_debug_c_args
 
 subdir('cogl')
-subdir('cogl-pango')

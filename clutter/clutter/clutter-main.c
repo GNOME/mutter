@@ -42,7 +42,6 @@
 #include "clutter/clutter-backend-private.h"
 
 #include "cogl/cogl.h"
-#include "cogl-pango/cogl-pango.h"
 
 
 typedef struct

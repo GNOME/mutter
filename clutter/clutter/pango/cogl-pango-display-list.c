@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2009 Intel Corporation.
  *
@@ -31,8 +31,8 @@
 #include <glib.h>
 #include <string.h>
 
-#include "cogl-pango/cogl-pango-display-list.h"
-#include "cogl-pango/cogl-pango-pipeline-cache.h"
+#include "clutter/pango/cogl-pango-display-list.h"
+#include "clutter/pango/cogl-pango-pipeline-cache.h"
 #include "cogl/cogl.h"
 
 typedef enum
@@ -393,7 +393,7 @@ _cogl_framebuffer_draw_display_list_texture (CoglFramebuffer *fb,
 void
 cogl_pango_display_list_render (CoglFramebuffer        *fb,
                                 CoglPangoDisplayList   *dl,
-                                CoglPangoPipelineSetup  pipeline_setup,
+                                ClutterPipelineSetup    pipeline_setup,
                                 gpointer                pipeline_setup_user_data,
                                 const CoglColor        *color)
 {

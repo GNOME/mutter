@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2008 OpenedHand
  * Copyright (C) 2012 Intel Corporation.
@@ -35,13 +35,17 @@
 
 #pragma once
 
-#include "cogl-pango/cogl-pango.h"
+#include <pango/pango.h>
+
+#include "cogl/cogl.h"
 
 G_BEGIN_DECLS
 
 PangoRenderer *
 _cogl_pango_renderer_new (CoglContext *context);
 
+PangoFontMap *
+cogl_pango_font_map_new (CoglContext *context);
 
 /**
  * cogl_pango_font_map_get_renderer:

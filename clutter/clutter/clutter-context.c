@@ -31,6 +31,7 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-paint-node-private.h"
 #include "clutter/clutter-settings-private.h"
+#include "clutter/pango/cogl-pango-private.h"
 
 static gboolean clutter_show_fps = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;

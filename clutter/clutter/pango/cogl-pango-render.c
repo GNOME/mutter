@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2008 OpenedHand
  * Copyright (C) 2012 Intel Corporation.
@@ -41,9 +41,10 @@
 #include <cairo.h>
 #include <cairo-ft.h>
 
-#include "cogl-pango/cogl-pango-private.h"
-#include "cogl-pango/cogl-pango-glyph-cache.h"
-#include "cogl-pango/cogl-pango-display-list.h"
+#include "clutter/clutter-debug.h"
+#include "clutter/pango/cogl-pango-private.h"
+#include "clutter/pango/cogl-pango-glyph-cache.h"
+#include "clutter/pango/cogl-pango-display-list.h"
 #include "cogl/cogl.h"
 
 #define PANGO_UNKNOWN_GLYPH_WIDTH 10
@@ -301,13 +302,13 @@ cogl_pango_render_qdata_destroy (CoglPangoLayoutQdata *qdata)
 }
 
 void
-cogl_pango_show_layout (CoglFramebuffer        *fb,
-                        PangoLayout            *layout,
-                        float                   x,
-                        float                   y,
-                        const CoglColor        *color,
-                        CoglPangoPipelineSetup  pipeline_setup,
-                        gpointer                pipeline_setup_userdata)
+clutter_show_layout (CoglFramebuffer        *fb,
+                     PangoLayout            *layout,
+                     float                   x,
+                     float                   y,
+                     const CoglColor        *color,
+                     ClutterPipelineSetup    pipeline_setup,
+                     gpointer                pipeline_setup_userdata)
 {
   PangoContext *context;
   CoglPangoRenderer *priv;
@@ -347,7 +348,7 @@ cogl_pango_show_layout (CoglFramebuffer        *fb,
         &priv->mipmap_caches :
         &priv->no_mipmap_caches;
 
-      cogl_pango_ensure_glyph_cache_for_layout (layout);
+      clutter_ensure_glyph_cache_for_layout (layout);
 
       qdata->display_list =
         _cogl_pango_display_list_new (caches->pipeline_cache);
@@ -436,7 +437,7 @@ cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
   cairo_format_t format_cairo;
   CoglPixelFormat format_cogl;
 
-  g_log (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "redrawing glyph %i", glyph);
+  CLUTTER_NOTE (PANGO, "redrawing glyph %i", glyph);
 
   /* Glyphs that don't take up any space will end up without a
      texture. These should never become dirty so they shouldn't end up
@@ -546,7 +547,7 @@ _cogl_pango_set_dirty_glyphs (CoglPangoRenderer *priv)
 }
 
 void
-cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout)
+clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 {
   PangoContext *context;
   CoglPangoRenderer *priv;
@@ -750,7 +751,7 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
                                                   font,
                                                   gi->glyph);
 
-          /* cogl_pango_ensure_glyph_cache_for_layout should always be
+          /* clutter_ensure_glyph_cache_for_layout should always be
              called before rendering a layout so we should never have
              a dirty glyph here */
           g_assert (cache_value == NULL || !cache_value->dirty);

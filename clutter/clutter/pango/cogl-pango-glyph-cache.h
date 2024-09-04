@@ -1,7 +1,7 @@
 /*
- * Cogl
+ * Clutter.
  *
- * A Low Level GPU Graphics and Utilities API
+ * An OpenGL based 'interactive canvas' library.
  *
  * Copyright (C) 2008 OpenedHand
  *
@@ -66,14 +66,14 @@ typedef void (* CoglPangoGlyphCacheDirtyFunc) (PangoFont *font,
                                                PangoGlyph glyph,
                                                CoglPangoGlyphCacheValue *value);
 
-COGL_EXPORT CoglPangoGlyphCache *
+CoglPangoGlyphCache *
 cogl_pango_glyph_cache_new (CoglContext *ctx,
                             gboolean use_mipmapping);
 
-COGL_EXPORT void
+void
 cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache);
 
-COGL_EXPORT CoglPangoGlyphCacheValue *
+CoglPangoGlyphCacheValue *
 cogl_pango_glyph_cache_lookup (CoglPangoGlyphCache *cache,
                                CoglContext         *context,
                                gboolean             create,

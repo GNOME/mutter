@@ -1306,7 +1306,6 @@ if have_introspection
     'GObject-2.0',
     'GDesktopEnums-3.0',
     libmutter_cogl_gir[0],
-    libmutter_cogl_pango_gir[0],
     libmutter_clutter_gir[0],
     libmutter_mtk_gir[0],
   ]

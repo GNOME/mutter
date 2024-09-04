@@ -84,6 +84,10 @@ clutter_headers = [
 ]
 
 clutter_sources = [
+  'pango/cogl-pango-display-list.c',
+  'pango/cogl-pango-glyph-cache.c',
+  'pango/cogl-pango-pipeline-cache.c',
+  'pango/cogl-pango-render.c',
   'clutter-accessibility.c',
   'clutter-action.c',
   'clutter-actor-box.c',
@@ -177,6 +181,10 @@ clutter_sources = [
 ]
 
 clutter_private_headers = [
+  'pango/cogl-pango-display-list.h',
+  'pango/cogl-pango-glyph-cache.h',
+  'pango/cogl-pango-pipeline-cache.h',
+  'pango/cogl-pango-private.h',
   'clutter-accessibility-private.h',
   'clutter-actor-meta-private.h',
   'clutter-actor-private.h',
@@ -262,7 +270,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
   gnu_symbol_visibility: 'hidden',
   link_with: [
     libmutter_cogl,
-    libmutter_cogl_pango,
   ],
   install_rpath: pkglibdir,
   install_dir: pkglibdir,
@@ -294,12 +301,12 @@ if have_introspection
     includes: [
       libmutter_mtk_gir[0],
       libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
       'GL-1.0',
       'Gio-2.0',
       'GObject-2.0',
       'cairo-1.0',
       'Atk-1.0',
+      'Pango-1.0',
     ],
     dependencies: [cogl_deps],
     extra_args: clutter_introspection_args + ['--c-include=clutter/clutter.h'],

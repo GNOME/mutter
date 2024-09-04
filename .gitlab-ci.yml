@@ -801,7 +801,7 @@ reference:
   script:
     - mkdir references
     - cp -r doc/website/* ./references
-    - mv build/doc/reference/{clutter/clutter,cogl/cogl,cogl-pango/cogl-pango,meta/meta,mtk/mtk} references/
+    - mv build/doc/reference/{clutter/clutter,cogl/cogl,meta/meta,mtk/mtk} references/
   artifacts:
     expire_in: 1 week
     expose_as: 'Documentation'

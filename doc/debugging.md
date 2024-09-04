@@ -35,7 +35,7 @@ When a test fails when running `meson test`, it makes sense to re-run this speci
  12/243 mutter:cogl+cogl/conform / cogl-test-backface-culling-gles2                                             OK              1.46s
 ^CWARNING: CTRL-C detected, interrupting mutter:cogl+cogl/conform / cogl-test-just-vertex-shader-gl3
  13/243 mutter:cogl+cogl/conform / cogl-test-just-vertex-shader-gl3                                             INTERRUPT       0.75s   killed by signal 15 SIGTERM
->>> COGL_DRIVER=gl3 G_TEST_BUILDDIR=/var/home/swick/Projects/mutter/build/src/tests/cogl/conform MALLOC_PERTURB_=83 G_TEST_SRCDIR=/var/home/swick/Projects/mutter/src/tests/cogl/conform G_ENABLE_DIAGNOSTIC=0 LD_LIBRARY_PATH=/var/home/swick/Projects/mutter/build/cogl/cogl:/var/home/swick/Projects/mutter/build/src/tests:/var/home/swick/Projects/mutter/build/mtk/mtk:/var/home/swick/Projects/mutter/build/clutter/clutter:/var/home/swick/Projects/mutter/build/cogl/cogl-pango:/var/home/swick/Projects/mutter/build/src /var/home/swick/Projects/mutter/src/tests/meta-dbus-runner.py -- /var/home/swick/Projects/mutter/build/src/tests/cogl/conform/cogl-test-just-vertex-shader
+>>> COGL_DRIVER=gl3 G_TEST_BUILDDIR=/var/home/swick/Projects/mutter/build/src/tests/cogl/conform MALLOC_PERTURB_=83 G_TEST_SRCDIR=/var/home/swick/Projects/mutter/src/tests/cogl/conform G_ENABLE_DIAGNOSTIC=0 LD_LIBRARY_PATH=/var/home/swick/Projects/mutter/build/cogl/cogl:/var/home/swick/Projects/mutter/build/src/tests:/var/home/swick/Projects/mutter/build/mtk/mtk:/var/home/swick/Projects/mutter/build/clutter/clutter:/var/home/swick/Projects/mutter/build/src /var/home/swick/Projects/mutter/src/tests/meta-dbus-runner.py -- /var/home/swick/Projects/mutter/build/src/tests/cogl/conform/cogl-test-just-vertex-shader
 
 ```
 

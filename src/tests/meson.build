@@ -95,7 +95,6 @@ if have_introspection
       'xfixes-4.0',
       libmutter_mtk_gir[0],
       libmutter_cogl_gir[0],
-      libmutter_cogl_pango_gir[0],
       libmutter_clutter_gir[0],
       libmutter_gir[0],
     ],
