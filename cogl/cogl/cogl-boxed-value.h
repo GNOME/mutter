@@ -53,7 +53,6 @@ typedef struct _CoglBoxedValue
     float matrix[16];
     float *float_array;
     int *int_array;
-    void *array;
   } v;
 } CoglBoxedValue;
 

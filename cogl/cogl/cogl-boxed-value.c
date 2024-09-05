@@ -95,8 +95,8 @@ _cogl_boxed_value_equal (const CoglBoxedValue *bva,
         }
       else
         {
-          pa = bva->v.array;
-          pb = bvb->v.array;
+          pa = bva->v.float_array;
+          pb = bvb->v.float_array;
         }
 
       return !memcmp (pa, pb,
@@ -138,7 +138,7 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
   if (count == 1)
     {
       if (bv->count > 1)
-        g_free (bv->v.array);
+        g_free (bv->v.float_array);
 
       if (transpose)
         _cogl_boxed_value_transpose (bv->v.float_value,
@@ -155,12 +155,12 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
               bv->size != size ||
               bv->type != type)
             {
-              g_free (bv->v.array);
-              bv->v.array = g_malloc (count * value_size);
+              g_free (bv->v.float_array);
+              bv->v.float_array = g_malloc (count * value_size);
             }
         }
       else
-        bv->v.array = g_malloc (count * value_size);
+        bv->v.float_array = g_malloc (count * value_size);
 
       if (transpose)
         {
@@ -174,7 +174,7 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
                                          value_num * size * size);
         }
       else
-        memcpy (bv->v.array, value, count * value_size);
+        memcpy (bv->v.float_array, value, count * value_size);
     }
 
   bv->type = type;
@@ -277,7 +277,22 @@ void
 _cogl_boxed_value_destroy (CoglBoxedValue *bv)
 {
   if (bv->count > 1)
-    g_free (bv->v.array);
+    {
+      switch (bv->type)
+        {
+        case COGL_BOXED_INT:
+          g_free (bv->v.int_array);
+          return;
+
+        case COGL_BOXED_FLOAT:
+        case COGL_BOXED_MATRIX:
+          g_free (bv->v.float_array);
+          return;
+
+        case COGL_BOXED_NONE:
+          return;
+        }
+    }
 }
 
 void
