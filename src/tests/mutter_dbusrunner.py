@@ -32,6 +32,10 @@ def get_subprocess_stdout():
     else:
         return subprocess.DEVNULL;
 
+def generate_file_name(args):
+    args_string = '_'.join(args)
+    args_string = args_string.replace('/', '_')
+    return 'session-{}-service-{}.log'.format(os.getpid(), args_string)
 
 class MutterDBusRunner(DBusTestCase):
     @classmethod
@@ -149,8 +153,22 @@ class MutterDBusRunner(DBusTestCase):
 
     @classmethod
     def launch_service(klass, args, env=None, pass_fds=()):
-        print('  - Launching {}'.format(' '.join(args)), file=sys.stderr)
-        klass.service_processes += [subprocess.Popen(args, env=env, pass_fds=pass_fds)]
+        if 'MUTTER_TEST_LOG_DIR' in os.environ:
+            service_log_dir = os.environ['MUTTER_TEST_LOG_DIR']
+        else:
+            service_log_dir = '/tmp'
+        service_log_path = os.path.join(service_log_dir, generate_file_name(args))
+        print('  - Launching {} (log file: {})'.format(' '.join(args),
+                                                       service_log_path),
+              file=sys.stderr)
+
+        service_log = open(service_log_path, 'w')
+        klass.service_processes += [subprocess.Popen(args,
+                                                     env=env,
+                                                     pass_fds=pass_fds,
+                                                     stdout=service_log,
+                                                     stderr=service_log)]
+        service_log.close()
 
     @classmethod
     def poll_pipewire_sockets_in_thread(klass, sockets):

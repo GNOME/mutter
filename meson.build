@@ -446,9 +446,13 @@ if have_tests
     ]
   endif
 
+  test_setup_env = environment()
+  test_setup_env.set('MUTTER_TEST_LOG_DIR', mutter_builddir / 'meson-logs')
+
   add_test_setup('default',
     is_default: true,
     exe_wrapper: default_test_wrappers,
+    env: test_setup_env,
   )
 
   add_test_setup('plain')
