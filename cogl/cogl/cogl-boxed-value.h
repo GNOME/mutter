@@ -63,6 +63,10 @@ typedef struct _CoglBoxedValue
     _bv->count = 1;                             \
   } G_STMT_END
 
+char *
+_cogl_boxed_value_to_string (const CoglBoxedValue *bv,
+                             const char *name);
+
 gboolean
 _cogl_boxed_value_equal (const CoglBoxedValue *bva,
                          const CoglBoxedValue *bvb);
