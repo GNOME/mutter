@@ -109,11 +109,20 @@ _cogl_boxed_value_equal (const CoglBoxedValue *bva,
 }
 
 static void
-_cogl_boxed_value_transpose (float       *dst,
-                             int          size,
-                             const float *src)
+_cogl_boxed_value_copy_transposed_value (CoglBoxedValue *bv,
+                                         int size,
+                                         int count,
+                                         const float *src)
 {
+  int value_num;
   int y, x;
+  float *dst;
+  const float *src_start = src;
+
+  if (count > 1)
+    dst = bv->v.float_array;
+  else
+    dst = bv->v.matrix;
 
   /* If the value is transposed we'll just transpose it now as it
    * is copied into the boxed value instead of passing TRUE to
@@ -121,9 +130,48 @@ _cogl_boxed_value_transpose (float       *dst,
    * doesn't seem like the GL driver would be able to do anything
    * much smarter than this anyway */
 
-  for (y = 0; y < size; y++)
-    for (x = 0; x < size; x++)
-      *(dst++) = src[y + x * size];
+  for (value_num = 0; value_num < count; value_num++)
+    {
+      src = src_start + value_num * size * size;
+      for (y = 0; y < size; y++)
+        for (x = 0; x < size; x++)
+          *(dst++) = src[y + x * size];
+    }
+}
+
+static void
+_cogl_boxed_value_copy_value (CoglBoxedValue *bv,
+                              size_t value_size,
+                              int count,
+                              const void *value,
+                              CoglBoxedType type)
+{
+  switch (type)
+    {
+    case COGL_BOXED_INT:
+      if (count > 1)
+        memcpy (bv->v.int_array, value, count * value_size);
+      else
+        memcpy (bv->v.int_value, value, value_size);
+      return;
+
+    case COGL_BOXED_FLOAT:
+      if (count > 1)
+        memcpy (bv->v.float_array, value, count * value_size);
+      else
+        memcpy (bv->v.float_value, value, value_size);
+      return;
+
+    case COGL_BOXED_MATRIX:
+      if (count > 1)
+        memcpy (bv->v.float_array, value, count * value_size);
+      else
+        memcpy (bv->v.matrix, value, value_size);
+      return;
+
+    case COGL_BOXED_NONE:
+      return;
+    }
 }
 
 static void
@@ -141,11 +189,9 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
         g_free (bv->v.float_array);
 
       if (transpose)
-        _cogl_boxed_value_transpose (bv->v.float_value,
-                                     size,
-                                     value);
+        _cogl_boxed_value_copy_transposed_value (bv, size, count, value);
       else
-        memcpy (bv->v.float_value, value, value_size);
+        _cogl_boxed_value_copy_value (bv, value_size, count, value, type);
     }
   else
     {
@@ -163,18 +209,9 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
         bv->v.float_array = g_malloc (count * value_size);
 
       if (transpose)
-        {
-          int value_num;
-
-          for (value_num = 0; value_num < count; value_num++)
-            _cogl_boxed_value_transpose (bv->v.float_array +
-                                         value_num * size * size,
-                                         size,
-                                         (const float *) value +
-                                         value_num * size * size);
-        }
+        _cogl_boxed_value_copy_transposed_value (bv, size, count, value);
       else
-        memcpy (bv->v.float_array, value, count * value_size);
+        _cogl_boxed_value_copy_value (bv, value_size, count, value, type);
     }
 
   bv->type = type;
