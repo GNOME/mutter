@@ -1000,8 +1000,11 @@ _clutter_event_push (const ClutterEvent *event,
       event = copy;
     }
 
-  g_async_queue_push (context->events_queue, (gpointer) event);
-  g_main_context_wakeup (NULL);
+  g_async_queue_lock (context->events_queue);
+  g_async_queue_push_unlocked (context->events_queue, (gpointer) event);
+  if (g_async_queue_length_unlocked (context->events_queue) == 1)
+    g_main_context_wakeup (NULL);
+  g_async_queue_unlock (context->events_queue);
 }
 
 /**

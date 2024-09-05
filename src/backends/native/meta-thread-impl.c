@@ -599,8 +599,11 @@ meta_thread_impl_queue_task (MetaThreadImpl *thread_impl,
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
-  g_async_queue_push (priv->task_queue, task);
-  g_main_context_wakeup (priv->thread_context);
+  g_async_queue_lock (priv->task_queue);
+  g_async_queue_push_unlocked (priv->task_queue, task);
+  if (g_async_queue_length_unlocked (priv->task_queue) == 1)
+    g_main_context_wakeup (priv->thread_context);
+  g_async_queue_unlock (priv->task_queue);
 }
 
 gboolean
