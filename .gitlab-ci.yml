@@ -130,6 +130,10 @@ variables:
       # Enable sudo for $MUTTER_USER
       echo "%$MUTTER_USER ALL = (ALL) NOPASSWD: ALL" > /etc/sudoers.d/99_mutter-user
 
+      # Drop problematic vulkan driver that interferes with CI;
+      # see https://gitlab.gnome.org/GNOME/gtk/-/commit/7814d1fd75911
+      rm /usr/share/vulkan/icd.d/powervr_mesa_icd.x86_64.json
+
       dnf install -y 'dnf-command(builddep)'
 
       dnf builddep -y mutter --setopt=install_weak_deps=False
