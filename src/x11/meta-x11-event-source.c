@@ -33,7 +33,9 @@ meta_x11_event_source_prepare (GSource *source,
 
   *timeout = -1;
 
-  return XPending (event_source->xdisplay);
+  XFlush (event_source->xdisplay);
+
+  return XEventsQueued (event_source->xdisplay, QueuedAlready) > 0;
 }
 
 static gboolean
@@ -41,7 +43,8 @@ meta_x11_event_source_check (GSource *source)
 {
   MetaX11EventSource *event_source = (MetaX11EventSource *) source;
 
-  return XPending (event_source->xdisplay);
+  return (event_source->event_poll_fd.revents & G_IO_IN) != 0 ||
+         XEventsQueued (event_source->xdisplay, QueuedAlready) > 0;
 }
 
 static gboolean
@@ -52,11 +55,15 @@ meta_x11_event_source_dispatch (GSource     *source,
   MetaX11EventSource *event_source = (MetaX11EventSource *) source;
   MetaX11EventFunc event_func = (MetaX11EventFunc) callback;
   gboolean retval = G_SOURCE_CONTINUE;
+  int pending;
 
-  while (retval == G_SOURCE_CONTINUE &&
-         XPending (event_source->xdisplay))
+  pending = XPending (event_source->xdisplay);
+
+  while (retval == G_SOURCE_CONTINUE && pending > 0)
     {
       XEvent xevent;
+
+      pending--;
 
       XNextEvent (event_source->xdisplay, &xevent);
       retval = event_func (&xevent, user_data);
