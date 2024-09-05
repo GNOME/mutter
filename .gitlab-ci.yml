@@ -113,6 +113,7 @@ variables:
       uncrustify
       xorg-x11-server-Xvfb
       mesa-dri-drivers
+      mesa-vulkan-drivers
       xorg-x11-proto-devel
       qemu-system-x86-core
       busybox
