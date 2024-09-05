@@ -206,8 +206,6 @@ test_runner = executable('mutter-test-runner',
   install_rpath: pkglibdir,
 )
 
-meta_dbus_runner = find_program('meta-dbus-runner.py')
-
 tests_datadir = pkgdatadir / 'tests'
 
 install_data(
