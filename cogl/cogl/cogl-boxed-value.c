@@ -109,6 +109,31 @@ _cogl_boxed_value_equal (const CoglBoxedValue *bva,
 }
 
 static void
+_cogl_boxed_value_array_alloc (CoglBoxedValue *bv,
+                               size_t value_size,
+                               int count,
+                               CoglBoxedType type)
+{
+  if (count > 1)
+    {
+      switch (type)
+        {
+        case COGL_BOXED_INT:
+          bv->v.int_array = g_malloc (count * value_size);
+          return;
+
+        case COGL_BOXED_FLOAT:
+        case COGL_BOXED_MATRIX:
+          bv->v.float_array = g_malloc (count * value_size);
+          return;
+
+        case COGL_BOXED_NONE:
+          return;
+        }
+    }
+}
+
+static void
 _cogl_boxed_value_copy_transposed_value (CoglBoxedValue *bv,
                                          int size,
                                          int count,
@@ -183,36 +208,18 @@ _cogl_boxed_value_set_x (CoglBoxedValue *bv,
                          const void *value,
                          gboolean transpose)
 {
-  if (count == 1)
+  if (bv->count != count ||
+      bv->size != size ||
+      bv->type != type)
     {
-      if (bv->count > 1)
-        g_free (bv->v.float_array);
-
-      if (transpose)
-        _cogl_boxed_value_copy_transposed_value (bv, size, count, value);
-      else
-        _cogl_boxed_value_copy_value (bv, value_size, count, value, type);
+      _cogl_boxed_value_destroy (bv);
+      _cogl_boxed_value_array_alloc (bv, value_size, count, type);
     }
+
+  if (transpose)
+    _cogl_boxed_value_copy_transposed_value (bv, size, count, value);
   else
-    {
-      if (bv->count > 1)
-        {
-          if (bv->count != count ||
-              bv->size != size ||
-              bv->type != type)
-            {
-              g_free (bv->v.float_array);
-              bv->v.float_array = g_malloc (count * value_size);
-            }
-        }
-      else
-        bv->v.float_array = g_malloc (count * value_size);
-
-      if (transpose)
-        _cogl_boxed_value_copy_transposed_value (bv, size, count, value);
-      else
-        _cogl_boxed_value_copy_value (bv, value_size, count, value, type);
-    }
+    _cogl_boxed_value_copy_value (bv, value_size, count, value, type);
 
   bv->type = type;
   bv->size = size;
