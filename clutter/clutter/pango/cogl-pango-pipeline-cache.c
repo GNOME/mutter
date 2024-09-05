@@ -63,8 +63,7 @@ _cogl_pango_pipeline_cache_value_destroy (void *data)
 {
   CoglPangoPipelineCacheEntry *cache_entry = data;
 
-  if (cache_entry->texture)
-    g_object_unref (cache_entry->texture);
+  g_clear_object (&cache_entry->texture);
 
   /* We don't need to unref the pipeline because it only takes a weak
      reference */
@@ -221,14 +220,12 @@ _cogl_pango_pipeline_cache_get (CoglPangoPipelineCache *cache,
 void
 _cogl_pango_pipeline_cache_free (CoglPangoPipelineCache *cache)
 {
-  if (cache->base_texture_rgba_pipeline)
-    g_object_unref (cache->base_texture_rgba_pipeline);
-  if (cache->base_texture_alpha_pipeline)
-    g_object_unref (cache->base_texture_alpha_pipeline);
+  g_clear_object (&cache->base_texture_rgba_pipeline);
+  g_clear_object (&cache->base_texture_alpha_pipeline);
 
-  g_hash_table_destroy (cache->hash_table);
+  g_clear_pointer (&cache->hash_table, g_hash_table_destroy);
 
-  g_object_unref (cache->ctx);
+  g_clear_object (&cache->ctx);
 
   g_free (cache);
 }

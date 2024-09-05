@@ -152,11 +152,7 @@ _cogl_pango_display_list_add_texture (CoglPangoDisplayList *dl,
           : !node->color_override))
     {
       /* Get rid of the vertex buffer so that it will be recreated */
-      if (node->d.texture.primitive != NULL)
-        {
-          g_object_unref (node->d.texture.primitive);
-          node->d.texture.primitive = NULL;
-        }
+      g_clear_object (&node->d.texture.primitive);
     }
   else
     {
@@ -469,16 +465,13 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
   if (node->type == COGL_PANGO_DISPLAY_LIST_TEXTURE)
     {
       g_array_free (node->d.texture.rectangles, TRUE);
-      if (node->d.texture.texture != NULL)
-        g_object_unref (node->d.texture.texture);
-      if (node->d.texture.primitive != NULL)
-        g_object_unref (node->d.texture.primitive);
+      g_clear_object (&node->d.texture.texture);
+      g_clear_object (&node->d.texture.primitive);
     }
   else if (node->type == COGL_PANGO_DISPLAY_LIST_TRAPEZOID)
-    g_object_unref (node->d.trapezoid.primitive);
+    g_clear_object (&node->d.trapezoid.primitive);
 
-  if (node->pipeline)
-    g_object_unref (node->pipeline);
+  g_clear_object (&node->pipeline);
 
   g_free (node);
 }

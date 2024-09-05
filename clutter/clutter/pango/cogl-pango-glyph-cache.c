@@ -72,15 +72,14 @@ struct _CoglPangoGlyphCacheKey
 static void
 cogl_pango_glyph_cache_value_free (CoglPangoGlyphCacheValue *value)
 {
-  if (value->texture)
-    g_object_unref (value->texture);
+  g_clear_object (&value->texture);
   g_free (value);
 }
 
 static void
 cogl_pango_glyph_cache_key_free (CoglPangoGlyphCacheKey *key)
 {
-  g_object_unref (key->font);
+  g_clear_object (&key->font);
   g_free (key);
 }
 
@@ -158,12 +157,11 @@ cogl_pango_glyph_cache_free (CoglPangoGlyphCache *cache)
     }
 
   g_slist_foreach (cache->atlases, (GFunc) g_object_unref, NULL);
-  g_slist_free (cache->atlases);
-  cache->atlases = NULL;
+  g_clear_pointer (&cache->atlases, g_slist_free);
   cache->has_dirty_glyphs = FALSE;
 
   g_hash_table_remove_all (cache->hash_table);
-  g_hash_table_unref (cache->hash_table);
+  g_clear_pointer (&cache->hash_table, g_hash_table_unref);
 
   g_hook_list_clear (&cache->reorganize_callbacks);
 
@@ -178,8 +176,7 @@ cogl_pango_glyph_cache_update_position_cb (void               *user_data,
   CoglPangoGlyphCacheValue *value = user_data;
   float tex_width, tex_height;
 
-  if (value->texture)
-    g_object_unref (value->texture);
+  g_clear_object (&value->texture);
   value->texture = g_object_ref (new_texture);
 
   tex_width = cogl_texture_get_width (new_texture);
