@@ -300,7 +300,7 @@ motif_hints_from_results (GetPropertyResults *results,
     {
       g_free (results->prop);
       results->prop = NULL;
-      meta_verbose ("Motif hints had unexpected type or n_items");
+      meta_topic (META_DEBUG_X11, "Motif hints had unexpected type or n_items");
       return FALSE;
     }
 
@@ -681,8 +681,9 @@ wm_hints_from_results (GetPropertyResults *results,
   /* pre-R3 bogusly truncated window_group, don't fail on them */
   if (results->n_items < (NumPropWMHintsElements - 1))
     {
-      meta_verbose ("WM_HINTS property too short: %d should be %d",
-                    (int) results->n_items, NumPropWMHintsElements - 1);
+      meta_topic (META_DEBUG_X11,
+                  "WM_HINTS property too short: %d should be %d",
+                  (int) results->n_items, NumPropWMHintsElements - 1);
       if (results->prop)
         {
           g_free (results->prop);
@@ -833,8 +834,8 @@ meta_prop_get_values (MetaX11Display *x11_display,
   xcb_get_property_cookie_t *tasks;
   xcb_connection_t *xcb_conn = XGetXCBConnection (x11_display->xdisplay);
 
-  meta_verbose ("Requesting %d properties of 0x%lx at once",
-                n_values, xwindow);
+  meta_topic (META_DEBUG_X11, "Requesting %d properties of 0x%lx at once",
+              n_values, xwindow);
 
   if (n_values == 0)
     return;

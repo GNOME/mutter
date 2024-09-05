@@ -1112,8 +1112,10 @@ process_selection_request (MetaX11Display *x11_display,
                           event->xselectionrequest.selection);
       mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-      meta_verbose ("Selection request with selection %s window 0x%lx not a WM_Sn selection we recognize",
-                    str ? str : "(bad atom)", event->xselectionrequest.owner);
+      meta_topic (META_DEBUG_X11,
+                  "Selection request with selection %s window 0x%lx "
+                  "not a WM_Sn selection we recognize",
+                  str ? str : "(bad atom)", event->xselectionrequest.owner);
 
       meta_XFree (str);
 
@@ -1192,7 +1194,7 @@ process_selection_request (MetaX11Display *x11_display,
               event->xselectionrequest.requestor,
               False, 0L, (XEvent*)&reply);
 
-  meta_verbose ("Handled selection request");
+  meta_topic (META_DEBUG_X11, "Handled selection request");
 }
 
 static void
@@ -1222,16 +1224,18 @@ process_selection_clear (MetaX11Display *x11_display,
                           event->xselectionclear.selection);
       mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-      meta_verbose ("Selection clear with selection %s window 0x%lx not a WM_Sn selection we recognize",
-                    str ? str : "(bad atom)", event->xselectionclear.window);
+      meta_topic (META_DEBUG_X11,
+                  "Selection clear with selection %s window 0x%lx "
+                  "not a WM_Sn selection we recognize",
+                  str ? str : "(bad atom)", event->xselectionclear.window);
 
       meta_XFree (str);
 
       return FALSE;
     }
 
-  meta_verbose ("Got selection clear for on display %s",
-                x11_display->name);
+  meta_topic (META_DEBUG_X11, "Got selection clear for on display %s",
+              x11_display->name);
 
   /* We can't close a Display in an event handler. */
   if (!x11_display->display_close_idle)
@@ -1511,16 +1515,19 @@ handle_other_xevent (MetaX11Display *x11_display,
         }
       else
         {
-          meta_verbose ("MapRequest on %s mapped = %d minimized = %d",
-                        window->desc, window->mapped, window->minimized);
+          meta_topic (META_DEBUG_X11,
+                      "MapRequest on %s mapped = %d minimized = %d",
+                      window->desc, window->mapped, window->minimized);
 
           if (window->minimized && !frame_was_receiver)
             {
               meta_window_unminimize (window);
               if (window->workspace != workspace_manager->active_workspace)
                 {
-                  meta_verbose ("Changing workspace due to MapRequest mapped = %d minimized = %d",
-                                window->mapped, window->minimized);
+                  meta_topic (META_DEBUG_X11,
+                              "Changing workspace due to MapRequest "
+                              "mapped = %d minimized = %d",
+                              window->mapped, window->minimized);
                   meta_window_change_workspace (window,
                                                 workspace_manager->active_workspace);
                 }
@@ -1571,8 +1578,10 @@ handle_other_xevent (MetaX11Display *x11_display,
           xwc.height = event->xconfigurerequest.height;
           xwc.border_width = event->xconfigurerequest.border_width;
 
-          meta_verbose ("Configuring withdrawn window to %d,%d %dx%d border %d (some values may not be in mask)",
-                        xwc.x, xwc.y, xwc.width, xwc.height, xwc.border_width);
+          meta_topic (META_DEBUG_X11,
+                      "Configuring withdrawn window to %d,%d %dx%d border %d "
+                      "(some values may not be in mask)",
+                      xwc.x, xwc.y, xwc.width, xwc.height, xwc.border_width);
           mtk_x11_error_trap_push (x11_display->xdisplay);
           XConfigureWindow (x11_display->xdisplay, event->xconfigurerequest.window,
                             xwcm, &xwc);
@@ -1664,9 +1673,10 @@ handle_other_xevent (MetaX11Display *x11_display,
                   space = event->xclient.data.l[0];
                   time = event->xclient.data.l[1];
 
-                  meta_verbose ("Request to change current workspace to %d with "
-                                "specified timestamp of %u",
-                                space, time);
+                  meta_topic (META_DEBUG_X11,
+                              "Request to change current workspace to %d with "
+                              "specified timestamp of %u",
+                              space, time);
 
                   workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, space);
 
@@ -1680,7 +1690,7 @@ handle_other_xevent (MetaX11Display *x11_display,
                     }
                   else
                     {
-                      meta_verbose ("Don't know about workspace %d", space);
+                      meta_topic (META_DEBUG_X11, "Don't know about workspace %d", space);
                     }
                 }
               else if (event->xclient.message_type ==
@@ -1690,8 +1700,8 @@ handle_other_xevent (MetaX11Display *x11_display,
 
                   num_spaces = event->xclient.data.l[0];
 
-                  meta_verbose ("Request to set number of workspaces to %d",
-                                num_spaces);
+                  meta_topic (META_DEBUG_X11, "Request to set number of workspaces to %d",
+                              num_spaces);
 
                   meta_prefs_set_num_workspaces (num_spaces);
                 }
@@ -1704,8 +1714,8 @@ handle_other_xevent (MetaX11Display *x11_display,
                   showing_desktop = event->xclient.data.l[0] != 0;
                   /* FIXME: Braindead protocol doesn't have a timestamp */
                   timestamp = meta_x11_display_get_current_time_roundtrip (x11_display);
-                  meta_verbose ("Request to %s desktop",
-                                showing_desktop ? "show" : "hide");
+                  meta_topic (META_DEBUG_X11, "Request to %s desktop",
+                              showing_desktop ? "show" : "hide");
 
                   if (showing_desktop)
                     meta_workspace_manager_show_desktop (workspace_manager, timestamp);
@@ -1718,7 +1728,7 @@ handle_other_xevent (MetaX11Display *x11_display,
               else if (event->xclient.message_type ==
                        x11_display->atom_WM_PROTOCOLS)
                 {
-                  meta_verbose ("Received WM_PROTOCOLS message");
+                  meta_topic (META_DEBUG_X11, "Received WM_PROTOCOLS message");
 
                   if ((Atom)event->xclient.data.l[0] == x11_display->atom__NET_WM_PING)
                     {
@@ -1732,7 +1742,8 @@ handle_other_xevent (MetaX11Display *x11_display,
           if (event->xclient.message_type ==
               x11_display->atom__NET_REQUEST_FRAME_EXTENTS)
             {
-              meta_verbose ("Received _NET_REQUEST_FRAME_EXTENTS message");
+              meta_topic (META_DEBUG_X11,
+                          "Received _NET_REQUEST_FRAME_EXTENTS message");
               process_request_frame_extents (x11_display, event);
             }
         }

@@ -98,21 +98,23 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
 
   meta_sync_counter_init (&frame->sync_counter, window, frame->xwindow);
 
-  meta_verbose ("Frame geometry %d,%d  %dx%d",
-                frame->rect.x, frame->rect.y,
-                frame->rect.width, frame->rect.height);
+  meta_topic (META_DEBUG_X11, "Frame geometry %d,%d  %dx%d",
+              frame->rect.x, frame->rect.y,
+              frame->rect.width, frame->rect.height);
 
-  meta_verbose ("Setting frame 0x%lx for window %s, "
-                "frame geometry %d,%d  %dx%d",
-                xframe, window->desc,
-                frame->rect.x, frame->rect.y,
-                frame->rect.width, frame->rect.height);
+  meta_topic (META_DEBUG_X11,
+              "Setting frame 0x%lx for window %s, "
+              "frame geometry %d,%d  %dx%d",
+              xframe, window->desc,
+              frame->rect.x, frame->rect.y,
+              frame->rect.width, frame->rect.height);
 
   meta_stack_tracker_record_add (window->display->stack_tracker,
                                  frame->xwindow,
                                  create_serial);
 
-  meta_verbose ("Frame for %s is 0x%lx", frame->window->desc, frame->xwindow);
+  meta_topic (META_DEBUG_X11,
+              "Frame for %s is 0x%lx", frame->window->desc, frame->xwindow);
 
   mtk_x11_error_trap_push (x11_display->xdisplay);
 
@@ -222,7 +224,7 @@ meta_window_destroy_frame (MetaWindow *window)
 
   x11_display = window->display->x11_display;
 
-  meta_verbose ("Unframing window %s", window->desc);
+  meta_topic (META_DEBUG_X11, "Unframing window %s", window->desc);
 
   frame = g_steal_pointer (&priv->frame);
 

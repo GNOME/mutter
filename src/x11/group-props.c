@@ -140,8 +140,9 @@ reload_wm_client_machine (MetaGroup     *group,
   if (value->type != META_PROP_VALUE_INVALID)
     group->wm_client_machine = g_strdup (value->v.str);
 
-  meta_verbose ("Group has client machine \"%s\"",
-                group->wm_client_machine ? group->wm_client_machine : "unset");
+  meta_topic (META_DEBUG_X11,
+              "Group has client machine \"%s\"",
+              group->wm_client_machine ? group->wm_client_machine : "unset");
 }
 
 static void
@@ -163,8 +164,9 @@ reload_net_startup_id (MetaGroup     *group,
   if (value->type != META_PROP_VALUE_INVALID)
     group->startup_id = g_strdup (value->v.str);
 
-  meta_verbose ("Group has startup id \"%s\"",
-                group->startup_id ? group->startup_id : "unset");
+  meta_topic (META_DEBUG_X11,
+              "Group has startup id \"%s\"",
+              group->startup_id ? group->startup_id : "unset");
 }
 
 #define N_HOOKS 3

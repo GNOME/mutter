@@ -374,7 +374,7 @@ meta_x11_keybindings_grab_window_buttons (MetaKeyBindingManager *keys,
    * Grab Alt + button3 for popping up window menu.
    * Grab Alt + Shift + button1 for snap-moving window.
    */
-  meta_verbose ("Grabbing window buttons for %s", window->desc);
+  meta_topic (META_DEBUG_X11, "Grabbing window buttons for %s", window->desc);
 
   /* FIXME If we ignored errors here instead of spewing, we could
    * put one big error trap around the loop and avoid a bunch of
@@ -415,13 +415,18 @@ meta_x11_keybindings_grab_focus_window_button (MetaKeyBindingManager *keys,
                                                MetaWindow            *window)
 {
   /* Grab button 1 for activating unfocused windows */
-  meta_verbose ("Grabbing unfocused window buttons for %s", window->desc);
 
   if (window->have_focus_click_grab)
     {
-      meta_verbose (" (well, not grabbing since we already have the grab)");
+      meta_topic (META_DEBUG_X11,
+                  "Not grabbing unfocused window buttons for %s "
+                  "since we already have the grab",
+                  window->desc);
       return;
     }
+
+  meta_topic (META_DEBUG_X11,
+              "Grabbing unfocused window buttons for %s", window->desc);
 
   /* FIXME If we ignored errors here instead of spewing, we could
    * put one big error trap around the loop and avoid a bunch of
@@ -436,7 +441,8 @@ void
 meta_x11_keybindings_ungrab_focus_window_button (MetaKeyBindingManager *keys,
                                                  MetaWindow            *window)
 {
-  meta_verbose ("Ungrabbing unfocused window buttons for %s", window->desc);
+  meta_topic (META_DEBUG_X11,
+              "Ungrabbing unfocused window buttons for %s", window->desc);
 
   if (!window->have_focus_click_grab)
     return;
