@@ -12,6 +12,11 @@ include:
 build-sysext:
   before_script:
     - .gitlab-ci/install-gnomeos-sysext-dependencies.sh $CI_PROJECT_DIR/extension
+  # x86_64_v2 runners hang on pulling the docker image. This should be removed
+  # when the runners are all updated.
+  # https://gitlab.gnome.org/Infrastructure/Infrastructure/-/issues/1665
+  tags:
+    - x86_64_v3
 
 stages:
  - review
