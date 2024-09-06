@@ -73,7 +73,7 @@ test_map_buffer_range (void)
                                 COGL_BUFFER_ACCESS_WRITE,
                                 COGL_BUFFER_MAP_HINT_DISCARD_RANGE,
                                 NULL); /* don't catch errors */
-  g_assert (data != NULL);
+  g_assert_nonnull (data);
 
   data->x = vertex_data[2].x;
   data->y = vertex_data[2].y;

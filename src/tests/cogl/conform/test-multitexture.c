@@ -38,9 +38,9 @@ assert_region_color (int x,
       {
         uint8_t *pixel = &data[y * width * 4 + x * 4];
 #if 1
-        g_assert (pixel[RED] == red &&
-                  pixel[GREEN] == green &&
-                  pixel[BLUE] == blue);
+        g_assert_true (pixel[RED] == red &&
+                       pixel[GREEN] == green &&
+                       pixel[BLUE] == blue);
 #endif
       }
   g_free (data);

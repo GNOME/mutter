@@ -191,8 +191,8 @@ my_thing_get_preferred_width (ClutterActor *self,
   if (natural_right < 0)
     natural_right = 0;
 
-  g_assert (min_right >= min_left);
-  g_assert (natural_right >= natural_left);
+  g_assert_true (min_right >= min_left);
+  g_assert_true (natural_right >= natural_left);
 
   if (min_width_p)
     *min_width_p = min_right - min_left;
@@ -265,8 +265,8 @@ my_thing_get_preferred_height (ClutterActor *self,
   if (natural_bottom < 0)
     natural_bottom = 0;
 
-  g_assert (min_bottom >= min_top);
-  g_assert (natural_bottom >= natural_top);
+  g_assert_true (min_bottom >= min_top);
+  g_assert_true (natural_bottom >= natural_top);
 
   if (min_height_p)
     *min_height_p = min_bottom - min_top;

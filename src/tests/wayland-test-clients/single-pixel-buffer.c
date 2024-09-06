@@ -96,7 +96,7 @@ static void
 handle_buffer_release (void             *data,
                        struct wl_buffer *callback_buffer)
 {
-  g_assert (callback_buffer == buffer);
+  g_assert_true (callback_buffer == buffer);
   g_clear_pointer (&buffer, wl_buffer_destroy);
 }
 

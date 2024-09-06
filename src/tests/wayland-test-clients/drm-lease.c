@@ -101,7 +101,7 @@ event_queue_assert_event (GQueue           *event_queue,
                           DrmLeaseEventType expected)
 {
   DrmLeaseEventType actual = GPOINTER_TO_UINT (g_queue_pop_head (event_queue));
-  g_assert (expected == actual);
+  g_assert_cmpint (expected, ==, actual);
 }
 
 static void

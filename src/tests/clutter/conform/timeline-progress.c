@@ -103,7 +103,7 @@ timeline_progress_mode (void)
 
   timeline = clutter_timeline_new_for_actor (stage, 1000);
 
-  g_assert (clutter_timeline_get_progress_mode (timeline) == CLUTTER_LINEAR);
+  g_assert_cmpint (clutter_timeline_get_progress_mode (timeline), ==, CLUTTER_LINEAR);
   g_assert_cmpfloat (clutter_timeline_get_progress (timeline), ==, 0.0);
 
   clutter_timeline_advance (timeline, 500);

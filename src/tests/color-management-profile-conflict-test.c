@@ -119,7 +119,7 @@ main (int argc, char **argv)
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NONE);
 
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   system_profile_path = g_test_build_filename (G_TEST_DIST,
                                                "tests",

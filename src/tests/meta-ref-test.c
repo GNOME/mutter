@@ -493,7 +493,7 @@ meta_ref_test_verify_view (ClutterStageView *view,
 
   if (flags & META_REFTEST_FLAG_UPDATE_REF)
     {
-      g_assert (ref_status == CAIRO_STATUS_FILE_NOT_FOUND ||
+      g_assert_true (ref_status == CAIRO_STATUS_FILE_NOT_FOUND ||
                 ref_status == CAIRO_STATUS_SUCCESS);
 
       if (ref_status == CAIRO_STATUS_SUCCESS)

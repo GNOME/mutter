@@ -65,7 +65,7 @@ color_hls_roundtrip (void)
 
   cogl_color_to_hsl (&color, &hue, &saturation, &luminance);
   g_assert_cmpfloat (hue, ==, 0.0f);
-  g_assert (luminance >= 0.0f && luminance <= 1.0f);
+  g_assert_true (luminance >= 0.0f && luminance <= 1.0f);
   g_assert_cmpfloat (saturation, ==, 0.0f);
   if (!g_test_quiet ())
     {
@@ -100,9 +100,9 @@ color_hls_roundtrip (void)
                                   (float)0x7f / 255.0f, TEST_CASE_EPSILON);
 
   cogl_color_to_hsl (&color, &hue, &saturation, &luminance);
-  g_assert (hue >= 0.0f && hue < 360.0f);
-  g_assert (luminance >= 0.0f && luminance <= 1.0f);
-  g_assert (saturation >= 0.0f && saturation <= 1.0f);
+  g_assert_true (hue >= 0.0f && hue < 360.0f);
+  g_assert_true (luminance >= 0.0f && luminance <= 1.0f);
+  g_assert_true (saturation >= 0.0f && saturation <= 1.0f);
   if (!g_test_quiet ())
     {
       g_print ("RGB = { %x, %x, %x }, HLS = { %.2f, %.2f, %.2f }\n",
@@ -133,15 +133,15 @@ color_from_string_invalid (void)
 {
   CoglColor color;
 
-  g_assert (!cogl_color_from_string (&color, "ff0000ff"));
-  g_assert (!cogl_color_from_string (&color, "#decaffbad"));
-  g_assert (!cogl_color_from_string (&color, "ponies"));
-  g_assert (!cogl_color_from_string (&color, "rgb(255, 0, 0, 0)"));
-  g_assert (!cogl_color_from_string (&color, "rgba(1.0, 0, 0)"));
-  g_assert (!cogl_color_from_string (&color, "hsl(100, 0, 0)"));
-  g_assert (!cogl_color_from_string (&color, "hsla(10%, 0%, 50%)"));
-  g_assert (!cogl_color_from_string (&color, "hsla(100%, 0%, 50%, 20%)"));
-  g_assert (!cogl_color_from_string (&color, "hsla(0.5, 0.9, 0.2, 0.4)"));
+  g_assert_false (cogl_color_from_string (&color, "ff0000ff"));
+  g_assert_false (cogl_color_from_string (&color, "#decaffbad"));
+  g_assert_false (cogl_color_from_string (&color, "ponies"));
+  g_assert_false (cogl_color_from_string (&color, "rgb(255, 0, 0, 0)"));
+  g_assert_false (cogl_color_from_string (&color, "rgba(1.0, 0, 0)"));
+  g_assert_false (cogl_color_from_string (&color, "hsl(100, 0, 0)"));
+  g_assert_false (cogl_color_from_string (&color, "hsla(10%, 0%, 50%)"));
+  g_assert_false (cogl_color_from_string (&color, "hsla(100%, 0%, 50%, 20%)"));
+  g_assert_false (cogl_color_from_string (&color, "hsla(0.5, 0.9, 0.2, 0.4)"));
 }
 
 static void
@@ -149,7 +149,7 @@ color_from_string_valid (void)
 {
   CoglColor color;
 
-  g_assert (cogl_color_from_string (&color, "#ff0000ff"));
+  g_assert_true (cogl_color_from_string (&color, "#ff0000ff"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0xff, 0, 0, 0xff }\n",
@@ -167,7 +167,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "#0f0f"));
+  g_assert_true (cogl_color_from_string (&color, "#0f0f"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0, 0xff, 0, 0xff }\n",
@@ -185,7 +185,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "#0000ff"));
+  g_assert_true (cogl_color_from_string (&color, "#0000ff"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0, 0, 0xff, 0xff }\n",
@@ -203,7 +203,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "#abc"));
+  g_assert_true (cogl_color_from_string (&color, "#abc"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0xaa, 0xbb, 0xcc, 0xff }\n",
@@ -221,7 +221,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "#123abc"));
+  g_assert_true (cogl_color_from_string (&color, "#123abc"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0x12, 0x3a, 0xbc, 0xff }\n",
@@ -239,7 +239,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "rgb(255, 128, 64)"));
+  g_assert_true (cogl_color_from_string (&color, "rgb(255, 128, 64)"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 255, 128, 64, 255 }\n",
@@ -257,7 +257,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "rgba ( 30%, 0,    25%,  0.5 )   "));
+  g_assert_true (cogl_color_from_string (&color, "rgba ( 30%, 0,    25%,  0.5 )   "));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { %.1f, 0, %.1f, 128 }\n",
@@ -277,7 +277,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   0.5, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "rgb( 50%, -50%, 150% )"));
+  g_assert_true (cogl_color_from_string (&color, "rgb( 50%, -50%, 150% )"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 127, 0, 255, 255 }\n",
@@ -295,7 +295,7 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "hsl( 0, 100%, 50% )"));
+  g_assert_true (cogl_color_from_string (&color, "hsl( 0, 100%, 50% )"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 255, 0, 0, 255 }\n",
@@ -313,9 +313,9 @@ color_from_string_valid (void)
   g_assert_cmpfloat_with_epsilon (cogl_color_get_alpha (&color),
                                   1.0f, TEST_CASE_EPSILON);
 
-  g_assert (cogl_color_from_string (&color, "hsl( 0, 100%, 50%     )"));
+  g_assert_true (cogl_color_from_string (&color, "hsl( 0, 100%, 50%     )"));
 
-  g_assert (cogl_color_from_string (&color, "hsla( 0, 100%, 50%, 0.5 )"));
+  g_assert_true (cogl_color_from_string (&color, "hsla( 0, 100%, 50%, 0.5 )"));
   if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 255, 0, 0, 127 }\n",
@@ -335,7 +335,7 @@ color_from_string_valid (void)
 
 
   g_test_bug ("662818");
-  g_assert (cogl_color_from_string (&color, "hsla(0,100%,50% , 0.5)"));
+  g_assert_true (cogl_color_from_string (&color, "hsla(0,100%,50% , 0.5)"));
 }
 
 static void

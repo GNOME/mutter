@@ -171,7 +171,7 @@ on_captured_event (ClutterText *text,
             uchar += ((gunichar) to_hex_digit (ch) << ((4 - i) * 4));
         }
 
-      g_assert (g_unichar_validate (uchar));
+      g_assert_true (g_unichar_validate (uchar));
 
       g_string_overwrite (str, 0, contents);
       g_string_insert_unichar (str,

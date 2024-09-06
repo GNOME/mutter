@@ -55,7 +55,7 @@ wait_for_paint (gpointer user_data)
   g_assert_cmpint (g_list_length (logical_monitors), ==, 1);
 
   logical_monitor = logical_monitors->data;
-  g_assert (meta_logical_monitor_get_monitors (logical_monitor)->data ==
+  g_assert_true (meta_logical_monitor_get_monitors (logical_monitor)->data ==
             monitors->data);
 
   layout = meta_logical_monitor_get_layout (logical_monitor);
@@ -88,16 +88,16 @@ main (int    argc,
   g_autoptr (GError) error = NULL;
 
   context = meta_create_context ("Persistent virtual monitor test");
-  g_assert (meta_context_configure (context, &fake_argc, &fake_argv, &error));
+  g_assert_true (meta_context_configure (context, &fake_argc, &fake_argv, &error));
   meta_context_set_plugin_gtype (context, META_TYPE_TEST_SHELL);
-  g_assert (meta_context_setup (context, &error));
-  g_assert (meta_context_start (context, &error));
+  g_assert_true (meta_context_setup (context, &error));
+  g_assert_true (meta_context_start (context, &error));
 
   g_idle_add (wait_for_paint, context);
 
   test_context = context;
 
-  g_assert (meta_context_run_main_loop (context, &error));
+  g_assert_true (meta_context_run_main_loop (context, &error));
 
   return EXIT_SUCCESS;
 }

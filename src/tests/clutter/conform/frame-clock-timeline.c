@@ -202,7 +202,7 @@ frame_clock_timeline_switch (void)
    */
   g_assert_cmpint (lateness_us, >, -2 * refresh_interval_us);
 
-  g_assert (clutter_timeline_get_frame_clock (timeline) == frame_clock2);
+  g_assert_true (clutter_timeline_get_frame_clock (timeline) == frame_clock2);
 
   /* The duration is 1s, with a 60hz clock, and we switch after 0.5s. To verify
    * we continued to get frames, check that we have a bit more than half of the

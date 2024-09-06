@@ -1101,7 +1101,7 @@ wayland_buffer_shm_mmap_plane (WaylandBuffer *buffer,
                                size_t        *stride_out)
 {
   WaylandBufferShm *shm = WAYLAND_BUFFER_SHM (buffer);
-  g_assert (plane < shm->n_planes);
+  g_assert_true (plane < shm->n_planes);
 
   if (stride_out)
     *stride_out = shm->stride[plane];
@@ -1398,7 +1398,7 @@ wayland_buffer_dmabuf_mmap_plane (WaylandBuffer *buffer,
                                   size_t        *stride_out)
 {
   WaylandBufferDmabuf *dmabuf = WAYLAND_BUFFER_DMABUF (buffer);
-  g_assert (plane < dmabuf->n_planes);
+  g_assert_true (plane < dmabuf->n_planes);
 
   if (stride_out)
     *stride_out = dmabuf->map_stride[plane];

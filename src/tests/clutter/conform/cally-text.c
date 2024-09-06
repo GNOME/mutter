@@ -210,7 +210,7 @@ do_tests (CallbackData *data)
   while (data)
     {
         gboolean result = check_result (data);
-        g_assert (result == FALSE);
+        g_assert_false (result);
         data = data->next;
     }
 
@@ -331,8 +331,8 @@ cally_text (void)
     }
   else
     {
-      g_assert (data.test_failed != TRUE);
-      g_assert (data1.test_failed != TRUE);
+      g_assert_false (data.test_failed);
+      g_assert_false (data1.test_failed);
     }
 }
 

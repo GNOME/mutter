@@ -278,7 +278,7 @@ run_tests_idle (gpointer user_data)
   if (g_signal_has_handler_pending (context, signals[RUN_TESTS], 0, TRUE))
     {
       g_signal_emit (context, signals[RUN_TESTS], 0, &ret);
-      g_assert (ret == 1 || ret == 0);
+      g_assert_true (ret == 1 || ret == 0);
     }
   else
     {

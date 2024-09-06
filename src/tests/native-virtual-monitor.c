@@ -71,7 +71,7 @@ meta_test_virtual_monitor_create (void)
   g_assert_cmpstr (meta_monitor_get_vendor (monitor), ==, "MetaTestVendor");
   g_assert_cmpstr (meta_monitor_get_product (monitor), ==, "MetaVirtualMonitor");
   g_assert_cmpstr (meta_monitor_get_serial (monitor), ==, "0x1234");
-  g_assert (meta_monitor_get_main_output (monitor) ==
+  g_assert_true (meta_monitor_get_main_output (monitor) ==
             meta_virtual_monitor_get_output (virtual_monitor));
 
   monitors_config = meta_monitor_manager_ensure_configured (monitor_manager);
@@ -90,7 +90,7 @@ meta_test_virtual_monitor_create (void)
   logical_monitor_monitors =
     meta_logical_monitor_get_monitors (logical_monitors->data);
   g_assert_cmpint (g_list_length (logical_monitor_monitors), ==, 1);
-  g_assert (logical_monitor_monitors->data == monitor);
+  g_assert_true (logical_monitor_monitors->data == monitor);
 
   views = meta_renderer_get_views (renderer);
   g_assert_cmpint (g_list_length (views), ==, 1);
@@ -143,7 +143,7 @@ main (int    argc,
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests (context);
 

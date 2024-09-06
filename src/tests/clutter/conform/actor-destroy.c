@@ -140,7 +140,7 @@ actor_destruction (void)
     g_print ("Calling destroy()...\n");
 
   clutter_actor_destroy (test);
-  g_assert (destroy_called);
+  g_assert_true (destroy_called);
   g_assert_false (parent_set_called);
   g_assert_false (property_changed);
   g_assert_null (child);

@@ -329,10 +329,10 @@ meta_test_monitor_config_store_set_current_on_empty (void)
 
   meta_monitor_config_manager_set_current (config_manager, linear_config);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 }
@@ -363,25 +363,25 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
 
   meta_monitor_config_manager_set_current (config_manager, child_config1);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            child_config1);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 child_config1);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 
   child_config2 = meta_monitor_config_manager_create_linear (config_manager);
   meta_monitors_config_set_parent_config (child_config2, parent_config);
-  g_assert (child_config2->parent_config == parent_config);
+  g_assert_true (child_config2->parent_config == parent_config);
 
   old_current = meta_monitor_config_manager_get_current (config_manager);
   g_assert_nonnull (old_current->parent_config);
   meta_monitor_config_manager_set_current (config_manager, child_config2);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            child_config2);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 child_config2);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 
@@ -392,10 +392,10 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
   g_assert_nonnull (old_current->parent_config);
   meta_monitor_config_manager_set_current (config_manager, child_config3);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            child_config3);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 child_config3);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 
@@ -406,12 +406,12 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
   g_assert_nonnull (old_current->parent_config);
   meta_monitor_config_manager_set_current (config_manager, linear_config);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            child_config3);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 child_config3);
 
   fallback_config =
     meta_monitor_config_manager_create_fallback (config_manager);
@@ -421,19 +421,19 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
   g_assert_null (old_current->parent_config);
   meta_monitor_config_manager_set_current (config_manager, fallback_config);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            fallback_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 fallback_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
 
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            child_config3);
-  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
-            child_config3);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 child_config3);
+  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
+                 child_config3);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 }
@@ -457,20 +457,20 @@ meta_test_monitor_config_store_set_current (void)
   g_assert_nonnull (fallback_config);
 
   meta_monitor_config_manager_set_current (config_manager, fallback_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            fallback_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 fallback_config);
 
   old_current = meta_monitor_config_manager_get_current (config_manager);
   meta_monitor_config_manager_set_current (config_manager, linear_config);
 
-  g_assert (old_current != linear_config);
+  g_assert_true (old_current != linear_config);
   g_assert_nonnull (old_current);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            old_current);
-  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 old_current);
+  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
+                 old_current);
 
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
@@ -496,10 +496,10 @@ meta_test_monitor_config_store_set_current_with_parent (void)
   g_assert_null (old_current);
   meta_monitor_config_manager_set_current (config_manager, linear_config);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 
@@ -512,12 +512,12 @@ meta_test_monitor_config_store_set_current_with_parent (void)
   g_assert_null (old_current->parent_config);
   meta_monitor_config_manager_set_current (config_manager, fallback_config);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            fallback_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            old_current);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 fallback_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 old_current);
 
   child_config = meta_monitor_config_manager_create_linear (config_manager);
   old_current = meta_monitor_config_manager_get_current (config_manager);
@@ -525,34 +525,34 @@ meta_test_monitor_config_store_set_current_with_parent (void)
 
   g_assert_nonnull (child_config);
   g_assert_nonnull (old_current);
-  g_assert (old_current == fallback_config);
+  g_assert_true (old_current == fallback_config);
   g_assert_null (old_current->parent_config);
 
   meta_monitor_config_manager_set_current (config_manager, child_config);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            child_config);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            linear_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 child_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 linear_config);
 
   other_child = meta_monitor_config_manager_create_linear (config_manager);
   meta_monitors_config_set_parent_config (other_child, old_current);
 
   old_current = meta_monitor_config_manager_get_current (config_manager);
   g_assert_nonnull (old_current->parent_config);
-  g_assert (old_current == child_config);
+  g_assert_true (old_current == child_config);
   meta_monitor_config_manager_set_current (config_manager, other_child);
 
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            other_child);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
-            old_current);
-  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
-            linear_config);
-  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
-            linear_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 other_child);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) !=
+                 old_current);
+  g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
+                 linear_config);
+  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
+                 linear_config);
 
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
@@ -578,23 +578,23 @@ meta_test_monitor_config_store_set_current_max_size (void)
 
       linear_config = meta_monitor_config_manager_create_linear (config_manager);
       g_assert_nonnull (linear_config);
-      g_assert (!g_list_find (added, linear_config));
+      g_assert_false (g_list_find (added, linear_config));
 
       if (i > 0)
         {
-          g_assert (previous !=
-                    meta_monitor_config_manager_get_current (config_manager));
+          g_assert_true (previous !=
+                         meta_monitor_config_manager_get_current (config_manager));
         }
 
       previous = meta_monitor_config_manager_get_current (config_manager);
       meta_monitor_config_manager_set_current (config_manager, linear_config);
       added = g_list_prepend (added, g_object_ref (linear_config));
 
-      g_assert (meta_monitor_config_manager_get_current (config_manager)
-                == linear_config);
+      g_assert_true (meta_monitor_config_manager_get_current (config_manager)
+                     == linear_config);
 
-      g_assert (meta_monitor_config_manager_get_previous (config_manager)
-                == previous);
+      g_assert_true (meta_monitor_config_manager_get_previous (config_manager)
+                     == previous);
     }
 
   for (i = 0; i < config_history_max_size - 1; i++)
@@ -611,21 +611,21 @@ meta_test_monitor_config_store_set_current_max_size (void)
   g_assert_cmpuint (g_list_length (added), >, config_history_max_size);
 
   config = meta_monitor_config_manager_get_current (config_manager);
-  g_assert (config == g_list_nth_data (added, 0));
+  g_assert_true (config == g_list_nth_data (added, 0));
 
   for (i = 0; i < config_history_max_size; i++)
     {
       config = meta_monitor_config_manager_get_previous (config_manager);
       g_assert_nonnull (config);
-      g_assert (meta_monitor_config_manager_pop_previous (config_manager)
-                == config);
-      g_assert (config == g_list_nth_data (added, i + 1));
+      g_assert_true (meta_monitor_config_manager_pop_previous (config_manager)
+                     == config);
+      g_assert_true (config == g_list_nth_data (added, i + 1));
     }
 
   config = meta_monitor_config_manager_get_previous (config_manager);
   g_assert_null (config);
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
-  g_assert (config != g_list_nth_data (added, config_history_max_size));
+  g_assert_true (config != g_list_nth_data (added, config_history_max_size));
   g_assert_nonnull (g_list_nth_data (added, config_history_max_size + 1));
 }
 
@@ -5221,8 +5221,8 @@ meta_test_monitor_orientation_changes (void)
       previous = meta_monitor_config_manager_get_previous (config_manager);
 
       g_assert_true (got_monitors_changed);
-      g_assert (previous == previous_config);
-      g_assert (current != initial_config);
+      g_assert_true (previous == previous_config);
+      g_assert_true (current != initial_config);
       g_assert_true (meta_monitors_config_key_equal (current->key,
                                                      initial_config->key));
     }
@@ -5248,8 +5248,8 @@ meta_test_monitor_orientation_changes (void)
                         1024, 768));
 
   g_assert_false (got_monitors_changed);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            initial_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 initial_config);
 
   /* When no touch device is available, the orientation changes are ignored */
   g_test_message ("Removing touch device");
@@ -5275,8 +5275,8 @@ meta_test_monitor_orientation_changes (void)
       current = meta_monitor_config_manager_get_current (config_manager);
       previous = meta_monitor_config_manager_get_previous (config_manager);
 
-      g_assert (previous == previous_config);
-      g_assert (current == initial_config);
+      g_assert_true (previous == previous_config);
+      g_assert_true (current == initial_config);
       g_assert_false (got_monitors_changed);
     }
 
@@ -5422,8 +5422,8 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
       previous = meta_monitor_config_manager_get_previous (config_manager);
 
       g_assert_true (got_monitors_changed);
-      g_assert (previous == previous_config);
-      g_assert (current != initial_config);
+      g_assert_true (previous == previous_config);
+      g_assert_true (current != initial_config);
       g_assert_true (meta_monitors_config_key_equal (current->key,
                                                      initial_config->key));
     }
@@ -5449,8 +5449,8 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
                         1024, 768));
 
   g_assert_false (got_monitors_changed);
-  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
-            initial_config);
+  g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
+                 initial_config);
 
   /* When no touch device is available, the orientation changes are ignored */
   g_test_message ("Removing touch device");
@@ -5476,8 +5476,8 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
       current = meta_monitor_config_manager_get_current (config_manager);
       previous = meta_monitor_config_manager_get_previous (config_manager);
 
-      g_assert (previous == previous_config);
-      g_assert (current == initial_config);
+      g_assert_true (previous == previous_config);
+      g_assert_true (current == initial_config);
       g_assert_false (got_monitors_changed);
     }
 
@@ -8870,7 +8870,7 @@ meta_test_monitor_migrated_rotated (void)
   g_assert_nonnull (expected_data);
   g_assert_nonnull (migrated_data);
 
-  g_assert (strcmp (expected_data, migrated_data) == 0);
+  g_assert_cmpint (strcmp (expected_data, migrated_data), ==, 0);
 
   migrated_file = g_file_new_for_path (migrated_path);
   if (!g_file_delete (migrated_file, NULL, &error))
@@ -9148,7 +9148,7 @@ meta_test_monitor_migrated_horizontal_strip (void)
   g_assert_nonnull (expected_data);
   g_assert_nonnull (migrated_data);
 
-  g_assert (strcmp (expected_data, migrated_data) == 0);
+  g_assert_cmpint (strcmp (expected_data, migrated_data), ==, 0);
 
   migrated_file = g_file_new_for_path (migrated_path);
   if (!g_file_delete (migrated_file, NULL, &error))
@@ -10442,7 +10442,7 @@ main (int   argc,
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_TEST,
                                       META_CONTEXT_TEST_FLAG_TEST_CLIENT);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   path = g_test_build_filename (G_TEST_DIST,
                                 "tests",

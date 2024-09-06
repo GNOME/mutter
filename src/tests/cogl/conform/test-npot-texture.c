@@ -106,7 +106,7 @@ make_texture (void)
     }
 
   /* The texture should be sliced unless NPOTs are supported, which they are */
-  g_assert (!cogl_texture_is_sliced (tex));
+  g_assert_false (cogl_texture_is_sliced (tex));
 
   return tex;
 }

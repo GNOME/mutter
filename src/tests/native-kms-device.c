@@ -59,20 +59,20 @@ meta_test_kms_device_sanity (void)
   g_assert_cmpuint (g_list_length (devices), ==, 1);
   device = META_KMS_DEVICE (devices->data);
 
-  g_assert (meta_kms_device_get_kms (device) == kms);
+  g_assert_true (meta_kms_device_get_kms (device) == kms);
   g_assert_cmpstr (meta_kms_device_get_driver_name (device), ==, "vkms");
   g_assert_true (meta_kms_device_uses_monotonic_clock (device));
 
   connectors = meta_kms_device_get_connectors (device);
   g_assert_cmpuint (g_list_length (connectors), ==, 1);
   connector = META_KMS_CONNECTOR (connectors->data);
-  g_assert (meta_kms_connector_get_device (connector) == device);
+  g_assert_true (meta_kms_connector_get_device (connector) == device);
   g_assert_nonnull (meta_kms_connector_get_preferred_mode (connector));
 
   crtcs = meta_kms_device_get_crtcs (device);
   g_assert_cmpuint (g_list_length (crtcs), ==, 1);
   crtc = META_KMS_CRTC (crtcs->data);
-  g_assert (meta_kms_crtc_get_device (crtc) == device);
+  g_assert_true (meta_kms_crtc_get_device (crtc) == device);
 
   planes = meta_kms_device_get_planes (device);
   g_assert_cmpuint (g_list_length (planes), ==, 2);
@@ -80,11 +80,11 @@ meta_test_kms_device_sanity (void)
   g_assert_nonnull (primary_plane);
   cursor_plane = meta_get_cursor_test_plane_for (device, crtc);
   g_assert_nonnull (cursor_plane);
-  g_assert (cursor_plane != primary_plane);
+  g_assert_true (cursor_plane != primary_plane);
   g_assert_nonnull (g_list_find (planes, primary_plane));
   g_assert_nonnull (g_list_find (planes, cursor_plane));
-  g_assert (meta_kms_plane_get_device (primary_plane) == device);
-  g_assert (meta_kms_plane_get_device (cursor_plane) == device);
+  g_assert_true (meta_kms_plane_get_device (primary_plane) == device);
+  g_assert_true (meta_kms_plane_get_device (cursor_plane) == device);
   g_assert_true (meta_kms_plane_is_usable_with (primary_plane, crtc));
   g_assert_true (meta_kms_plane_is_usable_with (cursor_plane, crtc));
   g_assert_cmpint (meta_kms_plane_get_plane_type (primary_plane),
@@ -100,7 +100,7 @@ assert_crtc_state_equals (const MetaKmsCrtcState *crtc_state1,
                           const MetaKmsCrtcState *crtc_state2)
 {
   g_assert_cmpint (crtc_state1->is_active, ==, crtc_state2->is_active);
-  g_assert (mtk_rectangle_equal (&crtc_state1->rect, &crtc_state2->rect));
+  g_assert_true (mtk_rectangle_equal (&crtc_state1->rect, &crtc_state2->rect));
   g_assert_cmpint (crtc_state1->is_drm_mode_valid,
                    ==,
                    crtc_state2->is_drm_mode_valid);
@@ -302,7 +302,7 @@ meta_test_kms_device_mode_set (void)
   g_assert_true (crtc_state.is_active);
   g_assert_true (crtc_state.is_drm_mode_valid);
   mode_rect = meta_get_mode_rect (mode);
-  g_assert (mtk_rectangle_equal (&crtc_state.rect, &mode_rect));
+  g_assert_true (mtk_rectangle_equal (&crtc_state.rect, &mode_rect));
 
   g_assert_nonnull (meta_kms_connector_get_current_state (connector));
   connector_state =
@@ -740,7 +740,7 @@ main (int    argc,
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                               META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
 

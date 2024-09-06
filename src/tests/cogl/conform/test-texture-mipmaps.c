@@ -80,15 +80,15 @@ on_paint (ClutterActor        *actor,
 
   /* The first pixel should be just one of the colors from the
      texture. It doesn't matter which one */
-  g_assert ((pixels[0] == 255 && pixels[1] == 0 && pixels[2] == 0) ||
-            (pixels[0] == 0 && pixels[1] == 255 && pixels[2] == 0) ||
-            (pixels[0] == 0 && pixels[1] == 0 && pixels[2] == 255));
+  g_assert_true ((pixels[0] == 255 && pixels[1] == 0 && pixels[2] == 0) ||
+                 (pixels[0] == 0 && pixels[1] == 255 && pixels[2] == 0) ||
+                 (pixels[0] == 0 && pixels[1] == 0 && pixels[2] == 255));
   /* The second pixel should be more or less the average of all of the
      pixels in the texture. Each component gets a third of the image
      so each component should be approximately 255/3 */
-  g_assert (ABS (pixels[4] - 255 / 3) <= 3 &&
-            ABS (pixels[5] - 255 / 3) <= 3 &&
-            ABS (pixels[6] - 255 / 3) <= 3);
+  g_assert_true (ABS (pixels[4] - 255 / 3) <= 3 &&
+                 ABS (pixels[5] - 255 / 3) <= 3 &&
+                 ABS (pixels[6] - 255 / 3) <= 3);
 
   /* Comment this out if you want visual feedback for what this test paints */
 #if 1

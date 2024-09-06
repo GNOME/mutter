@@ -28,8 +28,8 @@ test_contains_point (void)
 
   r1 = mtk_region_create_rectangle (&MTK_RECTANGLE_INIT (0, 0, 100, 100));
 
-  g_assert (!mtk_region_contains_point (r1, 200, 200));
-  g_assert (mtk_region_contains_point (r1, 50, 50));
+  g_assert_false (mtk_region_contains_point (r1, 200, 200));
+  g_assert_true (mtk_region_contains_point (r1, 50, 50));
 }
 
 /* A re-implementation of a pixman translation test */
@@ -45,12 +45,12 @@ test_translate (void)
   r2 = mtk_region_create_rectangle (&rect);
   g_assert_cmpint (mtk_region_num_rectangles (r2), ==, 1);
 
-  g_assert (mtk_region_equal (r1, r2));
+  g_assert_true (mtk_region_equal (r1, r2));
 
   mtk_region_translate (r1, -LARGE, LARGE);
   mtk_region_translate (r1, LARGE, -LARGE);
 
-  g_assert (mtk_region_equal (r1, r2));
+  g_assert_true (mtk_region_equal (r1, r2));
 }
 
 static void
@@ -59,14 +59,14 @@ test_region (void)
   g_autoptr (MtkRegion) r1 = NULL;
 
   r1 = mtk_region_create ();
-  g_assert (mtk_region_is_empty (r1));
+  g_assert_true (mtk_region_is_empty (r1));
 
   MtkRectangle rect = MTK_RECTANGLE_INIT (5, 5, 20, 20);
   mtk_region_union_rectangle (r1, &rect);
 
-  g_assert (!mtk_region_is_empty (r1));
+  g_assert_false (mtk_region_is_empty (r1));
   MtkRectangle extents = mtk_region_get_extents (r1);
-  g_assert (mtk_rectangle_equal (&extents, &rect));
+  g_assert_true (mtk_rectangle_equal (&extents, &rect));
 
   mtk_region_translate (r1, 15, 20);
   extents = mtk_region_get_extents (r1);

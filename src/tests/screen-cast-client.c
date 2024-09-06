@@ -307,7 +307,7 @@ sanity_check_memfd (struct spa_buffer *buffer)
   size = buffer->datas[0].maxsize + buffer->datas[0].mapoffset;
   g_assert_cmpint (size, >, 0);
   map = mmap (NULL, size, PROT_READ, MAP_PRIVATE, buffer->datas[0].fd, 0);
-  g_assert (map != MAP_FAILED);
+  g_assert_true (map != MAP_FAILED);
   munmap (map, size);
 }
 

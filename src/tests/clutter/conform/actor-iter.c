@@ -33,21 +33,21 @@ actor_iter_traverse_children (void)
 
   i = 0;
   clutter_actor_iter_init (&iter, actor);
-  g_assert (clutter_actor_iter_is_valid (&iter));
+  g_assert_true (clutter_actor_iter_is_valid (&iter));
 
   while (clutter_actor_iter_next (&iter, &child))
     {
-      g_assert (CLUTTER_IS_ACTOR (child));
-      g_assert (clutter_actor_get_parent (child) == actor);
+      g_assert_true (CLUTTER_IS_ACTOR (child));
+      g_assert_true (clutter_actor_get_parent (child) == actor);
 
       if (!g_test_quiet ())
         g_print ("actor %d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
-        g_assert (child == clutter_actor_get_first_child (actor));
+        g_assert_true (child == clutter_actor_get_first_child (actor));
 
       if (i == (n_actors - 1))
-        g_assert (child == clutter_actor_get_last_child (actor));
+        g_assert_true (child == clutter_actor_get_last_child (actor));
 
       i += 1;
     }
@@ -56,21 +56,21 @@ actor_iter_traverse_children (void)
 
   i = 0;
   clutter_actor_iter_init (&iter, actor);
-  g_assert (clutter_actor_iter_is_valid (&iter));
+  g_assert_true (clutter_actor_iter_is_valid (&iter));
 
   while (clutter_actor_iter_prev (&iter, &child))
     {
-      g_assert (CLUTTER_IS_ACTOR (child));
-      g_assert (clutter_actor_get_parent (child) == actor);
+      g_assert_true (CLUTTER_IS_ACTOR (child));
+      g_assert_true (clutter_actor_get_parent (child) == actor);
 
       if (!g_test_quiet ())
         g_print ("actor %d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
-        g_assert (child == clutter_actor_get_last_child (actor));
+        g_assert_true (child == clutter_actor_get_last_child (actor));
 
       if (i == (n_actors - 1))
-        g_assert (child == clutter_actor_get_first_child (actor));
+        g_assert_true (child == clutter_actor_get_first_child (actor));
 
       i += 1;
     }
@@ -108,24 +108,24 @@ actor_iter_traverse_remove (void)
 
   i = 0;
   clutter_actor_iter_init (&iter, actor);
-  g_assert (clutter_actor_iter_is_valid (&iter));
+  g_assert_true (clutter_actor_iter_is_valid (&iter));
 
   while (clutter_actor_iter_next (&iter, &child))
     {
-      g_assert (CLUTTER_IS_ACTOR (child));
-      g_assert (clutter_actor_get_parent (child) == actor);
+      g_assert_true (CLUTTER_IS_ACTOR (child));
+      g_assert_true (clutter_actor_get_parent (child) == actor);
 
       if (!g_test_quiet ())
         g_print ("actor %d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
-        g_assert (child == clutter_actor_get_first_child (actor));
+        g_assert_true (child == clutter_actor_get_first_child (actor));
 
       if (i == (n_actors - 1))
-        g_assert (child == clutter_actor_get_last_child (actor));
+        g_assert_true (child == clutter_actor_get_last_child (actor));
 
       clutter_actor_iter_remove (&iter);
-      g_assert (clutter_actor_iter_is_valid (&iter));
+      g_assert_true (clutter_actor_iter_is_valid (&iter));
 
       i += 1;
     }
@@ -168,22 +168,22 @@ actor_iter_assignment (void)
 
   iter_b = iter_a;
 
-  g_assert (clutter_actor_iter_is_valid (&iter_a));
-  g_assert (clutter_actor_iter_is_valid (&iter_b));
+  g_assert_true (clutter_actor_iter_is_valid (&iter_a));
+  g_assert_true (clutter_actor_iter_is_valid (&iter_b));
 
   while (clutter_actor_iter_next (&iter_a, &child))
     {
-      g_assert (CLUTTER_IS_ACTOR (child));
-      g_assert (clutter_actor_get_parent (child) == actor);
+      g_assert_true (CLUTTER_IS_ACTOR (child));
+      g_assert_true (clutter_actor_get_parent (child) == actor);
 
       if (!g_test_quiet ())
         g_print ("actor %2d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
-        g_assert (child == clutter_actor_get_first_child (actor));
+        g_assert_true (child == clutter_actor_get_first_child (actor));
 
       if (i == (n_actors - 1))
-        g_assert (child == clutter_actor_get_last_child (actor));
+        g_assert_true (child == clutter_actor_get_last_child (actor));
 
       i += 1;
     }
@@ -194,16 +194,16 @@ actor_iter_assignment (void)
 
   while (clutter_actor_iter_prev (&iter_b, &child))
     {
-      g_assert (clutter_actor_get_parent (child) == actor);
+      g_assert_true (clutter_actor_get_parent (child) == actor);
 
       if (!g_test_quiet ())
         g_print ("actor %2d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == n_actors - 1)
-        g_assert (child == clutter_actor_get_last_child (actor));
+        g_assert_true (child == clutter_actor_get_last_child (actor));
 
       if (i == 0)
-        g_assert (child == clutter_actor_get_first_child (actor));
+        g_assert_true (child == clutter_actor_get_first_child (actor));
 
       i -= 1;
     }

@@ -533,7 +533,7 @@ meta_test_shell_minimize (MetaPlugin      *plugin,
       data->actor = actor;
       data->effect_data = g_new0 (double, 1);
       clutter_actor_get_scale (actor, &scale_x, &scale_y);
-      g_assert (scale_x == scale_y);
+      g_assert_cmpfloat (scale_x, ==, scale_y);
       *((double *) data->effect_data) = scale_x;
       g_signal_connect (actor_priv->minimize_timeline, "stopped",
                         G_CALLBACK (on_minimize_effect_stopped),

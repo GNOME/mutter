@@ -41,8 +41,8 @@ create_bitmap (void)
                                       COGL_PIXEL_FORMAT_RGBA_8888);
   buffer = cogl_bitmap_get_buffer (bitmap);
 
-  g_assert (COGL_IS_PIXEL_BUFFER (buffer));
-  g_assert (COGL_IS_BUFFER (buffer));
+  g_assert_true (COGL_IS_PIXEL_BUFFER (buffer));
+  g_assert_true (COGL_IS_BUFFER (buffer));
 
   cogl_buffer_set_update_hint (COGL_BUFFER (buffer), COGL_BUFFER_UPDATE_HINT_DYNAMIC);
   g_assert_cmpint (cogl_buffer_get_update_hint (COGL_BUFFER (buffer)),
@@ -65,7 +65,7 @@ create_and_fill_bitmap (void)
   map = cogl_buffer_map (COGL_BUFFER (buffer),
                          COGL_BUFFER_ACCESS_WRITE,
                          COGL_BUFFER_MAP_HINT_DISCARD);
-  g_assert (map);
+  g_assert_nonnull (map);
 
   generate_bitmap_data (map, stride);
 
@@ -81,7 +81,7 @@ create_texture_from_bitmap (CoglBitmap *bitmap)
 
   texture = cogl_texture_2d_new_from_bitmap (bitmap);
 
-  g_assert (texture != NULL);
+  g_assert_nonnull (texture);
 
   return texture;
 }

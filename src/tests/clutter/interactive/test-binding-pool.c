@@ -137,7 +137,7 @@ key_group_key_press (ClutterActor *actor,
   gboolean res;
 
   pool = clutter_binding_pool_find (G_OBJECT_TYPE_NAME (actor));
-  g_assert (pool != NULL);
+  g_assert_nonnull (pool);
 
   res = clutter_binding_pool_activate (pool,
                                        clutter_event_get_key_symbol (event),

@@ -102,7 +102,7 @@ validate_part (TestState *state,
           /* Otherwise it should be the color for this division */
           correct_color = corner_colors + (y * SOURCE_DIVISIONS_X) + x;
 
-        g_assert (pixels != NULL);
+        g_assert_nonnull (pixels);
         g_assert_cmpint (pixels[0], ==, correct_color->red);
         g_assert_cmpint (pixels[1], ==, correct_color->green);
         g_assert_cmpint (pixels[2], ==, correct_color->blue);

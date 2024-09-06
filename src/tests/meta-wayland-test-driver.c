@@ -154,7 +154,7 @@ sync_effects_completed (struct wl_client   *client,
   data->callback = wl_resource_create (client, &wl_callback_interface, 1, id);
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
-  g_assert (g_list_length (stage_views) > 0);
+  g_assert_cmpint (g_list_length (stage_views), >, 0);
 
   g_signal_connect (CLUTTER_STAGE (stage), "after-update",
                     G_CALLBACK (check_for_pending_effects), data);
@@ -237,7 +237,7 @@ verify_view (struct wl_client   *client,
   struct wl_resource *callback;
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
-  g_assert (g_list_length (stage_views) > 0);
+  g_assert_cmpint (g_list_length (stage_views), >, 0);
 
   callback = wl_resource_create (client, &wl_callback_interface, 1, id);
   g_signal_connect_after (CLUTTER_STAGE (stage), "after-paint",

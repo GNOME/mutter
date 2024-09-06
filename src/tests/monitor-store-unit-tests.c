@@ -133,7 +133,7 @@ check_monitor_store_configuration (MetaMonitorConfigStore        *config_store,
   config = meta_monitor_config_store_lookup (config_store, config_key);
   g_assert_nonnull (config);
 
-  g_assert (meta_monitors_config_key_equal (config->key, config_key));
+  g_assert_true (meta_monitors_config_key_equal (config->key, config_key));
   meta_monitors_config_key_free (config_key);
 
   g_assert_cmpuint (g_list_length (config->logical_monitor_configs),
@@ -146,8 +146,8 @@ check_monitor_store_configuration (MetaMonitorConfigStore        *config_store,
       GList *k;
       int j;
 
-      g_assert (mtk_rectangle_equal (&logical_monitor_config->layout,
-                                     &config_expect->logical_monitors[i].layout));
+      g_assert_true (mtk_rectangle_equal (&logical_monitor_config->layout,
+                                          &config_expect->logical_monitors[i].layout));
       g_assert_cmpfloat (logical_monitor_config->scale,
                          ==,
                          config_expect->logical_monitors[i].scale);

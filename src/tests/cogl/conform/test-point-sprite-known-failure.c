@@ -54,8 +54,8 @@ do_test (gboolean check_orientation,
                                           6, /* row stride */
                                           tex_data,
                                           &error);
-  g_assert (tex_2d != NULL);
-  g_assert (error == NULL);
+  g_assert_nonnull (tex_2d);
+  g_assert_null (error);
 
   pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_set_layer_texture (pipeline, 0, tex_2d);
@@ -98,8 +98,8 @@ do_test (gboolean check_orientation,
                                                              /* enable */
                                                              TRUE,
                                                              &error);
-      g_assert (res == TRUE);
-      g_assert (error == NULL);
+      g_assert_true (res);
+      g_assert_null (error);
 
       solid_pipeline = cogl_pipeline_copy (pipeline);
 
@@ -111,8 +111,8 @@ do_test (gboolean check_orientation,
                                                              FALSE,
                                                              &error);
 
-      g_assert (res == TRUE);
-      g_assert (error == NULL);
+      g_assert_true (res);
+      g_assert_null (error);
     }
 
   prim = cogl_primitive_new_p2t2 (test_ctx,

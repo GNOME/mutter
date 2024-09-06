@@ -217,7 +217,7 @@ actor_pick (void)
                         state.actors[state.failed_idx]);
     }
 
-  g_assert (state.pass);
+  g_assert_true (state.pass);
 
   g_list_free_full (state.actor_list, (GDestroyNotify) clutter_actor_destroy);
 }

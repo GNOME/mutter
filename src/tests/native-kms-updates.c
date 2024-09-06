@@ -89,7 +89,7 @@ meta_test_kms_update_sanity (void)
   crtc = meta_get_test_kms_crtc (device);
 
   update = meta_kms_update_new (device);
-  g_assert (meta_kms_update_get_device (update) == device);
+  g_assert_true (meta_kms_update_get_device (update) == device);
   g_assert_null (meta_kms_update_get_primary_plane_assignment (update, crtc));
   g_assert_null (meta_kms_update_get_plane_assignments (update));
   g_assert_null (meta_kms_update_get_mode_sets (update));
@@ -183,23 +183,23 @@ meta_test_kms_update_plane_assignments (void)
   meta_kms_plane_assignment_set_cursor_hotspot (cursor_plane_assignment,
                                                 10, 11);
 
-  g_assert (meta_kms_update_get_primary_plane_assignment (update, crtc) ==
+  g_assert_true (meta_kms_update_get_primary_plane_assignment (update, crtc) ==
             primary_plane_assignment);
 
-  g_assert (primary_plane_assignment->crtc == crtc);
-  g_assert (primary_plane_assignment->update == update);
-  g_assert (primary_plane_assignment->plane == primary_plane);
-  g_assert (primary_plane_assignment->buffer == primary_buffer);
+  g_assert_true (primary_plane_assignment->crtc == crtc);
+  g_assert_true (primary_plane_assignment->update == update);
+  g_assert_true (primary_plane_assignment->plane == primary_plane);
+  g_assert_true (primary_plane_assignment->buffer == primary_buffer);
   g_assert_cmpuint (primary_plane_assignment->rotation, ==, 0);
   g_assert_false (primary_plane_assignment->cursor_hotspot.is_valid);
 
-  g_assert (meta_kms_update_get_cursor_plane_assignment (update, crtc) ==
+  g_assert_true (meta_kms_update_get_cursor_plane_assignment (update, crtc) ==
             cursor_plane_assignment);
 
-  g_assert (cursor_plane_assignment->crtc == crtc);
-  g_assert (cursor_plane_assignment->update == update);
-  g_assert (cursor_plane_assignment->plane == cursor_plane);
-  g_assert (cursor_plane_assignment->buffer == cursor_buffer);
+  g_assert_true (cursor_plane_assignment->crtc == crtc);
+  g_assert_true (cursor_plane_assignment->update == update);
+  g_assert_true (cursor_plane_assignment->plane == cursor_plane);
+  g_assert_true (cursor_plane_assignment->buffer == cursor_buffer);
   g_assert_cmpuint (cursor_plane_assignment->rotation, ==, 0);
   g_assert_true (cursor_plane_assignment->cursor_hotspot.is_valid);
   g_assert_cmpint (cursor_plane_assignment->cursor_hotspot.x, ==, 10);
@@ -256,10 +256,10 @@ meta_test_kms_update_mode_sets (void)
   g_assert_cmpuint (g_list_length (mode_sets), ==, 1);
   mode_set = mode_sets->data;
 
-  g_assert (mode_set->crtc == crtc);
+  g_assert_true (mode_set->crtc == crtc);
   g_assert_cmpuint (g_list_length (mode_set->connectors), ==, 1);
-  g_assert (mode_set->connectors->data == connector);
-  g_assert (mode_set->mode == mode);
+  g_assert_true (mode_set->connectors->data == connector);
+  g_assert_true (mode_set->mode == mode);
 
   meta_kms_update_free (update);
 }
@@ -288,7 +288,7 @@ page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
 {
   PageFlipData *data = user_data;
 
-  g_assert (data->thread == g_thread_self ());
+  g_assert_true (data->thread == g_thread_self ());
   g_assert_cmpint (data->state, ==, INIT);
   data->state = PAGE_FLIPPED;
 }
@@ -327,7 +327,7 @@ page_flip_data_destroy (gpointer user_data)
 {
   PageFlipData *data = user_data;
 
-  g_assert (data->thread == g_thread_self ());
+  g_assert_true (data->thread == g_thread_self ());
   g_assert_cmpint (data->state, ==, PAGE_FLIPPED);
   data->state = DESTROYED;
 
@@ -540,20 +540,20 @@ meta_test_kms_update_merge (void)
   mode_sets = meta_kms_update_get_mode_sets (update1);
   g_assert_cmpuint (g_list_length (mode_sets), ==, 1);
   mode_set = mode_sets->data;
-  g_assert (mode_set->crtc == crtc);
-  g_assert (mode_set->mode == mode);
+  g_assert_true (mode_set->crtc == crtc);
+  g_assert_true (mode_set->mode == mode);
   g_assert_cmpuint (g_list_length (mode_set->connectors), ==, 1);
-  g_assert (mode_set->connectors->data == connector);
+  g_assert_true (mode_set->connectors->data == connector);
 
   plane_assignments = meta_kms_update_get_plane_assignments (update1);
   g_assert_cmpuint (g_list_length (plane_assignments), ==, 2);
   plane_assignment = meta_kms_update_get_primary_plane_assignment (update1,
                                                                    crtc);
   g_assert_nonnull (plane_assignment);
-  g_assert (plane_assignment->update == update1);
-  g_assert (plane_assignment->crtc == crtc);
-  g_assert (plane_assignment->plane == primary_plane);
-  g_assert (plane_assignment->buffer == primary_buffer1);
+  g_assert_true (plane_assignment->update == update1);
+  g_assert_true (plane_assignment->crtc == crtc);
+  g_assert_true (plane_assignment->plane == primary_plane);
+  g_assert_true (plane_assignment->buffer == primary_buffer1);
   g_assert_false (plane_assignment->cursor_hotspot.is_valid);
   g_assert_cmpint (plane_assignment->src_rect.x, ==, 0);
   g_assert_cmpint (plane_assignment->src_rect.y, ==, 0);
@@ -571,10 +571,10 @@ meta_test_kms_update_merge (void)
   plane_assignment = meta_kms_update_get_cursor_plane_assignment (update1,
                                                                   crtc);
   g_assert_nonnull (plane_assignment);
-  g_assert (plane_assignment->update == update1);
-  g_assert (plane_assignment->crtc == crtc);
-  g_assert (plane_assignment->plane == cursor_plane);
-  g_assert (plane_assignment->buffer == META_DRM_BUFFER (cursor_buffer2));
+  g_assert_true (plane_assignment->update == update1);
+  g_assert_true (plane_assignment->crtc == crtc);
+  g_assert_true (plane_assignment->plane == cursor_plane);
+  g_assert_true (plane_assignment->buffer == META_DRM_BUFFER (cursor_buffer2));
   g_assert_true (plane_assignment->cursor_hotspot.is_valid);
   g_assert_cmpint (plane_assignment->cursor_hotspot.x, ==, 9);
   g_assert_cmpint (plane_assignment->cursor_hotspot.y, ==, 7);
@@ -765,7 +765,7 @@ off_thread_callback_thread_func (gpointer user_data)
   g_cond_signal (&data->init_cond);
   g_mutex_unlock (&data->init_mutex);
 
-  g_assert (data->thread == g_thread_self ());
+  g_assert_true (data->thread == g_thread_self ());
 
   g_main_loop_run (data->thread_loop);
   g_main_loop_unref (data->thread_loop);
@@ -880,7 +880,7 @@ main (int    argc,
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                               META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
 

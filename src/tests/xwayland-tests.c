@@ -272,7 +272,7 @@ meta_test_xwayland_compositor_selection (void)
 
   g_assert_null (meta_display_get_x11_display (display));
 
-  g_assert (meta_is_wayland_compositor ());
+  g_assert_true (meta_is_wayland_compositor ());
   compositor = meta_context_get_wayland_compositor (test_context);
   x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
   g_assert_nonnull (x11_display_name);
@@ -322,7 +322,7 @@ main (int    argc,
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                               META_CONTEXT_TEST_FLAG_TEST_CLIENT);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
 

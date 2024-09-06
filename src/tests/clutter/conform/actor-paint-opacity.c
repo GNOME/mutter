@@ -19,7 +19,7 @@ opacity_label (void)
   if (!g_test_quiet ())
     g_print ("label 50%%.get_color()/1\n");
   clutter_text_get_color (CLUTTER_TEXT (label), &color_check);
-  g_assert (color_check.alpha == label_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, label_color.alpha);
 
   clutter_actor_add_child (stage, label);
   clutter_actor_set_position (label, 10, 10);
@@ -27,16 +27,16 @@ opacity_label (void)
   if (!g_test_quiet ())
     g_print ("label 50%%.get_color()/2\n");
   clutter_text_get_color (CLUTTER_TEXT (label), &color_check);
-  g_assert (color_check.alpha == label_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, label_color.alpha);
 
   if (!g_test_quiet ())
     g_print ("label 50%%.get_paint_opacity()/1\n");
-  g_assert (clutter_actor_get_paint_opacity (label) == 255);
+  g_assert_cmpint (clutter_actor_get_paint_opacity (label), ==, 255);
 
   if (!g_test_quiet ())
     g_print ("label 50%%.get_paint_opacity()/2\n");
   clutter_actor_set_opacity (label, 128);
-  g_assert (clutter_actor_get_paint_opacity (label) == 128);
+  g_assert_cmpint (clutter_actor_get_paint_opacity (label), ==, 128);
 
   clutter_actor_destroy (label);
 }
@@ -60,18 +60,18 @@ opacity_rectangle (void)
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_color()/1\n");
   clutter_actor_get_background_color (rect, &color_check);
-  g_assert (color_check.alpha == rect_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, rect_color.alpha);
 
   clutter_actor_add_child (stage, rect);
 
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_color()/2\n");
   clutter_actor_set_background_color (rect, &color_check);
-  g_assert (color_check.alpha == rect_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, rect_color.alpha);
 
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_paint_opacity()\n");
-  g_assert (clutter_actor_get_paint_opacity (rect) == 255);
+  g_assert_cmpint (clutter_actor_get_paint_opacity (rect), ==, 255);
 
   clutter_actor_destroy (rect);
 }
@@ -101,18 +101,18 @@ opacity_paint (void)
   if (!g_test_quiet ())
     g_print ("label 50%% + group 50%%.get_color()/1\n");
   clutter_text_get_color (CLUTTER_TEXT (label), &color_check);
-  g_assert (color_check.alpha == label_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, label_color.alpha);
 
   clutter_actor_add_child (group1, label);
 
   if (!g_test_quiet ())
     g_print ("label 50%% + group 50%%.get_color()/2\n");
   clutter_text_get_color (CLUTTER_TEXT (label), &color_check);
-  g_assert (color_check.alpha == label_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, label_color.alpha);
 
   if (!g_test_quiet ())
     g_print ("label 50%% + group 50%%.get_paint_opacity() = 128\n");
-  g_assert (clutter_actor_get_paint_opacity (label) == 128);
+  g_assert_cmpint (clutter_actor_get_paint_opacity (label), ==, 128);
 
   clutter_actor_destroy (label);
 
@@ -127,18 +127,18 @@ opacity_paint (void)
   if (!g_test_quiet ())
     g_print ("rect 100%% + group 100%% + group 50%%.get_color()/1\n");
   clutter_actor_get_background_color (rect, &color_check);
-  g_assert (color_check.alpha == rect_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, rect_color.alpha);
 
   clutter_actor_add_child (group2, rect);
 
   if (!g_test_quiet ())
     g_print ("rect 100%% + group 100%% + group 50%%.get_color()/2\n");
   clutter_actor_get_background_color (rect, &color_check);
-  g_assert (color_check.alpha == rect_color.alpha);
+  g_assert_cmpint (color_check.alpha, ==, rect_color.alpha);
 
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_paint_opacity()\n");
-  g_assert (clutter_actor_get_paint_opacity (rect) == 128);
+  g_assert_cmpint (clutter_actor_get_paint_opacity (rect), ==, 128);
 
   clutter_actor_destroy (group1);
 }

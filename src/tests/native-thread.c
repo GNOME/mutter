@@ -540,7 +540,7 @@ non_default_thread_callback_func (MetaThread *thread,
 {
   CallbackData *callback_data = user_data;
 
-  g_assert (g_thread_self () == callback_data->gthread);
+  g_assert_true (g_thread_self () == callback_data->gthread);
 
   g_assert_cmpint (callback_data->state, ==, 3);
   callback_data->state = 4;
@@ -551,7 +551,7 @@ callback_destroy_cb (gpointer user_data)
 {
   CallbackData *callback_data = user_data;
 
-  g_assert (g_thread_self () == callback_data->gthread);
+  g_assert_true (g_thread_self () == callback_data->gthread);
 
   g_assert_cmpint (callback_data->state, ==, 4);
   callback_data->state = 5;
@@ -585,7 +585,7 @@ non_default_thread_feedback_func (gpointer      retval,
 {
   CallbackData *callback_data = user_data;
 
-  g_assert (g_thread_self () == callback_data->gthread);
+  g_assert_true (g_thread_self () == callback_data->gthread);
 
   g_assert_cmpint (callback_data->state, ==, 5);
   callback_data->state = 6;
@@ -860,7 +860,7 @@ meta_test_thread_user_common (void)
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
   g_assert_null (error);
-  g_assert (meta_thread_get_backend (thread) == backend);
+  g_assert_true (meta_thread_get_backend (thread) == backend);
   g_assert_cmpstr (meta_thread_get_name (thread), ==, "test user thread");
   test_thread = thread;
 
@@ -887,7 +887,7 @@ meta_test_thread_kernel_common (void)
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
   g_assert_null (error);
-  g_assert (meta_thread_get_backend (thread) == backend);
+  g_assert_true (meta_thread_get_backend (thread) == backend);
   g_assert_cmpstr (meta_thread_get_name (thread), ==, "test kernel thread");
   test_thread = thread;
 
@@ -967,7 +967,7 @@ run_task_off_thread_in_impl (MetaThreadImpl  *thread_impl,
 {
   RunTaskOffThreadData *data = user_data;
 
-  g_assert (data->gthread != g_thread_self ());
+  g_assert_true (data->gthread != g_thread_self ());
 
   g_assert_false (data->done);
   data->done = TRUE;
@@ -984,7 +984,7 @@ run_task_off_thread_thread_func (gpointer user_data)
   g_mutex_lock (&data->init_mutex);
   g_mutex_unlock (&data->init_mutex);
 
-  g_assert (data->gthread == g_thread_self ());
+  g_assert_true (data->gthread == g_thread_self ());
 
   result = meta_thread_run_impl_task_sync (data->thread,
                                            run_task_off_thread_in_impl,
@@ -1023,7 +1023,7 @@ meta_test_thread_run_task_off_thread_common (MetaThreadType thread_type)
   data.gthread = g_thread_new ("run task off thread test",
                                run_task_off_thread_thread_func,
                                &data);
-  g_assert (data.main_thread != data.gthread);
+  g_assert_true (data.main_thread != data.gthread);
 
   g_mutex_unlock (&data.init_mutex);
 
@@ -1056,7 +1056,7 @@ assert_not_thread (MetaThreadImpl  *thread_impl,
 {
   GThread **thread_to_check = user_data;
 
-  g_assert (g_steal_pointer (thread_to_check) != g_thread_self ());
+  g_assert_true (g_steal_pointer (thread_to_check) != g_thread_self ());
 
   return NULL;
 }
@@ -1068,7 +1068,7 @@ assert_thread (MetaThreadImpl  *thread_impl,
 {
   GThread **thread_to_check = user_data;
 
-  g_assert (g_steal_pointer (thread_to_check) == g_thread_self ());
+  g_assert_true (g_steal_pointer (thread_to_check) == g_thread_self ());
 
   return NULL;
 }
@@ -1268,7 +1268,7 @@ main (int    argc,
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
 

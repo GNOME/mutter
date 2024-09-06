@@ -47,7 +47,7 @@ test_texture_rg (void)
 
   tex = make_texture ();
 
-  g_assert (cogl_texture_get_components (tex) == COGL_TEXTURE_COMPONENTS_RG);
+  g_assert_true (cogl_texture_get_components (tex) == COGL_TEXTURE_COMPONENTS_RG);
 
   pipeline = cogl_pipeline_new (test_ctx);
 

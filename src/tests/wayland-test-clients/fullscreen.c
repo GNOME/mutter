@@ -71,7 +71,7 @@ static void
 on_sync_event (WaylandDisplay *display,
                uint32_t        serial)
 {
-  g_assert (serial == 0);
+  g_assert_cmpint (serial, ==, 0);
   running = FALSE;
 }
 

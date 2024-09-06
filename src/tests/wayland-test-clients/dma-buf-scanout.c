@@ -138,8 +138,8 @@ handle_xdg_toplevel_configure (void                *user_data,
                                struct wl_array     *states)
 {
   WaylandDisplay *display;
-  g_assert (width > 0 || prev_width > 0);
-  g_assert (height > 0 || prev_width > 0);
+  g_assert_true (width > 0 || prev_width > 0);
+  g_assert_true (height > 0 || prev_width > 0);
 
   display = user_data;
   if (width > 0 && height > 0)
@@ -214,7 +214,7 @@ static void
 on_sync_event (WaylandDisplay *display,
                uint32_t        serial)
 {
-  g_assert (serial == 0);
+  g_assert_cmpint (serial, ==, 0);
 
   running = FALSE;
 }

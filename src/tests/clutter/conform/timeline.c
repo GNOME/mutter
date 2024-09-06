@@ -64,7 +64,7 @@ timeline_new_frame_cb (ClutterTimeline *timeline,
               data->timeline_num, frame_no,
               clutter_timeline_get_delta (timeline));
 
-  g_assert (frame_no >= 0 && frame_no <= FRAME_COUNT);
+  g_assert_true (frame_no >= 0 && frame_no <= FRAME_COUNT);
 
   data->frame_hit_count[frame_no]++;
 }
@@ -210,17 +210,17 @@ timeline_base (void)
                                        10 * 1000 / FPS);
   markers = clutter_timeline_list_markers (timeline_1, 5 * 1000 / FPS,
                                            &n_markers);
-  g_assert (markers != NULL);
-  g_assert (n_markers == 3);
+  g_assert_nonnull (markers);
+  g_assert_true (n_markers == 3);
   g_strfreev (markers);
 
   timeline_data_init (&data_2, 2);
   timeline_2 = clutter_timeline_new_for_actor (stage, FRAME_COUNT * 1000 / FPS);
   clutter_timeline_add_marker_at_time (timeline_2, "bar", 2 * 1000 / FPS);
   markers = clutter_timeline_list_markers (timeline_2, -1, &n_markers);
-  g_assert (markers != NULL);
-  g_assert (n_markers == 1);
-  g_assert (strcmp (markers[0], "bar") == 0);
+  g_assert_nonnull (markers);
+  g_assert_true (n_markers == 1);
+  g_assert_cmpint (strcmp (markers[0], "bar"), ==, 0);
   g_strfreev (markers);
 
   timeline_data_init (&data_3, 3);
@@ -278,9 +278,9 @@ timeline_base (void)
 
   clutter_test_main ();
 
-  g_assert (check_timeline (timeline_1, &data_1, TRUE));
-  g_assert (check_timeline (timeline_2, &data_2, TRUE));
-  g_assert (check_timeline (timeline_3, &data_3, TRUE));
+  g_assert_true (check_timeline (timeline_1, &data_1, TRUE));
+  g_assert_true (check_timeline (timeline_2, &data_2, TRUE));
+  g_assert_true (check_timeline (timeline_3, &data_3, TRUE));
 
   g_printerr ("With delay...\n");
 
@@ -300,9 +300,9 @@ timeline_base (void)
 
   clutter_test_main ();
 
-  g_assert (check_timeline (timeline_1, &data_1, FALSE));
-  g_assert (check_timeline (timeline_2, &data_2, FALSE));
-  g_assert (check_timeline (timeline_3, &data_3, FALSE));
+  g_assert_true (check_timeline (timeline_1, &data_1, FALSE));
+  g_assert_true (check_timeline (timeline_2, &data_2, FALSE));
+  g_assert_true (check_timeline (timeline_3, &data_3, FALSE));
 
   g_object_unref (timeline_1);
   g_object_unref (timeline_2);

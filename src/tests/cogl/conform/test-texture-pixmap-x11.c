@@ -111,8 +111,8 @@ check_paint (TestState *state, int x, int y, int scale)
             else
               g_assert_cmpint (p[0], ==, update_value);
 
-            g_assert (p[1] == update_value);
-            g_assert (p[2] == update_value);
+            g_assert_true (p[1] == update_value);
+            g_assert_true (p[2] == update_value);
             p += 4;
           }
         else
@@ -175,10 +175,10 @@ on_after_paint (ClutterActor     *actor,
       big_updated = check_paint (state, 0, 0, 1);
       small_updated = check_paint (state, 0, PIXMAP_HEIGHT, 4);
 
-      g_assert (big_updated == small_updated);
+      g_assert_true (big_updated == small_updated);
 
       if (state->frame_count < FRAME_COUNT_UPDATED)
-        g_assert (big_updated == FALSE);
+        g_assert_true (big_updated == FALSE);
       else if (state->frame_count == FRAME_COUNT_UPDATED)
         /* Change the pixmap and keep drawing until it updates */
         update_pixmap (state);

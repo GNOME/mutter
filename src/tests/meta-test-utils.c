@@ -210,7 +210,7 @@ meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
                                      MetaX11Display        *x11_display,
                                      XSyncAlarmNotifyEvent *event)
 {
-  g_assert (x11_display == waiter->x11_display);
+  g_assert_true (x11_display == waiter->x11_display);
 
   if (event->alarm != waiter->alarm)
     return FALSE;
@@ -620,7 +620,7 @@ meta_test_client_new (MetaContext           *context,
   launcher =  g_subprocess_launcher_new ((G_SUBPROCESS_FLAGS_STDIN_PIPE |
                                           G_SUBPROCESS_FLAGS_STDOUT_PIPE));
 
-  g_assert (meta_is_wayland_compositor ());
+  g_assert_true (meta_is_wayland_compositor ());
   compositor = meta_context_get_wayland_compositor (context);
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
 #ifdef HAVE_XWAYLAND

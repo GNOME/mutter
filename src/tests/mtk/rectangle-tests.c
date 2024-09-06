@@ -63,11 +63,11 @@ test_area (void)
   for (i = 0; i < NUM_RANDOM_RUNS; i++)
     {
       get_random_rect (&temp);
-      g_assert (mtk_rectangle_area (&temp) == temp.width * temp.height);
+      g_assert_cmpint (mtk_rectangle_area (&temp), ==, temp.width * temp.height);
     }
 
   temp = MTK_RECTANGLE_INIT (0, 0, 5, 7);
-  g_assert (mtk_rectangle_area (&temp) == 35);
+  g_assert_cmpint (mtk_rectangle_area (&temp), ==, 35);
 }
 
 static void
@@ -83,17 +83,17 @@ test_intersect (void)
 
   mtk_rectangle_intersect (&a, &b, &temp);
   temp2 = MTK_RECTANGLE_INIT (100, 200, 10, 2);
-  g_assert (mtk_rectangle_equal (&temp, &temp2));
-  g_assert (mtk_rectangle_area (&temp) == 20);
+  g_assert_true (mtk_rectangle_equal (&temp, &temp2));
+  g_assert_cmpint (mtk_rectangle_area (&temp), ==, 20);
 
   mtk_rectangle_intersect (&a, &c, &temp);
-  g_assert (mtk_rectangle_area (&temp) == 0);
+  g_assert_cmpint (mtk_rectangle_area (&temp), ==, 0);
 
   mtk_rectangle_intersect (&a, &d, &temp);
-  g_assert (mtk_rectangle_area (&temp) == 0);
+  g_assert_cmpint (mtk_rectangle_area (&temp), ==, 0);
 
   mtk_rectangle_intersect (&b, &d, &b);
-  g_assert (mtk_rectangle_equal (&b, &b_intersect_d));
+  g_assert_true (mtk_rectangle_equal (&b, &b_intersect_d));
 }
 
 static void
@@ -106,11 +106,11 @@ test_equal (void)
   MtkRectangle e = {10, 62, 4, 18};
   MtkRectangle f = {27, 12, 4, 18};
 
-  g_assert ( mtk_rectangle_equal (&a, &b));
-  g_assert (!mtk_rectangle_equal (&a, &c));
-  g_assert (!mtk_rectangle_equal (&a, &d));
-  g_assert (!mtk_rectangle_equal (&a, &e));
-  g_assert (!mtk_rectangle_equal (&a, &f));
+  g_assert_true (mtk_rectangle_equal (&a, &b));
+  g_assert_false (mtk_rectangle_equal (&a, &c));
+  g_assert_false (mtk_rectangle_equal (&a, &d));
+  g_assert_false (mtk_rectangle_equal (&a, &e));
+  g_assert_false (mtk_rectangle_equal (&a, &f));
 }
 
 static void
@@ -122,16 +122,16 @@ test_overlap_funcs (void)
     {
       get_random_rect (&temp1);
       get_random_rect (&temp2);
-      g_assert (mtk_rectangle_overlap (&temp1, &temp2) ==
-                (mtk_rectangle_horiz_overlap (&temp1, &temp2) &&
-                 mtk_rectangle_vert_overlap (&temp1, &temp2)));
+      g_assert_true (mtk_rectangle_overlap (&temp1, &temp2) ==
+                     (mtk_rectangle_horiz_overlap (&temp1, &temp2) &&
+                      mtk_rectangle_vert_overlap (&temp1, &temp2)));
     }
 
   temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
   temp2 = MTK_RECTANGLE_INIT (20, 0, 10,  5);
-  g_assert (!mtk_rectangle_overlap (&temp1, &temp2));
-  g_assert (!mtk_rectangle_horiz_overlap (&temp1, &temp2));
-  g_assert (mtk_rectangle_vert_overlap (&temp1, &temp2));
+  g_assert_false (mtk_rectangle_overlap (&temp1, &temp2));
+  g_assert_false (mtk_rectangle_horiz_overlap (&temp1, &temp2));
+  g_assert_true (mtk_rectangle_vert_overlap (&temp1, &temp2));
 }
 
 static void
@@ -154,20 +154,20 @@ test_basic_fitting (void)
     {
       get_random_rect (&temp1);
       get_random_rect (&temp2);
-      g_assert (mtk_rectangle_contains_rect (&temp1, &temp2) == FALSE ||
-                mtk_rectangle_could_fit_rect (&temp1, &temp2) == TRUE);
-      g_assert (mtk_rectangle_contains_rect (&temp2, &temp1) == FALSE ||
-                mtk_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
+      g_assert_true (mtk_rectangle_contains_rect (&temp1, &temp2) == FALSE ||
+                     mtk_rectangle_could_fit_rect (&temp1, &temp2) == TRUE);
+      g_assert_true (mtk_rectangle_contains_rect (&temp2, &temp1) == FALSE ||
+                     mtk_rectangle_could_fit_rect (&temp2, &temp1) == TRUE);
     }
 
   temp1 = MTK_RECTANGLE_INIT ( 0, 0, 10, 10);
   temp2 = MTK_RECTANGLE_INIT ( 5, 5,  5,  5);
   temp3 = MTK_RECTANGLE_INIT ( 8, 2,  3,  7);
-  g_assert ( mtk_rectangle_contains_rect (&temp1, &temp2));
-  g_assert (!mtk_rectangle_contains_rect (&temp2, &temp1));
-  g_assert (!mtk_rectangle_contains_rect (&temp1, &temp3));
-  g_assert ( mtk_rectangle_could_fit_rect (&temp1, &temp3));
-  g_assert (!mtk_rectangle_could_fit_rect (&temp3, &temp2));
+  g_assert_true (mtk_rectangle_contains_rect (&temp1, &temp2));
+  g_assert_false (mtk_rectangle_contains_rect (&temp2, &temp1));
+  g_assert_false (mtk_rectangle_contains_rect (&temp1, &temp3));
+  g_assert_true (mtk_rectangle_could_fit_rect (&temp1, &temp3));
+  g_assert_false (mtk_rectangle_could_fit_rect (&temp3, &temp2));
 }
 
 static void
@@ -194,10 +194,10 @@ test_adjacent_to (void)
   unsigned int i;
 
   for (i = 0; i < G_N_ELEMENTS (adjacent); i++)
-    g_assert (mtk_rectangle_is_adjacent_to (&base, &adjacent[i]));
+    g_assert_true (mtk_rectangle_is_adjacent_to (&base, &adjacent[i]));
 
   for (i = 0; i < G_N_ELEMENTS (not_adjacent); i++)
-    g_assert (!mtk_rectangle_is_adjacent_to (&base, &not_adjacent[i]));
+    g_assert_false (mtk_rectangle_is_adjacent_to (&base, &not_adjacent[i]));
 }
 
 static void
@@ -205,9 +205,9 @@ test_contains_point (void)
 {
   MtkRectangle base = { .x = 0, .y = 0, .width = 10, .height = 10 };
 
-  g_assert (mtk_rectangle_contains_point (&base, 5, 5));
-  g_assert (!mtk_rectangle_contains_point (&base, -5, 5));
-  g_assert (!mtk_rectangle_contains_point (&base, 15, 2));
+  g_assert_true (mtk_rectangle_contains_point (&base, 5, 5));
+  g_assert_false (mtk_rectangle_contains_point (&base, -5, 5));
+  g_assert_false (mtk_rectangle_contains_point (&base, 15, 2));
 }
 
 int

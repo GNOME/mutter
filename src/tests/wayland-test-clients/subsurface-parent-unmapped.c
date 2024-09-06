@@ -246,7 +246,7 @@ static void
 on_sync_event (WaylandDisplay *display,
                uint32_t        serial)
 {
-  g_assert (serial == 0);
+  g_assert_cmpint (serial, ==, 0);
 
   /* Sync event 0 is sent when the popup window actor is destroyed;
    * prepare for opening a popup for the same wl_surface.

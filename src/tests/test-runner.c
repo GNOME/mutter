@@ -2392,7 +2392,7 @@ main (int argc, char **argv)
 
   meta_context_add_option_entries (context, options, NULL);
 
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   tests = g_ptr_array_new_with_free_func (g_free);
   if (all_tests)

@@ -50,15 +50,15 @@ test_pipeline_vertend_glsl_point_size_shader (void)
    * the same shader unless there is no builtin uniform for the point
    * size */
   if (shader_states[0])
-    g_assert (shader_states[0] != shader_states[1]);
+    g_assert_true (shader_states[0] != shader_states[1]);
 
   /* The second and third pipelines should always have the same shader
    * state because only toggling between zero and non-zero should
    * change the shader */
-  g_assert (shader_states[1] == shader_states[2]);
+  g_assert_true (shader_states[1] == shader_states[2]);
 
   /* The fourth pipeline should be exactly the same as the first */
-  g_assert (shader_states[0] == shader_states[3]);
+  g_assert_true (shader_states[0] == shader_states[3]);
 
   for (i = 0; i < G_N_ELEMENTS (pipelines); i++)
     g_object_unref (pipelines[i]);

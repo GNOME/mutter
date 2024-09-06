@@ -328,7 +328,7 @@ test_utils_texture_new_from_data (CoglContext           *ctx,
   CoglTexture *tex;
 
   g_assert_cmpint (format, !=, COGL_PIXEL_FORMAT_ANY);
-  g_assert (data != NULL);
+  g_assert_nonnull (data);
 
   /* Wrap the data into a bitmap */
   bmp = cogl_bitmap_new_for_data (ctx,
@@ -391,7 +391,7 @@ meta_create_cogl_test_context (int    argc,
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   if (g_strcmp0 ("COGL_TEST_VERBOSE", "1") == 0)
     cogl_test_is_verbose = TRUE;

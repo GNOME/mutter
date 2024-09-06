@@ -102,7 +102,7 @@ foo_new_shader_effect_get_static_source (ClutterShaderEffect *effect)
 
   /* This should only be called once even though we have two actors
      using this effect */
-  g_assert (!already_called);
+  g_assert_false (already_called);
 
   already_called = TRUE;
 

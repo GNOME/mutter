@@ -82,7 +82,7 @@ on_after_update (ClutterStage     *stage,
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
 
-  g_assert (meta_renderer_native_has_pending_mode_sets (renderer_native) ||
+  g_assert_true (meta_renderer_native_has_pending_mode_sets (renderer_native) ||
             !meta_frame_native_has_kms_update (frame_native));
 
   test->number_of_frames_left--;
@@ -524,7 +524,7 @@ main (int    argc,
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   test_context = context;
 

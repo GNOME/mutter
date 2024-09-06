@@ -465,7 +465,7 @@ meta_test_color_management_device_basic (void)
                                                           monitor);
       g_assert_nonnull (color_device);
 
-      g_assert (meta_color_device_get_monitor (color_device) == monitor);
+      g_assert_true (meta_color_device_get_monitor (color_device) == monitor);
     }
 }
 
@@ -509,7 +509,7 @@ meta_test_color_management_device_no_gamma (void)
 
   color_device = meta_color_manager_get_color_device (color_manager, monitor);
   g_assert_nonnull (color_device);
-  g_assert (meta_color_device_get_monitor (color_device) == monitor);
+  g_assert_true (meta_color_device_get_monitor (color_device) == monitor);
 
   while (!meta_color_device_is_ready (color_device))
     g_main_context_iteration (NULL, TRUE);
@@ -1432,7 +1432,7 @@ main (int argc, char **argv)
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_TEST,
                                       META_CONTEXT_TEST_FLAG_NONE);
 
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   test_context = context;
 

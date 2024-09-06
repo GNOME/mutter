@@ -68,12 +68,12 @@ clutter_test_create_bitmap_from_file (CoglContext  *ctx,
 
   /* According to current docs this should be true and so
    * the translation to cogl pixel format below valid */
-  g_assert (bits_per_sample == 8);
+  g_assert_cmpint (bits_per_sample, ==, 8);
 
   if (has_alpha)
-    g_assert (n_channels == 4);
+    g_assert_cmpint (n_channels, ==, 4);
   else
-    g_assert (n_channels == 3);
+    g_assert_cmpint (n_channels, ==, 3);
 
   /* Translate to cogl pixel format */
   switch (color_space)

@@ -32,7 +32,7 @@ assert_not_thread (MetaThreadImpl  *thread_impl,
 {
   GThread **thread_to_check = user_data;
 
-  g_assert (g_steal_pointer (thread_to_check) != g_thread_self ());
+  g_assert_true (g_steal_pointer (thread_to_check) != g_thread_self ());
 
   return NULL;
 }
@@ -44,7 +44,7 @@ assert_thread (MetaThreadImpl  *thread_impl,
 {
   GThread **thread_to_check = user_data;
 
-  g_assert (g_steal_pointer (thread_to_check) == g_thread_self ());
+  g_assert_true (g_steal_pointer (thread_to_check) == g_thread_self ());
 
   return NULL;
 }
@@ -99,7 +99,7 @@ main (int    argc,
   context = test_context =
     meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                               META_CONTEXT_TEST_FLAG_NO_X11);
-  g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   init_tests ();
 

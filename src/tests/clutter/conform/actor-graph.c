@@ -31,8 +31,8 @@ actor_add_child (void)
 
   iter = clutter_actor_get_next_sibling (iter);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "baz");
-  g_assert (iter == clutter_actor_get_last_child (actor));
-  g_assert (clutter_actor_get_next_sibling (iter) == NULL);
+  g_assert_true (iter == clutter_actor_get_last_child (actor));
+  g_assert_null (clutter_actor_get_next_sibling (iter));
 
   iter = clutter_actor_get_last_child (actor);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "baz");
@@ -42,11 +42,11 @@ actor_add_child (void)
 
   iter = clutter_actor_get_previous_sibling (iter);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "foo");
-  g_assert (iter == clutter_actor_get_first_child (actor));
-  g_assert (clutter_actor_get_previous_sibling (iter) == NULL);
+  g_assert_true (iter == clutter_actor_get_first_child (actor));
+  g_assert_null (clutter_actor_get_previous_sibling (iter));
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void
@@ -65,9 +65,9 @@ actor_insert_child (void)
                                        0);
 
   iter = clutter_actor_get_first_child (actor);
-  g_assert (iter != NULL);
+  g_assert_nonnull (iter);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "foo");
-  g_assert (iter == clutter_actor_get_child_at_index (actor, 0));
+  g_assert_true (iter == clutter_actor_get_child_at_index (actor, 0));
 
   clutter_actor_insert_child_below (actor,
                                     g_object_new (CLUTTER_TYPE_ACTOR,
@@ -81,7 +81,7 @@ actor_insert_child (void)
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "bar");
   iter = clutter_actor_get_next_sibling (iter);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "foo");
-  g_assert (iter == clutter_actor_get_child_at_index (actor, 1));
+  g_assert_true (iter == clutter_actor_get_child_at_index (actor, 1));
 
   iter = clutter_actor_get_first_child (actor);
   clutter_actor_insert_child_above (actor,
@@ -108,8 +108,8 @@ actor_insert_child (void)
                                        0);
   iter = clutter_actor_get_child_at_index (actor, 0);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "1");
-  g_assert (clutter_actor_get_first_child (actor) == iter);
-  g_assert (clutter_actor_get_last_child (actor) == iter);
+  g_assert_true (clutter_actor_get_first_child (actor) == iter);
+  g_assert_true (clutter_actor_get_last_child (actor) == iter);
 
   clutter_actor_insert_child_at_index (actor,
                                        g_object_new (CLUTTER_TYPE_ACTOR,
@@ -118,10 +118,10 @@ actor_insert_child (void)
                                        0);
   iter = clutter_actor_get_child_at_index (actor, 0);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "2");
-  g_assert (clutter_actor_get_first_child (actor) == iter);
+  g_assert_true (clutter_actor_get_first_child (actor) == iter);
   iter = clutter_actor_get_child_at_index (actor, 1);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "1");
-  g_assert (clutter_actor_get_last_child (actor) == iter);
+  g_assert_true (clutter_actor_get_last_child (actor) == iter);
 
   clutter_actor_insert_child_at_index (actor,
                                        g_object_new (CLUTTER_TYPE_ACTOR,
@@ -130,10 +130,10 @@ actor_insert_child (void)
                                        -1);
   iter = clutter_actor_get_child_at_index (actor, 2);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "3");
-  g_assert (clutter_actor_get_last_child (actor) == iter);
+  g_assert_true (clutter_actor_get_last_child (actor) == iter);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void
@@ -154,7 +154,7 @@ actor_remove_child (void)
 
   g_assert_cmpint (clutter_actor_get_n_children (actor), ==, 2);
 
-  g_assert (clutter_actor_get_first_child (actor) != clutter_actor_get_last_child (actor));
+  g_assert_true (clutter_actor_get_first_child (actor) != clutter_actor_get_last_child (actor));
 
   iter = clutter_actor_get_first_child (actor);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "foo");
@@ -168,16 +168,16 @@ actor_remove_child (void)
 
   iter = clutter_actor_get_first_child (actor);
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "bar");
-  g_assert (clutter_actor_get_first_child (actor) == clutter_actor_get_last_child (actor));
+  g_assert_true (clutter_actor_get_first_child (actor) == clutter_actor_get_last_child (actor));
 
   clutter_actor_remove_child (actor, clutter_actor_get_first_child (actor));
 
   g_assert_cmpint (clutter_actor_get_n_children (actor), ==, 0);
-  g_assert (clutter_actor_get_first_child (actor) == NULL);
-  g_assert (clutter_actor_get_last_child (actor) == NULL);
+  g_assert_null (clutter_actor_get_first_child (actor));
+  g_assert_null (clutter_actor_get_last_child (actor));
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void
@@ -220,9 +220,9 @@ actor_raise_child (void)
   g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 2)),
                    ==,
                    "bar");
-  g_assert (!clutter_actor_is_visible (iter));
+  g_assert_false (clutter_actor_is_visible (iter));
   g_object_get (iter, "show-on-set-parent", &show_on_set_parent, NULL);
-  g_assert (!show_on_set_parent);
+  g_assert_false (show_on_set_parent);
 
   iter = clutter_actor_get_child_at_index (actor, 0);
   clutter_actor_set_child_above_sibling (actor, iter, NULL);
@@ -237,13 +237,13 @@ actor_raise_child (void)
   g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 2)),
                    ==,
                    "foo");
-  g_assert (!clutter_actor_is_visible (iter));
+  g_assert_false (clutter_actor_is_visible (iter));
   g_object_get (iter, "show-on-set-parent", &show_on_set_parent, NULL);
-  g_assert (!show_on_set_parent);
+  g_assert_false (show_on_set_parent);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
-  g_assert (iter == NULL);
+  g_assert_null (actor);
+  g_assert_null (iter);
 }
 
 static void
@@ -286,9 +286,9 @@ actor_lower_child (void)
   g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 2)),
                    ==,
                    "baz");
-  g_assert (!clutter_actor_is_visible (iter));
+  g_assert_false (clutter_actor_is_visible (iter));
   g_object_get (iter, "show-on-set-parent", &show_on_set_parent, NULL);
-  g_assert (!show_on_set_parent);
+  g_assert_false (show_on_set_parent);
 
   iter = clutter_actor_get_child_at_index (actor, 2);
   clutter_actor_set_child_below_sibling (actor, iter, NULL);
@@ -302,12 +302,12 @@ actor_lower_child (void)
   g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 2)),
                    ==,
                    "foo");
-  g_assert (!clutter_actor_is_visible (iter));
+  g_assert_false (clutter_actor_is_visible (iter));
   g_object_get (iter, "show-on-set-parent", &show_on_set_parent, NULL);
-  g_assert (!show_on_set_parent);
+  g_assert_false (show_on_set_parent);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void
@@ -368,7 +368,7 @@ actor_replace_child (void)
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "baz");
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void
@@ -396,7 +396,7 @@ actor_remove_all (void)
   g_assert_cmpint (clutter_actor_get_n_children (actor), ==, 0);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void
@@ -470,7 +470,7 @@ actor_container_signals (void)
                                         &remove_count);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_assert_null (actor);
 }
 
 static void

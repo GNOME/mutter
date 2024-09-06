@@ -98,8 +98,8 @@ actor_preferred_size (void)
                                     &min_width, &min_height,
                                     &nat_width, &nat_height);
 
-  g_assert (self->preferred_width_called);
-  g_assert (self->preferred_height_called);
+  g_assert_true (self->preferred_width_called);
+  g_assert_true (self->preferred_height_called);
   g_assert_cmpfloat (min_width, ==, 100);
   g_assert_cmpfloat (min_height, ==, 100);
   g_assert_cmpfloat (nat_width, ==, min_width);
@@ -109,7 +109,7 @@ actor_preferred_size (void)
     g_print ("Preferred width\n");
   self->preferred_width_called = FALSE;
   clutter_actor_get_preferred_width (test, 10, &min_width, &nat_width);
-  g_assert (self->preferred_width_called);
+  g_assert_true (self->preferred_width_called);
   g_assert_cmpfloat (min_width, ==, 10);
   g_assert_cmpfloat (nat_width, ==, 100);
 
@@ -117,7 +117,7 @@ actor_preferred_size (void)
     g_print ("Preferred height\n");
   self->preferred_height_called = FALSE;
   clutter_actor_get_preferred_height (test, 200, &min_height, &nat_height);
-  g_assert (self->preferred_height_called);
+  g_assert_true (self->preferred_height_called);
   g_assert_cmpfloat (min_height, !=, 10);
   g_assert_cmpfloat (nat_height, ==, 100);
 
@@ -125,7 +125,7 @@ actor_preferred_size (void)
     g_print ("Preferred width (cached)\n");
   self->preferred_width_called = FALSE;
   clutter_actor_get_preferred_width (test, 10, &min_width, &nat_width);
-  g_assert (!self->preferred_width_called);
+  g_assert_false (self->preferred_width_called);
   g_assert_cmpfloat (min_width, ==, 10);
   g_assert_cmpfloat (nat_width, ==, 100);
 
@@ -133,7 +133,7 @@ actor_preferred_size (void)
     g_print ("Preferred height (cache eviction)\n");
   self->preferred_height_called = FALSE;
   clutter_actor_get_preferred_height (test, 10, &min_height, &nat_height);
-  g_assert (self->preferred_height_called);
+  g_assert_true (self->preferred_height_called);
   g_assert_cmpfloat (min_height, ==, 50);
   g_assert_cmpfloat (nat_height, ==, 100);
 
@@ -176,8 +176,8 @@ actor_fixed_size (void)
   if (!g_test_quiet ())
     g_print ("Notification properties\n");
 
-  g_assert (min_width_set && nat_width_set);
-  g_assert (min_height_set && nat_height_set);
+  g_assert_true (min_width_set && nat_width_set);
+  g_assert_true (min_height_set && nat_height_set);
 
   clutter_actor_get_preferred_size (rect,
                                     &min_width, &min_height,
@@ -202,8 +202,8 @@ actor_fixed_size (void)
                 "natural-width-set", &nat_width_set,
                 "natural-height-set", &nat_height_set,
                 NULL);
-  g_assert (!min_width_set && !nat_width_set);
-  g_assert (!min_height_set && !nat_height_set);
+  g_assert_false (min_width_set && !nat_width_set);
+  g_assert_false (min_height_set && !nat_height_set);
 
   g_assert_cmpfloat (clutter_actor_get_width (rect), ==, 0);
   g_assert_cmpfloat (clutter_actor_get_height (rect), ==, 0);

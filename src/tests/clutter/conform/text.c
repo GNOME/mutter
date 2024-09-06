@@ -28,12 +28,12 @@ text_utf8_validation (void)
       char bytes[6];
       int nbytes;
 
-      g_assert (g_unichar_validate (t->unichar));
+      g_assert_true (g_unichar_validate (t->unichar));
 
       nbytes = g_unichar_to_utf8 (t->unichar, bytes);
       bytes[nbytes] = '\0';
       g_assert_cmpint (nbytes, ==, t->nbytes);
-      g_assert (memcmp (t->bytes, bytes, nbytes) == 0);
+      g_assert_cmpint (memcmp (t->bytes, bytes, nbytes), ==, 0);
 
       unichar = g_utf8_get_char_validated (bytes, nbytes);
       g_assert_cmpint (unichar, ==, t->unichar);
@@ -51,7 +51,7 @@ static int
 get_nchars (ClutterText *text)
 {
   const char *s = clutter_text_get_text (text);
-  g_assert (g_utf8_validate (s, -1, NULL));
+  g_assert_true (g_utf8_validate (s, -1, NULL));
   return g_utf8_strlen (s, -1);
 }
 
@@ -453,10 +453,10 @@ validate_markup_attributes (ClutterText   *text,
   PangoAttrIterator *iter;
 
   layout = clutter_text_get_layout (text);
-  g_assert (layout != NULL);
+  g_assert_nonnull (layout);
 
   attrs = pango_layout_get_attributes (layout);
-  g_assert (attrs != NULL);
+  g_assert_nonnull (attrs);
 
   iter = pango_attr_list_get_iterator (attrs);
   while (pango_attr_iterator_next (iter))
@@ -467,7 +467,7 @@ validate_markup_attributes (ClutterText   *text,
       if (attributes == NULL)
         break;
 
-      g_assert (attributes->data != NULL);
+      g_assert_nonnull (attributes->data);
 
       a = attributes->data;
 
@@ -483,7 +483,7 @@ validate_markup_attributes (ClutterText   *text,
           continue;
         }
 
-      g_assert (a->klass->type == attr_type);
+      g_assert_true (a->klass->type == attr_type);
       g_assert_cmpint (a->start_index, ==, start_index);
       g_assert_cmpint (a->end_index, ==, end_index);
 
