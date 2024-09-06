@@ -189,6 +189,18 @@ if get_option('verbose')
   ]
 endif
 
+mutter_debug_c_args = []
+if buildtype != 'plain'
+  if not get_option('debug')
+    mutter_debug_c_args += [
+      '-DG_DISABLE_ASSERT',
+      '-DG_DISABLE_CAST_CHECKS',
+    ]
+  endif
+endif
+mutter_debug_c_args = cc.get_supported_arguments(mutter_debug_c_args)
+mutter_c_args += mutter_debug_c_args
+
 mutter_sources = [
   'backends/edid.h',
   'backends/edid-parse.c',
