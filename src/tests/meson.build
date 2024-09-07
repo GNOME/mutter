@@ -579,6 +579,18 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-drm-lease',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-drm-lease-tests.c',
+      wayland_test_utils,
+    ],
+    'variants': [['', test_env_variables + {'MUTTER_DEBUG_LEASE_CONNECTORS': 'Virtual-1'}]],
+    'depends': [
+      test_client_executables.get('drm-lease'),
+    ],
+  },
+  {
     'name': 'wayland-fullscreen',
     'suite': 'wayland',
     'sources': [

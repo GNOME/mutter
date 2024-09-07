@@ -22,6 +22,9 @@ wayland_test_clients = [
     'name': 'dma-buf-scanout',
   },
   {
+    'name': 'drm-lease',
+  },
+  {
     'name': 'fractional-scale',
   },
   {
