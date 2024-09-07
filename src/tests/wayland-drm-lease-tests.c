@@ -36,8 +36,10 @@ test_drm_lease_client_connection (void)
 {
   MetaWaylandTestClient *wayland_test_client;
 
-  wayland_test_client =
-    meta_wayland_test_client_new (test_context, "drm-lease");
+  wayland_test_client = meta_wayland_test_client_new_with_args (test_context,
+                                                                "drm-lease",
+                                                                "client-connection",
+                                                                NULL);
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
