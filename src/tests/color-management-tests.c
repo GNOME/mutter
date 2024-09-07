@@ -1428,19 +1428,11 @@ int
 main (int argc, char **argv)
 {
   g_autoptr (MetaContext) context = NULL;
-  char *path;
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_TEST,
                                       META_CONTEXT_TEST_FLAG_NONE);
 
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
-
-  path = g_test_build_filename (G_TEST_BUILT,
-                                "tests",
-                                "share",
-                                NULL);
-  g_setenv ("XDG_DATA_HOME", path, TRUE);
-  g_free (path);
 
   test_context = context;
 

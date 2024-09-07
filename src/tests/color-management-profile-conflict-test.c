@@ -107,9 +107,14 @@ init_tests (void)
 int
 main (int argc, char **argv)
 {
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GFile) source_file = NULL;
+  g_autoptr (GFile) dest_file = NULL;
   g_autoptr (MetaContext) context = NULL;
   g_autofree char *system_profile_path = NULL;
-  g_autofree char *data_home_path = NULL;
+  g_autofree char *dest_dir = NULL;
+  g_autofree char *dest_path = NULL;
+  const char *data_home_path = NULL;
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NONE);
@@ -123,11 +128,18 @@ main (int argc, char **argv)
                                                NULL);
   add_colord_system_profile (VX239_ICC_PROFILE_ID, system_profile_path);
 
-  data_home_path = g_test_build_filename (G_TEST_DIST,
-                                          "tests",
-                                          "share",
-                                          NULL);
-  g_setenv ("XDG_DATA_HOME", data_home_path, TRUE);
+  data_home_path = g_getenv ("XDG_DATA_HOME");
+  g_assert_nonnull (data_home_path);
+
+  dest_dir = g_build_filename (data_home_path,
+                               "icc",
+                               NULL);
+  g_assert_no_errno (g_mkdir_with_parents (dest_dir, 0755));
+  dest_path = g_build_filename (dest_dir, "vx239-calibrated.icc", NULL);
+  source_file = g_file_new_for_path (system_profile_path);
+  dest_file = g_file_new_for_path (dest_path);
+  g_file_copy (source_file, dest_file, G_FILE_COPY_NONE, NULL, NULL, NULL, &error);
+  g_assert_no_error (error);
 
   test_context = context;
 
