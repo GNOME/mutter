@@ -25,6 +25,19 @@
 
 #include "drm-lease-v1-client-protocol.h"
 
+typedef enum
+{
+  DEVICE_DRM_FD,
+  DEVICE_CONNECTOR,
+  DEVICE_DONE,
+  DEVICE_RELEASED,
+  CONNECTOR_NAME,
+  CONNECTOR_DESCRIPTION,
+  CONNECTOR_ID,
+  CONNECTOR_DONE,
+  CONNECTOR_WITHDRAWN,
+} DrmLeaseEventType;
+
 typedef struct _DrmLeaseClient
 {
   WaylandDisplay *display;
@@ -33,6 +46,9 @@ typedef struct _DrmLeaseClient
    * Value: DrmLeaseDevice *device
    */
   GHashTable *devices;
+
+  /* Queue of DrmLeaseEventType */
+  GQueue *event_queue;
 } DrmLeaseClient;
 
 typedef struct _DrmLeaseDevice
@@ -59,6 +75,27 @@ typedef struct _DrmLeaseConnector
 
   gboolean done;
 } DrmLeaseConnector;
+
+static void
+event_queue_add (GQueue           *event_queue,
+                 DrmLeaseEventType event_type)
+{
+  g_queue_push_tail (event_queue, GUINT_TO_POINTER (event_type));
+}
+
+static void
+event_queue_assert_event (GQueue           *event_queue,
+                          DrmLeaseEventType expected)
+{
+  DrmLeaseEventType actual = GPOINTER_TO_UINT (g_queue_pop_head (event_queue));
+  g_assert (expected == actual);
+}
+
+static void
+event_queue_assert_empty (GQueue *event_queue)
+{
+  g_assert_cmpint (g_queue_get_length (event_queue), ==, 0);
+}
 
 static DrmLeaseConnector *
 drm_lease_connector_new (DrmLeaseDevice *device)
@@ -100,6 +137,8 @@ handle_connector_name (void                             *user_data,
   DrmLeaseConnector *connector =
     drm_lease_connector_lookup (device, drm_lease_connector);
 
+  event_queue_add (device->client->event_queue, CONNECTOR_NAME);
+
   connector->name = g_strdup (connector_name);
 }
 
@@ -111,6 +150,8 @@ handle_connector_description (void                             *user_data,
   DrmLeaseDevice *device = user_data;
   DrmLeaseConnector *connector =
     drm_lease_connector_lookup (device, drm_lease_connector);
+
+  event_queue_add (device->client->event_queue, CONNECTOR_DESCRIPTION);
 
   connector->description = g_strdup (connector_description);
 }
@@ -124,6 +165,8 @@ handle_connector_connector_id (void                             *user_data,
   DrmLeaseConnector *connector =
     drm_lease_connector_lookup (device, drm_lease_connector);
 
+  event_queue_add (device->client->event_queue, CONNECTOR_ID);
+
   connector->id = connector_id;
 }
 
@@ -135,6 +178,8 @@ handle_connector_done (void                             *user_data,
   DrmLeaseConnector *connector =
     drm_lease_connector_lookup (device, drm_lease_connector);
 
+  event_queue_add (device->client->event_queue, CONNECTOR_DONE);
+
   connector->done = TRUE;
 }
 
@@ -143,6 +188,8 @@ handle_connector_withdrawn (void                             *user_data,
                             struct wp_drm_lease_connector_v1 *drm_lease_connector)
 {
   DrmLeaseDevice *device = user_data;
+
+  event_queue_add (device->client->event_queue, CONNECTOR_WITHDRAWN);
 
   wp_drm_lease_connector_v1_destroy (drm_lease_connector);
   g_hash_table_remove (device->connectors, drm_lease_connector);
@@ -202,6 +249,8 @@ handle_device_drm_fd (void                          *user_data,
   DrmLeaseClient *client = user_data;
   DrmLeaseDevice *device = drm_lease_device_lookup (client, drm_lease_device);
 
+  event_queue_add (client->event_queue, DEVICE_DRM_FD);
+
   device->fd = drm_lease_device_fd;
 }
 
@@ -213,6 +262,8 @@ handle_device_connector (void                             *user_data,
   DrmLeaseClient *client = user_data;
   DrmLeaseDevice *device = drm_lease_device_lookup (client, drm_lease_device);
   DrmLeaseConnector *connector;
+
+  event_queue_add (client->event_queue, DEVICE_CONNECTOR);
 
   connector = drm_lease_connector_new (device);
   g_hash_table_insert (device->connectors, drm_lease_connector, connector);
@@ -229,6 +280,8 @@ handle_device_done (void                          *user_data,
   DrmLeaseClient *client = user_data;
   DrmLeaseDevice *device = drm_lease_device_lookup (client, drm_lease_device);
 
+  event_queue_add (client->event_queue, DEVICE_DONE);
+
   device->done = TRUE;
 }
 
@@ -237,6 +290,8 @@ handle_device_released (void                          *user_data,
                         struct wp_drm_lease_device_v1 *drm_lease_device)
 {
   DrmLeaseClient *client = user_data;
+
+  event_queue_add (client->event_queue, DEVICE_RELEASED);
 
   g_hash_table_remove (client->devices, drm_lease_device);
 }
@@ -290,6 +345,9 @@ drm_lease_client_new (WaylandDisplay *display)
   DrmLeaseClient *client;
   struct wl_registry *registry;
   gboolean client_done = FALSE;
+  GHashTableIter iter;
+  DrmLeaseDevice *device;
+  int n;
 
   client = g_new0 (DrmLeaseClient, 1);
   client->display = display;
@@ -297,6 +355,7 @@ drm_lease_client_new (WaylandDisplay *display)
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) drm_lease_device_free);
+  client->event_queue = g_queue_new ();
 
   registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (registry, &registry_listener, client);
@@ -307,8 +366,6 @@ drm_lease_client_new (WaylandDisplay *display)
   while (!client_done)
     {
       gboolean all_devices_done = TRUE;
-      GHashTableIter iter;
-      DrmLeaseDevice *device;
 
       wayland_display_dispatch (display);
 
@@ -319,12 +376,29 @@ drm_lease_client_new (WaylandDisplay *display)
       client_done = all_devices_done;
     }
 
+  g_hash_table_iter_init (&iter, client->devices);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &device))
+    {
+      event_queue_assert_event (client->event_queue, DEVICE_DRM_FD);
+      for (n = 0; n < g_hash_table_size (device->connectors); n++)
+        {
+          event_queue_assert_event (client->event_queue, DEVICE_CONNECTOR);
+          event_queue_assert_event (client->event_queue, CONNECTOR_NAME);
+          event_queue_assert_event (client->event_queue, CONNECTOR_DESCRIPTION);
+          event_queue_assert_event (client->event_queue, CONNECTOR_ID);
+          event_queue_assert_event (client->event_queue, CONNECTOR_DONE);
+        }
+      event_queue_assert_event (client->event_queue, DEVICE_DONE);
+    }
+  event_queue_assert_empty (client->event_queue);
+
   return client;
 }
 
 static void
 drm_lease_client_free (DrmLeaseClient *client)
 {
+  g_queue_free (client->event_queue);
   g_clear_pointer (&client->devices, g_hash_table_unref);
   g_clear_pointer (&client, g_free);
 }
