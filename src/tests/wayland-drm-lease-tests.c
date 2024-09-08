@@ -44,10 +44,27 @@ test_drm_lease_client_connection (void)
 }
 
 static void
+test_drm_lease_release_device (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client = meta_wayland_test_client_new_with_args (test_context,
+                                                                "drm-lease",
+                                                                "release-device",
+                                                                NULL);
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "WL: error in client communication*");
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/drm-lease/client-connection",
                    test_drm_lease_client_connection);
+  g_test_add_func ("/wayland/drm-lease/release-device",
+                   test_drm_lease_release_device);
 }
 
 static void

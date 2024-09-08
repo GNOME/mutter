@@ -242,6 +242,37 @@ drm_lease_device_lookup (DrmLeaseClient                *client,
 }
 
 static void
+drm_lease_device_get_at_index (guint                           index,
+                               DrmLeaseClient                 *client,
+                               struct wp_drm_lease_device_v1 **out_drm_lease_device,
+                               DrmLeaseDevice                **out_device)
+{
+  gpointer key, value;
+  GHashTableIter iter;
+  guint n = 0;
+
+  g_hash_table_iter_init (&iter, client->devices);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      if (n != index)
+        {
+          n++;
+          continue;
+        }
+
+      if (out_drm_lease_device)
+        *out_drm_lease_device = key;
+
+      if (out_device)
+        *out_device = value;
+
+      return;
+    }
+
+  g_assert_not_reached ();
+}
+
+static void
 handle_device_drm_fd (void                          *user_data,
                       struct wp_drm_lease_device_v1 *drm_lease_device,
                       int32_t                        drm_lease_device_fd)
@@ -414,6 +445,46 @@ test_drm_lease_client_connection (WaylandDisplay *display)
   return EXIT_SUCCESS;
 }
 
+static int
+test_drm_lease_release_device (WaylandDisplay *display)
+{
+  DrmLeaseClient *client1;
+  DrmLeaseClient *client2;
+  struct wp_drm_lease_device_v1 *drm_lease_device;
+
+  client1 = drm_lease_client_new (display);
+  client2 = drm_lease_client_new (display);
+
+  /* Release the first client's device */
+  drm_lease_device_get_at_index (0, client1, &drm_lease_device, NULL);
+  wp_drm_lease_device_v1_release (drm_lease_device);
+  g_assert_cmpint (wl_display_roundtrip (display->display), !=, -1);
+
+  event_queue_assert_event (client1->event_queue, DEVICE_RELEASED);
+  event_queue_assert_empty (client1->event_queue);
+  event_queue_assert_empty (client2->event_queue);
+
+  /* Release the second client's device */
+  drm_lease_device_get_at_index (0, client2, &drm_lease_device, NULL);
+  wp_drm_lease_device_v1_release (drm_lease_device);
+  g_assert_cmpint (wl_display_roundtrip (display->display), !=, -1);
+
+  event_queue_assert_event (client2->event_queue, DEVICE_RELEASED);
+  event_queue_assert_empty (client2->event_queue);
+  event_queue_assert_empty (client1->event_queue);
+
+  /* Check that a client error is raised if a released device is used */
+  g_assert_cmpint (wl_display_get_error (display->display), ==, 0);
+  wp_drm_lease_device_v1_release (drm_lease_device);
+  g_assert_cmpint (wl_display_roundtrip (display->display), ==, -1);
+  g_assert_cmpint (wl_display_get_error (display->display), !=, 0);
+
+  drm_lease_client_free (client1);
+  drm_lease_client_free (client2);
+
+  return EXIT_SUCCESS;
+}
+
 int
 main (int    argc,
       char **argv)
@@ -429,6 +500,8 @@ main (int    argc,
 
   if (g_strcmp0 (test_case, "client-connection") == 0)
     return test_drm_lease_client_connection (display);
+  else if (g_strcmp0 (test_case, "release-device") == 0)
+    return test_drm_lease_release_device (display);
 
   return EXIT_FAILURE;
 }
