@@ -62,8 +62,9 @@ wayland_test_client_finished (GObject      *source_object,
 }
 
 MetaWaylandTestClient *
-meta_wayland_test_client_new (MetaContext *context,
-                              const char  *test_client_name)
+meta_wayland_test_client_new_with_args (MetaContext *context,
+                                        const char  *test_client_name,
+                                        ...)
 {
   MetaWaylandCompositor *compositor;
   const char *wayland_display_name;
@@ -72,12 +73,15 @@ meta_wayland_test_client_new (MetaContext *context,
   GSubprocess *subprocess;
   GError *error = NULL;
   MetaWaylandTestClient *wayland_test_client;
+  g_autoptr (GPtrArray) args = NULL;
+  const gchar *arg;
+  va_list ap;
 
   compositor = meta_context_get_wayland_compositor (context);
   wayland_display_name = meta_wayland_get_wayland_display_name (compositor);
   test_client_path = get_test_client_path (test_client_name);
 
-  launcher =  g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
   g_subprocess_launcher_setenv (launcher,
                                 "WAYLAND_DISPLAY", wayland_display_name,
                                 TRUE);
@@ -85,10 +89,19 @@ meta_wayland_test_client_new (MetaContext *context,
                                 "G_MESSAGES_DEBUG", "all",
                                 TRUE);
 
-  subprocess = g_subprocess_launcher_spawn (launcher,
-                                            &error,
-                                            test_client_path,
-                                            NULL);
+  va_start (ap, test_client_name);
+  args = g_ptr_array_new ();
+  g_ptr_array_add (args, (char *) test_client_path);
+
+  while ((arg = va_arg (ap, const gchar *)))
+    g_ptr_array_add (args, (gchar *) arg);
+
+  g_ptr_array_add (args, NULL);
+  va_end (ap);
+
+  subprocess = g_subprocess_launcher_spawnv (launcher,
+                                             (const gchar * const *) args->pdata,
+                                             &error);
   if (!subprocess)
     {
       g_error ("Failed to launch Wayland test client '%s': %s",
@@ -104,6 +117,15 @@ meta_wayland_test_client_new (MetaContext *context,
                            wayland_test_client);
 
   return wayland_test_client;
+}
+
+MetaWaylandTestClient *
+meta_wayland_test_client_new (MetaContext *context,
+                              const char  *test_client_name)
+{
+  return meta_wayland_test_client_new_with_args (context,
+                                                 test_client_name,
+                                                 NULL);
 }
 
 static void

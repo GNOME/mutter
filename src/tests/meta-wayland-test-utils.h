@@ -24,6 +24,10 @@ typedef struct _MetaWaylandTestClient MetaWaylandTestClient;
 MetaWaylandTestClient * meta_wayland_test_client_new (MetaContext *context,
                                                       const char  *test_client_name);
 
+MetaWaylandTestClient * meta_wayland_test_client_new_with_args (MetaContext *context,
+                                                                const char  *test_client_name,
+                                                                ...) G_GNUC_NULL_TERMINATED;
+
 void meta_wayland_test_client_finish (MetaWaylandTestClient *wayland_test_client);
 
 MetaWindow * meta_find_client_window (MetaContext *context,
