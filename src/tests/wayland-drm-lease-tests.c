@@ -59,12 +59,26 @@ test_drm_lease_release_device (void)
 }
 
 static void
+test_drm_lease_lease_request (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client = meta_wayland_test_client_new_with_args (test_context,
+                                                                "drm-lease",
+                                                                "lease-request",
+                                                                NULL);
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/drm-lease/client-connection",
                    test_drm_lease_client_connection);
   g_test_add_func ("/wayland/drm-lease/release-device",
                    test_drm_lease_release_device);
+  g_test_add_func ("/wayland/drm-lease/lease-request",
+                   test_drm_lease_lease_request);
 }
 
 static void

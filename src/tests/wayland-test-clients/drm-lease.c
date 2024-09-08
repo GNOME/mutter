@@ -36,6 +36,8 @@ typedef enum
   CONNECTOR_ID,
   CONNECTOR_DONE,
   CONNECTOR_WITHDRAWN,
+  LEASE_FD,
+  LEASE_FINISHED,
 } DrmLeaseEventType;
 
 typedef struct _DrmLeaseClient
@@ -76,6 +78,17 @@ typedef struct _DrmLeaseConnector
   gboolean done;
 } DrmLeaseConnector;
 
+typedef struct _DrmLeaseLease
+{
+  DrmLeaseClient *client;
+
+  struct wp_drm_lease_v1 *lease;
+  struct wp_drm_lease_request_v1 *request;
+  int32_t fd;
+
+  gboolean done;
+} DrmLeaseLease;
+
 static void
 event_queue_add (GQueue           *event_queue,
                  DrmLeaseEventType event_type)
@@ -96,6 +109,35 @@ event_queue_assert_empty (GQueue *event_queue)
 {
   g_assert_cmpint (g_queue_get_length (event_queue), ==, 0);
 }
+
+static void
+handle_lease_fd (void                   *user_data,
+                 struct wp_drm_lease_v1 *drm_lease,
+                 int32_t                 lease_fd)
+{
+  DrmLeaseLease *lease = user_data;
+
+  event_queue_add (lease->client->event_queue, LEASE_FD);
+
+  lease->fd = lease_fd;
+  lease->done = TRUE;
+}
+
+static void
+handle_finished (void                   *user_data,
+                 struct wp_drm_lease_v1 *drm_lease)
+{
+  DrmLeaseLease *lease = user_data;
+
+  event_queue_add (lease->client->event_queue, LEASE_FINISHED);
+
+  lease->done = TRUE;
+}
+
+static const struct wp_drm_lease_v1_listener lease_listener = {
+  .lease_fd = handle_lease_fd,
+  .finished = handle_finished,
+};
 
 static DrmLeaseConnector *
 drm_lease_connector_new (DrmLeaseDevice *device)
@@ -126,6 +168,37 @@ drm_lease_connector_lookup (DrmLeaseDevice                   *device,
   g_assert_nonnull (connector);
 
   return connector;
+}
+
+static void
+drm_lease_connector_get_at_index (guint                              index,
+                                  DrmLeaseDevice                    *device,
+                                  struct wp_drm_lease_connector_v1 **out_drm_lease_connector,
+                                  DrmLeaseConnector                **out_connector)
+{
+  gpointer key, value;
+  GHashTableIter iter;
+  guint n = 0;
+
+  g_hash_table_iter_init (&iter, device->connectors);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    {
+      if (n != index)
+        {
+          n++;
+          continue;
+        }
+
+      if (out_drm_lease_connector)
+        *out_drm_lease_connector = key;
+
+      if (out_connector)
+        *out_connector = value;
+
+      return;
+    }
+
+  g_assert_not_reached ();
 }
 
 static void
@@ -370,6 +443,71 @@ static const struct wl_registry_listener registry_listener = {
   handle_registry_global_remove
 };
 
+static DrmLeaseLease *
+drm_lease_lease_new (DrmLeaseClient *client,
+                     guint           device_index,
+                     guint          *connector_indices,
+                     int             num_connectors)
+{
+  DrmLeaseLease *lease;
+  DrmLeaseDevice *device;
+  struct wp_drm_lease_device_v1 *drm_lease_device;
+  int n;
+
+  lease = g_new0 (DrmLeaseLease, 1);
+  lease->client = client;
+  lease->fd = -1;
+
+  drm_lease_device_get_at_index (device_index,
+                                 client,
+                                 &drm_lease_device,
+                                 &device);
+
+  lease->request =
+    wp_drm_lease_device_v1_create_lease_request (drm_lease_device);
+
+  for (n = 0; n < num_connectors; n++)
+    {
+      struct wp_drm_lease_connector_v1 *drm_lease_connector;
+      guint connector_index = connector_indices[n];
+
+      drm_lease_connector_get_at_index (connector_index,
+                                        device,
+                                        &drm_lease_connector,
+                                        NULL);
+      wp_drm_lease_request_v1_request_connector (lease->request,
+                                                 drm_lease_connector);
+    }
+
+  return lease;
+}
+
+static void
+drm_lease_lease_submit (DrmLeaseLease *lease)
+{
+  lease->lease = wp_drm_lease_request_v1_submit (lease->request);
+
+  wp_drm_lease_v1_add_listener (lease->lease, &lease_listener, lease);
+
+  while (!lease->done)
+    {
+      if (wl_display_dispatch (lease->client->display->display) == -1)
+        return;
+    }
+}
+
+static void
+drm_lease_lease_destroy (DrmLeaseLease *lease)
+{
+  wp_drm_lease_v1_destroy (lease->lease);
+}
+
+static void
+drm_lease_lease_free (DrmLeaseLease *lease)
+{
+  g_clear_pointer (&lease, g_free);
+}
+
 static DrmLeaseClient *
 drm_lease_client_new (WaylandDisplay *display)
 {
@@ -485,6 +623,61 @@ test_drm_lease_release_device (WaylandDisplay *display)
   return EXIT_SUCCESS;
 }
 
+static int
+test_drm_lease_lease_request (WaylandDisplay *display)
+{
+  DrmLeaseClient *client1;
+  DrmLeaseClient *client2;
+  DrmLeaseLease *lease;
+  guint connectors[] = {0};
+  int num_connectors = G_N_ELEMENTS (connectors);
+
+  client1 = drm_lease_client_new (display);
+  client2 = drm_lease_client_new (display);
+
+  /* Create and submit a lease request */
+  lease = drm_lease_lease_new (client1, 0, connectors, num_connectors);
+  drm_lease_lease_submit (lease);
+
+  /* Check that the lease succeeded*/
+  event_queue_assert_event (client1->event_queue, CONNECTOR_WITHDRAWN);
+  event_queue_assert_event (client1->event_queue, DEVICE_DONE);
+  event_queue_assert_event (client1->event_queue, LEASE_FD);
+  event_queue_assert_empty (client1->event_queue);
+
+  /* Check that the other client receive the withdrawn event */
+  event_queue_assert_event (client2->event_queue, CONNECTOR_WITHDRAWN);
+  event_queue_assert_event (client2->event_queue, DEVICE_DONE);
+  event_queue_assert_empty (client2->event_queue);
+
+  /* Finish the lease and check that both clients have access to the leased
+     connector again */
+  drm_lease_lease_destroy (lease);
+  g_assert_cmpint (wl_display_roundtrip (display->display), !=, -1);
+
+  event_queue_assert_event (client1->event_queue, DEVICE_CONNECTOR);
+  event_queue_assert_event (client1->event_queue, CONNECTOR_NAME);
+  event_queue_assert_event (client1->event_queue, CONNECTOR_DESCRIPTION);
+  event_queue_assert_event (client1->event_queue, CONNECTOR_ID);
+  event_queue_assert_event (client1->event_queue, CONNECTOR_DONE);
+  event_queue_assert_event (client1->event_queue, DEVICE_DONE);
+  event_queue_assert_empty (client1->event_queue);
+
+  event_queue_assert_event (client2->event_queue, DEVICE_CONNECTOR);
+  event_queue_assert_event (client2->event_queue, CONNECTOR_NAME);
+  event_queue_assert_event (client2->event_queue, CONNECTOR_DESCRIPTION);
+  event_queue_assert_event (client2->event_queue, CONNECTOR_ID);
+  event_queue_assert_event (client2->event_queue, CONNECTOR_DONE);
+  event_queue_assert_event (client2->event_queue, DEVICE_DONE);
+  event_queue_assert_empty (client2->event_queue);
+
+  drm_lease_lease_free (lease);
+  drm_lease_client_free (client1);
+  drm_lease_client_free (client2);
+
+  return EXIT_SUCCESS;
+}
+
 int
 main (int    argc,
       char **argv)
@@ -502,6 +695,8 @@ main (int    argc,
     return test_drm_lease_client_connection (display);
   else if (g_strcmp0 (test_case, "release-device") == 0)
     return test_drm_lease_release_device (display);
+  else if (g_strcmp0 (test_case, "lease-request") == 0)
+    return test_drm_lease_lease_request (display);
 
   return EXIT_FAILURE;
 }
