@@ -114,7 +114,6 @@ meta_wayland_drm_lease_connector_free (MetaWaylandDrmLeaseConnector *lease_conne
 {
   g_object_unref (lease_connector->kms_connector);
   g_free (lease_connector->description);
-  meta_wayland_drm_lease_device_release (lease_connector->lease_device);
 }
 
 static void
@@ -400,7 +399,7 @@ meta_wayland_drm_lease_connector_new (MetaWaylandDrmLeaseDevice *lease_device,
   MetaWaylandDrmLeaseConnector *lease_connector;
 
   lease_connector = g_rc_box_new0 (MetaWaylandDrmLeaseConnector);
-  lease_connector->lease_device = g_rc_box_acquire (lease_device);
+  lease_connector->lease_device = lease_device;
   lease_connector->kms_connector = g_object_ref (kms_connector);
   lease_connector->description = get_connector_description (kms_connector);
 
