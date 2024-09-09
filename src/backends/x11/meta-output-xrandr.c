@@ -520,7 +520,8 @@ output_info_init_backlight_limits_xrandr (MetaOutputInfo     *output_info,
 
   if (!reply->range || reply->length != 2)
     {
-      meta_verbose ("backlight %s was not range", output_info->name);
+      meta_topic (META_DEBUG_BACKEND,
+                  "backlight %s was not range", output_info->name);
       return;
     }
 
