@@ -21,7 +21,7 @@
 
 struct _MetaOutputTest
 {
-  MetaOutput parent;
+  MetaOutputNative parent;
 
   gboolean override_scale;
   float scale;
