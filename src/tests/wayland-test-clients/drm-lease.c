@@ -678,6 +678,46 @@ test_drm_lease_lease_request (WaylandDisplay *display)
   return EXIT_SUCCESS;
 }
 
+static int
+test_drm_lease_lease_leased_connector (WaylandDisplay *display)
+{
+  DrmLeaseClient *client1;
+  DrmLeaseClient *client2;
+  DrmLeaseLease *lease1;
+  DrmLeaseLease *lease2;
+  guint connectors[] = {0};
+  int num_connectors = G_N_ELEMENTS (connectors);
+
+  /* Create and submit 2 leases with the same connector */
+  client1 = drm_lease_client_new (display);
+  client2 = drm_lease_client_new (display);
+
+  lease1 = drm_lease_lease_new (client1, 0, connectors, num_connectors);
+  lease2 = drm_lease_lease_new (client2, 0, connectors, num_connectors);
+
+  drm_lease_lease_submit (lease1);
+  drm_lease_lease_submit (lease2);
+
+  /* Check that the first one succeeded */
+  event_queue_assert_event (client1->event_queue, CONNECTOR_WITHDRAWN);
+  event_queue_assert_event (client1->event_queue, DEVICE_DONE);
+  event_queue_assert_event (client1->event_queue, LEASE_FD);
+  event_queue_assert_empty (client1->event_queue);
+
+  /* Check that the second one failed */
+  event_queue_assert_event (client2->event_queue, CONNECTOR_WITHDRAWN);
+  event_queue_assert_event (client2->event_queue, DEVICE_DONE);
+  event_queue_assert_event (client2->event_queue, LEASE_FINISHED);
+  event_queue_assert_empty (client2->event_queue);
+
+  drm_lease_lease_free (lease1);
+  drm_lease_lease_free (lease2);
+  drm_lease_client_free (client1);
+  drm_lease_client_free (client2);
+
+  return EXIT_SUCCESS;
+}
+
 int
 main (int    argc,
       char **argv)
@@ -697,6 +737,8 @@ main (int    argc,
     return test_drm_lease_release_device (display);
   else if (g_strcmp0 (test_case, "lease-request") == 0)
     return test_drm_lease_lease_request (display);
+  else if (g_strcmp0 (test_case, "lease-leased-connector") == 0)
+    return test_drm_lease_lease_leased_connector (display);
 
   return EXIT_FAILURE;
 }
