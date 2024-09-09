@@ -101,6 +101,21 @@ test_drm_lease_lease_duplicated_connector (void)
 }
 
 static void
+test_drm_lease_lease_no_connectors (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client = meta_wayland_test_client_new_with_args (test_context,
+                                                                "drm-lease",
+                                                                "lease-no-connectors",
+                                                                NULL);
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "WL: error in client communication*");
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/drm-lease/client-connection",
@@ -113,6 +128,8 @@ init_tests (void)
                    test_drm_lease_lease_leased_connector);
   g_test_add_func ("/wayland/drm-lease/lease-duplicated-connector",
                    test_drm_lease_lease_duplicated_connector);
+  g_test_add_func ("/wayland/drm-lease/lease-no-connectors",
+                   test_drm_lease_lease_no_connectors);
 }
 
 static void

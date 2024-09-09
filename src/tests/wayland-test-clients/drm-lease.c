@@ -743,6 +743,31 @@ test_drm_lease_lease_duplicated_connector (WaylandDisplay *display)
   return EXIT_SUCCESS;
 }
 
+static int
+test_drm_lease_lease_no_connectors (WaylandDisplay *display)
+{
+  DrmLeaseClient *client;
+  DrmLeaseLease *lease;
+
+  /* Create and submit lease without connectors */
+  client = drm_lease_client_new (display);
+  lease = drm_lease_lease_new (client, 0, NULL, 0);
+
+  drm_lease_lease_submit (lease);
+
+  /* Check that the correct error is returned */
+  g_assert_cmpint (wl_display_roundtrip (display->display), ==, -1);
+  g_assert_cmpint (wl_display_get_error (display->display), ==, EPROTO);
+  g_assert_cmpint (wl_display_get_protocol_error (display->display, NULL, NULL),
+                   ==,
+                   WP_DRM_LEASE_REQUEST_V1_ERROR_EMPTY_LEASE);
+
+  drm_lease_lease_free (lease);
+  drm_lease_client_free (client);
+
+  return EXIT_SUCCESS;
+}
+
 int
 main (int    argc,
       char **argv)
@@ -766,6 +791,8 @@ main (int    argc,
     return test_drm_lease_lease_leased_connector (display);
   else if (g_strcmp0 (test_case, "lease-duplicated-connector") == 0)
     return test_drm_lease_lease_duplicated_connector (display);
+  else if (g_strcmp0 (test_case, "lease-no-connectors") == 0)
+    return test_drm_lease_lease_no_connectors (display);
 
   return EXIT_FAILURE;
 }
