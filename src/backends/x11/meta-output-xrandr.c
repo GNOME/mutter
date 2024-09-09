@@ -41,8 +41,11 @@
 #include <xcb/randr.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-backlight-sysfs-private.h"
 #include "backends/meta-crtc.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
+#include "backends/x11/meta-backlight-x11.h"
 #include "meta/util.h"
 #include "mtk/mtk-x11.h"
 
@@ -471,65 +474,6 @@ output_get_supports_color_transform_xrandr (Display  *xdisplay,
           nitems == 18);
 }
 
-static int
-output_get_backlight_xrandr (MetaOutput *output)
-{
-  Display *xdisplay = xdisplay_from_output (output);
-  Atom atom, actual_type;
-  int actual_format;
-  unsigned long nitems, bytes_after;
-  g_autofree unsigned char *buffer = NULL;
-
-  atom = XInternAtom (xdisplay, "Backlight", False);
-  XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
-                        atom,
-                        0, G_MAXLONG, False, False, XA_INTEGER,
-                        &actual_type, &actual_format,
-                        &nitems, &bytes_after, &buffer);
-
-  if (actual_type != XA_INTEGER || actual_format != 32 || nitems < 1)
-    return -1;
-
-  return ((int *) buffer)[0];
-}
-
-static void
-output_info_init_backlight_limits_xrandr (MetaOutputInfo     *output_info,
-                                          Display            *xdisplay,
-                                          xcb_randr_output_t  output_id)
-{
-  Atom atom;
-  xcb_connection_t *xcb_conn;
-  xcb_randr_query_output_property_cookie_t cookie;
-  g_autofree xcb_randr_query_output_property_reply_t *reply = NULL;
-
-  atom = XInternAtom (xdisplay, "Backlight", False);
-
-  xcb_conn = XGetXCBConnection (xdisplay);
-  cookie = xcb_randr_query_output_property (xcb_conn,
-                                            output_id,
-                                            (xcb_atom_t) atom);
-  reply = xcb_randr_query_output_property_reply (xcb_conn,
-                                                 cookie,
-                                                 NULL);
-
-  /* This can happen on systems without backlights. */
-  if (reply == NULL)
-    return;
-
-  if (!reply->range || reply->length != 2)
-    {
-      meta_topic (META_DEBUG_BACKEND,
-                  "backlight %s was not range", output_info->name);
-      return;
-    }
-
-  int32_t *values = xcb_randr_query_output_property_valid_values (reply);
-  output_info->backlight_min = values[0];
-  output_info->backlight_max = values[1];
-}
-
 static guint8 *
 get_edid_property (Display  *xdisplay,
                    RROutput  output,
@@ -939,20 +883,55 @@ find_assigned_crtc (MetaGpu       *gpu,
   return NULL;
 }
 
-static void
-on_backlight_changed (MetaOutput *output)
+static MetaBacklight *
+meta_output_xrandr_create_backlight (MetaOutput  *output,
+                                     GError     **error)
 {
+  MetaMonitor *monitor = meta_output_get_monitor (output);
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
+  MetaBacklight *old_backlight = meta_monitor_get_backlight (monitor);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   Display *xdisplay = xdisplay_from_output (output);
-  int value = meta_output_get_backlight (output);
-  Atom atom;
+  XID output_id = meta_output_get_id (output);
+  g_autoptr (MetaBacklightSysfs) backlight_sysfs = NULL;
+  g_autoptr (MetaBacklightX11) backlight_x11 = NULL;
+  g_autoptr (GError) local_error = NULL;
 
-  atom = XInternAtom (xdisplay, "Backlight", False);
+#ifdef HAVE_LIBGUDEV
+  if (META_IS_BACKLIGHT_SYSFS (old_backlight))
+    return g_object_ref (old_backlight);
 
-  xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID) meta_output_get_id (output),
-                                    atom, XCB_ATOM_INTEGER, 32,
-                                    XCB_PROP_MODE_REPLACE,
-                                    1, &value);
+  backlight_sysfs = meta_backlight_sysfs_new (backend,
+                                              output_info,
+                                              &local_error);
+  if (backlight_sysfs)
+    return META_BACKLIGHT (g_steal_pointer (&backlight_sysfs));
+
+  if (!g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+    {
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return NULL;
+    }
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Trying X11 backlight on output %s, because sysfs based "
+              "backlight is not supported.", output_info->name);
+  g_clear_error (&local_error);
+#endif
+
+  if (META_IS_BACKLIGHT_X11 (old_backlight))
+    return g_object_ref (old_backlight);
+
+  backlight_x11 = meta_backlight_x11_new (backend,
+                                          xdisplay,
+                                          output_id,
+                                          output_info,
+                                          &local_error);
+  if (backlight_x11)
+    return META_BACKLIGHT (g_steal_pointer (&backlight_x11));
+
+  g_propagate_error (error, g_steal_pointer (&local_error));
+  return NULL;
 }
 
 MetaOutputXrandr *
@@ -1034,7 +1013,6 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
                                    &output_info->max_bpc_max);
   output_info->supports_color_transform =
     output_get_supports_color_transform_xrandr (xdisplay, output_id);
-  output_info_init_backlight_limits_xrandr (output_info, xdisplay, output_id);
 
   output = g_object_new (META_TYPE_OUTPUT_XRANDR,
                          "id", (uint64_t) output_id,
@@ -1062,13 +1040,6 @@ meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
       meta_output_unassign_crtc (output);
     }
 
-  if (!(output_info->backlight_min == 0 && output_info->backlight_max == 0))
-    {
-      meta_output_set_backlight (output, output_get_backlight_xrandr (output));
-      g_signal_connect (output, "backlight-changed",
-                        G_CALLBACK (on_backlight_changed), NULL);
-    }
-
   if (output_info->n_modes == 0 || output_info->n_possible_crtcs == 0)
     {
       g_object_unref (output);
@@ -1088,4 +1059,7 @@ meta_output_xrandr_init (MetaOutputXrandr *output_xrandr)
 static void
 meta_output_xrandr_class_init (MetaOutputXrandrClass *klass)
 {
+  MetaOutputClass *output_class = META_OUTPUT_CLASS (klass);
+
+  output_class->create_backlight = meta_output_xrandr_create_backlight;
 }

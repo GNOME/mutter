@@ -22,6 +22,7 @@
 
 #include "backends/edid.h"
 #include "backends/meta-backend-types.h"
+#include "backends/meta-backlight-private.h"
 #include "backends/meta-connector.h"
 #include "backends/meta-gpu.h"
 #include "core/util-private.h"
@@ -134,9 +135,6 @@ typedef struct _MetaOutputInfo
   MetaOutput **possible_clones;
   unsigned int n_possible_clones;
 
-  int backlight_min;
-  int backlight_max;
-
   gboolean supports_underscanning;
   gboolean supports_color_transform;
   gboolean supports_privacy_screen;
@@ -204,6 +202,9 @@ struct _MetaOutputClass
   GObjectClass parent_class;
 
   MetaPrivacyScreenState (* get_privacy_screen_state) (MetaOutput *output);
+
+  MetaBacklight * (* create_backlight) (MetaOutput  *output,
+                                        GError     **error);
 };
 
 META_EXPORT_TEST
@@ -236,11 +237,8 @@ gboolean meta_output_get_max_bpc (MetaOutput   *output,
                                   unsigned int *max_bpc);
 
 META_EXPORT_TEST
-void meta_output_set_backlight (MetaOutput *output,
-                                int         backlight);
-
-META_EXPORT_TEST
-int meta_output_get_backlight (MetaOutput *output);
+MetaBacklight * meta_output_create_backlight (MetaOutput  *output,
+                                              GError     **error);
 
 MetaPrivacyScreenState meta_output_get_privacy_screen_state (MetaOutput *output);
 

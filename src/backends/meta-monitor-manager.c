@@ -1406,9 +1406,21 @@ ensure_monitor_color_devices (MetaMonitorManager *manager)
 }
 
 static void
+ensure_monitor_backlights (MetaMonitorManager *manager)
+{
+  for (GList *l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+
+      meta_monitor_create_backlight (monitor);
+    }
+}
+
+static void
 meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
 {
   ensure_monitor_color_devices (manager);
+  ensure_monitor_backlights (manager);
 
   update_has_external_monitor (manager);
   update_backlight (manager, TRUE);
@@ -1802,24 +1814,55 @@ meta_monitor_manager_maybe_emit_privacy_screen_change (MetaMonitorManager *manag
 }
 
 static int
-normalize_backlight (MetaOutput *output,
-                     int         value)
+normalize_brightness (MetaBacklight *backlight,
+                      int            value)
 {
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
+  int brightness_min, brightness_max;
 
-  return (int) round ((double) (value - output_info->backlight_min) /
-                      (output_info->backlight_max - output_info->backlight_min) * 100.0);
+  meta_backlight_get_brightness_info (backlight,
+                                      &brightness_min, &brightness_max);
+
+  return (int) round ((double) (value - brightness_min) /
+                      (brightness_max - brightness_min) * 100.0);
 }
 
 static int
-denormalize_backlight (MetaOutput *output,
-                       int         normalized_value)
+denormalize_brightness (MetaBacklight *backlight,
+                        int            normalized_value)
 {
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
+  int brightness_min, brightness_max;
+
+  meta_backlight_get_brightness_info (backlight,
+                                      &brightness_min, &brightness_max);
 
   return (int) round (((double) normalized_value / 100.0 *
-                      (output_info->backlight_max - output_info->backlight_min)) +
-                      output_info->backlight_min);
+                       (brightness_max - brightness_min)) + brightness_min);
+}
+
+static int
+get_min_brightness_step (MetaBacklight *backlight)
+{
+  int brightness_min, brightness_max;
+
+  meta_backlight_get_brightness_info (backlight,
+                                      &brightness_min, &brightness_max);
+
+  if (brightness_max - brightness_min != 0)
+    return 100 / (brightness_max - brightness_min);
+
+  return -1;
+}
+
+static MetaBacklight *
+get_backlight_from_output (MetaOutput *output)
+{
+  MetaMonitor *monitor;
+
+  monitor = meta_output_get_monitor (output);
+  if (!monitor)
+    return NULL;
+
+  return meta_monitor_get_backlight (monitor);
 }
 
 static gboolean
@@ -1900,9 +1943,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       GBytes *edid;
       MetaCrtc *crtc;
       int crtc_index;
-      int backlight;
-      int normalized_backlight;
-      int min_backlight_step;
+      MetaBacklight *backlight;
       gboolean is_primary;
       gboolean is_presentation;
       const char * connector_type_name;
@@ -1942,12 +1983,6 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
           g_variant_builder_add (&clones, "u", possible_clone_index);
         }
 
-      backlight = meta_output_get_backlight (output);
-      normalized_backlight = normalize_backlight (output, backlight);
-      min_backlight_step =
-        output_info->backlight_max - output_info->backlight_min
-        ? 100 / (output_info->backlight_max - output_info->backlight_min)
-        : -1;
       is_primary = meta_output_is_primary (output);
       is_presentation = meta_output_is_presentation (output);
       is_underscanning = meta_output_is_underscanning (output);
@@ -1972,10 +2007,6 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
                              g_variant_new_int32 (output_info->height_mm));
       g_variant_builder_add (&properties, "{sv}", "display-name",
                              g_variant_new_string (output_info->name));
-      g_variant_builder_add (&properties, "{sv}", "backlight",
-                             g_variant_new_int32 (normalized_backlight));
-      g_variant_builder_add (&properties, "{sv}", "min-backlight-step",
-                             g_variant_new_int32 (min_backlight_step));
       g_variant_builder_add (&properties, "{sv}", "primary",
                              g_variant_new_boolean (is_primary));
       g_variant_builder_add (&properties, "{sv}", "presentation",
@@ -1988,6 +2019,22 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
                              g_variant_new_boolean (supports_underscanning));
       g_variant_builder_add (&properties, "{sv}", "supports-color-transform",
                              g_variant_new_boolean (supports_color_transform));
+
+
+      backlight = get_backlight_from_output (output);
+      if (backlight)
+        {
+          int brightness, normalized_brightness, min_brightness_step;
+
+          brightness = meta_backlight_get_brightness (backlight);
+          normalized_brightness = normalize_brightness (backlight, brightness);
+          min_brightness_step = get_min_brightness_step (backlight);
+
+          g_variant_builder_add (&properties, "{sv}", "backlight",
+                                 g_variant_new_int32 (normalized_brightness));
+          g_variant_builder_add (&properties, "{sv}", "min-backlight-step",
+                                 g_variant_new_int32 (min_brightness_step));
+        }
 
       edid = manager_class->read_edid (manager, output);
       if (edid)
@@ -3176,7 +3223,7 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
 {
   GList *combined_outputs;
   MetaOutput *output;
-  const MetaOutputInfo *output_info;
+  MetaBacklight *backlight;
   int value;
   int renormalized_value;
 
@@ -3209,10 +3256,8 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  output_info = meta_output_get_info (output);
-  if (meta_output_get_backlight (output) == -1 ||
-      (output_info->backlight_min == 0 &&
-       output_info->backlight_max == 0))
+  backlight = get_backlight_from_output (output);
+  if (!backlight)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_INVALID_ARGS,
@@ -3220,9 +3265,9 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  value = denormalize_backlight (output, normalized_value);
-  meta_output_set_backlight (output, value);
-  renormalized_value = normalize_backlight (output, value);
+  value = denormalize_brightness (backlight, normalized_value);
+  meta_backlight_set_brightness (backlight, value);
+  renormalized_value = normalize_brightness (backlight, value);
 
   G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   meta_dbus_display_config_complete_change_backlight (skeleton,
@@ -3247,6 +3292,7 @@ meta_monitor_manager_handle_set_backlight (MetaDBusDisplayConfig *skeleton,
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (monitor_manager);
   MetaMonitor *monitor;
+  MetaBacklight *backlight;
   int backlight_min;
   int backlight_max;
 
@@ -3267,16 +3313,16 @@ meta_monitor_manager_handle_set_backlight (MetaDBusDisplayConfig *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  if (!meta_monitor_get_backlight_info (monitor,
-                                        &backlight_min,
-                                        &backlight_max))
+  backlight = meta_monitor_get_backlight (monitor);
+  if (!backlight)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_INVALID_ARGS,
-                                             "Monitor doesn't support changing backlight");
+                                             "Monitor doesn't support changing the backlight");
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
+  meta_backlight_get_brightness_info (backlight, &backlight_min, &backlight_max);
   if (value < backlight_min || value > backlight_max)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
@@ -3285,7 +3331,7 @@ meta_monitor_manager_handle_set_backlight (MetaDBusDisplayConfig *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  meta_monitor_set_backlight (monitor, value);
+  meta_backlight_set_brightness (backlight, value);
 
   meta_dbus_display_config_complete_set_backlight (skeleton, invocation);
 
@@ -4107,7 +4153,7 @@ update_backlight (MetaMonitorManager *manager,
     meta_monitor_manager_get_instance_private (manager);
   GList *l;
   GVariantBuilder backlight_builder;
-  g_autoptr (GVariant) backlight = NULL;
+  g_autoptr (GVariant) backlight_variant = NULL;
 
   if (bump_serial)
     priv->backlight_serial++;
@@ -4120,45 +4166,44 @@ update_backlight (MetaMonitorManager *manager,
   for (l = manager->monitors; l; l = l->next)
     {
       MetaMonitor *monitor = META_MONITOR (l->data);
+      MetaBacklight *backlight;
       const char *connector;
       gboolean active;
+      int min, max;
       int value;
 
-      if (!meta_monitor_is_builtin (monitor))
+      backlight = meta_monitor_get_backlight (monitor);
+      if (!backlight)
         continue;
+
+      connector = meta_monitor_get_connector (monitor);
+      active = meta_monitor_is_active (monitor);
+      meta_backlight_get_brightness_info (backlight, &min, &max);
+      value = meta_backlight_get_brightness (backlight);
 
       g_variant_builder_open (&backlight_builder,
                               G_VARIANT_TYPE_VARDICT);
 
-      connector = meta_monitor_get_connector (monitor);
-      active = meta_monitor_is_active (monitor);
       g_variant_builder_add (&backlight_builder, "{sv}",
                              "connector", g_variant_new_string (connector));
       g_variant_builder_add (&backlight_builder, "{sv}",
                              "active", g_variant_new_boolean (active));
-
-      if (meta_monitor_get_backlight (monitor, &value))
-        {
-          int min, max;
-
-          meta_monitor_get_backlight_info (monitor, &min, &max);
-          g_variant_builder_add (&backlight_builder, "{sv}",
-                                 "min", g_variant_new_int32 (min));
-          g_variant_builder_add (&backlight_builder, "{sv}",
-                                 "max", g_variant_new_int32 (max));
-          g_variant_builder_add (&backlight_builder, "{sv}",
-                                 "value", g_variant_new_int32 (value));
-        }
+      g_variant_builder_add (&backlight_builder, "{sv}",
+                             "min", g_variant_new_int32 (min));
+      g_variant_builder_add (&backlight_builder, "{sv}",
+                             "max", g_variant_new_int32 (max));
+      g_variant_builder_add (&backlight_builder, "{sv}",
+                             "value", g_variant_new_int32 (value));
 
       g_variant_builder_close (&backlight_builder);
     }
 
   g_variant_builder_close (&backlight_builder);
 
-  backlight = g_variant_builder_end (&backlight_builder);
+  backlight_variant = g_variant_builder_end (&backlight_builder);
 
   meta_dbus_display_config_set_backlight (manager->display_config,
-                                          g_steal_pointer (&backlight));
+                                          g_steal_pointer (&backlight_variant));
 }
 
 static void
@@ -4275,6 +4320,8 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
 
   meta_monitor_manager_update_monitor_modes (manager, config);
 
+  ensure_privacy_screen_settings (manager);
+
   if (manager->in_init)
     return;
 
@@ -4282,8 +4329,6 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
 
   meta_monitor_manager_update_logical_state (manager, config);
   meta_monitor_manager_update_for_lease_state (manager, config);
-
-  ensure_privacy_screen_settings (manager);
 
   meta_monitor_manager_notify_monitors_changed (manager);
 

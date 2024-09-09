@@ -49,3 +49,6 @@ gboolean meta_monitor_is_builtin (MetaMonitor *monitor);
 
 META_EXPORT
 gboolean meta_monitor_is_virtual (MetaMonitor *monitor);
+
+META_EXPORT
+MetaBacklight * meta_monitor_get_backlight (MetaMonitor *monitor);

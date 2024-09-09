@@ -26,15 +26,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "backends/meta-backlight-sysfs-private.h"
+#include "backends/meta-backlight-ref-white-private.h"
+#include "backends/meta-color-device.h"
+#include "backends/meta-color-manager.h"
 #include "backends/meta-crtc.h"
+#include "backends/meta-monitor-private.h"
+#include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-utils.h"
-#include "backends/native/meta-crtc-kms.h"
-#include "backends/native/meta-crtc-mode-kms.h"
 
 #define SYNC_TOLERANCE_HZ 0.001f
 
@@ -371,6 +376,63 @@ meta_kms_connector_type_from_drm (uint32_t drm_connector_type)
   return (MetaConnectorType) drm_connector_type;
 }
 
+static MetaBacklight *
+meta_output_kms_create_backlight (MetaOutput  *output,
+                                  GError     **error)
+{
+  MetaMonitor *monitor = meta_output_get_monitor (output);
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
+  MetaColorManager *color_manager = meta_backend_get_color_manager (backend);
+  MetaColorDevice *color_device =
+    meta_color_manager_get_color_device (color_manager, monitor);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+  MetaColorMode color_mode = meta_output_get_color_mode (output);
+  MetaBacklight *old_backlight = meta_monitor_get_backlight (monitor);
+  float orig_ref_white;
+  g_autoptr (MetaBacklightSysfs) backlight_sysfs = NULL;
+  g_autoptr (GError) local_error = NULL;
+
+  if (META_IS_BACKLIGHT_REF_WHITE (old_backlight))
+    {
+      orig_ref_white = meta_backlight_ref_white_get_original_ref_white (
+        META_BACKLIGHT_REF_WHITE (old_backlight));
+    }
+  else
+    {
+      orig_ref_white =
+        meta_color_device_get_reference_luminance_factor (color_device);
+    }
+
+  backlight_sysfs = meta_backlight_sysfs_new (backend,
+                                              output_info,
+                                              &local_error);
+  if (!backlight_sysfs &&
+      g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED) &&
+      color_mode == META_COLOR_MODE_BT2100)
+    {
+
+      meta_topic (META_DEBUG_BACKEND,
+                  "Creating reference-white software backlight control for %s, "
+                  "because sysfs based backlight is not supported and HDR is active.",
+                  output_info->name);
+
+      return META_BACKLIGHT (meta_backlight_ref_white_new (backend,
+                                                           monitor,
+                                                           orig_ref_white));
+    }
+
+  meta_color_device_set_reference_luminance_factor (color_device,
+                                                    orig_ref_white);
+
+  if (!backlight_sysfs)
+    {
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return NULL;
+    }
+
+  return META_BACKLIGHT (g_steal_pointer (&backlight_sysfs));
+}
+
 MetaOutputKms *
 meta_output_kms_new (MetaGpuKms        *gpu_kms,
                      MetaKmsConnector  *kms_connector,
@@ -578,6 +640,7 @@ meta_output_kms_class_init (MetaOutputKmsClass *klass)
 
   output_class->get_privacy_screen_state =
     meta_output_kms_get_privacy_screen_state;
+  output_class->create_backlight = meta_output_kms_create_backlight;
 
   output_native_class->read_edid = meta_output_kms_read_edid;
 

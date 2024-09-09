@@ -37,15 +37,6 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-enum
-{
-  BACKLIGHT_CHANGED,
-
-  N_SIGNALS
-};
-
-static guint signals[N_SIGNALS];
-
 typedef struct _MetaOutputPrivate
 {
   uint64_t id;
@@ -66,8 +57,6 @@ typedef struct _MetaOutputPrivate
 
   gboolean has_max_bpc;
   unsigned int max_bpc;
-
-  int backlight;
 
   MetaPrivacyScreenState privacy_screen_state;
   gboolean is_privacy_screen_enabled;
@@ -209,26 +198,20 @@ meta_output_get_max_bpc (MetaOutput   *output,
   return priv->has_max_bpc;
 }
 
-void
-meta_output_set_backlight (MetaOutput *output,
-                           int         backlight)
+MetaBacklight *
+meta_output_create_backlight (MetaOutput  *output,
+                              GError     **error)
 {
-  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+  MetaOutputClass *output_class = META_OUTPUT_GET_CLASS (output);
 
-  g_return_if_fail (backlight >= priv->info->backlight_min);
-  g_return_if_fail (backlight <= priv->info->backlight_max);
+  if (!output_class->create_backlight)
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                           "Output does not support creating a backlight");
+      return NULL;
+    }
 
-  priv->backlight = backlight;
-
-  g_signal_emit (output, signals[BACKLIGHT_CHANGED], 0);
-}
-
-int
-meta_output_get_backlight (MetaOutput *output)
-{
-  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
-
-  return priv->backlight;
+  return output_class->create_backlight (output, error);
 }
 
 void
@@ -619,7 +602,6 @@ meta_output_init (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  priv->backlight = -1;
   priv->is_primary = FALSE;
   priv->is_presentation = FALSE;
   priv->is_underscanning = FALSE;
@@ -662,14 +644,6 @@ meta_output_class_init (MetaOutputClass *klass)
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
-
-  signals[BACKLIGHT_CHANGED] =
-    g_signal_new ("backlight-changed",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
 }
 
 gboolean

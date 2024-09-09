@@ -38,5 +38,6 @@ void meta_backlight_get_brightness_info (MetaBacklight *backlight,
 META_EXPORT_TEST
 int meta_backlight_get_brightness (MetaBacklight *backlight);
 
+META_EXPORT_TEST
 void meta_backlight_set_brightness (MetaBacklight *backlight,
                                     int            brightness);

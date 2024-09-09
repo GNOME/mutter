@@ -320,17 +320,7 @@ gboolean meta_parse_monitor_mode (const char *string,
                                   float      *out_refresh_rate,
                                   float       fallback_refresh_rate);
 
-META_EXPORT_TEST
-gboolean meta_monitor_get_backlight_info (MetaMonitor *monitor,
-                                          int         *backlight_min,
-                                          int         *backlight_max);
-
-void meta_monitor_set_backlight (MetaMonitor *monitor,
-                                 int          value);
-
-META_EXPORT_TEST
-gboolean meta_monitor_get_backlight (MetaMonitor *monitor,
-                                     int         *value);
+void meta_monitor_create_backlight (MetaMonitor *monitor);
 
 void meta_monitor_set_for_lease (MetaMonitor *monitor,
                                  gboolean     for_lease);

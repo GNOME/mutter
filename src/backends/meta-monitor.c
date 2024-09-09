@@ -27,6 +27,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-settings-private.h"
 #include "backends/meta-output.h"
+#include "backends/meta-backlight-private.h"
 #include "core/boxes-private.h"
 
 #define SCALE_FACTORS_PER_INTEGER 4
@@ -81,6 +82,8 @@ typedef struct _MetaMonitorPrivate
   gboolean is_for_lease;
 
   GList *color_modes;
+
+  MetaBacklight *backlight;
 } MetaMonitorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitor, meta_monitor, G_TYPE_OBJECT)
@@ -682,6 +685,8 @@ meta_monitor_dispose (GObject *object)
       priv->outputs = NULL;
     }
 
+  g_clear_object (&priv->backlight);
+
   G_OBJECT_CLASS (meta_monitor_parent_class)->dispose (object);
 }
 
@@ -852,6 +857,40 @@ meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
                                   set_gamma_lut,
                                   (gpointer) lut,
                                   NULL);
+}
+
+void
+meta_monitor_create_backlight (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+  MetaOutput *main_output = meta_monitor_get_main_output (monitor);
+  g_autoptr (MetaBacklight) backlight = NULL;
+  g_autoptr (GError) error = NULL;
+
+  backlight = meta_output_create_backlight (main_output, &error);
+  if (!backlight)
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
+        {
+          meta_topic (META_DEBUG_BACKEND,
+                      "No backlight support for monitor %s",
+                      meta_monitor_get_display_name (monitor));
+        }
+      else
+        {
+          g_warning ("Failed creating backlight for %s: %s",
+                     meta_monitor_get_display_name (monitor),
+                     error->message);
+        }
+    }
+  else
+    {
+      meta_topic (META_DEBUG_BACKEND,
+                  "Created backlight for monitor %s",
+                  meta_monitor_get_display_name (monitor));
+    }
+
+  g_set_object (&priv->backlight, backlight);
 }
 
 static void
@@ -2702,62 +2741,25 @@ out:
   return TRUE;
 }
 
-gboolean
-meta_monitor_get_backlight_info (MetaMonitor *monitor,
-                                 int         *backlight_min,
-                                 int         *backlight_max)
+/**
+ * meta_monitor_get_backlight:
+ * @monitor: A #MetaMonitor object
+ *
+ * Returns the [class@Meta.Backlight] of the monitor, or NULL if it has no
+ * controllable backlight.
+ *
+ * Returns: (transfer none) (nullable): The [class@Meta.Backlight].
+ */
+MetaBacklight *
+meta_monitor_get_backlight (MetaMonitor *monitor)
 {
-  MetaOutput *main_output;
-  int value;
+  MetaMonitorPrivate *priv;
 
-  main_output = meta_monitor_get_main_output (monitor);
-  value = meta_output_get_backlight (main_output);
-  if (value >= 0)
-    {
-      const MetaOutputInfo *output_info = meta_output_get_info (main_output);
-      if (backlight_min)
-        *backlight_min = output_info->backlight_min;
-      if (backlight_max)
-        *backlight_max = output_info->backlight_max;
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
-}
+  g_return_val_if_fail (META_IS_MONITOR (monitor), NULL);
 
-void
-meta_monitor_set_backlight (MetaMonitor *monitor,
-                            int          value)
-{
-  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-  GList *l;
+  priv = meta_monitor_get_instance_private (monitor);
 
-  for (l = priv->outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-
-      meta_output_set_backlight (output, value);
-    }
-}
-
-gboolean
-meta_monitor_get_backlight (MetaMonitor *monitor,
-                            int         *value)
-{
-  if (meta_monitor_get_backlight_info (monitor, NULL, NULL))
-    {
-      MetaOutput *main_output;
-
-      main_output = meta_monitor_get_main_output (monitor);
-      *value = meta_output_get_backlight (main_output);
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
+  return priv->backlight;
 }
 
 void
