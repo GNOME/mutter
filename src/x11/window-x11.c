@@ -4300,9 +4300,9 @@ meta_window_x11_recalc_window_type (MetaWindow *window)
                                     priv->type_atom);
           mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-          meta_warning ("Unrecognized type atom [%s] set for %s ",
-                        atom_name ? atom_name : "unknown",
-                        window->desc);
+          g_warning ("Unrecognized type atom [%s] set for %s ",
+                     atom_name ? atom_name : "unknown",
+                     window->desc);
 
           if (atom_name)
             XFree (atom_name);

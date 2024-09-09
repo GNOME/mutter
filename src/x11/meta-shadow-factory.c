@@ -924,7 +924,7 @@ make_shadow (MetaShadow  *shadow,
 
   if (error)
     {
-      meta_warning ("Failed to allocate shadow texture: %s", error->message);
+      g_warning ("Failed to allocate shadow texture: %s", error->message);
       g_error_free (error);
     }
 

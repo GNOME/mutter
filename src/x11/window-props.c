@@ -242,8 +242,8 @@ complain_about_broken_client (MetaWindow    *window,
                               MetaPropValue *value,
                               gboolean       initial)
 {
-  meta_warning ("Broken client! Window %s changed client leader window or SM client ID",
-                window->desc);
+  g_warning ("Window %s changed client leader window or SM client ID",
+             window->desc);
 }
 
 static void

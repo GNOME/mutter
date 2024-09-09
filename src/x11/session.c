@@ -909,15 +909,15 @@ save_state (MetaContext *context)
   if (mkdir (mutter_dir, 0700) < 0 &&
       errno != EEXIST)
     {
-      meta_warning ("Could not create directory '%s': %s",
-                    mutter_dir, g_strerror (errno));
+      g_warning ("Could not create directory '%s': %s",
+                 mutter_dir, g_strerror (errno));
     }
 
   if (mkdir (session_dir, 0700) < 0 &&
       errno != EEXIST)
     {
-      meta_warning ("Could not create directory '%s': %s",
-                    session_dir, g_strerror (errno));
+      g_warning ("Could not create directory '%s': %s",
+                 session_dir, g_strerror (errno));
     }
 
   meta_topic (META_DEBUG_SM, "Saving session to '%s'", full_save_file ());
@@ -926,8 +926,8 @@ save_state (MetaContext *context)
 
   if (outfile == NULL)
     {
-      meta_warning ("Could not open session file '%s' for writing: %s",
-                    full_save_file (), g_strerror (errno));
+      g_warning ("Could not open session file '%s' for writing: %s",
+                 full_save_file (), g_strerror (errno));
       goto out;
     }
 
@@ -1072,13 +1072,13 @@ save_state (MetaContext *context)
       /* FIXME need a dialog for this */
       if (ferror (outfile))
         {
-          meta_warning ("Error writing session file '%s': %s",
+          g_warning ("Error writing session file '%s': %s",
                         full_save_file (), g_strerror (errno));
         }
       if (fclose (outfile))
         {
-          meta_warning ("Error closing session file '%s': %s",
-                        full_save_file (), g_strerror (errno));
+          g_warning ("Error closing session file '%s': %s",
+                     full_save_file (), g_strerror (errno));
         }
     }
 
@@ -1185,8 +1185,8 @@ load_state (const char *previous_save_file)
 
  error:
 
-  meta_warning ("Failed to parse saved session file: %s",
-                error->message);
+  g_warning ("Failed to parse saved session file: %s",
+             error->message);
   g_error_free (error);
 
   if (parse_data.info)

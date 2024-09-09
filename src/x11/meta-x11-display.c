@@ -366,9 +366,11 @@ meta_x11_display_dispose (GObject *object)
       mtk_x11_error_trap_push (x11_display->xdisplay);
       XSelectInput (x11_display->xdisplay, x11_display->xroot, 0);
       if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) != Success)
-        meta_warning ("Could not release screen %d on display \"%s\"",
-                      DefaultScreen (x11_display->xdisplay),
-                      x11_display->name);
+        {
+          g_warning ("Could not release screen %d on display \"%s\"",
+                     DefaultScreen (x11_display->xdisplay),
+                     x11_display->name);
+        }
 
       x11_display->xroot = None;
     }
@@ -647,7 +649,7 @@ init_x11_bell (MetaX11Display *x11_display)
                           NULL, NULL))
     {
       x11_display->xkb_base_event_type = -1;
-      meta_warning ("could not find XKB extension.");
+      g_warning ("Could not find XKB extension.");
     }
   else
     {
@@ -853,8 +855,10 @@ take_manager_selection (MetaX11Display *x11_display,
         }
       else
         {
-          meta_warning (_("Display “%s” already has a window manager; try using the --replace option to replace the current window manager."),
-                        x11_display->name);
+          g_warning (_("Display “%s” already has a window manager; "
+                       "try using the --replace option to replace "
+                       "the current window manager."),
+                     x11_display->name);
           return None;
         }
     }
@@ -868,7 +872,8 @@ take_manager_selection (MetaX11Display *x11_display,
 
   if (XGetSelectionOwner (x11_display->xdisplay, manager_atom) != new_owner)
     {
-      meta_warning ("Could not acquire selection: %s", XGetAtomName (x11_display->xdisplay, manager_atom));
+      g_warning ("Could not acquire selection: %s",
+                 XGetAtomName (x11_display->xdisplay, manager_atom));
       return None;
     }
 
@@ -1234,11 +1239,9 @@ open_x_display (MetaDisplay  *display,
 
   if (xdisplay == NULL)
     {
-      meta_warning (_("Failed to open X Window System display “%s”"),
-                    xdisplay_name);
-
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to open X11 display");
+                   _("Failed to open X Window System display “%s”"),
+                   xdisplay_name);
 
       return NULL;
     }
@@ -1469,11 +1472,9 @@ meta_x11_display_new (MetaDisplay  *display,
    */
   if (xroot == None)
     {
-      meta_warning (_("Screen %d on display “%s” is invalid"),
-                    number, XDisplayName (NULL));
-
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to open default X11 screen");
+                   _("Screen %d on display “%s” is invalid"),
+                   number, XDisplayName (NULL));
 
       XFlush (xdisplay);
       XCloseDisplay (xdisplay);
