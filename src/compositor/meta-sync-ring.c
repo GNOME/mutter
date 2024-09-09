@@ -139,7 +139,8 @@ load_gl_symbol (CoglContext *ctx,
   *func = cogl_renderer_get_proc_address (ctx->display->renderer, name);
   if (!*func)
     {
-      meta_verbose ("MetaSyncRing: failed to resolve required GL symbol \"%s\"", name);
+      meta_topic (META_DEBUG_RENDER,
+                  "MetaSyncRing: failed to resolve required GL symbol \"%s\"", name);
       return FALSE;
     }
   return TRUE;
@@ -205,7 +206,8 @@ load_required_symbols (CoglContext *ctx)
 
   if (!check_gl_extensions (ctx))
     {
-      meta_verbose ("MetaSyncRing: couldn't find required GL extensions");
+      meta_topic (META_DEBUG_RENDER,
+                  "MetaSyncRing: couldn't find required GL extensions");
       goto out;
     }
 

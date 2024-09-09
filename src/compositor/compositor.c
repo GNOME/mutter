@@ -753,8 +753,9 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
           stack_actor = meta_window_actor_from_window (stack_window);
           if (!stack_actor)
             {
-              meta_verbose ("Failed to find corresponding MetaWindowActor "
-                            "for window %s", meta_window_get_description (stack_window));
+              meta_topic (META_DEBUG_RENDER,
+                          "Failed to find corresponding MetaWindowActor "
+                          "for window %s", meta_window_get_description (stack_window));
               stack = g_list_delete_link (stack, stack);
             }
           else
