@@ -203,13 +203,15 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
     {
     case EVENTS_UNFREEZE_SYNC:
       event_mode = XISyncDevice;
-      meta_verbose ("Syncing events time %u device %i",
-                    (unsigned int) time_ms, device_id);
+      meta_topic (META_DEBUG_X11,
+                  "Syncing events time %u device %i",
+                  (unsigned int) time_ms, device_id);
       break;
     case EVENTS_UNFREEZE_REPLAY:
       event_mode = XIReplayDevice;
-      meta_verbose ("Replaying events time %u device %i",
-                    (unsigned int) time_ms, device_id);
+      meta_topic (META_DEBUG_X11,
+                  "Replaying events time %u device %i",
+                  (unsigned int) time_ms, device_id);
       break;
     default:
       g_assert_not_reached ();
