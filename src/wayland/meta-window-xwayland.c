@@ -131,8 +131,10 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
 
   if (n_items % 4)
     {
-      meta_verbose ("_XWAYLAND_RANDR_EMU_MONITOR_RECTS on %s has %d values which is not a multiple of 4",
-                    window->desc, n_items);
+      meta_topic (META_DEBUG_WAYLAND,
+                  "_XWAYLAND_RANDR_EMU_MONITOR_RECTS on %s has %d "
+                  "values which is not a multiple of 4",
+                  window->desc, n_items);
       g_free (list);
       return;
     }

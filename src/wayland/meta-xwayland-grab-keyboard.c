@@ -240,7 +240,8 @@ meta_xwayland_keyboard_grab_activate (MetaXwaylandKeyboardActiveGrab *active_gra
 
   if (meta_xwayland_grab_is_granted (window))
     {
-      meta_verbose ("XWayland window %s has a grab granted", window->desc);
+      meta_topic (META_DEBUG_WAYLAND,
+                  "XWayland window %s has a grab granted", window->desc);
       meta_wayland_surface_inhibit_shortcuts (surface, seat);
 
       if (meta_xwayland_grab_should_lock_focus (window))
