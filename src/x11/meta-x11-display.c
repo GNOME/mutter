@@ -2587,7 +2587,8 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
               vertical_layout = TRUE;
               break;
             default:
-              meta_warning ("Someone set a weird orientation in _NET_DESKTOP_LAYOUT");
+              meta_topic (META_DEBUG_X11,
+                          "Someone set a weird orientation in _NET_DESKTOP_LAYOUT");
               break;
             }
 
@@ -2596,7 +2597,9 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
 
           if (rows <= 0 && cols <= 0)
             {
-              meta_warning ("Columns = %d rows = %d in _NET_DESKTOP_LAYOUT makes no sense", rows, cols);
+              meta_topic (META_DEBUG_X11,
+                          "Columns = %d rows = %d in _NET_DESKTOP_LAYOUT makes no sense",
+                          rows, cols);
             }
           else
             {
@@ -2628,15 +2631,17 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
                   starting_corner = META_DISPLAY_BOTTOMLEFT;
                   break;
                 default:
-                  meta_warning ("Someone set a weird starting corner in _NET_DESKTOP_LAYOUT");
+                  meta_topic (META_DEBUG_X11,
+                              "Someone set a weird starting corner in _NET_DESKTOP_LAYOUT");
                   break;
                 }
             }
         }
       else
         {
-          meta_warning ("Someone set _NET_DESKTOP_LAYOUT to %d integers instead of 4 "
-                        "(3 is accepted for backwards compat)", n_items);
+          meta_topic (META_DEBUG_X11,
+                      "Someone set _NET_DESKTOP_LAYOUT to %d integers instead of 4 "
+                      "(3 is accepted for backwards compat)", n_items);
         }
 
       g_free (list);

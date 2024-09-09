@@ -1083,7 +1083,7 @@ reload_update_counter (MetaWindow    *window,
 
       if (value->v.xcounter_list.n_counters == 0)
         {
-          meta_warning ("_NET_WM_SYNC_REQUEST_COUNTER is empty");
+          meta_topic (META_DEBUG_X11, "_NET_WM_SYNC_REQUEST_COUNTER is empty");
           meta_sync_counter_set_counter (sync_counter, None, FALSE);
           return;
         }
@@ -1464,8 +1464,9 @@ reload_transient_for (MetaWindow    *window,
                                                  transient_for);
       if (!parent)
         {
-          meta_warning ("Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.",
-                        transient_for, window->desc);
+          meta_topic (META_DEBUG_X11,
+                      "Invalid WM_TRANSIENT_FOR window 0x%lx specified for %s.",
+                      transient_for, window->desc);
           transient_for = None;
         }
       else if (parent->override_redirect)
@@ -1478,12 +1479,13 @@ reload_transient_for (MetaWindow    *window,
               /* We don't have to go through the parents, as per this code it is
                * not possible that a window has the WM_TRANSIENT_FOR set to an
                * override-redirect window anyways */
-              meta_warning ("WM_TRANSIENT_FOR window %s for %s window %s is an "
-                            "override-redirect window and this is not correct "
-                            "according to the standard, so we'll fallback to "
-                            "the first non-override-redirect window 0x%lx.",
-                            parent->desc, window->desc, window_kind,
-                            parent_xtransient_for);
+              meta_topic (META_DEBUG_X11,
+                          "WM_TRANSIENT_FOR window %s for %s window %s is an "
+                          "override-redirect window and this is not correct "
+                          "according to the standard, so we'll fallback to "
+                          "the first non-override-redirect window 0x%lx.",
+                          parent->desc, window->desc, window_kind,
+                          parent_xtransient_for);
               transient_for = parent_xtransient_for;
               parent =
                 meta_x11_display_lookup_x_window (parent->display->x11_display,
@@ -1491,11 +1493,12 @@ reload_transient_for (MetaWindow    *window,
             }
           else
             {
-              meta_warning ("WM_TRANSIENT_FOR window %s for %s window %s is an "
-                            "override-redirect window and this is not correct "
-                            "according to the standard, so we'll fallback to "
-                            "the root window.", parent->desc, window_kind,
-                            window->desc);
+              meta_topic (META_DEBUG_X11,
+                          "WM_TRANSIENT_FOR window %s for %s window %s is an "
+                          "override-redirect window and this is not correct "
+                          "according to the standard, so we'll fallback to "
+                          "the root window.",
+                          parent->desc, window_kind, window->desc);
               transient_for = parent->display->x11_display->xroot;
               parent = NULL;
             }
@@ -1504,8 +1507,9 @@ reload_transient_for (MetaWindow    *window,
       /* Make sure there is not a loop */
       if (check_xtransient_for_loop (window, parent))
         {
-          meta_warning ("WM_TRANSIENT_FOR window 0x%lx for %s would create a "
-                        "loop.", transient_for, window->desc);
+          meta_topic (META_DEBUG_X11,
+                      "WM_TRANSIENT_FOR window 0x%lx for %s would create a loop.",
+                      transient_for, window->desc);
           transient_for = None;
         }
     }

@@ -3015,13 +3015,10 @@ meta_window_move_resize_request (MetaWindow  *window,
               window->has_fullscreen_func &&
               !meta_window_is_fullscreen (window))
             {
-              /*
               meta_topic (META_DEBUG_GEOMETRY,
-              */
-              meta_warning (
-                           "Treating resize request of legacy application %s as a "
-                           "fullscreen request",
-                           window->desc);
+                          "Treating resize request of legacy application %s as a "
+                          "fullscreen request",
+                          window->desc);
               meta_window_make_fullscreen_internal (window);
             }
         }
@@ -3375,10 +3372,10 @@ meta_window_x11_client_message (MetaWindow *window,
 	timestamp = event->xclient.data.l[0];
       else
         {
-          meta_warning ("Receiving a NET_CLOSE_WINDOW message for %s without "
-                        "a timestamp!  This means some buggy (outdated) "
-                        "application is on the loose!",
-                        window->desc);
+          meta_topic (META_DEBUG_X11,
+                      "Receiving a NET_CLOSE_WINDOW message for %s without "
+                      "an expected timestamp.",
+                      window->desc);
           timestamp = meta_display_get_current_time (window->display);
         }
 
@@ -3805,9 +3802,10 @@ meta_window_x11_client_message (MetaWindow *window,
       if (timestamp == 0)
         {
           /* Client using older EWMH _NET_ACTIVE_WINDOW without a timestamp */
-          meta_warning ("Buggy client sent a _NET_ACTIVE_WINDOW message with a "
-                        "timestamp of 0 for %s",
-                        window->desc);
+          meta_topic (META_DEBUG_X11,
+                      "Client sent a _NET_ACTIVE_WINDOW message with an invalid"
+                      "timestamp of 0 for %s",
+                      window->desc);
           timestamp = meta_display_get_current_time (display);
         }
 
@@ -4399,7 +4397,10 @@ meta_window_x11_configure_notify (MetaWindow      *window,
     meta_display_queue_check_fullscreen (window->display);
 
   if (!event->override_redirect && !event->send_event)
-    meta_warning ("Unhandled change of windows override redirect status");
+    {
+      meta_topic (META_DEBUG_X11,
+                  "Unhandled change of windows override redirect status");
+    }
 
   meta_compositor_sync_window_geometry (window->display->compositor, window, FALSE);
 }
