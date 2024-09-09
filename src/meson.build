@@ -409,6 +409,8 @@ if have_x11
     'backends/x11/cm/meta-renderer-x11-cm.h',
     'backends/x11/meta-backend-x11.c',
     'backends/x11/meta-backend-x11.h',
+    'backends/x11/meta-backlight-x11.c',
+    'backends/x11/meta-backlight-x11.h',
     'backends/x11/meta-barrier-x11.c',
     'backends/x11/meta-barrier-x11.h',
     'backends/x11/meta-clutter-backend-x11.c',
