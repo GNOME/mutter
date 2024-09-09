@@ -1197,7 +1197,8 @@ meta_window_constructed (GObject *object)
     {
       /* WM_HINTS said minimized */
       window->minimized = TRUE;
-      meta_verbose ("Window %s asked to start out minimized", window->desc);
+      meta_topic (META_DEBUG_WINDOW_STATE,
+                  "Window %s asked to start out minimized", window->desc);
     }
 
   /* Apply any window attributes such as initial workspace
@@ -1437,7 +1438,7 @@ meta_window_unmanage (MetaWindow  *window,
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   GList *tmp;
 
-  meta_verbose ("Unmanaging %s", window->desc);
+  meta_topic (META_DEBUG_WINDOW_STATE, "Unmanaging %s", window->desc);
   window->unmanaging = TRUE;
 
   g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
@@ -1699,8 +1700,10 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
       workspace_of_window && workspace_of_window->showing_desktop &&
       !is_desktop_or_dock)
     {
-      meta_verbose ("We're showing the desktop on the workspace(s) that window %s is on",
-                    window->desc);
+      meta_topic (META_DEBUG_WINDOW_STATE,
+                  "We're showing the desktop on the workspace(s) that window "
+                  "%s is on",
+                  window->desc);
       showing = FALSE;
     }
 
@@ -2255,8 +2258,9 @@ implement_showing (MetaWindow *window,
                    gboolean    showing)
 {
   /* Actually show/hide the window */
-  meta_verbose ("Implement showing = %d for window %s",
-                showing, window->desc);
+  meta_topic (META_DEBUG_WINDOW_STATE,
+              "Implement showing = %d for window %s",
+              showing, window->desc);
 
   /* Some windows are not stackable until being showed, so add those now. */
   if (meta_window_is_stackable (window) && !meta_window_is_in_stack (window))
@@ -4997,8 +5001,9 @@ meta_window_change_workspace (MetaWindow    *window,
 static void
 window_stick_impl (MetaWindow  *window)
 {
-  meta_verbose ("Sticking window %s current on_all_workspaces = %d",
-                window->desc, window->on_all_workspaces);
+  meta_topic (META_DEBUG_WINDOW_STATE,
+              "Sticking window %s current on_all_workspaces = %d",
+              window->desc, window->on_all_workspaces);
 
   if (window->on_all_workspaces_requested)
     return;
