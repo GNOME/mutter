@@ -937,6 +937,8 @@ endif
 
 if have_libgudev
   mutter_sources += [
+    'backends/meta-backlight-sysfs.c',
+    'backends/meta-backlight-sysfs-private.h',
     'backends/meta-udev.c',
     'backends/meta-udev.h',
   ]
