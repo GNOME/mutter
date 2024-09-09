@@ -183,6 +183,8 @@ mutter_sources = [
   'backends/meta-a11y-manager.h',
   'backends/meta-backend.c',
   'backends/meta-backend-private.h',
+  'backends/meta-backlight.c',
+  'backends/meta-backlight-private.h',
   'backends/meta-barrier.c',
   'backends/meta-barrier-private.h',
   'backends/meta-color-device.c',
