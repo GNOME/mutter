@@ -55,6 +55,8 @@ GList * meta_udev_list_drm_devices (MetaUdev            *udev,
                                     MetaUdevDeviceType   device_type,
                                     GError             **error);
 
+GUdevDevice * meta_udev_find_builtin_backlight (MetaUdev *udev);
+
 void meta_udev_pause (MetaUdev *udev);
 
 void meta_udev_resume (MetaUdev *udev);
