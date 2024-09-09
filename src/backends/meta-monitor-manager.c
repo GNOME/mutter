@@ -1805,8 +1805,9 @@ denormalize_backlight (MetaOutput *output,
 {
   const MetaOutputInfo *output_info = meta_output_get_info (output);
 
-  return (int) round ((double) normalized_value / 100.0 *
-                      (output_info->backlight_max + output_info->backlight_min));
+  return (int) round (((double) normalized_value / 100.0 *
+                      (output_info->backlight_max - output_info->backlight_min)) +
+                      output_info->backlight_min);
 }
 
 static gboolean

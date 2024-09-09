@@ -44,8 +44,8 @@ static MonitorTestCaseSetup initial_test_case_setup = {
       .width_mm = 222,
       .height_mm = 125,
       .connector_type = META_CONNECTOR_TYPE_eDP,
-      .backlight_min = 0,
-      .backlight_max = 300,
+      .backlight_min = 10,
+      .backlight_max = 150,
     },
     {
       .crtc = 1,
@@ -104,18 +104,20 @@ meta_test_backlight_sanity (void)
   g_assert_true (meta_monitor_get_backlight_info (first_monitor,
                                                   &backlight_min,
                                                   &backlight_max));
-  g_assert_cmpint (backlight_min, ==, 0);
-  g_assert_cmpint (backlight_max, ==, 300);
+  g_assert_cmpint (backlight_min, ==, 10);
+  g_assert_cmpint (backlight_max, ==, 150);
   g_assert_true (meta_monitor_get_backlight (first_monitor, &backlight));
-  g_assert_cmpint (backlight, >=, 0);
+  g_assert_cmpint (backlight, >=, 10);
+  g_assert_cmpint (backlight, <=, 150);
   g_assert_cmpuint (g_list_length (meta_monitor_get_outputs (first_monitor)),
                     ==,
                     1);
   output = meta_monitor_get_main_output (first_monitor);
   output_info = meta_output_get_info (output);
-  g_assert_cmpint (meta_output_get_backlight (output), >=, 0);
-  g_assert_cmpint (output_info->backlight_min, ==, 0);
-  g_assert_cmpint (output_info->backlight_max, ==, 300);
+  g_assert_cmpint (meta_output_get_backlight (output), >=, 10);
+  g_assert_cmpint (meta_output_get_backlight (output), <=, 150);
+  g_assert_cmpint (output_info->backlight_min, ==, 10);
+  g_assert_cmpint (output_info->backlight_max, ==, 150);
 
   g_assert_false (meta_monitor_get_backlight_info (second_monitor,
                                                    NULL,

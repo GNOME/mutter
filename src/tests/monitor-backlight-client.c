@@ -96,7 +96,7 @@ test_legacy_backlight (MetaDBusDisplayConfig *proxy)
   meta_dbus_display_config_call_change_backlight_sync (proxy,
                                                        serial,
                                                        output_id,
-                                                       1,
+                                                       20,
                                                        NULL,
                                                        NULL, &error);
   G_GNUC_END_IGNORE_DEPRECATIONS
@@ -107,7 +107,8 @@ test_legacy_backlight (MetaDBusDisplayConfig *proxy)
                                  G_CALLBACK (backlight_changed_cb), &new_value);
   while (new_value == -1)
     g_main_context_iteration (NULL, TRUE);
-  g_assert_cmpint (new_value, ==, 3);
+  /* min + (max - min) * 20% = 10 + (150 - 10) * 0,2 = 38 */
+  g_assert_cmpint (new_value, ==, 38);
 
   g_signal_handler_disconnect (proxy, handler_id);
 }
@@ -139,8 +140,8 @@ test_set_backlight (MetaDBusDisplayConfig *proxy)
   g_variant_lookup (backlight_monitor, "max", "i", &max);
   g_variant_lookup (backlight_monitor, "value", "i", &value);
 
-  g_assert_cmpint (min, ==, 0);
-  g_assert_cmpint (max, ==, 300);
+  g_assert_cmpint (min, ==, 10);
+  g_assert_cmpint (max, ==, 150);
 
   handler_id = g_signal_connect (proxy, "notify::backlight",
                                  G_CALLBACK (backlight_changed_cb), &new_value);
