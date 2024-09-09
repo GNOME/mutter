@@ -536,6 +536,21 @@ meta_output_info_get_min_refresh_rate (const MetaOutputInfo *output_info,
   return TRUE;
 }
 
+gboolean
+meta_output_info_is_builtin (const MetaOutputInfo *output_info)
+{
+  switch (output_info->connector_type)
+    {
+    case META_CONNECTOR_TYPE_eDP:
+    case META_CONNECTOR_TYPE_LVDS:
+    case META_CONNECTOR_TYPE_DSI:
+    case META_CONNECTOR_TYPE_DPI:
+      return TRUE;
+    default:
+      return FALSE;
+    }
+}
+
 void
 meta_output_get_color_metadata (MetaOutput            *output,
                                 MetaOutputHdrMetadata *hdr_metadata,
