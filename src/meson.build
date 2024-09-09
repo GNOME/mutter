@@ -1231,6 +1231,8 @@ foreach built_source : mutter_built_sources
   endif
 endforeach
 
+subdir('helpers')
+
 subdir('third_party')
 
 libmutter = library(libmutter_name,
@@ -1279,26 +1281,6 @@ mutter = executable('mutter',
   install_dir: bindir,
   install: true,
 )
-if have_x11
-  executable('mutter-restart-helper',
-    sources: [
-      files('core/restart-helper.c'),
-    ],
-    include_directories: [
-      top_includepath,
-    ],
-    c_args: [
-      mutter_c_args,
-      '-DG_LOG_DOMAIN="mutter-restart-helper"',
-    ],
-    dependencies: [
-      x11_dep,
-      xcomposite_dep,
-    ],
-    install_dir: libexecdir,
-    install: true,
-  )
-endif
 
 if have_introspection
   mutter_introspected_sources = []
