@@ -2517,7 +2517,7 @@ handle_set_spew_mark (MetaDisplay           *display,
                       MetaKeyBinding        *binding,
                       gpointer               user_data)
 {
-  meta_verbose ("-- MARK MARK MARK MARK --");
+  g_message ("-- MARK MARK MARK MARK --");
 }
 
 #ifdef HAVE_NATIVE_BACKEND
