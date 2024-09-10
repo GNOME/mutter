@@ -17,5 +17,5 @@ patterns:
     - regex: '^\S*\.[ch]:'
       message: Commit message subject prefix should not include .c, .h, etc.
       where: subject
-    - regex: '^Closes:?\s*#[0-9]+'
+    - regex: '^[Cc]lose[sd]?:?\s*#[0-9]+'
       message: Closes instructions must be a full link
