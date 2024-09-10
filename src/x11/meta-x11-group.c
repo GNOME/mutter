@@ -88,7 +88,7 @@ meta_group_new (MetaX11Display *x11_display,
 
   meta_group_reload_properties (group, initial_props, N_INITIAL_PROPS);
 
-  meta_topic (META_DEBUG_GROUPS,
+  meta_topic (META_DEBUG_X11,
               "Created new group with leader 0x%lx",
               group->group_leader);
 
@@ -103,7 +103,7 @@ meta_group_unref (MetaGroup *group)
   group->refcount -= 1;
   if (group->refcount == 0)
     {
-      meta_topic (META_DEBUG_GROUPS,
+      meta_topic (META_DEBUG_X11,
                   "Destroying group with leader 0x%lx",
                   group->group_leader);
 

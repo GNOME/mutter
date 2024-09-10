@@ -4923,7 +4923,7 @@ meta_window_x11_compute_group (MetaWindow *window)
 
   priv->group->windows = g_slist_prepend (priv->group->windows, window);
 
-  meta_topic (META_DEBUG_GROUPS,
+  meta_topic (META_DEBUG_X11,
               "Adding %s to group with leader 0x%lx",
               window->desc, group->group_leader);
 }
@@ -4936,7 +4936,7 @@ remove_window_from_group (MetaWindow *window)
 
   if (priv->group != NULL)
     {
-      meta_topic (META_DEBUG_GROUPS,
+      meta_topic (META_DEBUG_X11,
                   "Removing %s from group with leader 0x%lx",
                   window->desc, priv->group->group_leader);
 
