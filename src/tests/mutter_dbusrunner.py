@@ -427,6 +427,7 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
         env_dirs = [
             'HOME',
             'TMPDIR',
+            'XDG_CACHE_HOME',
             'XDG_CONFIG_HOME',
             'XDG_DATA_HOME',
             'XDG_RUNTIME_DIR',
