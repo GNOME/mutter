@@ -37,9 +37,6 @@
  * @META_DEBUG_SYNC: sync
  * @META_DEBUG_STARTUP: startup
  * @META_DEBUG_PREFS: preferences
- * @META_DEBUG_GROUPS: groups
- * @META_DEBUG_RESIZING: resizing
- * @META_DEBUG_SHAPES: shapes
  * @META_DEBUG_EDGE_RESISTANCE: edge resistance
  * @META_DEBUG_WAYLAND: Wayland
  * @META_DEBUG_KMS: kernel mode setting
@@ -71,24 +68,21 @@ typedef enum
   META_DEBUG_SYNC            = 1 << 11,
   META_DEBUG_STARTUP         = 1 << 12,
   META_DEBUG_PREFS           = 1 << 13,
-  META_DEBUG_GROUPS          = 1 << 14,
-  META_DEBUG_RESIZING        = 1 << 15,
-  META_DEBUG_SHAPES          = 1 << 16,
-  META_DEBUG_EDGE_RESISTANCE = 1 << 17,
-  META_DEBUG_DBUS            = 1 << 18,
-  META_DEBUG_INPUT           = 1 << 19,
-  META_DEBUG_WAYLAND         = 1 << 20,
-  META_DEBUG_KMS             = 1 << 21,
-  META_DEBUG_SCREEN_CAST     = 1 << 22,
-  META_DEBUG_REMOTE_DESKTOP  = 1 << 23,
-  META_DEBUG_BACKEND         = 1 << 24,
-  META_DEBUG_RENDER          = 1 << 25,
-  META_DEBUG_COLOR           = 1 << 26,
-  META_DEBUG_INPUT_EVENTS    = 1 << 27,
-  META_DEBUG_EIS             = 1 << 28,
-  META_DEBUG_KMS_DEADLINE    = 1 << 29,
-  META_DEBUG_SESSION_MANAGEMENT = 1 << 30,
-  META_DEBUG_X11             = 1 << 31,
+  META_DEBUG_EDGE_RESISTANCE = 1 << 14,
+  META_DEBUG_DBUS            = 1 << 15,
+  META_DEBUG_INPUT           = 1 << 16,
+  META_DEBUG_WAYLAND         = 1 << 17,
+  META_DEBUG_KMS             = 1 << 18,
+  META_DEBUG_SCREEN_CAST     = 1 << 19,
+  META_DEBUG_REMOTE_DESKTOP  = 1 << 20,
+  META_DEBUG_BACKEND         = 1 << 21,
+  META_DEBUG_RENDER          = 1 << 22,
+  META_DEBUG_COLOR           = 1 << 23,
+  META_DEBUG_INPUT_EVENTS    = 1 << 24,
+  META_DEBUG_EIS             = 1 << 25,
+  META_DEBUG_KMS_DEADLINE    = 1 << 26,
+  META_DEBUG_SESSION_MANAGEMENT = 1 << 27,
+  META_DEBUG_X11             = 1 << 28,
 } MetaDebugTopic;
 
 META_EXPORT

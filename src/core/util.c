@@ -54,9 +54,6 @@ static const GDebugKey meta_debug_keys[] = {
   { "sync", META_DEBUG_SYNC },
   { "startup", META_DEBUG_STARTUP },
   { "prefs", META_DEBUG_PREFS },
-  { "groups", META_DEBUG_GROUPS },
-  { "resizing", META_DEBUG_RESIZING },
-  { "shapes", META_DEBUG_SHAPES },
   { "edge-resistance", META_DEBUG_EDGE_RESISTANCE },
   { "dbus", META_DEBUG_DBUS },
   { "input", META_DEBUG_INPUT },
@@ -297,12 +294,6 @@ meta_topic_to_string (MetaDebugTopic topic)
       return "STARTUP";
     case META_DEBUG_PREFS:
       return "PREFS";
-    case META_DEBUG_GROUPS:
-      return "GROUPS";
-    case META_DEBUG_RESIZING:
-      return "RESIZING";
-    case META_DEBUG_SHAPES:
-      return "SHAPES";
     case META_DEBUG_EDGE_RESISTANCE:
       return "EDGE_RESISTANCE";
     case META_DEBUG_DBUS:
