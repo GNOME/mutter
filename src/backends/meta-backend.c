@@ -904,6 +904,12 @@ meta_backend_create_renderer (MetaBackend *backend,
   return META_BACKEND_GET_CLASS (backend)->create_renderer (backend, error);
 }
 
+static MetaCursorTracker *
+meta_backend_create_cursor_tracker (MetaBackend *backend)
+{
+  return META_BACKEND_GET_CLASS (backend)->create_cursor_tracker (backend);
+}
+
 static void
 prepare_for_sleep_cb (GDBusConnection *connection,
                       const gchar     *sender_name,
@@ -1186,8 +1192,7 @@ meta_backend_initable_init (GInitable     *initable,
   if (!priv->renderer)
     return FALSE;
 
-  priv->cursor_tracker =
-    META_BACKEND_GET_CLASS (backend)->create_cursor_tracker (backend);
+  priv->cursor_tracker = meta_backend_create_cursor_tracker (backend);
 
   priv->dnd = meta_dnd_new (backend);
 
