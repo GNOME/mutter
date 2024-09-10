@@ -428,13 +428,23 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
 
   for (i = 0; i < num_formats; i++)
     {
+      g_autoptr (GError) local_error = NULL;
+      MetaDrmFormatBuf format_string;
+
+      meta_drm_format_to_string (&format_string, formats[i]);
+
       g_clear_error (error);
 
       if (kms_plane &&
           !meta_kms_plane_is_format_supported (kms_plane, formats[i]))
         {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+          g_set_error (&local_error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "KMS CRTC doesn't support format");
+          meta_topic (META_DEBUG_RENDER,
+                      "Not using format %s: %s",
+                      format_string.s,
+                      local_error->message);
+          g_propagate_error (error, g_steal_pointer (&local_error));
           continue;
         }
 
@@ -443,16 +453,21 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
                                              attributes,
                                              formats[i],
                                              out_config,
-                                             error))
+                                             &local_error))
         {
-          MetaDrmFormatBuf format_string;
-
-          meta_drm_format_to_string (&format_string, formats[i]);
-          meta_topic (META_DEBUG_KMS,
+          meta_topic (META_DEBUG_RENDER,
                       "Using GBM format %s for primary GPU EGL %s",
                       format_string.s, purpose);
 
           return TRUE;
+        }
+      else
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "Not using format %s: %s",
+                      format_string.s,
+                      local_error->message);
+          g_propagate_error (error, g_steal_pointer (&local_error));
         }
     }
 
