@@ -378,8 +378,7 @@ meta_kms_new (MetaBackend   *backend,
               MetaKmsFlags   flags,
               GError       **error)
 {
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaUdev *udev = meta_backend_native_get_udev (backend_native);
+  MetaUdev *udev = meta_backend_get_udev (backend);
   MetaKms *kms;
   const char *thread_type_string;
   const char *preferred_scheduling_priority_string;
@@ -473,8 +472,7 @@ meta_kms_finalize (GObject *object)
 {
   MetaKms *kms = META_KMS (object);
   MetaBackend *backend = meta_thread_get_backend (META_THREAD (kms));
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaUdev *udev = meta_backend_native_get_udev (backend_native);
+  MetaUdev *udev = meta_backend_get_udev (backend);
 
   g_list_free_full (kms->devices, g_object_unref);
 

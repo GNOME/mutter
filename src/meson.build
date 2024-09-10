@@ -279,8 +279,6 @@ mutter_sources = [
   'backends/meta-stage-private.h',
   'backends/meta-stage-view.c',
   'backends/meta-stage-view-private.h',
-  'backends/meta-udev.c',
-  'backends/meta-udev.h',
   'backends/meta-viewport-info.c',
   'backends/meta-viewport-info.h',
   'backends/meta-virtual-monitor.c',
@@ -910,6 +908,13 @@ if have_wayland_eglstream
   mutter_sources += [
     'wayland/meta-wayland-egl-stream.c',
     'wayland/meta-wayland-egl-stream.h',
+  ]
+endif
+
+if have_libgudev
+  mutter_sources += [
+    'backends/meta-udev.c',
+    'backends/meta-udev.h',
   ]
 endif
 

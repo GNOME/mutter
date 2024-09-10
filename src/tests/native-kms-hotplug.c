@@ -136,7 +136,7 @@ meta_test_disconnect_connect (void)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   ClutterActor *stage = meta_backend_get_stage (backend);
-  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+  MetaUdev *udev = meta_backend_get_udev (backend);
   g_autolist (GObject) udev_devices = NULL;
   GUdevDevice *udev_device;
   GList *logical_monitors;
@@ -371,7 +371,7 @@ static void
 emulate_hotplug (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+  MetaUdev *udev = meta_backend_get_udev (backend);
   g_autoptr (GError) error = NULL;
   g_autolist (GObject) udev_devices = NULL;
   GUdevDevice *udev_device;

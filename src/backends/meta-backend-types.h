@@ -97,3 +97,4 @@ typedef struct _MetaEis MetaEis;
 typedef struct _MetaEisClient MetaEisClient;
 
 typedef struct _MetaLauncher MetaLauncher;
+typedef struct _MetaUdev MetaUdev;

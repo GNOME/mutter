@@ -84,7 +84,6 @@ typedef struct _MetaBackendNativePrivate
   MetaBackend parent;
 
   MetaDevicePool *device_pool;
-  MetaUdev *udev;
   MetaKms *kms;
 
   GHashTable *startup_render_devices;
@@ -115,7 +114,6 @@ meta_backend_native_dispose (GObject *object)
 
   g_clear_pointer (&priv->startup_render_devices, g_hash_table_unref);
   g_clear_object (&priv->kms);
-  g_clear_object (&priv->udev);
   g_clear_object (&priv->device_pool);
 }
 
@@ -643,7 +641,7 @@ init_gpus (MetaBackendNative  *native,
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
   MetaBackend *backend = META_BACKEND (native);
-  MetaUdev *udev = meta_backend_native_get_udev (native);
+  MetaUdev *udev = meta_backend_get_udev (backend);
   MetaKms *kms = meta_backend_native_get_kms (native);
   g_autoptr (GError) local_error = NULL;
   MetaUdevDeviceType device_type = 0;
@@ -719,9 +717,10 @@ init_gpus (MetaBackendNative  *native,
       return FALSE;
     }
 
-  g_signal_connect_object (priv->udev, "device-added",
-                           G_CALLBACK (on_udev_device_added), native,
-                           0);
+  g_signal_connect_object (udev, "device-added",
+                           G_CALLBACK (on_udev_device_added),
+                           native,
+                           G_CONNECT_DEFAULT);
 
   return TRUE;
 }
@@ -803,7 +802,6 @@ meta_backend_native_init_basic (MetaBackend  *backend,
                            g_free, g_object_unref);
 
   priv->device_pool = meta_device_pool_new (native);
-  priv->udev = meta_udev_new (backend);
 
   kms_flags = META_KMS_FLAG_NONE;
   if (meta_backend_is_headless (backend))
@@ -913,15 +911,6 @@ meta_backend_native_get_device_pool (MetaBackendNative *backend_native)
   return priv->device_pool;
 }
 
-MetaUdev *
-meta_backend_native_get_udev (MetaBackendNative *backend_native)
-{
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-
-  return priv->udev;
-}
-
 MetaKms *
 meta_backend_native_get_kms (MetaBackendNative *backend_native)
 {
@@ -959,9 +948,6 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
 static void
 meta_backend_native_pause (MetaBackend *backend)
 {
-  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerNative *monitor_manager_native =
@@ -971,7 +957,6 @@ meta_backend_native_pause (MetaBackend *backend)
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
   meta_seat_native_release_devices (seat);
-  meta_udev_pause (priv->udev);
   meta_monitor_manager_native_pause (monitor_manager_native);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->pause (backend);
@@ -996,7 +981,6 @@ meta_backend_native_resume (MetaBackend *backend)
   META_BACKEND_CLASS (meta_backend_native_parent_class)->resume (backend);
 
   meta_monitor_manager_native_resume (monitor_manager_native);
-  meta_udev_resume (priv->udev);
   meta_kms_resume (priv->kms);
 
   meta_seat_native_reclaim_devices (seat);

@@ -165,6 +165,11 @@ MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
 META_EXPORT_TEST
 MetaLauncher * meta_backend_get_launcher (MetaBackend *backend);
 
+#ifdef HAVE_LIBGUDEV
+META_EXPORT_TEST
+MetaUdev * meta_backend_get_udev (MetaBackend *backend);
+#endif
+
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
                                                                   ClutterInputDevice *device);
 META_EXPORT_TEST
