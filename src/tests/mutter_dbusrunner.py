@@ -424,7 +424,13 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
 
     with tempfile.TemporaryDirectory(prefix='mutter-testroot-',
                                      ignore_cleanup_errors=True) as test_root:
-        env_dirs = ['HOME', 'TMPDIR', 'XDG_RUNTIME_DIR', 'XDG_CONFIG_DIR']
+        env_dirs = [
+            'HOME',
+            'TMPDIR',
+            'XDG_CONFIG_DIR',
+            'XDG_DATA_HOME',
+            'XDG_RUNTIME_DIR',
+        ]
         os.environ['MUTTER_DBUS_RUNNER_TEST_ROOT'] = test_root
         print('Setup MUTTER_DBUS_RUNNER_TEST_ROOT as', test_root, file=sys.stderr)
         for env_dir in env_dirs:
