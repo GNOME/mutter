@@ -217,6 +217,8 @@ mutter_sources = [
   'backends/meta-dbus-session-manager.h',
   'backends/meta-dbus-session-watcher.c',
   'backends/meta-dbus-session-watcher.h',
+  'backends/meta-dbus-utils.c',
+  'backends/meta-dbus-utils.h',
   'backends/meta-display-config-shared.h',
   'backends/meta-dnd-private.h',
   'backends/meta-fd-source.c',
@@ -754,8 +756,6 @@ endif
 
 if have_native_backend
   mutter_sources += [
-    'backends/native/dbus-utils.c',
-    'backends/native/dbus-utils.h',
     'backends/native/meta-backend-native.c',
     'backends/native/meta-backend-native.h',
     'backends/native/meta-backend-native-private.h',

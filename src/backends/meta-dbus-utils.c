@@ -22,7 +22,7 @@
 
 #include "config.h"
 
-#include "backends/native/dbus-utils.h"
+#include "backends/meta-dbus-utils.h"
 
 #include <glib.h>
 
