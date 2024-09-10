@@ -27,6 +27,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-renderer.h"
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-monitor-manager-native.h"
 

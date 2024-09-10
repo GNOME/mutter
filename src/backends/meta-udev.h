@@ -20,7 +20,7 @@
 
 #include <gudev/gudev.h>
 
-#include "backends/native/meta-backend-native-types.h"
+#include "backends/meta-backend-types.h"
 #include "core/util-private.h"
 
 typedef enum _MetaUdevDeviceType

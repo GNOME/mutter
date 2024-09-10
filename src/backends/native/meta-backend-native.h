@@ -24,9 +24,9 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-launcher.h"
+#include "backends/meta-udev.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-kms-types.h"
-#include "backends/native/meta-udev.h"
 
 #define META_BACKEND_TEST_INPUT_SEAT "meta-test-seat0"
 

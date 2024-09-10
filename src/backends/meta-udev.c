@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "backends/native/meta-udev.h"
+#include "backends/meta-udev.h"
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-launcher.h"

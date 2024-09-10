@@ -21,9 +21,9 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-udev.h"
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-udev.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
 #include "tests/meta-test-utils.h"

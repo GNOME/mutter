@@ -20,13 +20,13 @@
 
 #include "backends/native/meta-kms-private.h"
 
+#include "backends/meta-udev.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-kms-cursor-manager.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-thread-private.h"
-#include "backends/native/meta-udev.h"
 #include "cogl/cogl.h"
 
 #include "meta-private-enum-types.h"

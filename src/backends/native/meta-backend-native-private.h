@@ -23,6 +23,7 @@
 #pragma once
 
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-barrier-native.h"
 
 struct _MetaBackendNativeClass

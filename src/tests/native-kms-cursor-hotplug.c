@@ -19,11 +19,11 @@
 #include "config.h"
 
 #include "backends/meta-monitor-config-manager.h"
+#include "backends/meta-udev.h"
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-virtual.h"
-#include "backends/native/meta-udev.h"
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "meta/meta-backend.h"

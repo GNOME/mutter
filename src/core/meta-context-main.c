@@ -42,6 +42,7 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-backend-native-types.h"
 #endif
 
 #if defined (HAVE_X11) && defined (HAVE_WAYLAND)
