@@ -63,7 +63,9 @@ struct _MetaBackendX11Cm
   MetaInputSettings *input_settings;
 };
 
-G_DEFINE_TYPE (MetaBackendX11Cm, meta_backend_x11_cm, META_TYPE_BACKEND_X11)
+G_DEFINE_FINAL_TYPE (MetaBackendX11Cm,
+                     meta_backend_x11_cm,
+                     META_TYPE_BACKEND_X11)
 
 static void
 apply_keymap (MetaBackendX11 *x11);

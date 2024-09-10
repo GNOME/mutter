@@ -22,5 +22,7 @@
 #include "backends/x11/meta-backend-x11.h"
 
 #define META_TYPE_BACKEND_X11_CM (meta_backend_x11_cm_get_type ())
-G_DECLARE_FINAL_TYPE (MetaBackendX11Cm, meta_backend_x11_cm,
-                      META, BACKEND_X11_CM, MetaBackendX11)
+G_DECLARE_FINAL_TYPE (MetaBackendX11Cm,
+                      meta_backend_x11_cm,
+                      META, BACKEND_X11_CM,
+                      MetaBackendX11)
