@@ -225,33 +225,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->remote_access_controller);
   g_clear_object (&priv->dnd);
 
-#ifdef HAVE_LIBWACOM
-  g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
-#endif
-#ifdef HAVE_GNOME_DESKTOP
-  g_clear_object (&priv->pnp_ids);
-#endif
-
-  if (priv->sleep_signal_id)
-    {
-      g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
-      priv->sleep_signal_id = 0;
-    }
-
-  if (priv->upower_watch_id)
-    {
-      g_bus_unwatch_name (priv->upower_watch_id);
-      priv->upower_watch_id = 0;
-    }
-
-  g_cancellable_cancel (priv->cancellable);
-  g_clear_object (&priv->cancellable);
-  g_clear_object (&priv->system_bus);
-  g_clear_object (&priv->upower_proxy);
-
   g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
-
-  g_clear_object (&priv->settings);
 
   g_clear_pointer (&priv->default_seat, clutter_seat_destroy);
   g_clear_pointer (&priv->stage, clutter_actor_destroy);
@@ -260,13 +234,47 @@ meta_backend_dispose (GObject *object)
   /* the renderer keeps references to color devices which keep references
    * to the color manager. */
   g_clear_object (&priv->color_manager);
-#ifdef HAVE_EGL
-  g_clear_object (&priv->egl);
-#endif
   g_clear_pointer (&priv->clutter_context, clutter_context_destroy);
   g_clear_list (&priv->gpus, g_object_unref);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);
+}
+
+static void
+meta_backend_finalize (GObject *object)
+{
+  MetaBackend *backend = META_BACKEND (object);
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_cancellable_cancel (priv->cancellable);
+  g_clear_object (&priv->cancellable);
+
+  if (priv->sleep_signal_id)
+    {
+      g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
+      priv->sleep_signal_id = 0;
+    }
+  g_clear_object (&priv->system_bus);
+
+  if (priv->upower_watch_id)
+    {
+      g_bus_unwatch_name (priv->upower_watch_id);
+      priv->upower_watch_id = 0;
+    }
+  g_clear_object (&priv->upower_proxy);
+
+  g_clear_object (&priv->settings);
+ #ifdef HAVE_EGL
+  g_clear_object (&priv->egl);
+ #endif
+#ifdef HAVE_LIBWACOM
+  g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
+#endif
+#ifdef HAVE_GNOME_DESKTOP
+  g_clear_object (&priv->pnp_ids);
+#endif
+
+  G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
 
 void
@@ -834,6 +842,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_backend_dispose;
+  object_class->finalize = meta_backend_finalize;
   object_class->set_property = meta_backend_set_property;
   object_class->get_property = meta_backend_get_property;
 
