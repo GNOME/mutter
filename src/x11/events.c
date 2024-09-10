@@ -1354,7 +1354,7 @@ handle_other_xevent (MetaX11Display *x11_display,
         }
       else
         {
-          meta_topic (META_DEBUG_SHAPES,
+          meta_topic (META_DEBUG_X11,
                       "ShapeNotify not on a client window (window 0x%lx)",
                       modified);
         }
