@@ -20,8 +20,8 @@
 
 #include "backends/native/meta-udev.h"
 
+#include "backends/meta-launcher.h"
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-launcher.h"
 
 #define DRM_CARD_UDEV_DEVICE_TYPE "drm_minor"
 

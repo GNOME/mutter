@@ -52,7 +52,6 @@
 #include "backends/native/meta-device-pool-private.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
-#include "backends/native/meta-launcher.h"
 #include "backends/native/meta-monitor-manager-native.h"
 #include "backends/native/meta-render-device-gbm.h"
 #include "backends/native/meta-renderer-native.h"

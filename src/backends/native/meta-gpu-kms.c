@@ -43,7 +43,6 @@
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
-#include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 
 struct _MetaGpuKms

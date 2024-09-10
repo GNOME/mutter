@@ -21,7 +21,6 @@
 
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-device-pool.h"
-#include "backends/native/meta-launcher.h"
 
 #define META_TYPE_DEVICE_POOL (meta_device_pool_get_type ())
 G_DECLARE_FINAL_TYPE (MetaDevicePool, meta_device_pool,

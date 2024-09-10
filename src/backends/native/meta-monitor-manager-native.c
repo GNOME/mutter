@@ -51,7 +51,6 @@
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms.h"
-#include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-virtual-monitor-native.h"

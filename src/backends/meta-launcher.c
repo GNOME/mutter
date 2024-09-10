@@ -17,7 +17,7 @@
 
 #include "config.h"
 
-#include "backends/native/meta-launcher.h"
+#include "backends/meta-launcher.h"
 
 #include <gio/gunixfdlist.h>
 #include <sys/types.h>

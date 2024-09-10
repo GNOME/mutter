@@ -25,8 +25,8 @@
 #include <sys/sysmacros.h>
 #include <sys/types.h>
 
+#include "backends/meta-launcher.h"
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-launcher.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
 
