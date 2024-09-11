@@ -388,3 +388,12 @@ meta_screen_cast_class_init (MetaScreenCastClass *klass)
 
   object_class->constructed = meta_screen_cast_constructed;
 }
+
+gboolean
+meta_screen_cast_is_enabled (MetaScreenCast *screen_cast)
+{
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (screen_cast);
+
+  return meta_dbus_session_manager_is_enabled (session_manager);
+}

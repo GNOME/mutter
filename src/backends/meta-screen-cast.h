@@ -66,3 +66,5 @@ CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *scre
                                                            int              height);
 
 MetaScreenCast * meta_screen_cast_new (MetaBackend *backend);
+
+gboolean meta_screen_cast_is_enabled (MetaScreenCast *screen_cast);
