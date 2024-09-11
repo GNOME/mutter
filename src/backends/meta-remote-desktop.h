@@ -44,3 +44,5 @@ G_DECLARE_FINAL_TYPE (MetaRemoteDesktop, meta_remote_desktop,
                       MetaDbusSessionManager)
 
 MetaRemoteDesktop * meta_remote_desktop_new (MetaBackend *backend);
+
+gboolean meta_remote_desktop_is_enabled (MetaRemoteDesktop *remote_desktop);

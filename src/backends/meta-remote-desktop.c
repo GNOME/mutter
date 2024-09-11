@@ -158,3 +158,12 @@ meta_remote_desktop_class_init (MetaRemoteDesktopClass *klass)
 
   object_class->constructed = meta_remote_desktop_constructed;
 }
+
+gboolean
+meta_remote_desktop_is_enabled (MetaRemoteDesktop *remote_desktop)
+{
+  MetaDbusSessionManager *session_manager =
+    META_DBUS_SESSION_MANAGER (remote_desktop);
+
+  return meta_dbus_session_manager_is_enabled (session_manager);
+}
