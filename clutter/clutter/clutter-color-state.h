@@ -54,6 +54,7 @@ typedef enum
 typedef enum
 {
   CLUTTER_EOTF_TYPE_NAMED,
+  CLUTTER_EOTF_TYPE_GAMMA,
 } ClutterEOTFType;
 
 typedef enum
@@ -83,7 +84,11 @@ typedef struct _ClutterColorimetry
 typedef struct _ClutterEOTF
 {
   ClutterEOTFType type : 1;
-  ClutterTransferFunction tf_name;
+  union
+  {
+    ClutterTransferFunction tf_name;
+    float gamma_exp;
+  };
 } ClutterEOTF;
 
 typedef struct _ClutterLuminance
@@ -110,6 +115,7 @@ ClutterColorState * clutter_color_state_new_full (ClutterContext          *conte
                                                   ClutterColorspace        colorspace,
                                                   ClutterTransferFunction  transfer_function,
                                                   ClutterPrimaries        *primaries,
+                                                  float                    gamma_exp,
                                                   float                    min_lum,
                                                   float                    max_lum,
                                                   float                    ref_lum);

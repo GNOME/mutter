@@ -56,6 +56,8 @@
 
 #define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_mapping"
 #define UNIFORM_NAME_COLOR_SPACE_MAPPING "color_space_mapping"
+#define UNIFORM_NAME_GAMMA_EXP "gamma_exp"
+#define UNIFORM_NAME_INV_GAMMA_EXP "inv_gamma_exp"
 
 struct _ClutterColorState
 {
@@ -82,8 +84,8 @@ clutter_color_transform_key_hash (gconstpointer data)
 {
   const ClutterColorTransformKey *key = data;
 
-  return (key->source.transfer_function ^
-          key->target.transfer_function);
+  return (key->source.eotf_key ^
+          key->target.eotf_key);
 }
 
 gboolean
@@ -93,8 +95,20 @@ clutter_color_transform_key_equal (gconstpointer data1,
   const ClutterColorTransformKey *key1 = data1;
   const ClutterColorTransformKey *key2 = data2;
 
-  return (key1->source.transfer_function == key2->source.transfer_function &&
-           key1->target.transfer_function == key2->target.transfer_function);
+  return (key1->source.eotf_key == key2->source.eotf_key &&
+          key1->target.eotf_key == key2->target.eotf_key);
+}
+
+static guint
+get_eotf_key (ClutterEOTF eotf)
+{
+  switch (eotf.type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      return eotf.tf_name << 1;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      return 1;
+    }
 }
 
 void
@@ -107,8 +121,8 @@ clutter_color_transform_key_init (ClutterColorTransformKey *key,
   ClutterColorStatePrivate *target_priv =
     clutter_color_state_get_instance_private (target_color_state);
 
-  key->source.transfer_function = priv->eotf.tf_name;
-  key->target.transfer_function = target_priv->eotf.tf_name;
+  key->source.eotf_key = get_eotf_key (priv->eotf);
+  key->target.eotf_key = get_eotf_key (target_priv->eotf);
 }
 
 static const char *
@@ -128,14 +142,20 @@ clutter_colorspace_to_string (ClutterColorspace colorspace)
 static const char *
 clutter_eotf_to_string (ClutterEOTF eotf)
 {
-  switch (eotf.tf_name)
+  switch (eotf.type)
     {
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
-      return "sRGB";
-    case CLUTTER_TRANSFER_FUNCTION_PQ:
-      return "PQ";
-    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-      return "linear";
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      return "gamma";
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          return "sRGB";
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return "PQ";
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return "linear";
+        }
     }
 
   g_assert_not_reached ();
@@ -194,13 +214,19 @@ static const ClutterLuminance pq_default_luminance = {
 const ClutterLuminance *
 clutter_eotf_get_default_luminance (ClutterEOTF eotf)
 {
-  switch (eotf.tf_name)
+  switch (eotf.type)
     {
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
-    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+    case CLUTTER_EOTF_TYPE_GAMMA:
       return &sdr_default_luminance;
-    case CLUTTER_TRANSFER_FUNCTION_PQ:
-      return &pq_default_luminance;
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return &sdr_default_luminance;
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return &pq_default_luminance;
+        }
     }
 
   g_assert_not_reached ();
@@ -280,7 +306,7 @@ clutter_color_state_new (ClutterContext          *context,
 {
   return clutter_color_state_new_full (context,
                                        colorspace, transfer_function, NULL,
-                                       -1.0f, -1.0f, -1.0f);
+                                       -1.0f, -1.0f, -1.0f, -1.0f);
 }
 
 /**
@@ -296,6 +322,7 @@ clutter_color_state_new_full (ClutterContext          *context,
                               ClutterColorspace        colorspace,
                               ClutterTransferFunction  transfer_function,
                               ClutterPrimaries        *primaries,
+                              float                    gamma_exp,
                               float                    min_lum,
                               float                    max_lum,
                               float                    ref_lum)
@@ -322,8 +349,16 @@ clutter_color_state_new_full (ClutterContext          *context,
       priv->colorimetry.colorspace = colorspace;
     }
 
-  priv->eotf.type = CLUTTER_EOTF_TYPE_NAMED;
-  priv->eotf.tf_name = transfer_function;
+  if (gamma_exp >= 1.0f)
+    {
+      priv->eotf.type = CLUTTER_EOTF_TYPE_GAMMA;
+      priv->eotf.gamma_exp = gamma_exp;
+    }
+  else
+    {
+      priv->eotf.type = CLUTTER_EOTF_TYPE_NAMED;
+      priv->eotf.tf_name = transfer_function;
+    }
 
   if (min_lum >= 0.0f && max_lum > 0.0f && ref_lum >= 0.0f)
     {
@@ -386,6 +421,36 @@ static const char pq_inv_eotf_source[] =
   "  return vec4 (pq_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
+static const char gamma_eotf_source[] =
+  "uniform float " UNIFORM_NAME_GAMMA_EXP ";\n"
+  "// gamma_eotf:\n"
+  "// @color: Normalized ([0,1]) electrical signal value\n"
+  "// Returns: tristimulus values ([0,1])\n"
+  "vec3 gamma_eotf (vec3 color)\n"
+  "{\n"
+  "  return pow (color, vec3 (" UNIFORM_NAME_GAMMA_EXP "));\n"
+  "}\n"
+  "\n"
+  "vec4 gamma_eotf (vec4 color)\n"
+  "{\n"
+  "  return vec4 (gamma_eotf (color.rgb), color.a);\n"
+  "}\n";
+
+static const char gamma_inv_eotf_source[] =
+  "uniform float " UNIFORM_NAME_INV_GAMMA_EXP ";\n"
+  "// gamma_inv_eotf:\n"
+  "// @color: Normalized tristimulus values ([0,1])"
+  "// Returns: Normalized ([0,1]) electrical signal value\n"
+  "vec3 gamma_inv_eotf (vec3 color)\n"
+  "{\n"
+  "  return pow (color, vec3 (" UNIFORM_NAME_INV_GAMMA_EXP "));\n"
+  "}\n"
+  "\n"
+  "vec4 gamma_inv_eotf (vec4 color)\n"
+  "{\n"
+  "  return vec4 (gamma_inv_eotf (color.rgb), color.a);\n"
+  "}\n";
+
 static const char srgb_eotf_source[] =
   "// srgb_eotf:\n"
   "// @color: Normalized ([0,1]) electrical signal value.\n"
@@ -437,6 +502,16 @@ static const TransferFunction pq_inv_eotf = {
   .name = "pq_inv_eotf",
 };
 
+static const TransferFunction gamma_eotf = {
+  .source = gamma_eotf_source,
+  .name = "gamma_eotf",
+};
+
+static const TransferFunction gamma_inv_eotf = {
+  .source = gamma_inv_eotf_source,
+  .name = "gamma_inv_eotf",
+};
+
 static const TransferFunction srgb_eotf = {
   .source = srgb_eotf_source,
   .name = "srgb_eotf",
@@ -469,14 +544,20 @@ get_eotf (ClutterColorState *color_state)
   ClutterColorStatePrivate *priv =
     clutter_color_state_get_instance_private (color_state);
 
-  switch (priv->eotf.tf_name)
+  switch (priv->eotf.type)
     {
-    case CLUTTER_TRANSFER_FUNCTION_PQ:
-      return &pq_eotf;
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
-      return &srgb_eotf;
-    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-      return NULL;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      return &gamma_eotf;
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (priv->eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return &pq_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          return &srgb_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return NULL;
+        }
     }
 
   g_warning ("Unhandled tranfer function %s",
@@ -490,14 +571,20 @@ get_inv_eotf (ClutterColorState *color_state)
   ClutterColorStatePrivate *priv =
     clutter_color_state_get_instance_private (color_state);
 
-  switch (priv->eotf.tf_name)
+  switch (priv->eotf.type)
     {
-    case CLUTTER_TRANSFER_FUNCTION_PQ:
-      return &pq_inv_eotf;
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
-      return &srgb_inv_eotf;
-    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-      return NULL;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      return &gamma_inv_eotf;
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (priv->eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return &pq_inv_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          return &srgb_inv_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return NULL;
+        }
     }
 
   g_warning ("Unhandled tranfer function %s",
@@ -942,10 +1029,38 @@ clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                      ClutterColorState *target_color_state,
                                      CoglPipeline      *pipeline)
 {
+  const ClutterEOTF *eotf;
+  const ClutterEOTF *target_eotf;
   float luminance_mapping;
   float color_space_mapping[9] = { 0 };
+  int uniform_location_gamma_exp;
+  int uniform_location_inv_gamma_exp;
   int uniform_location_luminance_mapping;
   int uniform_location_color_space_mapping;
+
+  eotf = clutter_color_state_get_eotf (color_state);
+  if (eotf->type == CLUTTER_EOTF_TYPE_GAMMA)
+    {
+      uniform_location_gamma_exp =
+        cogl_pipeline_get_uniform_location (pipeline,
+                                            UNIFORM_NAME_GAMMA_EXP);
+
+      cogl_pipeline_set_uniform_1f (pipeline,
+                                    uniform_location_gamma_exp,
+                                    eotf->gamma_exp);
+    }
+
+  target_eotf = clutter_color_state_get_eotf (target_color_state);
+  if (target_eotf->type == CLUTTER_EOTF_TYPE_GAMMA)
+    {
+      uniform_location_inv_gamma_exp =
+        cogl_pipeline_get_uniform_location (pipeline,
+                                            UNIFORM_NAME_INV_GAMMA_EXP);
+
+      cogl_pipeline_set_uniform_1f (pipeline,
+                                    uniform_location_inv_gamma_exp,
+                                    1.0f / target_eotf->gamma_exp);
+    }
 
   luminance_mapping = get_luminance_mapping (color_state, target_color_state);
 
@@ -1060,6 +1175,14 @@ eotf_equal (ClutterColorState *color_state,
       other_priv->eotf.type == CLUTTER_EOTF_TYPE_NAMED)
     return priv->eotf.tf_name == other_priv->eotf.tf_name;
 
+  if (priv->eotf.type == CLUTTER_EOTF_TYPE_GAMMA &&
+      other_priv->eotf.type == CLUTTER_EOTF_TYPE_GAMMA)
+    {
+      return G_APPROX_VALUE (priv->eotf.gamma_exp,
+                             other_priv->eotf.gamma_exp,
+                             0.0001f);
+    }
+
   return FALSE;
 }
 
@@ -1138,14 +1261,20 @@ clutter_color_state_required_format (ClutterColorState *color_state)
 
   priv = clutter_color_state_get_instance_private (color_state);
 
-  switch (priv->eotf.tf_name)
+  switch (priv->eotf.type)
     {
-    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-      return CLUTTER_ENCODING_REQUIRED_FORMAT_FP16;
-    case CLUTTER_TRANSFER_FUNCTION_PQ:
-      return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10;
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
+    case CLUTTER_EOTF_TYPE_GAMMA:
       return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (priv->eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return CLUTTER_ENCODING_REQUIRED_FORMAT_FP16;
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10;
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
+        }
     }
 
   g_assert_not_reached ();
@@ -1181,24 +1310,33 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
 
   priv = clutter_color_state_get_instance_private (color_state);
 
-  switch (priv->eotf.tf_name)
+  switch (priv->eotf.type)
     {
-    case CLUTTER_TRANSFER_FUNCTION_PQ:
-    case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (priv->eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+          break;
+        /* effectively this means we will blend sRGB content in sRGB, not linear */
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          blending_tf = priv->eotf.tf_name;
+          break;
+        default:
+          g_assert_not_reached ();
+        }
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
       blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
       break;
-    /* effectively this means we will blend sRGB content in sRGB, not linear */
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
-      blending_tf = priv->eotf.tf_name;
-      break;
-    default:
-      g_assert_not_reached ();
     }
 
   if (force)
     blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
 
-  if (priv->eotf.tf_name == blending_tf)
+  if (priv->eotf.type == CLUTTER_EOTF_TYPE_NAMED &&
+      priv->eotf.tf_name == blending_tf)
     return g_object_ref (color_state);
 
   switch (priv->colorimetry.type)
@@ -1217,6 +1355,7 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
                                        colorspace,
                                        blending_tf,
                                        primaries,
+                                       -1.0f,
                                        priv->luminance.min,
                                        priv->luminance.max,
                                        priv->luminance.ref);

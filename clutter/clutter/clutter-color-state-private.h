@@ -27,10 +27,10 @@
 typedef struct _ClutterColorTransformKey
 {
   struct {
-    ClutterTransferFunction transfer_function;
+    guint eotf_key;
   } source;
   struct {
-    ClutterTransferFunction transfer_function;
+    guint eotf_key;
   } target;
 } ClutterColorTransformKey;
 

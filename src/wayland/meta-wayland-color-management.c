@@ -184,6 +184,14 @@ wayland_tf_to_clutter (enum xx_color_manager_v4_transfer_function  tf,
 {
   switch (tf)
     {
+    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA22:
+      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+      eotf->gamma_exp = 2.2f;
+      return TRUE;
+    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA28:
+      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+      eotf->gamma_exp = 2.8f;
+      return TRUE;
     case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
@@ -374,8 +382,24 @@ send_information (struct wl_resource *info_resource,
     }
 
   eotf = clutter_color_state_get_eotf (color_state);
-  tf = clutter_tf_to_wayland (eotf->tf_name);
-  xx_image_description_info_v4_send_tf_named (info_resource, tf);
+  switch (eotf->type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      tf = clutter_tf_to_wayland (eotf->tf_name);
+      xx_image_description_info_v4_send_tf_named (info_resource, tf);
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      if (G_APPROX_VALUE (eotf->gamma_exp, 2.2f, 0.0001f))
+        xx_image_description_info_v4_send_tf_named (info_resource,
+                                                    XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA22);
+      else if (G_APPROX_VALUE (eotf->gamma_exp, 2.8f, 0.0001f))
+        xx_image_description_info_v4_send_tf_named (info_resource,
+                                                    XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA28);
+      else
+        xx_image_description_info_v4_send_tf_power (info_resource,
+                                                    float_to_scaled_uint32 (eotf->gamma_exp));
+      break;
+    }
 
   lum = clutter_color_state_get_luminance (color_state);
   xx_image_description_info_v4_send_luminances (info_resource,
@@ -861,6 +885,8 @@ creator_params_create (struct wl_client   *client,
   MetaWaylandImageDescription *image_desc;
   ClutterColorspace colorspace;
   ClutterPrimaries *primaries;
+  ClutterTransferFunction tf_name;
+  float gamma_exp;
 
   if (!creator_params->is_colorimetry_set || !creator_params->is_eotf_set)
     {
@@ -888,10 +914,23 @@ creator_params_create (struct wl_client   *client,
       break;
     }
 
+  switch (creator_params->eotf.type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      tf_name = creator_params->eotf.tf_name;
+      gamma_exp = -1.0f;
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      gamma_exp = creator_params->eotf.gamma_exp;
+      break;
+    }
+
   color_state = clutter_color_state_new_full (clutter_context,
                                               colorspace,
-                                              creator_params->eotf.tf_name,
+                                              tf_name,
                                               primaries,
+                                              gamma_exp,
                                               creator_params->lum.min,
                                               creator_params->lum.max,
                                               creator_params->lum.ref);
@@ -944,9 +983,28 @@ creator_params_set_tf_power (struct wl_client   *client,
                              struct wl_resource *resource,
                              uint32_t            eexp)
 {
-  wl_resource_post_error (resource,
-                          XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_TF,
-                          "Setting power based transfer characteristics is not supported");
+  MetaWaylandCreatorParams *creator_params =
+    wl_resource_get_user_data (resource);
+
+  if (creator_params->is_eotf_set)
+    {
+      wl_resource_post_error (resource,
+                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              "The transfer characteristics were already set");
+      return;
+    }
+
+  if (eexp < 10000 || eexp > 100000)
+    {
+      wl_resource_post_error (resource,
+                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_TF,
+                              "The exponent must be between 1.0 and 10.0");
+      return;
+    }
+
+  creator_params->eotf.type = CLUTTER_EOTF_TYPE_GAMMA;
+  creator_params->eotf.gamma_exp = scaled_uint32_to_float (eexp);
+  creator_params->is_eotf_set = TRUE;
 }
 
 static void
@@ -1355,7 +1413,13 @@ color_manager_send_supported_events (struct wl_resource *resource)
   xx_color_manager_v4_send_supported_feature (resource,
                                               XX_COLOR_MANAGER_V4_FEATURE_SET_PRIMARIES);
   xx_color_manager_v4_send_supported_feature (resource,
+                                              XX_COLOR_MANAGER_V4_FEATURE_SET_TF_POWER);
+  xx_color_manager_v4_send_supported_feature (resource,
                                               XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES);
+  xx_color_manager_v4_send_supported_tf_named (resource,
+                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA22);
+  xx_color_manager_v4_send_supported_tf_named (resource,
+                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA28);
   xx_color_manager_v4_send_supported_tf_named (resource,
                                                XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB);
   xx_color_manager_v4_send_supported_tf_named (resource,

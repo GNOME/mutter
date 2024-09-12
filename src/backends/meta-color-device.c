@@ -687,7 +687,9 @@ update_color_state (MetaColorDevice *color_device)
   g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorspace colorspace;
   ClutterEOTF eotf;
+  ClutterTransferFunction transfer_function;
   const ClutterLuminance *luminance;
+  float gamma_exp;
   float reference_luminance_factor;
   float new_ref_luminance;
   UpdateResult result = 0;
@@ -701,10 +703,23 @@ update_color_state (MetaColorDevice *color_device)
     meta_debug_control_get_luminance_percentage (debug_control) / 100.0f;
   new_ref_luminance = luminance->ref * reference_luminance_factor;
 
+  switch (eotf.type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      transfer_function = eotf.tf_name;
+      gamma_exp = -1.0f;
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      transfer_function = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      gamma_exp = eotf.gamma_exp;
+      break;
+    }
+
   color_state = clutter_color_state_new_full (clutter_context,
                                               colorspace,
-                                              eotf.tf_name,
+                                              transfer_function,
                                               NULL,
+                                              gamma_exp,
                                               luminance->min,
                                               luminance->max,
                                               new_ref_luminance);
