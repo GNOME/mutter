@@ -475,8 +475,6 @@ _cogl_driver_update_features (CoglContext  *ctx,
     (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
                                              "glGetIntegerv");
 
-  gl_extensions = _cogl_context_get_gl_extensions (ctx);
-
   if (!check_gl_version (ctx, error))
     return FALSE;
 
@@ -486,6 +484,8 @@ _cogl_driver_update_features (CoglContext  *ctx,
 
   if (!check_glsl_version (ctx, error))
     return FALSE;
+
+  gl_extensions = _cogl_context_get_gl_extensions (ctx);
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
     {
