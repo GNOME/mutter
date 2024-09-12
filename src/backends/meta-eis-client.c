@@ -52,6 +52,10 @@ struct _MetaEisClient
   struct eis_seat *eis_seat;
 
   GHashTable *eis_devices; /* eis_device => MetaEisDevice*/
+  MetaEisDevice *pointer_device;
+  MetaEisDevice *keyboard_device;
+  gulong keymap_changed_handler_id;
+  gboolean have_abs_pointer_devices;
 
   gulong viewports_changed_handler_id;
 };
@@ -159,6 +163,19 @@ drop_device (gpointer htkey,
 
   remove_device (client, eis_device, FALSE);
   return TRUE;
+}
+
+static gboolean
+drop_abs_devices (gpointer key,
+                  gpointer value,
+                  gpointer data)
+{
+  struct eis_device *eis_device = key;
+
+  if (!eis_device_has_capability (eis_device, EIS_DEVICE_CAP_POINTER_ABSOLUTE))
+    return FALSE;
+
+  return drop_device (key, value, data);
 }
 
 static void
@@ -307,6 +324,10 @@ create_device (MetaEisClient           *client,
   ClutterVirtualInputDevice *virtual_device;
   struct eis_device *eis_device;
   gchar *name;
+
+  meta_topic (META_DEBUG_EIS,
+              "Creating device '%s'",
+              name_suffix);
 
   virtual_device = clutter_seat_create_virtual_device (seat, type);
   eis_device = eis_seat_new_device (eis_seat);
@@ -582,45 +603,43 @@ handle_key (MetaEisClient    *client,
   notify_key (device, key, is_press);
 }
 
-static gboolean
-drop_kbd_devices (gpointer htkey,
-                  gpointer value,
-                  gpointer data)
-{
-  struct eis_device *eis_device = htkey;
-
-  if (!eis_device_has_capability (eis_device, EIS_DEVICE_CAP_KEYBOARD))
-    return FALSE;
-
-  return drop_device (htkey, value, data);
-}
-
 static void
 on_keymap_changed (MetaBackend *backend,
                    gpointer     data)
 {
   MetaEisClient *client = data;
+  MetaEisDevice *keyboard;
 
   /* Changing the keymap means we have to remove our device and recreate it
    * with the new keymap.
    */
-  g_hash_table_foreach_remove (client->eis_devices,
-                               drop_kbd_devices,
-                               client);
 
-  add_device (client,
-              client->eis_seat,
-              CLUTTER_KEYBOARD_DEVICE,
-              "virtual keyboard",
-              configure_keyboard, NULL);
+  meta_topic (META_DEBUG_EIS,
+              "Recreating keyboard device with new keyboard");
+
+  keyboard = g_steal_pointer (&client->keyboard_device);
+  g_hash_table_remove (client->eis_devices,
+                       keyboard->eis_device);
+
+  client->keyboard_device = add_device (client,
+                                        client->eis_seat,
+                                        CLUTTER_KEYBOARD_DEVICE,
+                                        "virtual keyboard",
+                                        configure_keyboard, NULL);
 }
 
 static void
-add_abs_pointer_devices (MetaEisClient *client)
+add_viewport_devices (MetaEisClient           *client,
+                      ClutterInputDeviceType   type,
+                      const char              *name_suffix,
+                      MetaEisDeviceConfigFunc  extra_config_func)
 {
   MetaEisDevice *shared_device = NULL;
   GList *viewports;
   GList *l;
+
+  g_return_if_fail (eis_seat_has_capability (client->eis_seat,
+                                             EIS_DEVICE_CAP_POINTER_ABSOLUTE));
 
   viewports = meta_eis_peek_viewports (client->eis);
   if (!viewports)
@@ -633,12 +652,14 @@ add_abs_pointer_devices (MetaEisClient *client)
       if (meta_eis_viewport_is_standalone (viewport))
         {
           MetaEisDevice *device;
+          g_autofree char *name = NULL;
 
+          name = g_strdup_printf ("standalone %s", name_suffix);
           device = add_device (client,
                                client->eis_seat,
-                               CLUTTER_POINTER_DEVICE,
-                               "standalone virtual absolute pointer",
-                               configure_abs,
+                               type,
+                               name,
+                               extra_config_func,
                                viewport);
           device->viewport = viewport;
         }
@@ -646,11 +667,14 @@ add_abs_pointer_devices (MetaEisClient *client)
         {
           if (!shared_device)
             {
+              g_autofree char *name = NULL;
+
+              name = g_strdup_printf ("shared %s", name_suffix);
               shared_device = create_device (client,
                                              client->eis_seat,
-                                             CLUTTER_POINTER_DEVICE,
-                                             "shared virtual absolute pointer",
-                                             configure_abs,
+                                             type,
+                                             name,
+                                             extra_config_func,
                                              viewport);
             }
           else
@@ -664,47 +688,128 @@ add_abs_pointer_devices (MetaEisClient *client)
     propagate_device (shared_device);
 }
 
+static void
+add_abs_pointer_devices (MetaEisClient *client)
+{
+  add_viewport_devices (client,
+                        CLUTTER_POINTER_DEVICE,
+                        "virtual absolute pointer",
+                        configure_abs);
+}
+
 gboolean
 meta_eis_client_process_event (MetaEisClient    *client,
                                struct eis_event *event)
 {
   enum eis_event_type type = eis_event_get_type (event);
-  struct eis_seat *eis_seat;
 
   switch (type)
     {
     case EIS_EVENT_SEAT_BIND:
-      eis_seat = eis_event_get_seat (event);
-      if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER))
-        {
-          add_device (client,
-                      eis_seat,
-                      CLUTTER_POINTER_DEVICE,
-                      "virtual pointer",
-                      configure_rel, NULL);
-        }
-      if (eis_event_seat_has_capability (event, EIS_DEVICE_CAP_KEYBOARD))
-        {
-          add_device (client,
-                      eis_seat,
-                      CLUTTER_KEYBOARD_DEVICE,
-                      "virtual keyboard",
-                      configure_keyboard, NULL);
+      {
+        struct eis_seat *eis_seat;
+        gboolean wants_pointer_device;
+        gboolean wants_keyboard_device;
+        gboolean wants_abs_pointer_devices;
 
-          g_signal_connect (meta_eis_get_backend (client->eis),
-                            "keymap-changed",
-                            G_CALLBACK (on_keymap_changed),
-                            client);
-        }
+        eis_seat = eis_event_get_seat (event);
 
-      add_abs_pointer_devices (client);
-      break;
+        wants_pointer_device =
+          eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER);
+        wants_keyboard_device =
+          eis_event_seat_has_capability (event, EIS_DEVICE_CAP_KEYBOARD);
+        wants_abs_pointer_devices =
+          eis_event_seat_has_capability (event, EIS_DEVICE_CAP_POINTER_ABSOLUTE);
 
-    /* We only have one seat, so if the client unbinds from that
-     * just disconnect it, no point keeping it alive */
+        if (wants_pointer_device && !client->pointer_device)
+          {
+            meta_topic (META_DEBUG_EIS,
+                        "Seat %s bindings updated, creating pointer device",
+                        eis_seat_get_name (eis_seat));
+            client->pointer_device = add_device (client,
+                                                 eis_seat,
+                                                 CLUTTER_POINTER_DEVICE,
+                                                 "virtual pointer",
+                                                 configure_rel, NULL);
+          }
+        else if (!wants_pointer_device && client->pointer_device)
+          {
+            MetaEisDevice *pointer;
+
+            meta_topic (META_DEBUG_EIS,
+                        "Seat %s bindings updated, destroying pointer device",
+                        eis_seat_get_name (eis_seat));
+            pointer = g_steal_pointer (&client->pointer_device);
+            remove_device (client, pointer->eis_device, TRUE);
+          }
+
+        if (wants_keyboard_device && !client->keyboard_device)
+          {
+            meta_topic (META_DEBUG_EIS,
+                        "Seat %s bindings updated, creating keyboard device",
+                        eis_seat_get_name (eis_seat));
+
+            client->keyboard_device = add_device (client,
+                                                  eis_seat,
+                                                  CLUTTER_KEYBOARD_DEVICE,
+                                                  "virtual keyboard",
+                                                  configure_keyboard, NULL);
+
+            client->keymap_changed_handler_id =
+              g_signal_connect (meta_eis_get_backend (client->eis),
+                                "keymap-changed",
+                                G_CALLBACK (on_keymap_changed),
+                                client);
+          }
+        else if (!wants_keyboard_device && client->keyboard_device)
+          {
+            MetaEisDevice *keyboard;
+
+            meta_topic (META_DEBUG_EIS,
+                        "Seat %s bindings updated, destroying keyboard device",
+                        eis_seat_get_name (eis_seat));
+
+            keyboard = g_steal_pointer (&client->keyboard_device);
+            remove_device (client, keyboard->eis_device, TRUE);
+            g_clear_signal_handler (&client->keymap_changed_handler_id,
+                                    meta_eis_get_backend (client->eis));
+          }
+
+        if (wants_abs_pointer_devices && !client->have_abs_pointer_devices)
+          {
+            meta_topic (META_DEBUG_EIS,
+                        "Seat %s bindings updated, enabling absolute pointer devices",
+                        eis_seat_get_name (eis_seat));
+
+            add_abs_pointer_devices (client);
+            client->have_abs_pointer_devices = TRUE;
+          }
+        else if (!wants_abs_pointer_devices && client->have_abs_pointer_devices)
+          {
+            meta_topic (META_DEBUG_EIS,
+                        "Seat %s bindings updated, destroying absolute pointer devices",
+                        eis_seat_get_name (eis_seat));
+
+            g_hash_table_foreach_remove (client->eis_devices,
+                                         drop_abs_devices,
+                                         client);
+            client->have_abs_pointer_devices = FALSE;
+          }
+        break;
+      }
     case EIS_EVENT_DEVICE_CLOSED:
-      remove_device (client, eis_event_get_device (event), TRUE);
-      break;
+      {
+        struct eis_device *eis_device = eis_event_get_device (event);
+        MetaEisDevice *device = eis_device_get_user_data (eis_device);
+
+        if (client->pointer_device == device)
+          client->pointer_device = NULL;
+        else if (client->keyboard_device == device)
+          client->keyboard_device = NULL;
+        remove_device (client, eis_device, TRUE);
+
+        break;
+      }
     case EIS_EVENT_POINTER_MOTION:
       handle_motion_relative (client, event);
       break;
@@ -744,26 +849,17 @@ meta_eis_client_process_event (MetaEisClient    *client,
   return TRUE;
 }
 
-static gboolean
-drop_abs_devices (gpointer key,
-                  gpointer value,
-                  gpointer data)
-{
-  struct eis_device *eis_device = key;
-
-  if (!eis_device_has_capability (eis_device, EIS_DEVICE_CAP_POINTER_ABSOLUTE))
-    return FALSE;
-
-  return drop_device (key, value, data);
-}
-
 static void
 update_viewports (MetaEisClient *client)
 {
+  meta_topic (META_DEBUG_EIS, "Updating viewports");
+
   g_hash_table_foreach_remove (client->eis_devices,
                                drop_abs_devices,
                                client);
-  add_abs_pointer_devices (client);
+
+  if (client->have_abs_pointer_devices)
+    add_abs_pointer_devices (client);
 }
 
 static void
@@ -832,7 +928,6 @@ meta_eis_client_new (MetaEis           *eis,
     g_signal_connect (eis, "viewports-changed",
                       G_CALLBACK (on_viewports_changed),
                       client);
-  update_viewports (client);
 
   return client;
 }
@@ -847,9 +942,8 @@ meta_eis_client_finalize (GObject *object)
 {
   MetaEisClient *client = META_EIS_CLIENT (object);
 
-  g_signal_handlers_disconnect_by_func (meta_eis_get_backend (client->eis),
-                                        on_keymap_changed,
-                                        client);
+  g_clear_signal_handler (&client->keymap_changed_handler_id,
+                          meta_eis_get_backend (client->eis));
   meta_eis_client_disconnect (client);
 
   G_OBJECT_CLASS (meta_eis_client_parent_class)->finalize (object);
