@@ -84,7 +84,7 @@ if __name__ == '__main__':
     parser.add_argument('--enable', metavar='PROPERTY', type=str, nargs='?')
     parser.add_argument('--disable', metavar='PROPERTY', type=str, nargs='?')
     parser.add_argument('--toggle', metavar='PROPERTY', type=str, nargs='?')
-    parser.add_argument('--set', metavar='PROPERTY', type=str, nargs=2)
+    parser.add_argument('--set', metavar=('PROPERTY', 'VALUE'), type=str, nargs=2)
 
     args = parser.parse_args()
     if args.status:
