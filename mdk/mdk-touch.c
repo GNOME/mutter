@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2021-2024 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,74 +26,21 @@
 
 #include "mdk-dbus-remote-desktop.h"
 
-#define MAX_SLOTS 32
-
-typedef struct _MdkSessionTouch
-{
-  grefcount ref_count;
-
-  gboolean slots[MAX_SLOTS];
-} MdkSessionTouch;
-
 struct _MdkTouch
 {
-  GObject parent;
+  MdkDevice parent;
 
-  MdkSession *session;
-  MdkDBusRemoteDesktopSession *session_proxy;
-
-  MdkSessionTouch *session_touch;
-  int session_slots[MAX_SLOTS];
-
-  MdkMonitor *monitor;
+  GHashTable *slots;
 };
 
-static GQuark quark_session_touch = 0;
-
-G_DEFINE_FINAL_TYPE (MdkTouch, mdk_touch, G_TYPE_OBJECT)
-
-static MdkSessionTouch *
-mdk_touch_ensure_session_touch (MdkTouch *touch)
-{
-  MdkSessionTouch *session_touch;
-
-  if (touch->session_touch)
-    return touch->session_touch;
-
-  session_touch = g_object_get_qdata (G_OBJECT (touch->session),
-                                      quark_session_touch);
-
-  if (session_touch)
-    {
-      touch->session_touch = session_touch;
-      g_ref_count_inc (&session_touch->ref_count);
-      return session_touch;
-    }
-
-  session_touch = g_new0 (MdkSessionTouch, 1);
-  g_ref_count_init (&session_touch->ref_count);
-  touch->session_touch = session_touch;
-  g_object_set_qdata (G_OBJECT (touch->session),
-                      quark_session_touch,
-                      session_touch);
-  return session_touch;
-}
+G_DEFINE_FINAL_TYPE (MdkTouch, mdk_touch, MDK_TYPE_DEVICE)
 
 static void
 mdk_touch_finalize (GObject *object)
 {
   MdkTouch *touch = MDK_TOUCH (object);
 
-  if (touch->session_touch)
-    {
-      if (g_ref_count_dec (&touch->session_touch->ref_count))
-        {
-          g_object_set_qdata (G_OBJECT (touch->session),
-                              quark_session_touch,
-                              NULL);
-          g_clear_pointer (&touch->session_touch, g_free);
-        }
-    }
+  g_clear_pointer (&touch->slots, g_hash_table_unref);
 
   G_OBJECT_CLASS (mdk_touch_parent_class)->finalize (object);
 }
@@ -104,45 +51,46 @@ mdk_touch_class_init (MdkTouchClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = mdk_touch_finalize;
-
-  quark_session_touch = g_quark_from_static_string ("-mdk-session-touch");
 }
 
 static void
 mdk_touch_init (MdkTouch *touch)
 {
-  int i;
-
-  for (i = 0; i < G_N_ELEMENTS (touch->session_slots); i++)
-    touch->session_slots[i] = -1;
+  touch->slots = g_hash_table_new (NULL, NULL);
 }
 
 MdkTouch *
-mdk_touch_new (MdkSession                  *session,
-               MdkDBusRemoteDesktopSession *session_proxy,
-               MdkMonitor                  *monitor)
+mdk_touch_new (MdkSeat          *seat,
+               struct ei_device *ei_device)
 {
-  MdkTouch *touch;
-
-  touch = g_object_new (MDK_TYPE_TOUCH, NULL);
-  touch->session = session;
-  touch->session_proxy = session_proxy;
-  touch->monitor = monitor;
-
-  return touch;
+  return g_object_new (MDK_TYPE_TOUCH,
+                       "seat", seat,
+                       "ei-device", ei_device,
+                       NULL);
 }
 
 void
 mdk_touch_release_all (MdkTouch *touch)
 {
-  int i;
+  MdkDevice *device = MDK_DEVICE (touch);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
+  GHashTableIter iter;
+  gpointer key, value;
 
-  for (i = 0; i < G_N_ELEMENTS (touch->session_slots); i++)
+  g_debug ("Releaseing pressed touches");
+
+  g_hash_table_iter_init (&iter, touch->slots);
+  while (g_hash_table_iter_next (&iter, &key, &value))
     {
-      if (touch->session_slots[i] == -1)
-        continue;
+      struct ei_touch *ei_touch = value;
+      int slot = GPOINTER_TO_INT (key);
 
-      mdk_touch_notify_up (touch, i);
+      g_hash_table_iter_steal (&iter);
+
+      g_debug ("Emit touch up, slot: %d", slot);
+      ei_touch_up (ei_touch);
+      ei_device_frame (ei_device, g_get_monotonic_time ());
+      ei_touch_unref (ei_touch);
     }
 }
 
@@ -152,36 +100,17 @@ mdk_touch_notify_down (MdkTouch *touch,
                        double    x,
                        double    y)
 {
-  MdkStream *stream = mdk_monitor_get_stream (touch->monitor);
-  MdkSessionTouch *session_touch;
-  int session_slot = -1;
-  int i;
+  MdkDevice *device = MDK_DEVICE (touch);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
+  struct ei_touch *ei_touch;
 
-  g_return_if_fail (slot < G_N_ELEMENTS (touch->session_slots));
+  ei_touch = ei_device_touch_new (ei_device);
+  g_hash_table_insert (touch->slots, GINT_TO_POINTER (slot), ei_touch);
 
-  session_touch = mdk_touch_ensure_session_touch (touch);
-  for (i = 0; i < G_N_ELEMENTS (session_touch->slots); i++)
-    {
-      if (session_touch->slots[i])
-        continue;
-
-      session_touch->slots[i] = TRUE;
-      session_slot = i;
-      touch->session_slots[slot] = session_slot;
-      break;
-    }
-
-  if (session_slot == -1)
-    {
-      g_warning ("Ran out of touch session slots");
-      return;
-    }
-
-  mdk_dbus_remote_desktop_session_call_notify_touch_down (
-    touch->session_proxy,
-    mdk_stream_get_path (stream),
-    session_slot, x, y,
-    NULL, NULL, NULL);
+  g_debug ("Emit touch down, slot: %d (%p), position: %f, %f",
+           slot, ei_touch, x, y);
+  ei_touch_down (ei_touch, x, y);
+  ei_device_frame (ei_device, g_get_monotonic_time ());
 }
 
 void
@@ -190,35 +119,35 @@ mdk_touch_notify_motion (MdkTouch *touch,
                          double    x,
                          double    y)
 {
-  MdkStream *stream = mdk_monitor_get_stream (touch->monitor);
-  int session_slot;
+  MdkDevice *device = MDK_DEVICE (touch);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
+  struct ei_touch *ei_touch;
 
-  session_slot = touch->session_slots[slot];
-  if (session_slot == -1)
+  ei_touch = g_hash_table_lookup (touch->slots, GINT_TO_POINTER (slot));
+  if (!ei_touch)
     return;
 
-  mdk_dbus_remote_desktop_session_call_notify_touch_motion (
-    touch->session_proxy,
-    mdk_stream_get_path (stream),
-    session_slot, x, y,
-    NULL, NULL, NULL);
+  g_debug ("Emit touch motion, slot: %d, position: %f, %f",
+           slot, x, y);
+  ei_touch_motion (ei_touch, x, y);
+  ei_device_frame (ei_device, g_get_monotonic_time ());
 }
 
 void
 mdk_touch_notify_up (MdkTouch *touch,
                      int       slot)
 {
-  MdkSessionTouch *session_touch;
-  int session_slot;
+  MdkDevice *device = MDK_DEVICE (touch);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
+  struct ei_touch *ei_touch = NULL;
 
-  session_touch = mdk_touch_ensure_session_touch (touch);
+  g_hash_table_steal_extended (touch->slots, GINT_TO_POINTER (slot),
+                               NULL, (gpointer *) &ei_touch);
+  if (!ei_touch)
+    return;
 
-  session_slot = touch->session_slots[slot];
-  touch->session_slots[slot] = -1;
-  session_touch->slots[session_slot] = FALSE;
-
-  mdk_dbus_remote_desktop_session_call_notify_touch_up (
-    touch->session_proxy,
-    session_slot,
-    NULL, NULL, NULL);
+  g_debug ("Emit touch up, slot: %d (%p)", slot, ei_touch);
+  ei_touch_up (ei_touch);
+  ei_device_frame (ei_device, g_get_monotonic_time ());
+  ei_touch_unref (ei_touch);
 }

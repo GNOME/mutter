@@ -19,25 +19,18 @@
 
 #include <glib-object.h>
 #include <gdk/gdk.h>
+#include <libei.h>
 
+#include "mdk-device.h"
 #include "mdk-types.h"
-
-typedef enum _MdkScrollFlags
-{
-  MDK_SCROLL_FLAG_FINISH = 1 << 0,
-  MDK_SCROLL_FLAG_SOURCE_WHEEL = 1 << 1,
-  MDK_SCROLL_FLAG_SOURCE_FINGER = 1 << 2,
-  MDK_SCROLL_FLAG_SOURCE_CONTINUOUS = 1 << 3,
-} MdkScrollFlags;
 
 #define MDK_TYPE_POINTER (mdk_pointer_get_type ())
 G_DECLARE_FINAL_TYPE (MdkPointer, mdk_pointer,
                       MDK, POINTER,
-                      GObject)
+                      MdkDevice)
 
-MdkPointer * mdk_pointer_new (MdkSession                  *session,
-                              MdkDBusRemoteDesktopSession *session_proxy,
-                              MdkMonitor                  *monitor);
+MdkPointer * mdk_pointer_new (MdkSeat          *seat,
+                              struct ei_device *ei_device);
 
 void mdk_pointer_release_all (MdkPointer *pointer);
 

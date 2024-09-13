@@ -21,8 +21,11 @@
 
 #include <gio/gio.h>
 #include <glib/gi18n-lib.h>
+#include <glib/gstdio.h>
+#include <libei.h>
 
 #include "mdk-context.h"
+#include "mdk-ei.h"
 #include "mdk-keyboard.h"
 #include "mdk-pointer.h"
 #include "mdk-stream.h"
@@ -63,6 +66,8 @@ struct _MdkSession
   GObject parent;
 
   MdkContext *context;
+
+  MdkEi *ei;
 
   GCancellable *init_cancellable;
   GTask *init_task;
@@ -107,6 +112,10 @@ init_session_in_thread (MdkSession    *session,
   GVariantBuilder builder;
   const char *remote_desktop_session_id;
   GVariant *properties;
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  int ei_fd_idx = -1;
+  g_autofd int ei_fd = -1;
 
   g_debug ("Opening remote desktop and screen cast session");
 
@@ -156,6 +165,35 @@ init_session_in_thread (MdkSession    *session,
       cancellable,
       error);
   if (!session->screen_cast_session_proxy)
+    return FALSE;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
+  if (!mdk_dbus_remote_desktop_session_call_connect_to_eis_sync (
+      session->remote_desktop_session_proxy,
+      g_variant_builder_end (&builder),
+      NULL,
+      &fd_variant,
+      &fd_list,
+      NULL,
+      error))
+    return FALSE;
+
+  ei_fd_idx = g_variant_get_handle (fd_variant);
+  if (!G_IS_UNIX_FD_LIST (fd_list) ||
+      ei_fd_idx < 0 || ei_fd_idx >= g_unix_fd_list_get_length (fd_list))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to acquire file descriptor for EI backend: Invalid "
+                   "file descriptor list sent by display server");
+      return FALSE;
+    }
+
+  ei_fd = g_unix_fd_list_get (fd_list, ei_fd_idx, error);
+  if (ei_fd <= 0)
+    return FALSE;
+
+  session->ei = mdk_ei_new (session, g_steal_fd (&ei_fd), error);
+  if (!session->ei)
     return FALSE;
 
   g_signal_connect (session->remote_desktop_session_proxy,
@@ -303,6 +341,8 @@ mdk_session_finalize (GObject *object)
 {
   MdkSession *session = MDK_SESSION (object);
 
+  g_clear_object (&session->ei);
+
   if (session->remote_desktop_session_proxy)
     {
       mdk_dbus_remote_desktop_session_call_stop_sync (session->remote_desktop_session_proxy,
@@ -417,27 +457,8 @@ mdk_session_get_context (MdkSession *session)
   return session->context;
 }
 
-MdkPointer *
-mdk_session_create_pointer (MdkSession *session,
-                            MdkMonitor *monitor)
+MdkSeat *
+mdk_session_get_default_seat (MdkSession *session)
 {
-  return mdk_pointer_new (session,
-                          session->remote_desktop_session_proxy,
-                          monitor);
-}
-
-MdkKeyboard *
-mdk_session_create_keyboard (MdkSession *session)
-{
-  return mdk_keyboard_new (session,
-                           session->remote_desktop_session_proxy);
-}
-
-MdkTouch *
-mdk_session_create_touch (MdkSession *session,
-                          MdkMonitor *monitor)
-{
-  return mdk_touch_new (session,
-                        session->remote_desktop_session_proxy,
-                        monitor);
+  return mdk_ei_get_default_seat (session->ei);
 }

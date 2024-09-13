@@ -38,10 +38,4 @@ const char * mdk_session_create_monitor_finish (MdkSession    *session,
 
 MdkContext * mdk_session_get_context (MdkSession *session);
 
-MdkPointer * mdk_session_create_pointer (MdkSession *session,
-                                         MdkMonitor *monitor);
-
-MdkKeyboard * mdk_session_create_keyboard (MdkSession *session);
-
-MdkTouch * mdk_session_create_touch (MdkSession *session,
-                                     MdkMonitor *monitor);
+MdkSeat * mdk_session_get_default_seat (MdkSession *session);

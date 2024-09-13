@@ -25,82 +25,18 @@
 
 #include "mdk-dbus-remote-desktop.h"
 
-typedef struct _MdkSessionKeyboard
-{
-  grefcount ref_count;
-  int key_count[KEY_CNT];
-} MdkSessionKeyboard;
-
 struct _MdkKeyboard
 {
-  GObject parent;
-
-  MdkSession *session;
-  MdkDBusRemoteDesktopSession *session_proxy;
-
-  MdkSessionKeyboard *session_keyboard;
+  MdkDevice parent;
 
   gboolean key_pressed[KEY_CNT];
 };
 
-static GQuark quark_session_keyboard = 0;
-
-G_DEFINE_FINAL_TYPE (MdkKeyboard, mdk_keyboard, G_TYPE_OBJECT)
-
-static MdkSessionKeyboard *
-mdk_keyboard_ensure_session_keyboard (MdkKeyboard *keyboard)
-{
-  MdkSessionKeyboard *session_keyboard;
-
-  if (keyboard->session_keyboard)
-    return keyboard->session_keyboard;
-
-  session_keyboard = g_object_get_qdata (G_OBJECT (keyboard->session),
-                                        quark_session_keyboard);
-
-  if (session_keyboard)
-    {
-      keyboard->session_keyboard = session_keyboard;
-      g_ref_count_inc (&session_keyboard->ref_count);
-      return session_keyboard;
-    }
-
-  session_keyboard = g_new0 (MdkSessionKeyboard, 1);
-  g_ref_count_init (&session_keyboard->ref_count);
-  keyboard->session_keyboard = session_keyboard;
-  g_object_set_qdata (G_OBJECT (keyboard->session),
-                      quark_session_keyboard,
-                      session_keyboard);
-  return session_keyboard;
-}
-
-static void
-mdk_keyboard_finalize (GObject *object)
-{
-  MdkKeyboard *keyboard = MDK_KEYBOARD (object);
-
-  if (keyboard->session_keyboard)
-    {
-      if (g_ref_count_dec (&keyboard->session_keyboard->ref_count))
-        {
-          g_object_set_qdata (G_OBJECT (keyboard->session),
-                              quark_session_keyboard,
-                              NULL);
-          g_clear_pointer (&keyboard->session_keyboard, g_free);
-        }
-    }
-
-  G_OBJECT_CLASS (mdk_keyboard_parent_class)->finalize (object);
-}
+G_DEFINE_FINAL_TYPE (MdkKeyboard, mdk_keyboard, MDK_TYPE_DEVICE)
 
 static void
 mdk_keyboard_class_init (MdkKeyboardClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->finalize = mdk_keyboard_finalize;
-
-  quark_session_keyboard = g_quark_from_static_string ("-mdk-session-keyboard");
 }
 
 static void
@@ -109,22 +45,21 @@ mdk_keyboard_init (MdkKeyboard *keyboard)
 }
 
 MdkKeyboard *
-mdk_keyboard_new (MdkSession                  *session,
-                  MdkDBusRemoteDesktopSession *session_proxy)
+mdk_keyboard_new (MdkSeat          *seat,
+                  struct ei_device *ei_device)
 {
-  MdkKeyboard *keyboard;
-
-  keyboard = g_object_new (MDK_TYPE_KEYBOARD, NULL);
-  keyboard->session = session;
-  keyboard->session_proxy = session_proxy;
-
-  return keyboard;
+  return g_object_new (MDK_TYPE_KEYBOARD,
+                       "seat", seat,
+                       "ei-device", ei_device,
+                       NULL);
 }
 
 void
 mdk_keyboard_release_all (MdkKeyboard *keyboard)
 {
   int i;
+
+  g_debug ("Releasing pressed keyboard keys");
 
   for (i = 0; i < G_N_ELEMENTS (keyboard->key_pressed); i++)
     {
@@ -140,7 +75,8 @@ mdk_keyboard_notify_key (MdkKeyboard *keyboard,
                          int32_t      key,
                          int          state)
 {
-  MdkSessionKeyboard *session_keyboard;
+  MdkDevice *device = MDK_DEVICE (keyboard);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
 
   if (key > G_N_ELEMENTS (keyboard->key_pressed))
     {
@@ -161,29 +97,8 @@ mdk_keyboard_notify_key (MdkKeyboard *keyboard,
       keyboard->key_pressed[key] = FALSE;
     }
 
-  session_keyboard = mdk_keyboard_ensure_session_keyboard (keyboard);
-
-  if (state)
-    {
-      session_keyboard->key_count[key]++;
-    }
-  else
-    {
-      g_return_if_fail (session_keyboard->key_count[key] > 0);
-      session_keyboard->key_count[key]--;
-    }
-
-  if (session_keyboard->key_count[key] < 0)
-    {
-      g_warning ("Key count for 0x%x reached below zero, ignoring", key);
-      return;
-    }
-
-  if (session_keyboard->key_count[key] > 1)
-    return;
-
-  mdk_dbus_remote_desktop_session_call_notify_keyboard_keycode (
-    keyboard->session_proxy,
-    key, state,
-    NULL, NULL, NULL);
+  g_debug ("Emit keyboard key event, key: 0x%x, state: %s",
+           key, state ? "press" : "release");
+  ei_device_keyboard_key (ei_device, key, state);
+  ei_device_frame (ei_device, g_get_monotonic_time ());
 }

@@ -26,6 +26,7 @@
 #include "mdk-context.h"
 #include "mdk-keyboard.h"
 #include "mdk-pointer.h"
+#include "mdk-seat.h"
 #include "mdk-session.h"
 #include "mdk-stream.h"
 #include "mdk-touch.h"
@@ -44,49 +45,50 @@ struct _MdkMonitor
   MdkContext *context;
   MdkStream *stream;
 
-  MdkPointer *pointer;
-  MdkKeyboard *keyboard;
-  MdkTouch *touch;
-
   gboolean emulated_touch_down;
 };
 
 G_DEFINE_FINAL_TYPE (MdkMonitor, mdk_monitor, GTK_TYPE_BOX)
 
 static MdkPointer *
-ensure_pointer (MdkMonitor *monitor)
+get_pointer (MdkMonitor *monitor)
 {
   MdkSession *session = mdk_context_get_session (monitor->context);
+  MdkSeat *seat;
 
-  if (monitor->pointer)
-    return monitor->pointer;
+  g_assert (!mdk_context_get_emulate_touch (monitor->context));
 
-  monitor->pointer = mdk_session_create_pointer (session, monitor);
-  return monitor->pointer;
+  seat = mdk_session_get_default_seat (session);
+  if (!seat)
+    return NULL;
+
+  return mdk_seat_get_pointer (seat);
 }
 
 static MdkKeyboard *
-ensure_keyboard (MdkMonitor *monitor)
+get_keyboard (MdkMonitor *monitor)
 {
   MdkSession *session = mdk_context_get_session (monitor->context);
+  MdkSeat *seat;
 
-  if (monitor->keyboard)
-    return monitor->keyboard;
+  seat = mdk_session_get_default_seat (session);
+  if (!seat)
+    return NULL;
 
-  monitor->keyboard = mdk_session_create_keyboard (session);
-  return monitor->keyboard;
+  return mdk_seat_get_keyboard (seat);
 }
 
 static MdkTouch *
-ensure_touch (MdkMonitor *monitor)
+get_touch (MdkMonitor *monitor)
 {
   MdkSession *session = mdk_context_get_session (monitor->context);
+  MdkSeat *seat;
 
-  if (monitor->touch)
-    return monitor->touch;
+  seat = mdk_session_get_default_seat (session);
+  if (!seat)
+    return NULL;
 
-  monitor->touch = mdk_session_create_touch (session, monitor);
-  return monitor->touch;
+  return mdk_seat_get_touch (seat);
 }
 
 static void
@@ -130,16 +132,18 @@ on_pointer_motion (GtkEventControllerMotion *controller,
         {
           MdkTouch *touch;
 
-          touch = ensure_touch (monitor);
-          mdk_touch_notify_motion (touch, 0, x, y);
+          touch = get_touch (monitor);
+          if (touch)
+            mdk_touch_notify_motion (touch, 0, x, y);
         }
     }
   else
     {
       MdkPointer *pointer;
 
-      pointer = ensure_pointer (monitor);
-      mdk_pointer_notify_motion (pointer, x, y);
+      pointer = get_pointer (monitor);
+      if (pointer)
+        mdk_pointer_notify_motion (pointer, x, y);
     }
 }
 
@@ -175,7 +179,9 @@ on_scroll (GtkEventControllerScroll *controller,
   event =
     gtk_event_controller_get_current_event (GTK_EVENT_CONTROLLER (controller));
 
-  pointer = ensure_pointer (monitor);
+  pointer = get_pointer (monitor);
+  if (!pointer)
+    return TRUE;
 
   direction = gdk_scroll_event_get_direction (event);
   switch (direction)
@@ -202,8 +208,12 @@ on_scroll_end (GtkEventControllerScroll *controller,
 {
   MdkPointer *pointer;
 
-  pointer = ensure_pointer (monitor);
-  mdk_pointer_notify_scroll_end (pointer);
+  if (mdk_context_get_emulate_touch (monitor->context))
+    return TRUE;
+
+  pointer = get_pointer (monitor);
+  if (pointer)
+    mdk_pointer_notify_scroll_end (pointer);
 
   return TRUE;
 }
@@ -224,8 +234,14 @@ on_key_pressed (GtkEventControllerKey *controller,
   MdkKeyboard *keyboard;
   uint32_t evdev_key_code;
 
+  if (mdk_context_get_emulate_touch (monitor->context))
+     return TRUE;
+
   evdev_key_code = gdk_key_code_to_evdev (keycode);
-  keyboard = ensure_keyboard (monitor);
+  keyboard = get_keyboard (monitor);
+  if (!keyboard)
+    return TRUE;
+
   mdk_keyboard_notify_key (keyboard, evdev_key_code, 1);
 
   return TRUE;
@@ -241,8 +257,14 @@ on_key_released (GtkEventControllerKey *controller,
   MdkKeyboard *keyboard;
   uint32_t evdev_key_code;
 
+  if (mdk_context_get_emulate_touch (monitor->context))
+    return TRUE;
+
   evdev_key_code = gdk_key_code_to_evdev (keycode);
-  keyboard = ensure_keyboard (monitor);
+  keyboard = get_keyboard (monitor);
+  if (!keyboard)
+    return TRUE;
+
   mdk_keyboard_notify_key (keyboard, evdev_key_code, 0);
 
   return TRUE;
@@ -308,7 +330,9 @@ handle_touch_event (MdkMonitor *monitor,
   double x, y;
   int slot;
 
-  touch = ensure_touch (monitor);
+  touch = get_touch (monitor);
+  if (!touch)
+    return;
 
   slot = GPOINTER_TO_INT (gdk_event_get_event_sequence (event)) - 1;
 
@@ -371,9 +395,12 @@ handle_button_event (MdkMonitor *monitor,
             {
               MdkTouch *touch;
 
-              touch = ensure_touch (monitor);
-              mdk_touch_notify_down (touch, 0, x, y);
-              monitor->emulated_touch_down = TRUE;
+              touch = get_touch (monitor);
+              if (touch)
+                {
+                  mdk_touch_notify_down (touch, 0, x, y);
+                  monitor->emulated_touch_down = TRUE;
+                }
             }
         }
       else
@@ -382,10 +409,13 @@ handle_button_event (MdkMonitor *monitor,
           uint32_t evdev_button_code;
 
           evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
-          pointer = ensure_pointer (monitor);
-          mdk_pointer_notify_button (pointer,
-                                     evdev_button_code,
-                                     1);
+          pointer = get_pointer (monitor);
+          if (pointer)
+            {
+              mdk_pointer_notify_button (pointer,
+                                         evdev_button_code,
+                                         1);
+            }
         }
       break;
     case GDK_BUTTON_RELEASE:
@@ -395,9 +425,12 @@ handle_button_event (MdkMonitor *monitor,
             {
               MdkTouch *touch;
 
-              touch = ensure_touch (monitor);
-              mdk_touch_notify_up (touch, 0);
-              monitor->emulated_touch_down = FALSE;
+              touch = get_touch (monitor);
+              if (touch)
+                {
+                  mdk_touch_notify_up (touch, 0);
+                  monitor->emulated_touch_down = FALSE;
+                }
             }
         }
       else
@@ -406,10 +439,13 @@ handle_button_event (MdkMonitor *monitor,
           uint32_t evdev_button_code;
 
           evdev_button_code = gdk_button_code_to_evdev (gtk_button_code);
-          pointer = ensure_pointer (monitor);
-          mdk_pointer_notify_button (pointer,
-                                     evdev_button_code,
-                                     0);
+          pointer = get_pointer (monitor);
+          if (pointer)
+            {
+              mdk_pointer_notify_button (pointer,
+                                         evdev_button_code,
+                                         0);
+            }
         }
       break;
     default:
@@ -458,10 +494,28 @@ maybe_release_all_keys_and_buttons (MdkMonitor *monitor)
   if (!gtk_widget_has_focus (GTK_WIDGET (monitor)) ||
       !gtk_window_is_active (window))
     {
-      if (monitor->pointer)
-        mdk_pointer_release_all (monitor->pointer);
-      if (monitor->keyboard)
-        mdk_keyboard_release_all (monitor->keyboard);
+      MdkSession *session = mdk_context_get_session (monitor->context);
+      MdkSeat *seat;
+
+      seat = mdk_session_get_default_seat (session);
+      if (seat)
+        {
+          MdkPointer *pointer;
+          MdkKeyboard *keyboard;
+          MdkTouch *touch;
+
+          pointer = mdk_seat_get_pointer (seat);
+          if (pointer)
+            mdk_pointer_release_all (pointer);
+
+          keyboard = mdk_seat_get_keyboard (seat);
+          if (keyboard)
+            mdk_keyboard_release_all (keyboard);
+
+          touch = mdk_seat_get_touch (seat);
+          if (touch)
+            mdk_touch_release_all (touch);
+        }
     }
 }
 
@@ -543,9 +597,6 @@ mdk_monitor_finalize (GObject *object)
 {
   MdkMonitor *monitor = MDK_MONITOR (object);
 
-  g_clear_object (&monitor->touch);
-  g_clear_object (&monitor->keyboard);
-  g_clear_object (&monitor->pointer);
   g_clear_object (&monitor->stream);
 
   G_OBJECT_CLASS (mdk_monitor_parent_class)->finalize (object);

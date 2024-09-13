@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #include "mdk-pipewire.h"
+#include "mdk-seat.h"
 #include "mdk-session.h"
 
 enum
@@ -60,6 +61,44 @@ struct _MdkContext
 G_DEFINE_FINAL_TYPE (MdkContext, mdk_context, G_TYPE_OBJECT)
 
 static void
+update_active_input_devices (MdkContext *context)
+{
+  MdkSession *session;
+  MdkSeat *seat;
+
+  session = context->session;
+  if (!session)
+    return;
+
+  seat = mdk_session_get_default_seat (session);
+
+  if (context->emulate_touch)
+    {
+      mdk_seat_bind_touch (seat);
+      mdk_seat_unbind_pointer (seat);
+      mdk_seat_unbind_keyboard (seat);
+    }
+  else
+    {
+      mdk_seat_unbind_touch (seat);
+      mdk_seat_bind_pointer (seat);
+      mdk_seat_bind_keyboard (seat);
+    }
+}
+
+static void
+mdk_context_set_emulate_touch (MdkContext *context,
+                               gboolean    emulate_touch)
+{
+  if (context->emulate_touch == emulate_touch)
+    return;
+
+  context->emulate_touch = emulate_touch;
+
+  update_active_input_devices (context);
+}
+
+static void
 mdk_context_set_property (GObject      *object,
                           guint         prop_id,
                           const GValue *value,
@@ -70,7 +109,7 @@ mdk_context_set_property (GObject      *object,
   switch (prop_id)
     {
     case PROP_EMULATE_TOUCH:
-      context->emulate_touch = g_value_get_boolean (value);
+      mdk_context_set_emulate_touch (context, g_value_get_boolean (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -175,6 +214,7 @@ session_ready_cb (GObject      *source_object,
   g_debug ("Session is ready");
 
   context->session = MDK_SESSION (source_object);
+  update_active_input_devices (context);
 
   g_signal_connect (context->session, "closed",
                     G_CALLBACK (on_session_closed), context);

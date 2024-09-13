@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2021-2024 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,14 @@
 
 #include <glib-object.h>
 
+#include "mdk-device.h"
 #include "mdk-types.h"
 
 #define MDK_TYPE_TOUCH (mdk_touch_get_type ())
-G_DECLARE_FINAL_TYPE (MdkTouch, mdk_touch, MDK, TOUCH, GObject)
+G_DECLARE_FINAL_TYPE (MdkTouch, mdk_touch, MDK, TOUCH, MdkDevice)
 
-MdkTouch * mdk_touch_new (MdkSession                  *session,
-                          MdkDBusRemoteDesktopSession *session_proxy,
-                          MdkMonitor                  *monitor);
+MdkTouch * mdk_touch_new (MdkSeat          *seat,
+                          struct ei_device *ei_device);
 
 void mdk_touch_release_all (MdkTouch *touch);
 

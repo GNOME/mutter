@@ -19,15 +19,16 @@
 
 #include <glib-object.h>
 
+#include "mdk-device.h"
 #include "mdk-types.h"
 
 #define MDK_TYPE_KEYBOARD (mdk_keyboard_get_type ())
 G_DECLARE_FINAL_TYPE (MdkKeyboard, mdk_keyboard,
                       MDK, KEYBOARD,
-                      GObject)
+                      MdkDevice)
 
-MdkKeyboard * mdk_keyboard_new (MdkSession                  *session,
-                                MdkDBusRemoteDesktopSession *session_proxy);
+MdkKeyboard * mdk_keyboard_new (MdkSeat          *seat,
+                                struct ei_device *ei_device);
 
 void mdk_keyboard_release_all (MdkKeyboard *keyboard);
 

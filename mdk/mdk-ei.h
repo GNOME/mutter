@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2024 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,17 @@
 
 #pragma once
 
-typedef struct _MdkContext MdkContext;
-typedef struct _MdkKeyboard MdkKeyboard;
-typedef struct _MdkMonitor MdkMonitor;
-typedef struct _MdkPipewire MdkPipewire;
-typedef struct _MdkEi MdkEi;
-typedef struct _MdkSeat MdkSeat;
-typedef struct _MdkPointer MdkPointer;
-typedef struct _MdkSession MdkSession;
-typedef struct _MdkStream MdkStream;
-typedef struct _MdkTouch MdkTouch;
+#include <glib-object.h>
+
+#include "mdk-types.h"
+
+#define MDK_TYPE_EI (mdk_ei_get_type ())
+G_DECLARE_FINAL_TYPE (MdkEi, mdk_ei, MDK, EI, GObject)
+
+MdkEi * mdk_ei_new (MdkSession  *session,
+                    int          fd,
+                    GError     **error);
+
+void mdk_ei_dispatch (MdkEi *ei);
+
+MdkSeat * mdk_ei_get_default_seat (MdkEi *ei);
