@@ -1306,25 +1306,6 @@ clutter_color_state_equals (ClutterColorState *color_state,
 }
 
 static char *
-enum_to_string (GType        type,
-                unsigned int enum_value)
-{
-  GEnumClass *enum_class;
-  GEnumValue *value;
-  char *retval = NULL;
-
-  enum_class = g_type_class_ref (type);
-
-  value = g_enum_get_value (enum_class, enum_value);
-  if (value)
-    retval = g_strdup (value->value_nick);
-
-  g_type_class_unref (enum_class);
-
-  return retval;
-}
-
-static char *
 primaries_to_string (ClutterColorState *color_state)
 {
   ClutterColorStatePrivate *priv;
@@ -1333,7 +1314,7 @@ primaries_to_string (ClutterColorState *color_state)
   priv = clutter_color_state_get_instance_private (color_state);
 
   if (priv->colorspace != CLUTTER_COLORSPACE_DEFAULT)
-    return enum_to_string (CLUTTER_TYPE_COLORSPACE, priv->colorspace);
+    return g_strdup (clutter_colorspace_to_string (priv->colorspace));
 
   primaries = clutter_color_state_get_primaries (color_state);
   return g_strdup_printf ("[R: %f, %f G: %f, %f B: %f, %f W: %f, %f]",
@@ -1348,7 +1329,7 @@ clutter_color_state_to_string (ClutterColorState *color_state)
 {
   ClutterColorStatePrivate *priv;
   g_autofree char *primaries_name = NULL;
-  g_autofree char *transfer_function_name = NULL;
+  const char *transfer_function_name;
   float min_lum, max_lum, ref_lum;
 
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
@@ -1357,8 +1338,8 @@ clutter_color_state_to_string (ClutterColorState *color_state)
 
   primaries_name = primaries_to_string (color_state);
 
-  transfer_function_name = enum_to_string (CLUTTER_TYPE_TRANSFER_FUNCTION,
-                                           priv->transfer_function);
+  transfer_function_name =
+    clutter_transfer_function_to_string (priv->transfer_function);
 
   clutter_color_state_get_luminances (color_state, &min_lum, &max_lum, &ref_lum);
 
