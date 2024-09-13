@@ -925,6 +925,18 @@ clutter_stage_view_peek_scanout (ClutterStageView *view)
   return priv->next_scanout;
 }
 
+/**
+ * clutter_stage_view_get_priority: (skip)
+ */
+int
+clutter_stage_view_get_priority (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return clutter_frame_clock_get_priority (priv->frame_clock);
+}
+
 void
 clutter_stage_view_schedule_update (ClutterStageView *view)
 {

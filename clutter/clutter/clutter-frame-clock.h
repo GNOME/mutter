@@ -114,3 +114,6 @@ GString * clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock 
 CLUTTER_EXPORT
 void clutter_frame_clock_set_deadline_evasion (ClutterFrameClock *frame_clock,
                                                int64_t            deadline_evasion_us);
+
+CLUTTER_EXPORT
+int clutter_frame_clock_get_priority (ClutterFrameClock *frame_clock);

@@ -1770,6 +1770,12 @@ clutter_frame_clock_destroy (ClutterFrameClock *frame_clock)
   g_object_unref (frame_clock);
 }
 
+int
+clutter_frame_clock_get_priority (ClutterFrameClock *frame_clock)
+{
+  return (int) roundf (frame_clock->refresh_rate * 1000.0f);
+}
+
 static void
 clutter_frame_clock_dispose (GObject *object)
 {

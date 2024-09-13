@@ -91,3 +91,6 @@ ClutterColorState * clutter_stage_view_get_output_color_state (ClutterStageView 
 
 CLUTTER_EXPORT
 MtkMonitorTransform clutter_stage_view_get_transform (ClutterStageView *view);
+
+CLUTTER_EXPORT
+int clutter_stage_view_get_priority (ClutterStageView *view);
