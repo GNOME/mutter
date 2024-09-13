@@ -280,23 +280,9 @@ add_viewport_region (struct eis_device *eis_device,
 }
 
 static void
-configure_abs_shared (MetaEisClient     *client,
-                      struct eis_device *eis_device,
-                      gpointer           user_data)
-{
-  MetaEisViewport *viewport = META_EIS_VIEWPORT (user_data);
-
-  eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_POINTER_ABSOLUTE);
-  eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_BUTTON);
-  eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_SCROLL);
-
-  add_viewport_region (eis_device, viewport);
-}
-
-static void
-configure_abs_standalone (MetaEisClient     *client,
-                          struct eis_device *eis_device,
-                          gpointer           user_data)
+configure_abs (MetaEisClient     *client,
+               struct eis_device *eis_device,
+               gpointer           user_data)
 {
   MetaEisViewport *viewport = META_EIS_VIEWPORT (user_data);
 
@@ -652,7 +638,7 @@ add_abs_pointer_devices (MetaEisClient *client)
                                client->eis_seat,
                                CLUTTER_POINTER_DEVICE,
                                "standalone virtual absolute pointer",
-                               configure_abs_standalone,
+                               configure_abs,
                                viewport);
           device->viewport = viewport;
         }
@@ -664,7 +650,7 @@ add_abs_pointer_devices (MetaEisClient *client)
                                              client->eis_seat,
                                              CLUTTER_POINTER_DEVICE,
                                              "shared virtual absolute pointer",
-                                             configure_abs_shared,
+                                             configure_abs,
                                              viewport);
             }
           else
