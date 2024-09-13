@@ -200,6 +200,10 @@ wayland_tf_to_clutter (enum xx_color_manager_v4_transfer_function  tf,
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
       return TRUE;
+    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_BT709:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT709;
+      return TRUE;
     default:
       return FALSE;
     }
@@ -214,6 +218,8 @@ clutter_tf_to_wayland (ClutterTransferFunction tf)
       return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB;
     case CLUTTER_TRANSFER_FUNCTION_PQ:
       return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_ST2084_PQ;
+    case CLUTTER_TRANSFER_FUNCTION_BT709:
+      return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_BT709;
     case CLUTTER_TRANSFER_FUNCTION_LINEAR:
       return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_LINEAR;
     }
@@ -1443,6 +1449,8 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                                XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB);
   xx_color_manager_v4_send_supported_tf_named (resource,
                                                XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_ST2084_PQ);
+  xx_color_manager_v4_send_supported_tf_named (resource,
+                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_BT709);
   xx_color_manager_v4_send_supported_primaries_named (resource,
                                                       XX_COLOR_MANAGER_V4_PRIMARIES_SRGB);
   xx_color_manager_v4_send_supported_primaries_named (resource,

@@ -155,6 +155,8 @@ clutter_eotf_to_string (ClutterEOTF eotf)
           return "sRGB";
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return "PQ";
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
+          return "BT.709";
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return "linear";
         }
@@ -224,6 +226,7 @@ clutter_eotf_get_default_luminance (ClutterEOTF eotf)
       switch (eotf.tf_name)
         {
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return &sdr_default_luminance;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
@@ -488,6 +491,40 @@ static const char srgb_inv_eotf_source[] =
   "  return vec4 (srgb_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
+static const char bt709_eotf_source[] =
+  "// bt709_eotf:\n"
+  "// @color: Normalized ([0,1]) electrical signal value\n"
+  "// Returns: tristimulus values ([0,1])\n"
+  "vec3 bt709_eotf (vec3 color)\n"
+  "{\n"
+  "  bvec3 is_low = lessThan (color, vec3 (0.018));\n"
+  "  vec3 lo_part = color / 4.5;\n"
+  "  vec3 hi_part = pow ((color + 0.099) / 1.099), 1.0 / 0.45);\n"
+  "  return mix (hi_part, lo_part, is_low);\n"
+  "}\n"
+  "\n"
+  "vec4 bt709_eotf (vec4 color)\n"
+  "{\n"
+  "  return vec4 (bt709_eotf (color.rgb), color.a);\n"
+  "}\n";
+
+static const char bt709_inv_eotf_source[] =
+  "// bt709_inv_eotf:\n"
+  "// @color: Normalized tristimulus values ([0,1])"
+  "// Returns: Normalized ([0,1]) electrical signal value\n"
+  "vec3 bt709_inv_eotf (vec3 color)\n"
+  "{\n"
+  "  bvec3 is_low = lessThan (color, vec3 (0.018));\n"
+  "  vec3 lo_part = 4.5 * color;\n"
+  "  vec3 hi_part = 1.099 * pow (color, 0.45) - 0.099;\n"
+  "  return mix (hi_part, lo_part, is_low);\n"
+  "}\n"
+  "\n"
+  "vec4 bt709_inv_eotf (vec4 color)\n"
+  "{\n"
+  "  return vec4 (bt709_inv_eotf (color.rgb), color.a);\n"
+  "}\n";
+
 typedef struct _TransferFunction
 {
   const char *source;
@@ -524,6 +561,16 @@ static const TransferFunction srgb_inv_eotf = {
   .name = "srgb_inv_eotf",
 };
 
+static const TransferFunction bt709_eotf = {
+  .source = bt709_eotf_source,
+  .name = "bt709_eotf",
+};
+
+static const TransferFunction bt709_inv_eotf = {
+  .source = bt709_inv_eotf_source,
+  .name = "bt709_inv_eotf",
+};
+
 static void
 append_shader_description (GString           *snippet_source,
                            ClutterColorState *color_state,
@@ -555,6 +602,8 @@ get_eotf (ClutterColorState *color_state)
         {
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
+          return &bt709_eotf;
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
           return &srgb_eotf;
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
@@ -582,6 +631,8 @@ get_inv_eotf (ClutterColorState *color_state)
         {
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_inv_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
+          return &bt709_inv_eotf;
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
           return &srgb_inv_eotf;
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
@@ -1296,6 +1347,7 @@ clutter_color_state_required_format (ClutterColorState *color_state)
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10;
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
           return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
         }
     }
@@ -1339,6 +1391,7 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
       switch (priv->eotf.tf_name)
         {
         case CLUTTER_TRANSFER_FUNCTION_PQ:
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
           break;
