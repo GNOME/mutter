@@ -36,6 +36,7 @@ typedef enum
 {
   CLUTTER_COLORSPACE_SRGB,
   CLUTTER_COLORSPACE_BT2020,
+  CLUTTER_COLORSPACE_NTSC,
 } ClutterColorspace;
 
 typedef enum

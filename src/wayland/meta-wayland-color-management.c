@@ -234,6 +234,10 @@ wayland_primaries_to_clutter (enum xx_color_manager_v4_primaries  primaries,
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       colorimetry->colorspace = CLUTTER_COLORSPACE_BT2020;
       return TRUE;
+    case XX_COLOR_MANAGER_V4_PRIMARIES_NTSC:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_NTSC;
+      return TRUE;
     default:
       return FALSE;
     }
@@ -248,6 +252,8 @@ clutter_colorspace_to_wayland (ClutterColorspace colorspace)
       return XX_COLOR_MANAGER_V4_PRIMARIES_SRGB;
     case CLUTTER_COLORSPACE_BT2020:
       return XX_COLOR_MANAGER_V4_PRIMARIES_BT2020;
+    case CLUTTER_COLORSPACE_NTSC:
+      return XX_COLOR_MANAGER_V4_PRIMARIES_NTSC;
     }
   g_assert_not_reached ();
 }
@@ -1441,6 +1447,8 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                                       XX_COLOR_MANAGER_V4_PRIMARIES_SRGB);
   xx_color_manager_v4_send_supported_primaries_named (resource,
                                                       XX_COLOR_MANAGER_V4_PRIMARIES_BT2020);
+  xx_color_manager_v4_send_supported_primaries_named (resource,
+                                                      XX_COLOR_MANAGER_V4_PRIMARIES_NTSC);
 }
 
 static const struct xx_color_manager_v4_interface

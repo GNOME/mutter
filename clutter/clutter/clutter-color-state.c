@@ -134,6 +134,8 @@ clutter_colorspace_to_string (ClutterColorspace colorspace)
       return "sRGB";
     case CLUTTER_COLORSPACE_BT2020:
       return "BT.2020";
+    case CLUTTER_COLORSPACE_NTSC:
+      return "NTSC";
     }
 
   g_assert_not_reached ();
@@ -614,6 +616,13 @@ static const ClutterPrimaries srgb_primaries = {
   .w_x = 0.3127f, .w_y = 0.3290f,
 };
 
+static const ClutterPrimaries ntsc_primaries = {
+  .r_x = 0.63f, .r_y = 0.34f,
+  .g_x = 0.31f, .g_y = 0.595f,
+  .b_x = 0.155f, .b_y = 0.07f,
+  .w_x = 0.3127f, .w_y = 0.3290f,
+};
+
 static const ClutterPrimaries bt2020_primaries = {
   .r_x = 0.708f, .r_y = 0.292f,
   .g_x = 0.170f, .g_y = 0.797f,
@@ -628,6 +637,8 @@ clutter_colorspace_to_primaries (ClutterColorspace colorspace)
     {
     case CLUTTER_COLORSPACE_SRGB:
       return &srgb_primaries;
+    case CLUTTER_COLORSPACE_NTSC:
+      return &ntsc_primaries;
     case CLUTTER_COLORSPACE_BT2020:
       return &bt2020_primaries;
     }
