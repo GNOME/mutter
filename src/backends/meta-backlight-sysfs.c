@@ -310,17 +310,14 @@ meta_backlight_sysfs_new (MetaBackend           *backend,
   g_autofree char *brightness_path = NULL;
   g_autofree char *device_name = NULL;
   g_autofree char *device_path = NULL;
+  gboolean is_internal;
   int min, max;
 
-  /* we currently only support backlights for built-in panels */
-  if (!meta_output_info_is_builtin (output_info))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "External displays are not supported");
-      return NULL;
-    }
+  is_internal = meta_output_info_is_builtin (output_info);
 
-  backlight_device = meta_udev_find_builtin_backlight (udev);
+  backlight_device = meta_udev_backlight_find (udev,
+                                               output_info->name,
+                                               is_internal);
   if (!backlight_device)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
