@@ -1,3 +1,27 @@
+46.5
+====
+* Fix drag and drop between X11 and wayland clients [Carlos; !3821]
+* Fix drag and drop from grabbing popups [Carlos; !3937]
+* Fix EGLDevice support [Daniel; !3939]
+* Fix frozen cursor on some hybrid machines [Daniel; !3950]
+* Fix touch window dragging with pointer lock enabled [Carlos; !3889]
+* Fix propagating tablet device removals to clients [Peter; !3955]
+* Fix tablet input in maximized windows [Peter; !3956]
+* Reduce damage on window movement [Christian; !3975]
+* Fix frozen cursor after suspend [Jonas; !3982]
+* Fix using modifiers on multi-GPU setups [José; !3998]
+* Fixed crashes [Marco, Jonas; !3978, !3960]
+* Misc. bug fixes and cleanups [Daniel, Michel, Sebastian, Bilal, Peter;
+  #3597, !3946, !3903, !3914, !3954, !3912, !3837, !3959]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Bilal Elmoussaoui, José Expósito, Carlos Garnacho,
+  Christian Hergert, Peter Hutterer, Marco Trevisan (Treviño), Daniel van Vugt,
+  Sebastian Wick
+
+Translators:
+  Daniel Șerbănescu [ro], Vasil Pupkin [be]
+
 46.4
 ====
 * Fix nested popovers on wayland [Carlos; !3874]
