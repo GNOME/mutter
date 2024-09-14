@@ -1138,7 +1138,7 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
-  if (pointer->focus_surface)
+  if (pointer->current)
     {
       MetaCursorSprite *cursor_sprite = NULL;
 
