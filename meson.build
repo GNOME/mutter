@@ -44,6 +44,7 @@ libdisplay_info_req = '>= 0.2'
 # optional version requirements
 udev_req = '>= 228'
 gudev_req = '>= 238'
+umockdev_req = '>= 0.3.0'
 
 # wayland version requirements
 wayland_server_req = '>= 1.23'
@@ -408,6 +409,7 @@ if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
   dbusmock_dep = python.find_installation('python3', modules: ['dbusmock'], required: false)
   libevdev_dep = dependency('libevdev', required: false)
+  umockdev_dep = dependency('umockdev-1.0', version: umockdev_req)
 
   if not have_native_backend
     error('Tests require the native backend to be enabled')

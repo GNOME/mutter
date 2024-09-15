@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "meta-test/meta-context-test.h"
+#include "tests/meta-context-test-private.h"
 
 #include <glib.h>
 #include <gio/gio.h>
@@ -57,6 +57,7 @@ typedef struct _MetaContextTestPrivate
   MetaContextTestFlag flags;
   MetaSessionManager *session_manager;
   CoglColor *background_color;
+  UMockdevTestbed *udev_testbed;
 } MetaContextTestPrivate;
 
 struct _MetaContextTestClass
@@ -100,6 +101,7 @@ meta_context_test_finalize (GObject *object)
 
   g_clear_pointer (&priv->background_color, cogl_color_free);
   g_clear_object (&priv->session_manager);
+  g_clear_object (&priv->udev_testbed);
 
   G_OBJECT_CLASS (meta_context_test_parent_class)->finalize (object);
 }
@@ -395,6 +397,18 @@ meta_context_test_wait_for_x11_display (MetaContextTest *context_test)
 }
 
 /**
+ * meta_context_test_get_udev_testbed: (skip)
+ */
+UMockdevTestbed *
+meta_context_test_get_udev_testbed (MetaContextTest *context_test)
+{
+  MetaContextTestPrivate *priv =
+    meta_context_test_get_instance_private (context_test);
+
+  return priv->udev_testbed;
+}
+
+/**
  * meta_create_test_context: (skip)
  */
 MetaContext *
@@ -410,6 +424,7 @@ meta_create_test_context (MetaContextTestType type,
   priv = meta_context_test_get_instance_private (context_test);
   priv->type = type;
   priv->flags = flags;
+  priv->udev_testbed = umockdev_testbed_new ();
 
   return META_CONTEXT (context_test);
 }

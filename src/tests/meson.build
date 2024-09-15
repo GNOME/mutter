@@ -58,6 +58,7 @@ tests_deps = [
   locally_compiled_schemas_dep,
   wayland_client_dep,
   gvdb_dep,
+  umockdev_dep,
 ]
 
 if libevdev_dep.found()
@@ -263,6 +264,23 @@ privileged_test_cases = []
 
 subdir('mtk')
 
+backlight_client = executable('monitor-backlight-client',
+  sources: [
+    'monitor-backlight-client.c',
+    built_dbus_sources['meta-dbus-display-config'],
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-monitor-backlight-test-client"',
+  ],
+  dependencies: [
+    gio_dep,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+)
+
 test_cases += [
   {
     'name': 'unit',
@@ -412,7 +430,10 @@ test_cases += [
   {
     'name': 'monitor-backlight',
     'suite': 'backend',
-    'sources': [ 'monitor-backlight-tests.c', ]
+    'sources': [ 'monitor-backlight-tests.c', ],
+    'depends': [
+      backlight_client,
+    ],
   },
   {
     'name': 'monitor-gdctl',
@@ -520,23 +541,6 @@ screen_cast_client_driver = executable('mutter-screen-cast-client-driver',
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
   install_rpath: pkglibdir,
-)
-
-backlight_client = executable('monitor-backlight-client',
-  sources: [
-    'monitor-backlight-client.c',
-    built_dbus_sources['meta-dbus-display-config'],
-  ],
-  include_directories: tests_includes,
-  c_args: [
-    tests_c_args,
-    '-DG_LOG_DOMAIN="mutter-monitor-backlight-test-client"',
-  ],
-  dependencies: [
-    gio_dep,
-  ],
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
 )
 
 input_capture_client = executable('mutter-input-capture-test-client',
@@ -1164,9 +1168,13 @@ if have_kvm_tests or have_tty_tests
     )
 
     foreach variant: variants
+      variables = variant[1] + {
+        'META_DBUS_RUNNER_DISABLE_UMOCKDEV': '1',
+        'META_DBUS_RUNNER_DISABLE_LOGIND_PASSTHROUGH': '1',
+      }
+
       variant_env = environment()
-      variant_env.set('META_DBUS_RUNNER_DISABLE_LOGIND_PASSTHROUGH', '1')
-      foreach name, value: variant[1]
+      foreach name, value: variables
         variant_env.set(name, value)
       endforeach
       privileged_tests += [
@@ -1174,7 +1182,7 @@ if have_kvm_tests or have_tty_tests
           'name': '@0@@1@'.format(test_case['name'], variant[0]),
           'suite': test_case['suite'],
           'executable': test_executable,
-          'variables': variant[1],
+          'variables': variables,
           'env': variant_env,
         },
       ]

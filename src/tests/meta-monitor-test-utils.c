@@ -24,10 +24,12 @@
 #include <float.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-backlight-sysfs-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-config-store.h"
+#include "tests/meta-context-test-private.h"
 #include "tests/meta-crtc-test.h"
 #include "tests/meta-output-test.h"
 #include "tests/meta-test-utils.h"
@@ -649,6 +651,8 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                                 MonitorTestCaseSetup *setup,
                                 MonitorTestFlag       flags)
 {
+  MetaContextTest *context_test =
+    META_CONTEXT_TEST (meta_backend_get_context (backend));
   MetaMonitorTestSetup *test_setup;
   int i;
 #define META_N_CONNECTOR_TYPES 21
@@ -830,6 +834,61 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                           "brightness-max", setup->outputs[i].backlight_max,
                           "brightness", setup->outputs[i].backlight_max,
                           NULL);
+        }
+
+      if (setup->outputs[i].sysfs_backlight)
+        {
+          UMockdevTestbed *udev_testbed =
+            meta_context_test_get_udev_testbed (context_test);
+          g_autofree char *max_str = NULL;
+          g_autofree char *connector_name = NULL;
+          g_autofree char *connector_udev = NULL;
+          g_autofree char *backlight_udev = NULL;
+          int min;
+
+          g_assert_true (umockdev_in_mock_environment ());
+
+          umockdev_testbed_clear (udev_testbed);
+
+          max_str = g_strdup_printf ("%i", setup->outputs[i].backlight_max);
+          connector_name = g_strdup_printf ("card0-%s", output_info->name);
+
+          /* add an enabled drm connector which will be the parent of the backlight */
+          connector_udev = umockdev_testbed_add_device (udev_testbed,
+                                                        /* subsystem */
+                                                        "drm",
+                                                        /* name */
+                                                        connector_name,
+                                                        /* parent */
+                                                        NULL,
+                                                        /* attributes */
+                                                        "enabled", "enabled",
+                                                        NULL,
+                                                        /* properties */
+                                                        NULL);
+
+          backlight_udev = umockdev_testbed_add_device (udev_testbed,
+                                                        /* subsystem */
+                                                        "backlight",
+                                                        /* name */
+                                                        setup->outputs[i].sysfs_backlight,
+                                                        /* parent */
+                                                        connector_udev,
+                                                        /* attributes */
+                                                        "type", "raw",
+                                                        "max_brightness", max_str,
+                                                        "brightness", max_str,
+                                                        NULL,
+                                                        /* properties */
+                                                        NULL);
+
+          backlight = META_BACKLIGHT (meta_backlight_sysfs_new (backend,
+                                                                output_info,
+                                                                NULL));
+          g_assert_nonnull (backlight);
+
+          meta_backlight_get_brightness_info (backlight, &min, NULL);
+          g_assert_cmpint (min, ==, setup->outputs[i].backlight_min);
         }
 
       output = g_object_new (META_TYPE_OUTPUT_TEST,

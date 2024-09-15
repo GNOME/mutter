@@ -42,3 +42,6 @@ const char * meta_backlight_get_name (MetaBacklight *backlight);
 
 void meta_backlight_update_brightness_target (MetaBacklight *backlight,
                                               int            brightness);
+
+META_EXPORT_TEST
+gboolean meta_backlight_has_pending (MetaBacklight *backlight);

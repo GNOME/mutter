@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Red Hat
+ * Copyright (C) 2025 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -13,23 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #pragma once
 
-#include <glib-object.h>
+#include "config.h"
 
-#include "backends/meta-backend-types.h"
-#include "backends/meta-backlight-private.h"
-#include "backends/meta-output.h"
+#include "meta-test/meta-context-test.h"
 
-#define META_TYPE_BACKLIGHT_SYSFS (meta_backlight_sysfs_get_type ())
-G_DECLARE_FINAL_TYPE (MetaBacklightSysfs,
-                      meta_backlight_sysfs,
-                      META, BACKLIGHT_SYSFS,
-                      MetaBacklight)
+#include <umockdev.h>
 
-META_EXPORT_TEST
-MetaBacklightSysfs * meta_backlight_sysfs_new (MetaBackend           *backend,
-                                               const MetaOutputInfo  *output_info,
-                                               GError               **error);
+META_EXPORT
+UMockdevTestbed * meta_context_test_get_udev_testbed (MetaContextTest *context_test);

@@ -117,6 +117,7 @@ typedef struct _MonitorTestCaseOutput
   int suggested_y;
   int backlight_min;
   int backlight_max;
+  const char *sysfs_backlight;
   gboolean has_edid_info;
   MetaEdidInfo edid_info;
   uint64_t supported_color_spaces;

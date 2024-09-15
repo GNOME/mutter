@@ -89,6 +89,8 @@ class Login1Session(mockobject.DBusMockObject):
         bus = kwargs.get('mock_data')
         self.host_session = bus.get_object(self.bus_name.get_name(), self.path) if bus else None
 
+        self.backlights = {}
+
     @staticmethod
     def add_new(manager, session_id, seat_id, host_bus):
         session_path = f'{MAIN_OBJ}/session/{session_id}'
@@ -146,6 +148,27 @@ class Login1Session(mockobject.DBusMockObject):
         if self.host_session:
             return self.host_session.ReleaseControl(dbus_interface=SESSION_IFACE)
         # noop
+
+    @dbus.service.method(SESSION_IFACE, in_signature='ssu', out_signature='')
+    def SetBrightness(self, subsystem, name, brightness):
+        self.backlights[subsystem][name] = brightness
+        pass
+
+    @dbus.service.method(MOCK_IFACE, in_signature='ssu', out_signature='')
+    def CreateBacklight(self, subsystem, name, brightness):
+        if not subsystem in self.backlights:
+            self.backlights[subsystem] = {}
+
+        self.backlights[subsystem][name] = brightness
+
+    @dbus.service.method(MOCK_IFACE, in_signature='ss', out_signature='')
+    def DestroyBacklight(self, subsystem, name):
+        if subsystem in self.backlights and name in self.backlights[subsystem]:
+            del self.backlights[subsystem][name]
+
+    @dbus.service.method(MOCK_IFACE, in_signature='ss', out_signature='u')
+    def GetBacklight(self, subsystem, name):
+        return self.backlights[subsystem][name]
 
 
 @dbus.service.method(MANAGER_IFACE, in_signature='u', out_signature='o')
