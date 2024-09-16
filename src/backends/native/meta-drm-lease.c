@@ -387,12 +387,6 @@ meta_drm_lease_revoke (MetaDrmLease *lease)
 }
 
 static void
-meta_drm_lease_disappeared (MetaDrmLease *lease)
-{
-  mark_revoked (lease);
-}
-
-static void
 meta_drm_lease_dispose (GObject *object)
 {
   MetaDrmLease *lease = META_DRM_LEASE (object);
@@ -768,14 +762,6 @@ update_resources (MetaDrmLeaseManager *lease_manager)
     }
 }
 
-static void
-lease_disappeared (MetaDrmLeaseManager *lease_manager,
-                   MetaDrmLease        *lease)
-{
-  meta_drm_lease_disappeared (lease);
-  set_connectors_as_available (lease_manager, lease);
-}
-
 static gboolean
 did_lease_disappear (MetaDrmLease  *lease,
                      uint32_t      *lessees,
@@ -832,7 +818,7 @@ update_leases (MetaDrmLeaseManager *lease_manager)
     {
       lease = l->data;
 
-      lease_disappeared (lease_manager, lease);
+      mark_revoked (lease);
     }
 }
 
