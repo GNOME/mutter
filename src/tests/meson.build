@@ -199,7 +199,6 @@ tests_datadir = pkgdatadir / 'tests'
 install_data(
   [
     'mutter_dbusrunner.py',
-    'logind_helpers.py',
     'socket-launch.sh',
   ],
   install_dir: tests_datadir,
