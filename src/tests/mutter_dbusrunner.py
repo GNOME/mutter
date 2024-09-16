@@ -231,7 +231,9 @@ class MutterDBusRunner(DBusTestCase):
             klass.poll_thread.join()
 
 
-def wrap_call(args, wrapper, extra_env):
+def run_test(args, extra_env):
+    print('Running test case...', file=sys.stderr)
+
     env = {}
     env.update(os.environ)
     env['NO_AT_BRIDGE'] = '1'
@@ -244,6 +246,8 @@ def wrap_call(args, wrapper, extra_env):
     if extra_env:
         env |= extra_env
 
+    wrapper = os.getenv('META_DBUS_RUNNER_WRAPPER')
+
     if wrapper == 'gdb':
         args = ['gdb', '-ex', 'r', '-ex', 'bt full', '--args'] + args
     elif wrapper == 'rr':
@@ -254,6 +258,22 @@ def wrap_call(args, wrapper, extra_env):
     p = subprocess.Popen(args, env=env)
     print('Process', args, 'started with pid', p.pid, file=sys.stderr)
     return p.wait()
+
+
+def run_test_mocked(klass, rest, launch=[], bind_sockets=False, extra_env=None):
+    result = 1
+
+    klass.setUpClass(launch=launch,
+                     bind_sockets=bind_sockets)
+    runner = klass()
+    runner.assertGreater(len(rest), 0)
+
+    try:
+        result = run_test(rest, extra_env)
+    finally:
+        MutterDBusRunner.tearDownClass()
+
+    return result
 
 
 def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
@@ -277,19 +297,13 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
     else:
         print('WARNING: Command or separator `--` not found', file=sys.stderr)
 
-    if args.no_isolate_dirs:
-        return meta_run_klass(klass, rest,
-                              extra_env=extra_env)
-
-    test_root = os.getenv('MUTTER_DBUS_RUNNER_TEST_ROOT')
-    if test_root:
-        print('Reusing MUTTER_DBUS_RUNNER_TEST_ROOT', test_root, file=sys.stderr)
-        return meta_run_klass(klass, rest,
-                              extra_env=extra_env)
+    if os.getenv('META_DBUS_RUNNER_ACTIVE') != None:
+        print('Not re-creating mocked environment...', file=sys.stderr)
+        return run_test(rest, extra_env)
 
     with tempfile.TemporaryDirectory(prefix='mutter-testroot-',
                                      ignore_cleanup_errors=True) as test_root:
-        env_dirs = [
+        env_dirs = [] if args.no_isolate_dirs else [
             'HOME',
             'TMPDIR',
             'XDG_CACHE_HOME',
@@ -297,42 +311,13 @@ def meta_run(klass, extra_env=None, setup_argparse=None, handle_argparse=None):
             'XDG_DATA_HOME',
             'XDG_RUNTIME_DIR',
         ]
-        os.environ['MUTTER_DBUS_RUNNER_TEST_ROOT'] = test_root
-        print('Setup MUTTER_DBUS_RUNNER_TEST_ROOT as', test_root, file=sys.stderr)
         for env_dir in env_dirs:
             directory = os.path.join(test_root, env_dir.lower())
             os.mkdir(directory, mode=0o700)
             os.environ[env_dir] = directory
             print('Setup', env_dir, 'as', directory, file=sys.stderr)
 
-        return meta_run_klass(klass, rest,
-                              launch=args.launch,
-                              bind_sockets=True,
-                              extra_env=extra_env)
-
-def meta_run_klass(klass, rest, launch=[], bind_sockets=False, extra_env=None):
-    result = 1
-
-    if os.getenv('META_DBUS_RUNNER_ACTIVE') == None:
-        klass.setUpClass(launch=launch,
-                         bind_sockets=bind_sockets)
-        runner = klass()
-        runner.assertGreater(len(rest), 0)
-        wrapper = os.getenv('META_DBUS_RUNNER_WRAPPER')
-
-        try:
-            print('Running test case...', file=sys.stderr)
-            result = wrap_call(rest, wrapper, extra_env)
-        finally:
-            MutterDBusRunner.tearDownClass()
-    else:
-        try:
-            print(('Inside a nested meta-dbus-runner: '
-                   'Not re-creating mocked environment.'),
-                  file=sys.stderr)
-            print('Running test case...', file=sys.stderr)
-            result = wrap_call(rest, None, extra_env)
-        finally:
-            pass
-
-    return result
+        return run_test_mocked(klass, rest,
+                               launch=args.launch,
+                               bind_sockets=True,
+                               extra_env=extra_env)
