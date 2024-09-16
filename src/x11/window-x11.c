@@ -1643,7 +1643,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
 static gboolean
 meta_window_x11_update_struts (MetaWindow *window)
 {
-  g_autoslist (GSList) old_struts = NULL;
+  g_autoslist (MetaStrut) old_struts = NULL;
   GSList *new_struts;
   GSList *old_iter, *new_iter;
   uint32_t *struts = NULL;
