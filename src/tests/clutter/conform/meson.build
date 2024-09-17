@@ -43,6 +43,7 @@ clutter_conform_tests_general_tests = [
   'event-delivery',
   'color-state-transform',
   'frame-clock',
+  'frame-clock-passive',
   'frame-clock-timeline',
   'grab',
   'gesture',
