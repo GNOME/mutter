@@ -579,6 +579,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-color-management',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-color-management-test.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('color-management'),
+    ],
+  },
+  {
     'name': 'wayland-drm-lease',
     'suite': 'wayland',
     'sources': [

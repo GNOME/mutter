@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <wayland-client.h>
 
+#include "color-management-v1-client-protocol.h"
 #include "fractional-scale-v1-client-protocol.h"
 #include "linux-dmabuf-v1-client-protocol.h"
 #include "single-pixel-buffer-v1-client-protocol.h"
@@ -42,6 +43,7 @@ typedef struct _WaylandDisplay
   struct zwp_linux_dmabuf_v1 *linux_dmabuf;
   struct wp_fractional_scale_manager_v1 *fractional_scale_mgr;
   struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
+  struct xx_color_manager_v4 *color_management_mgr;
   struct wp_viewporter *viewporter;
   struct xdg_wm_base *xdg_wm_base;
   struct test_driver *test_driver;

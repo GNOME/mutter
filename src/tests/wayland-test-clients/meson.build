@@ -19,6 +19,9 @@ wayland_test_clients = [
     'name': 'buffer-transform',
   },
   {
+    'name': 'color-management',
+  },
+  {
     'name': 'dma-buf-scanout',
   },
   {

@@ -344,6 +344,12 @@ handle_registry_global (void               *user_data,
         wl_registry_bind (registry, id,
                           &wp_single_pixel_buffer_manager_v1_interface, 1);
     }
+  else if (strcmp (interface, xx_color_manager_v4_interface.name) == 0)
+    {
+      display->color_management_mgr =
+        wl_registry_bind (registry, id,
+                          &xx_color_manager_v4_interface, 1);
+    }
   else if (strcmp (interface, wp_viewporter_interface.name) == 0)
     {
       display->viewporter = wl_registry_bind (registry, id,
