@@ -468,12 +468,6 @@ _cogl_driver_update_features (CoglContext  *ctx,
   ctx->glGetString =
     (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
                                              "glGetString");
-  ctx->glGetStringi =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
-                                             "glGetStringi");
-  ctx->glGetIntegerv =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
-                                             "glGetIntegerv");
 
   if (!check_gl_version (ctx, error))
     return FALSE;
@@ -484,6 +478,16 @@ _cogl_driver_update_features (CoglContext  *ctx,
 
   if (!check_glsl_version (ctx, error))
     return FALSE;
+
+  /* These are only used in _cogl_context_get_gl_extensions for GL 3.0
+   * so don't look them up before check_gl_version()
+   */
+  ctx->glGetStringi =
+    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+                                             "glGetStringi");
+  ctx->glGetIntegerv =
+    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+                                             "glGetIntegerv");
 
   gl_extensions = _cogl_context_get_gl_extensions (ctx);
 
