@@ -984,6 +984,9 @@ meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                                            MetaWaylandSurface    *surface,
                                            uint32_t               serial)
 {
+  if (!tool->current_tablet || !tool->current_tablet->device)
+    return FALSE;
+
   return ((tool->down_serial == serial || tool->button_serial == serial) &&
           tablet_tool_can_grab_surface (tool, surface));
 }
@@ -1001,7 +1004,7 @@ meta_wayland_tablet_tool_get_grab_info (MetaWaylandTabletTool *tool,
       meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
     {
       if (device_out)
-        *device_out = tool->current_tablet ? NULL : tool->current_tablet->device;
+        *device_out = tool->current_tablet->device;
 
       if (x)
         *x = tool->grab_x;
