@@ -697,6 +697,13 @@ update_color_state (MetaColorDevice *color_device)
   colorspace = get_color_space_from_monitor (monitor);
   eotf = get_eotf_from_monitor (monitor);
 
+  if (meta_debug_control_is_hdr_forced (debug_control))
+    {
+      colorspace = CLUTTER_COLORSPACE_BT2020;
+      eotf.type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
+    }
+
   luminance = clutter_eotf_get_default_luminance (eotf);
 
   reference_luminance_factor =

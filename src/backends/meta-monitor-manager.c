@@ -1288,6 +1288,10 @@ on_started (MetaContext        *context,
                          G_CALLBACK (meta_monitor_manager_reconfigure),
                          monitor_manager, NULL,
                          G_CONNECT_SWAPPED | G_CONNECT_AFTER);
+  g_signal_connect_data (debug_control, "notify::force-hdr",
+                         G_CALLBACK (meta_monitor_manager_reconfigure),
+                         monitor_manager, NULL,
+                         G_CONNECT_SWAPPED | G_CONNECT_AFTER);
   g_signal_connect_data (debug_control, "notify::force-linear-blending",
                          G_CALLBACK (meta_monitor_manager_reconfigure),
                          monitor_manager, NULL,
