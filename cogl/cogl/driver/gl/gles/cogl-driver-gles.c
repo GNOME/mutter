@@ -695,9 +695,6 @@ _cogl_driver_update_features (CoglContext  *context,
   context->glGetString =
     (void *) cogl_renderer_get_proc_address (context->display->renderer,
                                              "glGetString");
-  context->glGetStringi =
-    (void *) cogl_renderer_get_proc_address (context->display->renderer,
-                                             "glGetStringi");
 
   if (!check_gl_version (context, error))
     return FALSE;
