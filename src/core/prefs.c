@@ -1476,9 +1476,7 @@ overlay_key_handler (GVariant *value,
   *result = NULL; /* ignored */
   string_value = g_variant_get_string (value, NULL);
 
-  if (string_value && meta_parse_accelerator (string_value, &combo))
-    ;
-  else
+  if (!string_value || !meta_parse_accelerator (string_value, &combo))
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Failed to parse value for overlay-key");
