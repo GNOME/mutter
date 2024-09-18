@@ -134,10 +134,7 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
    * Sized formats from table 4.5:
    *   RGBA4, RGB5_A1, RGB565
    *
-   * More color-renderable formats from extensions:
-   *
-   *   OES_rgb8_rgba8
-   *     adds RGB8, RGBA8 as color-renderable internal formats
+   * More color-renderable formats for glTexImage2D from extensions:
    *
    *   EXT_texture_format_BGRA8888
    *     adds BGRA_EXT as internal and external color-renderable format
@@ -146,8 +143,9 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
    *     adds R16F, RG16F (required EXT_texture_rg) and RGB16F, RGBA16F
    *     as internal color-renderable formats
    *
-   * => We require GLES 2 + OES_rgb8_rgba8 or GLES 3 which gives us at least:
-   *      RGB8, RGBA8, RGBA4, RGB5_A1, RGB565
+   * This means we have no way to get sized internal formats for RGB8 and RGBA8
+   * in GLES 2.0 and we have to fall back to non-sized internal formats but in
+   * practice this should be fine.
    */
 
   /* For GLES 2 (not GLES 3) the glintformat and glformat have to match:
@@ -204,7 +202,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_RGB_888:
-      glintformat = GL_RGB8;
+      if (_cogl_has_private_feature
+          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_SIZED_RGBA))
+        glintformat = GL_RGB8;
+      else
+        glintformat = GL_RGB;
+
       glformat = GL_RGB;
       gltype = GL_UNSIGNED_BYTE;
       break;
@@ -315,7 +318,11 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
-      glintformat = GL_RGBA8;
+      if (_cogl_has_private_feature
+          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_SIZED_RGBA))
+        glintformat = GL_RGBA8;
+      else
+        glintformat = GL_RGBA;
       glformat = GL_RGBA;
       gltype = GL_UNSIGNED_BYTE;
       break;
@@ -727,14 +734,11 @@ _cogl_driver_update_features (CoglContext  *context,
                                      gl_minor,
                                      gl_extensions);
 
-  if (!_cogl_check_extension ("GL_OES_rgb8_rgba8", gl_extensions) &&
-      !COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
     {
-      g_set_error (error,
-                   COGL_DRIVER_ERROR,
-                   COGL_DRIVER_ERROR_INVALID_VERSION,
-                   "GL_OES_rgb8_rgba8 is required for GLES 2");
-      return FALSE;
+      /* unfortunately there is no GLES 2 ext which adds the equivalent */
+      COGL_FLAGS_SET (private_features,
+                      COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_SIZED_RGBA, TRUE);
     }
 
   if (_cogl_check_extension ("GL_ANGLE_pack_reverse_row_order", gl_extensions))
