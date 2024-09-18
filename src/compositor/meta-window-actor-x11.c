@@ -815,6 +815,9 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
   tex_width = meta_shaped_texture_get_width (stex);
   tex_height = meta_shaped_texture_get_height (stex);
 
+  if (tex_width == 0 || tex_height == 0)
+    return;
+
   stride = cairo_format_stride_for_width (CAIRO_FORMAT_A8, tex_width);
 
   /* Create data for an empty image */
