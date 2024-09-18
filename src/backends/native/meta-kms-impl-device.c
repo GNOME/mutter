@@ -440,7 +440,12 @@ meta_kms_impl_device_list_lessees (MetaKmsImplDevice  *impl_device,
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
+  if (!ensure_device_file (impl_device, error))
+    return FALSE;
+
+  meta_kms_impl_device_hold_fd (impl_device);
   list = drmModeListLessees (meta_kms_impl_device_get_fd (impl_device));
+  meta_kms_impl_device_unhold_fd (impl_device);
 
   if (!list)
     {
