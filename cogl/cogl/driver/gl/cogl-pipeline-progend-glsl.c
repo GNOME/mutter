@@ -652,24 +652,75 @@ _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
   return TRUE;
 }
 
+static CoglPipelineSnippetList *
+get_fragment_snippets (CoglPipeline *pipeline)
+{
+  pipeline =
+    _cogl_pipeline_get_authority (pipeline,
+                                  COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
+
+  return &pipeline->big_state->fragment_snippets;
+}
+
+static CoglPipelineSnippetList *
+get_vertex_snippets (CoglPipeline *pipeline)
+{
+  pipeline =
+    _cogl_pipeline_get_authority (pipeline,
+                                  COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
+
+  return &pipeline->big_state->vertex_snippets;
+}
+
+static gboolean
+needs_recompile (CoglShader   *shader,
+                 CoglPipeline *pipeline,
+                 CoglPipeline *prev)
+{
+  /* XXX: currently the only things that will affect the
+   * boilerplate for user shaders, apart from driver features,
+   * are the pipeline layer-indices, texture-unit-indices and
+   * snippets
+   */
+
+  if (pipeline == prev)
+    return FALSE;
+
+  if (!_cogl_pipeline_layer_and_unit_numbers_equal (prev, pipeline))
+    return TRUE;
+
+  switch (shader->type)
+    {
+    case COGL_SHADER_TYPE_VERTEX:
+      if (!_cogl_pipeline_vertex_snippets_state_equal (prev, pipeline))
+        return TRUE;
+      break;
+    case COGL_SHADER_TYPE_FRAGMENT:
+      if (!_cogl_pipeline_fragment_snippets_state_equal (prev, pipeline))
+        return TRUE;
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
+    }
+
+  return FALSE;
+}
+
 static void
 _cogl_shader_compile_real (CoglShader   *shader,
                            CoglPipeline *pipeline)
 {
+  g_autoptr(GString) hooks_source = NULL;
+  CoglPipelineSnippetData snippet_data;
+  const char *shader_sources[4];
   GLenum gl_type;
   GLint status;
   CoglContext *ctx = pipeline->context;
 
   if (shader->gl_handle)
     {
-      CoglPipeline *prev = shader->compilation_pipeline;
-
-      /* XXX: currently the only things that will affect the
-       * boilerplate for user shaders, apart from driver features,
-       * are the pipeline layer-indices and texture-unit-indices
-       */
-      if (pipeline == prev ||
-          _cogl_pipeline_layer_and_unit_numbers_equal (prev, pipeline))
+      if (!needs_recompile (shader, pipeline, shader->compilation_pipeline))
         return;
 
       GE (ctx, glDeleteShader (shader->gl_handle));
@@ -682,18 +733,38 @@ _cogl_shader_compile_real (CoglShader   *shader,
         }
     }
 
+  hooks_source = g_string_new ("");
+  memset (&snippet_data, 0, sizeof (snippet_data));
+  snippet_data.chain_function = "cogl_main";
+  snippet_data.final_name = "cogl_hooks";
+  snippet_data.source_buf = hooks_source;
+
   switch (shader->type)
     {
     case COGL_SHADER_TYPE_VERTEX:
       gl_type = GL_VERTEX_SHADER;
+      snippet_data.snippets = get_vertex_snippets (pipeline);
+      snippet_data.hook = COGL_SNIPPET_HOOK_VERTEX;
+      snippet_data.function_prefix = "cogl_vertex_hook";
       break;
     case COGL_SHADER_TYPE_FRAGMENT:
       gl_type = GL_FRAGMENT_SHADER;
+      snippet_data.snippets = get_fragment_snippets (pipeline);
+      snippet_data.hook = COGL_SNIPPET_HOOK_FRAGMENT;
+      snippet_data.function_prefix = "cogl_fragment_hook";
       break;
     default:
       g_assert_not_reached ();
       break;
     }
+
+  _cogl_pipeline_snippet_generate_code (&snippet_data);
+
+  shader_sources[0] = "#define main cogl_main\n";
+  shader_sources[1] = shader->source;
+  shader_sources[2] = hooks_source->str;
+  shader_sources[3] = "#undef main\n"
+                      "void main () { cogl_hooks(); }\n";
 
   shader->gl_handle = ctx->glCreateShader (gl_type);
 
@@ -701,9 +772,8 @@ _cogl_shader_compile_real (CoglShader   *shader,
                                                  shader->gl_handle,
                                                  gl_type,
                                                  pipeline,
-                                                 1,
-                                                 (const char **)
-                                                  &shader->source,
+                                                 G_N_ELEMENTS (shader_sources),
+                                                 shader_sources,
                                                  NULL);
   GE (ctx, glCompileShader (shader->gl_handle));
 
