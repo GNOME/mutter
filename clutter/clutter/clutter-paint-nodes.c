@@ -1204,7 +1204,6 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
 {
   ClutterLayerNode *lnode = CLUTTER_LAYER_NODE (node);
   CoglFramebuffer *fb;
-  g_autoptr (CoglPipeline) pipeline = NULL;
   guint i;
 
   /* switch to the previous framebuffer */
@@ -1216,9 +1215,8 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
     return;
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
-  pipeline = cogl_pipeline_copy (lnode->pipeline);
 
-  if (!cogl_pipeline_has_capability (pipeline,
+  if (!cogl_pipeline_has_capability (lnode->pipeline,
                                      CLUTTER_PIPELINE_CAPABILITY,
                                      CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE))
     {
@@ -1231,7 +1229,7 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
         clutter_paint_context_get_target_color_state (paint_context);
       clutter_color_state_add_pipeline_transform (color_state,
                                                   target_color_state,
-                                                  pipeline);
+                                                  lnode->pipeline);
     }
 
   for (i = 0; i < node->operations->len; i++)
