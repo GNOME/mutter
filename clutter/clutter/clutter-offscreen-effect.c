@@ -442,7 +442,7 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
 
   pipeline_node = clutter_pipeline_node_new (priv->pipeline);
   clutter_paint_node_set_static_name (pipeline_node,
-                                      "ClutterOffscreenEffect (pipeline)");
+                                      G_OBJECT_TYPE_NAME (effect));
   clutter_paint_node_add_child (node, pipeline_node);
 
   /* At this point we are in stage coordinates translated so if
