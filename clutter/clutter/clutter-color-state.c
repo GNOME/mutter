@@ -57,23 +57,6 @@
 #define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_mapping"
 #define UNIFORM_NAME_COLOR_SPACE_MAPPING "color_space_mapping"
 
-enum
-{
-  PROP_0,
-
-  PROP_CONTEXT,
-  PROP_COLORSPACE,
-  PROP_PRIMARIES,
-  PROP_TRANSFER_FUNCTION,
-  PROP_MIN_LUMINANCE,
-  PROP_MAX_LUMINANCE,
-  PROP_REF_LUMINANCE,
-
-  N_PROPS
-};
-
-static GParamSpec *obj_props[N_PROPS];
-
 struct _ClutterColorState
 {
   GObject parent_instance;
@@ -284,21 +267,6 @@ clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries)
 }
 
 static void
-clutter_color_state_constructed (GObject *object)
-{
-  ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
-  ClutterColorStatePrivate *priv =
-    clutter_color_state_get_instance_private (color_state);
-  ClutterColorManager *color_manager;
-
-  g_warn_if_fail (priv->context);
-
-  color_manager = clutter_context_get_color_manager (priv->context);
-
-  priv->id = clutter_color_manager_get_next_id (color_manager);
-}
-
-static void
 clutter_color_state_finalize (GObject *object)
 {
   ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
@@ -311,198 +279,11 @@ clutter_color_state_finalize (GObject *object)
 }
 
 static void
-clutter_color_state_set_property (GObject      *object,
-                                  guint         prop_id,
-                                  const GValue *value,
-                                  GParamSpec   *pspec)
-{
-  ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
-  ClutterColorStatePrivate *priv;
-  ClutterPrimaries *primaries;
-
-  priv = clutter_color_state_get_instance_private (color_state);
-
-  switch (prop_id)
-    {
-    case PROP_CONTEXT:
-      priv->context = g_value_get_object (value);
-      break;
-
-    case PROP_COLORSPACE:
-      priv->colorspace = g_value_get_enum (value);
-      break;
-
-    case PROP_PRIMARIES:
-      primaries = g_value_get_pointer (value);
-      g_clear_pointer (&priv->primaries, g_free);
-      priv->primaries = g_memdup2 (primaries, sizeof (ClutterPrimaries));
-      break;
-
-    case PROP_TRANSFER_FUNCTION:
-      priv->transfer_function = g_value_get_enum (value);
-      break;
-
-    case PROP_MIN_LUMINANCE:
-      priv->min_lum = g_value_get_float (value);
-      break;
-
-    case PROP_MAX_LUMINANCE:
-      priv->max_lum = g_value_get_float (value);
-      break;
-
-    case PROP_REF_LUMINANCE:
-      priv->ref_lum = g_value_get_float (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-clutter_color_state_get_property (GObject    *object,
-                                  guint       prop_id,
-                                  GValue     *value,
-                                  GParamSpec *pspec)
-{
-  ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
-  ClutterColorStatePrivate *priv =
-    clutter_color_state_get_instance_private (color_state);
-
-  switch (prop_id)
-    {
-    case PROP_CONTEXT:
-      g_value_set_object (value, priv->context);
-      break;
-
-    case PROP_COLORSPACE:
-      g_value_set_enum (value, priv->colorspace);
-      break;
-
-    case PROP_TRANSFER_FUNCTION:
-      g_value_set_enum (value, priv->transfer_function);
-      break;
-
-    case PROP_MIN_LUMINANCE:
-      g_value_set_float (value, priv->min_lum);
-      break;
-
-    case PROP_MAX_LUMINANCE:
-      g_value_set_float (value, priv->max_lum);
-      break;
-
-    case PROP_REF_LUMINANCE:
-      g_value_set_float (value, priv->ref_lum);
-      break;
-
-    case PROP_PRIMARIES:
-      g_value_set_pointer (value, priv->primaries);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
 clutter_color_state_class_init (ClutterColorStateClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->constructed = clutter_color_state_constructed;
   gobject_class->finalize = clutter_color_state_finalize;
-  gobject_class->set_property = clutter_color_state_set_property;
-  gobject_class->get_property = clutter_color_state_get_property;
-
-  /**
-   * ClutterColorState:context:
-   *
-   * The associated ClutterContext.
-   */
-  obj_props[PROP_CONTEXT] =
-    g_param_spec_object ("context", NULL, NULL,
-                         CLUTTER_TYPE_CONTEXT,
-                         G_PARAM_READWRITE |
-                         G_PARAM_STATIC_STRINGS |
-                         G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterColorState:colorspace:
-   *
-   * Colorspace information of the each color state,
-   * defaults to sRGB colorspace
-   */
-  obj_props[PROP_COLORSPACE] =
-    g_param_spec_enum ("colorspace", NULL, NULL,
-                       CLUTTER_TYPE_COLORSPACE,
-                       CLUTTER_COLORSPACE_SRGB,
-                       G_PARAM_READWRITE |
-                       G_PARAM_STATIC_STRINGS |
-                       G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterColorState:primaries:
-   *
-   * Explicit set of primaries defined as chromaticity coordinates
-   */
-  obj_props[PROP_PRIMARIES] =
-    g_param_spec_pointer ("primaries", NULL, NULL,
-                          G_PARAM_READWRITE |
-                          G_PARAM_STATIC_STRINGS |
-                          G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterColorState:transfer-function:
-   *
-   * Transfer function.
-   */
-  obj_props[PROP_TRANSFER_FUNCTION] =
-    g_param_spec_enum ("transfer-function", NULL, NULL,
-                       CLUTTER_TYPE_TRANSFER_FUNCTION,
-                       CLUTTER_TRANSFER_FUNCTION_SRGB,
-                       G_PARAM_READWRITE |
-                       G_PARAM_STATIC_STRINGS |
-                       G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterColorState:min-luminance:
-   *
-   * Minimum luminance.
-   */
-  obj_props[PROP_MIN_LUMINANCE] =
-    g_param_spec_float ("min-luminance", NULL, NULL,
-                        -1.0f, 10000.0f, 0.0f,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterColorState:max-luminance:
-   *
-   * Maximum luminance.
-   */
-  obj_props[PROP_MAX_LUMINANCE] =
-    g_param_spec_float ("max-luminance", NULL, NULL,
-                        -1.0f, 10000.0f, 0.0f,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterColorState:ref-luminance:
-   *
-   * Reference luminance.
-   */
-  obj_props[PROP_REF_LUMINANCE] =
-    g_param_spec_float ("ref-luminance", NULL, NULL,
-                        -1.0f, 10000.0f, 0.0f,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_CONSTRUCT_ONLY);
-
-  g_object_class_install_properties (gobject_class, N_PROPS, obj_props);
 }
 
 static void
@@ -544,15 +325,25 @@ clutter_color_state_new_full (ClutterContext          *context,
                               float                    max_lum,
                               float                    ref_lum)
 {
-  return g_object_new (CLUTTER_TYPE_COLOR_STATE,
-                       "context", context,
-                       "colorspace", colorspace,
-                       "transfer-function", transfer_function,
-                       "primaries", primaries,
-                       "min-luminance", min_lum,
-                       "max-luminance", max_lum,
-                       "ref-luminance", ref_lum,
-                       NULL);
+  ClutterColorState *color_state;
+  ClutterColorStatePrivate *priv;
+  ClutterColorManager *color_manager;
+
+  color_state = g_object_new (CLUTTER_TYPE_COLOR_STATE, NULL);
+  priv = clutter_color_state_get_instance_private (color_state);
+  color_manager = clutter_context_get_color_manager (context);
+
+  priv->context = context;
+  priv->id = clutter_color_manager_get_next_id (color_manager);
+
+  priv->colorspace = colorspace;
+  priv->transfer_function = transfer_function;
+  priv->primaries = g_memdup2 (primaries, sizeof (*primaries));
+  priv->min_lum = min_lum;
+  priv->max_lum = max_lum;
+  priv->ref_lum = ref_lum;
+
+  return color_state;
 }
 
 static const char pq_eotf_source[] =

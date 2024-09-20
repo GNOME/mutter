@@ -958,38 +958,6 @@ typedef enum
 } ClutterContentRepeat;
 
 /**
- * ClutterColorspace:
- * @CLUTTER_COLORSPACE_DEFAULT: Unknown colorspace
- * @CLUTTER_COLORSPACE_SRGB: Default sRGB colorspace
- * @CLUTTER_COLORSPACE_BT2020: BT2020 colorspace
- *
- * Colorspace information.
- */
-typedef enum
-{
-  CLUTTER_COLORSPACE_DEFAULT,
-  CLUTTER_COLORSPACE_SRGB,
-  CLUTTER_COLORSPACE_BT2020,
-} ClutterColorspace;
-
-/**
- * ClutterTransferFunction:
- * @CLUTTER_TRANSFER_FUNCTION_DEFAULT: Unknown transfer function
- * @CLUTTER_TRANSFER_FUNCTION_SRGB: The sRGB gamma transfer function
- * @CLUTTER_TRANSFER_FUNCTION_PQ: Perceptual quantizer (PQ)
- * @CLUTTER_TRANSFER_FUNCTION_LINEAR: Linear transfer function
- *
- * Colorspace information.
- */
-typedef enum
-{
-  CLUTTER_TRANSFER_FUNCTION_DEFAULT,
-  CLUTTER_TRANSFER_FUNCTION_SRGB,
-  CLUTTER_TRANSFER_FUNCTION_PQ,
-  CLUTTER_TRANSFER_FUNCTION_LINEAR,
-} ClutterTransferFunction;
-
-/**
  * ClutterEncodingRequiredFormat:
  * @CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8: 8bpc uint
  * @CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10: 10bpc uint

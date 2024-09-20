@@ -32,6 +32,21 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+  CLUTTER_COLORSPACE_DEFAULT,
+  CLUTTER_COLORSPACE_SRGB,
+  CLUTTER_COLORSPACE_BT2020,
+} ClutterColorspace;
+
+typedef enum
+{
+  CLUTTER_TRANSFER_FUNCTION_DEFAULT,
+  CLUTTER_TRANSFER_FUNCTION_SRGB,
+  CLUTTER_TRANSFER_FUNCTION_PQ,
+  CLUTTER_TRANSFER_FUNCTION_LINEAR,
+} ClutterTransferFunction;
+
 typedef struct _ClutterPrimaries
 {
   float r_x, r_y;
