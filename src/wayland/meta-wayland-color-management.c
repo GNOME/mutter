@@ -202,7 +202,6 @@ clutter_tf_to_wayland (ClutterTransferFunction tf)
 {
   switch (tf)
     {
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
       return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB;
     case CLUTTER_TRANSFER_FUNCTION_PQ:
@@ -237,7 +236,6 @@ clutter_primaries_to_wayland (ClutterColorspace primaries)
 {
   switch (primaries)
     {
-    case CLUTTER_COLORSPACE_DEFAULT:
     case CLUTTER_COLORSPACE_SRGB:
       return XX_COLOR_MANAGER_V4_PRIMARIES_SRGB;
     case CLUTTER_COLORSPACE_BT2020:
@@ -885,7 +883,7 @@ creator_params_create (struct wl_client   *client,
       primaries = NULL;
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      colorspace = CLUTTER_COLORSPACE_DEFAULT;
+      colorspace = CLUTTER_COLORSPACE_SRGB;
       primaries = creator_params->colorimetry.primaries;
       break;
     }

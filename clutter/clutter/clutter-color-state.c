@@ -116,8 +116,6 @@ clutter_colorspace_to_string (ClutterColorspace colorspace)
 {
   switch (colorspace)
     {
-    case CLUTTER_COLORSPACE_DEFAULT:
-      return "unknown";
     case CLUTTER_COLORSPACE_SRGB:
       return "sRGB";
     case CLUTTER_COLORSPACE_BT2020:
@@ -132,8 +130,6 @@ clutter_eotf_to_string (ClutterEOTF eotf)
 {
   switch (eotf.tf_name)
     {
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
-      return "default";
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
       return "sRGB";
     case CLUTTER_TRANSFER_FUNCTION_PQ:
@@ -200,7 +196,6 @@ clutter_eotf_get_default_luminance (ClutterEOTF eotf)
 {
   switch (eotf.tf_name)
     {
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
     case CLUTTER_TRANSFER_FUNCTION_LINEAR:
       return &sdr_default_luminance;
@@ -479,7 +474,6 @@ get_eotf (ClutterColorState *color_state)
     case CLUTTER_TRANSFER_FUNCTION_PQ:
       return &pq_eotf;
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
       return &srgb_eotf;
     case CLUTTER_TRANSFER_FUNCTION_LINEAR:
       return NULL;
@@ -501,7 +495,6 @@ get_inv_eotf (ClutterColorState *color_state)
     case CLUTTER_TRANSFER_FUNCTION_PQ:
       return &pq_inv_eotf;
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
       return &srgb_inv_eotf;
     case CLUTTER_TRANSFER_FUNCTION_LINEAR:
       return NULL;
@@ -555,7 +548,6 @@ get_primaries (ClutterColorState *color_state)
     case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
       switch (priv->colorimetry.colorspace)
         {
-        case CLUTTER_COLORSPACE_DEFAULT:
         case CLUTTER_COLORSPACE_SRGB:
           return &srgb_primaries;
         case CLUTTER_COLORSPACE_BT2020:
@@ -1153,7 +1145,6 @@ clutter_color_state_required_format (ClutterColorState *color_state)
     case CLUTTER_TRANSFER_FUNCTION_PQ:
       return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10;
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
       return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
     }
 
@@ -1198,7 +1189,6 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
       break;
     /* effectively this means we will blend sRGB content in sRGB, not linear */
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
-    case CLUTTER_TRANSFER_FUNCTION_DEFAULT:
       blending_tf = priv->eotf.tf_name;
       break;
     default:
@@ -1218,7 +1208,7 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
       primaries = NULL;
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      colorspace = CLUTTER_COLORSPACE_DEFAULT;
+      colorspace = CLUTTER_COLORSPACE_SRGB;
       primaries = priv->colorimetry.primaries;
       break;
     }

@@ -632,7 +632,7 @@ get_color_space_from_monitor (MetaMonitor *monitor)
     {
     case META_OUTPUT_COLORSPACE_DEFAULT:
     case META_OUTPUT_COLORSPACE_UNKNOWN:
-      return CLUTTER_COLORSPACE_DEFAULT;
+      return CLUTTER_COLORSPACE_SRGB;
     case META_OUTPUT_COLORSPACE_BT2020:
       return CLUTTER_COLORSPACE_BT2020;
     }
@@ -650,7 +650,7 @@ get_eotf_from_monitor (MetaMonitor *monitor)
 
   if (!hdr_metadata->active)
     {
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
       return eotf;
     }
 
@@ -660,15 +660,15 @@ get_eotf_from_monitor (MetaMonitor *monitor)
       eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
       break;
     case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
       break;
     case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
       g_warning ("Unhandled HDR EOTF (traditional gamma hdr)");
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
       break;
     case META_OUTPUT_HDR_METADATA_EOTF_HLG:
       g_warning ("Unhandled HDR EOTF (HLG)");
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
       break;
     }
 

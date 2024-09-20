@@ -37,7 +37,7 @@ actor_color_state_default (void)
   colorimetry = clutter_color_state_get_colorimetry (color_state);
 
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
-  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
+  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
 
   clutter_actor_destroy (actor);
 }
@@ -132,9 +132,9 @@ actor_unset_color_state (void)
   eotf = clutter_color_state_get_eotf (color_state);
 
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
-  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
+  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
-  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_SRGB);
 
   clutter_actor_destroy (actor);
 }
