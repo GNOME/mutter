@@ -639,30 +639,40 @@ get_color_space_from_monitor (MetaMonitor *monitor)
   g_assert_not_reached ();
 }
 
-static ClutterTransferFunction
-get_transfer_function_from_monitor (MetaMonitor *monitor)
+static ClutterEOTF
+get_eotf_from_monitor (MetaMonitor *monitor)
 {
+  ClutterEOTF eotf;
   const MetaOutputHdrMetadata *hdr_metadata =
     meta_monitor_get_hdr_metadata (monitor);
 
+  eotf.type = CLUTTER_EOTF_TYPE_NAMED;
+
   if (!hdr_metadata->active)
-    return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+    {
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      return eotf;
+    }
 
   switch (hdr_metadata->eotf)
     {
     case META_OUTPUT_HDR_METADATA_EOTF_PQ:
-      return CLUTTER_TRANSFER_FUNCTION_PQ;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
+      break;
     case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
-      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      break;
     case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
       g_warning ("Unhandled HDR EOTF (traditional gamma hdr)");
-      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      break;
     case META_OUTPUT_HDR_METADATA_EOTF_HLG:
       g_warning ("Unhandled HDR EOTF (HLG)");
-      return CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_DEFAULT;
+      break;
     }
 
-  g_assert_not_reached ();
+  return eotf;
 }
 
 static UpdateResult
@@ -676,28 +686,28 @@ update_color_state (MetaColorDevice *color_device)
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorspace colorspace;
-  ClutterTransferFunction transfer_function;
-  float min_lum, max_lum, ref_lum;
+  ClutterEOTF eotf;
+  const ClutterLuminance *luminance;
   float reference_luminance_factor;
+  float new_ref_luminance;
   UpdateResult result = 0;
 
   colorspace = get_color_space_from_monitor (monitor);
-  transfer_function = get_transfer_function_from_monitor (monitor);
+  eotf = get_eotf_from_monitor (monitor);
 
-  clutter_transfer_function_get_default_luminances (transfer_function,
-                                                    &min_lum,
-                                                    &max_lum,
-                                                    &ref_lum);
+  luminance = clutter_eotf_get_default_luminance (eotf);
 
   reference_luminance_factor =
     meta_debug_control_get_luminance_percentage (debug_control) / 100.0f;
-  ref_lum = ref_lum * reference_luminance_factor;
+  new_ref_luminance = luminance->ref * reference_luminance_factor;
 
   color_state = clutter_color_state_new_full (clutter_context,
                                               colorspace,
-                                              transfer_function,
+                                              eotf.tf_name,
                                               NULL,
-                                              min_lum, max_lum, ref_lum);
+                                              luminance->min,
+                                              luminance->max,
+                                              new_ref_luminance);
 
   if (!color_device->color_state ||
       !clutter_color_state_equals (color_device->color_state, color_state))

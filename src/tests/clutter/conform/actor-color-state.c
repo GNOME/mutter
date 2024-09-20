@@ -29,14 +29,15 @@ actor_color_state_default (void)
 {
   ClutterActor *actor;
   ClutterColorState *color_state;
-  ClutterColorspace colorspace;
+  const ClutterColorimetry *colorimetry;
 
   actor = clutter_actor_new ();
 
   color_state = clutter_actor_get_color_state (actor);
-  colorspace = clutter_color_state_get_colorspace (color_state);
+  colorimetry = clutter_color_state_get_colorimetry (color_state);
 
-  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
+  g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
+  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
 
   clutter_actor_destroy (actor);
 }
@@ -49,8 +50,8 @@ actor_color_state_passed (void)
   ClutterContext *context = clutter_test_get_context ();
   ClutterActor *actor;
   ClutterColorState *color_state;
-  ClutterColorspace colorspace;
-  ClutterTransferFunction transfer_function;
+  const ClutterColorimetry *colorimetry;
+  const ClutterEOTF *eotf;
 
   color_state = clutter_color_state_new (context,
                                          CLUTTER_COLORSPACE_BT2020,
@@ -70,11 +71,13 @@ actor_color_state_passed (void)
     g_critical ("Failed to create actor with provided color state.");
 
   color_state = clutter_actor_get_color_state (actor);
-  colorspace = clutter_color_state_get_colorspace (color_state);
-  transfer_function = clutter_color_state_get_transfer_function (color_state);
+  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  eotf = clutter_color_state_get_eotf (color_state);
 
-  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_BT2020);
-  g_assert_cmpuint (transfer_function, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
+  g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
+  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_BT2020);
+  g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
 
   clutter_actor_destroy (actor);
 }
@@ -86,8 +89,8 @@ actor_change_color_state (void)
   ClutterContext *context = clutter_test_get_context ();
   ClutterActor *actor;
   ClutterColorState *color_state;
-  ClutterColorspace colorspace;
-  ClutterTransferFunction transfer_function;
+  const ClutterColorimetry *colorimetry;
+  const ClutterEOTF *eotf;
 
   actor = clutter_actor_new ();
 
@@ -101,11 +104,13 @@ actor_change_color_state (void)
   clutter_actor_set_color_state (actor, color_state);
 
   color_state = clutter_actor_get_color_state (actor);
-  colorspace = clutter_color_state_get_colorspace (color_state);
-  transfer_function = clutter_color_state_get_transfer_function (color_state);
+  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  eotf = clutter_color_state_get_eotf (color_state);
 
-  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_BT2020);
-  g_assert_cmpuint (transfer_function, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
+  g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
+  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_BT2020);
+  g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
 
   clutter_actor_destroy (actor);
 }
@@ -115,19 +120,21 @@ actor_unset_color_state (void)
 {
   ClutterActor *actor;
   ClutterColorState *color_state;
-  ClutterColorspace colorspace;
-  ClutterTransferFunction transfer_function;
+  const ClutterColorimetry *colorimetry;
+  const ClutterEOTF *eotf;
 
   actor = clutter_actor_new ();
 
   clutter_actor_unset_color_state (actor);
 
   color_state = clutter_actor_get_color_state (actor);
-  colorspace = clutter_color_state_get_colorspace (color_state);
-  transfer_function = clutter_color_state_get_transfer_function (color_state);
+  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  eotf = clutter_color_state_get_eotf (color_state);
 
-  g_assert_cmpuint (colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
-  g_assert_cmpuint (transfer_function, ==, CLUTTER_TRANSFER_FUNCTION_DEFAULT);
+  g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
+  g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_DEFAULT);
+  g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_DEFAULT);
 
   clutter_actor_destroy (actor);
 }
