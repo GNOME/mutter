@@ -40,6 +40,7 @@
 #include "wayland/meta-wayland-activation.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-color-management.h"
+#include "wayland/meta-wayland-commit-timing.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-egl-stream.h"
@@ -971,6 +972,7 @@ meta_wayland_compositor_new (MetaContext *context)
 #ifdef HAVE_NATIVE_BACKEND
   meta_wayland_drm_lease_manager_init (compositor);
 #endif
+  meta_wayland_commit_timing_init (compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {

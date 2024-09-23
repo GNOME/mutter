@@ -23,6 +23,7 @@
 
 #include "backends/meta-monitor-manager-private.h"
 #include "clutter/clutter.h"
+#include "commit-timing-v1-server-protocol.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "meta/meta-cursor-tracker.h"

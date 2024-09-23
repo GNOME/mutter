@@ -606,6 +606,7 @@ if have_wayland
     'wayland/meta-wayland-client-private.h',
     'wayland/meta-wayland-color-management.c',
     'wayland/meta-wayland-color-management.h',
+    'wayland/meta-wayland-commit-timing.c',
     'wayland/meta-wayland-cursor-surface.c',
     'wayland/meta-wayland-cursor-surface.h',
     'wayland/meta-wayland-data-device.c',
@@ -1128,6 +1129,7 @@ if have_wayland
     ['linux-drm-syncobj-v1', 'private', ],
     ['color-management-v1', 'private', ],
     ['session-management-v1', 'private', ],
+    ['commit-timing', 'staging', 'v1', ],
   ]
   if have_wayland_eglstream
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
