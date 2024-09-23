@@ -727,6 +727,8 @@ if have_wayland
     'wayland/meta-wayland-xdg-shell.h',
     'wayland/meta-wayland-xdg-dialog.c',
     'wayland/meta-wayland-xdg-dialog.h',
+    'wayland/meta-wayland-xdg-toplevel-tag.c',
+    'wayland/meta-wayland-xdg-toplevel-tag.h',
     'wayland/meta-window-wayland.c',
     'wayland/meta-window-wayland.h',
   ]
@@ -1132,6 +1134,7 @@ if have_wayland
     ['session-management-v1', 'private', ],
     ['commit-timing', 'staging', 'v1', ],
     ['fifo', 'staging', 'v1', ],
+    ['xdg-toplevel-tag-v1', 'private', ],
   ]
   if have_wayland_eglstream
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
