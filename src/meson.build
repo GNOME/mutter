@@ -730,6 +730,8 @@ if have_wayland
     'wayland/meta-wayland-xdg-shell.h',
     'wayland/meta-wayland-xdg-dialog.c',
     'wayland/meta-wayland-xdg-dialog.h',
+    'wayland/meta-wayland-xdg-toplevel-tag.c',
+    'wayland/meta-wayland-xdg-toplevel-tag.h',
     'wayland/meta-window-wayland.c',
     'wayland/meta-window-wayland.h',
   ]
@@ -1147,6 +1149,7 @@ if have_wayland
     ['xdg-shell', 'stable', ],
     ['xdg-system-bell', 'staging', 'v1', ],
     ['xdg-toplevel-drag', 'staging', 'v1'],
+    ['xdg-toplevel-tag', 'staging', 'v1' ],
     ['xwayland-keyboard-grab', 'unstable', 'v1', ],
   ]
   if have_wayland_eglstream
