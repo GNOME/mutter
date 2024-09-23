@@ -236,6 +236,8 @@ struct _MetaWindow
   char *res_name;
   char *role;
 
+  char *toplevel_tag; /* Wayland-only toplevel surfaces tag */
+
   char *startup_id;
   char *mutter_hints;
   char *sandboxed_app_id;

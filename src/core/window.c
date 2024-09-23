@@ -346,6 +346,7 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
   g_free (window->placement.rule);
+  g_free (window->toplevel_tag);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
@@ -8136,4 +8137,24 @@ meta_window_protocol_to_stage_point (MetaWindow          *window,
                             protocol_x, protocol_y,
                             stage_x, stage_y,
                             rounding_strategy);
+}
+
+/**
+ * meta_window_get_tag:
+ * @window: A #MetaWindow
+ *
+ * Get a tag associated to the window.
+ * Under wayland the tag can be set using the toplevel tag protocol
+ *
+ * Returns: (nullable): An associated toplevel tag
+ */
+char *
+meta_window_get_tag (MetaWindow *window)
+{
+  g_return_val_if_fail (META_IS_WINDOW (window), NULL);
+
+  if (meta_window_get_client_type (window) != META_WINDOW_CLIENT_TYPE_WAYLAND)
+    return NULL;
+
+  return window->toplevel_tag;
 }

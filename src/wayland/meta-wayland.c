@@ -60,6 +60,7 @@
 #include "wayland/meta-wayland-xdg-dialog.h"
 #include "wayland/meta-wayland-xdg-foreign.h"
 #include "wayland/meta-wayland-xdg-session-manager.h"
+#include "wayland/meta-wayland-xdg-toplevel-tag.h"
 
 #ifdef HAVE_XWAYLAND
 #include "wayland/meta-wayland-x11-interop.h"
@@ -895,6 +896,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_init_xdg_wm_dialog (compositor);
   meta_wayland_init_color_management (compositor);
   meta_wayland_xdg_session_management_init (compositor);
+  meta_wayland_xdg_toplevel_tag_init (compositor);
 
 #ifdef HAVE_NATIVE_BACKEND
   meta_wayland_drm_lease_manager_init (compositor);

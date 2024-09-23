@@ -719,6 +719,8 @@ if have_wayland
     'wayland/meta-wayland-xdg-shell.h',
     'wayland/meta-wayland-xdg-dialog.c',
     'wayland/meta-wayland-xdg-dialog.h',
+    'wayland/meta-wayland-xdg-toplevel-tag.c',
+    'wayland/meta-wayland-xdg-toplevel-tag.h',
     'wayland/meta-window-wayland.c',
     'wayland/meta-window-wayland.h',
   ]
@@ -1120,6 +1122,7 @@ if have_wayland
     ['linux-drm-syncobj-v1', 'private', ],
     ['color-management-v1', 'private', ],
     ['session-management-v1', 'private', ],
+    ['xdg-toplevel-tag-v1', 'private', ],
   ]
   if have_wayland_eglstream
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
