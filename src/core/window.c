@@ -8144,7 +8144,8 @@ meta_window_protocol_to_stage_point (MetaWindow          *window,
  * @window: A #MetaWindow
  *
  * Get a tag associated to the window.
- * Under wayland the tag can be set using the toplevel tag protocol
+ * Under wayland the tag can be set using the toplevel tag protocol,
+ * and under x11 it falls back to using `NET_WM_WINDOW_TAG` atom
  *
  * Returns: (nullable): An associated toplevel tag
  */
@@ -8152,9 +8153,6 @@ char *
 meta_window_get_tag (MetaWindow *window)
 {
   g_return_val_if_fail (META_IS_WINDOW (window), NULL);
-
-  if (meta_window_get_client_type (window) != META_WINDOW_CLIENT_TYPE_WAYLAND)
-    return NULL;
 
   return window->toplevel_tag;
 }
