@@ -51,7 +51,7 @@ should_load_libadwaita (void)
 }
 
 static void
-load_libadwaita (GdkDisplay *display)
+load_libadwaita (void)
 {
   GModule *libadwaita;
   InitFunc adw_init;
@@ -99,7 +99,7 @@ main (int   argc,
   display = gdk_display_get_default ();
 
   if (should_load_libadwaita ())
-    load_libadwaita (display);
+    load_libadwaita ();
 
   xdisplay = gdk_x11_display_get_xdisplay (display);
   XFixesSetClientDisconnectMode (xdisplay,
