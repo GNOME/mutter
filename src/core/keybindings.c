@@ -408,6 +408,36 @@ add_keycodes_for_keysym (MetaKeyBindingManager  *keys,
     }
 }
 
+static void
+get_keycodes_for_combos (MetaKeyBindingManager *keys,
+                         MetaKeyCombo          *combos,
+                         int                    n_combos,
+                         xkb_keycode_t        **keycodes,
+                         int                   *n_keycodes)
+{
+  GArray *array;
+  int i;
+
+  array = g_array_new (FALSE, FALSE, sizeof (xkb_keysym_t));
+
+  for (i = 0; i < n_combos; i++)
+    {
+      if (combos[i].keysym != 0)
+        {
+          add_keycodes_for_keysym (keys, combos[i].keysym, array);
+        }
+      else if (combos[i].keycode != 0)
+        {
+          g_array_append_val (array, combos[i].keycode);
+        }
+    }
+
+  *n_keycodes = array->len;
+  *keycodes =
+    (xkb_keycode_t *) g_array_free (array,
+                                    array->len == 0 ? TRUE : FALSE);
+}
+
 typedef struct _CalculateLayoutLevelsState
 {
   struct xkb_keymap *keymap;
@@ -451,7 +481,7 @@ calculate_n_layout_levels (struct xkb_keymap *keymap,
 static void
 reload_iso_next_group_combos (MetaKeyBindingManager *keys)
 {
-  GArray *keycodes;
+  MetaKeyCombo iso_next_group_combo = { 0 };
   const char *iso_next_group_option;
   int i;
 
@@ -464,12 +494,12 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
   if (iso_next_group_option == NULL)
     return;
 
-  keycodes = g_array_new (FALSE, FALSE, sizeof (xkb_keysym_t));
-  add_keycodes_for_keysym (keys, XKB_KEY_ISO_Next_Group, keycodes);
-  keys->iso_next_group_combos[0].len = keycodes->len;
-  keys->iso_next_group_combos[0].keycodes =
-    (xkb_keycode_t *) g_array_free (keycodes,
-                                    keycodes->len == 0 ? TRUE : FALSE);
+  iso_next_group_combo.keysym = XKB_KEY_ISO_Next_Group;
+  get_keycodes_for_combos (keys,
+                           &iso_next_group_combo,
+                           1,
+                           &keys->iso_next_group_combos[0].keycodes,
+                           &keys->iso_next_group_combos[0].len);
 
   if (keys->iso_next_group_combos[0].len == 0)
     return;
@@ -606,24 +636,13 @@ resolve_key_combo (MetaKeyBindingManager *keys,
                    MetaKeyCombo          *combo,
                    MetaResolvedKeyCombo  *resolved_combo)
 {
-  GArray *keycodes;
-
-  keycodes = g_array_new (FALSE, FALSE, sizeof (xkb_keysym_t));
   resolved_key_combo_reset (resolved_combo);
 
-  if (combo->keysym != 0)
-    {
-      add_keycodes_for_keysym (keys, combo->keysym, keycodes);
-    }
-  else if (combo->keycode != 0)
-    {
-      g_array_append_val (keycodes, combo->keycode);
-    }
-
-  resolved_combo->len = keycodes->len;
-  resolved_combo->keycodes =
-    (xkb_keycode_t *) g_array_free (keycodes,
-                                    keycodes->len == 0 ? TRUE : FALSE);
+  get_keycodes_for_combos (keys,
+                           combo,
+                           1,
+                           &resolved_combo->keycodes,
+                           &resolved_combo->len);
 
   devirtualize_modifiers (keys, combo->modifiers, &resolved_combo->mask);
 }
