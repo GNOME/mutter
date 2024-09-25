@@ -44,15 +44,7 @@ struct _MetaStageNative
   int64_t presented_frame_counter_complete;
 };
 
-static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
-
-static void
-clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
-                         META_TYPE_STAGE_IMPL,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
-                                                clutter_stage_window_iface_init))
+G_DEFINE_FINAL_TYPE (MetaStageNative, meta_stage_native, META_TYPE_STAGE_IMPL)
 
 void
 meta_stage_native_rebuild_views (MetaStageNative *stage_native)
@@ -145,7 +137,8 @@ meta_stage_native_redraw_view (ClutterStageWindow *stage_window,
   meta_renderer_native_before_redraw (META_RENDERER_NATIVE (renderer),
                                       META_RENDERER_VIEW (view), frame);
 
-  clutter_stage_window_parent_iface->redraw_view (stage_window, view, frame);
+  CLUTTER_STAGE_WINDOW_CLASS (meta_stage_native_parent_class)->
+      redraw_view (stage_window, view, frame);
 
   crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (view));
 
@@ -184,19 +177,15 @@ meta_stage_native_init (MetaStageNative *stage_native)
 static void
 meta_stage_native_class_init (MetaStageNativeClass *klass)
 {
+  ClutterStageWindowClass *window_class = CLUTTER_STAGE_WINDOW_CLASS (klass);
+
   quark_view_frame_closure =
     g_quark_from_static_string ("-meta-native-stage-view-frame-closure");
-}
 
-static void
-clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
-{
-  clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
-
-  iface->can_clip_redraws = meta_stage_native_can_clip_redraws;
-  iface->get_geometry = meta_stage_native_get_geometry;
-  iface->get_views = meta_stage_native_get_views;
-  iface->prepare_frame = meta_stage_native_prepare_frame;
-  iface->redraw_view = meta_stage_native_redraw_view;
-  iface->finish_frame = meta_stage_native_finish_frame;
+  window_class->can_clip_redraws = meta_stage_native_can_clip_redraws;
+  window_class->get_geometry = meta_stage_native_get_geometry;
+  window_class->get_views = meta_stage_native_get_views;
+  window_class->prepare_frame = meta_stage_native_prepare_frame;
+  window_class->redraw_view = meta_stage_native_redraw_view;
+  window_class->finish_frame = meta_stage_native_finish_frame;
 }

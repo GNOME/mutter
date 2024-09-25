@@ -48,15 +48,7 @@ typedef struct _MetaStageImplPrivate
   int64_t global_frame_counter;
 } MetaStageImplPrivate;
 
-static void
-clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaStageImpl,
-                         meta_stage_impl,
-                         G_TYPE_OBJECT,
-                         G_ADD_PRIVATE (MetaStageImpl)
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
-                                                clutter_stage_window_iface_init));
+G_DEFINE_TYPE_WITH_PRIVATE (MetaStageImpl, meta_stage_impl, CLUTTER_TYPE_STAGE_WINDOW)
 
 enum
 {
@@ -834,18 +826,6 @@ meta_stage_impl_add_onscreen_frame_info (MetaStageImpl    *stage_impl,
 }
 
 static void
-clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
-{
-  iface->realize = meta_stage_impl_realize;
-  iface->unrealize = meta_stage_impl_unrealize;
-  iface->resize = meta_stage_impl_resize;
-  iface->show = meta_stage_impl_show;
-  iface->hide = meta_stage_impl_hide;
-  iface->get_frame_counter = meta_stage_impl_get_frame_counter;
-  iface->redraw_view = meta_stage_impl_redraw_view;
-}
-
-static void
 meta_stage_impl_set_property (GObject      *gobject,
                               guint         prop_id,
                               const GValue *value,
@@ -874,8 +854,17 @@ static void
 meta_stage_impl_class_init (MetaStageImplClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterStageWindowClass *window_class = CLUTTER_STAGE_WINDOW_CLASS (klass);
 
   object_class->set_property = meta_stage_impl_set_property;
+
+  window_class->realize = meta_stage_impl_realize;
+  window_class->unrealize = meta_stage_impl_unrealize;
+  window_class->resize = meta_stage_impl_resize;
+  window_class->show = meta_stage_impl_show;
+  window_class->hide = meta_stage_impl_hide;
+  window_class->get_frame_counter = meta_stage_impl_get_frame_counter;
+  window_class->redraw_view = meta_stage_impl_redraw_view;
 
   obj_props[PROP_WRAPPER] =
     g_param_spec_object ("wrapper", NULL, NULL,

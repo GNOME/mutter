@@ -9,19 +9,18 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_STAGE_WINDOW (clutter_stage_window_get_type ())
 
 CLUTTER_EXPORT
-G_DECLARE_INTERFACE (ClutterStageWindow, clutter_stage_window,
-                     CLUTTER, STAGE_WINDOW,
-                     GObject)
+G_DECLARE_DERIVABLE_TYPE (ClutterStageWindow, clutter_stage_window,
+                          CLUTTER, STAGE_WINDOW,
+                          GObject)
 
 /*
- * ClutterStageWindowInterface: (skip)
+ * ClutterStageWindowClass: (skip)
  *
- * The interface implemented by backends for stage windows
+ * The parent class for for stage windows
  */
-struct _ClutterStageWindowInterface
+struct _ClutterStageWindowClass
 {
-  /*< private >*/
-  GTypeInterface parent_iface;
+  GObjectClass parent_class;
 
   gboolean          (* realize)                 (ClutterStageWindow *stage_window);
   void              (* unrealize)               (ClutterStageWindow *stage_window);

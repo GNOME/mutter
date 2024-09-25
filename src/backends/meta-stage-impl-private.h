@@ -27,6 +27,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "clutter/clutter.h"
+#include "clutter/clutter-stage-window.h"
 
 G_BEGIN_DECLS
 
@@ -46,7 +47,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaStageImpl, g_object_unref)
 
 struct _MetaStageImpl
 {
-  GObject parent_instance;
+  ClutterStageWindow parent_instance;
 
  /* the stage wrapper */
   ClutterStage *wrapper;
@@ -54,7 +55,7 @@ struct _MetaStageImpl
 
 struct _MetaStageImplClass
 {
-  GObjectClass parent_class;
+  ClutterStageWindowClass parent_class;
 };
 
 GType meta_stage_impl_get_type (void) G_GNUC_CONST;

@@ -42,20 +42,11 @@
 
 #define STAGE_X11_IS_MAPPED(s)  ((((MetaStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
 
-static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
-
-static void
-clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
-
 static MetaStageImpl *meta_x11_get_stage_window_from_window (Window win);
 
 static GHashTable *clutter_stages_by_xid = NULL;
 
-G_DEFINE_TYPE_WITH_CODE (MetaStageX11,
-                         meta_stage_x11,
-                         META_TYPE_STAGE_IMPL,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
-                                                clutter_stage_window_iface_init));
+G_DEFINE_TYPE (MetaStageX11, meta_stage_x11, META_TYPE_STAGE_IMPL)
 
 #define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
 #define _NET_WM_STATE_ADD           1    /* add/set property */
@@ -252,7 +243,8 @@ meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
                            GINT_TO_POINTER (stage_x11->xwin));
     }
 
-  clutter_stage_window_parent_iface->unrealize (stage_window);
+  CLUTTER_STAGE_WINDOW_CLASS (meta_stage_x11_parent_class)->
+      unrealize (stage_window);
 
   g_clear_object (&stage_x11->onscreen);
 }
@@ -332,7 +324,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
       abort();
     }
 
-  if (!(clutter_stage_window_parent_iface->realize (stage_window)))
+  if (!CLUTTER_STAGE_WINDOW_CLASS (meta_stage_x11_parent_class)->realize (stage_window))
     return FALSE;
 
   stage_x11->xwin =
@@ -490,13 +482,24 @@ meta_stage_x11_redraw_view (ClutterStageWindow *stage_window,
                             ClutterStageView   *view,
                             ClutterFrame       *frame)
 {
-  clutter_stage_window_parent_iface->redraw_view (stage_window, view, frame);
+  CLUTTER_STAGE_WINDOW_CLASS (meta_stage_x11_parent_class)->redraw_view (stage_window, view, frame);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
 static void
 meta_stage_x11_class_init (MetaStageX11Class *klass)
 {
+  ClutterStageWindowClass *window_class = CLUTTER_STAGE_WINDOW_CLASS (klass);
+
+  window_class->show = meta_stage_x11_show;
+  window_class->hide = meta_stage_x11_hide;
+  window_class->resize = meta_stage_x11_resize;
+  window_class->get_geometry = meta_stage_x11_get_geometry;
+  window_class->realize = meta_stage_x11_realize;
+  window_class->unrealize = meta_stage_x11_unrealize;
+  window_class->can_clip_redraws = meta_stage_x11_can_clip_redraws;
+  window_class->get_views = meta_stage_x11_get_views;
+  window_class->redraw_view = meta_stage_x11_redraw_view;
 }
 
 static void
@@ -507,22 +510,6 @@ meta_stage_x11_init (MetaStageX11 *stage)
   stage->xwin_height = 480;
 
   stage->wm_state = STAGE_X11_WITHDRAWN;
-}
-
-static void
-clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
-{
-  clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
-
-  iface->show = meta_stage_x11_show;
-  iface->hide = meta_stage_x11_hide;
-  iface->resize = meta_stage_x11_resize;
-  iface->get_geometry = meta_stage_x11_get_geometry;
-  iface->realize = meta_stage_x11_realize;
-  iface->unrealize = meta_stage_x11_unrealize;
-  iface->can_clip_redraws = meta_stage_x11_can_clip_redraws;
-  iface->get_views = meta_stage_x11_get_views;
-  iface->redraw_view = meta_stage_x11_redraw_view;
 }
 
 static inline void
