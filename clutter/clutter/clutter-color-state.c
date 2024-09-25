@@ -720,6 +720,7 @@ get_inv_eotf (ClutterColorState *color_state)
     case CLUTTER_TRANSFER_FUNCTION_LINEAR:
       return NULL;
     }
+
   g_warning ("Unhandled tranfer function %s",
              clutter_transfer_function_to_string (priv->transfer_function));
   return NULL;
