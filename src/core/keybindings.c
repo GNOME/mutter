@@ -632,6 +632,22 @@ index_binding (MetaKeyBindingManager *keys,
 }
 
 static void
+resolve_special_key_combo (MetaKeyBindingManager *keys,
+                           MetaKeyCombo           combos[2],
+                           MetaResolvedKeyCombo  *resolved_combo)
+{
+  resolved_key_combo_reset (resolved_combo);
+
+  get_keycodes_for_combos (keys,
+                           combos,
+                           2,
+                           &resolved_combo->keycodes,
+                           &resolved_combo->len);
+
+  resolved_combo->mask = 0;
+}
+
+static void
 resolve_key_combo (MetaKeyBindingManager *keys,
                    MetaKeyCombo          *combo,
                    MetaResolvedKeyCombo  *resolved_combo)
