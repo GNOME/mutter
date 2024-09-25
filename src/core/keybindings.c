@@ -785,16 +785,20 @@ reload_active_keyboard_layouts (MetaKeyBindingManager *keys)
 static void
 reload_combos (MetaKeyBindingManager *keys)
 {
+  MetaKeyCombo combo;
+
   g_hash_table_remove_all (keys->key_bindings_index);
 
   reload_active_keyboard_layouts (keys);
 
+  meta_prefs_get_overlay_binding (&combo);
   resolve_key_combo (keys,
-                     &keys->overlay_key_combo,
+                     &combo,
                      &keys->overlay_resolved_key_combo);
 
+  meta_prefs_get_locate_pointer_binding (&combo);
   resolve_key_combo (keys,
-                     &keys->locate_pointer_key_combo,
+                     &combo,
                      &keys->locate_pointer_resolved_key_combo);
 
   reload_iso_next_group_combos (keys);
@@ -879,18 +883,6 @@ rebuild_key_binding_table (MetaKeyBindingManager *keys)
   rebuild_binding_table (keys, prefs, grabs);
   g_list_free (prefs);
   g_list_free (grabs);
-}
-
-static void
-rebuild_special_bindings (MetaKeyBindingManager *keys)
-{
-  MetaKeyCombo combo;
-
-  meta_prefs_get_overlay_binding (&combo);
-  keys->overlay_key_combo = combo;
-
-  meta_prefs_get_locate_pointer_binding (&combo);
-  keys->locate_pointer_key_combo = combo;
 }
 
 static MetaKeyBinding *
@@ -1180,7 +1172,6 @@ prefs_changed_callback (MetaPreference pref,
       meta_x11_keybindings_ungrab_key_bindings (display);
 #endif
       rebuild_key_binding_table (keys);
-      rebuild_special_bindings (keys);
       reload_combos (keys);
 #ifdef HAVE_X11
       meta_x11_keybindings_grab_key_bindings (display);
@@ -2859,7 +2850,6 @@ meta_display_init_keys (MetaDisplay *display)
   init_builtin_key_bindings (display);
 
   rebuild_key_binding_table (keys);
-  rebuild_special_bindings (keys);
 
   reload_combos (keys);
 

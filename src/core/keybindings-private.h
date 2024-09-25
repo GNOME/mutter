@@ -114,10 +114,8 @@ typedef struct
   xkb_mod_mask_t virtual_super_mask;
   xkb_mod_mask_t meta_mask;
   xkb_mod_mask_t virtual_meta_mask;
-  MetaKeyCombo overlay_key_combo;
   MetaResolvedKeyCombo overlay_resolved_key_combo;
   gboolean overlay_key_only_pressed;
-  MetaKeyCombo locate_pointer_key_combo;
   MetaResolvedKeyCombo locate_pointer_resolved_key_combo;
   gboolean locate_pointer_key_only_pressed;
   MetaResolvedKeyCombo iso_next_group_combo[2];
