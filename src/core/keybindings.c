@@ -361,9 +361,11 @@ add_keysym_keycodes_from_layout (int                           keysym,
                                  GArray                       *keycodes)
 {
   xkb_level_index_t layout_level;
+  int initial_len;
 
+  initial_len = keycodes->len;
   for (layout_level = 0;
-       layout_level < layout->n_levels && keycodes->len == 0;
+       layout_level < layout->n_levels && keycodes->len == initial_len;
        layout_level++)
     {
       FindKeysymData search_data = (FindKeysymData) {
