@@ -387,14 +387,13 @@ get_keycodes_for_keysym (MetaKeyBindingManager  *keys,
 {
   unsigned int i;
   GArray *keycodes;
-  int keycode;
 
   keycodes = g_array_new (FALSE, FALSE, sizeof (xkb_keysym_t));
 
   /* Special-case: Fake mutter keysym */
   if (keysym == META_KEY_ABOVE_TAB)
     {
-      keycode = KEY_GRAVE + 8;
+      int keycode = KEY_GRAVE + 8;
       g_array_append_val (keycodes, keycode);
       goto out;
     }
