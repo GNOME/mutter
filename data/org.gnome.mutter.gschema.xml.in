@@ -12,7 +12,7 @@
           gettext-domain="@GETTEXT_DOMAIN@">
 
     <key name="overlay-key" type="s">
-      <default>'Super_L'</default>
+      <default>'Super'</default>
       <summary>Modifier to use for extended window management operations</summary>
       <description>
         This key will initiate the “overlay”, which is a combination window
