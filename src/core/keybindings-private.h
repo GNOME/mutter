@@ -146,10 +146,10 @@ gboolean meta_prefs_add_keybinding          (const char           *name,
 
 gboolean meta_prefs_remove_keybinding       (const char    *name);
 
-GList *meta_prefs_get_keybindings (void);
+GList * meta_prefs_get_keybindings (void);
 void meta_prefs_get_overlay_binding (MetaKeyCombo *combo);
 void meta_prefs_get_locate_pointer_binding (MetaKeyCombo *combo);
-const char *meta_prefs_get_iso_next_group_option (void);
+const char * meta_prefs_get_iso_next_group_option (void);
 gboolean meta_prefs_is_locate_pointer_enabled (void);
 
 gboolean meta_display_process_keybinding_event (MetaDisplay        *display,
