@@ -654,8 +654,9 @@ chromaticity_equal (float x1,
                     float y2)
 
 {
-  return G_APPROX_VALUE (x1, x2, 0.000001f) &&
-         G_APPROX_VALUE (y1, y2, 0.000001f);
+  /* FIXME: the next color managment version will use more precision */
+  return G_APPROX_VALUE (x1, x2, 0.0001f) &&
+         G_APPROX_VALUE (y1, y2, 0.0001f);
 }
 
 static gboolean
