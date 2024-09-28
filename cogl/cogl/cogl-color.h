@@ -97,7 +97,7 @@ COGL_EXPORT CoglColor *
 cogl_color_copy (const CoglColor *color);
 
 /**
- * cogl_color_free: (skip):
+ * cogl_color_free: (skip)
  * @color: the color to free
  *
  * Frees the resources allocated by cogl_color_new() and cogl_color_copy()
