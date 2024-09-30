@@ -124,9 +124,9 @@ meta_is_udev_test_device (GUdevDevice *device)
 gboolean
 meta_is_udev_device_preferred_primary (GUdevDevice *device)
 {
-  const char * const * tags;
+  const char * const *tags;
 
-  tags = g_udev_device_get_tags (device);
+  tags = g_udev_device_get_current_tags (device);
   if (!tags)
     return FALSE;
 
