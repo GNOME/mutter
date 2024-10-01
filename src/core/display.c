@@ -2709,7 +2709,8 @@ meta_display_request_pad_osd (MetaDisplay        *display,
         meta_input_mapper_get_device_logical_monitor (input_mapper, pad);
 #ifdef HAVE_LIBWACOM
       wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (pad));
-      layout_path = libwacom_get_layout_filename (wacom_device);
+      if (wacom_device)
+        layout_path = libwacom_get_layout_filename (wacom_device);
 #endif
     }
 
