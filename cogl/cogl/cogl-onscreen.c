@@ -384,6 +384,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
   g_return_if_fail  (COGL_IS_ONSCREEN (framebuffer));
@@ -395,6 +396,8 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
     cogl_framebuffer_finish (framebuffer);
+  else
+    _cogl_context_update_sync (context);
 
   /* This should only be called if the winsys advertises
      COGL_WINSYS_FEATURE_SWAP_REGION */
