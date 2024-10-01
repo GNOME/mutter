@@ -348,8 +348,9 @@ GType cogl_frame_closure_get_type (void);
 /**
  * cogl_onscreen_add_frame_callback:
  * @onscreen: A #CoglOnscreen framebuffer
- * @callback: (scope notified): A callback function to call for frame events
- * @user_data: (closure): A private pointer to be passed to @callback
+ * @callback: (scope notified) (closure user_data): A callback function
+ *            to call for frame events
+ * @user_data: A private pointer to be passed to @callback
  * @destroy: (allow-none): An optional callback to destroy @user_data
  *           when the @callback is removed or @onscreen is freed.
  *
