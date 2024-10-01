@@ -350,6 +350,8 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
     cogl_framebuffer_finish (framebuffer);
+  else
+    _cogl_context_update_sync (context);
 
   /* This should only be called if the winsys advertises
      COGL_WINSYS_FEATURE_SWAP_REGION */
