@@ -199,6 +199,17 @@ meta_stage_before_paint (ClutterStage     *stage,
 }
 
 static void
+meta_stage_skipped_paint (ClutterStage     *stage,
+                          ClutterStageView *view,
+                          ClutterFrame     *frame)
+{
+  MetaStage *meta_stage = META_STAGE (stage);
+
+  notify_watchers_for_mode (meta_stage, view, NULL, frame,
+                            META_STAGE_WATCH_SKIPPED_PAINT);
+}
+
+static void
 meta_stage_paint (ClutterActor        *actor,
                   ClutterPaintContext *paint_context)
 {
@@ -285,6 +296,7 @@ meta_stage_class_init (MetaStageClass *klass)
   actor_class->paint = meta_stage_paint;
 
   stage_class->before_paint = meta_stage_before_paint;
+  stage_class->skipped_paint = meta_stage_skipped_paint;
   stage_class->paint_view = meta_stage_paint_view;
 }
 
