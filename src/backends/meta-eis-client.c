@@ -872,6 +872,9 @@ meta_eis_client_process_event (MetaEisClient    *client,
 {
   enum eis_event_type type = eis_event_get_type (event);
 
+  meta_topic (META_DEBUG_EIS,
+              "Processing %s event", eis_event_type_to_string (type));
+
   switch (type)
     {
     case EIS_EVENT_SEAT_BIND:
