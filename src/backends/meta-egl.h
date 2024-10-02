@@ -276,3 +276,21 @@ gboolean meta_egl_query_display_attrib (MetaEgl     *egl,
                                         EGLint       attribute,
                                         EGLAttrib   *value,
                                         GError     **error);
+
+gboolean meta_egl_create_sync (MetaEgl           *egl,
+                               EGLDisplay         display,
+                               EGLenum            type,
+                               const EGLAttrib   *attrib_list,
+                               EGLSync           *egl_sync,
+                               GError           **error);
+
+gboolean meta_egl_destroy_sync (MetaEgl     *egl,
+                                EGLDisplay   display,
+                                EGLSync      sync,
+                                GError     **error);
+
+gboolean meta_egl_wait_sync (MetaEgl     *egl,
+                             EGLDisplay   display,
+                             EGLSync      sync,
+                             EGLint       flags,
+                             GError     **error);
