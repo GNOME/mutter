@@ -1633,6 +1633,11 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       /* The frame was aborted; nothing to paint/present */
       clutter_frame_clock_notify_ready (frame_clock);
       break;
+    case CLUTTER_FRAME_RESULT_IGNORED:
+      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+      clear_frame (&frame_clock->next_presentation);
+      maybe_reschedule_update (frame_clock);
+      break;
     }
 
 #ifdef HAVE_PROFILER

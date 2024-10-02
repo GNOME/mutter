@@ -31,6 +31,7 @@ typedef enum _ClutterFrameResult
 {
   CLUTTER_FRAME_RESULT_PENDING_PRESENTED,
   CLUTTER_FRAME_RESULT_IDLE,
+  CLUTTER_FRAME_RESULT_IGNORED,
 } ClutterFrameResult;
 
 #define CLUTTER_TYPE_FRAME_CLOCK_DRIVER (clutter_frame_clock_driver_get_type ())
