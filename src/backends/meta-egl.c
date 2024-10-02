@@ -44,6 +44,10 @@ struct _MetaEgl
   PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
   PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
 
+  PFNEGLCREATESYNCPROC eglCreateSync;
+  PFNEGLDESTROYSYNCPROC eglDestroySync;
+  PFNEGLWAITSYNCPROC eglWaitSync;
+
   PFNEGLBINDWAYLANDDISPLAYWL eglBindWaylandDisplayWL;
   PFNEGLQUERYWAYLANDBUFFERWL eglQueryWaylandBufferWL;
 
@@ -1162,6 +1166,69 @@ meta_egl_query_display_attrib (MetaEgl     *egl,
   return TRUE;
 }
 
+gboolean
+meta_egl_create_sync (MetaEgl           *egl,
+                      EGLDisplay         display,
+                      EGLenum            type,
+                      const EGLAttrib   *attrib_list,
+                      EGLSync           *egl_sync,
+                      GError           **error)
+{
+  EGLSync sync;
+
+  if (!is_egl_proc_valid (egl->eglCreateSync, error))
+    return FALSE;
+
+  sync = egl->eglCreateSync (display, type, attrib_list);
+
+  if (sync == EGL_NO_SYNC)
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  *egl_sync = sync;
+
+  return TRUE;
+}
+
+gboolean
+meta_egl_destroy_sync (MetaEgl     *egl,
+                       EGLDisplay   display,
+                       EGLSync      sync,
+                       GError     **error)
+{
+  if (!is_egl_proc_valid (egl->eglDestroySync, error))
+    return FALSE;
+
+  if (!egl->eglDestroySync (display, sync))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+gboolean
+meta_egl_wait_sync (MetaEgl     *egl,
+                    EGLDisplay   display,
+                    EGLSync      sync,
+                    EGLint       flags,
+                    GError     **error)
+{
+  if (!is_egl_proc_valid (egl->eglWaitSync, error))
+    return FALSE;
+
+  if (!egl->eglWaitSync (display, sync, flags))
+    {
+      set_egl_error (error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 #define GET_EGL_PROC_ADDR(proc) \
   egl->proc = (void *) eglGetProcAddress (#proc);
 
@@ -1174,6 +1241,10 @@ meta_egl_constructed (GObject *object)
 
   GET_EGL_PROC_ADDR (eglCreateImageKHR);
   GET_EGL_PROC_ADDR (eglDestroyImageKHR);
+
+  GET_EGL_PROC_ADDR (eglCreateSync);
+  GET_EGL_PROC_ADDR (eglDestroySync);
+  GET_EGL_PROC_ADDR (eglWaitSync);
 
   GET_EGL_PROC_ADDR (eglBindWaylandDisplayWL);
   GET_EGL_PROC_ADDR (eglQueryWaylandBufferWL);
