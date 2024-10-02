@@ -1304,7 +1304,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   MetaKmsUpdate *kms_update;
   CoglOnscreenClass *parent_class;
-  gboolean create_timestamp_query = TRUE;
+  gboolean secondary_gpu_used = FALSE;
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferFlags buffer_flags;
@@ -1334,12 +1334,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       secondary_gpu_data =
         meta_renderer_native_get_gpu_data (renderer_native,
                                            secondary_gpu_state->gpu_kms);
-      if (secondary_gpu_data->secondary.copy_mode ==
-          META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU)
-        create_timestamp_query = FALSE;
+      secondary_gpu_used =
+        secondary_gpu_data->secondary.copy_mode ==
+        META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU;
     }
 
-  if (create_timestamp_query)
+  if (!secondary_gpu_used)
     cogl_onscreen_egl_maybe_create_timestamp_query (onscreen, frame_info);
 
   parent_class = COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
