@@ -34,6 +34,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "clutter/clutter.h"
 #include "core/stack.h"
+#include "meta/meta-window-config.h"
 #include "meta/compositor.h"
 #include "meta/meta-close-dialog.h"
 #include "meta/util.h"
@@ -811,6 +812,9 @@ void meta_window_hide_close_dialog (MetaWindow *window);
 void meta_window_ensure_close_dialog_timeout (MetaWindow *window);
 
 void meta_window_emit_size_changed (MetaWindow *window);
+
+void meta_window_emit_configure (MetaWindow       *window,
+                                 MetaWindowConfig *window_config);
 
 MetaPlacementRule *meta_window_get_placement_rule (MetaWindow *window);
 

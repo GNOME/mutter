@@ -81,6 +81,7 @@
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
+#include "meta/meta-window-config.h"
 
 #ifdef HAVE_X11_CLIENT
 #include "mtk/mtk-x11.h"
@@ -241,6 +242,7 @@ enum
   POSITION_CHANGED,
   SHOWN,
   HIGHEST_SCALE_MONITOR_CHANGED,
+  CONFIGURE,
 
   LAST_SIGNAL
 };
@@ -733,6 +735,20 @@ meta_window_class_init (MetaWindowClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  /**
+   * MetaWindow::configure:
+   * @window: a #MetaWindow
+   * @window_config: a #MetaWindowConfig
+   */
+  window_signals[CONFIGURE] =
+    g_signal_new ("configure",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  META_TYPE_WINDOW_CONFIG);
 }
 
 static void
@@ -7585,6 +7601,13 @@ MetaPlacementRule *
 meta_window_get_placement_rule (MetaWindow *window)
 {
   return window->placement.rule;
+}
+
+void
+meta_window_emit_configure (MetaWindow       *window,
+                            MetaWindowConfig *window_config)
+{
+  g_signal_emit (window, window_signals[CONFIGURE], 0, window_config);
 }
 
 void
