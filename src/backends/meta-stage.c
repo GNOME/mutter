@@ -29,8 +29,6 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
-#define N_WATCH_MODES 4
-
 struct _MetaStageWatch
 {
   ClutterStageView *view;
@@ -59,7 +57,7 @@ struct _MetaStage
 
   MetaBackend *backend;
 
-  GPtrArray *watchers[N_WATCH_MODES];
+  GPtrArray *watchers[META_N_WATCH_MODES];
 
   GList *overlays;
 };
@@ -160,7 +158,7 @@ meta_stage_finalize (GObject *object)
       l = g_list_delete_link (l, l);
     }
 
-  for (i = 0; i < N_WATCH_MODES; i++)
+  for (i = 0; i < META_N_WATCH_MODES; i++)
     g_clear_pointer (&stage->watchers[i], g_ptr_array_unref);
 
   G_OBJECT_CLASS (meta_stage_parent_class)->finalize (object);
@@ -311,7 +309,7 @@ meta_stage_init (MetaStage *stage)
 {
   int i;
 
-  for (i = 0; i < N_WATCH_MODES; i++)
+  for (i = 0; i < META_N_WATCH_MODES; i++)
     stage->watchers[i] = g_ptr_array_new_with_free_func (g_free);
 
   if (meta_is_wayland_compositor ())
@@ -483,7 +481,7 @@ meta_stage_remove_watch (MetaStage      *stage,
   gboolean removed = FALSE;
   int i;
 
-  for (i = 0; i < N_WATCH_MODES; i++)
+  for (i = 0; i < META_N_WATCH_MODES; i++)
     {
       watchers = stage->watchers[i];
       removed = g_ptr_array_remove_fast (watchers, watch);
