@@ -62,7 +62,12 @@ Debugging GL based applications can be hard without insights into the GL state t
 
 For more detailed state dumps, it's possible to use graphics debuggers such as apitrace and renderdoc.
 
-Renderdoc is usually the better tool to debug something with, but it's also harder to capture a trace. In those cases apitrace can help by capturing trace by wrapping the Mutter invocation with `apitrace trace --api=egl` and then capturing with renderdoc the replay of the apitrace (`eglretrace mutter.trace`).
+Mutter has built-in Renderdoc support (see `meta_backend_renderdoc_capture` and lg `global.context.get_backend().renderdoc_capture()`).
+To get renderdoc to capture mutter, `LD_PRELOAD` must be set to the path of `librenderdoc.so`. If any process is in between setting the environment variable and mutter, it will fail.
+For example, `LD_PRELOAD=path/to/librenderdoc.so dbus-run-session gnome-shell --wayland` will not work, but `dbus-run-session env LD_PRELOAD=path/to/librenderdoc.so gnome-shell --wayland` will.
+The way gdb starts the target also involves another process, so use `gdb -ex 'set exec-wrapper env LD_PRELOAD=path/to/librenderdoc.so'` in those cases.
+
+Apitraces can help by capturing multiple frames. The mutter invocation can be wrapped with `apitrace trace --api=egl` to capture a trace which can be replay with `eglretrace`. Apitrace can also be captured by renderdoc to select a single frame to investigate further.
 
 ## Reproducing CI test failures locally
 
