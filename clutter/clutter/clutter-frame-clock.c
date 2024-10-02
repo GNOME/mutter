@@ -1479,7 +1479,7 @@ clutter_frame_clock_set_mode (ClutterFrameClock     *frame_clock,
   maybe_reschedule_update (frame_clock);
 }
 
-void
+ClutterFrameResult
 clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
                               int64_t            time_us)
 {
@@ -1518,7 +1518,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
       g_warning ("Frame clock dispatched in an unscheduled state %d",
                  frame_clock->state);
-      return;
+      return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
@@ -1645,6 +1645,8 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
       COGL_TRACE_DESCRIBE (ClutterFrameClockDispatch, description);
     }
 #endif
+
+  return result;
 }
 
 static gboolean
