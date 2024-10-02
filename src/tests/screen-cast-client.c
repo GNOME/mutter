@@ -54,6 +54,8 @@ main (int    argc,
   Session *session;
   Stream *stream;
 
+  g_log_writer_default_set_use_stderr (TRUE);
+
   g_debug ("Initializing PipeWire");
   init_pipewire ();
 

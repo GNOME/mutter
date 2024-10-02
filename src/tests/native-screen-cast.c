@@ -22,20 +22,99 @@
 #include <gio/gio.h>
 #include <unistd.h>
 
+#include "meta/meta-backend.h"
 #include "meta/util.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-test/meta-context-test.h"
+
+static MetaContext *test_context;
+
+static void read_line_async (GDataInputStream *client_stdout,
+                             GCancellable     *cancellable);
+
+static void
+process_line (const char *line)
+{
+  g_autoptr (GError) error = NULL;
+  int argc;
+  g_auto (GStrv) argv = NULL;
+
+  if (!g_shell_parse_argv (line, &argc, &argv, &error))
+    g_assert_no_error (error);
+
+  if (argc == 1 && g_strcmp0 (argv[0], "post_damage") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test_context);
+      ClutterActor *stage = meta_backend_get_stage (backend);
+
+      g_debug ("Posting damage");
+      clutter_actor_queue_redraw (stage);
+    }
+  else
+    {
+      g_error ("Unknown command '%s'", line);
+    }
+}
+
+static void
+line_read_cb (GObject      *source_object,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+  GDataInputStream *client_stdout = G_DATA_INPUT_STREAM (source_object);
+  GCancellable *cancellable = G_CANCELLABLE (user_data);
+  g_autoptr (GError) error = NULL;
+  g_autofree char *line = NULL;
+
+  line = g_data_input_stream_read_line_finish_utf8 (client_stdout,
+                                                    res,
+                                                    NULL,
+                                                    &error);
+  if (error)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_error ("Failed to read line: %s", error->message);
+      return;
+    }
+
+  if (line)
+    process_line (line);
+
+  read_line_async (client_stdout, cancellable);
+}
+
+static void
+read_line_async (GDataInputStream *client_stdout,
+                 GCancellable     *cancellable)
+{
+  g_data_input_stream_read_line_async (client_stdout,
+                                       G_PRIORITY_DEFAULT,
+                                       cancellable,
+                                       line_read_cb,
+                                       cancellable);
+}
 
 static void
 run_screen_cast_test_client (const char *client_name)
 {
   g_autoptr (GSubprocess) subprocess = NULL;
+  g_autoptr (GDataInputStream) client_stdout = NULL;
+  g_autoptr (GCancellable) cancellable = NULL;
 
   meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
-  subprocess = meta_launch_test_executable (G_SUBPROCESS_FLAGS_NONE,
+  subprocess = meta_launch_test_executable (G_SUBPROCESS_FLAGS_STDOUT_PIPE,
                                             client_name,
                                             NULL);
+
+  client_stdout =
+    g_data_input_stream_new (g_subprocess_get_stdout_pipe (subprocess));
+  cancellable = g_cancellable_new ();
+
+  read_line_async (client_stdout, cancellable);
+
   meta_wait_test_process (subprocess);
+  g_cancellable_cancel (cancellable);
+
   meta_remove_verbose_topic (META_DEBUG_SCREEN_CAST);
 }
 
@@ -63,6 +142,8 @@ main (int    argc,
   g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
+
+  test_context = context;
 
   init_tests ();
 
