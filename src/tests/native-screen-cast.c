@@ -27,16 +27,22 @@
 #include "tests/meta-test/meta-context-test.h"
 
 static void
-meta_test_screen_cast_record_virtual (void)
+run_screen_cast_test_client (const char *client_name)
 {
   g_autoptr (GSubprocess) subprocess = NULL;
 
   meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
   subprocess = meta_launch_test_executable (G_SUBPROCESS_FLAGS_NONE,
-                                            "mutter-screen-cast-client",
+                                            client_name,
                                             NULL);
   meta_wait_test_process (subprocess);
   meta_remove_verbose_topic (META_DEBUG_SCREEN_CAST);
+}
+
+static void
+meta_test_screen_cast_record_virtual (void)
+{
+  run_screen_cast_test_client ("mutter-screen-cast-client");
 }
 
 static void
@@ -55,6 +61,8 @@ main (int    argc,
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
   g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
+
+  meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
 
   init_tests ();
 
