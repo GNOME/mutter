@@ -379,6 +379,9 @@ queue_redraw_clutter_rect (MetaStage       *stage,
           CLUTTER_PAINT_FLAG_NO_CURSORS)
         continue;
 
+      if (meta_stage_view_is_cursor_overlay_inhibited (META_STAGE_VIEW (view)))
+        return;
+
       clutter_stage_view_get_layout (view, &view_layout);
 
       if (mtk_rectangle_intersect (&clip, &view_layout, &view_clip))
