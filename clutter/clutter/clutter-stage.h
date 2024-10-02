@@ -66,6 +66,10 @@ struct _ClutterStageClass
                        ClutterStageView *view,
                        const MtkRegion  *redraw_clip,
                        ClutterFrame     *frame);
+
+  void (* skipped_paint) (ClutterStage     *stage,
+                          ClutterStageView *view,
+                          ClutterFrame     *frame);
 };
 
 /**

@@ -165,6 +165,7 @@ enum
   PREPARE_FRAME,
   BEFORE_PAINT,
   AFTER_PAINT,
+  SKIPPED_PAINT,
   AFTER_UPDATE,
   PAINT_VIEW,
   PRESENTED,
@@ -525,6 +526,14 @@ clutter_stage_emit_after_paint (ClutterStage     *stage,
                                 ClutterFrame     *frame)
 {
   g_signal_emit (stage, stage_signals[AFTER_PAINT], 0, view, frame);
+}
+
+void
+clutter_stage_emit_skipped_paint (ClutterStage     *stage,
+                                  ClutterStageView *view,
+                                  ClutterFrame     *frame)
+{
+  g_signal_emit (stage, stage_signals[SKIPPED_PAINT], 0, view, frame);
 }
 
 void
@@ -1629,6 +1638,29 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   CLUTTER_TYPE_STAGE_VIEW,
                   CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
   g_signal_set_va_marshaller (stage_signals[AFTER_PAINT],
+                              G_TYPE_FROM_CLASS (gobject_class),
+                              _clutter_marshal_VOID__OBJECT_BOXEDv);
+
+  /**
+   * ClutterStage::skipped-paint:
+   * @stage: the stage that received the event
+   * @view: a #ClutterStageView
+   * @frame: a #ClutterFrame
+   *
+   * The ::skipped-paint signal is emitted after relayout, if no damage
+   * was posted and the paint was skipped.
+   */
+  stage_signals[SKIPPED_PAINT] =
+    g_signal_new (I_("skipped-paint"),
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ClutterStageClass, skipped_paint),
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_BOXED,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  CLUTTER_TYPE_FRAME | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (stage_signals[SKIPPED_PAINT],
                               G_TYPE_FROM_CLASS (gobject_class),
                               _clutter_marshal_VOID__OBJECT_BOXEDv);
 

@@ -1084,6 +1084,10 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
       if (clutter_context_get_show_fps (context))
         end_frame_timing_measurement (view);
     }
+  else
+    {
+      clutter_stage_emit_skipped_paint (stage, view, frame);
+    }
 
   _clutter_stage_window_finish_frame (stage_window, view, frame);
 
