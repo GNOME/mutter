@@ -1734,6 +1734,32 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   return TRUE;
 }
 
+static gboolean
+meta_onscreen_native_get_window_handles (CoglOnscreen *onscreen,
+                                         gpointer     *device_out,
+                                         gpointer     *window_out)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglDisplayEGL *cogl_display_egl = cogl_context->display->winsys;
+  gpointer window = NULL;
+
+  if (onscreen_native->gbm.surface)
+    window = onscreen_native->gbm.surface;
+#ifdef HAVE_EGL_DEVICE
+  else if (onscreen_native->egl.stream)
+    window = onscreen_native->egl.stream;
+#endif
+
+  if (!window)
+    return FALSE;
+
+  *device_out = cogl_display_egl->egl_context;
+  *window_out = window;
+  return TRUE;
+}
+
 static void
 add_onscreen_frame_info (MetaCrtc *crtc)
 {
@@ -2944,6 +2970,7 @@ meta_onscreen_native_class_init (MetaOnscreenNativeClass *klass)
   onscreen_class->swap_buffers_with_damage =
     meta_onscreen_native_swap_buffers_with_damage;
   onscreen_class->direct_scanout = meta_onscreen_native_direct_scanout;
+  onscreen_class->get_window_handles = meta_onscreen_native_get_window_handles;
 
   blit_source_quark = g_quark_from_static_string ("Blit source");
 }

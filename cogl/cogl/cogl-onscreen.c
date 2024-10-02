@@ -516,3 +516,16 @@ cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen)
 
   return priv->frame_counter;
 }
+
+gboolean
+cogl_onscreen_get_window_handles (CoglOnscreen *onscreen,
+                                  gpointer     *device_out,
+                                  gpointer     *window_out)
+{
+  CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
+
+  if (!klass->get_window_handles)
+      return FALSE;
+
+  return klass->get_window_handles (onscreen, device_out, window_out);
+}

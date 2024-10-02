@@ -170,6 +170,22 @@ cogl_onscreen_xlib_allocate (CoglFramebuffer  *framebuffer,
   return parent_class->allocate (framebuffer, error);
 }
 
+static gboolean
+cogl_onscreen_xlib_get_window_handles (CoglOnscreen *onscreen,
+                                       gpointer     *device_out,
+                                       gpointer     *window_out)
+{
+  CoglOnscreenXlib *onscreen_xlib = COGL_ONSCREEN_XLIB (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglDisplayEGL *cogl_display_egl = cogl_context->display->winsys;
+
+  *device_out = cogl_display_egl->egl_context;
+  *window_out = (gpointer) onscreen_xlib->xwin;
+
+  return TRUE;
+}
+
 static void
 cogl_onscreen_xlib_dispose (GObject *object)
 {
@@ -259,8 +275,10 @@ cogl_onscreen_xlib_class_init (CoglOnscreenXlibClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CoglFramebufferClass *framebuffer_class = COGL_FRAMEBUFFER_CLASS (klass);
+  CoglOnscreenClass *onscreen_class = COGL_ONSCREEN_CLASS (klass);
 
   object_class->dispose = cogl_onscreen_xlib_dispose;
 
   framebuffer_class->allocate = cogl_onscreen_xlib_allocate;
+  onscreen_class->get_window_handles = cogl_onscreen_xlib_get_window_handles;
 }

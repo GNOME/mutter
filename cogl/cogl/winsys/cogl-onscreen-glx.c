@@ -528,6 +528,26 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
   return age;
 }
 
+static gboolean
+cogl_onscreen_glx_get_window_handles (CoglOnscreen *onscreen,
+                                      gpointer     *device_out,
+                                      gpointer     *window_out)
+{
+  CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglXlibRenderer *xlib_renderer =
+    _cogl_xlib_renderer_get_data (cogl_context->display->renderer);
+  GLXDrawable drawable;
+
+  drawable = onscreen_glx->glxwin ? onscreen_glx->glxwin : onscreen_glx->xwin;
+
+  *device_out = xlib_renderer->xdpy;
+  *window_out = (gpointer) drawable;
+
+  return TRUE;
+}
+
 static void
 cogl_onscreen_glx_flush_notification (CoglOnscreen *onscreen)
 {
@@ -1067,4 +1087,5 @@ cogl_onscreen_glx_class_init (CoglOnscreenGlxClass *klass)
     cogl_onscreen_glx_swap_buffers_with_damage;
   onscreen_class->swap_region = cogl_onscreen_glx_swap_region;
   onscreen_class->get_buffer_age = cogl_onscreen_glx_get_buffer_age;
+  onscreen_class->get_window_handles = cogl_onscreen_glx_get_window_handles;
 }

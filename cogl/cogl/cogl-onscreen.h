@@ -78,6 +78,10 @@ struct _CoglOnscreenClass
                                GError        **error);
 
   int (* get_buffer_age) (CoglOnscreen *onscreen);
+
+  gboolean (* get_window_handles) (CoglOnscreen *onscreen,
+                                   gpointer     *device_out,
+                                   gpointer     *window_out);
 };
 
 /**
@@ -401,5 +405,10 @@ cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
  */
 COGL_EXPORT int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);
+
+COGL_EXPORT gboolean
+cogl_onscreen_get_window_handles (CoglOnscreen *onscreen,
+                                  gpointer     *device_out,
+                                  gpointer     *window_out);
 
 G_END_DECLS
