@@ -328,16 +328,17 @@ process_buffer (Stream            *stream,
 {
   process_buffer_metadata (stream, buffer);
 
-  if (buffer->datas[0].chunk->size == 0)
-    g_assert_not_reached ();
-  else if (buffer->datas[0].type == SPA_DATA_MemFd)
-    sanity_check_memfd (buffer);
-  else if (buffer->datas[0].type == SPA_DATA_DmaBuf)
-    g_assert_not_reached ();
-  else if (buffer->datas[0].type == SPA_DATA_MemPtr)
-    sanity_check_memptr (buffer);
-  else
-    g_assert_not_reached ();
+  if (buffer->datas[0].chunk->size != 0)
+    {
+      if (buffer->datas[0].type == SPA_DATA_MemFd)
+        sanity_check_memfd (buffer);
+      else if (buffer->datas[0].type == SPA_DATA_DmaBuf)
+        g_assert_not_reached ();
+      else if (buffer->datas[0].type == SPA_DATA_MemPtr)
+        sanity_check_memptr (buffer);
+      else
+        g_assert_not_reached ();
+    }
 }
 
 static void
