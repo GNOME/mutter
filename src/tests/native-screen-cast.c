@@ -125,10 +125,18 @@ meta_test_screen_cast_record_virtual (void)
 }
 
 static void
+meta_test_screen_cast_record_virtual_driver (void)
+{
+  run_screen_cast_test_client ("mutter-screen-cast-client-driver");
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/screen-cast/record-virtual",
                    meta_test_screen_cast_record_virtual);
+  g_test_add_func ("/backends/native/screen-cast/record-virtual-driver",
+                   meta_test_screen_cast_record_virtual_driver);
 }
 
 int

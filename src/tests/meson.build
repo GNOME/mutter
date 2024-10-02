@@ -491,6 +491,26 @@ screen_cast_client = executable('mutter-screen-cast-client',
   install_rpath: pkglibdir,
 )
 
+screen_cast_client_driver = executable('mutter-screen-cast-client-driver',
+  sources: [
+    'screen-cast-client-driver.c',
+    built_dbus_sources['meta-dbus-remote-desktop'],
+    built_dbus_sources['meta-dbus-screen-cast'],
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-screen-cast-client-driver"',
+  ],
+  dependencies: [
+    gio_dep,
+    libpipewire_dep,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+  install_rpath: pkglibdir,
+)
+
 backlight_client = executable('monitor-backlight-client',
   sources: [
     'monitor-backlight-client.c',
@@ -593,6 +613,7 @@ test_cases += [
     ],
     'depends': [
       screen_cast_client,
+      screen_cast_client_driver,
     ],
   },
   {
