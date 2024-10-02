@@ -452,6 +452,7 @@ stream_wait_for_cursor_position (Stream *stream,
 static void
 stream_wait_for_streaming (Stream *stream)
 {
+  g_debug ("Waiting for stream to stream");
   while (stream->state != PW_STREAM_STATE_STREAMING)
     g_main_context_iteration (NULL, TRUE);
 }
@@ -461,6 +462,7 @@ stream_wait_for_render (Stream *stream)
 {
   int initial_buffer_count = stream->buffer_count;
 
+  g_debug ("Waiting for new buffer");
   while (stream->buffer_count == initial_buffer_count)
     g_main_context_iteration (NULL, TRUE);
 }
