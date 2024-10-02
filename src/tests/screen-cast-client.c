@@ -773,8 +773,8 @@ main (int    argc,
   /* Check that we receive the initial frame */
   g_debug ("Waiting for stream to be established");
   stream_wait_for_node (stream);
-  stream_wait_for_render (stream);
   stream_wait_for_streaming (stream);
+  stream_wait_for_render (stream);
   session_notify_absolute_pointer (session, stream, 6, 5);
   session_notify_absolute_pointer (session, stream, 5, 6);
 
