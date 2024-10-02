@@ -261,6 +261,8 @@ mutter_sources = [
   'backends/meta-pointer-constraint.h',
   'backends/meta-remote-access-controller-private.h',
   'backends/meta-remote-access-controller.c',
+  'backends/meta-renderdoc.c',
+  'backends/meta-renderdoc.h',
   'backends/meta-renderer.c',
   'backends/meta-renderer.h',
   'backends/meta-renderer-view.c',
