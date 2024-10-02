@@ -1314,7 +1314,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   g_autoptr (MetaDrmBuffer) buffer = NULL;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
-  int sync_fd;
 
   COGL_TRACE_SCOPED_ANCHOR (MetaRendererNativePostKmsUpdate);
 
@@ -1499,8 +1498,15 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
               meta_kms_device_get_path (kms_device));
 
   kms_update = meta_frame_native_steal_kms_update (frame_native);
-  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
-  meta_kms_update_set_sync_fd (kms_update, sync_fd);
+
+  if (!secondary_gpu_used)
+    {
+      int sync_fd;
+
+      sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+      meta_kms_update_set_sync_fd (kms_update, g_steal_fd (&sync_fd));
+    }
+
   meta_kms_device_post_update (kms_device, kms_update,
                                META_KMS_UPDATE_FLAG_NONE);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
