@@ -1343,8 +1343,9 @@ on_stream_state_changed (void                 *data,
     meta_screen_cast_stream_src_get_instance_private (src);
 
   meta_topic (META_DEBUG_SCREEN_CAST,
-              "New PipeWire stream (%u) state '%s'",
+              "Pipewire stream (%u) state changed from %s to %s",
               priv->node_id,
+              pw_stream_state_as_string (old),
               pw_stream_state_as_string (state));
 
   switch (state)
