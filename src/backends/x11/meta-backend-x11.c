@@ -60,7 +60,7 @@
 #include "mtk/mtk-x11.h"
 #include "x11/window-x11.h"
 
-struct _MetaBackendX11Private
+typedef struct _MetaBackendX11Private
 {
   /* The host X11 display */
   Display *xdisplay;
@@ -95,19 +95,11 @@ struct _MetaBackendX11Private
   MetaLogicalMonitor *cached_current_logical_monitor;
 
   MetaX11Barriers *barriers;
-};
-typedef struct _MetaBackendX11Private MetaBackendX11Private;
+} MetaBackendX11Private;
 
-static GInitableIface *initable_parent_iface;
-
-static void
-initable_iface_init (GInitableIface *initable_iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaBackendX11, meta_backend_x11, META_TYPE_BACKEND,
-                         G_ADD_PRIVATE (MetaBackendX11)
-                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                initable_iface_init));
-
+G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendX11,
+                            meta_backend_x11,
+                            META_TYPE_BACKEND)
 
 static void
 uint64_to_xsync_value (uint64_t    value,
@@ -966,12 +958,11 @@ init_xinput (MetaBackendX11  *backend_x11,
 }
 
 static gboolean
-meta_backend_x11_initable_init (GInitable    *initable,
-                                GCancellable *cancellable,
-                                GError      **error)
+meta_backend_x11_init_basic (MetaBackend  *backend,
+                             GError      **error)
 {
-  MetaContext *context = meta_backend_get_context (META_BACKEND (initable));
-  MetaBackendX11 *x11 = META_BACKEND_X11 (initable);
+  MetaContext *context = meta_backend_get_context (backend);
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   Display *xdisplay;
   const char *xdisplay_name;
@@ -1007,15 +998,7 @@ meta_backend_x11_initable_init (GInitable    *initable,
   if (priv->have_xinput_23)
     priv->barriers = meta_x11_barriers_new (x11);
 
-  return initable_parent_iface->init (initable, cancellable, error);
-}
-
-static void
-initable_iface_init (GInitableIface *initable_iface)
-{
-  initable_parent_iface = g_type_interface_peek_parent (initable_iface);
-
-  initable_iface->init = meta_backend_x11_initable_init;
+  return TRUE;
 }
 
 static void
@@ -1069,6 +1052,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
 
   object_class->dispose = meta_backend_x11_dispose;
   object_class->finalize = meta_backend_x11_finalize;
+  backend_class->init_basic = meta_backend_x11_init_basic;
   backend_class->init_render = meta_backend_x11_init_render;
   backend_class->init_post = meta_backend_x11_init_post;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;

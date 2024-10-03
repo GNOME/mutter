@@ -36,16 +36,9 @@ typedef struct _MetaBackendX11NestedPrivate
   MetaInputSettings *input_settings;
 } MetaBackendX11NestedPrivate;
 
-static GInitableIface *initable_parent_iface;
-
-static void
-initable_iface_init (GInitableIface *initable_iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaBackendX11Nested, meta_backend_x11_nested,
-                         META_TYPE_BACKEND_X11,
-                         G_ADD_PRIVATE (MetaBackendX11Nested)
-                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                initable_iface_init));
+G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendX11Nested,
+                            meta_backend_x11_nested,
+                            META_TYPE_BACKEND_X11)
 
 static MetaRenderer *
 meta_backend_x11_nested_create_renderer (MetaBackend *backend,
@@ -252,22 +245,6 @@ static MetaBackendCapabilities
 meta_backend_x11_nested_get_capabilities (MetaBackend *backend)
 {
   return META_BACKEND_CAPABILITY_NONE;
-}
-
-static gboolean
-meta_backend_x11_nested_initable_init (GInitable     *initable,
-                                       GCancellable  *cancellable,
-                                       GError       **error)
-{
-  return initable_parent_iface->init (initable, cancellable, error);
-}
-
-static void
-initable_iface_init (GInitableIface *initable_iface)
-{
-  initable_parent_iface = g_type_interface_peek_parent (initable_iface);
-
-  initable_iface->init = meta_backend_x11_nested_initable_init;
 }
 
 static void

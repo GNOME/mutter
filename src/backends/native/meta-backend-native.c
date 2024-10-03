@@ -97,15 +97,9 @@ typedef struct _MetaBackendNativePrivate
 #endif
 } MetaBackendNativePrivate;
 
-static GInitableIface *initable_parent_iface;
-
-static void
-initable_iface_init (GInitableIface *initable_iface);
-
-G_DEFINE_TYPE_WITH_CODE (MetaBackendNative, meta_backend_native, META_TYPE_BACKEND,
-                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                initable_iface_init)
-                         G_ADD_PRIVATE (MetaBackendNative))
+G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendNative,
+                            meta_backend_native,
+                            META_TYPE_BACKEND)
 
 static void
 meta_backend_native_dispose (GObject *object)
@@ -737,17 +731,19 @@ on_started (MetaContext *context,
 }
 
 static gboolean
-meta_backend_native_initable_init (GInitable     *initable,
-                                   GCancellable  *cancellable,
-                                   GError       **error)
+meta_backend_native_init_basic (MetaBackend  *backend,
+                                GError      **error)
 {
-  MetaBackendNative *native = META_BACKEND_NATIVE (initable);
+  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
-  MetaBackend *backend = META_BACKEND (native);
   MetaKmsFlags kms_flags;
   const char *session_id = NULL;
   const char *seat_id = NULL;
+
+  priv->startup_render_devices =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           g_free, g_object_unref);
 
   switch (priv->mode)
     {
@@ -797,7 +793,7 @@ meta_backend_native_initable_init (GInitable     *initable,
                     G_CALLBACK (on_started),
                     backend);
 
-  return initable_parent_iface->init (initable, cancellable, error);
+  return TRUE;
 }
 
 static void
@@ -822,14 +818,6 @@ meta_backend_native_set_property (GObject      *object,
 }
 
 static void
-initable_iface_init (GInitableIface *initable_iface)
-{
-  initable_parent_iface = g_type_interface_peek_parent (initable_iface);
-
-  initable_iface->init = meta_backend_native_initable_init;
-}
-
-static void
 meta_backend_native_class_init (MetaBackendNativeClass *klass)
 {
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
@@ -841,6 +829,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->create_clutter_backend = meta_backend_native_create_clutter_backend;
   backend_class->create_default_seat = meta_backend_native_create_default_seat;
 
+  backend_class->init_basic = meta_backend_native_init_basic;
   backend_class->init_post = meta_backend_native_init_post;
   backend_class->get_capabilities = meta_backend_native_get_capabilities;
 
@@ -875,12 +864,6 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 static void
 meta_backend_native_init (MetaBackendNative *backend_native)
 {
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-
-  priv->startup_render_devices =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           g_free, g_object_unref);
 }
 
 MetaLauncher *
