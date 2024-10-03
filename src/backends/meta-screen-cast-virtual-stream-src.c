@@ -37,6 +37,12 @@
 #include "backends/meta-virtual-monitor.h"
 #include "core/boxes-private.h"
 
+#define META_TYPE_SCREEN_CAST_FRAME_CLOCK_DRIVER (meta_screen_cast_frame_clock_driver_get_type ())
+G_DECLARE_FINAL_TYPE (MetaScreenCastFrameClockDriver,
+                      meta_screen_cast_frame_clock_driver,
+                      META, SCREEN_CAST_FRAME_CLOCK_DRIVER,
+                      ClutterFrameClockDriver)
+
 struct _MetaScreenCastVirtualStreamSrc
 {
   MetaScreenCastStreamSrc parent;
@@ -58,11 +64,23 @@ struct _MetaScreenCastVirtualStreamSrc
   gulong cursor_changed_handler_id;
 
   gulong monitors_changed_handler_id;
+
+  MetaScreenCastFrameClockDriver *driver;
 };
 
 G_DEFINE_FINAL_TYPE (MetaScreenCastVirtualStreamSrc,
                      meta_screen_cast_virtual_stream_src,
                      META_TYPE_SCREEN_CAST_STREAM_SRC)
+
+struct _MetaScreenCastFrameClockDriver
+{
+  ClutterFrameClockDriver parent;
+
+  MetaScreenCastStreamSrc *src;
+};
+
+G_DEFINE_TYPE (MetaScreenCastFrameClockDriver, meta_screen_cast_frame_clock_driver,
+               CLUTTER_TYPE_FRAME_CLOCK_DRIVER)
 
 static gboolean
 meta_screen_cast_virtual_stream_src_get_specs (MetaScreenCastStreamSrc *src,
@@ -178,6 +196,33 @@ on_skipped_paint (MetaStage        *stage,
 }
 
 static void
+update_frame_clock_driver (MetaScreenCastVirtualStreamSrc *virtual_src,
+                           MetaScreenCastFrameClockDriver *driver)
+{
+  if (virtual_src->driver)
+    virtual_src->driver->src = NULL;
+  g_set_object (&virtual_src->driver, driver);
+}
+
+static void
+make_frame_clock_passive (MetaScreenCastVirtualStreamSrc *virtual_src,
+                          ClutterStageView               *view)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  ClutterFrameClock *frame_clock =
+    clutter_stage_view_get_frame_clock (view);
+  MetaScreenCastFrameClockDriver *driver;
+
+  driver = g_object_new (META_TYPE_SCREEN_CAST_FRAME_CLOCK_DRIVER, NULL);
+  driver->src = src;
+
+  update_frame_clock_driver (virtual_src, driver);
+
+  clutter_frame_clock_set_passive (frame_clock,
+                                   CLUTTER_FRAME_CLOCK_DRIVER (driver));
+}
+
+static void
 setup_view (MetaScreenCastVirtualStreamSrc *virtual_src,
             ClutterStageView               *view)
 {
@@ -210,6 +255,10 @@ setup_view (MetaScreenCastVirtualStreamSrc *virtual_src,
                            META_STAGE_WATCH_SKIPPED_PAINT,
                            on_skipped_paint,
                            virtual_src);
+
+  if (meta_screen_cast_stream_src_is_enabled (src) &&
+      !meta_screen_cast_stream_src_is_driving (src))
+    make_frame_clock_passive (virtual_src, view);
 }
 
 static void
@@ -668,12 +717,33 @@ meta_screen_cast_virtual_stream_src_notify_params_updated (MetaScreenCastStreamS
   ensure_virtual_monitor (virtual_src, video_format);
 }
 
+static void
+meta_screen_cast_virtual_stream_src_dispatch (MetaScreenCastStreamSrc *src)
+{
+  ClutterStageView *view = view_from_src (src);
+  ClutterFrameClock *frame_clock = clutter_stage_view_get_frame_clock (view);
+  ClutterFrameResult result;
+
+  result = clutter_frame_clock_dispatch (frame_clock, g_get_monotonic_time ());
+
+  switch (result)
+    {
+    case CLUTTER_FRAME_RESULT_PENDING_PRESENTED:
+    case CLUTTER_FRAME_RESULT_IDLE:
+      break;
+    case CLUTTER_FRAME_RESULT_IGNORED:
+      meta_screen_cast_stream_src_queue_empty_buffer (src);
+      break;
+    }
+}
+
 MetaScreenCastVirtualStreamSrc *
 meta_screen_cast_virtual_stream_src_new (MetaScreenCastVirtualStream  *virtual_stream,
                                          GError                      **error)
 {
   return g_initable_new (META_TYPE_SCREEN_CAST_VIRTUAL_STREAM_SRC, NULL, error,
                          "stream", virtual_stream,
+                         "must-drive", FALSE,
                          NULL);
 }
 
@@ -684,6 +754,8 @@ meta_screen_cast_virtual_stream_src_dispose (GObject *object)
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (object);
   GObjectClass *parent_class =
     G_OBJECT_CLASS (meta_screen_cast_virtual_stream_src_parent_class);
+
+  update_frame_clock_driver (virtual_src, NULL);
 
   parent_class->dispose (object);
 
@@ -719,6 +791,33 @@ meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcCl
     meta_screen_cast_virtual_stream_src_set_cursor_metadata;
   src_class->notify_params_updated =
     meta_screen_cast_virtual_stream_src_notify_params_updated;
+  src_class->dispatch =
+    meta_screen_cast_virtual_stream_src_dispatch;
+}
+
+static void
+meta_screen_cast_frame_clock_driver_schedule_update (ClutterFrameClockDriver *frame_clock_driver)
+{
+  MetaScreenCastFrameClockDriver *driver =
+    META_SCREEN_CAST_FRAME_CLOCK_DRIVER (frame_clock_driver);
+
+  if (driver->src)
+    meta_screen_cast_stream_src_request_process (driver->src);
+}
+
+static void
+meta_screen_cast_frame_clock_driver_class_init (MetaScreenCastFrameClockDriverClass *klass)
+{
+  ClutterFrameClockDriverClass *driver_class =
+    CLUTTER_FRAME_CLOCK_DRIVER_CLASS (klass);
+
+  driver_class->schedule_update =
+    meta_screen_cast_frame_clock_driver_schedule_update;
+}
+
+static void
+meta_screen_cast_frame_clock_driver_init (MetaScreenCastFrameClockDriver *driver)
+{
 }
 
 #pragma GCC diagnostic pop
