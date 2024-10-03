@@ -94,7 +94,7 @@ view_from_src (MetaScreenCastStreamSrc *src)
   MetaRenderer *renderer = meta_backend_get_renderer (backend_from_src (src));
   MetaRendererView *view = meta_renderer_get_view_for_crtc (renderer, crtc);
 
-  return CLUTTER_STAGE_VIEW (view);
+  return view ? CLUTTER_STAGE_VIEW (view) : NULL;
 }
 
 static ClutterStage *
@@ -193,12 +193,12 @@ on_after_paint (MetaStage        *stage,
 }
 
 static void
-add_watch (MetaScreenCastVirtualStreamSrc *virtual_src)
+setup_view (MetaScreenCastVirtualStreamSrc *virtual_src,
+            ClutterStageView               *view)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaStage *meta_stage = META_STAGE (stage_from_src (src));
-  ClutterStageView *view = view_from_src (src);
 
   g_return_if_fail (!virtual_src->watch);
 
@@ -227,22 +227,23 @@ on_monitors_changed (MetaMonitorManager             *monitor_manager,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
   MetaStage *stage = META_STAGE (stage_from_src (src));
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  ClutterStageView *view;
 
   meta_stage_remove_watch (stage, virtual_src->watch);
   virtual_src->watch = NULL;
-  add_watch (virtual_src);
+
+  view = view_from_src (src);
+  setup_view (virtual_src, view);
 
   meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
 }
 
 static void
-init_record_callbacks (MetaScreenCastVirtualStreamSrc *virtual_src)
+setup_cursor_handling (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = backend_from_src (src);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
   ClutterStage *stage = stage_from_src (src);
@@ -250,6 +251,7 @@ init_record_callbacks (MetaScreenCastVirtualStreamSrc *virtual_src)
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+      meta_cursor_tracker_track_position (cursor_tracker);
       virtual_src->position_invalidated_handler_id =
         g_signal_connect_after (cursor_tracker, "position-invalidated",
                                 G_CALLBACK (pointer_position_invalidated),
@@ -262,19 +264,13 @@ init_record_callbacks (MetaScreenCastVirtualStreamSrc *virtual_src)
         g_signal_connect_after (stage, "prepare-frame",
                                 G_CALLBACK (on_prepare_frame),
                                 virtual_src);
-      G_GNUC_FALLTHROUGH;
+      break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      meta_cursor_tracker_track_position (cursor_tracker);
+      break;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      add_watch (virtual_src);
       break;
     }
-
-  meta_screen_cast_stream_notify_is_configured (stream);
-
-  virtual_src->monitors_changed_handler_id =
-    g_signal_connect (monitor_manager, "monitors-changed-internal",
-                      G_CALLBACK (on_monitors_changed),
-                      virtual_src);
 }
 
 static void
@@ -284,19 +280,23 @@ meta_screen_cast_virtual_stream_src_enable (MetaScreenCastStreamSrc *src)
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = backend_from_src (src);
-  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  ClutterStageView *view;
 
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
-    {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      meta_cursor_tracker_track_position (cursor_tracker);
-      break;
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      break;
-    }
+  view = view_from_src (src);
+  if (view)
+    setup_view (virtual_src, view);
 
-  init_record_callbacks (virtual_src);
+  setup_cursor_handling (virtual_src);
+
+  meta_screen_cast_stream_notify_is_configured (stream);
+
+  virtual_src->monitors_changed_handler_id =
+    g_signal_connect (monitor_manager, "monitors-changed-internal",
+                      G_CALLBACK (on_monitors_changed),
+                      virtual_src);
+
   clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage_from_src (src)),
                                         NULL);
   clutter_stage_schedule_update (stage_from_src (src));
