@@ -2306,4 +2306,45 @@ meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src)
   return klass->get_preferred_format (src);
 }
 
+void
+meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  g_autoptr (GError) error = NULL;
+  struct pw_buffer *buffer;
+  struct spa_buffer *spa_buffer;
+  struct spa_data *spa_data;
+  struct spa_meta_header *header;
+
+  buffer = dequeue_pw_buffer (src, &error);
+  if (!buffer)
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Couldn't dequeue a buffer from pipewire stream: %s",
+                  error->message);
+      return;
+    }
+
+  spa_buffer = buffer->buffer;
+  spa_data = &spa_buffer->datas[0];
+  spa_data->chunk->size = 0;
+  spa_data->chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
+
+  header = spa_buffer_find_meta_data (spa_buffer,
+                                      SPA_META_Header,
+                                      sizeof (*header));
+  if (header)
+    {
+      header->seq = ++priv->buffer_sequence_counter;
+
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Queuing empty PipeWire buffer #%" G_GUINT64_FORMAT " (%p)",
+                  header->seq,
+                  buffer->buffer);
+    }
+
+  pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+}
+
 #pragma GCC diagnostic pop

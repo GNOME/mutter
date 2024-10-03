@@ -159,3 +159,5 @@ gboolean meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src
 
 CoglPixelFormat
 meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src);
+
+void meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src);
