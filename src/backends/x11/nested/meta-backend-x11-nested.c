@@ -247,16 +247,20 @@ meta_backend_x11_nested_get_capabilities (MetaBackend *backend)
   return META_BACKEND_CAPABILITY_NONE;
 }
 
-static void
-meta_backend_x11_nested_constructed (GObject *object)
+static gboolean
+meta_backend_x11_nested_init_basic (MetaBackend  *backend,
+                                    GError      **error)
 {
-  MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (object);
-  GObjectClass *parent_class =
-    G_OBJECT_CLASS (meta_backend_x11_nested_parent_class);
+  MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (backend);
+  MetaBackendClass *parent_backend_class =
+    META_BACKEND_CLASS (meta_backend_x11_nested_parent_class);
 
-  parent_class->constructed (object);
+  if (!parent_backend_class->init_basic (backend, error))
+    return FALSE;
 
   init_gpus (backend_x11_nested);
+
+  return TRUE;
 }
 
 static void
@@ -284,9 +288,9 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   MetaBackendX11Class *backend_x11_class = META_BACKEND_X11_CLASS (klass);
 
-  object_class->constructed = meta_backend_x11_nested_constructed;
   object_class->dispose = meta_backend_x11_nested_dispose;
 
+  backend_class->init_basic = meta_backend_x11_nested_init_basic;
   backend_class->get_capabilities = meta_backend_x11_nested_get_capabilities;
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;

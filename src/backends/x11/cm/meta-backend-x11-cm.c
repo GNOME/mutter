@@ -98,6 +98,29 @@ on_device_added (ClutterSeat        *seat,
 }
 
 static gboolean
+meta_backend_x11_cm_init_basic (MetaBackend  *backend,
+                                GError      **error)
+{
+  MetaBackendClass *parent_backend_class =
+    META_BACKEND_CLASS (meta_backend_x11_cm_parent_class);
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (backend);
+  MetaGpuXrandr *gpu_xrandr;
+
+  if (x11_cm->display_name)
+    g_setenv ("DISPLAY", x11_cm->display_name, TRUE);
+
+  /*
+   * The X server deals with multiple GPUs for us, so we just see what the X
+   * server gives us as one single GPU, even though it may actually be backed
+   * by multiple.
+   */
+  gpu_xrandr = meta_gpu_xrandr_new (META_BACKEND_X11 (x11_cm));
+  meta_backend_add_gpu (backend, META_GPU (gpu_xrandr));
+
+  return parent_backend_class->init_basic (backend, error);
+}
+
+static gboolean
 meta_backend_x11_cm_init_render (MetaBackend  *backend,
                                  GError      **error)
 {
@@ -509,29 +532,8 @@ meta_backend_x11_cm_finalize (GObject *object)
 }
 
 static void
-meta_backend_x11_cm_constructed (GObject *object)
-{
-  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (object);
-
-  if (x11_cm->display_name)
-    g_setenv ("DISPLAY", x11_cm->display_name, TRUE);
-
-  G_OBJECT_CLASS (meta_backend_x11_cm_parent_class)->constructed (object);
-}
-
-static void
 meta_backend_x11_cm_init (MetaBackendX11Cm *backend_x11_cm)
 {
-  MetaGpuXrandr *gpu_xrandr;
-
-  /*
-   * The X server deals with multiple GPUs for us, so we just see what the X
-   * server gives us as one single GPU, even though it may actually be backed
-   * by multiple.
-   */
-  gpu_xrandr = meta_gpu_xrandr_new (META_BACKEND_X11 (backend_x11_cm));
-  meta_backend_add_gpu (META_BACKEND (backend_x11_cm),
-                        META_GPU (gpu_xrandr));
 }
 
 static void
@@ -543,8 +545,8 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
 
   object_class->set_property = meta_backend_x11_cm_set_property;
   object_class->finalize = meta_backend_x11_cm_finalize;
-  object_class->constructed = meta_backend_x11_cm_constructed;
 
+  backend_class->init_basic = meta_backend_x11_cm_init_basic;
   backend_class->init_render = meta_backend_x11_cm_init_render;
   backend_class->get_capabilities = meta_backend_x11_cm_get_capabilities;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;

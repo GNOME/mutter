@@ -762,45 +762,6 @@ upower_vanished (GDBusConnection *connection,
 }
 
 static void
-meta_backend_constructed (GObject *object)
-{
-  MetaBackend *backend = META_BACKEND (object);
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaBackendClass *backend_class =
-   META_BACKEND_GET_CLASS (backend);
-
-  g_assert (priv->context);
-
-  priv->settings = meta_settings_new (backend);
-
-#ifdef HAVE_LIBWACOM
-  priv->wacom_db = libwacom_database_new ();
-  if (!priv->wacom_db)
-    {
-      g_warning ("Could not create database of Wacom devices, "
-                 "expect tablets to misbehave");
-    }
-#endif
-
-  if (backend_class->is_lid_closed == meta_backend_real_is_lid_closed)
-    {
-      priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
-                                                "org.freedesktop.UPower",
-                                                G_BUS_NAME_WATCHER_FLAGS_NONE,
-                                                upower_appeared,
-                                                upower_vanished,
-                                                backend,
-                                                NULL);
-    }
-
-#ifdef HAVE_EGL
-  priv->egl = g_object_new (META_TYPE_EGL, NULL);
-#endif
-
-  G_OBJECT_CLASS (meta_backend_parent_class)->constructed (object);
-}
-
-static void
 meta_backend_set_property (GObject      *object,
                            guint         prop_id,
                            const GValue *value,
@@ -849,7 +810,6 @@ meta_backend_class_init (MetaBackendClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_backend_dispose;
-  object_class->constructed = meta_backend_constructed;
   object_class->set_property = meta_backend_set_property;
   object_class->get_property = meta_backend_get_property;
 
@@ -1180,6 +1140,35 @@ meta_backend_initable_init (GInitable     *initable,
   MetaInputSettings *input_settings;
 
   priv->in_init = TRUE;
+
+  g_assert (priv->context);
+
+  priv->settings = meta_settings_new (backend);
+
+#ifdef HAVE_LIBWACOM
+  priv->wacom_db = libwacom_database_new ();
+  if (!priv->wacom_db)
+    {
+      g_warning ("Could not create database of Wacom devices, "
+                 "expect tablets to misbehave");
+    }
+#endif
+
+  if (META_BACKEND_GET_CLASS (backend)->is_lid_closed ==
+      meta_backend_real_is_lid_closed)
+    {
+      priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
+                                                "org.freedesktop.UPower",
+                                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                                upower_appeared,
+                                                upower_vanished,
+                                                backend,
+                                                NULL);
+    }
+
+#ifdef HAVE_EGL
+  priv->egl = g_object_new (META_TYPE_EGL, NULL);
+#endif
 
   if (META_BACKEND_GET_CLASS (backend)->init_basic &&
       !META_BACKEND_GET_CLASS (backend)->init_basic (backend, error))
