@@ -79,7 +79,11 @@ enum
   PROP_0,
 
   PROP_STREAM,
+
+  N_PROPS
 };
+
+static GParamSpec *obj_props[N_PROPS];
 
 enum
 {
@@ -2152,13 +2156,15 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
   klass->get_preferred_format =
     meta_screen_cast_stream_src_default_get_preferred_format;
 
-  g_object_class_install_property (object_class,
-                                   PROP_STREAM,
-                                   g_param_spec_object ("stream", NULL, NULL,
-                                                        META_TYPE_SCREEN_CAST_STREAM,
-                                                        G_PARAM_READWRITE |
-                                                        G_PARAM_CONSTRUCT_ONLY |
-                                                        G_PARAM_STATIC_STRINGS));
+  obj_props[PROP_STREAM] =
+    g_param_spec_object ("stream", NULL, NULL,
+                         META_TYPE_SCREEN_CAST_STREAM,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class,
+                                     N_PROPS,
+                                     obj_props);
 
   signals[READY] = g_signal_new ("ready",
                                  G_TYPE_FROM_CLASS (klass),
