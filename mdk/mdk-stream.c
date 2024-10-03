@@ -92,6 +92,8 @@ struct _MdkStream
   guint reinvalidate_source_id;
 
   struct pw_buffer *active_buffer;
+
+  GMainContext *main_context;
 };
 
 #define CURSOR_META_SIZE(width, height) \
@@ -763,6 +765,9 @@ stream_proxy_ready_cb (GObject      *source_object,
 static void
 render_compositor_frame (MdkStream *stream)
 {
+  MdkSession *session = mdk_stream_get_session (stream);
+  MdkContext *context = mdk_session_get_context (session);
+  MdkPipewire *pipewire = mdk_context_get_pipewire (context);
   struct pw_buffer *active_buffer;
   int64_t frame_sequence;
 
@@ -773,11 +778,15 @@ render_compositor_frame (MdkStream *stream)
 
   pw_stream_trigger_process (stream->pipewire_stream);
 
+  mdk_pipewire_push_main_context (pipewire, stream->main_context);
+
   frame_sequence = stream->frame_sequence;
   while (frame_sequence == stream->frame_sequence &&
          pw_stream_get_state (stream->pipewire_stream, NULL) ==
          PW_STREAM_STATE_STREAMING)
-    g_main_context_iteration (NULL, TRUE);
+    g_main_context_iteration (stream->main_context, TRUE);
+
+  mdk_pipewire_pop_main_context (pipewire, stream->main_context);
 }
 
 static void
@@ -872,6 +881,7 @@ mdk_stream_finalize (GObject *object)
   g_clear_object (&stream->proxy);
   g_clear_pointer (&stream->formats, g_array_unref);
   g_clear_object (&stream->paintable);
+  g_clear_pointer (&stream->main_context, g_main_context_unref);
 
   G_OBJECT_CLASS (mdk_stream_parent_class)->finalize (object);
 }
@@ -896,6 +906,7 @@ static void
 mdk_stream_init (MdkStream *stream)
 {
   stream->process_requested = TRUE;
+  stream->main_context = g_main_context_new ();
 }
 
 static void
