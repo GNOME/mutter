@@ -79,6 +79,7 @@ enum
   PROP_0,
 
   PROP_STREAM,
+  PROP_MUST_DRIVE,
 
   N_PROPS
 };
@@ -148,6 +149,9 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   MtkRegion *redraw_clip;
 
   GHashTable *modifiers;
+
+  gboolean must_drive;
+  gboolean pending_process;
 } MetaScreenCastStreamSrcPrivate;
 
 static void meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface);
@@ -831,6 +835,19 @@ follow_up_frame_cb (gpointer user_data)
   meta_screen_cast_stream_src_record_follow_up (src);
 }
 
+gboolean
+meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  g_return_val_if_fail (priv->pipewire_stream, FALSE);
+  g_warn_if_fail (pw_stream_get_state (priv->pipewire_stream, NULL) ==
+                  PW_STREAM_STATE_STREAMING);
+
+  return pw_stream_is_driving (priv->pipewire_stream);
+}
+
 static void
 maybe_schedule_follow_up_frame (MetaScreenCastStreamSrc *src,
                                 int64_t                  timeout_us)
@@ -944,6 +961,22 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                                         paint_phase,
                                                                         redraw_clip,
                                                                         now_us);
+}
+
+void
+meta_screen_cast_stream_src_request_process (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (!priv->pending_process &&
+      !pw_stream_is_driving (priv->pipewire_stream))
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Request processing on stream %u", priv->node_id);
+      pw_stream_trigger_process (priv->pipewire_stream);
+      priv->pending_process = TRUE;
+    }
 }
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -1276,7 +1309,10 @@ meta_screen_cast_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
 
-  meta_topic (META_DEBUG_SCREEN_CAST, "Enabling stream %u", priv->node_id);
+  meta_topic (META_DEBUG_SCREEN_CAST,
+              "Enabling stream %u (driving: %s)",
+              priv->node_id,
+              pw_stream_is_driving (priv->pipewire_stream) ? "yes" : "no");
 
   priv->is_enabled = TRUE;
 
@@ -1424,6 +1460,25 @@ renegotiate_pipewire_stream (MetaScreenCastStreamSrc *src)
   pw_stream_update_params (priv->pipewire_stream,
                            (const struct spa_pod **) params->pdata,
                            params->len);
+}
+
+static void
+on_stream_process (void *user_data)
+{
+  MetaScreenCastStreamSrc *src = user_data;
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  meta_topic (META_DEBUG_SCREEN_CAST, "Processing stream %u",  priv->node_id);
+
+  g_return_if_fail (!pw_stream_is_driving (priv->pipewire_stream));
+  g_return_if_fail (klass->dispatch);
+
+  priv->pending_process = FALSE;
+
+  klass->dispatch (src);
 }
 
 static void
@@ -1934,6 +1989,7 @@ on_stream_remove_buffer (void             *data,
 
 static const struct pw_stream_events stream_events = {
   PW_VERSION_STREAM_EVENTS,
+  .process = on_stream_process,
   .state_changed = on_stream_state_changed,
   .param_changed = on_stream_param_changed,
   .add_buffer = on_stream_add_buffer,
@@ -1946,15 +2002,25 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  struct pw_properties *pipewire_props;
   struct pw_stream *pipewire_stream;
   g_autoptr (GPtrArray) params = NULL;
   int result;
+  const char *supports_requests;
 
   priv->node_id = SPA_ID_INVALID;
 
+  if (priv->must_drive)
+    supports_requests = "0";
+  else
+    supports_requests = "2";
+  pipewire_props =
+    pw_properties_new (PW_KEY_NODE_SUPPORTS_REQUEST, supports_requests,
+                       NULL);
+
   pipewire_stream = pw_stream_new (priv->pipewire_core,
                                    "meta-screen-cast-src",
-                                   NULL);
+                                   pipewire_props);
   if (!pipewire_stream)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -2080,6 +2146,8 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
     meta_screen_cast_stream_src_get_instance_private (src);
   struct pw_loop *pipewire_loop;
 
+  priv->pending_process = TRUE;
+
   pipewire_loop = pw_loop_new (NULL);
   if (!pipewire_loop)
     {
@@ -2192,6 +2260,9 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
     case PROP_STREAM:
       priv->stream = g_value_get_object (value);
       break;
+    case PROP_MUST_DRIVE:
+      priv->must_drive = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -2259,6 +2330,12 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_MUST_DRIVE] =
+    g_param_spec_boolean ("must-drive", NULL, NULL,
+                          TRUE,
+                          G_PARAM_WRITABLE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class,
                                      N_PROPS,
                                      obj_props);
