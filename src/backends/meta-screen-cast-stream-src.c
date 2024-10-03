@@ -218,10 +218,10 @@ cogl_pixel_format_from_spa_video_format (enum spa_video_format  spa_format,
 }
 
 static struct spa_pod *
-push_format_object (enum spa_video_format   format,
-                    uint64_t               *modifiers,
-                    int                     n_modifiers,
-                    gboolean                fixate_modifier,
+push_format_object (enum spa_video_format  format,
+                    uint64_t              *modifiers,
+                    int                    n_modifiers,
+                    gboolean               fixate_modifier,
                     ...)
 {
   struct spa_pod_dynamic_builder pod_builder;
