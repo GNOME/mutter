@@ -42,8 +42,7 @@
 
 G_BEGIN_DECLS
 
-PangoRenderer *
-clutter_pango_renderer_new (CoglContext *context);
+PangoRenderer * clutter_pango_renderer_new (CoglContext *context);
 
 /**
  * clutter_ensure_glyph_cache_for_layout:
@@ -55,8 +54,7 @@ clutter_pango_renderer_new (CoglContext *context);
  * This api should be used to avoid mid-scene modifications of
  * glyph-cache textures which can lead to undefined rendering results.
  */
-void
-clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
+void clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
 
 /**
  * clutter_show_layout: (skip)
@@ -69,14 +67,13 @@ clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
  * Draws a solidly coloured @layout on the given @framebuffer at (@x,
  * @y) within the `framebuffer`'s current model-view coordinate space.
  */
-void
-clutter_show_layout (CoglFramebuffer   *framebuffer,
-                     PangoLayout       *layout,
-                     float              x,
-                     float              y,
-                     const CoglColor   *color,
-                     ClutterColorState *color_state,
-                     ClutterColorState *target_color_state);
+void clutter_show_layout (CoglFramebuffer   *framebuffer,
+                          PangoLayout       *layout,
+                          float              x,
+                          float              y,
+                          const CoglColor   *color,
+                          ClutterColorState *color_state,
+                          ClutterColorState *target_color_state);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (PangoRenderer, g_object_unref)
 

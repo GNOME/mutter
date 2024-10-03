@@ -50,17 +50,14 @@ typedef struct
 } ClutterPangoPipelineCache;
 
 
-ClutterPangoPipelineCache *
-clutter_pango_pipeline_cache_new (CoglContext *ctx);
+ClutterPangoPipelineCache * clutter_pango_pipeline_cache_new (CoglContext *ctx);
 
 /* Returns a pipeline that can be used to render glyphs in the given
    texture. The pipeline has a new reference so it is up to the caller
    to unref it */
-CoglPipeline *
-clutter_pango_pipeline_cache_get (ClutterPangoPipelineCache *cache,
-                                  CoglTexture               *texture);
+CoglPipeline * clutter_pango_pipeline_cache_get (ClutterPangoPipelineCache *cache,
+                                                 CoglTexture               *texture);
 
-void
-clutter_pango_pipeline_cache_free (ClutterPangoPipelineCache *cache);
+void clutter_pango_pipeline_cache_free (ClutterPangoPipelineCache *cache);
 
 G_END_DECLS
