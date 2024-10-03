@@ -173,7 +173,6 @@ syncobj_data_from_buffer (struct spa_buffer *spa_buffer,
 
 #endif /* HAVE_NATIVE_BACKEND */
 
-
 static gboolean
 spa_video_format_from_cogl_pixel_format (CoglPixelFormat        cogl_format,
                                          enum spa_video_format *out_spa_format)
