@@ -58,7 +58,12 @@ struct _MetaBackendClass
   ClutterBackend * (* create_clutter_backend) (MetaBackend    *backend,
                                                ClutterContext *context);
 
-  void (* post_init) (MetaBackend *backend);
+  gboolean (* init_basic) (MetaBackend  *backend,
+                           GError      **error);
+  gboolean (* init_render) (MetaBackend  *backend,
+                            GError      **error);
+  gboolean (* init_post) (MetaBackend  *backend,
+                          GError      **error);
 
   MetaBackendCapabilities (* get_capabilities) (MetaBackend *backend);
 

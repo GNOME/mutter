@@ -541,78 +541,6 @@ on_started (MetaContext *context,
                                            determine_hotplug_pointer_visibility (seat));
 }
 
-static void
-meta_backend_real_post_init (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterSeat *seat = priv->default_seat;
-  MetaInputSettings *input_settings;
-
-  priv->stage = meta_stage_new (backend);
-  clutter_actor_realize (priv->stage);
-  META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
-
-  meta_monitor_manager_setup (priv->monitor_manager);
-
-  meta_backend_update_stage (backend);
-
-  priv->idle_manager = meta_idle_manager_new (backend);
-
-  g_signal_connect_object (seat, "device-added",
-                           G_CALLBACK (on_device_added), backend, 0);
-  g_signal_connect_object (seat, "device-removed",
-                           G_CALLBACK (on_device_removed), backend,
-                           G_CONNECT_AFTER);
-
-  priv->input_mapper = meta_input_mapper_new (backend);
-
-  input_settings = meta_backend_get_input_settings (backend);
-
-  if (input_settings)
-    {
-      g_signal_connect (priv->input_mapper, "device-mapped",
-                        G_CALLBACK (input_mapper_device_mapped_cb),
-                        input_settings);
-      g_signal_connect (priv->input_mapper, "device-enabled",
-                        G_CALLBACK (input_mapper_device_enabled_cb),
-                        input_settings);
-      g_signal_connect (priv->input_mapper, "device-aspect-ratio",
-                        G_CALLBACK (input_mapper_device_aspect_ratio_cb),
-                        input_settings);
-    }
-
-  priv->remote_access_controller =
-    meta_remote_access_controller_new ();
-  priv->dbus_session_watcher =
-    g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
-
-#ifdef HAVE_REMOTE_DESKTOP
-  priv->screen_cast = meta_screen_cast_new (backend);
-  meta_remote_access_controller_add (
-    priv->remote_access_controller,
-    META_DBUS_SESSION_MANAGER (priv->screen_cast));
-  priv->remote_desktop = meta_remote_desktop_new (backend);
-  meta_remote_access_controller_add (
-    priv->remote_access_controller,
-    META_DBUS_SESSION_MANAGER (priv->remote_desktop));
-#endif /* HAVE_REMOTE_DESKTOP */
-
-  priv->input_capture = meta_input_capture_new (backend);
-  meta_remote_access_controller_add (
-    priv->remote_access_controller,
-    META_DBUS_SESSION_MANAGER (priv->input_capture));
-
-  if (!meta_monitor_manager_is_headless (priv->monitor_manager))
-    init_pointer_position (backend);
-
-  meta_monitor_manager_post_init (priv->monitor_manager);
-
-  g_signal_connect (priv->context, "prepare-shutdown",
-                    G_CALLBACK (on_prepare_shutdown), backend);
-  g_signal_connect (priv->context, "started",
-                    G_CALLBACK (on_started), backend);
-}
-
 static gboolean
 meta_backend_real_grab_device (MetaBackend *backend,
                                int          device_id,
@@ -925,7 +853,6 @@ meta_backend_class_init (MetaBackendClass *klass)
   object_class->set_property = meta_backend_set_property;
   object_class->get_property = meta_backend_get_property;
 
-  klass->post_init = meta_backend_real_post_init;
   klass->grab_device = meta_backend_real_grab_device;
   klass->ungrab_device = meta_backend_real_ungrab_device;
   klass->select_stage_events = meta_backend_real_select_stage_events;
@@ -1243,16 +1170,6 @@ init_clutter (MetaBackend  *backend,
   return TRUE;
 }
 
-static void
-meta_backend_post_init (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  META_BACKEND_GET_CLASS (backend)->post_init (backend);
-
-  meta_settings_post_init (priv->settings);
-}
-
 static gboolean
 meta_backend_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
@@ -1260,6 +1177,11 @@ meta_backend_initable_init (GInitable     *initable,
 {
   MetaBackend *backend = META_BACKEND (initable);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaInputSettings *input_settings;
+
+  if (META_BACKEND_GET_CLASS (backend)->init_basic &&
+      !META_BACKEND_GET_CLASS (backend)->init_basic (backend, error))
+    return FALSE;
 
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
@@ -1287,7 +1209,79 @@ meta_backend_initable_init (GInitable     *initable,
   if (!init_clutter (backend, error))
     return FALSE;
 
-  meta_backend_post_init (backend);
+  if (META_BACKEND_GET_CLASS (backend)->init_render &&
+      !META_BACKEND_GET_CLASS (backend)->init_render (backend, error))
+    return FALSE;
+
+  priv->stage = meta_stage_new (backend);
+  clutter_actor_realize (priv->stage);
+  META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
+
+  meta_monitor_manager_setup (priv->monitor_manager);
+
+  meta_backend_update_stage (backend);
+
+  priv->idle_manager = meta_idle_manager_new (backend);
+
+  g_signal_connect_object (priv->default_seat, "device-added",
+                           G_CALLBACK (on_device_added), backend, 0);
+  g_signal_connect_object (priv->default_seat, "device-removed",
+                           G_CALLBACK (on_device_removed), backend,
+                           G_CONNECT_AFTER);
+
+  priv->input_mapper = meta_input_mapper_new (backend);
+
+  input_settings = meta_backend_get_input_settings (backend);
+
+  if (input_settings)
+    {
+      g_signal_connect (priv->input_mapper, "device-mapped",
+                        G_CALLBACK (input_mapper_device_mapped_cb),
+                        input_settings);
+      g_signal_connect (priv->input_mapper, "device-enabled",
+                        G_CALLBACK (input_mapper_device_enabled_cb),
+                        input_settings);
+      g_signal_connect (priv->input_mapper, "device-aspect-ratio",
+                        G_CALLBACK (input_mapper_device_aspect_ratio_cb),
+                        input_settings);
+    }
+
+  priv->remote_access_controller =
+    meta_remote_access_controller_new ();
+  priv->dbus_session_watcher =
+    g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
+
+#ifdef HAVE_REMOTE_DESKTOP
+  priv->screen_cast = meta_screen_cast_new (backend);
+  meta_remote_access_controller_add (
+    priv->remote_access_controller,
+    META_DBUS_SESSION_MANAGER (priv->screen_cast));
+  priv->remote_desktop = meta_remote_desktop_new (backend);
+  meta_remote_access_controller_add (
+    priv->remote_access_controller,
+    META_DBUS_SESSION_MANAGER (priv->remote_desktop));
+#endif /* HAVE_REMOTE_DESKTOP */
+
+  priv->input_capture = meta_input_capture_new (backend);
+  meta_remote_access_controller_add (
+    priv->remote_access_controller,
+    META_DBUS_SESSION_MANAGER (priv->input_capture));
+
+  if (!meta_monitor_manager_is_headless (priv->monitor_manager))
+    init_pointer_position (backend);
+
+  meta_monitor_manager_post_init (priv->monitor_manager);
+
+  g_signal_connect (priv->context, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown), backend);
+  g_signal_connect (priv->context, "started",
+                    G_CALLBACK (on_started), backend);
+
+  meta_settings_post_init (priv->settings);
+
+  if (META_BACKEND_GET_CLASS (backend)->init_post &&
+      !META_BACKEND_GET_CLASS (backend)->init_post (backend, error))
+    return FALSE;
 
   while (TRUE)
     {

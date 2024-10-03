@@ -183,8 +183,9 @@ update_viewports (MetaBackend *backend)
   g_object_unref (viewports);
 }
 
-static void
-meta_backend_native_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_native_init_post (MetaBackend  *backend,
+                               GError      **error)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaBackendNativePrivate *priv =
@@ -192,14 +193,14 @@ meta_backend_native_post_init (MetaBackend *backend)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
-  META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
-
   g_clear_pointer (&priv->startup_render_devices,
                    g_hash_table_unref);
 
   g_signal_connect_swapped (monitor_manager, "monitors-changed-internal",
                             G_CALLBACK (update_viewports), backend);
   update_viewports (backend);
+
+  return TRUE;
 }
 
 static MetaBackendCapabilities
@@ -840,7 +841,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->create_clutter_backend = meta_backend_native_create_clutter_backend;
   backend_class->create_default_seat = meta_backend_native_create_default_seat;
 
-  backend_class->post_init = meta_backend_native_post_init;
+  backend_class->init_post = meta_backend_native_init_post;
   backend_class->get_capabilities = meta_backend_native_get_capabilities;
 
   backend_class->create_monitor_manager = meta_backend_native_create_monitor_manager;

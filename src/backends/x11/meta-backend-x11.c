@@ -542,15 +542,12 @@ on_kbd_a11y_changed (MetaInputSettings   *input_settings,
   meta_seat_x11_apply_kbd_a11y_settings (seat, a11y_settings);
 }
 
-static void
-meta_backend_x11_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_x11_init_render (MetaBackend  *backend,
+                              GError      **error)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  MetaMonitorManager *monitor_manager;
-  ClutterBackend *clutter_backend;
-  ClutterSeat *seat;
-  MetaInputSettings *input_settings;
   int major, minor;
 
   priv->source = x_event_source_new (backend);
@@ -575,7 +572,19 @@ meta_backend_x11_post_init (MetaBackend *backend)
     meta_fatal ("X server doesn't have the XKB extension, version %d.%d or newer",
                 XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION);
 
-  META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend);
+  return TRUE;
+}
+
+static gboolean
+meta_backend_x11_init_post (MetaBackend  *backend,
+                            GError      **error)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  MetaMonitorManager *monitor_manager;
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
+  MetaInputSettings *input_settings;
 
   monitor_manager = meta_backend_get_monitor_manager (backend);
   g_signal_connect (monitor_manager, "monitors-changed-internal",
@@ -606,6 +615,8 @@ meta_backend_x11_post_init (MetaBackend *backend)
           XkbLockModifiers (priv->xdisplay, XkbUseCoreKbd, num_mask, num_mask);
         }
     }
+
+  return TRUE;
 }
 
 static ClutterBackend *
@@ -1058,10 +1069,11 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
 
   object_class->dispose = meta_backend_x11_dispose;
   object_class->finalize = meta_backend_x11_finalize;
+  backend_class->init_render = meta_backend_x11_init_render;
+  backend_class->init_post = meta_backend_x11_init_post;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->create_color_manager = meta_backend_x11_create_color_manager;
   backend_class->create_default_seat = meta_backend_x11_create_default_seat;
-  backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
   backend_class->freeze_keyboard = meta_backend_x11_freeze_keyboard;

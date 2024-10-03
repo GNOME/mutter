@@ -248,15 +248,6 @@ init_gpus (MetaBackendX11Nested *backend_x11_nested)
   meta_backend_add_gpu (META_BACKEND (backend_x11_nested), priv->gpu);
 }
 
-static void
-meta_backend_x11_nested_post_init (MetaBackend *backend)
-{
-  MetaBackendClass *backend_class =
-    META_BACKEND_CLASS (meta_backend_x11_nested_parent_class);
-
-  backend_class->post_init (backend);
-}
-
 static MetaBackendCapabilities
 meta_backend_x11_nested_get_capabilities (MetaBackend *backend)
 {
@@ -319,7 +310,6 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   object_class->constructed = meta_backend_x11_nested_constructed;
   object_class->dispose = meta_backend_x11_nested_dispose;
 
-  backend_class->post_init = meta_backend_x11_nested_post_init;
   backend_class->get_capabilities = meta_backend_x11_nested_get_capabilities;
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;

@@ -97,8 +97,9 @@ on_device_added (ClutterSeat        *seat,
     apply_keymap (x11);
 }
 
-static void
-meta_backend_x11_cm_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_x11_cm_init_render (MetaBackend  *backend,
+                                 GError      **error)
 {
   MetaBackendClass *parent_backend_class =
     META_BACKEND_CLASS (meta_backend_x11_cm_parent_class);
@@ -113,8 +114,12 @@ meta_backend_x11_cm_post_init (MetaBackend *backend)
                                          "backend", backend,
                                          NULL);
 
-  parent_backend_class->post_init (backend);
+  if (!parent_backend_class->init_render (backend, error))
+    return FALSE;
+
   take_touch_grab (backend);
+
+  return TRUE;
 }
 
 static MetaBackendCapabilities
@@ -540,7 +545,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   object_class->finalize = meta_backend_x11_cm_finalize;
   object_class->constructed = meta_backend_x11_cm_constructed;
 
-  backend_class->post_init = meta_backend_x11_cm_post_init;
+  backend_class->init_render = meta_backend_x11_cm_init_render;
   backend_class->get_capabilities = meta_backend_x11_cm_get_capabilities;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_cm_create_monitor_manager;
