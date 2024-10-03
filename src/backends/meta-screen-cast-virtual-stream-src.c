@@ -299,7 +299,6 @@ meta_screen_cast_virtual_stream_src_enable (MetaScreenCastStreamSrc *src)
 
   clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage_from_src (src)),
                                         NULL);
-  clutter_stage_schedule_update (stage_from_src (src));
 }
 
 static void
