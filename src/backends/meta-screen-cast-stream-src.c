@@ -124,6 +124,8 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   int64_t last_frame_timestamp_us;
   guint follow_up_frame_source_id;
 
+  uint64_t buffer_sequence_counter;
+
   int buffer_count;
   gboolean needs_follow_up_with_buffers;
 
@@ -1151,6 +1153,15 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
     {
       header->pts = frame_timestamp_us * SPA_NSEC_PER_USEC;
       header->flags = 0;
+      header->seq = ++priv->buffer_sequence_counter;
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Queuing PipeWire buffer #%" G_GUINT64_FORMAT " (%p)",
+                  header->seq,
+                  buffer->buffer);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST, "Queuing unsequenced PipeWire buffer");
     }
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
