@@ -917,6 +917,21 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
 }
 
 MetaScreenCastRecordResult
+meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc  *src,
+                                          MetaScreenCastRecordFlag  flags,
+                                          MetaScreenCastPaintPhase  paint_phase,
+                                          const MtkRegion          *redraw_clip)
+{
+  int64_t now_us = g_get_monotonic_time ();
+
+  return meta_screen_cast_stream_src_record_frame_with_timestamp (src,
+                                                                  flags,
+                                                                  paint_phase,
+                                                                  redraw_clip,
+                                                                  now_us);
+}
+
+MetaScreenCastRecordResult
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                 MetaScreenCastRecordFlag  flags,
                                                 MetaScreenCastPaintPhase  paint_phase,
@@ -1036,17 +1051,16 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
   return buffer;
 }
 
+
 MetaScreenCastRecordResult
-meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
-                                                               MetaScreenCastRecordFlag  flags,
-                                                               MetaScreenCastPaintPhase  paint_phase,
-                                                               const MtkRegion          *redraw_clip,
-                                                               int64_t                   frame_timestamp_us)
+meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
+                                                         MetaScreenCastRecordFlag  flags,
+                                                         MetaScreenCastPaintPhase  paint_phase,
+                                                         const MtkRegion          *redraw_clip,
+                                                         int64_t                   frame_timestamp_us)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
   MetaScreenCastRecordResult record_result =
     META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
   MtkRectangle crop_rect;
@@ -1055,64 +1069,6 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   struct spa_meta_header *header;
   struct spa_data *spa_data;
   g_autoptr (GError) error = NULL;
-
-  COGL_TRACE_BEGIN_SCOPED (MaybeRecordFrame,
-                           "Meta::ScreenCastStreamSrc::maybe_record_frame_with_timestamp()");
-
-  if ((flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY) &&
-      klass->is_cursor_metadata_valid &&
-      klass->is_cursor_metadata_valid (src))
-    {
-      meta_topic (META_DEBUG_SCREEN_CAST,
-                  "Dropping cursor-only frame as the cursor didn't change");
-      return record_result;
-    }
-
-  /* Accumulate the damaged region since we might not schedule a frame capture
-   * eventually but once we do, we should report all the previous damaged areas.
-   */
-  if (redraw_clip)
-    {
-      if (priv->redraw_clip)
-        mtk_region_union (priv->redraw_clip, redraw_clip);
-      else
-        priv->redraw_clip = mtk_region_copy (redraw_clip);
-    }
-
-  if (priv->buffer_count == 0)
-    {
-      meta_topic (META_DEBUG_SCREEN_CAST,
-                  "Buffers hasn't been added, "
-                  "postponing recording on stream %u",
-                  priv->node_id);
-
-      priv->needs_follow_up_with_buffers = TRUE;
-      return record_result;
-    }
-
-  if (priv->video_format.max_framerate.num > 0 &&
-      priv->last_frame_timestamp_us != 0)
-    {
-      int64_t min_interval_us;
-      int64_t time_since_last_frame_us;
-
-      min_interval_us =
-        ((G_USEC_PER_SEC * ((int64_t) priv->video_format.max_framerate.denom)) /
-         ((int64_t) priv->video_format.max_framerate.num));
-
-      time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
-      if (time_since_last_frame_us < min_interval_us)
-        {
-          int64_t timeout_us;
-
-          timeout_us = min_interval_us - time_since_last_frame_us;
-          maybe_schedule_follow_up_frame (src, timeout_us);
-          meta_topic (META_DEBUG_SCREEN_CAST,
-                      "Skipped recording frame on stream %u, too early",
-                      priv->node_id);
-          return record_result;
-        }
-    }
 
   if (!priv->pipewire_stream)
     return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
@@ -1188,7 +1144,10 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
       else
         {
           if (error)
-            g_warning ("Failed to record screen cast frame: %s", error->message);
+            {
+              g_warning ("Failed to record screen cast frame: %s", error->message);
+              g_clear_error (&error);
+            }
           spa_data->chunk->size = 0;
           spa_data->chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
         }
@@ -1221,6 +1180,85 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 
   return record_result;
+}
+
+MetaScreenCastRecordResult
+meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
+                                                               MetaScreenCastRecordFlag  flags,
+                                                               MetaScreenCastPaintPhase  paint_phase,
+                                                               const MtkRegion          *redraw_clip,
+                                                               int64_t                   frame_timestamp_us)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaScreenCastRecordResult record_result =
+    META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
+
+  COGL_TRACE_BEGIN_SCOPED (MaybeRecordFrame,
+                           "Meta::ScreenCastStreamSrc::maybe_record_frame_with_timestamp()");
+
+  if ((flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY) &&
+      klass->is_cursor_metadata_valid &&
+      klass->is_cursor_metadata_valid (src))
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Dropping cursor-only frame as the cursor didn't change");
+      return record_result;
+    }
+
+  /* Accumulate the damaged region since we might not schedule a frame capture
+   * eventually but once we do, we should report all the previous damaged areas.
+   */
+  if (redraw_clip)
+    {
+      if (priv->redraw_clip)
+        mtk_region_union (priv->redraw_clip, redraw_clip);
+      else
+        priv->redraw_clip = mtk_region_copy (redraw_clip);
+    }
+
+  if (priv->buffer_count == 0)
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Buffers hasn't been added, "
+                  "postponing recording on stream %u",
+                  priv->node_id);
+
+      priv->needs_follow_up_with_buffers = TRUE;
+      return record_result;
+    }
+
+  if (priv->video_format.max_framerate.num > 0 &&
+      priv->last_frame_timestamp_us != 0)
+    {
+      int64_t min_interval_us;
+      int64_t time_since_last_frame_us;
+
+      min_interval_us =
+        ((G_USEC_PER_SEC * ((int64_t) priv->video_format.max_framerate.denom)) /
+         ((int64_t) priv->video_format.max_framerate.num));
+
+      time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
+      if (time_since_last_frame_us < min_interval_us)
+        {
+          int64_t timeout_us;
+
+          timeout_us = min_interval_us - time_since_last_frame_us;
+          maybe_schedule_follow_up_frame (src, timeout_us);
+          meta_topic (META_DEBUG_SCREEN_CAST,
+                      "Skipped recording frame on stream %u, too early",
+                      priv->node_id);
+          return record_result;
+        }
+    }
+
+  return meta_screen_cast_stream_src_record_frame_with_timestamp (src,
+                                                                  flags,
+                                                                  paint_phase,
+                                                                  redraw_clip,
+                                                                  frame_timestamp_us);
 }
 
 gboolean

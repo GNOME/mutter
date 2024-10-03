@@ -112,6 +112,17 @@ MetaScreenCastRecordResult meta_screen_cast_stream_src_maybe_record_frame_with_t
                                                                                           const MtkRegion          *redraw_clip,
                                                                                           int64_t                   frame_timestamp_us);
 
+MetaScreenCastRecordResult meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc  *src,
+                                                                     MetaScreenCastRecordFlag  flags,
+                                                                     MetaScreenCastPaintPhase  paint_phase,
+                                                                     const MtkRegion          *redraw_clip);
+
+MetaScreenCastRecordResult meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
+                                                                                    MetaScreenCastRecordFlag  flags,
+                                                                                    MetaScreenCastPaintPhase  paint_phase,
+                                                                                    const MtkRegion          *redraw_clip,
+                                                                                    int64_t                   frame_timestamp_us);
+
 gboolean meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src);
 
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
