@@ -1179,6 +1179,8 @@ meta_backend_initable_init (GInitable     *initable,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaInputSettings *input_settings;
 
+  priv->in_init = TRUE;
+
   if (META_BACKEND_GET_CLASS (backend)->init_basic &&
       !META_BACKEND_GET_CLASS (backend)->init_basic (backend, error))
     return FALSE;
@@ -1304,9 +1306,6 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_init (MetaBackend *backend)
 {
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  priv->in_init = TRUE;
 }
 
 /**
