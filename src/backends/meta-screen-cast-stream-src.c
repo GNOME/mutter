@@ -1276,9 +1276,11 @@ meta_screen_cast_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
 
-  META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src)->enable (src);
+  meta_topic (META_DEBUG_SCREEN_CAST, "Enabling stream %u", priv->node_id);
 
   priv->is_enabled = TRUE;
+
+  META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src)->enable (src);
 }
 
 static void
