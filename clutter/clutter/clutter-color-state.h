@@ -161,6 +161,9 @@ CLUTTER_EXPORT
 const ClutterLuminance * clutter_eotf_get_default_luminance (ClutterEOTF eotf);
 
 CLUTTER_EXPORT
+const ClutterPrimaries * clutter_colorspace_to_primaries (ClutterColorspace colorspace);
+
+CLUTTER_EXPORT
 void clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries);
 
 G_END_DECLS

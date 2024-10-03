@@ -240,9 +240,9 @@ wayland_primaries_to_clutter (enum xx_color_manager_v4_primaries  primaries,
 }
 
 static enum xx_color_manager_v4_primaries
-clutter_primaries_to_wayland (ClutterColorspace primaries)
+clutter_colorspace_to_wayland (ClutterColorspace colorspace)
 {
-  switch (primaries)
+  switch (colorspace)
     {
     case CLUTTER_COLORSPACE_SRGB:
       return XX_COLOR_MANAGER_V4_PRIMARIES_SRGB;
@@ -353,9 +353,10 @@ static void
 send_information (struct wl_resource *info_resource,
                   ClutterColorState  *color_state)
 {
-  enum xx_color_manager_v4_primaries primaries;
+  enum xx_color_manager_v4_primaries primaries_named;
   enum xx_color_manager_v4_transfer_function tf;
   const ClutterColorimetry *colorimetry;
+  const ClutterPrimaries *primaries;
   const ClutterEOTF *eotf;
   const ClutterLuminance *lum;
 
@@ -363,9 +364,21 @@ send_information (struct wl_resource *info_resource,
   switch (colorimetry->type)
     {
     case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      primaries = clutter_primaries_to_wayland (colorimetry->colorspace);
+      primaries_named = clutter_colorspace_to_wayland (colorimetry->colorspace);
       xx_image_description_info_v4_send_primaries_named (info_resource,
-                                                         primaries);
+                                                         primaries_named);
+
+      primaries = clutter_colorspace_to_primaries (colorimetry->colorspace);
+      xx_image_description_info_v4_send_primaries (
+        info_resource,
+        float_to_scaled_uint32 (primaries->r_x),
+        float_to_scaled_uint32 (primaries->r_y),
+        float_to_scaled_uint32 (primaries->g_x),
+        float_to_scaled_uint32 (primaries->g_y),
+        float_to_scaled_uint32 (primaries->b_x),
+        float_to_scaled_uint32 (primaries->b_y),
+        float_to_scaled_uint32 (primaries->w_x),
+        float_to_scaled_uint32 (primaries->w_y));
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
       xx_image_description_info_v4_send_primaries (

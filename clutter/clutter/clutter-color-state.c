@@ -621,6 +621,23 @@ static const ClutterPrimaries bt2020_primaries = {
   .w_x = 0.3127f, .w_y = 0.3290f,
 };
 
+const ClutterPrimaries *
+clutter_colorspace_to_primaries (ClutterColorspace colorspace)
+{
+  switch (colorspace)
+    {
+    case CLUTTER_COLORSPACE_SRGB:
+      return &srgb_primaries;
+    case CLUTTER_COLORSPACE_BT2020:
+      return &bt2020_primaries;
+    }
+
+  g_warning ("Unhandled colorspace %s",
+             clutter_colorspace_to_string (colorspace));
+
+  return &srgb_primaries;
+}
+
 static const ClutterPrimaries *
 get_primaries (ClutterColorState *color_state)
 {
@@ -633,16 +650,10 @@ get_primaries (ClutterColorState *color_state)
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
       return priv->colorimetry.primaries;
     case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      switch (priv->colorimetry.colorspace)
-        {
-        case CLUTTER_COLORSPACE_SRGB:
-          return &srgb_primaries;
-        case CLUTTER_COLORSPACE_BT2020:
-          return &bt2020_primaries;
-        }
-      g_warning ("Unhandled colorspace %s",
-                 clutter_colorspace_to_string (priv->colorimetry.colorspace));
+      return clutter_colorspace_to_primaries (priv->colorimetry.colorspace);
     }
+
+  g_warning ("Unhandled colorimetry when getting primaries");
 
   return &srgb_primaries;
 }
