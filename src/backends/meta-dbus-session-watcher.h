@@ -60,6 +60,8 @@ void meta_dbus_session_notify_closed (MetaDbusSession *session);
 
 void meta_dbus_session_close (MetaDbusSession *session);
 
+void meta_dbus_session_queue_close (MetaDbusSession *session);
+
 MetaDbusSessionManager * meta_dbus_session_manager (MetaDbusSessionManager *session);
 
 char * meta_dbus_session_get_peer_name (MetaDbusSession *session);

@@ -269,6 +269,48 @@ meta_dbus_session_close (MetaDbusSession *session)
   META_DBUS_SESSION_GET_IFACE (session)->close (session);
 }
 
+typedef struct _CloseClosure
+{
+  MetaDbusSession *session;
+  glong stopped_handler_id;
+  guint callback_id;
+} CloseClosure;
+
+static void
+close_cb (gpointer user_data)
+{
+  CloseClosure *closure = user_data;
+
+  g_signal_handler_disconnect (closure->session,
+                               closure->stopped_handler_id);
+
+  meta_dbus_session_close (closure->session);
+
+  g_free (closure);
+}
+
+static void
+on_session_stopped (MetaDbusSession *session,
+                    CloseClosure    *closure)
+{
+  g_source_remove (closure->callback_id);
+  g_free (closure);
+}
+
+void
+meta_dbus_session_queue_close (MetaDbusSession *session)
+{
+  CloseClosure *closure;
+
+  closure = g_new0 (CloseClosure, 1);
+  closure->session = session;
+  closure->stopped_handler_id = g_signal_connect (session,
+                                                  "session-closed",
+                                                  G_CALLBACK (on_session_stopped),
+                                                  closure);
+  closure->callback_id = g_idle_add_once (close_cb, closure);
+}
+
 MetaDbusSessionManager *
 meta_dbus_session_manager (MetaDbusSessionManager *session)
 {
