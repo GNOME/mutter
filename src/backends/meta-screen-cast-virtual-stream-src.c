@@ -150,9 +150,11 @@ on_after_paint (MetaStage        *stage,
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
   paint_phase = META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
-                                                  paint_phase,
-                                                  redraw_clip);
+
+  meta_screen_cast_stream_src_record_frame (src,
+                                            flags,
+                                            paint_phase,
+                                            redraw_clip);
 }
 
 static void
@@ -169,10 +171,10 @@ on_skipped_paint (MetaStage        *stage,
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src,
-                                                  flags,
-                                                  paint_phase,
-                                                  redraw_clip);
+  meta_screen_cast_stream_src_record_frame (src,
+                                            flags,
+                                            paint_phase,
+                                            redraw_clip);
 }
 
 static void
