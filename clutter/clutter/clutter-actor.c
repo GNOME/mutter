@@ -15235,6 +15235,12 @@ clutter_actor_get_child_at_index (ClutterActor *self,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
   g_return_val_if_fail (index_ <= self->priv->n_children, NULL);
 
+  if (index_ == 0)
+    return self->priv->first_child;
+
+  if (index_ == self->priv->n_children - 1)
+    return self->priv->last_child;
+
   for (iter = self->priv->first_child, i = 0;
        iter != NULL && i < index_;
        iter = iter->priv->next_sibling, i += 1)
