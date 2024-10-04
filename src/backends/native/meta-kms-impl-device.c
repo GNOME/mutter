@@ -2081,27 +2081,6 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
   MetaThreadImpl *thread_impl = META_THREAD_IMPL (kms_impl);
   MetaThread *thread = meta_thread_impl_get_thread (thread_impl);
   MetaKmsFeedback *feedback;
-  GHashTableIter iter;
-  CrtcFrame *crtc_frame;
-
-  g_hash_table_iter_init (&iter, priv->crtc_frames);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
-    {
-      if (crtc_frame->submitted_update.kms_update)
-        {
-          meta_kms_update_merge_from (crtc_frame->submitted_update.kms_update,
-                                      update);
-          meta_kms_update_free (update);
-          update = g_steal_pointer (&crtc_frame->submitted_update.kms_update);
-        }
-
-      if (crtc_frame->pending_update)
-        {
-          meta_kms_update_merge_from (crtc_frame->pending_update, update);
-          meta_kms_update_free (update);
-          update = g_steal_pointer (&crtc_frame->pending_update);
-        }
-    }
 
   disarm_all_frame_sources (impl_device);
 
