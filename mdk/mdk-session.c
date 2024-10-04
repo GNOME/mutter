@@ -430,7 +430,7 @@ mdk_session_create_monitor_async (MdkSession          *session,
   g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
   g_variant_builder_add (&properties_builder, "{sv}",
                          "cursor-mode",
-                         g_variant_new_uint32 (MDK_SCREEN_CAST_CURSOR_MODE_HIDDEN));
+                         g_variant_new_uint32 (MDK_SCREEN_CAST_CURSOR_MODE_METADATA));
   g_variant_builder_add (&properties_builder, "{sv}",
                          "is-platform",
                          g_variant_new_boolean (TRUE));

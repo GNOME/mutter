@@ -94,6 +94,14 @@ struct _MdkStream
   struct pw_buffer *active_buffer;
 
   GMainContext *main_context;
+
+  struct {
+    gboolean valid;
+    float x, y;
+    float hotspot_x, hotspot_y;
+    float width, height;
+    GdkPaintable *paintable;
+  } cursor;
 };
 
 #define CURSOR_META_SIZE(width, height) \
@@ -466,6 +474,70 @@ renegotiate_stream_format (void     *user_data,
 }
 
 static void
+read_cursor_metadata (MdkStream         *stream,
+                      struct spa_buffer *spa_buffer)
+{
+  struct spa_meta_cursor *cursor;
+
+  cursor = spa_buffer_find_meta_data (spa_buffer,
+                                      SPA_META_Cursor,
+                                      sizeof (*cursor));
+  stream->cursor.valid = cursor && spa_meta_cursor_is_valid (cursor);
+  if (stream->cursor.valid)
+    {
+      struct spa_meta_bitmap *bitmap = NULL;
+      GdkMemoryFormat gdk_format;
+      uint32_t bpp;
+
+      if (cursor->bitmap_offset)
+        {
+          bitmap = SPA_MEMBER (cursor,
+                               cursor->bitmap_offset,
+                               struct spa_meta_bitmap);
+        }
+
+      if (bitmap &&
+          bitmap->size.width > 0 &&
+          bitmap->size.height > 0 &&
+          spa_pixel_format_to_gdk_memory_format (bitmap->format,
+                                                 &gdk_format,
+                                                 &bpp))
+        {
+          g_autoptr (GdkTexture) texture = NULL;
+          g_autoptr (GBytes) bytes = NULL;
+          const uint8_t *bitmap_data;
+
+          bitmap_data = SPA_MEMBER (bitmap, bitmap->offset, uint8_t);
+          stream->cursor.width = bitmap->size.width;
+          stream->cursor.height = bitmap->size.height;
+          stream->cursor.hotspot_x = cursor->hotspot.x;
+          stream->cursor.hotspot_y = cursor->hotspot.y;
+
+          bytes = g_bytes_new (bitmap_data,
+                               bitmap->size.width * bitmap->size.height * bpp);
+
+          texture = gdk_memory_texture_new (bitmap->size.width,
+                                            bitmap->size.height,
+                                            gdk_format,
+                                            bytes,
+                                            bitmap->stride);
+          g_set_object (&stream->cursor.paintable, GDK_PAINTABLE (texture));
+        }
+
+      stream->cursor.x = cursor->position.x;
+      stream->cursor.y = cursor->position.y;
+
+      g_debug ("Stream has cursor %.0lfx%.0lf +%.0lf+%.0lf (hotspot: %.0lfx%.0lf)",
+               stream->cursor.x,
+               stream->cursor.y,
+               stream->cursor.width,
+               stream->cursor.height,
+               stream->cursor.hotspot_x,
+               stream->cursor.hotspot_y);
+    }
+}
+
+static void
 on_stream_process (void *user_data)
 {
   MdkStream *stream = MDK_STREAM (user_data);
@@ -495,7 +567,7 @@ on_stream_process (void *user_data)
            has_buffer ? "" : "empty ", spa_header->seq);
 
   if (!has_buffer)
-    goto done;
+    goto read_metadata;
 
   if (spa_buffer->datas[0].type == SPA_DATA_DmaBuf)
     {
@@ -508,7 +580,7 @@ on_stream_process (void *user_data)
         {
           g_critical ("Unsupported DMA buffer format: %d",
                       stream->format.info.raw.format);
-          goto done;
+          goto read_metadata;
         }
 
       builder = gdk_dmabuf_texture_builder_new ();
@@ -571,7 +643,7 @@ on_stream_process (void *user_data)
         {
           g_critical ("Unsupported memory buffer format: %d",
                       stream->format.info.raw.format);
-          goto done;
+          goto read_metadata;
         }
 
       size = spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset;
@@ -580,7 +652,7 @@ on_stream_process (void *user_data)
       if (map == MAP_FAILED)
         {
           g_critical ("Failed to mmap buffer: %s", g_strerror (errno));
-          goto done;
+          goto read_metadata;
         }
       data = SPA_MEMBER (map, spa_buffer->datas[0].mapoffset, uint8_t);
 
@@ -596,7 +668,9 @@ on_stream_process (void *user_data)
       munmap (map, size);
     }
 
-done:
+read_metadata:
+  read_cursor_metadata (stream, spa_buffer);
+
   stream->frame_sequence++;
   stream->process_requested = FALSE;
 
@@ -813,6 +887,32 @@ mdk_stream_paintable_snapshot (GdkPaintable *paintable,
     render_compositor_frame (stream);
 
   gdk_paintable_snapshot (stream->paintable, snapshot, width, height);
+
+  if (stream->cursor.valid && stream->cursor.paintable)
+    {
+      float scale = MIN ((float) width / stream->width,
+                         (float) height / stream->height);
+      float x_offset = stream->cursor.x - stream->cursor.hotspot_x;
+      float y_offset = stream->cursor.y - stream->cursor.hotspot_y;
+
+      gtk_snapshot_save (snapshot);
+      gtk_snapshot_push_clip (snapshot,
+                              &GRAPHENE_RECT_INIT (0,
+                                                   0,
+                                                   (float) width,
+                                                   (float) height));
+      gtk_snapshot_scale (snapshot, scale, scale);
+      gtk_snapshot_translate (snapshot,
+                              &GRAPHENE_POINT_INIT (x_offset, y_offset));
+
+      gdk_paintable_snapshot (stream->cursor.paintable,
+                              snapshot,
+                              stream->cursor.width,
+                              stream->cursor.height);
+
+      gtk_snapshot_pop (snapshot);
+      gtk_snapshot_restore (snapshot);
+    }
 
   if (stream->process_requested &&
       !stream->reinvalidate_source_id &&
