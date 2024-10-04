@@ -43,6 +43,7 @@
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
+#include "wayland/meta-wayland-toplevel-drag.h"
 
 #define ROOTWINDOW_DROP_MIME "application/x-rootwindow-drop"
 
@@ -341,6 +342,12 @@ MetaWaylandSurface *
 meta_wayland_drag_grab_get_origin (MetaWaylandDragGrab *drag_grab)
 {
   return drag_grab->drag_origin;
+}
+
+MetaWaylandDataSource *
+meta_wayland_drag_grab_get_data_source (MetaWaylandDragGrab *drag_grab)
+{
+  return drag_grab->drag_data_source;
 }
 
 static void

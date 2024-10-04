@@ -98,3 +98,6 @@ ClutterInputDevice * meta_wayland_drag_grab_get_device (MetaWaylandDragGrab    *
                                                         ClutterEventSequence  **sequence);
 
 MetaWaylandSurface * meta_wayland_drag_grab_get_origin (MetaWaylandDragGrab *drag_grab);
+
+MetaWaylandDataSource *
+meta_wayland_drag_grab_get_data_source (MetaWaylandDragGrab *drag_grab);
