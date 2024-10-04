@@ -2005,14 +2005,6 @@ on_core_error (void       *data,
 }
 
 static gboolean
-pipewire_loop_source_prepare (GSource *source,
-                              int     *timeout)
-{
-  *timeout = -1;
-  return FALSE;
-}
-
-static gboolean
 pipewire_loop_source_dispatch (GSource     *source,
                                GSourceFunc  callback,
                                gpointer     user_data)
@@ -2030,7 +2022,7 @@ pipewire_loop_source_dispatch (GSource     *source,
   if (priv->emit_closed_after_dispatch)
     g_signal_emit (src, signals[CLOSED], 0);
 
-  return TRUE;
+  return G_SOURCE_CONTINUE;
 }
 
 static void
@@ -2044,10 +2036,8 @@ pipewire_loop_source_finalize (GSource *source)
 
 static GSourceFuncs pipewire_source_funcs =
 {
-  pipewire_loop_source_prepare,
-  NULL,
-  pipewire_loop_source_dispatch,
-  pipewire_loop_source_finalize
+  .dispatch = pipewire_loop_source_dispatch,
+  .finalize = pipewire_loop_source_finalize,
 };
 
 static GSource *
