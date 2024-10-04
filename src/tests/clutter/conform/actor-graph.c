@@ -241,6 +241,20 @@ actor_raise_child (void)
   g_object_get (iter, "show-on-set-parent", &show_on_set_parent, NULL);
   g_assert_false (show_on_set_parent);
 
+  iter = clutter_actor_get_child_at_index (actor, 2);
+  clutter_actor_set_child_above_sibling (actor, iter,
+                                         clutter_actor_get_child_at_index (actor, 0));
+
+  g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 0)),
+                   ==,
+                   "baz");
+  g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 1)),
+                   ==,
+                   "foo");
+  g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 2)),
+                   ==,
+                   "bar");
+
   clutter_actor_destroy (actor);
   g_assert_null (actor);
   g_assert_null (iter);
@@ -305,6 +319,20 @@ actor_lower_child (void)
   g_assert_false (clutter_actor_is_visible (iter));
   g_object_get (iter, "show-on-set-parent", &show_on_set_parent, NULL);
   g_assert_false (show_on_set_parent);
+
+  iter = clutter_actor_get_child_at_index (actor, 0);
+  clutter_actor_set_child_below_sibling (actor, iter,
+                                         clutter_actor_get_child_at_index (actor, 2));
+
+  g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 0)),
+                   ==,
+                   "bar");
+  g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 1)),
+                   ==,
+                   "baz");
+  g_assert_cmpstr (clutter_actor_get_name (clutter_actor_get_child_at_index (actor, 2)),
+                   ==,
+                   "foo");
 
   clutter_actor_destroy (actor);
   g_assert_null (actor);
@@ -404,18 +432,27 @@ child_added (ClutterActor *container,
              ClutterActor *child,
              gpointer      data)
 {
-  ClutterActor *actor = CLUTTER_ACTOR (container);
   int *counter = data;
-  ClutterActor *old_child;
 
   if (!g_test_quiet ())
     g_print ("Adding actor '%s'\n", clutter_actor_get_name (child));
 
+  *counter += 1;
+}
+
+static void
+remove_child_added (ClutterActor *container,
+                    ClutterActor *child,
+                    gpointer      data)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (container);
+  ClutterActor *old_child;
+
+  child_added (container, child, data);
+
   old_child = clutter_actor_get_child_at_index (actor, 0);
   if (old_child != child)
     clutter_actor_remove_child (actor, old_child);
-
-  *counter += 1;
 }
 
 static void
@@ -442,7 +479,7 @@ actor_container_signals (void)
 
   add_count = remove_count = 0;
   g_signal_connect (actor,
-                    "child-added", G_CALLBACK (child_added),
+                    "child-added", G_CALLBACK (remove_child_added),
                     &add_count);
   g_signal_connect (actor,
                     "child-removed", G_CALLBACK (child_removed),
@@ -464,10 +501,114 @@ actor_container_signals (void)
   g_assert_cmpint (remove_count, ==, 1);
   g_assert_cmpint (clutter_actor_get_n_children (actor), ==, 1);
 
-  g_signal_handlers_disconnect_by_func (actor, G_CALLBACK (child_added),
+  g_signal_handlers_disconnect_by_func (actor, G_CALLBACK (remove_child_added),
                                         &add_count);
   g_signal_handlers_disconnect_by_func (actor, G_CALLBACK (child_removed),
                                         &remove_count);
+
+  clutter_actor_destroy (actor);
+  g_assert_null (actor);
+}
+
+static void
+actor_noop_child_assert_no_change (ClutterActor  *actor,
+                                   ClutterActor **children)
+{
+  for (int i = 0; i < clutter_actor_get_n_children (actor); ++i)
+    {
+      ClutterActor *child = clutter_actor_get_child_at_index (actor, i);
+      g_autofree char *expected_name = g_strdup_printf ("child%d", i + 1);
+
+      g_assert_cmpstr (clutter_actor_get_name (child), ==, expected_name);
+    }
+
+  g_assert_cmpstr (clutter_actor_get_name (
+                     clutter_actor_get_first_child (actor)),
+                   ==,
+                   clutter_actor_get_name (children[0]));
+  g_assert_cmpstr (clutter_actor_get_name (
+                     clutter_actor_get_last_child (actor)),
+                   ==,
+                   clutter_actor_get_name (
+                     children[clutter_actor_get_n_children (actor) - 1]));
+}
+
+static void
+actor_noop_child (void)
+{
+  ClutterActor *actor = clutter_actor_new ();
+  ClutterActor *children[5];
+  int add_count = 0;
+  int remove_count = 0;
+
+  g_object_ref_sink (actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+
+  g_signal_connect (actor,
+                    "child-added", G_CALLBACK (child_added),
+                    &add_count);
+  g_signal_connect (actor,
+                    "child-removed", G_CALLBACK (child_removed),
+                    &remove_count);
+
+  children[0] = g_object_new (CLUTTER_TYPE_ACTOR, "name", "child1", NULL);
+  children[1] = g_object_new (CLUTTER_TYPE_ACTOR, "name", "child2", NULL);
+  children[2] = g_object_new (CLUTTER_TYPE_ACTOR, "name", "child3", NULL);
+  children[3] = g_object_new (CLUTTER_TYPE_ACTOR, "name", "child4", NULL);
+  children[4] = g_object_new (CLUTTER_TYPE_ACTOR, "name", "child5", NULL);
+
+  for (int i = 0; i < G_N_ELEMENTS (children); ++i)
+    {
+      g_test_message ("Adding %s", clutter_actor_get_name (children[i]));
+      clutter_actor_add_child (actor, children[i]);
+      g_assert_cmpint (add_count, ==, i + 1);
+      g_assert_cmpint (remove_count, ==, 0);
+    }
+
+  g_assert_cmpint (clutter_actor_get_n_children (actor), ==,
+                   G_N_ELEMENTS (children));
+
+  actor_noop_child_assert_no_change (actor, children);
+
+  for (int i = -1; i < (int) G_N_ELEMENTS (children) - 1; ++i)
+    {
+      ClutterActor *sibling = i < 0 ? NULL : children[i + 1];
+      ClutterActor *child = i < 0 ? children[0] : children[i];
+
+      g_test_message ("Keep %s below %s (no change)",
+                      clutter_actor_get_name (child),
+                      sibling ? clutter_actor_get_name (sibling) : NULL);
+      clutter_actor_set_child_below_sibling (actor, child, sibling);
+      actor_noop_child_assert_no_change (actor, children);
+      g_assert_cmpint (add_count, ==, G_N_ELEMENTS (children));
+      g_assert_cmpint (remove_count, ==, 0);
+    }
+
+  for (unsigned i = G_N_ELEMENTS (children); i > 0; --i)
+    {
+      ClutterActor *sibling = i == G_N_ELEMENTS (children) ?
+                              NULL : children[i - 1];
+      ClutterActor *child = i == G_N_ELEMENTS (children) ?
+                            children[G_N_ELEMENTS (children) - 1] : children[i];
+
+      g_test_message ("Keep %s above %s (no change)",
+                      clutter_actor_get_name (child),
+                      sibling ? clutter_actor_get_name (sibling) : NULL);
+      clutter_actor_set_child_above_sibling (actor, child, sibling);
+      actor_noop_child_assert_no_change (actor, children);
+      g_assert_cmpint (add_count, ==, G_N_ELEMENTS (children));
+      g_assert_cmpint (remove_count, ==, 0);
+    }
+
+  for (unsigned i = 0; i < G_N_ELEMENTS (children); ++i)
+    {
+      g_test_message ("Keep %s at index %d",
+                      clutter_actor_get_name (children[i]), i);
+      clutter_actor_set_child_at_index (actor, children[i], i);
+      actor_noop_child_assert_no_change (actor, children);
+      g_assert_cmpint (add_count, ==, G_N_ELEMENTS (children));
+      g_assert_cmpint (remove_count, ==, 0);
+    }
 
   clutter_actor_destroy (actor);
   g_assert_null (actor);
@@ -546,6 +687,7 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/actor/graph/raise-child", actor_raise_child)
   CLUTTER_TEST_UNIT ("/actor/graph/lower-child", actor_lower_child)
   CLUTTER_TEST_UNIT ("/actor/graph/replace-child", actor_replace_child)
+  CLUTTER_TEST_UNIT ("/actor/graph/noop-child", actor_noop_child)
   CLUTTER_TEST_UNIT ("/actor/graph/remove-all", actor_remove_all)
   CLUTTER_TEST_UNIT ("/actor/graph/container-signals", actor_container_signals)
   CLUTTER_TEST_UNIT ("/actor/graph/contains", actor_contains)

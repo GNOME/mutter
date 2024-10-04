@@ -11673,6 +11673,14 @@ clutter_actor_set_child_above_sibling (ClutterActor *self,
       (sibling != NULL && CLUTTER_ACTOR_IN_DESTRUCTION (sibling)))
     return;
 
+  /* The child is already the last */
+  if (sibling == NULL && self->priv->last_child == child)
+    return;
+
+  /* The child is already above the sibling */
+  if (sibling != NULL && child->priv->prev_sibling == sibling)
+    return;
+
   /* we don't want to change the state of child, or emit signals, or
    * regenerate ChildMeta instances here, but we still want to follow
    * the correct sequence of steps encoded in remove_child() and
@@ -11723,6 +11731,14 @@ clutter_actor_set_child_below_sibling (ClutterActor *self,
       (sibling != NULL && CLUTTER_ACTOR_IN_DESTRUCTION (sibling)))
     return;
 
+  /* The child is already the first */
+  if (sibling == NULL && self->priv->first_child == child)
+    return;
+
+  /* The child is already below the sibling */
+  if (sibling != NULL && child->priv->next_sibling == sibling)
+    return;
+
   /* see the comment in set_child_above_sibling() */
   g_object_ref (child);
   clutter_actor_remove_child_internal (self, child, 0);
@@ -11759,6 +11775,9 @@ clutter_actor_set_child_at_index (ClutterActor *self,
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||
       CLUTTER_ACTOR_IN_DESTRUCTION (child))
+    return;
+
+  if (clutter_actor_get_child_at_index (self, index_) == child)
     return;
 
   g_object_ref (child);
