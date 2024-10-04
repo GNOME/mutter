@@ -737,6 +737,10 @@ pad_switch_mode (ClutterInputDevice *device,
 
   wacom_device =
     meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
+  if (!wacom_device)
+    return FALSE;
+
   n_buttons = libwacom_get_num_buttons (wacom_device);
 
   for (i = 0; i < n_buttons; i++)
