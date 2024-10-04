@@ -2189,7 +2189,7 @@ meta_remote_desktop_session_handle_stop (MetaRemoteAccessHandle *handle)
   if (!session)
     return;
 
-  meta_dbus_session_close (META_DBUS_SESSION (session));
+  meta_dbus_session_queue_close (META_DBUS_SESSION (session));
 }
 
 static void
