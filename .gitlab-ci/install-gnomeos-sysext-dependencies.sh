@@ -11,6 +11,6 @@ DESTDIR="$(realpath $1)"
 LIBDIR="lib/$(gcc -print-multiarch)"
 
 # Install common dependencies
-./$SCRIPTS_DIR/install-common-dependencies.sh --libdir=$LIBDIR --destdir=$DESTDIR
+./$SCRIPTS_DIR/install-common-dependencies.sh --libdir=$LIBDIR --destdir=$DESTDIR --destdir=/
 
 # Install below missing dependencies that are exclusive to GNOME OS
