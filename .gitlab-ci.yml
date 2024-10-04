@@ -155,12 +155,7 @@ variables:
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
                       gnome-shell \
-                      gtk3
-
-      # Contains fixes needed for tests not included in 3.24.33
-      ./.gitlab-ci/install-meson-project.sh \
-        https://gitlab.gnome.org/GNOME/gtk.git \
-        gtk-3-24 46fe3224dd771b91e6976d5a632b452e2179a4f0
+                      $(NULL)
 
       # Work-around for podman-push aborting on permission issue
       # https://gitlab.gnome.org/Infrastructure/Infrastructure/-/issues/1247
