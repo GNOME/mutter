@@ -10423,8 +10423,7 @@ clutter_actor_set_name (ClutterActor *self,
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  g_free (self->priv->name);
-  self->priv->name = g_strdup (name);
+  g_set_str (&self->priv->name, name);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_NAME]);
 }
@@ -18711,11 +18710,8 @@ clutter_actor_set_accessible_name (ClutterActor *self,
   if (g_strcmp0 (name, priv->accessible_name) == 0)
     return;
 
-  if (priv->accessible_name != NULL)
-    g_free (priv->accessible_name);
-
   accessible = clutter_actor_get_accessible (self);
-  priv->accessible_name = g_strdup (name);
+  g_set_str (&priv->accessible_name, name);
 
   if (accessible)
     g_object_notify (G_OBJECT (accessible), "accessible-name");
