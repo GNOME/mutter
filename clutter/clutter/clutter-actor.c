@@ -11699,7 +11699,7 @@ clutter_actor_set_child_above_sibling (ClutterActor *self,
                                     insert_child_above,
                                     sibling);
   g_object_thaw_notify (G_OBJECT (child));
-  g_object_unref(child);
+  g_object_unref (child);
 
   clutter_actor_queue_relayout (self);
 }
@@ -11755,7 +11755,7 @@ clutter_actor_set_child_below_sibling (ClutterActor *self,
                                     insert_child_below,
                                     sibling);
   g_object_thaw_notify (G_OBJECT (child));
-  g_object_unref(child);
+  g_object_unref (child);
 
   clutter_actor_queue_relayout (self);
 }
