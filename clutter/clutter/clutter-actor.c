@@ -12029,7 +12029,7 @@ get_layout_from_animation_property (ClutterActor  *actor,
     }
 
   if (name_p != NULL)
-    *name_p = g_strdup (tokens[1]);
+    *name_p = g_steal_pointer (&tokens[1]);
 
   return TRUE;
 }
@@ -12060,7 +12060,7 @@ get_content_from_animation_property (ClutterActor  *actor,
     }
 
   if (name_p != NULL)
-    *name_p = g_strdup (tokens[1]);
+    *name_p = g_steal_pointer (&tokens[1]);
 
   return TRUE;
 }
@@ -12109,7 +12109,7 @@ get_meta_from_animation_property (ClutterActor  *actor,
     meta = _clutter_meta_group_get_meta (priv->effects, tokens[1]);
 
   if (name_p != NULL)
-    *name_p = g_strdup (tokens[2]);
+    *name_p = g_steal_pointer (&tokens[2]);
 
   CLUTTER_NOTE (ANIMATION,
                 "Looking for property '%s' of object '%s' in section '%s'",
