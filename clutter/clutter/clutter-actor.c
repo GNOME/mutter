@@ -4136,8 +4136,7 @@ _clutter_actor_get_transform_info_or_defaults (ClutterActor *self)
 static void
 clutter_transform_info_free (gpointer data)
 {
-  if (data != NULL)
-    g_free (data);
+  g_free (data);
 }
 
 /*< private >
@@ -15471,8 +15470,7 @@ static const ClutterLayoutInfo default_layout_info = {
 static void
 layout_info_free (gpointer data)
 {
-  if (G_LIKELY (data != NULL))
-    g_free (data);
+  g_free (data);
 }
 
 /*< private >
