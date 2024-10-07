@@ -88,6 +88,10 @@ CLUTTER_EXPORT
 void clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock);
 
 CLUTTER_EXPORT
+void clutter_frame_clock_add_future_time (ClutterFrameClock *frame_clock,
+                                          int64_t            when_us);
+
+CLUTTER_EXPORT
 void clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock);
 
 CLUTTER_EXPORT
