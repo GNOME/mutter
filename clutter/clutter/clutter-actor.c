@@ -5397,12 +5397,7 @@ clutter_actor_dispose (GObject *object)
       g_clear_object (&priv->content);
     }
 
-  if (priv->clones != NULL)
-    {
-      g_hash_table_unref (priv->clones);
-      priv->clones = NULL;
-    }
-
+  g_clear_pointer (&priv->clones, g_hash_table_unref);
   g_clear_pointer (&priv->stage_views, g_list_free);
   g_clear_pointer (&priv->next_redraw_clips, g_array_unref);
 
@@ -16305,11 +16300,8 @@ clutter_animation_info_free (gpointer data)
     {
       g_autofree ClutterAnimationInfo *info = data;
 
-      if (info->transitions != NULL)
-        g_hash_table_unref (info->transitions);
-
-      if (info->states != NULL)
-        g_array_unref (info->states);
+      g_clear_pointer (&info->transitions, g_hash_table_unref);
+      g_clear_pointer (&info->states, g_array_unref);
     }
 }
 
@@ -16423,8 +16415,7 @@ on_transition_stopped (ClutterTransition *transition,
   /* if it's the last transition then we clean up */
   if (g_hash_table_size (info->transitions) == 0)
     {
-      g_hash_table_unref (info->transitions);
-      info->transitions = NULL;
+      g_clear_pointer (&info->transitions, g_hash_table_unref);
 
       CLUTTER_NOTE (ANIMATION, "Transitions for '%s' completed",
                     _clutter_actor_get_debug_name (actor));
@@ -17100,8 +17091,7 @@ clutter_actor_restore_easing_state (ClutterActor *self)
     info->cur_state = &g_array_index (info->states, AState, info->states->len - 1);
   else
     {
-      g_array_unref (info->states);
-      info->states = NULL;
+      g_clear_pointer (&info->states, g_array_unref);
       info->cur_state = NULL;
     }
 }
@@ -18065,10 +18055,7 @@ _clutter_actor_detach_clone (ClutterActor *actor,
   g_hash_table_remove (priv->clones, clone);
 
   if (g_hash_table_size (priv->clones) == 0)
-    {
-      g_hash_table_unref (priv->clones);
-      priv->clones = NULL;
-    }
+    g_clear_pointer (&priv->clones, g_hash_table_unref);
 
   g_signal_emit (actor, actor_signals[DECLONED], 0, clone);
 }
@@ -18481,8 +18468,7 @@ clutter_actor_set_accessible (ClutterActor *self,
         {
           g_object_remove_weak_pointer (G_OBJECT (self),
                                         (gpointer *)&priv->accessible);
-          g_object_unref (priv->accessible);
-          priv->accessible = NULL;
+          g_clear_object (&priv->accessible);
         }
 
       if (accessible)
