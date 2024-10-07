@@ -3069,7 +3069,7 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
 {
   g_autoptr (ClutterPaintNode) pipeline_node = NULL;
   static CoglPipeline *outline = NULL;
-  CoglPrimitive *prim;
+  g_autoptr (CoglPrimitive) prim = NULL;
   graphene_point3d_t line_ends[12 * 2];
   int n_vertices;
   ClutterContext *context = clutter_actor_get_context (self);
@@ -3115,7 +3115,6 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
                                       "ClutterActor (paint volume outline)");
   clutter_paint_node_add_primitive (pipeline_node, prim);
   clutter_paint_node_add_child (node, pipeline_node);
-  g_object_unref (prim);
 }
 
 static void
@@ -3408,7 +3407,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
       priv->bg_color_set &&
       !cogl_color_equal (&priv->bg_color, &transparent))
     {
-      ClutterPaintNode *node;
+      g_autoptr (ClutterPaintNode) node = NULL;
 
       bg_color.alpha = clutter_actor_get_paint_opacity_internal (actor)
                      * priv->bg_color.alpha
@@ -3418,7 +3417,6 @@ clutter_actor_paint_node (ClutterActor        *actor,
       clutter_paint_node_set_static_name (node, "backgroundColor");
       clutter_paint_node_add_rectangle (node, &box);
       clutter_paint_node_add_child (root, node);
-      clutter_paint_node_unref (node);
     }
 
   if (priv->content != NULL)
@@ -3561,7 +3559,7 @@ clutter_actor_paint (ClutterActor        *self,
 
           if (!graphene_matrix_equal_fast (&transform, &expected_matrix))
             {
-              GString *buf = g_string_sized_new (1024);
+              g_autoptr (GString) buf = g_string_sized_new (1024);
               ClutterActor *parent;
 
               parent = self;
@@ -3581,8 +3579,6 @@ clutter_actor_paint (ClutterActor        *self,
                          "children instead of using ::apply_transform().",
                          _clutter_actor_get_debug_name (self),
                          buf->str);
-
-              g_string_free (buf, TRUE);
             }
         }
 #endif /* CLUTTER_ENABLE_DEBUG */
@@ -3672,7 +3668,7 @@ clutter_actor_continue_paint (ClutterActor        *self,
   if (priv->next_effect_to_paint == NULL)
     {
       CoglFramebuffer *framebuffer;
-      ClutterPaintNode *dummy;
+      g_autoptr (ClutterPaintNode) dummy = NULL;
 
       /* XXX - this will go away in 2.0, when we can get rid of this
        * stuff and switch to a pure retained render tree of PaintNodes
@@ -3687,7 +3683,6 @@ clutter_actor_continue_paint (ClutterActor        *self,
        * decide whether we should call the paint() vfunc.
        */
       clutter_actor_paint_node (self, dummy, paint_context);
-      clutter_paint_node_unref (dummy);
 
       CLUTTER_ACTOR_GET_CLASS (self)->paint (self, paint_context);
     }
@@ -12128,7 +12123,7 @@ clutter_actor_find_property (ClutterAnimatable *animatable,
   ClutterActorMeta *meta = NULL;
   GObjectClass *klass = NULL;
   GParamSpec *pspec = NULL;
-  gchar *p_name = NULL;
+  g_autofree char *p_name = NULL;
   gboolean use_content = FALSE;
   gboolean use_layout;
 
@@ -12171,8 +12166,6 @@ clutter_actor_find_property (ClutterAnimatable *animatable,
       pspec = g_object_class_find_property (klass, property_name);
     }
 
-  g_free (p_name);
-
   return pspec;
 }
 
@@ -12183,7 +12176,7 @@ clutter_actor_get_initial_state (ClutterAnimatable *animatable,
 {
   ClutterActor *actor = CLUTTER_ACTOR (animatable);
   ClutterActorMeta *meta = NULL;
-  gchar *p_name = NULL;
+  g_autofree char *p_name = NULL;
   gboolean use_content = FALSE;
   gboolean use_layout;
 
@@ -12209,8 +12202,6 @@ clutter_actor_get_initial_state (ClutterAnimatable *animatable,
     g_object_get_property (G_OBJECT (actor->priv->content), p_name, initial);
   else
     g_object_get_property (G_OBJECT (animatable), property_name, initial);
-
-  g_free (p_name);
 }
 
 /*
@@ -12362,7 +12353,7 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
 {
   ClutterActor *actor = CLUTTER_ACTOR (animatable);
   ClutterActorMeta *meta = NULL;
-  gchar *p_name = NULL;
+  g_autofree char *p_name = NULL;
   gboolean use_content = FALSE;
   gboolean use_layout;
 
@@ -12406,8 +12397,6 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
     }
 
   clutter_actor_update_devices (actor);
-
-  g_free (p_name);
 }
 
 static ClutterActor *
@@ -13030,7 +13019,7 @@ update_pango_context (ClutterBackend *backend,
   const cairo_font_options_t *font_options;
   ClutterTextDirection dir;
   PangoDirection pango_dir;
-  gchar *font_name;
+  g_autofree char *font_name = NULL;
   gdouble resolution;
 
   settings = clutter_context_get_settings (backend->context);
@@ -13057,7 +13046,6 @@ update_pango_context (ClutterBackend *backend,
   pango_cairo_context_set_resolution (context, resolution);
 
   pango_font_description_free (font_desc);
-  g_free (font_name);
 }
 
 /**
@@ -16317,15 +16305,13 @@ clutter_animation_info_free (gpointer data)
 {
   if (data != NULL)
     {
-      ClutterAnimationInfo *info = data;
+      g_autofree ClutterAnimationInfo *info = data;
 
       if (info->transitions != NULL)
         g_hash_table_unref (info->transitions);
 
       if (info->states != NULL)
         g_array_unref (info->states);
-
-      g_free (info);
     }
 }
 
@@ -16401,7 +16387,7 @@ on_transition_stopped (ClutterTransition *transition,
   ClutterActor *actor = clos->actor;
   ClutterAnimationInfo *info;
   GQuark t_quark;
-  gchar *t_name;
+  g_autofree char *t_name = NULL;
 
   if (clos->name == NULL)
     return;
@@ -16435,8 +16421,6 @@ on_transition_stopped (ClutterTransition *transition,
   g_signal_emit (actor, actor_signals[TRANSITION_STOPPED], t_quark,
                  t_name,
                  is_finished);
-
-  g_free (t_name);
 
   /* if it's the last transition then we clean up */
   if (g_hash_table_size (info->transitions) == 0)
@@ -16562,7 +16546,7 @@ _clutter_actor_create_transition (ClutterActor *actor,
   g_auto (GValue) initial = G_VALUE_INIT;
   g_auto (GValue) final = G_VALUE_INIT;
   GType ptype;
-  char *error;
+  g_autofree char *error = NULL;
 
   g_assert (pspec != NULL);
   g_assert ((pspec->flags & CLUTTER_PARAM_ANIMATABLE) != 0);
@@ -16599,7 +16583,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
   if (error != NULL)
     {
       g_critical ("%s: %s", G_STRLOC, error);
-      g_free (error);
       goto out;
     }
 
@@ -16609,7 +16592,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
   if (error != NULL)
     {
       g_critical ("%s: %s", G_STRLOC, error);
-      g_free (error);
       goto out;
     }
 
@@ -16651,7 +16633,8 @@ _clutter_actor_create_transition (ClutterActor *actor,
 #ifdef CLUTTER_ENABLE_DEBUG
       if (CLUTTER_HAS_DEBUG (ANIMATION))
         {
-          gchar *initial_v, *final_v;
+          g_autofree char *initial_v = NULL;
+          g_autofree char *final_v = NULL;
 
           initial_v = g_strdup_value_contents (&initial);
           final_v = g_strdup_value_contents (&final);
@@ -16666,9 +16649,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
                         clutter_get_easing_name_for_mode (info->cur_state->easing_mode),
                         info->cur_state->easing_delay,
                         initial_v, final_v);
-
-          g_free (initial_v);
-          g_free (final_v);
         }
 #endif /* CLUTTER_ENABLE_DEBUG */
 
@@ -16766,7 +16746,7 @@ clutter_actor_remove_transition (ClutterActor *self,
   TransitionClosure *clos;
   gboolean was_playing;
   GQuark t_quark;
-  gchar *t_name;
+  g_autofree char *t_name = NULL;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (name != NULL);
@@ -16806,8 +16786,6 @@ clutter_actor_remove_transition (ClutterActor *self,
                      t_name,
                      FALSE);
     }
-
-  g_free (t_name);
 }
 
 /**
@@ -18188,8 +18166,9 @@ clutter_actor_child_model__items_changed (GListModel *model,
 
   for (i = 0; i < added; i++)
     {
-      GObject *item = g_list_model_get_item (model, position + i);
-      ClutterActor *child = priv->create_child_func (item, priv->create_child_data);
+      g_autoptr (GObject) item = g_list_model_get_item (model, position + i);
+      g_autoptr (ClutterActor) child = priv->create_child_func (
+        item, priv->create_child_data);
 
       /* The actor returned by the function can have a floating reference,
        * if the implementation is in pure C, or have a full reference, usually
@@ -18202,9 +18181,6 @@ clutter_actor_child_model__items_changed (GListModel *model,
         g_object_ref_sink (child);
 
       clutter_actor_insert_child_at_index (parent, child, position + i);
-
-      g_object_unref (child);
-      g_object_unref (item);
     }
 }
 
