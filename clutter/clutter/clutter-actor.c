@@ -12021,7 +12021,7 @@ get_layout_from_animation_property (ClutterActor  *actor,
     return FALSE;
 
   tokens = g_strsplit (name, ".", -1);
-  if (tokens == NULL || g_strv_length (tokens) != 2)
+  if (tokens[0] == NULL || tokens[1] == NULL || tokens[2] != NULL)
     {
       CLUTTER_NOTE (ANIMATION, "Invalid property name '%s'",
                     name + 1);
@@ -12052,7 +12052,7 @@ get_content_from_animation_property (ClutterActor  *actor,
     }
 
   tokens = g_strsplit (name, ".", -1);
-  if (tokens == NULL || g_strv_length (tokens) != 2)
+  if (tokens[0] == NULL || tokens[1] == NULL || tokens[2] != NULL)
     {
       CLUTTER_NOTE (ANIMATION, "Invalid property name '%s'",
                     name + 1);
@@ -12092,7 +12092,7 @@ get_meta_from_animation_property (ClutterActor  *actor,
    */
 
   tokens = g_strsplit (name + 1, ".", -1);
-  if (tokens == NULL || g_strv_length (tokens) != 3)
+  if (g_strv_length (tokens) != 3)
     {
       CLUTTER_NOTE (ANIMATION, "Invalid property name '%s'",
                     name + 1);
