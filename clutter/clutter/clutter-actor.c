@@ -12072,7 +12072,7 @@ get_meta_from_animation_property (ClutterActor  *actor,
 {
   ClutterActorPrivate *priv = actor->priv;
   ClutterActorMeta *meta = NULL;
-  gchar **tokens;
+  g_auto (GStrv) tokens = NULL;
 
   /* if this is not a special property, fall through */
   if (name[0] != '@')
@@ -12096,7 +12096,6 @@ get_meta_from_animation_property (ClutterActor  *actor,
     {
       CLUTTER_NOTE (ANIMATION, "Invalid property name '%s'",
                     name + 1);
-      g_strfreev (tokens);
       return NULL;
     }
 
@@ -12117,8 +12116,6 @@ get_meta_from_animation_property (ClutterActor  *actor,
                 tokens[2],
                 tokens[1],
                 tokens[0]);
-
-  g_strfreev (tokens);
 
   return meta;
 }
