@@ -138,6 +138,9 @@ struct _MetaWaylandSurfaceState
 
   gboolean has_new_color_state;
   ClutterColorState *color_state;
+
+  gboolean has_target_time;
+  int64_t target_time_us;
 };
 
 struct _MetaWaylandDragDestFuncs

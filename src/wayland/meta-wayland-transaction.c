@@ -45,6 +45,8 @@ struct _MetaWaylandTransaction
 
   /* Sources for buffers which are not ready yet */
   GHashTable *buf_sources;
+
+  int64_t target_presentation_time_us;
 };
 
 struct _MetaWaylandTransactionEntry
@@ -59,6 +61,12 @@ struct _MetaWaylandTransactionEntry
   int x;
   int y;
 };
+
+int64_t
+meta_wayland_transaction_get_target_presentation_time_us (const MetaWaylandTransaction *transaction)
+{
+  return transaction->target_presentation_time_us;
+}
 
 static MetaWaylandTransactionEntry *
 meta_wayland_transaction_get_entry (MetaWaylandTransaction *transaction,
@@ -241,6 +249,9 @@ has_dependencies (MetaWaylandTransaction *transaction)
   GHashTableIter iter;
   MetaWaylandSurface *surface;
 
+  if (transaction->target_presentation_time_us)
+    return TRUE;
+
   if (transaction->buf_sources &&
       g_hash_table_size (transaction->buf_sources) > 0)
     return TRUE;
@@ -281,6 +292,20 @@ meta_wayland_transaction_maybe_apply (MetaWaylandTransaction *transaction)
       first_candidate = transaction->next_candidate;
       transaction->next_candidate = NULL;
     }
+}
+
+gboolean
+meta_wayland_transaction_unblock_timed (MetaWaylandTransaction *transaction,
+                                        int64_t                 target_time_us)
+{
+  if (target_time_us < transaction->target_presentation_time_us)
+    return FALSE;
+
+  transaction->target_presentation_time_us = 0;
+
+  meta_wayland_transaction_maybe_apply (transaction);
+
+  return TRUE;
 }
 
 static void
@@ -389,6 +414,8 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
   g_autoptr (GPtrArray) placement_states = NULL;
   unsigned int num_placement_states = 0;
   int i;
+  gint64 max_time_us = 0;
+  MetaWaylandSurface *max_time_surface = NULL;
 
   g_hash_table_iter_init (&iter, transaction->entries);
   while (g_hash_table_iter_next (&iter,
@@ -413,6 +440,13 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
               g_ptr_array_add (placement_states, entry->state);
               num_placement_states++;
             }
+
+          if (entry->state->has_target_time &&
+              entry->state->target_time_us > max_time_us)
+            {
+              max_time_us = entry->state->target_time_us;
+              max_time_surface = surface;
+            }
         }
     }
 
@@ -425,6 +459,23 @@ meta_wayland_transaction_commit (MetaWaylandTransaction *transaction)
                                                        placement_state);
     }
 
+  /* If we have a time constraint, we always defer application until just before the
+   * appropriate frame clock tick.
+   */
+  if (max_time_us)
+    {
+      MetaSurfaceActor *actor = meta_wayland_surface_get_actor (max_time_surface);
+      ClutterFrameClock *frame_clock =
+        clutter_actor_pick_frame_clock (CLUTTER_ACTOR (actor), NULL);
+
+      if (frame_clock)
+        {
+          maybe_apply = FALSE;
+          transaction->target_presentation_time_us = max_time_us;
+          meta_wayland_compositor_add_timed_transaction (transaction->compositor, transaction);
+          clutter_frame_clock_add_future_time (frame_clock, max_time_us);
+        }
+    }
   transaction->committed_sequence = ++committed_sequence;
   transaction->node.data = transaction;
 

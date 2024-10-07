@@ -358,6 +358,36 @@ ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
 #endif /* HAVE_NATIVE_BACKEND */
 
 static void
+clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compositor,
+                                                    ClutterStageView      *stage_view,
+                                                    int64_t                target_time_us)
+{
+  MetaWaylandTransaction *transaction;
+
+  while ((transaction = g_queue_peek_head (compositor->timed_transactions)))
+    {
+      if (meta_wayland_transaction_unblock_timed (transaction, target_time_us))
+        g_queue_pop_head (compositor->timed_transactions);
+      else
+        break;
+    }
+}
+
+static void
+on_before_update (ClutterStage          *stage,
+                  ClutterStageView      *stage_view,
+                  ClutterFrame          *frame,
+                  MetaWaylandCompositor *compositor)
+{
+  int64_t target_time_us;
+
+  if (!clutter_frame_get_target_presentation_time (frame, &target_time_us))
+    target_time_us = g_get_monotonic_time ();
+
+  clear_time_constraints_for_stage_view_transactions (compositor, stage_view, target_time_us);
+}
+
+static void
 on_after_update (ClutterStage          *stage,
                  ClutterStageView      *stage_view,
                  ClutterFrame          *frame,
@@ -605,6 +635,41 @@ meta_wayland_compositor_remove_presentation_feedback_surface (MetaWaylandComposi
     g_list_remove (compositor->presentation_time.feedback_surfaces, surface);
 }
 
+static int
+compare_transaction_times (const MetaWaylandTransaction *a,
+                           const MetaWaylandTransaction *b,
+                           void                         *data)
+{
+  int64_t target_time_us_a = meta_wayland_transaction_get_target_presentation_time_us (a);
+  int64_t target_time_us_b = meta_wayland_transaction_get_target_presentation_time_us (b);
+
+  if (target_time_us_a > target_time_us_b)
+    return 1;
+
+  if (target_time_us_a < target_time_us_b)
+    return -1;
+
+  return 0;
+}
+
+void
+meta_wayland_compositor_add_timed_transaction (MetaWaylandCompositor  *compositor,
+                                               MetaWaylandTransaction *transaction)
+{
+  if (g_queue_find (compositor->timed_transactions, transaction))
+    return;
+
+  g_queue_insert_sorted (compositor->timed_transactions, transaction,
+                         (GCompareDataFunc)compare_transaction_times, NULL);
+}
+
+void
+meta_wayland_compositor_remove_timed_transaction (MetaWaylandCompositor  *compositor,
+                                                  MetaWaylandTransaction *transaction)
+{
+  g_queue_remove (compositor->timed_transactions, transaction);
+}
+
 GQueue *
 meta_wayland_compositor_get_committed_transactions (MetaWaylandCompositor *compositor)
 {
@@ -716,6 +781,8 @@ meta_wayland_compositor_finalize (GObject *object)
   g_clear_pointer (&compositor->wayland_display, wl_display_destroy);
   g_clear_pointer (&compositor->source, g_source_destroy);
 
+  g_queue_free (compositor->timed_transactions);
+
   G_OBJECT_CLASS (meta_wayland_compositor_parent_class)->finalize (object);
 }
 
@@ -741,6 +808,7 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
   priv->frame_callback_sources =
     g_hash_table_new_full (NULL, NULL, NULL,
                            (GDestroyNotify) g_source_destroy);
+  compositor->timed_transactions = g_queue_new ();
 }
 
 static void
@@ -854,6 +922,8 @@ meta_wayland_compositor_new (MetaContext *context)
   compositor->source = wayland_event_source;
   g_source_unref (wayland_event_source);
 
+  g_signal_connect (stage, "before-update",
+                    G_CALLBACK (on_before_update), compositor);
   g_signal_connect (stage, "after-update",
                     G_CALLBACK (on_after_update), compositor);
   g_signal_connect (stage, "presented",

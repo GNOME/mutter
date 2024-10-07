@@ -63,6 +63,12 @@ void                    meta_wayland_compositor_add_presentation_feedback_surfac
 void                    meta_wayland_compositor_remove_presentation_feedback_surface (MetaWaylandCompositor *compositor,
                                                                                       MetaWaylandSurface    *surface);
 
+void                    meta_wayland_compositor_add_timed_transaction (MetaWaylandCompositor  *compositor,
+                                                                       MetaWaylandTransaction *transaction);
+
+void                    meta_wayland_compositor_remove_timed_transaction (MetaWaylandCompositor  *compositor,
+                                                                          MetaWaylandTransaction *transaction);
+
 GQueue                 *meta_wayland_compositor_get_committed_transactions (MetaWaylandCompositor *compositor);
 
 META_EXPORT_TEST

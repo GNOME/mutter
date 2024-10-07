@@ -52,3 +52,8 @@ void meta_wayland_transaction_free (MetaWaylandTransaction *transaction);
 void meta_wayland_transaction_finalize (MetaWaylandCompositor *compositor);
 
 void meta_wayland_transaction_init (MetaWaylandCompositor *compositor);
+
+int64_t meta_wayland_transaction_get_target_presentation_time_us (const MetaWaylandTransaction *transaction);
+
+gboolean meta_wayland_transaction_unblock_timed (MetaWaylandTransaction *transaction,
+                                                 int64_t                 target_time_us);
