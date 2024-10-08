@@ -19,7 +19,7 @@ usage() {
 
 TEMP=$(getopt \
   --name=$(basename $0) \
-  --options='' \
+  --options='h' \
   --longoptions='libdir:' \
   --longoptions='destdir:' \
   --longoptions='help' \
