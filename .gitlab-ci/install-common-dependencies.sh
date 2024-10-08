@@ -18,6 +18,23 @@ usage() {
 	EOF
 }
 
+pkgconf() {
+  local PKG_CONFIG_DIRS=(
+    /usr/lib64/pkgconfig
+    /usr/lib/pkgconfig
+    /usr/share/pkgconfig
+  )
+
+  local search_dirs=()
+  for destdir in "${DESTDIRS[@]}"; do
+    search_dirs+=( "${PKG_CONFIG_DIRS[@]/#/$destdir}" )
+  done
+
+  ENV=(PKG_CONFIG_PATH=$(echo "${search_dirs[@]}" | tr ' ' :))
+
+  env "${ENV[@]}" pkgconf --env-only "$@"
+}
+
 TEMP=$(getopt \
   --name=$(basename $0) \
   --options='h' \
@@ -30,6 +47,7 @@ eval set -- "$TEMP"
 unset TEMP
 
 OPTIONS=()
+DESTDIRS=()
 
 while true; do
   case "$1" in
@@ -39,7 +57,7 @@ while true; do
     ;;
 
     --destdir)
-      OPTIONS+=( --destdir=$2 )
+      DESTDIRS+=( $2 )
       shift 2
     ;;
 
@@ -54,6 +72,9 @@ while true; do
     ;;
   esac
 done
+
+[[ ${#DESTDIRS[@]} == 0 ]] && DESTDIRS+=( / )
+OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
