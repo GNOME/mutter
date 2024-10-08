@@ -9,10 +9,10 @@ usage() {
 	Install common dependencies to a base image or system extension
 
 	Options:
-	  --libdir       Setup the projects with a different libdir
-	  --destdir      Install the projects to an additional destdir
+	  --libdir=DIR     Setup the projects with a different libdir
+	  --destdir=DIR    Install the projects to an additional destdir
 
-	  -h, --help     Display this help
+	  -h, --help       Display this help
 
 	EOF
 }
