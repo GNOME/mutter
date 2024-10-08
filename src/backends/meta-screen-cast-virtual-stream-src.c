@@ -765,6 +765,7 @@ meta_screen_cast_virtual_stream_src_dispose (GObject *object)
 static void
 meta_screen_cast_virtual_stream_src_init (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
+  virtual_src->cursor_bitmap_invalid = TRUE;
 }
 
 static void
