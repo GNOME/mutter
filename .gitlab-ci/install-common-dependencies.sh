@@ -10,7 +10,8 @@ usage() {
 
 	Options:
 	  --libdir=DIR     Setup the projects with a different libdir
-	  --destdir=DIR    Install the projects to an additional destdir
+	  --destdir=DIR    Install the project to DIR, can be used
+	                   several times to install to multiple destdirs
 
 	  -h, --help       Display this help
 
