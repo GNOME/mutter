@@ -27,6 +27,7 @@
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/window-private.h"
+#include "meta/meta-window-config.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-popup.h"
 #include "wayland/meta-wayland-private.h"
@@ -877,6 +878,7 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (!xdg_surface_priv->configure_sent)
     {
       MetaWaylandWindowConfiguration *configuration;
+      g_autoptr (MetaWindowConfig) window_config = NULL;
       int bounds_width, bounds_height, geometry_scale;
       MtkRectangle rect;
 
@@ -907,6 +909,14 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                                          bounds_height,
                                                          geometry_scale);
         }
+
+      window_config =
+        meta_window_config_new_from_wayland_window_configuration (window,
+                                                                  configuration);
+      meta_window_emit_configure (window, window_config);
+      meta_wayland_window_configuration_apply_window_config (window,
+                                                             configuration,
+                                                             window_config);
 
       meta_wayland_xdg_toplevel_send_configure (xdg_toplevel, configuration);
       meta_wayland_window_configuration_free (configuration);
