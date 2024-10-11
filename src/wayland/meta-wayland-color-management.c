@@ -367,12 +367,15 @@ send_information (struct wl_resource *info_resource,
 {
   enum xx_color_manager_v4_primaries primaries_named;
   enum xx_color_manager_v4_transfer_function tf;
+  ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterPrimaries *primaries;
   const ClutterEOTF *eotf;
   const ClutterLuminance *lum;
 
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
   switch (colorimetry->type)
     {
     case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
@@ -406,7 +409,7 @@ send_information (struct wl_resource *info_resource,
       break;
     }
 
-  eotf = clutter_color_state_get_eotf (color_state);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
   switch (eotf->type)
     {
     case CLUTTER_EOTF_TYPE_NAMED:
@@ -426,7 +429,7 @@ send_information (struct wl_resource *info_resource,
       break;
     }
 
-  lum = clutter_color_state_get_luminance (color_state);
+  lum = clutter_color_state_params_get_luminance (color_state_params);
   xx_image_description_info_v4_send_luminances (info_resource,
                                                 float_to_scaled_uint32 (lum->min),
                                                 (uint32_t) lum->max,
@@ -951,14 +954,14 @@ creator_params_create (struct wl_client   *client,
       break;
     }
 
-  color_state = clutter_color_state_new_full (clutter_context,
-                                              colorspace,
-                                              tf_name,
-                                              primaries,
-                                              gamma_exp,
-                                              creator_params->lum.min,
-                                              creator_params->lum.max,
-                                              creator_params->lum.ref);
+  color_state = clutter_color_state_params_new_full (clutter_context,
+                                                     colorspace,
+                                                     tf_name,
+                                                     primaries,
+                                                     gamma_exp,
+                                                     creator_params->lum.min,
+                                                     creator_params->lum.max,
+                                                     creator_params->lum.ref);
 
   image_desc =
     meta_wayland_image_description_new_color_state (color_manager,

@@ -70,6 +70,7 @@ color_management (void)
   MetaWaylandTestClient *wayland_test_client;
   MetaWindow *test_window;
   ClutterColorState *color_state;
+  ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterEOTF *eotf;
   const ClutterLuminance *lum;
@@ -81,25 +82,27 @@ color_management (void)
 
   wait_for_sync_point (0);
   color_state = get_window_color_state (test_window);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
-  eotf = clutter_color_state_get_eotf (color_state);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
   g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_SRGB);
-  lum = clutter_color_state_get_luminance (color_state);
+  lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_DERIVED);
   emit_sync_event (0);
 
   wait_for_sync_point (1);
   color_state = get_window_color_state (test_window);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_BT2020);
-  eotf = clutter_color_state_get_eotf (color_state);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
   g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_PQ);
-  lum = clutter_color_state_get_luminance (color_state);
+  lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_EXPLICIT);
   g_assert_cmpfloat_with_epsilon (lum->min, 0.005f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (lum->max, 10000.0f, TEST_COLOR_EPSILON);
@@ -108,13 +111,14 @@ color_management (void)
 
   wait_for_sync_point (2);
   color_state = get_window_color_state (test_window);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
-  eotf = clutter_color_state_get_eotf (color_state);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
   g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_SRGB);
-  lum = clutter_color_state_get_luminance (color_state);
+  lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_EXPLICIT);
   g_assert_cmpfloat_with_epsilon (lum->min, 0.2f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (lum->max, 80.0f, TEST_COLOR_EPSILON);
@@ -123,7 +127,8 @@ color_management (void)
 
   wait_for_sync_point (3);
   color_state = get_window_color_state (test_window);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_PRIMARIES);
   g_assert_cmpfloat_with_epsilon (colorimetry->primaries->r_x, 0.64f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (colorimetry->primaries->r_y, 0.33f, TEST_COLOR_EPSILON);
@@ -133,10 +138,10 @@ color_management (void)
   g_assert_cmpfloat_with_epsilon (colorimetry->primaries->b_y, 0.06f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (colorimetry->primaries->w_x, 0.34567f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (colorimetry->primaries->w_y, 0.35850f, TEST_COLOR_EPSILON);
-  eotf = clutter_color_state_get_eotf (color_state);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_GAMMA);
   g_assert_cmpfloat_with_epsilon (eotf->gamma_exp, 2.5f, TEST_COLOR_EPSILON);
-  lum = clutter_color_state_get_luminance (color_state);
+  lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_DERIVED);
   emit_sync_event (3);
 

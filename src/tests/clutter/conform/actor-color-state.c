@@ -29,12 +29,14 @@ actor_color_state_default (void)
 {
   ClutterActor *actor;
   ClutterColorState *color_state;
+  ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
 
   actor = clutter_actor_new ();
 
   color_state = clutter_actor_get_color_state (actor);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
 
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
@@ -50,12 +52,13 @@ actor_color_state_passed (void)
   ClutterContext *context = clutter_test_get_context ();
   ClutterActor *actor;
   ClutterColorState *color_state;
+  ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterEOTF *eotf;
 
-  color_state = clutter_color_state_new (context,
-                                         CLUTTER_COLORSPACE_BT2020,
-                                         CLUTTER_TRANSFER_FUNCTION_PQ);
+  color_state = clutter_color_state_params_new (context,
+                                                CLUTTER_COLORSPACE_BT2020,
+                                                CLUTTER_TRANSFER_FUNCTION_PQ);
 
   if (!color_state)
     g_critical ("Failed to create color state with provided colorspace.");
@@ -71,8 +74,9 @@ actor_color_state_passed (void)
     g_critical ("Failed to create actor with provided color state.");
 
   color_state = clutter_actor_get_color_state (actor);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
-  eotf = clutter_color_state_get_eotf (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
 
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_BT2020);
@@ -89,14 +93,15 @@ actor_change_color_state (void)
   ClutterContext *context = clutter_test_get_context ();
   ClutterActor *actor;
   ClutterColorState *color_state;
+  ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterEOTF *eotf;
 
   actor = clutter_actor_new ();
 
-  color_state = clutter_color_state_new (context,
-                                         CLUTTER_COLORSPACE_BT2020,
-                                         CLUTTER_TRANSFER_FUNCTION_PQ);
+  color_state = clutter_color_state_params_new (context,
+                                                CLUTTER_COLORSPACE_BT2020,
+                                                CLUTTER_TRANSFER_FUNCTION_PQ);
 
   if (!color_state)
     g_critical ("Failed to create color state with provided colorspace.");
@@ -104,8 +109,9 @@ actor_change_color_state (void)
   clutter_actor_set_color_state (actor, color_state);
 
   color_state = clutter_actor_get_color_state (actor);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
-  eotf = clutter_color_state_get_eotf (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
 
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_BT2020);
@@ -120,6 +126,7 @@ actor_unset_color_state (void)
 {
   ClutterActor *actor;
   ClutterColorState *color_state;
+  ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterEOTF *eotf;
 
@@ -128,8 +135,9 @@ actor_unset_color_state (void)
   clutter_actor_unset_color_state (actor);
 
   color_state = clutter_actor_get_color_state (actor);
-  colorimetry = clutter_color_state_get_colorimetry (color_state);
-  eotf = clutter_color_state_get_eotf (color_state);
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
 
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);

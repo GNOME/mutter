@@ -49,18 +49,18 @@ pipeline_cache_group_pipelines (void)
   /* Second pipeline for group2 */
   CoglPipeline *srgb_srgb_to_bt2020_linear_2;
 
-  srgb_srgb = clutter_color_state_new (context,
-                                       CLUTTER_COLORSPACE_SRGB,
-                                       CLUTTER_TRANSFER_FUNCTION_SRGB);
-  srgb_linear = clutter_color_state_new (context,
-                                         CLUTTER_COLORSPACE_SRGB,
-                                         CLUTTER_TRANSFER_FUNCTION_LINEAR);
-  bt2020_pq = clutter_color_state_new (context,
-                                       CLUTTER_COLORSPACE_BT2020,
-                                       CLUTTER_TRANSFER_FUNCTION_PQ);
-  bt2020_linear = clutter_color_state_new (context,
-                                           CLUTTER_COLORSPACE_BT2020,
-                                           CLUTTER_TRANSFER_FUNCTION_LINEAR);
+  srgb_srgb = clutter_color_state_params_new (context,
+                                              CLUTTER_COLORSPACE_SRGB,
+                                              CLUTTER_TRANSFER_FUNCTION_SRGB);
+  srgb_linear = clutter_color_state_params_new (context,
+                                                CLUTTER_COLORSPACE_SRGB,
+                                                CLUTTER_TRANSFER_FUNCTION_LINEAR);
+  bt2020_pq = clutter_color_state_params_new (context,
+                                              CLUTTER_COLORSPACE_BT2020,
+                                              CLUTTER_TRANSFER_FUNCTION_PQ);
+  bt2020_linear = clutter_color_state_params_new (context,
+                                                  CLUTTER_COLORSPACE_BT2020,
+                                                  CLUTTER_TRANSFER_FUNCTION_LINEAR);
 
   srgb_srgb_to_bt2020_linear = create_test_pipeline (cogl_context,
                                                      "srgb_srgb_to_bt2020_linear");
@@ -148,12 +148,12 @@ pipeline_cache_replace_pipeline (void)
   CoglPipeline *srgb_srgb_to_bt2020_linear;
   CoglPipeline *srgb_srgb_to_bt2020_linear_2;
 
-  srgb_srgb = clutter_color_state_new (context,
-                                       CLUTTER_COLORSPACE_SRGB,
-                                       CLUTTER_TRANSFER_FUNCTION_SRGB);
-  bt2020_linear = clutter_color_state_new (context,
-                                           CLUTTER_COLORSPACE_BT2020,
-                                           CLUTTER_TRANSFER_FUNCTION_PQ);
+  srgb_srgb = clutter_color_state_params_new (context,
+                                              CLUTTER_COLORSPACE_SRGB,
+                                              CLUTTER_TRANSFER_FUNCTION_SRGB);
+  bt2020_linear = clutter_color_state_params_new (context,
+                                                  CLUTTER_COLORSPACE_BT2020,
+                                                  CLUTTER_TRANSFER_FUNCTION_PQ);
 
   srgb_srgb_to_bt2020_linear = create_test_pipeline (cogl_context,
                                                      "srgb_srgb_to_bt2020_linear");
@@ -202,12 +202,12 @@ pipeline_slots (void)
   CoglPipeline *srgb_srgb_to_bt2020_linear;
   CoglPipeline *srgb_srgb_to_bt2020_linear_2;
 
-  srgb_srgb = clutter_color_state_new (context,
-                                       CLUTTER_COLORSPACE_SRGB,
-                                       CLUTTER_TRANSFER_FUNCTION_SRGB);
-  bt2020_linear = clutter_color_state_new (context,
-                                           CLUTTER_COLORSPACE_BT2020,
-                                           CLUTTER_TRANSFER_FUNCTION_PQ);
+  srgb_srgb = clutter_color_state_params_new (context,
+                                              CLUTTER_COLORSPACE_SRGB,
+                                              CLUTTER_TRANSFER_FUNCTION_SRGB);
+  bt2020_linear = clutter_color_state_params_new (context,
+                                                  CLUTTER_COLORSPACE_BT2020,
+                                                  CLUTTER_TRANSFER_FUNCTION_PQ);
 
   srgb_srgb_to_bt2020_linear = create_test_pipeline (cogl_context,
                                                      "srgb_srgb_to_bt2020_linear");

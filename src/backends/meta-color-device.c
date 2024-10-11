@@ -722,14 +722,14 @@ update_color_state (MetaColorDevice *color_device)
       break;
     }
 
-  color_state = clutter_color_state_new_full (clutter_context,
-                                              colorspace,
-                                              transfer_function,
-                                              NULL,
-                                              gamma_exp,
-                                              luminance->min,
-                                              luminance->max,
-                                              new_ref_luminance);
+  color_state = clutter_color_state_params_new_full (clutter_context,
+                                                     colorspace,
+                                                     transfer_function,
+                                                     NULL,
+                                                     gamma_exp,
+                                                     luminance->min,
+                                                     luminance->max,
+                                                     new_ref_luminance);
 
   if (!color_device->color_state ||
       !clutter_color_state_equals (color_device->color_state, color_state))

@@ -73,6 +73,7 @@ typedef struct _ClutterEffect                   ClutterEffect;
 
 typedef struct _ClutterActorBox                 ClutterActorBox;
 typedef struct _ClutterColorState               ClutterColorState;
+typedef struct _ClutterColorTransformKey        ClutterColorTransformKey;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
 

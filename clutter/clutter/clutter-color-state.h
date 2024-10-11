@@ -32,110 +32,44 @@
 
 G_BEGIN_DECLS
 
-typedef enum
-{
-  CLUTTER_COLORSPACE_SRGB,
-  CLUTTER_COLORSPACE_BT2020,
-  CLUTTER_COLORSPACE_NTSC,
-} ClutterColorspace;
-
-typedef enum
-{
-  CLUTTER_TRANSFER_FUNCTION_SRGB,
-  CLUTTER_TRANSFER_FUNCTION_PQ,
-  CLUTTER_TRANSFER_FUNCTION_BT709,
-  CLUTTER_TRANSFER_FUNCTION_LINEAR,
-} ClutterTransferFunction;
-
-typedef enum
-{
-  CLUTTER_COLORIMETRY_TYPE_COLORSPACE,
-  CLUTTER_COLORIMETRY_TYPE_PRIMARIES,
-} ClutterColorimetryType;
-
-typedef enum
-{
-  CLUTTER_EOTF_TYPE_NAMED,
-  CLUTTER_EOTF_TYPE_GAMMA,
-} ClutterEOTFType;
-
-typedef enum
-{
-  CLUTTER_LUMINANCE_TYPE_DERIVED,
-  CLUTTER_LUMINANCE_TYPE_EXPLICIT,
-} ClutterLuminanceType;
-
-typedef struct _ClutterPrimaries
-{
-  float r_x, r_y;
-  float g_x, g_y;
-  float b_x, b_y;
-  float w_x, w_y;
-} ClutterPrimaries;
-
-typedef struct _ClutterColorimetry
-{
-  ClutterColorimetryType type : 1;
-  union
-  {
-    ClutterColorspace colorspace;
-    ClutterPrimaries *primaries;
-  };
-} ClutterColorimetry;
-
-typedef struct _ClutterEOTF
-{
-  ClutterEOTFType type : 1;
-  union
-  {
-    ClutterTransferFunction tf_name;
-    float gamma_exp;
-  };
-} ClutterEOTF;
-
-typedef struct _ClutterLuminance
-{
-  ClutterLuminanceType type : 1;
-  float min;
-  float max;
-  float ref;
-} ClutterLuminance;
-
 #define CLUTTER_TYPE_COLOR_STATE (clutter_color_state_get_type ())
 CLUTTER_EXPORT
-G_DECLARE_FINAL_TYPE (ClutterColorState, clutter_color_state,
-                      CLUTTER, COLOR_STATE,
-                      GObject)
+G_DECLARE_DERIVABLE_TYPE (ClutterColorState,
+                          clutter_color_state,
+                          CLUTTER, COLOR_STATE,
+                          GObject)
 
-CLUTTER_EXPORT
-ClutterColorState * clutter_color_state_new (ClutterContext          *context,
-                                             ClutterColorspace        colorspace,
-                                             ClutterTransferFunction  transfer_function);
+struct _ClutterColorStateClass
+{
+  GObjectClass parent_class;
 
-CLUTTER_EXPORT
-ClutterColorState * clutter_color_state_new_full (ClutterContext          *context,
-                                                  ClutterColorspace        colorspace,
-                                                  ClutterTransferFunction  transfer_function,
-                                                  ClutterPrimaries        *primaries,
-                                                  float                    gamma_exp,
-                                                  float                    min_lum,
-                                                  float                    max_lum,
-                                                  float                    ref_lum);
+  void (* init_color_transform_key) (ClutterColorState        *color_state,
+                                     ClutterColorState        *target_color_state,
+                                     ClutterColorTransformKey *key);
+
+  CoglSnippet * (* create_transform_snippet) (ClutterColorState *color_state,
+                                              ClutterColorState *target_color_state);
+
+  void (* update_uniforms) (ClutterColorState *color_state,
+                            ClutterColorState *target_color_state,
+                            CoglPipeline      *pipeline);
+
+  gboolean (* equals) (ClutterColorState *color_state,
+                       ClutterColorState *other_color_state);
+
+  char * (* to_string) (ClutterColorState *color_state);
+
+  ClutterEncodingRequiredFormat (* required_format) (ClutterColorState *color_state);
+
+  ClutterColorState * (* get_blending) (ClutterColorState *color_state,
+                                        gboolean           force);
+};
 
 CLUTTER_EXPORT
 char * clutter_color_state_to_string (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
 unsigned int clutter_color_state_get_id (ClutterColorState *color_state);
-
-CLUTTER_EXPORT
-const ClutterColorimetry * clutter_color_state_get_colorimetry (ClutterColorState *color_state);
-
-CLUTTER_EXPORT
-const ClutterEOTF * clutter_color_state_get_eotf (ClutterColorState *color_state);
-
-CLUTTER_EXPORT
-const ClutterLuminance * clutter_color_state_get_luminance (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
 void clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
@@ -157,14 +91,5 @@ ClutterEncodingRequiredFormat clutter_color_state_required_format (ClutterColorS
 CLUTTER_EXPORT
 ClutterColorState * clutter_color_state_get_blending (ClutterColorState *color_state,
                                                       gboolean           force);
-
-CLUTTER_EXPORT
-const ClutterLuminance * clutter_eotf_get_default_luminance (ClutterEOTF eotf);
-
-CLUTTER_EXPORT
-const ClutterPrimaries * clutter_colorspace_to_primaries (ClutterColorspace colorspace);
-
-CLUTTER_EXPORT
-void clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries);
 
 G_END_DECLS
