@@ -51,9 +51,6 @@ struct _ClutterStageWindowClass
                                                  ClutterFrame       *frame);
 };
 
-void              _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
-                                                            gboolean            is_visible);
-
 gboolean          _clutter_stage_window_realize                 (ClutterStageWindow *window);
 void              _clutter_stage_window_unrealize               (ClutterStageWindow *window);
 
@@ -67,9 +64,6 @@ void              _clutter_stage_window_resize                  (ClutterStageWin
 CLUTTER_EXPORT
 void              _clutter_stage_window_get_geometry            (ClutterStageWindow *window,
                                                                  MtkRectangle       *geometry);
-
-void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
-                                                                 gboolean            accept_focus);
 
 void               _clutter_stage_window_redraw_view            (ClutterStageWindow *window,
                                                                  ClutterStageView   *view,
