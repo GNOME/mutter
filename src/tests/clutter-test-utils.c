@@ -418,10 +418,10 @@ clutter_test_check_actor_at_point (ClutterActor            *stage,
 
   clutter_actor_show (stage);
 
-  clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
-                                         validate_stage,
-                                         data,
-                                         NULL);
+  clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+                                    validate_stage,
+                                    data,
+                                    NULL);
 
   while (!data->was_painted)
     g_main_context_iteration (NULL, TRUE);
