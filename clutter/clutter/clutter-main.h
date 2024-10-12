@@ -127,14 +127,10 @@ guint                   clutter_threads_add_timeout_full        (gint           
                                                                  gpointer       data,
                                                                  GDestroyNotify notify);
 CLUTTER_EXPORT
-guint                   clutter_threads_add_repaint_func        (GSourceFunc    func,
-                                                                 gpointer       data,
-                                                                 GDestroyNotify notify);
-CLUTTER_EXPORT
-guint                   clutter_threads_add_repaint_func_full   (ClutterRepaintFlags flags,
-                                                                 GSourceFunc    func,
-                                                                 gpointer       data,
-                                                                 GDestroyNotify notify);
+guint                   clutter_threads_add_repaint_func        (ClutterRepaintFlags flags,
+                                                                 GSourceFunc         func,
+                                                                 gpointer            data,
+                                                                 GDestroyNotify      notify);
 CLUTTER_EXPORT
 void                    clutter_threads_remove_repaint_func     (guint          handle_id);
 
