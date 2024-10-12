@@ -257,7 +257,8 @@ clutter_pango_render_qdata_destroy (PangoLayoutQdata *qdata)
 }
 
 void
-clutter_show_layout (CoglFramebuffer   *fb,
+clutter_show_layout (ClutterContext    *context,
+                     CoglFramebuffer   *fb,
                      PangoLayout       *layout,
                      float              x,
                      float              y,
@@ -267,9 +268,7 @@ clutter_show_layout (CoglFramebuffer   *fb,
 {
   ClutterPangoRenderer *renderer;
   PangoLayoutQdata *qdata;
-  ClutterContext *context;
 
-  context = _clutter_context_get_default ();
   renderer = CLUTTER_PANGO_RENDERER (clutter_context_get_font_renderer (context));
   if (G_UNLIKELY (!renderer))
     return;
@@ -298,7 +297,7 @@ clutter_show_layout (CoglFramebuffer   *fb,
 
   if (qdata->display_list == NULL)
     {
-      clutter_ensure_glyph_cache_for_layout (layout);
+      clutter_ensure_glyph_cache_for_layout (context, layout);
 
       qdata->display_list =
         clutter_pango_display_list_new (renderer->pipeline_cache);
@@ -353,14 +352,10 @@ clutter_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
 }
 
 static void
-clutter_pango_ensure_glyph_cache_for_layout_line_internal (PangoLayoutLine *line)
+clutter_pango_ensure_glyph_cache_for_layout_line_internal (PangoRenderer   *renderer,
+                                                           PangoLayoutLine *line)
 {
-  ClutterContext *context;
-  PangoRenderer *renderer;
   GSList *l;
-
-  context = _clutter_context_get_default ();
-  renderer = clutter_context_get_font_renderer (context);
 
   for (l = line->runs; l; l = l->next)
     {
@@ -386,14 +381,13 @@ clutter_pango_ensure_glyph_cache_for_layout_line_internal (PangoLayoutLine *line
 }
 
 void
-clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
+clutter_ensure_glyph_cache_for_layout (ClutterContext *context,
+                                       PangoLayout    *layout)
 {
-  ClutterContext *context;
-  ClutterPangoRenderer *renderer;
+  PangoRenderer *renderer;
   PangoLayoutIter *iter;
 
-  context = _clutter_context_get_default ();
-  renderer = CLUTTER_PANGO_RENDERER (clutter_context_get_font_renderer (context));
+  renderer = clutter_context_get_font_renderer (context);
 
   g_return_if_fail (PANGO_IS_LAYOUT (layout));
 
@@ -406,7 +400,7 @@ clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 
       line = pango_layout_iter_get_line_readonly (iter);
 
-      clutter_pango_ensure_glyph_cache_for_layout_line_internal (line);
+      clutter_pango_ensure_glyph_cache_for_layout_line_internal (renderer, line);
     }
   while (pango_layout_iter_next_line (iter));
 
@@ -414,7 +408,7 @@ clutter_ensure_glyph_cache_for_layout (PangoLayout *layout)
 
   /* Now that we know all of the positions are settled we'll fill in
      any dirty glyphs */
-  clutter_pango_glyph_cache_set_dirty_glyphs (renderer->glyph_cache);
+  clutter_pango_glyph_cache_set_dirty_glyphs (CLUTTER_PANGO_RENDERER (renderer)->glyph_cache);
 }
 
 static void

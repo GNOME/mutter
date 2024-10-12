@@ -746,6 +746,7 @@ clutter_text_node_draw (ClutterPaintNode    *node,
     clutter_paint_context_get_color_state (paint_context);
   ClutterColorState *target_color_state =
     clutter_paint_context_get_target_color_state (paint_context);
+  ClutterContext *context = _clutter_context_get_default ();
   PangoRectangle extents;
   CoglFramebuffer *fb;
   guint i;
@@ -786,7 +787,8 @@ clutter_text_node_draw (ClutterPaintNode    *node,
               clipped = TRUE;
             }
 
-          clutter_show_layout (fb,
+          clutter_show_layout (context,
+                               fb,
                                tnode->layout,
                                op->op.texrect[0],
                                op->op.texrect[1],

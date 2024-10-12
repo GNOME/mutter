@@ -917,6 +917,7 @@ clutter_text_create_layout (ClutterText *text,
                             gfloat       allocation_height)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (text));
   LayoutCache *oldest_cache = priv->cached_layouts;
   gboolean found_free_cache = FALSE;
   gint width = -1;
@@ -1074,7 +1075,7 @@ clutter_text_create_layout (ClutterText *text,
   oldest_cache->layout =
     clutter_text_create_layout_no_cache (text, width, height, ellipsize);
 
-  clutter_ensure_glyph_cache_for_layout (oldest_cache->layout);
+  clutter_ensure_glyph_cache_for_layout (context, oldest_cache->layout);
 
   /* Mark the 'time' this cache was created and advance the time */
   oldest_cache->age = priv->cache_age++;
@@ -2005,7 +2006,7 @@ paint_selection_rectangle (ClutterText           *self,
                            color->blue / 255.0f,
                            paint_opacity / 255.0f * color->alpha / 255.0f);
 
-  clutter_show_layout (fb, layout, priv->text_x, 0, &cogl_color,
+  clutter_show_layout (context, fb, layout, priv->text_x, 0, &cogl_color,
                        color_state, target_color_state);
 
   cogl_framebuffer_pop_clip (fb);
@@ -2663,6 +2664,7 @@ clutter_text_paint (ClutterActor        *self,
 {
   ClutterText *text = CLUTTER_TEXT (self);
   ClutterTextPrivate *priv = clutter_text_get_instance_private (text);
+  ClutterContext *context = clutter_actor_get_context(self);
   ClutterColorState *color_state =
     clutter_paint_context_get_color_state (paint_context);
   ClutterColorState *target_color_state =
@@ -2832,7 +2834,7 @@ clutter_text_paint (ClutterActor        *self,
                            priv->text_color.blue / 255.0f,
                            real_opacity / 255.0f);
 
-  clutter_show_layout (fb, layout, priv->text_x, priv->text_y, &color,
+  clutter_show_layout (context, fb, layout, priv->text_x, priv->text_y, &color,
                        color_state, target_color_state);
 
   selection_paint (text, fb, paint_context);
