@@ -46,6 +46,7 @@ PangoRenderer * clutter_pango_renderer_new (CoglContext *context);
 
 /**
  * clutter_ensure_glyph_cache_for_layout:
+ * @context: A #ClutterContext
  * @layout: A #PangoLayout
  *
  * This updates any internal glyph cache textures as necessary to be
@@ -54,10 +55,12 @@ PangoRenderer * clutter_pango_renderer_new (CoglContext *context);
  * This api should be used to avoid mid-scene modifications of
  * glyph-cache textures which can lead to undefined rendering results.
  */
-void clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
+void clutter_ensure_glyph_cache_for_layout (ClutterContext *context,
+                                            PangoLayout    *layout);
 
 /**
  * clutter_show_layout: (skip)
+ * @context: A #ClutterContext
  * @framebuffer: A #CoglFramebuffer to draw too.
  * @layout: a #PangoLayout
  * @x: X coordinate to render the layout at
@@ -67,7 +70,8 @@ void clutter_ensure_glyph_cache_for_layout (PangoLayout *layout);
  * Draws a solidly coloured @layout on the given @framebuffer at (@x,
  * @y) within the `framebuffer`'s current model-view coordinate space.
  */
-void clutter_show_layout (CoglFramebuffer   *framebuffer,
+void clutter_show_layout (ClutterContext    *context,
+                          CoglFramebuffer   *framebuffer,
                           PangoLayout       *layout,
                           float              x,
                           float              y,
