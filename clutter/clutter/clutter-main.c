@@ -48,7 +48,6 @@ typedef struct
 {
   GSourceFunc func;
   gpointer data;
-  GDestroyNotify notify;
 } ClutterThreadsDispatch;
 
 G_DEFINE_QUARK (clutter_pipeline_capability, clutter_pipeline_capability)
@@ -83,25 +82,13 @@ _clutter_threads_dispatch_free (gpointer data)
 {
   ClutterThreadsDispatch *dispatch = data;
 
-  /* XXX - we cannot hold the thread lock here because the main loop
-   * might destroy a source while still in the dispatcher function; so
-   * knowing whether the lock is being held or not is not known a priori.
-   *
-   * see bug: http://bugzilla.gnome.org/show_bug.cgi?id=459555
-   */
-  if (dispatch->notify)
-    dispatch->notify (dispatch->data);
-
   g_free (dispatch);
 }
 
 /**
- * clutter_threads_add_idle_full: (rename-to clutter_threads_add_idle)
- * @priority: the priority of the timeout source. Typically this will be in the
- *    range between #G_PRIORITY_DEFAULT_IDLE and #G_PRIORITY_HIGH_IDLE
+ * clutter_threads_add_idle: (skip)
  * @func: function to call
  * @data: data to pass to the function
- * @notify: function to call when the idle source is removed
  *
  * Adds a function to be called whenever there are no higher priority
  * events pending. If the function returns %FALSE it is automatically
@@ -172,19 +159,15 @@ _clutter_threads_dispatch_free (gpointer data)
  *   closure->label = g_object_ref (my_application->label);
  *   closure->text = g_strdup (processed_text_to_update_the_label);
  *
- *   clutter_threads_add_idle_full (G_PRIORITY_HIGH_IDLE,
- *                                  update_ui,
- *                                  closure,
- *                                  NULL);
+ *   clutter_threads_add_idle (update_ui,
+ *                             closure);
  * ```
  *
  * Return value: the ID (greater than 0) of the event source.
  */
 guint
-clutter_threads_add_idle_full (gint           priority,
-                               GSourceFunc    func,
-                               gpointer       data,
-                               GDestroyNotify notify)
+clutter_threads_add_idle (GSourceFunc    func,
+                          gpointer       data)
 {
   ClutterThreadsDispatch *dispatch;
 
@@ -193,42 +176,17 @@ clutter_threads_add_idle_full (gint           priority,
   dispatch = g_new0 (ClutterThreadsDispatch, 1);
   dispatch->func = func;
   dispatch->data = data;
-  dispatch->notify = notify;
 
-  return g_idle_add_full (priority,
+  return g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
                           _clutter_threads_dispatch, dispatch,
                           _clutter_threads_dispatch_free);
 }
 
 /**
- * clutter_threads_add_idle: (skip)
- * @func: function to call
- * @data: data to pass to the function
- *
- * Simple wrapper around clutter_threads_add_idle_full() using the
- * default priority.
- *
- * Return value: the ID (greater than 0) of the event source.
- */
-guint
-clutter_threads_add_idle (GSourceFunc func,
-                          gpointer    data)
-{
-  g_return_val_if_fail (func != NULL, 0);
-
-  return clutter_threads_add_idle_full (G_PRIORITY_DEFAULT_IDLE,
-                                        func, data,
-                                        NULL);
-}
-
-/**
- * clutter_threads_add_timeout_full: (rename-to clutter_threads_add_timeout)
- * @priority: the priority of the timeout source. Typically this will be in the
- *            range between #G_PRIORITY_DEFAULT and #G_PRIORITY_HIGH.
+ * clutter_threads_add_timeout: (skip)
  * @interval: the time between calls to the function, in milliseconds
  * @func: function to call
  * @data: data to pass to the function
- * @notify: function to call when the timeout source is removed
  *
  * Sets a function to be called at regular intervals holding the Clutter
  * threads lock, with the given priority. The function is called repeatedly
@@ -242,16 +200,12 @@ clutter_threads_add_idle (GSourceFunc func,
  * implemented, the timing will not be accurate and it will not try to
  * "keep up" with the interval.
  *
- * See also clutter_threads_add_idle_full().
- *
  * Return value: the ID (greater than 0) of the event source.
  */
 guint
-clutter_threads_add_timeout_full (gint           priority,
-                                  guint          interval,
-                                  GSourceFunc    func,
-                                  gpointer       data,
-                                  GDestroyNotify notify)
+clutter_threads_add_timeout (guint       interval,
+                             GSourceFunc func,
+                             gpointer    data)
 {
   ClutterThreadsDispatch *dispatch;
 
@@ -260,35 +214,11 @@ clutter_threads_add_timeout_full (gint           priority,
   dispatch = g_new0 (ClutterThreadsDispatch, 1);
   dispatch->func = func;
   dispatch->data = data;
-  dispatch->notify = notify;
 
-  return g_timeout_add_full (priority,
+  return g_timeout_add_full (G_PRIORITY_DEFAULT,
                              interval,
                              _clutter_threads_dispatch, dispatch,
                              _clutter_threads_dispatch_free);
-}
-
-/**
- * clutter_threads_add_timeout: (skip)
- * @interval: the time between calls to the function, in milliseconds
- * @func: function to call
- * @data: data to pass to the function
- *
- * Simple wrapper around clutter_threads_add_timeout_full().
- *
- * Return value: the ID (greater than 0) of the event source.
- */
-guint
-clutter_threads_add_timeout (guint       interval,
-                             GSourceFunc func,
-                             gpointer    data)
-{
-  g_return_val_if_fail (func != NULL, 0);
-
-  return clutter_threads_add_timeout_full (G_PRIORITY_DEFAULT,
-                                           interval,
-                                           func, data,
-                                           NULL);
 }
 
 
@@ -627,52 +557,6 @@ clutter_threads_remove_repaint_func (guint handle_id)
 
 /**
  * clutter_threads_add_repaint_func:
- * @func: the function to be called within the paint cycle
- * @data: data to be passed to the function, or %NULL
- * @notify: function to be called when removing the repaint
- *    function, or %NULL
- *
- * Adds a function to be called whenever Clutter is processing a new
- * frame.
- *
- * If the function returns %FALSE it is automatically removed from the
- * list of repaint functions and will not be called again.
- *
- * This function is guaranteed to be called from within the same thread
- * that called clutter_main(), and while the Clutter lock is being held;
- * the function will be called within the main loop, so it is imperative
- * that it does not block, otherwise the frame time budget may be lost.
- *
- * A repaint function is useful to ensure that an update of the scenegraph
- * is performed before the scenegraph is repainted. By default, a repaint
- * function added using this function will be invoked prior to the frame
- * being processed.
- *
- * Adding a repaint function does not automatically ensure that a new
- * frame will be queued.
- *
- * When the repaint function is removed (either because it returned %FALSE
- * or because clutter_threads_remove_repaint_func() has been called) the
- * @notify function will be called, if any is set.
- *
- * See also: clutter_threads_add_repaint_func_full()
- *
- * Return value: the ID (greater than 0) of the repaint function. You
- *   can use the returned integer to remove the repaint function by
- *   calling clutter_threads_remove_repaint_func().
- */
-guint
-clutter_threads_add_repaint_func (GSourceFunc    func,
-                                  gpointer       data,
-                                  GDestroyNotify notify)
-{
-  return clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
-                                                func,
-                                                data, notify);
-}
-
-/**
- * clutter_threads_add_repaint_func_full:
  * @flags: flags for the repaint function
  * @func: the function to be called within the paint cycle
  * @data: data to be passed to the function, or %NULL
@@ -707,10 +591,10 @@ clutter_threads_add_repaint_func (GSourceFunc    func,
  *   calling clutter_threads_remove_repaint_func().
  */
 guint
-clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
-                                       GSourceFunc         func,
-                                       gpointer            data,
-                                       GDestroyNotify      notify)
+clutter_threads_add_repaint_func (ClutterRepaintFlags flags,
+                                  GSourceFunc         func,
+                                  gpointer            data,
+                                  GDestroyNotify      notify)
 {
   ClutterContext *context;
   ClutterRepaintFunction *repaint_func;

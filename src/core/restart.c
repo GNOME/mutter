@@ -151,9 +151,9 @@ meta_restart (const char  *message,
   if (message && meta_display_show_restart_message (display, message))
     {
       /* Wait until the stage was painted */
-      clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
-                                             restart_message_painted,
-                                             context, NULL);
+      clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+                                        restart_message_painted,
+                                        context, NULL);
     }
   else
     {

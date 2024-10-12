@@ -215,10 +215,10 @@ texture_fbo (TestConformSimpleFixture *fixture,
 
   clutter_actor_show (state.stage);
 
-  clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
-                                         on_paint,
-                                         &state,
-                                         NULL);
+  clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+                                    on_paint,
+                                    &state,
+                                    NULL);
 
   while (!state.was_painted)
     g_main_context_iteration (NULL, FALSE);

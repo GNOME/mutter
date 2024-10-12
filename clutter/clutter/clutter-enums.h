@@ -849,7 +849,7 @@ typedef enum
  * @CLUTTER_REPAINT_FLAGS_POST_PAINT: Run the repaint function after
  *   painting the stages
  *
- * Flags to pass to clutter_threads_add_repaint_func_full().
+ * Flags to pass to [func@Clutter.threads_add_repaint_func].
  */
 typedef enum
 {
