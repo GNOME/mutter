@@ -736,6 +736,7 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
 
 /*
  * _clutter_run_repaint_functions:
+ * @context: A #ClutterContext
  * @flags: only run the repaint functions matching the passed flags
  *
  * Executes the repaint functions added using the
@@ -744,9 +745,9 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
  * Must be called with the Clutter thread lock held.
  */
 void
-_clutter_run_repaint_functions (ClutterRepaintFlags flags)
+_clutter_run_repaint_functions (ClutterContext      *context,
+                                ClutterRepaintFlags  flags)
 {
-  ClutterContext *context = _clutter_context_get_default ();
   ClutterRepaintFunction *repaint_func;
   GList *invoke_list, *reinvoke_list, *l;
 
