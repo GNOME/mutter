@@ -157,7 +157,7 @@ main (int argc, char *argv[])
   clutter_actor_show (stage);
 
   clutter_perf_fps_start (CLUTTER_STAGE (stage));
-  clutter_threads_add_idle (queue_redraw, stage);
+  g_idle_add (queue_redraw, stage);
   clutter_test_main ();
   clutter_perf_fps_report ("test-text-perf");
 

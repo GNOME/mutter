@@ -109,13 +109,6 @@ gboolean                clutter_get_accessibility_enabled       (void);
 
 /* Threading functions */
 CLUTTER_EXPORT
-guint                   clutter_threads_add_idle                (GSourceFunc    func,
-                                                                 gpointer       data);
-CLUTTER_EXPORT
-guint                   clutter_threads_add_timeout             (guint          interval,
-                                                                 GSourceFunc    func,
-                                                                 gpointer       data);
-CLUTTER_EXPORT
 guint                   clutter_threads_add_repaint_func        (ClutterRepaintFlags flags,
                                                                  GSourceFunc         func,
                                                                  gpointer            data,

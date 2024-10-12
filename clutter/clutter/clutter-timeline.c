@@ -35,8 +35,7 @@
  *
  * It is important to note that #ClutterTimeline is not a generic API for
  * calling closures after an interval; each Timeline is tied into a frame
- * clock used to drive the frame cycle. If you need to schedule a closure
- * after an interval, see [func@threads_add_timeout] instead.
+ * clock used to drive the frame cycle.
  *
  * Users of #ClutterTimeline should connect to the [signal@Timeline::new-frame]
  * signal, which is emitted each time a timeline is advanced during the maste
@@ -1259,9 +1258,11 @@ clutter_timeline_start (ClutterTimeline *timeline)
                   priv->frame_clock);
 
   if (priv->delay)
-    priv->delay_id = clutter_threads_add_timeout (priv->delay,
-                                                  delay_timeout_func,
-                                                  timeline);
+    {
+      priv->delay_id = g_timeout_add (priv->delay,
+                                      delay_timeout_func,
+                                      timeline);
+    }
   else
     {
       priv->msecs_delta = 0;

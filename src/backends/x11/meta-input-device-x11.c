@@ -480,7 +480,7 @@ meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
       device_xi2->query_status =
         meta_input_device_x11_query_pointer_location (device_xi2);
       device_xi2->inhibit_pointer_query_timer =
-        clutter_threads_add_idle (clear_inhibit_pointer_query_cb, device_xi2);
+        g_idle_add (clear_inhibit_pointer_query_cb, device_xi2);
     }
 
   *x = device_xi2->current_x;

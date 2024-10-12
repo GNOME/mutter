@@ -43,7 +43,7 @@ clutter_perf_fps_start (ClutterStage *stage)
 static inline void
 clutter_perf_fake_mouse (ClutterStage *stage)
 {
-  clutter_threads_add_timeout (1000/60, perf_fake_mouse_cb, stage);
+  g_timeout_add (1000/60, perf_fake_mouse_cb, stage);
 }
 
 static inline void

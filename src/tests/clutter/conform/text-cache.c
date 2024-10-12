@@ -277,7 +277,7 @@ text_cache (void)
 
   clutter_actor_show (data.stage);
 
-  clutter_threads_add_idle ((GSourceFunc) do_tests, &data);
+  g_idle_add ((GSourceFunc) do_tests, &data);
 
   clutter_test_main ();
 

@@ -109,7 +109,7 @@ main (int argc, char **argv)
 
   clutter_actor_show (stage);
 
-  clutter_threads_add_idle (queue_redraw, stage);
+  g_idle_add (queue_redraw, stage);
 
   g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 

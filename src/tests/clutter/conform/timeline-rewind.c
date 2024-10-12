@@ -82,9 +82,9 @@ timeline_rewind (void)
                     &state);
   g_test_message ("Installing a watchdog timeout "
 		  "to determine if this test hangs");
-  clutter_threads_add_timeout (TEST_WATCHDOG_KICK_IN_SECONDS * 1000,
-                               watchdog_timeout,
-                               &state);
+  g_timeout_add (TEST_WATCHDOG_KICK_IN_SECONDS * 1000,
+                 watchdog_timeout,
+                 &state);
   state.rewind_count = 0;
 
   clutter_actor_show (stage);

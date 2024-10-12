@@ -347,9 +347,9 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   g_signal_connect (stage, "delete-event",
                     G_CALLBACK (destroy_window_cb), NULL);
 
-  timeout_id = clutter_threads_add_timeout (1000, timeout_cb, NULL);
+  timeout_id = g_timeout_add (1000, timeout_cb, NULL);
 
-  clutter_threads_add_idle (idle_cb, stage);
+  g_idle_add (idle_cb, stage);
 
   clutter_actor_show (stage);
 

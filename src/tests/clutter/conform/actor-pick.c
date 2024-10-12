@@ -203,7 +203,7 @@ actor_pick (void)
 
   clutter_actor_show (state.stage);
 
-  clutter_threads_add_idle (on_timeout, &state);
+  g_idle_add (on_timeout, &state);
 
   clutter_test_main ();
 

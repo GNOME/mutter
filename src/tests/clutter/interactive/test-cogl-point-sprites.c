@@ -268,7 +268,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_threads_add_idle (idle_cb, stage);
+  g_idle_add (idle_cb, stage);
 
   clutter_test_main ();
 
