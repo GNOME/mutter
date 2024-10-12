@@ -411,6 +411,7 @@ static void
 actor_offscreen_redirect (void)
 {
   Data data = { 0 };
+  ClutterContext *context;
 
   data.stage = clutter_test_get_stage ();
   data.parent_container = clutter_actor_new ();
@@ -435,7 +436,9 @@ actor_offscreen_redirect (void)
 
   clutter_actor_show (data.stage);
 
-  clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+  context = clutter_actor_get_context (data.stage);
+  clutter_context_add_repaint_func (context,
+                                    CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                     run_verify,
                                     &data,
                                     NULL);

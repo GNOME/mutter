@@ -52,3 +52,6 @@ ClutterStageManager * clutter_context_get_stage_manager (ClutterContext *context
 gboolean clutter_context_get_show_fps (ClutterContext *context);
 
 PangoRenderer * clutter_context_get_font_renderer (ClutterContext *context);
+
+void _clutter_context_run_repaint_functions (ClutterContext      *context,
+                                             ClutterRepaintFlags  flags);

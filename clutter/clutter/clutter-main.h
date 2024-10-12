@@ -107,13 +107,6 @@ void                    clutter_stage_handle_event              (ClutterStage *s
 CLUTTER_EXPORT
 gboolean                clutter_get_accessibility_enabled       (void);
 
-/* Threading functions */
-CLUTTER_EXPORT
-void                    clutter_threads_add_repaint_func        (ClutterRepaintFlags flags,
-                                                                 GSourceFunc         func,
-                                                                 gpointer            data,
-                                                                 GDestroyNotify      notify);
-
 CLUTTER_EXPORT
 ClutterTextDirection    clutter_get_default_text_direction      (void);
 

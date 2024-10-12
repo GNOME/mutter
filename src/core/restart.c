@@ -134,9 +134,11 @@ void
 meta_restart (const char  *message,
               MetaContext *context)
 {
+  MetaBackend *backend;
   MetaDisplay *display;
   GInputStream *unix_stream;
   GDataInputStream *data_stream;
+  ClutterContext *clutter_context;
   GError *error = NULL;
   int helper_out_fd;
 
@@ -147,11 +149,14 @@ meta_restart (const char  *message,
   g_return_if_fail (META_IS_CONTEXT (context));
 
   display = meta_context_get_display (context);
+  backend = meta_context_get_backend (context);
+  clutter_context = meta_backend_get_clutter_context (backend);
 
   if (message && meta_display_show_restart_message (display, message))
     {
       /* Wait until the stage was painted */
-      clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+      clutter_context_add_repaint_func (clutter_context,
+                                        CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                         restart_message_painted,
                                         context, NULL);
     }

@@ -162,6 +162,7 @@ texture_fbo (TestConformSimpleFixture *fixture,
              gconstpointer data)
 {
   TestState state;
+  ClutterContext *context;
   ClutterActor *actor;
   int ypos = 0;
 
@@ -215,7 +216,9 @@ texture_fbo (TestConformSimpleFixture *fixture,
 
   clutter_actor_show (state.stage);
 
-  clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+  context = clutter_actor_get_context (state.stage);
+  clutter_context_add_repaint_func (context,
+                                    CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                     on_paint,
                                     &state,
                                     NULL);

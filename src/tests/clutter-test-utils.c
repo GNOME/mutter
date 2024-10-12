@@ -397,6 +397,7 @@ clutter_test_check_actor_at_point (ClutterActor            *stage,
                                    ClutterActor           **result)
 {
   ValidateData *data;
+  ClutterContext *context;
   gulong press_id = 0;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
@@ -418,7 +419,9 @@ clutter_test_check_actor_at_point (ClutterActor            *stage,
 
   clutter_actor_show (stage);
 
-  clutter_threads_add_repaint_func (CLUTTER_REPAINT_FLAGS_POST_PAINT,
+  context = clutter_actor_get_context (stage);
+  clutter_context_add_repaint_func (context,
+                                    CLUTTER_REPAINT_FLAGS_POST_PAINT,
                                     validate_stage,
                                     data,
                                     NULL);
