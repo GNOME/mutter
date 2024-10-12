@@ -41,7 +41,6 @@ struct _ClutterContext
   GSList *current_event;
 
   GList *repaint_funcs;
-  guint last_repaint_id;
 
   ClutterSettings *settings;
 

@@ -345,52 +345,11 @@ clutter_stage_process_event (ClutterStage *stage,
 
 typedef struct _ClutterRepaintFunction
 {
-  guint id;
   ClutterRepaintFlags flags;
   GSourceFunc func;
   gpointer data;
   GDestroyNotify notify;
 } ClutterRepaintFunction;
-
-/**
- * clutter_threads_remove_repaint_func:
- * @handle_id: an unsigned integer greater than zero
- *
- * Removes the repaint function with @handle_id as its id
- */
-void
-clutter_threads_remove_repaint_func (guint handle_id)
-{
-  ClutterRepaintFunction *repaint_func;
-  ClutterContext *context;
-  GList *l;
-
-  g_return_if_fail (handle_id > 0);
-
-  context = _clutter_context_get_default ();
-  l = context->repaint_funcs;
-  while (l != NULL)
-    {
-      repaint_func = l->data;
-
-      if (repaint_func->id == handle_id)
-        {
-          context->repaint_funcs =
-            g_list_remove_link (context->repaint_funcs, l);
-
-          g_list_free (l);
-
-          if (repaint_func->notify)
-            repaint_func->notify (repaint_func->data);
-
-          g_free (repaint_func);
-
-          break;
-        }
-
-      l = l->next;
-    }
-}
 
 /**
  * clutter_threads_add_repaint_func:
@@ -419,15 +378,10 @@ clutter_threads_remove_repaint_func (guint handle_id)
  * Adding a repaint function does not automatically ensure that a new
  * frame will be queued.
  *
- * When the repaint function is removed (either because it returned %FALSE
- * or because clutter_threads_remove_repaint_func() has been called) the
+ * When the repaint function is removed because it returned %FALSE, the
  * @notify function will be called, if any is set.
- *
- * Return value: the ID (greater than 0) of the repaint function. You
- *   can use the returned integer to remove the repaint function by
- *   calling clutter_threads_remove_repaint_func().
  */
-guint
+void
 clutter_threads_add_repaint_func (ClutterRepaintFlags flags,
                                   GSourceFunc         func,
                                   gpointer            data,
@@ -436,13 +390,11 @@ clutter_threads_add_repaint_func (ClutterRepaintFlags flags,
   ClutterContext *context;
   ClutterRepaintFunction *repaint_func;
 
-  g_return_val_if_fail (func != NULL, 0);
+  g_return_if_fail (func != NULL);
 
   context = _clutter_context_get_default ();
 
   repaint_func = g_new0 (ClutterRepaintFunction, 1);
-
-  repaint_func->id = context->last_repaint_id++;
 
   repaint_func->flags = flags;
   repaint_func->func = func;
@@ -451,8 +403,6 @@ clutter_threads_add_repaint_func (ClutterRepaintFlags flags,
 
   context->repaint_funcs = g_list_prepend (context->repaint_funcs,
                                            repaint_func);
-
-  return repaint_func->id;
 }
 
 /*
