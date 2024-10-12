@@ -109,12 +109,10 @@ gboolean                clutter_get_accessibility_enabled       (void);
 
 /* Threading functions */
 CLUTTER_EXPORT
-guint                   clutter_threads_add_repaint_func        (ClutterRepaintFlags flags,
+void                    clutter_threads_add_repaint_func        (ClutterRepaintFlags flags,
                                                                  GSourceFunc         func,
                                                                  gpointer            data,
                                                                  GDestroyNotify      notify);
-CLUTTER_EXPORT
-void                    clutter_threads_remove_repaint_func     (guint          handle_id);
 
 CLUTTER_EXPORT
 ClutterTextDirection    clutter_get_default_text_direction      (void);

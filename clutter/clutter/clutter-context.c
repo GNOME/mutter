@@ -280,7 +280,6 @@ clutter_context_new (ClutterBackendConstructor   backend_constructor,
 
   context->events_queue =
     g_async_queue_new_full ((GDestroyNotify) clutter_event_free);
-  context->last_repaint_id = 1;
 
   priv->color_manager = g_object_new (CLUTTER_TYPE_COLOR_MANAGER,
                                       "context", context,
