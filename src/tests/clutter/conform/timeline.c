@@ -176,7 +176,7 @@ delay_cb (gpointer data)
 static gboolean
 add_timeout_idle (gpointer user_data)
 {
-  clutter_threads_add_timeout (2000, timeout_cb, NULL);
+  g_timeout_add (2000, timeout_cb, NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -295,8 +295,8 @@ timeline_base (void)
   clutter_timeline_start (timeline_2);
   clutter_timeline_start (timeline_3);
 
-  clutter_threads_add_timeout (2000, timeout_cb, NULL);
-  delay_tag = clutter_threads_add_timeout (99, delay_cb, NULL);
+  g_timeout_add (2000, timeout_cb, NULL);
+  delay_tag = g_timeout_add (99, delay_cb, NULL);
 
   clutter_test_main ();
 

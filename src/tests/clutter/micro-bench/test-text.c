@@ -64,7 +64,7 @@ main (int argc, char *argv[])
   clutter_actor_set_size (group, STAGE_WIDTH, STAGE_WIDTH);
   clutter_actor_add_child (stage, group);
 
-  clutter_threads_add_idle (queue_redraw, stage);
+  g_idle_add (queue_redraw, stage);
 
   g_signal_connect (CLUTTER_STAGE (stage), "after-paint", G_CALLBACK (on_after_paint), NULL);
 

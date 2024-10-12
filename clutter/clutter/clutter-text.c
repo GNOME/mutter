@@ -2561,9 +2561,9 @@ clutter_text_key_press (ClutterActor *actor,
 
               priv->password_hint_visible = TRUE;
               priv->password_hint_id =
-                clutter_threads_add_timeout (priv->password_hint_timeout,
-                                             clutter_text_remove_password_hint,
-                                             self);
+                g_timeout_add (priv->password_hint_timeout,
+                               clutter_text_remove_password_hint,
+                               self);
             }
 
           return CLUTTER_EVENT_STOP;
