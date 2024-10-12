@@ -183,7 +183,7 @@ main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_threads_add_idle (queue_redraw, stage);
+  g_idle_add (queue_redraw, stage);
 
   clutter_test_main ();
 

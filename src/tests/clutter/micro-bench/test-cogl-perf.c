@@ -142,7 +142,7 @@ main (int argc, char *argv[])
                                       &COGL_COLOR_INIT (255, 255, 255, 255));
 
   /* We want continuous redrawing of the stage... */
-  clutter_threads_add_idle (queue_redraw, stage);
+  g_idle_add (queue_redraw, stage);
 
   g_signal_connect (actor, "paint", G_CALLBACK (on_paint), &state);
 

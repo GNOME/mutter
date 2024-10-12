@@ -1598,8 +1598,7 @@ _cally_text_insert_text_cb (ClutterText *clutter_text,
    * or in an idle handler if it not updated.
    */
   if (self->insert_idle_handler == 0)
-    self->insert_idle_handler = clutter_threads_add_idle (_idle_notify_insert,
-                                                          self);
+    self->insert_idle_handler = g_idle_add (_idle_notify_insert, self);
 }
 
 /***** atkeditabletext.h ******/

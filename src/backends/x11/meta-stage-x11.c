@@ -665,9 +665,9 @@ meta_stage_x11_handle_event (MetaStageX11 *stage_x11,
                                  g_source_remove);
 
               stage_x11->clipped_redraws_cool_off =
-                clutter_threads_add_timeout (1000,
-                                             clipped_redraws_cool_off_cb,
-                                             stage_x11);
+                g_timeout_add (1000,
+                               clipped_redraws_cool_off_cb,
+                               stage_x11);
 
               /* Queue a relayout - we want glViewport to be called
                * with the correct values, and this is done in ClutterStage
