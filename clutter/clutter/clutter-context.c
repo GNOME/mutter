@@ -399,3 +399,127 @@ clutter_context_get_font_renderer (ClutterContext *context)
 
   return context->font_renderer;
 }
+
+typedef struct _ClutterRepaintFunction
+{
+  ClutterRepaintFlags flags;
+  GSourceFunc func;
+  gpointer data;
+  GDestroyNotify notify;
+} ClutterRepaintFunction;
+
+/**
+ * clutter_context_add_repaint_func:
+ * @context: A #ClutterContext
+ * @flags: flags for the repaint function
+ * @func: the function to be called within the paint cycle
+ * @data: data to be passed to the function, or %NULL
+ * @notify: function to be called when removing the repaint
+ *    function, or %NULL
+ *
+ * Adds a function to be called whenever Clutter is processing a new
+ * frame.
+ *
+ * If the function returns %FALSE it is automatically removed from the
+ * list of repaint functions and will not be called again.
+ *
+ * This function is guaranteed to be called from within the same thread
+ * that called clutter_main(), and while the Clutter lock is being held;
+ * the function will be called within the main loop, so it is imperative
+ * that it does not block, otherwise the frame time budget may be lost.
+ *
+ * A repaint function is useful to ensure that an update of the scenegraph
+ * is performed before the scenegraph is repainted. The @flags passed to this
+ * function will determine the section of the frame processing that will
+ * result in @func being called.
+ *
+ * Adding a repaint function does not automatically ensure that a new
+ * frame will be queued.
+ *
+ * When the repaint function is removed because it returned %FALSE, the
+ * @notify function will be called, if any is set.
+ */
+void
+clutter_context_add_repaint_func (ClutterContext     *context,
+                                  ClutterRepaintFlags flags,
+                                  GSourceFunc         func,
+                                  gpointer            data,
+                                  GDestroyNotify      notify)
+{
+  ClutterRepaintFunction *repaint_func;
+
+  g_return_if_fail (func != NULL);
+
+  repaint_func = g_new0 (ClutterRepaintFunction, 1);
+
+  repaint_func->flags = flags;
+  repaint_func->func = func;
+  repaint_func->data = data;
+  repaint_func->notify = notify;
+
+  context->repaint_funcs = g_list_prepend (context->repaint_funcs,
+                                           repaint_func);
+}
+
+/*
+ * _clutter_context_run_repaint_functions:
+ * @context: A #ClutterContext
+ * @flags: only run the repaint functions matching the passed flags
+ *
+ * Executes the repaint functions added using the
+ * clutter_context_add_repaint_func() function.
+ *
+ * Must be called with the Clutter thread lock held.
+ */
+void
+_clutter_context_run_repaint_functions (ClutterContext      *context,
+                                        ClutterRepaintFlags  flags)
+{
+  ClutterRepaintFunction *repaint_func;
+  GList *invoke_list, *reinvoke_list, *l;
+
+  if (context->repaint_funcs == NULL)
+    return;
+
+  /* steal the list */
+  invoke_list = context->repaint_funcs;
+  context->repaint_funcs = NULL;
+
+  reinvoke_list = NULL;
+
+  /* consume the whole list while we execute the functions */
+  while (invoke_list != NULL)
+    {
+      gboolean res = FALSE;
+
+      repaint_func = invoke_list->data;
+
+      l = invoke_list;
+      invoke_list = g_list_remove_link (invoke_list, invoke_list);
+
+      g_list_free (l);
+
+      if ((repaint_func->flags & flags) != 0)
+        res = repaint_func->func (repaint_func->data);
+      else
+        res = TRUE;
+
+      if (res)
+        reinvoke_list = g_list_prepend (reinvoke_list, repaint_func);
+      else
+        {
+          if (repaint_func->notify != NULL)
+            repaint_func->notify (repaint_func->data);
+
+          g_free (repaint_func);
+        }
+    }
+
+  if (context->repaint_funcs != NULL)
+    {
+      context->repaint_funcs = g_list_concat (context->repaint_funcs,
+                                              g_list_reverse (reinvoke_list));
+    }
+  else
+    context->repaint_funcs = g_list_reverse (reinvoke_list);
+}

@@ -78,3 +78,10 @@ ClutterColorManager * clutter_context_get_color_manager (ClutterContext *context
  */
 CLUTTER_EXPORT
 ClutterSettings * clutter_context_get_settings (ClutterContext *context);
+
+CLUTTER_EXPORT
+void clutter_context_add_repaint_func (ClutterContext      *context,
+                                       ClutterRepaintFlags  flags,
+                                       GSourceFunc          func,
+                                       gpointer             data,
+                                       GDestroyNotify       notify);

@@ -113,9 +113,6 @@ gboolean _clutter_boolean_continue_accumulator (GSignalInvocationHint *ihint,
                                                 const GValue          *handler_return,
                                                 gpointer               dummy);
 
-void _clutter_run_repaint_functions (ClutterContext      *context,
-                                     ClutterRepaintFlags  flags);
-
 void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
                                               const graphene_matrix_t  *projection,
                                               const float              *viewport,
