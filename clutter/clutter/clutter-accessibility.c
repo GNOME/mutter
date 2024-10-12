@@ -21,17 +21,6 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * ClutterAccessibility:
- *
- *
- * A #AtkUtil implementation.
- *
- * For instance, it defines [func@Atk.get_root], the method that returns
- * the root object in the hierarchy. Without it, you don't have
- * available any accessible object.
- */
-
 #include "config.h"
 
 #include <stdlib.h>
@@ -55,23 +44,6 @@ typedef struct _KeyEventInfo
 
 static AtkObject*root = NULL;
 static GHashTable *key_listener_list = NULL;
-
-G_DECLARE_FINAL_TYPE (ClutterAccessibility,
-                      clutter_accessibility,
-                      CLUTTER,
-                      ACCESSIBILITY,
-                      AtkUtil)
-
-struct _ClutterAccessibility {
-  AtkUtil parent;
-};
-
-G_DEFINE_FINAL_TYPE (ClutterAccessibility, clutter_accessibility, ATK_TYPE_UTIL);
-
-static void
-clutter_accessibility_init (ClutterAccessibility *accessibility)
-{
-}
 
 /* ------------------------------ ATK UTIL METHODS -------------------------- */
 
@@ -311,29 +283,13 @@ clutter_accessibility_snoop_key_event (ClutterStage    *stage,
   return consumed;
 }
 
-static void
-clutter_accessibility_class_init (ClutterAccessibilityClass *klass)
-{
-  gpointer data = g_type_class_peek (ATK_TYPE_UTIL);
-  AtkUtilClass *atk_class = ATK_UTIL_CLASS (data);
-
-  atk_class->add_key_event_listener = clutter_accessibility_add_key_event_listener;
-  atk_class->remove_key_event_listener = clutter_accessibility_remove_key_event_listener;
-  atk_class->get_root = clutter_accessibility_get_root;
-  atk_class->get_toolkit_name = clutter_accessibility_get_toolkit_name;
-  atk_class->get_toolkit_version = clutter_accessibility_get_toolkit_version;
-
-  /* FIXME: Instead of create this on the class, I think that would
-     worth to implement ClutterAccessibility as a singleton instance, so the
-     class methods will access this instance. This will be a good
-     future enhancement, meanwhile, just using the same *working*
-     implementation used on GailUtil */
-}
-
 void
 _clutter_accessibility_override_atk_util (void)
 {
   AtkUtilClass *atk_class = ATK_UTIL_CLASS (g_type_class_ref (ATK_TYPE_UTIL));
+
+  if (atk_class->get_root)
+    return;
 
   atk_class->add_key_event_listener = clutter_accessibility_add_key_event_listener;
   atk_class->remove_key_event_listener = clutter_accessibility_remove_key_event_listener;
