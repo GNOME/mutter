@@ -449,7 +449,7 @@ typedef enum
  * MetaKeyHandlerFunc:
  * @display: a #MetaDisplay
  * @window: a #MetaWindow
- * @event: (type gpointer): a #ClutterEvent
+ * @event: a #ClutterEvent
  * @binding: a #MetaKeyBinding
  * @user_data: data passed to the function
  *
