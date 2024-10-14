@@ -449,16 +449,16 @@ typedef enum
  * MetaKeyHandlerFunc:
  * @display: a #MetaDisplay
  * @window: a #MetaWindow
- * @event: (type gpointer): a #ClutterKeyEvent
+ * @event: (type gpointer): a #ClutterEvent
  * @binding: a #MetaKeyBinding
  * @user_data: data passed to the function
  *
  */
-typedef void (* MetaKeyHandlerFunc) (MetaDisplay           *display,
-                                     MetaWindow            *window,
-                                     const ClutterKeyEvent *event,
-                                     MetaKeyBinding        *binding,
-                                     gpointer               user_data);
+typedef void (* MetaKeyHandlerFunc) (MetaDisplay        *display,
+                                     MetaWindow         *window,
+                                     const ClutterEvent *event,
+                                     MetaKeyBinding     *binding,
+                                     gpointer            user_data);
 
 META_EXPORT
 GType meta_key_binding_get_type    (void);

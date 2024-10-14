@@ -28,11 +28,11 @@
 static MetaContext *test_context;
 
 static void
-test_handler (MetaDisplay           *display,
-              MetaWindow            *window,
-              const ClutterKeyEvent *event,
-              MetaKeyBinding        *binding,
-              gpointer               user_data)
+test_handler (MetaDisplay        *display,
+              MetaWindow         *window,
+              const ClutterEvent *event,
+              MetaKeyBinding     *binding,
+              gpointer            user_data)
 {
   gboolean *triggered = user_data;
 

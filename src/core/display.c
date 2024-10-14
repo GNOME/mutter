@@ -2496,23 +2496,23 @@ meta_display_overlay_key_activate (MetaDisplay *display)
 void
 meta_display_accelerator_activate (MetaDisplay           *display,
                                    guint                  action,
-                                   const ClutterKeyEvent *event)
+                                   const ClutterEvent    *event)
 {
   g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED], 0,
                  action,
-                 clutter_event_get_source_device ((const ClutterEvent *) event),
-                 clutter_event_get_time ((const ClutterEvent *) event));
+                 clutter_event_get_source_device (event),
+                 clutter_event_get_time (event));
 }
 
 void
 meta_display_accelerator_deactivate (MetaDisplay           *display,
                                      guint                  action,
-                                     const ClutterKeyEvent *event)
+                                     const ClutterEvent    *event)
 {
   g_signal_emit (display, display_signals[ACCELERATOR_DEACTIVATED], 0,
                  action,
-                 clutter_event_get_source_device ((const ClutterEvent *) event),
-                 clutter_event_get_time ((const ClutterEvent *) event));
+                 clutter_event_get_source_device (event),
+                 clutter_event_get_time (event));
 }
 
 gboolean
