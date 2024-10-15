@@ -2473,6 +2473,9 @@ meta_window_show (MetaWindow *window)
           break;
         }
 
+      if (meta_window_is_tied_to_drag (window))
+        effect = META_COMP_EFFECT_NONE;
+
       meta_compositor_show_window (window->display->compositor,
                                    window, effect);
       window->pending_compositor_effect = META_COMP_EFFECT_NONE;
@@ -2559,6 +2562,9 @@ meta_window_hide (MetaWindow *window)
           effect = window->pending_compositor_effect;
           break;
         }
+
+      if (meta_window_is_tied_to_drag (window))
+        effect = META_COMP_EFFECT_NONE;
 
       meta_compositor_hide_window (window->display->compositor, window, effect);
       window->pending_compositor_effect = META_COMP_EFFECT_NONE;
