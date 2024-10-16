@@ -124,6 +124,10 @@ void meta_window_get_frame_rect (const MetaWindow *window,
                                 MtkRectangle      *rect);
 
 META_EXPORT
+void meta_window_get_client_content_rect (MetaWindow   *window,
+                                          MtkRectangle *rect);
+
+META_EXPORT
 void meta_window_client_rect_to_frame_rect (MetaWindow   *window,
                                             MtkRectangle *client_rect,
                                             MtkRectangle *frame_rect);
