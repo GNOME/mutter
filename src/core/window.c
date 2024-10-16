@@ -8137,3 +8137,24 @@ meta_window_protocol_to_stage_point (MetaWindow          *window,
                             stage_x, stage_y,
                             rounding_strategy);
 }
+
+/**
+ * meta_window_get_client_content_rect:
+ * @window: A #MetaWindow
+ * @rect: (out): pointer to an allocated #MtkRectangle
+ *
+ * Gets the client rectangle that ATSPI window coordinates
+ * are relative to.
+ */
+void
+meta_window_get_client_content_rect (MetaWindow   *window,
+                                     MtkRectangle *rect)
+{
+  meta_window_get_frame_rect (window, rect);
+
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+      meta_window_x11_is_ssd (window))
+    meta_window_frame_rect_to_client_rect (window, rect, rect);
+#endif
+}
