@@ -8137,3 +8137,22 @@ meta_window_protocol_to_stage_point (MetaWindow          *window,
                             stage_x, stage_y,
                             rounding_strategy);
 }
+
+/**
+ * meta_window_is_client_decorated:
+ *
+ * Check if if the window has decorations drawn by the client.
+ */
+gboolean
+meta_window_is_client_decorated (MetaWindow *window)
+{
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    return !meta_window_x11_is_ssd (window);
+#endif
+
+  /* Assume all Wayland clients draw decorations - not strictly
+    * true but good enough for current purposes.
+    */
+  return TRUE;
+}

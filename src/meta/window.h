@@ -435,3 +435,6 @@ META_EXPORT
 void meta_window_protocol_to_stage_rect (MetaWindow *window,
                                          const MtkRectangle *protocol_rect,
                                          MtkRectangle       *stage_rect);
+
+META_EXPORT
+gboolean meta_window_is_client_decorated (MetaWindow *window);
