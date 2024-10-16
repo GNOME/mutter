@@ -64,11 +64,12 @@ create_texture_from_data (unsigned int      width,
                           const uint8_t    *data,
                           GError          **error)
 {
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  ClutterContext *context = _clutter_context_get_default ();
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
   CoglTexture *texture_2d;
 
-  texture_2d = cogl_texture_2d_new_from_data (ctx,
+  texture_2d = cogl_texture_2d_new_from_data (cogl_context,
                                               width,
                                               height,
                                               pixel_format,

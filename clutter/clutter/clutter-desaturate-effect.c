@@ -213,11 +213,12 @@ clutter_desaturate_effect_init (ClutterDesaturateEffect *self)
 
   if (G_UNLIKELY (klass->base_pipeline == NULL))
     {
-      CoglContext *ctx =
-        clutter_backend_get_cogl_context (clutter_get_default_backend ());
+      ClutterContext *context = _clutter_context_get_default ();
+      ClutterBackend *backend = clutter_context_get_backend (context);
+      CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
       CoglSnippet *snippet;
 
-      klass->base_pipeline = cogl_pipeline_new (ctx);
+      klass->base_pipeline = cogl_pipeline_new (cogl_context);
       cogl_pipeline_set_static_name (klass->base_pipeline, "ClutterDesaturate");
 
       snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
