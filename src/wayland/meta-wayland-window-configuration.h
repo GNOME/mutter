@@ -22,6 +22,7 @@
 #include <stdint.h>
 
 #include "core/window-private.h"
+#include "meta/meta-window-config.h"
 #include "wayland/meta-wayland-types.h"
 
 struct _MetaWaylandWindowConfiguration
@@ -72,3 +73,10 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (in
                                                                               int scale);
 
 void meta_wayland_window_configuration_free (MetaWaylandWindowConfiguration *configuration);
+
+MetaWindowConfig * meta_window_config_new_from_wayland_window_configuration (MetaWindow                     *window,
+                                                                             MetaWaylandWindowConfiguration *configuration);
+
+MetaWaylandWindowConfiguration * meta_wayland_window_configuration_apply_window_config (MetaWindow                     *window,
+                                                                                        MetaWaylandWindowConfiguration *configuration,
+                                                                                        MetaWindowConfig               *window_config);

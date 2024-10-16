@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include "core/meta-window-config-private.h"
+#include "core/window-private.h"
 #include "wayland/meta-wayland-window-configuration.h"
 #include "wayland/meta-window-wayland.h"
 
@@ -122,4 +124,71 @@ void
 meta_wayland_window_configuration_free (MetaWaylandWindowConfiguration *configuration)
 {
   g_free (configuration);
+}
+
+MetaWindowConfig *
+meta_window_config_new_from_wayland_window_configuration (MetaWindow                     *window,
+                                                          MetaWaylandWindowConfiguration *configuration)
+{
+  MetaWindowConfig *window_config;
+  MtkRectangle rect;
+
+  window_config = meta_window_new_window_config (window);
+  rect = meta_window_config_get_rect (window->config);
+  meta_window_config_set_rect (window_config, rect);
+  meta_window_config_set_is_fullscreen (window_config,
+                                        meta_window_config_get_is_fullscreen (window->config));
+
+  if (configuration->has_position)
+    meta_window_config_set_position (window_config,
+                                     configuration->x,
+                                     configuration->y);
+
+  if (configuration->has_size &&
+      configuration->width > 0 &&
+      configuration->height > 0)
+    meta_window_config_set_size (window_config,
+                                 configuration->width,
+                                 configuration->height);
+
+  return window_config;
+}
+
+MetaWaylandWindowConfiguration *
+meta_wayland_window_configuration_apply_window_config (MetaWindow                     *window,
+                                                       MetaWaylandWindowConfiguration *configuration,
+                                                       MetaWindowConfig               *window_config)
+{
+  MtkRectangle rect;
+  int prev_x = configuration->x;
+  int prev_y = configuration->y;
+  int prev_width = configuration->width;
+  int prev_height = configuration->height;
+  gboolean is_fullscreen;
+
+  rect = meta_window_config_get_rect (window_config);
+  configuration->x = rect.x;
+  configuration->y = rect.y;
+  configuration->width = rect.width;
+  configuration->height = rect.height;
+
+  is_fullscreen = meta_window_config_get_is_fullscreen (window_config);
+  meta_window_config_set_is_fullscreen (window->config, is_fullscreen);
+  configuration->is_fullscreen = is_fullscreen;
+
+  if (prev_x != configuration->x || prev_y != configuration->y)
+    {
+      configuration->has_position = TRUE;
+      meta_window_config_set_position (window->config,
+                                       configuration->x,
+                                       configuration->y);
+      window->placed = TRUE;
+    }
+
+  if (prev_width != configuration->width ||
+      prev_height != configuration->height)
+    configuration->has_size = (configuration->width > 0 &&
+                               configuration->height > 0);
+
+  return configuration;
 }
