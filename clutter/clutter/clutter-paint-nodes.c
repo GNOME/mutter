@@ -1589,15 +1589,19 @@ clutter_blur_node_new (unsigned int width,
   g_autoptr (GError) error = NULL;
   ClutterLayerNode *layer_node;
   ClutterBlurNode *blur_node;
-  CoglContext *context;
+  ClutterContext *context;
+  ClutterBackend *backend;
+  CoglContext *cogl_context;
   CoglTexture *texture;
   ClutterBlur *blur;
 
   g_return_val_if_fail (radius >= 0.0, NULL);
 
+  context = _clutter_context_get_default ();
+  backend = clutter_context_get_backend (context);
+  cogl_context = clutter_backend_get_cogl_context (backend);
   blur_node = _clutter_paint_node_create (CLUTTER_TYPE_BLUR_NODE);
-  context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  texture = cogl_texture_2d_new_with_size (context, width, height);
+  texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
 
   cogl_texture_set_premultiplied (texture, TRUE);
 

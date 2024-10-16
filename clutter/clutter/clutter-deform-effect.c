@@ -373,8 +373,9 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
   gint x, y, direction, n_indices;
   CoglAttribute *attributes[3];
   guint16 *static_indices;
-  CoglContext *ctx =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  ClutterContext *context = _clutter_context_get_default ();
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
   CoglIndices *indices;
   guint16 *idx;
   int i;
@@ -438,7 +439,7 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
 
 #undef MESH_INDEX
 
-  indices = cogl_indices_new (ctx,
+  indices = cogl_indices_new (cogl_context,
                               COGL_INDICES_TYPE_UNSIGNED_SHORT,
                               static_indices,
                               n_indices);
@@ -448,7 +449,7 @@ clutter_deform_effect_init_arrays (ClutterDeformEffect *self)
   priv->n_vertices = (priv->x_tiles + 1) * (priv->y_tiles + 1);
 
   priv->buffer =
-    cogl_attribute_buffer_new (ctx,
+    cogl_attribute_buffer_new (cogl_context,
                                sizeof (ClutterVertexP3T2C4) *
                                priv->n_vertices,
                                NULL);
