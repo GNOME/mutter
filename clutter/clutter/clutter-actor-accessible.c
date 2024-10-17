@@ -355,55 +355,35 @@ clutter_actor_accessible_get_index_in_parent (AtkObject *obj)
 static AtkStateSet*
 clutter_actor_accessible_ref_state_set (AtkObject *obj)
 {
-  ClutterActor         *actor = NULL;
-  AtkStateSet          *state_set = NULL;
-  ClutterStage         *stage = NULL;
-  ClutterActor         *focus_actor = NULL;
-  ClutterActorAccessible * actor_accessible = NULL;
+  ClutterActor *actor = NULL;
+  g_autoptr (AtkStateSet) parent_state = NULL;
+  AtkStateSet *combined_state, *actor_state = NULL;
+  ClutterActorAccessible *actor_accessible = NULL;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR_ACCESSIBLE (obj), NULL);
-  actor_accessible = CLUTTER_ACTOR_ACCESSIBLE  (obj);
+  actor_accessible = CLUTTER_ACTOR_ACCESSIBLE (obj);
 
-  state_set = ATK_OBJECT_CLASS (clutter_actor_accessible_parent_class)->ref_state_set (obj);
+  parent_state = ATK_OBJECT_CLASS (clutter_actor_accessible_parent_class)->ref_state_set (obj);
 
   actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (actor_accessible);
 
   if (actor == NULL) /* Object is defunct */
     {
-      atk_state_set_add_state (state_set, ATK_STATE_DEFUNCT);
+      atk_state_set_add_state (parent_state, ATK_STATE_DEFUNCT);
+      combined_state = g_steal_pointer (&parent_state);
     }
   else
     {
-      if (clutter_actor_get_reactive (actor))
-        {
-          atk_state_set_add_state (state_set, ATK_STATE_SENSITIVE);
-          atk_state_set_add_state (state_set, ATK_STATE_ENABLED);
-        }
+      actor_state = clutter_actor_get_accessible_state (actor);
 
-      if (clutter_actor_is_visible (actor))
-        {
-          atk_state_set_add_state (state_set, ATK_STATE_VISIBLE);
-
-          /* It would be good to also check if the actor is on screen,
-             like the old and removed clutter_actor_is_on_stage*/
-          if (clutter_actor_get_paint_visibility (actor))
-            atk_state_set_add_state (state_set, ATK_STATE_SHOWING);
-
-        }
-
-      /* See focus section on implementation notes */
-      atk_state_set_add_state (state_set, ATK_STATE_FOCUSABLE);
-
-      stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
-      if (stage != NULL)
-        {
-          focus_actor = clutter_stage_get_key_focus (stage);
-          if (focus_actor == actor)
-            atk_state_set_add_state (state_set, ATK_STATE_FOCUSED);
-        }
+      if (actor_state)
+        combined_state = atk_state_set_or_sets (parent_state,
+                                                actor_state);
+      else
+        combined_state = g_steal_pointer (&parent_state);
     }
 
-  return state_set;
+  return combined_state;
 }
 
 static gint
