@@ -115,4 +115,11 @@ void clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
 CLUTTER_EXPORT
 ClutterModifierType clutter_pan_gesture_get_state (ClutterPanGesture *self);
 
+CLUTTER_EXPORT
+gboolean clutter_pan_gesture_get_pickup_on_press (ClutterPanGesture *self);
+
+CLUTTER_EXPORT
+void clutter_pan_gesture_set_pickup_on_press (ClutterPanGesture *self,
+                                              gboolean           pickup_on_press);
+
 G_END_DECLS

@@ -52,6 +52,7 @@ struct _ClutterPanGesturePrivate
 {
   int begin_threshold;
   gboolean threshold_reached;
+  gboolean pickup_on_press;
 
   GArray *event_history;
   unsigned int event_history_begin_index;
@@ -81,6 +82,7 @@ enum
   PROP_MIN_N_POINTS,
   PROP_MAX_N_POINTS,
   PROP_REQUIRED_BUTTON,
+  PROP_PICKUP_ON_PRESS,
 
   PROP_LAST
 };
@@ -308,7 +310,7 @@ clutter_pan_gesture_point_began (ClutterGesture *gesture,
     add_delta_to_event_history (self, graphene_vec2_zero (), priv->latest_event_time);
 
   if (clutter_gesture_get_state (gesture) == CLUTTER_GESTURE_STATE_POSSIBLE &&
-      (priv->begin_threshold == 0))
+      (priv->begin_threshold == 0 || priv->pickup_on_press))
     {
       unsigned int *active_points = clutter_gesture_get_points (gesture, NULL);
 
@@ -454,6 +456,10 @@ clutter_pan_gesture_set_property (GObject      *gobject,
       clutter_pan_gesture_set_required_button (self, g_value_get_uint (value));
       break;
 
+    case PROP_PICKUP_ON_PRESS:
+      clutter_pan_gesture_set_pickup_on_press (self, g_value_get_boolean (value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
     }
@@ -487,6 +493,10 @@ clutter_pan_gesture_get_property (GObject      *gobject,
 
     case PROP_REQUIRED_BUTTON:
       g_value_set_uint (value, clutter_pan_gesture_get_required_button (self));
+      break;
+
+    case PROP_PICKUP_ON_PRESS:
+      g_value_set_boolean (value, clutter_pan_gesture_get_pickup_on_press (self));
       break;
 
     default:
@@ -584,6 +594,19 @@ clutter_pan_gesture_class_init (ClutterPanGestureClass *klass)
                        G_PARAM_READWRITE |
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
+
+  /**
+   * ClutterPanGesture:pickup-on-press:
+   *
+   * Whether the gesture should recognize again as soon as a press/touch-begin
+   * happens.
+   */
+  obj_props[PROP_PICKUP_ON_PRESS] =
+    g_param_spec_boolean ("pickup-on-press", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_EXPLICIT_NOTIFY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 
@@ -1261,4 +1284,62 @@ clutter_pan_gesture_get_state (ClutterPanGesture *self)
   priv = clutter_pan_gesture_get_instance_private (self);
 
   return priv->modifier_state;
+}
+
+/**
+ * clutter_pan_gesture_get_pickup_on_press:
+ * @self: a #ClutterPanGesture
+ *
+ * Gets whether the gesture should move to RECOGNIZING on the first press.
+ *
+ * Returns: Whether the gesture should recognize on press
+ */
+gboolean
+clutter_pan_gesture_get_pickup_on_press (ClutterPanGesture *self)
+{
+  ClutterPanGesturePrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), FALSE);
+
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->pickup_on_press;
+}
+
+/**
+ * clutter_pan_gesture_set_pickup_on_press:
+ * @self: the #ClutterPanGesture
+ * @pickup_on_press: whether the gesture should recognize on press
+ *
+ * Sets whether the gesture should move to RECOGNIZING on the first press.
+ *
+ * See also #ClutterPanGesture:pickup-on-press.
+ */
+void
+clutter_pan_gesture_set_pickup_on_press (ClutterPanGesture *self,
+                                         gboolean           pickup_on_press)
+{
+  ClutterPanGesturePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
+
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  if (priv->pickup_on_press == pickup_on_press)
+    return;
+
+  priv->pickup_on_press = pickup_on_press;
+
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PICKUP_ON_PRESS]);
+
+  if (priv->pickup_on_press &&
+      clutter_gesture_get_state (CLUTTER_GESTURE (self)) == CLUTTER_GESTURE_STATE_POSSIBLE)
+    {
+      unsigned int active_n_points =
+        clutter_gesture_get_n_points (CLUTTER_GESTURE (self));
+
+      if (active_n_points >= priv->min_n_points &&
+          (priv->max_n_points == 0 || active_n_points <= priv->max_n_points))
+        clutter_gesture_set_state (CLUTTER_GESTURE (self), CLUTTER_GESTURE_STATE_RECOGNIZING);
+    }
 }
