@@ -497,7 +497,7 @@ static const char bt709_eotf_source[] =
   "// Returns: tristimulus values ([0,1])\n"
   "vec3 bt709_eotf (vec3 color)\n"
   "{\n"
-  "  bvec3 is_low = lessThan (color, vec3 (0.018));\n"
+  "  bvec3 is_low = lessThan (color, vec3 (0.08124));\n"
   "  vec3 lo_part = color / 4.5;\n"
   "  vec3 hi_part = pow ((color + 0.099) / 1.099), 1.0 / 0.45);\n"
   "  return mix (hi_part, lo_part, is_low);\n"
