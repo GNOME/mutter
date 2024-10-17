@@ -300,4 +300,6 @@ const GList * clutter_actor_peek_actions (ClutterActor *self);
 void clutter_actor_set_implicitly_grabbed (ClutterActor *actor,
                                            gboolean      is_implicitly_grabbed);
 
+AtkStateSet * clutter_actor_get_accessible_state (ClutterActor *actor);
+
 G_END_DECLS

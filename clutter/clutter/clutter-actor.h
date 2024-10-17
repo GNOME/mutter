@@ -323,6 +323,12 @@ CLUTTER_EXPORT
 void                            clutter_actor_set_accessible                    (ClutterActor                *self,
                                                                                  AtkObject                   *accessible);
 CLUTTER_EXPORT
+void                            clutter_actor_add_accessible_state              (ClutterActor                *actor,
+                                                                                 AtkStateType                 state);
+CLUTTER_EXPORT
+void                            clutter_actor_remove_accessible_state           (ClutterActor                *actor,
+                                                                                 AtkStateType                 state);
+CLUTTER_EXPORT
 gboolean                        clutter_actor_is_visible                        (ClutterActor                *self);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_is_mapped                         (ClutterActor                *self);

@@ -48,8 +48,6 @@ static void cally_text_finalize   (GObject *obj);
 /* AtkObject */
 static void                   cally_text_real_initialize (AtkObject *obj,
                                                           gpointer   data);
-static AtkStateSet*           cally_text_ref_state_set   (AtkObject *obj);
-
 /* atkaction */
 
 static void                   _cally_text_activate_action (ClutterActorAccessible *accessible_actor);
@@ -246,7 +244,6 @@ clutter_text_accessible_class_init (ClutterTextAccessibleClass *klass)
   gobject_class->finalize = cally_text_finalize;
 
   class->initialize = cally_text_real_initialize;
-  class->ref_state_set = cally_text_ref_state_set;
 }
 
 static void
@@ -315,28 +312,6 @@ cally_text_real_initialize(AtkObject *obj,
     atk_object_set_role (obj, ATK_ROLE_PASSWORD_TEXT);
   else
     atk_object_set_role (obj, ATK_ROLE_TEXT);
-}
-
-static AtkStateSet*
-cally_text_ref_state_set   (AtkObject *obj)
-{
-  AtkStateSet *result = NULL;
-  ClutterActor *actor = NULL;
-
-  result = ATK_OBJECT_CLASS (clutter_text_accessible_parent_class)->ref_state_set (obj);
-
-  actor = CLUTTER_ACTOR_FROM_ACCESSIBLE (obj);
-
-  if (actor == NULL)
-    return result;
-
-  if (clutter_text_get_editable (CLUTTER_TEXT (actor)))
-    atk_state_set_add_state (result, ATK_STATE_EDITABLE);
-
-  if (clutter_text_get_selectable (CLUTTER_TEXT (actor)))
-    atk_state_set_add_state (result, ATK_STATE_SELECTABLE_TEXT);
-
-  return result;
 }
 
 /***** pango stuff ****

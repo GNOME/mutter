@@ -691,12 +691,17 @@ clutter_stage_set_active (ClutterStage *stage,
     return;
 
   priv->is_active = is_active;
+
+  if (is_active)
+    clutter_actor_add_accessible_state (CLUTTER_ACTOR (stage),
+                                        ATK_STATE_ACTIVE);
+  else
+    clutter_actor_remove_accessible_state (CLUTTER_ACTOR (stage),
+                                           ATK_STATE_ACTIVE);
+
   accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
   if (accessible)
     {
-      atk_object_notify_state_change (accessible,
-                                      ATK_STATE_ACTIVE,
-                                      priv->is_active);
       /* Emit AtkWindow signals */
       if (priv->is_active)
         g_signal_emit_by_name (accessible, "activate", 0);
