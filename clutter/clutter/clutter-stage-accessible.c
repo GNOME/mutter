@@ -55,28 +55,6 @@ clutter_stage_accessible_init (ClutterStageAccessible *stage_accessible)
 {
 }
 
-static AtkStateSet*
-clutter_stage_accessible_ref_state_set (AtkObject *obj)
-{
-  ClutterStageAccessible *stage_accessible;
-  AtkStateSet *state_set;
-  ClutterStage *stage;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE_ACCESSIBLE (obj), NULL);
-  stage_accessible = CLUTTER_STAGE_ACCESSIBLE (obj);
-
-  state_set = ATK_OBJECT_CLASS (clutter_stage_accessible_parent_class)->ref_state_set (obj);
-  stage = CLUTTER_STAGE (CLUTTER_ACTOR_FROM_ACCESSIBLE (stage_accessible));
-
-  if (stage == NULL)
-    return state_set;
-
-  if (clutter_stage_is_active (stage))
-    atk_state_set_add_state (state_set, ATK_STATE_ACTIVE);
-
-  return state_set;
-}
-
 /* AtkWindow */
 static void
 clutter_stage_accessible_window_interface_init (AtkWindowIface *iface)
@@ -87,8 +65,4 @@ clutter_stage_accessible_window_interface_init (AtkWindowIface *iface)
 static void
 clutter_stage_accessible_class_init (ClutterStageAccessibleClass *klass)
 {
-  AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
-
-  /* AtkObject */
-  class->ref_state_set = clutter_stage_accessible_ref_state_set;
 }
