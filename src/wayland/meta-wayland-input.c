@@ -174,6 +174,18 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput    *input,
       meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
     }
 
+  if (meta_wayland_seat_has_touch (seat))
+    {
+      ClutterEventSequence *sequence;
+
+      device = clutter_seat_get_pointer (clutter_seat);
+      handler = wl_container_of (input->event_handler_list.next, handler, link);
+
+      g_hash_table_iter_init (&iter, seat->touch->touches);
+      while (g_hash_table_iter_next (&iter, (gpointer *) &sequence, NULL))
+        meta_wayland_event_handler_invalidate_focus (handler, device, sequence);
+    }
+
   if (meta_wayland_seat_has_touch (seat) &&
       (flags & INVALIDATE_FOCUS_FLAG_CANCEL_TOUCH) != 0)
     meta_wayland_touch_cancel (seat->touch);
