@@ -4827,7 +4827,6 @@ clutter_text_set_editable (ClutterText *self,
   ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterInputMethod *method = clutter_backend_get_input_method (backend);
   ClutterTextPrivate *priv;
-  AtkObject *accessible;
 
   g_return_if_fail (CLUTTER_IS_TEXT (self));
 
@@ -4835,7 +4834,6 @@ clutter_text_set_editable (ClutterText *self,
 
   if (priv->editable != editable)
     {
-      accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (self));
       priv->editable = editable;
 
       if (method)
@@ -4849,10 +4847,12 @@ clutter_text_set_editable (ClutterText *self,
       clutter_text_queue_redraw (CLUTTER_ACTOR (self));
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_EDITABLE]);
-      if (accessible)
-        atk_object_notify_state_change (accessible,
-                                        ATK_STATE_EDITABLE,
-                                        priv->editable);
+      if (editable)
+        clutter_actor_add_accessible_state (CLUTTER_ACTOR (self),
+                                            ATK_STATE_EDITABLE);
+      else
+        clutter_actor_remove_accessible_state (CLUTTER_ACTOR (self),
+                                               ATK_STATE_EDITABLE);
     }
 }
 
@@ -4902,6 +4902,12 @@ clutter_text_set_selectable (ClutterText *self,
       clutter_text_queue_redraw (CLUTTER_ACTOR (self));
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_SELECTABLE]);
+      if (selectable)
+        clutter_actor_add_accessible_state (CLUTTER_ACTOR (self),
+                                            ATK_STATE_SELECTABLE_TEXT);
+      else
+        clutter_actor_remove_accessible_state (CLUTTER_ACTOR (self),
+                                               ATK_STATE_SELECTABLE_TEXT);
     }
 }
 
