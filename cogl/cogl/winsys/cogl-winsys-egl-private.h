@@ -121,6 +121,8 @@ typedef struct _CoglRendererEGL
   /* vtable for platform specific parts */
   const CoglWinsysEGLVtable *platform_vtable;
 
+  gboolean needs_config;
+
   /* Sync for latest submitted work */
   EGLSyncKHR sync;
 
