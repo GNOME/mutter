@@ -152,8 +152,8 @@ pipeline_cache_replace_pipeline (void)
                                        CLUTTER_COLORSPACE_SRGB,
                                        CLUTTER_TRANSFER_FUNCTION_SRGB);
   bt2020_linear = clutter_color_state_new (context,
-                                            CLUTTER_COLORSPACE_BT2020,
-                                            CLUTTER_TRANSFER_FUNCTION_PQ);
+                                           CLUTTER_COLORSPACE_BT2020,
+                                           CLUTTER_TRANSFER_FUNCTION_PQ);
 
   srgb_srgb_to_bt2020_linear = create_test_pipeline (cogl_context,
                                                      "srgb_srgb_to_bt2020_linear");

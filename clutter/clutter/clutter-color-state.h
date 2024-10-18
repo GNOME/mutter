@@ -147,7 +147,6 @@ void clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                           ClutterColorState *target_color_state,
                                           CoglPipeline      *pipeline);
 
-
 CLUTTER_EXPORT
 gboolean clutter_color_state_equals (ClutterColorState *color_state,
                                      ClutterColorState *other_color_state);
