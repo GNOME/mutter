@@ -318,19 +318,24 @@ try_create_context (CoglDisplay *display,
 
   edpy = egl_renderer->edpy;
 
-  if (!egl_renderer->platform_vtable->choose_config (display,
-                                                     cfg_attribs,
-                                                     &config,
-                                                     &config_error))
+  if (!(egl_renderer->private_features &
+        COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
+      egl_renderer->needs_config)
     {
-      g_set_error (error, COGL_WINSYS_ERROR,
-                   COGL_WINSYS_ERROR_CREATE_CONTEXT,
-                   "Couldn't choose config: %s", config_error->message);
-      g_error_free (config_error);
-      goto err;
-    }
+      if (!egl_renderer->platform_vtable->choose_config (display,
+                                                         cfg_attribs,
+                                                         &config,
+                                                         &config_error))
+        {
+          g_set_error (error, COGL_WINSYS_ERROR,
+                       COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                       "Couldn't choose config: %s", config_error->message);
+          g_error_free (config_error);
+          goto err;
+        }
 
-  egl_display->egl_config = config;
+      egl_display->egl_config = config;
+    }
 
   if (display->renderer->driver == COGL_DRIVER_GL3)
     {
