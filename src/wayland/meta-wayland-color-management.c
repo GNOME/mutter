@@ -1152,6 +1152,7 @@ creator_params_set_luminance (struct wl_client   *client,
       return;
     }
 
+  creator_params->lum.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
   creator_params->lum.min = min;
   creator_params->lum.max = max;
   creator_params->lum.ref = ref;
