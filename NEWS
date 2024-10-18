@@ -1,3 +1,25 @@
+47.1
+====
+* gwakeup: Reduce wake-ups to only first item in queue [Christian; !4007]
+* x11: Reduce chances XPending does recvmsg() syscall [Christian; !4006]
+* Fix grabbing tablet devices [Jonas; !4033]
+* Fix misplaced windows and random resizes on scaled monitors [Jonas; !4041]
+* Fix explicit sync with virtual monitors w/o pipewire streams [Doğukan; !4056]
+* Improve detecting preferred primary devices [Kamil; !4055]
+* Fixed crashes [Michel, Jonas, Daniel, José, Jason, Bilal; !4028, !4032,
+  !4019, !4030, !4029, !4059, !4070, !4034]
+* Misc. bug fixes and cleanups [Sebastian, Florian, Jonas, José, Michel;
+  !4036, !4040, !4016, !3926, !4031, !4047, !4058, !4068, !3980, !3980]
+
+Contributors:
+  Jonas Ådahl, Michel Dänzer, Bilal Elmoussaoui, José Expósito, Jason Gerecke,
+  Christian Hergert, Doğukan Korkmaztürk, Florian Müllner, Kamil Szczęk,
+  Joan Torres, Daniel van Vugt, Sebastian Wick
+
+Translators:
+  Vincent Chatelain [fr], Jordi Mas i Hernandez [ca], Daniel Mustieles [es],
+  Jürgen Benvenuti [de]
+
 47.0
 ====
 * Fix resizing of electron windows [Jonas; !3997]
