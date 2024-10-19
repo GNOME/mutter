@@ -138,10 +138,6 @@ cogl_indices_get_indices_type (CoglIndices *indices);
 COGL_EXPORT size_t
 cogl_indices_get_offset (CoglIndices *indices);
 
-COGL_EXPORT void
-cogl_indices_set_offset (CoglIndices *indices,
-                         size_t offset);
-
 /**
  * cogl_get_rectangle_indices:
  *

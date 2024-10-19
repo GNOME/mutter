@@ -145,15 +145,6 @@ cogl_indices_get_offset (CoglIndices *indices)
   return indices->offset;
 }
 
-void
-cogl_indices_set_offset (CoglIndices *indices,
-                         size_t offset)
-{
-  g_return_if_fail (COGL_IS_INDICES (indices));
-
-  indices->offset = offset;
-}
-
 CoglIndices *
 cogl_get_rectangle_indices (CoglContext *ctx, int n_rectangles)
 {
