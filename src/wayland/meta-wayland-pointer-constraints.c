@@ -938,6 +938,7 @@ locked_pointer_destroy (struct wl_client   *client,
 {
   MetaWaylandPointerConstraint *constraint =
     wl_resource_get_user_data (resource);
+  ClutterSeat *seat;
   gboolean warp_pointer = FALSE;
   int warp_x, warp_y;
 
@@ -957,12 +958,12 @@ locked_pointer_destroy (struct wl_client   *client,
       warp_pointer = TRUE;
       warp_x = (int) x;
       warp_y = (int) y;
+      seat = constraint->seat->clutter_seat;
     }
+  wl_resource_destroy (resource);
 
   if (warp_pointer)
-    clutter_seat_warp_pointer (constraint->seat->clutter_seat, warp_x, warp_y);
-
-  wl_resource_destroy (resource);
+    clutter_seat_warp_pointer (seat, warp_x, warp_y);
 }
 
 static void
