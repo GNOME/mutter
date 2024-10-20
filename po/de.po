@@ -5,7 +5,7 @@
 # Christian Neumair <chris@gnome-de.org>, 2002-2004.
 # Hendrik Richter <hendrikr@gnome.org>, 2005-2008.
 # Mario Blättermann <mario.blaettermann@gmail.com>, 2010-2013, 2016-2018.
-# Christian Kirbach <Christian.Kirbach@googlemail.com>, 2009, 2011-2012.
+# Christian Kirbach <Christian.Kirbach@googlemail.com>, 2009, 2011-2024.
 # Wolfgang Stöggl <c72578@yahoo.de> 2011, 2017.
 # Tobias Endrigkeit <tobiasendrigkeit@googlemail.com>, 2012.
 # Tim Sabsch <tim@sabsch.com>, 2018-2023.
@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-09-20 15:44+0000\n"
-"PO-Revision-Date: 2024-09-20 19:24+0200\n"
+"POT-Creation-Date: 2024-10-18 21:21+0000\n"
+"PO-Revision-Date: 2024-10-20 20:34+0200\n"
 "Last-Translator: Jürgen Benvenuti <gastornis@posteo.org>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
 "Language: de\n"
@@ -399,22 +399,6 @@ msgid "Enable experimental features"
 msgstr "Experimentelle Funktionen aktivieren"
 
 #: data/org.gnome.mutter.gschema.xml.in:109
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. Requires a restart. • “autoclose-xwayland” — automatically "
-#| "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -446,12 +430,16 @@ msgstr ""
 "Fensterinhalte skaliert werden, um HiDPI-Bildschirme besser versorgen zu "
 "können. Erfordert keinen Neustart. • »kms-modifiers« — weist Mutter an, "
 "immer Scanout-Puffer mit expliziten Modifikatoren zuzuweisen, sofern dies "
-"von den Treibern unterstützt wird. Erfordert einen Neustart. • »rt-"
-"scheduler« — weist Mutter an, ein Echtzeit-Scheduling mit niedriger "
-"Priorität anzufordern. Dafür muss der Anwendung oder dem Benutzer "
-"»CAP_SYS_NICE« zur Verfügung stehen. Erfordert einen Neustart. • »autoclose-"
+"von den Treibern unterstützt wird. Erfordert einen Neustart. • »autoclose-"
 "xwayland« — beendet Xwayland automatisch, wenn alle relevanten X11-Clients "
-"beendet wurden. Erfordert einen Neustart."
+"beendet wurden. Erfordert einen Neustart. • »variable-refresh-rate« — "
+"veranlasst Mutter dazu, dynamisch die Bildwiederholfrequenz des Bildschirms "
+"anzupassen, sofern durch den Bildschirm, GPU und DRM-Treiber unterstützt. "
+"Anpassbar in den Einstellungen. Erfordert einen Neustart. • »xwayland-native-"
+"scaling« — ermöglicht es Xwayland-Clients, die native Unterstützung für "
+"Skalierung zu verwenden. Wenn der Client keine Skalierung unterstützt, so "
+"wird sie auch nicht eingesetzt. Die Einstellung hat nur dann eine Wirkung, "
+"wenn auch »scale-monitor-framebuffer« aktiviert ist."
 
 #: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Modifier to use to locate the pointer"
