@@ -41,7 +41,6 @@
 #include "cogl/cogl-bitmap-private.h"
 #include "cogl/cogl-buffer-private.h"
 #include "cogl/cogl-enum-types.h"
-#include "cogl/cogl-pixel-buffer-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-texture-driver.h"

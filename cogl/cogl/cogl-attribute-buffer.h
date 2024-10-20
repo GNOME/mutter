@@ -37,6 +37,7 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
+#include "cogl/cogl-buffer.h"
 #include "cogl/cogl-context.h"
 
 #include <glib-object.h>
@@ -49,19 +50,13 @@ G_BEGIN_DECLS
  * Functions for creating and manipulating attribute buffers
  */
 #define COGL_TYPE_ATTRIBUTE_BUFFER            (cogl_attribute_buffer_get_type ())
-#define COGL_ATTRIBUTE_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBuffer))
-#define COGL_ATTRIBUTE_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBuffer const))
-#define COGL_ATTRIBUTE_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBufferClass))
-#define COGL_IS_ATTRIBUTE_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_ATTRIBUTE_BUFFER))
-#define COGL_IS_ATTRIBUTE_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_ATTRIBUTE_BUFFER))
-#define COGL_ATTRIBUTE_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBufferClass))
-
-typedef struct _CoglAttributeBufferClass CoglAttributeBufferClass;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglAttributeBuffer, g_object_unref)
 
 COGL_EXPORT
-GType               cogl_attribute_buffer_get_type       (void) G_GNUC_CONST;
+COGL_DECLARE_INTERNAL_TYPE (CoglAttributeBuffer,
+                            cogl_attribute_buffer,
+                            COGL,
+                            ATTRIBUTE_BUFFER,
+                            CoglBuffer)
 
 /**
  * cogl_attribute_buffer_new_with_size:

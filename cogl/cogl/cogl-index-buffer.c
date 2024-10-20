@@ -37,6 +37,16 @@
 #include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-context-private.h"
 
+struct _CoglIndexBuffer
+{
+  CoglBuffer parent_instance;
+};
+
+struct _CoglIndexBufferClass
+{
+  CoglBufferClass parent_class;
+};
+
 G_DEFINE_FINAL_TYPE (CoglIndexBuffer, cogl_index_buffer, COGL_TYPE_BUFFER)
 
 static void

@@ -37,6 +37,7 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
+#include "cogl/cogl-buffer.h"
 #include "cogl/cogl-context.h"
 
 #include <glib-object.h>
@@ -49,20 +50,13 @@ G_BEGIN_DECLS
  *Functions for creating and manipulating vertex indices.
  */
 #define COGL_TYPE_INDEX_BUFFER            (cogl_index_buffer_get_type ())
-#define COGL_INDEX_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_INDEX_BUFFER, CoglIndexBuffer))
-#define COGL_INDEX_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_INDEX_BUFFER, CoglIndexBuffer const))
-#define COGL_INDEX_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_INDEX_BUFFER, CoglIndexBufferClass))
-#define COGL_IS_INDEX_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_INDEX_BUFFER))
-#define COGL_IS_INDEX_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_INDEX_BUFFER))
-#define COGL_INDEX_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_INDEX_BUFFER, CoglIndexBufferClass))
-
-typedef struct _CoglIndexBufferClass CoglIndexBufferClass;
-typedef struct _CoglIndexBuffer CoglIndexBuffer;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglIndexBuffer, g_object_unref)
 
 COGL_EXPORT
-GType               cogl_index_buffer_get_type       (void) G_GNUC_CONST;
+COGL_DECLARE_INTERNAL_TYPE (CoglIndexBuffer,
+                            cogl_index_buffer,
+                            COGL,
+                            INDEX_BUFFER,
+                            CoglBuffer)
 
 /**
  * cogl_index_buffer_new:

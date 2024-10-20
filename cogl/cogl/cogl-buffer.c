@@ -46,7 +46,6 @@
 #include "cogl/cogl-enum-types.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-pixel-buffer-private.h"
 
 
 G_DEFINE_ABSTRACT_TYPE (CoglBuffer, cogl_buffer, G_TYPE_OBJECT)

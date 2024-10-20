@@ -33,7 +33,7 @@
 
 #pragma once
 
-#include "cogl/cogl-index-buffer-private.h"
+#include "cogl/cogl-index-buffer.h"
 #include "cogl/cogl-types.h"
 
 struct _CoglIndices

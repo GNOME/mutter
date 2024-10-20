@@ -34,8 +34,17 @@
 #include "config.h"
 
 #include "cogl/cogl-attribute-buffer.h"
-#include "cogl/cogl-attribute-buffer-private.h"
 #include "cogl/cogl-context-private.h"
+
+struct _CoglAttributeBuffer
+{
+  CoglBuffer parent_instance;
+};
+
+struct _CoglAttributeBufferClass
+{
+  CoglBufferClass parent_class;
+};
 
 G_DEFINE_FINAL_TYPE (CoglAttributeBuffer, cogl_attribute_buffer, COGL_TYPE_BUFFER)
 

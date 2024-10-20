@@ -46,8 +46,17 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-pixel-buffer-private.h"
 #include "cogl/cogl-pixel-buffer.h"
+
+struct _CoglPixelBuffer
+{
+  CoglBuffer parent_instance;
+};
+
+struct _CoglPixelBufferClass
+{
+  CoglBufferClass parent_class;
+};
 
 G_DEFINE_FINAL_TYPE (CoglPixelBuffer, cogl_pixel_buffer, COGL_TYPE_BUFFER)
 

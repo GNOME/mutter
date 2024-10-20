@@ -38,8 +38,9 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include "cogl/cogl-types.h"
+#include "cogl/cogl-buffer.h"
 #include "cogl/cogl-context.h"
+#include "cogl/cogl-types.h"
 
 #include <glib-object.h>
 
@@ -49,19 +50,13 @@ G_BEGIN_DECLS
  * CoglPixelBuffer:
  */
 #define COGL_TYPE_PIXEL_BUFFER            (cogl_pixel_buffer_get_type ())
-#define COGL_PIXEL_BUFFER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIXEL_BUFFER, CoglPixelBuffer))
-#define COGL_PIXEL_BUFFER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIXEL_BUFFER, CoglPixelBuffer const))
-#define COGL_PIXEL_BUFFER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_PIXEL_BUFFER, CoglPixelBufferClass))
-#define COGL_IS_PIXEL_BUFFER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_PIXEL_BUFFER))
-#define COGL_IS_PIXEL_BUFFER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_PIXEL_BUFFER))
-#define COGL_PIXEL_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_PIXEL_BUFFER, CoglPixelBufferClass))
-
-typedef struct _CoglPixelBufferClass CoglPixelBufferClass;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglPixelBuffer, g_object_unref)
 
 COGL_EXPORT
-GType               cogl_pixel_buffer_get_type       (void) G_GNUC_CONST;
+COGL_DECLARE_INTERNAL_TYPE (CoglPixelBuffer,
+                            cogl_pixel_buffer,
+                            COGL,
+                            PIXEL_BUFFER,
+                            CoglBuffer)
 
 /**
  * cogl_pixel_buffer_new:
