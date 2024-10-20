@@ -41,8 +41,6 @@ typedef enum
   COGL_ATLAS_DISABLE_MIGRATION = (1 << 1)
 } CoglAtlasFlags;
 
-typedef struct _CoglAtlas CoglAtlas;
-
 #define COGL_TYPE_ATLAS (cogl_atlas_get_type ())
 
 COGL_EXPORT

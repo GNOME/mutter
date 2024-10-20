@@ -65,8 +65,6 @@ G_BEGIN_DECLS
  * create a GLContext.
  */
 
-typedef struct _CoglDisplay CoglDisplay;
-
 #define COGL_TYPE_DISPLAY (cogl_display_get_type ())
 
 COGL_EXPORT

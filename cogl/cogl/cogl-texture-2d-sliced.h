@@ -75,7 +75,6 @@
 #define COGL_TEXTURE_2D_SLICED_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE_2D_SLICED, CoglTexture2DSlicedClass))
 
 typedef struct _CoglTexture2DSlicedClass CoglTexture2DSlicedClass;
-typedef struct _CoglTexture2DSliced CoglTexture2DSliced;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture2DSliced, g_object_unref)
 

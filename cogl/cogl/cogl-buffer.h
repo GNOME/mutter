@@ -72,7 +72,6 @@ G_BEGIN_DECLS
 #define COGL_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_BUFFER, CoglBufferClass))
 
 typedef struct _CoglBufferClass CoglBufferClass;
-typedef struct _CoglBuffer CoglBuffer;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglBuffer, g_object_unref)
 

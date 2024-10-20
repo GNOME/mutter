@@ -73,7 +73,6 @@ G_BEGIN_DECLS
 #define COGL_ATLAS_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTextureClass))
 
 typedef struct _CoglAtlasTextureClass CoglAtlasTextureClass;
-typedef struct _CoglAtlasTexture CoglAtlasTexture;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglAtlasTexture, g_object_unref)
 

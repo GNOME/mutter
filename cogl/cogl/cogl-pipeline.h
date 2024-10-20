@@ -34,11 +34,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglPipeline type here to avoid some circular
- * dependency issues with the following headers.
- */
-typedef struct _CoglPipeline CoglPipeline;
-
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-snippet.h"
@@ -69,7 +64,6 @@ G_BEGIN_DECLS
 #define COGL_PIPELINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_PIPELINE, CoglPipelineClass))
 
 typedef struct _CoglPipelineClass CoglPipelineClass;
-typedef struct _CoglPipeline CoglPipeline;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglPipeline, g_object_unref)
 

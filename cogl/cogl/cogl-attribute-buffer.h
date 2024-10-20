@@ -37,11 +37,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglAttributeBuffer type here to avoid some circular
- * dependency issues with the following headers.
- */
-typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
-
 #include "cogl/cogl-context.h"
 
 #include <glib-object.h>
@@ -62,7 +57,6 @@ G_BEGIN_DECLS
 #define COGL_ATTRIBUTE_BUFFER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_ATTRIBUTE_BUFFER, CoglAttributeBufferClass))
 
 typedef struct _CoglAttributeBufferClass CoglAttributeBufferClass;
-typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglAttributeBuffer, g_object_unref)
 

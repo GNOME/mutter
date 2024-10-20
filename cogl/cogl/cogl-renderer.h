@@ -76,8 +76,6 @@ G_BEGIN_DECLS
 COGL_EXPORT uint32_t
 cogl_renderer_error_quark (void);
 
-typedef struct _CoglRenderer CoglRenderer;
-
 #define COGL_TYPE_RENDERER (cogl_renderer_get_type ())
 
 COGL_EXPORT

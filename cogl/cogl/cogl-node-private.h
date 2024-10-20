@@ -36,7 +36,6 @@
 #include "cogl/cogl-list.h"
 
 typedef struct _CoglNodeClass CoglNodeClass;
-typedef struct _CoglNode CoglNode;
 
 /* Pipelines and layers represent their state in a tree structure where
  * some of the state relating to a given pipeline or layer may actually

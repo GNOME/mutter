@@ -62,7 +62,6 @@ G_BEGIN_DECLS
 #define COGL_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE, CoglTextureClass))
 
 typedef struct _CoglTextureClass CoglTextureClass;
-typedef struct _CoglTexture CoglTexture;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture, g_object_unref)
 
