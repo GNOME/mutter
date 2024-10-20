@@ -52,21 +52,16 @@ G_BEGIN_DECLS
  * API that tries to hide all the various complexities of creating,
  * loading and manipulating textures.
  */
+COGL_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CoglTexture,
+                          cogl_texture,
+                          COGL,
+                          TEXTURE,
+                          GObject)
 
 #define COGL_TYPE_TEXTURE            (cogl_texture_get_type ())
-#define COGL_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE, CoglTexture))
-#define COGL_TEXTURE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_TEXTURE, CoglTexture const))
-#define COGL_TEXTURE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_TEXTURE, CoglTextureClass))
-#define COGL_IS_TEXTURE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_TEXTURE))
-#define COGL_IS_TEXTURE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_TEXTURE))
-#define COGL_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE, CoglTextureClass))
 
 typedef struct _CoglTextureClass CoglTextureClass;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture, g_object_unref)
-
-COGL_EXPORT
-GType       cogl_texture_get_type (void) G_GNUC_CONST;
 
 #define COGL_TEXTURE_MAX_WASTE  127
 

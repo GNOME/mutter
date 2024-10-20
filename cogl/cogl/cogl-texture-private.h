@@ -109,26 +109,6 @@ typedef struct _CoglTextureLoader
   } src;
 } CoglTextureLoader;
 
-struct _CoglTexture
-{
-  GObject parent_instance;
-
-  CoglContext *context;
-  gboolean is_primitive;
-  CoglTextureLoader *loader;
-  GList *framebuffers;
-  int max_level_set;
-  int max_level_requested;
-  int width;
-  int height;
-  gboolean allocated;
-
-  /*
-   * Internal format
-   */
-  CoglTextureComponents components;
-  unsigned int premultiplied : 1;
-};
 
 struct _CoglTextureClass
 {
