@@ -59,7 +59,26 @@
 #include <stdlib.h>
 #include <math.h>
 
-G_DEFINE_ABSTRACT_TYPE (CoglTexture, cogl_texture, G_TYPE_OBJECT)
+typedef struct _CoglTexturePrivate
+{
+  CoglContext *context;
+  gboolean is_primitive;
+  CoglTextureLoader *loader;
+  GList *framebuffers;
+  int max_level_set;
+  int max_level_requested;
+  int width;
+  int height;
+  gboolean allocated;
+
+  /*
+   * Internal format
+   */
+  CoglTextureComponents components;
+  unsigned int premultiplied : 1;
+} CoglTexturePrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglTexture, cogl_texture, G_TYPE_OBJECT)
 
 enum
 {
@@ -80,9 +99,12 @@ static GParamSpec *obj_props[PROP_LAST];
 static void
 _cogl_texture_free_loader (CoglTexture *texture)
 {
-  if (texture->loader)
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+
+  if (priv->loader)
     {
-      CoglTextureLoader *loader = texture->loader;
+      CoglTextureLoader *loader = priv->loader;
       switch (loader->src_type)
         {
         case COGL_TEXTURE_SOURCE_TYPE_SIZE:
@@ -94,7 +116,7 @@ _cogl_texture_free_loader (CoglTexture *texture)
           break;
         }
       g_free (loader);
-      texture->loader = NULL;
+      priv->loader = NULL;
     }
 }
 
@@ -115,23 +137,25 @@ cogl_texture_set_property (GObject      *gobject,
                            GParamSpec   *pspec)
 {
   CoglTexture *texture = COGL_TEXTURE (gobject);
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
 
   switch (prop_id)
     {
     case PROP_CONTEXT:
-      texture->context = g_value_get_object (value);
+      priv->context = g_value_get_object (value);
       break;
 
     case PROP_WIDTH:
-      texture->width = g_value_get_int (value);
+      priv->width = g_value_get_int (value);
       break;
 
     case PROP_HEIGHT:
-      texture->height = g_value_get_int (value);
+      priv->height = g_value_get_int (value);
       break;
 
     case PROP_LOADER:
-      texture->loader = g_value_get_pointer (value);
+      priv->loader = g_value_get_pointer (value);
       break;
 
     case PROP_FORMAT:
@@ -149,11 +173,11 @@ cogl_texture_set_property (GObject      *gobject,
       * have to worry about updating the ->components state in
       * _set_premultiplied().
       */
-      texture->premultiplied = TRUE;
+      priv->premultiplied = TRUE;
       break;
 
     case PROP_IS_PRIMITIVE:
-      texture->is_primitive = g_value_get_boolean (value);
+      priv->is_primitive = g_value_get_boolean (value);
       break;
 
     default:
@@ -210,10 +234,13 @@ cogl_texture_class_init (CoglTextureClass *klass)
 static void
 cogl_texture_init (CoglTexture *texture)
 {
-  texture->max_level_set = 0;
-  texture->max_level_requested = 1000; /* OpenGL default GL_TEXTURE_MAX_LEVEL */
-  texture->allocated = FALSE;
-  texture->framebuffers = NULL;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+
+  priv->max_level_set = 0;
+  priv->max_level_requested = 1000; /* OpenGL default GL_TEXTURE_MAX_LEVEL */
+  priv->allocated = FALSE;
+  priv->framebuffers = NULL;
 }
 
 uint32_t
@@ -251,17 +278,23 @@ cogl_texture_is_get_data_supported (CoglTexture *texture)
 unsigned int
 cogl_texture_get_width (CoglTexture *texture)
 {
+  CoglTexturePrivate *priv;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), 0);
 
-  return texture->width;
+  priv = cogl_texture_get_instance_private (texture);
+  return priv->width;
 }
 
 unsigned int
 cogl_texture_get_height (CoglTexture *texture)
 {
+  CoglTexturePrivate *priv;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), 0);
 
-  return texture->height;
+  priv = cogl_texture_get_instance_private (texture);
+  return priv->height;
 }
 
 CoglPixelFormat
@@ -282,19 +315,25 @@ _cogl_util_fls (unsigned int n)
 int
 _cogl_texture_get_n_levels (CoglTexture *texture)
 {
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+
   int width = cogl_texture_get_width (texture);
   int height = cogl_texture_get_height (texture);
   int max_dimension = MAX (width, height);
   int n_levels = _cogl_util_fls (max_dimension);
 
-  return MIN (n_levels, texture->max_level_requested + 1);
+  return MIN (n_levels, priv->max_level_requested + 1);
 }
 
 void
 cogl_texture_set_max_level (CoglTexture *texture,
                             int          max_level)
 {
-  texture->max_level_requested = max_level;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+
+  priv->max_level_requested = max_level;
 }
 
 void
@@ -946,16 +985,20 @@ static void
 on_framebuffer_destroy (CoglFramebuffer *framebuffer,
                         CoglTexture     *texture)
 {
-  texture->framebuffers = g_list_remove (texture->framebuffers, framebuffer);
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  priv->framebuffers = g_list_remove (priv->framebuffers, framebuffer);
 }
 
 void
 _cogl_texture_associate_framebuffer (CoglTexture *texture,
                                      CoglFramebuffer *framebuffer)
 {
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
   /* Note: we don't take a reference on the framebuffer here because
    * that would introduce a circular reference. */
-  texture->framebuffers = g_list_prepend (texture->framebuffers, framebuffer);
+  priv->framebuffers = g_list_prepend (priv->framebuffers, framebuffer);
 
   g_signal_connect (framebuffer, "destroy",
                     G_CALLBACK (on_framebuffer_destroy),
@@ -965,7 +1008,9 @@ _cogl_texture_associate_framebuffer (CoglTexture *texture,
 const GList *
 _cogl_texture_get_associated_framebuffers (CoglTexture *texture)
 {
-  return texture->framebuffers;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  return priv->framebuffers;
 }
 
 void
@@ -1100,11 +1145,13 @@ _cogl_texture_set_allocated (CoglTexture *texture,
                              int width,
                              int height)
 {
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
   _cogl_texture_set_internal_format (texture, internal_format);
 
-  texture->width = width;
-  texture->height = height;
-  texture->allocated = TRUE;
+  priv->width = width;
+  priv->height = height;
+  priv->allocated = TRUE;
 
   _cogl_texture_free_loader (texture);
 }
@@ -1112,64 +1159,72 @@ _cogl_texture_set_allocated (CoglTexture *texture,
 gboolean
 cogl_texture_is_allocated (CoglTexture *texture)
 {
-  return texture->allocated;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  return priv->allocated;
 }
 
 gboolean
 cogl_texture_allocate (CoglTexture *texture,
                        GError **error)
 {
+  CoglTexturePrivate *priv;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
+
+  priv = cogl_texture_get_instance_private (texture);
   if (cogl_texture_is_allocated (texture))
     return TRUE;
 
-  if (texture->components == COGL_TEXTURE_COMPONENTS_RG &&
-      !cogl_context_has_feature (texture->context, COGL_FEATURE_ID_TEXTURE_RG))
+  if (priv->components == COGL_TEXTURE_COMPONENTS_RG &&
+      !cogl_context_has_feature (priv->context, COGL_FEATURE_ID_TEXTURE_RG))
     g_set_error (error,
                  COGL_TEXTURE_ERROR,
                  COGL_TEXTURE_ERROR_FORMAT,
                  "A red-green texture was requested but the driver "
                  "does not support them");
 
-  texture->allocated = COGL_TEXTURE_GET_CLASS (texture)->allocate (texture, error);
+  priv->allocated = COGL_TEXTURE_GET_CLASS (texture)->allocate (texture, error);
 
-  return texture->allocated;
+  return priv->allocated;
 }
 
 void
 _cogl_texture_set_internal_format (CoglTexture *texture,
                                    CoglPixelFormat internal_format)
 {
-  texture->premultiplied = FALSE;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  priv->premultiplied = FALSE;
 
   if (internal_format == COGL_PIXEL_FORMAT_ANY)
     internal_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
 
   if (internal_format == COGL_PIXEL_FORMAT_A_8)
     {
-      texture->components = COGL_TEXTURE_COMPONENTS_A;
+      priv->components = COGL_TEXTURE_COMPONENTS_A;
       return;
     }
   else if (internal_format == COGL_PIXEL_FORMAT_RG_88)
     {
-      texture->components = COGL_TEXTURE_COMPONENTS_RG;
+      priv->components = COGL_TEXTURE_COMPONENTS_RG;
       return;
     }
   else if (internal_format & COGL_DEPTH_BIT)
     {
-      texture->components = COGL_TEXTURE_COMPONENTS_DEPTH;
+      priv->components = COGL_TEXTURE_COMPONENTS_DEPTH;
       return;
     }
   else if (internal_format & COGL_A_BIT)
     {
-      texture->components = COGL_TEXTURE_COMPONENTS_RGBA;
+      priv->components = COGL_TEXTURE_COMPONENTS_RGBA;
       if (internal_format & COGL_PREMULT_BIT)
-        texture->premultiplied = TRUE;
+        priv->premultiplied = TRUE;
       return;
     }
   else
-    texture->components = COGL_TEXTURE_COMPONENTS_RGB;
+    priv->components = COGL_TEXTURE_COMPONENTS_RGB;
 }
 
 CoglPixelFormat
@@ -1234,44 +1289,56 @@ void
 cogl_texture_set_components (CoglTexture *texture,
                              CoglTextureComponents components)
 {
+  CoglTexturePrivate *priv;
+
   g_return_if_fail (COGL_IS_TEXTURE (texture));
   g_return_if_fail (!cogl_texture_is_allocated (texture));
 
-  if (texture->components == components)
+  priv = cogl_texture_get_instance_private (texture);
+  if (priv->components == components)
     return;
 
-  texture->components = components;
+  priv->components = components;
 }
 
 CoglTextureComponents
 cogl_texture_get_components (CoglTexture *texture)
 {
+  CoglTexturePrivate *priv;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), 0);
 
-  return texture->components;
+  priv = cogl_texture_get_instance_private (texture);
+  return priv->components;
 }
 
 void
 cogl_texture_set_premultiplied (CoglTexture *texture,
                                 gboolean premultiplied)
 {
+  CoglTexturePrivate *priv;
+
   g_return_if_fail (COGL_IS_TEXTURE (texture));
   g_return_if_fail (!cogl_texture_is_allocated (texture));
 
   premultiplied = !!premultiplied;
 
-  if (texture->premultiplied == premultiplied)
+  priv = cogl_texture_get_instance_private (texture);
+  if (priv->premultiplied == premultiplied)
     return;
 
-  texture->premultiplied = premultiplied;
+  priv->premultiplied = premultiplied;
 }
 
 gboolean
 cogl_texture_get_premultiplied (CoglTexture *texture)
 {
+  CoglTexturePrivate *priv;
+
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
-  return texture->premultiplied;
+  priv = cogl_texture_get_instance_private (texture);
+  return priv->premultiplied;
 }
 
 void
@@ -1285,34 +1352,44 @@ _cogl_texture_copy_internal_format (CoglTexture *src,
 CoglContext *
 cogl_texture_get_context (CoglTexture *texture)
 {
-  return texture->context;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  return priv->context;
 }
 
 CoglTextureLoader *
 cogl_texture_get_loader (CoglTexture *texture)
 {
-  return texture->loader;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  return priv->loader;
 }
 
 int
 cogl_texture_get_max_level_set (CoglTexture *texture)
 {
-  return texture->max_level_set;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  return priv->max_level_set;
 }
 
 void
 cogl_texture_set_max_level_set (CoglTexture *texture,
                                 int          max_level_set)
 {
-  texture->max_level_set = max_level_set;
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
+  priv->max_level_set = max_level_set;
 }
 
 void
 cogl_texture_set_auto_mipmap (CoglTexture *texture,
                               gboolean     value)
 {
-  g_return_if_fail (COGL_IS_TEXTURE (texture) &&
-                    texture->is_primitive);
+  CoglTexturePrivate *priv;
+  g_return_if_fail (COGL_IS_TEXTURE (texture));
+  priv = cogl_texture_get_instance_private (texture);
+  g_return_if_fail (priv->is_primitive);
 
   g_assert (COGL_TEXTURE_GET_CLASS (texture)->set_auto_mipmap != NULL);
 
