@@ -33,9 +33,9 @@
 
 #pragma once
 
-#include "cogl/cogl-list.h"
+#include <glib-object.h>
 
-typedef struct _CoglNodeClass CoglNodeClass;
+#include "cogl/cogl-list.h"
 
 /* Pipelines and layers represent their state in a tree structure where
  * some of the state relating to a given pipeline or layer may actually
@@ -65,16 +65,8 @@ struct _CoglNodeClass
 };
 
 #define COGL_TYPE_NODE            (cogl_node_get_type ())
-#define COGL_NODE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_NODE, CoglNode))
-#define COGL_NODE_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_NODE, CoglNode const))
-#define COGL_NODE_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_NODE, CoglNodeClass))
-#define COGL_IS_NODE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_NODE))
-#define COGL_IS_NODE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_NODE))
-#define COGL_NODE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_NODE, CoglNodeClass))
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglNode, g_object_unref)
-
-GType       cogl_node_get_type (void) G_GNUC_CONST;
+COGL_DECLARE_INTERNAL_TYPE (CoglNode, cogl_node, COGL, NODE, GObject)
 
 void
 _cogl_pipeline_node_set_parent (CoglNode *node,
