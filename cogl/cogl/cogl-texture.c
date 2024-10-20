@@ -70,6 +70,7 @@ enum
   PROP_HEIGHT,
   PROP_LOADER,
   PROP_FORMAT,
+  PROP_IS_PRIMITIVE,
 
   PROP_LAST
 };
@@ -151,6 +152,10 @@ cogl_texture_set_property (GObject      *gobject,
       texture->premultiplied = TRUE;
       break;
 
+    case PROP_IS_PRIMITIVE:
+      texture->is_primitive = g_value_get_boolean (value);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -192,6 +197,10 @@ cogl_texture_class_init (CoglTextureClass *klass)
                        COGL_PIXEL_FORMAT_ANY,
                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IS_PRIMITIVE] =
+    g_param_spec_boolean ("is-primitive", NULL, NULL,
+                          FALSE, G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class,
                                      PROP_LAST,

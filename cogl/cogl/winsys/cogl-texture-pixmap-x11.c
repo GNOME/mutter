@@ -984,9 +984,6 @@ cogl_texture_pixmap_x11_class_init (CoglTexturePixmapX11Class *klass)
 static void
 cogl_texture_pixmap_x11_init (CoglTexturePixmapX11 *self)
 {
-  CoglTexture *texture = COGL_TEXTURE (self);
-
-  texture->is_primitive = FALSE;
 }
 
 uint32_t

@@ -832,9 +832,6 @@ cogl_atlas_texture_class_init (CoglAtlasTextureClass *klass)
 static void
 cogl_atlas_texture_init (CoglAtlasTexture *self)
 {
-  CoglTexture *texture = COGL_TEXTURE (self);
-
-  texture->is_primitive = FALSE;
 }
 
 static CoglTexture *

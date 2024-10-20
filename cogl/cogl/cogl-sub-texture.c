@@ -383,9 +383,6 @@ cogl_sub_texture_class_init (CoglSubTextureClass *klass)
 static void
 cogl_sub_texture_init (CoglSubTexture *self)
 {
-  CoglTexture *texture = COGL_TEXTURE (self);
-
-  texture->is_primitive = FALSE;
 }
 
 CoglTexture *
