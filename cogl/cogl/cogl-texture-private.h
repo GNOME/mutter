@@ -337,3 +337,5 @@ cogl_texture_get_max_level_set (CoglTexture *texture);
 void
 cogl_texture_set_max_level_set (CoglTexture *texture,
                                 int          max_level_set);
+
+gboolean cogl_texture_is_allocated (CoglTexture *texture);

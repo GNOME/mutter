@@ -746,7 +746,7 @@ _cogl_texture_2d_sliced_is_sliced (CoglTexture *tex)
 
   /* It's only after allocating a sliced texture that we will know
    * whether it really needed to be sliced... */
-  if (!tex->allocated)
+  if (!cogl_texture_is_allocated (tex))
     cogl_texture_allocate (tex, NULL);
 
   if (tex_2ds->slice_x_spans->len != 1 ||

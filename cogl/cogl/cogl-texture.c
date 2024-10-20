@@ -258,7 +258,7 @@ cogl_texture_get_height (CoglTexture *texture)
 CoglPixelFormat
 cogl_texture_get_format (CoglTexture *texture)
 {
-  if (!texture->allocated)
+  if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
 
   return COGL_TEXTURE_GET_CLASS (texture)->get_format (texture);
@@ -324,7 +324,7 @@ cogl_texture_is_sliced (CoglTexture *texture)
 {
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
-  if (!texture->allocated)
+  if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
 
   return COGL_TEXTURE_GET_CLASS (texture)->is_sliced (texture);
@@ -337,7 +337,7 @@ cogl_texture_is_sliced (CoglTexture *texture)
 gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture)
 {
-  if (!texture->allocated)
+  if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
   return COGL_TEXTURE_GET_CLASS (texture)->can_hardware_repeat (texture);
 }
@@ -349,7 +349,7 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
 {
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
-  if (!texture->allocated)
+  if (!cogl_texture_is_allocated (texture))
     cogl_texture_allocate (texture, NULL);
 
   return COGL_TEXTURE_GET_CLASS (texture)->get_gl_texture (texture,
@@ -1101,12 +1101,18 @@ _cogl_texture_set_allocated (CoglTexture *texture,
 }
 
 gboolean
+cogl_texture_is_allocated (CoglTexture *texture)
+{
+  return texture->allocated;
+}
+
+gboolean
 cogl_texture_allocate (CoglTexture *texture,
                        GError **error)
 {
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
 
-  if (texture->allocated)
+  if (cogl_texture_is_allocated (texture))
     return TRUE;
 
   if (texture->components == COGL_TEXTURE_COMPONENTS_RG &&
@@ -1220,7 +1226,7 @@ cogl_texture_set_components (CoglTexture *texture,
                              CoglTextureComponents components)
 {
   g_return_if_fail (COGL_IS_TEXTURE (texture));
-  g_return_if_fail (!texture->allocated);
+  g_return_if_fail (!cogl_texture_is_allocated (texture));
 
   if (texture->components == components)
     return;
@@ -1241,7 +1247,7 @@ cogl_texture_set_premultiplied (CoglTexture *texture,
                                 gboolean premultiplied)
 {
   g_return_if_fail (COGL_IS_TEXTURE (texture));
-  g_return_if_fail (!texture->allocated);
+  g_return_if_fail (!cogl_texture_is_allocated (texture));
 
   premultiplied = !!premultiplied;
 
