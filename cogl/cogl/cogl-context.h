@@ -36,12 +36,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglContext type here to avoid some circular
- * dependency issues with the following headers.
- */
-typedef struct _CoglContext CoglContext;
-typedef struct _CoglTimestampQuery CoglTimestampQuery;
-
 #include "cogl/cogl-display.h"
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-primitive.h"

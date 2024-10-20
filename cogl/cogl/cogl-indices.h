@@ -37,11 +37,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglIndices type here to avoid some circular
- * dependency issues with the following headers.
- */
-typedef struct _CoglIndices CoglIndices;
-
 #include "cogl/cogl-index-buffer.h"
 
 #include <glib-object.h>

@@ -62,7 +62,6 @@ G_BEGIN_DECLS
 #define COGL_TEXTURE_2D_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_TEXTURE_2D, CoglTexture2DClass))
 
 typedef struct _CoglTexture2DClass CoglTexture2DClass;
-typedef struct _CoglTexture2D CoglTexture2D;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglTexture2D, g_object_unref)
 

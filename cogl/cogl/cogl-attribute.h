@@ -37,11 +37,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglAttribute type here to avoid some circular
- * dependency issues with the following headers.
- */
-typedef struct _CoglAttribute CoglAttribute;
-
 #include "cogl/cogl-attribute-buffer.h"
 #include "cogl/cogl-indices.h"
 

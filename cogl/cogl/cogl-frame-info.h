@@ -49,8 +49,6 @@ G_BEGIN_DECLS
  *
  * Frame information.
  */
-typedef struct _CoglFrameInfo CoglFrameInfo;
-
 #define COGL_TYPE_FRAME_INFO (cogl_frame_info_get_type ())
 
 COGL_EXPORT

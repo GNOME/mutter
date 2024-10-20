@@ -217,8 +217,6 @@ G_BEGIN_DECLS
  *   cogl_pop_source ();
  * ```
  */
-typedef struct _CoglSnippet CoglSnippet;
-
 #define COGL_TYPE_SNIPPET (cogl_snippet_get_type ())
 
 COGL_EXPORT

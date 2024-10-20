@@ -30,8 +30,6 @@
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-framebuffer.h"
 
-typedef struct _CoglFramebufferBits CoglFramebufferBits;
-
 #define COGL_TYPE_FRAMEBUFFER_DRIVER (cogl_framebuffer_driver_get_type ())
 G_DECLARE_DERIVABLE_TYPE (CoglFramebufferDriver,
                           cogl_framebuffer_driver,

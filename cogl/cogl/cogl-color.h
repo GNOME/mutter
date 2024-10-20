@@ -318,8 +318,6 @@ cogl_color_init_from_hsl (CoglColor *color,
  */
 #define COGL_VALUE_HOLDS_COLOR(x)       (G_VALUE_HOLDS ((x), COGL_TYPE_COLOR))
 
-typedef struct _CoglParamSpecColor CoglParamSpecColor;
-
 /**
  * CoglParamSpecColor: (skip)
  * @default_value: default color value

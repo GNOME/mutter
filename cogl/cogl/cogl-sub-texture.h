@@ -55,7 +55,6 @@ G_BEGIN_DECLS
 #define COGL_SUB_TEXTURE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_SUB_TEXTURE, CoglSubTextureClass))
 
 typedef struct _CoglSubTextureClass CoglSubTextureClass;
-typedef struct _CoglSubTexture CoglSubTexture;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglSubTexture, g_object_unref)
 

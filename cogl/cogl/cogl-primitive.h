@@ -37,11 +37,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-/* We forward declare the CoglPrimitive type here to avoid some circular
- * dependency issues with the following headers.
- */
-typedef struct _CoglPrimitive CoglPrimitive;
-
 #include "cogl/cogl-types.h" /* for CoglVerticesMode */
 #include "cogl/cogl-attribute.h"
 #include "cogl/cogl-framebuffer.h"
