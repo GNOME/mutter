@@ -43,7 +43,6 @@
 #include "cogl/cogl-clip-stack.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-pipeline-state-private.h"
-#include "cogl/cogl-primitive-private.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"

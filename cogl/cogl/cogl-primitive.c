@@ -35,14 +35,26 @@
 
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-primitive.h"
-#include "cogl/cogl-primitive-private.h"
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 
 #include <stdarg.h>
 #include <string.h>
 
-G_DEFINE_TYPE (CoglPrimitive, cogl_primitive, G_TYPE_OBJECT);
+typedef struct _CoglPrimitive
+{
+  GObject parent_instance;
+
+  CoglIndices *indices;
+  CoglVerticesMode mode;
+  int first_vertex;
+  int n_vertices;
+
+  GPtrArray *attributes;
+  int n_attributes;
+} CoglPrimitive;
+
+G_DEFINE_FINAL_TYPE (CoglPrimitive, cogl_primitive, G_TYPE_OBJECT);
 
 static void
 cogl_primitive_dispose (GObject *object)
