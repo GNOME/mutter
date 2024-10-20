@@ -38,7 +38,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-graphene.h"
 #include "cogl/cogl-primitives-private.h"
-#include "cogl/cogl-primitive-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"

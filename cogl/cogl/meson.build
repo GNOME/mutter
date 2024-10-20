@@ -238,7 +238,6 @@ cogl_sources = [
   'cogl-pixel-format.c',
   'cogl-point-in-poly-private.h',
   'cogl-point-in-poly.c',
-  'cogl-primitive-private.h',
   'cogl-primitive.c',
   'cogl-primitives-private.h',
   'cogl-primitives.c',
