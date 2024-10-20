@@ -39,7 +39,7 @@
 
 #include <string.h>
 
-G_DEFINE_TYPE (CoglShader, cogl_shader, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglShader, cogl_shader, G_TYPE_OBJECT);
 
 static void
 cogl_shader_dispose (GObject *object)

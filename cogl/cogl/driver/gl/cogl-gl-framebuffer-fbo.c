@@ -53,8 +53,8 @@ struct _CoglGlFramebufferFbo
   CoglFramebufferBits bits;
 };
 
-G_DEFINE_TYPE (CoglGlFramebufferFbo, cogl_gl_framebuffer_fbo,
-               COGL_TYPE_GL_FRAMEBUFFER)
+G_DEFINE_FINAL_TYPE (CoglGlFramebufferFbo, cogl_gl_framebuffer_fbo,
+                     COGL_TYPE_GL_FRAMEBUFFER)
 
 static gboolean
 ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)

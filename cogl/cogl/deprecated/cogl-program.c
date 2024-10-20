@@ -38,7 +38,7 @@
 
 #include <string.h>
 
-G_DEFINE_TYPE (CoglProgram, cogl_program, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglProgram, cogl_program, G_TYPE_OBJECT);
 
 static void
 cogl_program_dispose (GObject *object)

@@ -33,7 +33,7 @@
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-context-private.h"
 
-G_DEFINE_TYPE (CoglFrameInfo, cogl_frame_info, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglFrameInfo, cogl_frame_info, G_TYPE_OBJECT);
 
 static void
 cogl_frame_info_dispose (GObject *object)

@@ -37,7 +37,7 @@
 #include "cogl/cogl-snippet-private.h"
 #include "cogl/cogl-util.h"
 
-G_DEFINE_TYPE (CoglSnippet, cogl_snippet, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglSnippet, cogl_snippet, G_TYPE_OBJECT);
 
 
 static void

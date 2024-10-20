@@ -122,7 +122,7 @@ typedef void (*CoglJournalBatchCallback) (CoglJournalEntry *start,
 typedef gboolean (*CoglJournalBatchTest) (CoglJournalEntry *entry0,
                                           CoglJournalEntry *entry1);
 
-G_DEFINE_TYPE (CoglJournal, cogl_journal, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglJournal, cogl_journal, G_TYPE_OBJECT);
 
 static void
 cogl_journal_dispose (GObject *object)
