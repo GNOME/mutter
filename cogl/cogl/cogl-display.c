@@ -40,7 +40,7 @@
 #include "cogl/winsys/cogl-winsys-private.h"
 
 
-G_DEFINE_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
 static const CoglWinsysVtable *
 _cogl_display_get_winsys (CoglDisplay *display)

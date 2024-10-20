@@ -51,7 +51,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-G_DEFINE_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
 
 
 const CoglWinsysVtable *

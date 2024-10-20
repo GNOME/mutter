@@ -49,7 +49,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-G_DEFINE_TYPE (CoglAttribute, cogl_attribute, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglAttribute, cogl_attribute, G_TYPE_OBJECT);
 
 static void
 cogl_attribute_dispose (GObject *object)

@@ -63,7 +63,7 @@ _cogl_matrix_entry_new (CoglMatrixOp operation)
   return entry;
 }
 
-G_DEFINE_TYPE (CoglMatrixStack, cogl_matrix_stack, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglMatrixStack, cogl_matrix_stack, G_TYPE_OBJECT);
 
 static void
 cogl_matrix_stack_dispose (GObject *object)

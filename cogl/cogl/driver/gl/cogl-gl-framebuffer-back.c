@@ -44,8 +44,8 @@ struct _CoglGlFramebufferBack
   CoglFramebufferBits bits;
 };
 
-G_DEFINE_TYPE (CoglGlFramebufferBack, cogl_gl_framebuffer_back,
-               COGL_TYPE_GL_FRAMEBUFFER)
+G_DEFINE_FINAL_TYPE (CoglGlFramebufferBack, cogl_gl_framebuffer_back,
+                     COGL_TYPE_GL_FRAMEBUFFER)
 
 static gboolean
 ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)

@@ -42,7 +42,7 @@
 
 static GQuark bitmap_free_key = 0;
 
-G_DEFINE_TYPE (CoglBitmap, cogl_bitmap, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglBitmap, cogl_bitmap, G_TYPE_OBJECT);
 
 static void
 cogl_bitmap_dispose (GObject *object)

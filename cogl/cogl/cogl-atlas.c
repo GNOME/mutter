@@ -45,7 +45,7 @@
 
 #include <stdlib.h>
 
-G_DEFINE_TYPE (CoglAtlas, cogl_atlas, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglAtlas, cogl_atlas, G_TYPE_OBJECT);
 
 static void
 cogl_atlas_dispose (GObject *object)

@@ -34,8 +34,8 @@ struct _CoglNopFramebuffer
   CoglFramebufferDriver parent;
 };
 
-G_DEFINE_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
-               COGL_TYPE_FRAMEBUFFER_DRIVER)
+G_DEFINE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
+                     COGL_TYPE_FRAMEBUFFER_DRIVER)
 
 static void
 cogl_nop_framebuffer_query_bits (CoglFramebufferDriver *driver,

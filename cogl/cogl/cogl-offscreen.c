@@ -40,8 +40,8 @@ struct _CoglOffscreen
   int texture_level;
 };
 
-G_DEFINE_TYPE (CoglOffscreen, cogl_offscreen,
-               COGL_TYPE_FRAMEBUFFER)
+G_DEFINE_FINAL_TYPE (CoglOffscreen, cogl_offscreen,
+                     COGL_TYPE_FRAMEBUFFER)
 
 CoglOffscreen *
 _cogl_offscreen_new_with_texture_full (CoglTexture       *texture,

@@ -57,10 +57,10 @@ struct _CoglOnscreenGlx
 static void
 x11_onscreen_init_iface (CoglX11OnscreenInterface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (CoglOnscreenGlx, cogl_onscreen_glx,
-                         COGL_TYPE_ONSCREEN,
-                         G_IMPLEMENT_INTERFACE (COGL_TYPE_X11_ONSCREEN,
-                                                x11_onscreen_init_iface))
+G_DEFINE_FINAL_TYPE_WITH_CODE (CoglOnscreenGlx, cogl_onscreen_glx,
+                               COGL_TYPE_ONSCREEN,
+                               G_IMPLEMENT_INTERFACE (COGL_TYPE_X11_ONSCREEN,
+                                                      x11_onscreen_init_iface))
 
 #define COGL_ONSCREEN_X11_EVENT_MASK (StructureNotifyMask | ExposureMask)
 

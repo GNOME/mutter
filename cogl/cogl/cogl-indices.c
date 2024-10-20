@@ -42,7 +42,7 @@
 
 #include <stdarg.h>
 
-G_DEFINE_TYPE (CoglIndices, cogl_indices, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglIndices, cogl_indices, G_TYPE_OBJECT);
 
 static void
 cogl_indices_dispose (GObject *object)

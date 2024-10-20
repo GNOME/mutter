@@ -145,7 +145,7 @@ native_filter_closure_free (CoglNativeFilterClosure *closure)
   g_free (closure);
 }
 
-G_DEFINE_TYPE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
+G_DEFINE_FINAL_TYPE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
 
 static void
 cogl_renderer_dispose (GObject *object)
