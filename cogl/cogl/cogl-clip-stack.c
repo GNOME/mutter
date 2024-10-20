@@ -109,7 +109,7 @@ _cogl_clip_stack_entry_set_bounds (CoglClipStack *entry,
 
 /* Transform a homogeneous vertex position from model space to Cogl
  * window coordinates (with 0,0 being top left) */
-void
+static void
 _cogl_transform_point (const graphene_matrix_t *matrix_mv,
                        const graphene_matrix_t *matrix_p,
                        const float             *viewport,
