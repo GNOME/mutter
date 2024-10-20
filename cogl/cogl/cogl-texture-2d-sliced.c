@@ -1205,9 +1205,6 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
 static void
 cogl_texture_2d_sliced_init (CoglTexture2DSliced *self)
 {
-  CoglTexture *texture = COGL_TEXTURE (self);
-
-  texture->is_primitive = FALSE;
 }
 
 static CoglTexture *

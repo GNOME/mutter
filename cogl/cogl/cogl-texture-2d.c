@@ -85,6 +85,7 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                                         "height", height,
                                         "loader", loader,
                                         "format", internal_format,
+                                        "is-primitive", TRUE,
                                         NULL);
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
@@ -346,9 +347,6 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 static void
 cogl_texture_2d_init (CoglTexture2D *self)
 {
-  CoglTexture *texture = COGL_TEXTURE (self);
-
-  texture->is_primitive = TRUE;
 }
 
 CoglTexture *
