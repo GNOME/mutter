@@ -320,10 +320,12 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
   MetaWaylandXdgSessionState *xdg_session_state =
     META_WAYLAND_XDG_SESSION_STATE (state);
   MetaWaylandXdgToplevelState *toplevel_state;
+  MtkRectangle rect;
 
   toplevel_state =
     meta_wayland_xdg_session_state_ensure_toplevel (xdg_session_state,
                                                     name);
+  rect = meta_window_config_get_rect (window->config);
 
   g_object_get (window,
                 "minimized", &toplevel_state->is_minimized,
@@ -334,7 +336,7 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
     {
       toplevel_state->window_state = WINDOW_STATE_MAXIMIZED;
 
-      toplevel_state->tiled.rect = window->rect;
+      toplevel_state->tiled.rect = rect;
     }
   else if (window->tile_mode == META_TILE_LEFT ||
            window->tile_mode == META_TILE_RIGHT)
@@ -344,13 +346,13 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
       else if (window->tile_mode == META_TILE_RIGHT)
         toplevel_state->window_state = WINDOW_STATE_TILED_RIGHT;
 
-      toplevel_state->tiled.rect = window->rect;
+      toplevel_state->tiled.rect = rect;
     }
   else
     {
       toplevel_state->window_state = WINDOW_STATE_FLOATING;
 
-      toplevel_state->floating.rect = window->rect;
+      toplevel_state->floating.rect = rect;
     }
 
   toplevel_state->workspace_idx = meta_workspace_index (window->workspace);

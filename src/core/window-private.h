@@ -38,6 +38,7 @@
 #include "meta/meta-close-dialog.h"
 #include "meta/util.h"
 #include "meta/window.h"
+#include "meta/meta-window-config.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWindowQueue MetaWindowQueue;
@@ -311,8 +312,8 @@ struct _MetaWindow
    * comment at the top of meta_window_move_resize_internal() for more
    * information. */
 
-  /* The current window geometry of the window. */
-  MtkRectangle rect;
+  /* The current configuration of the window. */
+  MetaWindowConfig *config;
 
   /* The geometry to restore when we unmaximize. */
   MtkRectangle saved_rect;
@@ -400,9 +401,6 @@ struct _MetaWindow
   /* The last "full" maximized/unmaximized state. We need to keep track of
    * that to toggle between normal/tiled or maximized/tiled states. */
   guint saved_maximize : 1;
-
-  /* Whether we're fullscreen */
-  guint fullscreen : 1;
 
   /* Whether the window is marked as urgent */
   guint urgent : 1;

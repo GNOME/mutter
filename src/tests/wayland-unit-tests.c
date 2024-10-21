@@ -691,6 +691,7 @@ toplevel_bounds_struts (void)
   MetaWindow *window;
   MtkRectangle logical_monitor_layout;
   MtkRectangle work_area;
+  MtkRectangle frame_rect;
 
   /*
    * This test case makes sure that setting and changing struts result in the
@@ -719,8 +720,9 @@ toplevel_bounds_struts (void)
   g_assert_cmpint (work_area.width, ==, logical_monitor_layout.width);
   g_assert_cmpint (work_area.height, ==, logical_monitor_layout.height - 10);
 
-  g_assert_cmpint (window->rect.width, ==, work_area.width - 10);
-  g_assert_cmpint (window->rect.height, ==, work_area.height - 10);
+  frame_rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (frame_rect.width, ==, work_area.width - 10);
+  g_assert_cmpint (frame_rect.height, ==, work_area.height - 10);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
@@ -739,8 +741,9 @@ toplevel_bounds_struts (void)
   g_assert_cmpint (work_area.width, ==, logical_monitor_layout.width);
   g_assert_cmpint (work_area.height, ==, logical_monitor_layout.height);
 
-  g_assert_cmpint (window->rect.width, ==, work_area.width - 10);
-  g_assert_cmpint (window->rect.height, ==, work_area.height - 10);
+  frame_rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (frame_rect.width, ==, work_area.width - 10);
+  g_assert_cmpint (frame_rect.height, ==, work_area.height - 10);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
@@ -774,6 +777,7 @@ toplevel_bounds_monitors (void)
   MetaWaylandTestClient *wayland_test_client;
   MtkRectangle logical_monitor_layout;
   MtkRectangle work_area;
+  MtkRectangle frame_rect;
   MetaWindow *window;
 
   /*
@@ -811,8 +815,9 @@ toplevel_bounds_monitors (void)
   g_assert_cmpint (work_area.width, ==, logical_monitor_layout.width);
   g_assert_cmpint (work_area.height, ==, logical_monitor_layout.height - 10);
 
-  g_assert_cmpint (window->rect.width, ==, work_area.width - 10);
-  g_assert_cmpint (window->rect.height, ==, work_area.height - 10);
+  frame_rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (frame_rect.width, ==, work_area.width - 10);
+  g_assert_cmpint (frame_rect.height, ==, work_area.height - 10);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
@@ -835,8 +840,9 @@ toplevel_bounds_monitors (void)
   g_assert_cmpint (work_area.width, ==, 300);
   g_assert_cmpint (work_area.height, ==, 200);
 
-  g_assert_cmpint (window->rect.width, ==, 300 - 10);
-  g_assert_cmpint (window->rect.height, ==, 200 - 10);
+  frame_rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (frame_rect.width, ==, 300 - 10);
+  g_assert_cmpint (frame_rect.height, ==, 200 - 10);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);

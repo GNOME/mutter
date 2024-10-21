@@ -891,9 +891,6 @@ process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
   if (process_keyboard_resize_grab_op_change (window_drag, window, event))
     return TRUE;
 
-  width = window->rect.width;
-  height = window->rect.height;
-
   meta_window_get_frame_rect (window, &frame_rect);
   width = frame_rect.width;
   height = frame_rect.height;
@@ -1599,6 +1596,7 @@ maybe_maximize_tiled_window (MetaWindow *window)
 {
   MtkRectangle work_area;
   gint shake_threshold;
+  int width;
 
   if (!meta_window_is_tiled_side_by_side (window))
     return;
@@ -1608,7 +1606,8 @@ maybe_maximize_tiled_window (MetaWindow *window)
   meta_window_get_work_area_for_monitor (window,
                                          window->tile_monitor_number,
                                          &work_area);
-  if (window->rect.width >= work_area.width - shake_threshold)
+  meta_window_config_get_size (window->config, &width, NULL);
+  if (width >= work_area.width - shake_threshold)
     meta_window_maximize (window, META_MAXIMIZE_BOTH);
 }
 

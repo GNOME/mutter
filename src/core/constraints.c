@@ -560,10 +560,12 @@ place_window_if_needed (MetaWindow     *window,
       MtkRectangle placed_rect;
       MetaWorkspace *cur_workspace;
       MetaLogicalMonitor *logical_monitor;
+      int x, y;
 
+      meta_window_config_get_position (window->config, &x, &y);
       placed_rect = (MtkRectangle) {
-        .x = window->rect.x,
-        .y = window->rect.y,
+        .x = x,
+        .y = y,
         .width = info->current.width,
         .height = info->current.height
       };
@@ -897,6 +899,7 @@ constrain_custom_rule (MetaWindow         *window,
   gboolean constraint_satisfied;
   MtkRectangle temporary_rect;
   MtkRectangle adjusted_unconstrained;
+  MtkRectangle parent_rect;
   int adjusted_rel_x;
   int adjusted_rel_y;
   MetaPlacementRule current_rule;
@@ -911,10 +914,11 @@ constrain_custom_rule (MetaWindow         *window,
     return TRUE;
 
   parent = meta_window_get_transient_for (window);
+  parent_rect = meta_window_config_get_rect (parent->config);
   if (window->placement.state == META_PLACEMENT_STATE_CONSTRAINED_FINISHED)
     {
-      placement_rule->parent_rect.x = parent->rect.x;
-      placement_rule->parent_rect.y = parent->rect.y;
+      placement_rule->parent_rect.x = parent_rect.x;
+      placement_rule->parent_rect.y = parent_rect.y;
     }
   parent_x = placement_rule->parent_rect.x;
   parent_y = placement_rule->parent_rect.y;
@@ -938,8 +942,8 @@ constrain_custom_rule (MetaWindow         *window,
     case META_PLACEMENT_STATE_CONSTRAINED_FINISHED:
     case META_PLACEMENT_STATE_INVALIDATED:
       temporary_rect = (MtkRectangle) {
-        .x = parent->rect.x + window->placement.current.rel_x,
-        .y = parent->rect.y + window->placement.current.rel_y,
+        .x = parent_rect.x + window->placement.current.rel_x,
+        .y = parent_rect.y + window->placement.current.rel_y,
         .width = info->current.width,
         .height = info->current.height,
       };

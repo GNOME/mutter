@@ -88,7 +88,7 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   frame->window = window;
   frame->xwindow = xframe;
 
-  frame->rect = window->rect;
+  frame->rect = meta_window_config_get_rect (window->config);
   frame->child_x = 0;
   frame->child_y = 0;
   frame->bottom_height = 0;

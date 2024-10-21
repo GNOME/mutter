@@ -331,6 +331,8 @@ meta_window_finalize (GObject *object)
   g_clear_pointer (&window->preferred_logical_monitor,
                    meta_logical_monitor_id_free);
 
+  g_clear_object (&window->config);
+
   g_free (window->startup_id);
   g_free (window->role);
   g_free (window->res_class);
@@ -1021,6 +1023,7 @@ meta_window_constructed (GObject *object)
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
+  MtkRectangle frame_rect;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWindowSharedInit,
                            "Meta::Window::constructed()");
@@ -1041,9 +1044,10 @@ meta_window_constructed (GObject *object)
   meta_window_set_normal_hints (window, NULL);
 
   /* And this is our unmaximized size */
-  window->saved_rect = window->rect;
-  window->saved_rect_fullscreen = window->rect;
-  window->unconstrained_rect = window->rect;
+  frame_rect = meta_window_config_get_rect (window->config);
+  window->saved_rect = frame_rect;
+  window->saved_rect_fullscreen = frame_rect;
+  window->unconstrained_rect = frame_rect;
 
   window->title = NULL;
 
@@ -1055,7 +1059,7 @@ meta_window_constructed (GObject *object)
   window->maximize_horizontally_after_placement = FALSE;
   window->maximize_vertically_after_placement = FALSE;
   window->minimize_after_placement = FALSE;
-  window->fullscreen = FALSE;
+  meta_window_config_set_is_fullscreen (window->config, FALSE);
   window->require_fully_onscreen = TRUE;
   window->require_on_single_monitor = TRUE;
   window->require_titlebar_visible = TRUE;
@@ -1133,7 +1137,7 @@ meta_window_constructed (GObject *object)
 
   window->compositor_private = NULL;
 
-  if (window->rect.width > 0 && window->rect.height > 0)
+  if (frame_rect.width > 0 && frame_rect.height > 0)
     {
       window->monitor = meta_window_find_monitor_from_frame_rect (window);
       window->highest_scale_monitor =
@@ -2076,6 +2080,7 @@ window_would_mostly_be_covered_by_always_above_window (MetaWindow *window)
   GList *l;
   g_autoptr (MtkRegion) region = NULL;
   int window_area, intersection_area, visible_area;
+  MtkRectangle frame_rect;
 
   region = mtk_region_create ();
   windows = meta_workspace_list_windows (workspace);
@@ -2083,13 +2088,15 @@ window_would_mostly_be_covered_by_always_above_window (MetaWindow *window)
     {
       MetaWindow *other_window = l->data;
 
+      frame_rect = meta_window_config_get_rect (other_window->config);
       if (other_window->wm_state_above && other_window != window)
-        mtk_region_union_rectangle (region, &other_window->rect);
+        mtk_region_union_rectangle (region, &frame_rect);
     }
 
-  window_area = window->rect.width * window->rect.height;
+  frame_rect = meta_window_config_get_rect (window->config);
+  window_area = frame_rect.width * frame_rect.height;
 
-  mtk_region_intersect_rectangle (region, &window->rect);
+  mtk_region_intersect_rectangle (region, &frame_rect);
   intersection_area = calculate_region_area (region);
   visible_area = window_area - intersection_area;
 
@@ -2330,10 +2337,12 @@ meta_window_show (MetaWindow *window)
           window->has_maximize_func)
         {
           MtkRectangle work_area;
+          MtkRectangle frame_rect;
           int window_area;
           int work_area_area;
 
-          window_area = window->rect.width * window->rect.height;
+          frame_rect = meta_window_config_get_rect (window->config);
+          window_area = frame_rect.width * frame_rect.height;
           meta_window_get_work_area_current_monitor (window, &work_area);
           work_area_area = work_area.width * work_area.height;
 
@@ -2696,16 +2705,19 @@ meta_window_save_rect (MetaWindow *window)
         meta_window_is_tiled_side_by_side (window) ||
         meta_window_is_fullscreen (window)))
     {
+      MtkRectangle frame_rect;
+
+      frame_rect = meta_window_config_get_rect (window->config);
       /* save size/pos as appropriate args for move_resize */
       if (!window->maximized_horizontally)
         {
-          window->saved_rect.x      = window->rect.x;
-          window->saved_rect.width  = window->rect.width;
+          window->saved_rect.x      = frame_rect.x;
+          window->saved_rect.width  = frame_rect.width;
         }
       if (!window->maximized_vertically)
         {
-          window->saved_rect.y      = window->rect.y;
-          window->saved_rect.height = window->rect.height;
+          window->saved_rect.y      = frame_rect.y;
+          window->saved_rect.height = frame_rect.height;
         }
     }
 }
@@ -2857,7 +2869,7 @@ meta_window_is_maximized (MetaWindow *window)
 gboolean
 meta_window_is_fullscreen (MetaWindow *window)
 {
-  return window->fullscreen;
+  return meta_window_config_get_is_fullscreen (window->config);
 }
 
 /**
@@ -3189,7 +3201,7 @@ unmaximize_window_before_freeing (MetaWindow        *window)
 
   if (window->withdrawn)                /* See bug #137185 */
     {
-      window->rect = window->saved_rect;
+      meta_window_config_set_rect (window->config, window->saved_rect);
       set_net_wm_state (window);
     }
 #ifdef HAVE_WAYLAND
@@ -3400,9 +3412,9 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Fullscreening %s", window->desc);
 
-      window->saved_rect_fullscreen = window->rect;
+      window->saved_rect_fullscreen = meta_window_config_get_rect (window->config);
 
-      window->fullscreen = TRUE;
+      meta_window_config_set_is_fullscreen (window->config, TRUE);
 
       meta_stack_freeze (window->display->stack);
 
@@ -3460,7 +3472,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Unfullscreening %s", window->desc);
 
-      window->fullscreen = FALSE;
+      meta_window_config_set_is_fullscreen (window->config, FALSE);
       target_rect = window->saved_rect_fullscreen;
 
       meta_window_frame_size_changed (window);
@@ -3690,11 +3702,14 @@ meta_window_updates_are_frozen (MetaWindow *window)
 static void
 meta_window_reposition (MetaWindow *window)
 {
+  MtkRectangle frame_rect;
+
+  frame_rect = meta_window_config_get_rect (window->config);
   meta_window_move_resize (window,
                            (META_MOVE_RESIZE_MOVE_ACTION |
                             META_MOVE_RESIZE_RESIZE_ACTION |
                             META_MOVE_RESIZE_CONSTRAIN),
-                           window->rect);
+                           frame_rect);
 }
 
 static gboolean
@@ -3860,6 +3875,7 @@ meta_window_update_monitor (MetaWindow                   *window,
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   const MetaLogicalMonitor *old, *old_highest_scale;
+  int frame_width, frame_height;
 
   old = window->monitor;
   META_WINDOW_GET_CLASS (window)->update_main_monitor (window, flags);
@@ -3892,8 +3908,9 @@ meta_window_update_monitor (MetaWindow                   *window,
     }
 
   old_highest_scale = window->highest_scale_monitor;
+  meta_window_config_get_size (window->config, &frame_width, &frame_height);
 
-  window->highest_scale_monitor = window->rect.width > 0 && window->rect.height > 0
+  window->highest_scale_monitor = frame_width > 0 && frame_height > 0
     ? meta_window_find_highest_scale_monitor_from_frame_rect (window)
     : window->monitor;
 
@@ -3932,6 +3949,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   MtkRectangle unconstrained_rect;
   MtkRectangle constrained_rect;
   MtkRectangle temporary_rect;
+  MtkRectangle rect;
   int rel_x = 0;
   int rel_y = 0;
   MetaMoveResizeResultFlags result = 0;
@@ -3951,6 +3969,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   /* We don't need it in the idle queue anymore. */
   meta_window_unqueue (window, META_QUEUE_MOVE_RESIZE);
+  rect = meta_window_config_get_rect (window->config);
 
   if ((flags & META_MOVE_RESIZE_RESIZE_ACTION) && (flags & META_MOVE_RESIZE_MOVE_ACTION))
     {
@@ -3962,7 +3981,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
       /* If this is only a resize, then ignore the position given in
        * the parameters and instead calculate the new position from
        * resizing the old rectangle with the given gravity. */
-      meta_rectangle_resize_with_gravity (&window->rect,
+      meta_rectangle_resize_with_gravity (&rect,
                                           &unconstrained_rect,
                                           gravity,
                                           frame_rect.width,
@@ -3974,21 +3993,21 @@ meta_window_move_resize_internal (MetaWindow          *window,
        * just use the existing size of the window. */
       unconstrained_rect.x = frame_rect.x;
       unconstrained_rect.y = frame_rect.y;
-      unconstrained_rect.width = window->rect.width;
-      unconstrained_rect.height = window->rect.height;
+      unconstrained_rect.width = rect.width;
+      unconstrained_rect.height = rect.height;
     }
   else if ((flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE))
     {
       /* This is a Wayland buffer acking our size. The new rect is
        * just the existing one we have. Ignore the passed-in rect
        * completely. */
-      unconstrained_rect = window->rect;
+      unconstrained_rect = rect;
     }
   else
     g_assert_not_reached ();
 
   constrained_rect = unconstrained_rect;
-  temporary_rect = window->rect;
+  temporary_rect = rect;
   if (flags & META_MOVE_RESIZE_CONSTRAIN && window->monitor)
     {
       MtkRectangle old_rect;
@@ -4375,8 +4394,9 @@ gboolean
 meta_window_geometry_contains_rect (MetaWindow   *window,
                                     MtkRectangle *rect)
 {
-  return mtk_rectangle_contains_rect (&window->rect,
-                                      rect);
+  MtkRectangle frame_rect = meta_window_config_get_rect (window->config);
+
+  return mtk_rectangle_contains_rect (&frame_rect, rect);
 }
 
 /**
@@ -4510,7 +4530,7 @@ void
 meta_window_get_frame_rect (const MetaWindow *window,
                             MtkRectangle     *rect)
 {
-  *rect = window->rect;
+  *rect = meta_window_config_get_rect (window->config);
 }
 
 /**

@@ -878,8 +878,10 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
     {
       MetaWaylandWindowConfiguration *configuration;
       int bounds_width, bounds_height, geometry_scale;
+      MtkRectangle rect;
 
       geometry_scale = meta_window_wayland_get_geometry_scale (window);
+      rect = meta_window_config_get_rect (window->config);
 
       if (!meta_window_calculate_bounds (window, &bounds_width, &bounds_height))
         {
@@ -891,7 +893,7 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
         {
           configuration =
             meta_wayland_window_configuration_new (window,
-                                                   window->rect,
+                                                   rect,
                                                    bounds_width,
                                                    bounds_height,
                                                    geometry_scale,

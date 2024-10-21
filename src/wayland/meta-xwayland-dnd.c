@@ -804,6 +804,7 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   MetaWaylandSurface *focus = NULL;
   MetaWindow *focus_window;
+  MtkRectangle frame_rect;
 
   focus = pick_drop_surface (compositor, event);
   if (dnd->focus_surface == focus)
@@ -825,11 +826,12 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
       dnd_window = next_dnd_window (dnd);
 
       XMapRaised (xdisplay, dnd_window);
+      frame_rect = meta_window_config_get_rect (focus_window->config);
       XMoveResizeWindow (xdisplay, dnd_window,
-                         focus_window->rect.x,
-                         focus_window->rect.y,
-                         focus_window->rect.width,
-                         focus_window->rect.height);
+                         frame_rect.x,
+                         frame_rect.y,
+                         frame_rect.width,
+                         frame_rect.height);
     }
   else
     {

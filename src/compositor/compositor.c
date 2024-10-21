@@ -1375,11 +1375,13 @@ meta_compositor_flash_window (MetaCompositor *compositor,
     CLUTTER_ACTOR (meta_window_actor_from_window (window));
   ClutterActor *flash;
   ClutterTransition *transition;
+  int width, height;
 
   flash = clutter_actor_new ();
   clutter_actor_set_accessible_name (flash, "Flash actor");
   clutter_actor_set_background_color (flash, &COGL_COLOR_INIT (0, 0, 0, 255));
-  clutter_actor_set_size (flash, window->rect.width, window->rect.height);
+  meta_window_config_get_size (window->config, &width, &height);
+  clutter_actor_set_size (flash, width, height);
   clutter_actor_set_position (flash,
                               window->custom_frame_extents.left,
                               window->custom_frame_extents.top);

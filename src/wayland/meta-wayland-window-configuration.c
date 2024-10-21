@@ -34,6 +34,7 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   MetaWaylandWindowConfiguration *configuration;
+  int x, y;
 
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
@@ -50,9 +51,10 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
     .is_suspended = meta_window_is_suspended (window),
   };
 
+  meta_window_config_get_position (window->config, &x, &y);
   if (flags & META_MOVE_RESIZE_MOVE_ACTION ||
-      window->rect.x != rect.x ||
-      window->rect.y != rect.y)
+      x != rect.x ||
+      y != rect.y)
     {
       configuration->has_position = TRUE;
       configuration->x = rect.x;

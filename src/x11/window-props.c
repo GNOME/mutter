@@ -344,7 +344,11 @@ meta_window_set_custom_frame_extents (MetaWindow      *window,
        */
       if (is_initial)
         {
-          meta_window_client_rect_to_frame_rect (window, &window->rect, &window->rect);
+          MtkRectangle frame_rect;
+
+          frame_rect = meta_window_config_get_rect (window->config);
+          meta_window_client_rect_to_frame_rect (window, &frame_rect, &frame_rect);
+          meta_window_config_set_rect (window->config, frame_rect);
           meta_window_client_rect_to_frame_rect (window, &window->unconstrained_rect, &window->unconstrained_rect);
         }
     }
@@ -791,7 +795,7 @@ reload_net_wm_state (MetaWindow    *window,
 
   window->maximized_horizontally = FALSE;
   window->maximized_vertically = FALSE;
-  window->fullscreen = FALSE;
+  meta_window_config_set_is_fullscreen (window->config, FALSE);
   priv->wm_state_modal = FALSE;
   priv->wm_state_skip_taskbar = FALSE;
   priv->wm_state_skip_pager = FALSE;
@@ -819,7 +823,7 @@ reload_net_wm_state (MetaWindow    *window,
         priv->wm_state_skip_pager = TRUE;
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_FULLSCREEN)
         {
-          window->fullscreen = TRUE;
+          meta_window_config_set_is_fullscreen (window->config, TRUE);
           g_object_notify (G_OBJECT (window), "fullscreen");
         }
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_ABOVE)

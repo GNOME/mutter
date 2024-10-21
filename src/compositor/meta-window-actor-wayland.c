@@ -548,6 +548,7 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
   ClutterActorIter iter;
   float max_width = 0;
   float max_height = 0;
+  int width, height;
 
   if (!meta_window_wayland_is_acked_fullscreen (META_WINDOW_WAYLAND (window)))
     return FALSE;
@@ -584,8 +585,9 @@ maybe_configure_black_background (MetaWindowActorWayland *self,
 
   *surfaces_width = max_width;
   *surfaces_height = max_height;
-  *background_width = window->rect.width / geometry_scale;
-  *background_height = window->rect.height / geometry_scale;
+  meta_window_config_get_size (window->config, &width, &height);
+  *background_width = width / geometry_scale;
+  *background_height = height / geometry_scale;
   return TRUE;
 }
 
