@@ -62,8 +62,6 @@ struct _MetaTestShell
 
   ClutterActor *background_group;
 
-  MetaPluginInfo info;
-
   struct {
     ClutterGrab *grab;
     ClutterActor *prev_focus;
@@ -781,14 +779,6 @@ meta_test_shell_kill_window_effects (MetaPlugin      *plugin,
     finish_timeline (actor_priv->destroy_timeline);
 }
 
-static const MetaPluginInfo *
-meta_test_shell_plugin_info (MetaPlugin *plugin)
-{
-  MetaTestShell *test_shell = META_TEST_SHELL (plugin);
-
-  return &test_shell->info;
-}
-
 static void
 meta_test_shell_class_init (MetaTestShellClass *klass)
 {
@@ -803,15 +793,9 @@ meta_test_shell_class_init (MetaTestShellClass *klass)
   plugin_class->hide_tile_preview = meta_test_shell_hide_tile_preview;
   plugin_class->kill_window_effects = meta_test_shell_kill_window_effects;
   plugin_class->kill_switch_workspace = meta_test_shell_kill_switch_workspace;
-  plugin_class->plugin_info = meta_test_shell_plugin_info;
 }
 
 static void
 meta_test_shell_init (MetaTestShell *test_shell)
 {
-  test_shell->info.name = "Test Shell";
-  test_shell->info.version = VERSION;
-  test_shell->info.author = "Mutter developers";
-  test_shell->info.license = "GPL";
-  test_shell->info.description = "This is test shell plugin implementation.";
 }
