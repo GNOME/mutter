@@ -105,8 +105,6 @@ static void show_tile_preview (MetaPlugin   *plugin,
                                int           tile_monitor_number);
 static void hide_tile_preview (MetaPlugin      *plugin);
 
-static const MetaPluginInfo * plugin_info (MetaPlugin *plugin);
-
 /*
  * Plugin private data that we store in the .plugin_private member.
  */
@@ -119,8 +117,6 @@ struct _MetaDefaultPluginPrivate
   ClutterActor          *desktop2;
 
   ClutterActor          *background_group;
-
-  MetaPluginInfo         info;
 };
 
 META_PLUGIN_DECLARE_WITH_CODE (MetaDefaultPlugin, meta_default_plugin,
@@ -165,7 +161,6 @@ meta_default_plugin_class_init (MetaDefaultPluginClass *klass)
   plugin_class->switch_workspace = switch_workspace;
   plugin_class->show_tile_preview = show_tile_preview;
   plugin_class->hide_tile_preview = hide_tile_preview;
-  plugin_class->plugin_info      = plugin_info;
   plugin_class->kill_window_effects   = kill_window_effects;
   plugin_class->kill_switch_workspace = kill_switch_workspace;
 }
@@ -176,12 +171,6 @@ meta_default_plugin_init (MetaDefaultPlugin *self)
   MetaDefaultPluginPrivate *priv;
 
   self->priv = priv = meta_default_plugin_get_instance_private (self);
-
-  priv->info.name        = "Default Effects";
-  priv->info.version     = "0.1";
-  priv->info.author      = "Intel Corp.";
-  priv->info.license     = "GPL";
-  priv->info.description = "This is an example of a plugin implementation.";
 }
 
 /*
@@ -923,12 +912,4 @@ kill_window_effects (MetaPlugin      *plugin,
 
   if (apriv->tml_destroy)
     finish_timeline (apriv->tml_destroy);
-}
-
-static const MetaPluginInfo *
-plugin_info (MetaPlugin *plugin)
-{
-  MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
-
-  return &priv->info;
 }
