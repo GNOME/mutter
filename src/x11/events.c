@@ -1448,6 +1448,8 @@ handle_other_xevent (MetaX11Display *x11_display,
         {
           window = meta_window_x11_new (display, event->xmap.window,
                                         FALSE, META_COMP_EFFECT_CREATE);
+          if (window)
+            meta_window_x11_configure (window);
         }
       else if (window && window->restore_focus_on_map &&
                window->reparents_pending == 0)
@@ -1504,6 +1506,8 @@ handle_other_xevent (MetaX11Display *x11_display,
 
           window = meta_window_x11_new (display, event->xmaprequest.window,
                                         FALSE, META_COMP_EFFECT_CREATE);
+          if (window)
+            meta_window_x11_configure (window);
         }
       else
         {

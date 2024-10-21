@@ -116,3 +116,5 @@ gboolean meta_window_x11_has_alpha_channel (MetaWindow *window);
 
 META_EXPORT
 Window meta_window_x11_get_xwindow (MetaWindow *window);
+
+void meta_window_x11_configure (MetaWindow *window);

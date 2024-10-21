@@ -38,6 +38,7 @@
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/boxes-private.h"
+#include "core/meta-window-config-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
@@ -4932,4 +4933,51 @@ void
 meta_window_x11_shutdown_group (MetaWindow *window)
 {
   remove_window_from_group (window);
+}
+
+void
+meta_window_x11_configure (MetaWindow *window)
+{
+  MtkRectangle prev_rect;
+  MtkRectangle new_rect;
+  MetaMoveResizeFlags flags;
+  gboolean is_fullscreen;
+  g_autoptr (MetaWindowConfig) window_config = NULL;
+
+  window_config = meta_window_new_window_config (window);
+  prev_rect = meta_window_config_get_rect (window->config);
+  meta_window_config_set_rect (window_config, prev_rect);
+  is_fullscreen = meta_window_is_fullscreen (window);
+  meta_window_config_set_is_fullscreen (window_config, is_fullscreen);
+
+  meta_window_emit_configure (window, window_config);
+  new_rect = meta_window_config_get_rect (window_config);
+
+  meta_topic (META_DEBUG_GEOMETRY,
+              "Window %s pre-configured at (%i,%i) [%ix%i]",
+              window->desc, new_rect.x, new_rect.y, new_rect.width, new_rect.height);
+
+  if (!mtk_rectangle_equal (&prev_rect, &new_rect))
+    {
+      window->placed = TRUE;
+
+      /* Update the size hints to match the new pre-configuration */
+      window->size_hints.x = new_rect.x;
+      window->size_hints.y = new_rect.y;
+      window->size_hints.width = new_rect.width;
+      window->size_hints.height = new_rect.height;
+
+      flags = (META_MOVE_RESIZE_MOVE_ACTION |
+               META_MOVE_RESIZE_RESIZE_ACTION |
+               META_MOVE_RESIZE_CONSTRAIN);
+
+      meta_window_move_resize_internal (window,
+                                        flags,
+                                        META_PLACE_FLAG_NONE,
+                                        window->size_hints.win_gravity,
+                                        new_rect);
+    }
+
+  if (meta_window_config_get_is_fullscreen (window_config))
+    meta_window_make_fullscreen (window);
 }
