@@ -64,17 +64,6 @@ meta_plugin_init (MetaPlugin *self)
 {
 }
 
-const MetaPluginInfo *
-meta_plugin_get_info (MetaPlugin *plugin)
-{
-  MetaPluginClass  *klass = META_PLUGIN_GET_CLASS (plugin);
-
-  if (klass && klass->plugin_info)
-    return klass->plugin_info (plugin);
-
-  return NULL;
-}
-
 #ifdef HAVE_X11
 gboolean
 _meta_plugin_xevent_filter (MetaPlugin *plugin,

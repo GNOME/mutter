@@ -35,8 +35,6 @@
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
 
-typedef struct _MetaPluginInfo    MetaPluginInfo;
-
 /* Allows us to keep the xevent_filter vfunc even when building Mutter without X11 */
 typedef union _XEvent XEvent;
 
@@ -56,8 +54,6 @@ typedef union _XEvent XEvent;
  * effect needs to be killed prematurely
  * @xevent_filter: virtual function called when handling each event
  * @keybinding_filter: virtual function called when handling each keybinding
- * @plugin_info: virtual function that returns information about the
- * #MetaPlugin
  */
 struct _MetaPluginClass
 {
@@ -208,16 +204,6 @@ struct _MetaPluginClass
   void (*confirm_display_change) (MetaPlugin *plugin);
 
   /**
-   * MetaPluginClass::plugin_info:
-   * @plugin: a #MetaPlugin
-   *
-   * Virtual function that returns information about the #MetaPlugin.
-   *
-   * Returns: a #MetaPluginInfo.
-   */
-  const MetaPluginInfo * (*plugin_info) (MetaPlugin *plugin);
-
-  /**
    * MetaPluginClass::create_close_dialog:
    * @plugin: a #MetaPlugin
    * @window: a #MetaWindow
@@ -253,26 +239,6 @@ struct _MetaPluginClass
    */
   void (*locate_pointer) (MetaPlugin      *plugin);
 };
-
-/**
- * MetaPluginInfo:
- * @name: name of the plugin
- * @version: version of the plugin
- * @author: author of the plugin
- * @license: license of the plugin
- * @description: description of the plugin
- */
-struct _MetaPluginInfo
-{
-  const gchar *name;
-  const gchar *version;
-  const gchar *author;
-  const gchar *license;
-  const gchar *description;
-};
-
-META_EXPORT
-const MetaPluginInfo * meta_plugin_get_info (MetaPlugin *plugin);
 
 /*
  * Convenience macro to set up the plugin type. Based on GEdit.
