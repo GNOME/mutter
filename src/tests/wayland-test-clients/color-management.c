@@ -22,6 +22,9 @@
 
 #include "config.h"
 
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include "color-management-v1-client-protocol.h"
 #include "wayland-test-client-utils.h"
 
@@ -206,11 +209,55 @@ create_image_description_from_params (WaylandDisplay                  *display,
   g_assert_cmpint (image_description_context.image_description_id, >, 0);
 }
 
+static void
+create_image_description_from_icc (WaylandDisplay                  *display,
+                                   struct wp_image_description_v1 **image_description,
+                                   const char                      *icc_path)
+
+{
+  struct wp_image_description_creator_icc_v1 *creator_icc;
+  ImageDescriptionContext image_description_context;
+  int32_t icc_fd;
+  struct stat stat = { 0 };
+
+  creator_icc =
+    wp_color_manager_v1_create_icc_creator (display->color_management_mgr);
+
+  icc_fd = open (icc_path, O_RDONLY);
+
+  g_assert_cmpint (icc_fd, !=, -1);
+
+  fstat (icc_fd, &stat);
+
+  g_assert_cmpuint (stat.st_size, >, 0);
+
+  wp_image_description_creator_icc_v1_set_icc_file (creator_icc,
+                                                    icc_fd,
+                                                    0,
+                                                    stat.st_size);
+
+  image_description_context.image_description_id = 0;
+  image_description_context.creation_failed = FALSE;
+
+  *image_description =
+    wp_image_description_creator_icc_v1_create (creator_icc);
+  wp_image_description_v1_add_listener (
+    *image_description,
+    &image_description_listener,
+    &image_description_context);
+
+  wait_for_image_description_ready (&image_description_context, display);
+
+  g_assert_false (image_description_context.creation_failed);
+  g_assert_cmpint (image_description_context.image_description_id, >, 0);
+}
+
 int
 main (int    argc,
       char **argv)
 {
   g_autoptr (WaylandDisplay) display = NULL;
+  g_autofree char *icc_path = NULL;
   struct xdg_toplevel *xdg_toplevel;
   struct xdg_surface *xdg_surface;
   struct wl_surface *surface;
@@ -296,6 +343,25 @@ main (int    argc,
 
   test_driver_sync_point (display->test_driver, 3, NULL);
   wait_for_sync_event (display, 3);
+
+  icc_path = g_build_filename (g_getenv ("G_TEST_SRCDIR"),
+                               "icc-profiles",
+                               "sRGB.icc",
+                               NULL);
+
+  create_image_description_from_icc (display, &image_description, icc_path);
+
+  wp_color_management_surface_v1_set_image_description (
+    color_surface,
+    image_description,
+    WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
+
+  wl_surface_commit (surface);
+
+  wp_image_description_v1_destroy (image_description);
+
+  test_driver_sync_point (display->test_driver, 4, NULL);
+  wait_for_sync_event (display, 4);
 
   wp_color_management_surface_v1_destroy (color_surface);
 
