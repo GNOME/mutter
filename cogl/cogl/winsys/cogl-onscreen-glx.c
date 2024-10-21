@@ -637,11 +637,11 @@ set_complete_pending (CoglOnscreen *onscreen)
 }
 
 static void
-cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
-                               const int     *user_rectangles,
-                               int            n_rectangles,
-                               CoglFrameInfo *info,
-                               gpointer       user_data)
+cogl_onscreen_glx_swap_region (CoglOnscreen       *onscreen,
+                               const MtkRectangle *user_rectangles,
+                               int                 n_rectangles,
+                               CoglFrameInfo      *info,
+                               gpointer            user_data)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -669,32 +669,32 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
   int *rectangles = g_alloca (sizeof (int) * n_rectangles * 4);
   int i;
 
-  /* glXCopySubBuffer expects rectangles relative to the bottom left corner but
-   * we are given rectangles relative to the top left so we need to flip
-   * them... */
-  memcpy (rectangles, user_rectangles, sizeof (int) * n_rectangles * 4);
+
   for (i = 0; i < n_rectangles; i++)
     {
-      int *rect = &rectangles[4 * i];
+      const MtkRectangle *rect = &user_rectangles[i];
 
       if (i == 0)
         {
-          x_min = rect[0];
-          x_max = rect[0] + rect[2];
-          y_min = rect[1];
-          y_max = rect[1] + rect[3];
+          x_min = rect->x;
+          x_max = rect->x + rect->width;
+          y_min = rect->y;
+          y_max = rect->y + rect->height;
         }
       else
         {
-          x_min = MIN (x_min, rect[0]);
-          x_max = MAX (x_max, rect[0] + rect[2]);
-          y_min = MIN (y_min, rect[1]);
-          y_max = MAX (y_max, rect[1] + rect[3]);
+          x_min = MIN (x_min, rect->x);
+          x_max = MAX (x_max, rect->x + rect->width);
+          y_min = MIN (y_min, rect->y);
+          y_max = MAX (y_max, rect->y + rect->height);
         }
-
-      rect[1] = framebuffer_height - rect[1] - rect[3];
-
     }
+
+  /* glXCopySubBuffer expects rectangles relative to the bottom left corner but
+   * we are given rectangles relative to the top left so we need to flip
+   * them... */
+  cogl_rectangles_to_flipped_array (user_rectangles, n_rectangles,
+                                    framebuffer_height, rectangles);
 
   cogl_context_flush_framebuffer_state (context,
                                         framebuffer,
@@ -837,11 +837,11 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
 }
 
 static void
-cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen  *onscreen,
-                                            const int     *rectangles,
-                                            int            n_rectangles,
-                                            CoglFrameInfo *info,
-                                            gpointer       user_data)
+cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen       *onscreen,
+                                            const MtkRectangle *rectangles,
+                                            int                 n_rectangles,
+                                            CoglFrameInfo      *info,
+                                            gpointer            user_data)
 {
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);

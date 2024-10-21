@@ -260,9 +260,9 @@ cogl_onscreen_bind (CoglOnscreen *onscreen)
 }
 
 void
-cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
-                                   const int    *rectangles,
-                                   int           n_rectangles)
+cogl_onscreen_queue_damage_region (CoglOnscreen       *onscreen,
+                                   const MtkRectangle *rectangles,
+                                   int                 n_rectangles)
 {
   CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
@@ -273,11 +273,11 @@ cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
 }
 
 void
-cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
-                                        const int *rectangles,
-                                        int n_rectangles,
-                                        CoglFrameInfo *info,
-                                        gpointer user_data)
+cogl_onscreen_swap_buffers_with_damage (CoglOnscreen       *onscreen,
+                                        const MtkRectangle *rectangles,
+                                        int                 n_rectangles,
+                                        CoglFrameInfo      *info,
+                                        gpointer            user_data)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -330,11 +330,11 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
 }
 
 void
-cogl_onscreen_swap_region (CoglOnscreen *onscreen,
-                           const int *rectangles,
-                           int n_rectangles,
-                           CoglFrameInfo *info,
-                           gpointer user_data)
+cogl_onscreen_swap_region (CoglOnscreen       *onscreen,
+                           const MtkRectangle *rectangles,
+                           int                 n_rectangles,
+                           CoglFrameInfo      *info,
+                           gpointer            user_data)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);

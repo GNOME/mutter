@@ -194,8 +194,9 @@ queue_damage_region (ClutterStageWindow *stage_window,
                      ClutterStageView   *stage_view,
                      MtkRegion          *damage_region)
 {
-  int *damage, n_rects, i;
-  g_autofree int *freeme = NULL;
+  MtkRectangle *damage;
+  int n_rects, i;
+  g_autofree MtkRectangle *freeme = NULL;
   CoglFramebuffer *framebuffer;
   CoglOnscreen *onscreen;
   int fb_width;
@@ -215,9 +216,9 @@ queue_damage_region (ClutterStageWindow *stage_window,
   n_rects = mtk_region_num_rectangles (damage_region);
 
   if (n_rects < MAX_STACK_RECTS)
-    damage = g_newa (int, n_rects * 4);
+    damage = g_newa (MtkRectangle, n_rects);
   else
-    damage = freeme = g_new (int, n_rects * 4);
+    damage = freeme = g_new0 (MtkRectangle, n_rects);
 
   for (i = 0; i < n_rects; i++)
     {
@@ -229,12 +230,7 @@ queue_damage_region (ClutterStageWindow *stage_window,
                                clutter_stage_view_get_transform (stage_view),
                                fb_width,
                                fb_height,
-                               &rect);
-
-      damage[i * 4] = rect.x;
-      damage[i * 4 + 1] = rect.y;
-      damage[i * 4 + 2] = rect.width;
-      damage[i * 4 + 3] = rect.height;
+                               &damage[i]);
     }
 
   cogl_onscreen_queue_damage_region (onscreen, damage, n_rects);
@@ -261,21 +257,14 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       int64_t target_presentation_time_us;
-      int *damage, n_rects, i;
+      MtkRectangle *damage;
+      int n_rects, i;
       CoglFrameInfo *frame_info;
 
       n_rects = mtk_region_num_rectangles (swap_region);
-      damage = g_newa (int, n_rects * 4);
+      damage = g_newa (MtkRectangle, n_rects);
       for (i = 0; i < n_rects; i++)
-        {
-          MtkRectangle rect;
-
-          rect = mtk_region_get_rectangle (swap_region, i);
-          damage[i * 4] = rect.x;
-          damage[i * 4 + 1] = rect.y;
-          damage[i * 4 + 2] = rect.width;
-          damage[i * 4 + 3] = rect.height;
-        }
+        damage[i] = mtk_region_get_rectangle (swap_region, i);
 
       frame_info =
         cogl_frame_info_new (cogl_context, priv->global_frame_counter);
