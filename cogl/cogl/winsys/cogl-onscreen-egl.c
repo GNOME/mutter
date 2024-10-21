@@ -256,15 +256,21 @@ cogl_onscreen_egl_queue_damage_region (CoglOnscreen *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
+  int *egl_rectangles;
 
   g_return_if_fail (n_rectangles > 0);
 
   if (!egl_renderer->pf_eglSetDamageRegion)
     return;
 
+  egl_rectangles = g_alloca (n_rectangles * sizeof (int) * 4);
+  cogl_rectangles_to_flipped_array (rectangles, n_rectangles,
+                                    cogl_framebuffer_get_height (framebuffer),
+                                    egl_rectangles);
+
   if (egl_renderer->pf_eglSetDamageRegion (egl_renderer->edpy,
                                            priv->egl_surface,
-                                           rectangles,
+                                           egl_rectangles,
                                            n_rectangles) == EGL_FALSE)
     g_warning ("Error reported by eglSetDamageRegion");
 }

@@ -232,8 +232,7 @@ queue_damage_region (ClutterStageWindow *stage_window,
                                &rect);
 
       damage[i * 4] = rect.x;
-      /* y coordinate needs to be flipped for OpenGL */
-      damage[i * 4 + 1] = fb_height - rect.y - rect.height;
+      damage[i * 4 + 1] = rect.y;
       damage[i * 4 + 2] = rect.width;
       damage[i * 4 + 3] = rect.height;
     }
