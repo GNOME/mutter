@@ -461,8 +461,6 @@ _cogl_winsys_display_setup (CoglDisplay *display,
   if (!try_create_context (display, error))
     goto error;
 
-  egl_display->found_egl_config = TRUE;
-
   return TRUE;
 
 error:

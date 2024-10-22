@@ -146,7 +146,6 @@ typedef struct _CoglDisplayEGL
   EGLSurface egl_surface;
 
   EGLConfig egl_config;
-  gboolean found_egl_config;
 
   EGLSurface current_read_surface;
   EGLSurface current_draw_surface;
