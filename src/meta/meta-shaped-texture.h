@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <cairo.h>
+
 #include "clutter/clutter.h"
 #include "meta/common.h"
 #include "meta/meta-multi-texture.h"
