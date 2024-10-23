@@ -63,8 +63,6 @@ struct _ClutterSettings
 
   gint long_press_duration;
 
-  guint last_fontconfig_timestamp;
-
   guint password_hint_time;
 };
 
