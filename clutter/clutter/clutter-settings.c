@@ -30,18 +30,6 @@
 
 #define DEFAULT_FONT_NAME       "Sans 12"
 
-typedef struct
-{
-  cairo_antialias_t cairo_antialias;
-  gint clutter_font_antialias;
-
-  cairo_hint_style_t cairo_hint_style;
-  const char *clutter_font_hint_style;
-
-  cairo_subpixel_order_t cairo_subpixel_order;
-  const char *clutter_font_subpixel_order;
-} FontSettings;
-
 struct _ClutterSettings
 {
   GObject parent_instance;
@@ -91,83 +79,6 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_FINAL_TYPE (ClutterSettings, clutter_settings, G_TYPE_OBJECT);
 
-static inline void
-settings_update_font_options (ClutterSettings *self,
-                              FontSettings    *fs)
-{
-  int xft_hinting = fs->cairo_hint_style == CAIRO_HINT_STYLE_NONE ? 0 : 1;
-  int xft_antialias = fs->clutter_font_antialias;
-  const char *xft_hint_style = fs->clutter_font_hint_style;
-  const char *xft_rgba = fs->clutter_font_subpixel_order;
-  cairo_hint_style_t hint_style = CAIRO_HINT_STYLE_NONE;
-  cairo_antialias_t antialias_mode = CAIRO_ANTIALIAS_GRAY;
-  cairo_subpixel_order_t subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
-  cairo_font_options_t *options;
-
-  if (self->backend == NULL)
-    return;
-
-  options = cairo_font_options_create ();
-
-  cairo_font_options_set_hint_metrics (options, CAIRO_HINT_METRICS_ON);
-
-  if (xft_hinting >= 0 && xft_hint_style == NULL)
-    {
-      hint_style = CAIRO_HINT_STYLE_NONE;
-    }
-  else if (xft_hint_style != NULL)
-    {
-      if (strcmp (xft_hint_style, "hintnone") == 0)
-        hint_style = CAIRO_HINT_STYLE_NONE;
-      else if (strcmp (xft_hint_style, "hintslight") == 0)
-        hint_style = CAIRO_HINT_STYLE_SLIGHT;
-      else if (strcmp (xft_hint_style, "hintmedium") == 0)
-        hint_style = CAIRO_HINT_STYLE_MEDIUM;
-      else if (strcmp (xft_hint_style, "hintfull") == 0)
-        hint_style = CAIRO_HINT_STYLE_FULL;
-    }
-
-  cairo_font_options_set_hint_style (options, hint_style);
-
-  if (xft_rgba)
-    {
-      if (strcmp (xft_rgba, "rgb") == 0)
-        subpixel_order = CAIRO_SUBPIXEL_ORDER_RGB;
-      else if (strcmp (xft_rgba, "bgr") == 0)
-        subpixel_order = CAIRO_SUBPIXEL_ORDER_BGR;
-      else if (strcmp (xft_rgba, "vrgb") == 0)
-        subpixel_order = CAIRO_SUBPIXEL_ORDER_VRGB;
-      else if (strcmp (xft_rgba, "vbgr") == 0)
-        subpixel_order = CAIRO_SUBPIXEL_ORDER_VBGR;
-    }
-
-  cairo_font_options_set_subpixel_order (options, subpixel_order);
-
-  if (xft_antialias >= 0 && !xft_antialias)
-    antialias_mode = CAIRO_ANTIALIAS_NONE;
-  else if (subpixel_order != CAIRO_SUBPIXEL_ORDER_DEFAULT)
-    antialias_mode = CAIRO_ANTIALIAS_SUBPIXEL;
-  else if (xft_antialias >= 0)
-    antialias_mode = CAIRO_ANTIALIAS_GRAY;
-
-  cairo_font_options_set_antialias (options, antialias_mode);
-
-  CLUTTER_NOTE (BACKEND, "New font options:\n"
-                " - font-name:  %s\n"
-                " - antialias:  %d\n"
-                " - hinting:    %d\n"
-                " - hint-style: %s\n"
-                " - rgba:       %s\n",
-                self->font_name != NULL ? self->font_name : DEFAULT_FONT_NAME,
-                xft_antialias,
-                xft_hinting,
-                xft_hint_style != NULL ? xft_hint_style : "<null>",
-                xft_rgba != NULL ? xft_rgba : "<null>");
-
-  clutter_backend_set_font_options (self->backend, options);
-  cairo_font_options_destroy (options);
-}
-
 static void
 settings_update_font_name (ClutterSettings *self)
 {
@@ -203,9 +114,21 @@ settings_update_resolution (ClutterSettings *self)
 }
 
 static void
-get_font_gsettings (GSettings    *settings,
-                    FontSettings *output)
+clutter_settings_update_font_options (ClutterSettings *self)
 {
+  GSettings *settings = self->font_settings;
+  cairo_hint_style_t hint_style = CAIRO_HINT_STYLE_NONE;
+  cairo_antialias_t antialias_mode = CAIRO_ANTIALIAS_GRAY;
+  cairo_subpixel_order_t subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
+  cairo_font_options_t *options;
+  const char *clutter_font_hint_style = NULL, *clutter_font_subpixel_order = NULL;
+
+  if (self->backend == NULL)
+    return;
+
+  options = cairo_font_options_create ();
+  cairo_font_options_set_hint_metrics (options, CAIRO_HINT_METRICS_ON);
+
   /* org.gnome.desktop.GDesktopFontAntialiasingMode */
   static const struct
   {
@@ -252,51 +175,42 @@ get_font_gsettings (GSettings    *settings,
   i = g_settings_get_enum (settings, "font-hinting");
   if (i < G_N_ELEMENTS (hintings))
     {
-      output->cairo_hint_style = hintings[i].cairo_hint_style;
-      output->clutter_font_hint_style = hintings[i].clutter_font_hint_style;
+      hint_style = hintings[i].cairo_hint_style;
+      clutter_font_hint_style = hintings[i].clutter_font_hint_style;
     }
-  else
-    {
-      output->cairo_hint_style = CAIRO_HINT_STYLE_DEFAULT;
-      output->clutter_font_hint_style = NULL;
-    }
-
-  i = g_settings_get_enum (settings, "font-antialiasing");
-  if (i < G_N_ELEMENTS (antialiasings))
-    {
-      output->cairo_antialias = antialiasings[i].cairo_antialias;
-      output->clutter_font_antialias = antialiasings[i].clutter_font_antialias;
-    }
-  else
-    {
-      output->cairo_antialias = CAIRO_ANTIALIAS_DEFAULT;
-      output->clutter_font_antialias = -1;
-    }
+  cairo_font_options_set_hint_style (options, hint_style);
 
   i = g_settings_get_enum (settings, "font-rgba-order");
   if (i < G_N_ELEMENTS (rgba_orders))
     {
-      output->cairo_subpixel_order = rgba_orders[i].cairo_subpixel_order;
-      output->clutter_font_subpixel_order = rgba_orders[i].clutter_font_subpixel_order;
+      subpixel_order = rgba_orders[i].cairo_subpixel_order;
+      clutter_font_subpixel_order = rgba_orders[i].clutter_font_subpixel_order;
     }
-  else
-    {
-      output->cairo_subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
-      output->clutter_font_subpixel_order = NULL;
-    }
+  cairo_font_options_set_subpixel_order (options, subpixel_order);
 
-  if (output->cairo_antialias == CAIRO_ANTIALIAS_GRAY)
-    output->clutter_font_subpixel_order = "none";
-}
+  i = g_settings_get_enum (settings, "font-antialiasing");
+  if (i < G_N_ELEMENTS (antialiasings))
+    antialias_mode = antialiasings[i].cairo_antialias;
 
-static void
-init_font_options (ClutterSettings *self)
-{
-  GSettings *settings = self->font_settings;
-  FontSettings fs;
+  if (subpixel_order == CAIRO_SUBPIXEL_ORDER_DEFAULT)
+    antialias_mode = CAIRO_ANTIALIAS_SUBPIXEL;
 
-  get_font_gsettings (settings, &fs);
-  settings_update_font_options (self, &fs);
+  cairo_font_options_set_antialias (options, antialias_mode);
+
+  CLUTTER_NOTE (BACKEND, "New font options:\n"
+                " - font-name:  %s\n"
+                " - antialias:  %d\n"
+                " - hinting:    %d\n"
+                " - hint-style: %s\n"
+                " - rgba:       %s\n",
+                self->font_name != NULL ? self->font_name : DEFAULT_FONT_NAME,
+                antialias_mode,
+                hint_style == CAIRO_HINT_STYLE_NONE ? 0 : 1,
+                clutter_font_hint_style != NULL ? clutter_font_hint_style : "<null>",
+                clutter_font_subpixel_order != NULL ? clutter_font_subpixel_order : "<null>");
+
+  clutter_backend_set_font_options (self->backend, options);
+  cairo_font_options_destroy (options);
 }
 
 static void
@@ -321,10 +235,8 @@ on_font_settings_change_event (GSettings *settings,
                                gpointer   user_data)
 {
   ClutterSettings *self = CLUTTER_SETTINGS (user_data);
-  FontSettings fs;
 
-  get_font_gsettings (settings, &fs);
-  settings_update_font_options (self, &fs);
+  clutter_settings_update_font_options (self);
 
   return FALSE;
 }
@@ -460,7 +372,7 @@ load_initial_settings (ClutterSettings *self)
       self->font_settings = g_settings_new_full (schema, NULL, NULL);
       if (self->font_settings)
         {
-          init_font_options (self);
+          clutter_settings_update_font_options (self);
           g_signal_connect (self->font_settings, "change-event",
                             G_CALLBACK (on_font_settings_change_event),
                             self);
