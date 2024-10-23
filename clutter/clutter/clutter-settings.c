@@ -66,8 +66,6 @@ struct _ClutterSettings
   guint last_fontconfig_timestamp;
 
   guint password_hint_time;
-
-  gint unscaled_font_dpi;
 };
 
 enum
@@ -87,7 +85,6 @@ enum
 
   PROP_PASSWORD_HINT_TIME,
 
-  PROP_UNSCALED_FONT_DPI,
 
   PROP_LAST
 };
@@ -200,9 +197,8 @@ settings_update_resolution (ClutterSettings *self)
         self->resolution *= scale;
     }
 
-  CLUTTER_NOTE (BACKEND, "New resolution: %.2f (%s)",
-                self->resolution,
-                self->unscaled_font_dpi > 0 ? "unscaled" : "scaled");
+  CLUTTER_NOTE (BACKEND, "New resolution: %.2f",
+                self->resolution);
 
   if (self->backend != NULL)
     g_signal_emit_by_name (self->backend, "resolution-changed");
@@ -559,11 +555,6 @@ clutter_settings_set_property (GObject      *gobject,
       self->password_hint_time = g_value_get_uint (value);
       break;
 
-    case PROP_UNSCALED_FONT_DPI:
-      self->font_dpi = g_value_get_int (value);
-      settings_update_resolution (self);
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -701,13 +692,6 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                       G_PARAM_READWRITE |
                       G_PARAM_STATIC_STRINGS);
 
-  obj_props[PROP_UNSCALED_FONT_DPI] =
-    g_param_spec_int ("unscaled-font-dpi", NULL, NULL,
-                      -1, 1024 * 1024,
-                      -1,
-                      G_PARAM_WRITABLE |
-                      G_PARAM_STATIC_STRINGS);
-
   /**
    * ClutterSettings:long-press-duration:
    *
@@ -753,7 +737,6 @@ clutter_settings_init (ClutterSettings *self)
   self->resolution = -1.0;
 
   self->font_dpi = -1;
-  self->unscaled_font_dpi = -1;
 
   self->double_click_time = 250;
   self->double_click_distance = 5;
