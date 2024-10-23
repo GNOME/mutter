@@ -93,7 +93,6 @@ clutter_backend_dispose (GObject *gobject)
     }
 
   g_clear_pointer (&backend->cogl_source, g_source_destroy);
-  g_clear_pointer (&backend->font_name, g_free);
   g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
   g_clear_object (&backend->input_method);
 
