@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <cairo.h>
+
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-seat.h"
 #include "clutter/clutter-stage-window.h"
@@ -99,5 +101,10 @@ gboolean clutter_backend_is_display_server (ClutterBackend *backend);
 
 CLUTTER_EXPORT
 void clutter_backend_destroy (ClutterBackend *backend);
+
+void clutter_backend_set_font_options (ClutterBackend             *backend,
+                                       const cairo_font_options_t *options);
+
+const cairo_font_options_t * clutter_backend_get_font_options (ClutterBackend *backend);
 
 G_END_DECLS
