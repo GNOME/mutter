@@ -414,35 +414,6 @@ clutter_backend_set_font_options (ClutterBackend             *backend,
 }
 
 /**
- * clutter_backend_get_font_options:
- * @backend: a #ClutterBackend
- *
- * Retrieves the font options for @backend.
- *
- * Return value: (transfer none): the font options of the #ClutterBackend.
- *   The returned #cairo_font_options_t is owned by the backend and should
- *   not be modified or freed
- */
-const cairo_font_options_t *
-clutter_backend_get_font_options (ClutterBackend *backend)
-{
-  g_return_val_if_fail (CLUTTER_IS_BACKEND (backend), NULL);
-
-  if (G_LIKELY (backend->font_options))
-    return backend->font_options;
-
-  backend->font_options = cairo_font_options_create ();
-
-  cairo_font_options_set_hint_style (backend->font_options, CAIRO_HINT_STYLE_NONE);
-  cairo_font_options_set_subpixel_order (backend->font_options, CAIRO_SUBPIXEL_ORDER_DEFAULT);
-  cairo_font_options_set_antialias (backend->font_options, CAIRO_ANTIALIAS_DEFAULT);
-
-  g_signal_emit (backend, backend_signals[FONT_CHANGED], 0);
-
-  return backend->font_options;
-}
-
-/**
  * clutter_backend_get_cogl_context:
  * @backend: a #ClutterBackend
  *

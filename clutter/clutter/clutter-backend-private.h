@@ -105,6 +105,4 @@ void clutter_backend_destroy (ClutterBackend *backend);
 void clutter_backend_set_font_options (ClutterBackend             *backend,
                                        const cairo_font_options_t *options);
 
-const cairo_font_options_t * clutter_backend_get_font_options (ClutterBackend *backend);
-
 G_END_DECLS
