@@ -13001,7 +13001,6 @@ update_pango_context (ClutterBackend *backend,
 {
   ClutterSettings *settings;
   PangoFontDescription *font_desc;
-  const cairo_font_options_t *font_options;
   ClutterTextDirection dir;
   PangoDirection pango_dir;
   g_autofree char *font_name = NULL;
@@ -13018,7 +13017,6 @@ update_pango_context (ClutterBackend *backend,
   g_object_get (settings, "font-name", &font_name, NULL);
 
   /* get the configuration for the PangoContext from the backend */
-  font_options = clutter_backend_get_font_options (backend);
   resolution = clutter_backend_get_resolution (backend);
 
   font_desc = pango_font_description_from_string (font_name);
@@ -13027,7 +13025,7 @@ update_pango_context (ClutterBackend *backend,
     resolution = 96.0; /* fall back */
 
   pango_context_set_font_description (context, font_desc);
-  pango_cairo_context_set_font_options (context, font_options);
+  pango_cairo_context_set_font_options (context, backend->font_options);
   pango_cairo_context_set_resolution (context, resolution);
 
   pango_font_description_free (font_desc);

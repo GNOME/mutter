@@ -365,7 +365,18 @@ load_initial_settings (ClutterSettings *self)
   schema = g_settings_schema_source_lookup (source, font_settings_path, TRUE);
   if (!schema)
     {
+      cairo_font_options_t *font_options;
+
       g_warning ("Failed to find schema: %s", font_settings_path);
+
+      /* Fallback to the default options */
+      font_options = cairo_font_options_create ();
+      cairo_font_options_set_hint_style (font_options, CAIRO_HINT_STYLE_NONE);
+      cairo_font_options_set_subpixel_order (font_options, CAIRO_SUBPIXEL_ORDER_DEFAULT);
+      cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_DEFAULT);
+      clutter_backend_set_font_options (self->backend, font_options);
+
+      cairo_font_options_destroy (font_options);
     }
   else
     {
