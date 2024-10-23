@@ -61,11 +61,6 @@ struct _ClutterSettings
   gchar *font_name;
   gint font_dpi;
 
-  gint xft_hinting;
-  gint xft_antialias;
-  gchar *xft_hint_style;
-  gchar *xft_rgba;
-
   gint long_press_duration;
 
   guint last_fontconfig_timestamp;
@@ -86,11 +81,7 @@ enum
 
   PROP_FONT_NAME,
 
-  PROP_FONT_ANTIALIAS,
   PROP_FONT_DPI,
-  PROP_FONT_HINTING,
-  PROP_FONT_HINT_STYLE,
-  PROP_FONT_RGBA,
 
   PROP_LONG_PRESS_DURATION,
 
@@ -106,8 +97,13 @@ static GParamSpec *obj_props[PROP_LAST];
 G_DEFINE_FINAL_TYPE (ClutterSettings, clutter_settings, G_TYPE_OBJECT);
 
 static inline void
-settings_update_font_options (ClutterSettings *self)
+settings_update_font_options (ClutterSettings *self,
+                              FontSettings    *fs)
 {
+  int xft_hinting = fs->cairo_hint_style == CAIRO_HINT_STYLE_NONE ? 0 : 1;
+  int xft_antialias = fs->clutter_font_antialias;
+  const char *xft_hint_style = fs->clutter_font_hint_style;
+  const char *xft_rgba = fs->clutter_font_subpixel_order;
   cairo_hint_style_t hint_style = CAIRO_HINT_STYLE_NONE;
   cairo_antialias_t antialias_mode = CAIRO_ANTIALIAS_GRAY;
   cairo_subpixel_order_t subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
@@ -120,44 +116,43 @@ settings_update_font_options (ClutterSettings *self)
 
   cairo_font_options_set_hint_metrics (options, CAIRO_HINT_METRICS_ON);
 
-  if (self->xft_hinting >= 0 &&
-      self->xft_hint_style == NULL)
+  if (xft_hinting >= 0 && xft_hint_style == NULL)
     {
       hint_style = CAIRO_HINT_STYLE_NONE;
     }
-  else if (self->xft_hint_style != NULL)
+  else if (xft_hint_style != NULL)
     {
-      if (strcmp (self->xft_hint_style, "hintnone") == 0)
+      if (strcmp (xft_hint_style, "hintnone") == 0)
         hint_style = CAIRO_HINT_STYLE_NONE;
-      else if (strcmp (self->xft_hint_style, "hintslight") == 0)
+      else if (strcmp (xft_hint_style, "hintslight") == 0)
         hint_style = CAIRO_HINT_STYLE_SLIGHT;
-      else if (strcmp (self->xft_hint_style, "hintmedium") == 0)
+      else if (strcmp (xft_hint_style, "hintmedium") == 0)
         hint_style = CAIRO_HINT_STYLE_MEDIUM;
-      else if (strcmp (self->xft_hint_style, "hintfull") == 0)
+      else if (strcmp (xft_hint_style, "hintfull") == 0)
         hint_style = CAIRO_HINT_STYLE_FULL;
     }
 
   cairo_font_options_set_hint_style (options, hint_style);
 
-  if (self->xft_rgba)
+  if (xft_rgba)
     {
-      if (strcmp (self->xft_rgba, "rgb") == 0)
+      if (strcmp (xft_rgba, "rgb") == 0)
         subpixel_order = CAIRO_SUBPIXEL_ORDER_RGB;
-      else if (strcmp (self->xft_rgba, "bgr") == 0)
+      else if (strcmp (xft_rgba, "bgr") == 0)
         subpixel_order = CAIRO_SUBPIXEL_ORDER_BGR;
-      else if (strcmp (self->xft_rgba, "vrgb") == 0)
+      else if (strcmp (xft_rgba, "vrgb") == 0)
         subpixel_order = CAIRO_SUBPIXEL_ORDER_VRGB;
-      else if (strcmp (self->xft_rgba, "vbgr") == 0)
+      else if (strcmp (xft_rgba, "vbgr") == 0)
         subpixel_order = CAIRO_SUBPIXEL_ORDER_VBGR;
     }
 
   cairo_font_options_set_subpixel_order (options, subpixel_order);
 
-  if (self->xft_antialias >= 0 && !self->xft_antialias)
+  if (xft_antialias >= 0 && !xft_antialias)
     antialias_mode = CAIRO_ANTIALIAS_NONE;
   else if (subpixel_order != CAIRO_SUBPIXEL_ORDER_DEFAULT)
     antialias_mode = CAIRO_ANTIALIAS_SUBPIXEL;
-  else if (self->xft_antialias >= 0)
+  else if (xft_antialias >= 0)
     antialias_mode = CAIRO_ANTIALIAS_GRAY;
 
   cairo_font_options_set_antialias (options, antialias_mode);
@@ -169,10 +164,10 @@ settings_update_font_options (ClutterSettings *self)
                 " - hint-style: %s\n"
                 " - rgba:       %s\n",
                 self->font_name != NULL ? self->font_name : DEFAULT_FONT_NAME,
-                self->xft_antialias,
-                self->xft_hinting,
-                self->xft_hint_style != NULL ? self->xft_hint_style : "<null>",
-                self->xft_rgba != NULL ? self->xft_rgba : "<null>");
+                xft_antialias,
+                xft_hinting,
+                xft_hint_style != NULL ? xft_hint_style : "<null>",
+                xft_rgba != NULL ? xft_rgba : "<null>");
 
   clutter_backend_set_font_options (self->backend, options);
   cairo_font_options_destroy (options);
@@ -304,18 +299,10 @@ static void
 init_font_options (ClutterSettings *self)
 {
   GSettings *settings = self->font_settings;
-  cairo_font_options_t *options = cairo_font_options_create ();
   FontSettings fs;
 
   get_font_gsettings (settings, &fs);
-
-  cairo_font_options_set_hint_style (options, fs.cairo_hint_style);
-  cairo_font_options_set_antialias (options, fs.cairo_antialias);
-  cairo_font_options_set_subpixel_order (options, fs.cairo_subpixel_order);
-
-  clutter_backend_set_font_options (self->backend, options);
-
-  cairo_font_options_destroy (options);
+  settings_update_font_options (self, &fs);
 }
 
 static void
@@ -335,22 +322,15 @@ sync_mouse_options (ClutterSettings *self)
 
 static gboolean
 on_font_settings_change_event (GSettings *settings,
-			       gpointer   keys,
-			       gint       n_keys,
-			       gpointer   user_data)
+                               gpointer   keys,
+                               gint       n_keys,
+                               gpointer   user_data)
 {
   ClutterSettings *self = CLUTTER_SETTINGS (user_data);
   FontSettings fs;
-  gint hinting;
 
   get_font_gsettings (settings, &fs);
-  hinting = fs.cairo_hint_style == CAIRO_HINT_STYLE_NONE ? 0 : 1;
-  g_object_set (self,
-                "font-hinting",        hinting,
-                "font-hint-style",     fs.clutter_font_hint_style,
-                "font-antialias",      fs.clutter_font_antialias,
-                "font-subpixel-order", fs.clutter_font_subpixel_order,
-                NULL);
+  settings_update_font_options (self, &fs);
 
   return FALSE;
 }
@@ -530,8 +510,6 @@ clutter_settings_finalize (GObject *gobject)
   ClutterSettings *self = CLUTTER_SETTINGS (gobject);
 
   g_free (self->font_name);
-  g_free (self->xft_hint_style);
-  g_free (self->xft_rgba);
 
   g_clear_object (&self->font_settings);
   g_clear_object (&self->mouse_settings);
@@ -568,31 +546,9 @@ clutter_settings_set_property (GObject      *gobject,
       settings_update_font_name (self);
       break;
 
-    case PROP_FONT_ANTIALIAS:
-      self->xft_antialias = g_value_get_int (value);
-      settings_update_font_options (self);
-      break;
-
     case PROP_FONT_DPI:
       self->font_dpi = g_value_get_int (value);
       settings_update_resolution (self);
-      break;
-
-    case PROP_FONT_HINTING:
-      self->xft_hinting = g_value_get_int (value);
-      settings_update_font_options (self);
-      break;
-
-    case PROP_FONT_HINT_STYLE:
-      g_free (self->xft_hint_style);
-      self->xft_hint_style = g_value_dup_string (value);
-      settings_update_font_options (self);
-      break;
-
-    case PROP_FONT_RGBA:
-      g_free (self->xft_rgba);
-      self->xft_rgba = g_value_dup_string (value);
-      settings_update_font_options (self);
       break;
 
     case PROP_LONG_PRESS_DURATION:
@@ -640,24 +596,8 @@ clutter_settings_get_property (GObject    *gobject,
       g_value_set_string (value, self->font_name);
       break;
 
-    case PROP_FONT_ANTIALIAS:
-      g_value_set_int (value, self->xft_antialias);
-      break;
-
     case PROP_FONT_DPI:
       g_value_set_int (value, (int) (self->resolution * 1024));
-      break;
-
-    case PROP_FONT_HINTING:
-      g_value_set_int (value, self->xft_hinting);
-      break;
-
-    case PROP_FONT_HINT_STYLE:
-      g_value_set_string (value, self->xft_hint_style);
-      break;
-
-    case PROP_FONT_RGBA:
-      g_value_set_string (value, self->xft_rgba);
       break;
 
     case PROP_LONG_PRESS_DURATION:
@@ -748,20 +688,6 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                          G_PARAM_STATIC_STRINGS);
 
   /**
-   * ClutterSettings:font-antialias:
-   *
-   * Whether or not to use antialiasing when rendering text; a value
-   * of 1 enables it unconditionally; a value of 0 disables it
-   * unconditionally; and -1 will use the system's default.
-   */
-  obj_props[PROP_FONT_ANTIALIAS] =
-    g_param_spec_int ("font-antialias", NULL, NULL,
-                      -1, 1,
-                      -1,
-                      G_PARAM_READWRITE |
-                      G_PARAM_STATIC_STRINGS);
-
-  /**
    * ClutterSettings:font-dpi:
    *
    * The DPI used when rendering text, as a value of 1024 * dots/inch.
@@ -781,55 +707,6 @@ clutter_settings_class_init (ClutterSettingsClass *klass)
                       -1,
                       G_PARAM_WRITABLE |
                       G_PARAM_STATIC_STRINGS);
-
-  /**
-   * ClutterSettings:font-hinting:
-   *
-   * Whether or not to use hinting when rendering text; a value of 1
-   * unconditionally enables it; a value of 0 unconditionally disables
-   * it; and a value of -1 will use the system's default.
-   */
-  obj_props[PROP_FONT_HINTING] =
-    g_param_spec_int ("font-hinting", NULL, NULL,
-                      -1, 1,
-                      -1,
-                      G_PARAM_READWRITE |
-                      G_PARAM_STATIC_STRINGS);
-
-  /**
-   * ClutterSettings:font-hint-style:
-   *
-   * The style of the hinting used when rendering text. Valid values
-   * are:
-   *
-   *   - hintnone
-   *   - hintslight
-   *   - hintmedium
-   *   - hintfull
-   */
-  obj_props[PROP_FONT_HINT_STYLE] =
-    g_param_spec_string ("font-hint-style", NULL, NULL,
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_STATIC_STRINGS);
-
-  /**
-   * ClutterSettings:font-subpixel-order:
-   *
-   * The type of sub-pixel antialiasing used when rendering text. Valid
-   * values are:
-   *
-   *   - none
-   *   - rgb
-   *   - bgr
-   *   - vrgb
-   *   - vbgr
-   */
-  obj_props[PROP_FONT_RGBA] =
-    g_param_spec_string ("font-subpixel-order", NULL, NULL,
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_STATIC_STRINGS);
 
   /**
    * ClutterSettings:long-press-duration:
@@ -884,11 +761,6 @@ clutter_settings_init (ClutterSettings *self)
   self->dnd_drag_threshold = 8;
 
   self->font_name = g_strdup (DEFAULT_FONT_NAME);
-
-  self->xft_antialias = -1;
-  self->xft_hinting = -1;
-  self->xft_hint_style = NULL;
-  self->xft_rgba = NULL;
 
   self->long_press_duration = 500;
 }
