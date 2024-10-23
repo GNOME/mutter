@@ -27,8 +27,6 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include <cairo.h>
-
 #include "cogl/cogl.h"
 
 #include "clutter/clutter-keymap.h"
@@ -52,12 +50,6 @@ ClutterBackend *                clutter_get_default_backend             (void);
 
 CLUTTER_EXPORT
 gdouble                         clutter_backend_get_resolution          (ClutterBackend             *backend);
-
-CLUTTER_EXPORT
-void                            clutter_backend_set_font_options        (ClutterBackend             *backend,
-                                                                         const cairo_font_options_t *options);
-CLUTTER_EXPORT
-const cairo_font_options_t *    clutter_backend_get_font_options        (ClutterBackend             *backend);
 
 CLUTTER_EXPORT
 CoglContext *                   clutter_backend_get_cogl_context        (ClutterBackend             *backend);
