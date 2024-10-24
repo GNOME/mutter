@@ -280,6 +280,13 @@ clutter_backend_init (ClutterBackend *self)
   self->dummy_onscreen = NULL;
 
   self->fallback_resource_scale = 1.f;
+
+  /* Default font options */
+  self->font_options = cairo_font_options_create ();
+  cairo_font_options_set_hint_metrics (self->font_options, CAIRO_HINT_METRICS_ON);
+  cairo_font_options_set_hint_style (self->font_options, CAIRO_HINT_STYLE_NONE);
+  cairo_font_options_set_subpixel_order (self->font_options, CAIRO_SUBPIXEL_ORDER_DEFAULT);
+  cairo_font_options_set_antialias (self->font_options, CAIRO_ANTIALIAS_DEFAULT);
 }
 
 ClutterStageWindow *
@@ -375,41 +382,6 @@ clutter_backend_get_resolution (ClutterBackend *backend)
     return 96.0;
 
   return resolution / 1024.0;
-}
-
-/**
- * clutter_backend_set_font_options:
- * @backend: a #ClutterBackend
- * @options: Cairo font options for the backend, or %NULL
- *
- * Sets the new font options for @backend. The #ClutterBackend will
- * copy the #cairo_font_options_t.
- *
- * If @options is %NULL, the first following call to
- * [method@Clutter.Backend.get_font_options] will return the default font
- * options for @backend.
- *
- * This function is intended for actors creating a Pango layout
- * using the PangoCairo API.
- */
-void
-clutter_backend_set_font_options (ClutterBackend             *backend,
-                                  const cairo_font_options_t *options)
-{
-  g_return_if_fail (CLUTTER_IS_BACKEND (backend));
-
-  if (backend->font_options != options)
-    {
-      if (backend->font_options)
-        cairo_font_options_destroy (backend->font_options);
-
-      if (options)
-        backend->font_options = cairo_font_options_copy (options);
-      else
-        backend->font_options = NULL;
-
-      g_signal_emit (backend, backend_signals[FONT_CHANGED], 0);
-    }
 }
 
 /**
