@@ -125,6 +125,8 @@ typedef struct _MetaMonitorManagerPrivate
   guint switch_config_handle_id;
 
   uint32_t backlight_serial;
+
+  gboolean power_save_inhibit_orientation_tracking;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -158,6 +160,11 @@ meta_monitor_manager_get_backend (MetaMonitorManager *manager)
 static void
 meta_monitor_manager_init (MetaMonitorManager *manager)
 {
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  priv->power_save_mode = META_POWER_SAVE_ON;
+  priv->power_save_inhibit_orientation_tracking = FALSE;
 }
 
 static void
@@ -479,12 +486,27 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager        *manager
 {
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
+  gboolean inhibit_orientation_tracking;
+  MetaOrientationManager *orientation_manager =
+    meta_backend_get_orientation_manager (manager->backend);
 
   if (priv->power_save_mode == mode)
     return;
 
   priv->power_save_mode = mode;
   g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0, reason);
+
+  inhibit_orientation_tracking = priv->power_save_mode != META_POWER_SAVE_ON;
+
+  if (priv->power_save_inhibit_orientation_tracking == inhibit_orientation_tracking)
+    return;
+
+  priv->power_save_inhibit_orientation_tracking = inhibit_orientation_tracking;
+
+  if (inhibit_orientation_tracking)
+    meta_orientation_manager_inhibit_tracking (orientation_manager);
+  else
+    meta_orientation_manager_uninhibit_tracking (orientation_manager);
 }
 
 static void
