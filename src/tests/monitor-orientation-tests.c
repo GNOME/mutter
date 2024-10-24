@@ -807,8 +807,35 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
                       check_monitor_configuration_per_orientation (
                         &test_case, 0, orientation, 960, 540));
 
-  /* When no touch device is available, the orientation change is ignored */
+  /* When no touch device is available, we reset back to normal orientation. */
   g_test_message ("Removing touch device");
+  meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
+                                        touch_device);
+  g_clear_object (&touch_device);
+
+  meta_sensors_proxy_mock_wait_accelerometer_claimed (orientation_mock, FALSE);
+
+  META_TEST_LOG_CALL ("Checking configuration per orientation",
+                      check_monitor_configuration_per_orientation (
+                        &test_case, 0, META_ORIENTATION_NORMAL,
+                        960, 540));
+
+  /* Adding back the touch device, we should now pick up the orientation again */
+  touch_device =
+    meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
+                                       CLUTTER_TOUCHSCREEN_DEVICE, 1);
+
+  meta_sensors_proxy_mock_wait_accelerometer_claimed (orientation_mock, TRUE);
+
+  META_TEST_LOG_CALL ("Checking configuration per orientation",
+                      check_monitor_configuration_per_orientation (
+                        &test_case, 0, META_ORIENTATION_LEFT_UP,
+                        960, 540));
+
+  /* Now remove it again, we should go to NORMAL and even when rotating we
+   * should remain in NORMAL.
+   */
+  g_test_message ("Removing touch device again");
   meta_backend_test_remove_test_device (META_BACKEND_TEST (backend),
                                         touch_device);
   g_clear_object (&touch_device);
@@ -821,7 +848,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
 
   META_TEST_LOG_CALL ("Checking configuration per orientation",
                       check_monitor_configuration_per_orientation (
-                        &test_case, 0, META_ORIENTATION_LEFT_UP,
+                        &test_case, 0, META_ORIENTATION_NORMAL,
                         960, 540));
 }
 

@@ -1329,7 +1329,34 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
     }
   else
     {
+      MetaMonitorsConfig *current_config =
+        meta_monitor_config_manager_get_current (manager->config_manager);
+
       meta_orientation_manager_inhibit_tracking (orientation_manager);
+
+      /* Rotate back to normal transform when orientation goes unmanaged */
+      if (current_config)
+        {
+          g_autoptr (MetaMonitorsConfig) config = NULL;
+          g_autoptr (GError) error = NULL;
+
+          config =
+            meta_monitor_config_manager_create_for_orientation (manager->config_manager,
+                                                                current_config,
+                                                                MTK_MONITOR_TRANSFORM_NORMAL);
+
+          if (config)
+            {
+              if (!meta_monitor_manager_apply_monitors_config (manager,
+                                                               config,
+                                                               META_MONITORS_CONFIG_METHOD_TEMPORARY,
+                                                               &error))
+                {
+                  g_warning ("Failed to rotate monitor back to normal transform: %s",
+                             error->message);
+                }
+            }
+        }
     }
 }
 
