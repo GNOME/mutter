@@ -656,7 +656,7 @@ maybe_influence_other_gestures (ClutterGesture      *self,
 For cancelling-on-recognize we wanna do all state changes in one step, then all influencing
 in another step (the recognizing gesture wins, it should be able to cancel everyone it
 wants to cancel). The same doesn't hold for recognize-on-cancel, here for the
-recognizing gesture to win, we need to do influencing in the same step.
+recognizing gesture to win, we need to do influencing in the same step ...
 
        */
       for (i = 0; i < len; i++)
@@ -703,7 +703,13 @@ recognizing gesture to win, we need to do influencing in the same step.
                 {
                   ClutterGestureState pending_state = other_priv->pending_state;
 
+                  /* ... For recognize-on-recognize, it's not really a question we
+                   * can answer, so just let the "first child" win, similar to
+                   * recognize-on-cancel ...
+                   */
                   set_state (other_gesture, pending_state, TRUE, recursion_depth);
+                  set_state_after (other_gesture, recursion_depth);
+                  maybe_move_to_waiting (other_gesture, recursion_depth);
                 }
             }
           else
@@ -711,17 +717,6 @@ recognizing gesture to win, we need to do influencing in the same step.
               debug_message_recursion (other_gesture, recursion_depth,
                                        "Still inhibited");
             }
-        }
-
-/* For recognize-on-recognize, it's not really a question we can answer,
-so just let the "parent" gesture win */
-      for (i = 0; i < len; i++)
-        {
-          ClutterGesture *other_gesture = priv->inhibit_until_recognize->pdata[i];
-          if (!other_gesture)
-            continue;
-
-          set_state_after (other_gesture, recursion_depth);
         }
     }
   else if (priv->state == CLUTTER_GESTURE_STATE_CANCELLED)
@@ -760,6 +755,10 @@ so just let the "parent" gesture win */
                 {
                   ClutterGestureState pending_state = other_priv->pending_state;
 
+                  /* ... As mentioned above: "The same doesn't hold true for
+                   * recognize-on-cancel, here for the recognizing gesture to win,
+                   * we need to do influencing in the same step".
+                   */
                   set_state (other_gesture, pending_state, TRUE, recursion_depth);
                   set_state_after (other_gesture, recursion_depth);
                   maybe_move_to_waiting (other_gesture, recursion_depth);
@@ -988,26 +987,50 @@ set_state_after (ClutterGesture *self,
       g_signal_emit (self, obj_signals[RECOGNIZE], 0);
     }
 
-  /* Setting state recursively in a signal handler is unsupported and causes an error */
+  /* Setting state recursively in a signal handler is unsupported and causes
+   * an error. Otherwise the ->state_changed() emission below would be
+   * out-of-date, and gesture implementation should only see valid state
+   * transitions in ->state_changed().
+   */
   if (priv->state != new_state)
     {
-      g_warning ("gesture <%s> [<%s>:%p]: Tried to set state recursively from "
-                 "recognize/cancel/end signal handler. Use notify::state signal "
-                 "instead.",
+      g_warning ("gesture <%s> [<%s>:%p]: State was set recursively from a "
+                 "recognize/cancel/end signal handler, will skip influencing "
+                 "based on the first state change (%s -> %s), as it already "
+                 "happened based on the recursive state change (%s -> %s). "
+                 "If you would like to avoid the influencing, but without a "
+                 "warning, trigger the recursive state change from the "
+                 "ClutterGesture->state_changed() vfunc instead. Otherwise, "
+                 "trigger the state change from the notify::state signal.",
                  clutter_actor_meta_get_name (CLUTTER_ACTOR_META (self)),
-                 G_OBJECT_TYPE_NAME (self), self);
+                 G_OBJECT_TYPE_NAME (self), self,
+                 state_to_string[old_state],
+                 state_to_string[new_state],
+                 state_to_string[new_state],
+                 state_to_string[priv->state]);
     }
 
   if (gesture_class->state_changed)
     gesture_class->state_changed (self, old_state, new_state);
 
-  /* If state has been set recursively by implementation, bail out */
-  if (priv->state != new_state)
-    return;
-
-  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_STATE]);
-
-  /* If state has been set recursively by notify signal handler, bail out */
+  /* If state has been set recursively by the implementation, we
+   *
+   * 1) don't emit the notify::state signal (it already was emitted in the
+   *    recursive set_state() call)
+   *
+   * 2) don't influence other gestures based on the old state. This seems
+   *    somewhat unexpected, as it means no influencing happened for a state
+   *    transition that certainly happened, but there's no real alternative:
+   *
+   *   - We need to call ->state_changed() before influencing as otherwise
+   *     implementations would see weird state transitions.
+   *
+   *   - We can't influence based on the old state after state was changed
+   *     within ->state_changed() (eg. what if user uninhibits another gesture
+   *     because we're recognizing, and that in turn cancels us, should we now
+   *     run influencing for RECOGNIZING after that and immediately cancel that
+   *     other gesture again? probably not...),
+   */
   if (priv->state != new_state)
     return;
 
@@ -1016,6 +1039,23 @@ set_state_after (ClutterGesture *self,
        new_state == CLUTTER_GESTURE_STATE_COMPLETED) ||
       new_state == CLUTTER_GESTURE_STATE_CANCELLED)
     maybe_influence_other_gestures (self, recursion_depth + 1);
+
+  /* If state has been set recursively by influencing, no need to emit
+   * notify::state signal again (same reasoning as above).
+   */
+  if (priv->state != new_state)
+    return;
+
+  /* notify::state is emitted after influencing, in order to support setting
+   * state recursively (eg. to support users cancelling a gesture by hiding the
+   * gesture actor).
+   *
+   * If it were emitted before influencing, we'd end up in the dilemma of
+   * either having to influence based on an outdated state (which is bad,
+   * see explanation above), or not influencing at all (which is super
+   * unexpected, given that notify::state is easily available to users).
+   */
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_STATE]);
 }
 
 void
