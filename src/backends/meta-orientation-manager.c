@@ -62,9 +62,7 @@ struct _MetaOrientationManager
   guint iio_watch_id;
   guint properties_changed_idle_id;
   GDBusProxy *iio_proxy;
-  MetaOrientation prev_orientation;
-  MetaOrientation curr_orientation;
-  MetaOrientation effective_orientation;
+  MetaOrientation orientation;
   gboolean has_accel;
   gboolean orientation_locked;
   gboolean should_claim;
@@ -116,20 +114,18 @@ static void
 sync_state (MetaOrientationManager *self)
 {
   g_autoptr (GVariant) v = NULL;
-
-  self->curr_orientation = META_ORIENTATION_UNDEFINED;
+  MetaOrientation new_orientation = META_ORIENTATION_UNDEFINED;
 
   v = g_dbus_proxy_get_cached_property (self->iio_proxy, "AccelerometerOrientation");
   if (v)
-    self->curr_orientation = orientation_from_string (g_variant_get_string (v, NULL));
+    new_orientation = orientation_from_string (g_variant_get_string (v, NULL));
 
-  if (self->prev_orientation == self->curr_orientation)
+  if (self->orientation == new_orientation)
     return;
 
-  self->prev_orientation = self->curr_orientation;
-  self->effective_orientation = self->curr_orientation;
+  self->orientation = new_orientation;
 
-  if (self->curr_orientation == META_ORIENTATION_UNDEFINED)
+  if (self->orientation == META_ORIENTATION_UNDEFINED)
     return;
 
   g_signal_emit (self, signals[ORIENTATION_CHANGED], 0);
@@ -361,6 +357,8 @@ meta_orientation_manager_init (MetaOrientationManager *self)
   GSettingsSchemaSource *schema_source = g_settings_schema_source_get_default ();
   g_autoptr (GSettingsSchema) schema = NULL;
 
+  self->orientation = META_ORIENTATION_UNDEFINED;
+
   self->iio_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
                                          "net.hadess.SensorProxy",
                                          G_BUS_NAME_WATCHER_FLAGS_NONE,
@@ -379,8 +377,6 @@ meta_orientation_manager_init (MetaOrientationManager *self)
                                self, G_CONNECT_SWAPPED);
       orientation_lock_changed (self);
     }
-
-  self->effective_orientation = META_ORIENTATION_UNDEFINED;
 }
 
 static void
@@ -447,7 +443,7 @@ meta_orientation_manager_class_init (MetaOrientationManagerClass *klass)
 MetaOrientation
 meta_orientation_manager_get_orientation (MetaOrientationManager *self)
 {
-  return self->effective_orientation;
+  return self->orientation;
 }
 
 gboolean
