@@ -100,7 +100,4 @@ gboolean clutter_backend_is_display_server (ClutterBackend *backend);
 CLUTTER_EXPORT
 void clutter_backend_destroy (ClutterBackend *backend);
 
-void clutter_backend_set_font_options (ClutterBackend             *backend,
-                                       const cairo_font_options_t *options);
-
 G_END_DECLS
