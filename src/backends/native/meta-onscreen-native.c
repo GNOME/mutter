@@ -1028,7 +1028,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   g_assert (format_info);
 
   dmabuf_fd = meta_drm_buffer_dumb_ensure_dmabuf_fd (buffer_dumb, &error);
-  if (!dmabuf_fd)
+  if (dmabuf_fd < 0)
     {
       meta_topic (META_DEBUG_KMS,
                   "Failed to create DMA buffer: %s", error->message);
