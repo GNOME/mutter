@@ -635,12 +635,11 @@ meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignmen
   mode_rects = g_new0 (struct drm_mode_rect, n_rectangles);
   for (i = 0; i < n_rectangles; ++i)
     {
-      MtkRectangle rectangle = mtk_region_get_rectangle (region, i);
-
-      mode_rects[i].x1 = rectangle.x;
-      mode_rects[i].y1 = rectangle.y;
-      mode_rects[i].x2 = rectangle.x + rectangle.width;
-      mode_rects[i].y2 = rectangle.y + rectangle.height;
+      mtk_region_get_box (region, i,
+                          &mode_rects[i].x1,
+                          &mode_rects[i].y1,
+                          &mode_rects[i].x2,
+                          &mode_rects[i].y2);
     }
 
   fb_damage = g_new0 (MetaKmsFbDamage, 1);
