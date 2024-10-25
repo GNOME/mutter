@@ -757,21 +757,22 @@ get_luminance_mapping (ClutterColorStateParams *color_state_params,
 }
 
 static void
-get_white_chromaticity_in_XYZ (float            x,
-                               float            y,
-                               graphene_vec3_t *XYZ)
+xyY_to_XYZ (float            x,
+            float            y,
+            float            Y,
+            graphene_vec3_t *XYZ)
 {
   if (y == 0.0f)
     {
       /* Avoid a division by 0 */
       y = FLT_EPSILON;
-      g_warning ("White point y coordinate is 0, something is probably wrong");
+      g_warning ("y coordinate is 0, something is probably wrong");
     }
 
   graphene_vec3_init (XYZ,
-                      x / y,
-                      1,
-                      (1 - x - y) / y);
+                      (x * Y) / y,
+                      Y,
+                      ((1 - x - y) * Y) / y);
 }
 
 /*
@@ -836,7 +837,7 @@ get_color_space_trans_matrices (ClutterColorStateParams *color_state_params,
   if (!graphene_matrix_inverse (&primaries_mat, &inv_primaries_mat))
     return FALSE;
 
-  get_white_chromaticity_in_XYZ (primaries->w_x, primaries->w_y, &white_point_XYZ);
+  xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f,  &white_point_XYZ);
 
   graphene_matrix_transform_vec3 (&inv_primaries_mat, &white_point_XYZ, &coefficients);
 
@@ -927,10 +928,10 @@ get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
     0, 0, 0, 1,
   });
 
-  get_white_chromaticity_in_XYZ (source_primaries->w_x, source_primaries->w_y,
-                                 &src_white_point_XYZ);
-  get_white_chromaticity_in_XYZ (target_primaries->w_x, target_primaries->w_y,
-                                 &dst_white_point_XYZ);
+  xyY_to_XYZ (source_primaries->w_x, source_primaries->w_y, 1.0f,
+              &src_white_point_XYZ);
+  xyY_to_XYZ (target_primaries->w_x, target_primaries->w_y, 1.0f,
+              &dst_white_point_XYZ);
 
   graphene_matrix_transform_vec3 (&bradford_mat, &src_white_point_XYZ,
                                   &src_white_point_LMS);
