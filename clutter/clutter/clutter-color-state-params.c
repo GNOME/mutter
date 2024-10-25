@@ -33,8 +33,8 @@
 
 #define UNIFORM_NAME_GAMMA_EXP "gamma_exp"
 #define UNIFORM_NAME_INV_GAMMA_EXP "inv_gamma_exp"
-#define UNIFORM_NAME_COLOR_SPACE_MAPPING "color_space_mapping"
-#define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_mapping"
+#define UNIFORM_NAME_COLOR_SPACE_MAPPING "color_transformation_matrix"
+#define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_factor"
 
 typedef struct _ClutterColorStateParams
 {
@@ -376,8 +376,12 @@ clutter_color_state_params_init_color_transform_key (ClutterColorState        *c
   ClutterColorStateParams *target_color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (target_color_state);
 
-  key->source.eotf_key = get_eotf_key (color_state_params->eotf);
-  key->target.eotf_key = get_eotf_key (target_color_state_params->eotf);
+  key->source_eotf_bits = get_eotf_key (color_state_params->eotf);
+  key->target_eotf_bits = get_eotf_key (target_color_state_params->eotf);
+  key->luminance_bit = luminances_equal (color_state_params,
+                                         target_color_state_params) ? 0 : 1;
+  key->color_trans_bit = colorimetry_equal (color_state_params,
+                                            target_color_state_params) ? 0 : 1;
 }
 
 static const char srgb_eotf_source[] =
@@ -525,65 +529,54 @@ static const char gamma_inv_eotf_source[] =
   "  return vec4 (gamma_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
-typedef struct _TransferFunction
+typedef struct _ColorOpSnippet
 {
   const char *source;
   const char *name;
-} TransferFunction;
+} ColorOpSnippet;
 
-static const TransferFunction srgb_eotf = {
+static const ColorOpSnippet srgb_eotf = {
   .source = srgb_eotf_source,
   .name = "srgb_eotf",
 };
 
-static const TransferFunction srgb_inv_eotf = {
+static const ColorOpSnippet srgb_inv_eotf = {
   .source = srgb_inv_eotf_source,
   .name = "srgb_inv_eotf",
 };
 
-static const TransferFunction pq_eotf = {
+static const ColorOpSnippet pq_eotf = {
   .source = pq_eotf_source,
   .name = "pq_eotf",
 };
 
-static const TransferFunction pq_inv_eotf = {
+static const ColorOpSnippet pq_inv_eotf = {
   .source = pq_inv_eotf_source,
   .name = "pq_inv_eotf",
 };
 
-static const TransferFunction bt709_eotf = {
+static const ColorOpSnippet bt709_eotf = {
   .source = bt709_eotf_source,
   .name = "bt709_eotf",
 };
 
-static const TransferFunction bt709_inv_eotf = {
+static const ColorOpSnippet bt709_inv_eotf = {
   .source = bt709_inv_eotf_source,
   .name = "bt709_inv_eotf",
 };
 
-static const TransferFunction gamma_eotf = {
+static const ColorOpSnippet gamma_eotf = {
   .source = gamma_eotf_source,
   .name = "gamma_eotf",
 };
 
-static const TransferFunction gamma_inv_eotf = {
+static const ColorOpSnippet gamma_inv_eotf = {
   .source = gamma_inv_eotf_source,
   .name = "gamma_inv_eotf",
 };
 
-static void
-append_shader_description (GString                 *snippet_source,
-                           ClutterColorStateParams *color_state_params,
-                           ClutterColorStateParams *target_color_state_params)
-{
-  g_string_append_printf (snippet_source,
-                          "  // %s to %s\n",
-                          clutter_eotf_to_string (color_state_params->eotf),
-                          clutter_eotf_to_string (target_color_state_params->eotf));
-}
-
-static const TransferFunction *
-get_eotf (ClutterColorStateParams *color_state_params)
+static const ColorOpSnippet *
+get_eotf_snippet (ClutterColorStateParams *color_state_params)
 {
   switch (color_state_params->eotf.type)
     {
@@ -609,8 +602,8 @@ get_eotf (ClutterColorStateParams *color_state_params)
   return NULL;
 }
 
-static const TransferFunction *
-get_inv_eotf (ClutterColorStateParams *color_state_params)
+static const ColorOpSnippet *
+get_inv_eotf_snippet (ClutterColorStateParams *color_state_params)
 {
   switch (color_state_params->eotf.type)
     {
@@ -637,13 +630,92 @@ get_inv_eotf (ClutterColorStateParams *color_state_params)
 }
 
 static void
-get_transfer_functions (ClutterColorStateParams  *color_state_params,
-                        ClutterColorStateParams  *target_color_state_params,
-                        const TransferFunction  **pre_transfer_function,
-                        const TransferFunction  **post_transfer_function)
+get_eotf_snippets (ClutterColorStateParams  *color_state_params,
+                   ClutterColorStateParams  *target_color_state_params,
+                   const ColorOpSnippet    **eotf_snippet,
+                   const ColorOpSnippet    **inv_eotf_snippet)
 {
-  *pre_transfer_function = get_eotf (color_state_params);
-  *post_transfer_function = get_inv_eotf (target_color_state_params);
+  *eotf_snippet = get_eotf_snippet (color_state_params);
+  *inv_eotf_snippet = get_inv_eotf_snippet (target_color_state_params);
+}
+
+static const char luminance_mapping_source[] =
+  "uniform float " UNIFORM_NAME_LUMINANCE_MAPPING ";\n"
+  "// luminance_mapping:\n"
+  "// @color: Normalized ([0,1]) in origin luminance\n"
+  "// Returns: Normalized ([0,1]) in target luminance\n"
+  "vec3 luminance_mapping (vec3 color)\n"
+  "{\n"
+  " return " UNIFORM_NAME_LUMINANCE_MAPPING " * color;\n"
+  "}\n"
+  "\n"
+  "vec4 luminance_mapping (vec4 color)\n"
+  "{\n"
+  "  return vec4 (luminance_mapping (color.rgb), color.a);\n"
+  "}\n";
+
+static const ColorOpSnippet luminance_mapping = {
+  .source = luminance_mapping_source,
+  .name = "luminance_mapping",
+};
+
+static void
+get_luminance_mapping_snippet (ClutterColorStateParams  *color_state_params,
+                               ClutterColorStateParams  *target_color_state_params,
+                               const ColorOpSnippet    **luminance_mapping_snippet)
+{
+  if (luminances_equal (color_state_params, target_color_state_params))
+    return;
+
+  *luminance_mapping_snippet = &luminance_mapping;
+}
+
+static const char color_space_mapping_source[] =
+  "uniform mat3 " UNIFORM_NAME_COLOR_SPACE_MAPPING ";\n"
+  "// color_space_mapping:\n"
+  "// @color: Normalized ([0,1]) in origin colorspace\n"
+  "// Returns: Normalized ([0,1]) in target colorspace\n"
+  "vec3 color_space_mapping (vec3 color)\n"
+  "{\n"
+  " return " UNIFORM_NAME_COLOR_SPACE_MAPPING " * color;\n"
+  "}\n"
+  "\n"
+  "vec4 color_space_mapping (vec4 color)\n"
+  "{\n"
+  "  return vec4 (color_space_mapping (color.rgb), color.a);\n"
+  "}\n";
+
+static const ColorOpSnippet color_space_mapping = {
+  .source = color_space_mapping_source,
+  .name = "color_space_mapping",
+};
+
+static void
+get_color_space_mapping_snippet (ClutterColorStateParams  *color_state_params,
+                                 ClutterColorStateParams  *target_color_state_params,
+                                 const ColorOpSnippet    **color_space_mapping_snippet)
+{
+  if (colorimetry_equal (color_state_params, target_color_state_params))
+    return;
+
+  *color_space_mapping_snippet = &color_space_mapping;
+}
+
+static void
+append_color_op_snippet (const ColorOpSnippet *color_snippet,
+                         GString              *snippet_globals,
+                         GString              *snippet_source,
+                         const char           *snippet_color_var)
+{
+  if (!color_snippet)
+    return;
+
+  g_string_append_printf (snippet_globals, "%s\n", color_snippet->source);
+  g_string_append_printf (snippet_source,
+                          "  %s = %s (%s);\n",
+                          snippet_color_var,
+                          color_snippet->name,
+                          snippet_color_var);
 }
 
 static CoglSnippet *
@@ -651,30 +723,32 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
                                                      ClutterColorState *target_color_state)
 {
   CoglSnippet *snippet;
-  const TransferFunction *pre_transfer_function = NULL;
-  const TransferFunction *post_transfer_function = NULL;
-  g_autoptr (GString) globals_source = NULL;
+  const char *snippet_color_var;
+  g_autoptr (GString) snippet_globals = NULL;
   g_autoptr (GString) snippet_source = NULL;
+  const ColorOpSnippet *eotf_snippet = NULL;
+  const ColorOpSnippet *inv_eotf_snippet = NULL;
+  const ColorOpSnippet *color_space_mapping_snippet = NULL;
+  const ColorOpSnippet *luminance_mapping_snippet = NULL;
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
   ClutterColorStateParams *target_color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (target_color_state);
 
-  get_transfer_functions (color_state_params,
-                          target_color_state_params,
-                          &pre_transfer_function,
-                          &post_transfer_function);
+  snippet_globals = g_string_new (NULL);
+  snippet_source = g_string_new (NULL);
+  snippet_color_var = "color_state_color";
 
-  globals_source = g_string_new (NULL);
-  if (pre_transfer_function)
-    g_string_append_printf (globals_source, "%s\n", pre_transfer_function->source);
-  if (post_transfer_function)
-    g_string_append_printf (globals_source, "%s\n", post_transfer_function->source);
-
-  g_string_append (globals_source,
-                   "uniform float " UNIFORM_NAME_LUMINANCE_MAPPING ";\n");
-  g_string_append (globals_source,
-                   "uniform mat3 " UNIFORM_NAME_COLOR_SPACE_MAPPING ";\n");
+  get_eotf_snippets (color_state_params,
+                     target_color_state_params,
+                     &eotf_snippet,
+                     &inv_eotf_snippet);
+  get_luminance_mapping_snippet (color_state_params,
+                                 target_color_state_params,
+                                 &luminance_mapping_snippet);
+  get_color_space_mapping_snippet (color_state_params,
+                                   target_color_state_params,
+                                   &color_space_mapping_snippet);
 
   /*
    * The following statements generate a shader snippet that transforms colors
@@ -691,49 +765,43 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
    *
    * The snippet contains a pipeline that roughly looks like this:
    *
-   *     color = pre_transfer_function (color)
-   *     color *= luminance_gain
-   *     color = color_space_mapping_matrix * color
-   *     color = post_transfer_function (color)
+   *     color = eotf (color)
+   *     color = luminance_mapping (color)
+   *     color = color_space_mapping (color)
+   *     color = inv_eotf (color)
    *
    */
 
-  snippet_source = g_string_new (NULL);
-  append_shader_description (snippet_source,
-                             color_state_params,
-                             target_color_state_params);
+  g_string_append_printf (snippet_source,
+                          "  vec3 %s = cogl_color_out.rgb;\n",
+                          snippet_color_var);
 
-  g_string_append (snippet_source,
-                   "  vec3 color_state_color = cogl_color_out.rgb;\n");
+  append_color_op_snippet (eotf_snippet,
+                           snippet_globals,
+                           snippet_source,
+                           snippet_color_var);
 
-  if (pre_transfer_function)
-    {
-      g_string_append_printf (snippet_source,
-                              "  color_state_color = %s (color_state_color);\n",
-                              pre_transfer_function->name);
-    }
+  append_color_op_snippet (luminance_mapping_snippet,
+                           snippet_globals,
+                           snippet_source,
+                           snippet_color_var);
 
-  g_string_append (snippet_source,
-                   "  color_state_color = "
-                   UNIFORM_NAME_LUMINANCE_MAPPING " * color_state_color;\n");
+  append_color_op_snippet (color_space_mapping_snippet,
+                           snippet_globals,
+                           snippet_source,
+                           snippet_color_var);
 
-  g_string_append (snippet_source,
-                   "  color_state_color = "
-                   UNIFORM_NAME_COLOR_SPACE_MAPPING " * color_state_color;\n");
+  append_color_op_snippet (inv_eotf_snippet,
+                           snippet_globals,
+                           snippet_source,
+                           snippet_color_var);
 
-  if (post_transfer_function)
-    {
-      g_string_append_printf (snippet_source,
-                              "  // Post transfer function\n"
-                              "  color_state_color = %s (color_state_color);\n",
-                              post_transfer_function->name);
-    }
-
-  g_string_append (snippet_source,
-                   "  cogl_color_out = vec4 (color_state_color, cogl_color_out.a);\n");
+  g_string_append_printf (snippet_source,
+                          "  cogl_color_out = vec4 (%s, cogl_color_out.a);\n",
+                          snippet_color_var);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                              globals_source->str,
+                              snippet_globals->str,
                               snippet_source->str);
   cogl_snippet_set_capability (snippet,
                                CLUTTER_PIPELINE_CAPABILITY,
@@ -1006,22 +1074,11 @@ get_color_space_mapping_matrix (ClutterColorStateParams *color_state_params,
 }
 
 static void
-clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
-                                            ClutterColorState *target_color_state,
-                                            CoglPipeline      *pipeline)
+update_eotf_uniforms (ClutterColorStateParams *color_state_params,
+                      CoglPipeline            *pipeline)
 {
   const ClutterEOTF *eotf;
-  const ClutterEOTF *target_eotf;
-  float lum_mapping;
-  float color_space_mapping[9] = { 0 };
   int uniform_location_gamma_exp;
-  int uniform_location_inv_gamma_exp;
-  int uniform_location_luminance_mapping;
-  int uniform_location_color_space_mapping;
-  ClutterColorStateParams *color_state_params =
-    CLUTTER_COLOR_STATE_PARAMS (color_state);
-  ClutterColorStateParams *target_color_state_params =
-    CLUTTER_COLOR_STATE_PARAMS (target_color_state);
 
   eotf = clutter_color_state_params_get_eotf (color_state_params);
   if (eotf->type == CLUTTER_EOTF_TYPE_GAMMA)
@@ -1034,8 +1091,16 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
                                     uniform_location_gamma_exp,
                                     eotf->gamma_exp);
     }
+}
 
-  target_eotf = clutter_color_state_params_get_eotf (target_color_state_params);
+static void
+update_inv_eotf_uniforms (ClutterColorStateParams *color_state_params,
+                          CoglPipeline            *pipeline)
+{
+  const ClutterEOTF *target_eotf;
+  int uniform_location_inv_gamma_exp;
+
+  target_eotf = clutter_color_state_params_get_eotf (color_state_params);
   if (target_eotf->type == CLUTTER_EOTF_TYPE_GAMMA)
     {
       uniform_location_inv_gamma_exp =
@@ -1046,6 +1111,27 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
                                     uniform_location_inv_gamma_exp,
                                     1.0f / target_eotf->gamma_exp);
     }
+}
+
+static void
+update_eotfs_uniforms (ClutterColorStateParams *color_state_params,
+                       ClutterColorStateParams *target_color_state_params,
+                       CoglPipeline            *pipeline)
+{
+  update_eotf_uniforms (color_state_params, pipeline);
+  update_inv_eotf_uniforms (target_color_state_params, pipeline);
+}
+
+static void
+update_luminance_mapping_uniforms (ClutterColorStateParams *color_state_params,
+                                   ClutterColorStateParams *target_color_state_params,
+                                   CoglPipeline            *pipeline)
+{
+  float lum_mapping;
+  int uniform_location_luminance_mapping;
+
+  if (luminances_equal (color_state_params, target_color_state_params))
+    return;
 
   lum_mapping = get_luminance_mapping (color_state_params,
                                        target_color_state_params);
@@ -1057,9 +1143,22 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
   cogl_pipeline_set_uniform_1f (pipeline,
                                 uniform_location_luminance_mapping,
                                 lum_mapping);
+}
 
-  get_color_space_mapping_matrix (color_state_params, target_color_state_params,
-                                  color_space_mapping);
+static void
+update_color_space_mapping_uniforms (ClutterColorStateParams *color_state_params,
+                                     ClutterColorStateParams *target_color_state_params,
+                                     CoglPipeline            *pipeline)
+{
+  float color_space_mapping_matrix[9] = { 0 };
+  int uniform_location_color_space_mapping;
+
+  if (colorimetry_equal (color_state_params, target_color_state_params))
+    return;
+
+  get_color_space_mapping_matrix (color_state_params,
+                                  target_color_state_params,
+                                  color_space_mapping_matrix);
 
   uniform_location_color_space_mapping =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1070,7 +1169,30 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
                                     3,
                                     1,
                                     FALSE,
-                                    color_space_mapping);
+                                    color_space_mapping_matrix);
+}
+
+static void
+clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
+                                            ClutterColorState *target_color_state,
+                                            CoglPipeline      *pipeline)
+{
+  ClutterColorStateParams *color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (color_state);
+  ClutterColorStateParams *target_color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (target_color_state);
+
+  update_eotfs_uniforms (color_state_params,
+                         target_color_state_params,
+                         pipeline);
+
+  update_luminance_mapping_uniforms (color_state_params,
+                                     target_color_state_params,
+                                     pipeline);
+
+  update_color_space_mapping_uniforms (color_state_params,
+                                       target_color_state_params,
+                                       pipeline);
 }
 
 static gboolean

@@ -78,8 +78,10 @@ clutter_color_transform_key_hash (gconstpointer data)
 {
   const ClutterColorTransformKey *key = data;
 
-  return (key->source.eotf_key ^
-          key->target.eotf_key);
+  return key->source_eotf_bits << 0 &
+         key->target_eotf_bits << 4 &
+         key->luminance_bit    << 8 &
+         key->color_trans_bit  << 9;
 }
 
 gboolean
@@ -89,8 +91,10 @@ clutter_color_transform_key_equal (gconstpointer data1,
   const ClutterColorTransformKey *key1 = data1;
   const ClutterColorTransformKey *key2 = data2;
 
-  return (key1->source.eotf_key == key2->source.eotf_key &&
-          key1->target.eotf_key == key2->target.eotf_key);
+  return (key1->source_eotf_bits == key2->source_eotf_bits &&
+          key1->target_eotf_bits == key2->target_eotf_bits &&
+          key1->luminance_bit == key2->luminance_bit &&
+          key1->color_trans_bit == key2->color_trans_bit);
 }
 
 void

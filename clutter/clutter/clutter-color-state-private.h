@@ -26,12 +26,14 @@
 
 typedef struct _ClutterColorTransformKey
 {
-  struct {
-    guint eotf_key;
-  } source;
-  struct {
-    guint eotf_key;
-  } target;
+  /* 3 bits to define TransferFunction enums
+   * + 1 bit to define Gamma TF */
+  guint source_eotf_bits : 4;
+  guint target_eotf_bits : 4;
+  /* When there is a luminance mapping snippet */
+  guint luminance_bit    : 1;
+  /* When there is a color trans snippet */
+  guint color_trans_bit  : 1;
 } ClutterColorTransformKey;
 
 void clutter_color_transform_key_init (ClutterColorTransformKey *key,
