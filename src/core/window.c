@@ -368,7 +368,7 @@ meta_window_get_property(GObject         *object,
       g_value_set_boolean (value, win->decorated);
       break;
     case PROP_FULLSCREEN:
-      g_value_set_boolean (value, win->fullscreen);
+      g_value_set_boolean (value, meta_window_is_fullscreen (win));
       break;
     case PROP_MAXIMIZED_HORIZONTALLY:
       g_value_set_boolean (value, win->maximized_horizontally);
