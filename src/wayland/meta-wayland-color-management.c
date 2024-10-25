@@ -911,10 +911,6 @@ creator_params_create (struct wl_client   *client,
   struct wl_resource *image_desc_resource;
   g_autoptr (ClutterColorState) color_state = NULL;
   MetaWaylandImageDescription *image_desc;
-  ClutterColorspace colorspace;
-  ClutterPrimaries *primaries;
-  ClutterTransferFunction tf_name;
-  float gamma_exp;
 
   if (!creator_params->is_colorimetry_set || !creator_params->is_eotf_set)
     {
@@ -930,38 +926,11 @@ creator_params_create (struct wl_client   *client,
                         wl_resource_get_version (resource),
                         id);
 
-  switch (creator_params->colorimetry.type)
-    {
-    case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      colorspace = creator_params->colorimetry.colorspace;
-      primaries = NULL;
-      break;
-    case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      colorspace = CLUTTER_COLORSPACE_SRGB;
-      primaries = creator_params->colorimetry.primaries;
-      break;
-    }
-
-  switch (creator_params->eotf.type)
-    {
-    case CLUTTER_EOTF_TYPE_NAMED:
-      tf_name = creator_params->eotf.tf_name;
-      gamma_exp = -1.0f;
-      break;
-    case CLUTTER_EOTF_TYPE_GAMMA:
-      tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
-      gamma_exp = creator_params->eotf.gamma_exp;
-      break;
-    }
-
-  color_state = clutter_color_state_params_new_full (clutter_context,
-                                                     colorspace,
-                                                     tf_name,
-                                                     primaries,
-                                                     gamma_exp,
-                                                     creator_params->lum.min,
-                                                     creator_params->lum.max,
-                                                     creator_params->lum.ref);
+  color_state =
+    clutter_color_state_params_new_from_primitives (clutter_context,
+                                                    creator_params->colorimetry,
+                                                    creator_params->eotf,
+                                                    creator_params->lum);
 
   image_desc =
     meta_wayland_image_description_new_color_state (color_manager,

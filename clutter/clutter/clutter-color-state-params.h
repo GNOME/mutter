@@ -118,6 +118,12 @@ ClutterColorState * clutter_color_state_params_new_full (ClutterContext         
                                                          float                    ref_lum);
 
 CLUTTER_EXPORT
+ClutterColorState * clutter_color_state_params_new_from_primitives (ClutterContext     *context,
+                                                                    ClutterColorimetry  colorimetry,
+                                                                    ClutterEOTF         eotf,
+                                                                    ClutterLuminance    luminance);
+
+CLUTTER_EXPORT
 const ClutterColorimetry * clutter_color_state_params_get_colorimetry (ClutterColorStateParams *color_state_params);
 
 CLUTTER_EXPORT

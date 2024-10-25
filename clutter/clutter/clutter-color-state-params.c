@@ -1153,9 +1153,9 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
   ClutterContext *context;
-  ClutterTransferFunction blending_tf;
-  ClutterColorspace colorspace;
-  ClutterPrimaries *primaries;
+  ClutterEOTF blending_eotf;
+
+  blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
 
   switch (color_state_params->eotf.type)
     {
@@ -1164,51 +1164,35 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
         {
         /* effectively this means we will blend sRGB content in sRGB, not linear */
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
-          blending_tf = color_state_params->eotf.tf_name;
+          blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
           break;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
         case CLUTTER_TRANSFER_FUNCTION_BT709:
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-          blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+          blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
           break;
         default:
           g_assert_not_reached ();
         }
       break;
     case CLUTTER_EOTF_TYPE_GAMMA:
-      blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+      blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
       break;
     }
 
   if (force)
-    blending_tf = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+    blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
 
   if (color_state_params->eotf.type == CLUTTER_EOTF_TYPE_NAMED &&
-      color_state_params->eotf.tf_name == blending_tf)
+      color_state_params->eotf.tf_name == blending_eotf.tf_name)
     return g_object_ref (color_state);
-
-  switch (color_state_params->colorimetry.type)
-    {
-    case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      colorspace = color_state_params->colorimetry.colorspace;
-      primaries = NULL;
-      break;
-    case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      colorspace = CLUTTER_COLORSPACE_SRGB;
-      primaries = color_state_params->colorimetry.primaries;
-      break;
-    }
 
   g_object_get (G_OBJECT (color_state), "context", &context, NULL);
 
-  return clutter_color_state_params_new_full (context,
-                                              colorspace,
-                                              blending_tf,
-                                              primaries,
-                                              -1.0f,
-                                              color_state_params->luminance.min,
-                                              color_state_params->luminance.max,
-                                              color_state_params->luminance.ref);
+  return clutter_color_state_params_new_from_primitives (context,
+                                                         color_state_params->colorimetry,
+                                                         blending_eotf,
+                                                         color_state_params->luminance);
 }
 
 static void
@@ -1310,4 +1294,56 @@ clutter_color_state_params_new_full (ClutterContext          *context,
     }
 
   return CLUTTER_COLOR_STATE (color_state_params);
+}
+
+/**
+ * clutter_color_state_params_new_from_primitives:
+ *
+ * Create a new ClutterColorState object using the color primitives.
+ *
+ * Return value: A new ClutterColorState object.
+ **/
+ClutterColorState *
+clutter_color_state_params_new_from_primitives (ClutterContext     *context,
+                                                ClutterColorimetry  colorimetry,
+                                                ClutterEOTF         eotf,
+                                                ClutterLuminance    luminance)
+{
+  ClutterColorspace colorspace;
+  ClutterPrimaries *primaries;
+  ClutterTransferFunction tf_name;
+  float gamma_exp;
+
+  switch (colorimetry.type)
+    {
+    case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
+      colorspace = colorimetry.colorspace;
+      primaries = NULL;
+      break;
+    case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
+      colorspace = CLUTTER_COLORSPACE_SRGB;
+      primaries = colorimetry.primaries;
+      break;
+    }
+
+  switch (eotf.type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      tf_name = eotf.tf_name;
+      gamma_exp = -1.0f;
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      gamma_exp = eotf.gamma_exp;
+      break;
+    }
+
+  return clutter_color_state_params_new_full (context,
+                                              colorspace,
+                                              tf_name,
+                                              primaries,
+                                              gamma_exp,
+                                              luminance.min,
+                                              luminance.max,
+                                              luminance.ref);
 }

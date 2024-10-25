@@ -625,18 +625,25 @@ on_manager_ready (MetaColorManager *color_manager,
   create_cd_device (color_device);
 }
 
-static ClutterColorspace
-get_color_space_from_monitor (MetaMonitor *monitor)
+static ClutterColorimetry
+get_colorimetry_from_monitor (MetaMonitor *monitor)
 {
+  ClutterColorimetry colorimetry;
+
+  colorimetry.type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+
   switch (meta_monitor_get_color_space (monitor))
     {
     case META_OUTPUT_COLORSPACE_DEFAULT:
     case META_OUTPUT_COLORSPACE_UNKNOWN:
-      return CLUTTER_COLORSPACE_SRGB;
+      colorimetry.colorspace = CLUTTER_COLORSPACE_SRGB;
+      break;
     case META_OUTPUT_COLORSPACE_BT2020:
-      return CLUTTER_COLORSPACE_BT2020;
+      colorimetry.colorspace = CLUTTER_COLORSPACE_BT2020;
+      break;
     }
-  g_assert_not_reached ();
+
+  return colorimetry;
 }
 
 static ClutterEOTF
@@ -685,51 +692,33 @@ update_color_state (MetaColorDevice *color_device)
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   g_autoptr (ClutterColorState) color_state = NULL;
-  ClutterColorspace colorspace;
+  ClutterColorimetry colorimetry;
   ClutterEOTF eotf;
-  ClutterTransferFunction transfer_function;
-  const ClutterLuminance *luminance;
-  float gamma_exp;
+  ClutterLuminance luminance;
   float reference_luminance_factor;
-  float new_ref_luminance;
   UpdateResult result = 0;
 
-  colorspace = get_color_space_from_monitor (monitor);
+  colorimetry = get_colorimetry_from_monitor (monitor);
   eotf = get_eotf_from_monitor (monitor);
 
   if (meta_debug_control_is_hdr_forced (debug_control))
     {
-      colorspace = CLUTTER_COLORSPACE_BT2020;
+      colorimetry.type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry.colorspace = CLUTTER_COLORSPACE_BT2020;
       eotf.type = CLUTTER_EOTF_TYPE_NAMED;
       eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
     }
 
-  luminance = clutter_eotf_get_default_luminance (eotf);
+  luminance = *clutter_eotf_get_default_luminance (eotf);
 
   reference_luminance_factor =
     meta_debug_control_get_luminance_percentage (debug_control) / 100.0f;
-  new_ref_luminance = luminance->ref * reference_luminance_factor;
+  luminance.ref = luminance.ref * reference_luminance_factor;
 
-  switch (eotf.type)
-    {
-    case CLUTTER_EOTF_TYPE_NAMED:
-      transfer_function = eotf.tf_name;
-      gamma_exp = -1.0f;
-      break;
-    case CLUTTER_EOTF_TYPE_GAMMA:
-      transfer_function = CLUTTER_TRANSFER_FUNCTION_SRGB;
-      gamma_exp = eotf.gamma_exp;
-      break;
-    }
-
-  color_state = clutter_color_state_params_new_full (clutter_context,
-                                                     colorspace,
-                                                     transfer_function,
-                                                     NULL,
-                                                     gamma_exp,
-                                                     luminance->min,
-                                                     luminance->max,
-                                                     new_ref_luminance);
+  color_state = clutter_color_state_params_new_from_primitives (clutter_context,
+                                                                colorimetry,
+                                                                eotf,
+                                                                luminance);
 
   if (!color_device->color_state ||
       !clutter_color_state_equals (color_device->color_state, color_state))
