@@ -194,13 +194,9 @@ queue_damage_region (ClutterStageWindow *stage_window,
                      ClutterStageView   *stage_view,
                      MtkRegion          *damage_region)
 {
-  MtkRectangle *damage;
-  int n_rects, i;
-  g_autofree MtkRectangle *freeme = NULL;
   CoglFramebuffer *framebuffer;
   CoglOnscreen *onscreen;
-  int fb_width;
-  int fb_height;
+  MtkMonitorTransform view_transform;
 
   if (mtk_region_is_empty (damage_region))
     return;
@@ -210,30 +206,47 @@ queue_damage_region (ClutterStageWindow *stage_window,
     return;
 
   onscreen = COGL_ONSCREEN (framebuffer);
-  fb_width = cogl_framebuffer_get_width (framebuffer);
-  fb_height = cogl_framebuffer_get_height (framebuffer);
 
-  n_rects = mtk_region_num_rectangles (damage_region);
-
-  if (n_rects < MAX_STACK_RECTS)
-    damage = g_newa (MtkRectangle, n_rects);
-  else
-    damage = freeme = g_new0 (MtkRectangle, n_rects);
-
-  for (i = 0; i < n_rects; i++)
+  view_transform = clutter_stage_view_get_transform (stage_view);
+  if (view_transform != MTK_MONITOR_TRANSFORM_NORMAL)
     {
-      MtkRectangle rect;
+      g_autoptr (MtkRegion) region = NULL;
+      int fb_width;
+      int fb_height;
+      int n_rects, i;
+      g_autofree MtkRectangle *freeme = NULL;
+      MtkRectangle *damage;
 
-      rect = mtk_region_get_rectangle (damage_region, i);
+      fb_width = cogl_framebuffer_get_width (framebuffer);
+      fb_height = cogl_framebuffer_get_height (framebuffer);
 
-      mtk_rectangle_transform (&rect,
-                               clutter_stage_view_get_transform (stage_view),
-                               fb_width,
-                               fb_height,
-                               &damage[i]);
+      n_rects = mtk_region_num_rectangles (damage_region);
+
+      if (n_rects < MAX_STACK_RECTS)
+        damage = g_newa (MtkRectangle, n_rects);
+      else
+        damage = freeme = g_new0 (MtkRectangle, n_rects);
+
+      for (i = 0; i < n_rects; i++)
+        {
+          MtkRectangle rect;
+
+          rect = mtk_region_get_rectangle (damage_region, i);
+
+          mtk_rectangle_transform (&rect,
+                                   clutter_stage_view_get_transform (stage_view),
+                                   fb_width,
+                                   fb_height,
+                                   &damage[i]);
+        }
+
+      region = mtk_region_create_rectangles (damage, n_rects);
+      cogl_onscreen_queue_damage_region (onscreen, region);
     }
-
-  cogl_onscreen_queue_damage_region (onscreen, damage, n_rects);
+  else
+    {
+      cogl_onscreen_queue_damage_region (onscreen, damage_region);
+    }
 }
 
 static void
@@ -257,14 +270,9 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       int64_t target_presentation_time_us;
-      MtkRectangle *damage;
-      int n_rects, i;
+      int n_rects;
       CoglFrameInfo *frame_info;
 
-      n_rects = mtk_region_num_rectangles (swap_region);
-      damage = g_newa (MtkRectangle, n_rects);
-      for (i = 0; i < n_rects; i++)
-        damage[i] = mtk_region_get_rectangle (swap_region, i);
 
       frame_info =
         cogl_frame_info_new (cogl_context, priv->global_frame_counter);
@@ -277,7 +285,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                                                         target_presentation_time_us);
         }
 
-      /* push on the screen */
+      n_rects = mtk_region_num_rectangles (swap_region);
       if (n_rects > 0 && !swap_with_damage)
         {
           meta_topic (META_DEBUG_BACKEND,
@@ -285,7 +293,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                       onscreen);
 
           cogl_onscreen_swap_region (onscreen,
-                                     damage, n_rects,
+                                     swap_region,
                                      frame_info,
                                      frame);
         }
@@ -296,7 +304,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                       onscreen);
 
           cogl_onscreen_swap_buffers_with_damage (onscreen,
-                                                  damage, n_rects,
+                                                  swap_region,
                                                   frame_info,
                                                   frame);
         }

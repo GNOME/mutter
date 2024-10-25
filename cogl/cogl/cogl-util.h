@@ -83,21 +83,21 @@ _cogl_util_one_at_a_time_mix (unsigned int hash)
 }
 
 static inline void
-cogl_rectangles_to_flipped_array (const MtkRectangle *rectangles,
-                                  int                 n_rectangles,
-                                  int                 height,
-                                  int                *rectangles_array)
+cogl_region_to_flipped_array (const MtkRegion *region,
+                              int              height,
+                              int             *rectangles)
 {
+  int n_rectangles = mtk_region_num_rectangles (region);
   int i;
 
   for (i = 0; i < n_rectangles; i++)
     {
-      const MtkRectangle *rect = &rectangles[i];
-      int *flip_rect = rectangles_array + 4 * i;
+      MtkRectangle rect = mtk_region_get_rectangle (region, i);
+      int *flip_rect = rectangles + 4 * i;
 
-      flip_rect[0] = rect->x;
-      flip_rect[1] = height - rect->y - rect->height;
-      flip_rect[2] = rect->width;
-      flip_rect[3] = rect->height;
+      flip_rect[0] = rect.x;
+      flip_rect[1] = height - rect.y - rect.height;
+      flip_rect[2] = rect.width;
+      flip_rect[3] = rect.height;
     }
 }

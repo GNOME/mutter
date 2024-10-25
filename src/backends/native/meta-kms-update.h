@@ -165,8 +165,7 @@ meta_kms_update_set_sync_fd (MetaKmsUpdate *update,
                              int            sync_fd);
 
 void meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
-                                              const MtkRectangle     *rectangles,
-                                              int                     n_rectangles);
+                                              const MtkRegion        *region);
 
 META_EXPORT_TEST
 MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *update,

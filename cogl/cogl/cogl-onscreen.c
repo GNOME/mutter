@@ -260,24 +260,22 @@ cogl_onscreen_bind (CoglOnscreen *onscreen)
 }
 
 void
-cogl_onscreen_queue_damage_region (CoglOnscreen       *onscreen,
-                                   const MtkRectangle *rectangles,
-                                   int                 n_rectangles)
+cogl_onscreen_queue_damage_region (CoglOnscreen    *onscreen,
+                                   const MtkRegion *region)
 {
   CoglOnscreenClass *klass = COGL_ONSCREEN_GET_CLASS (onscreen);
 
   if (!klass->queue_damage_region)
     return;
 
-  klass->queue_damage_region (onscreen, rectangles, n_rectangles);
+  klass->queue_damage_region (onscreen, region);
 }
 
 void
-cogl_onscreen_swap_buffers_with_damage (CoglOnscreen       *onscreen,
-                                        const MtkRectangle *rectangles,
-                                        int                 n_rectangles,
-                                        CoglFrameInfo      *info,
-                                        gpointer            user_data)
+cogl_onscreen_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+                                        const MtkRegion *region,
+                                        CoglFrameInfo   *info,
+                                        gpointer         user_data)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -300,11 +298,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen       *onscreen,
                                     COGL_BUFFER_BIT_DEPTH |
                                     COGL_BUFFER_BIT_STENCIL);
 
-  klass->swap_buffers_with_damage (onscreen,
-                                   rectangles,
-                                   n_rectangles,
-                                   info,
-                                   user_data);
+  klass->swap_buffers_with_damage (onscreen, region, info, user_data);
 
   if (!cogl_context_has_winsys_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
@@ -326,15 +320,14 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
                             CoglFrameInfo *info,
                             gpointer user_data)
 {
-  cogl_onscreen_swap_buffers_with_damage (onscreen, NULL, 0, info, user_data);
+  cogl_onscreen_swap_buffers_with_damage (onscreen, NULL, info, user_data);
 }
 
 void
-cogl_onscreen_swap_region (CoglOnscreen       *onscreen,
-                           const MtkRectangle *rectangles,
-                           int                 n_rectangles,
-                           CoglFrameInfo      *info,
-                           gpointer            user_data)
+cogl_onscreen_swap_region (CoglOnscreen    *onscreen,
+                           const MtkRegion *region,
+                           CoglFrameInfo   *info,
+                           gpointer         user_data)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -361,11 +354,7 @@ cogl_onscreen_swap_region (CoglOnscreen       *onscreen,
                                     COGL_BUFFER_BIT_DEPTH |
                                     COGL_BUFFER_BIT_STENCIL);
 
-  klass->swap_region (onscreen,
-                      rectangles,
-                      n_rectangles,
-                      info,
-                      user_data);
+  klass->swap_region (onscreen, region, info, user_data);
 
   if (!cogl_context_has_winsys_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {

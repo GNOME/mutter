@@ -201,11 +201,10 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
 }
 
 static void
-cogl_onscreen_egl_swap_region (CoglOnscreen       *onscreen,
-                               const MtkRectangle *rectangles,
-                               int                 n_rectangles,
-                               CoglFrameInfo      *info,
-                               gpointer            user_data)
+cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
+                               const MtkRegion *region,
+                               CoglFrameInfo   *info,
+                               gpointer         user_data)
 {
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
@@ -214,12 +213,14 @@ cogl_onscreen_egl_swap_region (CoglOnscreen       *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
+  int n_rectangles;
   int *egl_rectangles;
 
+  n_rectangles = mtk_region_num_rectangles (region);
   egl_rectangles = g_alloca (n_rectangles * sizeof (int) * 4);
-  cogl_rectangles_to_flipped_array (rectangles, n_rectangles,
-                                    cogl_framebuffer_get_height (framebuffer),
-                                    egl_rectangles);
+  cogl_region_to_flipped_array (region,
+                                cogl_framebuffer_get_height (framebuffer),
+                                egl_rectangles);
 
   /* At least for eglSwapBuffers the EGL spec says that the surface to
      swap must be bound to the current context. It looks like Mesa
@@ -238,9 +239,8 @@ cogl_onscreen_egl_swap_region (CoglOnscreen       *onscreen,
 }
 
 static void
-cogl_onscreen_egl_queue_damage_region (CoglOnscreen       *onscreen,
-                                       const MtkRectangle *rectangles,
-                                       int                 n_rectangles)
+cogl_onscreen_egl_queue_damage_region (CoglOnscreen    *onscreen,
+                                       const MtkRegion *region)
 {
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
@@ -249,17 +249,21 @@ cogl_onscreen_egl_queue_damage_region (CoglOnscreen       *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
+  int n_rectangles;
   int *egl_rectangles;
-
-  g_return_if_fail (n_rectangles > 0);
 
   if (!egl_renderer->pf_eglSetDamageRegion)
     return;
 
+  g_return_if_fail (region);
+
+  n_rectangles = mtk_region_num_rectangles (region);
+  g_return_if_fail (n_rectangles > 0);
+
   egl_rectangles = g_alloca (n_rectangles * sizeof (int) * 4);
-  cogl_rectangles_to_flipped_array (rectangles, n_rectangles,
-                                    cogl_framebuffer_get_height (framebuffer),
-                                    egl_rectangles);
+  cogl_region_to_flipped_array (region,
+                                cogl_framebuffer_get_height (framebuffer),
+                                egl_rectangles);
 
   if (egl_renderer->pf_eglSetDamageRegion (egl_renderer->edpy,
                                            priv->egl_surface,
@@ -290,11 +294,10 @@ cogl_onscreen_egl_maybe_create_timestamp_query (CoglOnscreen  *onscreen,
 }
 
 static void
-cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen       *onscreen,
-                                            const MtkRectangle *rectangles,
-                                            int                 n_rectangles,
-                                            CoglFrameInfo      *info,
-                                            gpointer            user_data)
+cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+                                            const MtkRegion *region,
+                                            CoglFrameInfo   *info,
+                                            gpointer         user_data)
 {
   CoglOnscreenEgl *onscreen_egl = COGL_ONSCREEN_EGL (onscreen);
   CoglOnscreenEglPrivate *priv =
@@ -317,14 +320,16 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen       *onscreen,
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  if (n_rectangles && priv->pf_eglSwapBuffersWithDamage)
+  if (region && priv->pf_eglSwapBuffersWithDamage)
     {
+      int n_rectangles;
       int *egl_rectangles;
 
+      n_rectangles = mtk_region_num_rectangles (region);
       egl_rectangles = alloca (n_rectangles * sizeof (int) * 4);
-      cogl_rectangles_to_flipped_array (rectangles, n_rectangles,
-                                        cogl_framebuffer_get_height (framebuffer),
-                                        egl_rectangles);
+      cogl_region_to_flipped_array (region,
+                                    cogl_framebuffer_get_height (framebuffer),
+                                    egl_rectangles);
 
       if (priv->pf_eglSwapBuffersWithDamage (egl_renderer->edpy,
                                              priv->egl_surface,
