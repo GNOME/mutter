@@ -268,6 +268,25 @@ mtk_region_get_rectangle (const MtkRegion *region,
   return MTK_RECTANGLE_INIT (box->x1, box->y1, box->x2 - box->x1, box->y2 - box->y1);
 }
 
+void
+mtk_region_get_box (const MtkRegion *region,
+                    int              nth,
+                    int             *x1,
+                    int             *y1,
+                    int             *x2,
+                    int             *y2)
+{
+  pixman_box32_t *box;
+
+  g_return_if_fail (region != NULL);
+
+  box = pixman_region32_rectangles (&region->inner_region, NULL) + nth;
+  *x1 = box->x1;
+  *y1 = box->y1;
+  *x2 = box->x2;
+  *y2 = box->y2;
+}
+
 MtkRegion *
 mtk_region_create_rectangle (const MtkRectangle *rect)
 {

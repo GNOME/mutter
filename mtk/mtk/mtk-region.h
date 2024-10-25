@@ -104,6 +104,14 @@ MtkRectangle mtk_region_get_rectangle (const MtkRegion *region,
                                        int              nth);
 
 MTK_EXPORT
+void mtk_region_get_box (const MtkRegion *region,
+                         int              nth,
+                         int             *x1,
+                         int             *y1,
+                         int             *x2,
+                         int             *y2);
+
+MTK_EXPORT
 MtkRegion * mtk_region_create_rectangle (const MtkRectangle *rect);
 
 MTK_EXPORT
