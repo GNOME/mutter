@@ -1461,7 +1461,7 @@ meta_window_unmanage (MetaWindow  *window,
     meta_window_on_all_workspaces_changed (window);
 
 #ifdef HAVE_X11_CLIENT
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     {
       MetaGroup *group = NULL;
       /* If the window is fullscreen, it may be forcing
@@ -2695,7 +2695,9 @@ ensure_size_hints_satisfied (MtkRectangle        *rect,
 static void
 meta_window_save_rect (MetaWindow *window)
 {
-  if (!(meta_window_is_maximized (window) || meta_window_is_tiled_side_by_side (window) || window->fullscreen))
+  if (!(meta_window_is_maximized (window) ||
+        meta_window_is_tiled_side_by_side (window) ||
+        meta_window_is_fullscreen (window)))
     {
       /* save size/pos as appropriate args for move_resize */
       if (!window->maximized_horizontally)
@@ -2897,7 +2899,7 @@ meta_window_is_monitor_sized (MetaWindow *window)
   if (!window->monitor)
     return FALSE;
 
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     return TRUE;
 
   if (meta_window_is_screen_sized (window))
@@ -3396,7 +3398,7 @@ meta_window_set_above (MetaWindow *window,
 void
 meta_window_make_fullscreen_internal (MetaWindow  *window)
 {
-  if (!window->fullscreen)
+  if (!meta_window_is_fullscreen (window))
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Fullscreening %s", window->desc);
@@ -3426,7 +3428,7 @@ meta_window_make_fullscreen (MetaWindow  *window)
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
-  if (!window->fullscreen)
+  if (!meta_window_is_fullscreen (window))
     {
       MtkRectangle old_frame_rect, old_buffer_rect;
 
@@ -3453,7 +3455,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     {
       MtkRectangle old_frame_rect, old_buffer_rect, target_rect;
       gboolean has_target_size;
@@ -3526,7 +3528,7 @@ meta_window_update_fullscreen_monitors (MetaWindow         *window,
       meta_window_clear_fullscreen_monitors (window);
     }
 
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     {
       meta_window_queue(window, META_QUEUE_MOVE_RESIZE);
     }
@@ -4291,7 +4293,7 @@ meta_window_move_to_monitor (MetaWindow  *window,
   window->preferred_logical_monitor =
     meta_logical_monitor_dup_id (window->monitor);
 
-  if (window->fullscreen || window->override_redirect)
+  if (meta_window_is_fullscreen (window) || window->override_redirect)
     meta_display_queue_check_fullscreen (window->display);
 }
 
@@ -5740,7 +5742,7 @@ meta_window_recalc_features (MetaWindow *window)
    * is not resizable purely due to fullscreen, we don't want to
    * disable fullscreen mode.
    */
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     {
       window->has_move_func = FALSE;
       window->has_resize_func = FALSE;
@@ -5762,7 +5764,7 @@ meta_window_recalc_features (MetaWindow *window)
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Window %s fullscreen = %d not resizable, maximizable = %d fullscreenable = %d min size %dx%d max size %dx%d",
               window->desc,
-              window->fullscreen,
+              meta_window_is_fullscreen (window),
               window->has_maximize_func, window->has_fullscreen_func,
               window->size_hints.min_width,
               window->size_hints.min_height,

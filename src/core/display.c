@@ -3148,7 +3148,7 @@ check_fullscreen_func (gpointer data)
       if (window->hidden)
         continue;
 
-      if (window->fullscreen)
+      if (meta_window_is_fullscreen (window))
         {
           covers_monitors = TRUE;
         }

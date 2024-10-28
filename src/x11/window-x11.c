@@ -2362,7 +2362,7 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
       data[i] = x11_display->atom__NET_WM_STATE_MAXIMIZED_VERT;
       ++i;
     }
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     {
       data[i] = x11_display->atom__NET_WM_STATE_FULLSCREEN;
       ++i;
@@ -2417,7 +2417,7 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
 
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     {
       if (meta_window_has_fullscreen_monitors (window))
         {
@@ -2993,7 +2993,7 @@ meta_window_move_resize_request (MetaWindow  *window,
               (window->decorated || !priv->has_custom_frame_extents) &&
               mtk_rectangle_equal (&rect, &monitor_rect) &&
               window->has_fullscreen_func &&
-              !window->fullscreen)
+              !meta_window_is_fullscreen (window))
             {
               /*
               meta_topic (META_DEBUG_GEOMETRY,
@@ -3432,7 +3432,8 @@ meta_window_x11_client_message (MetaWindow *window,
           gboolean make_fullscreen;
 
           make_fullscreen = (action == _NET_WM_STATE_ADD ||
-                             (action == _NET_WM_STATE_TOGGLE && !window->fullscreen));
+                             (action == _NET_WM_STATE_TOGGLE &&
+                              !meta_window_is_fullscreen (window)));
           if (make_fullscreen && window->has_fullscreen_func)
             meta_window_make_fullscreen (window);
           else
@@ -4602,7 +4603,7 @@ meta_window_x11_can_unredirect (MetaWindowX11 *window_x11)
   if (!window->monitor)
     return FALSE;
 
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     return TRUE;
 
   if (meta_window_is_screen_sized (window))

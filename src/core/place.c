@@ -945,7 +945,7 @@ meta_window_place (MetaWindow        *window,
    * be maximized.
    */
   if (window->has_maximize_func && window->decorated &&
-      !window->fullscreen)
+      !meta_window_is_fullscreen (window))
     {
       MtkRectangle workarea;
       MtkRectangle frame_rect;

@@ -2175,7 +2175,7 @@ handle_toggle_fullscreen (MetaDisplay           *display,
                           MetaKeyBinding        *binding,
                           gpointer               user_data)
 {
-  if (window->fullscreen)
+  if (meta_window_is_fullscreen (window))
     meta_window_unmake_fullscreen (window);
   else if (window->has_fullscreen_func)
     meta_window_make_fullscreen (window);
