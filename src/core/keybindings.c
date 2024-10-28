@@ -2203,8 +2203,8 @@ handle_toggle_tiled (MetaDisplay           *display,
 {
   MetaTileMode mode = binding->handler->data;
 
-  if ((META_WINDOW_TILED_LEFT (window) && mode == META_TILE_LEFT) ||
-      (META_WINDOW_TILED_RIGHT (window) && mode == META_TILE_RIGHT))
+  if ((meta_window_is_tiled_left (window) && mode == META_TILE_LEFT) ||
+      (meta_window_is_tiled_right (window) && mode == META_TILE_RIGHT))
     {
       meta_window_untile (window);
     }
@@ -2229,7 +2229,7 @@ handle_toggle_maximized (MetaDisplay           *display,
                          MetaKeyBinding        *binding,
                          gpointer               user_data)
 {
-  if (META_WINDOW_MAXIMIZED (window))
+  if (meta_window_is_maximized (window))
     meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
   else if (window->has_maximize_func)
     meta_window_maximize (window, META_MAXIMIZE_BOTH);

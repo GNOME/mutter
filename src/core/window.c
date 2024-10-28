@@ -2695,7 +2695,7 @@ ensure_size_hints_satisfied (MtkRectangle        *rect,
 static void
 meta_window_save_rect (MetaWindow *window)
 {
-  if (!(META_WINDOW_MAXIMIZED (window) || META_WINDOW_TILED_SIDE_BY_SIDE (window) || window->fullscreen))
+  if (!(meta_window_is_maximized (window) || meta_window_is_tiled_side_by_side (window) || window->fullscreen))
     {
       /* save size/pos as appropriate args for move_resize */
       if (!window->maximized_horizontally)
@@ -2838,6 +2838,18 @@ meta_window_get_maximized (MetaWindow *window)
 }
 
 /**
+ * meta_window_is_maximized:
+ * @window: a #MetaWindow
+ *
+ * Return value: %TRUE if the window is maximized vertically and horizontally.
+ */
+gboolean
+meta_window_is_maximized (MetaWindow *window)
+{
+  return (window->maximized_horizontally && window->maximized_vertically);
+}
+
+/**
  * meta_window_is_fullscreen:
  * @window: a #MetaWindow
  *
@@ -2937,7 +2949,7 @@ meta_window_get_tile_fraction (MetaWindow   *window,
     *fraction = 1.;
   else if (tile_match)
     *fraction = 1. - tile_match->tile_hfraction;
-  else if (META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  else if (meta_window_is_tiled_side_by_side (window))
     {
       if (window->tile_mode != tile_mode)
         *fraction = 1. - window->tile_hfraction;
@@ -2957,7 +2969,7 @@ meta_window_update_tile_fraction (MetaWindow *window,
   MtkRectangle work_area;
   MetaWindowDrag *window_drag;
 
-  if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  if (!meta_window_is_tiled_side_by_side (window))
     return;
 
   meta_window_get_work_area_for_monitor (window,
@@ -3029,6 +3041,28 @@ update_edge_constraints (MetaWindow *window)
       window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
       window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
     }
+}
+
+gboolean
+meta_window_is_tiled_side_by_side (MetaWindow *window)
+{
+  return window->maximized_vertically &&
+         !window->maximized_horizontally &&
+         window->tile_mode != META_TILE_NONE;
+}
+
+gboolean
+meta_window_is_tiled_left (MetaWindow *window)
+{
+  return window->tile_mode == META_TILE_LEFT &&
+         meta_window_is_tiled_side_by_side (window);
+}
+
+gboolean
+meta_window_is_tiled_right (MetaWindow *window)
+{
+  return window->tile_mode == META_TILE_RIGHT &&
+         meta_window_is_tiled_side_by_side (window);
 }
 
 void
@@ -4269,7 +4303,7 @@ adjust_size_for_tile_match (MetaWindow *window,
   MtkRectangle work_area, rect;
   MetaWindow *tile_match = window->tile_match;
 
-  if (!META_WINDOW_TILED_SIDE_BY_SIDE (window) || !tile_match)
+  if (!meta_window_is_tiled_side_by_side (window) || !tile_match)
     return;
 
   meta_window_get_work_area_for_monitor (window, window->tile_monitor_number, &work_area);
@@ -6077,7 +6111,7 @@ meta_window_get_default_layer (MetaWindow *window)
 {
   if (window->wm_state_below)
     return META_LAYER_BOTTOM;
-  else if (window->wm_state_above && !META_WINDOW_MAXIMIZED (window))
+  else if (window->wm_state_above && !meta_window_is_maximized (window))
     return META_LAYER_TOP;
   else if (window->type == META_WINDOW_DESKTOP)
     return META_LAYER_DESKTOP;
@@ -7476,13 +7510,22 @@ meta_window_is_above (MetaWindow *window)
 gboolean
 meta_window_allows_move (MetaWindow *window)
 {
-  return META_WINDOW_ALLOWS_MOVE (window);
+  return window->has_move_func && !meta_window_is_fullscreen (window);
 }
 
 gboolean
 meta_window_allows_resize (MetaWindow *window)
 {
-  return META_WINDOW_ALLOWS_RESIZE (window);
+  gboolean allows_resize_except_hints, allows_resize;
+
+  allows_resize_except_hints = window->has_resize_func &&
+                               !meta_window_is_maximized (window) &&
+                               !meta_window_is_fullscreen (window);
+  allows_resize = allows_resize_except_hints &&
+                  (window->size_hints.min_width < window->size_hints.max_width ||
+                   window->size_hints.min_height < window->size_hints.max_height);
+
+  return allows_resize;
 }
 
 void

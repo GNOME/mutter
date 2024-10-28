@@ -722,7 +722,7 @@ fill_states (MetaWaylandXdgToplevel         *xdg_toplevel,
   window_drag =
     meta_compositor_get_current_window_drag (window->display->compositor);
 
-  if (META_WINDOW_MAXIMIZED (window))
+  if (meta_window_is_maximized (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_MAXIMIZED);
   if (meta_window_is_fullscreen (window))
     add_state_value (states, XDG_TOPLEVEL_STATE_FULLSCREEN);

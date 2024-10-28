@@ -1217,15 +1217,16 @@ constrain_maximization (MetaWindow         *window,
 
   /* Determine whether constraint applies; exit if it doesn't */
   if ((!window->maximized_horizontally && !window->maximized_vertically) ||
-      META_WINDOW_TILED_SIDE_BY_SIDE (window))
+      meta_window_is_tiled_side_by_side (window))
     return TRUE;
 
   /* Calculate target_size = maximized size of (window + frame) */
-  if (META_WINDOW_TILED_MAXIMIZED (window))
+  if (meta_window_is_maximized (window) &&
+      window->tile_mode == META_TILE_MAXIMIZED)
     {
       meta_window_get_tile_area (window, window->tile_mode, &target_size);
     }
-  else if (META_WINDOW_MAXIMIZED (window))
+  else if (meta_window_is_maximized (window))
     {
       target_size = info->work_area_monitor;
     }
@@ -1304,7 +1305,7 @@ constrain_tiling (MetaWindow         *window,
     return TRUE;
 
   /* Determine whether constraint applies; exit if it doesn't */
-  if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  if (!meta_window_is_tiled_side_by_side (window))
     return TRUE;
 
   /* Calculate target_size - as the tile previews need this as well, we
@@ -1391,8 +1392,8 @@ constrain_size_increments (MetaWindow         *window,
     return TRUE;
 
   /* Determine whether constraint applies; exit if it doesn't */
-  if (META_WINDOW_MAXIMIZED (window) || window->fullscreen ||
-      META_WINDOW_TILED_SIDE_BY_SIDE (window) ||
+  if (meta_window_is_maximized (window) || window->fullscreen ||
+      meta_window_is_tiled_side_by_side (window) ||
       info->action_type == ACTION_MOVE)
     return TRUE;
 
@@ -1522,8 +1523,8 @@ constrain_aspect_ratio (MetaWindow         *window,
          (double)window->size_hints.max_aspect.y;
   constraints_are_inconsistent = minr > maxr;
   if (constraints_are_inconsistent ||
-      META_WINDOW_MAXIMIZED (window) || window->fullscreen ||
-      META_WINDOW_TILED_SIDE_BY_SIDE (window) ||
+      meta_window_is_maximized (window) || window->fullscreen ||
+      meta_window_is_tiled_side_by_side (window) ||
       info->action_type == ACTION_MOVE)
     return TRUE;
 

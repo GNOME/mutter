@@ -102,12 +102,12 @@ update_tile_preview_timeout (MetaWindowDrag *window_drag)
         {
         case META_TILE_LEFT:
         case META_TILE_RIGHT:
-          if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
+          if (!meta_window_is_tiled_side_by_side (window))
             needs_preview = TRUE;
           break;
 
         case META_TILE_MAXIMIZED:
-          if (!META_WINDOW_MAXIMIZED (window))
+          if (!meta_window_is_maximized (window))
             needs_preview = TRUE;
           break;
 
@@ -1247,8 +1247,8 @@ update_move (MetaWindowDrag          *window_drag,
       window->tile_monitor_number = -1;
     }
   else if (meta_prefs_get_edge_tiling () &&
-           !META_WINDOW_MAXIMIZED (window) &&
-           !META_WINDOW_TILED_SIDE_BY_SIDE (window))
+           !meta_window_is_maximized (window) &&
+           !meta_window_is_tiled_side_by_side (window))
     {
       update_move_maybe_tile (window_drag, shake_threshold, x, y);
     }
@@ -1258,8 +1258,9 @@ update_move (MetaWindowDrag          *window_drag,
    * loose via X motion.
    */
 
-  if ((META_WINDOW_MAXIMIZED (window) && ABS (dy) >= shake_threshold) ||
-      (META_WINDOW_TILED_SIDE_BY_SIDE (window) && (MAX (ABS (dx), ABS (dy)) >= shake_threshold)))
+  if ((meta_window_is_maximized (window) && ABS (dy) >= shake_threshold) ||
+      (meta_window_is_tiled_side_by_side (window) &&
+       (MAX (ABS (dx), ABS (dy)) >= shake_threshold)))
     {
       double prop;
 
@@ -1294,7 +1295,7 @@ update_move (MetaWindowDrag          *window_drag,
   /* remaximize window on another monitor if window has been shaken
    * loose or it is still maximized (then move straight)
    */
-  else if ((window_drag->shaken_loose || META_WINDOW_MAXIMIZED (window)) &&
+  else if ((window_drag->shaken_loose || meta_window_is_maximized (window)) &&
            window->tile_mode != META_TILE_LEFT && window->tile_mode != META_TILE_RIGHT)
     {
       MetaDisplay *display = meta_window_get_display (window);
@@ -1368,7 +1369,7 @@ update_move (MetaWindowDrag          *window_drag,
   meta_window_get_frame_rect (window, &old);
 
   /* Don't allow movement in the maximized directions or while tiled */
-  if (window->maximized_horizontally || META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  if (window->maximized_horizontally || meta_window_is_tiled_side_by_side (window))
     new_x = old.x;
   if (window->maximized_vertically)
     new_y = old.y;
@@ -1599,7 +1600,7 @@ maybe_maximize_tiled_window (MetaWindow *window)
   MtkRectangle work_area;
   gint shake_threshold;
 
-  if (!META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  if (!meta_window_is_tiled_side_by_side (window))
     return;
 
   shake_threshold = meta_prefs_get_drag_threshold ();

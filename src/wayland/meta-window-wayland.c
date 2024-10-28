@@ -397,7 +397,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           int bounds_height;
 
           if (!meta_wayland_surface_get_buffer (wl_window->surface) &&
-              !META_WINDOW_MAXIMIZED (window) &&
+              !meta_window_is_maximized (window) &&
               window->tile_mode == META_TILE_NONE &&
               !meta_window_is_fullscreen (window))
             return;

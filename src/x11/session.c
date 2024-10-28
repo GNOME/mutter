@@ -1029,7 +1029,7 @@ save_state (MetaContext *context)
             fputs ("    <minimized/>\n", outfile);
 
           /* Maximized */
-          if (META_WINDOW_MAXIMIZED (window))
+          if (meta_window_is_maximized (window))
             {
               fprintf (outfile,
                        "    <maximized saved_x=\"%d\" saved_y=\"%d\" saved_width=\"%d\" saved_height=\"%d\"/>\n",

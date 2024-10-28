@@ -485,7 +485,7 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
   auto_snap = flags & META_EDGE_RESISTANCE_SNAP;
   keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
 
-  if (auto_snap && !META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  if (auto_snap && !meta_window_is_tiled_side_by_side (window))
     {
       /* Do the auto snapping instead of normal edge resistance; in all
        * cases, we allow snapping to opposite kinds of edges (e.g. left
@@ -520,7 +520,7 @@ apply_edge_resistance_to_each_side (MetaEdgeResistanceData  *edge_data,
                                         FALSE,
                                         keyboard_op);
     }
-  else if (auto_snap && META_WINDOW_TILED_SIDE_BY_SIDE (window))
+  else if (auto_snap && meta_window_is_tiled_side_by_side (window))
     {
       MtkRectangle workarea;
       guint i;
