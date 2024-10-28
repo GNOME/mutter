@@ -1628,6 +1628,7 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
                           MetaMonitorsConfigFlag        flags)
 {
   GList *disabled_monitor_specs = NULL;
+  GList *for_lease_monitor_specs = NULL;
   GList *monitors;
   GList *l;
 
@@ -1649,11 +1650,18 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
       disabled_monitor_specs =
         g_list_prepend (disabled_monitor_specs,
                         meta_monitor_spec_clone (monitor_spec));
+
+      if (meta_monitor_is_for_lease (monitor))
+        {
+          for_lease_monitor_specs =
+            g_list_prepend (for_lease_monitor_specs,
+                            meta_monitor_spec_clone (monitor_spec));
+        }
     }
 
   return meta_monitors_config_new_full (logical_monitor_configs,
                                         disabled_monitor_specs,
-                                        NULL,
+                                        for_lease_monitor_specs,
                                         layout_mode,
                                         flags);
 }

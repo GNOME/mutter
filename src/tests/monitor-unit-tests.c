@@ -9176,6 +9176,167 @@ meta_test_monitor_custom_detached_groups (void)
   g_assert_cmpstr (error->message, ==, "Logical monitors not adjacent");
 }
 
+static void
+meta_test_monitor_custom_for_lease_config (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 800,
+          .height = 600,
+          .refresh_rate = 60.0
+        }
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = -1,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0, 1 },
+          .n_possible_crtcs = 2,
+          .width_mm = 222,
+          .height_mm = 125,
+          .serial = "0x123456",
+        },
+        {
+          .crtc = -1,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0, 1 },
+          .n_possible_crtcs = 2,
+          .width_mm = 222,
+          .height_mm = 125,
+          .serial = "0x654321"
+        }
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = -1
+        },
+        {
+          .current_mode = -1
+        }
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 800,
+              .height = 600,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        },
+        {
+          .outputs = { 1 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 800,
+              .height = 600,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 1,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = -1,
+          .width_mm = 222,
+          .height_mm = 125
+        }
+      },
+      .n_monitors = 2,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 800, .height = 600 },
+          .scale = 1,
+          .transform = MTK_MONITOR_TRANSFORM_NORMAL
+        },
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        },
+        {
+          .current_mode = -1,
+        }
+      },
+      .n_crtcs = 2,
+      .screen_width = 800,
+      .screen_height = 600,
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  GList *monitors;
+  MetaMonitor *first_monitor;
+  MetaMonitor *second_monitor;
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NONE);
+  meta_set_custom_monitor_config (test_context, "forlease.xml");
+  emulate_hotplug (test_setup);
+
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  check_monitor_test_clients_state ();
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (monitors), ==, 2);
+
+  first_monitor = g_list_nth_data (monitors, 0);
+  second_monitor = g_list_nth_data (monitors, 1);
+
+  g_assert_true (meta_monitor_is_active (first_monitor));
+  g_assert_false (meta_monitor_is_for_lease (first_monitor));
+
+  g_assert_false (meta_monitor_is_active (second_monitor));
+  g_assert_true (meta_monitor_is_for_lease (second_monitor));
+}
+
+static void
+meta_test_monitor_custom_for_lease_invalid_config (void)
+{
+  g_test_expect_message ("libmutter-test", G_LOG_LEVEL_WARNING,
+                         "*For lease monitor must be explicitly disabled");
+  meta_set_custom_monitor_config (test_context, "forlease-invalid.xml");
+  g_test_assert_expected_messages ();
+}
+
 static gboolean
 quit_main_loop (gpointer data)
 {
@@ -10400,6 +10561,10 @@ init_monitor_tests (void)
                     meta_test_monitor_custom_lid_switch_config);
   add_monitor_test ("/backends/monitor/custom/detached-groups",
                     meta_test_monitor_custom_detached_groups);
+  add_monitor_test ("/backends/monitor/custom/for-lease-config",
+                    meta_test_monitor_custom_for_lease_config);
+  add_monitor_test ("/backends/monitor/custom/for-lease-invalid-config",
+                    meta_test_monitor_custom_for_lease_invalid_config);
 
   add_monitor_test ("/backends/monitor/migrated/rotated",
                     meta_test_monitor_migrated_rotated);

@@ -345,6 +345,9 @@ META_EXPORT_TEST
 void               meta_monitor_manager_update_logical_state (MetaMonitorManager *manager,
                                                               MetaMonitorsConfig *config);
 
+void               meta_monitor_manager_update_for_lease_state (MetaMonitorManager *manager,
+                                                                MetaMonitorsConfig *config);
+
 META_EXPORT_TEST
 void               meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
                                                                       MetaMonitorsConfig *config);

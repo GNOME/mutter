@@ -348,3 +348,9 @@ void meta_monitor_set_backlight (MetaMonitor *monitor,
 META_EXPORT_TEST
 gboolean meta_monitor_get_backlight (MetaMonitor *monitor,
                                      int         *value);
+
+void meta_monitor_set_for_lease (MetaMonitor *monitor,
+                                 gboolean     for_lease);
+
+META_EXPORT_TEST
+gboolean meta_monitor_is_for_lease (MetaMonitor *monitor);

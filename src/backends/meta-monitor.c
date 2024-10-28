@@ -67,6 +67,8 @@ typedef struct _MetaMonitorPrivate
   MetaLogicalMonitor *logical_monitor;
 
   char *display_name;
+
+  gboolean is_for_lease;
 } MetaMonitorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitor, meta_monitor, G_TYPE_OBJECT)
@@ -2458,4 +2460,21 @@ meta_monitor_get_backlight (MetaMonitor *monitor,
     {
       return FALSE;
     }
+}
+
+void
+meta_monitor_set_for_lease (MetaMonitor *monitor,
+                            gboolean     for_lease)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  priv->is_for_lease = for_lease;
+}
+
+gboolean
+meta_monitor_is_for_lease (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  return priv->is_for_lease;
 }

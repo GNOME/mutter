@@ -3824,6 +3824,46 @@ meta_monitor_manager_update_logical_state (MetaMonitorManager *manager,
   meta_monitor_manager_rebuild_logical_monitors (manager, config);
 }
 
+static gboolean
+is_monitor_configured_for_lease (MetaMonitor        *monitor,
+                                 MetaMonitorsConfig *config)
+{
+  MetaMonitorSpec *monitor_spec;
+  GList *l;
+
+  monitor_spec = meta_monitor_get_spec (monitor);
+
+  for (l = config->for_lease_monitor_specs; l; l = l->next)
+    {
+      MetaMonitorSpec *spec = l->data;
+
+      if (meta_monitor_spec_equals (monitor_spec, spec))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+void
+meta_monitor_manager_update_for_lease_state (MetaMonitorManager *manager,
+                                             MetaMonitorsConfig *config)
+{
+  GList *l;
+
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+      gboolean is_for_lease;
+
+      if (config)
+        is_for_lease = is_monitor_configured_for_lease (monitor, config);
+      else
+        is_for_lease = FALSE;
+
+      meta_monitor_set_for_lease (monitor, is_for_lease);
+    }
+}
+
 void
 meta_monitor_manager_rebuild (MetaMonitorManager *manager,
                               MetaMonitorsConfig *config)
@@ -3838,6 +3878,7 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
   old_logical_monitors = manager->logical_monitors;
 
   meta_monitor_manager_update_logical_state (manager, config);
+  meta_monitor_manager_update_for_lease_state (manager, config);
 
   ensure_privacy_screen_settings (manager);
 
