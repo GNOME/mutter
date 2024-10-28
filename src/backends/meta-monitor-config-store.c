@@ -89,6 +89,14 @@
  *         <serial>Serial C</serial>
  *       </monitorspec>
  *     </disabled>
+ *     <forlease>
+ *       <monitorspec>
+ *         <connector>LVDS3</connector>
+ *         <vendor>Vendor C</vendor>
+ *         <product>Product C</product>
+ *         <serial>Serial C</serial>
+ *       </monitorspec>
+ *     </forlease>
  *   </configuration>
  * </monitors>
  *
@@ -158,6 +166,7 @@ typedef enum
   STATE_MONITOR_MAXBPC,
   STATE_MONITOR_RGB_RANGE,
   STATE_DISABLED,
+  STATE_FOR_LEASE,
   STATE_POLICY,
   STATE_STORES,
   STATE_STORE,
@@ -184,6 +193,7 @@ typedef struct
   MetaMonitorConfig *current_monitor_config;
   MetaLogicalMonitorConfig *current_logical_monitor_config;
   GList *current_disabled_monitor_specs;
+  GList *current_for_lease_monitor_specs;
   gboolean seen_policy;
   gboolean seen_stores;
   gboolean seen_dbus;
@@ -332,6 +342,10 @@ handle_start_element (GMarkupParseContext  *context,
         else if (g_str_equal (element_name, "disabled"))
           {
             parser->state = STATE_DISABLED;
+          }
+        else if (g_str_equal (element_name, "forlease"))
+          {
+            parser->state = STATE_FOR_LEASE;
           }
         else
           {
@@ -578,6 +592,22 @@ handle_start_element (GMarkupParseContext  *context,
         return;
       }
 
+    case STATE_FOR_LEASE:
+      {
+        if (!g_str_equal (element_name, "monitorspec"))
+          {
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                         "Invalid element '%s' under forlease", element_name);
+            return;
+          }
+
+        parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
+        parser->monitor_spec_parent_state = STATE_FOR_LEASE;
+        parser->state = STATE_MONITOR_SPEC;
+
+        return;
+      }
+
     case STATE_POLICY:
       {
         if (!(parser->extra_config_flags &
@@ -675,6 +705,15 @@ finish_monitor_spec (ConfigParser *parser)
 
         return;
       }
+    case STATE_FOR_LEASE:
+      {
+        parser->current_for_lease_monitor_specs =
+          g_list_prepend (parser->current_for_lease_monitor_specs,
+                          parser->current_monitor_spec);
+        parser->current_monitor_spec = NULL;
+
+        return;
+      }
 
     default:
       g_assert_not_reached ();
@@ -729,12 +768,15 @@ static gboolean
 detect_layout_mode_configs (MetaMonitorManager      *monitor_manager,
                             GList                   *logical_monitor_configs,
                             GList                   *disabled_monitor_specs,
+                            GList                   *for_lease_monitor_specs,
                             MetaMonitorsConfigFlag   config_flags,
                             MetaMonitorsConfig     **physical_layout_mode_config,
                             MetaMonitorsConfig     **logical_layout_mode_config,
                             GError                 **error)
 {
-  GList *logical_monitor_configs_copy, *disabled_monitor_specs_copy;
+  GList *logical_monitor_configs_copy;
+  GList *disabled_monitor_specs_copy;
+  GList *for_lease_monitor_specs_copy;
   MetaMonitorsConfig *physical_config, *logical_config;
   g_autoptr (GError) local_error_physical = NULL;
   g_autoptr (GError) local_error_logical = NULL;
@@ -743,12 +785,15 @@ detect_layout_mode_configs (MetaMonitorManager      *monitor_manager,
     meta_clone_logical_monitor_config_list (logical_monitor_configs);
   disabled_monitor_specs_copy =
     g_list_copy_deep (disabled_monitor_specs, (GCopyFunc) meta_monitor_spec_clone, NULL);
+  for_lease_monitor_specs_copy =
+    g_list_copy_deep (for_lease_monitor_specs, (GCopyFunc) meta_monitor_spec_clone, NULL);
 
   derive_logical_monitor_layouts (logical_monitor_configs,
                                   META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL);
   physical_config =
     meta_monitors_config_new_full (g_steal_pointer (&logical_monitor_configs),
                                    g_steal_pointer (&disabled_monitor_specs),
+                                   g_steal_pointer (&for_lease_monitor_specs),
                                    META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
                                    config_flags);
 
@@ -761,6 +806,7 @@ detect_layout_mode_configs (MetaMonitorManager      *monitor_manager,
   logical_config =
     meta_monitors_config_new_full (g_steal_pointer (&logical_monitor_configs_copy),
                                    g_steal_pointer (&disabled_monitor_specs_copy),
+                                   g_steal_pointer (&for_lease_monitor_specs_copy),
                                    META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
                                    config_flags);
 
@@ -1207,6 +1253,7 @@ static MetaMonitorsConfig *
 attempt_layout_mode_conversion (MetaMonitorManager     *monitor_manager,
                                 GList                  *logical_monitor_configs,
                                 GList                  *disabled_monitor_specs,
+                                GList                  *for_lease_monitor_specs,
                                 MetaMonitorsConfigFlag  config_flags)
 {
   GList *logical_monitor_configs_copy;
@@ -1249,6 +1296,9 @@ create_full_config:
   new_logical_config =
     meta_monitors_config_new_full (g_steal_pointer (&logical_monitor_configs_copy),
                                    g_list_copy_deep (disabled_monitor_specs,
+                                                     (GCopyFunc) meta_monitor_spec_clone,
+                                                     NULL),
+                                   g_list_copy_deep (for_lease_monitor_specs,
                                                      (GCopyFunc) meta_monitor_spec_clone,
                                                      NULL),
                                    META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
@@ -1438,6 +1488,14 @@ handle_end_element (GMarkupParseContext  *context,
         return;
       }
 
+    case STATE_FOR_LEASE:
+      {
+        g_assert (g_str_equal (element_name, "forlease"));
+
+        parser->state = STATE_CONFIGURATION;
+        return;
+      }
+
     case STATE_CONFIGURATION:
       {
         MetaMonitorConfigStore *store = parser->config_store;
@@ -1458,6 +1516,7 @@ handle_end_element (GMarkupParseContext  *context,
             if (!detect_layout_mode_configs (store->monitor_manager,
                                              parser->current_logical_monitor_configs,
                                              parser->current_disabled_monitor_specs,
+                                             parser->current_for_lease_monitor_specs,
                                              config_flags,
                                              &physical_layout_mode_config,
                                              &logical_layout_mode_config,
@@ -1465,11 +1524,13 @@ handle_end_element (GMarkupParseContext  *context,
               {
                 parser->current_logical_monitor_configs = NULL;
                 parser->current_disabled_monitor_specs = NULL;
+                parser->current_for_lease_monitor_specs = NULL;
                 return;
               }
 
             parser->current_logical_monitor_configs = NULL;
             parser->current_disabled_monitor_specs = NULL;
+            parser->current_for_lease_monitor_specs = NULL;
 
             if (physical_layout_mode_config)
               {
@@ -1487,6 +1548,7 @@ handle_end_element (GMarkupParseContext  *context,
                       attempt_layout_mode_conversion (store->monitor_manager,
                                                       physical_layout_mode_config->logical_monitor_configs,
                                                       physical_layout_mode_config->disabled_monitor_specs,
+                                                      physical_layout_mode_config->for_lease_monitor_specs,
                                                       config_flags);
                   }
               }
@@ -1508,11 +1570,13 @@ handle_end_element (GMarkupParseContext  *context,
             config =
               meta_monitors_config_new_full (parser->current_logical_monitor_configs,
                                              parser->current_disabled_monitor_specs,
+                                             parser->current_for_lease_monitor_specs,
                                              layout_mode,
                                              config_flags);
 
             parser->current_logical_monitor_configs = NULL;
             parser->current_disabled_monitor_specs = NULL;
+            parser->current_for_lease_monitor_specs = NULL;
 
             if (!meta_verify_monitors_config (config, store->monitor_manager,
                                               error))
@@ -1747,6 +1811,7 @@ handle_text (GMarkupParseContext *context,
     case STATE_MONITOR_MODE:
     case STATE_TRANSFORM:
     case STATE_DISABLED:
+    case STATE_FOR_LEASE:
     case STATE_POLICY:
     case STATE_STORES:
       {
@@ -2321,6 +2386,18 @@ generate_config_xml (MetaMonitorConfigStore *config_store)
               append_monitor_spec (buffer, monitor_spec, "      ");
             }
           g_string_append (buffer, "    </disabled>\n");
+        }
+
+      if (config->for_lease_monitor_specs)
+        {
+          g_string_append (buffer, "    <forlease>\n");
+          for (l = config->for_lease_monitor_specs; l; l = l->next)
+            {
+              MetaMonitorSpec *monitor_spec = l->data;
+
+              append_monitor_spec (buffer, monitor_spec, "      ");
+            }
+          g_string_append (buffer, "    </forlease>\n");
         }
 
       g_string_append (buffer, "  </configuration>\n");

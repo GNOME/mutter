@@ -1495,6 +1495,8 @@ meta_monitors_config_key_new (GList                        *logical_monitor_conf
         }
     }
 
+  /* Monitors for lease must be disabled (see meta_verify_monitors_config ()).
+     Therefore, there is no need to include them here. */
   for (l = disabled_monitor_specs; l; l = l->next)
     {
       MetaMonitorSpec *monitor_spec = l->data;
@@ -1598,6 +1600,7 @@ meta_monitors_config_set_parent_config (MetaMonitorsConfig *config,
 MetaMonitorsConfig *
 meta_monitors_config_new_full (GList                        *logical_monitor_configs,
                                GList                        *disabled_monitor_specs,
+                               GList                        *for_lease_monitor_specs,
                                MetaLogicalMonitorLayoutMode  layout_mode,
                                MetaMonitorsConfigFlag        flags)
 {
@@ -1606,6 +1609,7 @@ meta_monitors_config_new_full (GList                        *logical_monitor_con
   config = g_object_new (META_TYPE_MONITORS_CONFIG, NULL);
   config->logical_monitor_configs = logical_monitor_configs;
   config->disabled_monitor_specs = disabled_monitor_specs;
+  config->for_lease_monitor_specs = for_lease_monitor_specs;
   config->layout_mode = layout_mode;
   config->key = meta_monitors_config_key_new (logical_monitor_configs,
                                               disabled_monitor_specs,
@@ -1649,6 +1653,7 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
 
   return meta_monitors_config_new_full (logical_monitor_configs,
                                         disabled_monitor_specs,
+                                        NULL,
                                         layout_mode,
                                         flags);
 }
@@ -1663,6 +1668,8 @@ meta_monitors_config_finalize (GObject *object)
   g_list_free_full (config->logical_monitor_configs,
                     (GDestroyNotify) meta_logical_monitor_config_free);
   g_list_free_full (config->disabled_monitor_specs,
+                    (GDestroyNotify) meta_monitor_spec_free);
+  g_list_free_full (config->for_lease_monitor_specs,
                     (GDestroyNotify) meta_monitor_spec_free);
 
   G_OBJECT_CLASS (meta_monitors_config_parent_class)->finalize (object);
@@ -1903,6 +1910,22 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "Assigned monitor explicitly disabled");
+          return FALSE;
+        }
+    }
+
+  for (l = config->for_lease_monitor_specs; l; l = l->next)
+    {
+      MetaMonitorSpec *monitor_spec = l->data;
+      gpointer disabled = NULL;
+
+      disabled = g_list_find_custom (config->disabled_monitor_specs,
+                                     monitor_spec,
+                                     (GCompareFunc) meta_monitor_spec_compare);
+      if (!disabled)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "For lease monitor must be explicitly disabled");
           return FALSE;
         }
     }

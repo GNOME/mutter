@@ -67,6 +67,7 @@ struct _MetaMonitorsConfig
   GList *logical_monitor_configs;
 
   GList *disabled_monitor_specs;
+  GList *for_lease_monitor_specs;
 
   MetaMonitorsConfigFlag flags;
 
@@ -142,6 +143,7 @@ void meta_monitor_config_manager_save_current (MetaMonitorConfigManager *config_
 META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitors_config_new_full (GList                        *logical_monitor_configs,
                                                     GList                        *disabled_monitors,
+                                                    GList                        *for_lease_monitors,
                                                     MetaLogicalMonitorLayoutMode  layout_mode,
                                                     MetaMonitorsConfigFlag        flags);
 
