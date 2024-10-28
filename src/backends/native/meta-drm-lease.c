@@ -21,12 +21,14 @@
 
 #include <glib.h>
 
+#include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-output-kms.h"
 
 enum
 {
@@ -68,6 +70,7 @@ struct _MetaDrmLeaseManager
 
   gulong resources_changed_handler_id;
   gulong lease_changed_handler_id;
+  gulong monitors_changed_handler_id;
 
   /* MetaKmsDevice *kms_device */
   GList *devices;
@@ -180,6 +183,32 @@ find_plane_to_lease (MetaKmsCrtc      *kms_crtc,
 }
 
 static gboolean
+is_connector_configured_for_lease (MetaKmsConnector *connector)
+{
+  const MetaKmsConnectorState *connector_state;
+  MetaOutputKms *output_kms;
+  MetaMonitor *monitor;
+
+  connector_state = meta_kms_connector_get_current_state (connector);
+  if (!connector_state)
+    return FALSE;
+
+  output_kms = meta_output_kms_from_kms_connector (connector);
+  if (!output_kms)
+    return FALSE;
+
+  monitor = meta_output_get_monitor (META_OUTPUT (output_kms));
+  return meta_monitor_is_for_lease (monitor);
+}
+
+static gboolean
+is_connector_for_lease (MetaKmsConnector *connector)
+{
+  return meta_kms_connector_is_non_desktop (connector) ||
+         is_connector_configured_for_lease (connector);
+}
+
+static gboolean
 find_resources_to_lease (MetaDrmLeaseManager  *lease_manager,
                          MetaKmsDevice        *kms_device,
                          GList                *connectors,
@@ -227,7 +256,7 @@ find_resources_to_lease (MetaDrmLeaseManager  *lease_manager,
       MetaKmsDevice *connector_device;
 
       if (!g_list_find (available_connectors, connector) ||
-          !meta_kms_connector_is_non_desktop (connector))
+          !is_connector_for_lease (connector))
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                        "Failed to find connector %u (%s)",
@@ -645,7 +674,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
           kms_connector = o->data;
           lease = NULL;
 
-          if (!meta_kms_connector_is_non_desktop (kms_connector))
+          if (!is_connector_for_lease (kms_connector))
             continue;
 
           if (g_list_find (lease_manager->connectors, kms_connector))
@@ -845,6 +874,9 @@ meta_drm_lease_manager_constructed (GObject *object)
 {
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
   MetaKms *kms = lease_manager->kms;
+  MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
   lease_manager->resources_changed_handler_id =
     g_signal_connect (kms, "resources-changed",
@@ -854,6 +886,10 @@ meta_drm_lease_manager_constructed (GObject *object)
     g_signal_connect (kms, "lease-changed",
                       G_CALLBACK (on_lease_changed),
                       lease_manager);
+  lease_manager->monitors_changed_handler_id =
+    g_signal_connect_swapped (monitor_manager, "monitors-changed-internal",
+                              G_CALLBACK (update_resources),
+                              lease_manager);
 
   lease_manager->leases =
     g_hash_table_new_full (NULL, NULL,
@@ -905,9 +941,14 @@ meta_drm_lease_manager_dispose (GObject *object)
 {
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
   MetaKms *kms = lease_manager->kms;
+  MetaBackend *backend = meta_kms_get_backend (kms);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
   g_clear_signal_handler (&lease_manager->resources_changed_handler_id, kms);
   g_clear_signal_handler (&lease_manager->lease_changed_handler_id, kms);
+  g_clear_signal_handler (&lease_manager->monitors_changed_handler_id,
+                          monitor_manager);
 
   g_list_free_full (g_steal_pointer (&lease_manager->devices), g_object_unref);
   g_list_free_full (g_steal_pointer (&lease_manager->connectors),
