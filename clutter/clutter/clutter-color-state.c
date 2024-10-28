@@ -651,9 +651,6 @@ get_transfer_functions (ClutterColorState       *color_state,
                         const TransferFunction **pre_transfer_function,
                         const TransferFunction **post_transfer_function)
 {
-  if (clutter_color_state_equals (color_state, target_color_state))
-    return;
-
   *pre_transfer_function = get_eotf (color_state);
   *post_transfer_function = get_inv_eotf (target_color_state);
 }
@@ -1170,6 +1167,9 @@ clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
 
   g_return_if_fail (CLUTTER_IS_COLOR_STATE (color_state));
   g_return_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state));
+
+  if (clutter_color_state_equals (color_state, target_color_state))
+    return;
 
   snippet = clutter_color_state_get_transform_snippet (color_state,
                                                        target_color_state);
