@@ -966,27 +966,6 @@ set_state_after (ClutterGesture *self,
                            state_to_string[old_state],
                            state_to_string[new_state]);
 
-  /* First we emit the signal handlers for gesture users. We need to do this
-   * before invoking ->state_changed() because the context of the gesture should
-   * still be available for the user, and in state_changed() the implementation
-   * will clean that up.
-   */
-  if (old_state == CLUTTER_GESTURE_STATE_RECOGNIZING &&
-      new_state == CLUTTER_GESTURE_STATE_COMPLETED)
-    {
-      g_signal_emit (self, obj_signals[END], 0);
-    }
-  else if (old_state == CLUTTER_GESTURE_STATE_RECOGNIZING &&
-           new_state == CLUTTER_GESTURE_STATE_CANCELLED)
-    {
-      g_signal_emit (self, obj_signals[CANCEL], 0);
-    }
-  else if (new_state == CLUTTER_GESTURE_STATE_RECOGNIZING ||
-           new_state == CLUTTER_GESTURE_STATE_COMPLETED)
-    {
-      g_signal_emit (self, obj_signals[RECOGNIZE], 0);
-    }
-
   /* Setting state recursively in a signal handler is unsupported and causes
    * an error. Otherwise the ->state_changed() emission below would be
    * out-of-date, and gesture implementation should only see valid state
@@ -1039,6 +1018,38 @@ set_state_after (ClutterGesture *self,
        new_state == CLUTTER_GESTURE_STATE_COMPLETED) ||
       new_state == CLUTTER_GESTURE_STATE_CANCELLED)
     maybe_influence_other_gestures (self, recursion_depth + 1);
+
+  /* If state has been set recursively by influencing, no need to emit
+   * notify::state signal again (same reasoning as above).
+   */
+  if (priv->state != new_state)
+    {
+      debug_message_recursion (self, recursion_depth,
+                               "State was changed recursively, not emitting signals "
+                               "for gesture users.");
+      return;
+    }
+
+  /* First we emit the signal handlers for gesture users. We need to do this
+   * before invoking ->state_changed() because the context of the gesture should
+   * still be available for the user, and in state_changed() the implementation
+   * will clean that up.
+   */
+  if (old_state == CLUTTER_GESTURE_STATE_RECOGNIZING &&
+      new_state == CLUTTER_GESTURE_STATE_COMPLETED)
+    {
+      g_signal_emit (self, obj_signals[END], 0);
+    }
+  else if (old_state == CLUTTER_GESTURE_STATE_RECOGNIZING &&
+           new_state == CLUTTER_GESTURE_STATE_CANCELLED)
+    {
+      g_signal_emit (self, obj_signals[CANCEL], 0);
+    }
+  else if (new_state == CLUTTER_GESTURE_STATE_RECOGNIZING ||
+           new_state == CLUTTER_GESTURE_STATE_COMPLETED)
+    {
+      g_signal_emit (self, obj_signals[RECOGNIZE], 0);
+    }
 
   /* If state has been set recursively by influencing, no need to emit
    * notify::state signal again (same reasoning as above).
