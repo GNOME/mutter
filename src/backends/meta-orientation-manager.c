@@ -65,7 +65,10 @@ struct _MetaOrientationManager
   MetaOrientation prev_orientation;
   MetaOrientation curr_orientation;
   MetaOrientation effective_orientation;
-  guint has_accel : 1;
+  gboolean has_accel;
+  gboolean orientation_locked;
+  gboolean should_claim;
+  gboolean is_claimed;
 
   GSettings *settings;
 };
@@ -109,49 +112,15 @@ orientation_from_string (const char *orientation)
 }
 
 static void
-read_iio_proxy (MetaOrientationManager *self)
+sync_state (MetaOrientationManager *self)
 {
-  GVariant *v;
+  g_autoptr (GVariant) v = NULL;
 
   self->curr_orientation = META_ORIENTATION_UNDEFINED;
 
-  if (!self->iio_proxy)
-    {
-      self->has_accel = FALSE;
-      return;
-    }
-
-  v = g_dbus_proxy_get_cached_property (self->iio_proxy, "HasAccelerometer");
+  v = g_dbus_proxy_get_cached_property (self->iio_proxy, "AccelerometerOrientation");
   if (v)
-    {
-      self->has_accel = !!g_variant_get_boolean (v);
-      g_variant_unref (v);
-    }
-
-  if (self->has_accel)
-    {
-      v = g_dbus_proxy_get_cached_property (self->iio_proxy, "AccelerometerOrientation");
-      if (v)
-        {
-          self->curr_orientation = orientation_from_string (g_variant_get_string (v, NULL));
-          g_variant_unref (v);
-        }
-    }
-}
-
-static void
-sync_state (MetaOrientationManager *self)
-{
-  gboolean had_accel = self->has_accel;
-
-  read_iio_proxy (self);
-
-  if (had_accel != self->has_accel)
-    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_HAS_ACCELEROMETER]);
-
-  if (self->settings != NULL &&
-      g_settings_get_boolean (self->settings, ORIENTATION_LOCK_KEY))
-    return;
+    self->curr_orientation = orientation_from_string (g_variant_get_string (v, NULL));
 
   if (self->prev_orientation == self->curr_orientation)
     return;
@@ -166,21 +135,37 @@ sync_state (MetaOrientationManager *self)
 }
 
 static void
+update_has_accel (MetaOrientationManager *self)
+{
+  gboolean has_accel = FALSE;
+
+  if (self->iio_proxy)
+    {
+      g_autoptr (GVariant) v = NULL;
+
+      v = g_dbus_proxy_get_cached_property (self->iio_proxy, "HasAccelerometer");
+      if (v)
+        has_accel = !!g_variant_get_boolean (v);
+    }
+
+  if (self->has_accel == has_accel)
+    return;
+
+  self->has_accel = has_accel;
+
+  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_HAS_ACCELEROMETER]);
+}
+
+static void
 iio_properties_changed_idle (gpointer user_data)
 {
   MetaOrientationManager *self = user_data;
 
   self->properties_changed_idle_id = 0;
-  sync_state (self);
-}
+  update_has_accel (self);
 
-static void
-orientation_lock_changed (GSettings *settings,
-                          gchar     *key,
-                          gpointer   user_data)
-{
-  MetaOrientationManager *self = user_data;
-  sync_state (self);
+  if (self->has_accel && self->should_claim && self->is_claimed)
+    sync_state (self);
 }
 
 static void
@@ -203,9 +188,9 @@ iio_properties_changed (GDBusProxy *proxy,
 }
 
 static void
-accelerometer_claimed (GObject      *source,
-                       GAsyncResult *res,
-                       gpointer      user_data)
+on_accelerometer_claimed (GObject      *source,
+                          GAsyncResult *res,
+                          gpointer      user_data)
 {
   MetaOrientationManager *self = user_data;
   g_autoptr (GVariant) v = NULL;
@@ -220,7 +205,88 @@ accelerometer_claimed (GObject      *source,
       return;
     }
 
-  sync_state (self);
+  self->is_claimed = TRUE;
+
+  if (self->has_accel && self->should_claim)
+    sync_state (self);
+}
+
+static void
+on_accelerometer_released (GObject      *source,
+                           GAsyncResult *res,
+                           gpointer      user_data)
+{
+  MetaOrientationManager *self = user_data;
+  g_autoptr (GVariant) v = NULL;
+  g_autoptr (GError) error = NULL;
+
+  v = g_dbus_proxy_call_finish (G_DBUS_PROXY (source), res, &error);
+  if (!v)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_warning ("Failed to release accelerometer: %s", error->message);
+
+      return;
+    }
+
+  self->is_claimed = FALSE;
+}
+
+static void
+sync_accelerometer_claimed (MetaOrientationManager *self)
+{
+  gboolean should_claim;
+
+  should_claim = self->iio_proxy && !self->orientation_locked;
+
+  if (self->should_claim == should_claim)
+    return;
+
+  self->should_claim = should_claim;
+
+  if (should_claim)
+    {
+      g_dbus_proxy_call (self->iio_proxy,
+                         "ClaimAccelerometer",
+                         NULL,
+                         G_DBUS_CALL_FLAGS_NONE,
+                         -1,
+                         self->cancellable,
+                         on_accelerometer_claimed,
+                         self);
+    }
+  else
+    {
+      if (!self->iio_proxy)
+        {
+          self->is_claimed = FALSE;
+          return;
+        }
+
+      g_dbus_proxy_call (self->iio_proxy,
+                         "ReleaseAccelerometer",
+                         NULL,
+                         G_DBUS_CALL_FLAGS_NONE,
+                         -1,
+                         self->cancellable,
+                         on_accelerometer_released,
+                         self);
+    }
+}
+
+static void
+orientation_lock_changed (MetaOrientationManager *self)
+{
+  gboolean orientation_locked;
+
+  orientation_locked = g_settings_get_boolean (self->settings, ORIENTATION_LOCK_KEY);
+
+  if (self->orientation_locked == orientation_locked)
+    return;
+
+  self->orientation_locked = orientation_locked;
+
+  sync_accelerometer_claimed (self);
 }
 
 static void
@@ -244,14 +310,9 @@ iio_proxy_ready (GObject      *source,
   self->iio_proxy = proxy;
   g_signal_connect_object (self->iio_proxy, "g-properties-changed",
                            G_CALLBACK (iio_properties_changed), self, 0);
-  g_dbus_proxy_call (self->iio_proxy,
-                     "ClaimAccelerometer",
-                     NULL,
-                     G_DBUS_CALL_FLAGS_NONE,
-                     -1,
-                     self->cancellable,
-                     accelerometer_claimed,
-                     self);
+
+  update_has_accel (self);
+  sync_accelerometer_claimed (self);
 }
 
 static void
@@ -286,7 +347,8 @@ iio_sensor_vanished_cb (GDBusConnection *connection,
 
   g_clear_object (&self->iio_proxy);
 
-  sync_state (self);
+  sync_accelerometer_claimed (self);
+  update_has_accel (self);
 }
 
 static void
@@ -307,9 +369,11 @@ meta_orientation_manager_init (MetaOrientationManager *self)
   if (schema != NULL)
     {
       self->settings = g_settings_new (CONF_SCHEMA);
-      g_signal_connect_object (self->settings, "changed::"ORIENTATION_LOCK_KEY,
-                               G_CALLBACK (orientation_lock_changed), self, 0);
-      sync_state (self);
+      g_signal_connect_object (self->settings,
+                               "changed::"ORIENTATION_LOCK_KEY,
+                               G_CALLBACK (orientation_lock_changed),
+                               self, G_CONNECT_SWAPPED);
+      orientation_lock_changed (self);
     }
 
   self->effective_orientation = META_ORIENTATION_UNDEFINED;
