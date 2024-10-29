@@ -165,7 +165,7 @@ meta_kms_connector_get_current_state (MetaKmsConnector *connector)
 }
 
 gboolean
-meta_kms_connector_is_for_lease (MetaKmsConnector *connector)
+meta_kms_connector_is_non_desktop (MetaKmsConnector *connector)
 {
   const char *lease_connectors_str;
 

@@ -227,7 +227,7 @@ find_resources_to_lease (MetaDrmLeaseManager  *lease_manager,
       MetaKmsDevice *connector_device;
 
       if (!g_list_find (available_connectors, connector) ||
-          !meta_kms_connector_is_for_lease (connector))
+          !meta_kms_connector_is_non_desktop (connector))
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                        "Failed to find connector %u (%s)",
@@ -645,7 +645,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
           kms_connector = o->data;
           lease = NULL;
 
-          if (!meta_kms_connector_is_for_lease (kms_connector))
+          if (!meta_kms_connector_is_non_desktop (kms_connector))
             continue;
 
           if (g_list_find (lease_manager->connectors, kms_connector))

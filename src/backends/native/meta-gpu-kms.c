@@ -355,7 +355,7 @@ init_outputs (MetaGpuKms *gpu_kms)
       if (!meta_kms_connector_get_current_state (kms_connector))
         continue;
 
-      if (meta_kms_connector_is_for_lease (kms_connector))
+      if (meta_kms_connector_is_non_desktop (kms_connector))
         continue;
 
       old_output =

@@ -102,4 +102,4 @@ MetaKmsMode * meta_kms_connector_get_preferred_mode (MetaKmsConnector *connector
 META_EXPORT_TEST
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
 
-gboolean meta_kms_connector_is_for_lease (MetaKmsConnector *connector);
+gboolean meta_kms_connector_is_non_desktop (MetaKmsConnector *connector);
