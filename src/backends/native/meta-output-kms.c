@@ -47,6 +47,8 @@ struct _MetaOutputKms
 
 G_DEFINE_TYPE (MetaOutputKms, meta_output_kms, META_TYPE_OUTPUT_NATIVE)
 
+static GQuark kms_connector_output_kms_quark;
+
 MetaKmsConnector *
 meta_output_kms_get_kms_connector (MetaOutputKms *output_kms)
 {
@@ -88,6 +90,13 @@ meta_output_kms_can_clone (MetaOutputKms *output_kms,
     return FALSE;
 
   return TRUE;
+}
+
+MetaOutputKms *
+meta_output_kms_from_kms_connector (MetaKmsConnector *connector)
+{
+  return g_object_get_qdata (G_OBJECT (connector),
+                             kms_connector_output_kms_quark);
 }
 
 static GBytes *
@@ -533,6 +542,16 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
     {
       meta_output_unassign_crtc (output);
     }
+
+  if (!kms_connector_output_kms_quark)
+    {
+      kms_connector_output_kms_quark =
+        g_quark_from_static_string ("kms-connector-output-kms-quark");
+    }
+
+  g_object_set_qdata (G_OBJECT (kms_connector),
+                      kms_connector_output_kms_quark,
+                      output_kms);
 
   return output_kms;
 }

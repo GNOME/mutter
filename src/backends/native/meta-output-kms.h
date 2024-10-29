@@ -39,6 +39,8 @@ MetaKmsConnector * meta_output_kms_get_kms_connector (MetaOutputKms *output_kms)
 
 uint32_t meta_output_kms_get_connector_id (MetaOutputKms *output_kms);
 
+MetaOutputKms * meta_output_kms_from_kms_connector (MetaKmsConnector *connector);
+
 MetaOutputKms * meta_output_kms_new (MetaGpuKms        *gpu_kms,
                                      MetaKmsConnector  *kms_connector,
                                      MetaOutput        *old_output,
