@@ -69,6 +69,7 @@ struct _MetaOrientationManager
   gboolean orientation_locked;
   gboolean should_claim;
   gboolean is_claimed;
+  int inhibited_count;
 
   GSettings *settings;
 };
@@ -237,7 +238,7 @@ sync_accelerometer_claimed (MetaOrientationManager *self)
 {
   gboolean should_claim;
 
-  should_claim = self->iio_proxy && !self->orientation_locked;
+  should_claim = self->iio_proxy && self->inhibited_count == 0;
 
   if (self->should_claim == should_claim)
     return;
@@ -286,7 +287,10 @@ orientation_lock_changed (MetaOrientationManager *self)
 
   self->orientation_locked = orientation_locked;
 
-  sync_accelerometer_claimed (self);
+  if (self->orientation_locked)
+    meta_orientation_manager_inhibit_tracking (self);
+  else
+    meta_orientation_manager_uninhibit_tracking (self);
 }
 
 static void
@@ -450,4 +454,22 @@ gboolean
 meta_orientation_manager_has_accelerometer (MetaOrientationManager *self)
 {
   return self->has_accel;
+}
+
+void
+meta_orientation_manager_inhibit_tracking (MetaOrientationManager *self)
+{
+  self->inhibited_count++;
+
+  if (self->inhibited_count == 1)
+    sync_accelerometer_claimed (self);
+}
+
+void
+meta_orientation_manager_uninhibit_tracking (MetaOrientationManager *self)
+{
+  self->inhibited_count--;
+
+  if (self->inhibited_count == 0)
+    sync_accelerometer_claimed (self);
 }

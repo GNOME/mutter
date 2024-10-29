@@ -51,3 +51,7 @@ gboolean meta_orientation_manager_has_accelerometer (MetaOrientationManager *sel
 
 META_EXPORT
 MtkMonitorTransform meta_orientation_to_transform (MetaOrientation orientation);
+
+void meta_orientation_manager_inhibit_tracking (MetaOrientationManager *self);
+
+void meta_orientation_manager_uninhibit_tracking (MetaOrientationManager *self);
