@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <pango/pango.h>
+
 #include "clutter/clutter-context.h"
 #include "clutter-stage-manager-private.h"
 
@@ -53,3 +55,8 @@ ClutterStageManager * clutter_context_get_stage_manager (ClutterContext *context
 gboolean clutter_context_get_show_fps (ClutterContext *context);
 
 PangoRenderer * clutter_context_get_font_renderer (ClutterContext *context);
+
+/**
+ * clutter_context_get_pango_fontmap: (skip)
+ */
+PangoFontMap * clutter_context_get_pango_fontmap (ClutterContext *context);
