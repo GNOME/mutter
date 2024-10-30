@@ -164,6 +164,34 @@ meta_wayland_cursor_surface_pre_apply_state (MetaWaylandSurfaceRole  *surface_ro
 }
 
 static void
+meta_wayland_cursor_schedule_update (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaLogicalMonitor *logical_monitor;
+  MetaMonitor *monitor;
+  MetaOutput *output;
+  MetaCrtc *crtc;
+  MetaRendererView *renderer_view;
+  ClutterStageView *stage_view;
+
+  logical_monitor = meta_wayland_surface_get_main_monitor (surface);
+  if (!logical_monitor)
+    return;
+
+  monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
+  output = meta_monitor_get_main_output (monitor);
+  crtc = meta_output_get_assigned_crtc (output);
+  renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
+  stage_view = CLUTTER_STAGE_VIEW (renderer_view);
+  clutter_stage_view_schedule_update (stage_view);
+}
+
+static void
 meta_wayland_cursor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                          MetaWaylandSurfaceState *pending)
 {
@@ -178,9 +206,17 @@ meta_wayland_cursor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
       meta_wayland_buffer_inc_use_count (priv->buffer);
     }
 
-  wl_list_insert_list (&priv->frame_callbacks,
-                       &pending->frame_callback_list);
-  wl_list_init (&pending->frame_callback_list);
+  if (!wl_list_empty (&pending->frame_callback_list))
+    {
+      gboolean was_empty = wl_list_empty (&priv->frame_callbacks);
+
+      wl_list_insert_list (&priv->frame_callbacks,
+                           &pending->frame_callback_list);
+      wl_list_init (&pending->frame_callback_list);
+
+      if (was_empty)
+        meta_wayland_cursor_schedule_update (surface_role);
+    }
 
   if (pending->newly_attached &&
       ((!mtk_region_is_empty (pending->surface_damage) ||
