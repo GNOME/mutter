@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <pango/pango.h>
-
 #include "clutter-backend.h"
 #include "clutter-settings.h"
 
@@ -52,11 +50,6 @@ void clutter_context_destroy (ClutterContext *context);
  */
 CLUTTER_EXPORT
 ClutterBackend * clutter_context_get_backend (ClutterContext *context);
-
-/**
- * clutter_context_get_pango_fontmap: (skip)
- */
-PangoFontMap * clutter_context_get_pango_fontmap (ClutterContext *context);
 
 ClutterTextDirection clutter_context_get_text_direction (ClutterContext *context);
 
