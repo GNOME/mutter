@@ -160,6 +160,51 @@ meta_wayland_cursor_surface_pre_apply_state (MetaWaylandSurfaceRole  *surface_ro
 }
 
 static void
+meta_wayland_cursor_schedule_update (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandCursorSurface *cursor_surface =
+    META_WAYLAND_CURSOR_SURFACE (surface_role);
+  MetaWaylandCursorSurfacePrivate *priv =
+    meta_wayland_cursor_surface_get_instance_private (cursor_surface);
+  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (priv->cursor_sprite);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterStageView *best_stage_view = NULL;
+  float best_area = 0.0;
+  graphene_rect_t rect;
+  GList *l;
+
+  rect = meta_cursor_renderer_calculate_rect (priv->cursor_renderer, cursor_sprite);
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      MtkRectangle view_layout;
+      graphene_rect_t view_rect;
+
+      clutter_stage_view_get_layout (stage_view, &view_layout);
+      view_rect = mtk_rectangle_to_graphene_rect (&view_layout);
+      if (graphene_rect_intersection (&rect, &view_rect, &view_rect))
+        {
+          float area = graphene_rect_get_area (&view_rect);
+
+          if (area > best_area)
+            {
+              best_stage_view = stage_view;
+              best_area = area;
+            }
+        }
+    }
+
+  if (best_stage_view)
+    clutter_stage_view_schedule_update (best_stage_view);
+}
+
+static void
 meta_wayland_cursor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                          MetaWaylandSurfaceState *pending)
 {
@@ -174,9 +219,17 @@ meta_wayland_cursor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
       meta_wayland_buffer_inc_use_count (priv->buffer);
     }
 
-  wl_list_insert_list (&priv->frame_callbacks,
-                       &pending->frame_callback_list);
-  wl_list_init (&pending->frame_callback_list);
+  if (!wl_list_empty (&pending->frame_callback_list))
+    {
+      gboolean was_empty = wl_list_empty (&priv->frame_callbacks);
+
+      wl_list_insert_list (&priv->frame_callbacks,
+                           &pending->frame_callback_list);
+      wl_list_init (&pending->frame_callback_list);
+
+      if (was_empty)
+        meta_wayland_cursor_schedule_update (surface_role);
+    }
 
   if (pending->newly_attached &&
       ((!mtk_region_is_empty (pending->surface_damage) ||
