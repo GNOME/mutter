@@ -136,7 +136,7 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   return TRUE;
 }
 
-static gboolean
+static void
 maybe_record_frame_on_idle (gpointer user_data)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
@@ -150,8 +150,6 @@ maybe_record_frame_on_idle (gpointer user_data)
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
   paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags, paint_phase, NULL);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -190,8 +188,8 @@ stage_painted (MetaStage        *stage,
 
   if (!(record_result & META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME))
     {
-      monitor_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle,
-                                                      src);
+      monitor_src->maybe_record_idle_id = g_idle_add_once (maybe_record_frame_on_idle,
+                                                           src);
       g_source_set_name_by_id (monitor_src->maybe_record_idle_id,
                                "[mutter] maybe_record_frame_on_idle [monitor-src]");
     }

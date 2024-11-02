@@ -1195,7 +1195,7 @@ process_selection_request (MetaX11Display *x11_display,
   meta_verbose ("Handled selection request");
 }
 
-static gboolean
+static void
 close_display_idle_cb (gpointer user_data)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (user_data);
@@ -1206,8 +1206,6 @@ close_display_idle_cb (gpointer user_data)
                       x11_display->xselectionclear_timestamp);
   x11_display->display_close_idle = 0;
   meta_context_terminate (context);
-
-  return G_SOURCE_REMOVE;
 }
 
 static gboolean
@@ -1239,7 +1237,7 @@ process_selection_clear (MetaX11Display *x11_display,
   if (!x11_display->display_close_idle)
     {
       x11_display->xselectionclear_timestamp = event->xselectionclear.time;
-      x11_display->display_close_idle = g_idle_add (close_display_idle_cb, x11_display);
+      x11_display->display_close_idle = g_idle_add_once (close_display_idle_cb, x11_display);
     }
 
   return TRUE;

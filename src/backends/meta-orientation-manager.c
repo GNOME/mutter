@@ -165,15 +165,13 @@ sync_state (MetaOrientationManager *self)
   g_signal_emit (self, signals[ORIENTATION_CHANGED], 0);
 }
 
-static gboolean
+static void
 changed_idle (gpointer user_data)
 {
   MetaOrientationManager *self = user_data;
 
   self->sync_idle_id = 0;
   sync_state (self);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -188,7 +186,7 @@ queue_sync_state (MetaOrientationManager *self)
   if (self->sync_idle_id)
     return;
 
-  self->sync_idle_id = g_idle_add (changed_idle, self);
+  self->sync_idle_id = g_idle_add_once (changed_idle, self);
 }
 
 static void

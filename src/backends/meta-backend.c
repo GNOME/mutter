@@ -361,7 +361,7 @@ meta_backend_monitors_changed (MetaBackend *backend)
   update_cursors (backend);
 }
 
-static gboolean
+static void
 update_last_device (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -369,8 +369,6 @@ update_last_device (MetaBackend *backend)
   priv->device_update_idle_id = 0;
   g_signal_emit (backend, signals[LAST_DEVICE_CHANGED], 0,
                  priv->current_device);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -391,7 +389,7 @@ meta_backend_update_last_device (MetaBackend        *backend,
   if (priv->device_update_idle_id == 0)
     {
       priv->device_update_idle_id =
-        g_idle_add ((GSourceFunc) update_last_device, backend);
+        g_idle_add_once ((GSourceOnceFunc) update_last_device, backend);
       g_source_set_name_by_id (priv->device_update_idle_id,
                                "[mutter] update_last_device");
     }

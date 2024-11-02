@@ -168,7 +168,7 @@ restore_dwell_position (ClutterInputDevice *device)
                                                        device->ptr_a11y_data->dwell_y);
 }
 
-static gboolean
+static void
 trigger_secondary_click (gpointer data)
 {
   ClutterInputDevice *device = data;
@@ -182,8 +182,6 @@ trigger_secondary_click (gpointer data)
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
                          TRUE);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -193,7 +191,7 @@ start_secondary_click_timeout (ClutterInputDevice *device)
   ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->secondary_click_timer =
-    g_timeout_add (delay, trigger_secondary_click, device);
+    g_timeout_add_once (delay, trigger_secondary_click, device);
 
   g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
@@ -421,18 +419,16 @@ get_dwell_direction (ClutterInputDevice *device)
   return CLUTTER_A11Y_DWELL_DIRECTION_DOWN;
 }
 
-static gboolean
+static void
 trigger_clear_dwell_gesture (gpointer data)
 {
   ClutterInputDevice *device = data;
 
   device->ptr_a11y_data->dwell_timer = 0;
   device->ptr_a11y_data->dwell_gesture_started = FALSE;
-
-  return G_SOURCE_REMOVE;
 }
 
-static gboolean
+static void
 trigger_dwell_gesture (gpointer data)
 {
   ClutterInputDevice *device = data;
@@ -448,15 +444,13 @@ trigger_dwell_gesture (gpointer data)
 
   /* Do not clear the gesture right away, otherwise we'll start another one */
   device->ptr_a11y_data->dwell_timer =
-    g_timeout_add (delay, trigger_clear_dwell_gesture, device);
+    g_timeout_add_once (delay, trigger_clear_dwell_gesture, device);
 
   g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-stopped",
                          device,
                          CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE,
                          TRUE);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -466,7 +460,7 @@ start_dwell_gesture_timeout (ClutterInputDevice *device)
   ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->dwell_timer =
-    g_timeout_add (delay, trigger_dwell_gesture, device);
+    g_timeout_add_once (delay, trigger_dwell_gesture, device);
   device->ptr_a11y_data->dwell_gesture_started = TRUE;
 
   g_signal_emit_by_name (seat,
@@ -476,7 +470,7 @@ start_dwell_gesture_timeout (ClutterInputDevice *device)
                          delay);
 }
 
-static gboolean
+static void
 trigger_dwell_click (gpointer data)
 {
   ClutterInputDevice *device = data;
@@ -502,8 +496,6 @@ trigger_dwell_click (gpointer data)
       emit_dwell_click (device, get_dwell_click_type (device));
       update_dwell_click_type (device);
     }
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -513,7 +505,7 @@ start_dwell_timeout (ClutterInputDevice *device)
   ClutterSeat *seat = clutter_input_device_get_seat (device);
 
   device->ptr_a11y_data->dwell_timer =
-    g_timeout_add (delay, trigger_dwell_click, device);
+    g_timeout_add_once (delay, trigger_dwell_click, device);
 
   g_signal_emit_by_name (seat,
                          "ptr-a11y-timeout-started",
@@ -540,7 +532,7 @@ stop_dwell_timeout (ClutterInputDevice *device)
     }
 }
 
-static gboolean
+static void
 trigger_dwell_position_timeout (gpointer data)
 {
   ClutterInputDevice *device = data;
@@ -552,15 +544,13 @@ trigger_dwell_position_timeout (gpointer data)
       if (!pointer_has_moved (device))
         start_dwell_timeout (device);
     }
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
 start_dwell_position_timeout (ClutterInputDevice *device)
 {
   device->ptr_a11y_data->dwell_position_timer =
-    g_timeout_add (100, trigger_dwell_position_timeout, device);
+    g_timeout_add_once (100, trigger_dwell_position_timeout, device);
 }
 
 static void

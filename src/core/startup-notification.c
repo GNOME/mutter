@@ -159,15 +159,13 @@ meta_startup_notification_update_cursor (MetaStartupNotification *sn)
     }
 }
 
-static gboolean
+static void
 meta_startup_notification_cursor_timeout (gpointer user_data)
 {
   MetaStartupNotification *sn = user_data;
 
   meta_startup_notification_update_cursor (sn);
   sn->update_cursor_timeout_id = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -178,9 +176,9 @@ meta_startup_notification_update_feedback (MetaStartupNotification *sn)
 
   meta_startup_notification_update_cursor (sn);
   sn->update_cursor_timeout_id =
-    g_timeout_add (UPDATE_CURSOR_TIMEOUT_MS,
-                   meta_startup_notification_cursor_timeout,
-                   sn);
+    g_timeout_add_once (UPDATE_CURSOR_TIMEOUT_MS,
+                        meta_startup_notification_cursor_timeout,
+                        sn);
 }
 
 static void

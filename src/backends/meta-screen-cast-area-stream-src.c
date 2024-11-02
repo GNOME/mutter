@@ -240,7 +240,7 @@ uninhibit_hw_cursor (MetaScreenCastAreaStreamSrc *area_src)
   area_src->hw_cursor_inhibited = FALSE;
 }
 
-static gboolean
+static void
 maybe_record_frame_on_idle (gpointer user_data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
@@ -256,8 +256,6 @@ maybe_record_frame_on_idle (gpointer user_data)
   meta_screen_cast_stream_src_maybe_record_frame (src, flags,
                                                   paint_phase,
                                                   NULL);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -277,7 +275,7 @@ before_stage_painted (MetaStage        *stage,
   if (!clutter_stage_view_peek_scanout (view))
     return;
 
-  area_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle, src);
+  area_src->maybe_record_idle_id = g_idle_add_once (maybe_record_frame_on_idle, src);
 }
 
 static void
@@ -311,7 +309,7 @@ stage_painted (MetaStage        *stage,
         }
     }
 
-  area_src->maybe_record_idle_id = g_idle_add (maybe_record_frame_on_idle, src);
+  area_src->maybe_record_idle_id = g_idle_add_once (maybe_record_frame_on_idle, src);
 }
 
 static void

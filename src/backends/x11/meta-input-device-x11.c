@@ -452,14 +452,12 @@ meta_input_device_x11_query_pointer_location (MetaInputDeviceX11 *device_xi2)
   return TRUE;
 }
 
-static gboolean
+static void
 clear_inhibit_pointer_query_cb (gpointer data)
 {
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (data);
 
   device_xi2->inhibit_pointer_query_timer = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 gboolean
@@ -480,7 +478,7 @@ meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
       device_xi2->query_status =
         meta_input_device_x11_query_pointer_location (device_xi2);
       device_xi2->inhibit_pointer_query_timer =
-        g_idle_add (clear_inhibit_pointer_query_cb, device_xi2);
+        g_idle_add_once (clear_inhibit_pointer_query_cb, device_xi2);
     }
 
   *x = device_xi2->current_x;

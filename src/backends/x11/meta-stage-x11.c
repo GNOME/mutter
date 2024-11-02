@@ -569,14 +569,12 @@ handle_wm_protocols_event (MetaStageX11 *stage_x11,
   return FALSE;
 }
 
-static gboolean
+static void
 clipped_redraws_cool_off_cb (void *data)
 {
   MetaStageX11 *stage_x11 = data;
 
   stage_x11->clipped_redraws_cool_off = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 void
@@ -665,9 +663,9 @@ meta_stage_x11_handle_event (MetaStageX11 *stage_x11,
                                  g_source_remove);
 
               stage_x11->clipped_redraws_cool_off =
-                g_timeout_add (1000,
-                               clipped_redraws_cool_off_cb,
-                               stage_x11);
+                g_timeout_add_once (1000,
+                                    clipped_redraws_cool_off_cb,
+                                    stage_x11);
 
               /* Queue a relayout - we want glViewport to be called
                * with the correct values, and this is done in ClutterStage

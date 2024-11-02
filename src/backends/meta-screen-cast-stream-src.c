@@ -759,7 +759,7 @@ meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *sr
   return priv->follow_up_frame_source_id != 0;
 }
 
-static gboolean
+static void
 follow_up_frame_cb (gpointer user_data)
 {
   MetaScreenCastStreamSrc *src = user_data;
@@ -768,8 +768,6 @@ follow_up_frame_cb (gpointer user_data)
 
   priv->follow_up_frame_source_id = 0;
   meta_screen_cast_stream_src_record_follow_up (src);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -782,9 +780,9 @@ maybe_schedule_follow_up_frame (MetaScreenCastStreamSrc *src,
   if (priv->follow_up_frame_source_id)
     return;
 
-  priv->follow_up_frame_source_id = g_timeout_add (us2ms (timeout_us),
-                                                   follow_up_frame_cb,
-                                                   src);
+  priv->follow_up_frame_source_id = g_timeout_add_once (us2ms (timeout_us),
+                                                        follow_up_frame_cb,
+                                                        src);
 }
 
 static void

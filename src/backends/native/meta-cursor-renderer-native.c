@@ -242,7 +242,7 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
     }
 }
 
-static gboolean
+static void
 meta_cursor_renderer_native_update_animation (MetaCursorRendererNative *native)
 {
   MetaCursorRendererNativePrivate *priv =
@@ -253,8 +253,6 @@ meta_cursor_renderer_native_update_animation (MetaCursorRendererNative *native)
   priv->animation_timeout_id = 0;
   meta_cursor_sprite_tick_frame (cursor_sprite);
   meta_cursor_renderer_force_update (renderer);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -279,9 +277,9 @@ maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
         return;
 
       priv->animation_timeout_id =
-        g_timeout_add (delay,
-                       (GSourceFunc) meta_cursor_renderer_native_update_animation,
-                       native);
+        g_timeout_add_once (delay,
+                            (GSourceOnceFunc) meta_cursor_renderer_native_update_animation,
+                            native);
       g_source_set_name_by_id (priv->animation_timeout_id,
                                "[mutter] meta_cursor_renderer_native_update_animation");
     }

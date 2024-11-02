@@ -1965,15 +1965,13 @@ meta_monitor_manager_get_display_configuration_timeout (MetaMonitorManager *mana
   return DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT;
 }
 
-static gboolean
+static void
 save_config_timeout (gpointer user_data)
 {
   MetaMonitorManager *manager = user_data;
 
   restore_previous_config (manager);
   manager->persistent_timeout_id = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -1982,9 +1980,9 @@ request_persistent_confirmation (MetaMonitorManager *manager)
   int timeout_s;
 
   timeout_s = meta_monitor_manager_get_display_configuration_timeout (manager);
-  manager->persistent_timeout_id = g_timeout_add_seconds (timeout_s,
-                                                          save_config_timeout,
-                                                          manager);
+  manager->persistent_timeout_id = g_timeout_add_seconds_once (timeout_s,
+                                                               save_config_timeout,
+                                                               manager);
   g_source_set_name_by_id (manager->persistent_timeout_id,
                            "[mutter] save_config_timeout");
 

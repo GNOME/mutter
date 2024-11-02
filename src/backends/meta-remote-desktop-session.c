@@ -1409,7 +1409,7 @@ meta_remote_desktop_session_cancel_transfer_requests (MetaRemoteDesktopSession *
                                session);
 }
 
-static gboolean
+static void
 transfer_request_cleanup_timeout (gpointer user_data)
 {
   MetaRemoteDesktopSession *session = user_data;
@@ -1423,7 +1423,6 @@ transfer_request_cleanup_timeout (gpointer user_data)
   meta_remote_desktop_session_cancel_transfer_requests (session);
 
   session->transfer_request_timeout_id = 0;
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -1558,9 +1557,9 @@ reset_transfer_cleanup_timeout (MetaRemoteDesktopSession *session)
 {
   g_clear_handle_id (&session->transfer_request_timeout_id, g_source_remove);
   session->transfer_request_timeout_id =
-    g_timeout_add (TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS,
-                   transfer_request_cleanup_timeout,
-                   session);
+    g_timeout_add_once (TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS,
+                        transfer_request_cleanup_timeout,
+                        session);
 }
 
 void

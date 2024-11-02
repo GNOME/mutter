@@ -557,7 +557,7 @@ allocate_virtual_monitor_id (MetaMonitorManagerNative *manager_native)
     }
 }
 
-static gboolean
+static void
 rebuild_virtual_idle_cb (gpointer user_data)
 {
   MetaMonitorManager *manager = user_data;
@@ -569,8 +569,6 @@ rebuild_virtual_idle_cb (gpointer user_data)
   priv->rebuild_virtual_idle_id = 0;
 
   meta_monitor_manager_reconfigure (manager);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -586,7 +584,7 @@ on_virtual_monitor_mode_changed (MetaVirtualMonitor *virtual_monitor,
   if (priv->rebuild_virtual_idle_id)
     return;
 
-  priv->rebuild_virtual_idle_id = g_idle_add (rebuild_virtual_idle_cb, manager);
+  priv->rebuild_virtual_idle_id = g_idle_add_once (rebuild_virtual_idle_cb, manager);
 }
 
 static MetaVirtualMonitor *

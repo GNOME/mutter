@@ -743,7 +743,7 @@ configure_disabled_crtcs (MetaKmsDevice      *kms_device,
     }
 }
 
-static gboolean
+static void
 dummy_power_save_page_flip_cb (gpointer user_data)
 {
   MetaRendererNative *renderer_native = user_data;
@@ -754,8 +754,6 @@ dummy_power_save_page_flip_cb (gpointer user_data)
   g_clear_list (&renderer_native->power_save_page_flip_onscreens,
                 g_object_unref);
   renderer_native->power_save_page_flip_source_id = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 void
@@ -767,9 +765,9 @@ meta_renderer_native_queue_power_save_page_flip (MetaRendererNative *renderer_na
   if (!renderer_native->power_save_page_flip_source_id)
     {
       renderer_native->power_save_page_flip_source_id =
-        g_timeout_add (timeout_ms,
-                       dummy_power_save_page_flip_cb,
-                       renderer_native);
+        g_timeout_add_once (timeout_ms,
+                            dummy_power_save_page_flip_cb,
+                            renderer_native);
     }
 
   renderer_native->power_save_page_flip_onscreens =
@@ -823,15 +821,13 @@ free_unused_gpu_datas (MetaRendererNative *renderer_native)
                                used_gpus);
 }
 
-static gboolean
+static void
 release_unused_gpus_idle (gpointer user_data)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (user_data);
 
   renderer_native->release_unused_gpus_idle_id = 0;
   free_unused_gpu_datas (renderer_native);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -846,7 +842,7 @@ old_onscreen_freed (gpointer  user_data,
   if (!renderer_native->release_unused_gpus_idle_id)
     {
       renderer_native->release_unused_gpus_idle_id =
-        g_idle_add (release_unused_gpus_idle, renderer_native);
+        g_idle_add_once (release_unused_gpus_idle, renderer_native);
     }
 }
 

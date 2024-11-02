@@ -172,7 +172,7 @@ meta_gesture_tracker_class_init (MetaGestureTrackerClass *klass)
                   G_TYPE_NONE, 2, G_TYPE_POINTER, G_TYPE_UINT);
 }
 
-static gboolean
+static void
 autodeny_sequence (gpointer user_data)
 {
   MetaSequenceInfo *info = user_data;
@@ -183,7 +183,6 @@ autodeny_sequence (gpointer user_data)
                                              META_SEQUENCE_REJECTED);
 
   info->autodeny_timeout_id = 0;
-  return G_SOURCE_REMOVE;
 }
 
 static MetaSequenceInfo *
@@ -201,7 +200,7 @@ meta_sequence_info_new (MetaGestureTracker *tracker,
   info->tracker = tracker;
   info->sequence = clutter_event_get_event_sequence (event);
   info->state = META_SEQUENCE_NONE;
-  info->autodeny_timeout_id = g_timeout_add (ms, autodeny_sequence, info);
+  info->autodeny_timeout_id = g_timeout_add_once (ms, autodeny_sequence, info);
 
   clutter_event_get_coords (event, &info->start_x, &info->start_y);
 
@@ -328,12 +327,11 @@ gesture_cancel_cb (ClutterGestureAction *gesture,
     }
 }
 
-static gboolean
+static void
 cancel_and_unref_gesture_cb (ClutterGestureAction *action)
 {
   clutter_gesture_action_cancel (action);
   g_object_unref (action);
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -344,7 +342,7 @@ clear_gesture_data (GestureActionData *data)
   g_clear_signal_handler (&data->gesture_cancel_id, data->gesture);
 
   /* Defer cancellation to an idle, as it may happen within event handling */
-  g_idle_add ((GSourceFunc) cancel_and_unref_gesture_cb, data->gesture);
+  g_idle_add_once ((GSourceOnceFunc) cancel_and_unref_gesture_cb, data->gesture);
 }
 
 static void

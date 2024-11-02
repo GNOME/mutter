@@ -2139,7 +2139,7 @@ meta_window_force_placement (MetaWindow    *window,
   window->placed = TRUE;
 }
 
-static gboolean
+static void
 enter_suspend_state_cb (gpointer user_data)
 {
   MetaWindow *window = META_WINDOW (user_data);
@@ -2147,13 +2147,10 @@ enter_suspend_state_cb (gpointer user_data)
 
   priv->suspend_timoeut_id = 0;
 
-  g_return_val_if_fail (priv->suspend_state == META_WINDOW_SUSPEND_STATE_HIDDEN,
-                        G_SOURCE_REMOVE);
+  g_return_if_fail (priv->suspend_state == META_WINDOW_SUSPEND_STATE_HIDDEN);
 
   priv->suspend_state = META_WINDOW_SUSPEND_STATE_SUSPENDED;
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -2164,9 +2161,9 @@ set_hidden_suspended_state (MetaWindow *window)
   priv->suspend_state = META_WINDOW_SUSPEND_STATE_HIDDEN;
   g_return_if_fail (!priv->suspend_timoeut_id);
   priv->suspend_timoeut_id =
-    g_timeout_add_seconds (SUSPEND_HIDDEN_TIMEOUT_S,
-                           enter_suspend_state_cb,
-                           window);
+    g_timeout_add_seconds_once (SUSPEND_HIDDEN_TIMEOUT_S,
+                                enter_suspend_state_cb,
+                                window);
 }
 
 static void
@@ -7657,13 +7654,11 @@ meta_window_get_client_type (MetaWindow *window)
   return window->client_type;
 }
 
-static gboolean
+static void
 meta_window_close_dialog_timeout (MetaWindow *window)
 {
   meta_window_show_close_dialog (window);
   window->close_dialog_timeout_id = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 void
@@ -7679,9 +7674,9 @@ meta_window_ensure_close_dialog_timeout (MetaWindow *window)
     return;
 
   window->close_dialog_timeout_id =
-    g_timeout_add (check_alive_timeout,
-                   (GSourceFunc) meta_window_close_dialog_timeout,
-                   window);
+    g_timeout_add_once (check_alive_timeout,
+                        (GSourceOnceFunc) meta_window_close_dialog_timeout,
+                        window);
   g_source_set_name_by_id (window->close_dialog_timeout_id,
                            "[mutter] meta_window_close_dialog_timeout");
 }

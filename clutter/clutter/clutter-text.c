@@ -2469,7 +2469,7 @@ clutter_text_touch_event (ClutterActor *actor,
   return CLUTTER_EVENT_PROPAGATE;
 }
 
-static gboolean
+static void
 clutter_text_remove_password_hint (gpointer data)
 {
   ClutterText *self = data;
@@ -2480,8 +2480,6 @@ clutter_text_remove_password_hint (gpointer data)
 
   clutter_text_dirty_cache (data);
   clutter_actor_queue_redraw (data); // paint volume was already invalidated by clutter_text_dirty_cache()
-
-  return G_SOURCE_REMOVE;
 }
 
 static gboolean
@@ -2561,9 +2559,9 @@ clutter_text_key_press (ClutterActor *actor,
 
               priv->password_hint_visible = TRUE;
               priv->password_hint_id =
-                g_timeout_add (priv->password_hint_timeout,
-                               clutter_text_remove_password_hint,
-                               self);
+                g_timeout_add_once (priv->password_hint_timeout,
+                                    clutter_text_remove_password_hint,
+                                    self);
             }
 
           return CLUTTER_EVENT_STOP;

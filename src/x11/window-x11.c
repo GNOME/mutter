@@ -976,7 +976,7 @@ focus_window_delayed_unmanaged (gpointer user_data)
   meta_window_x11_delayed_focus_data_free (data);
 }
 
-static gboolean
+static void
 focus_window_delayed_timeout (gpointer user_data)
 {
   MetaWindowX11DelayedFocusData *data = user_data;
@@ -990,8 +990,6 @@ focus_window_delayed_timeout (gpointer user_data)
   meta_window_x11_delayed_focus_data_free (data);
 
   meta_window_focus (window, timestamp);
-
-  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -1019,8 +1017,8 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
                               G_CALLBACK (meta_window_x11_delayed_focus_data_free),
                               data);
 
-  data->timeout_id = g_timeout_add (TAKE_FOCUS_FALLBACK_DELAY_MS,
-                                    focus_window_delayed_timeout, data);
+  data->timeout_id = g_timeout_add_once (TAKE_FOCUS_FALLBACK_DELAY_MS,
+                                         focus_window_delayed_timeout, data);
 }
 
 static void

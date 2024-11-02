@@ -346,7 +346,7 @@ source_new_cb (GObject      *object,
   g_free (data);
 }
 
-static gboolean
+static void
 unset_clipboard_owner (gpointer user_data)
 {
   MetaX11Display *x11_display = user_data;
@@ -358,8 +358,6 @@ unset_clipboard_owner (gpointer user_data)
   g_clear_object (&x11_display->selection.owners[META_SELECTION_CLIPBOARD]);
 
   x11_display->selection.timeout_id = 0;
-
-  return G_SOURCE_REMOVE;
 }
 
 static gboolean
@@ -409,9 +407,9 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
            * selection. Restoring the clipboard in this case would overwrite the
            * new selection, so this will be cancelled when a new selection
            * arrives. */
-          x11_display->selection.timeout_id = g_timeout_add (10,
-                                                             unset_clipboard_owner,
-                                                             x11_display);
+          x11_display->selection.timeout_id = g_timeout_add_once (10,
+                                                                  unset_clipboard_owner,
+                                                                  x11_display);
         }
       else
         {
