@@ -405,7 +405,7 @@
 	* d scale: scale
 	* u transform: transform (see below)
 	* b primary: true if this is the primary logical monitor
-	* a(sss) monitors: monitors displaying this logical monitor
+	* a(ssss) monitors: monitors displaying this logical monitor
 	    * connector: name of the connector (e.g. DP-1, eDP-1 etc)
 	    * vendor: vendor name
 	    * product: product name
