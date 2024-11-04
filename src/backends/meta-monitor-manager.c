@@ -2032,6 +2032,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       GVariantBuilder monitor_properties_builder;
       GList *k;
       gboolean is_builtin;
+      gboolean is_for_lease;
       const char *display_name;
 
       current_mode = meta_monitor_get_current_mode (monitor);
@@ -2152,6 +2153,11 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
                                  "min-refresh-rate",
                                  g_variant_new_int32 (min_refresh_rate));
         }
+
+      is_for_lease = meta_monitor_is_for_lease (monitor);
+      g_variant_builder_add (&monitor_properties_builder, "{sv}",
+                             "is-for-lease",
+                             g_variant_new_boolean (is_for_lease));
 
       g_variant_builder_add (&monitors_builder, MONITOR_FORMAT,
                              monitor_spec->connector,

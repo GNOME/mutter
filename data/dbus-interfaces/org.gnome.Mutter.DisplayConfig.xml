@@ -392,6 +392,7 @@
 	    - "min-refresh-rate" (i): minimum refresh rate of monitor when
 	                              Variable Refresh Rate is active (absence
 	                              of this means unknown)
+	    - "is-for-lease" (b): whether the monitor is for lease or not
 
         Possible mode flags:
 	  1 : preferred mode

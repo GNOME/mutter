@@ -9474,6 +9474,131 @@ meta_test_monitor_custom_for_lease_invalid_config (void)
   g_test_assert_expected_messages ();
 }
 
+static void
+on_proxy_call_cb (GObject      *object,
+                  GAsyncResult *res,
+                  gpointer      user_data)
+{
+  g_autoptr (GError) error = NULL;
+  GVariant **ret = user_data;
+
+  *ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (ret);
+}
+
+static void
+assert_monitor_state (GVariant   *state,
+                      guint       monitor_index,
+                      const char *connector,
+                      gboolean    is_for_lease)
+{
+  g_autoptr (GVariant) monitors = NULL;
+  g_autoptr (GVariant) monitor = NULL;
+  g_autoptr (GVariant) monitor_spec = NULL;
+  g_autoptr (GVariant) spec_connector = NULL;
+  g_autoptr (GVariant) monitor_properties = NULL;
+  g_autoptr (GVariant) for_lease_property = NULL;
+
+  monitors = g_variant_get_child_value (state, 1);
+  monitor = g_variant_get_child_value (monitors, monitor_index);
+
+  monitor_spec = g_variant_get_child_value (monitor, 0);
+  spec_connector = g_variant_get_child_value (monitor_spec, 0);
+  g_assert_cmpstr (g_variant_get_string (spec_connector, NULL), ==, connector);
+
+  monitor_properties = g_variant_get_child_value (monitor, 2);
+  for_lease_property = g_variant_lookup_value (monitor_properties,
+                                               "is-for-lease",
+                                               G_VARIANT_TYPE_BOOLEAN);
+  g_assert (g_variant_get_boolean (for_lease_property) == is_for_lease);
+}
+
+static void
+meta_test_monitor_custom_for_lease_config_dbus (void)
+{
+  MonitorTestCaseSetup test_case_setup = {
+    .modes = {
+      {
+        .width = 800,
+        .height = 600,
+        .refresh_rate = 60.0
+      }
+    },
+    .n_modes = 1,
+    .outputs = {
+      {
+        .crtc = -1,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0, 1 },
+        .n_possible_crtcs = 2,
+        .width_mm = 222,
+        .height_mm = 125,
+        .serial = "0x123456",
+      },
+      {
+        .crtc = -1,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0, 1 },
+        .n_possible_crtcs = 2,
+        .width_mm = 222,
+        .height_mm = 125,
+        .serial = "0x654321"
+      }
+    },
+    .n_outputs = 2,
+    .crtcs = {
+      {
+        .current_mode = -1
+      },
+      {
+        .current_mode = -1
+      }
+    },
+    .n_crtcs = 2
+  };
+  MetaMonitorTestSetup *test_setup;
+  g_autoptr (GDBusProxy) display_config_proxy = NULL;
+  g_autoptr (GVariant) state = NULL;
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NONE);
+  meta_set_custom_monitor_config (test_context, "forlease.xml");
+  emulate_hotplug (test_setup);
+  check_monitor_test_clients_state ();
+
+  g_dbus_proxy_new_for_bus (G_BUS_TYPE_SESSION,
+                            G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                            NULL,
+                            "org.gnome.Mutter.DisplayConfig",
+                            "/org/gnome/Mutter/DisplayConfig",
+                            "org.gnome.Mutter.DisplayConfig",
+                            NULL,
+                            proxy_ready_cb,
+                            &display_config_proxy);
+  while (!display_config_proxy)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_dbus_proxy_call (display_config_proxy,
+                     "GetCurrentState",
+                     NULL,
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,
+                     NULL,
+                     on_proxy_call_cb,
+                     &state);
+  while (!state)
+    g_main_context_iteration (NULL, TRUE);
+
+  assert_monitor_state (state, 0, "DP-1", FALSE);
+  assert_monitor_state (state, 1, "DP-2", TRUE);
+}
+
 static gboolean
 quit_main_loop (gpointer data)
 {
@@ -10704,6 +10829,8 @@ init_monitor_tests (void)
                     meta_test_monitor_custom_for_lease_config);
   add_monitor_test ("/backends/monitor/custom/for-lease-invalid-config",
                     meta_test_monitor_custom_for_lease_invalid_config);
+  add_monitor_test ("/backends/monitor/custom/for-lease-config-dbus",
+                    meta_test_monitor_custom_for_lease_config_dbus);
 
   add_monitor_test ("/backends/monitor/migrated/rotated",
                     meta_test_monitor_migrated_rotated);
