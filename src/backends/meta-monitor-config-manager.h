@@ -187,6 +187,10 @@ META_EXPORT_TEST
 gboolean meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_configs,
                                                     MetaMonitorSpec *monitor_spec);
 
+gboolean meta_logical_monitor_configs_have_visible_monitor (MetaMonitorManager *monitor_manager,
+                                                            GList              *logical_monitor_configs,
+                                                            MetaMonitor        *monitor);
+
 META_EXPORT_TEST
 gboolean meta_verify_monitor_mode_spec (MetaMonitorModeSpec *monitor_mode_spec,
                                         GError             **error);

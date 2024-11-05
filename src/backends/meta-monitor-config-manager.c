@@ -1638,14 +1638,12 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
 
-      if (!monitor_matches_rule (monitor, monitor_manager,
-                                 MONITOR_MATCH_VISIBLE))
+      if (meta_logical_monitor_configs_have_visible_monitor (monitor_manager,
+                                                             logical_monitor_configs,
+                                                             monitor))
         continue;
 
       monitor_spec = meta_monitor_get_spec (monitor);
-      if (meta_logical_monitor_configs_have_monitor (logical_monitor_configs,
-                                                     monitor_spec))
-        continue;
 
       disabled_monitor_specs =
         g_list_prepend (disabled_monitor_specs,
@@ -1887,6 +1885,22 @@ meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_conf
     }
 
   return FALSE;
+}
+
+gboolean
+meta_logical_monitor_configs_have_visible_monitor (MetaMonitorManager *monitor_manager,
+                                                   GList              *logical_monitor_configs,
+                                                   MetaMonitor        *monitor)
+{
+  MetaMonitorSpec *monitor_spec;
+
+  if (!monitor_matches_rule (monitor, monitor_manager, MONITOR_MATCH_VISIBLE))
+    return TRUE;
+
+  monitor_spec = meta_monitor_get_spec (monitor);
+
+  return meta_logical_monitor_configs_have_monitor (logical_monitor_configs,
+                                                    monitor_spec);
 }
 
 static gboolean
