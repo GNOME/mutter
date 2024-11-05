@@ -711,6 +711,8 @@ clutter_stage_compress_motion (ClutterStage       *stage,
   double dst_dx = 0.0, dst_dy = 0.0;
   double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
   double dst_dx_constrained = 0.0, dst_dy_constrained = 0.0;
+  double *current_axes, *last_axes;
+  guint n_current_axes, n_last_axes;
   graphene_point_t coords;
 
   if (!clutter_event_get_relative_motion (to_discard,
@@ -726,6 +728,35 @@ clutter_stage_compress_motion (ClutterStage       *stage,
 
   clutter_event_get_position (event, &coords);
 
+  /* All tablet axes but the wheel are absolute so we can use those
+   * as-is. But for wheels we only compress if the current value goes in the
+   * same direction.
+   */
+  current_axes = clutter_event_get_axes (to_discard, &n_current_axes);
+  last_axes = clutter_event_get_axes (event, &n_last_axes);
+
+  g_return_val_if_fail (!last_axes == !current_axes, NULL);
+
+  if (current_axes)
+    {
+      double current_val = 0.0;
+      double last_val = 0.0;
+
+      g_return_val_if_fail (n_current_axes == CLUTTER_INPUT_AXIS_LAST, NULL);
+      g_return_val_if_fail (n_last_axes == CLUTTER_INPUT_AXIS_LAST, NULL);
+      g_return_val_if_fail (n_current_axes == n_last_axes, NULL);
+
+      current_val = current_axes[CLUTTER_INPUT_AXIS_WHEEL];
+      last_val = last_axes[CLUTTER_INPUT_AXIS_WHEEL];
+
+      if ((current_val < 0.0 && last_val > 0.0) ||
+          (current_val > 0.0 && last_val < 0.0))
+        return NULL;
+
+      current_axes = g_memdup2 (current_axes, sizeof (double) * n_current_axes);
+      current_axes[CLUTTER_INPUT_AXIS_WHEEL] += last_axes[CLUTTER_INPUT_AXIS_WHEEL];
+    }
+
   return clutter_event_motion_new (CLUTTER_EVENT_FLAG_RELATIVE_MOTION,
                                    clutter_event_get_time_us (event),
                                    clutter_event_get_source_device (event),
@@ -738,7 +769,7 @@ clutter_stage_compress_motion (ClutterStage       *stage,
                                                         (float) (dy_unaccel + dst_dy_unaccel)),
                                    GRAPHENE_POINT_INIT ((float) (dx_constrained + dst_dx_constrained),
                                                         (float) (dy_constrained + dst_dy_constrained)),
-                                   NULL);
+                                   current_axes);
 }
 
 CLUTTER_EXPORT void
