@@ -9564,6 +9564,10 @@ meta_test_monitor_custom_for_lease_config_dbus (void)
   MetaMonitorTestSetup *test_setup;
   g_autoptr (GDBusProxy) display_config_proxy = NULL;
   g_autoptr (GVariant) state = NULL;
+  uint32_t serial;
+  GVariantBuilder b;
+  g_autoptr (GVariant) apply_config_ret = NULL;
+  g_autoptr (GVariant) new_state = NULL;
 
   test_setup = meta_create_monitor_test_setup (test_backend,
                                                &test_case_setup,
@@ -9597,6 +9601,62 @@ meta_test_monitor_custom_for_lease_config_dbus (void)
 
   assert_monitor_state (state, 0, "DP-1", FALSE);
   assert_monitor_state (state, 1, "DP-2", TRUE);
+
+  /* Swap monitor for lease */
+  serial = g_variant_get_uint32 (g_variant_get_child_value (state, 0));
+
+  g_variant_builder_init (&b, G_VARIANT_TYPE ("(uua(iiduba(ssa{sv}))a{sv})"));
+  g_variant_builder_add (&b, "u", serial); /* Serial from GetCurrentState */
+  g_variant_builder_add (&b, "u", 1);      /* Method: Temporary */
+
+  /* Logical monitors */
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("a(iiduba(ssa{sv}))"));
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("(iiduba(ssa{sv}))"));
+  g_variant_builder_add (&b, "i", 0);                        /* x */
+  g_variant_builder_add (&b, "i", 0);                        /* y */
+  g_variant_builder_add (&b, "d", 1.0);                      /* Scale */
+  g_variant_builder_add (&b, "u", 0);                        /* Transform */
+  g_variant_builder_add (&b, "b", TRUE);                     /* Primary */
+  g_variant_builder_add_parsed (&b, "[(%s, %s, @a{sv} {})]", /* Monitors */
+                                "DP-2",
+                                "800x600@60.000");
+  g_variant_builder_close (&b);
+  g_variant_builder_close (&b);
+
+  /* Properties */
+  g_variant_builder_open (&b, G_VARIANT_TYPE ("a{sv}"));
+  g_variant_builder_add_parsed (&b, "{'monitors-for-lease', <[(%s, %s, %s, %s)]>}",
+                                "DP-1",
+                                "MetaProduct\'s Inc.",
+                                "MetaMonitor",
+                                "0x123456");
+  g_variant_builder_close (&b);
+
+  g_dbus_proxy_call (display_config_proxy,
+                     "ApplyMonitorsConfig",
+                     g_variant_builder_end (&b),
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,
+                     NULL,
+                     on_proxy_call_cb,
+                     &apply_config_ret);
+  while (!apply_config_ret)
+    g_main_context_iteration (NULL, TRUE);
+
+  /* Check that monitors changed */
+  g_dbus_proxy_call (display_config_proxy,
+                     "GetCurrentState",
+                     NULL,
+                     G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                     -1,
+                     NULL,
+                     on_proxy_call_cb,
+                     &new_state);
+  while (!new_state)
+    g_main_context_iteration (NULL, TRUE);
+
+  assert_monitor_state (new_state, 0, "DP-1", TRUE);
+  assert_monitor_state (new_state, 1, "DP-2", FALSE);
 }
 
 static gboolean

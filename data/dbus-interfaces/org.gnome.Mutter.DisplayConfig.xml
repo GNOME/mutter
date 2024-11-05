@@ -501,6 +501,12 @@
 	* "layout-mode" (u): layout mode the passed configuration is in; may
 			     only be set when changing the layout mode is
 			     supported (see GetCurrentState).
+	* "monitors-for-lease" (a(ssss)): a list of monitors to be made available for
+	    lease. Monitors listed here must not be listed in @logical_monitors:
+	    * s connector: connector name (e.g. HDMI-1, DP-1, etc)
+	    * s vendor: vendor name
+	    * s product: product name
+	    * s serial: product serial
     -->
     <method name="ApplyMonitorsConfig">
       <arg name="serial" direction="in" type="u" />

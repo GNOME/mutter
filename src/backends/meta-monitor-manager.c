@@ -2713,6 +2713,74 @@ is_valid_layout_mode (MetaLogicalMonitorLayoutMode layout_mode)
   return FALSE;
 }
 
+static GList *
+create_disabled_monitor_specs_for_config (MetaMonitorManager *monitor_manager,
+                                          GList              *logical_monitor_configs)
+{
+  GList *disabled_monitor_specs = NULL;
+  GList *monitors;
+  GList *l;
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  for (l = monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = l->data;
+
+      if (!meta_logical_monitor_configs_have_visible_monitor (monitor_manager,
+                                                              logical_monitor_configs,
+                                                              monitor))
+        {
+          MetaMonitorSpec *monitor_spec = meta_monitor_get_spec (monitor);
+
+          disabled_monitor_specs =
+            g_list_prepend (disabled_monitor_specs,
+                            meta_monitor_spec_clone (monitor_spec));
+        }
+    }
+
+  return disabled_monitor_specs;
+}
+
+static GList *
+create_for_lease_monitor_specs_from_variant (GVariant *properties_variant)
+{
+  GList *for_lease_monitor_specs = NULL;
+  g_autoptr (GVariant) for_lease_variant = NULL;
+  GVariantIter iter;
+  char *connector = NULL;
+  char *vendor = NULL;
+  char *product = NULL;
+  char *serial = NULL;
+
+  if (!properties_variant)
+    return NULL;
+
+  for_lease_variant = g_variant_lookup_value (properties_variant,
+                                              "monitors-for-lease",
+                                              G_VARIANT_TYPE ("a(ssss)"));
+  if (!for_lease_variant)
+    return NULL;
+
+  g_variant_iter_init (&iter, for_lease_variant);
+  while (g_variant_iter_next (&iter, "(ssss)", &connector, &vendor, &product, &serial))
+    {
+      MetaMonitorSpec *monitor_spec;
+
+      monitor_spec = g_new0 (MetaMonitorSpec, 1);
+      *monitor_spec = (MetaMonitorSpec) {
+        .connector = connector,
+        .vendor = vendor,
+        .product = product,
+        .serial = serial
+      };
+
+      for_lease_monitor_specs =
+        g_list_append (for_lease_monitor_specs, monitor_spec);
+    }
+
+  return for_lease_monitor_specs;
+}
+
 static gboolean
 meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skeleton,
                                                    GDBusMethodInvocation *invocation,
@@ -2730,6 +2798,8 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
   GVariantIter logical_monitor_configs_iter;
   MetaMonitorsConfig *config;
   GList *logical_monitor_configs = NULL;
+  GList *disabled_monitor_specs = NULL;
+  GList *for_lease_monitor_specs = NULL;
   GError *error = NULL;
 
   if (serial != manager->serial)
@@ -2818,10 +2888,17 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
                                                logical_monitor_config);
     }
 
-  config = meta_monitors_config_new (manager,
-                                     logical_monitor_configs,
-                                     layout_mode,
-                                     META_MONITORS_CONFIG_FLAG_NONE);
+  disabled_monitor_specs =
+    create_disabled_monitor_specs_for_config (manager,
+                                              logical_monitor_configs);
+  for_lease_monitor_specs =
+    create_for_lease_monitor_specs_from_variant (properties_variant);
+
+  config = meta_monitors_config_new_full (logical_monitor_configs,
+                                          disabled_monitor_specs,
+                                          for_lease_monitor_specs,
+                                          layout_mode,
+                                          META_MONITORS_CONFIG_FLAG_NONE);
   if (!meta_verify_monitors_config (config, manager, &error))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
