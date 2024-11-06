@@ -849,3 +849,27 @@ meta_kms_device_class_init (MetaKmsDeviceClass *klass)
                   G_TYPE_NONE, 1,
                   META_TYPE_KMS_CRTC);
 }
+
+gboolean
+meta_kms_device_has_connected_builtin_panel (MetaKmsDevice *device)
+{
+  GList *l;
+
+  for (l = device->connectors; l; l = l->next)
+    {
+      MetaKmsConnector *connector = META_KMS_CONNECTOR (l->data);
+
+      if (!meta_kms_connector_get_current_state (connector))
+        continue;
+
+      switch (meta_kms_connector_get_connector_type (connector))
+        {
+        case DRM_MODE_CONNECTOR_LVDS:
+        case DRM_MODE_CONNECTOR_eDP:
+        case DRM_MODE_CONNECTOR_DSI:
+          return TRUE;
+        }
+    }
+
+  return FALSE;
+}
