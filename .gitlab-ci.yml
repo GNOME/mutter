@@ -603,6 +603,7 @@ coverage:
     - .mutter.fedora@x86_64
   stage: analyze
   script:
+    - compgen -G "coverage-*.json" > /dev/null || exit 0
     - mkdir coveragereport
     - gcovr --add-tracefile 'coverage-*.json'
         --html-details --print-summary --output coveragereport/index.html
