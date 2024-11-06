@@ -2075,9 +2075,9 @@ disarm_all_frame_sources (MetaKmsImplDevice *impl_device)
       crtc_frame->deadline.is_deadline_page_flip = FALSE;
       crtc_frame->await_flush = FALSE;
       crtc_frame->pending_page_flip = FALSE;
-      g_clear_pointer (&crtc_frame->pending_update, meta_kms_update_free);
       disarm_crtc_frame_deadline_timer (crtc_frame);
 
+      discard_update (impl_device, &crtc_frame->pending_update);
       discard_update (impl_device, &crtc_frame->submitted_update.kms_update);
       g_clear_pointer (&crtc_frame->submitted_update.source, g_source_destroy);
     }
