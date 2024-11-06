@@ -2216,66 +2216,67 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
    * then software rendering devices.
    */
   for (allow_sw = 0; allow_sw < 2; allow_sw++)
-  {
-    /* First check if one was explicitly configured. */
-    for (l = gpus; l; l = l->next)
-      {
-        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
-        MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+    {
+      /* First check if one was explicitly configured. */
+      for (l = gpus; l; l = l->next)
+        {
+          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+          MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
 
-        if (meta_kms_device_get_flags (kms_device) &
-            META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY)
-          {
-            g_message ("GPU %s selected primary given udev rule",
-                       meta_gpu_kms_get_file_path (gpu_kms));
-            return gpu_kms;
-          }
-      }
+          if (meta_kms_device_get_flags (kms_device) &
+              META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY)
+            {
+              g_message ("GPU %s selected primary given udev rule",
+                         meta_gpu_kms_get_file_path (gpu_kms));
+              return gpu_kms;
+            }
+        }
 
-    /* Prefer a platform device */
-    for (l = gpus; l; l = l->next)
-      {
-        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
 
-        if (meta_gpu_kms_is_platform_device (gpu_kms) &&
-            (allow_sw == 1 ||
-             gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
-          {
-            g_message ("Integrated GPU %s selected as primary",
-                       meta_gpu_kms_get_file_path (gpu_kms));
-            return gpu_kms;
-          }
-      }
+      /* Prefer a platform device */
+      for (l = gpus; l; l = l->next)
+        {
+          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
 
-    /* Otherwise a device we booted with */
-    for (l = gpus; l; l = l->next)
-      {
-        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+          if (meta_gpu_kms_is_platform_device (gpu_kms) &&
+              (allow_sw == 1 ||
+               gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+            {
+              g_message ("Integrated GPU %s selected as primary",
+                         meta_gpu_kms_get_file_path (gpu_kms));
+              return gpu_kms;
+            }
+        }
 
-        if (meta_gpu_kms_is_boot_vga (gpu_kms) &&
-            (allow_sw == 1 ||
-             gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
-          {
-            g_message ("Boot VGA GPU %s selected as primary",
-                       meta_gpu_kms_get_file_path (gpu_kms));
-            return gpu_kms;
-          }
-      }
+      /* Otherwise a device we booted with */
+      for (l = gpus; l; l = l->next)
+        {
+          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
 
-    /* Fall back to any device */
-    for (l = gpus; l; l = l->next)
-      {
-        MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+          if (meta_gpu_kms_is_boot_vga (gpu_kms) &&
+              (allow_sw == 1 ||
+               gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+            {
+              g_message ("Boot VGA GPU %s selected as primary",
+                         meta_gpu_kms_get_file_path (gpu_kms));
+              return gpu_kms;
+            }
+        }
 
-        if (allow_sw == 1 ||
-            gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
-          {
-            g_message ("GPU %s selected as primary",
-                       meta_gpu_kms_get_file_path (gpu_kms));
-            return gpu_kms;
-          }
-      }
-  }
+      /* Fall back to any device */
+      for (l = gpus; l; l = l->next)
+        {
+          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+
+          if (allow_sw == 1 ||
+              gpu_kms_is_hardware_rendering (renderer_native, gpu_kms))
+            {
+              g_message ("GPU %s selected as primary",
+                         meta_gpu_kms_get_file_path (gpu_kms));
+              return gpu_kms;
+            }
+        }
+    }
 
   g_assert_not_reached ();
   return NULL;
