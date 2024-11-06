@@ -344,10 +344,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   if (error &&
       !g_error_matches (error,
                         G_IO_ERROR,
-                        G_IO_ERROR_PERMISSION_DENIED) &&
-      !g_error_matches (error,
-                        META_KMS_ERROR,
-                        META_KMS_ERROR_DISCARDED))
+                        G_IO_ERROR_PERMISSION_DENIED))
 
     g_warning ("Page flip discarded: %s", error->message);
 
@@ -1310,6 +1307,9 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
     return;
 
   if (!g_error_matches (error,
+                        META_KMS_ERROR,
+                        META_KMS_ERROR_DISCARDED) &&
+      !g_error_matches (error,
                         G_IO_ERROR,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Page flip failed: %s", error->message);
