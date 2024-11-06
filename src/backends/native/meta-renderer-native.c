@@ -2205,6 +2205,21 @@ choose_primary_gpu_unchecked (MetaBackend        *backend,
             }
         }
 
+      /* Then prefer a GPU with a builtin panel connected to it. */
+      for (l = gpus; l; l = l->next)
+        {
+          MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
+          MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+
+          if (meta_kms_device_has_connected_builtin_panel (kms_device) &&
+              (allow_sw == 1 ||
+               gpu_kms_is_hardware_rendering (renderer_native, gpu_kms)))
+            {
+              g_message ("GPU %s selected primary from builtin panel presence",
+                         meta_gpu_kms_get_file_path (gpu_kms));
+              return gpu_kms;
+            }
+        }
 
       /* Prefer a platform device */
       for (l = gpus; l; l = l->next)

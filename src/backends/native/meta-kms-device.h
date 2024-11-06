@@ -107,3 +107,5 @@ MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,
                                      GError            **error);
+
+gboolean meta_kms_device_has_connected_builtin_panel (MetaKmsDevice *device);
