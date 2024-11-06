@@ -511,13 +511,12 @@ meta_context_main_create_backend (MetaContext  *context,
 #ifdef HAVE_X11
       if (context_main->options.nested)
         return create_nested_backend (context, error);
-      else
 #endif
 #ifdef HAVE_NATIVE_BACKEND
       if (context_main->options.headless)
         return create_headless_backend (context, error);
-      else
-        return create_native_backend (context, error);
+
+      return create_native_backend (context, error);
 #endif /* HAVE_NATIVE_BACKEND */
 #else /* HAVE_WAYLAND */
       g_assert_not_reached ();
