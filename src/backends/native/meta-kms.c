@@ -409,6 +409,9 @@ meta_kms_new (MetaBackend   *backend,
       else if (g_strcmp0 (preferred_scheduling_priority_string,
                           "realtime") == 0)
         preferred_scheduling_priority = META_SCHEDULING_PRIORITY_REALTIME;
+      else if (g_strcmp0 (preferred_scheduling_priority_string,
+                          "high-priority") == 0)
+        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_HIGH_PRIORITY;
       else
         g_assert_not_reached ();
     }

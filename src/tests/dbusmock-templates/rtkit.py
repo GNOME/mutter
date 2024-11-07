@@ -21,22 +21,35 @@ def load(mock, parameters):
     mock.AddProperty(MAIN_IFACE, 'MaxRealtimePriority', dbus.Int32(20))
     mock.AddProperty(MAIN_IFACE, 'MinNiceLevel', dbus.Int32(-15))
     mock.priorities = dict()
+    mock.nice_levels = dict()
 
 @dbus.service.method(MAIN_IFACE, in_signature='tu')
 def MakeThreadRealtime(self, thread, priority):
     self.priorities[thread] = priority
+    if thread in self.nice_levels:
+        del self.nice_levels[thread]
 
-@dbus.service.method(MAIN_IFACE, in_signature='tu')
+@dbus.service.method(MAIN_IFACE, in_signature='ti')
 def MakeThreadHighPriority(self, thread, priority):
-    self.priorities[thread] = priority
+    self.nice_levels[thread] = priority
+    if thread in self.priorities:
+        del self.priorities[thread]
 
 @dbus.service.method(MOCK_IFACE)
 def Reset(self):
     self.priorities = dict()
+    self.nice_levels = dict()
 
 @dbus.service.method(MOCK_IFACE, in_signature='t', out_signature='u')
 def GetThreadPriority(self, thread):
     if thread in self.priorities:
         return self.priorities[thread]
+    else:
+        return 0
+
+@dbus.service.method(MOCK_IFACE, in_signature='t', out_signature='i')
+def GetThreadNiceLevel(self, thread):
+    if thread in self.nice_levels:
+        return self.nice_levels[thread]
     else:
         return 0

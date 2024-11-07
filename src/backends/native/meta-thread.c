@@ -115,6 +115,8 @@ meta_scheduling_priority_to_string (MetaSchedulingPriority priority)
       return "normal";
     case META_SCHEDULING_PRIORITY_REALTIME:
       return "realtime";
+    case META_SCHEDULING_PRIORITY_HIGH_PRIORITY:
+      return "high priority";
     }
 
   g_assert_not_reached ();
@@ -250,6 +252,54 @@ ensure_realtime_kit_proxy (MetaThread  *thread,
 }
 
 static gboolean
+request_high_priority_scheduling (MetaThread  *thread,
+                                  GError     **error)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+  g_autoptr (GError) local_error = NULL;
+  uint32_t nice_level;
+
+  if (!ensure_realtime_kit_proxy (thread, error))
+    return FALSE;
+
+  nice_level = meta_dbus_realtime_kit1_get_min_nice_level (priv->kernel.rtkit_proxy);
+  if (nice_level == 0)
+    {
+      g_autoptr (GVariant) nice_level_variant = NULL;
+
+      nice_level_variant = get_rtkit_property (priv->kernel.rtkit_proxy,
+                                               "MinNiceLevel",
+                                               error);
+      if (!nice_level_variant)
+        return FALSE;
+
+      nice_level = g_variant_get_int32 (nice_level_variant);
+    }
+
+  if (nice_level == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Minimum real time scheduling nice_level is 0");
+      return FALSE;
+    }
+
+  meta_topic (META_DEBUG_BACKEND, "Setting '%s' thread nice level to %d",
+              priv->name, nice_level);
+  if (!meta_dbus_realtime_kit1_call_make_thread_high_priority_sync (priv->kernel.rtkit_proxy,
+                                                                    priv->kernel.thread_id,
+                                                                    nice_level,
+                                                                    NULL,
+                                                                    &local_error))
+    {
+      g_dbus_error_strip_remote_error (local_error);
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 request_realtime_scheduling (MetaThread  *thread,
                              GError     **error)
 {
@@ -372,6 +422,23 @@ should_use_realtime_scheduling_in_impl (MetaThread *thread)
           priv->kernel.realtime_inhibit_count == 0);
 }
 
+static gboolean
+should_use_high_priority_scheduling_in_impl (MetaThread *thread)
+{
+  MetaThreadPrivate *priv = meta_thread_get_instance_private (thread);
+
+  switch (priv->thread_type)
+    {
+    case META_THREAD_TYPE_USER:
+      return FALSE;
+    case META_THREAD_TYPE_KERNEL:
+      return (priv->preferred_scheduling_priority ==
+              META_SCHEDULING_PRIORITY_HIGH_PRIORITY);
+    }
+
+  g_assert_not_reached ();
+}
+
 static void
 sync_scheduling_priority_in_impl (MetaThread *thread)
 {
@@ -381,6 +448,8 @@ sync_scheduling_priority_in_impl (MetaThread *thread)
 
   if (should_use_realtime_scheduling_in_impl (thread))
     scheduling_priority = META_SCHEDULING_PRIORITY_REALTIME;
+  else if (should_use_high_priority_scheduling_in_impl (thread))
+    scheduling_priority = META_SCHEDULING_PRIORITY_HIGH_PRIORITY;
   else
     scheduling_priority = META_SCHEDULING_PRIORITY_NORMAL;
 
@@ -399,6 +468,19 @@ sync_scheduling_priority_in_impl (MetaThread *thread)
         {
           meta_topic (META_DEBUG_BACKEND,
                       "Made thread '%s' real-time scheduled", priv->name);
+          priv->kernel.scheduling_priority = scheduling_priority;
+        }
+      break;
+    case META_SCHEDULING_PRIORITY_HIGH_PRIORITY:
+      if (!request_high_priority_scheduling (thread, &error))
+        {
+          g_warning ("Failed to make thread '%s' high priority scheduled: %s",
+                     priv->name, error->message);
+        }
+      else
+        {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Made thread '%s' high priority scheduled", priv->name);
           priv->kernel.scheduling_priority = scheduling_priority;
         }
       break;
