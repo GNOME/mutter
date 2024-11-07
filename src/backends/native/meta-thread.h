@@ -34,6 +34,7 @@ typedef enum _MetaSchedulingPriority
 {
   META_SCHEDULING_PRIORITY_NORMAL,
   META_SCHEDULING_PRIORITY_REALTIME,
+  META_SCHEDULING_PRIORITY_HIGH_PRIORITY,
 } MetaSchedulingPriority;
 
 #define META_TYPE_THREAD (meta_thread_get_type ())
