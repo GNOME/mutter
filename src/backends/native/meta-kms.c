@@ -382,8 +382,9 @@ meta_kms_new (MetaBackend   *backend,
   MetaUdev *udev = meta_backend_native_get_udev (backend_native);
   MetaKms *kms;
   const char *thread_type_string;
+  const char *preferred_scheduling_priority_string;
   MetaThreadType thread_type = META_THREAD_TYPE_KERNEL;
-  gboolean wants_realtime_scheduling;
+  MetaSchedulingPriority preferred_scheduling_priority;
 
   thread_type_string = g_getenv ("MUTTER_DEBUG_KMS_THREAD_TYPE");
   if (thread_type_string)
@@ -395,17 +396,36 @@ meta_kms_new (MetaBackend   *backend,
       else
         g_assert_not_reached ();
     }
-
-  wants_realtime_scheduling = !(flags & META_KMS_FLAG_NO_MODE_SETTING);
   if (flags & META_KMS_FLAG_NO_MODE_SETTING)
     thread_type = META_THREAD_TYPE_USER;
+
+  preferred_scheduling_priority_string =
+    g_getenv ("MUTTER_DEBUG_KMS_SCHEDULING_PRIORITY");
+  if (preferred_scheduling_priority_string)
+    {
+      if (g_strcmp0 (preferred_scheduling_priority_string,
+                     "normal") == 0)
+        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_NORMAL;
+      else if (g_strcmp0 (preferred_scheduling_priority_string,
+                          "realtime") == 0)
+        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_REALTIME;
+      else
+        g_assert_not_reached ();
+    }
+  else
+    {
+      if (flags & META_KMS_FLAG_NO_MODE_SETTING)
+        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_NORMAL;
+      else
+        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_REALTIME;
+    }
 
   kms = g_initable_new (META_TYPE_KMS,
                         NULL, error,
                         "backend", backend,
                         "name", "KMS thread",
                         "thread-type", thread_type,
-                        "wants-realtime", wants_realtime_scheduling,
+                        "preferred-scheduling-priority", preferred_scheduling_priority,
                         NULL);
   kms->flags = flags;
 
