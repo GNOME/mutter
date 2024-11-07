@@ -1149,7 +1149,9 @@ assert_realtime (MetaThreadImpl  *thread_impl,
   g_autoptr (GVariant) ret = NULL;
   uint32_t priority = 0;
 
-  g_assert_true (meta_thread_impl_is_realtime (thread_impl));
+  g_assert_cmpint (meta_thread_impl_get_scheduling_priority (thread_impl),
+                   ==,
+                   META_SCHEDULING_PRIORITY_REALTIME);
 
   ret = call_rtkit_mock_method ("GetThreadPriority",
                                 g_variant_new ("(t)", gettid ()));
@@ -1175,7 +1177,7 @@ meta_test_thread_realtime (void)
                            "backend", backend,
                            "name", "test realtime",
                            "thread-type", META_THREAD_TYPE_KERNEL,
-                           "wants-realtime", TRUE,
+                           "preferred-scheduling-priority", META_SCHEDULING_PRIORITY_REALTIME,
                            NULL);
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
@@ -1197,7 +1199,9 @@ assert_no_realtime (MetaThreadImpl  *thread_impl,
   g_autoptr (GVariant) ret = NULL;
   uint32_t priority = UINT32_MAX;
 
-  g_assert_false (meta_thread_impl_is_realtime (thread_impl));
+  g_assert_cmpint (meta_thread_impl_get_scheduling_priority (thread_impl),
+                   ==,
+                   META_SCHEDULING_PRIORITY_NORMAL);
 
   ret = call_rtkit_mock_method ("GetThreadPriority",
                                 g_variant_new ("(t)", gettid ()));
@@ -1223,7 +1227,7 @@ meta_test_thread_no_realtime (void)
                            "backend", backend,
                            "name", "test realtime",
                            "thread-type", META_THREAD_TYPE_USER,
-                           "wants-realtime", TRUE,
+                           "preferred-scheduling-priority", META_SCHEDULING_PRIORITY_REALTIME,
                            NULL);
   g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
   g_assert_nonnull (thread);
