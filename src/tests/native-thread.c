@@ -1141,23 +1141,41 @@ call_rtkit_mock_method (const char *method,
   return ret;
 }
 
+static void
+assert_thread_levels (uint32_t expected_priority,
+                      int32_t  expected_nice_level)
+{
+  g_autoptr (GVariant) priority_variant = NULL;
+  g_autoptr (GVariant) nice_level_variant = NULL;
+  uint32_t priority = UINT32_MAX;
+  int32_t nice_level = INT32_MAX;
+
+  priority_variant =
+    call_rtkit_mock_method ("GetThreadPriority",
+                            g_variant_new ("(t)", gettid ()));
+
+  g_variant_get (priority_variant, "(u)", &priority);
+  g_assert_cmpint (priority, ==, expected_priority);
+
+  nice_level_variant =
+    call_rtkit_mock_method ("GetThreadNiceLevel",
+                            g_variant_new ("(t)", gettid ()));
+
+  g_variant_get (nice_level_variant, "(i)", &nice_level);
+  g_assert_cmpint (nice_level, ==, expected_nice_level);
+}
+
 static gpointer
 assert_realtime (MetaThreadImpl  *thread_impl,
                  gpointer         user_data,
                  GError         **error)
 {
-  g_autoptr (GVariant) ret = NULL;
-  uint32_t priority = 0;
 
   g_assert_cmpint (meta_thread_impl_get_scheduling_priority (thread_impl),
                    ==,
                    META_SCHEDULING_PRIORITY_REALTIME);
 
-  ret = call_rtkit_mock_method ("GetThreadPriority",
-                                g_variant_new ("(t)", gettid ()));
-
-  g_variant_get (ret, "(u)", &priority);
-  g_assert_cmpint (priority, ==, 20);
+  assert_thread_levels (20, 0);
 
   return NULL;
 }
@@ -1192,22 +1210,60 @@ meta_test_thread_realtime (void)
 }
 
 static gpointer
+assert_high_priority (MetaThreadImpl  *thread_impl,
+                      gpointer         user_data,
+                      GError         **error)
+{
+  g_assert_cmpint (meta_thread_impl_get_scheduling_priority (thread_impl),
+                   ==,
+                   META_SCHEDULING_PRIORITY_HIGH_PRIORITY);
+
+  assert_thread_levels (0, -15);
+
+  return NULL;
+}
+
+static void
+meta_test_thread_high_priority (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaThread *thread;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) ret = NULL;
+
+  ret = call_rtkit_mock_method ("Reset", NULL);
+
+  thread = g_initable_new (META_TYPE_THREAD_TEST,
+                           NULL, &error,
+                           "backend", backend,
+                           "name", "test realtime",
+                           "thread-type", META_THREAD_TYPE_KERNEL,
+                           "preferred-scheduling-priority", META_SCHEDULING_PRIORITY_HIGH_PRIORITY,
+                           NULL);
+  g_object_add_weak_pointer (G_OBJECT (thread), (gpointer *) &thread);
+  g_assert_nonnull (thread);
+  g_assert_null (error);
+
+  meta_thread_post_impl_task (thread, assert_high_priority, NULL, NULL,
+                              NULL, NULL);
+
+  g_object_unref (thread);
+  g_assert_null (thread);
+  g_assert_null (test_thread);
+}
+
+static gpointer
 assert_no_realtime (MetaThreadImpl  *thread_impl,
                     gpointer         user_data,
                     GError         **error)
 {
   g_autoptr (GVariant) ret = NULL;
-  uint32_t priority = UINT32_MAX;
 
   g_assert_cmpint (meta_thread_impl_get_scheduling_priority (thread_impl),
                    ==,
                    META_SCHEDULING_PRIORITY_NORMAL);
 
-  ret = call_rtkit_mock_method ("GetThreadPriority",
-                                g_variant_new ("(t)", gettid ()));
-
-  g_variant_get (ret, "(u)", &priority);
-  g_assert_cmpint (priority, ==, 0);
+  assert_thread_levels (0, 0);
 
   return NULL;
 }
@@ -1260,6 +1316,8 @@ init_tests (void)
                    meta_test_thread_change_thread_type);
   g_test_add_func ("/backends/native/thread/realtime",
                    meta_test_thread_realtime);
+  g_test_add_func ("/backends/native/thread/high-priority",
+                   meta_test_thread_high_priority);
   g_test_add_func ("/backends/native/thread/no-realtime",
                    meta_test_thread_no_realtime);
 }

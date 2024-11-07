@@ -1701,6 +1701,7 @@ is_using_deadline_timer (MetaKmsImplDevice *impl_device)
         case META_SCHEDULING_PRIORITY_NORMAL:
           return FALSE;
         case META_SCHEDULING_PRIORITY_REALTIME:
+        case META_SCHEDULING_PRIORITY_HIGH_PRIORITY:
           return TRUE;
         }
 
