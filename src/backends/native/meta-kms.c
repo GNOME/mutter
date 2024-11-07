@@ -420,7 +420,7 @@ meta_kms_new (MetaBackend   *backend,
       if (flags & META_KMS_FLAG_NO_MODE_SETTING)
         preferred_scheduling_priority = META_SCHEDULING_PRIORITY_NORMAL;
       else
-        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_REALTIME;
+        preferred_scheduling_priority = META_SCHEDULING_PRIORITY_HIGH_PRIORITY;
     }
 
   kms = g_initable_new (META_TYPE_KMS,
