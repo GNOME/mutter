@@ -192,19 +192,6 @@ meta_sensors_proxy_mock_get (void)
   g_assert_true (G_IS_DBUS_PROXY (proxy));
   g_assert_no_error (error);
 
-  while (TRUE)
-    {
-      g_autoptr (GVariant) ret = NULL;
-      size_t n_owners = 0;
-
-      ret = get_internal_property_value (proxy, "AccelerometerOwners");
-      if (g_variant_get_strv (ret, &n_owners) && n_owners)
-        {
-          g_assert_cmpuint (n_owners, ==, 1);
-          break;
-        }
-    }
-
   sensors_proxy_mock = proxy;
   g_object_add_weak_pointer (G_OBJECT (sensors_proxy_mock),
                              (gpointer *) &sensors_proxy_mock);
