@@ -101,20 +101,19 @@ check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
 
 typedef MetaSensorsProxyMock MetaSensorsProxyAutoResetMock;
 static void
-meta_sensors_proxy_reset (MetaSensorsProxyMock *proxy)
+meta_sensors_proxy_confirm_released (MetaSensorsProxyMock *proxy)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaOrientationManager *orientation_manager =
     meta_backend_get_orientation_manager (backend);
 
-  g_test_message ("Resetting proxy");
-  meta_sensors_proxy_mock_set_orientation (proxy,
-                                           META_ORIENTATION_NORMAL);
-  meta_wait_for_orientation (orientation_manager, META_ORIENTATION_NORMAL, NULL);
   g_object_unref (proxy);
+
+  g_test_message ("Confirming accelerometer released");
+  meta_wait_for_orientation (orientation_manager, META_ORIENTATION_UNDEFINED, NULL);
 }
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaSensorsProxyAutoResetMock,
-                               meta_sensors_proxy_reset)
+                               meta_sensors_proxy_confirm_released)
 
 static void
 meta_test_monitor_orientation_initial_portrait_mode_workaround (void)
