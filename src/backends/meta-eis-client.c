@@ -1110,9 +1110,7 @@ meta_eis_client_new (MetaEis           *eis,
   eis_seat = eis_client_new_seat (eis_client, "mutter default seat");
 
   if (meta_eis_get_device_types (eis) & META_EIS_DEVICE_TYPE_KEYBOARD)
-    {
-      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_KEYBOARD);
-    }
+    eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_KEYBOARD);
 
   if (meta_eis_get_device_types (eis) & META_EIS_DEVICE_TYPE_POINTER)
     {
@@ -1123,9 +1121,7 @@ meta_eis_client_new (MetaEis           *eis,
     }
 
   if (meta_eis_get_device_types (eis) & META_EIS_DEVICE_TYPE_TOUCHSCREEN)
-    {
-      eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_TOUCH);
-    }
+    eis_seat_configure_capability (eis_seat, EIS_DEVICE_CAP_TOUCH);
 
   eis_seat_add (eis_seat);
   eis_seat_unref (eis_seat);
