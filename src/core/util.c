@@ -24,6 +24,8 @@
 #include "core/display-private.h"
 #include "core/util-private.h"
 
+#include <gio/gunixinputstream.h>
+#include <glib/gstdio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -71,6 +73,14 @@ static const GDebugKey meta_debug_keys[] = {
   { "x11", META_DEBUG_X11 },
   { "workspaces", META_DEBUG_WORKSPACES },
 };
+
+typedef struct _MetaReadBytesContext
+{
+  int fd;
+  uint32_t offset;
+  uint32_t length;
+  uint8_t *bytes;
+} MetaReadBytesContext;
 
 static gint verbose_topics = 0;
 static gboolean is_wayland_compositor = FALSE;
@@ -240,6 +250,93 @@ meta_g_utf8_strndup (const gchar *src,
     }
 
   return g_strndup (src, s - src);
+}
+
+static void
+meta_read_bytes_context_free (MetaReadBytesContext *context)
+{
+  g_clear_fd (&context->fd, NULL);
+  g_clear_pointer (&context->bytes, g_free);
+  g_free (context);
+}
+
+static void
+meta_read_bytes_in_thread (GTask        *task,
+                           gpointer      source_object,
+                           gpointer      task_data,
+                           GCancellable *cancellable)
+{
+  MetaReadBytesContext *context = task_data;
+  g_autoptr (GInputStream) input_stream = NULL;
+  g_autofree uint8_t *bytes = NULL;
+  g_autoptr (GError) error = NULL;
+  int skipped;
+
+  input_stream = G_INPUT_STREAM (g_unix_input_stream_new (context->fd, FALSE));
+
+  skipped = g_input_stream_skip (input_stream,
+                                 context->offset,
+                                 NULL,
+                                 &error);
+  if (skipped < 0)
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
+
+  bytes = g_malloc (context->length);
+  if (!g_input_stream_read_all (input_stream,
+                                bytes,
+                                context->length,
+                                NULL,
+                                NULL,
+                                &error))
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
+
+  context->bytes = g_steal_pointer (&bytes);
+
+  g_task_return_boolean (task, TRUE);
+}
+
+void
+meta_read_bytes (int                 fd,
+                 uint32_t            offset,
+                 uint32_t            length,
+                 GAsyncReadyCallback callback,
+                 gpointer            user_data)
+{
+  g_autoptr (GTask) task = NULL;
+  MetaReadBytesContext *context;
+
+  task = g_task_new (NULL, NULL, callback, user_data);
+
+  context = g_new0 (MetaReadBytesContext, 1);
+  context->fd = dup (fd);
+  context->offset = offset;
+  context->length = length;
+
+  g_task_set_task_data (task, context,
+                        (GDestroyNotify) meta_read_bytes_context_free);
+  g_task_run_in_thread (task, meta_read_bytes_in_thread);
+}
+
+gboolean
+meta_read_bytes_finish (GAsyncResult  *result,
+                        uint8_t      **bytes,
+                        uint32_t      *length,
+                        GError       **error)
+{
+  MetaReadBytesContext *context = g_task_get_task_data (G_TASK (result));
+
+  *bytes = g_steal_pointer (&context->bytes);
+
+  if (length)
+    *length = context->length;
+
+  return g_task_propagate_boolean (G_TASK (result), error);
 }
 
 static int

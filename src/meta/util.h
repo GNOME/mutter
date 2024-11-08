@@ -90,6 +90,19 @@ META_EXPORT
 char* meta_g_utf8_strndup (const gchar *src, gsize n);
 
 META_EXPORT
+void meta_read_bytes (int                 fd,
+                      uint32_t            offset,
+                      uint32_t            length,
+                      GAsyncReadyCallback callback,
+                      gpointer            user_data);
+
+META_EXPORT
+gboolean meta_read_bytes_finish (GAsyncResult  *result,
+                                 uint8_t      **bytes,
+                                 uint32_t      *length,
+                                 GError       **error);
+
+META_EXPORT
 void meta_add_debug_paint_flag (MetaDebugPaintFlag flag);
 
 META_EXPORT
