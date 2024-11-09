@@ -126,9 +126,6 @@ sync_state (MetaOrientationManager *self)
 
   self->orientation = new_orientation;
 
-  if (self->orientation == META_ORIENTATION_UNDEFINED)
-    return;
-
   g_signal_emit (self, signals[ORIENTATION_CHANGED], 0);
 }
 
@@ -150,6 +147,11 @@ update_has_accel (MetaOrientationManager *self)
     return;
 
   self->has_accel = has_accel;
+  if (!has_accel && self->orientation != META_ORIENTATION_UNDEFINED)
+    {
+      self->orientation = META_ORIENTATION_UNDEFINED;
+      g_signal_emit (self, signals[ORIENTATION_CHANGED], 0);
+    }
 
   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_HAS_ACCELEROMETER]);
 }
