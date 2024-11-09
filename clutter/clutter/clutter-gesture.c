@@ -1009,6 +1009,8 @@ set_state_after (ClutterGesture *self,
    *     because we're recognizing, and that in turn cancels us, should we now
    *     run influencing for RECOGNIZING after that and immediately cancel that
    *     other gesture again? probably not...),
+   *
+   * 3) don't emit state signals. That's unfortunate, but a consequence :/
    */
   if (priv->state != new_state)
     return;
