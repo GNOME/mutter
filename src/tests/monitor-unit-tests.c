@@ -4387,6 +4387,143 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAutoRemoveInputDevice,
                                input_device_test_remove)
 
 static void
+meta_test_monitor_orientation_initial_portrait_mode_workaround (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 1080,
+          .height = 1920,
+          .refresh_rate = 60.000495910644531
+        }
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 125,
+          .height_mm = 222,
+          .is_laptop_panel = TRUE,
+          .serial = "0x123456",
+        },
+      },
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0
+        },
+      },
+      .n_crtcs = 1
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1080,
+              .height = 1920,
+              .refresh_rate = 60.000495910644531,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 125,
+          .height_mm = 222,
+        }
+      },
+      .n_monitors = 1,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1080, .height = 1920 },
+          .scale = 1
+        }
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        }
+      },
+      .n_crtcs = 1,
+      .n_tiled_monitors = 0,
+      .screen_width = 1080,
+      .screen_height = 1920
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  g_autoptr (MetaSensorsProxyAutoResetMock) orientation_mock = NULL;
+  g_autoptr (ClutterAutoRemoveInputDevice) touch_device = NULL;
+  g_autoptr (ClutterAutoRemoveInputDevice) pointer_device = NULL;
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  MetaOrientationManager *orientation_manager =
+    meta_backend_get_orientation_manager (backend);
+
+  g_test_message ("%s", G_STRFUNC);
+
+  orientation_mock = meta_sensors_proxy_mock_get ();
+
+  /* Add a touch device *and* a pointer device. This means a touchscreen is
+   * present, but touch mode is disabled. That should be enough to trigger the
+   * initial-orientation workaround.
+   */
+  touch_device =
+    meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
+                                       CLUTTER_TOUCHSCREEN_DEVICE, 1);
+  pointer_device =
+    meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
+                                       CLUTTER_POINTER_DEVICE, 1);
+
+  test_setup = meta_create_monitor_test_setup (test_backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+
+  g_assert_false (clutter_seat_get_touch_mode (seat));
+
+  meta_sensors_proxy_mock_set_orientation (orientation_mock,
+                                           META_ORIENTATION_RIGHT_UP);
+  meta_wait_for_orientation (orientation_manager, META_ORIENTATION_RIGHT_UP, NULL);
+
+  META_TEST_LOG_CALL ("Checking configuration per orientation",
+                      check_monitor_configuration_per_orientation (
+                        &test_case, 0, META_ORIENTATION_RIGHT_UP,
+                        1080, 1920));
+
+  /* Change the orientation to portrait and the orientation change should
+   * now be ignored, because it's no longer the initial one.
+   */
+  meta_sensors_proxy_mock_set_orientation (orientation_mock,
+                                           META_ORIENTATION_NORMAL);
+  meta_wait_for_orientation (orientation_manager, META_ORIENTATION_NORMAL, NULL);
+
+  META_TEST_LOG_CALL ("Checking configuration per orientation",
+                      check_monitor_configuration_per_orientation (
+                        &test_case, 0, META_ORIENTATION_RIGHT_UP,
+                        1080, 1920));
+}
+
+static void
 meta_test_monitor_orientation_is_managed (void)
 {
   MonitorTestCase test_case = {
@@ -10502,6 +10639,8 @@ init_monitor_tests (void)
   add_monitor_test ("/backends/monitor/has-external-monitor",
                     meta_test_monitor_has_external_monitor);
 
+  add_monitor_test ("/backends/monitor/orientation/initial-portrait-mode-workaround",
+                    meta_test_monitor_orientation_initial_portrait_mode_workaround);
   add_monitor_test ("/backends/monitor/orientation/is-managed",
                     meta_test_monitor_orientation_is_managed);
   add_monitor_test ("/backends/monitor/orientation/initial-rotated",
