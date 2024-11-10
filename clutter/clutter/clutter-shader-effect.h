@@ -62,7 +62,7 @@ struct _ClutterShaderEffectClass
 };
 
 CLUTTER_EXPORT
-ClutterEffect * clutter_shader_effect_new               (ClutterShaderType    shader_type);
+ClutterEffect * clutter_shader_effect_new               (CoglShaderType    shader_type);
 
 CLUTTER_EXPORT
 gboolean        clutter_shader_effect_set_shader_source (ClutterShaderEffect *effect,

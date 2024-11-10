@@ -54,7 +54,6 @@ cogl_headers = [
   'cogl-texture-2d-sliced.h',
   'cogl-texture.h',
   'cogl-trace.h',
-  'cogl-types.h',
 ]
 
 cogl_nonintrospected_headers = [
@@ -331,6 +330,7 @@ endif
 cogl_enum_headers = [
   'cogl-buffer.h',
   'cogl-pixel-format.h',
+  'cogl-types.h',
 ]
 
 cogl_headers += [

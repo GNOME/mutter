@@ -204,7 +204,7 @@ test_bind_constraint_main (int argc, char *argv[])
    * properties; so we use the ActorMeta:enabled property to toggle
    * the shader
    */
-  effect = clutter_shader_effect_new (CLUTTER_FRAGMENT_SHADER);
+  effect = clutter_shader_effect_new (COGL_SHADER_TYPE_FRAGMENT);
   clutter_shader_effect_set_shader_source (CLUTTER_SHADER_EFFECT (effect),
                                            desaturare_glsl_shader);
   clutter_shader_effect_set_uniform (CLUTTER_SHADER_EFFECT (effect),

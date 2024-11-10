@@ -135,7 +135,7 @@ typedef struct _ClutterShaderEffectPrivate
 {
   ClutterActor *actor;
 
-  ClutterShaderType shader_type;
+  CoglShaderType shader_type;
 
   CoglProgram *program;
   CoglShader *shader;
@@ -302,20 +302,7 @@ clutter_shader_effect_create_shader (ClutterShaderEffect *self)
   ClutterShaderEffectPrivate *priv =
     clutter_shader_effect_get_instance_private (self);
 
-  switch (priv->shader_type)
-    {
-    case CLUTTER_FRAGMENT_SHADER:
-      return cogl_shader_new (COGL_SHADER_TYPE_FRAGMENT);
-      break;
-
-    case CLUTTER_VERTEX_SHADER:
-      return cogl_shader_new (COGL_SHADER_TYPE_VERTEX);
-      break;
-
-    default:
-      g_assert_not_reached ();
-      return NULL;
-    }
+  return cogl_shader_new (priv->shader_type);
 }
 
 static void
@@ -451,8 +438,8 @@ clutter_shader_effect_class_init (ClutterShaderEffectClass *klass)
    */
   obj_props[PROP_SHADER_TYPE] =
     g_param_spec_enum ("shader-type", NULL, NULL,
-                       CLUTTER_TYPE_SHADER_TYPE,
-                       CLUTTER_FRAGMENT_SHADER,
+                       COGL_TYPE_SHADER_TYPE,
+                       COGL_SHADER_TYPE_FRAGMENT,
                        G_PARAM_WRITABLE |
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_CONSTRUCT_ONLY);
@@ -474,13 +461,12 @@ clutter_shader_effect_init (ClutterShaderEffect *effect)
   ClutterShaderEffectPrivate *priv =
     clutter_shader_effect_get_instance_private (effect);
 
-  priv->shader_type = CLUTTER_FRAGMENT_SHADER;
+  priv->shader_type = COGL_SHADER_TYPE_FRAGMENT;
 }
 
 /**
  * clutter_shader_effect_new:
- * @shader_type: the type of the shader, either %CLUTTER_FRAGMENT_SHADER,
- *   or %CLUTTER_VERTEX_SHADER
+ * @shader_type: the type of the shader
  *
  * Creates a new #ClutterShaderEffect, to be applied to an actor using
  * [method@Actor.add_effect].
@@ -492,7 +478,7 @@ clutter_shader_effect_init (ClutterShaderEffect *effect)
  *   Use g_object_unref() when done.
  */
 ClutterEffect *
-clutter_shader_effect_new (ClutterShaderType shader_type)
+clutter_shader_effect_new (CoglShaderType shader_type)
 {
   return g_object_new (CLUTTER_TYPE_SHADER_EFFECT,
                        "shader-type", shader_type,

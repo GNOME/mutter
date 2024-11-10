@@ -311,6 +311,19 @@ typedef enum /*< prefix=COGL_READ_PIXELS >*/
   COGL_READ_PIXELS_COLOR_BUFFER = 1L << 0
 } CoglReadPixelsFlags;
 
+/**
+ * CoglShaderType:
+ * @COGL_SHADER_TYPE_VERTEX: A program for processing vertices
+ * @COGL_SHADER_TYPE_FRAGMENT: A program for processing fragments
+ *
+ * Types of shaders
+ */
+typedef enum
+{
+  COGL_SHADER_TYPE_VERTEX,
+  COGL_SHADER_TYPE_FRAGMENT
+} CoglShaderType;
+
 typedef struct _CoglAttribute CoglAttribute;
 typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
 typedef struct _CoglAtlas CoglAtlas;

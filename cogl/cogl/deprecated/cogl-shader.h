@@ -132,19 +132,6 @@ G_DECLARE_FINAL_TYPE (CoglShader,
                       GObject)
 
 /**
- * CoglShaderType:
- * @COGL_SHADER_TYPE_VERTEX: A program for processing vertices
- * @COGL_SHADER_TYPE_FRAGMENT: A program for processing fragments
- *
- * Types of shaders
- */
-typedef enum
-{
-  COGL_SHADER_TYPE_VERTEX,
-  COGL_SHADER_TYPE_FRAGMENT
-} CoglShaderType;
-
-/**
  * cogl_shader_new:
  * @shader_type: COGL_SHADER_TYPE_VERTEX or COGL_SHADER_TYPE_FRAGMENT.
  *

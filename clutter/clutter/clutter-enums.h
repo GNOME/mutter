@@ -236,19 +236,6 @@ typedef enum
 } ClutterTextDirection;
 
 /**
- * ClutterShaderType:
- * @CLUTTER_VERTEX_SHADER: a vertex shader
- * @CLUTTER_FRAGMENT_SHADER: a fragment shader
- *
- * The type of GLSL shader program
- */
-typedef enum
-{
-  CLUTTER_VERTEX_SHADER,
-  CLUTTER_FRAGMENT_SHADER
-} ClutterShaderType;
-
-/**
  * ClutterModifierType:
  * @CLUTTER_SHIFT_MASK: Mask applied by the Shift key
  * @CLUTTER_LOCK_MASK: Mask applied by the Caps Lock key
