@@ -61,6 +61,7 @@ typedef struct _CoglBoxedValue
     CoglBoxedValue *_bv = (bv);                 \
     _bv->type = COGL_BOXED_NONE;                \
     _bv->count = 1;                             \
+    _bv->size = 0;                              \
   } G_STMT_END
 
 char *
