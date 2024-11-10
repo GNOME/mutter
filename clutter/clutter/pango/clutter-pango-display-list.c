@@ -356,7 +356,7 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
                                                  2 /* n_attributes */);
 
       indices =
-        cogl_get_rectangle_indices (ctx, node->d.texture.rectangles->len);
+        cogl_context_get_rectangle_indices (ctx, node->d.texture.rectangles->len);
 
       cogl_primitive_set_indices (prim, indices,
                                   node->d.texture.rectangles->len * 6);

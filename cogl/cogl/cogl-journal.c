@@ -628,7 +628,7 @@ _cogl_journal_flush_vbo_offsets_and_entries (CoglJournalEntry *batch_start,
                         4,
                         COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
-  state->indices = cogl_get_rectangle_indices (ctx, batch_len);
+  state->indices = cogl_context_get_rectangle_indices (ctx, batch_len);
 
   /* We only create new Attributes when the stride within the
    * AttributeBuffer changes. (due to a change in the number of pipeline

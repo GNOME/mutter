@@ -98,7 +98,7 @@ G_BEGIN_DECLS
  * needs to look like depending on the number of quads that need to be
  * drawn. It doesn't matter how the quads might be animated and
  * changed the indices will remain the same. Cogl even has a utility
- * (cogl_get_rectangle_indices()) to get access to re-useable indices
+ * ([method@Cogl.Context.get_rectangle_indices]) to get access to re-useable indices
  * for drawing quads as above.
  */
 
@@ -133,12 +133,5 @@ cogl_indices_get_indices_type (CoglIndices *indices);
 COGL_EXPORT size_t
 cogl_indices_get_offset (CoglIndices *indices);
 
-/**
- * cogl_get_rectangle_indices:
- *
- * Returns: (transfer none): a #CoglIndices
- */
-COGL_EXPORT CoglIndices *
-cogl_get_rectangle_indices (CoglContext *context, int n_rectangles);
 
 G_END_DECLS

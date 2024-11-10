@@ -370,6 +370,15 @@ cogl_context_has_winsys_feature (CoglContext       *context,
 COGL_EXPORT void
 cogl_context_flush (CoglContext *context);
 
+/**
+ * cogl_context_get_rectangle_indices:
+ *
+ * Returns: (transfer none): a #CoglIndices
+ */
+COGL_EXPORT CoglIndices *
+cogl_context_get_rectangle_indices (CoglContext *context,
+                                    int          n_rectangles);
+
 #ifdef HAVE_EGL
 /**
  * cogl_context_get_egl_display:

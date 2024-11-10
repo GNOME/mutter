@@ -146,7 +146,8 @@ cogl_indices_get_offset (CoglIndices *indices)
 }
 
 CoglIndices *
-cogl_get_rectangle_indices (CoglContext *ctx, int n_rectangles)
+cogl_context_get_rectangle_indices (CoglContext *ctx,
+                                    int          n_rectangles)
 {
   int n_indices = n_rectangles * 6;
 
