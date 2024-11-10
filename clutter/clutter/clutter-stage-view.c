@@ -599,7 +599,7 @@ copy_shadowfb_to_onscreen (ClutterStageView *view,
 
       rect = mtk_region_get_rectangle (damage_region, i);
 
-      if (!cogl_blit_framebuffer (shadowfb,
+      if (!cogl_framebuffer_blit (shadowfb,
                                   priv->framebuffer,
                                   rect.x, rect.y,
                                   rect.x, rect.y,

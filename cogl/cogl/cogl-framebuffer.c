@@ -1376,7 +1376,7 @@ cogl_framebuffer_is_y_flipped (CoglFramebuffer *framebuffer)
 }
 
 gboolean
-cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
+cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
                        CoglFramebuffer *dst,
                        int src_x,
                        int src_y,
@@ -1409,7 +1409,7 @@ cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
     {
       g_set_error_literal (error, COGL_SYSTEM_ERROR,
                            COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "cogl_blit_framebuffer premult mismatch.");
+                           "cogl_framebuffer_blit premult mismatch.");
       return FALSE;
     }
 

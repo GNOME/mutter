@@ -172,7 +172,7 @@ cogl_context_get_renderer (CoglContext *context);
  *    buffers are tracked and so cogl_onscreen_get_buffer_age() can be
  *    expected to return age values other than 0.
  * @COGL_FEATURE_ID_BLIT_FRAMEBUFFER: Whether blitting using
- *    cogl_blit_framebuffer() is supported.
+ *    [method@Cogl.Framebuffer.blit] is supported.
  * @COGL_FEATURE_ID_SYNC_FD
  *    cogl_context_get_latest_sync_fd() is supported.
  *

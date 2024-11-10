@@ -668,7 +668,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
         CoglFramebuffer *view_framebuffer =
           clutter_stage_view_get_framebuffer (view);
 
-        cogl_blit_framebuffer (view_framebuffer,
+        cogl_framebuffer_blit (view_framebuffer,
                                framebuffer,
                                0, 0,
                                x, y,

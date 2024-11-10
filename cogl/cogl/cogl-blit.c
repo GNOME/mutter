@@ -205,7 +205,7 @@ _cogl_blit_framebuffer_blit (CoglBlitData *data,
                              int width,
                              int height)
 {
-  cogl_blit_framebuffer (data->src_fb,
+  cogl_framebuffer_blit (data->src_fb,
                          data->dest_fb,
                          src_x, src_y,
                          dst_x, dst_y,

@@ -1034,7 +1034,7 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
 } CoglFramebufferError;
 
 /**
- * cogl_blit_framebuffer:
+ * cogl_framebuffer_blit:
  * @framebuffer: The source #CoglFramebuffer
  * @dst: The destination #CoglFramebuffer
  * @src_x: Source x position
@@ -1086,7 +1086,7 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
  * COGL_SYSTEM_ERROR will be created.
  */
 COGL_EXPORT gboolean
-cogl_blit_framebuffer (CoglFramebuffer *framebuffer,
+cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
                        CoglFramebuffer *dst,
                        int src_x,
                        int src_y,

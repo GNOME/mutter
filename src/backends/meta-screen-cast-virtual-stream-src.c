@@ -442,7 +442,7 @@ meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 
   view = view_from_src (src);
   view_framebuffer = clutter_stage_view_get_framebuffer (view);
-  if (!cogl_blit_framebuffer (view_framebuffer,
+  if (!cogl_framebuffer_blit (view_framebuffer,
                               framebuffer,
                               0, 0,
                               0, 0,

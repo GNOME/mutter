@@ -343,7 +343,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
       goto out;
     }
 
-  result = cogl_blit_framebuffer (COGL_FRAMEBUFFER (cogl_fbo),
+  result = cogl_framebuffer_blit (COGL_FRAMEBUFFER (cogl_fbo),
                                   framebuffer,
                                   0, 0,
                                   x, y,

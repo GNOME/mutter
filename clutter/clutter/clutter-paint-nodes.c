@@ -1400,7 +1400,7 @@ clutter_blit_node_draw (ClutterPaintNode    *node,
           op_width = op->op.texrect[6] - op->op.texrect[4];
           op_height = op->op.texrect[7] - op->op.texrect[5];
 
-          cogl_blit_framebuffer (blit_node->src,
+          cogl_framebuffer_blit (blit_node->src,
                                  framebuffer,
                                  (int) op->op.texrect[0],
                                  (int) op->op.texrect[1],
@@ -1487,7 +1487,7 @@ clutter_blit_node_new (CoglFramebuffer *src)
  * @height: Height of region to copy
  *
  * Adds a new blit rectangle to the stack of rectangles. All the
- * constraints of [func@Cogl.blit_framebuffer] apply here.
+ * constraints of [method@Cogl.Framebuffer.blit] apply here.
  */
 void
 clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,

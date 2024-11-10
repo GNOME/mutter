@@ -1055,7 +1055,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   n_rectangles = mtk_region_num_rectangles (region);
   if (n_rectangles == 0 || n_rectangles > MAX_RECTS)
     {
-      if (!cogl_blit_framebuffer (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
+      if (!cogl_framebuffer_blit (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
                                   0, 0, 0, 0,
                                   width, height,
                                   &error))
@@ -1072,7 +1072,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
         {
           MtkRectangle rectangle = mtk_region_get_rectangle (region, i);
 
-          if (!cogl_blit_framebuffer (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
+          if (!cogl_framebuffer_blit (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
                                       rectangle.x, rectangle.y,
                                       rectangle.x, rectangle.y,
                                       rectangle.width, rectangle.height,
