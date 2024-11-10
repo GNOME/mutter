@@ -711,7 +711,7 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * matrix.
  *
  * This is a high level drawing api that can handle any kind of
- * #CoglMetaTexture texture such as #CoglTexture2DSliced textures
+ * #CoglTexture texture such as #CoglTexture2DSliced textures
  * which may internally be comprised of multiple low-level textures.
  * This is unlike low-level drawing apis such as cogl_primitive_draw()
  * which only support low level texture types that are directly
@@ -767,7 +767,7 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * matrix.
  *
  * This is a high level drawing api that can handle any kind of
- * #CoglMetaTexture texture for the first layer such as
+ * #CoglTexture texture for the first layer such as
  * #CoglTexture2DSliced textures which may internally be comprised of
  * multiple low-level textures.  This is unlike low-level drawing apis
  * such as cogl_primitive_draw() which only support low level texture
@@ -861,7 +861,7 @@ cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
  * matrix.
  *
  * This is a high level drawing api that can handle any kind of
- * #CoglMetaTexture texture such as #CoglTexture2DSliced textures
+ * #CoglTexture texture such as #CoglTexture2DSliced textures
  * which may internally be comprised of multiple low-level textures.
  * This is unlike low-level drawing apis such as cogl_primitive_draw()
  * which only support low level texture types that are directly

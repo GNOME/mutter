@@ -59,8 +59,8 @@ G_BEGIN_DECLS
  * Functions for creating and manipulating 2D meta
  * textures derived from X11 pixmaps.
  *
- * These functions allow high-level meta textures (See the
- * #CoglMetaTexture interface) that derive their contents from an X11
+ * These functions allow high-level textures that
+ * derive their contents from an X11
  * pixmap.
  */
 #define COGL_TYPE_TEXTURE_PIXMAP_X11            (cogl_texture_pixmap_x11_get_type ())

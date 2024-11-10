@@ -46,7 +46,7 @@ typedef struct _ForeachData
   float meta_region_coords[4];
   CoglPipelineWrapMode wrap_s;
   CoglPipelineWrapMode wrap_t;
-  CoglMetaTextureCallback callback;
+  CoglTextureForeachCallback callback;
   void *user_data;
 
   int width;
@@ -229,7 +229,7 @@ typedef struct _ClampData
   float end;
   gboolean s_flipped;
   gboolean t_flipped;
-  CoglMetaTextureCallback callback;
+  CoglTextureForeachCallback callback;
   void *user_data;
 } ClampData;
 
@@ -278,15 +278,15 @@ clamp_t_cb (CoglTexture *sub_texture,
 }
 
 static gboolean
-foreach_clamped_region (CoglTexture *texture,
-                        float *tx_1,
-                        float *ty_1,
-                        float *tx_2,
-                        float *ty_2,
-                        CoglPipelineWrapMode wrap_s,
-                        CoglPipelineWrapMode wrap_t,
-                        CoglMetaTextureCallback callback,
-                        void *user_data)
+foreach_clamped_region (CoglTexture                *texture,
+                        float                      *tx_1,
+                        float                      *ty_1,
+                        float                      *tx_2,
+                        float                      *ty_2,
+                        CoglPipelineWrapMode        wrap_s,
+                        CoglPipelineWrapMode        wrap_t,
+                        CoglTextureForeachCallback  callback,
+                        void                       *user_data)
 {
   float width = cogl_texture_get_width (texture);
   ClampData clamp_data;
@@ -326,13 +326,13 @@ foreach_clamped_region (CoglTexture *texture,
         {
           clamp_data.start = *tx_1;
           clamp_data.end = MIN (0, *tx_2);
-          cogl_meta_texture_foreach_in_region (texture,
-                                               half_texel_width, *ty_1,
-                                               half_texel_width, *ty_2,
-                                               COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                               wrap_t,
-                                               clamp_s_cb,
-                                               &clamp_data);
+          cogl_texture_foreach_in_region (texture,
+                                          half_texel_width, *ty_1,
+                                          half_texel_width, *ty_2,
+                                          COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                          wrap_t,
+                                          clamp_s_cb,
+                                          &clamp_data);
           /* Have we handled everything? */
           if (*tx_2 <= 0)
             return TRUE;
@@ -346,15 +346,15 @@ foreach_clamped_region (CoglTexture *texture,
         {
           clamp_data.start = MAX (max_s_coord, *tx_1);
           clamp_data.end = *tx_2;
-          cogl_meta_texture_foreach_in_region (texture,
-                                               max_s_coord - half_texel_width,
-                                               *ty_1,
-                                               max_s_coord - half_texel_width,
-                                               *ty_2,
-                                               COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                               wrap_t,
-                                               clamp_s_cb,
-                                               &clamp_data);
+          cogl_texture_foreach_in_region (texture,
+                                          max_s_coord - half_texel_width,
+                                          *ty_1,
+                                          max_s_coord - half_texel_width,
+                                          *ty_2,
+                                          COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                          wrap_t,
+                                          clamp_s_cb,
+                                          &clamp_data);
           /* Have we handled everything? */
           if (*tx_1 >= max_s_coord)
             return TRUE;
@@ -378,13 +378,13 @@ foreach_clamped_region (CoglTexture *texture,
         {
           clamp_data.start = *ty_1;
           clamp_data.end = MIN (0, *ty_2);
-          cogl_meta_texture_foreach_in_region (texture,
-                                               *tx_1, half_texel_height,
-                                               *tx_2, half_texel_height,
-                                               wrap_s,
-                                               COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                               clamp_t_cb,
-                                               &clamp_data);
+          cogl_texture_foreach_in_region (texture,
+                                          *tx_1, half_texel_height,
+                                          *tx_2, half_texel_height,
+                                          wrap_s,
+                                          COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                          clamp_t_cb,
+                                          &clamp_data);
           /* Have we handled everything? */
           if (*tx_2 <= 0)
             return TRUE;
@@ -398,15 +398,15 @@ foreach_clamped_region (CoglTexture *texture,
         {
           clamp_data.start = MAX (max_t_coord, *ty_1);
           clamp_data.end = *ty_2;
-          cogl_meta_texture_foreach_in_region (texture,
-                                               *tx_1,
-                                               max_t_coord - half_texel_height,
-                                               *tx_2,
-                                               max_t_coord - half_texel_height,
-                                               wrap_s,
-                                               COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                               clamp_t_cb,
-                                               &clamp_data);
+          cogl_texture_foreach_in_region (texture,
+                                          *tx_1,
+                                          max_t_coord - half_texel_height,
+                                          *tx_2,
+                                          max_t_coord - half_texel_height,
+                                          wrap_s,
+                                          COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                          clamp_t_cb,
+                                          &clamp_data);
           /* Have we handled everything? */
           if (*ty_1 >= max_t_coord)
             return TRUE;
@@ -427,7 +427,7 @@ foreach_clamped_region (CoglTexture *texture,
 
 typedef struct _NormalizeData
 {
-  CoglMetaTextureCallback callback;
+  CoglTextureForeachCallback callback;
   void *user_data;
   float s_normalize_factor;
   float t_normalize_factor;
@@ -453,15 +453,15 @@ normalize_meta_coords_cb (CoglTexture *slice_texture,
 }
 
 void
-cogl_meta_texture_foreach_in_region (CoglTexture *texture,
-                                     float tx_1,
-                                     float ty_1,
-                                     float tx_2,
-                                     float ty_2,
-                                     CoglPipelineWrapMode wrap_s,
-                                     CoglPipelineWrapMode wrap_t,
-                                     CoglMetaTextureCallback callback,
-                                     void *user_data)
+cogl_texture_foreach_in_region (CoglTexture                *texture,
+                                float                       tx_1,
+                                float                       ty_1,
+                                float                       tx_2,
+                                float                       ty_2,
+                                CoglPipelineWrapMode        wrap_s,
+                                CoglPipelineWrapMode        wrap_t,
+                                CoglTextureForeachCallback  callback,
+                                void                       *user_data)
 {
   float width = cogl_texture_get_width (texture);
   float height = cogl_texture_get_height (texture);

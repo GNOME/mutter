@@ -237,12 +237,12 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
        * need to ensure the texture is allocated... */
       cogl_texture_allocate (tex, NULL); /* don't catch exceptions */
 
-      cogl_meta_texture_foreach_in_region (tex,
-                                           0, 0, 1, 1,
-                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
-                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
-                                           set_auto_mipmap_cb,
-                                           NULL); /* don't catch exceptions */
+      cogl_texture_foreach_in_region (tex,
+                                      0, 0, 1, 1,
+                                      COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
+                                      COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
+                                      set_auto_mipmap_cb,
+                                      NULL); /* don't catch exceptions */
     }
 
   cogl_texture_allocate (tex, NULL);
@@ -302,12 +302,12 @@ test_utils_texture_new_from_bitmap (CoglBitmap            *bitmap,
 
   if (flags & TEST_UTILS_TEXTURE_NO_AUTO_MIPMAP)
     {
-      cogl_meta_texture_foreach_in_region (tex,
-                                           0, 0, 1, 1,
-                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
-                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
-                                           set_auto_mipmap_cb,
-                                           NULL); /* don't catch exceptions */
+      cogl_texture_foreach_in_region (tex,
+                                      0, 0, 1, 1,
+                                      COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
+                                      COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
+                                      set_auto_mipmap_cb,
+                                      NULL); /* don't catch exceptions */
     }
 
   cogl_texture_allocate (tex, NULL);

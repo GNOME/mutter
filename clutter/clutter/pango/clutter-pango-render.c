@@ -152,15 +152,15 @@ clutter_pango_renderer_draw_glyph (ClutterPangoRenderer *renderer,
      the neighbouring glyphs are coming from the same atlas and bundle
      them together into a single VBO */
 
-  cogl_meta_texture_foreach_in_region (cache_value->texture,
-                                       cache_value->tx1,
-                                       cache_value->ty1,
-                                       cache_value->tx2,
-                                       cache_value->ty2,
-                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                       clutter_pango_renderer_slice_cb,
-                                       &data);
+  cogl_texture_foreach_in_region (cache_value->texture,
+                                  cache_value->tx1,
+                                  cache_value->ty1,
+                                  cache_value->tx2,
+                                  cache_value->ty2,
+                                  COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                  COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                  clutter_pango_renderer_slice_cb,
+                                  &data);
 }
 
 static void

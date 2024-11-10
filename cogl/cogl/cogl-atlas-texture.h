@@ -61,8 +61,7 @@ G_BEGIN_DECLS
  * represents a sub-region of one of these atlases.
  *
  * A #CoglAtlasTexture is a high-level meta texture which has
- * some limitations to be aware of. Please see the documentation for
- * #CoglMetaTexture for more details.
+ * some limitations to be aware of.
  */
 #define COGL_TYPE_ATLAS_TEXTURE            (cogl_atlas_texture_get_type ())
 #define COGL_ATLAS_TEXTURE(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_ATLAS_TEXTURE, CoglAtlasTexture))
@@ -104,8 +103,7 @@ GType               cogl_atlas_texture_get_type       (void) G_GNUC_CONST;
  * atlases.
  *
  * The returned #CoglAtlasTexture is a high-level meta-texture
- * with some limitations. See the documentation for #CoglMetaTexture
- * for more details.
+ * with some limitations.
  *
  * Returns: (transfer full): A new #CoglAtlasTexture object.
  */
@@ -138,8 +136,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
  * atlases.
  *
  * The returned #CoglAtlasTexture is a high-level meta-texture
- * with some limitations. See the documentation for #CoglMetaTexture
- * for more details.
+ * with some limitations.
  *
  * Returns: (transfer full): A new #CoglAtlasTexture object.
  */

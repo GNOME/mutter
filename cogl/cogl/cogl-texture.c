@@ -927,12 +927,12 @@ cogl_texture_get_data (CoglTexture *texture,
        * the data for a sliced texture, and allows us to do the
        * read-from-framebuffer logic here in a simple fashion rather than
        * passing offsets down through the code. */
-      cogl_meta_texture_foreach_in_region (texture,
-                                           0, 0, 1, 1,
-                                           COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                           COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                           texture_get_cb,
-                                           &tg_data);
+      cogl_texture_foreach_in_region (texture,
+                                      0, 0, 1, 1,
+                                      COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                      COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                      texture_get_cb,
+                                      &tg_data);
 
       _cogl_bitmap_unmap (target_bmp);
     }
@@ -1048,18 +1048,18 @@ _cogl_texture_flush_journal_rendering (CoglTexture *texture)
  * normalized.
  */
 void
-_cogl_texture_spans_foreach_in_region (CoglSpan *x_spans,
-                                       int n_x_spans,
-                                       CoglSpan *y_spans,
-                                       int n_y_spans,
-                                       CoglTexture **textures,
-                                       float *virtual_coords,
-                                       float x_normalize_factor,
-                                       float y_normalize_factor,
-                                       CoglPipelineWrapMode wrap_x,
-                                       CoglPipelineWrapMode wrap_y,
-                                       CoglMetaTextureCallback callback,
-                                       void *user_data)
+_cogl_texture_spans_foreach_in_region (CoglSpan                    *x_spans,
+                                       int                          n_x_spans,
+                                       CoglSpan                    *y_spans,
+                                       int                          n_y_spans,
+                                       CoglTexture                **textures,
+                                       float                       *virtual_coords,
+                                       float                        x_normalize_factor,
+                                       float                        y_normalize_factor,
+                                       CoglPipelineWrapMode         wrap_x,
+                                       CoglPipelineWrapMode         wrap_y,
+                                       CoglTextureForeachCallback   callback,
+                                       void                        *user_data)
 {
   CoglSpanIter iter_x;
   CoglSpanIter iter_y;

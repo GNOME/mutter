@@ -263,12 +263,12 @@ _cogl_texture_quad_multiple_primitives (CoglFramebuffer *framebuffer,
   if (wrap_t == COGL_PIPELINE_WRAP_MODE_AUTOMATIC)
     wrap_t = COGL_PIPELINE_WRAP_MODE_REPEAT;
 
-  cogl_meta_texture_foreach_in_region (texture,
-                                       tx_1, ty_1, tx_2, ty_2,
-                                       wrap_s,
-                                       wrap_t,
-                                       log_quad_sub_textures_cb,
-                                       &state);
+  cogl_texture_foreach_in_region (texture,
+                                  tx_1, ty_1, tx_2, ty_2,
+                                  wrap_s,
+                                  wrap_t,
+                                  log_quad_sub_textures_cb,
+                                  &state);
 
   if (validate_first_layer_state.override_pipeline)
     g_object_unref (validate_first_layer_state.override_pipeline);

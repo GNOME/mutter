@@ -57,7 +57,7 @@ G_DEFINE_FINAL_TYPE (CoglTexture2DSliced, cogl_texture_2d_sliced, COGL_TYPE_TEXT
 
 typedef struct _ForeachData
 {
-  CoglMetaTextureCallback callback;
+  CoglTextureForeachCallback callback;
   void *user_data;
   float x_normalize_factor;
   float y_normalize_factor;
@@ -1121,13 +1121,13 @@ re_normalize_sub_texture_coords_cb (CoglTexture *sub_texture,
 
 static void
 _cogl_texture_2d_sliced_foreach_sub_texture_in_region (
-                                       CoglTexture *tex,
-                                       float virtual_tx_1,
-                                       float virtual_ty_1,
-                                       float virtual_tx_2,
-                                       float virtual_ty_2,
-                                       CoglMetaTextureCallback callback,
-                                       void *user_data)
+                                       CoglTexture                *tex,
+                                       float                       virtual_tx_1,
+                                       float                       virtual_ty_1,
+                                       float                       virtual_tx_2,
+                                       float                       virtual_ty_2,
+                                       CoglTextureForeachCallback  callback,
+                                       void                       *user_data)
 {
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   CoglSpan *x_spans = (CoglSpan *)tex_2ds->slice_x_spans->data;

@@ -805,27 +805,27 @@ _cogl_texture_pixmap_x11_get_max_waste (CoglTexture *tex)
 
 static void
 _cogl_texture_pixmap_x11_foreach_sub_texture_in_region
-                                  (CoglTexture              *tex,
-                                   float                     virtual_tx_1,
-                                   float                     virtual_ty_1,
-                                   float                     virtual_tx_2,
-                                   float                     virtual_ty_2,
-                                   CoglMetaTextureCallback   callback,
-                                   void                     *user_data)
+                                  (CoglTexture                *tex,
+                                   float                       virtual_tx_1,
+                                   float                       virtual_ty_1,
+                                   float                       virtual_tx_2,
+                                   float                       virtual_ty_2,
+                                   CoglTextureForeachCallback  callback,
+                                   void                       *user_data)
 {
   CoglTexturePixmapX11 *tex_pixmap = COGL_TEXTURE_PIXMAP_X11 (tex);
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
   /* Forward on to the child texture */
-  cogl_meta_texture_foreach_in_region (child_tex,
-                                       virtual_tx_1,
-                                       virtual_ty_1,
-                                       virtual_tx_2,
-                                       virtual_ty_2,
-                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                       callback,
-                                       user_data);
+  cogl_texture_foreach_in_region (child_tex,
+                                  virtual_tx_1,
+                                  virtual_ty_1,
+                                  virtual_tx_2,
+                                  virtual_ty_2,
+                                  COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                  COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                  callback,
+                                  user_data);
 }
 
 static gboolean

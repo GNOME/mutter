@@ -144,13 +144,13 @@ struct _CoglTextureClass
                          int             rowstride,
                          uint8_t        *data);
 
-  void (* foreach_sub_texture_in_region) (CoglTexture            *tex,
-                                          float                   virtual_tx_1,
-                                          float                   virtual_ty_1,
-                                          float                   virtual_tx_2,
-                                          float                   virtual_ty_2,
-                                          CoglMetaTextureCallback callback,
-                                          void                   *user_data);
+  void (* foreach_sub_texture_in_region) (CoglTexture                *tex,
+                                          float                       virtual_tx_1,
+                                          float                       virtual_ty_1,
+                                          float                       virtual_tx_2,
+                                          float                       virtual_ty_2,
+                                          CoglTextureForeachCallback  callback,
+                                          void                       *user_data);
 
   int (* get_max_waste) (CoglTexture *tex);
 
@@ -240,18 +240,18 @@ void
 _cogl_texture_flush_journal_rendering (CoglTexture *texture);
 
 void
-_cogl_texture_spans_foreach_in_region (CoglSpan *x_spans,
-                                       int n_x_spans,
-                                       CoglSpan *y_spans,
-                                       int n_y_spans,
-                                       CoglTexture **textures,
-                                       float *virtual_coords,
-                                       float x_normalize_factor,
-                                       float y_normalize_factor,
-                                       CoglPipelineWrapMode wrap_x,
-                                       CoglPipelineWrapMode wrap_y,
-                                       CoglMetaTextureCallback callback,
-                                       void *user_data);
+_cogl_texture_spans_foreach_in_region (CoglSpan                    *x_spans,
+                                       int                          n_x_spans,
+                                       CoglSpan                    *y_spans,
+                                       int                          n_y_spans,
+                                       CoglTexture                **textures,
+                                       float                       *virtual_coords,
+                                       float                        x_normalize_factor,
+                                       float                        y_normalize_factor,
+                                       CoglPipelineWrapMode         wrap_x,
+                                       CoglPipelineWrapMode         wrap_y,
+                                       CoglTextureForeachCallback   callback,
+                                       void                        *user_data);
 
 COGL_EXPORT gboolean
 _cogl_texture_set_region (CoglTexture *texture,
