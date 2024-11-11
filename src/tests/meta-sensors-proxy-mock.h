@@ -36,3 +36,7 @@ void meta_sensors_proxy_mock_set_property (MetaSensorsProxyMock *proxy,
 META_EXPORT
 void meta_sensors_proxy_mock_set_orientation (MetaSensorsProxyMock *proxy,
                                               MetaOrientation       orientation);
+
+META_EXPORT
+void meta_sensors_proxy_mock_wait_accelerometer_claimed (MetaSensorsProxyMock *proxy,
+                                                         gboolean              claimed);

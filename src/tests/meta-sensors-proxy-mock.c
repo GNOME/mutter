@@ -240,3 +240,24 @@ meta_sensors_proxy_mock_set_orientation (MetaSensorsProxyMock *proxy,
   meta_sensors_proxy_mock_set_property (proxy, "AccelerometerOrientation",
                                         g_variant_new_string (orientation_str));
 }
+
+void
+meta_sensors_proxy_mock_wait_accelerometer_claimed (MetaSensorsProxyMock *proxy,
+                                                    gboolean              claimed)
+{
+  while (TRUE)
+    {
+      g_autoptr (GVariant) ret = NULL;
+      size_t n_owners = 0;
+
+      ret = get_internal_property_value (proxy, "AccelerometerOwners");
+
+      if (!g_variant_get_strv (ret, &n_owners))
+        g_assert_not_reached ();
+
+      if (n_owners == (claimed ? 1 : 0))
+        break;
+
+      g_main_context_iteration (NULL, TRUE);
+    }
+}
