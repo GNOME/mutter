@@ -223,6 +223,9 @@ ensure_eis_pointer (MetaInputCaptureSession *session)
   eis_device_resume (eis_pointer);
 
   session->eis_pointer = eis_pointer;
+
+  if (session->state == INPUT_CAPTURE_STATE_ACTIVATED)
+    eis_device_start_emulating (session->eis_pointer, session->activation_id);
 }
 
 static MetaAnonymousFile *
@@ -294,6 +297,9 @@ ensure_eis_keyboard (MetaInputCaptureSession *session)
   eis_device_resume (eis_keyboard);
 
   session->eis_keyboard = eis_keyboard;
+
+  if (session->state == INPUT_CAPTURE_STATE_ACTIVATED)
+    eis_device_start_emulating (session->eis_keyboard, session->activation_id);
 }
 
 static void
