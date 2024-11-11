@@ -36,6 +36,7 @@
 enum
 {
   ORIENTATION_CHANGED,
+  SENSOR_ACTIVE,
 
   N_SIGNALS
 };
@@ -205,7 +206,10 @@ on_accelerometer_claimed (GObject      *source,
   self->is_claimed = TRUE;
 
   if (self->has_accel && self->should_claim)
-    sync_state (self);
+    {
+      sync_state (self);
+      g_signal_emit (self, signals[SENSOR_ACTIVE], 0);
+    }
 }
 
 static void
@@ -425,6 +429,14 @@ meta_orientation_manager_class_init (MetaOrientationManagerClass *klass)
 
   signals[ORIENTATION_CHANGED] =
     g_signal_new ("orientation-changed",
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  signals[SENSOR_ACTIVE] =
+    g_signal_new ("sensor-active",
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   0,

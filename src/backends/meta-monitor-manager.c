@@ -1130,11 +1130,12 @@ handle_initial_orientation_change (MetaOrientationManager *orientation_manager,
 }
 
 static void
-orientation_changed (MetaOrientationManager *orientation_manager,
-                     MetaMonitorManager     *manager)
+orientation_changed (MetaMonitorManager *manager)
 {
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
+  MetaOrientationManager *orientation_manager =
+    meta_backend_get_orientation_manager (manager->backend);
 
   if (!priv->initial_orient_change_done)
     {
@@ -1504,7 +1505,14 @@ meta_monitor_manager_constructed (GObject *object)
   g_signal_connect_object (meta_backend_get_orientation_manager (backend),
                            "orientation-changed",
                            G_CALLBACK (orientation_changed),
-                           manager, G_CONNECT_DEFAULT);
+                           manager,
+                           G_CONNECT_SWAPPED);
+
+  g_signal_connect_object (meta_backend_get_orientation_manager (backend),
+                           "sensor-active",
+                           G_CALLBACK (orientation_changed),
+                           manager,
+                           G_CONNECT_SWAPPED);
 
   g_signal_connect_object (meta_backend_get_orientation_manager (backend),
                            "notify::has-accelerometer",
