@@ -803,6 +803,8 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
       ClutterEvent *next_event;
       ClutterInputDevice *device;
       ClutterInputDevice *next_device;
+      ClutterInputDeviceTool *tool;
+      ClutterInputDeviceTool *next_tool;
       gboolean check_device = FALSE;
 
       event = l->data;
@@ -813,11 +815,18 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
       COGL_TRACE_DESCRIBE (ProcessEvent, clutter_event_get_name (event));
 
       device = clutter_event_get_device (event);
+      tool = clutter_event_get_device_tool (event);
 
       if (next_event != NULL)
-        next_device = clutter_event_get_device (next_event);
+        {
+          next_device = clutter_event_get_device (next_event);
+          next_tool = clutter_event_get_device_tool (next_event);
+        }
       else
-        next_device = NULL;
+        {
+          next_device = NULL;
+          next_tool = NULL;
+        }
 
       if (device != NULL && next_device != NULL)
         check_device = TRUE;
@@ -832,7 +841,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
           if (clutter_event_type (event) == CLUTTER_MOTION &&
               (clutter_event_type (next_event) == CLUTTER_MOTION ||
                clutter_event_type (next_event) == CLUTTER_LEAVE) &&
-              (!check_device || (device == next_device)))
+              (!check_device || (device == next_device && tool == next_tool)))
             {
               CLUTTER_NOTE (EVENT,
                             "Omitting motion event at %d, %d",
