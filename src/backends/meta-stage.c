@@ -350,9 +350,9 @@ meta_stage_new (MetaBackend *backend)
 }
 
 static void
-queue_redraw_clutter_rect (MetaStage       *stage,
-                           MetaOverlay     *overlay,
-                           graphene_rect_t *rect)
+queue_cursor_overlay_redraw_clutter_rect (MetaStage       *stage,
+                                          MetaOverlay     *overlay,
+                                          graphene_rect_t *rect)
 {
   MtkRectangle clip = {
     .x = (int) floorf (rect->origin.x),
@@ -393,19 +393,25 @@ queue_redraw_clutter_rect (MetaStage       *stage,
 }
 
 static void
-queue_redraw_for_overlay (MetaStage   *stage,
-                          MetaOverlay *overlay)
+queue_redraw_for_cursor_overlay (MetaStage   *stage,
+                                 MetaOverlay *overlay)
 {
   /* Clear the location the overlay was at before, if we need to. */
   if (overlay->previous_is_valid)
     {
-      queue_redraw_clutter_rect (stage, overlay, &overlay->previous_rect);
+      queue_cursor_overlay_redraw_clutter_rect (stage,
+                                                overlay,
+                                                &overlay->previous_rect);
       overlay->previous_is_valid = FALSE;
     }
 
   /* Draw the overlay at the new position */
   if (overlay->is_visible && overlay->texture)
-    queue_redraw_clutter_rect (stage, overlay, &overlay->current_rect);
+    {
+      queue_cursor_overlay_redraw_clutter_rect (stage,
+                                                overlay,
+                                                &overlay->current_rect);
+    }
 }
 
 MetaOverlay *
@@ -441,7 +447,7 @@ meta_stage_update_cursor_overlay (MetaStage           *stage,
                                   MtkMonitorTransform  buffer_transform)
 {
   meta_overlay_set (overlay, texture, rect, buffer_transform);
-  queue_redraw_for_overlay (stage, overlay);
+  queue_redraw_for_cursor_overlay (stage, overlay);
 }
 
 void
@@ -452,7 +458,7 @@ meta_overlay_set_visible (MetaOverlay *overlay,
     return;
 
   overlay->is_visible = is_visible;
-  queue_redraw_for_overlay (overlay->stage, overlay);
+  queue_redraw_for_cursor_overlay (overlay->stage, overlay);
 }
 
 MetaStageWatch *
