@@ -1141,7 +1141,12 @@ orientation_changed (MetaMonitorManager *manager)
     {
       priv->initial_orient_change_done = TRUE;
       if (handle_initial_orientation_change (orientation_manager, manager))
-        return;
+        {
+          meta_orientation_manager_inhibit_tracking (orientation_manager);
+          return;
+        }
+
+      meta_orientation_manager_inhibit_tracking (orientation_manager);
     }
 
   if (!manager->panel_orientation_managed)
@@ -1291,9 +1296,19 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
   meta_dbus_display_config_set_panel_orientation_managed (manager->display_config,
                                                           manager->panel_orientation_managed);
 
-  /* The orientation may have changed while it was unmanaged */
   if (panel_orientation_managed)
-    handle_orientation_change (orientation_manager, manager);
+    {
+      meta_orientation_manager_uninhibit_tracking (orientation_manager);
+
+      /* Claiming the sensor is asynchronous. We listen to
+       * MetaOrientationManager::sensor-active to rotate to the current orientation
+       * once the sensor is claimed.
+       */
+    }
+  else
+    {
+      meta_orientation_manager_inhibit_tracking (orientation_manager);
+    }
 }
 
 static void
@@ -1518,6 +1533,8 @@ meta_monitor_manager_constructed (GObject *object)
                            "notify::has-accelerometer",
                            G_CALLBACK (update_panel_orientation_managed), manager,
                            G_CONNECT_SWAPPED);
+
+  manager->panel_orientation_managed = FALSE;
 
   g_signal_connect_object (backend,
                            "lid-is-closed-changed",
