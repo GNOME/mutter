@@ -900,11 +900,11 @@ test_events (void)
   zones = input_capture_session_get_zones (session);
   input_capture_session_add_barrier (session, 0, 0, 0, 600);
 
-  input_capture_session_enable (session);
-
   while (!session->has_pointer ||
          !session->has_keyboard)
     g_main_context_iteration (NULL, TRUE);
+
+  input_capture_session_enable (session);
 
   write_state (session, "1");
 
@@ -968,6 +968,11 @@ test_a11y (void)
   input_capture_session_connect_to_eis (session);
   zones = input_capture_session_get_zones (session);
   input_capture_session_add_barrier (session, 0, 0, 0, 600);
+
+  while (!session->has_pointer ||
+         !session->has_keyboard)
+    g_main_context_iteration (NULL, TRUE);
+
   input_capture_session_enable (session);
 
   set_expected_events (session,
