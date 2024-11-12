@@ -115,6 +115,7 @@ endif
 if have_x11
   mutter_pkg_private_deps += [
     ice_dep,
+    fribidi_dep,
     xcb_randr_dep,
     xkbfile_dep,
     xkbcommon_x11_dep,
