@@ -83,7 +83,6 @@ typedef struct _MetaBackendNativePrivate
 {
   MetaBackend parent;
 
-  MetaLauncher *launcher;
   MetaDevicePool *device_pool;
   MetaUdev *udev;
   MetaKms *kms;
@@ -101,6 +100,10 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendNative,
                             meta_backend_native,
                             META_TYPE_BACKEND)
 
+static void meta_backend_native_resume (MetaBackendNative *native);
+
+static void meta_backend_native_pause (MetaBackendNative *native);
+
 static void
 meta_backend_native_dispose (GObject *object)
 {
@@ -114,7 +117,6 @@ meta_backend_native_dispose (GObject *object)
   g_clear_object (&priv->kms);
   g_clear_object (&priv->udev);
   g_clear_object (&priv->device_pool);
-  g_clear_object (&priv->launcher);
 }
 
 static ClutterBackend *
@@ -339,12 +341,14 @@ meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
 {
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (backend_native);
+  MetaLauncher *launcher =
+    meta_backend_get_launcher (META_BACKEND (backend_native));
 
   switch (priv->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
-      return meta_launcher_get_seat_id (priv->launcher);
+      return meta_launcher_get_seat_id (launcher);
     case META_BACKEND_NATIVE_MODE_HEADLESS:
     case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       return "seat0";
@@ -745,19 +749,18 @@ on_session_active_changed (MetaLauncher      *launcher,
 }
 
 static gboolean
-meta_backend_native_init_basic (MetaBackend  *backend,
-                                GError      **error)
+meta_backend_native_create_launcher (MetaBackend   *backend,
+                                     MetaLauncher **launcher_out,
+                                     GError       **error)
 {
   MetaBackendNative *native = META_BACKEND_NATIVE (backend);
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
-  MetaKmsFlags kms_flags;
+  g_autoptr (MetaLauncher) launcher = NULL;
   const char *session_id = NULL;
   const char *seat_id = NULL;
 
-  priv->startup_render_devices =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           g_free, g_object_unref);
+  *launcher_out = NULL;
 
   switch (priv->mode)
     {
@@ -772,31 +775,47 @@ meta_backend_native_init_basic (MetaBackend  *backend,
       break;
     }
 
-  if (priv->mode != META_BACKEND_NATIVE_MODE_HEADLESS &&
-      priv->mode != META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
+  if (priv->mode == META_BACKEND_NATIVE_MODE_HEADLESS ||
+      priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
+    return TRUE;
+
+  launcher = meta_launcher_new (backend, session_id, seat_id, error);
+  if (!launcher)
+    return FALSE;
+
+  if (!meta_launcher_get_seat_id (launcher))
     {
-      priv->launcher = meta_launcher_new (backend,
-                                          session_id, seat_id,
-                                          error);
-      if (!priv->launcher)
-        return FALSE;
-
-      if (!meta_launcher_get_seat_id (priv->launcher))
-        {
-          priv->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
-          g_message ("No seat assigned, running headlessly");
-        }
-      else if (!meta_launcher_is_session_controller (priv->launcher))
-        {
-          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Native backend mode needs to be session controller");
-          return FALSE;
-        }
-
-      g_signal_connect (priv->launcher, "notify::session-active",
-                        G_CALLBACK (on_session_active_changed),
-                        native);
+      priv->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
+      g_message ("No seat assigned, running headlessly");
     }
+  else if (!meta_launcher_is_session_controller (launcher))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Native backend mode needs to be session controller");
+      return FALSE;
+    }
+
+  g_signal_connect (launcher, "notify::session-active",
+                    G_CALLBACK (on_session_active_changed),
+                    native);
+
+  *launcher_out = g_steal_pointer (&launcher);
+  return TRUE;
+}
+
+
+static gboolean
+meta_backend_native_init_basic (MetaBackend  *backend,
+                                GError      **error)
+{
+  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (native);
+  MetaKmsFlags kms_flags;
+
+  priv->startup_render_devices =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           g_free, g_object_unref);
 
   priv->device_pool = meta_device_pool_new (native);
   priv->udev = meta_udev_new (native);
@@ -857,6 +876,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->init_post = meta_backend_native_init_post;
   backend_class->get_capabilities = meta_backend_native_get_capabilities;
 
+  backend_class->create_launcher = meta_backend_native_create_launcher;
   backend_class->create_monitor_manager = meta_backend_native_create_monitor_manager;
   backend_class->create_color_manager = meta_backend_native_create_color_manager;
   backend_class->get_cursor_renderer = meta_backend_native_get_cursor_renderer;
@@ -893,10 +913,7 @@ meta_backend_native_init (MetaBackendNative *backend_native)
 MetaLauncher *
 meta_backend_native_get_launcher (MetaBackendNative *backend_native)
 {
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-
-  return priv->launcher;
+  return meta_backend_get_launcher (META_BACKEND (backend_native));
 }
 
 MetaDevicePool *
@@ -951,7 +968,7 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
   g_assert_not_reached ();
 }
 
-void
+static void
 meta_backend_native_pause (MetaBackendNative *backend_native)
 {
   MetaBackendNativePrivate *priv =
@@ -976,7 +993,8 @@ meta_backend_native_pause (MetaBackendNative *backend_native)
   meta_monitor_manager_native_pause (monitor_manager_native);
 }
 
-void meta_backend_native_resume (MetaBackendNative *native)
+static void
+meta_backend_native_resume (MetaBackendNative *native)
 {
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);

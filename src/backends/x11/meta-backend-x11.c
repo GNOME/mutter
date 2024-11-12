@@ -43,6 +43,7 @@
 #include "backends/meta-color-manager.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-keymap-utils.h"
+#include "backends/meta-launcher.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-barrier-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
@@ -611,6 +612,31 @@ meta_backend_x11_init_post (MetaBackend  *backend,
   return TRUE;
 }
 
+static gboolean
+meta_backend_x11_create_launcher (MetaBackend   *backend,
+                                  MetaLauncher **launcher_out,
+                                  GError       **error)
+{
+  g_autoptr (MetaLauncher) launcher = NULL;
+  g_autoptr (GError) local_error = NULL;
+
+  *launcher_out = NULL;
+
+  launcher = meta_launcher_new (backend, NULL, NULL, &local_error);
+
+  if (!launcher)
+    {
+      meta_topic (META_DEBUG_BACKEND,
+                  "Creating launcher for the X11 backend failed: %s",
+                  local_error->message);
+
+      return TRUE;
+    }
+
+  *launcher_out = g_steal_pointer (&launcher);
+  return TRUE;
+}
+
 static ClutterBackend *
 meta_backend_x11_create_clutter_backend (MetaBackend    *backend,
                                          ClutterContext *context)
@@ -1052,9 +1078,12 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
 
   object_class->dispose = meta_backend_x11_dispose;
   object_class->finalize = meta_backend_x11_finalize;
+
   backend_class->init_basic = meta_backend_x11_init_basic;
   backend_class->init_render = meta_backend_x11_init_render;
   backend_class->init_post = meta_backend_x11_init_post;
+
+  backend_class->create_launcher = meta_backend_x11_create_launcher;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->create_color_manager = meta_backend_x11_create_color_manager;
   backend_class->create_default_seat = meta_backend_x11_create_default_seat;

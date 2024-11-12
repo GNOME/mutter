@@ -80,6 +80,10 @@ struct _MetaBackendClass
   ClutterSeat * (* create_default_seat) (MetaBackend  *backend,
                                          GError      **error);
 
+  gboolean (* create_launcher) (MetaBackend   *backend,
+                                MetaLauncher **launcher_out,
+                                GError       **error);
+
   MetaBackendCapabilities (* get_capabilities) (MetaBackend *backend);
 
   MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend        *backend,
@@ -153,6 +157,9 @@ MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
 MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
+
+META_EXPORT_TEST
+MetaLauncher * meta_backend_get_launcher (MetaBackend *backend);
 
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
                                                                   ClutterInputDevice *device);

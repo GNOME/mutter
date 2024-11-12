@@ -62,6 +62,7 @@
 #include "backends/meta-input-capture.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
+#include "backends/meta-launcher.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-dummy.h"
 #include "backends/meta-remote-access-controller-private.h"
@@ -144,6 +145,7 @@ struct _MetaBackendPrivate
   MetaIdleManager *idle_manager;
   MetaRenderer *renderer;
   MetaColorManager *color_manager;
+  MetaLauncher *launcher;
 #ifdef HAVE_EGL
   MetaEgl *egl;
 #endif
@@ -255,6 +257,8 @@ meta_backend_finalize (GObject *object)
 
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
+
+  g_clear_object (&priv->launcher);
 
   if (priv->sleep_signal_id)
     {
@@ -923,6 +927,16 @@ meta_backend_class_init (MetaBackendClass *klass)
                   G_TYPE_NONE, 0);
 }
 
+static gboolean
+meta_backend_create_launcher (MetaBackend   *backend,
+                              MetaLauncher **launcher_out,
+                              GError       **error)
+{
+  return META_BACKEND_GET_CLASS (backend)->create_launcher (backend,
+                                                            launcher_out,
+                                                            error);
+}
+
 static MetaMonitorManager *
 meta_backend_create_monitor_manager (MetaBackend *backend,
                                      GError     **error)
@@ -1217,6 +1231,7 @@ meta_backend_initable_init (GInitable     *initable,
   MetaBackend *backend = META_BACKEND (initable);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaDebugControl *debug_control;
+  g_autoptr (GError) local_error = NULL;
 
   priv->in_init = TRUE;
 
@@ -1228,6 +1243,9 @@ meta_backend_initable_init (GInitable     *initable,
              priv->cancellable,
              system_bus_gotten_cb,
              backend);
+
+  if (!meta_backend_create_launcher (backend, &priv->launcher, error))
+      return FALSE;
 
   priv->settings = meta_settings_new (backend);
 
@@ -1427,6 +1445,17 @@ meta_backend_get_color_manager (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->color_manager;
+}
+
+/**
+ * meta_backend_get_launcher: (skip)
+ */
+MetaLauncher *
+meta_backend_get_launcher (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->launcher;
 }
 
 /**
