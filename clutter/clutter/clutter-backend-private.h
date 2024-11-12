@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <cairo.h>
-
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-seat.h"
 #include "clutter/clutter-stage-window.h"
@@ -49,7 +47,7 @@ struct _ClutterBackend
 
   CoglOnscreen *dummy_onscreen;
 
-  cairo_font_options_t *font_options;
+  gpointer *font_options;
 
   float fallback_resource_scale;
 
