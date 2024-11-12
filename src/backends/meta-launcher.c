@@ -279,27 +279,24 @@ get_display_session (GError **error)
   return NULL;
 }
 
-static gboolean
-find_systemd_session (char   **session_id,
-                      GError **error)
+static MetaDBusLogin1Session *
+get_session_proxy_from_display (GCancellable  *cancellable,
+                                GError       **error)
 {
   const char * const graphical_session_types[] =
     { "wayland", "x11", "mir", NULL };
   const char * const active_states[] =
     { "active", "online", NULL };
-  g_autofree char *class = NULL;
   g_autofree char *local_session_id = NULL;
   g_autofree char *type = NULL;
   g_autofree char *state = NULL;
-  g_auto (GStrv) sessions = NULL;
   int saved_errno;
 
-  g_assert (session_id != NULL);
   g_assert (error == NULL || *error == NULL);
 
   local_session_id = get_display_session (error);
   if (!local_session_id)
-    return FALSE;
+    return NULL;
 
   /* sd_uid_get_display will return any session if there is no graphical
    * one, so let's check it really is graphical. */
@@ -312,7 +309,7 @@ find_systemd_session (char   **session_id,
                    "Couldn't get type for session '%s': %s",
                    local_session_id,
                    g_strerror (-saved_errno));
-      return FALSE;
+      return NULL;
     }
 
   if (!g_strv_contains (graphical_session_types, type))
@@ -323,7 +320,7 @@ find_systemd_session (char   **session_id,
                    "Session '%s' is not a graphical session (type: '%s')",
                    local_session_id,
                    type);
-      return FALSE;
+      return NULL;
     }
 
     /* and display sessions can be 'closing' if they are logged out but
@@ -337,7 +334,7 @@ find_systemd_session (char   **session_id,
                      "Couldn't get state for session '%s': %s",
                      local_session_id,
                      g_strerror (-saved_errno));
-        return FALSE;
+        return NULL;
       }
 
     if (!g_strv_contains (active_states, state))
@@ -347,12 +344,10 @@ find_systemd_session (char   **session_id,
                          G_IO_ERROR_NOT_FOUND,
                          "Session '%s' is not active",
                          local_session_id);
-         return FALSE;
+         return NULL;
       }
 
-  *session_id = g_steal_pointer (&local_session_id);
-
-  return TRUE;
+  return get_session_proxy_from_id (local_session_id, cancellable, error);
 }
 
 static MetaDBusLogin1Session *
@@ -382,15 +377,19 @@ get_session_proxy (GCancellable  *cancellable,
               local_error->message);
   g_clear_error (&local_error);
 
-  if (!find_systemd_session (&session_id, &local_error))
-    {
-      g_propagate_prefixed_error (error,
-                                  g_steal_pointer (&local_error),
-                                  "Could not get session ID: ");
-      return NULL;
-    }
+  session_proxy = get_session_proxy_from_display (cancellable, &local_error);
+  if (session_proxy)
+    return session_proxy;
 
-  return get_session_proxy_from_id (session_id, cancellable, error);
+  meta_topic (META_DEBUG_BACKEND,
+              "Failed to get any session: %s",
+              local_error->message);
+  g_clear_error (&local_error);
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+               "Failed to find any matching session");
+  return NULL;
+
 }
 
 static MetaDBusLogin1Seat *
