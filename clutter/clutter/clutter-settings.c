@@ -17,6 +17,10 @@
 
 #include "config.h"
 
+#ifdef HAVE_FONTS
+#include <cairo/cairo.h>
+#endif
+
 #include "clutter/clutter-settings.h"
 
 #include "clutter/clutter-context-private.h"
@@ -113,6 +117,7 @@ settings_update_resolution (ClutterSettings *self)
     g_signal_emit_by_name (self->backend, "resolution-changed");
 }
 
+#ifdef HAVE_FONTS
 static void
 clutter_settings_update_font_options (ClutterSettings *self)
 {
@@ -207,6 +212,7 @@ clutter_settings_update_font_options (ClutterSettings *self)
 
   g_signal_emit_by_name (self->backend, "font-changed");
 }
+#endif
 
 static void
 sync_mouse_options (ClutterSettings *self)
@@ -223,6 +229,7 @@ sync_mouse_options (ClutterSettings *self)
                 NULL);
 }
 
+#ifdef HAVE_FONTS
 static gboolean
 on_font_settings_change_event (GSettings *settings,
                                gpointer   keys,
@@ -235,6 +242,7 @@ on_font_settings_change_event (GSettings *settings,
 
   return FALSE;
 }
+#endif
 
 static gboolean
 on_mouse_settings_change_event (GSettings *settings,
@@ -351,12 +359,15 @@ on_mouse_a11y_settings_change_event (GSettings *settings,
 static void
 load_initial_settings (ClutterSettings *self)
 {
+#ifdef HAVE_FONTS
   static const gchar *font_settings_path = "org.gnome.desktop.interface";
+#endif
   static const gchar *mouse_settings_path = "org.gnome.desktop.peripherals.mouse";
   static const char *mouse_a11y_settings_path = "org.gnome.desktop.a11y.mouse";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema;
 
+#ifdef HAVE_FONTS
   schema = g_settings_schema_source_lookup (source, font_settings_path, TRUE);
   if (!schema)
     {
@@ -373,6 +384,7 @@ load_initial_settings (ClutterSettings *self)
                             self);
         }
     }
+ #endif
 
   schema = g_settings_schema_source_lookup (source, mouse_settings_path, TRUE);
   if (!schema)

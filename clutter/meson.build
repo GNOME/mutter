@@ -24,7 +24,6 @@ clutter_c_args += clutter_debug_c_args
 
 clutter_pkg_deps = [
   atk_dep,
-  cairo_dep,
   glib_dep,
   gobject_dep,
   gio_dep,
@@ -37,6 +36,7 @@ clutter_pkg_private_deps = [
 
 if have_fonts
   clutter_pkg_private_deps += [
+    cairo_dep,
     fribidi_dep,
     pangocairo_dep,
     pango_dep,
