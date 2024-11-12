@@ -325,10 +325,8 @@ meta_context_test_run_tests (MetaContextTest  *context_test,
       if ((flags & META_TEST_RUN_FLAG_CAN_SKIP) &&
           ((g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND) &&
             strstr (error->message, "No GPUs found")) ||
-           (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_DBUS_ERROR) &&
-            strstr (error->message, "Could not take control")) ||
-           (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_UNKNOWN_METHOD) &&
-            strstr (error->message, "Could not take control"))))
+           (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_FAILED) &&
+            strstr (error->message, "Native backend mode needs to be session controller"))))
         {
           g_printerr ("Test skipped: %s\n", error->message);
           return 77;

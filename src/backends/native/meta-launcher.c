@@ -57,6 +57,7 @@ struct _MetaLauncher
   char *seat_id;
 
   gboolean session_active;
+  gboolean have_control;
 };
 
 G_DEFINE_FINAL_TYPE (MetaLauncher,
@@ -92,6 +93,13 @@ static void
 meta_launcher_dispose (GObject *object)
 {
   MetaLauncher *launcher = META_LAUNCHER (object);
+
+  if (launcher->have_control && launcher->session_proxy)
+    {
+      meta_dbus_login1_session_call_release_control_sync (launcher->session_proxy,
+                                                          NULL, NULL);
+      launcher->have_control = FALSE;
+    }
 
   g_clear_pointer (&launcher->seat_id, g_free);
   g_clear_object (&launcher->seat_proxy);
@@ -434,27 +442,12 @@ meta_launcher_new (MetaBackend  *backend,
                    const char   *fallback_seat_id,
                    GError      **error)
 {
-  MetaLauncher *self = NULL;
+  g_autoptr (MetaLauncher) launcher = NULL;
   g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
   g_autoptr (MetaDBusLogin1Seat) seat_proxy = NULL;
   g_autoptr (GError) local_error = NULL;
   g_autofree char *seat_id = NULL;
   gboolean have_control = FALSE;
-
-  session_proxy = get_session_proxy (fallback_session_id, NULL, error);
-  if (!session_proxy)
-    goto fail;
-
-  if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
-                                                        FALSE,
-                                                        NULL,
-                                                        error))
-    {
-      g_prefix_error (error, "Could not take control: ");
-      goto fail;
-    }
-
-  have_control = TRUE;
 
   seat_id = get_seat_id (&local_error);
   if (!seat_id)
@@ -473,31 +466,43 @@ meta_launcher_new (MetaBackend  *backend,
     {
       seat_proxy = get_seat_proxy (seat_id, NULL, error);
       if (!seat_proxy)
-        goto fail;
+        return NULL;
     }
 
-  self = g_object_new (META_TYPE_LAUNCHER, NULL);
-  self->backend = backend;
-  self->session_proxy = g_object_ref (session_proxy);
-  self->session_active = TRUE;
-  if (seat_id)
+  session_proxy = get_session_proxy (fallback_session_id, NULL, error);
+  if (!session_proxy)
+    return NULL;
+
+  if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
+                                                        FALSE,
+                                                        NULL,
+                                                        &local_error))
     {
-      self->seat_proxy = g_object_ref (seat_proxy);
-      self->seat_id = g_steal_pointer (&seat_id);
+      meta_topic (META_DEBUG_BACKEND,
+                  "Failed to take control of the session: %s",
+                  local_error->message);
+      g_clear_error (&local_error);
     }
-
-  g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
-  sync_active (self);
-
-  return self;
-
-fail:
-  if (have_control)
+  else
     {
-      meta_dbus_login1_session_call_release_control_sync (session_proxy,
-                                                          NULL, NULL);
+      have_control = TRUE;
     }
-  return NULL;
+
+  launcher = g_object_new (META_TYPE_LAUNCHER, NULL);
+  launcher->backend = backend;
+  launcher->session_proxy = g_steal_pointer (&session_proxy);
+  launcher->session_active = TRUE;
+  launcher->have_control = have_control;
+  launcher->seat_proxy = g_steal_pointer (&seat_proxy);
+  launcher->seat_id = g_steal_pointer (&seat_id);
+
+  g_signal_connect (launcher->session_proxy,
+                    "notify::active",
+                    G_CALLBACK (on_active_changed),
+                    launcher);
+  sync_active (launcher);
+
+  return g_steal_pointer (&launcher);
 }
 
 gboolean
@@ -515,6 +520,12 @@ gboolean
 meta_launcher_is_session_active (MetaLauncher *launcher)
 {
   return launcher->session_active;
+}
+
+gboolean
+meta_launcher_is_session_controller (MetaLauncher *launcher)
+{
+  return launcher->have_control;
 }
 
 MetaBackend *

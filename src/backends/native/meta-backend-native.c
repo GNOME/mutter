@@ -787,6 +787,12 @@ meta_backend_native_init_basic (MetaBackend  *backend,
           priv->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
           g_message ("No seat assigned, running headlessly");
         }
+      else if (!meta_launcher_is_session_controller (priv->launcher))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Native backend mode needs to be session controller");
+          return FALSE;
+        }
 
       g_signal_connect (priv->launcher, "notify::session-active",
                         G_CALLBACK (on_session_active_changed),
