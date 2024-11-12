@@ -58,4 +58,4 @@ void meta_udev_pause (MetaUdev *udev);
 
 void meta_udev_resume (MetaUdev *udev);
 
-MetaUdev * meta_udev_new (MetaBackendNative *backend_native);
+MetaUdev * meta_udev_new (MetaBackend *backend);

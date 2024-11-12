@@ -803,7 +803,7 @@ meta_backend_native_init_basic (MetaBackend  *backend,
                            g_free, g_object_unref);
 
   priv->device_pool = meta_device_pool_new (native);
-  priv->udev = meta_udev_new (native);
+  priv->udev = meta_udev_new (backend);
 
   kms_flags = META_KMS_FLAG_NONE;
   if (meta_backend_is_headless (backend))
