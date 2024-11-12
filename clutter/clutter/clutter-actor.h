@@ -30,9 +30,8 @@
 
 /* clutter-actor.h */
 
-#include <gio/gio.h>
-#include <pango/pango.h>
 #include <atk/atk.h>
+#include <gio/gio.h>
 
 #include "cogl/cogl.h"
 
@@ -614,14 +613,6 @@ gboolean                        clutter_actor_event                             
 CLUTTER_EXPORT
 gboolean                        clutter_actor_has_pointer                       (ClutterActor               *self);
 
-/* Text */
-CLUTTER_EXPORT
-PangoContext *                  clutter_actor_get_pango_context                 (ClutterActor               *self);
-CLUTTER_EXPORT
-PangoContext *                  clutter_actor_create_pango_context              (ClutterActor               *self);
-CLUTTER_EXPORT
-PangoLayout *                   clutter_actor_create_pango_layout               (ClutterActor               *self,
-                                                                                 const gchar                *text);
 CLUTTER_EXPORT
 void                            clutter_actor_set_text_direction                (ClutterActor               *self,
                                                                                  ClutterTextDirection        text_dir);

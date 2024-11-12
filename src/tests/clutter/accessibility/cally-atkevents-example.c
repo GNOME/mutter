@@ -29,6 +29,7 @@
  */
 #include <atk/atk.h>
 #include <clutter/clutter.h>
+#include <clutter/clutter-pango.h>
 
 #include "cally-examples-util.h"
 
