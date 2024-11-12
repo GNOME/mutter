@@ -55,34 +55,46 @@ struct _MetaBackendClass
 {
   GObjectClass parent_class;
 
-  ClutterBackend * (* create_clutter_backend) (MetaBackend    *backend,
-                                               ClutterContext *context);
-
   gboolean (* init_basic) (MetaBackend  *backend,
                            GError      **error);
+
   gboolean (* init_render) (MetaBackend  *backend,
                             GError      **error);
+
   gboolean (* init_post) (MetaBackend  *backend,
                           GError      **error);
 
-  MetaBackendCapabilities (* get_capabilities) (MetaBackend *backend);
+  ClutterBackend * (* create_clutter_backend) (MetaBackend    *backend,
+                                               ClutterContext *context);
 
   MetaMonitorManager * (* create_monitor_manager) (MetaBackend *backend,
                                                    GError     **error);
+
   MetaColorManager * (* create_color_manager) (MetaBackend *backend);
-  MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend        *backend,
-                                                ClutterInputDevice *device);
+
   MetaCursorTracker * (* create_cursor_tracker) (MetaBackend *backend);
+
   MetaRenderer * (* create_renderer) (MetaBackend *backend,
                                       GError     **error);
-  MetaInputSettings * (* get_input_settings) (MetaBackend *backend);
 
   ClutterSeat * (* create_default_seat) (MetaBackend  *backend,
                                          GError      **error);
 
+  MetaBackendCapabilities (* get_capabilities) (MetaBackend *backend);
+
+  MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend        *backend,
+                                                ClutterInputDevice *device);
+
+  MetaInputSettings * (* get_input_settings) (MetaBackend *backend);
+
+  MetaLogicalMonitor * (* get_current_logical_monitor) (MetaBackend *backend);
+
+  gboolean (* is_lid_closed) (MetaBackend *backend);
+
   gboolean (* grab_device) (MetaBackend *backend,
                             int          device_id,
                             uint32_t     timestamp);
+
   gboolean (* ungrab_device) (MetaBackend *backend,
                               int          device_id,
                               uint32_t     timestamp);
@@ -99,15 +111,12 @@ struct _MetaBackendClass
   void (* finish_touch_sequence) (MetaBackend          *backend,
                                   ClutterEventSequence *sequence,
                                   MetaSequenceState     state);
-  MetaLogicalMonitor * (* get_current_logical_monitor) (MetaBackend *backend);
 
   void (* set_keymap) (MetaBackend *backend,
                        const char  *layouts,
                        const char  *variants,
                        const char  *options,
                        const char  *model);
-
-  gboolean (* is_lid_closed) (MetaBackend *backend);
 
   struct xkb_keymap * (* get_keymap) (MetaBackend *backend);
 
@@ -117,6 +126,7 @@ struct _MetaBackendClass
                               guint        idx);
 
   void (* update_stage) (MetaBackend *backend);
+
   void (* select_stage_events) (MetaBackend *backend);
 
   void (* set_pointer_constraint) (MetaBackend           *backend,
