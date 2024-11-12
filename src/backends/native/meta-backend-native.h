@@ -41,7 +41,5 @@ gboolean meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
                                           int                 vt,
                                           GError            **error);
 
-MetaLauncher * meta_backend_native_get_launcher (MetaBackendNative *native);
-
 META_EXPORT_TEST
 MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);

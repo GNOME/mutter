@@ -896,12 +896,6 @@ meta_backend_native_init (MetaBackendNative *backend_native)
 {
 }
 
-MetaLauncher *
-meta_backend_native_get_launcher (MetaBackendNative *backend_native)
-{
-  return meta_backend_get_launcher (META_BACKEND (backend_native));
-}
-
 MetaDevicePool *
 meta_backend_native_get_device_pool (MetaBackendNative *backend_native)
 {
@@ -927,8 +921,8 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
 {
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (backend_native);
-
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
+  MetaLauncher *launcher =
+    meta_backend_get_launcher (META_BACKEND (backend_native));
 
   switch (priv->mode)
     {
