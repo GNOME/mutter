@@ -368,19 +368,19 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
 }
 
 static float
-find_highest_logical_monitor_scale (MetaBackend      *backend,
-                                    MetaCursorSprite *cursor_sprite)
+find_highest_logical_monitor_scale (MetaCursorRenderer *renderer,
+                                    MetaCursorSprite   *cursor_sprite)
 {
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
   MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
+    meta_backend_get_monitor_manager (priv->backend);
   graphene_rect_t cursor_rect;
   GList *logical_monitors;
   GList *l;
   float highest_scale = 0.0f;
 
-  cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
+  cursor_rect = meta_cursor_renderer_calculate_rect (renderer,
                                                      cursor_sprite);
 
   logical_monitors =
@@ -406,11 +406,12 @@ static void
 meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                     MetaCursorSprite   *cursor_sprite)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
 
   if (cursor_sprite)
     {
-      float scale = find_highest_logical_monitor_scale (priv->backend,
+      float scale = find_highest_logical_monitor_scale (renderer,
                                                         cursor_sprite);
       meta_cursor_sprite_prepare_at (cursor_sprite,
                                      MAX (1, scale),
