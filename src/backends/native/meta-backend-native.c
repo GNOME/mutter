@@ -100,9 +100,9 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendNative,
                             meta_backend_native,
                             META_TYPE_BACKEND)
 
-static void meta_backend_native_resume (MetaBackendNative *native);
+static void meta_backend_native_resume (MetaBackend *backend);
 
-static void meta_backend_native_pause (MetaBackendNative *native);
+static void meta_backend_native_pause (MetaBackend *backend);
 
 static void
 meta_backend_native_dispose (GObject *object)
@@ -737,17 +737,6 @@ on_started (MetaContext *context,
   meta_seat_native_start (META_SEAT_NATIVE (seat));
 }
 
-static void
-on_session_active_changed (MetaLauncher      *launcher,
-                           GParamSpec        *pspec,
-                           MetaBackendNative *native)
-{
-  if (meta_launcher_is_session_active (launcher))
-    meta_backend_native_resume (native);
-  else
-    meta_backend_native_pause (native);
-}
-
 static gboolean
 meta_backend_native_create_launcher (MetaBackend   *backend,
                                      MetaLauncher **launcher_out,
@@ -794,10 +783,6 @@ meta_backend_native_create_launcher (MetaBackend   *backend,
                    "Native backend mode needs to be session controller");
       return FALSE;
     }
-
-  g_signal_connect (launcher, "notify::session-active",
-                    G_CALLBACK (on_session_active_changed),
-                    native);
 
   *launcher_out = g_steal_pointer (&launcher);
   return TRUE;
@@ -895,6 +880,9 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 
   backend_class->is_headless = meta_backend_native_is_headless;
 
+  backend_class->pause = meta_backend_native_pause;
+  backend_class->resume = meta_backend_native_resume;
+
   obj_props[PROP_MODE] =
     g_param_spec_enum ("mode", NULL, NULL,
                        META_TYPE_BACKEND_NATIVE_MODE,
@@ -969,11 +957,11 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
 }
 
 static void
-meta_backend_native_pause (MetaBackendNative *backend_native)
+meta_backend_native_pause (MetaBackend *backend)
 {
+  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
   MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-  MetaBackend *backend = META_BACKEND (backend_native);
+    meta_backend_native_get_instance_private (native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerNative *monitor_manager_native =
@@ -981,25 +969,20 @@ meta_backend_native_pause (MetaBackendNative *backend_native)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-
-  COGL_TRACE_BEGIN_SCOPED (MetaBackendNativePause,
-                           "Meta::BackendNative::pause()");
 
   meta_seat_native_release_devices (seat);
-  meta_renderer_pause (renderer);
   meta_udev_pause (priv->udev);
-
   meta_monitor_manager_native_pause (monitor_manager_native);
+
+  META_BACKEND_CLASS (meta_backend_native_parent_class)->pause (backend);
 }
 
 static void
-meta_backend_native_resume (MetaBackendNative *native)
+meta_backend_native_resume (MetaBackend *backend)
 {
+  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
-  MetaBackend *backend = META_BACKEND (native);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerNative *monitor_manager_native =
@@ -1007,26 +990,20 @@ meta_backend_native_resume (MetaBackendNative *native)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaIdleManager *idle_manager;
-  MetaInputSettings *input_settings;
+  MetaIdleManager *idle_manager = meta_backend_get_idle_manager (backend);
+  MetaInputSettings *input_settings = meta_backend_get_input_settings (backend);
 
-  COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
-                           "Meta::BackendNative::resume()");
+  META_BACKEND_CLASS (meta_backend_native_parent_class)->resume (backend);
 
   meta_monitor_manager_native_resume (monitor_manager_native);
   meta_udev_resume (priv->udev);
   meta_kms_resume (priv->kms);
 
   meta_seat_native_reclaim_devices (seat);
-  meta_renderer_resume (renderer);
-
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 
   idle_manager = meta_backend_get_idle_manager (backend);
   meta_idle_manager_reset_idle_time (idle_manager);
 
-  input_settings = meta_backend_get_input_settings (backend);
   meta_input_settings_maybe_restore_numlock_state (input_settings);
 
   clutter_seat_ensure_a11y_state (CLUTTER_SEAT (seat));

@@ -630,6 +630,24 @@ meta_backend_real_is_headless (MetaBackend *backend)
   return FALSE;
 }
 
+static void
+meta_backend_real_pause (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  meta_renderer_pause (priv->renderer);
+}
+
+static void
+meta_backend_real_resume (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+  meta_renderer_resume (priv->renderer);
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+}
+
 void
 meta_backend_freeze_keyboard (MetaBackend *backend,
                               uint32_t     timestamp)
@@ -863,6 +881,8 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
   klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
   klass->is_headless = meta_backend_real_is_headless;
+  klass->pause = meta_backend_real_pause;
+  klass->resume = meta_backend_real_resume;
 
   obj_props[PROP_CONTEXT] =
     g_param_spec_object ("context", NULL, NULL,
@@ -927,14 +947,59 @@ meta_backend_class_init (MetaBackendClass *klass)
                   G_TYPE_NONE, 0);
 }
 
+static void
+meta_backend_pause (MetaBackend *backend)
+{
+  COGL_TRACE_BEGIN_SCOPED (MetaBackendPause,
+                           "Meta::Backend::pause()");
+
+  META_BACKEND_GET_CLASS (backend)->pause (backend);
+}
+
+static void
+meta_backend_resume (MetaBackend *backend)
+{
+  COGL_TRACE_BEGIN_SCOPED (MetaBackendResume,
+                           "Meta::Backend::resume()");
+
+  META_BACKEND_GET_CLASS (backend)->resume (backend);
+}
+
+static void
+on_session_active_changed (MetaLauncher *launcher,
+                           GParamSpec   *pspec,
+                           MetaBackend  *backend)
+{
+  gboolean active = meta_launcher_is_session_active (launcher);
+
+  if (active)
+    meta_backend_resume (backend);
+  else
+    meta_backend_pause (backend);
+}
+
 static gboolean
 meta_backend_create_launcher (MetaBackend   *backend,
                               MetaLauncher **launcher_out,
                               GError       **error)
 {
-  return META_BACKEND_GET_CLASS (backend)->create_launcher (backend,
-                                                            launcher_out,
-                                                            error);
+  g_autoptr (MetaLauncher) launcher = NULL;
+  gboolean ret;
+
+  ret = META_BACKEND_GET_CLASS (backend)->create_launcher (backend,
+                                                           &launcher,
+                                                           error);
+
+  if (launcher)
+    {
+      g_signal_connect_object (launcher, "notify::session-active",
+                               G_CALLBACK (on_session_active_changed),
+                               backend,
+                               G_CONNECT_DEFAULT);
+    }
+
+  *launcher_out = g_steal_pointer (&launcher);
+  return ret;
 }
 
 static MetaMonitorManager *
