@@ -2,6 +2,7 @@ clutter_clutter_includesubdir = clutter_includesubdir / 'clutter'
 clutter_clutter_includedir = clutter_includedir / 'clutter'
 
 clutter_headers = [
+  'pango/clutter-text-node.h',
   'clutter.h',
   'clutter-action.h',
   'clutter-actor-accessible.h',
@@ -86,6 +87,7 @@ clutter_sources = [
   'pango/clutter-pango-glyph-cache.c',
   'pango/clutter-pango-pipeline-cache.c',
   'pango/clutter-pango-render.c',
+  'pango/clutter-text-node.c',
   'clutter-accessibility.c',
   'clutter-action.c',
   'clutter-actor-box.c',

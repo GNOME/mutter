@@ -41,6 +41,7 @@
 
 #include "clutter/clutter-stage.h"
 
+#include "clutter/pango/clutter-text-node.h"
 #include "clutter/clutter-stage-accessible-private.h"
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
