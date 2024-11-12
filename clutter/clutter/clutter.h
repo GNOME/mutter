@@ -108,4 +108,6 @@
 #include "clutter/clutter-virtual-input-device.h"
 #include "clutter/clutter-zoom-action.h"
 
+#include "clutter/pango/clutter-text-node.h"
+
 #undef __CLUTTER_H_INSIDE__
