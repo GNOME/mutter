@@ -34,11 +34,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dbus-utils.h"
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-clutter-backend-native.h"
-#include "backends/native/meta-cursor-renderer-native.h"
-#include "backends/native/meta-input-thread.h"
-#include "backends/native/meta-renderer-native.h"
-#include "clutter/clutter.h"
 
 #include "meta-dbus-login1.h"
 
