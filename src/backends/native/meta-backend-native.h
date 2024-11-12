@@ -45,5 +45,3 @@ MetaLauncher * meta_backend_native_get_launcher (MetaBackendNative *native);
 
 META_EXPORT_TEST
 MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);
-
-const char * meta_backend_native_get_seat_id (MetaBackendNative *backend_native);

@@ -124,6 +124,26 @@ meta_backend_native_create_clutter_backend (MetaBackend    *backend,
   return CLUTTER_BACKEND (meta_clutter_backend_native_new (backend, context));
 }
 
+static const char *
+get_seat_id (MetaBackendNative *backend_native)
+{
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (backend_native);
+  MetaLauncher *launcher =
+    meta_backend_get_launcher (META_BACKEND (backend_native));
+
+  switch (priv->mode)
+    {
+    case META_BACKEND_NATIVE_MODE_DEFAULT:
+    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
+      return meta_launcher_get_seat_id (launcher);
+    case META_BACKEND_NATIVE_MODE_HEADLESS:
+    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
+      return "seat0";
+    }
+  g_assert_not_reached ();
+}
+
 static ClutterSeat *
 meta_backend_native_create_default_seat (MetaBackend  *backend,
                                          GError      **error)
@@ -141,7 +161,7 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
     case META_BACKEND_NATIVE_MODE_DEFAULT:
     case META_BACKEND_NATIVE_MODE_HEADLESS:
     case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
-      seat_id = meta_backend_native_get_seat_id (backend_native);
+      seat_id = get_seat_id (backend_native);
       break;
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       seat_id = META_BACKEND_TEST_INPUT_SEAT;
@@ -332,26 +352,6 @@ meta_backend_native_lock_layout_group (MetaBackend *backend,
   seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_layout_index (META_SEAT_NATIVE (seat), idx);
   meta_backend_notify_keymap_layout_group_changed (backend, idx);
-}
-
-const char *
-meta_backend_native_get_seat_id (MetaBackendNative *backend_native)
-{
-  MetaBackendNativePrivate *priv =
-    meta_backend_native_get_instance_private (backend_native);
-  MetaLauncher *launcher =
-    meta_backend_get_launcher (META_BACKEND (backend_native));
-
-  switch (priv->mode)
-    {
-    case META_BACKEND_NATIVE_MODE_DEFAULT:
-    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
-      return meta_launcher_get_seat_id (launcher);
-    case META_BACKEND_NATIVE_MODE_HEADLESS:
-    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
-      return "seat0";
-    }
-  g_assert_not_reached ();
 }
 
 static gboolean
