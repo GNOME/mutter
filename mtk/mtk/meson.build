@@ -1,17 +1,17 @@
 mtk_mtk_includesubdir = mtk_includesubdir / 'mtk'
 
 mtk_headers = [
-  'mtk.h',
   'mtk-macros.h',
+  'mtk-monitor-transform.h',
   'mtk-rectangle.h',
   'mtk-region.h',
-  'mtk-monitor-transform.h',
+  'mtk.h',
 ]
 
 mtk_sources = [
+  'mtk-monitor-transform.c',
   'mtk-rectangle.c',
   'mtk-region.c',
-  'mtk-monitor-transform.c',
 ]
 
 if have_x11_client
