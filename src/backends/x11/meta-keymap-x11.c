@@ -23,6 +23,7 @@
 
 #include "config.h"
 
+#include <fribidi.h>
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
 
@@ -257,8 +258,14 @@ get_direction (XkbDescPtr xkb,
     {
       int level = 0;
       KeySym sym = XkbKeySymEntry (xkb, code, level, group);
-      ClutterTextDirection dir =
-        clutter_unichar_direction (clutter_keysym_to_unicode (sym));
+      uint32_t unicode = clutter_keysym_to_unicode (sym);
+      FriBidiCharType fribidi_ch_type = fribidi_get_bidi_type (unicode);
+      ClutterTextDirection dir = CLUTTER_TEXT_DIRECTION_LTR;
+
+      if (!FRIBIDI_IS_STRONG (fribidi_ch_type))
+        dir = CLUTTER_TEXT_DIRECTION_DEFAULT;
+      else if (FRIBIDI_IS_RTL (fribidi_ch_type))
+        dir = CLUTTER_TEXT_DIRECTION_RTL;
 
       switch (dir)
         {
