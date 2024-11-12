@@ -138,3 +138,6 @@
 
 /* libdrm defines struct drm_plane_size_hint */
 #mesondefine HAVE_DRM_PLANE_SIZE_HINT
+
+/* Building with font rendering integration support */
+#mesondefine HAVE_FONTS

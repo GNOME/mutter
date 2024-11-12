@@ -111,11 +111,8 @@ subproject('gvdb')
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
-pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
-pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
 pixman_dep = dependency('pixman-1', version: pixman_req)
-fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
                                            version: gsettings_desktop_schemas_req)
 glib_dep = dependency('glib-2.0', version: glib_req)
@@ -129,7 +126,6 @@ xkbcommon_dep = dependency('xkbcommon', version: xkbcommon_req)
 atk_dep = dependency('atk', version: atk_req)
 colord_dep = dependency('colord', version: colord_req)
 lcms2_dep = dependency('lcms2', version: lcms2_req)
-harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
 libeis_dep = dependency('libeis-1.0', version: libei_req)
 libei_dep = dependency('libei-1.0', version: libei_req)
 gvdb_dep = dependency('gvdb')
@@ -146,6 +142,18 @@ endif
 
 if not have_wayland and not have_x11
   error('A Wayland/X11 backend must be enabled')
+endif
+
+have_fonts = get_option('fonts')
+
+if have_fonts
+  pango_dep = dependency('pango', version: pango_req)
+  pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
+  harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
+endif
+
+if have_fonts or have_x11
+  fribidi_dep = dependency('fribidi', version: fribidi_req)
 endif
 
 if have_x11_client
@@ -566,6 +574,7 @@ cdata.set('HAVE_PROFILER', have_profiler)
 cdata.set('HAVE_TIMERFD', have_timerfd)
 cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 cdata.set('HAVE_EVENTFD', have_eventfd)
+cdata.set('HAVE_FONTS', have_fonts)
 cdata.set('HAVE_DRM_PLANE_SIZE_HINT', have_drm_plane_size_hint)
 
 if have_x11_client
@@ -738,6 +747,7 @@ summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')
 summary('SM', have_sm, section: 'Options')
+summary('Fonts', have_fonts, section: 'Options')
 summary('Startup notification', have_startup_notification, section: 'Options')
 summary('Introspection', have_introspection, section: 'Options')
 summary('Documentation', have_documentation, section: 'Options')

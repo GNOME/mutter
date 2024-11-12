@@ -20,16 +20,23 @@ clutter_conform_tests_actor_tests = [
   'actor-layout',
   'actor-meta',
   'actor-offscreen-redirect',
-  'actor-paint-opacity',
   'actor-pick',
   'actor-pivot-point',
   'actor-shader-effect',
   'actor-size',
 ]
 
-clutter_conform_tests_classes_tests = [
-  'text',
-]
+clutter_conform_tests_classes_tests = []
+
+if have_fonts
+  clutter_conform_tests_actor_tests += [
+    'actor-paint-opacity',
+  ]
+
+  clutter_conform_tests_classes_tests += [
+    'text',
+  ]
+endif
 
 clutter_conform_tests_general_tests = [
   'binding-pool',

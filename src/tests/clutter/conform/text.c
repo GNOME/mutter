@@ -1,5 +1,6 @@
 #include <glib.h>
 #include <clutter/clutter.h>
+#include <clutter/clutter-pango.h>
 #include <string.h>
 
 #include "tests/clutter-test-utils.h"

@@ -5,12 +5,17 @@ clutter_tests_micro_bench_c_args = [
 clutter_tests_micro_bench_c_args += clutter_debug_c_args
 
 clutter_tests_micro_bench_tests = [
-  'test-text',
   'test-picking',
-  'test-text-perf',
-  'test-random-text',
   'test-cogl-perf',
 ]
+
+if have_fonts
+  clutter_tests_micro_bench_tests += [
+    'test-text',
+    'test-text-perf',
+    'test-random-text',
+  ]
+endif
 
 foreach test : clutter_tests_micro_bench_tests
   executable(test,

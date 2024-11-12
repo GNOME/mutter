@@ -2,9 +2,6 @@ clutter_clutter_includesubdir = clutter_includesubdir / 'clutter'
 clutter_clutter_includedir = clutter_includedir / 'clutter'
 
 clutter_headers = [
-  'pango/clutter-text.h',
-  'pango/clutter-text-buffer.h',
-  'pango/clutter-text-node.h',
   'clutter.h',
   'clutter-action.h',
   'clutter-actor-accessible.h',
@@ -83,14 +80,6 @@ clutter_headers = [
 ]
 
 clutter_sources = [
-  'pango/clutter-pango-display-list.c',
-  'pango/clutter-pango-glyph-cache.c',
-  'pango/clutter-pango-pipeline-cache.c',
-  'pango/clutter-pango-render.c',
-  'pango/clutter-text.c',
-  'pango/clutter-text-accessible.c',
-  'pango/clutter-text-buffer.c',
-  'pango/clutter-text-node.c',
   'clutter-accessibility.c',
   'clutter-action.c',
   'clutter-actor-box.c',
@@ -182,11 +171,6 @@ clutter_sources = [
 ]
 
 clutter_private_headers = [
-  'pango/clutter-pango-display-list.h',
-  'pango/clutter-pango-glyph-cache.h',
-  'pango/clutter-pango-pipeline-cache.h',
-  'pango/clutter-pango-private.h',
-  'pango/clutter-text-accessible-private.h',
   'clutter-accessibility-private.h',
   'clutter-actor-meta-private.h',
   'clutter-actor-private.h',
@@ -224,6 +208,40 @@ clutter_private_headers = [
   'clutter-timeline-private.h',
 ]
 
+clutter_fonts_headers = [
+  'pango/clutter-actor-pango.h',
+  'pango/clutter-text.h',
+  'pango/clutter-text-buffer.h',
+  'pango/clutter-text-node.h',
+]
+
+clutter_fonts_sources = [
+  'pango/clutter-pango-display-list.c',
+  'pango/clutter-pango-glyph-cache.c',
+  'pango/clutter-pango-pipeline-cache.c',
+  'pango/clutter-pango-render.c',
+  'pango/clutter-text.c',
+  'pango/clutter-text-accessible.c',
+  'pango/clutter-text-buffer.c',
+  'pango/clutter-text-node.c',
+]
+
+clutter_fonts_private_headers = [
+  'pango/clutter-pango-display-list.h',
+  'pango/clutter-pango-glyph-cache.h',
+  'pango/clutter-pango-pipeline-cache.h',
+  'pango/clutter-pango-private.h',
+  'pango/clutter-text-accessible-private.h',
+]
+
+if have_fonts
+  clutter_sources += clutter_fonts_sources
+  clutter_private_headers += clutter_fonts_private_headers
+  clutter_headers += [
+    'clutter-pango.h',
+  ]
+endif
+
 clutter_nonintrospected_sources = [
   'clutter-easing.c',
 ]
@@ -254,16 +272,23 @@ clutter_marshal = gnome.genmarshal('clutter-marshal',
 clutter_built_sources += clutter_marshal[0]
 clutter_built_headers += clutter_marshal[1]
 
+
+sources = [
+  clutter_sources,
+  clutter_headers,
+  clutter_private_headers,
+  clutter_nonintrospected_sources,
+  clutter_built_sources,
+  clutter_built_headers,
+]
+
+if have_fonts
+  sources += clutter_fonts_headers
+endif
+
 libmutter_clutter_name = 'mutter-clutter-' + libmutter_api_version
 libmutter_clutter = shared_library(libmutter_clutter_name,
-  sources: [
-    clutter_sources,
-    clutter_headers,
-    clutter_private_headers,
-    clutter_nonintrospected_sources,
-    clutter_built_sources,
-    clutter_built_headers,
-  ],
+  sources: sources,
   version: '0.0.0',
   soversion: 0,
   c_args: clutter_c_args,
@@ -290,13 +315,25 @@ if have_introspection
     '-DG_LOG_DOMAIN="Clutter"'
   ]
 
+  extra_args = clutter_introspection_args + ['--c-include=clutter/clutter.h']
+  if have_fonts
+    extra_args += [
+      '--c-include=clutter/clutter-pango.h'
+    ]
+  endif
+
+  sources = [
+    clutter_built_sources,
+    clutter_built_headers,
+    clutter_sources,
+    clutter_headers,
+  ]
+  if have_fonts
+    sources += [clutter_fonts_headers]
+  endif
+
   libmutter_clutter_gir = gnome.generate_gir(libmutter_clutter,
-    sources: [
-      clutter_built_sources,
-      clutter_built_headers,
-      clutter_sources,
-      clutter_headers,
-    ],
+    sources: sources,
     nsversion: libmutter_api_version,
     namespace: 'Clutter',
     export_packages: [libmutter_clutter_name],
@@ -311,13 +348,18 @@ if have_introspection
       'Pango-1.0',
     ],
     dependencies: [cogl_deps],
-    extra_args: clutter_introspection_args + ['--c-include=clutter/clutter.h'],
+    extra_args: extra_args,
     kwargs: introspection_common,
   )
 endif
 
 install_headers(clutter_headers,
   subdir: clutter_clutter_includesubdir)
+
+if have_fonts
+  install_headers(clutter_fonts_headers,
+    subdir: clutter_clutter_includesubdir / 'pango')
+endif
 
 pkg.generate(libmutter_clutter,
   name: 'Mutters Clutter',

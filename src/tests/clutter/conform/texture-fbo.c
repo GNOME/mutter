@@ -1,4 +1,5 @@
 #include <clutter/clutter.h>
+#include <clutter/clutter-pango.h>
 #include <cogl/cogl.h>
 
 #include "test-conform-common.h"

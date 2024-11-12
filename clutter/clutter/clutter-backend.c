@@ -39,7 +39,9 @@
 
 #include "config.h"
 
+#ifdef HAVE_FONTS
 #include <pango/pangocairo.h>
+#endif
 
 #include "clutter/clutter-backend-private.h"
 #include "clutter/clutter-context-private.h"
@@ -137,6 +139,7 @@ clutter_backend_set_property (GObject      *object,
     }
 }
 
+#ifdef HAVE_FONTS
 static void
 clutter_backend_real_resolution_changed (ClutterBackend *backend)
 {
@@ -156,6 +159,7 @@ clutter_backend_real_resolution_changed (ClutterBackend *backend)
     pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (context->font_map),
                                          resolution);
 }
+#endif
 
 static gboolean
 clutter_backend_real_create_context (ClutterBackend  *backend,
@@ -269,7 +273,9 @@ clutter_backend_class_init (ClutterBackendClass *klass)
 
   g_object_class_install_properties (gobject_class, N_PROPS, pspecs);
 
+#ifdef HAVE_FONTS
   klass->resolution_changed = clutter_backend_real_resolution_changed;
+#endif
 
   klass->create_context = clutter_backend_real_create_context;
 }

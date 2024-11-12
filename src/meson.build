@@ -1355,6 +1355,7 @@ pkg.generate(libmutter,
     'have_x11=@0@'.format(have_x11),
     'have_x11_client=@0@'.format(have_x11_client),
     'have_wayland=@0@'.format(have_wayland),
+    'have_fonts=@0@'.format(have_fonts),
   ],
   install_dir: pcdir,
 )

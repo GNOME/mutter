@@ -1,4 +1,5 @@
 #include <clutter/clutter.h>
+#include <clutter/clutter-pango.h>
 #include <string.h>
 #include <stdlib.h>
 

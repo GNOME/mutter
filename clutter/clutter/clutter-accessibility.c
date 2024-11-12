@@ -31,6 +31,9 @@
 #include "clutter/clutter-stage-manager-accessible-private.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-private.h"
+#ifdef HAVE_FONTS
+#include "clutter/clutter-pango.h"
+#endif
 
 #define DEFAULT_PASSWORD_CHAR '*'
 
@@ -243,9 +246,11 @@ check_key_visibility (ClutterStage *stage)
      still better fill this with a default unichar that the original
      one */
 
+#ifdef HAVE_FONTS
   if (CLUTTER_IS_TEXT (focus))
     return clutter_text_get_password_char (CLUTTER_TEXT (focus));
   else
+#endif
     return DEFAULT_PASSWORD_CHAR;
 }
 

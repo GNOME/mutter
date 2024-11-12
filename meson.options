@@ -218,3 +218,9 @@ option('catch',
   value: false,
   description: 'Use catch to catch backtraces'
 )
+
+option('fonts',
+  type: 'boolean',
+  value: true,
+  description: 'Enable font rendering integration using Pango'
+)
