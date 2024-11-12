@@ -124,6 +124,68 @@ meta_launcher_init (MetaLauncher *launcher)
 {
 }
 
+static char *
+get_display_session (GError **error)
+{
+  g_autofree char *session_id = NULL;
+  int saved_errno;
+  int n_sessions;
+  g_auto (GStrv) sessions = NULL;
+
+  saved_errno = sd_uid_get_display (getuid (), &session_id);
+  if (saved_errno >= 0)
+    return g_steal_pointer (&session_id);
+
+  if (saved_errno != -ENODATA)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Couldn't get display for user %d: %s",
+                   getuid (),
+                   g_strerror (-saved_errno));
+      return NULL;
+    }
+
+  /* no session, maybe there's a greeter session */
+  n_sessions = sd_uid_get_sessions (getuid (), 1, &sessions);
+  if (n_sessions < 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Failed to get all sessions for user %d (%m)",
+                   getuid ());
+      return NULL;
+    }
+
+  if (n_sessions == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "User %d has no sessions",
+                   getuid ());
+      return NULL;
+    }
+
+  for (int i = 0; i < n_sessions; ++i)
+    {
+      g_autofree char *class = NULL;
+
+      saved_errno = sd_session_get_class (sessions[i], &class);
+      if (saved_errno < 0)
+        {
+          g_warning ("Couldn't get class for session '%d': %s",
+                     i,
+                     g_strerror (-saved_errno));
+          continue;
+        }
+
+      if (g_strcmp0 (class, "greeter") == 0)
+        return g_strdup (sessions[i]);
+    }
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+               "Couldn't find a session or a greeter session for user %d",
+               getuid ());
+  return NULL;
+}
+
 static gboolean
 find_systemd_session (char   **session_id,
                       GError **error)
@@ -137,7 +199,6 @@ find_systemd_session (char   **session_id,
   g_autofree char *type = NULL;
   g_autofree char *state = NULL;
   g_auto (GStrv) sessions = NULL;
-  int n_sessions;
   int saved_errno;
   const char *xdg_session_id = NULL;
 
@@ -185,72 +246,9 @@ find_systemd_session (char   **session_id,
       return TRUE;
     }
 
-  saved_errno = sd_uid_get_display (getuid (), &local_session_id);
-  if (saved_errno < 0)
-    {
-      /* no session, maybe there's a greeter session */
-      if (saved_errno == -ENODATA)
-        {
-          n_sessions = sd_uid_get_sessions (getuid (), 1, &sessions);
-          if (n_sessions < 0)
-            {
-              g_set_error (error,
-                           G_IO_ERROR,
-                           G_IO_ERROR_NOT_FOUND,
-                           "Failed to get all sessions for user %d (%m)",
-                           getuid ());
-              return FALSE;
-            }
-
-          if (n_sessions == 0)
-            {
-              g_set_error (error,
-                           G_IO_ERROR,
-                           G_IO_ERROR_NOT_FOUND,
-                           "User %d has no sessions",
-                           getuid ());
-              return FALSE;
-            }
-
-          for (int i = 0; i < n_sessions; ++i)
-            {
-              saved_errno = sd_session_get_class (sessions[i], &class);
-              if (saved_errno < 0)
-                {
-                  g_warning ("Couldn't get class for session '%d': %s",
-                             i,
-                             g_strerror (-saved_errno));
-                  continue;
-                }
-
-              if (g_strcmp0 (class, "greeter") == 0)
-                {
-                  local_session_id = g_strdup (sessions[i]);
-                  break;
-                }
-            }
-
-          if (!local_session_id)
-            {
-              g_set_error (error,
-                           G_IO_ERROR,
-                           G_IO_ERROR_NOT_FOUND,
-                           "Couldn't find a session or a greeter session for user %d",
-                           getuid ());
-              return FALSE;
-            }
-        }
-      else
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       G_IO_ERROR_NOT_FOUND,
-                       "Couldn't get display for user %d: %s",
-                       getuid (),
-                       g_strerror (-saved_errno));
-          return FALSE;
-        }
-    }
+  local_session_id = get_display_session (error);
+  if (!local_session_id)
+    return FALSE;
 
   /* sd_uid_get_display will return any session if there is no graphical
    * one, so let's check it really is graphical. */
