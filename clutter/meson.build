@@ -28,16 +28,21 @@ clutter_pkg_deps = [
   glib_dep,
   gobject_dep,
   gio_dep,
-  pango_dep,
-  harfbuzz_dep,
 ]
 
 clutter_pkg_private_deps = [
-  fribidi_dep,
   gthread_dep,
   gmodule_no_export_dep,
-  pangocairo_dep,
 ]
+
+if have_fonts
+  clutter_pkg_private_deps += [
+    fribidi_dep,
+    pangocairo_dep,
+    pango_dep,
+    harfbuzz_dep,
+  ]
+endif
 
 clutter_deps = [
   clutter_pkg_deps,
