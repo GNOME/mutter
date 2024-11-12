@@ -115,7 +115,7 @@ meta_backend_native_dispose (GObject *object)
   g_clear_object (&priv->kms);
   g_clear_object (&priv->udev);
   g_clear_object (&priv->device_pool);
-  g_clear_pointer (&priv->launcher, meta_launcher_free);
+  g_clear_object (&priv->launcher);
 }
 
 static ClutterBackend *

@@ -39,8 +39,9 @@
 
 struct _MetaLauncher
 {
-  MetaBackend *backend;
+  GObject parent;
 
+  MetaBackend *backend;
   MetaDBusLogin1Session *session_proxy;
   MetaDBusLogin1Seat *seat_proxy;
   char *seat_id;
@@ -48,10 +49,39 @@ struct _MetaLauncher
   gboolean session_active;
 };
 
+G_DEFINE_FINAL_TYPE (MetaLauncher,
+                     meta_launcher,
+                     G_TYPE_OBJECT)
+
 const char *
 meta_launcher_get_seat_id (MetaLauncher *launcher)
 {
   return launcher->seat_id;
+}
+
+static void
+meta_launcher_dispose (GObject *object)
+{
+  MetaLauncher *launcher = META_LAUNCHER (object);
+
+  g_clear_pointer (&launcher->seat_id, g_free);
+  g_clear_object (&launcher->seat_proxy);
+  g_clear_object (&launcher->session_proxy);
+
+  G_OBJECT_CLASS (meta_launcher_parent_class)->dispose (object);
+}
+
+static void
+meta_launcher_class_init (MetaLauncherClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = meta_launcher_dispose;
+}
+
+static void
+meta_launcher_init (MetaLauncher *launcher)
+{
 }
 
 static gboolean
@@ -413,7 +443,7 @@ meta_launcher_new (MetaBackend  *backend,
         goto fail;
     }
 
-  self = g_new0 (MetaLauncher, 1);
+  self = g_object_new (META_TYPE_LAUNCHER, NULL);
   self->backend = backend;
   self->session_proxy = g_object_ref (session_proxy);
   self->session_active = TRUE;
@@ -434,15 +464,6 @@ fail:
                                                           NULL, NULL);
     }
   return NULL;
-}
-
-void
-meta_launcher_free (MetaLauncher *self)
-{
-  g_free (self->seat_id);
-  g_clear_object (&self->seat_proxy);
-  g_clear_object (&self->session_proxy);
-  g_free (self);
 }
 
 gboolean
