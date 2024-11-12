@@ -29,7 +29,7 @@
 #endif
 
 #include "clutter/clutter-actor.h"
-#include "clutter/clutter-text-buffer.h"
+#include "clutter/pango/clutter-text-buffer.h"
 #include <pango/pango.h>
 
 G_BEGIN_DECLS

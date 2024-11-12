@@ -37,11 +37,11 @@
 
 #include "config.h"
 
-#include "clutter/clutter-text-accessible-private.h"
+#include "clutter/pango/clutter-text-accessible-private.h"
 
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-main.h"
-#include "clutter/clutter-text.h"
+#include "clutter/pango/clutter-text.h"
 
 static void cally_text_finalize   (GObject *obj);
 

@@ -44,10 +44,11 @@
 #include <string.h>
 #include <math.h>
 
-#include "clutter/clutter-text.h"
+#include "clutter/pango/clutter-text.h"
 
 #include "clutter/pango/clutter-pango-private.h"
-#include "clutter/clutter-text-accessible-private.h"
+#include "clutter/pango/clutter-text-accessible-private.h"
+#include "clutter/pango/clutter-text-buffer.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-animatable.h"
 #include "clutter/clutter-backend-private.h"
@@ -59,7 +60,6 @@
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-property-transition.h"
-#include "clutter/clutter-text-buffer.h"
 #include "clutter/clutter-paint-volume-private.h"
 #include "clutter/clutter-input-focus.h"
 

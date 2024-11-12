@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "clutter/clutter-text-buffer.h"
+#include "clutter/pango/clutter-text-buffer.h"
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-private.h"
 
@@ -27,7 +27,7 @@
 
 /**
  * ClutterTextBuffer:
- * 
+ *
  * Text buffer for [class@Text]
  *
  * The #ClutterTextBuffer class contains the actual text displayed in a
@@ -556,8 +556,8 @@ clutter_text_buffer_set_text (ClutterTextBuffer *buffer,
  *   (other than the maximum length of entries.) The value passed in will
  *   be clamped to the range [ 0, %CLUTTER_TEXT_BUFFER_MAX_SIZE ].
  *
- * Sets the maximum allowed length of the contents of the buffer. 
- * 
+ * Sets the maximum allowed length of the contents of the buffer.
+ *
  * If the current contents are longer than the given length,
  * then they will be truncated to fit.
  **/

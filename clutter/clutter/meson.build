@@ -2,6 +2,8 @@ clutter_clutter_includesubdir = clutter_includesubdir / 'clutter'
 clutter_clutter_includedir = clutter_includedir / 'clutter'
 
 clutter_headers = [
+  'pango/clutter-text.h',
+  'pango/clutter-text-buffer.h',
   'pango/clutter-text-node.h',
   'clutter.h',
   'clutter-action.h',
@@ -71,8 +73,6 @@ clutter_headers = [
   'clutter-stage.h',
   'clutter-stage-view.h',
   'clutter-tap-action.h',
-  'clutter-text.h',
-  'clutter-text-buffer.h',
   'clutter-texture-content.h',
   'clutter-timeline.h',
   'clutter-transition-group.h',
@@ -87,6 +87,9 @@ clutter_sources = [
   'pango/clutter-pango-glyph-cache.c',
   'pango/clutter-pango-pipeline-cache.c',
   'pango/clutter-pango-render.c',
+  'pango/clutter-text.c',
+  'pango/clutter-text-accessible.c',
+  'pango/clutter-text-buffer.c',
   'pango/clutter-text-node.c',
   'clutter-accessibility.c',
   'clutter-action.c',
@@ -169,9 +172,6 @@ clutter_sources = [
   'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
-  'clutter-text-accessible.c',
-  'clutter-text.c',
-  'clutter-text-buffer.c',
   'clutter-texture-content.c',
   'clutter-transition-group.c',
   'clutter-transition.c',
@@ -186,6 +186,7 @@ clutter_private_headers = [
   'pango/clutter-pango-glyph-cache.h',
   'pango/clutter-pango-pipeline-cache.h',
   'pango/clutter-pango-private.h',
+  'pango/clutter-text-accessible-private.h',
   'clutter-accessibility-private.h',
   'clutter-actor-meta-private.h',
   'clutter-actor-private.h',
@@ -220,7 +221,6 @@ clutter_private_headers = [
   'clutter-stage-private.h',
   'clutter-stage-view-private.h',
   'clutter-stage-window.h',
-  'clutter-text-accessible-private.h',
   'clutter-timeline-private.h',
 ]
 
