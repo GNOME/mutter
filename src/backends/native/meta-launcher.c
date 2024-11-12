@@ -33,9 +33,19 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dbus-utils.h"
-#include "backends/native/meta-backend-native.h"
 
 #include "meta-dbus-login1.h"
+
+enum
+{
+  PROP_0,
+
+  PROP_SESSION_ACTIVE,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
 
 struct _MetaLauncher
 {
@@ -60,6 +70,25 @@ meta_launcher_get_seat_id (MetaLauncher *launcher)
 }
 
 static void
+meta_launcher_get_property (GObject    *object,
+                            guint       prop_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
+{
+  MetaLauncher *launcher = META_LAUNCHER (object);
+
+  switch (prop_id)
+    {
+    case PROP_SESSION_ACTIVE:
+      g_value_set_boolean (value, launcher->session_active);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_launcher_dispose (GObject *object)
 {
   MetaLauncher *launcher = META_LAUNCHER (object);
@@ -77,6 +106,15 @@ meta_launcher_class_init (MetaLauncherClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_launcher_dispose;
+  object_class->get_property = meta_launcher_get_property;
+
+  obj_props[PROP_SESSION_ACTIVE] =
+    g_param_spec_boolean ("session-active", NULL, NULL,
+                          TRUE,
+                          G_PARAM_READABLE |
+                          G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void
@@ -334,8 +372,6 @@ get_seat_proxy (char          *seat_id,
 static void
 sync_active (MetaLauncher *self)
 {
-  MetaBackend *backend = self->backend;
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaDBusLogin1Session *session_proxy = self->session_proxy;
   gboolean active;
 
@@ -344,11 +380,8 @@ sync_active (MetaLauncher *self)
     return;
 
   self->session_active = active;
-
-  if (active)
-    meta_backend_native_resume (backend_native);
-  else
-    meta_backend_native_pause (backend_native);
+  g_object_notify_by_pspec (G_OBJECT (self),
+                            obj_props[PROP_SESSION_ACTIVE]);
 }
 
 static void
@@ -454,6 +487,7 @@ meta_launcher_new (MetaBackend  *backend,
     }
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
+  sync_active (self);
 
   return self;
 
@@ -475,6 +509,12 @@ meta_launcher_activate_vt (MetaLauncher  *launcher,
 
   return meta_dbus_login1_seat_call_switch_to_sync (launcher->seat_proxy, vt,
                                                     NULL, error);
+}
+
+gboolean
+meta_launcher_is_session_active (MetaLauncher *launcher)
+{
+  return launcher->session_active;
 }
 
 MetaBackend *

@@ -734,6 +734,17 @@ on_started (MetaContext *context,
   meta_seat_native_start (META_SEAT_NATIVE (seat));
 }
 
+static void
+on_session_active_changed (MetaLauncher      *launcher,
+                           GParamSpec        *pspec,
+                           MetaBackendNative *native)
+{
+  if (meta_launcher_is_session_active (launcher))
+    meta_backend_native_resume (native);
+  else
+    meta_backend_native_pause (native);
+}
+
 static gboolean
 meta_backend_native_init_basic (MetaBackend  *backend,
                                 GError      **error)
@@ -776,6 +787,10 @@ meta_backend_native_init_basic (MetaBackend  *backend,
           priv->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
           g_message ("No seat assigned, running headlessly");
         }
+
+      g_signal_connect (priv->launcher, "notify::session-active",
+                        G_CALLBACK (on_session_active_changed),
+                        native);
     }
 
   priv->device_pool = meta_device_pool_new (native);
