@@ -13037,7 +13037,7 @@ update_pango_context (ClutterBackend *backend,
     resolution = 96.0; /* fall back */
 
   pango_context_set_font_description (context, font_desc);
-  pango_cairo_context_set_font_options (context, backend->font_options);
+  pango_cairo_context_set_font_options (context, (cairo_font_options_t *)backend->font_options);
   pango_cairo_context_set_resolution (context, resolution);
 
   pango_font_description_free (font_desc);

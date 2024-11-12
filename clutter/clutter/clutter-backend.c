@@ -40,6 +40,7 @@
 #include "config.h"
 
 #ifdef HAVE_FONTS
+#include <cairo.h>
 #include <pango/pangocairo.h>
 #endif
 
@@ -95,7 +96,10 @@ clutter_backend_dispose (GObject *gobject)
     }
 
   g_clear_pointer (&backend->cogl_source, g_source_destroy);
-  g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
+#ifdef HAVE_FONTS
+  cairo_font_options_destroy ((cairo_font_options_t *)backend->font_options);
+  backend->font_options = NULL;
+#endif
   g_clear_object (&backend->input_method);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
@@ -361,11 +365,17 @@ clutter_backend_init (ClutterBackend *self)
   self->fallback_resource_scale = 1.f;
 
   /* Default font options */
-  self->font_options = cairo_font_options_create ();
-  cairo_font_options_set_hint_metrics (self->font_options, CAIRO_HINT_METRICS_ON);
-  cairo_font_options_set_hint_style (self->font_options, CAIRO_HINT_STYLE_NONE);
-  cairo_font_options_set_subpixel_order (self->font_options, CAIRO_SUBPIXEL_ORDER_DEFAULT);
-  cairo_font_options_set_antialias (self->font_options, CAIRO_ANTIALIAS_DEFAULT);
+#ifdef HAVE_FONTS
+  self->font_options = (gpointer) cairo_font_options_create ();
+  cairo_font_options_set_hint_metrics ((cairo_font_options_t *)self->font_options,
+                                       CAIRO_HINT_METRICS_ON);
+  cairo_font_options_set_hint_style ((cairo_font_options_t *)self->font_options,
+                                     CAIRO_HINT_STYLE_NONE);
+  cairo_font_options_set_subpixel_order ((cairo_font_options_t *)self->font_options,
+                                         CAIRO_SUBPIXEL_ORDER_DEFAULT);
+  cairo_font_options_set_antialias ((cairo_font_options_t *)self->font_options,
+                                    CAIRO_ANTIALIAS_DEFAULT);
+#endif
 }
 
 ClutterStageWindow *
