@@ -441,6 +441,10 @@ meta_launcher_new (MetaBackend  *backend,
   g_autofree char *seat_id = NULL;
   gboolean have_control = FALSE;
 
+  session_proxy = get_session_proxy (fallback_session_id, NULL, error);
+  if (!session_proxy)
+    return NULL;
+
   seat_id = get_seat_id (&local_error);
   if (!seat_id)
     {
@@ -460,10 +464,6 @@ meta_launcher_new (MetaBackend  *backend,
       if (!seat_proxy)
         return NULL;
     }
-
-  session_proxy = get_session_proxy (fallback_session_id, NULL, error);
-  if (!session_proxy)
-    return NULL;
 
   if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
                                                         FALSE,
