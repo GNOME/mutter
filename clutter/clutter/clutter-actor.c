@@ -488,6 +488,7 @@
 
 #include "clutter/clutter-actor-private.h"
 
+#include "clutter/pango/clutter-pango-private.h"
 #include "clutter/clutter-action.h"
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-meta-private.h"
