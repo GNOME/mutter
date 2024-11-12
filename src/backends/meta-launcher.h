@@ -30,8 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaLauncher,
 typedef struct _MetaDBusLogin1Session MetaDBusLogin1Session;
 
 MetaLauncher *meta_launcher_new (MetaBackend  *backend,
-                                 const char   *session_id,
-                                 const char   *custom_seat_id,
                                  GError      **error);
 
 gboolean meta_launcher_activate_vt (MetaLauncher  *self,

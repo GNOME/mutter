@@ -54,7 +54,6 @@ struct _MetaLauncher
   MetaBackend *backend;
   MetaDBusLogin1Session *session_proxy;
   MetaDBusLogin1Seat *seat_proxy;
-  char *seat_id;
 
   gboolean session_active;
   gboolean have_control;
@@ -95,7 +94,6 @@ meta_launcher_dispose (GObject *object)
       launcher->have_control = FALSE;
     }
 
-  g_clear_pointer (&launcher->seat_id, g_free);
   g_clear_object (&launcher->seat_proxy);
   g_clear_object (&launcher->session_proxy);
 
@@ -305,8 +303,7 @@ find_systemd_session (char   **session_id,
 }
 
 static MetaDBusLogin1Session *
-get_session_proxy (const char    *fallback_session_id,
-                   GCancellable  *cancellable,
+get_session_proxy (GCancellable  *cancellable,
                    GError       **error)
 {
   g_autofree char *proxy_path = NULL;
@@ -317,21 +314,10 @@ get_session_proxy (const char    *fallback_session_id,
 
   if (!find_systemd_session (&session_id, &local_error))
     {
-      if (fallback_session_id)
-        {
-          meta_topic (META_DEBUG_BACKEND,
-                      "Failed to get seat ID: %s, using fallback (%s)",
-                      local_error->message, fallback_session_id);
-          g_clear_error (&local_error);
-          session_id = g_strdup (fallback_session_id);
-        }
-      else
-        {
-          g_propagate_prefixed_error (error,
-                                      g_steal_pointer (&local_error),
-                                      "Could not get session ID: ");
-          return NULL;
-        }
+      g_propagate_prefixed_error (error,
+                                  g_steal_pointer (&local_error),
+                                  "Could not get session ID: ");
+      return NULL;
     }
 
   proxy_path =
@@ -352,27 +338,33 @@ get_session_proxy (const char    *fallback_session_id,
 }
 
 static MetaDBusLogin1Seat *
-get_seat_proxy (char          *seat_id,
-                GCancellable  *cancellable,
-                GError       **error)
+get_seat_proxy (MetaDBusLogin1Session  *session_proxy,
+                GCancellable           *cancellable,
+                GError                **error)
 {
-  g_autofree char *seat_proxy_path =
-    get_escaped_dbus_path ("/org/freedesktop/login1/seat", seat_id);
+  GVariant *seat_variant;
+  MetaDBusLogin1Seat *seat_proxy;
+  const char *seat_path;
   GDBusProxyFlags flags;
-  MetaDBusLogin1Seat *seat;
+
+  seat_variant = meta_dbus_login1_session_get_seat (session_proxy);
+
+  g_variant_get (seat_variant, "(s&o)", NULL, &seat_path);
 
   flags = G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START;
-  seat =
+  seat_proxy =
     meta_dbus_login1_seat_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                   flags,
                                                   "org.freedesktop.login1",
-                                                  seat_proxy_path,
+                                                  seat_path,
                                                   cancellable,
                                                   error);
-  if (!seat)
+  if (!seat_proxy)
     g_prefix_error (error, "Could not get seat proxy: ");
 
-  return seat;
+  g_warn_if_fail (g_dbus_proxy_get_name_owner (G_DBUS_PROXY (seat_proxy)));
+
+  return seat_proxy;
 }
 
 static void
@@ -399,70 +391,29 @@ on_active_changed (MetaDBusLogin1Session *session,
   sync_active (self);
 }
 
-static char *
-get_seat_id (GError **error)
-{
-  g_autoptr (GError) local_error = NULL;
-  g_autofree char *session_id = NULL;
-  char *seat_id = NULL;
-  int r;
-
-  if (!find_systemd_session (&session_id, &local_error))
-    {
-      g_propagate_prefixed_error (error,
-                                  g_steal_pointer (&local_error),
-                                  "Could not get session ID: ");
-      return NULL;
-    }
-
-  r = sd_session_get_seat (session_id, &seat_id);
-  if (r < 0)
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_NOT_FOUND,
-                   "Could not get seat for session: %s", g_strerror (-r));
-      return NULL;
-    }
-
-  return seat_id;
-}
-
 MetaLauncher *
 meta_launcher_new (MetaBackend  *backend,
-                   const char   *fallback_session_id,
-                   const char   *fallback_seat_id,
                    GError      **error)
 {
   g_autoptr (MetaLauncher) launcher = NULL;
   g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
   g_autoptr (MetaDBusLogin1Seat) seat_proxy = NULL;
   g_autoptr (GError) local_error = NULL;
-  g_autofree char *seat_id = NULL;
   gboolean have_control = FALSE;
 
-  session_proxy = get_session_proxy (fallback_session_id, NULL, error);
+  session_proxy = get_session_proxy (NULL, error);
   if (!session_proxy)
     return NULL;
 
-  seat_id = get_seat_id (&local_error);
-  if (!seat_id)
+  seat_proxy = get_seat_proxy (session_proxy, NULL, &local_error);
+  if (!seat_proxy)
     {
-      if (fallback_seat_id)
-        {
-          meta_topic (META_DEBUG_BACKEND,
-                      "Failed to get seat ID: %s, using fallback (%s)",
-                      local_error->message, fallback_seat_id);
-          g_clear_error (&local_error);
-          seat_id = g_strdup (fallback_seat_id);
-        }
-    }
+      meta_topic (META_DEBUG_BACKEND,
+                  "Failed to get the seat of proxy %s: %s",
+                  meta_dbus_login1_session_get_id (session_proxy),
+                  local_error->message);
 
-  if (seat_id)
-    {
-      seat_proxy = get_seat_proxy (seat_id, NULL, error);
-      if (!seat_proxy)
-        return NULL;
+      g_clear_error (&local_error);
     }
 
   if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
@@ -486,7 +437,6 @@ meta_launcher_new (MetaBackend  *backend,
   launcher->session_active = TRUE;
   launcher->have_control = have_control;
   launcher->seat_proxy = g_steal_pointer (&seat_proxy);
-  launcher->seat_id = g_steal_pointer (&seat_id);
 
   g_signal_connect (launcher->session_proxy,
                     "notify::active",
@@ -525,7 +475,10 @@ meta_launcher_is_session_controller (MetaLauncher *launcher)
 const char *
 meta_launcher_get_seat_id (MetaLauncher *launcher)
 {
-  return launcher->seat_id;
+  if (!launcher->seat_proxy)
+    return NULL;
+
+  return meta_dbus_login1_seat_get_id (launcher->seat_proxy);
 }
 
 MetaDBusLogin1Session *

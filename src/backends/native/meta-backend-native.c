@@ -745,29 +745,14 @@ meta_backend_native_create_launcher (MetaBackend   *backend,
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
   g_autoptr (MetaLauncher) launcher = NULL;
-  const char *session_id = NULL;
-  const char *seat_id = NULL;
 
   *launcher_out = NULL;
-
-  switch (priv->mode)
-    {
-    case META_BACKEND_NATIVE_MODE_DEFAULT:
-      break;
-    case META_BACKEND_NATIVE_MODE_HEADLESS:
-    case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
-      break;
-    case META_BACKEND_NATIVE_MODE_TEST_VKMS:
-      session_id = "dummy";
-      seat_id = "seat0";
-      break;
-    }
 
   if (priv->mode == META_BACKEND_NATIVE_MODE_HEADLESS ||
       priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
     return TRUE;
 
-  launcher = meta_launcher_new (backend, session_id, seat_id, error);
+  launcher = meta_launcher_new (backend, error);
   if (!launcher)
     return FALSE;
 

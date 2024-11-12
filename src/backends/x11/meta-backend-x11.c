@@ -622,7 +622,7 @@ meta_backend_x11_create_launcher (MetaBackend   *backend,
 
   *launcher_out = NULL;
 
-  launcher = meta_launcher_new (backend, NULL, NULL, &local_error);
+  launcher = meta_launcher_new (backend, &local_error);
 
   if (!launcher)
     {
