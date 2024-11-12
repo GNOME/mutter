@@ -99,8 +99,6 @@
 #include "clutter/clutter-stage.h"
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-tap-action.h"
-#include "clutter/clutter-text-buffer.h"
-#include "clutter/clutter-text.h"
 #include "clutter/clutter-texture-content.h"
 #include "clutter/clutter-timeline.h"
 #include "clutter/clutter-transition-group.h"
@@ -108,6 +106,7 @@
 #include "clutter/clutter-virtual-input-device.h"
 #include "clutter/clutter-zoom-action.h"
 
+#include "clutter/pango/clutter-text.h"
 #include "clutter/pango/clutter-text-node.h"
 
 #undef __CLUTTER_H_INSIDE__
