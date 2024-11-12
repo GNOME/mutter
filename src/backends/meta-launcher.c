@@ -122,6 +122,61 @@ meta_launcher_init (MetaLauncher *launcher)
 {
 }
 
+static MetaDBusLogin1Session *
+get_session_proxy_from_id (const char    *session_id,
+                           GCancellable  *cancellable,
+                           GError       **error)
+{
+  g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
+  g_autofree char *proxy_path = NULL;
+
+  proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/session",
+                                      session_id);
+
+  session_proxy =
+    meta_dbus_login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                     G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                     "org.freedesktop.login1",
+                                                     proxy_path,
+                                                     cancellable, error);
+  if (!session_proxy)
+    {
+      g_prefix_error (error, "Could not get session proxy: ");
+      return NULL;
+    }
+
+  g_warn_if_fail (g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy)));
+
+  return g_steal_pointer (&session_proxy);
+}
+
+static MetaDBusLogin1Session *
+get_session_proxy_from_xdg_session_id (GCancellable  *cancellable,
+                                       GError       **error)
+{
+  const char *xdg_session_id = NULL;
+  int saved_errno;
+
+  xdg_session_id = g_getenv ("XDG_SESSION_ID");
+  if (!xdg_session_id)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "XDG_SESSION_ID is not set");
+      return NULL;
+    }
+
+  saved_errno = sd_session_is_active (xdg_session_id);
+  if (saved_errno < 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Failed to get status of XDG_SESSION_ID session (%s)",
+                   g_strerror (-saved_errno));
+      return NULL;
+    }
+
+  return get_session_proxy_from_id (xdg_session_id, cancellable, error);
+}
+
 static char *
 get_display_session (GError **error)
 {
@@ -198,28 +253,9 @@ find_systemd_session (char   **session_id,
   g_autofree char *state = NULL;
   g_auto (GStrv) sessions = NULL;
   int saved_errno;
-  const char *xdg_session_id = NULL;
 
   g_assert (session_id != NULL);
   g_assert (error == NULL || *error == NULL);
-
-  xdg_session_id = g_getenv ("XDG_SESSION_ID");
-  if (xdg_session_id)
-    {
-      saved_errno = sd_session_is_active (xdg_session_id);
-      if (saved_errno < 0)
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       G_IO_ERROR_NOT_FOUND,
-                       "Failed to get status of XDG_SESSION_ID session (%s)",
-                       g_strerror (-saved_errno));
-          return FALSE;
-        }
-
-      *session_id = g_strdup (xdg_session_id);
-      return TRUE;
-    }
 
   /* if we are in a logind session, we can trust that value, so use it. This
    * happens for example when you run mutter directly from a VT but when
@@ -311,6 +347,16 @@ get_session_proxy (GCancellable  *cancellable,
   g_autoptr (GError) local_error = NULL;
   GDBusProxyFlags flags;
   MetaDBusLogin1Session *session_proxy;
+
+  session_proxy = get_session_proxy_from_xdg_session_id (cancellable,
+                                                         &local_error);
+  if (session_proxy)
+    return session_proxy;
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Failed to get the session from environment: %s",
+              local_error->message);
+  g_clear_error (&local_error);
 
   if (!find_systemd_session (&session_id, &local_error))
     {
