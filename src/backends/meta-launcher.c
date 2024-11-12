@@ -342,10 +342,8 @@ static MetaDBusLogin1Session *
 get_session_proxy (GCancellable  *cancellable,
                    GError       **error)
 {
-  g_autofree char *proxy_path = NULL;
   g_autofree char *session_id = NULL;
   g_autoptr (GError) local_error = NULL;
-  GDBusProxyFlags flags;
   MetaDBusLogin1Session *session_proxy;
 
   session_proxy = get_session_proxy_from_xdg_session_id (cancellable,
@@ -366,21 +364,7 @@ get_session_proxy (GCancellable  *cancellable,
       return NULL;
     }
 
-  proxy_path =
-    get_escaped_dbus_path ("/org/freedesktop/login1/session", session_id);
-
-  flags = G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START;
-  session_proxy =
-    meta_dbus_login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
-                                                     flags,
-                                                     "org.freedesktop.login1",
-                                                     proxy_path,
-                                                     cancellable,
-                                                     error);
-  if (!session_proxy)
-    g_prefix_error(error, "Could not get session proxy: ");
-
-  return session_proxy;
+  return get_session_proxy_from_id (session_id, cancellable, error);
 }
 
 static MetaDBusLogin1Seat *
