@@ -8,6 +8,17 @@
     
 */
 
+/* FONTS */
+
+@font-face {
+  font-family: "Inter var";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  font-named-instance: "Regular";
+  src: local("Inter Var"), local("Inter Variable"), local("InterVariable"), url(https://static.gnome.org/fonts/Inter.var.woff2) format("woff2");
+}
+
 /* GNOME Color Palette */
 :root {
   --rounded-corner: 12px;
@@ -79,15 +90,6 @@
   }
 }
 
-/* Typography */
-
-@font-face {
-  font-family: 'Inter Var';
-  font-weight: 100 900;
-  font-display: swap;
-  font-style: oblique italic 0deg 10deg;
-  src: url("fonts/Inter.var.woff2?v=3.19") format("woff2");
-}
 
 * {
   -moz-box-sizing: border-box;
@@ -98,7 +100,7 @@ html, body {
   margin: 0;
   padding: 0;
   font-size: 16px;
-  font-family: "Inter Var", sans-serif;
+  font-family: "Inter var", sans-serif;
   font-weight: 400;
   line-height: 1.6;
   scroll-behavior: smooth;
