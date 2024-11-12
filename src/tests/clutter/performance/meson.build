@@ -8,8 +8,13 @@ clutter_tests_performance_c_args += clutter_debug_c_args
 
 clutter_tests_performance_tests = [
   'test-picking',
-  'test-text-perf',
 ]
+
+if have_fonts
+  clutter_tests_performance_tests += [
+    'test-text-perf',
+  ]
+endif
 
 foreach test : clutter_tests_performance_tests
   executable(test,

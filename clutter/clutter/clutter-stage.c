@@ -41,7 +41,10 @@
 
 #include "clutter/clutter-stage.h"
 
+#ifdef HAVE_FONTS
+#include "clutter/pango/clutter-actor-pango.h"
 #include "clutter/pango/clutter-text-node.h"
+#endif
 #include "clutter/clutter-stage-accessible-private.h"
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
@@ -1423,6 +1426,7 @@ clutter_stage_real_paint_view (ClutterStage     *stage,
   clutter_stage_do_paint_view (stage, view, frame, redraw_clip);
 }
 
+#ifdef HAVE_FONTS
 static void
 clutter_stage_paint (ClutterActor        *actor,
                      ClutterPaintContext *paint_context)
@@ -1466,6 +1470,7 @@ clutter_stage_paint (ClutterActor        *actor,
       g_object_unref (layout);
     }
 }
+#endif
 
 static void
 clutter_stage_class_init (ClutterStageClass *klass)
@@ -1491,7 +1496,9 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->hide_all = clutter_stage_hide_all;
   actor_class->queue_relayout = clutter_stage_real_queue_relayout;
   actor_class->apply_transform = clutter_stage_real_apply_transform;
+#ifdef HAVE_FONTS
   actor_class->paint = clutter_stage_paint;
+#endif
 
   klass->paint_view = clutter_stage_real_paint_view;
 
