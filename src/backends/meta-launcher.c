@@ -177,6 +177,46 @@ get_session_proxy_from_xdg_session_id (GCancellable  *cancellable,
   return get_session_proxy_from_id (xdg_session_id, cancellable, error);
 }
 
+static MetaDBusLogin1Session *
+get_session_proxy_from_pid (GCancellable  *cancellable,
+                            GError       **error)
+{
+  g_autoptr (MetaDBusLogin1Manager) manager_proxy = NULL;
+  g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
+  char *session_path = NULL;
+
+  manager_proxy =
+    meta_dbus_login1_manager_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                     G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                     "org.freedesktop.login1",
+                                                     "/org/freedesktop/login1",
+                                                     cancellable,
+                                                     error);
+  if (!manager_proxy)
+    return NULL;
+
+  if (!meta_dbus_login1_manager_call_get_session_by_pid_sync (manager_proxy,
+                                                              0,
+                                                              &session_path,
+                                                              cancellable,
+                                                              error))
+    return NULL;
+
+  session_proxy =
+    meta_dbus_login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                                     G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                                     "org.freedesktop.login1",
+                                                     session_path,
+                                                     cancellable,
+                                                     error);
+  if (!session_proxy)
+    return NULL;
+
+  g_warn_if_fail (g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy)));
+
+  return g_steal_pointer (&session_proxy);
+}
+
 static char *
 get_display_session (GError **error)
 {
@@ -257,29 +297,6 @@ find_systemd_session (char   **session_id,
   g_assert (session_id != NULL);
   g_assert (error == NULL || *error == NULL);
 
-  /* if we are in a logind session, we can trust that value, so use it. This
-   * happens for example when you run mutter directly from a VT but when
-   * systemd starts us we will not be in a logind session. */
-  saved_errno = sd_pid_get_session (0, &local_session_id);
-  if (saved_errno < 0)
-    {
-      if (saved_errno != -ENODATA)
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       G_IO_ERROR_NOT_FOUND,
-                       "Failed to get session by pid for user %d (%s)",
-                       getuid (),
-                       g_strerror (-saved_errno));
-          return FALSE;
-        }
-    }
-  else
-    {
-      *session_id = g_steal_pointer (&local_session_id);
-      return TRUE;
-    }
-
   local_session_id = get_display_session (error);
   if (!local_session_id)
     return FALSE;
@@ -353,6 +370,15 @@ get_session_proxy (GCancellable  *cancellable,
 
   meta_topic (META_DEBUG_BACKEND,
               "Failed to get the session from environment: %s",
+              local_error->message);
+  g_clear_error (&local_error);
+
+  session_proxy = get_session_proxy_from_pid (cancellable, &local_error);
+  if (session_proxy)
+    return session_proxy;
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Failed to get the session from login1: %s",
               local_error->message);
   g_clear_error (&local_error);
 
