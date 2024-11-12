@@ -121,12 +121,6 @@ void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelvie
                                               graphene_point3d_t       *vertices_out,
                                               int                       n_vertices);
 
-CLUTTER_EXPORT
-ClutterTextDirection clutter_unichar_direction (gunichar ch);
-
-ClutterTextDirection _clutter_find_base_dir (const gchar *text,
-                                             gint         length);
-
 typedef enum _ClutterCullResult
 {
   CLUTTER_CULL_RESULT_UNKNOWN,
