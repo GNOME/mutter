@@ -2024,23 +2024,21 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
                                        MetaKmsCrtc       *crtc)
 {
   CrtcFrame *crtc_frame;
-  g_autoptr (GError) error = NULL;
 
   crtc_frame = ensure_crtc_frame (impl_device, crtc);
 
   if (crtc_frame->await_flush)
     return;
 
-  if (!is_using_deadline_timer (impl_device))
-    goto needs_flush;
+  if (is_using_deadline_timer (impl_device))
+    {
+      if (crtc_frame->pending_page_flip)
+        return;
 
-  if (crtc_frame->pending_page_flip)
-    return;
+      if (ensure_deadline_timer_armed (impl_device, crtc_frame))
+        return;
+    }
 
-  if (ensure_deadline_timer_armed (impl_device, crtc_frame))
-    return;
-
-needs_flush:
   meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
 }
 
