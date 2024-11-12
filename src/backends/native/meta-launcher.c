@@ -60,15 +60,15 @@ meta_launcher_get_seat_id (MetaLauncher *launcher)
 }
 
 static gboolean
-find_systemd_session (gchar **session_id,
+find_systemd_session (char   **session_id,
                       GError **error)
 {
-  const gchar * const graphical_session_types[] = { "wayland", "x11", "mir", NULL };
-  const gchar * const active_states[] = { "active", "online", NULL };
-  g_autofree gchar *class = NULL;
-  g_autofree gchar *local_session_id = NULL;
-  g_autofree gchar *type = NULL;
-  g_autofree gchar *state = NULL;
+  const char * const graphical_session_types[] = { "wayland", "x11", "mir", NULL };
+  const char * const active_states[] = { "active", "online", NULL };
+  g_autofree char *class = NULL;
+  g_autofree char *local_session_id = NULL;
+  g_autofree char *type = NULL;
+  g_autofree char *state = NULL;
   g_auto (GStrv) sessions = NULL;
   int n_sessions;
   int saved_errno;
@@ -285,9 +285,9 @@ get_session_proxy (const char    *fallback_session_id,
 }
 
 static MetaDBusLogin1Seat *
-get_seat_proxy (gchar        *seat_id,
-                GCancellable *cancellable,
-                GError      **error)
+get_seat_proxy (char          *seat_id,
+                GCancellable  *cancellable,
+                GError       **error)
 {
   g_autofree char *seat_proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/seat", seat_id);
   GDBusProxyFlags flags;
@@ -335,7 +335,7 @@ on_active_changed (MetaDBusLogin1Session *session,
   sync_active (self);
 }
 
-static gchar *
+static char *
 get_seat_id (GError **error)
 {
   g_autoptr (GError) local_error = NULL;
