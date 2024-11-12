@@ -17,6 +17,10 @@
 
 #include "config.h"
 
+#ifdef HAVE_FONTS
+#include <cairo/cairo.h>
+#endif
+
 #include "clutter/clutter-settings.h"
 
 #include "clutter/clutter-context-private.h"
@@ -113,6 +117,7 @@ settings_update_resolution (ClutterSettings *self)
     g_signal_emit_by_name (self->backend, "resolution-changed");
 }
 
+#ifdef HAVE_FONTS
 static void
 clutter_settings_update_font_options (ClutterSettings *self)
 {
@@ -174,7 +179,8 @@ clutter_settings_update_font_options (ClutterSettings *self)
       hint_style = hintings[i].cairo_hint_style;
       clutter_font_hint_style = hintings[i].clutter_font_hint_style;
     }
-  cairo_font_options_set_hint_style (self->backend->font_options, hint_style);
+  cairo_font_options_set_hint_style ((cairo_font_options_t *)self->backend->font_options,
+                                     hint_style);
 
   i = g_settings_get_enum (settings, "font-rgba-order");
   if (i < G_N_ELEMENTS (rgba_orders))
@@ -182,7 +188,8 @@ clutter_settings_update_font_options (ClutterSettings *self)
       subpixel_order = rgba_orders[i].cairo_subpixel_order;
       clutter_font_subpixel_order = rgba_orders[i].clutter_font_subpixel_order;
     }
-  cairo_font_options_set_subpixel_order (self->backend->font_options, subpixel_order);
+  cairo_font_options_set_subpixel_order ((cairo_font_options_t *)self->backend->font_options,
+                                         subpixel_order);
 
   i = g_settings_get_enum (settings, "font-antialiasing");
   if (i < G_N_ELEMENTS (antialiasings))
@@ -191,7 +198,8 @@ clutter_settings_update_font_options (ClutterSettings *self)
   if (subpixel_order == CAIRO_SUBPIXEL_ORDER_DEFAULT)
     antialias_mode = CAIRO_ANTIALIAS_SUBPIXEL;
 
-  cairo_font_options_set_antialias (self->backend->font_options, antialias_mode);
+  cairo_font_options_set_antialias ((cairo_font_options_t *)self->backend->font_options,
+                                    antialias_mode);
 
   CLUTTER_NOTE (BACKEND, "New font options:\n"
                 " - font-name:  %s\n"
@@ -207,6 +215,7 @@ clutter_settings_update_font_options (ClutterSettings *self)
 
   g_signal_emit_by_name (self->backend, "font-changed");
 }
+#endif
 
 static void
 sync_mouse_options (ClutterSettings *self)
@@ -223,6 +232,7 @@ sync_mouse_options (ClutterSettings *self)
                 NULL);
 }
 
+#ifdef HAVE_FONTS
 static gboolean
 on_font_settings_change_event (GSettings *settings,
                                gpointer   keys,
@@ -235,6 +245,7 @@ on_font_settings_change_event (GSettings *settings,
 
   return FALSE;
 }
+#endif
 
 static gboolean
 on_mouse_settings_change_event (GSettings *settings,
@@ -351,12 +362,13 @@ on_mouse_a11y_settings_change_event (GSettings *settings,
 static void
 load_initial_settings (ClutterSettings *self)
 {
-  static const gchar *font_settings_path = "org.gnome.desktop.interface";
+  G_GNUC_UNUSED static const gchar *font_settings_path = "org.gnome.desktop.interface";
   static const gchar *mouse_settings_path = "org.gnome.desktop.peripherals.mouse";
   static const char *mouse_a11y_settings_path = "org.gnome.desktop.a11y.mouse";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema;
 
+#ifdef HAVE_FONTS
   schema = g_settings_schema_source_lookup (source, font_settings_path, TRUE);
   if (!schema)
     {
@@ -373,6 +385,7 @@ load_initial_settings (ClutterSettings *self)
                             self);
         }
     }
+ #endif
 
   schema = g_settings_schema_source_lookup (source, mouse_settings_path, TRUE);
   if (!schema)
