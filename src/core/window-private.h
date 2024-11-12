@@ -896,3 +896,5 @@ gboolean meta_window_is_tiled_side_by_side (MetaWindow *window);
 gboolean meta_window_is_tiled_left (MetaWindow *window);
 
 gboolean meta_window_is_tiled_right (MetaWindow *window);
+
+MetaWindowConfig * meta_window_new_window_config (MetaWindow *window);

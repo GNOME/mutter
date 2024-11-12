@@ -72,6 +72,7 @@
 #include "core/boxes-private.h"
 #include "core/constraints.h"
 #include "core/keybindings-private.h"
+#include "core/meta-window-config-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
 #include "core/stack.h"
@@ -8240,4 +8241,13 @@ meta_window_get_client_content_rect (MetaWindow   *window,
       meta_window_x11_is_ssd (window))
     meta_window_frame_rect_to_client_rect (window, rect, rect);
 #endif
+}
+
+MetaWindowConfig *
+meta_window_new_window_config (MetaWindow *window)
+{
+  if (window->showing_for_first_time)
+    return meta_window_config_initial_new ();
+  else
+    return meta_window_config_new ();
 }
