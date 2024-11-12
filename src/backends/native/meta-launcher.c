@@ -134,8 +134,10 @@ static gboolean
 find_systemd_session (char   **session_id,
                       GError **error)
 {
-  const char * const graphical_session_types[] = { "wayland", "x11", "mir", NULL };
-  const char * const active_states[] = { "active", "online", NULL };
+  const char * const graphical_session_types[] =
+    { "wayland", "x11", "mir", NULL };
+  const char * const active_states[] =
+    { "active", "online", NULL };
   g_autofree char *class = NULL;
   g_autofree char *local_session_id = NULL;
   g_autofree char *type = NULL;
@@ -340,7 +342,8 @@ get_session_proxy (const char    *fallback_session_id,
         }
     }
 
-  proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/session", session_id);
+  proxy_path =
+    get_escaped_dbus_path ("/org/freedesktop/login1/session", session_id);
 
   flags = G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START;
   session_proxy =
@@ -348,7 +351,8 @@ get_session_proxy (const char    *fallback_session_id,
                                                      flags,
                                                      "org.freedesktop.login1",
                                                      proxy_path,
-                                                     cancellable, error);
+                                                     cancellable,
+                                                     error);
   if (!session_proxy)
     g_prefix_error(error, "Could not get session proxy: ");
 
@@ -360,7 +364,8 @@ get_seat_proxy (char          *seat_id,
                 GCancellable  *cancellable,
                 GError       **error)
 {
-  g_autofree char *seat_proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/seat", seat_id);
+  g_autofree char *seat_proxy_path =
+    get_escaped_dbus_path ("/org/freedesktop/login1/seat", seat_id);
   GDBusProxyFlags flags;
   MetaDBusLogin1Seat *seat;
 
@@ -370,9 +375,10 @@ get_seat_proxy (char          *seat_id,
                                                   flags,
                                                   "org.freedesktop.login1",
                                                   seat_proxy_path,
-                                                  cancellable, error);
+                                                  cancellable,
+                                                  error);
   if (!seat)
-    g_prefix_error(error, "Could not get seat proxy: ");
+    g_prefix_error (error, "Could not get seat proxy: ");
 
   return seat;
 }
@@ -512,8 +518,10 @@ meta_launcher_activate_vt (MetaLauncher  *launcher,
 {
   g_assert (launcher->seat_proxy);
 
-  return meta_dbus_login1_seat_call_switch_to_sync (launcher->seat_proxy, vt,
-                                                    NULL, error);
+  return meta_dbus_login1_seat_call_switch_to_sync (launcher->seat_proxy,
+                                                    vt,
+                                                    NULL,
+                                                    error);
 }
 
 gboolean
