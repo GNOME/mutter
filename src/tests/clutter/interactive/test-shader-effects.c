@@ -6,6 +6,7 @@
 #include <gmodule.h>
 
 #include <clutter/clutter.h>
+#include <clutter/clutter-pango.h>
 #include "test-utils.h"
 #include "tests/clutter-test-utils.h"
 

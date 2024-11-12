@@ -20,8 +20,10 @@
 
 #include "clutter/clutter-context-private.h"
 
+#ifdef HAVE_FONTS
 #include <hb-glib.h>
 #include <pango/pangocairo.h>
+#endif
 
 #include "clutter/clutter-accessibility-private.h"
 #include "clutter/clutter-backend-private.h"
@@ -31,7 +33,9 @@
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-paint-node-private.h"
 #include "clutter/clutter-settings-private.h"
+#ifdef HAVE_FONTS
 #include "clutter/pango/clutter-pango-private.h"
+#endif
 
 static gboolean clutter_show_fps = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;
@@ -138,6 +142,7 @@ clutter_get_text_direction (void)
       else if (strcmp (direction, "ltr") == 0)
         dir = CLUTTER_TEXT_DIRECTION_LTR;
     }
+#ifdef HAVE_FONTS
   else
     {
       PangoLanguage *language;
@@ -163,6 +168,7 @@ clutter_get_text_direction (void)
             continue;
         }
     }
+#endif
 
   CLUTTER_NOTE (MISC, "Text direction: %s",
                 dir == CLUTTER_TEXT_DIRECTION_RTL ? "rtl" : "ltr");
@@ -306,6 +312,7 @@ clutter_context_get_backend (ClutterContext *context)
   return context->backend;
 }
 
+#ifdef HAVE_FONTS
 PangoFontMap *
 clutter_context_get_pango_fontmap (ClutterContext *context)
 {
@@ -316,7 +323,7 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
   CoglContext *cogl_context;
 
   if (G_LIKELY (context->font_map != NULL))
-    return context->font_map;
+    return (PangoFontMap *)context->font_map;
 
   backend = clutter_context_get_backend (context);
   cogl_context = clutter_backend_get_cogl_context (backend);
@@ -327,11 +334,20 @@ clutter_context_get_pango_fontmap (ClutterContext *context)
   pango_cairo_font_map_set_resolution (PANGO_CAIRO_FONT_MAP (font_map),
                                        resolution);
 
-  context->font_map = font_map;
-  context->font_renderer = font_renderer;
+  context->font_map = (gpointer)font_map;
+  context->font_renderer = (gpointer)font_renderer;
 
-  return context->font_map;
+  return (PangoFontMap *)context->font_map;
 }
+
+PangoRenderer *
+clutter_context_get_font_renderer (ClutterContext *context)
+{
+  g_return_val_if_fail (CLUTTER_IS_CONTEXT (context), NULL);
+
+  return (PangoRenderer *)context->font_renderer;
+}
+#endif
 
 ClutterTextDirection
 clutter_context_get_text_direction (ClutterContext *context)
@@ -391,12 +407,4 @@ clutter_context_get_settings (ClutterContext *context)
   g_return_val_if_fail (CLUTTER_IS_CONTEXT (context), NULL);
 
   return context->settings;
-}
-
-PangoRenderer *
-clutter_context_get_font_renderer (ClutterContext *context)
-{
-  g_return_val_if_fail (CLUTTER_IS_CONTEXT (context), NULL);
-
-  return context->font_renderer;
 }

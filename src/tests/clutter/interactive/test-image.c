@@ -2,6 +2,7 @@
 #include <gmodule.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <clutter/clutter.h>
+#include <clutter/clutter-pango.h>
 
 #include "tests/clutter-test-utils.h"
 
