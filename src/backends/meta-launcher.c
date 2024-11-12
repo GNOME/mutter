@@ -287,27 +287,27 @@ get_session_proxy_from_display (GCancellable  *cancellable,
     { "wayland", "x11", "mir", NULL };
   const char * const active_states[] =
     { "active", "online", NULL };
-  g_autofree char *local_session_id = NULL;
+  g_autofree char *session_id = NULL;
   g_autofree char *type = NULL;
   g_autofree char *state = NULL;
   int saved_errno;
 
   g_assert (error == NULL || *error == NULL);
 
-  local_session_id = get_display_session (error);
-  if (!local_session_id)
+  session_id = get_display_session (error);
+  if (!session_id)
     return NULL;
 
   /* sd_uid_get_display will return any session if there is no graphical
    * one, so let's check it really is graphical. */
-  saved_errno = sd_session_get_type (local_session_id, &type);
+  saved_errno = sd_session_get_type (session_id, &type);
   if (saved_errno < 0)
     {
       g_set_error (error,
                    G_IO_ERROR,
                    G_IO_ERROR_NOT_FOUND,
                    "Couldn't get type for session '%s': %s",
-                   local_session_id,
+                   session_id,
                    g_strerror (-saved_errno));
       return NULL;
     }
@@ -318,36 +318,36 @@ get_session_proxy_from_display (GCancellable  *cancellable,
                    G_IO_ERROR,
                    G_IO_ERROR_NOT_FOUND,
                    "Session '%s' is not a graphical session (type: '%s')",
-                   local_session_id,
+                   session_id,
                    type);
       return NULL;
     }
 
-    /* and display sessions can be 'closing' if they are logged out but
-     * some processes are lingering; we shouldn't consider these */
-    saved_errno = sd_session_get_state (local_session_id, &state);
-    if (saved_errno < 0)
-      {
-        g_set_error (error,
-                     G_IO_ERROR,
-                     G_IO_ERROR_NOT_FOUND,
-                     "Couldn't get state for session '%s': %s",
-                     local_session_id,
-                     g_strerror (-saved_errno));
-        return NULL;
-      }
+  /* and display sessions can be 'closing' if they are logged out but
+   * some processes are lingering; we shouldn't consider these */
+  saved_errno = sd_session_get_state (session_id, &state);
+  if (saved_errno < 0)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_FOUND,
+                   "Couldn't get state for session '%s': %s",
+                   session_id,
+                   g_strerror (-saved_errno));
+      return NULL;
+    }
 
-    if (!g_strv_contains (active_states, state))
-      {
-         g_set_error (error,
-                         G_IO_ERROR,
-                         G_IO_ERROR_NOT_FOUND,
-                         "Session '%s' is not active",
-                         local_session_id);
-         return NULL;
-      }
+  if (!g_strv_contains (active_states, state))
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_FOUND,
+                   "Session '%s' is not active",
+                   session_id);
+      return NULL;
+    }
 
-  return get_session_proxy_from_id (local_session_id, cancellable, error);
+  return get_session_proxy_from_id (session_id, cancellable, error);
 }
 
 static MetaDBusLogin1Session *
