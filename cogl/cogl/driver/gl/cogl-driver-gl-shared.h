@@ -28,20 +28,16 @@
 
 #pragma once
 
-#include "cogl/driver/gl/cogl-driver-gl-shared.h"
+#include "cogl/cogl-driver-private.h"
 
-typedef struct _CoglGLESDriver {
-  CoglGLSharedDriver parent_instance;
-} CoglGLESDriver;
-
-struct _CoglGLESDriverClass {
-  CoglGLSharedDriverClass parent_class;
+struct _CoglGLSharedDriverClass {
+  CoglDriverClass parent_class;
 };
 
-G_DECLARE_FINAL_TYPE (CoglGLESDriver,
-                      cogl_gles_driver,
-                      COGL,
-                      GLES_DRIVER,
-                      CoglGLSharedDriver)
+G_DECLARE_DERIVABLE_TYPE (CoglGLSharedDriver,
+                          cogl_gl_shared_driver,
+                          COGL,
+                          GL_SHARED_DRIVER,
+                          CoglDriver);
 
-#define COGL_TYPE_DRIVER_GLES (cogl_gles_driver_get_type ())
+#define COGL_TYPE_DRIVER_GL_SHARED (cogl_gl_shared_driver_get_type ())

@@ -78,6 +78,8 @@ cogl_gl_prototype_headers = [
 ]
 
 cogl_common_driver_sources = [
+  'driver/gl/cogl-driver-gl-shared.c',
+  'driver/gl/cogl-driver-gl-shared.h',
   'driver/gl/cogl-attribute-gl-private.h',
   'driver/gl/cogl-attribute-gl.c',
   'driver/gl/cogl-bitmap-gl-private.h',

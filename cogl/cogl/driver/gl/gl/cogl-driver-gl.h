@@ -26,20 +26,22 @@
  * SOFTWARE.
  */
 
-#include "cogl/cogl-driver-private.h"
+#pragma once
+
+#include "cogl/driver/gl/cogl-driver-gl-shared.h"
 
 typedef struct _CoglGLDriver {
-  CoglDriver parent_instance;
+  CoglGLSharedDriver parent_instance;
 } CoglGLDriver;
 
 struct _CoglGLDriverClass {
-  CoglDriverClass parent_class;
+  CoglGLSharedDriverClass parent_class;
 };
 
 G_DECLARE_FINAL_TYPE (CoglGLDriver,
                       cogl_gl_driver,
                       COGL,
                       GL_DRIVER,
-                      CoglDriver)
+                      CoglGLSharedDriver)
 
 #define COGL_TYPE_DRIVER_GL (cogl_gl_driver_get_type ())
