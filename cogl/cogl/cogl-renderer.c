@@ -75,7 +75,7 @@ extern const CoglDriverVtable _cogl_driver_nop;
 
 typedef struct _CoglDriverDescription
 {
-  CoglDriver id;
+  CoglDriverId id;
   const char *name;
   /* It would be nice to make this a pointer and then use a compound
    * literal from C99 to initialise it but we probably can't get away
@@ -91,7 +91,7 @@ static CoglDriverDescription _cogl_drivers[] =
 {
 #ifdef HAVE_GL
   {
-    COGL_DRIVER_GL3,
+    COGL_DRIVER_ID_GL3,
     "gl3",
     { COGL_PRIVATE_FEATURE_ANY_GL,
       -1 },
@@ -101,7 +101,7 @@ static CoglDriverDescription _cogl_drivers[] =
 #endif
 #ifdef HAVE_GLES2
   {
-    COGL_DRIVER_GLES2,
+    COGL_DRIVER_ID_GLES2,
     "gles2",
     { COGL_PRIVATE_FEATURE_ANY_GL,
       -1 },
@@ -110,7 +110,7 @@ static CoglDriverDescription _cogl_drivers[] =
   },
 #endif
   {
-    COGL_DRIVER_NOP,
+    COGL_DRIVER_ID_NOP,
     "nop",
     { -1 },
     &_cogl_driver_nop,
@@ -222,13 +222,13 @@ typedef gboolean (*CoglDriverCallback) (CoglDriverDescription *description,
                                         void *user_data);
 
 static void
-foreach_driver_description (CoglDriver driver_override,
-                            CoglDriverCallback callback,
-                            void *user_data)
+foreach_driver_description (CoglDriverId        driver_override,
+                            CoglDriverCallback  callback,
+                            void               *user_data)
 {
   int i;
 
-  if (driver_override != COGL_DRIVER_ANY)
+  if (driver_override != COGL_DRIVER_ID_ANY)
     {
       for (i = 0; i < G_N_ELEMENTS (_cogl_drivers); i++)
         {
@@ -250,7 +250,7 @@ foreach_driver_description (CoglDriver driver_override,
     }
 }
 
-static CoglDriver
+static CoglDriverId
 driver_name_to_id (const char *name)
 {
   int i;
@@ -261,21 +261,21 @@ driver_name_to_id (const char *name)
         return _cogl_drivers[i].id;
     }
 
-  return COGL_DRIVER_ANY;
+  return COGL_DRIVER_ID_ANY;
 }
 
 static const char *
-driver_id_to_name (CoglDriver id)
+driver_id_to_name (CoglDriverId id)
 {
   switch (id)
     {
-      case COGL_DRIVER_GL3:
+      case COGL_DRIVER_ID_GL3:
         return "gl3";
-      case COGL_DRIVER_GLES2:
+      case COGL_DRIVER_ID_GLES2:
         return "gles2";
-      case COGL_DRIVER_NOP:
+      case COGL_DRIVER_ID_NOP:
         return "nop";
-      case COGL_DRIVER_ANY:
+      case COGL_DRIVER_ID_ANY:
         g_warn_if_reached ();
         return "any";
     }
@@ -306,7 +306,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
                               GError **error)
 {
   const char *driver_name = g_getenv ("COGL_DRIVER");
-  CoglDriver driver_override = COGL_DRIVER_ANY;
+  CoglDriverId driver_override = COGL_DRIVER_ID_ANY;
   const char *invalid_override = NULL;
   const char *libgl_name;
   SatisfyConstraintsState state;
@@ -316,13 +316,13 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
   if (driver_name)
     {
       driver_override = driver_name_to_id (driver_name);
-      if (driver_override == COGL_DRIVER_ANY)
+      if (driver_override == COGL_DRIVER_ID_ANY)
         invalid_override = driver_name;
     }
 
-  if (renderer->driver_override != COGL_DRIVER_ANY)
+  if (renderer->driver_override != COGL_DRIVER_ID_ANY)
     {
-      if (driver_override != COGL_DRIVER_ANY &&
+      if (driver_override != COGL_DRIVER_ID_ANY &&
           renderer->driver_override != driver_override)
         {
           g_set_error (error, COGL_RENDERER_ERROR,
@@ -335,7 +335,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
       driver_override = renderer->driver_override;
     }
 
-  if (driver_override != COGL_DRIVER_ANY)
+  if (driver_override != COGL_DRIVER_ID_ANY)
     {
       gboolean found = FALSE;
 
@@ -375,23 +375,23 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
     }
 
   desc = state.driver_description;
-  renderer->driver = desc->id;
+  renderer->driver_id = desc->id;
   renderer->driver_vtable = desc->vtable;
 
-  switch (renderer->driver)
+  switch (renderer->driver_id)
     {
 #ifdef HAVE_GL
-    case COGL_DRIVER_GL3:
+    case COGL_DRIVER_ID_GL3:
       renderer->texture_driver = g_object_new (COGL_TYPE_TEXTURE_DRIVER_GL3, NULL);
       break;
 #endif
 #ifdef HAVE_GLES2
-    case COGL_DRIVER_GLES2:
+    case COGL_DRIVER_ID_GLES2:
       renderer->texture_driver = g_object_new (COGL_TYPE_TEXTURE_DRIVER_GLES2, NULL);
       break;
 #endif
 
-    case COGL_DRIVER_NOP:
+    case COGL_DRIVER_ID_NOP:
     default:
       renderer->texture_driver = NULL;
       break;
@@ -602,18 +602,18 @@ cogl_renderer_get_proc_address (CoglRenderer *renderer,
 
 void
 cogl_renderer_set_driver (CoglRenderer *renderer,
-                          CoglDriver driver)
+                          CoglDriverId  driver)
 {
   g_return_if_fail (!renderer->connected);
   renderer->driver_override = driver;
 }
 
-CoglDriver
-cogl_renderer_get_driver (CoglRenderer *renderer)
+CoglDriverId
+cogl_renderer_get_driver_id (CoglRenderer *renderer)
 {
   g_return_val_if_fail (renderer->connected, 0);
 
-  return renderer->driver;
+  return renderer->driver_id;
 }
 
 GArray *

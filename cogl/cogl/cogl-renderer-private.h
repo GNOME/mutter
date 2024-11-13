@@ -47,7 +47,7 @@ struct _CoglRenderer
   CoglDisplay *display;
 
   gboolean connected;
-  CoglDriver driver_override;
+  CoglDriverId driver_override;
   const CoglDriverVtable *driver_vtable;
   CoglTextureDriver *texture_driver;
   const CoglWinsysVtable *winsys_vtable;
@@ -60,7 +60,7 @@ struct _CoglRenderer
   Display *foreign_xdpy;
 #endif
 
-  CoglDriver driver;
+  CoglDriverId driver_id;
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)];
   GModule *libgl_module;
