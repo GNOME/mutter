@@ -32,6 +32,7 @@
 
 #pragma once
 
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-texture.h"
@@ -88,19 +89,23 @@ CoglGLContext *
 _cogl_driver_gl_context (CoglContext *context);
 
 gboolean
-_cogl_driver_gl_context_init (CoglContext *context);
+_cogl_driver_gl_context_init (CoglDriver  *driver,
+                              CoglContext *context);
 
 void
-_cogl_driver_gl_context_deinit (CoglContext *context);
+_cogl_driver_gl_context_deinit (CoglDriver  *driver,
+                                CoglContext *context);
 
 void
-_cogl_driver_gl_flush_framebuffer_state (CoglContext          *context,
+_cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
+                                         CoglContext          *context,
                                          CoglFramebuffer      *draw_buffer,
                                          CoglFramebuffer      *read_buffer,
                                          CoglFramebufferState  state);
 
 CoglFramebufferDriver *
-_cogl_driver_gl_create_framebuffer_driver (CoglContext                        *context,
+_cogl_driver_gl_create_framebuffer_driver (CoglDriver                         *driver,
+                                           CoglContext                        *context,
                                            CoglFramebuffer                    *framebuffer,
                                            const CoglFramebufferDriverConfig  *driver_config,
                                            GError                            **error);
@@ -115,7 +120,8 @@ gboolean
 _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error);
 
 gboolean
-_cogl_driver_gl_is_hardware_accelerated (CoglContext *context);
+_cogl_driver_gl_is_hardware_accelerated (CoglDriver  *driver,
+                                         CoglContext *context);
 
 /*
  * _cogl_context_get_gl_extensions:
@@ -132,7 +138,8 @@ const char *
 _cogl_context_get_gl_version (CoglContext *context);
 
 const char *
-_cogl_context_get_gl_vendor (CoglContext *context);
+_cogl_context_get_gl_vendor (CoglDriver  *driver,
+                             CoglContext *context);
 
 /* Parses a GL version number stored in a string. @version_string must
  * point to the beginning of the version number (ie, it can't point to
@@ -146,21 +153,26 @@ _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *minor_out);
 
 CoglGraphicsResetStatus
-_cogl_gl_get_graphics_reset_status (CoglContext *context);
+_cogl_gl_get_graphics_reset_status (CoglDriver  *driver,
+                                    CoglContext *context);
 
 CoglTimestampQuery *
-cogl_gl_create_timestamp_query (CoglContext *context);
+cogl_gl_create_timestamp_query (CoglDriver  *driver,
+                                CoglContext *context);
 
 void
-cogl_gl_free_timestamp_query (CoglContext        *context,
+cogl_gl_free_timestamp_query (CoglDriver         *driver,
+                              CoglContext        *context,
                               CoglTimestampQuery *query);
 
 int64_t
-cogl_gl_timestamp_query_get_time_ns (CoglContext        *context,
+cogl_gl_timestamp_query_get_time_ns (CoglDriver         *driver,
+                                     CoglContext        *context,
                                      CoglTimestampQuery *query);
 
 int64_t
-cogl_gl_get_gpu_time_ns (CoglContext *context);
+cogl_gl_get_gpu_time_ns (CoglDriver  *driver,
+                         CoglContext *context);
 
 #ifndef GL_FRAMEBUFFER
 #define GL_FRAMEBUFFER		0x8D40

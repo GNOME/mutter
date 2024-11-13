@@ -37,6 +37,7 @@
  * Pixel Buffers API.
  */
 
+#include "cogl-driver-private.h"
 #include "config.h"
 
 #include <stdio.h>
@@ -106,9 +107,15 @@ cogl_buffer_dispose (GObject *object)
   g_return_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED));
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
-    buffer->context->driver_vtable->buffer_destroy (buffer);
+    {
+      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+
+      driver_klass->buffer_destroy (buffer->context->driver, buffer);
+    }
   else
-    g_free (buffer->data);
+    {
+      g_free (buffer->data);
+    }
 
   G_OBJECT_CLASS (cogl_buffer_parent_class)->dispose (object);
 }
@@ -150,7 +157,9 @@ cogl_buffer_set_property (GObject      *gobject,
           }
         else
           {
-            buffer->context->driver_vtable->buffer_create (buffer);
+            CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+
+            driver_klass->buffer_create (buffer->context->driver, buffer);
 
             buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
           }
@@ -286,14 +295,15 @@ cogl_buffer_map_range (CoglBuffer *buffer,
     }
   else
     {
-      const CoglDriverVtable *driver = buffer->context->driver_vtable;
+      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      buffer->data = driver->buffer_map_range (buffer,
-                                               offset,
-                                               size,
-                                               access,
-                                               hints,
-                                               error);
+      buffer->data = driver_klass->buffer_map_range (buffer->context->driver,
+                                                     buffer,
+                                                     offset,
+                                                     size,
+                                                     access,
+                                                     hints,
+                                                     error);
     }
 
   return buffer->data;
@@ -313,9 +323,9 @@ cogl_buffer_unmap (CoglBuffer *buffer)
     }
   else
     {
-      const CoglDriverVtable *driver = buffer->context->driver_vtable;
+      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      driver->buffer_unmap (buffer);
+      driver_klass->buffer_unmap (buffer->context->driver, buffer);
     }
 }
 
@@ -409,9 +419,14 @@ cogl_buffer_set_data (CoglBuffer *buffer,
     }
   else
     {
-      const CoglDriverVtable *driver = buffer->context->driver_vtable;
+      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      status = driver->buffer_set_data (buffer, offset, data, size, &ignore_error);
+      status = driver_klass->buffer_set_data (buffer->context->driver,
+                                              buffer,
+                                              offset,
+                                              data,
+                                              size,
+                                              &ignore_error);
     }
 
   g_clear_error (&ignore_error);

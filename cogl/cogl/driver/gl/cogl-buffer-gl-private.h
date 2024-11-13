@@ -33,34 +33,40 @@
 
 #pragma once
 
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-buffer.h"
 #include "cogl/cogl-buffer-private.h"
 
 void
-_cogl_buffer_gl_create (CoglBuffer *buffer);
+_cogl_buffer_gl_create (CoglDriver *driver,
+                        CoglBuffer *buffer);
 
 void
-_cogl_buffer_gl_destroy (CoglBuffer *buffer);
+_cogl_buffer_gl_destroy (CoglDriver *driver,
+                         CoglBuffer *buffer);
 
 void *
-_cogl_buffer_gl_map_range (CoglBuffer *buffer,
-                           size_t offset,
-                           size_t size,
-                           CoglBufferAccess access,
-                           CoglBufferMapHint hints,
-                           GError **error);
+_cogl_buffer_gl_map_range (CoglDriver         *driver,
+                           CoglBuffer         *buffer,
+                           size_t              offset,
+                           size_t              size,
+                           CoglBufferAccess    access,
+                           CoglBufferMapHint   hints,
+                           GError            **error);
 
 void
-_cogl_buffer_gl_unmap (CoglBuffer *buffer);
+_cogl_buffer_gl_unmap (CoglDriver *driver,
+                       CoglBuffer *buffer);
 
 gboolean
-_cogl_buffer_gl_set_data (CoglBuffer *buffer,
-                          unsigned int offset,
-                          const void *data,
-                          unsigned int size,
-                          GError **error);
+_cogl_buffer_gl_set_data (CoglDriver    *driver,
+                          CoglBuffer    *buffer,
+                          unsigned int   offset,
+                          const void    *data,
+                          unsigned int   size,
+                          GError       **error);
 
 void *
 _cogl_buffer_gl_bind (CoglBuffer *buffer,

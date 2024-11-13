@@ -179,12 +179,13 @@ apply_attribute_enable_updates (CoglContext *context,
 }
 
 void
-_cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
-                                 CoglPipeline *pipeline,
-                                 CoglFlushLayerState *layers_state,
-                                 CoglDrawFlags flags,
-                                 CoglAttribute **attributes,
-                                 int n_attributes)
+_cogl_gl_flush_attributes_state (CoglDriver           *driver,
+                                 CoglFramebuffer      *framebuffer,
+                                 CoglPipeline         *pipeline,
+                                 CoglFlushLayerState  *layers_state,
+                                 CoglDrawFlags         flags,
+                                 CoglAttribute       **attributes,
+                                 int                   n_attributes)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   int i;

@@ -193,6 +193,7 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
                               unsigned int *map_width,
                               unsigned int *map_height)
 {
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   unsigned int size;
@@ -202,11 +203,12 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
 
   g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          format,
-                                          &gl_intformat,
-                                          &gl_format,
-                                          &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    format,
+                                    &gl_intformat,
+                                    &gl_format,
+                                    &gl_type);
 
   /* At least on Intel hardware, the texture size will be rounded up
      to at least 1MB so we might as well try to aim for that as an
@@ -242,17 +244,19 @@ _cogl_atlas_create_map (CoglContext             *ctx,
                         unsigned int             n_textures,
                         CoglAtlasRepositionData *textures)
 {
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          format,
-                                          &gl_intformat,
-                                          &gl_format,
-                                          &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    format,
+                                    &gl_intformat,
+                                    &gl_format,
+                                    &gl_type);
 
   /* Keep trying increasingly larger atlases until we can fit all of
      the textures */

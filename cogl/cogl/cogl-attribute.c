@@ -336,6 +336,7 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglFlushLayerState layers_state;
   CoglPipeline *copy = NULL;
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
 
   if (!(flags & COGL_DRAW_SKIP_JOURNAL_FLUSH))
     _cogl_framebuffer_flush_journal (framebuffer);
@@ -369,14 +370,15 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
    * when the framebuffer really does get drawn to. */
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
 
-  if (ctx->driver_vtable->flush_attributes_state)
+  if (driver_klass->flush_attributes_state)
     {
-      ctx->driver_vtable->flush_attributes_state (framebuffer,
-                                                  pipeline,
-                                                  &layers_state,
-                                                  flags,
-                                                  attributes,
-                                                  n_attributes);
+      driver_klass->flush_attributes_state (ctx->driver,
+                                            framebuffer,
+                                            pipeline,
+                                            &layers_state,
+                                            flags,
+                                            attributes,
+                                            n_attributes);
     }
 
   if (copy)

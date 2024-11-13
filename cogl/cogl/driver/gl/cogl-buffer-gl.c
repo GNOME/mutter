@@ -77,7 +77,8 @@
 #endif
 
 void
-_cogl_buffer_gl_create (CoglBuffer *buffer)
+_cogl_buffer_gl_create (CoglDriver *driver,
+                        CoglBuffer *buffer)
 {
   CoglContext *ctx = buffer->context;
 
@@ -85,7 +86,8 @@ _cogl_buffer_gl_create (CoglBuffer *buffer)
 }
 
 void
-_cogl_buffer_gl_destroy (CoglBuffer *buffer)
+_cogl_buffer_gl_destroy (CoglDriver *driver,
+                         CoglBuffer *buffer)
 {
   GE( buffer->context, glDeleteBuffers (1, &buffer->gl_handle) );
 }
@@ -194,12 +196,13 @@ _cogl_buffer_bind_no_create (CoglBuffer *buffer,
 }
 
 void *
-_cogl_buffer_gl_map_range (CoglBuffer *buffer,
-                           size_t offset,
-                           size_t size,
-                           CoglBufferAccess access,
-                           CoglBufferMapHint hints,
-                           GError **error)
+_cogl_buffer_gl_map_range (CoglDriver         *driver,
+                           CoglBuffer         *buffer,
+                           size_t              offset,
+                           size_t              size,
+                           CoglBufferAccess    access,
+                           CoglBufferMapHint   hints,
+                           GError            **error)
 {
   uint8_t *data;
   CoglBufferBindTarget target;
@@ -326,7 +329,8 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
 }
 
 void
-_cogl_buffer_gl_unmap (CoglBuffer *buffer)
+_cogl_buffer_gl_unmap (CoglDriver *driver,
+                       CoglBuffer *buffer)
 {
   CoglContext *ctx = buffer->context;
 
@@ -340,11 +344,12 @@ _cogl_buffer_gl_unmap (CoglBuffer *buffer)
 }
 
 gboolean
-_cogl_buffer_gl_set_data (CoglBuffer *buffer,
-                          unsigned int offset,
-                          const void *data,
-                          unsigned int size,
-                          GError **error)
+_cogl_buffer_gl_set_data (CoglDriver    *driver,
+                          CoglBuffer    *buffer,
+                          unsigned int   offset,
+                          const void    *data,
+                          unsigned int   size,
+                          GError       **error)
 {
   CoglBufferBindTarget target;
   GLenum gl_target;
