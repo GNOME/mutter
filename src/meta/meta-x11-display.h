@@ -28,8 +28,6 @@
 #include "meta/types.h"
 #include "meta/meta-x11-types.h"
 
-#define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
-
 typedef void (* MetaX11DisplayEventFunc) (MetaX11Display *x11_display,
                                           XEvent         *xev,
                                           gpointer        user_data);

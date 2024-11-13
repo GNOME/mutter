@@ -40,6 +40,8 @@
 typedef struct _MetaGroupPropHooks  MetaGroupPropHooks;
 typedef struct _MetaWindowPropHooks MetaWindowPropHooks;
 
+#define meta_XFree(p) do { if ((p)) XFree ((p)); } while (0)
+
 typedef gboolean (*MetaAlarmFilter) (MetaX11Display        *x11_display,
                                      XSyncAlarmNotifyEvent *event,
                                      gpointer               data);

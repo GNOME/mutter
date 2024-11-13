@@ -30,7 +30,7 @@
 
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
-#include "meta/meta-x11-display.h"
+#include "x11/meta-x11-display-private.h"
 #include "mtk/mtk-x11.h"
 
 typedef struct
