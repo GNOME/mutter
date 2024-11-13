@@ -42,8 +42,8 @@
  * There's two containers in the stage that are used to place window actors, here
  * are listed in the order in which they are painted:
  *
- * - window group, accessible with meta_get_window_group_for_display()
- * - top window group, accessible with meta_get_top_window_group_for_display()
+ * - window group, accessible with [method@Meta.Display.get_window_group]
+ * - top window group, accessible with [method@Meta.Display.get_top_window_group]
  *
  * Mutter will place actors representing windows in the window group, except for
  * override-redirect windows (ie. popups and menus) which will be placed in the
@@ -209,13 +209,13 @@ get_compositor_for_display (MetaDisplay *display)
 }
 
 /**
- * meta_get_stage_for_display:
+ * meta_display_get_stage:
  * @display: a #MetaDisplay
  *
  * Returns: (transfer none): The #ClutterStage for the display
  */
 ClutterActor *
-meta_get_stage_for_display (MetaDisplay *display)
+meta_display_get_stage (MetaDisplay *display)
 {
   MetaCompositor *compositor;
   MetaCompositorPrivate *priv;
@@ -230,13 +230,13 @@ meta_get_stage_for_display (MetaDisplay *display)
 }
 
 /**
- * meta_get_window_group_for_display:
+ * meta_display_get_window_group:
  * @display: a #MetaDisplay
  *
  * Returns: (transfer none): The window group corresponding to @display
  */
 ClutterActor *
-meta_get_window_group_for_display (MetaDisplay *display)
+meta_display_get_window_group (MetaDisplay *display)
 {
   MetaCompositor *compositor;
   MetaCompositorPrivate *priv;
@@ -251,13 +251,13 @@ meta_get_window_group_for_display (MetaDisplay *display)
 }
 
 /**
- * meta_get_top_window_group_for_display:
+ * meta_display_get_top_window_group:
  * @display: a #MetaDisplay
  *
  * Returns: (transfer none): The top window group corresponding to @display
  */
 ClutterActor *
-meta_get_top_window_group_for_display (MetaDisplay *display)
+meta_display_get_top_window_group (MetaDisplay *display)
 {
   MetaCompositor *compositor;
   MetaCompositorPrivate *priv;
@@ -289,13 +289,13 @@ meta_compositor_get_feedback_group (MetaCompositor *compositor)
 }
 
 /**
- * meta_get_window_actors:
+ * meta_display_get_window_actors:
  * @display: a #MetaDisplay
  *
  * Returns: (transfer none) (element-type Clutter.Actor): The set of #MetaWindowActor on @display
  */
 GList *
-meta_get_window_actors (MetaDisplay *display)
+meta_display_get_window_actors (MetaDisplay *display)
 {
   MetaCompositor *compositor;
   MetaCompositorPrivate *priv;
@@ -1257,7 +1257,7 @@ meta_compositor_class_init (MetaCompositorClass *klass)
 }
 
 /**
- * meta_disable_unredirect_for_display:
+ * meta_display_disable_unredirect:
  * @display: a #MetaDisplay
  *
  * Disables unredirection, can be useful in situations where having
@@ -1265,7 +1265,7 @@ meta_compositor_class_init (MetaCompositorClass *klass)
  *
  */
 void
-meta_disable_unredirect_for_display (MetaDisplay *display)
+meta_display_disable_unredirect (MetaDisplay *display)
 {
   MetaCompositor *compositor;
   MetaCompositorPrivate *priv;
@@ -1280,14 +1280,14 @@ meta_disable_unredirect_for_display (MetaDisplay *display)
 }
 
 /**
- * meta_enable_unredirect_for_display:
+ * meta_display_enable_unredirect:
  * @display: a #MetaDisplay
  *
  * Enables unredirection which reduces the overhead for apps like games.
  *
  */
 void
-meta_enable_unredirect_for_display (MetaDisplay *display)
+meta_display_enable_unredirect (MetaDisplay *display)
 {
   MetaCompositor *compositor;
   MetaCompositorPrivate *priv;
@@ -1333,7 +1333,7 @@ meta_compositor_flash_display (MetaCompositor *compositor,
   ClutterTransition *transition;
   gfloat width, height;
 
-  stage = meta_get_stage_for_display (display);
+  stage = meta_display_get_stage (display);
   clutter_actor_get_size (stage, &width, &height);
 
   flash = clutter_actor_new ();

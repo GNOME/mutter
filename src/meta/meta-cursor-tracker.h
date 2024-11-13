@@ -37,7 +37,7 @@ G_DECLARE_DERIVABLE_TYPE (MetaCursorTracker,
                           GObject)
 
 META_EXPORT
-MetaCursorTracker *meta_cursor_tracker_get_for_display (MetaDisplay *display);
+MetaCursorTracker *meta_display_get_cursor_tracker (MetaDisplay *display);
 
 META_EXPORT
 void           meta_cursor_tracker_get_hot    (MetaCursorTracker *tracker,

@@ -320,7 +320,7 @@ capture_view (ClutterStageView *stage_view)
   MetaDisplay *display = meta_context_get_display (context);
   CaptureViewData data = { 0 };
 
-  meta_disable_unredirect_for_display (display);
+  meta_display_disable_unredirect (display);
 
   data.loop = g_main_loop_new (NULL, FALSE);
   data.watch = meta_stage_watch_view (stage, stage_view,
@@ -336,7 +336,7 @@ capture_view (ClutterStageView *stage_view)
   g_assert_null (data.watch);
   g_assert_nonnull (data.out_image);
 
-  meta_enable_unredirect_for_display (display);
+  meta_display_enable_unredirect (display);
 
   return data.out_image;
 }

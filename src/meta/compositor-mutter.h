@@ -29,19 +29,19 @@
 
 /* Public compositor API */
 META_EXPORT
-ClutterActor *meta_get_stage_for_display            (MetaDisplay *display);
+ClutterActor * meta_display_get_stage (MetaDisplay *display);
 
 META_EXPORT
-GList        *meta_get_window_actors                (MetaDisplay *display);
+GList * meta_display_get_window_actors (MetaDisplay *display);
 
 META_EXPORT
-ClutterActor *meta_get_window_group_for_display     (MetaDisplay *display);
+ClutterActor * meta_display_get_window_group (MetaDisplay *display);
 
 META_EXPORT
-ClutterActor *meta_get_top_window_group_for_display (MetaDisplay *display);
+ClutterActor * meta_display_get_top_window_group (MetaDisplay *display);
 
 META_EXPORT
-void meta_disable_unredirect_for_display (MetaDisplay *display);
+void meta_display_disable_unredirect (MetaDisplay *display);
 
 META_EXPORT
-void meta_enable_unredirect_for_display  (MetaDisplay *display);
+void meta_display_enable_unredirect (MetaDisplay *display);

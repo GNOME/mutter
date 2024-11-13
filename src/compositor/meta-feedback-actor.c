@@ -68,7 +68,7 @@ meta_feedback_actor_constructed (GObject *object)
 
   feedback_group = meta_compositor_get_feedback_group (priv->compositor);
   clutter_actor_add_child (feedback_group, CLUTTER_ACTOR (object));
-  meta_disable_unredirect_for_display (display);
+  meta_display_disable_unredirect (display);
 }
 
 static void
@@ -79,7 +79,7 @@ meta_feedback_actor_finalize (GObject *object)
     meta_feedback_actor_get_instance_private (self);
   MetaDisplay *display = meta_compositor_get_display (priv->compositor);
 
-  meta_enable_unredirect_for_display (display);
+  meta_display_disable_unredirect (display);
 
   G_OBJECT_CLASS (meta_feedback_actor_parent_class)->finalize (object);
 }

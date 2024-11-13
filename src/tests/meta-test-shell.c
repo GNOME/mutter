@@ -212,7 +212,7 @@ on_switch_workspace_effect_stopped (ClutterTimeline *timeline,
   MetaPlugin *plugin  = META_PLUGIN (data);
   MetaTestShell *test_shell = META_TEST_SHELL (plugin);
   MetaDisplay *display = meta_plugin_get_display (plugin);
-  GList *l = meta_get_window_actors (display);
+  GList *l = meta_display_get_window_actors (display);
 
   while (l)
     {
@@ -334,7 +334,7 @@ meta_test_shell_start (MetaPlugin *plugin)
     meta_backend_get_monitor_manager (backend);
 
   test_shell->background_group = meta_background_group_new ();
-  clutter_actor_insert_child_below (meta_get_window_group_for_display (display),
+  clutter_actor_insert_child_below (meta_display_get_window_group (display),
                                     test_shell->background_group, NULL);
 
   g_signal_connect (monitor_manager, "monitors-changed",
@@ -348,7 +348,7 @@ meta_test_shell_start (MetaPlugin *plugin)
                     G_CALLBACK (prepare_shutdown),
                     test_shell);
 
-  clutter_actor_show (meta_get_stage_for_display (display));
+  clutter_actor_show (meta_display_get_stage (display));
 }
 
 static void
@@ -371,7 +371,7 @@ meta_test_shell_switch_workspace (MetaPlugin          *plugin,
     }
 
   display = meta_plugin_get_display (plugin);
-  stage = meta_get_stage_for_display (display);
+  stage = meta_display_get_stage (display);
 
   meta_display_get_size (display,
                          &screen_width,
@@ -393,7 +393,7 @@ meta_test_shell_switch_workspace (MetaPlugin          *plugin,
   clutter_actor_add_child (stage, workspace1);
   clutter_actor_add_child (stage, workspace2);
 
-  for (l = g_list_last (meta_get_window_actors (display)); l; l = l->prev)
+  for (l = g_list_last (meta_display_get_window_actors (display)); l; l = l->prev)
     {
       MetaWindowActor *window_actor = l->data;
       ActorPrivate *actor_priv = get_actor_private (window_actor);
@@ -700,7 +700,7 @@ get_display_tile_preview (MetaDisplay *display)
       clutter_actor_set_background_color (preview->actor, &COGL_COLOR_INIT (0, 0, 255, 255));
       clutter_actor_set_opacity (preview->actor, 100);
 
-      clutter_actor_add_child (meta_get_window_group_for_display (display),
+      clutter_actor_add_child (meta_display_get_window_group (display),
                                preview->actor);
       g_signal_connect (display,
                         "closing",
