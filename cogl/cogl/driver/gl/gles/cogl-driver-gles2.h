@@ -26,22 +26,19 @@
  * SOFTWARE.
  */
 
-#include "cogl/cogl-driver-private.h"
+#pragma once
+
+#include "cogl/driver/gl/cogl-driver-gl.h"
 
 typedef struct _CoglDriverGLES2
 {
-  CoglDriver parent_instance;
+  CoglDriverGL parent_instance;
 } CoglDriverGLES2;
-
-struct _CoglDriverGLES2Class
-{
-  CoglDriverClass parent_class;
-};
 
 G_DECLARE_FINAL_TYPE (CoglDriverGLES2,
                       cogl_driver_gles2,
                       COGL,
                       DRIVER_GLES2,
-                      CoglDriver)
+                      CoglDriverGL)
 
 #define COGL_TYPE_DRIVER_GLES2 (cogl_driver_gles2_get_type ())
