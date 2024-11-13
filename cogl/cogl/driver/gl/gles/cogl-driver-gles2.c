@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+#include "cogl/driver/gl/gles/cogl-driver-gles2-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-renderer-private.h"
@@ -99,12 +100,15 @@
 #define GL_RG8 0x822B
 #endif
 
+G_DEFINE_FINAL_TYPE (CoglDriverGLES2, cogl_driver_gles2, COGL_TYPE_DRIVER)
+
 static CoglPixelFormat
-_cogl_driver_pixel_format_to_gl (CoglContext     *context,
-                                 CoglPixelFormat  format,
-                                 GLenum          *out_glintformat,
-                                 GLenum          *out_glformat,
-                                 GLenum          *out_gltype)
+cogl_driver_gles2_pixel_format_to_gl (CoglDriver      *driver,
+                                      CoglContext     *context,
+                                      CoglPixelFormat  format,
+                                      GLenum          *out_glintformat,
+                                      GLenum          *out_glformat,
+                                      GLenum          *out_gltype)
 {
   CoglPixelFormat required_format;
   GLenum glintformat;
@@ -193,11 +197,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       else
         {
           required_format =
-            _cogl_driver_pixel_format_to_gl (context,
-                                             COGL_PIXEL_FORMAT_RGB_888,
-                                             &glintformat,
-                                             &glformat,
-                                             &gltype);
+            cogl_driver_gles2_pixel_format_to_gl (driver,
+                                                  context,
+                                                  COGL_PIXEL_FORMAT_RGB_888,
+                                                  &glintformat,
+                                                  &glformat,
+                                                  &gltype);
         }
       break;
 
@@ -214,11 +219,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 
     case COGL_PIXEL_FORMAT_BGR_888:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
-                                         COGL_PIXEL_FORMAT_RGB_888,
-                                         &glintformat,
-                                         &glformat,
-                                         &gltype);
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_RGB_888,
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
       break;
 
     case COGL_PIXEL_FORMAT_R_16:
@@ -283,11 +289,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       else
         {
           required_format =
-            _cogl_driver_pixel_format_to_gl (context,
-                                             COGL_PIXEL_FORMAT_RGBA_8888,
-                                             &glintformat,
-                                             &glformat,
-                                             &gltype);
+            cogl_driver_gles2_pixel_format_to_gl (driver,
+                                                  context,
+                                                  COGL_PIXEL_FORMAT_RGBA_8888,
+                                                  &glintformat,
+                                                  &glformat,
+                                                  &gltype);
         }
       break;
 
@@ -296,11 +303,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_XRGB_8888:
     case COGL_PIXEL_FORMAT_XBGR_8888:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
-                                         COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                         &glintformat,
-                                         &glformat,
-                                         &gltype);
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
       break;
 
     case COGL_PIXEL_FORMAT_ARGB_8888:
@@ -308,12 +316,13 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_8888:
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
-                                         COGL_PIXEL_FORMAT_RGBA_8888 |
-                                         (format & COGL_PREMULT_BIT),
-                                         &glintformat,
-                                         &glformat,
-                                         &gltype);
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_RGBA_8888 |
+                                              (format & COGL_PREMULT_BIT),
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
       break;
 
     case COGL_PIXEL_FORMAT_RGBA_8888:
@@ -376,12 +385,13 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
-                                         COGL_PIXEL_FORMAT_ABGR_2101010 |
-                                         (format & COGL_PREMULT_BIT),
-                                         &glintformat,
-                                         &glformat,
-                                         &gltype);
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_ABGR_2101010 |
+                                              (format & COGL_PREMULT_BIT),
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
       break;
 
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
@@ -403,11 +413,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
-                                         COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
-                                         &glintformat,
-                                         &glformat,
-                                         &gltype);
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
       break;
 
     case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
@@ -417,12 +428,13 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
-                                         COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
-                                         (format & COGL_PREMULT_BIT),
-                                         &glintformat,
-                                         &glformat,
-                                         &gltype);
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
+                                              (format & COGL_PREMULT_BIT),
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
       break;
 
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
@@ -472,11 +484,12 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 }
 
 static CoglPixelFormat
-_cogl_driver_get_read_pixels_format (CoglContext     *context,
-                                     CoglPixelFormat  from,
-                                     CoglPixelFormat  to,
-                                     GLenum          *gl_format_out,
-                                     GLenum          *gl_type_out)
+cogl_driver_gles2_get_read_pixels_format (CoglDriver      *driver,
+                                          CoglContext     *context,
+                                          CoglPixelFormat  from,
+                                          CoglPixelFormat  to,
+                                          GLenum          *gl_format_out,
+                                          GLenum          *gl_type_out)
 {
   CoglPixelFormat required_format = 0;
   GLenum required_gl_format = 0;
@@ -571,11 +584,12 @@ _cogl_driver_get_read_pixels_format (CoglContext     *context,
 
   g_assert (required_format != 0);
 
-  to_required_format = _cogl_driver_pixel_format_to_gl (context,
-                                                        to,
-                                                        NULL,
-                                                        &to_gl_format,
-                                                        &to_gl_type);
+  to_required_format = cogl_driver_gles2_pixel_format_to_gl (driver,
+                                                             context,
+                                                             to,
+                                                             NULL,
+                                                             &to_gl_format,
+                                                             &to_gl_type);
 
   *gl_format_out = required_gl_format;
   *gl_type_out = required_gl_type;
@@ -680,8 +694,9 @@ check_glsl_version (CoglContext  *ctx,
 }
 
 static gboolean
-_cogl_driver_update_features (CoglContext  *context,
-                              GError      **error)
+cogl_driver_gles2_update_features (CoglDriver   *driver,
+                                   CoglContext  *context,
+                                   GError      **error)
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
@@ -853,31 +868,38 @@ _cogl_driver_update_features (CoglContext  *context,
   return TRUE;
 }
 
-const CoglDriverVtable
-_cogl_driver_gles =
-  {
-    _cogl_driver_gl_context_init,
-    _cogl_driver_gl_context_deinit,
-    _cogl_context_get_gl_vendor,
-    _cogl_driver_gl_is_hardware_accelerated,
-    _cogl_gl_get_graphics_reset_status,
-    _cogl_driver_pixel_format_to_gl,
-    _cogl_driver_get_read_pixels_format,
-    _cogl_driver_update_features,
-    _cogl_driver_gl_create_framebuffer_driver,
-    _cogl_driver_gl_flush_framebuffer_state,
-    _cogl_gl_flush_attributes_state,
-    _cogl_clip_stack_gl_flush,
-    _cogl_buffer_gl_create,
-    _cogl_buffer_gl_destroy,
-    _cogl_buffer_gl_map_range,
-    _cogl_buffer_gl_unmap,
-    _cogl_buffer_gl_set_data,
-    _cogl_sampler_gl_init,
-    _cogl_sampler_gl_free,
-    _cogl_gl_set_uniform,
-    cogl_gl_create_timestamp_query,
-    cogl_gl_free_timestamp_query,
-    cogl_gl_timestamp_query_get_time_ns,
-    cogl_gl_get_gpu_time_ns,
-  };
+static void
+cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
+{
+  CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+
+  driver_klass->context_init = _cogl_driver_gl_context_init;
+  driver_klass->context_deinit = _cogl_driver_gl_context_deinit;
+  driver_klass->get_vendor = _cogl_context_get_gl_vendor;
+  driver_klass->is_hardware_accelerated = _cogl_driver_gl_is_hardware_accelerated;
+  driver_klass->get_graphics_reset_status = _cogl_gl_get_graphics_reset_status;
+  driver_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;
+  driver_klass->get_read_pixels_format = cogl_driver_gles2_get_read_pixels_format;
+  driver_klass->update_features = cogl_driver_gles2_update_features;
+  driver_klass->create_framebuffer_driver = _cogl_driver_gl_create_framebuffer_driver;
+  driver_klass->flush_framebuffer_state = _cogl_driver_gl_flush_framebuffer_state;
+  driver_klass->flush_attributes_state = _cogl_gl_flush_attributes_state;
+  driver_klass->clip_stack_flush = _cogl_clip_stack_gl_flush;
+  driver_klass->buffer_create = _cogl_buffer_gl_create;
+  driver_klass->buffer_destroy = _cogl_buffer_gl_destroy;
+  driver_klass->buffer_map_range = _cogl_buffer_gl_map_range;
+  driver_klass->buffer_unmap = _cogl_buffer_gl_unmap;
+  driver_klass->buffer_set_data = _cogl_buffer_gl_set_data;
+  driver_klass->sampler_init = _cogl_sampler_gl_init;
+  driver_klass->sampler_free = _cogl_sampler_gl_free;
+  driver_klass->set_uniform = _cogl_gl_set_uniform;
+  driver_klass->create_timestamp_query = cogl_gl_create_timestamp_query;
+  driver_klass->free_timestamp_query = cogl_gl_free_timestamp_query;
+  driver_klass->timestamp_query_get_time_ns = cogl_gl_timestamp_query_get_time_ns;
+  driver_klass->get_gpu_time_ns = cogl_gl_get_gpu_time_ns;
+}
+
+static void
+cogl_driver_gles2_init (CoglDriverGLES2 *driver)
+{
+}

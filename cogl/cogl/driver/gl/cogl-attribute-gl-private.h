@@ -34,14 +34,16 @@
 #pragma once
 
 #include "cogl/cogl-types.h"
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-attribute.h"
 #include "cogl/cogl-attribute-private.h"
 
 void
-_cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
-                                 CoglPipeline *pipeline,
-                                 CoglFlushLayerState *layers_state,
-                                 CoglDrawFlags flags,
-                                 CoglAttribute **attributes,
-                                 int n_attributes);
+_cogl_gl_flush_attributes_state (CoglDriver           *driver,
+                                 CoglFramebuffer      *framebuffer,
+                                 CoglPipeline         *pipeline,
+                                 CoglFlushLayerState  *layers_state,
+                                 CoglDrawFlags         flags,
+                                 CoglAttribute       **attributes,
+                                 int                   n_attributes);

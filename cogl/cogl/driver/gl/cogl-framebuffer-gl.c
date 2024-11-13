@@ -404,6 +404,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   CoglPixelFormat format = cogl_bitmap_get_format (bitmap);
   CoglPixelFormat internal_format =
     cogl_framebuffer_get_internal_format (framebuffer);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
   CoglPixelFormat read_format;
   GLenum gl_format;
   GLenum gl_type;
@@ -442,11 +443,12 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   else
     pack_invert_set = FALSE;
 
-  read_format = ctx->driver_vtable->get_read_pixels_format (ctx,
-                                                            internal_format,
-                                                            format,
-                                                            &gl_format,
-                                                            &gl_type);
+  read_format = driver_klass->get_read_pixels_format (ctx->driver,
+                                                      ctx,
+                                                      internal_format,
+                                                      format,
+                                                      &gl_format,
+                                                      &gl_type);
 
   format_mismatch =
     (read_format & ~COGL_PREMULT_BIT) != (format & ~COGL_PREMULT_BIT);

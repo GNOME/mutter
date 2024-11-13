@@ -32,39 +32,44 @@
 
 #include <string.h>
 
+#include "cogl/driver/nop/cogl-driver-nop-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-renderer-private.h"
 
-#define COGL_TYPE_NOP_FRAMEBUFFER (cogl_nop_framebuffer_get_type ())
-G_DECLARE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
-                      COGL, NOP_FRAMEBUFFER_DRIVER,
+G_DEFINE_FINAL_TYPE (CoglDriverNop, cogl_driver_nop,
+                     COGL_TYPE_DRIVER)
+
+#define COGL_TYPE_FRAMEBUFFER_NOP (cogl_framebuffer_nop_get_type ())
+G_DECLARE_FINAL_TYPE (CoglFramebufferNop, cogl_framebuffer_nop,
+                      COGL, FRAMEBUFFER_DRIVER_NOP,
                       CoglFramebufferDriver)
 
 
-struct _CoglNopFramebuffer
+struct _CoglFramebufferNop
 {
   CoglFramebufferDriver parent;
 };
 
-G_DEFINE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
+G_DEFINE_FINAL_TYPE (CoglFramebufferNop, cogl_framebuffer_nop,
                      COGL_TYPE_FRAMEBUFFER_DRIVER)
 
 
 static void
-cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
+cogl_framebuffer_nop_init (CoglFramebufferNop *nop_framebuffer)
 {
 }
 
 static void
-cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
+cogl_framebuffer_nop_class_init (CoglFramebufferNopClass *klass)
 {
 }
 
 static gboolean
-_cogl_driver_update_features (CoglContext *ctx,
-                              GError **error)
+cogl_driver_nop_update_features (CoglDriver   *driver,
+                                 CoglContext  *ctx,
+                                 GError      **error)
 {
   memset (ctx->private_features, 0, sizeof (ctx->private_features));
 
@@ -72,35 +77,36 @@ _cogl_driver_update_features (CoglContext *ctx,
 }
 
 static const char *
-_cogl_driver_nop_get_renderer (CoglContext *context)
+cogl_driver_nop_get_vendor (CoglDriver  *driver,
+                            CoglContext *context)
 {
   return "NOP";
 }
 
 static CoglFramebufferDriver *
-_cogl_driver_nop_create_framebuffer_driver (CoglContext                        *context,
-                                            CoglFramebuffer                    *framebuffer,
-                                            const CoglFramebufferDriverConfig  *driver_config,
-                                            GError                            **error)
+cogl_driver_nop_create_framebuffer_driver (CoglDriver                         *driver,
+                                           CoglContext                        *context,
+                                           CoglFramebuffer                    *framebuffer,
+                                           const CoglFramebufferDriverConfig  *driver_config,
+                                           GError                            **error)
 {
-  return g_object_new (COGL_TYPE_NOP_FRAMEBUFFER,
+  return g_object_new (COGL_TYPE_FRAMEBUFFER_NOP,
                        "framebuffer", framebuffer,
                        NULL);
 }
 
-const CoglDriverVtable
-_cogl_driver_nop =
-  {
-    NULL,
-    NULL,
-    _cogl_driver_nop_get_renderer,
-    NULL,
-    NULL, /* get_graphics_reset_status */
-    NULL, /* pixel_format_to_gl */
-    NULL, /* _cogl_driver_get_read_pixels_format */
-    _cogl_driver_update_features,
-    _cogl_driver_nop_create_framebuffer_driver,
-    NULL,
-    NULL,
-    NULL,
-  };
+static void
+cogl_driver_nop_class_init (CoglDriverNopClass *klass)
+{
+  CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+
+  driver_klass->create_framebuffer_driver = cogl_driver_nop_create_framebuffer_driver;
+
+  driver_klass->update_features = cogl_driver_nop_update_features;
+  driver_klass->get_vendor = cogl_driver_nop_get_vendor;
+}
+
+static void
+cogl_driver_nop_init (CoglDriverNop *driver)
+{
+}

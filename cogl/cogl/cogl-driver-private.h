@@ -37,43 +37,59 @@
 #include "cogl/cogl-sampler-cache-private.h"
 #include "cogl/cogl-texture-private.h"
 
-typedef struct _CoglDriverVtable CoglDriverVtable;
+G_DECLARE_DERIVABLE_TYPE (CoglDriver,
+                          cogl_driver,
+                          COGL,
+                          DRIVER,
+                          GObject)
 
-struct _CoglDriverVtable
+struct _CoglDriverClass
 {
-  gboolean (* context_init) (CoglContext *context);
+  GObjectClass parent_class;
 
-  void (* context_deinit) (CoglContext *context);
+  gboolean (* context_init) (CoglDriver  *driver,
+                             CoglContext *context);
 
-  const char * (* get_vendor) (CoglContext *context);
+  void (* context_deinit) (CoglDriver  *driver,
+                           CoglContext *context);
 
-  gboolean (* is_hardware_accelerated) (CoglContext *context);
+  const char * (* get_vendor) (CoglDriver  *driver,
+                               CoglContext *context);
 
-  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglContext *context);
+  gboolean (* is_hardware_accelerated) (CoglDriver  *driver,
+                                        CoglContext *context);
+
+  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver  *driver,
+                                                         CoglContext *context);
 
   /* TODO: factor this out since this is OpenGL specific and
    * so can be ignored by non-OpenGL drivers. */
-  CoglPixelFormat (* pixel_format_to_gl) (CoglContext     *context,
+  CoglPixelFormat (* pixel_format_to_gl) (CoglDriver      *driver,
+                                          CoglContext     *context,
                                           CoglPixelFormat  format,
                                           GLenum          *out_glintformat,
                                           GLenum          *out_glformat,
                                           GLenum          *out_gltype);
 
-  CoglPixelFormat (* get_read_pixels_format) (CoglContext     *context,
+  CoglPixelFormat (* get_read_pixels_format) (CoglDriver      *driver,
+                                              CoglContext     *context,
                                               CoglPixelFormat  from,
                                               CoglPixelFormat  to,
                                               GLenum          *gl_format_out,
                                               GLenum          *gl_type_out);
 
-  gboolean (* update_features) (CoglContext  *context,
+  gboolean (* update_features) (CoglDriver   *driver,
+                                CoglContext  *context,
                                 GError      **error);
 
-  CoglFramebufferDriver * (* create_framebuffer_driver) (CoglContext                        *context,
+  CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
+                                                         CoglContext                        *context,
                                                          CoglFramebuffer                    *framebuffer,
                                                          const CoglFramebufferDriverConfig  *driver_config,
                                                          GError                            **error);
 
-  void (* flush_framebuffer_state) (CoglContext          *context,
+  void (* flush_framebuffer_state) (CoglDriver           *driver,
+                                    CoglContext          *context,
                                     CoglFramebuffer      *draw_buffer,
                                     CoglFramebuffer      *read_buffer,
                                     CoglFramebufferState  state);
@@ -81,7 +97,8 @@ struct _CoglDriverVtable
   /* Prepares for drawing by flushing the journal, framebuffer state,
    * pipeline state and attribute state.
    */
-  void (* flush_attributes_state) (CoglFramebuffer      *framebuffer,
+  void (* flush_attributes_state) (CoglDriver           *driver,
+                                   CoglFramebuffer      *framebuffer,
                                    CoglPipeline         *pipeline,
                                    CoglFlushLayerState  *layer_state,
                                    CoglDrawFlags         flags,
@@ -92,18 +109,22 @@ struct _CoglDriverVtable
    * stencil buffer, scissor and clip plane state.
    */
   void
-  (* clip_stack_flush) (CoglClipStack   *stack,
+  (* clip_stack_flush) (CoglDriver      *driver,
+                        CoglClipStack   *stack,
                         CoglFramebuffer *framebuffer);
 
   /* Enables the driver to create some meta data to represent a buffer
    * but with no corresponding storage allocated yet.
    */
-  void (* buffer_create) (CoglBuffer *buffer);
+  void (* buffer_create) (CoglDriver *driver,
+                          CoglBuffer *buffer);
 
-  void (* buffer_destroy) (CoglBuffer *buffer);
+  void (* buffer_destroy) (CoglDriver *driver,
+                           CoglBuffer *buffer);
 
   /* Maps a buffer into the CPU */
-  void * (* buffer_map_range) (CoglBuffer       *buffer,
+  void * (* buffer_map_range) (CoglDriver       *driver,
+                               CoglBuffer       *buffer,
                                size_t            offset,
                                size_t            size,
                                CoglBufferAccess  access,
@@ -111,36 +132,47 @@ struct _CoglDriverVtable
                                GError          **error);
 
   /* Unmaps a buffer */
-  void (* buffer_unmap) (CoglBuffer *buffer);
+  void (* buffer_unmap) (CoglDriver *driver,
+                         CoglBuffer *buffer);
 
   /* Uploads data to the buffer without needing to map it necessarily
    */
-  gboolean (* buffer_set_data) (CoglBuffer  *buffer,
+  gboolean (* buffer_set_data) (CoglDriver  *driver,
+                                CoglBuffer  *buffer,
                                 unsigned int offset,
                                 const void  *data,
                                 unsigned int size,
                                 GError     **error);
 
-  void (*sampler_init) (CoglContext           *context,
+  void (*sampler_init) (CoglDriver            *driver,
+                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
-  void (*sampler_free) (CoglContext           *context,
+  void (*sampler_free) (CoglDriver            *driver,
+                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
-  void (* set_uniform) (CoglContext          *ctx,
+  void (* set_uniform) (CoglDriver           *driver,
+                        CoglContext          *ctx,
                         GLint                 location,
                         const CoglBoxedValue *value);
 
-  CoglTimestampQuery * (* create_timestamp_query) (CoglContext *context);
+  CoglTimestampQuery * (* create_timestamp_query) (CoglDriver  *driver,
+                                                   CoglContext *context);
 
-  void (* free_timestamp_query) (CoglContext        *context,
+  void (* free_timestamp_query) (CoglDriver         *driver,
+                                 CoglContext        *context,
                                  CoglTimestampQuery *query);
 
-  int64_t (* timestamp_query_get_time_ns) (CoglContext        *context,
+  int64_t (* timestamp_query_get_time_ns) (CoglDriver         *driver,
+                                           CoglContext        *context,
                                            CoglTimestampQuery *query);
 
-  int64_t (* get_gpu_time_ns) (CoglContext *context);
+  int64_t (* get_gpu_time_ns) (CoglDriver  *driver,
+                               CoglContext *context);
 };
+
+#define COGL_TYPE_DRIVER (cogl_driver_get_type ())
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 

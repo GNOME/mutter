@@ -24,21 +24,21 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
-#include "config.h"
+#pragma once
 
 #include "cogl/cogl-driver-private.h"
 
-G_DEFINE_ABSTRACT_TYPE (CoglDriver, cogl_driver, G_TYPE_OBJECT)
-
-static void
-cogl_driver_class_init (CoglDriverClass *klass)
+struct _CoglDriverGL3
 {
-}
+  CoglDriver parent_instance;
+};
 
-static void
-cogl_driver_init (CoglDriver *driver)
-{
-}
+G_DECLARE_FINAL_TYPE (CoglDriverGL3,
+                      cogl_driver_gl3,
+                      COGL,
+                      DRIVER_GL3,
+                      CoglDriver)
+
+#define COGL_TYPE_DRIVER_GL3 (cogl_driver_gl3_get_type ())

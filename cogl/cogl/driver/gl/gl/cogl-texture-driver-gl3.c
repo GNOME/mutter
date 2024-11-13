@@ -482,11 +482,14 @@ cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriver *driver,
                                                       GLenum            *closest_gl_format,
                                                       GLenum            *closest_gl_type)
 {
-  return context->driver_vtable->pixel_format_to_gl (context,
-                                                     format,
-                                                     NULL, /* don't need */
-                                                     closest_gl_format,
-                                                     closest_gl_type);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
+
+  return driver_klass->pixel_format_to_gl (context->driver,
+                                           context,
+                                           format,
+                                           NULL, /* don't need */
+                                           closest_gl_format,
+                                           closest_gl_type);
 }
 
 static gboolean
@@ -506,6 +509,7 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
   uint8_t bpp;
   int width = cogl_texture_get_width (COGL_TEXTURE (tex_2d));
   GLenum gl_format;
@@ -516,11 +520,12 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
 
   bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          format,
-                                          NULL, /* internal format */
-                                          &gl_format,
-                                          &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    format,
+                                    NULL, /* internal format */
+                                    &gl_format,
+                                    &gl_type);
 
   tex_driver->prep_gl_for_pixels_download (ctx->texture_driver,
                                            ctx,

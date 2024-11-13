@@ -871,17 +871,18 @@ cogl_framebuffer_init_driver (CoglFramebuffer  *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  const CoglDriverVtable *driver_vtable = priv->context->driver_vtable;
-  CoglFramebufferDriver *driver;
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (priv->context->driver);
+  CoglFramebufferDriver *fb_driver;
 
-  driver = driver_vtable->create_framebuffer_driver (priv->context,
-                                                     framebuffer,
-                                                     &priv->driver_config,
-                                                     error);
-  if (!driver)
+  fb_driver = driver_klass->create_framebuffer_driver (priv->context->driver,
+                                                       priv->context,
+                                                       framebuffer,
+                                                       &priv->driver_config,
+                                                       error);
+  if (!fb_driver)
     return FALSE;
 
-  priv->driver = driver;
+  priv->driver = fb_driver;
   return TRUE;
 }
 
@@ -1054,12 +1055,15 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                       CoglFramebuffer      *read_buffer,
                                       CoglFramebufferState  state)
 {
-  if (ctx->driver_vtable->flush_framebuffer_state)
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+
+  if (driver_klass->flush_framebuffer_state)
     {
-      ctx->driver_vtable->flush_framebuffer_state (ctx,
-                                                   draw_buffer,
-                                                   read_buffer,
-                                                   state);
+      driver_klass->flush_framebuffer_state (ctx->driver,
+                                             ctx,
+                                             draw_buffer,
+                                             read_buffer,
+                                             state);
     }
 }
 
@@ -2357,7 +2361,7 @@ cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  const CoglDriverVtable *driver_vtable = priv->context->driver_vtable;
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (priv->context->driver);
 
   g_return_val_if_fail (cogl_context_has_feature (priv->context,
                                                   COGL_FEATURE_ID_TIMESTAMP_QUERY),
@@ -2374,5 +2378,5 @@ cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  return driver_vtable->create_timestamp_query (priv->context);
+  return driver_klass->create_timestamp_query (priv->context->driver, priv->context);
 }

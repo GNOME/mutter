@@ -69,6 +69,7 @@ cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *driver,
 {
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
@@ -77,11 +78,12 @@ cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *driver,
   if (cogl_pixel_format_get_n_planes (internal_format) != 1)
     return FALSE;
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          internal_format,
-                                          &gl_intformat,
-                                          &gl_format,
-                                          &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    internal_format,
+                                    &gl_intformat,
+                                    &gl_format,
+                                    &gl_type);
 
   /* Check that the driver can create a texture with that size */
   if (!tex_driver->size_supported (ctx->texture_driver,
@@ -107,6 +109,8 @@ allocate_with_size (CoglTexture2D     *tex_2d,
   int width = loader->src.sized.width;
   int height = loader->src.sized.height;
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglDriverClass *driver_klass =
+    COGL_DRIVER_GET_CLASS (ctx->driver);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   GLenum gl_intformat;
@@ -130,11 +134,12 @@ allocate_with_size (CoglTexture2D     *tex_2d,
       return FALSE;
     }
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          internal_format,
-                                          &gl_intformat,
-                                          &gl_format,
-                                          &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    internal_format,
+                                    &gl_intformat,
+                                    &gl_format,
+                                    &gl_type);
 
   gl_texture = tex_driver->gen (ctx->texture_driver,
                                 ctx,
@@ -176,6 +181,8 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglBitmap *bmp = loader->src.bitmap.bitmap;
   CoglContext *ctx = _cogl_bitmap_get_context (bmp);
+  CoglDriverClass *driver_klass =
+    COGL_DRIVER_GET_CLASS (ctx->driver);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   CoglPixelFormat internal_format;
@@ -208,16 +215,18 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
   if (upload_bmp == NULL)
     return FALSE;
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          cogl_bitmap_get_format (upload_bmp),
-                                          NULL, /* internal format */
-                                          &gl_format,
-                                          &gl_type);
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          internal_format,
-                                          &gl_intformat,
-                                          NULL,
-                                          NULL);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    cogl_bitmap_get_format (upload_bmp),
+                                    NULL, /* internal format */
+                                    &gl_format,
+                                    &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    internal_format,
+                                    &gl_intformat,
+                                    NULL,
+                                    NULL);
 
   tex_2d->gl_texture = tex_driver->gen (ctx->texture_driver,
                                         ctx,
@@ -458,6 +467,7 @@ cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *driver,
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   CoglBitmap *upload_bmp;
@@ -480,11 +490,12 @@ cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *driver,
       cogl_pixel_format_get_n_planes (upload_format) != 1)
     return FALSE;
 
-  ctx->driver_vtable->pixel_format_to_gl (ctx,
-                                          upload_format,
-                                          NULL, /* internal gl format */
-                                          &gl_format,
-                                          &gl_type);
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
+                                    upload_format,
+                                    NULL, /* internal gl format */
+                                    &gl_format,
+                                    &gl_type);
 
   if (cogl_texture_get_max_level_set (tex) < level)
     cogl_texture_gl_set_max_level (tex, level);

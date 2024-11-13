@@ -33,10 +33,12 @@
 
 #pragma once
 
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-clip-stack.h"
 
 void
-_cogl_clip_stack_gl_flush (CoglClipStack *stack,
+_cogl_clip_stack_gl_flush (CoglDriver      *driver,
+                           CoglClipStack   *stack,
                            CoglFramebuffer *framebuffer);

@@ -103,7 +103,8 @@ _cogl_driver_gl_context (CoglContext *context)
 }
 
 gboolean
-_cogl_driver_gl_context_init (CoglContext *context)
+_cogl_driver_gl_context_init (CoglDriver  *driver,
+                              CoglContext *context)
 {
   CoglGLContext *gl_context;
 
@@ -127,14 +128,16 @@ _cogl_driver_gl_context_init (CoglContext *context)
 }
 
 void
-_cogl_driver_gl_context_deinit (CoglContext *context)
+_cogl_driver_gl_context_deinit (CoglDriver  *driver,
+                                CoglContext *context)
 {
   _cogl_destroy_texture_units (context);
   g_free (context->driver_context);
 }
 
 CoglFramebufferDriver *
-_cogl_driver_gl_create_framebuffer_driver (CoglContext                        *context,
+_cogl_driver_gl_create_framebuffer_driver (CoglDriver                         *driver,
+                                           CoglContext                        *context,
                                            CoglFramebuffer                    *framebuffer,
                                            const CoglFramebufferDriverConfig  *driver_config,
                                            GError                            **error)
@@ -174,7 +177,8 @@ _cogl_driver_gl_create_framebuffer_driver (CoglContext                        *c
 }
 
 void
-_cogl_driver_gl_flush_framebuffer_state (CoglContext          *ctx,
+_cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
+                                         CoglContext          *ctx,
                                          CoglFramebuffer      *draw_buffer,
                                          CoglFramebuffer      *read_buffer,
                                          CoglFramebufferState  state)
@@ -416,7 +420,8 @@ _cogl_context_get_gl_version (CoglContext *context)
 }
 
 const char *
-_cogl_context_get_gl_vendor (CoglContext *context)
+_cogl_context_get_gl_vendor (CoglDriver  *driver,
+                             CoglContext *context)
 {
   return (const char *) context->glGetString (GL_VENDOR);
 }
@@ -465,7 +470,8 @@ _cogl_gl_util_parse_gl_version (const char *version_string,
  * So instead just check a list of known software renderer strings.
  */
 gboolean
-_cogl_driver_gl_is_hardware_accelerated (CoglContext *ctx)
+_cogl_driver_gl_is_hardware_accelerated (CoglDriver  *driver,
+                                         CoglContext *ctx)
 {
   const char *renderer = (const char *) ctx->glGetString (GL_RENDERER);
   gboolean software;
@@ -487,7 +493,8 @@ _cogl_driver_gl_is_hardware_accelerated (CoglContext *ctx)
 }
 
 CoglGraphicsResetStatus
-_cogl_gl_get_graphics_reset_status (CoglContext *context)
+_cogl_gl_get_graphics_reset_status (CoglDriver  *driver,
+                                    CoglContext *context)
 {
   if (!context->glGetGraphicsResetStatus)
     return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
@@ -512,7 +519,8 @@ _cogl_gl_get_graphics_reset_status (CoglContext *context)
 }
 
 CoglTimestampQuery *
-cogl_gl_create_timestamp_query (CoglContext *context)
+cogl_gl_create_timestamp_query (CoglDriver  *driver,
+                                CoglContext *context)
 {
   CoglTimestampQuery *query;
 
@@ -531,7 +539,8 @@ cogl_gl_create_timestamp_query (CoglContext *context)
 }
 
 void
-cogl_gl_free_timestamp_query (CoglContext        *context,
+cogl_gl_free_timestamp_query (CoglDriver         *driver,
+                              CoglContext        *context,
                               CoglTimestampQuery *query)
 {
   GE (context, glDeleteQueries (1, &query->id));
@@ -539,7 +548,8 @@ cogl_gl_free_timestamp_query (CoglContext        *context,
 }
 
 int64_t
-cogl_gl_timestamp_query_get_time_ns (CoglContext        *context,
+cogl_gl_timestamp_query_get_time_ns (CoglDriver         *driver,
+                                     CoglContext        *context,
                                      CoglTimestampQuery *query)
 {
   int64_t query_time_ns;
@@ -552,7 +562,8 @@ cogl_gl_timestamp_query_get_time_ns (CoglContext        *context,
 }
 
 int64_t
-cogl_gl_get_gpu_time_ns (CoglContext *context)
+cogl_gl_get_gpu_time_ns (CoglDriver  *driver,
+                         CoglContext *context)
 {
   int64_t gpu_time_ns;
 
