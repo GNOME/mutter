@@ -64,8 +64,7 @@ cogl_nodist_headers = [
 
 cogl_noop_driver_sources = [
   'driver/nop/cogl-driver-nop.c',
-  'driver/nop/cogl-texture-2d-nop-private.h',
-  'driver/nop/cogl-texture-2d-nop.c',
+  'driver/nop/cogl-driver-nop.h',
 ]
 
 cogl_gl_prototype_headers = [
@@ -108,12 +107,14 @@ cogl_common_driver_sources = [
 ]
 
 gl_driver_sources = [
-  'driver/gl/gl/cogl-driver-gl.c',
+  'driver/gl/gl/cogl-driver-gl3.c',
+  'driver/gl/gl/cogl-driver-gl3.h',
   'driver/gl/gl/cogl-texture-driver-gl.c',
 ]
 
 gles_driver_sources = [
-  'driver/gl/gles/cogl-driver-gles.c',
+  'driver/gl/gles/cogl-driver-gles2.c',
+  'driver/gl/gles/cogl-driver-gles2.h',
   'driver/gl/gles/cogl-texture-driver-gles.c',
 ]
 
@@ -173,6 +174,7 @@ cogl_sources = [
   'cogl-display.h',
   'cogl-dma-buf-handle.c',
   'cogl-driver-private.h',
+  'cogl-driver.c',
   'cogl-feature-private.c',
   'cogl-feature-private.h',
   'cogl-flags.h',

@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+#include "cogl/driver/gl/gl/cogl-driver-gl3.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
@@ -43,6 +44,8 @@
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
 #include "cogl/driver/gl/cogl-buffer-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+
+G_DEFINE_FINAL_TYPE (CoglDriverGL3, cogl_driver_gl3, COGL_TYPE_DRIVER);
 
 static gboolean
 _cogl_driver_gl_real_context_init (CoglContext *context)
@@ -593,41 +596,49 @@ _cogl_driver_update_features (CoglContext  *ctx,
   return TRUE;
 }
 
-const CoglDriverVtable
-_cogl_driver_gl =
-  {
-    _cogl_driver_gl_real_context_init,
-    _cogl_driver_gl_context_deinit,
-    _cogl_context_get_gl_vendor,
-    _cogl_driver_gl_is_hardware_accelerated,
-    _cogl_gl_get_graphics_reset_status,
-    _cogl_driver_pixel_format_to_gl,
-    _cogl_driver_get_read_pixels_format,
-    _cogl_driver_update_features,
-    _cogl_driver_gl_create_framebuffer_driver,
-    _cogl_driver_gl_flush_framebuffer_state,
-    _cogl_texture_2d_gl_free,
-    _cogl_texture_2d_gl_can_create,
-    _cogl_texture_2d_gl_init,
-    _cogl_texture_2d_gl_allocate,
-    _cogl_texture_2d_gl_copy_from_framebuffer,
-    _cogl_texture_2d_gl_get_gl_handle,
-    _cogl_texture_2d_gl_generate_mipmap,
-    _cogl_texture_2d_gl_copy_from_bitmap,
-    _cogl_texture_2d_gl_is_get_data_supported,
-    _cogl_texture_2d_gl_get_data,
-    _cogl_gl_flush_attributes_state,
-    _cogl_clip_stack_gl_flush,
-    _cogl_buffer_gl_create,
-    _cogl_buffer_gl_destroy,
-    _cogl_buffer_gl_map_range,
-    _cogl_buffer_gl_unmap,
-    _cogl_buffer_gl_set_data,
-    _cogl_sampler_gl_init,
-    _cogl_sampler_gl_free,
-    _cogl_gl_set_uniform, /* XXX name is weird... */
-    cogl_gl_create_timestamp_query,
-    cogl_gl_free_timestamp_query,
-    cogl_gl_timestamp_query_get_time_ns,
-    cogl_gl_get_gpu_time_ns,
-  };
+static void
+cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
+{
+  CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+
+  driver_klass->context_init = _cogl_driver_gl_real_context_init;
+  driver_klass->context_deinit = _cogl_driver_gl_context_deinit;
+  driver_klass->get_vendor = _cogl_context_get_gl_vendor;
+  driver_klass->is_hardware_accelerated = _cogl_driver_gl_is_hardware_accelerated;
+  driver_klass->get_graphics_reset_status = _cogl_gl_get_graphics_reset_status;
+  driver_klass->pixel_format_to_gl = _cogl_driver_pixel_format_to_gl;
+  driver_klass->get_read_pixels_format = _cogl_driver_get_read_pixels_format;
+  driver_klass->update_features = _cogl_driver_update_features;
+  driver_klass->create_framebuffer_driver = _cogl_driver_gl_create_framebuffer_driver;
+  driver_klass->flush_framebuffer_state = _cogl_driver_gl_flush_framebuffer_state;
+  driver_klass->texture_2d_free = _cogl_texture_2d_gl_free;
+  driver_klass->texture_2d_can_create = _cogl_texture_2d_gl_can_create;
+  driver_klass->texture_2d_init = _cogl_texture_2d_gl_init;
+  driver_klass->texture_2d_allocate = _cogl_texture_2d_gl_allocate;
+  driver_klass->texture_2d_copy_from_framebuffer = _cogl_texture_2d_gl_copy_from_framebuffer;
+  driver_klass->texture_2d_get_gl_handle = _cogl_texture_2d_gl_get_gl_handle;
+  driver_klass->texture_2d_generate_mipmap = _cogl_texture_2d_gl_generate_mipmap;
+  driver_klass->texture_2d_copy_from_bitmap = _cogl_texture_2d_gl_copy_from_bitmap;
+  driver_klass->texture_2d_is_get_data_supported = _cogl_texture_2d_gl_is_get_data_supported;
+  driver_klass->texture_2d_get_data = _cogl_texture_2d_gl_get_data;
+  driver_klass->flush_attributes_state = _cogl_gl_flush_attributes_state;
+  driver_klass->clip_stack_flush = _cogl_clip_stack_gl_flush;
+  driver_klass->buffer_create = _cogl_buffer_gl_create;
+  driver_klass->buffer_destroy = _cogl_buffer_gl_destroy;
+  driver_klass->buffer_map_range = _cogl_buffer_gl_map_range;
+  driver_klass->buffer_unmap = _cogl_buffer_gl_unmap;
+  driver_klass->buffer_set_data = _cogl_buffer_gl_set_data;
+  driver_klass->sampler_init = _cogl_sampler_gl_init;
+  driver_klass->sampler_free = _cogl_sampler_gl_free;
+  driver_klass->set_uniform = _cogl_gl_set_uniform; /* XXX name is weird... */
+  driver_klass->create_timestamp_query = cogl_gl_create_timestamp_query;
+  driver_klass->free_timestamp_query = cogl_gl_free_timestamp_query;
+  driver_klass->timestamp_query_get_time_ns = cogl_gl_timestamp_query_get_time_ns;
+  driver_klass->get_gpu_time_ns = cogl_gl_get_gpu_time_ns;
+}
+
+static void
+cogl_driver_gl3_init (CoglDriverGL3 *driver)
+{
+
+}

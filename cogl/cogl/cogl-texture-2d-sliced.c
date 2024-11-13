@@ -161,6 +161,7 @@ setup_spans (CoglContext *ctx,
   int max_height;
   int n_x_slices;
   int n_y_slices;
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
 
   int   (*slices_for_size) (int, int, int, GArray*);
 
@@ -175,10 +176,10 @@ setup_spans (CoglContext *ctx,
       CoglSpan span;
 
       /* Check if size supported else bail out */
-      if (!ctx->driver_vtable->texture_2d_can_create (ctx,
-                                                      max_width,
-                                                      max_height,
-                                                      internal_format))
+      if (!driver_klass->texture_2d_can_create (ctx,
+                                                max_width,
+                                                max_height,
+                                                internal_format))
         {
           g_set_error (error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE,
                        "Sliced texture size of %d x %d not possible "
@@ -213,10 +214,10 @@ setup_spans (CoglContext *ctx,
   else
     {
       /* Decrease the size of largest slice until supported by GL */
-      while (!ctx->driver_vtable->texture_2d_can_create (ctx,
-                                                         max_width,
-                                                         max_height,
-                                                         internal_format))
+      while (!driver_klass->texture_2d_can_create (ctx,
+                                                   max_width,
+                                                   max_height,
+                                                   internal_format))
         {
           /* Alternate between width and height */
           if (max_width > max_height)

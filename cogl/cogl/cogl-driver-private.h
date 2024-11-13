@@ -37,10 +37,10 @@
 #include "cogl/cogl-sampler-cache-private.h"
 #include "cogl/cogl-texture-private.h"
 
-typedef struct _CoglDriverVtable CoglDriverVtable;
-
-struct _CoglDriverVtable
+struct _CoglDriverClass
 {
+  GObjectClass parent_class;
+
   gboolean (* context_init) (CoglContext *context);
 
   void (* context_deinit) (CoglContext *context);
@@ -217,6 +217,14 @@ struct _CoglDriverVtable
 
   int64_t (* get_gpu_time_ns) (CoglContext *context);
 };
+
+G_DECLARE_DERIVABLE_TYPE (CoglDriver,
+                          cogl_driver,
+                          COGL,
+                          DRIVER,
+                          GObject)
+
+#define COGL_TYPE_DRIVER (cogl_driver_get_type ())
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 
