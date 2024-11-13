@@ -531,37 +531,6 @@ meta_generate_random_id (GRand *rand,
   return id;
 }
 
-
-void
-meta_add_clutter_debug_flags (ClutterDebugFlag     debug_flags,
-                              ClutterDrawDebugFlag draw_flags,
-                              ClutterPickDebugFlag pick_flags)
-{
-  clutter_add_debug_flags (debug_flags, draw_flags, pick_flags);
-}
-
-void
-meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
-                                 ClutterDrawDebugFlag draw_flags,
-                                 ClutterPickDebugFlag pick_flags)
-{
-  clutter_remove_debug_flags (debug_flags, draw_flags, pick_flags);
-}
-
-/**
- * meta_get_clutter_debug_flags:
- * @debug_flags: (out) (optional): return location for debug flags
- * @draw_flags: (out) (optional): return location for draw debug flags
- * @pick_flags: (out) (optional): return location for pick debug flags
- */
-void
-meta_get_clutter_debug_flags (ClutterDebugFlag     *debug_flags,
-                              ClutterDrawDebugFlag *draw_flags,
-                              ClutterPickDebugFlag *pick_flags)
-{
-  clutter_get_debug_flags (debug_flags, draw_flags, pick_flags);
-}
-
 void
 meta_add_debug_paint_flag (MetaDebugPaintFlag flag)
 {

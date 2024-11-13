@@ -94,21 +94,6 @@ META_EXPORT
 char* meta_g_utf8_strndup (const gchar *src, gsize n);
 
 META_EXPORT
-void meta_add_clutter_debug_flags (ClutterDebugFlag     debug_flags,
-                                   ClutterDrawDebugFlag draw_flags,
-                                   ClutterPickDebugFlag pick_flags);
-
-META_EXPORT
-void meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
-                                      ClutterDrawDebugFlag draw_flags,
-                                      ClutterPickDebugFlag pick_flags);
-
-META_EXPORT
-void meta_get_clutter_debug_flags (ClutterDebugFlag     *debug_flags,
-                                   ClutterDrawDebugFlag *draw_flags,
-                                   ClutterPickDebugFlag *pick_flags);
-
-META_EXPORT
 void meta_add_debug_paint_flag (MetaDebugPaintFlag flag);
 
 META_EXPORT

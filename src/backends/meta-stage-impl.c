@@ -541,7 +541,7 @@ meta_stage_impl_redraw_view_primary (MetaStageImpl    *stage_impl,
                                              buffer_age);
     }
 
-  meta_get_clutter_debug_flags (NULL, &paint_debug_flags, NULL);
+  clutter_get_debug_flags (NULL, &paint_debug_flags, NULL);
 
   use_clipped_redraw =
     should_use_clipped_redraw (is_full_redraw,

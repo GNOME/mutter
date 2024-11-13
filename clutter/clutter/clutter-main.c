@@ -598,6 +598,12 @@ clutter_debug_set_max_render_time_constant (int max_render_time_constant_us)
   clutter_max_render_time_constant_us = max_render_time_constant_us;
 }
 
+/**
+ * clutter_get_debug_flags:
+ * @debug_flags: (out) (optional): return location for debug flags
+ * @draw_flags: (out) (optional): return location for draw debug flags
+ * @pick_flags: (out) (optional): return location for pick debug flags
+ */
 void
 clutter_get_debug_flags (ClutterDebugFlag     *debug_flags,
                          ClutterDrawDebugFlag *draw_flags,
