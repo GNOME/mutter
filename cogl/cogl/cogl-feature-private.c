@@ -44,7 +44,7 @@ _cogl_feature_check (CoglRenderer *renderer,
                      const CoglFeatureData *data,
                      int gl_major,
                      int gl_minor,
-                     CoglDriver driver,
+                     CoglDriverId driver,
                      char * const *extensions,
                      void *function_table)
 
@@ -55,22 +55,22 @@ _cogl_feature_check (CoglRenderer *renderer,
 
   switch (driver)
     {
-    case COGL_DRIVER_GLES2:
+    case COGL_DRIVER_ID_GLES2:
       gles_availability = COGL_EXT_IN_GLES2;
 
       if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
         gles_availability |= COGL_EXT_IN_GLES3;
       break;
-    case COGL_DRIVER_ANY:
+    case COGL_DRIVER_ID_ANY:
       g_assert_not_reached ();
-    case COGL_DRIVER_NOP:
-    case COGL_DRIVER_GL3:
+    case COGL_DRIVER_ID_NOP:
+    case COGL_DRIVER_ID_GL3:
       break;
     }
 
   /* First check whether the functions should be directly provided by
      GL */
-  if ((driver == COGL_DRIVER_GL3 &&
+  if ((driver == COGL_DRIVER_ID_GL3 &&
        COGL_CHECK_GL_VERSION (gl_major, gl_minor,
                               data->min_gl_major, data->min_gl_minor)) ||
       (data->gles_availability & gles_availability))
@@ -213,7 +213,7 @@ _cogl_feature_check_ext_functions (CoglContext *context,
   for (i = 0; i < G_N_ELEMENTS (cogl_feature_ext_functions_data); i++)
     _cogl_feature_check (context->display->renderer,
                          "GL", cogl_feature_ext_functions_data + i,
-                         gl_major, gl_minor, context->driver,
+                         gl_major, gl_minor, context->driver_id,
                          gl_extensions,
                          context);
 }

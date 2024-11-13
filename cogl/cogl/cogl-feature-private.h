@@ -92,7 +92,7 @@ _cogl_feature_check (CoglRenderer *renderer,
                      const CoglFeatureData *data,
                      int gl_major,
                      int gl_minor,
-                     CoglDriver driver,
+                     CoglDriverId driver,
                      char * const *extensions,
                      void *function_table);
 

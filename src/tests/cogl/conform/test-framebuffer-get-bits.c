@@ -15,7 +15,7 @@ test_framebuffer_get_bits (void)
 
   renderer = cogl_context_get_renderer (test_ctx);
 
-  if (cogl_renderer_get_driver (renderer) != COGL_DRIVER_GL3)
+  if (cogl_renderer_get_driver_id (renderer) != COGL_DRIVER_ID_GL3)
     {
       g_test_skip ("Test requires OpenGL");
       return;
