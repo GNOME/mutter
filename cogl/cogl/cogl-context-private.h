@@ -40,7 +40,7 @@
 #include "cogl/cogl-buffer-private.h"
 #include "cogl/cogl-bitmask.h"
 #include "cogl/cogl-atlas.h"
-#include "cogl/cogl-driver.h"
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-pipeline-cache.h"
 #include "cogl/cogl-texture-2d.h"

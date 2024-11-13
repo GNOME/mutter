@@ -174,7 +174,7 @@ cogl_sources = [
   'cogl-display.c',
   'cogl-display.h',
   'cogl-dma-buf-handle.c',
-  'cogl-driver.h',
+  'cogl-driver-private.h',
   'cogl-feature-private.c',
   'cogl-feature-private.h',
   'cogl-flags.h',
