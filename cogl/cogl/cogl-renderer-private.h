@@ -32,7 +32,7 @@
 
 #include <gmodule.h>
 
-#include "cogl/cogl-driver.h"
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-closure-list-private.h"
