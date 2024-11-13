@@ -28,17 +28,17 @@
 
 #pragma once
 
-#include "cogl/cogl-driver-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 struct _CoglDriverGL3
 {
-  CoglDriver parent_instance;
+  CoglDriverGL parent_instance;
 };
 
 G_DECLARE_FINAL_TYPE (CoglDriverGL3,
                       cogl_driver_gl3,
                       COGL,
                       DRIVER_GL3,
-                      CoglDriver)
+                      CoglDriverGL)
 
 #define COGL_TYPE_DRIVER_GL3 (cogl_driver_gl3_get_type ())

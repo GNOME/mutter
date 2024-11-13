@@ -33,6 +33,9 @@
 
 #pragma once
 
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture.h"
