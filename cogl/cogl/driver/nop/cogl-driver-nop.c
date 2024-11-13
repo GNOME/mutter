@@ -1,9 +1,5 @@
 /*
- * Cogl
- *
- * A Low Level GPU Graphics and Utilities API
- *
- * Copyright (C) 2012 Intel Corporation.
+ * Copyright (C) 2020 Red Hat
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,25 +21,101 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- *
  */
 
-#include "config.h"
-
-#include <string.h>
-
-#include "cogl/cogl-private.h"
-#include "cogl/cogl-context-private.h"
-#include "cogl/cogl-feature-private.h"
-#include "cogl/cogl-renderer-private.h"
-#include "cogl/driver/nop/cogl-texture-2d-nop-private.h"
-#include "cogl/driver/nop/cogl-attribute-nop-private.h"
-#include "cogl/driver/nop/cogl-clip-stack-nop-private.h"
+#include "cogl/driver/nop/cogl-driver-nop.h"
 #include "cogl/driver/nop/cogl-nop-framebuffer.h"
+#include "cogl/cogl-context-private.h"
+
+
+G_DEFINE_FINAL_TYPE (CoglNopDriver, cogl_nop_driver, COGL_TYPE_DRIVER);
+
+
+static void
+cogl_nop_driver_flush_attributes_state (CoglFramebuffer     *framebuffer,
+                                        CoglPipeline        *pipeline,
+                                        CoglFlushLayerState *layers_state,
+                                        CoglDrawFlags        flags,
+                                        CoglAttribute      **attributes,
+                                        int                  n_attributes)
+{
+}
+
+static void
+cogl_nop_driver_clip_stack_flush (CoglClipStack   *stack,
+                                  CoglFramebuffer *framebuffer)
+{
+}
+
+
+static void
+cogl_nop_driver_texture_2d_init (CoglTexture2D *tex_2d)
+{
+}
+
+static void
+cogl_nop_driver_texture_2d_free (CoglTexture2D *tex_2d)
+{
+}
 
 static gboolean
-_cogl_driver_update_features (CoglContext *ctx,
-                              GError **error)
+cogl_nop_driver_texture_2d_can_create (CoglContext     *ctx,
+                                       int              width,
+                                       int              height,
+                                       CoglPixelFormat  internal_format)
+{
+  return TRUE;
+}
+
+static gboolean
+cogl_nop_driver_texture_2d_allocate (CoglTexture  *tex,
+                                     GError      **error)
+{
+  return TRUE;
+}
+
+static void
+cogl_nop_driver_texture_2d_copy_from_framebuffer (CoglTexture2D   *tex_2d,
+                                                  int              src_x,
+                                                  int              src_y,
+                                                  int              width,
+                                                  int              height,
+                                                  CoglFramebuffer *src_fb,
+                                                  int              dst_x,
+                                                  int              dst_y,
+                                                  int              level)
+{
+}
+
+static unsigned int
+cogl_nop_driver_texture_2d_get_gl_handle (CoglTexture2D *tex_2d)
+{
+  return 0;
+}
+
+static void
+cogl_nop_driver_texture_2d_generate_mipmap (CoglTexture2D *tex_2d)
+{
+}
+
+static gboolean
+cogl_nop_driver_texture_2d_copy_from_bitmap (CoglTexture2D  *tex_2d,
+                                             int             src_x,
+                                             int             src_y,
+                                             int             width,
+                                             int             height,
+                                             CoglBitmap     *bitmap,
+                                             int             dst_x,
+                                             int             dst_y,
+                                             int             level,
+                                             GError        **error)
+{
+  return TRUE;
+}
+
+static gboolean
+cogl_nop_driver_update_features (CoglContext  *ctx,
+                                 GError      **error)
 {
   memset (ctx->private_features, 0, sizeof (ctx->private_features));
 
@@ -51,30 +123,30 @@ _cogl_driver_update_features (CoglContext *ctx,
 }
 
 static gboolean
-_cogl_driver_nop_context_init (CoglContext *context)
+cogl_nop_driver_context_init (CoglContext *context)
 {
   return TRUE;
 }
 
 static void
-_cogl_driver_nop_context_deinit (CoglContext *context)
+cogl_nop_driver_context_deinit (CoglContext *context)
 {
 }
 
 static gboolean
-_cogl_driver_nop_is_hardware_accelerated (CoglContext *context)
+cogl_nop_driver_is_hardware_accelerated (CoglContext *context)
 {
   return FALSE;
 }
 
 static const char *
-_cogl_driver_nop_get_renderer (CoglContext *context)
+cogl_nop_driver_get_vendor (CoglContext *context)
 {
   return "NOP";
 }
 
 static CoglFramebufferDriver *
-_cogl_driver_nop_create_framebuffer_driver (CoglContext                        *context,
+cogl_nop_driver_create_framebuffer_driver (CoglContext                        *context,
                                             CoglFramebuffer                    *framebuffer,
                                             const CoglFramebufferDriverConfig  *driver_config,
                                             GError                            **error)
@@ -85,36 +157,41 @@ _cogl_driver_nop_create_framebuffer_driver (CoglContext                        *
 }
 
 static void
-_cogl_driver_nop_flush_framebuffer_state (CoglContext          *ctx,
+cogl_nop_driver_flush_framebuffer_state (CoglContext          *ctx,
                                           CoglFramebuffer      *draw_buffer,
                                           CoglFramebuffer      *read_buffer,
                                           CoglFramebufferState  state)
 {
 }
 
-const CoglDriverVtable
-_cogl_driver_nop =
-  {
-    _cogl_driver_nop_context_init,
-    _cogl_driver_nop_context_deinit,
-    _cogl_driver_nop_get_renderer,
-    _cogl_driver_nop_is_hardware_accelerated,
-    NULL, /* get_graphics_reset_status */
-    NULL, /* pixel_format_to_gl */
-    NULL, /* _cogl_driver_get_read_pixels_format */
-    _cogl_driver_update_features,
-    _cogl_driver_nop_create_framebuffer_driver,
-    _cogl_driver_nop_flush_framebuffer_state,
-    _cogl_texture_2d_nop_free,
-    _cogl_texture_2d_nop_can_create,
-    _cogl_texture_2d_nop_init,
-    _cogl_texture_2d_nop_allocate,
-    _cogl_texture_2d_nop_copy_from_framebuffer,
-    _cogl_texture_2d_nop_get_gl_handle,
-    _cogl_texture_2d_nop_generate_mipmap,
-    _cogl_texture_2d_nop_copy_from_bitmap,
-    NULL, /* texture_2d_is_get_data_supported */
-    NULL, /* texture_2d_get_data */
-    _cogl_nop_flush_attributes_state,
-    _cogl_clip_stack_nop_flush,
-  };
+static void
+cogl_nop_driver_class_init (CoglNopDriverClass *klass)
+{
+  CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+
+  driver_klass->flush_attributes_state = cogl_nop_driver_flush_attributes_state;
+  driver_klass->clip_stack_flush = cogl_nop_driver_clip_stack_flush;
+  driver_klass->flush_framebuffer_state = cogl_nop_driver_flush_framebuffer_state;
+
+  driver_klass->create_framebuffer_driver = cogl_nop_driver_create_framebuffer_driver;
+
+  driver_klass->texture_2d_init = cogl_nop_driver_texture_2d_init;
+  driver_klass->texture_2d_free = cogl_nop_driver_texture_2d_free;
+  driver_klass->texture_2d_can_create = cogl_nop_driver_texture_2d_can_create;
+  driver_klass->texture_2d_allocate = cogl_nop_driver_texture_2d_allocate;
+  driver_klass->texture_2d_copy_from_framebuffer = cogl_nop_driver_texture_2d_copy_from_framebuffer;
+  driver_klass->texture_2d_get_gl_handle = cogl_nop_driver_texture_2d_get_gl_handle;
+  driver_klass->texture_2d_generate_mipmap = cogl_nop_driver_texture_2d_generate_mipmap;
+  driver_klass->texture_2d_copy_from_bitmap = cogl_nop_driver_texture_2d_copy_from_bitmap;
+
+  driver_klass->update_features = cogl_nop_driver_update_features;
+  driver_klass->context_init = cogl_nop_driver_context_init;
+  driver_klass->context_deinit = cogl_nop_driver_context_deinit;
+  driver_klass->is_hardware_accelerated = cogl_nop_driver_is_hardware_accelerated;
+  driver_klass->get_vendor = cogl_nop_driver_get_vendor;
+}
+
+static void
+cogl_nop_driver_init (CoglNopDriver *driver)
+{
+}

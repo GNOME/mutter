@@ -3,7 +3,7 @@
  *
  * A Low Level GPU Graphics and Utilities API
  *
- * Copyright (C) 2012 Intel Corporation.
+ * Copyright (C) 2024 Red Hat.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,22 +24,22 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- *
- *
- * Authors:
- *   Robert Bragg <robert@linux.intel.com>
  */
 
-#pragma once
+#include "cogl/cogl-driver-private.h"
 
-#include "cogl/cogl-types.h"
-#include "cogl/cogl-context-private.h"
+typedef struct _CoglNopDriver {
+  CoglDriver parent_instance;
+} CoglNopDriver;
 
-void
-_cogl_nop_flush_attributes_state (CoglFramebuffer *framebuffer,
-                                  CoglPipeline *pipeline,
-                                  CoglFlushLayerState *layers_state,
-                                  CoglDrawFlags flags,
-                                  CoglAttribute **attributes,
-                                  int n_attributes);
+struct _CoglNopDriverClass {
+  CoglDriverClass parent_class;
+};
+
+G_DECLARE_FINAL_TYPE (CoglNopDriver,
+                      cogl_nop_driver,
+                      COGL,
+                      NOP_DRIVER,
+                      CoglDriver)
+
+#define COGL_TYPE_DRIVER_NOP (cogl_nop_driver_get_type ())

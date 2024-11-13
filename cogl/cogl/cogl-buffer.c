@@ -106,9 +106,15 @@ cogl_buffer_dispose (GObject *object)
   g_return_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED));
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
-    buffer->context->driver_vtable->buffer_destroy (buffer);
+    {
+      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+
+      driver_klass->buffer_destroy (buffer);
+    }
   else
-    g_free (buffer->data);
+    {
+      g_free (buffer->data);
+    }
 
   G_OBJECT_CLASS (cogl_buffer_parent_class)->dispose (object);
 }
@@ -153,11 +159,13 @@ cogl_buffer_set_property (GObject      *gobject,
           }
         else
           {
-            buffer->map_range = buffer->context->driver_vtable->buffer_map_range;
-            buffer->unmap = buffer->context->driver_vtable->buffer_unmap;
-            buffer->set_data = buffer->context->driver_vtable->buffer_set_data;
+            CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-            buffer->context->driver_vtable->buffer_create (buffer);
+            buffer->map_range = driver_klass->buffer_map_range;
+            buffer->unmap = driver_klass->buffer_unmap;
+            buffer->set_data = driver_klass->buffer_set_data;
+
+            driver_klass->buffer_create (buffer);
 
             buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
           }

@@ -45,6 +45,7 @@
 #include "cogl/cogl-display-private.h"
 
 #include "cogl/winsys/cogl-winsys-private.h"
+#include "glib.h"
 
 #ifdef HAVE_EGL_PLATFORM_XLIB
 #include "cogl/winsys/cogl-winsys-egl-x11-private.h"
@@ -58,15 +59,15 @@
 #endif
 
 #ifdef HAVE_GL
+#include "cogl/driver/gl/gl/cogl-driver-gl.h"
 extern const CoglTextureDriver _cogl_texture_driver_gl;
-extern const CoglDriverVtable _cogl_driver_gl;
 #endif
 #ifdef HAVE_GLES2
+#include "cogl/driver/gl/gles/cogl-driver-gles.h"
 extern const CoglTextureDriver _cogl_texture_driver_gles;
-extern const CoglDriverVtable _cogl_driver_gles;
 #endif
+#include "cogl/driver/nop/cogl-driver-nop.h"
 
-extern const CoglDriverVtable _cogl_driver_nop;
 
 typedef struct _CoglDriverDescription
 {
@@ -78,7 +79,6 @@ typedef struct _CoglDriverDescription
    * GCC should complain if someone adds an 8th feature to a
    * driver. */
   const CoglPrivateFeature private_features[8];
-  const CoglDriverVtable *vtable;
   const CoglTextureDriver *texture_driver;
   const char *libgl_name;
 } CoglDriverDescription;
@@ -91,7 +91,6 @@ static CoglDriverDescription _cogl_drivers[] =
     "gl3",
     { COGL_PRIVATE_FEATURE_ANY_GL,
       -1 },
-    &_cogl_driver_gl,
     &_cogl_texture_driver_gl,
     COGL_GL_LIBNAME,
   },
@@ -102,7 +101,6 @@ static CoglDriverDescription _cogl_drivers[] =
     "gles2",
     { COGL_PRIVATE_FEATURE_ANY_GL,
       -1 },
-    &_cogl_driver_gles,
     &_cogl_texture_driver_gles,
     COGL_GLES2_LIBNAME,
   },
@@ -111,7 +109,6 @@ static CoglDriverDescription _cogl_drivers[] =
     COGL_DRIVER_NOP,
     "nop",
     { -1 },
-    &_cogl_driver_nop,
     NULL, /* texture driver */
     NULL /* libgl_name */
   }
@@ -164,6 +161,8 @@ cogl_renderer_dispose (GObject *object)
 
   g_slist_free_full (renderer->event_filters,
                      (GDestroyNotify) native_filter_closure_free);
+
+  g_clear_object (&renderer->driver);
 
   G_OBJECT_CLASS (cogl_renderer_parent_class)->dispose (object);
 }
@@ -373,7 +372,30 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
   desc = state.driver_description;
   renderer->driver_id = desc->id;
-  renderer->driver_vtable = desc->vtable;
+
+  switch (renderer->driver_id)
+    {
+  #ifdef HAVE_GL
+    case COGL_DRIVER_GL3:
+      renderer->driver = g_object_new (COGL_TYPE_DRIVER_GL, NULL);
+      break;
+  #endif
+
+  #ifdef HAVE_GLES2
+    case COGL_DRIVER_GLES2:
+      renderer->driver = g_object_new (COGL_TYPE_DRIVER_GLES, NULL);
+      break;
+  #endif
+
+    case COGL_DRIVER_NOP:
+      renderer->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
+    }
+
   renderer->texture_driver = desc->texture_driver;
   libgl_name = desc->libgl_name;
 

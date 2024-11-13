@@ -3,7 +3,7 @@
  *
  * A Low Level GPU Graphics and Utilities API
  *
- * Copyright (C) 2012 Intel Corporation.
+ * Copyright (C) 2024 Red Hat.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,24 +24,22 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- *
  */
 
-#include "config.h"
+#include "cogl/cogl-driver-private.h"
 
-#include "cogl/cogl-types.h"
-#include "cogl/cogl-framebuffer.h"
-#include "cogl/cogl-attribute.h"
-#include "cogl/cogl-attribute-private.h"
-#include "cogl/driver/nop/cogl-attribute-nop-private.h"
+typedef struct _CoglGLESDriver {
+  CoglDriver parent_instance;
+} CoglGLESDriver;
 
-void
-_cogl_nop_flush_attributes_state (CoglFramebuffer *framebuffer,
-                                  CoglPipeline *pipeline,
-                                  CoglFlushLayerState *layers_state,
-                                  CoglDrawFlags flags,
-                                  CoglAttribute **attributes,
-                                  int n_attributes)
-{
-}
+struct _CoglGLESDriverClass {
+  CoglDriverClass parent_class;
+};
+
+G_DECLARE_FINAL_TYPE (CoglGLESDriver,
+                      cogl_gles_driver,
+                      COGL,
+                      GLES_DRIVER,
+                      CoglDriver)
+
+#define COGL_TYPE_DRIVER_GLES (cogl_gles_driver_get_type ())
