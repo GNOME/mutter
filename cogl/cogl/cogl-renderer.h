@@ -172,7 +172,7 @@ COGL_EXPORT gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error);
 
 /**
- * CoglDriver:
+ * CoglDriverID:
  * @COGL_DRIVER_ANY: Implies no preference for which driver is used
  * @COGL_DRIVER_NOP: A No-Op driver.
  * @COGL_DRIVER_GL3: An OpenGL driver using the core GL 3.1 profile
@@ -187,7 +187,7 @@ typedef enum
   COGL_DRIVER_NOP,
   COGL_DRIVER_GL3,
   COGL_DRIVER_GLES2,
-} CoglDriver;
+} CoglDriverID;
 
 /**
  * cogl_renderer_set_driver:
@@ -205,18 +205,18 @@ typedef enum
  */
 COGL_EXPORT void
 cogl_renderer_set_driver (CoglRenderer *renderer,
-                          CoglDriver driver);
+                          CoglDriverID  driver);
 
 /**
- * cogl_renderer_get_driver:
+ * cogl_renderer_get_driver_id:
  * @renderer: A connected #CoglRenderer
  *
  * Queries what underlying driver is being used by Cogl.
  *
  * This may only be called on a connected #CoglRenderer.
  */
-COGL_EXPORT CoglDriver
-cogl_renderer_get_driver (CoglRenderer *renderer);
+COGL_EXPORT CoglDriverID
+cogl_renderer_get_driver_id (CoglRenderer *renderer);
 
 
 /**

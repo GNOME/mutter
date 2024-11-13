@@ -70,7 +70,7 @@ extern const CoglDriverVtable _cogl_driver_nop;
 
 typedef struct _CoglDriverDescription
 {
-  CoglDriver id;
+  CoglDriverID id;
   const char *name;
   /* It would be nice to make this a pointer and then use a compound
    * literal from C99 to initialise it but we probably can't get away
@@ -219,9 +219,9 @@ typedef gboolean (*CoglDriverCallback) (CoglDriverDescription *description,
                                         void *user_data);
 
 static void
-foreach_driver_description (CoglDriver driver_override,
-                            CoglDriverCallback callback,
-                            void *user_data)
+foreach_driver_description (CoglDriverID        driver_override,
+                            CoglDriverCallback  callback,
+                            void               *user_data)
 {
   int i;
 
@@ -247,7 +247,7 @@ foreach_driver_description (CoglDriver driver_override,
     }
 }
 
-static CoglDriver
+static CoglDriverID
 driver_name_to_id (const char *name)
 {
   int i;
@@ -262,7 +262,7 @@ driver_name_to_id (const char *name)
 }
 
 static const char *
-driver_id_to_name (CoglDriver id)
+driver_id_to_name (CoglDriverID id)
 {
   switch (id)
     {
@@ -303,7 +303,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
                               GError **error)
 {
   const char *driver_name = g_getenv ("COGL_DRIVER");
-  CoglDriver driver_override = COGL_DRIVER_ANY;
+  CoglDriverID driver_override = COGL_DRIVER_ANY;
   const char *invalid_override = NULL;
   const char *libgl_name;
   SatisfyConstraintsState state;
@@ -372,7 +372,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
     }
 
   desc = state.driver_description;
-  renderer->driver = desc->id;
+  renderer->driver_id = desc->id;
   renderer->driver_vtable = desc->vtable;
   renderer->texture_driver = desc->texture_driver;
   libgl_name = desc->libgl_name;
@@ -580,18 +580,18 @@ cogl_renderer_get_proc_address (CoglRenderer *renderer,
 
 void
 cogl_renderer_set_driver (CoglRenderer *renderer,
-                          CoglDriver driver)
+                          CoglDriverID  driver)
 {
   g_return_if_fail (!renderer->connected);
   renderer->driver_override = driver;
 }
 
-CoglDriver
-cogl_renderer_get_driver (CoglRenderer *renderer)
+CoglDriverID
+cogl_renderer_get_driver_id (CoglRenderer *renderer)
 {
   g_return_val_if_fail (renderer->connected, 0);
 
-  return renderer->driver;
+  return renderer->driver_id;
 }
 
 CoglDmaBufHandle *

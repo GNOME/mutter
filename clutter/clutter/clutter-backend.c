@@ -160,7 +160,7 @@ clutter_backend_real_resolution_changed (ClutterBackend *backend)
 
 static gboolean
 clutter_backend_do_real_create_context (ClutterBackend  *backend,
-                                        CoglDriver       driver_id,
+                                        CoglDriverID     driver_id,
                                         GError         **error)
 {
   ClutterBackendClass *klass;
@@ -209,7 +209,7 @@ error:
 static const struct {
   const char *driver_name;
   const char *driver_desc;
-  CoglDriver driver_id;
+  CoglDriverID driver_id;
 } all_known_drivers[] = {
   { "gl3", "OpenGL 3.1 core profile", COGL_DRIVER_GL3 },
   { "gles2", "OpenGL ES 2.0", COGL_DRIVER_GLES2 },

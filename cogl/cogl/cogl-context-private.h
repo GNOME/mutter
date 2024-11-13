@@ -69,7 +69,7 @@ struct _CoglContext
 
   CoglDisplay *display;
 
-  CoglDriver driver;
+  CoglDriverID driver_id;
 
   /* vtables for the driver functions */
   const CoglDriverVtable *driver_vtable;

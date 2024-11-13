@@ -54,7 +54,7 @@ get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
     return _cogl_winsys_egl_xlib_get_vtable ();
 #endif
 
-  switch (renderer->driver)
+  switch (cogl_renderer_get_driver_id (renderer))
     {
     case COGL_DRIVER_GLES2:
 #ifdef HAVE_EGL_PLATFORM_XLIB

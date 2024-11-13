@@ -44,7 +44,7 @@ _cogl_feature_check (CoglRenderer *renderer,
                      const CoglFeatureData *data,
                      int gl_major,
                      int gl_minor,
-                     CoglDriver driver,
+                     CoglDriverID driver,
                      char * const *extensions,
                      void *function_table)
 
@@ -213,7 +213,7 @@ _cogl_feature_check_ext_functions (CoglContext *context,
   for (i = 0; i < G_N_ELEMENTS (cogl_feature_ext_functions_data); i++)
     _cogl_feature_check (context->display->renderer,
                          "GL", cogl_feature_ext_functions_data + i,
-                         gl_major, gl_minor, context->driver,
+                         gl_major, gl_minor, context->driver_id,
                          gl_extensions,
                          context);
 }
