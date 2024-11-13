@@ -84,6 +84,8 @@ cogl_common_driver_sources = [
   'driver/gl/cogl-buffer-gl.c',
   'driver/gl/cogl-clip-stack-gl-private.h',
   'driver/gl/cogl-clip-stack-gl.c',
+  'driver/gl/cogl-driver-gl.c',
+  'driver/gl/cogl-driver-gl-private.h',
   'driver/gl/cogl-framebuffer-gl-private.h',
   'driver/gl/cogl-framebuffer-gl.c',
   'driver/gl/cogl-gl-framebuffer-back.c',
