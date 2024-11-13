@@ -54,22 +54,22 @@ get_x11_cogl_winsys_vtable (CoglRenderer *renderer)
     return _cogl_winsys_egl_xlib_get_vtable ();
 #endif
 
-  switch (renderer->driver)
+  switch (renderer->driver_id)
     {
-    case COGL_DRIVER_GLES2:
+    case COGL_DRIVER_ID_GLES2:
 #ifdef HAVE_EGL_PLATFORM_XLIB
       return _cogl_winsys_egl_xlib_get_vtable ();
 #else
       break;
 #endif
-    case COGL_DRIVER_GL3:
+    case COGL_DRIVER_ID_GL3:
 #ifdef HAVE_GLX
       return _cogl_winsys_glx_get_vtable ();
 #else
       break;
 #endif
-    case COGL_DRIVER_ANY:
-    case COGL_DRIVER_NOP:
+    case COGL_DRIVER_ID_ANY:
+    case COGL_DRIVER_ID_NOP:
       break;
     }
   g_assert_not_reached ();

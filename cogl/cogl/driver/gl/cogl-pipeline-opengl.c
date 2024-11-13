@@ -287,7 +287,7 @@ flush_depth_state (CoglContext *ctx,
   if ((ctx->depth_range_near_cache != depth_state->range_near ||
        ctx->depth_range_far_cache != depth_state->range_far))
     {
-      if (ctx->driver == COGL_DRIVER_GLES2)
+      if (ctx->driver_id == COGL_DRIVER_ID_GLES2)
         GE (ctx, glDepthRangef (depth_state->range_near,
                                 depth_state->range_far));
       else
@@ -418,7 +418,7 @@ get_max_activateable_texture_units (CoglContext *ctx)
       int i;
 
 #ifdef HAVE_GL
-      if (ctx->driver != COGL_DRIVER_GLES2)
+      if (ctx->driver_id != COGL_DRIVER_ID_GLES2)
         {
           /* GL_MAX_TEXTURE_COORDS defines the number of texture coordinates
            * that can be uploaded (but doesn't necessarily relate to how many
@@ -431,7 +431,7 @@ get_max_activateable_texture_units (CoglContext *ctx)
 #endif /* HAVE_GL */
 
 #ifdef HAVE_GLES2
-      if (ctx->driver == COGL_DRIVER_GLES2)
+      if (ctx->driver_id == COGL_DRIVER_ID_GLES2)
         {
           GE (ctx, glGetIntegerv (GL_MAX_VERTEX_ATTRIBS, values + n_values));
           /* Two of the vertex attribs need to be used for the position

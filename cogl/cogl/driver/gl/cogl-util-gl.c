@@ -332,7 +332,7 @@ _cogl_context_get_gl_extensions (CoglContext *context)
   /* In GL 3, querying GL_EXTENSIONS is deprecated so we have to build
    * the array using glGetStringi instead */
 #ifdef HAVE_GL
-  if (context->driver == COGL_DRIVER_GL3)
+  if (context->driver_id == COGL_DRIVER_ID_GL3)
     {
       int num_extensions, i;
 

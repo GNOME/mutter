@@ -154,9 +154,9 @@ check_gl_extensions (CoglContext *cogl_context)
   cogl_display = cogl_context_get_display (cogl_context);
   cogl_renderer = cogl_display_get_renderer (cogl_display);
 
-  switch (cogl_renderer_get_driver (cogl_renderer))
+  switch (cogl_renderer->driver_id)
     {
-    case COGL_DRIVER_GL3:
+    case COGL_DRIVER_ID_GL3:
       {
         int num_extensions, i;
         gboolean arb_sync = FALSE;
