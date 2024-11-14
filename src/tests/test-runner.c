@@ -1024,7 +1024,7 @@ test_case_do (TestCase    *test,
         return FALSE;
 
       if (!show_async)
-        meta_test_client_wait_for_window_shown (client, window);
+        meta_wait_for_window_shown (window);
     }
   else if (strcmp (argv[0], "sync_shown") == 0)
     {
@@ -1042,7 +1042,7 @@ test_case_do (TestCase    *test,
       if (!window)
         return FALSE;
 
-      meta_test_client_wait_for_window_shown (client, window);
+      meta_wait_for_window_shown (window);
     }
   else if (strcmp (argv[0], "resize") == 0)
     {
