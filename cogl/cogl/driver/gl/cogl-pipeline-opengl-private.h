@@ -158,19 +158,3 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
                                                GLsizei count_in,
                                                const char **strings_in,
                                                const GLint *lengths_in);
-
-void
-_cogl_sampler_gl_init (CoglDriver           *driver,
-                       CoglContext          *context,
-                       CoglSamplerCacheEntry *entry);
-
-void
-_cogl_sampler_gl_free (CoglDriver            *driver,
-                       CoglContext           *context,
-                       CoglSamplerCacheEntry *entry);
-
-void
-_cogl_gl_set_uniform (CoglDriver           *driver,
-                      CoglContext          *ctx,
-                      GLint                 location,
-                      const CoglBoxedValue *value);
