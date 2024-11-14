@@ -874,7 +874,6 @@ cogl_gles_driver_class_init (CoglGLESDriverClass *klass)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
 
-  driver_klass->context_init = _cogl_driver_gl_context_init;
   driver_klass->pixel_format_to_gl = _cogl_driver_pixel_format_to_gl;
   driver_klass->get_read_pixels_format = _cogl_driver_get_read_pixels_format;
   driver_klass->update_features = _cogl_driver_update_features;
