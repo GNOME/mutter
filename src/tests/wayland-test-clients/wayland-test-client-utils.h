@@ -124,8 +124,8 @@ void draw_surface (WaylandDisplay    *display,
                    int                height,
                    uint32_t           color);
 
-const char * lookup_property_value (WaylandDisplay *display,
-                                    const char     *name);
+const char * lookup_property_string (WaylandDisplay *display,
+                                     const char     *name);
 
 void wait_for_effects_completed (WaylandDisplay    *display,
                                  struct wl_surface *surface);
