@@ -28,6 +28,7 @@
 #include "config.h"
 
 #include "cogl/cogl-framebuffer-driver.h"
+#include "cogl/cogl-framebuffer-private.h"
 
 enum
 {
@@ -200,6 +201,75 @@ cogl_framebuffer_driver_set_property (GObject      *object,
 }
 
 static void
+cogl_framebuffer_query_bits_default (CoglFramebufferDriver *driver,
+                                     CoglFramebufferBits   *bits)
+{
+  memset (bits, 0, sizeof (CoglFramebufferBits));
+}
+
+static void
+cogl_framebuffer_clear_default (CoglFramebufferDriver *driver,
+                                unsigned long          buffers,
+                                float                  red,
+                                float                  green,
+                                float                  blue,
+                                float                  alpha)
+{
+}
+
+static void
+cogl_framebuffer_finish_default (CoglFramebufferDriver *driver)
+{
+}
+
+static void
+cogl_framebuffer_flush_default (CoglFramebufferDriver *driver)
+{
+}
+
+static void
+cogl_framebuffer_discard_buffers_default (CoglFramebufferDriver *driver,
+                                          unsigned long          buffers)
+{
+}
+
+static void
+cogl_framebuffer_draw_attributes_default (CoglFramebufferDriver  *driver,
+                                          CoglPipeline           *pipeline,
+                                          CoglVerticesMode        mode,
+                                          int                     first_vertex,
+                                          int                     n_vertices,
+                                          CoglAttribute         **attributes,
+                                          int                     n_attributes,
+                                          CoglDrawFlags           flags)
+{
+}
+
+static void
+cogl_framebuffer_draw_indexed_attributes_default (CoglFramebufferDriver *driver,
+                                                  CoglPipeline          *pipeline,
+                                                  CoglVerticesMode       mode,
+                                                  int                    first_vertex,
+                                                  int                    n_vertices,
+                                                  CoglIndices           *indices,
+                                                  CoglAttribute        **attributes,
+                                                  int                    n_attributes,
+                                                  CoglDrawFlags          flags)
+{
+}
+
+static gboolean
+cogl_framebuffer_read_pixels_into_bitmap_default (CoglFramebufferDriver  *framebuffer,
+                                                  int                     x,
+                                                  int                     y,
+                                                  CoglReadPixelsFlags     source,
+                                                  CoglBitmap             *bitmap,
+                                                  GError                **error)
+{
+  return TRUE;
+}
+
+static void
 cogl_framebuffer_driver_init (CoglFramebufferDriver *driver)
 {
 }
@@ -219,4 +289,15 @@ cogl_framebuffer_driver_class_init (CoglFramebufferDriverClass *klass)
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  klass->query_bits = cogl_framebuffer_query_bits_default;
+  klass->clear = cogl_framebuffer_clear_default;
+  klass->finish = cogl_framebuffer_finish_default;
+  klass->flush = cogl_framebuffer_flush_default;
+  klass->discard_buffers = cogl_framebuffer_discard_buffers_default;
+  klass->draw_attributes = cogl_framebuffer_draw_attributes_default;
+  klass->draw_indexed_attributes =
+    cogl_framebuffer_draw_indexed_attributes_default;
+  klass->read_pixels_into_bitmap =
+    cogl_framebuffer_read_pixels_into_bitmap_default;
 }
