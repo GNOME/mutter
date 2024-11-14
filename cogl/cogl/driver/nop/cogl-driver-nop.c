@@ -37,7 +37,31 @@
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/driver/nop/cogl-texture-2d-nop-private.h"
-#include "cogl/driver/nop/cogl-nop-framebuffer.h"
+
+#define COGL_TYPE_NOP_FRAMEBUFFER (cogl_nop_framebuffer_get_type ())
+G_DECLARE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
+                      COGL, NOP_FRAMEBUFFER_DRIVER,
+                      CoglFramebufferDriver)
+
+
+struct _CoglNopFramebuffer
+{
+  CoglFramebufferDriver parent;
+};
+
+G_DEFINE_FINAL_TYPE (CoglNopFramebuffer, cogl_nop_framebuffer,
+                     COGL_TYPE_FRAMEBUFFER_DRIVER)
+
+
+static void
+cogl_nop_framebuffer_init (CoglNopFramebuffer *nop_framebuffer)
+{
+}
+
+static void
+cogl_nop_framebuffer_class_init (CoglNopFramebufferClass *klass)
+{
+}
 
 static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
