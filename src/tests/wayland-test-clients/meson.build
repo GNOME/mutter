@@ -102,6 +102,12 @@ wayland_test_clients = [
   {
     'name': 'ycbcr',
   },
+  {
+    'name': 'cursor-tests-client',
+    'extra_deps': [
+      wayland_cursor_dep,
+    ],
+  },
 ]
 
 test_client_executables = {}

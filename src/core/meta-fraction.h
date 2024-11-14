@@ -19,10 +19,13 @@
 
 #pragma once
 
+#include "core/util-private.h"
+
 typedef struct _MetaFraction
 {
   int num;
   int denom;
 } MetaFraction;
 
+META_EXPORT_TEST
 MetaFraction meta_fraction_from_double (double src);

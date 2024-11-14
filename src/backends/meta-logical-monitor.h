@@ -47,6 +47,7 @@ struct _MetaLogicalMonitor
 typedef struct _MetaLogicalMonitorId MetaLogicalMonitorId;
 
 #define META_TYPE_LOGICAL_MONITOR (meta_logical_monitor_get_type ())
+META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaLogicalMonitor, meta_logical_monitor,
                       META, LOGICAL_MONITOR,
                       GObject)
@@ -75,6 +76,7 @@ gboolean meta_logical_monitor_is_primary (MetaLogicalMonitor *logical_monitor);
 
 void meta_logical_monitor_make_primary (MetaLogicalMonitor *logical_monitor);
 
+META_EXPORT_TEST
 float meta_logical_monitor_get_scale (MetaLogicalMonitor *logical_monitor);
 
 MtkMonitorTransform meta_logical_monitor_get_transform (MetaLogicalMonitor *logical_monitor);
