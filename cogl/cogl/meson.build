@@ -64,8 +64,6 @@ cogl_nodist_headers = [
 
 cogl_noop_driver_sources = [
   'driver/nop/cogl-driver-nop.c',
-  'driver/nop/cogl-nop-framebuffer.c',
-  'driver/nop/cogl-nop-framebuffer.h',
   'driver/nop/cogl-texture-2d-nop-private.h',
   'driver/nop/cogl-texture-2d-nop.c',
 ]
