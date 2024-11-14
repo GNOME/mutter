@@ -96,43 +96,15 @@ _cogl_gl_error_to_string (GLenum error_code)
 }
 #endif /* COGL_ENABLE_DEBUG */
 
-CoglGLContext *
-_cogl_driver_gl_context (CoglContext *context)
-{
-  return context->driver_context;
-}
-
 gboolean
 _cogl_driver_gl_context_init (CoglDriver  *driver,
                               CoglContext *context)
 {
-  CoglGLContext *gl_context;
-
-  if (!context->driver_context)
-    context->driver_context = g_new0 (CoglGLContext, 1);
-
-  gl_context = _cogl_driver_gl_context (context);
-  if (!gl_context)
-    return FALSE;
-
-  gl_context->next_fake_sampler_object_number = 1;
-  gl_context->texture_units =
-    g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
-
   /* See cogl-pipeline.c for more details about why we leave texture unit 1
    * active by default... */
-  gl_context->active_texture_unit = 1;
   GE (context, glActiveTexture (GL_TEXTURE1));
 
   return TRUE;
-}
-
-void
-_cogl_driver_gl_context_deinit (CoglDriver  *driver,
-                                CoglContext *context)
-{
-  _cogl_destroy_texture_units (context);
-  g_free (context->driver_context);
 }
 
 CoglFramebufferDriver *

@@ -60,18 +60,11 @@ _cogl_context_get_winsys (CoglContext *context)
   return context->display->renderer->winsys_vtable;
 }
 
-static CoglDriver *
-_cogl_context_get_driver (CoglContext *context)
-{
-  return context->driver;
-}
-
 static void
 cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
   const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
-  CoglDriver *driver = _cogl_context_get_driver (context);
 
   winsys->context_deinit (context);
 
@@ -133,8 +126,6 @@ cogl_context_dispose (GObject *object)
   g_array_free (context->attribute_name_index_map, TRUE);
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
-
-  COGL_DRIVER_GET_CLASS (driver)->context_deinit (context->driver, context);
 
   g_object_unref (context->display);
 
