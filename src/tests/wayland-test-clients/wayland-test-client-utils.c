@@ -247,9 +247,23 @@ test_driver_handle_property (void               *user_data,
                         g_variant_new_string (value));
 }
 
+static void
+test_driver_handle_property_int (void               *user_data,
+                                 struct test_driver *test_driver,
+                                 const char         *name,
+                                 const uint32_t      value)
+{
+  WaylandDisplay *display = WAYLAND_DISPLAY (user_data);
+
+  g_hash_table_replace (display->properties,
+                        g_strdup (name),
+                        g_variant_new_int32 (value));
+}
+
 static const struct test_driver_listener test_driver_listener = {
   test_driver_handle_sync_event,
   test_driver_handle_property,
+  test_driver_handle_property_int,
 };
 
 static void
@@ -703,6 +717,17 @@ lookup_property_string (WaylandDisplay *display,
   g_variant_get (variant, "&s", &value);
 
   return value;
+}
+
+int32_t
+lookup_property_int (WaylandDisplay *display,
+                     const char     *name)
+{
+  GVariant *variant;
+
+  variant = g_hash_table_lookup (display->properties, name);
+  g_return_val_if_fail (variant, -1);
+  return g_variant_get_int32 (variant);
 }
 
 static void
