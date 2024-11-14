@@ -73,6 +73,8 @@ struct _MetaTestShell
 
   ClutterActor *background_group;
 
+  CoglColor *background_color;
+
   struct {
     ClutterGrab *grab;
     ClutterActor *prev_focus;
@@ -257,11 +259,9 @@ on_switch_workspace_effect_stopped (ClutterTimeline *timeline,
 }
 
 static void
-on_monitors_changed (MetaMonitorManager *monitor_manager,
-                     MetaPlugin         *plugin)
+reload_backgrounds (MetaTestShell *test_shell)
 {
-  MetaTestShell *test_shell = META_TEST_SHELL (plugin);
-  MetaDisplay *display = meta_plugin_get_display (plugin);
+  MetaDisplay *display = meta_plugin_get_display (META_PLUGIN (test_shell));
   GRand *rand;
   int i, n;
 
@@ -275,10 +275,6 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
       ClutterContent *content;
       MtkRectangle rect;
       ClutterActor *background_actor;
-      MetaBackground *background;
-      uint8_t red;
-      uint8_t green;
-      uint8_t blue;
 
       meta_display_get_monitor_geometry (display, i, &rect);
 
@@ -289,22 +285,47 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
       clutter_actor_set_position (background_actor, rect.x, rect.y);
       clutter_actor_set_size (background_actor, rect.width, rect.height);
 
-      blue = g_rand_int_range (rand, 0, 255);
-      green = g_rand_int_range (rand, 0, 255);
-      red = g_rand_int_range (rand, 0, 255);
+      if (test_shell->background_color)
+        {
+          g_autoptr (MetaBackground) background = NULL;
 
-      background = meta_background_new (display);
-      meta_background_set_color (background,
-                                 &COGL_COLOR_INIT (red, green, blue, 255));
-      meta_background_content_set_background (background_content, background);
-      g_object_unref (background);
+          background = meta_background_new (display);
+          meta_background_set_color (background, test_shell->background_color);
+          meta_background_content_set_background (background_content, background);
+        }
+      else
+        {
+          g_autoptr (MetaBackground) background = NULL;
+          uint8_t red;
+          uint8_t green;
+          uint8_t blue;
 
-      meta_background_content_set_vignette (background_content, TRUE, 0.5, 0.5);
+          blue = g_rand_int_range (rand, 0, 255);
+          green = g_rand_int_range (rand, 0, 255);
+          red = g_rand_int_range (rand, 0, 255);
+
+          background = meta_background_new (display);
+          meta_background_set_color (background,
+                                     &COGL_COLOR_INIT (red, green, blue, 255));
+          meta_background_content_set_background (background_content, background);
+
+          meta_background_content_set_vignette (background_content,
+                                                TRUE, 0.5, 0.5);
+        }
 
       clutter_actor_add_child (test_shell->background_group, background_actor);
     }
 
   g_rand_free (rand);
+}
+
+static void
+on_monitors_changed (MetaMonitorManager *monitor_manager,
+                     MetaPlugin         *plugin)
+{
+  MetaTestShell *test_shell = META_TEST_SHELL (plugin);
+
+  reload_backgrounds (test_shell);
 }
 
 static void
@@ -826,12 +847,23 @@ meta_test_shell_set_property (GObject      *object,
 }
 
 static void
+meta_test_shell_finalize (GObject *object)
+{
+  MetaTestShell *test_shell = META_TEST_SHELL (object);
+
+  g_clear_pointer (&test_shell->background_color, cogl_color_free);
+
+  G_OBJECT_CLASS (meta_test_shell_parent_class)->finalize (object);
+}
+
+static void
 meta_test_shell_class_init (MetaTestShellClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaPluginClass *plugin_class  = META_PLUGIN_CLASS (klass);
 
   object_class->set_property = meta_test_shell_set_property;
+  object_class->finalize = meta_test_shell_finalize;
 
   plugin_class->start = meta_test_shell_start;
   plugin_class->map = meta_test_shell_map;
@@ -857,4 +889,17 @@ static void
 meta_test_shell_init (MetaTestShell *test_shell)
 {
   test_shell->show_stage = TRUE;
+}
+
+void
+meta_test_shell_set_background_color (MetaTestShell *test_shell,
+                                      CoglColor      color)
+{
+  if (test_shell->background_color &&
+      cogl_color_equal (test_shell->background_color, &color))
+    return;
+
+  g_clear_pointer (&test_shell->background_color, cogl_color_free);
+  test_shell->background_color = cogl_color_copy (&color);
+  reload_backgrounds (test_shell);
 }
