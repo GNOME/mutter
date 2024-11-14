@@ -887,6 +887,8 @@ queue_callback (GTask *task)
   g_cond_signal (&cond);
   g_mutex_unlock (&mutex);
 
+  g_task_return_boolean (task, TRUE);
+
   return G_SOURCE_REMOVE;
 }
 #endif
