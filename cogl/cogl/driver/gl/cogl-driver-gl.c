@@ -41,6 +41,7 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
 
+  driver_klass->context_init = _cogl_driver_gl_context_init;
   driver_klass->context_deinit = _cogl_driver_gl_context_deinit;
   driver_klass->get_vendor = _cogl_context_get_gl_vendor;
   driver_klass->is_hardware_accelerated = _cogl_driver_gl_is_hardware_accelerated;
