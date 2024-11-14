@@ -50,5 +50,10 @@
       <arg name="name" type="string"/>
       <arg name="value" type="string"/>
     </event>
+
+    <event name="property_int">
+      <arg name="name" type="string"/>
+      <arg name="value" type="uint"/>
+    </event>
   </interface>
 </protocol>

@@ -125,6 +125,9 @@ void draw_surface (WaylandDisplay    *display,
 const char * lookup_property_string (WaylandDisplay *display,
                                      const char     *name);
 
+int32_t lookup_property_int (WaylandDisplay *display,
+                             const char     *name);
+
 void wait_for_effects_completed (WaylandDisplay    *display,
                                  struct wl_surface *surface);
 

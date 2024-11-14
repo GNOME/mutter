@@ -338,6 +338,12 @@ bind_test_driver (struct wl_client *client,
                                      key,
                                      g_variant_get_string (variant, NULL));
         }
+      else if (g_variant_is_of_type (value, G_VARIANT_TYPE_INT32))
+        {
+          test_driver_send_property_int (resource,
+                                         key,
+                                         g_variant_get_int32 (variant));
+        }
       else
         {
           g_autofree char *variant_string = NULL;
@@ -434,6 +440,16 @@ meta_wayland_test_driver_set_property (MetaWaylandTestDriver *test_driver,
   g_hash_table_replace (test_driver->properties,
                         g_strdup (name),
                         g_variant_new_string (value));
+}
+
+void
+meta_wayland_test_driver_set_property_int (MetaWaylandTestDriver *test_driver,
+                                           const char            *name,
+                                           int32_t                value)
+{
+  g_hash_table_replace (test_driver->properties,
+                        g_strdup (name),
+                        g_variant_new_int32 (value));
 }
 
 static void
