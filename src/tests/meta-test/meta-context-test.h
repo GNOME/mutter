@@ -33,6 +33,7 @@ typedef enum _MetaContextTestFlag
   META_CONTEXT_TEST_FLAG_NONE = 0,
   META_CONTEXT_TEST_FLAG_TEST_CLIENT = 1 << 0,
   META_CONTEXT_TEST_FLAG_NO_X11 = 1 << 1,
+  META_CONTEXT_TEST_FLAG_NO_ANIMATIONS = 1 << 2,
 } MetaContextTestFlag;
 
 typedef enum _MetaTestRunFlags

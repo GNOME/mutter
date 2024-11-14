@@ -28,3 +28,6 @@ G_DECLARE_FINAL_TYPE (MetaTestShell, meta_test_shell,
 META_EXPORT
 void meta_test_shell_set_background_color (MetaTestShell *test_shell,
                                            CoglColor      color);
+
+META_EXPORT
+void meta_test_shell_disable_animations (MetaTestShell *test_shell);

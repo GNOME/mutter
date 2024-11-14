@@ -314,6 +314,10 @@ meta_context_test_run_tests (MetaContextTest  *context_test,
   MetaContext *context = META_CONTEXT (context_test);
   MetaContextTestPrivate *priv =
     meta_context_test_get_instance_private (context_test);
+  MetaDisplay *display;
+  MetaCompositor *compositor;
+  MetaPluginManager *plugin_manager;
+  MetaPlugin *plugin;
   g_autoptr (GError) error = NULL;
 
   if (!meta_context_setup (context, &error))
@@ -342,17 +346,19 @@ meta_context_test_run_tests (MetaContextTest  *context_test,
       return EXIT_FAILURE;
     }
 
+  display = meta_context_get_display (context);
+  compositor = display->compositor;
+  plugin_manager = meta_compositor_get_plugin_manager (compositor);
+  plugin = meta_plugin_manager_get_plugin (plugin_manager);
+
   if (priv->background_color)
     {
-      MetaDisplay *display = meta_context_get_display (context);
-      MetaCompositor *compositor = display->compositor;
-      MetaPluginManager *plugin_manager =
-        meta_compositor_get_plugin_manager (compositor);
-      MetaPlugin *plugin = meta_plugin_manager_get_plugin (plugin_manager);
-
       meta_test_shell_set_background_color (META_TEST_SHELL (plugin),
                                             *priv->background_color);
     }
+
+  if (priv->flags & META_CONTEXT_TEST_FLAG_NO_ANIMATIONS)
+    meta_test_shell_disable_animations (META_TEST_SHELL (plugin));
 
   g_idle_add (run_tests_idle, context_test);
 
