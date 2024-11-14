@@ -47,6 +47,7 @@ static guint signals[N_SIGNALS];
 enum
 {
   SURFACE_CONFIGURE,
+  SURFACE_POINTER_ENTER,
   N_SURFACE_SIGNALS
 };
 
@@ -225,6 +226,95 @@ static const struct xdg_wm_base_listener xdg_wm_base_listener = {
 };
 
 static void
+pointer_handle_enter (void              *user_data,
+                      struct wl_pointer *pointer,
+                      uint32_t           serial,
+                      struct wl_surface *surface_resource,
+                      wl_fixed_t         sx,
+                      wl_fixed_t         sy)
+{
+  WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  g_signal_emit (surface, surface_signals[SURFACE_POINTER_ENTER],
+                 0, pointer, serial);
+}
+
+static void
+pointer_handle_leave (void              *user_data,
+                      struct wl_pointer *pointer,
+                      uint32_t           serial,
+                      struct wl_surface *surface)
+{
+}
+
+static void
+pointer_handle_motion (void              *user_data,
+                       struct wl_pointer *pointer,
+                       uint32_t           time,
+                       wl_fixed_t         sx,
+                       wl_fixed_t         sy)
+{
+}
+
+static void
+pointer_handle_button (void              *user_data,
+                       struct wl_pointer *wl_pointer,
+                       uint32_t           serial,
+                       uint32_t           time,
+                       uint32_t           button,
+                       uint32_t           state)
+{
+}
+
+static void
+pointer_handle_axis (void              *user_data,
+                     struct wl_pointer *wl_pointer,
+                     uint32_t           time,
+                     uint32_t           axis,
+                     wl_fixed_t         value)
+{
+}
+
+static const struct wl_pointer_listener wl_pointer_listener = {
+  pointer_handle_enter,
+  pointer_handle_leave,
+  pointer_handle_motion,
+  pointer_handle_button,
+  pointer_handle_axis,
+};
+
+static void
+handle_wl_seat_capabilities (void           *user_data,
+                             struct wl_seat *wl_seat,
+                             uint32_t        capabilities)
+{
+  WaylandDisplay *display = user_data;
+
+  if ((capabilities & WL_SEAT_CAPABILITY_POINTER) && !display->wl_pointer)
+    {
+      display->wl_pointer = wl_seat_get_pointer (wl_seat);
+      wl_pointer_add_listener (display->wl_pointer,
+                               &wl_pointer_listener, display);
+    }
+  else if (!(capabilities & WL_SEAT_CAPABILITY_POINTER) && display->wl_pointer)
+    {
+      g_clear_pointer (&display->wl_pointer, wl_pointer_release);
+    }
+}
+
+static void
+handle_wl_seat_name (void           *user_data,
+		     struct wl_seat *wl_seat,
+		     const char     *name)
+{
+}
+
+static const struct wl_seat_listener wl_seat_listener = {
+  handle_wl_seat_capabilities,
+  handle_wl_seat_name,
+};
+
+static void
 test_driver_handle_sync_event (void               *user_data,
                                struct test_driver *test_driver,
                                uint32_t            serial)
@@ -388,6 +478,16 @@ handle_registry_global (void               *user_data,
       xdg_wm_base_add_listener (display->xdg_wm_base, &xdg_wm_base_listener,
                                 NULL);
     }
+  else if (strcmp (interface, wl_seat_interface.name) == 0)
+    {
+      g_assert_null (display->wl_seat);
+
+      display->wl_seat = wl_registry_bind (registry, id,
+                                           &wl_seat_interface,
+                                           3);
+      wl_seat_add_listener (display->wl_seat, &wl_seat_listener, display);
+      display->needs_roundtrip = TRUE;
+    }
 
   if (display->capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
     {
@@ -434,6 +534,12 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
   display->registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (display->registry, &registry_listener, display);
   wl_display_roundtrip (display->display);
+
+  while (display->needs_roundtrip)
+    {
+      display->needs_roundtrip = FALSE;
+      wl_display_roundtrip (display->display);
+    }
 
   g_assert_nonnull (display->compositor);
   g_assert_nonnull (display->subcompositor);
@@ -655,6 +761,16 @@ wayland_surface_class_init (WaylandSurfaceClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  surface_signals[SURFACE_POINTER_ENTER] =
+    g_signal_new ("pointer-enter",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_POINTER,
+                  G_TYPE_UINT);
 }
 
 static void
@@ -678,6 +794,7 @@ wayland_surface_new (WaylandDisplay *display,
   surface->default_height = default_height;
   surface->color = color;
   surface->wl_surface = wl_compositor_create_surface (display->compositor);
+  wl_surface_set_user_data (surface->wl_surface, surface);
   surface->xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base,
                                                       surface->wl_surface);
   xdg_surface_add_listener (surface->xdg_surface, &xdg_surface_listener,
