@@ -466,7 +466,8 @@ _cogl_texture_driver_find_best_gl_get_data_format
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->pixel_format_to_gl (context,
+  return driver_klass->pixel_format_to_gl (context->driver,
+                                           context,
                                            format,
                                            NULL, /* don't need */
                                            closest_gl_format,

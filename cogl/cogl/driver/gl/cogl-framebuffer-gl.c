@@ -443,7 +443,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   else
     pack_invert_set = FALSE;
 
-  read_format = driver_klass->get_read_pixels_format (ctx,
+  read_format = driver_klass->get_read_pixels_format (ctx->driver,
+                                                      ctx,
                                                       internal_format,
                                                       format,
                                                       &gl_format,

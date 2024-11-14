@@ -37,6 +37,7 @@
  * Pixel Buffers API.
  */
 
+#include "cogl-driver-private.h"
 #include "config.h"
 
 #include <stdio.h>
@@ -109,7 +110,7 @@ cogl_buffer_dispose (GObject *object)
     {
       CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      driver_klass->buffer_destroy (buffer);
+      driver_klass->buffer_destroy (buffer->context->driver, buffer);
     }
   else
     {
@@ -146,26 +147,19 @@ cogl_buffer_set_property (GObject      *gobject,
             buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
           {
             if (!_cogl_has_private_feature (buffer->context, COGL_PRIVATE_FEATURE_PBOS))
-              use_malloc = TRUE;
+              buffer->use_malloc = TRUE;
           }
+        buffer->use_malloc = use_malloc;
 
         if (use_malloc)
           {
-            buffer->map_range = malloc_map_range;
-            buffer->unmap = malloc_unmap;
-            buffer->set_data = malloc_set_data;
-
             buffer->data = g_malloc (buffer->size);
           }
         else
           {
             CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-            buffer->map_range = driver_klass->buffer_map_range;
-            buffer->unmap = driver_klass->buffer_unmap;
-            buffer->set_data = driver_klass->buffer_set_data;
-
-            driver_klass->buffer_create (buffer);
+            driver_klass->buffer_create (buffer->context->driver, buffer);
 
             buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
           }
@@ -290,12 +284,27 @@ cogl_buffer_map_range (CoglBuffer *buffer,
   g_return_val_if_fail (COGL_IS_BUFFER (buffer), NULL);
   g_return_val_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED), NULL);
 
-  buffer->data = buffer->map_range (buffer,
-                                    offset,
-                                    size,
-                                    access,
-                                    hints,
-                                    error);
+  if (buffer->use_malloc)
+    {
+      buffer->data = malloc_map_range (buffer,
+                                       offset,
+                                       size,
+                                       access,
+                                       hints,
+                                       error);
+    }
+  else
+    {
+      CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+
+      buffer->data = klass->buffer_map_range (buffer->context->driver,
+                                              buffer,
+                                              offset,
+                                              size,
+                                              access,
+                                              hints,
+                                              error);
+    }
 
   return buffer->data;
 }
@@ -308,7 +317,16 @@ cogl_buffer_unmap (CoglBuffer *buffer)
   if (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED))
     return;
 
-  buffer->unmap (buffer);
+  if (buffer->use_malloc)
+    {
+      malloc_unmap (buffer);
+    }
+  else
+    {
+      CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+
+      klass->buffer_unmap (buffer->context->driver, buffer);
+    }
 }
 
 void *
@@ -395,7 +413,21 @@ cogl_buffer_set_data (CoglBuffer *buffer,
   g_return_val_if_fail (COGL_IS_BUFFER (buffer), FALSE);
   g_return_val_if_fail ((offset + size) <= buffer->size, FALSE);
 
-  status = buffer->set_data (buffer, offset, data, size, &ignore_error);
+  if (buffer->use_malloc)
+    {
+      status = malloc_set_data (buffer, offset, data, size, &ignore_error);
+    }
+  else
+    {
+      CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+
+      status = klass->buffer_set_data (buffer->context->driver,
+                                       buffer,
+                                       offset,
+                                       data,
+                                       size,
+                                       &ignore_error);
+    }
 
   g_clear_error (&ignore_error);
   return status;

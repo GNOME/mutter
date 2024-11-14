@@ -247,7 +247,8 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
 }
 
 void
-_cogl_clip_stack_gl_flush (CoglClipStack *stack,
+_cogl_clip_stack_gl_flush (CoglDriver      *driver,
+                           CoglClipStack   *stack,
                            CoglFramebuffer *framebuffer)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);

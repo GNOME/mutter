@@ -41,20 +41,24 @@
 #include "cogl/cogl-texture.h"
 
 void
-_cogl_texture_2d_gl_free (CoglTexture2D *tex_2d);
+_cogl_texture_2d_gl_free (CoglDriver    *driver,
+                          CoglTexture2D *tex_2d);
 
 gboolean
-_cogl_texture_2d_gl_can_create (CoglContext *ctx,
-                                int width,
-                                int height,
-                                CoglPixelFormat internal_format);
+_cogl_texture_2d_gl_can_create (CoglDriver      *driver,
+                                CoglContext     *ctx,
+                                int              width,
+                                int              height,
+                                CoglPixelFormat  internal_format);
 
 void
-_cogl_texture_2d_gl_init (CoglTexture2D *tex_2d);
+_cogl_texture_2d_gl_init (CoglDriver  *driver,
+                          CoglTexture2D *tex_2d);
 
 gboolean
-_cogl_texture_2d_gl_allocate (CoglTexture *tex,
-                              GError **error);
+_cogl_texture_2d_gl_allocate (CoglDriver   *driver,
+                              CoglTexture  *tex,
+                              GError      **error);
 
 #if defined (HAVE_EGL)
 gboolean
@@ -84,39 +88,45 @@ _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                     GLenum wrap_mode_t);
 
 void
-_cogl_texture_2d_gl_copy_from_framebuffer (CoglTexture2D *tex_2d,
-                                           int src_x,
-                                           int src_y,
-                                           int width,
-                                           int height,
+_cogl_texture_2d_gl_copy_from_framebuffer (CoglDriver      *driver,
+                                           CoglTexture2D   *tex_2d,
+                                           int              src_x,
+                                           int              src_y,
+                                           int              width,
+                                           int              height,
                                            CoglFramebuffer *src_fb,
-                                           int dst_x,
-                                           int dst_y,
-                                           int level);
+                                           int              dst_x,
+                                           int              dst_y,
+                                           int              level);
 
 unsigned int
-_cogl_texture_2d_gl_get_gl_handle (CoglTexture2D *tex_2d);
+_cogl_texture_2d_gl_get_gl_handle (CoglDriver    *driver,
+                                   CoglTexture2D *tex_2d);
 
 void
-_cogl_texture_2d_gl_generate_mipmap (CoglTexture2D *tex_2d);
+_cogl_texture_2d_gl_generate_mipmap (CoglDriver    *driver,
+                                     CoglTexture2D *tex_2d);
 
 gboolean
-_cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
-                                      int src_x,
-                                      int src_y,
-                                      int width,
-                                      int height,
-                                      CoglBitmap *bitmap,
-                                      int dst_x,
-                                      int dst_y,
-                                      int level,
-                                      GError **error);
+_cogl_texture_2d_gl_copy_from_bitmap (CoglDriver    *driver,
+                                      CoglTexture2D *tex_2d,
+                                      int            src_x,
+                                      int            src_y,
+                                      int            width,
+                                      int            height,
+                                      CoglBitmap    *bitmap,
+                                      int            dst_x,
+                                      int            dst_y,
+                                      int            level,
+                                      GError       **error);
 
 gboolean
-_cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d);
+_cogl_texture_2d_gl_is_get_data_supported (CoglDriver    *driver,
+                                           CoglTexture2D *tex_2d);
 
 void
-_cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
-                              CoglPixelFormat format,
-                              int rowstride,
-                              uint8_t *data);
+_cogl_texture_2d_gl_get_data (CoglDriver      *driver,
+                              CoglTexture2D   *tex_2d,
+                              CoglPixelFormat  format,
+                              int              rowstride,
+                              uint8_t         *data);

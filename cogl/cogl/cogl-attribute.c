@@ -370,7 +370,8 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
    * when the framebuffer really does get drawn to. */
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
 
-  driver_klass->flush_attributes_state (framebuffer,
+  driver_klass->flush_attributes_state (ctx->driver,
+                                        framebuffer,
                                         pipeline,
                                         &layers_state,
                                         flags,

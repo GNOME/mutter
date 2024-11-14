@@ -134,7 +134,7 @@ cogl_context_dispose (GObject *object)
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
 
-  COGL_DRIVER_GET_CLASS (driver)->context_deinit (context);
+  COGL_DRIVER_GET_CLASS (driver)->context_deinit (context->driver, context);
 
   g_object_unref (context->display);
 
@@ -237,7 +237,7 @@ cogl_context_new (CoglDisplay *display,
       return NULL;
     }
 
-  if (!COGL_DRIVER_GET_CLASS (context)->context_init (context))
+  if (!COGL_DRIVER_GET_CLASS (context)->context_init (context->driver, context))
     {
       g_object_unref (display);
       g_object_unref (context);
@@ -391,7 +391,7 @@ _cogl_context_get_driver_vendor (CoglContext *context)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->get_vendor (context);
+  return driver_klass->get_vendor (context->driver, context);
 }
 
 gboolean
@@ -400,7 +400,7 @@ _cogl_context_update_features (CoglContext *context,
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->update_features (context, error);
+  return driver_klass->update_features (context->driver, context, error);
 }
 
 void
@@ -450,7 +450,7 @@ cogl_context_get_graphics_reset_status (CoglContext *context)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->get_graphics_reset_status (context);
+  return driver_klass->get_graphics_reset_status (context->driver, context);
 }
 
 gboolean
@@ -458,7 +458,7 @@ cogl_context_is_hardware_accelerated (CoglContext *context)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->is_hardware_accelerated (context);
+  return driver_klass->is_hardware_accelerated (context->driver, context);
 }
 
 gboolean
@@ -505,7 +505,7 @@ cogl_context_free_timestamp_query (CoglContext        *context,
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  driver_klass->free_timestamp_query (context, query);
+  driver_klass->free_timestamp_query (context->driver, context, query);
 }
 
 int64_t
@@ -514,7 +514,7 @@ cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->timestamp_query_get_time_ns (context, query);
+  return driver_klass->timestamp_query_get_time_ns (context->driver, context, query);
 }
 
 int64_t
@@ -528,7 +528,7 @@ cogl_context_get_gpu_time_ns (CoglContext *context)
 
   driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
-  return driver_klass->get_gpu_time_ns (context);
+  return driver_klass->get_gpu_time_ns (context->driver, context);
 }
 
 /* FIXME: we should distinguish renderer and context features */

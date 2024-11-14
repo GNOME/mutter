@@ -37,55 +37,73 @@
 #include "cogl/cogl-sampler-cache-private.h"
 #include "cogl/cogl-texture-private.h"
 
+G_DECLARE_DERIVABLE_TYPE (CoglDriver,
+                          cogl_driver,
+                          COGL,
+                          DRIVER,
+                          GObject)
+
 struct _CoglDriverClass
 {
   GObjectClass parent_class;
 
-  gboolean (* context_init) (CoglContext *context);
+  gboolean (* context_init) (CoglDriver  *driver,
+                             CoglContext *context);
 
-  void (* context_deinit) (CoglContext *context);
+  void (* context_deinit) (CoglDriver  *driver,
+                           CoglContext *context);
 
-  const char * (* get_vendor) (CoglContext *context);
+  const char * (* get_vendor) (CoglDriver  *driver,
+                               CoglContext *context);
 
-  gboolean (* is_hardware_accelerated) (CoglContext *context);
+  gboolean (* is_hardware_accelerated) (CoglDriver  *driver,
+                                        CoglContext *context);
 
-  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglContext *context);
+  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver  *driver,
+                                                         CoglContext *context);
 
   /* TODO: factor this out since this is OpenGL specific and
    * so can be ignored by non-OpenGL drivers. */
-  CoglPixelFormat (* pixel_format_to_gl) (CoglContext     *context,
+  CoglPixelFormat (* pixel_format_to_gl) (CoglDriver      *driver,
+                                          CoglContext     *context,
                                           CoglPixelFormat  format,
                                           GLenum          *out_glintformat,
                                           GLenum          *out_glformat,
                                           GLenum          *out_gltype);
 
-  CoglPixelFormat (* get_read_pixels_format) (CoglContext     *context,
+  CoglPixelFormat (* get_read_pixels_format) (CoglDriver      *driver,
+                                              CoglContext     *context,
                                               CoglPixelFormat  from,
                                               CoglPixelFormat  to,
                                               GLenum          *gl_format_out,
                                               GLenum          *gl_type_out);
 
-  gboolean (* update_features) (CoglContext  *context,
+  gboolean (* update_features) (CoglDriver   *driver,
+                                CoglContext  *context,
                                 GError      **error);
 
-  CoglFramebufferDriver * (* create_framebuffer_driver) (CoglContext                        *context,
+  CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
+                                                         CoglContext                        *context,
                                                          CoglFramebuffer                    *framebuffer,
                                                          const CoglFramebufferDriverConfig  *driver_config,
                                                          GError                            **error);
 
-  void (* flush_framebuffer_state) (CoglContext          *context,
+  void (* flush_framebuffer_state) (CoglDriver           *driver,
+                                    CoglContext          *context,
                                     CoglFramebuffer      *draw_buffer,
                                     CoglFramebuffer      *read_buffer,
                                     CoglFramebufferState  state);
 
   /* Destroys any driver specific resources associated with the given
    * 2D texture. */
-  void (* texture_2d_free) (CoglTexture2D *tex_2d);
+  void (* texture_2d_free) (CoglDriver    *driver,
+                            CoglTexture2D *tex_2d);
 
   /* Returns TRUE if the driver can support creating a 2D texture with
    * the given geometry and specified internal format.
    */
-  gboolean (* texture_2d_can_create) (CoglContext     *ctx,
+  gboolean (* texture_2d_can_create) (CoglDriver      *driver,
+                                      CoglContext     *ctx,
                                       int              width,
                                       int              height,
                                       CoglPixelFormat  internal_format);
@@ -95,17 +113,20 @@ struct _CoglDriverClass
    * members will already be initialized before passing control to
    * the driver.
    */
-  void (* texture_2d_init) (CoglTexture2D *tex_2d);
+  void (* texture_2d_init) (CoglDriver    *driver,
+                            CoglTexture2D *tex_2d);
 
   /* Allocates (uninitialized) storage for the given texture according
    * to the configured size and format of the texture */
-  gboolean (* texture_2d_allocate) (CoglTexture  *tex,
+  gboolean (* texture_2d_allocate) (CoglDriver   *driver,
+                                    CoglTexture  *tex,
                                     GError      **error);
 
   /* Initialize the specified region of storage of the given texture
    * with the contents of the specified framebuffer region
    */
-  void (* texture_2d_copy_from_framebuffer) (CoglTexture2D   *tex_2d,
+  void (* texture_2d_copy_from_framebuffer) (CoglDriver      *driver,
+                                             CoglTexture2D   *tex_2d,
                                              int              src_x,
                                              int              src_y,
                                              int              width,
@@ -120,10 +141,12 @@ struct _CoglDriverClass
    *
    * This is optional
    */
-  unsigned int (* texture_2d_get_gl_handle) (CoglTexture2D *tex_2d);
+  unsigned int (* texture_2d_get_gl_handle) (CoglDriver    *driver,
+                                             CoglTexture2D *tex_2d);
 
   /* Update all mipmap levels > 0 */
-  void (* texture_2d_generate_mipmap) (CoglTexture2D *tex_2d);
+  void (* texture_2d_generate_mipmap) (CoglDriver    *driver,
+                                       CoglTexture2D *tex_2d);
 
   /* Initialize the specified region of storage of the given texture
    * with the contents of the specified bitmap region
@@ -131,7 +154,8 @@ struct _CoglDriverClass
    * Since this may need to create the underlying storage first
    * it may throw a NO_MEMORY error.
    */
-  gboolean (* texture_2d_copy_from_bitmap) (CoglTexture2D  *tex_2d,
+  gboolean (* texture_2d_copy_from_bitmap) (CoglDriver     *driver,
+                                            CoglTexture2D  *tex_2d,
                                             int             src_x,
                                             int             src_y,
                                             int             width,
@@ -142,14 +166,16 @@ struct _CoglDriverClass
                                             int             level,
                                             GError        **error);
 
-  gboolean (* texture_2d_is_get_data_supported) (CoglTexture2D *tex_2d);
+  gboolean (* texture_2d_is_get_data_supported) (CoglDriver    *driver,
+                                                 CoglTexture2D *tex_2d);
 
   /* Reads back the full contents of the given texture and write it to
    * @data in the given @format and with the given @rowstride.
    *
    * This is optional
    */
-  void (* texture_2d_get_data) (CoglTexture2D   *tex_2d,
+  void (* texture_2d_get_data) (CoglDriver      *driver,
+                                CoglTexture2D   *tex_2d,
                                 CoglPixelFormat  format,
                                 int              rowstride,
                                 uint8_t         *data);
@@ -157,7 +183,8 @@ struct _CoglDriverClass
   /* Prepares for drawing by flushing the journal, framebuffer state,
    * pipeline state and attribute state.
    */
-  void (* flush_attributes_state) (CoglFramebuffer      *framebuffer,
+  void (* flush_attributes_state) (CoglDriver           *driver,
+                                   CoglFramebuffer      *framebuffer,
                                    CoglPipeline         *pipeline,
                                    CoglFlushLayerState  *layer_state,
                                    CoglDrawFlags         flags,
@@ -168,18 +195,22 @@ struct _CoglDriverClass
    * stencil buffer, scissor and clip plane state.
    */
   void
-  (* clip_stack_flush) (CoglClipStack   *stack,
+  (* clip_stack_flush) (CoglDriver      *driver,
+                        CoglClipStack   *stack,
                         CoglFramebuffer *framebuffer);
 
   /* Enables the driver to create some meta data to represent a buffer
    * but with no corresponding storage allocated yet.
    */
-  void (* buffer_create) (CoglBuffer *buffer);
+  void (* buffer_create) (CoglDriver *driver,
+                          CoglBuffer *buffer);
 
-  void (* buffer_destroy) (CoglBuffer *buffer);
+  void (* buffer_destroy) (CoglDriver *driver,
+                           CoglBuffer *buffer);
 
   /* Maps a buffer into the CPU */
-  void * (* buffer_map_range) (CoglBuffer       *buffer,
+  void * (* buffer_map_range) (CoglDriver       *driver,
+                               CoglBuffer       *buffer,
                                size_t            offset,
                                size_t            size,
                                CoglBufferAccess  access,
@@ -187,42 +218,45 @@ struct _CoglDriverClass
                                GError          **error);
 
   /* Unmaps a buffer */
-  void (* buffer_unmap) (CoglBuffer *buffer);
+  void (* buffer_unmap) (CoglDriver *driver,
+                         CoglBuffer *buffer);
 
   /* Uploads data to the buffer without needing to map it necessarily
    */
-  gboolean (* buffer_set_data) (CoglBuffer  *buffer,
+  gboolean (* buffer_set_data) (CoglDriver  *driver,
+                                CoglBuffer  *buffer,
                                 unsigned int offset,
                                 const void  *data,
                                 unsigned int size,
                                 GError     **error);
 
-  void (*sampler_init) (CoglContext           *context,
+  void (*sampler_init) (CoglDriver            *driver,
+                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
-  void (*sampler_free) (CoglContext           *context,
+  void (*sampler_free) (CoglDriver            *driver,
+                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
-  void (* set_uniform) (CoglContext          *ctx,
+  void (* set_uniform) (CoglDriver           *driver,
+                        CoglContext          *ctx,
                         GLint                 location,
                         const CoglBoxedValue *value);
 
-  CoglTimestampQuery * (* create_timestamp_query) (CoglContext *context);
+  CoglTimestampQuery * (* create_timestamp_query) (CoglDriver  *driver,
+                                                   CoglContext *context);
 
-  void (* free_timestamp_query) (CoglContext        *context,
+  void (* free_timestamp_query) (CoglDriver         *driver,
+                                 CoglContext        *context,
                                  CoglTimestampQuery *query);
 
-  int64_t (* timestamp_query_get_time_ns) (CoglContext        *context,
+  int64_t (* timestamp_query_get_time_ns) (CoglDriver         *driver,
+                                           CoglContext        *context,
                                            CoglTimestampQuery *query);
 
-  int64_t (* get_gpu_time_ns) (CoglContext *context);
+  int64_t (* get_gpu_time_ns) (CoglDriver  *driver,
+                               CoglContext *context);
 };
-
-G_DECLARE_DERIVABLE_TYPE (CoglDriver,
-                          cogl_driver,
-                          COGL,
-                          DRIVER,
-                          GObject)
 
 #define COGL_TYPE_DRIVER (cogl_driver_get_type ())
 

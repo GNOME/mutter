@@ -35,7 +35,8 @@ G_DEFINE_ABSTRACT_TYPE (CoglDriver, cogl_driver, G_TYPE_OBJECT);
 
 
 static void
-cogl_driver_flush_attributes_state_default (CoglFramebuffer     *framebuffer,
+cogl_driver_flush_attributes_state_default (CoglDriver          *driver,
+                                            CoglFramebuffer     *framebuffer,
                                             CoglPipeline        *pipeline,
                                             CoglFlushLayerState *layers_state,
                                             CoglDrawFlags        flags,
@@ -45,13 +46,15 @@ cogl_driver_flush_attributes_state_default (CoglFramebuffer     *framebuffer,
 }
 
 static void
-cogl_driver_clip_stack_flush_default (CoglClipStack   *stack,
+cogl_driver_clip_stack_flush_default (CoglDriver      *driver,
+                                      CoglClipStack   *stack,
                                       CoglFramebuffer *framebuffer)
 {
 }
 
 static void
-cogl_driver_flush_framebuffer_state_default (CoglContext          *ctx,
+cogl_driver_flush_framebuffer_state_default (CoglDriver          *driver,
+                                             CoglContext          *ctx,
                                              CoglFramebuffer      *draw_buffer,
                                              CoglFramebuffer      *read_buffer,
                                              CoglFramebufferState  state)
@@ -59,22 +62,26 @@ cogl_driver_flush_framebuffer_state_default (CoglContext          *ctx,
 }
 
 static void
-cogl_driver_context_deinit_default (CoglContext *context)
+cogl_driver_context_deinit_default (CoglDriver  *driver,
+                                    CoglContext *context)
 {
 }
 
 static void
-cogl_driver_texture_2d_init_default (CoglTexture2D *tex_2d)
+cogl_driver_texture_2d_init_default (CoglDriver  *driver,
+                                     CoglTexture2D *tex_2d)
 {
 }
 
 static void
-cogl_driver_texture_2d_free_default (CoglTexture2D *tex_2d)
+cogl_driver_texture_2d_free_default (CoglDriver  *driver,
+                                     CoglTexture2D *tex_2d)
 {
 }
 
 static void
-cogl_driver_texture_2d_generate_mipmap_default (CoglTexture2D *tex_2d)
+cogl_driver_texture_2d_generate_mipmap_default (CoglDriver    *driver,
+                                                CoglTexture2D *tex_2d)
 {
 }
 

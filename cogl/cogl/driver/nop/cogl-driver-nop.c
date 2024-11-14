@@ -31,7 +31,8 @@
 G_DEFINE_FINAL_TYPE (CoglNopDriver, cogl_nop_driver, COGL_TYPE_DRIVER);
 
 static gboolean
-cogl_nop_driver_texture_2d_can_create (CoglContext     *ctx,
+cogl_nop_driver_texture_2d_can_create (CoglDriver      *driver,
+                                       CoglContext     *ctx,
                                        int              width,
                                        int              height,
                                        CoglPixelFormat  internal_format)
@@ -40,14 +41,16 @@ cogl_nop_driver_texture_2d_can_create (CoglContext     *ctx,
 }
 
 static gboolean
-cogl_nop_driver_texture_2d_allocate (CoglTexture  *tex,
+cogl_nop_driver_texture_2d_allocate (CoglDriver   *driver,
+                                     CoglTexture  *tex,
                                      GError      **error)
 {
   return TRUE;
 }
 
 static void
-cogl_nop_driver_texture_2d_copy_from_framebuffer (CoglTexture2D   *tex_2d,
+cogl_nop_driver_texture_2d_copy_from_framebuffer (CoglDriver      *driver,
+                                                  CoglTexture2D   *tex_2d,
                                                   int              src_x,
                                                   int              src_y,
                                                   int              width,
@@ -60,13 +63,15 @@ cogl_nop_driver_texture_2d_copy_from_framebuffer (CoglTexture2D   *tex_2d,
 }
 
 static unsigned int
-cogl_nop_driver_texture_2d_get_gl_handle (CoglTexture2D *tex_2d)
+cogl_nop_driver_texture_2d_get_gl_handle (CoglDriver    *driver,
+                                          CoglTexture2D *tex_2d)
 {
   return 0;
 }
 
 static gboolean
-cogl_nop_driver_texture_2d_copy_from_bitmap (CoglTexture2D  *tex_2d,
+cogl_nop_driver_texture_2d_copy_from_bitmap (CoglDriver     *driver,
+                                             CoglTexture2D  *tex_2d,
                                              int             src_x,
                                              int             src_y,
                                              int             width,
@@ -81,7 +86,8 @@ cogl_nop_driver_texture_2d_copy_from_bitmap (CoglTexture2D  *tex_2d,
 }
 
 static gboolean
-cogl_nop_driver_update_features (CoglContext  *ctx,
+cogl_nop_driver_update_features (CoglDriver   *driver,
+                                 CoglContext  *ctx,
                                  GError      **error)
 {
   memset (ctx->private_features, 0, sizeof (ctx->private_features));
@@ -90,28 +96,32 @@ cogl_nop_driver_update_features (CoglContext  *ctx,
 }
 
 static gboolean
-cogl_nop_driver_context_init (CoglContext *context)
+cogl_nop_driver_context_init (CoglDriver  *driver,
+                              CoglContext *context)
 {
   return TRUE;
 }
 
 static gboolean
-cogl_nop_driver_is_hardware_accelerated (CoglContext *context)
+cogl_nop_driver_is_hardware_accelerated (CoglDriver  *driver,
+                                         CoglContext *context)
 {
   return FALSE;
 }
 
 static const char *
-cogl_nop_driver_get_vendor (CoglContext *context)
+cogl_nop_driver_get_vendor (CoglDriver  *driver,
+                            CoglContext *context)
 {
   return "NOP";
 }
 
 static CoglFramebufferDriver *
-cogl_nop_driver_create_framebuffer_driver (CoglContext                        *context,
-                                            CoglFramebuffer                    *framebuffer,
-                                            const CoglFramebufferDriverConfig  *driver_config,
-                                            GError                            **error)
+cogl_nop_driver_create_framebuffer_driver (CoglDriver                         *driver,
+                                           CoglContext                        *context,
+                                           CoglFramebuffer                    *framebuffer,
+                                           const CoglFramebufferDriverConfig  *driver_config,
+                                           GError                            **error)
 {
   return g_object_new (COGL_TYPE_NOP_FRAMEBUFFER,
                        "framebuffer", framebuffer,

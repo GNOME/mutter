@@ -41,11 +41,12 @@
 G_DEFINE_FINAL_TYPE (CoglGLDriver, cogl_gl_driver, COGL_TYPE_DRIVER_GL_SHARED);
 
 static gboolean
-_cogl_driver_gl_real_context_init (CoglContext *context)
+_cogl_driver_gl_real_context_init (CoglDriver  *driver,
+                                   CoglContext *context)
 {
   GLuint vertex_array;
 
-  _cogl_driver_gl_context_init (context);
+  _cogl_driver_gl_context_init (driver, context);
 
   /* In a forward compatible context, GL 3 doesn't support rendering
    * using the default vertex array object. Cogl doesn't use vertex
@@ -63,7 +64,8 @@ _cogl_driver_gl_real_context_init (CoglContext *context)
 }
 
 static CoglPixelFormat
-_cogl_driver_pixel_format_to_gl (CoglContext     *context,
+_cogl_driver_pixel_format_to_gl (CoglDriver      *driver,
+                                 CoglContext     *context,
                                  CoglPixelFormat  format,
                                  GLenum          *out_glintformat,
                                  GLenum          *out_glformat,
@@ -281,7 +283,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
                                          (format & COGL_PREMULT_BIT),
                                          &glintformat,
@@ -291,7 +294,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGBX_FP_16161616,
                                          &glintformat,
                                          &glformat,
@@ -355,13 +359,15 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 }
 
 static CoglPixelFormat
-_cogl_driver_get_read_pixels_format (CoglContext     *context,
+_cogl_driver_get_read_pixels_format (CoglDriver      *driver,
+                                     CoglContext     *context,
                                      CoglPixelFormat  from,
                                      CoglPixelFormat  to,
                                      GLenum          *gl_format_out,
                                      GLenum          *gl_type_out)
 {
-  return _cogl_driver_pixel_format_to_gl (context,
+  return _cogl_driver_pixel_format_to_gl (driver,
+                                          context,
                                           to,
                                           NULL,
                                           gl_format_out,
@@ -449,7 +455,8 @@ check_glsl_version (CoglContext  *ctx,
 }
 
 static gboolean
-_cogl_driver_update_features (CoglContext  *ctx,
+_cogl_driver_update_features (CoglDriver   *driver,
+                              CoglContext  *ctx,
                               GError      **error)
 {
   unsigned long private_features

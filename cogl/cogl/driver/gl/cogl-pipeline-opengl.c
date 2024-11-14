@@ -632,7 +632,9 @@ _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
 }
 
 void
-_cogl_sampler_gl_init (CoglContext *context, CoglSamplerCacheEntry *entry)
+_cogl_sampler_gl_init (CoglDriver            *driver,
+                       CoglContext           *context,
+                       CoglSamplerCacheEntry *entry)
 {
   if (_cogl_has_private_feature (context,
                                  COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
@@ -682,7 +684,9 @@ _cogl_sampler_gl_init (CoglContext *context, CoglSamplerCacheEntry *entry)
 }
 
 void
-_cogl_sampler_gl_free (CoglContext *context, CoglSamplerCacheEntry *entry)
+_cogl_sampler_gl_free (CoglDriver            *driver,
+                       CoglContext           *context,
+                       CoglSamplerCacheEntry *entry)
 {
   if (_cogl_has_private_feature (context,
                                  COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
@@ -1153,8 +1157,9 @@ done:
 }
 
 void
-_cogl_gl_set_uniform (CoglContext *ctx,
-                      GLint location,
+_cogl_gl_set_uniform (CoglDriver           *driver,
+                      CoglContext          *ctx,
+                      GLint                 location,
                       const CoglBoxedValue *value)
 {
   switch (value->type)

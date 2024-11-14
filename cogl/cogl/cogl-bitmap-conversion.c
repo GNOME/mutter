@@ -814,7 +814,8 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
       CoglPixelFormat closest_format;
 
       closest_format =
-        driver_klass->pixel_format_to_gl (ctx,
+        driver_klass->pixel_format_to_gl (ctx->driver,
+                                          ctx,
                                           internal_format,
                                           NULL, /* ignore gl intformat */
                                           NULL, /* ignore gl format */
