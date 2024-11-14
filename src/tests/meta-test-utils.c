@@ -482,8 +482,7 @@ wait_for_showing_before_redraw (gpointer user_data)
 }
 
 void
-meta_test_client_wait_for_window_shown (MetaTestClient *client,
-                                        MetaWindow     *window)
+meta_wait_for_window_shown (MetaWindow *window)
 {
   MetaDisplay *display = meta_window_get_display (window);
   MetaCompositor *compositor = meta_display_get_compositor (display);

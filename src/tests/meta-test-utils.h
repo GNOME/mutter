@@ -94,8 +94,7 @@ MetaWindow * meta_test_client_find_window (MetaTestClient  *client,
                                            GError         **error);
 
 META_EXPORT
-void meta_test_client_wait_for_window_shown (MetaTestClient *client,
-                                             MetaWindow     *window);
+void meta_wait_for_window_shown (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_test_client_quit (MetaTestClient  *client,
