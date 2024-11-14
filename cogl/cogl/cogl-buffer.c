@@ -37,6 +37,7 @@
  * Pixel Buffers API.
  */
 
+#include "cogl-driver-private.h"
 #include "config.h"
 
 #include <stdio.h>
@@ -109,7 +110,7 @@ cogl_buffer_dispose (GObject *object)
     {
       CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      driver_klass->buffer_destroy (buffer);
+      driver_klass->buffer_destroy (buffer->context->driver, buffer);
     }
   else
     {
@@ -146,8 +147,9 @@ cogl_buffer_set_property (GObject      *gobject,
             buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
           {
             if (!_cogl_has_private_feature (buffer->context, COGL_PRIVATE_FEATURE_PBOS))
-              use_malloc = TRUE;
+              buffer->use_malloc = TRUE;
           }
+        buffer->use_malloc = use_malloc;
 
         buffer->use_malloc = use_malloc;
         if (use_malloc)
@@ -158,7 +160,7 @@ cogl_buffer_set_property (GObject      *gobject,
           {
             CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-            driver_klass->buffer_create (buffer);
+            driver_klass->buffer_create (buffer->context->driver, buffer);
 
             buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
           }
@@ -296,7 +298,8 @@ cogl_buffer_map_range (CoglBuffer *buffer,
     {
       CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      buffer->data = driver_klass->buffer_map_range (buffer,
+      buffer->data = driver_klass->buffer_map_range (buffer->context->driver,
+                                                     buffer,
                                                      offset,
                                                      size,
                                                      access,
@@ -323,7 +326,7 @@ cogl_buffer_unmap (CoglBuffer *buffer)
     {
       CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      driver_klass->buffer_unmap (buffer);
+      driver_klass->buffer_unmap (buffer->context->driver, buffer);
     }
 }
 
@@ -419,7 +422,12 @@ cogl_buffer_set_data (CoglBuffer *buffer,
     {
       CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
 
-      status = driver_klass->buffer_set_data (buffer, offset, data, size, &ignore_error);
+      status = driver_klass->buffer_set_data (buffer->context->driver,
+                                              buffer,
+                                              offset,
+                                              data,
+                                              size,
+                                              &ignore_error);
     }
 
   g_clear_error (&ignore_error);

@@ -97,7 +97,8 @@ G_DEFINE_FINAL_TYPE (CoglDriverGLES2, cogl_driver_gles2, COGL_TYPE_DRIVER_GL);
 
 
 static CoglPixelFormat
-_cogl_driver_pixel_format_to_gl (CoglContext     *context,
+_cogl_driver_pixel_format_to_gl (CoglDriver      *driver,
+                                 CoglContext     *context,
                                  CoglPixelFormat  format,
                                  GLenum          *out_glintformat,
                                  GLenum          *out_glformat,
@@ -190,7 +191,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       else
         {
           required_format =
-            _cogl_driver_pixel_format_to_gl (context,
+            _cogl_driver_pixel_format_to_gl (driver,
+                                             context,
                                              COGL_PIXEL_FORMAT_RGB_888,
                                              &glintformat,
                                              &glformat,
@@ -211,7 +213,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 
     case COGL_PIXEL_FORMAT_BGR_888:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGB_888,
                                          &glintformat,
                                          &glformat,
@@ -280,7 +283,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       else
         {
           required_format =
-            _cogl_driver_pixel_format_to_gl (context,
+            _cogl_driver_pixel_format_to_gl (driver,
+                                             context,
                                              COGL_PIXEL_FORMAT_RGBA_8888,
                                              &glintformat,
                                              &glformat,
@@ -293,7 +297,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_XRGB_8888:
     case COGL_PIXEL_FORMAT_XBGR_8888:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                          &glintformat,
                                          &glformat,
@@ -305,7 +310,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_8888:
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGBA_8888 |
                                          (format & COGL_PREMULT_BIT),
                                          &glintformat,
@@ -373,7 +379,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_ABGR_2101010 |
                                          (format & COGL_PREMULT_BIT),
                                          &glintformat,
@@ -400,7 +407,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
                                          &glintformat,
                                          &glformat,
@@ -414,7 +422,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
-        _cogl_driver_pixel_format_to_gl (context,
+        _cogl_driver_pixel_format_to_gl (driver,
+                                         context,
                                          COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
                                          (format & COGL_PREMULT_BIT),
                                          &glintformat,
@@ -469,7 +478,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
 }
 
 static CoglPixelFormat
-_cogl_driver_get_read_pixels_format (CoglContext     *context,
+_cogl_driver_get_read_pixels_format (CoglDriver      *driver,
+                                     CoglContext     *context,
                                      CoglPixelFormat  from,
                                      CoglPixelFormat  to,
                                      GLenum          *gl_format_out,
@@ -568,7 +578,8 @@ _cogl_driver_get_read_pixels_format (CoglContext     *context,
 
   g_assert (required_format != 0);
 
-  to_required_format = _cogl_driver_pixel_format_to_gl (context,
+  to_required_format = _cogl_driver_pixel_format_to_gl (driver,
+                                                        context,
                                                         to,
                                                         NULL,
                                                         &to_gl_format,
@@ -677,7 +688,8 @@ check_glsl_version (CoglContext  *ctx,
 }
 
 static gboolean
-_cogl_driver_update_features (CoglContext  *context,
+_cogl_driver_update_features (CoglDriver   *driver,
+                              CoglContext  *context,
                               GError      **error)
 {
   unsigned long private_features
@@ -851,7 +863,8 @@ _cogl_driver_update_features (CoglContext  *context,
 }
 
 static gboolean
-_cogl_driver_texture_2d_is_get_data_supported (CoglTexture2D *tex_2d)
+_cogl_driver_texture_2d_is_get_data_supported (CoglDriver    *driver,
+                                               CoglTexture2D *tex_2d)
 {
   return FALSE;
 }

@@ -201,7 +201,8 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
 
   g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
 
-  driver_klass->pixel_format_to_gl (ctx,
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
                                     format,
                                     &gl_intformat,
                                     &gl_format,
@@ -245,7 +246,8 @@ _cogl_atlas_create_map (CoglContext             *ctx,
   GLenum gl_format;
   GLenum gl_type;
 
-  driver_klass->pixel_format_to_gl (ctx,
+  driver_klass->pixel_format_to_gl (ctx->driver,
+                                    ctx,
                                     format,
                                     &gl_intformat,
                                     &gl_format,

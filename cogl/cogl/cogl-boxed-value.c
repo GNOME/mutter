@@ -463,5 +463,5 @@ _cogl_boxed_value_set_uniform (CoglContext *ctx,
                                const CoglBoxedValue *value)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
-  driver_klass->set_uniform (ctx, location, value);
+  driver_klass->set_uniform (ctx->driver, ctx, location, value);
 }

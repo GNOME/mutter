@@ -372,7 +372,8 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
 
   if (driver_klass->flush_attributes_state)
     {
-      driver_klass->flush_attributes_state (framebuffer,
+      driver_klass->flush_attributes_state (ctx->driver,
+                                            framebuffer,
                                             pipeline,
                                             &layers_state,
                                             flags,

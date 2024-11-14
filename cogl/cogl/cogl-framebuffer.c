@@ -875,7 +875,8 @@ cogl_framebuffer_init_driver (CoglFramebuffer  *framebuffer,
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (priv->context->driver);
   CoglFramebufferDriver *fb_driver;
 
-  fb_driver = driver_klass->create_framebuffer_driver (priv->context,
+  fb_driver = driver_klass->create_framebuffer_driver (priv->context->driver,
+                                                       priv->context,
                                                        framebuffer,
                                                        &priv->driver_config,
                                                        error);
@@ -1059,7 +1060,8 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
 
   if (driver_klass->flush_framebuffer_state)
     {
-      driver_klass->flush_framebuffer_state (ctx,
+      driver_klass->flush_framebuffer_state (ctx->driver,
+                                             ctx,
                                              draw_buffer,
                                              read_buffer,
                                              state);
@@ -2377,5 +2379,5 @@ cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  return driver_klass->create_timestamp_query (priv->context);
+  return driver_klass->create_timestamp_query (priv->context->driver, priv->context);
 }

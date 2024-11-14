@@ -176,7 +176,8 @@ setup_spans (CoglContext *ctx,
       CoglSpan span;
 
       /* Check if size supported else bail out */
-      if (!driver_klass->texture_2d_can_create (ctx,
+      if (!driver_klass->texture_2d_can_create (ctx->driver,
+                                                ctx,
                                                 max_width,
                                                 max_height,
                                                 internal_format))
@@ -214,7 +215,8 @@ setup_spans (CoglContext *ctx,
   else
     {
       /* Decrease the size of largest slice until supported by GL */
-      while (!driver_klass->texture_2d_can_create (ctx,
+      while (!driver_klass->texture_2d_can_create (ctx->driver,
+                                                   ctx,
                                                    max_width,
                                                    max_height,
                                                    internal_format))
