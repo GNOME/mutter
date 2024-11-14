@@ -57,3 +57,7 @@ int meta_context_test_run_tests (MetaContextTest  *context_test,
 
 META_EXPORT
 void meta_context_test_wait_for_x11_display (MetaContextTest *context_test);
+
+META_EXPORT
+void meta_context_test_set_background_color (MetaContextTest *context_test,
+                                             CoglColor        color);

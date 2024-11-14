@@ -457,3 +457,9 @@ meta_plugin_manager_locate_pointer (MetaPluginManager *plugin_mgr)
   if (klass->locate_pointer)
     klass->locate_pointer (plugin);
 }
+
+MetaPlugin *
+meta_plugin_manager_get_plugin (MetaPluginManager *plugin_mgr)
+{
+  return plugin_mgr->plugin;
+}
