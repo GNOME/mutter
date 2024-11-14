@@ -198,7 +198,7 @@ create_gbm_device (WaylandDisplay *display)
   const char *gpu_path;
   int fd;
 
-  gpu_path = lookup_property_value (display, "gpu-path");
+  gpu_path = lookup_property_string (display, "gpu-path");
   if (!gpu_path)
     return NULL;
 
@@ -244,7 +244,7 @@ test_driver_handle_property (void               *user_data,
 
   g_hash_table_replace (display->properties,
                         g_strdup (name),
-                        g_strdup (value));
+                        g_variant_new_string (value));
 }
 
 static const struct test_driver_listener test_driver_listener = {
@@ -405,7 +405,8 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
 
   display->capabilities = capabilities;
   display->properties = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                               g_free, g_free);
+                                               g_free,
+                                               (GDestroyNotify) g_variant_unref);
   display->formats = g_hash_table_new_full (NULL, NULL, NULL, g_free);
 
   display->display = wayland_display;
@@ -683,10 +684,19 @@ wayland_surface_set_opaque (WaylandSurface *surface)
 }
 
 const char *
-lookup_property_value (WaylandDisplay *display,
-                       const char     *name)
+lookup_property_string (WaylandDisplay *display,
+                        const char     *name)
 {
-  return g_hash_table_lookup (display->properties, name);
+  GVariant *variant;
+  const char *value;
+
+  variant = g_hash_table_lookup (display->properties, name);
+  if (!variant)
+    return NULL;
+
+  g_variant_get (variant, "&s", &value);
+
+  return value;
 }
 
 static void
