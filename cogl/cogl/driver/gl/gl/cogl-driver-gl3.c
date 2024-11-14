@@ -46,7 +46,7 @@ cogl_driver_gl3_context_init (CoglDriver  *driver,
 {
   GLuint vertex_array;
 
-  _cogl_driver_gl_context_init (driver, context);
+  COGL_DRIVER_CLASS (cogl_driver_gl3_parent_class)->context_init (driver, context);
 
   /* In a forward compatible context, GL 3 doesn't support rendering
    * using the default vertex array object. Cogl doesn't use vertex
