@@ -44,6 +44,7 @@
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 #include <glib.h>
 #include <string.h>
@@ -80,63 +81,42 @@ texture_unit_init (CoglContext *ctx,
   unit->texture_storage_changed = FALSE;
 }
 
-static void
-texture_unit_free (CoglTextureUnit *unit)
-{
-  if (unit->layer)
-    g_object_unref (unit->layer);
-  g_object_unref (unit->matrix_stack);
-}
-
 CoglTextureUnit *
 _cogl_get_texture_unit (CoglContext *ctx,
                         int          index_)
 {
-  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
 
-  if (glctx->texture_units->len < (index_ + 1))
+  if (priv->texture_units->len < (index_ + 1))
     {
       int i;
-      int prev_len = glctx->texture_units->len;
-      glctx->texture_units = g_array_set_size (glctx->texture_units,
-                                               index_ + 1);
+      int prev_len = priv->texture_units->len;
+      priv->texture_units = g_array_set_size (priv->texture_units,
+                                              index_ + 1);
       for (i = prev_len; i <= index_; i++)
         {
           CoglTextureUnit *unit =
-            &g_array_index (glctx->texture_units, CoglTextureUnit, i);
+            &g_array_index (priv->texture_units, CoglTextureUnit, i);
 
           texture_unit_init (ctx, unit, i);
         }
     }
 
-  return &g_array_index (glctx->texture_units, CoglTextureUnit, index_);
-}
-
-void
-_cogl_destroy_texture_units (CoglContext *ctx)
-{
-  int i;
-  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
-
-  for (i = 0; i < glctx->texture_units->len; i++)
-    {
-      CoglTextureUnit *unit =
-        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
-      texture_unit_free (unit);
-    }
-  g_array_free (glctx->texture_units, TRUE);
+  return &g_array_index (priv->texture_units, CoglTextureUnit, index_);
 }
 
 void
 _cogl_set_active_texture_unit (CoglContext *ctx,
                                int          unit_index)
 {
-  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
 
-  if (glctx->active_texture_unit != unit_index)
+  if (priv->active_texture_unit != unit_index)
     {
       GE (ctx, glActiveTexture (GL_TEXTURE0 + unit_index));
-      glctx->active_texture_unit = unit_index;
+      priv->active_texture_unit = unit_index;
     }
 }
 
@@ -189,14 +169,14 @@ void
 _cogl_delete_gl_texture (CoglContext *ctx,
                          GLuint       gl_texture)
 {
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
   int i;
 
-  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
-
-  for (i = 0; i < glctx->texture_units->len; i++)
+  for (i = 0; i < priv->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (priv->texture_units, CoglTextureUnit, i);
 
       if (unit->gl_texture == gl_texture)
         {
@@ -217,15 +197,15 @@ _cogl_delete_gl_texture (CoglContext *ctx,
 void
 _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
 {
+  CoglContext *ctx = cogl_texture_get_context (texture);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
   int i;
 
-  CoglContext *ctx = cogl_texture_get_context (texture);
-  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
-
-  for (i = 0; i < glctx->texture_units->len; i++)
+  for (i = 0; i < priv->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (priv->texture_units, CoglTextureUnit, i);
 
       if (unit->layer &&
           _cogl_pipeline_layer_get_texture (unit->layer) == texture)
@@ -673,13 +653,14 @@ _cogl_sampler_gl_init (CoglDriver            *driver,
     }
   else
     {
-      CoglGLContext *gl_context = context->driver_context;
+      CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
+      CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
 
       /* If sampler objects aren't supported then we'll invent a
          unique number so that pipelines can still compare the
          unique state just by comparing the sampler object
          numbers */
-      entry->sampler_object = gl_context->next_fake_sampler_object_number++;
+      entry->sampler_object = priv->next_fake_sampler_object_number++;
     }
 }
 
@@ -706,14 +687,14 @@ _cogl_sampler_gl_free (CoglDriver            *driver,
 static void
 foreach_texture_unit_update_filter_and_wrap_modes (CoglContext *ctx)
 {
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
   int i;
 
-  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
-
-  for (i = 0; i < glctx->texture_units->len; i++)
+  for (i = 0; i < priv->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (priv->texture_units, CoglTextureUnit, i);
 
       if (unit->layer)
         {

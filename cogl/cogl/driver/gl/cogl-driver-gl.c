@@ -34,15 +34,39 @@
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
-G_DEFINE_TYPE (CoglDriverGL, cogl_driver_gl, COGL_TYPE_DRIVER);
+G_DEFINE_TYPE_WITH_PRIVATE (CoglDriverGL, cogl_driver_gl, COGL_TYPE_DRIVER);
+
+static void
+cogl_driver_gl_dispose (GObject *object)
+{
+  CoglDriverGL *driver = COGL_DRIVER_GL (object);
+  CoglDriverGLPrivate *priv =
+    cogl_driver_gl_get_instance_private (driver);
+  int i;
+
+  for (i = 0; i < priv->texture_units->len; i++)
+    {
+      CoglTextureUnit *unit =
+        &g_array_index (priv->texture_units, CoglTextureUnit, i);
+
+      if (unit->layer)
+        g_object_unref (unit->layer);
+      g_object_unref (unit->matrix_stack);
+    }
+  g_array_free (priv->texture_units, TRUE);
+
+  G_OBJECT_CLASS (cogl_driver_gl_parent_class)->dispose (object);
+}
 
 static void
 cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->dispose = cogl_driver_gl_dispose;
 
   driver_klass->context_init = _cogl_driver_gl_context_init;
-  driver_klass->context_deinit = _cogl_driver_gl_context_deinit;
   driver_klass->get_vendor = _cogl_context_get_gl_vendor;
   driver_klass->is_hardware_accelerated = _cogl_driver_gl_is_hardware_accelerated;
   driver_klass->get_graphics_reset_status = _cogl_gl_get_graphics_reset_status;
@@ -67,4 +91,20 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 static void
 cogl_driver_gl_init (CoglDriverGL *driver)
 {
+  CoglDriverGLPrivate *priv =
+    cogl_driver_gl_get_instance_private (driver);
+
+  priv->next_fake_sampler_object_number = 1;
+  priv->texture_units =
+    g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
+
+  /* See cogl-pipeline.c for more details about why we leave texture unit 1
+   * active by default... */
+  priv->active_texture_unit = 1;
+}
+
+CoglDriverGLPrivate *
+cogl_driver_gl_get_private (CoglDriverGL *driver)
+{
+  return cogl_driver_gl_get_instance_private (driver);
 }

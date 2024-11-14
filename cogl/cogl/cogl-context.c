@@ -65,7 +65,6 @@ cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
   const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
 
   winsys->context_deinit (context);
 
@@ -127,9 +126,6 @@ cogl_context_dispose (GObject *object)
   g_array_free (context->attribute_name_index_map, TRUE);
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
-
-  if (driver_klass->context_deinit)
-    driver_klass->context_deinit (context->driver, context);
 
   g_object_unref (context->display);
 

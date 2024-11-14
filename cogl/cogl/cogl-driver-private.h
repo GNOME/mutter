@@ -50,9 +50,6 @@ struct _CoglDriverClass
   gboolean (* context_init) (CoglDriver  *driver,
                              CoglContext *context);
 
-  void (* context_deinit) (CoglDriver  *driver,
-                           CoglContext *context);
-
   const char * (* get_vendor) (CoglDriver  *driver,
                                CoglContext *context);
 
