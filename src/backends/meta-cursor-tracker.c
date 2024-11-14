@@ -346,6 +346,15 @@ set_window_cursor (MetaCursorTracker *tracker,
   sync_cursor (tracker);
 }
 
+gboolean
+meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  return priv->has_window_cursor;
+}
+
 /**
  * meta_cursor_tracker_get_sprite:
  * @tracker: a #MetaCursorTracker

@@ -448,6 +448,17 @@ test_cases += [
       'meta-thread-impl-test.h',
     ],
   },
+  {
+    'name': 'cursor-tests',
+    'suite': 'backends/native',
+    'sources': [
+      'cursor-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('cursor-tests-client'),
+    ]
+  },
 ]
 
 # KMS tests

@@ -42,6 +42,9 @@ void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker *tracker,
 
 void     meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker);
 
+META_EXPORT_TEST
+gboolean meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker);
+
 void meta_cursor_tracker_track_position (MetaCursorTracker *tracker);
 
 void meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker);
