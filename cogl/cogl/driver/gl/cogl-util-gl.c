@@ -96,16 +96,6 @@ _cogl_gl_error_to_string (GLenum error_code)
 }
 #endif /* COGL_ENABLE_DEBUG */
 
-gboolean
-_cogl_driver_gl_context_init (CoglDriver  *driver,
-                              CoglContext *context)
-{
-  /* See cogl-pipeline.c for more details about why we leave texture unit 1
-   * active by default... */
-  GE (context, glActiveTexture (GL_TEXTURE1));
-
-  return TRUE;
-}
 
 CoglFramebufferDriver *
 _cogl_driver_gl_create_framebuffer_driver (CoglDriver                         *driver,
@@ -391,13 +381,6 @@ _cogl_context_get_gl_version (CoglContext *context)
 
 }
 
-const char *
-_cogl_context_get_gl_vendor (CoglDriver  *driver,
-                             CoglContext *context)
-{
-  return (const char *) context->glGetString (GL_VENDOR);
-}
-
 gboolean
 _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *major_out,
@@ -429,127 +412,4 @@ _cogl_gl_util_parse_gl_version (const char *version_string,
   *minor_out = minor;
 
   return TRUE;
-}
-
-/*
- * This should arguably use something like GLX_MESA_query_renderer, but
- * a) that's GLX-only, and you could add it to EGL too but
- * b) that'd make this a winsys query when really it's not a property of
- *    the winsys but the renderer, and
- * c) only Mesa really supports it anyway, and
- * d) Mesa is the only software renderer of interest.
- *
- * So instead just check a list of known software renderer strings.
- */
-gboolean
-_cogl_driver_gl_is_hardware_accelerated (CoglDriver  *driver,
-                                         CoglContext *ctx)
-{
-  const char *renderer = (const char *) ctx->glGetString (GL_RENDERER);
-  gboolean software;
-
-  if (!renderer)
-    {
-      g_warning ("OpenGL driver returned NULL as the renderer, "
-                 "something is wrong");
-      return TRUE;
-    }
-
-  software = strstr (renderer, "llvmpipe") != NULL ||
-             strstr (renderer, "softpipe") != NULL ||
-             strstr (renderer, "software rasterizer") != NULL ||
-             strstr (renderer, "Software Rasterizer") != NULL ||
-             strstr (renderer, "SWR");
-
-  return !software;
-}
-
-CoglGraphicsResetStatus
-_cogl_gl_get_graphics_reset_status (CoglDriver  *driver,
-                                    CoglContext *context)
-{
-  if (!context->glGetGraphicsResetStatus)
-    return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
-
-  switch (context->glGetGraphicsResetStatus ())
-    {
-    case GL_GUILTY_CONTEXT_RESET_ARB:
-      return COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET;
-
-    case GL_INNOCENT_CONTEXT_RESET_ARB:
-      return COGL_GRAPHICS_RESET_STATUS_INNOCENT_CONTEXT_RESET;
-
-    case GL_UNKNOWN_CONTEXT_RESET_ARB:
-      return COGL_GRAPHICS_RESET_STATUS_UNKNOWN_CONTEXT_RESET;
-
-    case GL_PURGED_CONTEXT_RESET_NV:
-      return COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET;
-
-    default:
-      return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
-    }
-}
-
-CoglTimestampQuery *
-cogl_gl_create_timestamp_query (CoglDriver  *driver,
-                                CoglContext *context)
-{
-  CoglTimestampQuery *query;
-
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
-                        NULL);
-
-  query = g_new0 (CoglTimestampQuery, 1);
-
-  GE (context, glGenQueries (1, &query->id));
-  GE (context, glQueryCounter (query->id, GL_TIMESTAMP));
-
-  /* Flush right away so GL knows about our timestamp query.
-   *
-   * E.g. the direct scanout path doesn't call SwapBuffers or any other
-   * glFlush-inducing operation, and skipping explicit glFlush here results in
-   * the timestamp query being placed at the point of glGetQueryObject much
-   * later, resulting in a GPU timestamp much later on in time.
-   */
-  context->glFlush ();
-
-  return query;
-}
-
-void
-cogl_gl_free_timestamp_query (CoglDriver         *driver,
-                              CoglContext        *context,
-                              CoglTimestampQuery *query)
-{
-  GE (context, glDeleteQueries (1, &query->id));
-  g_free (query);
-}
-
-int64_t
-cogl_gl_timestamp_query_get_time_ns (CoglDriver         *driver,
-                                     CoglContext        *context,
-                                     CoglTimestampQuery *query)
-{
-  int64_t query_time_ns;
-
-  GE (context, glGetQueryObjecti64v (query->id,
-                                     GL_QUERY_RESULT,
-                                     &query_time_ns));
-
-  return query_time_ns;
-}
-
-int64_t
-cogl_gl_get_gpu_time_ns (CoglDriver  *driver,
-                         CoglContext *context)
-{
-  int64_t gpu_time_ns;
-
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
-                        0);
-
-  GE (context, glGetInteger64v (GL_TIMESTAMP, &gpu_time_ns));
-  return gpu_time_ns;
 }
