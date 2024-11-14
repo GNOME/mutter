@@ -30,6 +30,16 @@
 
 #include "cogl/cogl-driver-private.h"
 
+typedef struct _CoglDriverGLPrivate
+{
+  GArray *texture_units;
+  int active_texture_unit;
+
+  /* This is used for generated fake unique sampler object numbers
+   when the sampler object extension is not supported */
+  GLuint next_fake_sampler_object_number;
+} CoglDriverGLPrivate;
+
 struct _CoglDriverGLClass
 {
   CoglDriverClass parent_class;
@@ -42,3 +52,5 @@ G_DECLARE_DERIVABLE_TYPE (CoglDriverGL,
                           CoglDriver);
 
 #define COGL_TYPE_DRIVER_GL (cogl_driver_gl_get_type ())
+
+CoglDriverGLPrivate * cogl_driver_gl_get_private (CoglDriverGL *driver);
