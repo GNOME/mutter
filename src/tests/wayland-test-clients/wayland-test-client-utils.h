@@ -44,7 +44,11 @@ typedef struct _WaylandDisplay
   struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
   struct wp_viewporter *viewporter;
   struct xdg_wm_base *xdg_wm_base;
+  struct wl_seat *wl_seat;
+  struct wl_pointer *wl_pointer;
   struct test_driver *test_driver;
+
+  gboolean needs_roundtrip;
 
   uint32_t sync_event_serial_next;
 
