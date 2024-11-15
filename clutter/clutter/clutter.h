@@ -66,7 +66,6 @@
 #include "clutter/clutter-gesture.h"
 #include "clutter/clutter-grab.h"
 #include "clutter/clutter-grid-layout.h"
-#include "clutter/clutter-image.h"
 #include "clutter/clutter-input-device.h"
 #include "clutter/clutter-input-device-tool.h"
 #include "clutter/clutter-input-method.h"
