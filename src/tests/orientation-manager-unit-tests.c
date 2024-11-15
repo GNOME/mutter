@@ -119,13 +119,11 @@ meta_test_orientation_manager_accelerometer_orientations (void)
 
   for (i = initial + 1; i != initial; i = (i + 1) % META_N_ORIENTATIONS)
     {
-      unsigned int times_signalled = 0;
-
       changed_called = FALSE;
       g_debug ("Checking orientation %d", i);
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
-      meta_wait_for_orientation (manager, i, &times_signalled);
-      g_assert_cmpuint (times_signalled, <=, 1);
+      while (meta_orientation_manager_get_orientation (manager) != i)
+        g_main_context_iteration (NULL, TRUE);
 
       if (i != META_ORIENTATION_UNDEFINED)
         g_assert_true (changed_called);

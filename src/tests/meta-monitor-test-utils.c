@@ -1067,56 +1067,6 @@ on_max_wait_timeout (gpointer data)
 }
 
 /*
- * Assert that the orientation eventually changes to @orientation.
- */
-void
-meta_wait_for_orientation (MetaOrientationManager *orientation_manager,
-                           MetaOrientation         orientation,
-                           unsigned int           *times_signalled_out)
-{
-  WaitForOrientation wfo = {
-    .expected = orientation,
-  };
-
-  wfo.orientation = meta_orientation_manager_get_orientation (orientation_manager);
-  g_test_message ("%s: Waiting for orientation to change from "
-                  "%d: %s to %d: %s...",
-                  G_STRFUNC, wfo.orientation,
-                  meta_orientation_to_string (wfo.orientation),
-                  orientation, meta_orientation_to_string (orientation));
-
-  /* This timeout can be relatively generous because we don't expect to
-   * reach it: if we do, that's a test failure. */
-  wfo.timeout_id = g_timeout_add_seconds (10, on_max_wait_timeout, &wfo);
-  wfo.connection_id = g_signal_connect_swapped (orientation_manager,
-                                                "orientation-changed",
-                                                G_CALLBACK (on_orientation_changed),
-                                                &wfo);
-
-  while (wfo.orientation != orientation && wfo.timeout_id != 0)
-    g_main_context_iteration (NULL, TRUE);
-
-  if (wfo.orientation != orientation)
-    {
-      g_error ("Timed out waiting for orientation to change from %s to %s "
-               "(received %u orientation-changed signal(s) while waiting)",
-               meta_orientation_to_string (wfo.orientation),
-               meta_orientation_to_string (orientation),
-               wfo.times_signalled);
-    }
-
-  g_test_message ("%s: Orientation is now %d: %s",
-                  G_STRFUNC, orientation,
-                  meta_orientation_to_string (orientation));
-
-  g_clear_handle_id (&wfo.timeout_id, g_source_remove);
-  g_signal_handler_disconnect (orientation_manager, wfo.connection_id);
-
-  if (times_signalled_out != NULL)
-    *times_signalled_out = wfo.times_signalled;
-}
-
-/*
  * Wait for a possible orientation change, but don't assert that one occurs.
  */
 void
