@@ -553,9 +553,12 @@ add_drm_device (MetaBackendNative  *backend_native,
   if (!kms_device)
     return FALSE;
 
-  g_hash_table_insert (priv->startup_render_devices,
-                       g_strdup (device_path),
-                       g_steal_pointer (&render_device));
+  if (priv->startup_render_devices)
+    {
+      g_hash_table_insert (priv->startup_render_devices,
+                           g_strdup (device_path),
+                           g_steal_pointer (&render_device));
+    }
 
   gpu_kms = meta_gpu_kms_new (backend_native, kms_device, error);
   meta_backend_add_gpu (META_BACKEND (backend_native), META_GPU (gpu_kms));
@@ -1027,7 +1030,8 @@ meta_backend_native_take_render_device (MetaBackendNative  *backend_native,
   MetaRenderDevice *render_device;
   g_autofree char *stolen_device_path = NULL;
 
-  if (g_hash_table_steal_extended (priv->startup_render_devices,
+  if (priv->startup_render_devices &&
+      g_hash_table_steal_extended (priv->startup_render_devices,
                                    device_path,
                                    (gpointer *) &stolen_device_path,
                                    (gpointer *) &render_device))
