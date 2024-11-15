@@ -188,6 +188,35 @@ iio_properties_changed (GDBusProxy *proxy,
 }
 
 static void
+on_get_properties (GObject      *connection,
+                   GAsyncResult *res,
+                   gpointer      user_data)
+{
+  MetaOrientationManager *self = user_data;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) prop_value = NULL;
+  g_autoptr (GVariant) property_variant = NULL;
+
+  prop_value = g_dbus_connection_call_finish ((GDBusConnection *) connection, res, &error);
+  if (!prop_value)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_warning ("Failed to get accelerometer property: %s", error->message);
+
+      return;
+    }
+
+  g_variant_get (prop_value, "(v)", &property_variant);
+  g_dbus_proxy_set_cached_property (self->iio_proxy, "AccelerometerOrientation", property_variant);
+
+  if (self->has_accel && self->should_claim)
+    {
+      sync_state (self);
+      g_signal_emit (self, signals[SENSOR_ACTIVE], 0);
+    }
+}
+
+static void
 on_accelerometer_claimed (GObject      *source,
                           GAsyncResult *res,
                           gpointer      user_data)
@@ -209,8 +238,27 @@ on_accelerometer_claimed (GObject      *source,
 
   if (self->has_accel && self->should_claim)
     {
-      sync_state (self);
-      g_signal_emit (self, signals[SENSOR_ACTIVE], 0);
+      GDBusConnection *connection = g_dbus_proxy_get_connection (self->iio_proxy);
+
+      /* iio-sensor-proxy doesn't emit PropertiesChanged signals to clients which
+       * don't claim the sensor. This will mess with the GLib properties cache.
+       * So get the property manually after claiming and fix up the properties cache,
+       * and only then emit ::sensor-active.
+       */
+      g_dbus_connection_call (connection,
+                              "net.hadess.SensorProxy",
+                              "/net/hadess/SensorProxy",
+                              "org.freedesktop.DBus.Properties",
+                              "Get",
+                              g_variant_new ("(ss)",
+                                             "net.hadess.SensorProxy",
+                                             "AccelerometerOrientation"),
+                              G_VARIANT_TYPE ("(v)"),
+                              G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                              -1,
+                              self->cancellable,
+                              on_get_properties,
+                              self);
     }
 }
 

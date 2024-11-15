@@ -74,6 +74,17 @@ def emit_properties_changed(mock, interface=MAIN_IFACE, properties=None,
                                'sa{sv}as', destination, interface, properties, [])
 
 
+@dbus.service.method(dbus.PROPERTIES_IFACE, in_signature='ss',
+                     out_signature='v')
+def Get(self, interface, prop):
+    if interface == MAIN_IFACE:
+        if prop == 'HasAccelerometer':
+            return dbus.Boolean(self.has_accelerometer)
+        if prop == 'AccelerometerOrientation':
+            return dbus.String(self.accelerometer_orientation)
+
+    raise TypeError('Tried to get property {} on interface {}'.format(prop, interface))
+
 @dbus.service.method(dbus.PROPERTIES_IFACE, in_signature='s',
                      out_signature='a{sv}')
 def GetAll(self, interface):
