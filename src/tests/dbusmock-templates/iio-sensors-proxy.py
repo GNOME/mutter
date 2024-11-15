@@ -108,20 +108,23 @@ def GetAll(self, interface):
 
 def register_owner(self, owners_dict, name):
     if name in owners_dict:
+        owners_dict[name][1] += 1
         return
 
     def name_cb(unique_name):
         if unique_name:
             return
-        owners_dict.pop(name).cancel()
+        owners_dict.pop(name)[0].cancel()
 
-    owners_dict[name] = self.connection.watch_name_owner(name, name_cb)
+    owners_dict[name] = [self.connection.watch_name_owner(name, name_cb), 1]
 
 
 def unregister_owner(owners_dict, name):
-    watcher = owners_dict.pop(name, None)
-    if watcher:
-        watcher.cancel()
+    owners_dict[name][1] -= 1
+
+    if owners_dict[name][1] == 0:
+        watcher = owners_dict.pop(name, None)
+        watcher[0].cancel()
 
 
 @dbus.service.method(MAIN_IFACE, sender_keyword='sender')
