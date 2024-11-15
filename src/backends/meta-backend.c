@@ -1472,9 +1472,6 @@ meta_backend_init (MetaBackend *backend)
 {
 }
 
-/**
- * meta_backend_get_idle_monitor: (skip)
- */
 MetaIdleMonitor *
 meta_backend_get_idle_monitor (MetaBackend        *backend,
                                ClutterInputDevice *device)
@@ -1498,9 +1495,6 @@ meta_backend_get_core_idle_monitor (MetaBackend *backend)
   return meta_idle_manager_get_core_monitor (priv->idle_manager);
 }
 
-/**
- * meta_backend_get_idle_manager: (skip)
- */
 MetaIdleManager *
 meta_backend_get_idle_manager (MetaBackend *backend)
 {
@@ -1522,9 +1516,6 @@ meta_backend_get_monitor_manager (MetaBackend *backend)
   return priv->monitor_manager;
 }
 
-/**
- * meta_backend_get_color_manager: (skip)
- */
 MetaColorManager *
 meta_backend_get_color_manager (MetaBackend *backend)
 {
@@ -1533,9 +1524,6 @@ meta_backend_get_color_manager (MetaBackend *backend)
   return priv->color_manager;
 }
 
-/**
- * meta_backend_get_launcher: (skip)
- */
 MetaLauncher *
 meta_backend_get_launcher (MetaBackend *backend)
 {
@@ -1581,9 +1569,6 @@ meta_backend_get_cursor_tracker (MetaBackend *backend)
   return priv->cursor_tracker;
 }
 
-/**
- * meta_backend_get_cursor_renderer: (skip)
- */
 MetaCursorRenderer *
 meta_backend_get_cursor_renderer (MetaBackend *backend)
 {
@@ -1611,9 +1596,6 @@ meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
                                                                 device);
 }
 
-/**
- * meta_backend_get_renderer: (skip)
- */
 MetaRenderer *
 meta_backend_get_renderer (MetaBackend *backend)
 {
@@ -1623,9 +1605,6 @@ meta_backend_get_renderer (MetaBackend *backend)
 }
 
 #ifdef HAVE_EGL
-/**
- * meta_backend_get_egl: (skip)
- */
 MetaEgl *
 meta_backend_get_egl (MetaBackend *backend)
 {
@@ -1655,9 +1634,6 @@ meta_backend_get_dbus_session_watcher (MetaBackend *backend)
 }
 
 #ifdef HAVE_REMOTE_DESKTOP
-/**
- * meta_backend_get_remote_desktop: (skip)
- */
 MetaRemoteDesktop *
 meta_backend_get_remote_desktop (MetaBackend *backend)
 {
@@ -1666,9 +1642,6 @@ meta_backend_get_remote_desktop (MetaBackend *backend)
   return priv->remote_desktop;
 }
 
-/**
- * meta_backend_get_screen_cast: (skip)
- */
 MetaScreenCast *
 meta_backend_get_screen_cast (MetaBackend *backend)
 {
@@ -1715,9 +1688,6 @@ meta_backend_is_rendering_hardware_accelerated (MetaBackend *backend)
   return meta_renderer_is_hardware_accelerated (renderer);
 }
 
-/**
- * meta_backend_grab_device: (skip)
- */
 gboolean
 meta_backend_grab_device (MetaBackend *backend,
                           int          device_id,
@@ -1740,9 +1710,6 @@ meta_backend_get_context (MetaBackend *backend)
   return priv->context;
 }
 
-/**
- * meta_backend_ungrab_device: (skip)
- */
 gboolean
 meta_backend_ungrab_device (MetaBackend *backend,
                             int          device_id,
@@ -1751,9 +1718,6 @@ meta_backend_ungrab_device (MetaBackend *backend,
   return META_BACKEND_GET_CLASS (backend)->ungrab_device (backend, device_id, timestamp);
 }
 
-/**
- * meta_backend_finish_touch_sequence: (skip)
- */
 void
 meta_backend_finish_touch_sequence (MetaBackend          *backend,
                                     ClutterEventSequence *sequence,
@@ -1781,9 +1745,6 @@ meta_backend_set_keymap (MetaBackend *backend,
   META_BACKEND_GET_CLASS (backend)->set_keymap (backend, layouts, variants, options, model);
 }
 
-/**
- * meta_backend_get_keymap: (skip)
- */
 struct xkb_keymap *
 meta_backend_get_keymap (MetaBackend *backend)
 
