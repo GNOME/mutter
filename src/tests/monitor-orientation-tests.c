@@ -36,9 +36,9 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAutoRemoveInputDevice,
                                input_device_test_remove)
 
 static void
-on_monitors_changed (gboolean *monitors_changed)
+on_signal (gboolean *signal_received)
 {
-  *monitors_changed = TRUE;
+  *signal_received = TRUE;
 }
 
 static void
@@ -1064,7 +1064,7 @@ meta_test_monitor_orientation_changes (void)
   g_autoptr (MetaSensorsProxyAutoResetMock) orientation_mock = NULL;
   g_autoptr (MetaMonitorsConfig) initial_config = NULL;
   g_autoptr (MetaMonitorsConfig) previous_config = NULL;
-  gboolean got_monitors_changed = FALSE;
+  unsigned int n_monitors_changed = 0;
   MetaOrientation i;
   unsigned int times_signalled = 0;
 
@@ -1083,8 +1083,8 @@ meta_test_monitor_orientation_changes (void)
   g_set_object (&initial_config,
                 meta_monitor_config_manager_get_current (config_manager));
   g_signal_connect_swapped (monitor_manager, "monitors-changed",
-                            G_CALLBACK (on_monitors_changed),
-                            &got_monitors_changed);
+                            G_CALLBACK (on_signal),
+                            &n_monitors_changed);
 
   g_assert_cmpuint (
     meta_orientation_manager_get_orientation (orientation_manager),
@@ -1096,7 +1096,7 @@ meta_test_monitor_orientation_changes (void)
       MetaMonitorsConfig *current;
       MetaMonitorsConfig *previous;
 
-      got_monitors_changed = FALSE;
+      n_monitors_changed = 0;
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
       meta_wait_for_orientation (orientation_manager, i, &times_signalled);
       g_assert_cmpuint (times_signalled, <=, 1);
@@ -1108,7 +1108,7 @@ meta_test_monitor_orientation_changes (void)
       current = meta_monitor_config_manager_get_current (config_manager);
       previous = meta_monitor_config_manager_get_previous (config_manager);
 
-      g_assert_true (got_monitors_changed);
+      g_assert_cmpuint (n_monitors_changed, ==, 1);
       g_assert_true (previous == previous_config);
       g_assert_true (current != initial_config);
       g_assert_true (meta_monitors_config_key_equal (current->key,
@@ -1124,7 +1124,7 @@ meta_test_monitor_orientation_changes (void)
   g_set_object (&initial_config,
                 meta_monitor_config_manager_get_current (config_manager));
 
-  got_monitors_changed = FALSE;
+  n_monitors_changed = 0;
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
                                            META_ORIENTATION_NORMAL);
   meta_wait_for_orientation (orientation_manager, META_ORIENTATION_NORMAL,
@@ -1135,7 +1135,7 @@ meta_test_monitor_orientation_changes (void)
                         &test_case, 0, META_ORIENTATION_NORMAL,
                         1024, 768));
 
-  g_assert_false (got_monitors_changed);
+  g_assert_cmpuint (n_monitors_changed, ==, 0);
   g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
                  initial_config);
 
@@ -1152,7 +1152,7 @@ meta_test_monitor_orientation_changes (void)
       MetaMonitorsConfig *current;
       MetaMonitorsConfig *previous;
 
-      got_monitors_changed = FALSE;
+      n_monitors_changed = 0;
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
@@ -1165,10 +1165,10 @@ meta_test_monitor_orientation_changes (void)
 
       g_assert_true (previous == previous_config);
       g_assert_true (current == initial_config);
-      g_assert_false (got_monitors_changed);
+      g_assert_cmpuint (n_monitors_changed, ==, 0);
     }
 
-  g_signal_handlers_disconnect_by_data (monitor_manager, &got_monitors_changed);
+  g_signal_handlers_disconnect_by_data (monitor_manager, &n_monitors_changed);
 }
 
 static void
@@ -1265,7 +1265,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
   g_autoptr (MetaSensorsProxyAutoResetMock) orientation_mock = NULL;
   g_autoptr (MetaMonitorsConfig) initial_config = NULL;
   g_autoptr (MetaMonitorsConfig) previous_config = NULL;
-  gboolean got_monitors_changed = FALSE;
+  unsigned int n_monitors_changed = 0;
   MetaOrientation i;
   unsigned int times_signalled = 0;
 
@@ -1284,8 +1284,8 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
   g_set_object (&initial_config,
                 meta_monitor_config_manager_get_current (config_manager));
   g_signal_connect_swapped (monitor_manager, "monitors-changed",
-                            G_CALLBACK (on_monitors_changed),
-                            &got_monitors_changed);
+                            G_CALLBACK (on_signal),
+                            &n_monitors_changed);
 
   g_assert_cmpuint (
     meta_orientation_manager_get_orientation (orientation_manager),
@@ -1297,7 +1297,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
       MetaMonitorsConfig *current;
       MetaMonitorsConfig *previous;
 
-      got_monitors_changed = FALSE;
+      n_monitors_changed = 0;
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
       meta_wait_for_orientation (orientation_manager, i, &times_signalled);
       g_assert_cmpuint (times_signalled, <=, 1);
@@ -1309,7 +1309,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
       current = meta_monitor_config_manager_get_current (config_manager);
       previous = meta_monitor_config_manager_get_previous (config_manager);
 
-      g_assert_true (got_monitors_changed);
+      g_assert_true (n_monitors_changed == 1);
       g_assert_true (previous == previous_config);
       g_assert_true (current != initial_config);
       g_assert_true (meta_monitors_config_key_equal (current->key,
@@ -1325,7 +1325,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
   g_set_object (&initial_config,
                 meta_monitor_config_manager_get_current (config_manager));
 
-  got_monitors_changed = FALSE;
+  n_monitors_changed = 0;
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
                                            META_ORIENTATION_NORMAL);
   meta_wait_for_orientation (orientation_manager, META_ORIENTATION_NORMAL,
@@ -1336,7 +1336,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
                         &test_case, 0, META_ORIENTATION_NORMAL,
                         1024, 768));
 
-  g_assert_false (got_monitors_changed);
+  g_assert_cmpuint (n_monitors_changed, ==, 0);
   g_assert_true (meta_monitor_config_manager_get_current (config_manager) ==
                  initial_config);
 
@@ -1353,7 +1353,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
       MetaMonitorsConfig *current;
       MetaMonitorsConfig *previous;
 
-      got_monitors_changed = FALSE;
+      n_monitors_changed = 0;
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
 
       META_TEST_LOG_CALL ("Checking configuration per orientation",
@@ -1366,7 +1366,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
 
       g_assert_true (previous == previous_config);
       g_assert_true (current == initial_config);
-      g_assert_false (got_monitors_changed);
+      g_assert_cmpuint (n_monitors_changed, ==, 0);
     }
 
   g_assert_cmpuint (
@@ -1377,7 +1377,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
   touch_device =
     meta_backend_test_add_test_device (META_BACKEND_TEST (backend),
                                        CLUTTER_TOUCHSCREEN_DEVICE, 1);
-  got_monitors_changed = FALSE;
+  n_monitors_changed = 0;
   meta_sensors_proxy_mock_set_orientation (orientation_mock,
                                            META_ORIENTATION_RIGHT_UP);
   meta_wait_for_orientation (orientation_manager,
@@ -1388,9 +1388,9 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
                       check_monitor_configuration_per_orientation (
                         &test_case, 0, META_ORIENTATION_RIGHT_UP,
                         1024, 768));
-  g_assert_true (got_monitors_changed);
+  g_assert_cmpuint (n_monitors_changed, ==, 1);
 
-  g_signal_handlers_disconnect_by_data (monitor_manager, &got_monitors_changed);
+  g_signal_handlers_disconnect_by_data (monitor_manager, &n_monitors_changed);
 }
 
 static void
