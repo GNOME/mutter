@@ -50,7 +50,7 @@ static guint signals[LAST_SIGNAL] = { 0, };
 
 struct _MetaWindowDrag {
   GObject parent_class;
-  ClutterActor *handler;
+  ClutterActor *external_grab_actor;
 
   MetaWindow *window;
   MetaWindow *effective_grab_window;
@@ -176,24 +176,14 @@ hide_tile_preview (MetaWindowDrag *window_drag)
     meta_compositor_hide_tile_preview (window->display->compositor);
 }
 
-static gboolean
-owns_grab_actor (MetaWindowDrag *window_drag)
-{
-  g_assert (META_IS_WINDOW_DRAG (window_drag));
-  return window_drag->grab != NULL;
-}
-
 static void
 meta_window_drag_finalize (GObject *object)
 {
   MetaWindowDrag *window_drag = META_WINDOW_DRAG (object);
 
   hide_tile_preview (window_drag);
-  if (owns_grab_actor (window_drag))
-    {
-      g_clear_pointer (&window_drag->handler, clutter_actor_destroy);
-      g_clear_object (&window_drag->grab);
-    }
+  if (window_drag->grab)
+    g_clear_object (&window_drag->grab);
   g_clear_object (&window_drag->effective_grab_window);
 
   G_OBJECT_CLASS (meta_window_drag_parent_class)->finalize (object);
@@ -398,11 +388,16 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 
   meta_window_grab_op_ended (grab_window, grab_op);
 
-  if (owns_grab_actor (window_drag))
-    clutter_grab_dismiss (window_drag->grab);
+  if (window_drag->grab)
+    {
+      clutter_grab_dismiss (window_drag->grab);
+    }
   else
-    g_clear_signal_handler (&window_drag->event_handler_id,
-                            window_drag->handler);
+    {
+      g_assert (window_drag->external_grab_actor);
+      g_clear_signal_handler (&window_drag->event_handler_id,
+                              window_drag->external_grab_actor);
+    }
 
   g_clear_signal_handler (&window_drag->unmanaged_id, grab_window);
   g_clear_signal_handler (&window_drag->size_changed_id, grab_window);
@@ -1774,8 +1769,8 @@ process_pointer_event (MetaWindowDrag     *window_drag,
 }
 
 static gboolean
-on_window_drag_event (MetaWindowDrag *window_drag,
-                      ClutterEvent   *event)
+on_window_drag_event (MetaWindowDrag     *window_drag,
+                      const ClutterEvent *event)
 {
   switch (clutter_event_type (event))
     {
@@ -1791,6 +1786,14 @@ on_window_drag_event (MetaWindowDrag *window_drag,
   return CLUTTER_EVENT_PROPAGATE;
 }
 
+static gboolean
+handle_drag_event (const ClutterEvent *event,
+                   gpointer            user_data)
+{
+  MetaWindowDrag *window_drag = user_data;
+  return on_window_drag_event (window_drag, event);
+}
+
 gboolean
 meta_window_drag_begin (MetaWindowDrag       *window_drag,
                         ClutterInputDevice   *device,
@@ -1803,7 +1806,7 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaGrabOp grab_op = window_drag->grab_op;
-  ClutterActor *stage;
+  ClutterStage *stage;
   int root_x, root_y;
 
   if ((grab_op & META_GRAB_OP_KEYBOARD_MOVING) == META_GRAB_OP_KEYBOARD_MOVING)
@@ -1859,32 +1862,27 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
               window->desc);
   meta_window_focus (window, timestamp);
 
-  stage = meta_backend_get_stage (backend);
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   if (grab_actor)
     {
       meta_topic (META_DEBUG_WINDOW_OPS, "Reusing grab actor %p.", grab_actor);
-      window_drag->handler = grab_actor;
+      window_drag->external_grab_actor = grab_actor;
       window_drag->event_handler_id =
-        g_signal_connect_swapped (window_drag->handler, "event",
+        g_signal_connect_swapped (window_drag->external_grab_actor, "event",
                                   G_CALLBACK (on_window_drag_event), window_drag);
     }
   else
     {
       meta_topic (META_DEBUG_WINDOW_OPS, "Creating a new grab.");
-      window_drag->handler = clutter_actor_new ();
-      clutter_actor_hide (window_drag->handler);
-      clutter_actor_set_name (window_drag->handler,
-                              "Window drag helper");
-      clutter_actor_set_accessible_name (window_drag->handler,
-                                         "Window drag helper");
-      window_drag->event_handler_id =
-        g_signal_connect_swapped (window_drag->handler, "event",
-                                  G_CALLBACK (on_window_drag_event), window_drag);
-      clutter_actor_add_child (stage, window_drag->handler);
-
-      window_drag->grab = clutter_stage_grab (CLUTTER_STAGE (stage),
-                                              window_drag->handler);
+      window_drag->grab = clutter_stage_grab_input_only_inactive (stage,
+                                                                  handle_drag_event,
+                                                                  window_drag,
+                                                                  NULL);
+      grab_actor = clutter_stage_get_grab_actor (stage);
+      clutter_actor_set_name (grab_actor, "Window drag helper");
+      clutter_actor_set_accessible_name (grab_actor, "Window drag helper");
+      clutter_grab_activate (window_drag->grab);
 
       if ((clutter_grab_get_seat_state (window_drag->grab) &
            CLUTTER_GRAB_STATE_POINTER) == 0 &&
