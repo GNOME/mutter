@@ -143,20 +143,13 @@ cogl_buffer_set_property (GObject      *gobject,
               use_malloc = TRUE;
           }
 
+        buffer->use_malloc = use_malloc;
         if (use_malloc)
           {
-            buffer->map_range = malloc_map_range;
-            buffer->unmap = malloc_unmap;
-            buffer->set_data = malloc_set_data;
-
             buffer->data = g_malloc (buffer->size);
           }
         else
           {
-            buffer->map_range = buffer->context->driver_vtable->buffer_map_range;
-            buffer->unmap = buffer->context->driver_vtable->buffer_unmap;
-            buffer->set_data = buffer->context->driver_vtable->buffer_set_data;
-
             buffer->context->driver_vtable->buffer_create (buffer);
 
             buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
@@ -282,12 +275,26 @@ cogl_buffer_map_range (CoglBuffer *buffer,
   g_return_val_if_fail (COGL_IS_BUFFER (buffer), NULL);
   g_return_val_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED), NULL);
 
-  buffer->data = buffer->map_range (buffer,
-                                    offset,
-                                    size,
-                                    access,
-                                    hints,
-                                    error);
+  if (buffer->use_malloc)
+    {
+      buffer->data = malloc_map_range (buffer,
+                                       offset,
+                                       size,
+                                       access,
+                                       hints,
+                                       error);
+    }
+  else
+    {
+      const CoglDriverVtable *driver = buffer->context->driver_vtable;
+
+      buffer->data = driver->buffer_map_range (buffer,
+                                               offset,
+                                               size,
+                                               access,
+                                               hints,
+                                               error);
+    }
 
   return buffer->data;
 }
@@ -300,7 +307,16 @@ cogl_buffer_unmap (CoglBuffer *buffer)
   if (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED))
     return;
 
-  buffer->unmap (buffer);
+  if (buffer->use_malloc)
+    {
+      malloc_unmap (buffer);
+    }
+  else
+    {
+      const CoglDriverVtable *driver = buffer->context->driver_vtable;
+
+      driver->buffer_unmap (buffer);
+    }
 }
 
 void *
@@ -387,7 +403,16 @@ cogl_buffer_set_data (CoglBuffer *buffer,
   g_return_val_if_fail (COGL_IS_BUFFER (buffer), FALSE);
   g_return_val_if_fail ((offset + size) <= buffer->size, FALSE);
 
-  status = buffer->set_data (buffer, offset, data, size, &ignore_error);
+  if (buffer->use_malloc)
+    {
+      status = malloc_set_data (buffer, offset, data, size, &ignore_error);
+    }
+  else
+    {
+      const CoglDriverVtable *driver = buffer->context->driver_vtable;
+
+      status = driver->buffer_set_data (buffer, offset, data, size, &ignore_error);
+    }
 
   g_clear_error (&ignore_error);
   return status;

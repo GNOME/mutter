@@ -70,20 +70,7 @@ struct _CoglBuffer
 
   unsigned int store_created : 1;
 
-  void * (* map_range) (CoglBuffer       *buffer,
-                        size_t            offset,
-                        size_t            size,
-                        CoglBufferAccess  access,
-                        CoglBufferMapHint hints,
-                        GError          **error);
-
-  void (* unmap) (CoglBuffer *buffer);
-
-  gboolean (* set_data) (CoglBuffer  *buffer,
-                         unsigned int offset,
-                         const void  *data,
-                         unsigned int size,
-                         GError     **error);
+  unsigned int use_malloc: 1;
 };
 struct _CoglBufferClass
 {
