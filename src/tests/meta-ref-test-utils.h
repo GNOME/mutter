@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2021-2024 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,17 +17,19 @@
 
 #pragma once
 
+#include <cairo.h>
 #include <glib.h>
 
-#include "clutter/clutter/clutter.h"
-#include "meta/boxes.h"
-#include "tests/meta-ref-test-utils.h"
+typedef enum _MetaReftestFlag
+{
+  META_REFTEST_FLAG_NONE = 0,
+  META_REFTEST_FLAG_UPDATE_REF = 1 << 0,
+} MetaReftestFlag;
 
-META_EXPORT
-void meta_ref_test_verify_view (ClutterStageView *view,
-                                const char       *test_name,
-                                int               test_seq_no,
-                                MetaReftestFlag   flags);
+typedef cairo_surface_t * (* MetaRefTestAdaptor) (gpointer adaptor_data);
 
-META_EXPORT
-MetaReftestFlag meta_ref_test_determine_ref_test_flag (void);
+void meta_ref_test_verify (MetaRefTestAdaptor  adaptor,
+                           gpointer            adaptor_data,
+                           const char         *test_name_unescaped,
+                           int                 test_seq_no,
+                           MetaReftestFlag     flags);
