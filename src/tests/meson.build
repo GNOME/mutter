@@ -327,11 +327,17 @@ test_cases += [
   },
 ]
 
+remote_desktop_utils = [
+  'remote-desktop-utils.c',
+  'remote-desktop-utils.h',
+  built_dbus_sources['meta-dbus-remote-desktop'],
+  built_dbus_sources['meta-dbus-screen-cast'],
+]
+
 screen_cast_client = executable('mutter-screen-cast-client',
   sources: [
     'screen-cast-client.c',
-    built_dbus_sources['meta-dbus-remote-desktop'],
-    built_dbus_sources['meta-dbus-screen-cast'],
+    remote_desktop_utils,
   ],
   include_directories: tests_includes,
   c_args: [
