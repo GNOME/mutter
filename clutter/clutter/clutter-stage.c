@@ -3085,48 +3085,6 @@ clutter_stage_set_device_coords (ClutterStage         *stage,
     clutter_sprite_update_coords (sprite, coords);
 }
 
-static ClutterActor *
-find_common_root_actor (ClutterStage *stage,
-                        ClutterActor *a,
-                        ClutterActor *b)
-{
-  if (a && b)
-    {
-      while (a)
-        {
-          if (a == b || clutter_actor_contains (a, b))
-            return a;
-
-          a = clutter_actor_get_parent (a);
-        }
-    }
-
-  return CLUTTER_ACTOR (stage);
-}
-
-static void
-clutter_stage_emit_crossing_event (ClutterStage       *self,
-                                   const ClutterEvent *event,
-                                   ClutterActor       *deepmost,
-                                   ClutterActor       *topmost)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (self);
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterSprite *sprite;
-
-  if (topmost == NULL)
-    topmost = CLUTTER_ACTOR (self);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  g_assert (sprite != NULL);
-  clutter_sprite_emit_crossing_event (sprite, event, deepmost, topmost);
-}
-
 void
 clutter_stage_update_device (ClutterStage         *stage,
                              ClutterInputDevice   *device,
@@ -3139,18 +3097,12 @@ clutter_stage_update_device (ClutterStage         *stage,
                              gboolean              emit_crossing)
 {
   ClutterInputDeviceType device_type;
-  ClutterActor *old_actor, *root;
-  gboolean device_actor_changed;
-  ClutterEvent *event;
   ClutterSprite *sprite;
 
   device_type = clutter_input_device_get_device_type (device);
 
   g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
             device_type != CLUTTER_PAD_DEVICE);
-
-  old_actor = clutter_stage_get_device_actor (stage, device, sequence);
-  device_actor_changed = new_actor != old_actor;
 
   if (!source_device)
     source_device = device;
@@ -3168,81 +3120,6 @@ clutter_stage_update_device (ClutterStage         *stage,
 
   clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), actor,
                                    source_device, time_ms);
-
-  if (device_actor_changed)
-    {
-      CLUTTER_NOTE (EVENT,
-                    "Updating actor under cursor (device %s, at %.2f, %.2f): %s",
-                    clutter_input_device_get_device_name (device),
-                    point.x,
-                    point.y,
-                    _clutter_actor_get_debug_name (new_actor));
-
-      if (emit_crossing)
-        {
-          ClutterActor *grab_actor;
-
-          root = find_common_root_actor (stage, new_actor, old_actor);
-
-          grab_actor = clutter_stage_get_grab_actor (stage);
-
-          /* If the common root is outside the currently effective grab,
-           * it involves actors outside the grabbed actor hierarchy, the
-           * events should be propagated from/inside the grab actor.
-           */
-          if (grab_actor &&
-              root != grab_actor &&
-              !clutter_actor_contains (grab_actor, root))
-            root = grab_actor;
-        }
-
-      /* we need to make sure that this event is processed
-       * before any other event we might have queued up until
-       * now, so we go on, and synthesize the event emission
-       * ourselves
-       */
-      if (old_actor && emit_crossing)
-        {
-          event = clutter_event_crossing_new (CLUTTER_LEAVE,
-                                              CLUTTER_EVENT_NONE,
-                                              ms2us (time_ms),
-                                              source_device,
-                                              sequence,
-                                              point,
-                                              old_actor,
-                                              new_actor);
-          if (!_clutter_event_process_filters (event, old_actor))
-            {
-              clutter_stage_emit_crossing_event (stage,
-                                                 event,
-                                                 old_actor,
-                                                 root);
-            }
-
-          clutter_event_free (event);
-        }
-
-      if (new_actor && emit_crossing)
-        {
-          event = clutter_event_crossing_new (CLUTTER_ENTER,
-                                              CLUTTER_EVENT_NONE,
-                                              ms2us (time_ms),
-                                              source_device,
-                                              sequence,
-                                              point,
-                                              new_actor,
-                                              old_actor);
-          if (!_clutter_event_process_filters (event, new_actor))
-            {
-              clutter_stage_emit_crossing_event (stage,
-                                                 event,
-                                                 new_actor,
-                                                 root);
-            }
-
-          clutter_event_free (event);
-        }
-    }
 }
 
 static gboolean

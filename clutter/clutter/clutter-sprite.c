@@ -30,6 +30,7 @@
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-grab.h"
+#include "clutter/clutter-private.h"
 #include "clutter/clutter-stage.h"
 
 typedef struct _EventReceiver
@@ -70,6 +71,11 @@ struct _ClutterSpritePrivate
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterSprite, clutter_sprite, CLUTTER_TYPE_FOCUS)
+
+static void clutter_sprite_emit_crossing_event (ClutterSprite      *sprite,
+                                                const ClutterEvent *event,
+                                                ClutterActor       *deepmost,
+                                                ClutterActor       *topmost);
 
 typedef enum
 {
@@ -472,6 +478,9 @@ clutter_sprite_set_current_actor (ClutterFocus       *focus,
 {
   ClutterSprite *sprite = CLUTTER_SPRITE (focus);
   ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
+  ClutterStage *stage;
+  ClutterEvent *event;
+  ClutterActor *grab_actor, *root, *old_actor;
 
   if (priv->current_actor == actor)
     return FALSE;
@@ -479,10 +488,75 @@ clutter_sprite_set_current_actor (ClutterFocus       *focus,
   if (priv->current_actor)
     _clutter_actor_set_has_pointer (priv->current_actor, FALSE);
 
+  old_actor = priv->current_actor;
   priv->current_actor = actor;
 
   if (actor)
     _clutter_actor_set_has_pointer (actor, TRUE);
+
+  stage = clutter_focus_get_stage (focus);
+  root = find_common_root_actor (stage, actor, old_actor);
+
+  if (!source_device)
+    source_device = priv->device;
+
+  grab_actor = clutter_stage_get_grab_actor (stage);
+
+  /* If the common root is outside the currently effective grab,
+   * it involves actors outside the grabbed actor hierarchy, the
+   * events should be propagated from/inside the grab actor.
+   */
+  if (grab_actor &&
+      root != grab_actor &&
+      !clutter_actor_contains (grab_actor, root))
+    root = grab_actor;
+
+  /* we need to make sure that this event is processed
+   * before any other event we might have queued up until
+   * now, so we go on, and synthesize the event emission
+   * ourselves
+   */
+  if (old_actor)
+    {
+      event = clutter_event_crossing_new (CLUTTER_LEAVE,
+                                          CLUTTER_EVENT_NONE,
+                                          ms2us (time_ms),
+                                          source_device,
+                                          priv->sequence,
+                                          priv->coords,
+                                          old_actor,
+                                          actor);
+      if (!_clutter_event_process_filters (event, old_actor))
+        {
+          clutter_sprite_emit_crossing_event (sprite,
+                                              event,
+                                              old_actor,
+                                              root);
+        }
+
+      clutter_event_free (event);
+    }
+
+  if (actor)
+    {
+      event = clutter_event_crossing_new (CLUTTER_ENTER,
+                                          CLUTTER_EVENT_NONE,
+                                          ms2us (time_ms),
+                                          source_device,
+                                          priv->sequence,
+                                          priv->coords,
+                                          actor,
+                                          old_actor);
+      if (!_clutter_event_process_filters (event, actor))
+        {
+          clutter_sprite_emit_crossing_event (sprite,
+                                              event,
+                                              actor,
+                                              root);
+        }
+
+      clutter_event_free (event);
+    }
 
   return TRUE;
 }

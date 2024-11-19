@@ -59,11 +59,6 @@ void clutter_sprite_update_coords (ClutterSprite    *sprite,
 
 graphene_point_t clutter_sprite_get_coords (ClutterSprite *sprite);
 
-void clutter_sprite_emit_crossing_event (ClutterSprite      *sprite,
-                                         const ClutterEvent *event,
-                                         ClutterActor       *deepmost,
-                                         ClutterActor       *topmost);
-
 gboolean clutter_sprite_point_in_clear_area (ClutterSprite    *sprite,
                                              graphene_point_t  point);
 
