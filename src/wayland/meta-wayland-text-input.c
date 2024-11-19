@@ -418,6 +418,13 @@ meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
 
       wl_list_remove (&text_input->surface_listener.link);
       text_input->surface = NULL;
+      /* Wayland set_surrounding_text() does not support to set null string
+       * for applications with the non-supported surrounding text feature
+       * and reset the values here with focus changes.
+       */
+      g_clear_pointer (&text_input->surrounding.text, g_free);
+      text_input->surrounding.cursor = 0;
+      text_input->surrounding.anchor = 0;
     }
 
   if (surface && surface->resource)
