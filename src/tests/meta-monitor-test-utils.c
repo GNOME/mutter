@@ -692,7 +692,6 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
   for (i = 0; i < setup->n_outputs; i++)
     {
       MetaOutput *output;
-      MetaOutputTest *output_test;
       int crtc_index;
       MetaCrtc *crtc;
       int preferred_mode_index;
@@ -702,7 +701,6 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       int j;
       MetaCrtc **possible_crtcs;
       int n_possible_crtcs;
-      int scale;
       gboolean is_laptop_panel;
       char *serial;
       g_autoptr (MetaOutputInfo) output_info = NULL;
@@ -740,10 +738,6 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
           possible_crtcs[j] = g_list_nth_data (test_setup->crtcs,
                                                possible_crtc_index);
         }
-
-      scale = (int) setup->outputs[i].scale;
-      if (scale < 1 && scale != -1)
-        scale = 1;
 
       is_laptop_panel = setup->outputs[i].is_laptop_panel;
 
@@ -804,8 +798,18 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                              "info", output_info,
                              NULL);
 
-      output_test = META_OUTPUT_TEST (output);
-      output_test->scale = scale;
+
+      if (!setup->outputs[i].dynamic_scale)
+        {
+          MetaOutputTest *output_test = META_OUTPUT_TEST (output);
+          float scale;
+
+          scale = setup->outputs[i].scale;
+          if (scale == 0.0f)
+            scale = 1.0f;
+
+          meta_output_test_override_scale (output_test, scale);
+        }
 
       if (crtc)
         {

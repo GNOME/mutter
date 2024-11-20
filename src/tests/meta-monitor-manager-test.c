@@ -178,7 +178,7 @@ meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager      
   output = meta_monitor_get_main_output (monitor);
   output_test = META_OUTPUT_TEST (output);
 
-  if (output_test->scale != -1)
+  if (output_test->override_scale)
     return output_test->scale;
 
   return parent_class->calculate_monitor_mode_scale (manager,

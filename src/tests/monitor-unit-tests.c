@@ -10407,7 +10407,7 @@ meta_test_monitor_calculate_mode_scale (void)
         .preferred_mode = 0,
         .possible_crtcs = { 0 },
         .n_possible_crtcs = 1,
-        .scale = -1,
+        .dynamic_scale = TRUE,
       }
     },
     .n_outputs = 1,

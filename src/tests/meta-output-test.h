@@ -23,6 +23,7 @@ struct _MetaOutputTest
 {
   MetaOutput parent;
 
+  gboolean override_scale;
   float scale;
 };
 
@@ -31,3 +32,6 @@ META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaOutputTest, meta_output_test,
                       META, OUTPUT_TEST,
                       MetaOutputNative)
+
+void meta_output_test_override_scale (MetaOutputTest *output_test,
+                                      float           scale);
