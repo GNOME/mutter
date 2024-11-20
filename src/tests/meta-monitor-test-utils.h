@@ -103,6 +103,7 @@ typedef struct _MonitorTestCaseOutput
   int width_mm;
   int height_mm;
   MetaTileInfo tile_info;
+  gboolean dynamic_scale;
   float scale;
   gboolean is_laptop_panel;
   gboolean is_underscanning;

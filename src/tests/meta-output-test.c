@@ -70,5 +70,12 @@ meta_output_test_class_init (MetaOutputTestClass *klass)
 static void
 meta_output_test_init (MetaOutputTest *output_test)
 {
-  output_test->scale = 1;
+}
+
+void
+meta_output_test_override_scale (MetaOutputTest *output_test,
+                                 float           scale)
+{
+  output_test->override_scale = TRUE;
+  output_test->scale = scale;
 }
