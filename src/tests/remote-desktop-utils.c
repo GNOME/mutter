@@ -255,15 +255,27 @@ sanity_check_memfd (struct spa_buffer *buffer)
 }
 
 static void
-process_buffer (Stream            *stream,
-                struct spa_buffer *buffer)
+process_memfd_buffer (Stream           *stream,
+                      struct pw_buffer *buffer)
 {
-  process_buffer_metadata (stream, buffer);
+  sanity_check_memfd (buffer->buffer);
+  if (stream->buffer)
+    pw_stream_queue_buffer (stream->pipewire_stream, stream->buffer);
+  stream->buffer = buffer;
+}
 
-  if (buffer->datas[0].chunk->size != 0)
+static void
+process_buffer (Stream           *stream,
+                struct pw_buffer *buffer)
+{
+  struct spa_buffer *spa_buffer = buffer->buffer;
+
+  process_buffer_metadata (stream, buffer->buffer);
+
+  if (spa_buffer->datas[0].chunk->size != 0)
     {
-      if (buffer->datas[0].type == SPA_DATA_MemFd)
-        sanity_check_memfd (buffer);
+      if (spa_buffer->datas[0].type == SPA_DATA_MemFd)
+        process_memfd_buffer (stream, buffer);
       else
         g_assert_not_reached ();
     }
@@ -297,7 +309,7 @@ on_stream_process (void *user_data)
   if (!buffer)
     return;
 
-  process_buffer (stream, buffer->buffer);
+  process_buffer (stream, buffer);
   pw_stream_queue_buffer (stream->pipewire_stream, buffer);
 
   stream->buffer_count++;

@@ -44,6 +44,8 @@ typedef struct _Stream
   int target_width;
   int target_height;
 
+  struct pw_buffer *buffer;
+
   int cursor_x;
   int cursor_y;
 } Stream;
