@@ -31,6 +31,12 @@ typedef enum _CursorMode
   CURSOR_MODE_METADATA = 2,
 } CursorMode;
 
+typedef enum _StreamType
+{
+  STREAM_TYPE_VIRTUAL,
+  STREAM_TYPE_MONITOR,
+} StreamType;
+
 typedef struct _Stream
 {
   MetaDBusScreenCastStream *proxy;
@@ -41,8 +47,11 @@ typedef struct _Stream
   enum pw_stream_state state;
   int buffer_count;
 
-  int target_width;
-  int target_height;
+  StreamType stream_type;
+  struct {
+    int target_width;
+    int target_height;
+  } virtual;
 
   struct pw_buffer *buffer;
 
@@ -95,6 +104,10 @@ void session_stop (Session *session);
 Stream * session_record_virtual (Session    *session,
                                  int         width,
                                  int         height,
+                                 CursorMode  cursor_mode);
+
+Stream * session_record_monitor (Session    *session,
+                                 const char *connector,
                                  CursorMode  cursor_mode);
 
 Session * session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
