@@ -203,8 +203,7 @@ on_stream_param_changed (void                 *user_data,
     &pod_builder,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
     SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (8, 1, 8),
-    SPA_PARAM_BUFFERS_dataType, SPA_POD_Int ((1 << SPA_DATA_MemPtr) |
-                                             (1 << SPA_DATA_MemFd)),
+    SPA_PARAM_BUFFERS_dataType, SPA_POD_Int (1 << SPA_DATA_MemFd),
     0);
 
   params[1] = spa_pod_builder_add_object (
@@ -249,23 +248,9 @@ static void
 sanity_check_memfd (struct spa_buffer *buffer)
 {
   size_t size;
-  uint8_t *map;
 
   size = buffer->datas[0].maxsize + buffer->datas[0].mapoffset;
   g_assert_cmpint (size, >, 0);
-  map = mmap (NULL, size, PROT_READ, MAP_PRIVATE, buffer->datas[0].fd, 0);
-  g_assert_true (map != MAP_FAILED);
-  munmap (map, size);
-}
-
-static void
-sanity_check_memptr (struct spa_buffer *buffer)
-{
-  size_t size;
-
-  size = buffer->datas[0].maxsize + buffer->datas[0].mapoffset;
-  g_assert_cmpint (size, >, 0);
-
   g_assert_nonnull (buffer->datas[0].data);
 }
 
@@ -279,10 +264,6 @@ process_buffer (Stream            *stream,
     {
       if (buffer->datas[0].type == SPA_DATA_MemFd)
         sanity_check_memfd (buffer);
-      else if (buffer->datas[0].type == SPA_DATA_DmaBuf)
-        g_assert_not_reached ();
-      else if (buffer->datas[0].type == SPA_DATA_MemPtr)
-        sanity_check_memptr (buffer);
       else
         g_assert_not_reached ();
     }
@@ -373,7 +354,8 @@ stream_connect (Stream *stream)
   ret = pw_stream_connect (stream->pipewire_stream,
                            PW_DIRECTION_INPUT,
                            stream->pipewire_node_id,
-                           PW_STREAM_FLAG_AUTOCONNECT,
+                           (PW_STREAM_FLAG_AUTOCONNECT |
+                            PW_STREAM_FLAG_MAP_BUFFERS),
                            params, 1);
   if (ret < 0)
     g_error ("Failed to connect PipeWire stream: %s", g_strerror (-ret));
