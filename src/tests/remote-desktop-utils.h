@@ -82,6 +82,19 @@ typedef struct _ScreenCast
   g_assert_cmpint (stream->cursor_y, ==, (y)); \
 }
 
+static inline CursorMode
+cursor_mode_from_string (const char *name)
+{
+  if (strcmp (name, "hidden") == 0)
+    return CURSOR_MODE_HIDDEN;
+  else if (strcmp (name, "embedded") == 0)
+    return CURSOR_MODE_EMBEDDED;
+  else if (strcmp (name, "metadata") == 0)
+    return CURSOR_MODE_METADATA;
+
+  g_assert_not_reached ();
+}
+
 void release_pipewire (void);
 
 void init_pipewire (void);
@@ -89,6 +102,8 @@ void init_pipewire (void);
 void stream_resize (Stream *stream,
                     int     width,
                     int     height);
+
+void stream_wait_for_render (Stream *stream);
 
 void stream_free (Stream *stream);
 

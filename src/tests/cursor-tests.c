@@ -21,6 +21,7 @@
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/meta-screen-cast.h"
 #include "clutter/clutter.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/meta-fraction.h"
@@ -254,6 +255,52 @@ layout_mode_to_string (MetaLogicalMonitorLayoutMode layout_mode)
   g_assert_not_reached ();
 }
 
+static const char *
+cursor_mode_to_string (MetaScreenCastCursorMode cursor_mode)
+{
+  switch (cursor_mode)
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      return "hidden";
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      return "embedded";
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+      return "metadata";
+    }
+
+  g_assert_not_reached ();
+}
+
+static const char *
+reftest_flags_to_string (MetaReftestFlag flags)
+{
+  if (flags & META_REFTEST_FLAG_UPDATE_REF)
+    return "update-ref";
+  else
+    return "";
+}
+
+static void
+verify_screen_cast_content (const char               *ref_test_name,
+                            int                       test_seq_no,
+                            MetaScreenCastCursorMode  cursor_mode)
+{
+  g_autoptr (GSubprocess) subprocess = NULL;
+  g_autofree char *test_seq_no_string = NULL;
+  MetaReftestFlag reftest_flags;
+
+  test_seq_no_string = g_strdup_printf ("%d", test_seq_no);
+  reftest_flags = META_REFTEST_FLAG_NONE;
+  subprocess =
+    meta_launch_test_executable ("mutter-cursor-tests-screen-cast-client",
+                                 ref_test_name,
+                                 test_seq_no_string,
+                                 cursor_mode_to_string (cursor_mode),
+                                 reftest_flags_to_string (reftest_flags),
+                                 NULL);
+  meta_wait_test_process (subprocess);
+}
+
 static void
 wait_for_no_windows (void)
 {
@@ -317,6 +364,13 @@ test_client_cursor (ClutterStageView *view,
                              ref_test_name,
                              ref_test_seq,
                              ref_test_flags);
+
+  verify_screen_cast_content (ref_test_name,
+                              ref_test_seq,
+                              META_SCREEN_CAST_CURSOR_MODE_EMBEDDED);
+  verify_screen_cast_content (ref_test_name,
+                              ref_test_seq,
+                              META_SCREEN_CAST_CURSOR_MODE_METADATA);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
 
@@ -397,6 +451,10 @@ meta_test_native_cursor_scaling (void)
                                  ref_test_name,
                                  0,
                                  meta_ref_test_determine_ref_test_flag ());
+      verify_screen_cast_content (ref_test_name, 0,
+                                  META_SCREEN_CAST_CURSOR_MODE_EMBEDDED);
+      verify_screen_cast_content (ref_test_name, 0,
+                                  META_SCREEN_CAST_CURSOR_MODE_METADATA);
 
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_BUFFER_SCALE,

@@ -45,16 +45,6 @@ stream_wait_for_streaming (Stream *stream)
     g_main_context_iteration (NULL, TRUE);
 }
 
-static void
-stream_wait_for_render (Stream *stream)
-{
-  int initial_buffer_count = stream->buffer_count;
-
-  g_debug ("Waiting for new buffer");
-  while (stream->buffer_count == initial_buffer_count)
-    g_main_context_iteration (NULL, TRUE);
-}
-
 int
 main (int    argc,
       char **argv)
