@@ -128,3 +128,11 @@ MetaVirtualMonitor * meta_create_test_monitor (MetaContext *context,
 
 META_EXPORT
 void meta_flush_input (MetaContext *context);
+
+META_EXPORT
+GSubprocess * meta_launch_test_executable (const char *name,
+                                           const char *argv0,
+                                           ...);
+
+META_EXPORT
+void meta_wait_test_process (GSubprocess *subprocess);

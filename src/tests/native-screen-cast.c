@@ -23,61 +23,18 @@
 #include <unistd.h>
 
 #include "meta/util.h"
+#include "tests/meta-test-utils.h"
 #include "tests/meta-test/meta-context-test.h"
-
-static void
-test_client_exited (GObject      *source_object,
-                    GAsyncResult *result,
-                    gpointer      user_data)
-{
-  GError *error = NULL;
-
-  if (!g_subprocess_wait_finish (G_SUBPROCESS (source_object),
-                                 result,
-                                 &error))
-    g_error ("Screen cast test client exited with an error: %s", error->message);
-
-  g_main_loop_quit (user_data);
-}
 
 static void
 meta_test_screen_cast_record_virtual (void)
 {
-  GSubprocessLauncher *launcher;
-  g_autofree char *test_client_path = NULL;
-  GError *error = NULL;
-  GSubprocess *subprocess;
-  GMainLoop *loop;
-
-  launcher =  g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+  g_autoptr (GSubprocess) subprocess = NULL;
 
   meta_add_verbose_topic (META_DEBUG_SCREEN_CAST);
-
-  test_client_path = g_test_build_filename (G_TEST_BUILT,
-                                            "mutter-screen-cast-client",
+  subprocess = meta_launch_test_executable ("mutter-screen-cast-client",
                                             NULL);
-  g_subprocess_launcher_setenv (launcher,
-                                "XDG_RUNTIME_DIR", getenv ("XDG_RUNTIME_DIR"),
-                                TRUE);
-  g_subprocess_launcher_setenv (launcher,
-                                "G_MESSAGES_DEBUG", "all",
-                                TRUE);
-  subprocess = g_subprocess_launcher_spawn (launcher,
-                                            &error,
-                                            test_client_path,
-                                            NULL);
-  if (!subprocess)
-    g_error ("Failed to launch screen cast test client: %s", error->message);
-
-  loop = g_main_loop_new (NULL, FALSE);
-  g_subprocess_wait_check_async (subprocess,
-                                 NULL,
-                                 test_client_exited,
-                                 loop);
-  g_main_loop_run (loop);
-  g_assert_true (g_subprocess_get_successful (subprocess));
-  g_object_unref (subprocess);
-
+  meta_wait_test_process (subprocess);
   meta_remove_verbose_topic (META_DEBUG_SCREEN_CAST);
 }
 
