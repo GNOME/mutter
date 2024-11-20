@@ -46,6 +46,7 @@ typedef struct _Stream
 
   struct pw_buffer *buffer;
 
+  CursorMode cursor_mode;
   int cursor_x;
   int cursor_y;
 } Stream;
@@ -91,9 +92,10 @@ void session_start (Session *session);
 
 void session_stop (Session *session);
 
-Stream * session_record_virtual (Session *session,
-                                 int      width,
-                                 int      height);
+Stream * session_record_virtual (Session    *session,
+                                 int         width,
+                                 int         height,
+                                 CursorMode  cursor_mode);
 
 Session * session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
                        MetaDBusScreenCastSession    *screen_cast_session_proxy);

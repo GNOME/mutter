@@ -71,7 +71,7 @@ main (int    argc,
   remote_desktop = remote_desktop_new ();
   screen_cast = screen_cast_new ();
   session = screen_cast_create_session (remote_desktop, screen_cast);
-  stream = session_record_virtual (session, 50, 40);
+  stream = session_record_virtual (session, 50, 40, CURSOR_MODE_METADATA);
 
   g_debug ("Starting screen cast stream");
   session_start (session);
