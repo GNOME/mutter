@@ -75,18 +75,18 @@ typedef struct
 
 G_DEFINE_QUARK (meta-test-client-error-quark, meta_test_client_error)
 
-static char *test_client_path;
+static char *test_runner_client_path;
 
 void
 meta_ensure_test_client_path (int    argc,
                               char **argv)
 {
-  test_client_path = g_test_build_filename (G_TEST_BUILT,
-                                            "src",
-                                            "tests",
-                                            "mutter-test-client",
-                                            NULL);
-  if (!g_file_test (test_client_path,
+  test_runner_client_path = g_test_build_filename (G_TEST_BUILT,
+                                                   "src",
+                                                   "tests",
+                                                   "mutter-test-client",
+                                                   NULL);
+  if (!g_file_test (test_runner_client_path,
                     G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
     {
       g_autofree char *basename = NULL;
@@ -95,11 +95,11 @@ meta_ensure_test_client_path (int    argc,
       basename = g_path_get_basename (argv[0]);
 
       dirname = g_path_get_dirname (argv[0]);
-      test_client_path = g_build_filename (dirname,
-                                           "mutter-test-client", NULL);
+      test_runner_client_path = g_build_filename (dirname,
+                                                  "mutter-test-client", NULL);
     }
 
-  if (!g_file_test (test_client_path,
+  if (!g_file_test (test_runner_client_path,
                     G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
     g_error ("mutter-test-client executable not found");
 }
@@ -643,7 +643,7 @@ meta_test_client_new (MetaContext           *context,
 
   subprocess = g_subprocess_launcher_spawn (launcher,
                                             error,
-                                            test_client_path,
+                                            test_runner_client_path,
                                             "--client-id",
                                             id,
                                             (type == META_WINDOW_CLIENT_TYPE_WAYLAND ?
