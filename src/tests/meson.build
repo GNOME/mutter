@@ -391,6 +391,33 @@ input_capture_client = executable('mutter-input-capture-test-client',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
+reftest_deps = [
+  cairo_dep,
+  glib_dep,
+]
+
+cursor_screen_cast_client = executable('mutter-cursor-tests-screen-cast-client',
+  sources: [
+    'cursor-tests-screen-cast-client.c',
+    'meta-ref-test-utils.c',
+    'meta-ref-test-utils.h',
+    remote_desktop_utils,
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-cursor-tests-screen-cast-client"',
+  ],
+  dependencies: [
+    gio_dep,
+    libpipewire_dep,
+    reftest_deps,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+  install_rpath: pkglibdir,
+)
+
 # Native backend tests
 test_cases += [
   {
@@ -463,6 +490,7 @@ test_cases += [
     ],
     'depends': [
       test_client_executables.get('cursor-tests-client'),
+      cursor_screen_cast_client,
     ]
   },
 ]

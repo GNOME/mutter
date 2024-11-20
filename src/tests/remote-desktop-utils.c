@@ -430,6 +430,16 @@ stream_resize (Stream *stream,
                            params, G_N_ELEMENTS (params));
 }
 
+void
+stream_wait_for_render (Stream *stream)
+{
+  int initial_buffer_count = stream->buffer_count;
+
+  g_debug ("Waiting for new buffer");
+  while (stream->buffer_count == initial_buffer_count)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 static void
 on_pipewire_stream_added (MetaDBusScreenCastStream *proxy,
                           unsigned int              node_id,
