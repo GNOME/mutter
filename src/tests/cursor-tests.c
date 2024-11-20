@@ -32,6 +32,9 @@
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
 
+#define CURSOR_SCALE_METHOD_BUFFER_SCALE "buffer-scale"
+#define CURSOR_SCALE_METHOD_VIEWPORT "viewport"
+
 struct _MetaCrossOverlay
 {
   GObject parent;
@@ -279,6 +282,52 @@ meta_wait_for_window_cursor (void)
 }
 
 static void
+test_client_cursor (ClutterStageView *view,
+                    const char       *scale_method,
+                    MetaCursor        cursor,
+                    const char       *ref_test_name,
+                    int               ref_test_seq,
+                    MetaReftestFlag   ref_test_flags)
+{
+  const char *cursor_name;
+  MetaWaylandTestClient *test_client;
+  MetaWindow *window;
+  MetaWindowActor *window_actor;
+
+  g_debug ("Testing cursor with client using %s", scale_method);
+
+  cursor_name = meta_cursor_get_name (cursor);
+  test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "cursor-tests-client",
+                                            scale_method,
+                                            cursor_name,
+                                            NULL);
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
+
+  window = meta_find_window_from_title (test_context,
+                                        "cursor-tests-surface");
+  g_assert_nonnull (window);
+  meta_wait_for_window_shown (window);
+  window_actor = meta_window_actor_from_window (window);
+  g_assert_nonnull (window_actor);
+  meta_wait_for_window_cursor ();
+
+  meta_ref_test_verify_view (view,
+                             ref_test_name,
+                             ref_test_seq,
+                             ref_test_flags);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+
+  g_object_add_weak_pointer (G_OBJECT (window_actor),
+                             (gpointer *) &window_actor);
+  meta_wayland_test_client_finish (test_client);
+  while (window_actor)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+static void
 meta_test_native_cursor_scaling (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -288,7 +337,6 @@ meta_test_native_cursor_scaling (void)
   ClutterActor *overlay_actor;
   ClutterStageView *view;
   MetaCursor cursor;
-  const char *cursor_name;
   struct {
     int width;
     int height;
@@ -330,10 +378,7 @@ meta_test_native_cursor_scaling (void)
 
   for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
     {
-      MetaWaylandTestClient *test_client;
       g_autofree char *ref_test_name = NULL;
-      MetaWindow *window;
-      MetaWindowActor *window_actor;
 
       g_debug ("Testing monitor resolution %dx%d with scale %f and "
                "%s layout mode",
@@ -353,34 +398,16 @@ meta_test_native_cursor_scaling (void)
                                  0,
                                  meta_ref_test_determine_ref_test_flag ());
 
-      cursor_name = meta_cursor_get_name (cursor);
-      test_client =
-        meta_wayland_test_client_new_with_args (test_context,
-                                                "cursor-tests-client",
-                                                cursor_name,
-                                                NULL);
-      meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
-
-      window = meta_find_window_from_title (test_context,
-                                            "cursor-tests-surface");
-      g_assert_nonnull (window);
-      meta_wait_for_window_shown (window);
-      window_actor = meta_window_actor_from_window (window);
-      g_assert_nonnull (window_actor);
-      meta_wait_for_window_cursor ();
-
-      meta_ref_test_verify_view (view,
-                                 ref_test_name,
-                                 1,
-                                 meta_ref_test_determine_ref_test_flag ());
-
-      meta_wayland_test_driver_emit_sync_event (test_driver, 0);
-
-      g_object_add_weak_pointer (G_OBJECT (window_actor),
-                                 (gpointer *) &window_actor);
-      meta_wayland_test_client_finish (test_client);
-      while (window_actor)
-        g_main_context_iteration (NULL, TRUE);
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_BUFFER_SCALE,
+                          cursor,
+                          ref_test_name, 1,
+                          meta_ref_test_determine_ref_test_flag ());
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_VIEWPORT,
+                          cursor,
+                          ref_test_name, 0,
+                          META_REFTEST_FLAG_NONE);
     }
 
   clutter_actor_destroy (overlay_actor);
