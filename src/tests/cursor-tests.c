@@ -311,6 +311,14 @@ meta_test_native_cursor_scaling (void)
       .width = 1920, .height = 1080, .scale = 2.0,
       .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
     },
+    {
+      .width = 1440, .height = 900, .scale = 1.5,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
+    {
+      .width = 1440, .height = 900, .scale = 2.25,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
   };
   int i;
 

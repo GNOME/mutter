@@ -1044,12 +1044,13 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
               wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL,
                                          NULL);
 
-              g_warning ("Bug in client with pid %ld: Cursor buffer size (%dx%d) is "
-                         "not an integer multiple of the buffer_scale (%d).",
-                         (long) pid,
-                         meta_multi_texture_get_width (committed_texture),
-                         meta_multi_texture_get_height (committed_texture),
-                         committed_scale);
+              meta_topic (META_DEBUG_WAYLAND,
+                          "Bug in client with pid %ld: Cursor buffer size (%dx%d) is "
+                          "not an integer multiple of the buffer_scale (%d).",
+                          (long) pid,
+                          meta_multi_texture_get_width (committed_texture),
+                          meta_multi_texture_get_height (committed_texture),
+                          committed_scale);
             }
         }
     }
