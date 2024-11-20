@@ -329,6 +329,8 @@ stream_connect (Stream *stream)
   uint8_t params_buffer[1024];
   struct spa_pod_builder pod_builder;
   struct spa_rectangle rect;
+  struct spa_rectangle min_rect;
+  struct spa_rectangle max_rect;
   struct spa_fraction min_framerate;
   struct spa_fraction max_framerate;
   const struct spa_pod *params[2];
@@ -338,23 +340,51 @@ stream_connect (Stream *stream)
                                    "mutter-test-pipewire-stream",
                                    NULL);
 
-  rect = SPA_RECTANGLE (stream->target_width, stream->target_height);
-  min_framerate = SPA_FRACTION (1, 1);
-  max_framerate = SPA_FRACTION (30, 1);
+  switch (stream->stream_type)
+    {
+    case STREAM_TYPE_VIRTUAL:
+      rect = SPA_RECTANGLE (stream->virtual.target_width,
+                            stream->virtual.target_height);
+      min_framerate = SPA_FRACTION (1, 1);
+      max_framerate = SPA_FRACTION (30, 1);
 
-  pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
-  params[0] = spa_pod_builder_add_object (
-    &pod_builder,
-    SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
-    SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
-    SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
-    SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
-    SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&rect),
-    SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION(0, 1)),
-    SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
-                                                                  &min_framerate,
-                                                                  &max_framerate),
-    0);
+      pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
+      params[0] = spa_pod_builder_add_object (
+        &pod_builder,
+        SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
+        SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
+        SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
+        SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
+        SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&rect),
+        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION(0, 1)),
+        SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
+                                                                      &min_framerate,
+                                                                      &max_framerate),
+        0);
+      break;
+    case STREAM_TYPE_MONITOR:
+      min_rect = SPA_RECTANGLE (1, 1);
+      max_rect = SPA_RECTANGLE (INT32_MAX, INT32_MAX);
+      min_framerate = SPA_FRACTION (1, 1);
+      max_framerate = SPA_FRACTION (30, 1);
+
+      pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
+      params[0] = spa_pod_builder_add_object (
+        &pod_builder,
+        SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
+        SPA_FORMAT_mediaType, SPA_POD_Id (SPA_MEDIA_TYPE_video),
+        SPA_FORMAT_mediaSubtype, SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
+        SPA_FORMAT_VIDEO_format, SPA_POD_Id (SPA_VIDEO_FORMAT_BGRx),
+        SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&min_rect,
+                                                               &min_rect,
+                                                               &max_rect),
+        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION(0, 1)),
+        SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
+                                                                      &min_framerate,
+                                                                      &max_framerate),
+        0);
+      break;
+    }
 
   stream->pipewire_stream = pipewire_stream;
 
@@ -383,8 +413,8 @@ stream_resize (Stream *stream,
   const struct spa_pod *params[1];
   struct spa_rectangle rect;
 
-  stream->target_width = width;
-  stream->target_height = height;
+  stream->virtual.target_width = width;
+  stream->virtual.target_height = height;
 
   rect = SPA_RECTANGLE (width, height);
 
@@ -410,17 +440,46 @@ on_pipewire_stream_added (MetaDBusScreenCastStream *proxy,
 }
 
 static Stream *
-stream_new (const char *path,
-            int         width,
-            int         height,
-            CursorMode  cursor_mode)
+stream_new_virtual (const char *path,
+                    int         width,
+                    int         height,
+                    CursorMode  cursor_mode)
 {
   Stream *stream;
   GError *error = NULL;
 
   stream = g_new0 (Stream, 1);
-  stream->target_width = width;
-  stream->target_height = height;
+  stream->stream_type = STREAM_TYPE_VIRTUAL;
+  stream->cursor_mode = cursor_mode;
+  stream->virtual.target_width = width;
+  stream->virtual.target_height = height;
+
+  stream->proxy = meta_dbus_screen_cast_stream_proxy_new_for_bus_sync (
+    G_BUS_TYPE_SESSION,
+    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+    "org.gnome.Mutter.ScreenCast",
+    path,
+    NULL,
+    &error);
+  if (!stream->proxy)
+    g_error ("Failed to acquire proxy: %s", error->message);
+
+  g_signal_connect (stream->proxy, "pipewire-stream-added",
+                    G_CALLBACK (on_pipewire_stream_added),
+                    stream);
+
+  return stream;
+}
+
+static Stream *
+stream_new_monitor (const char *path,
+                    CursorMode  cursor_mode)
+{
+  Stream *stream;
+  GError *error = NULL;
+
+  stream = g_new0 (Stream, 1);
+  stream->stream_type = STREAM_TYPE_MONITOR;
   stream->cursor_mode = cursor_mode;
 
   stream->proxy = meta_dbus_screen_cast_stream_proxy_new_for_bus_sync (
@@ -535,7 +594,38 @@ session_record_virtual (Session    *session,
         &error))
     g_error ("Failed to create session: %s", error->message);
 
-  stream = stream_new (stream_path, width, height, cursor_mode);
+  stream = stream_new_virtual (stream_path, width, height, cursor_mode);
+  g_assert_nonnull (stream);
+  return stream;
+}
+
+Stream *
+session_record_monitor (Session    *session,
+                        const char *connector,
+                        CursorMode  cursor_mode)
+{
+  GVariantBuilder properties_builder;
+  GVariant *properties_variant;
+  GError *error = NULL;
+  g_autofree char *stream_path = NULL;
+  Stream *stream;
+
+  g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
+  g_variant_builder_add (&properties_builder, "{sv}",
+                         "cursor-mode",
+                         g_variant_new_uint32 (cursor_mode));
+  properties_variant = g_variant_builder_end (&properties_builder);
+
+  if (!meta_dbus_screen_cast_session_call_record_monitor_sync (
+        session->screen_cast_session_proxy,
+        connector ? connector : "",
+        properties_variant,
+        &stream_path,
+        NULL,
+        &error))
+    g_error ("Failed to create session: %s", error->message);
+
+  stream = stream_new_monitor (stream_path, cursor_mode);
   g_assert_nonnull (stream);
   return stream;
 }
