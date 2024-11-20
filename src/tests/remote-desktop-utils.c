@@ -412,7 +412,8 @@ on_pipewire_stream_added (MetaDBusScreenCastStream *proxy,
 static Stream *
 stream_new (const char *path,
             int         width,
-            int         height)
+            int         height,
+            CursorMode  cursor_mode)
 {
   Stream *stream;
   GError *error = NULL;
@@ -420,6 +421,7 @@ stream_new (const char *path,
   stream = g_new0 (Stream, 1);
   stream->target_width = width;
   stream->target_height = height;
+  stream->cursor_mode = cursor_mode;
 
   stream->proxy = meta_dbus_screen_cast_stream_proxy_new_for_bus_sync (
     G_BUS_TYPE_SESSION,
@@ -486,9 +488,10 @@ session_stop (Session *session)
 }
 
 Stream *
-session_record_virtual (Session *session,
-                        int      width,
-                        int      height)
+session_record_virtual (Session    *session,
+                        int         width,
+                        int         height,
+                        CursorMode  cursor_mode)
 {
   GVariantBuilder properties_builder;
   GVariant *properties_variant;
@@ -499,7 +502,7 @@ session_record_virtual (Session *session,
   g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
   g_variant_builder_add (&properties_builder, "{sv}",
                          "cursor-mode",
-                         g_variant_new_uint32 (CURSOR_MODE_METADATA));
+                         g_variant_new_uint32 (cursor_mode));
   properties_variant = g_variant_builder_end (&properties_builder);
 
   if (!meta_dbus_screen_cast_session_call_record_virtual_sync (
@@ -510,7 +513,7 @@ session_record_virtual (Session *session,
         &error))
     g_error ("Failed to create session: %s", error->message);
 
-  stream = stream_new (stream_path, width, height);
+  stream = stream_new (stream_path, width, height, cursor_mode);
   g_assert_nonnull (stream);
   return stream;
 }
