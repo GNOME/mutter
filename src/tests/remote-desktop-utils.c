@@ -468,11 +468,22 @@ session_start (Session *session)
 {
   GError *error = NULL;
 
-  if (!meta_dbus_remote_desktop_session_call_start_sync (
-        session->remote_desktop_session_proxy,
-        NULL,
-        &error))
-    g_error ("Failed to start session: %s", error->message);
+  if (session->remote_desktop_session_proxy)
+    {
+      if (!meta_dbus_remote_desktop_session_call_start_sync (
+          session->remote_desktop_session_proxy,
+          NULL,
+          &error))
+        g_error ("Failed to start session: %s", error->message);
+    }
+  else
+    {
+      if (!meta_dbus_screen_cast_session_call_start_sync (
+          session->screen_cast_session_proxy,
+          NULL,
+          &error))
+        g_error ("Failed to start session: %s", error->message);
+    }
 }
 
 void
@@ -480,11 +491,22 @@ session_stop (Session *session)
 {
   GError *error = NULL;
 
-  if (!meta_dbus_remote_desktop_session_call_stop_sync (
-        session->remote_desktop_session_proxy,
-        NULL,
-        &error))
-    g_error ("Failed to stop session: %s", error->message);
+  if (session->remote_desktop_session_proxy)
+    {
+      if (!meta_dbus_remote_desktop_session_call_stop_sync (
+          session->remote_desktop_session_proxy,
+          NULL,
+          &error))
+        g_error ("Failed to stop session: %s", error->message);
+    }
+  else
+    {
+      if (!meta_dbus_screen_cast_session_call_stop_sync (
+          session->screen_cast_session_proxy,
+          NULL,
+          &error))
+        g_error ("Failed to stop session: %s", error->message);
+    }
 }
 
 Stream *
@@ -546,38 +568,45 @@ screen_cast_create_session (RemoteDesktop *remote_desktop,
   GVariantBuilder properties_builder;
   GError *error = NULL;
   g_autofree char *remote_desktop_session_path = NULL;
-  MetaDBusRemoteDesktopSession *remote_desktop_session_proxy;
+  MetaDBusRemoteDesktopSession *remote_desktop_session_proxy = NULL;
   g_autofree char *screen_cast_session_path = NULL;
   MetaDBusScreenCastSession *screen_cast_session_proxy;
-  const char *session_id;
+  const char *session_id = NULL;
   Session *session;
 
-  if (!meta_dbus_remote_desktop_call_create_session_sync (
-        remote_desktop->proxy,
-        &remote_desktop_session_path,
-        NULL,
-        &error))
-    g_error ("Failed to create session: %s", error->message);
+  if (remote_desktop)
+    {
+      if (!meta_dbus_remote_desktop_call_create_session_sync (
+          remote_desktop->proxy,
+          &remote_desktop_session_path,
+          NULL,
+          &error))
+        g_error ("Failed to create session: %s", error->message);
 
-  remote_desktop_session_proxy =
-    meta_dbus_remote_desktop_session_proxy_new_for_bus_sync (
-      G_BUS_TYPE_SESSION,
-      G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
-      "org.gnome.Mutter.RemoteDesktop",
-      remote_desktop_session_path,
-      NULL,
-      &error);
-  if (!remote_desktop_session_proxy)
-    g_error ("Failed to acquire proxy: %s", error->message);
+      remote_desktop_session_proxy =
+        meta_dbus_remote_desktop_session_proxy_new_for_bus_sync (
+          G_BUS_TYPE_SESSION,
+          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+          "org.gnome.Mutter.RemoteDesktop",
+          remote_desktop_session_path,
+          NULL,
+          &error);
+      if (!remote_desktop_session_proxy)
+        g_error ("Failed to acquire proxy: %s", error->message);
 
-  session_id =
-    meta_dbus_remote_desktop_session_get_session_id (
-      remote_desktop_session_proxy);
+      session_id =
+        meta_dbus_remote_desktop_session_get_session_id (
+          remote_desktop_session_proxy);
+    }
 
   g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
-  g_variant_builder_add (&properties_builder, "{sv}",
-                         "remote-desktop-session-id",
-                         g_variant_new_string (session_id));
+
+  if (session_id)
+    {
+      g_variant_builder_add (&properties_builder, "{sv}",
+                             "remote-desktop-session-id",
+                             g_variant_new_string (session_id));
+    }
 
   if (!meta_dbus_screen_cast_call_create_session_sync (
         screen_cast->proxy,
