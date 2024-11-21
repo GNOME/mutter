@@ -226,9 +226,9 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   rowstride = width * 4;
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-  cogl_format = COGL_PIXEL_FORMAT_BGRA_8888;
+  cogl_format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
 #else
-  cogl_format = COGL_PIXEL_FORMAT_ARGB_8888;
+  cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
 #endif
 
   clutter_backend = clutter_get_default_backend ();
