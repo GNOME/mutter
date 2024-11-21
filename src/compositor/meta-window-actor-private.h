@@ -114,3 +114,8 @@ void meta_window_actor_add_surface_actor (MetaWindowActor  *window_actor,
 
 void meta_window_actor_remove_surface_actor (MetaWindowActor  *window_actor,
                                              MetaSurfaceActor *surface_actor);
+
+void meta_window_actor_set_tied_to_drag (MetaWindowActor *window_actor,
+                                         gboolean         tied_to_drag);
+
+gboolean meta_window_actor_is_tied_to_drag (MetaWindowActor *window_actor);

@@ -82,6 +82,9 @@ typedef struct _MetaWindowActorPrivate
 
   guint             updates_frozen         : 1;
   guint             first_frame_state      : 2; /* FirstFrameState */
+
+  /* whether the associated window was created during a window drag */
+  unsigned int tied_to_drag : 1;
 } MetaWindowActorPrivate;
 
 enum
@@ -1807,4 +1810,21 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
 out:
   clutter_actor_uninhibit_culling (actor);
   return content;
+}
+
+void
+meta_window_actor_set_tied_to_drag (MetaWindowActor *window_actor,
+                                    gboolean         tied_to_drag)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  priv->tied_to_drag = tied_to_drag;
+}
+
+gboolean
+meta_window_actor_is_tied_to_drag (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  return priv->tied_to_drag;
 }

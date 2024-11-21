@@ -2298,6 +2298,13 @@ meta_window_update_visibility (MetaWindow  *window)
   implement_showing (window, meta_window_should_be_showing (window));
 }
 
+static gboolean
+meta_window_is_tied_to_drag (MetaWindow *window)
+{
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+  return window_actor && meta_window_actor_is_tied_to_drag (window_actor);
+}
+
 static void
 meta_window_show (MetaWindow *window)
 {
@@ -4025,7 +4032,10 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   constrained_rect = unconstrained_rect;
   temporary_rect = rect;
-  if (flags & META_MOVE_RESIZE_CONSTRAIN && window->monitor)
+  /* Do not constrain if it is tied to an ongoing window drag. */
+  if ((flags & META_MOVE_RESIZE_CONSTRAIN) &&
+      window->monitor &&
+      !meta_window_is_tied_to_drag (window))
     {
       MtkRectangle old_rect;
 
