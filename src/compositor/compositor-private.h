@@ -79,7 +79,8 @@ gboolean meta_compositor_drag_window (MetaCompositor       *compositor,
                                       ClutterInputDevice   *device,
                                       ClutterEventSequence *sequence,
                                       uint32_t              timestamp,
-                                      graphene_point_t     *pos_hint);
+                                      graphene_point_t     *pos_hint,
+                                      ClutterActor         *grab_actor);
 
 MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);
 

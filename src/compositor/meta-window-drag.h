@@ -32,7 +32,8 @@ MetaWindowDrag * meta_window_drag_new (MetaWindow *window,
 gboolean meta_window_drag_begin (MetaWindowDrag       *drag,
                                  ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
-                                 uint32_t              timestamp);
+                                 uint32_t              timestamp,
+                                 ClutterActor         *grab_actor);
 
 void meta_window_drag_end (MetaWindowDrag *drag);
 
