@@ -38,6 +38,10 @@ MetaCursor meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprit
 
 XcursorImage * meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xcursor);
 
+void meta_cursor_sprite_xcursor_get_scaled_image_size (MetaCursorSpriteXcursor *sprite_xcursor,
+                                                       int                     *width,
+                                                       int                     *height);
+
 META_EXPORT_TEST
 const char * meta_cursor_get_name (MetaCursor cursor);
 
