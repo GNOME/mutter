@@ -347,14 +347,11 @@ paint_egl_image (ContextData *context_data,
   GLBAS (gles3, glDeleteTextures, (1, &texture));
 }
 
-gboolean
-meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
-                                           MetaGles3      *gles3,
-                                           EGLDisplay      egl_display,
-                                           EGLContext      egl_context,
-                                           EGLSurface      egl_surface,
-                                           struct gbm_bo  *shared_bo,
-                                           GError        **error)
+static EGLImageKHR
+meta_create_gbm_bo_egl_image (MetaEgl        *egl,
+                              EGLDisplay      egl_display,
+                              struct gbm_bo  *shared_bo,
+                              GError        **error)
 {
   int shared_bo_fd;
   unsigned int width;
@@ -367,28 +364,6 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
   uint32_t format;
   EGLImageKHR egl_image;
   gboolean use_modifiers;
-  GQuark context_data_quark;
-  ContextData *context_data;
-  gboolean can_blit;
-
-  context_data_quark = get_quark_for_egl_context (egl_context);
-  context_data = g_object_get_qdata (G_OBJECT (gles3), context_data_quark);
-  if (!context_data)
-    {
-      context_data = g_new0 (ContextData, 1);
-      context_data->buffer_support = g_array_new (FALSE, FALSE,
-                                                  sizeof (BufferTypeSupport));
-
-      g_object_set_qdata_full (G_OBJECT (gles3),
-                               context_data_quark,
-                               context_data,
-                               (GDestroyNotify) context_data_free);
-    }
-
-  can_blit = can_blit_buffer (context_data,
-                              egl, egl_display,
-                              gbm_bo_get_format (shared_bo),
-                              gbm_bo_get_modifier (shared_bo));
 
   shared_bo_fd = gbm_bo_get_fd (shared_bo);
   if (shared_bo_fd < 0)
@@ -431,8 +406,51 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
                                             error);
   close (shared_bo_fd);
 
-  if (!egl_image)
-    return FALSE;
+  return egl_image;
+}
+
+gboolean
+meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
+                                           MetaGles3      *gles3,
+                                           EGLDisplay      egl_display,
+                                           EGLContext      egl_context,
+                                           EGLSurface      egl_surface,
+                                           struct gbm_bo  *shared_bo,
+                                           GError        **error)
+{
+  unsigned int width;
+  unsigned int height;
+  GQuark context_data_quark;
+  ContextData *context_data;
+  gboolean can_blit;
+  EGLImageKHR egl_image = EGL_NO_IMAGE;
+
+  context_data_quark = get_quark_for_egl_context (egl_context);
+  context_data = g_object_get_qdata (G_OBJECT (gles3), context_data_quark);
+  if (!context_data)
+    {
+      context_data = g_new0 (ContextData, 1);
+      context_data->buffer_support = g_array_new (FALSE, FALSE,
+                                                  sizeof (BufferTypeSupport));
+
+      g_object_set_qdata_full (G_OBJECT (gles3),
+                               context_data_quark,
+                               context_data,
+                               (GDestroyNotify) context_data_free);
+    }
+
+  can_blit = can_blit_buffer (context_data,
+                              egl, egl_display,
+                              gbm_bo_get_format (shared_bo),
+                              gbm_bo_get_modifier (shared_bo));
+
+  width = gbm_bo_get_width (shared_bo);
+  height = gbm_bo_get_height (shared_bo);
+
+  egl_image = meta_create_gbm_bo_egl_image (egl,
+                                            egl_display,
+                                            shared_bo,
+                                            error);
 
   if (can_blit)
     blit_egl_image (gles3, egl_image, width, height);
