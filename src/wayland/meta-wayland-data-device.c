@@ -36,14 +36,20 @@
 
 #include "backends/meta-dnd-private.h"
 #include "compositor/meta-dnd-actor-private.h"
+#include "compositor/meta-surface-actor.h"
+#include "compositor/meta-window-drag.h"
 #include "core/meta-selection-private.h"
+#include "meta/meta-debug.h"
 #include "meta/meta-selection-source-memory.h"
+#include "meta/meta-wayland-surface.h"
 #include "wayland/meta-selection-source-wayland-private.h"
+#include "wayland/meta-wayland-data-source.h"
 #include "wayland/meta-wayland-dnd-surface.h"
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 #include "wayland/meta-wayland-toplevel-drag.h"
+#include "wayland/meta-wayland-types.h"
 
 #define ROOTWINDOW_DROP_MIME "application/x-rootwindow-drop"
 
@@ -511,6 +517,12 @@ data_device_update_position (MetaWaylandDragGrab *drag_grab,
 }
 
 static gboolean
+is_dragging_window (MetaWaylandSeat *seat)
+{
+  return meta_wayland_data_device_get_toplevel_drag (&seat->data_device) != NULL;
+}
+
+static gboolean
 drag_grab_motion (MetaWaylandEventHandler *handler,
 		  const ClutterEvent      *event,
                   gpointer                 user_data)
@@ -540,7 +552,7 @@ drag_grab_motion (MetaWaylandEventHandler *handler,
 
   meta_dnd_wayland_on_motion_event (meta_backend_get_dnd (backend), event);
 
-  return CLUTTER_EVENT_STOP;
+  return !is_dragging_window (drag_grab->seat);
 }
 
 static gboolean
@@ -551,6 +563,7 @@ drag_grab_release (MetaWaylandEventHandler *handler,
   MetaWaylandDragGrab *drag_grab = user_data;
   MetaWaylandSeat *seat = drag_grab->seat;
   MetaWaylandDataSource *source = drag_grab->drag_data_source;
+  MetaWaylandToplevelDrag *toplevel_drag;
   gboolean success;
 
   if (drag_grab->device != clutter_event_get_device (event) ||
@@ -565,12 +578,22 @@ drag_grab_release (MetaWaylandEventHandler *handler,
                            CLUTTER_BUTTON5_MASK)) > 1)
     return CLUTTER_EVENT_STOP;
 
+  toplevel_drag = meta_wayland_data_device_get_toplevel_drag (&seat->data_device);
+  if (toplevel_drag)
+    {
+      meta_topic (META_DEBUG_WAYLAND, "Will end xdg_toplevel_drag#%u.",
+                  wl_resource_get_id (toplevel_drag->resource));
+      meta_wayland_data_source_notify_drop_performed (source);
+      meta_wayland_toplevel_drag_end (toplevel_drag);
+    }
+
   if (drag_grab->drag_focus && source &&
       meta_wayland_data_source_has_target (source) &&
       meta_wayland_data_source_get_current_action (source))
     {
       meta_wayland_surface_drag_dest_drop (drag_grab->drag_focus);
-      meta_wayland_data_source_notify_drop_performed (source);
+      if (!meta_wayland_data_source_get_drop_performed (source))
+        meta_wayland_data_source_notify_drop_performed (source);
 
       meta_wayland_data_source_update_in_ask (source);
       success = TRUE;
@@ -609,11 +632,20 @@ drag_grab_key (MetaWaylandEventHandler *handler,
                const ClutterEvent      *event,
                gpointer                 user_data)
 {
+  MetaWaylandToplevelDrag *toplevel_drag;
   MetaWaylandDragGrab *drag_grab = user_data;
   ClutterModifierType modifiers;
 
   if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_Escape)
     {
+      toplevel_drag = meta_wayland_data_device_get_toplevel_drag (&drag_grab->seat->data_device);
+      if (toplevel_drag)
+        {
+          meta_topic (META_DEBUG_WAYLAND, "Will cancel xdg_toplevel_drag#%u.",
+                      wl_resource_get_id (toplevel_drag->resource));
+          meta_wayland_toplevel_drag_end (toplevel_drag);
+        }
+
       meta_wayland_data_device_set_dnd_source (&drag_grab->seat->data_device,
                                                NULL);
       unset_selection_source (&drag_grab->seat->data_device, META_SELECTION_DND);
@@ -1308,4 +1340,13 @@ void
 meta_wayland_data_device_unset_dnd_selection (MetaWaylandDataDevice *data_device)
 {
   unset_selection_source (data_device, META_SELECTION_DND);
+}
+
+MetaWaylandToplevelDrag *
+meta_wayland_data_device_get_toplevel_drag (MetaWaylandDataDevice *data_device)
+{
+  if (!data_device->current_grab || !data_device->current_grab->drag_data_source)
+    return NULL;
+
+  return meta_wayland_data_source_get_toplevel_drag (data_device->current_grab->drag_data_source);
 }

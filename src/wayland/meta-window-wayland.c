@@ -39,6 +39,7 @@
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"
+#include "wayland/meta-wayland-toplevel-drag.h"
 #include "wayland/meta-wayland-window-configuration.h"
 #include "wayland/meta-wayland-xdg-shell.h"
 
@@ -732,6 +733,21 @@ on_window_shown (MetaWindow *window)
     meta_compositor_sync_updates_frozen (window->display->compositor, window);
 }
 
+static MetaWaylandToplevelDrag *
+get_toplevel_drag (MetaWindow *window)
+{
+  MetaWaylandToplevelDrag *toplevel_drag;
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *compositor = meta_context_get_wayland_compositor (context);
+
+  toplevel_drag = meta_wayland_data_device_get_toplevel_drag (&compositor->seat->data_device);
+  if (!toplevel_drag || toplevel_drag->dragged_surface != wl_window->surface)
+    return NULL;
+  return toplevel_drag;
+}
+
 static void
 meta_window_wayland_init (MetaWindowWayland *wl_window)
 {
@@ -1179,6 +1195,8 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   gboolean is_client_resize;
   MetaWindowDrag *window_drag;
   MtkRectangle frame_rect;
+  MetaWindowActor *window_actor;
+  MetaWaylandToplevelDrag *toplevel_drag;
 
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
@@ -1263,6 +1281,14 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
         calculate_position (acked_configuration, &new_geom, &rect);
     }
 
+  toplevel_drag = get_toplevel_drag (window);
+  if (toplevel_drag && !is_window_being_resized && !window->mapped &&
+      rect.width > 0 && rect.height > 0)
+    {
+      meta_wayland_toplevel_drag_calc_origin_for_dragged_window (toplevel_drag,
+                                                                 &rect);
+    }
+
   rect.x += dx;
   rect.y += dy;
 
@@ -1295,6 +1321,15 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     gravity = meta_resize_gravity_from_grab_op (meta_window_drag_get_grab_op (window_drag));
   else
     gravity = META_GRAVITY_STATIC;
+
+  /* Force unconstrained move + northwest gravity when running toplevel drags */
+  if (toplevel_drag && surface == toplevel_drag->dragged_surface)
+    {
+      gravity = META_GRAVITY_NORTH_WEST;
+      window_actor = meta_window_actor_from_window (window);
+      meta_window_actor_set_tied_to_drag (window_actor, TRUE);
+    }
+
   meta_window_move_resize_internal (window,
                                     flags,
                                     META_PLACE_FLAG_NONE,
