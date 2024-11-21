@@ -247,9 +247,11 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
 
   if (meta_is_wayland_compositor ())
     {
-      hotspot_x = ((int) (xc_image->xhot / sprite_xcursor->theme_scale) *
+      hotspot_x = ((int) roundf ((float) xc_image->xhot /
+                                 sprite_xcursor->theme_scale) *
                    sprite_xcursor->theme_scale);
-      hotspot_y = ((int) (xc_image->yhot / sprite_xcursor->theme_scale) *
+      hotspot_y = ((int) roundf ((float) xc_image->yhot /
+                                 sprite_xcursor->theme_scale) *
                    sprite_xcursor->theme_scale);
     }
   else
@@ -271,6 +273,25 @@ meta_cursor_sprite_xcursor_set_theme_scale (MetaCursorSpriteXcursor *sprite_xcur
   if (sprite_xcursor->theme_scale != theme_scale)
     sprite_xcursor->theme_dirty = TRUE;
   sprite_xcursor->theme_scale = theme_scale;
+}
+
+void
+meta_cursor_sprite_xcursor_get_scaled_image_size (MetaCursorSpriteXcursor *sprite_xcursor,
+                                                  int                     *width,
+                                                  int                     *height)
+{
+  XcursorImage *current_image;
+  int theme_size;
+  int image_size;
+  float effective_theme_scale;
+
+  current_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
+  theme_size = meta_prefs_get_cursor_size ();
+  image_size = current_image->size;
+  effective_theme_scale = (float) theme_size / image_size;
+
+  *width = (int) ceilf (current_image->width * effective_theme_scale);
+  *height = (int) ceilf (current_image->width * effective_theme_scale);
 }
 
 static gboolean
