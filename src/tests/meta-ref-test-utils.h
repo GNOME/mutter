@@ -24,6 +24,7 @@ typedef enum _MetaReftestFlag
 {
   META_REFTEST_FLAG_NONE = 0,
   META_REFTEST_FLAG_UPDATE_REF = 1 << 0,
+  META_REFTEST_FLAG_ENSURE_REF = 1 << 1,
 } MetaReftestFlag;
 
 typedef cairo_surface_t * (* MetaRefTestAdaptor) (gpointer adaptor_data);

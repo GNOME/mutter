@@ -315,6 +315,7 @@ meta_ref_test_verify (MetaRefTestAdaptor  adaptor,
   g_autofree char *ref_image_path = NULL;
   cairo_surface_t *ref_image;
   cairo_status_t ref_status;
+  gboolean maybe_update;
 
   image = adaptor (adaptor_data);
 
@@ -330,11 +331,21 @@ meta_ref_test_verify (MetaRefTestAdaptor  adaptor,
   g_assert_nonnull (ref_image);
   ref_status = cairo_surface_status (ref_image);
 
-  if (flags & META_REFTEST_FLAG_UPDATE_REF)
-    {
-      g_assert_true (ref_status == CAIRO_STATUS_FILE_NOT_FOUND ||
-                ref_status == CAIRO_STATUS_SUCCESS);
+  g_assert_true (ref_status == CAIRO_STATUS_FILE_NOT_FOUND ||
+                 ref_status == CAIRO_STATUS_SUCCESS);
 
+  if (ref_status == CAIRO_STATUS_FILE_NOT_FOUND)
+    {
+      maybe_update = ((flags & META_REFTEST_FLAG_UPDATE_REF) ||
+                      (flags & META_REFTEST_FLAG_ENSURE_REF));
+    }
+  else
+    {
+      maybe_update = !!(flags & META_REFTEST_FLAG_UPDATE_REF);
+    }
+
+  if (maybe_update)
+    {
       if (ref_status == CAIRO_STATUS_SUCCESS)
         ensure_expected_format (&ref_image);
 
@@ -427,6 +438,10 @@ meta_ref_test_verify (MetaRefTestAdaptor  adaptor,
                       ref_image_copy_path,
                       result_image_path,
                       diff_image_path);
+        }
+      else
+        {
+          g_message ("Image matched the reference image '%s'.", ref_image_path);
         }
     }
 
