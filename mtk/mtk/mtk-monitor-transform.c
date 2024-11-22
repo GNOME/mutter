@@ -216,3 +216,52 @@ mtk_monitor_transform_transform_matrix (MtkMonitorTransform  transform,
   graphene_matrix_translate (matrix,
                              &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0.0));
 }
+
+const char *
+mtk_monitor_transform_to_string (MtkMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case MTK_MONITOR_TRANSFORM_90:
+      return "90";
+    case MTK_MONITOR_TRANSFORM_270:
+      return "270";
+    case MTK_MONITOR_TRANSFORM_NORMAL:
+      return "normal";
+    case MTK_MONITOR_TRANSFORM_180:
+      return "180";
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
+      return "flipped";
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
+      return "flipped-90";
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
+      return "flipped-180";
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
+      return "flipped-270";
+    }
+
+  g_assert_not_reached ();
+}
+
+MtkMonitorTransform
+mtk_monitor_transform_from_string (const char *name)
+{
+  if (strcmp (name, "90") == 0)
+    return MTK_MONITOR_TRANSFORM_90;
+  if (strcmp (name, "270") == 0)
+    return MTK_MONITOR_TRANSFORM_270;
+  if (strcmp (name, "normal") == 0)
+    return MTK_MONITOR_TRANSFORM_NORMAL;
+  if (strcmp (name, "180") == 0)
+    return MTK_MONITOR_TRANSFORM_180;
+  if (strcmp (name, "flipped") == 0)
+    return MTK_MONITOR_TRANSFORM_FLIPPED;
+  if (strcmp (name, "flipped-90") == 0)
+    return MTK_MONITOR_TRANSFORM_FLIPPED_90;
+  if (strcmp (name, "flipped-180") == 0)
+    return MTK_MONITOR_TRANSFORM_FLIPPED_180;
+  if (strcmp (name, "flipped-270") == 0)
+    return MTK_MONITOR_TRANSFORM_FLIPPED_270;
+
+  g_assert_not_reached ();
+}
