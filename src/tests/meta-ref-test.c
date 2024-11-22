@@ -24,6 +24,10 @@
  * expressions, the test reference image will be updated, unless the
  * existing reference image is pixel identical to the newly created one.
  *
+ * If MUTTER_REF_TEST_ENSURE_ONLY is set to "1", in combination with
+ * MUTTER_REF_TEST_UPDATE being set, only reference images that doesn't already
+ * exist are updated.
+ *
  * Updating test reference images also requires using a software OpenGL
  * renderer, which can be achieved using MESA_LOADER_DRIVER_OVERRIDE=swrast
  *
@@ -210,18 +214,24 @@ meta_ref_test_verify_view (ClutterStageView *view,
 MetaReftestFlag
 meta_ref_test_determine_ref_test_flag (void)
 {
+  gboolean ensure_only;
   const char *update_tests;
   char **update_test_rules;
   int n_update_test_rules;
   MetaReftestFlag flags;
   int i;
 
+  ensure_only = g_strcmp0 (getenv ("MUTTER_REF_TEST_ENSURE_ONLY"), "1") == 0;
+
   update_tests = g_getenv ("MUTTER_REF_TEST_UPDATE");
   if (!update_tests)
     return META_REFTEST_FLAG_NONE;
 
   if (strcmp (update_tests, "all") == 0)
-    return META_REFTEST_FLAG_UPDATE_REF;
+    {
+      return ensure_only ? META_REFTEST_FLAG_ENSURE_REF
+                         : META_REFTEST_FLAG_UPDATE_REF;
+    }
 
   update_test_rules = g_strsplit (update_tests, ",", -1);
   n_update_test_rules = g_strv_length (update_test_rules);
@@ -234,7 +244,8 @@ meta_ref_test_determine_ref_test_flag (void)
 
       if (g_regex_match_simple (rule, g_test_get_path (), 0, 0))
         {
-          flags |= META_REFTEST_FLAG_UPDATE_REF;
+          flags |= ensure_only ? META_REFTEST_FLAG_ENSURE_REF
+                               : META_REFTEST_FLAG_UPDATE_REF;
           break;
         }
     }
