@@ -75,3 +75,9 @@ void mtk_monitor_transform_transform_point (MtkMonitorTransform  transform,
 MTK_EXPORT
 void mtk_monitor_transform_transform_matrix (MtkMonitorTransform  transform,
                                              graphene_matrix_t   *matrix);
+
+MTK_EXPORT
+const char * mtk_monitor_transform_to_string (MtkMonitorTransform transform);
+
+MTK_EXPORT
+MtkMonitorTransform mtk_monitor_transform_from_string (const char *name);
