@@ -35,6 +35,7 @@
 
 #define CURSOR_SCALE_METHOD_BUFFER_SCALE "buffer-scale"
 #define CURSOR_SCALE_METHOD_VIEWPORT "viewport"
+#define CURSOR_SCALE_METHOD_VIEWPORT_CROPPED "viewport-cropped"
 
 struct _MetaCrossOverlay
 {
@@ -472,10 +473,87 @@ meta_test_native_cursor_scaling (void)
 }
 
 static void
+meta_test_native_cursor_cropping (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaDisplay *display = meta_context_get_display (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  ClutterActor *overlay_actor;
+  ClutterStageView *view;
+  struct {
+    int width;
+    int height;
+    float scale;
+    MetaLogicalMonitorLayoutMode layout_mode;
+  } test_cases[] = {
+    {
+      .width = 1920, .height = 1080, .scale = 1.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
+    {
+      .width = 1920, .height = 1080, .scale = 1.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
+    },
+    {
+      .width = 1920, .height = 1080, .scale = 2.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
+    {
+      .width = 1920, .height = 1080, .scale = 2.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
+    },
+    {
+      .width = 1440, .height = 900, .scale = 1.5,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
+    {
+      .width = 1440, .height = 900, .scale = 2.25,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
+  };
+  int i;
+
+  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  overlay_actor = create_overlay_actor ();
+
+  for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
+    {
+      g_autofree char *ref_test_name = NULL;
+
+      g_debug ("Testing monitor resolution %dx%d with scale %f and "
+               "%s layout mode",
+               test_cases[i].width, test_cases[i].height, test_cases[i].scale,
+               layout_mode_to_string (test_cases[i].layout_mode));
+
+      wait_for_no_windows ();
+
+      ref_test_name = g_strdup_printf ("%s/%d", g_test_get_path (), i);
+
+      view = setup_test_case (test_cases[i].width, test_cases[i].height,
+                              test_cases[i].scale,
+                              test_cases[i].layout_mode,
+                              virtual_pointer);
+
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
+                          META_CURSOR_MOVE_OR_RESIZE_WINDOW,
+                          ref_test_name, 0,
+                          meta_ref_test_determine_ref_test_flag ());
+    }
+
+  clutter_actor_destroy (overlay_actor);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/cursor/scaling",
                    meta_test_native_cursor_scaling);
+  g_test_add_func ("/backends/native/cursor/cropping",
+                   meta_test_native_cursor_cropping);
 }
 
 static void
