@@ -26,6 +26,7 @@ typedef enum _CursorScaleMethod
 {
   CURSOR_SCALE_METHOD_BUFFER_SCALE,
   CURSOR_SCALE_METHOD_VIEWPORT,
+  CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
 } CursorScaleMethod;
 
 static CursorScaleMethod scale_method;
@@ -62,6 +63,7 @@ on_pointer_enter (WaylandSurface    *surface,
       g_clear_pointer (&cursor_viewport, wp_viewport_destroy);
       break;
     case CURSOR_SCALE_METHOD_VIEWPORT:
+    case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
       if (!cursor_viewport)
         {
           cursor_viewport = wp_viewporter_get_viewport (display->viewporter,
@@ -82,6 +84,7 @@ on_pointer_enter (WaylandSurface    *surface,
       effective_theme_size = (int) (theme_size * ceilf (scale));
       break;
     case CURSOR_SCALE_METHOD_VIEWPORT:
+    case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
       effective_theme_size = (int) (theme_size * ceilf (scale));
       break;
     }
@@ -110,6 +113,12 @@ on_pointer_enter (WaylandSurface    *surface,
       hotspot_x = (int) roundf (image->hotspot_x / image_scale);
       hotspot_y = (int) roundf (image->hotspot_y / image_scale);
       break;
+    case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
+      hotspot_x = (int) roundf ((image->hotspot_x -
+                                 (image->width / 4)) / image_scale);
+      hotspot_y = (int) roundf ((image->hotspot_y -
+                                 (image->height / 4)) / image_scale);
+      break;
     }
 
   wl_pointer_set_cursor (pointer, serial,
@@ -129,6 +138,16 @@ on_pointer_enter (WaylandSurface    *surface,
       wp_viewport_set_destination (cursor_viewport,
                                    (int) roundf (image->width / image_scale),
                                    (int) roundf (image->height / image_scale));
+      break;
+    case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
+      wp_viewport_set_source (cursor_viewport,
+                              wl_fixed_from_int (image->width / 4),
+                              wl_fixed_from_int (image->height / 4),
+                              wl_fixed_from_int (image->width / 2),
+                              wl_fixed_from_int (image->height / 2));
+      wp_viewport_set_destination (cursor_viewport,
+                                   (int) roundf (image->width / 2 / image_scale),
+                                   (int) roundf (image->height / 2 / image_scale));
       break;
     }
 
@@ -150,6 +169,8 @@ main (int    argc,
     scale_method = CURSOR_SCALE_METHOD_BUFFER_SCALE;
   else if (g_strcmp0 (argv[1], "viewport") == 0)
     scale_method = CURSOR_SCALE_METHOD_VIEWPORT;
+  else if (g_strcmp0 (argv[1], "viewport-cropped") == 0)
+    scale_method = CURSOR_SCALE_METHOD_VIEWPORT_CROPPED;
   else
     g_error ("Missing scale method");
 
