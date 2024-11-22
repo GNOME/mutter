@@ -330,14 +330,16 @@ meta_wait_for_window_cursor (void)
 }
 
 static void
-test_client_cursor (ClutterStageView *view,
-                    const char       *scale_method,
-                    MetaCursor        cursor,
-                    const char       *ref_test_name,
-                    int               ref_test_seq,
-                    MetaReftestFlag   ref_test_flags)
+test_client_cursor (ClutterStageView    *view,
+                    const char          *scale_method,
+                    MetaCursor           cursor,
+                    MtkMonitorTransform  transform,
+                    const char          *ref_test_name,
+                    int                  ref_test_seq,
+                    MetaReftestFlag      ref_test_flags)
 {
   const char *cursor_name;
+  const char *transform_name;
   MetaWaylandTestClient *test_client;
   MetaWindow *window;
   MetaWindowActor *window_actor;
@@ -345,11 +347,13 @@ test_client_cursor (ClutterStageView *view,
   g_debug ("Testing cursor with client using %s", scale_method);
 
   cursor_name = meta_cursor_get_name (cursor);
+  transform_name = mtk_monitor_transform_to_string (transform);
   test_client =
     meta_wayland_test_client_new_with_args (test_context,
                                             "cursor-tests-client",
                                             scale_method,
                                             cursor_name,
+                                            transform_name,
                                             NULL);
   meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
 
@@ -460,11 +464,13 @@ meta_test_native_cursor_scaling (void)
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_BUFFER_SCALE,
                           cursor,
+                          MTK_MONITOR_TRANSFORM_NORMAL,
                           ref_test_name, 1,
                           meta_ref_test_determine_ref_test_flag ());
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT,
                           cursor,
+                          MTK_MONITOR_TRANSFORM_NORMAL,
                           ref_test_name, 0,
                           META_REFTEST_FLAG_NONE);
     }
@@ -540,7 +546,102 @@ meta_test_native_cursor_cropping (void)
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
                           META_CURSOR_MOVE_OR_RESIZE_WINDOW,
+                          MTK_MONITOR_TRANSFORM_NORMAL,
                           ref_test_name, 0,
+                          meta_ref_test_determine_ref_test_flag ());
+    }
+
+  clutter_actor_destroy (overlay_actor);
+}
+
+static void
+meta_test_native_cursor_transform (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaDisplay *display = meta_context_get_display (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  ClutterActor *overlay_actor;
+  ClutterStageView *view;
+  struct {
+    int width;
+    int height;
+    float scale;
+    MetaLogicalMonitorLayoutMode layout_mode;
+    MtkMonitorTransform transform;
+  } test_cases[] = {
+    {
+      .width = 1920, .height = 1080, .scale = 1.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+      .transform = MTK_MONITOR_TRANSFORM_90,
+    },
+    {
+      .width = 1920, .height = 1080, .scale = 1.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
+      .transform = MTK_MONITOR_TRANSFORM_90,
+    },
+    {
+      .width = 1920, .height = 1080, .scale = 2.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+      .transform = MTK_MONITOR_TRANSFORM_90,
+    },
+    {
+      .width = 1920, .height = 1080, .scale = 2.0,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL,
+      .transform = MTK_MONITOR_TRANSFORM_90,
+    },
+    {
+      .width = 1440, .height = 900, .scale = 1.5,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+    },
+    {
+      .width = 1440, .height = 900, .scale = 2.25,
+      .layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL,
+      .transform = MTK_MONITOR_TRANSFORM_270,
+    },
+  };
+  int i;
+
+  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  overlay_actor = create_overlay_actor ();
+
+  for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
+    {
+      g_autofree char *ref_test_name = NULL;
+
+      g_debug ("Testing monitor resolution %dx%d with scale %f and "
+               "%s layout mode",
+               test_cases[i].width, test_cases[i].height, test_cases[i].scale,
+               layout_mode_to_string (test_cases[i].layout_mode));
+
+      wait_for_no_windows ();
+
+      ref_test_name = g_strdup_printf ("%s/%d", g_test_get_path (), i);
+
+      view = setup_test_case (test_cases[i].width, test_cases[i].height,
+                              test_cases[i].scale,
+                              test_cases[i].layout_mode,
+                              virtual_pointer);
+
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_BUFFER_SCALE,
+                          META_CURSOR_DEFAULT,
+                          test_cases[i].transform,
+                          ref_test_name, 0,
+                          meta_ref_test_determine_ref_test_flag ());
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_VIEWPORT,
+                          META_CURSOR_DEFAULT,
+                          test_cases[i].transform,
+                          ref_test_name, 1,
+                          meta_ref_test_determine_ref_test_flag ());
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
+                          META_CURSOR_MOVE_OR_RESIZE_WINDOW,
+                          test_cases[i].transform,
+                          ref_test_name, 2,
                           meta_ref_test_determine_ref_test_flag ());
     }
 
@@ -554,6 +655,8 @@ init_tests (void)
                    meta_test_native_cursor_scaling);
   g_test_add_func ("/backends/native/cursor/cropping",
                    meta_test_native_cursor_cropping);
+  g_test_add_func ("/backends/native/cursor/transform",
+                   meta_test_native_cursor_transform);
 }
 
 static void

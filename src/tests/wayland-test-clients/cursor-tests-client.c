@@ -20,6 +20,7 @@
 
 #include <wayland-cursor.h>
 
+#include "mtk/mtk.h"
 #include "wayland-test-client-utils.h"
 
 typedef enum _CursorScaleMethod
@@ -31,6 +32,33 @@ typedef enum _CursorScaleMethod
 
 static CursorScaleMethod scale_method;
 static char *cursor_name;
+static MtkMonitorTransform cursor_transform;
+
+static enum wl_output_transform
+wl_output_transform_from_monitor_transform (MtkMonitorTransform transform)
+{
+  switch (transform)
+    {
+    case MTK_MONITOR_TRANSFORM_NORMAL:
+      return WL_OUTPUT_TRANSFORM_NORMAL;
+    case MTK_MONITOR_TRANSFORM_90:
+      return WL_OUTPUT_TRANSFORM_90;
+    case MTK_MONITOR_TRANSFORM_180:
+      return WL_OUTPUT_TRANSFORM_180;
+    case MTK_MONITOR_TRANSFORM_270:
+      return WL_OUTPUT_TRANSFORM_270;
+    case MTK_MONITOR_TRANSFORM_FLIPPED:
+      return WL_OUTPUT_TRANSFORM_FLIPPED;
+    case MTK_MONITOR_TRANSFORM_FLIPPED_90:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_90;
+    case MTK_MONITOR_TRANSFORM_FLIPPED_180:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_180;
+    case MTK_MONITOR_TRANSFORM_FLIPPED_270:
+      return WL_OUTPUT_TRANSFORM_FLIPPED_270;
+    }
+
+  g_assert_not_reached ();
+}
 
 static struct wl_surface *cursor_surface;
 static struct wp_viewport *cursor_viewport;
@@ -51,8 +79,14 @@ on_pointer_enter (WaylandSurface    *surface,
   int ceiled_scale;
   int effective_theme_size = 0;
   float image_scale;
+  int image_width;
+  int image_height;
+  int image_hotspot_x;
+  int image_hotspot_y;
+  MtkMonitorTransform hotspot_transform;
   int hotspot_x = 0;
   int hotspot_y = 0;
+  enum wl_output_transform buffer_transform;
 
   if (!cursor_surface)
     cursor_surface = wl_compositor_create_surface (display->compositor);
@@ -103,30 +137,45 @@ on_pointer_enter (WaylandSurface    *surface,
 
   image_scale = ((float) image->width / theme_size);
 
+  image_width = image->width;
+  image_height = image->height;
+  image_hotspot_x = image->hotspot_x;
+  image_hotspot_y = image->hotspot_y;
+  hotspot_transform = mtk_monitor_transform_invert (cursor_transform);
+  mtk_monitor_transform_transform_point (hotspot_transform,
+                                         &image_width,
+                                         &image_height,
+                                         &image_hotspot_x,
+                                         &image_hotspot_y);
+
   switch (scale_method)
     {
     case CURSOR_SCALE_METHOD_BUFFER_SCALE:
-      hotspot_x = (int) roundf (image->hotspot_x / ceiled_scale);
-      hotspot_y = (int) roundf (image->hotspot_y / ceiled_scale);
+      hotspot_x = (int) roundf (image_hotspot_x / ceiled_scale);
+      hotspot_y = (int) roundf (image_hotspot_y / ceiled_scale);
       break;
     case CURSOR_SCALE_METHOD_VIEWPORT:
-      hotspot_x = (int) roundf (image->hotspot_x / image_scale);
-      hotspot_y = (int) roundf (image->hotspot_y / image_scale);
+      hotspot_x = (int) roundf (image_hotspot_x / image_scale);
+      hotspot_y = (int) roundf (image_hotspot_y / image_scale);
       break;
     case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
-      hotspot_x = (int) roundf ((image->hotspot_x -
-                                 (image->width / 4)) / image_scale);
-      hotspot_y = (int) roundf ((image->hotspot_y -
-                                 (image->height / 4)) / image_scale);
+      hotspot_x = (int) roundf ((image_hotspot_x -
+                                 (image_width / 4)) / image_scale);
+      hotspot_y = (int) roundf ((image_hotspot_y -
+                                 (image_height / 4)) / image_scale);
       break;
     }
+
+  buffer_transform =
+    wl_output_transform_from_monitor_transform (cursor_transform);
+  wl_surface_set_buffer_transform (cursor_surface, buffer_transform);
 
   wl_pointer_set_cursor (pointer, serial,
                          cursor_surface,
                          hotspot_x, hotspot_y);
   wl_surface_attach (cursor_surface, buffer, 0, 0);
   wl_surface_damage_buffer (cursor_surface, 0, 0,
-                            image->width, image->height);
+                            image_width, image_height);
 
   switch (scale_method)
     {
@@ -136,18 +185,18 @@ on_pointer_enter (WaylandSurface    *surface,
       break;
     case CURSOR_SCALE_METHOD_VIEWPORT:
       wp_viewport_set_destination (cursor_viewport,
-                                   (int) roundf (image->width / image_scale),
-                                   (int) roundf (image->height / image_scale));
+                                   (int) roundf (image_width / image_scale),
+                                   (int) roundf (image_height / image_scale));
       break;
     case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
       wp_viewport_set_source (cursor_viewport,
-                              wl_fixed_from_int (image->width / 4),
-                              wl_fixed_from_int (image->height / 4),
-                              wl_fixed_from_int (image->width / 2),
-                              wl_fixed_from_int (image->height / 2));
+                              wl_fixed_from_int (image_width / 4),
+                              wl_fixed_from_int (image_height / 4),
+                              wl_fixed_from_int (image_width / 2),
+                              wl_fixed_from_int (image_height / 2));
       wp_viewport_set_destination (cursor_viewport,
-                                   (int) roundf (image->width / 2 / image_scale),
-                                   (int) roundf (image->height / 2 / image_scale));
+                                   (int) roundf (image_width / 2 / image_scale),
+                                   (int) roundf (image_height / 2 / image_scale));
       break;
     }
 
@@ -175,6 +224,7 @@ main (int    argc,
     g_error ("Missing scale method");
 
   cursor_name = argv[2];
+  cursor_transform = mtk_monitor_transform_from_string (argv[3]);
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
   surface = wayland_surface_new (display,
