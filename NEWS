@@ -1,3 +1,31 @@
+47.2
+====
+* Fix warping pointer after releasing pointer constraints [Sebastian K.; !4098]
+* Default to high thread instead of realtime priority for KMS thread
+  [Jonas Å.; !4124]
+* Avoid CPU stalls with NVIDIA secondary GPUs with directly-attached monitors
+  [Gert-dev; !4015]
+* Fix updating cursor immediately when starting window drag [Olivier; !3639]
+* Add pipeline hooks to user program pipelines [Sebastian W.; !4037]
+* Prefer GPUs with built-in panels connected as primary GPU [Mario; !4114]
+* Fix cursor glitches when using virtual monitors [Jonas Å.; !4066]
+* Ensure frame events are sent for cursor surfaces [Michel; !4113]
+* Allow BGRX8888 format on big endian [Jocelyn; !4088]
+* Fix touchscreen drag-and-drop on wayland [Alessandro; !4091]
+* Fixed crashes [Robert, Jonas D., Peter, Michel; !3176, !3650, !4117, !4136]
+* Misc. bug fixes and cleanups [Bilal, Michel, José, Sebastian W., Jonas Å.,
+  Takao; !4087, !4057, !4109, !4116, !4123, !4064, !4065, !4128, !3604]
+
+Contributors:
+  Alessandro Astone, Jonas Dreßler, Michel Dänzer, Bilal Elmoussaoui,
+  José Expósito, Jocelyn Falempe, Olivier Fourdan, Takao Fujiwara, Gert-dev,
+  Peter Hutterer, Sebastian Keller, Mario Limonciello, Robert Obkircher,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Christian Kirbach [de], Nathan Follens [nl], Danial Behzadi [fa],
+  Марко Костић [sr]
+
 47.1
 ====
 * gwakeup: Reduce wake-ups to only first item in queue [Christian; !4007]
