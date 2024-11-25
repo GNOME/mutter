@@ -1,3 +1,22 @@
+46.7
+====
+* Default to high thread instead of realtime priority for KMS thread
+  [Jonas Å.; !4124]
+* Fix updating cursor immediately when starting window drag [Olivier; !3639]
+* Prefer GPUs with built-in panels connected as primary GPU [Mario; !4114]
+* Fix cursor glitches when using virtual monitors [Jonas Å.; !4066]
+* Ensure frame events are sent for cursor surfaces [Michel; #3735]
+* Allow BGRX8888 format on big endian [Jocelyn; !4088]
+* Fix touchscreen drag-and-drop on wayland [Alessandro; !4091]
+* Fixed crashes [Daniel, Robert, Jonas D., Michel; !4021, !3176, !3650, !4136]
+* Misc. bug fixes and cleanups [Michel, José, Jonas Å., Takao;
+  !4057, !4109, !4116, !4064, !4128, !3604]
+
+Contributors:
+  Alessandro Astone, Jonas Dreßler, Michel Dänzer, José Expósito,
+  Jocelyn Falempe, Olivier Fourdan, Takao Fujiwara, Mario Limonciello,
+  Robert Obkircher, Daniel van Vugt, Jonas Ådahl
+
 46.6
 ====
 * Fix grabbing tablet devices [Jonas; !4033]
