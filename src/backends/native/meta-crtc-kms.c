@@ -185,7 +185,8 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
   MetaBackend *backend = meta_gpu_get_backend (meta_crtc_get_gpu (crtc));
   MetaMonitorManagerNative *monitor_manager_native =
     monitor_manager_from_crtc (crtc);
-  ClutterActor *stage = meta_backend_get_stage (backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererView *renderer_view;
   g_autofree char *gamma_ramp_string = NULL;
   MetaGammaLut *new_gamma;
 
@@ -203,7 +204,10 @@ meta_crtc_kms_set_gamma_lut (MetaCrtc           *crtc,
                                                         new_gamma);
 
   g_signal_emit (crtc_kms, signals[GAMMA_LUT_CHANGED], 0);
-  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+
+  renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
+  if (renderer_view)
+    clutter_stage_view_schedule_update (CLUTTER_STAGE_VIEW (renderer_view));
 }
 
 static gboolean
