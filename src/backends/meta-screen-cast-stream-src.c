@@ -2086,6 +2086,7 @@ meta_screen_cast_stream_src_dispose (GObject *object)
   g_clear_pointer (&priv->pipewire_core, pw_core_disconnect);
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
   g_clear_pointer (&priv->pipewire_source, g_source_destroy);
+  g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
 
   g_warn_if_fail (!priv->dequeued_buffers);
 
