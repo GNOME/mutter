@@ -231,7 +231,7 @@ append_monitor (MetaMonitorManager *manager,
     {
       MetaCrtcMode *mode = l->data;
 
-      output_info->modes[i] = mode;
+      output_info->modes[i] = g_object_ref (mode);
     }
   output_info->n_modes = n_mode_specs;
   output_info->possible_crtcs = g_new0 (MetaCrtc *, 1);
@@ -347,7 +347,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
         {
           MetaCrtcMode *mode = l->data;
 
-          output_info->modes[j] = mode;
+          output_info->modes[j] = g_object_ref (mode);
         }
       output_info->n_modes = G_N_ELEMENTS (mode_specs);
 

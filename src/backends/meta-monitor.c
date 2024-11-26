@@ -40,6 +40,7 @@ typedef struct _MetaMonitorMode
 {
   MetaMonitor *monitor;
   char *id;
+  unsigned int n_crtc_modes;
   MetaMonitorModeSpec spec;
   MetaMonitorCrtcMode *crtc_modes;
 } MetaMonitorMode;
@@ -775,10 +776,11 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
                                              crtc_mode_info->height,
                                              crtc_mode);
       mode->id = generate_mode_id (&mode->spec);
+      mode->n_crtc_modes = 1;
       mode->crtc_modes = g_new (MetaMonitorCrtcMode, 1);
       mode->crtc_modes[0] = (MetaMonitorCrtcMode) {
         .output = output,
-        .crtc_mode = crtc_mode
+        .crtc_mode = g_object_ref (crtc_mode)
       };
 
       /*
@@ -1173,8 +1175,9 @@ create_tiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
     meta_monitor_create_spec (monitor, width, height, reference_crtc_mode);
   mode->parent.id = generate_mode_id (&mode->parent.spec);
 
+  mode->parent.n_crtc_modes = g_list_length (monitor_priv->outputs);
   mode->parent.crtc_modes = g_new0 (MetaMonitorCrtcMode,
-                                    g_list_length (monitor_priv->outputs));
+                                    mode->parent.n_crtc_modes);
   for (l = monitor_priv->outputs, i = 0; l; l = l->next, i++)
     {
       MetaOutput *output = l->data;
@@ -1191,7 +1194,7 @@ create_tiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
 
       mode->parent.crtc_modes[i] = (MetaMonitorCrtcMode) {
         .output = output,
-        .crtc_mode = tiled_crtc_mode
+        .crtc_mode = g_object_ref (tiled_crtc_mode)
       };
 
       is_preferred = (is_preferred &&
@@ -1307,8 +1310,9 @@ create_untiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
                                                 crtc_mode_info->height,
                                                 crtc_mode);
   mode->parent.id = generate_mode_id (&mode->parent.spec);
+  mode->parent.n_crtc_modes = g_list_length (monitor_priv->outputs);
   mode->parent.crtc_modes = g_new0 (MetaMonitorCrtcMode,
-                                    g_list_length (monitor_priv->outputs));
+                                    mode->parent.n_crtc_modes);
 
   for (l = monitor_priv->outputs, i = 0; l; l = l->next, i++)
     {
@@ -1318,7 +1322,7 @@ create_untiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
         {
           mode->parent.crtc_modes[i] = (MetaMonitorCrtcMode) {
             .output = output,
-            .crtc_mode = crtc_mode
+            .crtc_mode = g_object_ref (crtc_mode)
           };
         }
       else
@@ -1678,6 +1682,8 @@ static void
 meta_monitor_mode_free (MetaMonitorMode *monitor_mode)
 {
   g_free (monitor_mode->id);
+  for (int i = 0; i < monitor_mode->n_crtc_modes; i++)
+    g_clear_object (&monitor_mode->crtc_modes[i].crtc_mode);
   g_free (monitor_mode->crtc_modes);
   g_free (monitor_mode);
 }

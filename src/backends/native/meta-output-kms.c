@@ -185,13 +185,13 @@ add_common_modes (MetaOutputInfo *output_info,
           crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
                                                            fallback_mode,
                                                            META_CRTC_REFRESH_RATE_MODE_VARIABLE);
-          g_ptr_array_add (array, crtc_mode);
+          g_ptr_array_add (array, g_object_ref (crtc_mode));
         }
 
       crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
                                                        fallback_mode,
                                                        META_CRTC_REFRESH_RATE_MODE_FIXED);
-      g_ptr_array_add (array, crtc_mode);
+      g_ptr_array_add (array, g_object_ref (crtc_mode));
     }
 
   output_info->modes = g_renew (MetaCrtcMode *, output_info->modes,
@@ -309,7 +309,7 @@ init_output_modes (MetaOutputInfo    *output_info,
             meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
                                                  kms_mode,
                                                  META_CRTC_REFRESH_RATE_MODE_VARIABLE);
-          output_info->modes[i++] = crtc_mode;
+          output_info->modes[i++] = g_object_ref (crtc_mode);
           if (!output_info->preferred_mode && kms_mode == kms_preferred_mode)
             output_info->preferred_mode = crtc_mode;
         }
@@ -317,7 +317,7 @@ init_output_modes (MetaOutputInfo    *output_info,
       crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
                                                        kms_mode,
                                                        META_CRTC_REFRESH_RATE_MODE_FIXED);
-      output_info->modes[i++] = crtc_mode;
+      output_info->modes[i++] = g_object_ref (crtc_mode);
       if (!output_info->preferred_mode && kms_mode == kms_preferred_mode)
         output_info->preferred_mode = crtc_mode;
     }

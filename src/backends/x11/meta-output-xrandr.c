@@ -874,7 +874,7 @@ output_info_init_modes (MetaOutputInfo *output_info,
             {
               if (sanity_check_duplicate (output_info->modes, n_actual_modes, mode))
                 {
-                  output_info->modes[n_actual_modes] = mode;
+                  output_info->modes[n_actual_modes] = g_object_ref (mode);
                   n_actual_modes += 1;
                 }
               else
