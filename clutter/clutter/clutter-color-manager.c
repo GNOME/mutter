@@ -57,6 +57,8 @@ clutter_color_manager_finalize (GObject *object)
 {
   ClutterColorManager *color_manager = CLUTTER_COLOR_MANAGER (object);
 
+  g_clear_object (&color_manager->default_color_state);
+
   g_clear_pointer (&color_manager->snippet_cache, g_hash_table_unref);
 
   G_OBJECT_CLASS (clutter_color_manager_parent_class)->finalize (object);
