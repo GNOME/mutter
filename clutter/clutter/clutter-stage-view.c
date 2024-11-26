@@ -1335,6 +1335,7 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_object (&priv->color_state);
   g_clear_object (&priv->offscreen);
   g_clear_object (&priv->offscreen_pipeline);
+  g_clear_object (&priv->output_color_state);
   g_clear_pointer (&priv->redraw_clip, mtk_region_unref);
   g_clear_pointer (&priv->accumulated_redraw_clip, mtk_region_unref);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
