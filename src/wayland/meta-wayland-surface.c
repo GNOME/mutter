@@ -2409,7 +2409,6 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   MetaSurfaceActor *surface_actor;
   MtkMonitorTransform view_transform;
   ClutterActorBox actor_box;
-  MtkRectangle *crtc_dst_rect_ptr = NULL;
   MtkRectangle crtc_dst_rect;
   graphene_rect_t *src_rect_ptr = NULL;
   graphene_rect_t src_rect;
@@ -2465,13 +2464,6 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
                            view_crtc_height,
                            &crtc_dst_rect);
 
-  /* Use an implicit destination rect when possible */
-  if (surface->viewport.has_dst_size ||
-      crtc_dst_rect.x != 0 || crtc_dst_rect.y != 0 ||
-      crtc_dst_rect.width != view_crtc_width ||
-      crtc_dst_rect.height != view_crtc_height)
-    crtc_dst_rect_ptr = &crtc_dst_rect;
-
   if (surface->viewport.has_src_rect)
     {
       src_rect = surface->viewport.src_rect;
@@ -2481,7 +2473,7 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   return meta_wayland_buffer_try_acquire_scanout (surface->buffer,
                                                   onscreen,
                                                   src_rect_ptr,
-                                                  crtc_dst_rect_ptr);
+                                                  &crtc_dst_rect);
 }
 
 MetaCrtc *

@@ -666,9 +666,9 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
       return NULL;
     }
 
-  scanout = cogl_scanout_new (COGL_SCANOUT_BUFFER (g_steal_pointer (&fb)));
+  scanout = cogl_scanout_new (COGL_SCANOUT_BUFFER (g_steal_pointer (&fb)),
+                              dst_rect);
   cogl_scanout_set_src_rect (scanout, src_rect);
-  cogl_scanout_set_dst_rect (scanout, dst_rect);
 
   if (!meta_onscreen_native_is_buffer_scanout_compatible (onscreen, scanout))
     {
