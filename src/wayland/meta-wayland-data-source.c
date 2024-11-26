@@ -60,6 +60,14 @@ enum
 
 static GParamSpec *props[N_PROPS] = { 0 };
 
+enum
+{
+  DESTROY,
+  LAST_SIGNAL
+};
+
+static guint signals[LAST_SIGNAL] = { 0 };
+
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandDataSource, meta_wayland_data_source,
                             G_TYPE_OBJECT);
 
@@ -231,6 +239,13 @@ meta_wayland_data_source_class_init (MetaWaylandDataSourceClass *klass)
                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
+
+  signals[DESTROY] =
+    g_signal_new ("destroy",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
@@ -297,6 +312,8 @@ static void
 destroy_data_source (struct wl_resource *resource)
 {
   MetaWaylandDataSource *source = wl_resource_get_user_data (resource);
+
+  g_signal_emit (source, signals[DESTROY], 0);
 
   meta_wayland_data_source_set_resource (source, NULL);
   g_object_unref (source);
