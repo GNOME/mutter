@@ -727,7 +727,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
           int mode_index;
 
           mode_index = setup->outputs[i].modes[j];
-          modes[j] = g_list_nth_data (test_setup->modes, mode_index);
+          modes[j] = g_object_ref (g_list_nth_data (test_setup->modes, mode_index));
         }
 
       n_possible_crtcs = setup->outputs[i].n_possible_crtcs;

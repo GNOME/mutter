@@ -113,6 +113,8 @@ meta_output_info_unref (MetaOutputInfo *output_info)
       g_free (output_info->serial);
       g_free (output_info->edid_checksum_md5);
       g_clear_pointer (&output_info->edid_info, meta_edid_info_free);
+      for (int i = 0; i < output_info->n_modes; i++)
+        g_object_unref (output_info->modes[i]);
       g_free (output_info->modes);
       g_free (output_info->possible_crtcs);
       g_free (output_info->possible_clones);
