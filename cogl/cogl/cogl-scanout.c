@@ -48,7 +48,6 @@ struct _CoglScanout
 
   gboolean has_src_rect;
   graphene_rect_t src_rect;
-  gboolean has_dst_rect;
   MtkRectangle dst_rect;
 };
 
@@ -104,11 +103,16 @@ cogl_scanout_notify_failed (CoglScanout  *scanout,
 }
 
 CoglScanout *
-cogl_scanout_new (CoglScanoutBuffer *scanout_buffer)
+cogl_scanout_new (CoglScanoutBuffer  *scanout_buffer,
+                  const MtkRectangle *dst_rect)
 {
-  CoglScanout *scanout = g_object_new (COGL_TYPE_SCANOUT, NULL);
+  CoglScanout *scanout;
 
+  g_return_val_if_fail (dst_rect, NULL);
+
+  scanout = g_object_new (COGL_TYPE_SCANOUT, NULL);
   scanout->scanout_buffer = scanout_buffer;
+  scanout->dst_rect = *dst_rect;
 
   return scanout;
 }
@@ -141,28 +145,9 @@ cogl_scanout_set_src_rect (CoglScanout           *scanout,
 
 void
 cogl_scanout_get_dst_rect (CoglScanout  *scanout,
-                           MtkRectangle *rect)
+                           MtkRectangle *dst_rect)
 {
-  if (scanout->has_dst_rect)
-    {
-      *rect = scanout->dst_rect;
-      return;
-    }
-
-  rect->x = 0;
-  rect->y = 0;
-  rect->width = cogl_scanout_buffer_get_width (scanout->scanout_buffer);
-  rect->height = cogl_scanout_buffer_get_height (scanout->scanout_buffer);
-}
-
-void
-cogl_scanout_set_dst_rect (CoglScanout        *scanout,
-                           const MtkRectangle *rect)
-{
-  if (rect != NULL)
-    scanout->dst_rect = *rect;
-
-  scanout->has_dst_rect = rect != NULL;
+  *dst_rect = scanout->dst_rect;
 }
 
 static void
