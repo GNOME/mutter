@@ -2409,14 +2409,14 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   MetaSurfaceActor *surface_actor;
   MtkMonitorTransform view_transform;
   ClutterActorBox actor_box;
-  MtkRectangle *dst_rect_ptr = NULL;
-  MtkRectangle dst_rect;
+  MtkRectangle *crtc_dst_rect_ptr = NULL;
+  MtkRectangle crtc_dst_rect;
   graphene_rect_t *src_rect_ptr = NULL;
   graphene_rect_t src_rect;
   MtkRectangle view_rect;
   float view_scale;
-  int untransformed_view_width;
-  int untransformed_view_height;
+  int view_crtc_width;
+  int view_crtc_height;
 
   if (!surface->buffer)
     return NULL;
@@ -2441,7 +2441,7 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   clutter_stage_view_get_layout (stage_view, &view_rect);
   view_scale = clutter_stage_view_get_scale (stage_view);
 
-  dst_rect = (MtkRectangle) {
+  crtc_dst_rect = (MtkRectangle) {
     .x = (int) roundf ((actor_box.x1 - view_rect.x) * view_scale),
     .y = (int) roundf ((actor_box.y1 - view_rect.y) * view_scale),
     .width = (int) roundf ((actor_box.x2 - actor_box.x1) * view_scale),
@@ -2450,27 +2450,27 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
 
   if (mtk_monitor_transform_is_rotated (view_transform))
     {
-      untransformed_view_width = view_rect.height;
-      untransformed_view_height = view_rect.width;
+      view_crtc_width = (int) roundf (view_rect.height * view_scale);
+      view_crtc_height = (int) roundf (view_rect.width * view_scale);
     }
   else
     {
-      untransformed_view_width = view_rect.width;
-      untransformed_view_height = view_rect.height;
+      view_crtc_width = (int) roundf (view_rect.width * view_scale);
+      view_crtc_height = (int) roundf (view_rect.height * view_scale);
     }
 
-  mtk_rectangle_transform (&dst_rect,
+  mtk_rectangle_transform (&crtc_dst_rect,
                            view_transform,
-                           untransformed_view_width,
-                           untransformed_view_height,
-                           &dst_rect);
+                           view_crtc_width,
+                           view_crtc_height,
+                           &crtc_dst_rect);
 
   /* Use an implicit destination rect when possible */
   if (surface->viewport.has_dst_size ||
-      dst_rect.x != 0 || dst_rect.y != 0 ||
-      dst_rect.width != untransformed_view_width ||
-      dst_rect.height != untransformed_view_height)
-    dst_rect_ptr = &dst_rect;
+      crtc_dst_rect.x != 0 || crtc_dst_rect.y != 0 ||
+      crtc_dst_rect.width != view_crtc_width ||
+      crtc_dst_rect.height != view_crtc_height)
+    crtc_dst_rect_ptr = &crtc_dst_rect;
 
   if (surface->viewport.has_src_rect)
     {
@@ -2481,7 +2481,7 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
   return meta_wayland_buffer_try_acquire_scanout (surface->buffer,
                                                   onscreen,
                                                   src_rect_ptr,
-                                                  dst_rect_ptr);
+                                                  crtc_dst_rect_ptr);
 }
 
 MetaCrtc *
