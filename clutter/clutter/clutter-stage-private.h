@@ -147,8 +147,8 @@ void clutter_stage_invalidate_devices (ClutterStage *stage);
 
 GPtrArray * clutter_stage_get_active_gestures_array (ClutterStage *self);
 
-ClutterActor * clutter_stage_update_device_for_event (ClutterStage *stage,
-                                                      ClutterEvent *event);
+void clutter_stage_update_device_for_event (ClutterStage *stage,
+                                            ClutterEvent *event);
 
 void clutter_stage_update_devices_in_view (ClutterStage     *stage,
                                            ClutterStageView *view);

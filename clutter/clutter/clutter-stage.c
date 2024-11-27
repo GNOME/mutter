@@ -160,13 +160,13 @@ static void clutter_stage_set_viewport (ClutterStage *stage,
                                         float         width,
                                         float         height);
 
-static ClutterActor * clutter_stage_pick_and_update_device (ClutterStage             *stage,
-                                                            ClutterInputDevice       *device,
-                                                            ClutterEventSequence     *sequence,
-                                                            ClutterInputDevice       *source_device,
-                                                            ClutterDeviceUpdateFlags  flags,
-                                                            graphene_point_t          point,
-                                                            uint32_t                  time_ms);
+static void clutter_stage_pick_and_update_device (ClutterStage             *stage,
+                                                  ClutterInputDevice       *device,
+                                                  ClutterEventSequence     *sequence,
+                                                  ClutterInputDevice       *source_device,
+                                                  ClutterDeviceUpdateFlags  flags,
+                                                  graphene_point_t          point,
+                                                  uint32_t                  time_ms);
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStage, clutter_stage, CLUTTER_TYPE_ACTOR)
 
@@ -3131,7 +3131,7 @@ clutter_stage_check_in_clear_area (ClutterStage         *stage,
   return clutter_sprite_point_in_clear_area (sprite, point);
 }
 
-static ClutterActor *
+static void
 clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       ClutterInputDevice       *device,
                                       ClutterEventSequence     *sequence,
@@ -3157,7 +3157,7 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
             {
               clutter_stage_set_device_coords (stage, device,
                                                sequence, point);
-              return clutter_stage_get_device_actor (stage, device, sequence);
+              return;
             }
         }
 
@@ -3168,7 +3168,7 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                           &clear_area);
 
       /* Picking should never fail, but if it does, we bail out here */
-      g_return_val_if_fail (new_actor != NULL, NULL);
+      g_return_if_fail (new_actor != NULL);
     }
 
   clutter_stage_update_device (stage,
@@ -3181,8 +3181,6 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                !!(flags & CLUTTER_DEVICE_UPDATE_EMIT_CROSSING));
 
   g_clear_pointer (&clear_area, mtk_region_unref);
-
-  return new_actor;
 }
 
 static void
@@ -3714,7 +3712,7 @@ clutter_stage_get_active_gestures_array (ClutterStage *self)
   return priv->all_active_gestures;
 }
 
-ClutterActor *
+void
 clutter_stage_update_device_for_event (ClutterStage *stage,
                                        ClutterEvent *event)
 {
@@ -3741,7 +3739,7 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
               device_type != CLUTTER_PEN_DEVICE &&
               device_type != CLUTTER_ERASER_DEVICE &&
               device_type != CLUTTER_CURSOR_DEVICE)
-            return NULL;
+            return;
         }
 
       clutter_event_get_coords (event, &point.x, &point.y);
@@ -3757,8 +3755,6 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
                                    TRUE);
 
       clutter_stage_remove_device_entry (stage, device, sequence);
-
-      return NULL;
     }
   else
     {
@@ -3788,13 +3784,13 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
             g_hash_table_insert (priv->pointer_devices, device, sprite);
         }
 
-      return clutter_stage_pick_and_update_device (stage,
-                                                   device,
-                                                   sequence,
-                                                   source_device,
-                                                   flags,
-                                                   point,
-                                                   time_ms);
+      clutter_stage_pick_and_update_device (stage,
+                                            device,
+                                            sequence,
+                                            source_device,
+                                            flags,
+                                            point,
+                                            time_ms);
     }
 }
 
