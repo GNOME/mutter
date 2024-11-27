@@ -67,6 +67,7 @@ test_env.set('G_TEST_BUILDDIR', mutter_builddir / 'src' / 'tests')
 test_env.set('G_ENABLE_DIAGNOSTIC', '0')
 test_env.set('CLUTTER_ENABLE_DIAGNOSTIC', '0')
 test_env.set('GSETTINGS_SCHEMA_DIR', locally_compiled_schemas_dir)
+test_env.set('TEST_DATADIR', mutter_srcdir / 'src' / 'tests')
 
 foreach test : clutter_conform_tests
   test_executable = executable('@0@'.format(test),
