@@ -3082,13 +3082,7 @@ clutter_stage_update_device (ClutterStage         *stage,
                              MtkRegion            *clear_area,
                              gboolean              emit_crossing)
 {
-  ClutterInputDeviceType device_type;
   ClutterSprite *sprite;
-
-  device_type = clutter_input_device_get_device_type (device);
-
-  g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
-            device_type != CLUTTER_PAD_DEVICE);
 
   if (!source_device)
     source_device = device;
@@ -3721,9 +3715,12 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterInputDevice *source_device = clutter_event_get_source_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterInputDeviceType device_type;
   ClutterSprite *sprite;
   graphene_point_t point;
   uint32_t time_ms;
+
+  device_type = clutter_input_device_get_device_type (source_device);
 
   if (event_type == CLUTTER_TOUCH_END ||
       event_type == CLUTTER_TOUCH_CANCEL ||
@@ -3731,9 +3728,6 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
     {
       if (clutter_event_type (event) == CLUTTER_DEVICE_REMOVED)
         {
-          ClutterInputDeviceType device_type =
-            clutter_input_device_get_device_type (device);
-
           if (device_type != CLUTTER_POINTER_DEVICE &&
               device_type != CLUTTER_TABLET_DEVICE &&
               device_type != CLUTTER_PEN_DEVICE &&
@@ -3759,6 +3753,9 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
   else
     {
       ClutterDeviceUpdateFlags flags;
+
+      g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
+                device_type != CLUTTER_PAD_DEVICE);
 
       clutter_event_get_coords (event, &point.x, &point.y);
       time_ms = clutter_event_get_time (event);
