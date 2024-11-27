@@ -137,44 +137,6 @@ emit_event (ClutterStage *stage,
   clutter_stage_emit_event (stage, event);
 }
 
-static void
-maybe_remove_device_for_event (ClutterStage *stage,
-                               ClutterEvent *event,
-                               gboolean      emit_crossing)
-{
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  graphene_point_t point;
-  uint32_t time;
-
-  if (clutter_event_type (event) == CLUTTER_DEVICE_REMOVED)
-    {
-      ClutterInputDeviceType device_type =
-        clutter_input_device_get_device_type (device);
-
-      if (device_type != CLUTTER_POINTER_DEVICE &&
-          device_type != CLUTTER_TABLET_DEVICE &&
-          device_type != CLUTTER_PEN_DEVICE &&
-          device_type != CLUTTER_ERASER_DEVICE &&
-          device_type != CLUTTER_CURSOR_DEVICE)
-        return;
-    }
-
-  clutter_event_get_coords (event, &point.x, &point.y);
-  time = clutter_event_get_time (event);
-
-  clutter_stage_update_device (stage,
-                               device, sequence,
-                               NULL,
-                               point,
-                               time,
-                               NULL,
-                               NULL,
-                               TRUE);
-
-  clutter_stage_remove_device_entry (stage, device, sequence);
-}
-
 /**
  * clutter_stage_handle_event:
  * @stage: a #ClutterStage.
@@ -264,7 +226,7 @@ clutter_stage_handle_event (ClutterStage *stage,
       event_type == CLUTTER_DEVICE_REMOVED)
     {
       _clutter_stage_process_queued_events (stage);
-      maybe_remove_device_for_event (stage, event, TRUE);
+      clutter_stage_update_device_for_event (stage, event);
     }
 }
 

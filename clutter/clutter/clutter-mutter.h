@@ -87,17 +87,6 @@ gboolean clutter_seat_handle_event_post (ClutterSeat        *seat,
                                          const ClutterEvent *event);
 
 CLUTTER_EXPORT
-void clutter_stage_update_device (ClutterStage         *stage,
-                                  ClutterInputDevice   *device,
-                                  ClutterEventSequence *sequence,
-                                  ClutterInputDevice   *source_device,
-                                  graphene_point_t      point,
-                                  uint32_t              time,
-                                  ClutterActor         *new_actor,
-                                  MtkRegion            *region,
-                                  gboolean              emit_crossing);
-
-CLUTTER_EXPORT
 gboolean clutter_stage_get_device_coords (ClutterStage         *stage,
                                           ClutterInputDevice   *device,
                                           ClutterEventSequence *sequence,

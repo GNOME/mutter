@@ -2987,7 +2987,7 @@ clutter_stage_update_device_entry (ClutterStage         *self,
   clutter_sprite_update (sprite, coords, clear_area);
 }
 
-void
+static void
 clutter_stage_remove_device_entry (ClutterStage         *self,
                                    ClutterInputDevice   *device,
                                    ClutterEventSequence *sequence)
@@ -3085,7 +3085,7 @@ clutter_stage_set_device_coords (ClutterStage         *stage,
     clutter_sprite_update_coords (sprite, coords);
 }
 
-void
+static void
 clutter_stage_update_device (ClutterStage         *stage,
                              ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
@@ -3732,25 +3732,63 @@ ClutterActor *
 clutter_stage_update_device_for_event (ClutterStage *stage,
                                        ClutterEvent *event)
 {
+  ClutterEventType event_type = clutter_event_type (event);
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterInputDevice *source_device = clutter_event_get_source_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-  ClutterDeviceUpdateFlags flags;
   graphene_point_t point;
   uint32_t time_ms;
 
-  clutter_event_get_coords (event, &point.x, &point.y);
-  time_ms = clutter_event_get_time (event);
+  if (event_type == CLUTTER_TOUCH_END ||
+      event_type == CLUTTER_TOUCH_CANCEL ||
+      event_type == CLUTTER_DEVICE_REMOVED)
+    {
+      if (clutter_event_type (event) == CLUTTER_DEVICE_REMOVED)
+        {
+          ClutterInputDeviceType device_type =
+            clutter_input_device_get_device_type (device);
 
-  flags = CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
+          if (device_type != CLUTTER_POINTER_DEVICE &&
+              device_type != CLUTTER_TABLET_DEVICE &&
+              device_type != CLUTTER_PEN_DEVICE &&
+              device_type != CLUTTER_ERASER_DEVICE &&
+              device_type != CLUTTER_CURSOR_DEVICE)
+            return NULL;
+        }
 
-  return clutter_stage_pick_and_update_device (stage,
-                                               device,
-                                               sequence,
-                                               source_device,
-                                               flags,
-                                               point,
-                                               time_ms);
+      clutter_event_get_coords (event, &point.x, &point.y);
+      time_ms = clutter_event_get_time (event);
+
+      clutter_stage_update_device (stage,
+                                   device, sequence,
+                                   NULL,
+                                   point,
+                                   time_ms,
+                                   NULL,
+                                   NULL,
+                                   TRUE);
+
+      clutter_stage_remove_device_entry (stage, device, sequence);
+
+      return NULL;
+    }
+  else
+    {
+      ClutterDeviceUpdateFlags flags;
+
+      clutter_event_get_coords (event, &point.x, &point.y);
+      time_ms = clutter_event_get_time (event);
+
+      flags = CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
+
+      return clutter_stage_pick_and_update_device (stage,
+                                                   device,
+                                                   sequence,
+                                                   source_device,
+                                                   flags,
+                                                   point,
+                                                   time_ms);
+    }
 }
 
 void

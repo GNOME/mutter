@@ -110,10 +110,6 @@ GList * clutter_stage_get_views_for_rect (ClutterStage          *stage,
 
 void clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage);
 
-void clutter_stage_remove_device_entry (ClutterStage         *self,
-                                        ClutterInputDevice   *device,
-                                        ClutterEventSequence *sequence);
-
 void clutter_stage_unlink_grab (ClutterStage *self,
                                 ClutterGrab  *grab);
 
