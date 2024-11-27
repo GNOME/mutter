@@ -2970,20 +2970,6 @@ clutter_stage_update_device_entry (ClutterStage         *self,
   else
     sprite = g_hash_table_lookup (priv->pointer_devices, device);
 
-  if (!sprite)
-    {
-      sprite = g_object_new (CLUTTER_TYPE_SPRITE,
-                             "stage", self,
-                             "device", device,
-                             "sequence", sequence,
-                             NULL);
-
-      if (sequence != NULL)
-        g_hash_table_insert (priv->touch_sequences, sequence, sprite);
-      else
-        g_hash_table_insert (priv->pointer_devices, device, sprite);
-    }
-
   clutter_sprite_update (sprite, coords, clear_area);
 }
 
@@ -3732,10 +3718,12 @@ ClutterActor *
 clutter_stage_update_device_for_event (ClutterStage *stage,
                                        ClutterEvent *event)
 {
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
   ClutterEventType event_type = clutter_event_type (event);
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterInputDevice *source_device = clutter_event_get_source_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterSprite *sprite;
   graphene_point_t point;
   uint32_t time_ms;
 
@@ -3780,6 +3768,25 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
       time_ms = clutter_event_get_time (event);
 
       flags = CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
+
+      if (sequence != NULL)
+        sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
+      else
+        sprite = g_hash_table_lookup (priv->pointer_devices, device);
+
+      if (!sprite)
+        {
+          sprite = g_object_new (CLUTTER_TYPE_SPRITE,
+                                 "stage", stage,
+                                 "device", device,
+                                 "sequence", sequence,
+                                 NULL);
+
+          if (sequence != NULL)
+            g_hash_table_insert (priv->touch_sequences, sequence, sprite);
+          else
+            g_hash_table_insert (priv->pointer_devices, device, sprite);
+        }
 
       return clutter_stage_pick_and_update_device (stage,
                                                    device,
