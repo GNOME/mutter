@@ -1247,6 +1247,8 @@ meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor)
 			META_WL_DATA_DEVICE_MANAGER_VERSION,
 			compositor, bind_manager) == NULL)
     g_error ("Could not create data_device");
+
+  meta_wayland_init_toplevel_drag (compositor);
 }
 
 void
