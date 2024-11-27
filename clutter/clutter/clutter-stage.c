@@ -2953,27 +2953,6 @@ clutter_stage_invalidate_focus (ClutterStage *self,
 }
 
 static void
-clutter_stage_update_device_entry (ClutterStage         *self,
-                                   ClutterInputDevice   *device,
-                                   ClutterEventSequence *sequence,
-                                   graphene_point_t      coords,
-                                   ClutterActor         *actor,
-                                   MtkRegion            *clear_area)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (self);
-  ClutterSprite *sprite = NULL;
-
-  g_assert (device != NULL);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  clutter_sprite_update (sprite, coords, clear_area);
-}
-
-static void
 clutter_stage_remove_device_entry (ClutterStage         *self,
                                    ClutterInputDevice   *device,
                                    ClutterEventSequence *sequence)
@@ -3071,37 +3050,6 @@ clutter_stage_set_device_coords (ClutterStage         *stage,
     clutter_sprite_update_coords (sprite, coords);
 }
 
-static void
-clutter_stage_update_device (ClutterStage         *stage,
-                             ClutterInputDevice   *device,
-                             ClutterEventSequence *sequence,
-                             ClutterInputDevice   *source_device,
-                             graphene_point_t      point,
-                             uint32_t              time_ms,
-                             ClutterActor         *new_actor,
-                             MtkRegion            *clear_area,
-                             gboolean              emit_crossing)
-{
-  ClutterSprite *sprite;
-
-  if (!source_device)
-    source_device = device;
-
-  clutter_stage_update_device_entry (stage,
-                                     device, sequence,
-                                     point,
-                                     new_actor,
-                                     clear_area);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), actor,
-                                   source_device, time_ms);
-}
-
 static gboolean
 clutter_stage_check_in_clear_area (ClutterStage         *stage,
                                    ClutterInputDevice   *device,
@@ -3134,6 +3082,8 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
                                       graphene_point_t          point,
                                       uint32_t                  time_ms)
 {
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
+  ClutterSprite *sprite = NULL;
   ClutterActor *new_actor = NULL;
   MtkRegion *clear_area = NULL;
   ClutterSeat *seat;
@@ -3165,14 +3115,16 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
       g_return_if_fail (new_actor != NULL);
     }
 
-  clutter_stage_update_device (stage,
-                               device, sequence,
-                               source_device,
-                               point,
-                               time_ms,
-                               new_actor,
-                               clear_area,
-                               !!(flags & CLUTTER_DEVICE_UPDATE_EMIT_CROSSING));
+  g_assert (device != NULL);
+
+  if (sequence != NULL)
+    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
+  else
+    sprite = g_hash_table_lookup (priv->pointer_devices, device);
+
+  clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), new_actor,
+                                   source_device, time_ms);
+  clutter_sprite_update (sprite, point, clear_area);
 
   g_clear_pointer (&clear_area, mtk_region_unref);
 }
@@ -3739,15 +3691,16 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
       clutter_event_get_coords (event, &point.x, &point.y);
       time_ms = clutter_event_get_time (event);
 
-      clutter_stage_update_device (stage,
-                                   device, sequence,
-                                   NULL,
-                                   point,
-                                   time_ms,
-                                   NULL,
-                                   NULL,
-                                   TRUE);
+      g_assert (device != NULL);
 
+      if (sequence != NULL)
+        sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
+      else
+        sprite = g_hash_table_lookup (priv->pointer_devices, device);
+
+      clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), NULL,
+                                       source_device, time_ms);
+      clutter_sprite_update (sprite, point, NULL);
       clutter_stage_remove_device_entry (stage, device, sequence);
     }
   else
