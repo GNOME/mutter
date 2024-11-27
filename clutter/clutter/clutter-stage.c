@@ -160,9 +160,8 @@ static void clutter_stage_set_viewport (ClutterStage *stage,
                                         float         width,
                                         float         height);
 
-static void clutter_stage_pick_and_update_device (ClutterStage             *stage,
-                                                  ClutterInputDevice       *device,
-                                                  ClutterEventSequence     *sequence,
+static void clutter_stage_pick_and_update_sprite (ClutterStage             *stage,
+                                                  ClutterSprite            *sprite,
                                                   ClutterInputDevice       *source_device,
                                                   ClutterDeviceUpdateFlags  flags,
                                                   graphene_point_t          point,
@@ -1176,7 +1175,9 @@ static void
 on_seat_unfocus_inhibited_changed (ClutterStage *stage,
                                    ClutterSeat  *seat)
 {
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
   ClutterInputDevice *device;
+  ClutterSprite *sprite;
   graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
   device = clutter_seat_get_pointer (seat);
@@ -1184,9 +1185,11 @@ on_seat_unfocus_inhibited_changed (ClutterStage *stage,
   if (!clutter_stage_get_device_coords (stage, device, NULL, &point))
     return;
 
-  clutter_stage_pick_and_update_device (stage,
-                                        device,
-                                        NULL, NULL,
+  sprite = g_hash_table_lookup (priv->pointer_devices, device);
+  if (!sprite)
+    return;
+
+  clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
                                         CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                         CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
                                         point,
@@ -2910,9 +2913,8 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
       if (clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)) != actor)
         continue;
 
-      clutter_stage_pick_and_update_device (self,
-                                            clutter_sprite_get_device (sprite),
-                                            clutter_sprite_get_sequence (sprite),
+      clutter_stage_pick_and_update_sprite (self,
+                                            sprite,
                                             NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
@@ -2926,9 +2928,8 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
       if (clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)) != actor)
         continue;
 
-      clutter_stage_pick_and_update_device (self,
-                                            clutter_sprite_get_device (sprite),
-                                            clutter_sprite_get_sequence (sprite),
+      clutter_stage_pick_and_update_sprite (self,
+                                            sprite,
                                             NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
@@ -3033,74 +3034,31 @@ clutter_stage_get_device_coords (ClutterStage         *stage,
 }
 
 static void
-clutter_stage_set_device_coords (ClutterStage         *stage,
-                                 ClutterInputDevice   *device,
-                                 ClutterEventSequence *sequence,
-                                 graphene_point_t      coords)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterSprite *sprite = NULL;
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  if (sprite)
-    clutter_sprite_update_coords (sprite, coords);
-}
-
-static gboolean
-clutter_stage_check_in_clear_area (ClutterStage         *stage,
-                                   ClutterInputDevice   *device,
-                                   ClutterEventSequence *sequence,
-                                   graphene_point_t      point)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterSprite *sprite = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-  g_return_val_if_fail (device != NULL, FALSE);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  if (!sprite)
-    return FALSE;
-
-  return clutter_sprite_point_in_clear_area (sprite, point);
-}
-
-static void
-clutter_stage_pick_and_update_device (ClutterStage             *stage,
-                                      ClutterInputDevice       *device,
-                                      ClutterEventSequence     *sequence,
+clutter_stage_pick_and_update_sprite (ClutterStage             *stage,
+                                      ClutterSprite            *sprite,
                                       ClutterInputDevice       *source_device,
                                       ClutterDeviceUpdateFlags  flags,
                                       graphene_point_t          point,
                                       uint32_t                  time_ms)
 {
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterSprite *sprite = NULL;
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *backend =
+    clutter_context_get_backend (context);
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (backend);
   ClutterActor *new_actor = NULL;
   MtkRegion *clear_area = NULL;
-  ClutterSeat *seat;
 
-  seat = clutter_input_device_get_seat (device);
-
-  if (sequence ||
-      device != clutter_seat_get_pointer (seat) ||
+  if (clutter_sprite_get_sequence (sprite) ||
+      clutter_sprite_get_device (sprite) != clutter_seat_get_pointer (seat) ||
       clutter_seat_is_unfocus_inhibited (seat))
     {
       if ((flags & CLUTTER_DEVICE_UPDATE_IGNORE_CACHE) == 0)
         {
-          if (clutter_stage_check_in_clear_area (stage, device,
-                                                 sequence, point))
+          if (clutter_sprite_point_in_clear_area (sprite, point))
             {
-              clutter_stage_set_device_coords (stage, device,
-                                               sequence, point);
+              clutter_sprite_update_coords (sprite, point);
               return;
             }
         }
@@ -3114,13 +3072,6 @@ clutter_stage_pick_and_update_device (ClutterStage             *stage,
       /* Picking should never fail, but if it does, we bail out here */
       g_return_if_fail (new_actor != NULL);
     }
-
-  g_assert (device != NULL);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
 
   clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), new_actor,
                                    source_device, time_ms);
@@ -3734,9 +3685,8 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
             g_hash_table_insert (priv->pointer_devices, device, sprite);
         }
 
-      clutter_stage_pick_and_update_device (stage,
-                                            device,
-                                            sequence,
+      clutter_stage_pick_and_update_sprite (stage,
+                                            sprite,
                                             source_device,
                                             flags,
                                             point,
@@ -3768,9 +3718,8 @@ clutter_stage_update_devices_in_view (ClutterStage     *stage,
       if (pointer_view != view)
         continue;
 
-      clutter_stage_pick_and_update_device (stage,
-                                            clutter_sprite_get_device (sprite),
-                                            clutter_sprite_get_sequence (sprite),
+      clutter_stage_pick_and_update_sprite (stage,
+                                            sprite,
                                             NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
                                             CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
