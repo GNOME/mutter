@@ -1190,8 +1190,7 @@ on_seat_unfocus_inhibited_changed (ClutterStage *stage,
     return;
 
   clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
-                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
-                                        CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
                                         point,
                                         CLUTTER_CURRENT_TIME);
 }
@@ -2916,8 +2915,7 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
       clutter_stage_pick_and_update_sprite (self,
                                             sprite,
                                             NULL,
-                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
-                                            CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
                                             clutter_sprite_get_coords (sprite),
                                             CLUTTER_CURRENT_TIME);
     }
@@ -2931,8 +2929,7 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
       clutter_stage_pick_and_update_sprite (self,
                                             sprite,
                                             NULL,
-                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
-                                            CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
                                             clutter_sprite_get_coords (sprite),
                                             CLUTTER_CURRENT_TIME);
     }
@@ -3656,15 +3653,11 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
     }
   else
     {
-      ClutterDeviceUpdateFlags flags;
-
       g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
                 device_type != CLUTTER_PAD_DEVICE);
 
       clutter_event_get_coords (event, &point.x, &point.y);
       time_ms = clutter_event_get_time (event);
-
-      flags = CLUTTER_DEVICE_UPDATE_EMIT_CROSSING;
 
       if (sequence != NULL)
         sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
@@ -3688,7 +3681,7 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
       clutter_stage_pick_and_update_sprite (stage,
                                             sprite,
                                             source_device,
-                                            flags,
+                                            CLUTTER_DEVICE_UPDATE_NONE,
                                             point,
                                             time_ms);
     }
@@ -3721,8 +3714,7 @@ clutter_stage_update_devices_in_view (ClutterStage     *stage,
       clutter_stage_pick_and_update_sprite (stage,
                                             sprite,
                                             NULL,
-                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE |
-                                            CLUTTER_DEVICE_UPDATE_EMIT_CROSSING,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
                                             coords,
                                             CLUTTER_CURRENT_TIME);
     }

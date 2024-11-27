@@ -36,8 +36,7 @@ typedef gboolean (* ClutterEventHandler) (const ClutterEvent *event,
 typedef enum
 {
   CLUTTER_DEVICE_UPDATE_NONE = 0,
-  CLUTTER_DEVICE_UPDATE_EMIT_CROSSING = 1 << 0,
-  CLUTTER_DEVICE_UPDATE_IGNORE_CACHE = 1 << 1,
+  CLUTTER_DEVICE_UPDATE_IGNORE_CACHE = 1 << 0,
 } ClutterDeviceUpdateFlags;
 
 /* stage */
