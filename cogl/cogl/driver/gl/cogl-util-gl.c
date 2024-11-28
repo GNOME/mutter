@@ -525,14 +525,7 @@ cogl_gl_create_timestamp_query (CoglContext *context)
   GE (context, glGenQueries (1, &query->id));
   GE (context, glQueryCounter (query->id, GL_TIMESTAMP));
 
-  /* Flush right away so GL knows about our timestamp query.
-   *
-   * E.g. the direct scanout path doesn't call SwapBuffers or any other
-   * glFlush-inducing operation, and skipping explicit glFlush here results in
-   * the timestamp query being placed at the point of glGetQueryObject much
-   * later, resulting in a GPU timestamp much later on in time.
-   */
-  context->glFlush ();
+  /* Flushing the query is left to the caller */
 
   return query;
 }
