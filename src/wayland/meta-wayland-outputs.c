@@ -536,24 +536,26 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
   for (l = monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
-      MetaMonitorSpec *monitor_spec = meta_monitor_get_spec (monitor);
-      MetaWaylandOutput *wayland_output = NULL;
+      MetaMonitorSpec *lookup_monitor_spec = meta_monitor_get_spec (monitor);
+      g_autoptr (MetaMonitorSpec) monitor_spec = NULL;
+      g_autoptr (MetaWaylandOutput) wayland_output = NULL;
 
       if (!meta_monitor_is_active (monitor))
         continue;
 
-      if (compositor->outputs)
-        wayland_output = g_hash_table_lookup (compositor->outputs, monitor_spec);
-
-      if (wayland_output)
-        g_hash_table_steal (compositor->outputs, monitor_spec);
-      else
-        wayland_output = meta_wayland_output_new (compositor, monitor);
+      if (!compositor->outputs ||
+          !g_hash_table_steal_extended (compositor->outputs, lookup_monitor_spec,
+                                        (gpointer *) &monitor_spec,
+                                        (gpointer *) &wayland_output))
+        {
+          monitor_spec = meta_monitor_spec_clone (lookup_monitor_spec),
+          wayland_output = meta_wayland_output_new (compositor, monitor);
+        }
 
       wayland_output_update_for_output (wayland_output, monitor);
       g_hash_table_insert (new_table,
-                           meta_monitor_spec_clone (monitor_spec),
-                           wayland_output);
+                           g_steal_pointer (&monitor_spec),
+                           g_steal_pointer (&wayland_output));
     }
 
   if (compositor->outputs)
