@@ -348,3 +348,5 @@ void meta_monitor_set_backlight (MetaMonitor *monitor,
 META_EXPORT_TEST
 gboolean meta_monitor_get_backlight (MetaMonitor *monitor,
                                      int         *value);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorSpec, meta_monitor_spec_free)
