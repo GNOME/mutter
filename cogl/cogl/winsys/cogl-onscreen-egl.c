@@ -236,6 +236,9 @@ cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
                                              n_rectangles,
                                              egl_rectangles) == EGL_FALSE)
     g_warning ("Error reported by eglSwapBuffersRegion");
+
+  /* Update latest sync object after buffer swap */
+  cogl_framebuffer_flush (framebuffer);
 }
 
 static void
@@ -339,6 +342,9 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
     }
   else
     eglSwapBuffers (egl_renderer->edpy, priv->egl_surface);
+
+  /* Update latest sync object after buffer swap */
+  cogl_framebuffer_flush (framebuffer);
 }
 
 void

@@ -289,16 +289,14 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
-    cogl_framebuffer_finish (framebuffer);
-  else
-    _cogl_context_update_sync (context);
-
   cogl_framebuffer_discard_buffers (framebuffer,
                                     COGL_BUFFER_BIT_DEPTH |
                                     COGL_BUFFER_BIT_STENCIL);
 
   klass->swap_buffers_with_damage (onscreen, region, info, user_data);
+
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
+    cogl_framebuffer_finish (framebuffer);
 
   if (!cogl_context_has_winsys_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
@@ -341,11 +339,6 @@ cogl_onscreen_swap_region (CoglOnscreen    *onscreen,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
-    cogl_framebuffer_finish (framebuffer);
-  else
-    _cogl_context_update_sync (context);
-
   /* This should only be called if the winsys advertises
      COGL_WINSYS_FEATURE_SWAP_REGION */
   g_return_if_fail (klass->swap_region);
@@ -355,6 +348,9 @@ cogl_onscreen_swap_region (CoglOnscreen    *onscreen,
                                     COGL_BUFFER_BIT_STENCIL);
 
   klass->swap_region (onscreen, region, info, user_data);
+
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
+    cogl_framebuffer_finish (framebuffer);
 
   if (!cogl_context_has_winsys_feature (context, COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
     {
