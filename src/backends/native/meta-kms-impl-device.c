@@ -858,6 +858,7 @@ init_planes (MetaKmsImplDevice *impl_device)
       drmModeFreePlane (drm_plane);
     }
   priv->planes = g_list_reverse (priv->planes);
+  drmModeFreePlaneResources (drm_planes);
 }
 
 static void
