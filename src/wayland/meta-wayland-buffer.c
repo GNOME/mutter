@@ -706,8 +706,6 @@ meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
 void
 meta_wayland_buffer_inc_use_count (MetaWaylandBuffer *buffer)
 {
-  g_warn_if_fail (buffer->resource);
-
   buffer->use_count++;
 }
 
