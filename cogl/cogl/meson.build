@@ -204,8 +204,6 @@ cogl_sources = [
   'cogl-memory-stack.c',
   'cogl-meta-texture.c',
   'cogl-mutter.h',
-  'cogl-node-private.h',
-  'cogl-node.c',
   'cogl-offscreen-private.h',
   'cogl-offscreen.c',
   'cogl-onscreen-private.h',
