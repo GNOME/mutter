@@ -42,20 +42,12 @@
 
 #include <glib.h>
 
-#define COGL_TYPE_PIPELINE_LAYER            (cogl_pipeline_layer_get_type ())
-#define COGL_PIPELINE_LAYER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIPELINE_LAYER, CoglPipelineLayer))
-#define COGL_PIPELINE_LAYER_CONST(obj)      (G_TYPE_CHECK_INSTANCE_CAST ((obj), COGL_TYPE_PIPELINE_LAYER, CoglPipelineLayer const))
-#define COGL_PIPELINE_LAYER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  COGL_TYPE_PIPELINE_LAYER, CoglPipelineLayerClass))
-#define COGL_IS_PIPELINE_LAYER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), COGL_TYPE_PIPELINE_LAYER))
-#define COGL_IS_PIPELINE_LAYER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  COGL_TYPE_PIPELINE_LAYER))
-#define COGL_PIPELINE_LAYER_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  COGL_TYPE_PIPELINE_LAYER, CoglPipelineLayerClass))
+#define COGL_TYPE_PIPELINE_LAYER (cogl_pipeline_layer_get_type ())
 
-typedef struct _CoglPipelineLayerClass CoglPipelineLayerClass;
-typedef struct _CoglPipelineLayer CoglPipelineLayer;
-
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (CoglPipelineLayer, g_object_unref)
-
-GType               cogl_pipeline_layer_get_type       (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (CoglPipelineLayer,
+                      cogl_pipeline_layer,
+                      COGL, PIPELINE_LAYER,
+                      GObject)
 
 /* XXX: should I rename these as
  * COGL_PIPELINE_LAYER_STATE_INDEX_XYZ... ?
@@ -265,11 +257,6 @@ struct _CoglPipelineLayer
   /* Determines if layer->big_state is valid */
   unsigned int          has_big_state:1;
 
-};
-
-struct _CoglPipelineLayerClass
-{
-   GObjectClass parent_class;
 };
 
 
