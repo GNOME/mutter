@@ -33,6 +33,17 @@
 #include "meta/util.h"
 #include "meta/window.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_OPTIONS,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef enum
 {
   ANIMATION_DESTROY,
@@ -66,6 +77,8 @@ struct _MetaTestShell
     ClutterGrab *grab;
     ClutterActor *prev_focus;
   } overview;
+
+  gboolean show_stage;
 };
 
 typedef struct _ActorPrivate
@@ -348,7 +361,8 @@ meta_test_shell_start (MetaPlugin *plugin)
                     G_CALLBACK (prepare_shutdown),
                     test_shell);
 
-  clutter_actor_show (meta_get_stage_for_display (display));
+  if (test_shell->show_stage)
+    clutter_actor_show (meta_get_stage_for_display (display));
 }
 
 static void
@@ -780,9 +794,44 @@ meta_test_shell_kill_window_effects (MetaPlugin      *plugin,
 }
 
 static void
+process_options (MetaTestShell *test_shell,
+                 GVariant      *options)
+{
+  gboolean show_stage;
+
+  if (!options)
+    return;
+
+  if (g_variant_lookup (options, "show-stage", "b", &show_stage))
+    test_shell->show_stage = show_stage;
+}
+
+static void
+meta_test_shell_set_property (GObject      *object,
+                              guint         prop_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+  MetaTestShell *test_shell = META_TEST_SHELL (object);
+
+  switch (prop_id)
+    {
+    case PROP_OPTIONS:
+      process_options (test_shell, g_value_get_variant (value));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_test_shell_class_init (MetaTestShellClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaPluginClass *plugin_class  = META_PLUGIN_CLASS (klass);
+
+  object_class->set_property = meta_test_shell_set_property;
 
   plugin_class->start = meta_test_shell_start;
   plugin_class->map = meta_test_shell_map;
@@ -793,9 +842,19 @@ meta_test_shell_class_init (MetaTestShellClass *klass)
   plugin_class->hide_tile_preview = meta_test_shell_hide_tile_preview;
   plugin_class->kill_window_effects = meta_test_shell_kill_window_effects;
   plugin_class->kill_switch_workspace = meta_test_shell_kill_switch_workspace;
+
+  obj_props[PROP_OPTIONS] =
+    g_param_spec_variant ("options", NULL, NULL,
+                          G_VARIANT_TYPE_VARDICT,
+                          NULL,
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_WRITABLE |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void
 meta_test_shell_init (MetaTestShell *test_shell)
 {
+  test_shell->show_stage = TRUE;
 }
