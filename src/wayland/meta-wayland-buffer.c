@@ -864,8 +864,6 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
   gboolean res = FALSE;
   GError *error = NULL;
 
-  g_return_if_fail (buffer->resource);
-
   switch (buffer->type)
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
