@@ -49,10 +49,10 @@ typedef struct
   int indent;
 } PrintDebugState;
 
-static gboolean
-dump_layer_cb (CoglNode *node, void *user_data)
+static void
+dump_layer_cb (CoglPipelineLayer *layer,
+               gpointer           user_data)
 {
-  CoglPipelineLayer *layer = COGL_PIPELINE_LAYER (node);
   PrintDebugState *state = user_data;
   int layer_id = *state->node_id_ptr;
   PrintDebugState state_out;
@@ -62,7 +62,7 @@ dump_layer_cb (CoglNode *node, void *user_data)
   if (state->parent_id >= 0)
     g_string_append_printf (state->graph, "%*slayer%p -> layer%p;\n",
                             state->indent, "",
-                            layer->parent_instance.parent,
+                            layer->parent,
                             layer);
 
   g_string_append_printf (state->graph,
@@ -116,11 +116,12 @@ dump_layer_cb (CoglNode *node, void *user_data)
   state_out.graph = state->graph;
   state_out.indent = state->indent + 2;
 
-  _cogl_pipeline_node_foreach_child (COGL_NODE (layer),
-                                     dump_layer_cb,
-                                     &state_out);
-
-  return TRUE;
+  for (CoglPipelineLayer *child = layer->first_child;
+       child != NULL;
+       child = child->next_sibling)
+    {
+      dump_layer_cb (child, &state_out);
+    }
 }
 
 static gboolean
@@ -264,7 +265,7 @@ _cogl_debug_dump_pipelines_dot_file (const char  *filename,
   layer_state.parent_id = -1;
   layer_state.node_id_ptr = &layer_id;
   layer_state.indent = 0;
-  dump_layer_cb ((CoglNode *)ctx->default_layer_0, &layer_state);
+  dump_layer_cb (ctx->default_layer_0, &layer_state);
 
   pipeline_state.graph = graph;
   pipeline_state.parent_id = -1;

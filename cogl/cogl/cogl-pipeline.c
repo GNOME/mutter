@@ -2558,7 +2558,7 @@ deep_copy_layer_cb (CoglPipelineLayer *src_layer,
           differences ^= to_copy;
         }
 
-      src_layer = COGL_PIPELINE_LAYER (COGL_NODE (src_layer)->parent);
+      src_layer = src_layer->parent;
     }
 
   return TRUE;

@@ -35,7 +35,6 @@
 
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-pipeline.h"
-#include "cogl/cogl-node-private.h"
 #include "cogl/cogl-texture.h"
 #include "cogl/cogl-pipeline-layer-state.h"
 #include "cogl/cogl-pipeline-snippet-private.h"
@@ -218,7 +217,13 @@ struct _CoglPipelineLayer
    * the state relating to a given pipeline or layer may actually be
    * owned by one if is ancestors in the tree. We have a common data
    * type to track the tree hierarchy so we can share code... */
-  CoglNode parent_instance;
+  GObject parent_instance;
+
+  CoglPipelineLayer *parent;
+  CoglPipelineLayer *prev_sibling;
+  CoglPipelineLayer *next_sibling;
+  CoglPipelineLayer *first_child;
+  CoglPipelineLayer *last_child;
 
   /* Some layers have a pipeline owner, which is to say that the layer
    * is referenced in that pipelines->layer_differences list.  A layer
@@ -264,7 +269,7 @@ struct _CoglPipelineLayer
 
 struct _CoglPipelineLayerClass
 {
-   CoglNodeClass parent_class;
+   GObjectClass parent_class;
 };
 
 
@@ -280,8 +285,7 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx);
 static inline CoglPipelineLayer *
 _cogl_pipeline_layer_get_parent (CoglPipelineLayer *layer)
 {
-  CoglNode *parent_node = COGL_NODE (layer)->parent;
-  return COGL_PIPELINE_LAYER (parent_node);
+  return layer->parent;
 }
 
 CoglPipelineLayer *

@@ -41,20 +41,42 @@
 #include "cogl/cogl-pipeline-layer-private.h"
 #include "cogl/cogl-pipeline-layer-state-private.h"
 #include "cogl/cogl-pipeline-layer-state.h"
-#include "cogl/cogl-node-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture-private.h"
 
 #include <string.h>
 
-G_DEFINE_FINAL_TYPE (CoglPipelineLayer, cogl_pipeline_layer, COGL_TYPE_NODE)
+G_DEFINE_FINAL_TYPE (CoglPipelineLayer, cogl_pipeline_layer, G_TYPE_OBJECT)
+
+static void
+cogl_pipeline_layer_unparent (CoglPipelineLayer *layer)
+{
+  g_autoptr (CoglPipelineLayer) parent = g_steal_pointer (&layer->parent);
+
+  if (parent)
+    {
+      if (parent->first_child == layer)
+        parent->first_child = layer->next_sibling;
+
+      if (parent->last_child == layer)
+        parent->last_child = layer->prev_sibling;
+
+      if (layer->prev_sibling)
+        layer->prev_sibling->next_sibling = layer->next_sibling;
+      if (layer->next_sibling)
+        layer->next_sibling->prev_sibling = layer->prev_sibling;
+    }
+
+  layer->prev_sibling = NULL;
+  layer->next_sibling = NULL;
+}
 
 static void
 cogl_pipeline_layer_dispose (GObject *object)
 {
   CoglPipelineLayer *layer = COGL_PIPELINE_LAYER (object);
 
-  _cogl_pipeline_node_unparent (COGL_NODE (layer));
+  cogl_pipeline_layer_unparent (layer);
 
   if (layer->differences & COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA &&
       layer->texture != NULL)
@@ -371,8 +393,7 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
 {
   /* Identify the case where the layer is new with no owner or
    * dependants and so we don't need to do anything. */
-  if (_cogl_list_empty (&COGL_NODE (layer)->children) &&
-      layer->owner == NULL)
+  if (layer->first_child == NULL && layer->owner == NULL)
     goto init_layer_state;
 
   /* We only allow a NULL required_owner for new layers */
@@ -393,8 +414,7 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
    * they have dependants - either direct children, or another
    * pipeline as an owner.
    */
-  if (!_cogl_list_empty (&COGL_NODE (layer)->children) ||
-      layer->owner != required_owner)
+  if (layer->first_child != NULL || layer->owner != required_owner)
     {
       CoglPipelineLayer *new = _cogl_pipeline_layer_copy (layer);
       if (layer->owner == required_owner)
@@ -468,10 +488,32 @@ static void
 _cogl_pipeline_layer_set_parent (CoglPipelineLayer *layer,
                                  CoglPipelineLayer *parent)
 {
-  /* Chain up */
-  _cogl_pipeline_node_set_parent (COGL_NODE (layer),
-                                  COGL_NODE (parent),
-                                  TRUE);
+  g_autoptr (CoglPipelineLayer) owned_parent = NULL;
+
+  g_assert (COGL_IS_PIPELINE_LAYER (layer));
+  g_assert (COGL_IS_PIPELINE_LAYER (parent));
+
+  if (layer->parent == parent)
+    return;
+
+  if (layer->parent)
+    {
+      owned_parent = g_object_ref (layer->parent);
+      cogl_pipeline_layer_unparent (layer);
+    }
+
+  layer->parent = g_object_ref (parent);
+
+  if (parent->first_child)
+    {
+      parent->first_child->prev_sibling = layer;
+      layer->next_sibling = parent->first_child;
+    }
+  else
+    {
+      parent->last_child = layer;
+    }
+  parent->first_child = layer;
 }
 
 CoglPipelineLayer *
