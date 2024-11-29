@@ -34,7 +34,6 @@
 #pragma once
 
 #include "cogl/cogl-debug.h"
-#include "cogl/cogl-node-private.h"
 #include "cogl/cogl-pipeline-layer-private.h"
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-profile.h"
@@ -258,11 +257,21 @@ struct _CoglPipeline
    * pipelines or if instead it can go under ->big_state.
    */
 
+  GObject parent_instance;
+
   /* Layers represent their state in a tree structure where some of
    * the state relating to a given pipeline or layer may actually be
    * owned by one if is ancestors in the tree. We have a common data
    * type to track the tree hierarchy so we can share code... */
-  CoglNode parent_instance;
+  CoglPipeline *parent;
+  CoglPipeline *prev_sibling;
+  CoglPipeline *next_sibling;
+  CoglPipeline *first_child;
+  CoglPipeline *last_child;
+
+  /* TRUE if the node took a strong reference on its parent. Weak
+   * pipelines for instance don't take a reference on their parent. */
+  gboolean has_parent_reference;
 
   CoglContext *context;
 
@@ -375,7 +384,7 @@ struct _CoglPipeline
 
 struct _CoglPipelineClass
 {
-   CoglNodeClass parent_class;
+   GObjectClass parent_class;
 };
 
 typedef struct _CoglPipelineFragend
@@ -444,8 +453,7 @@ _cogl_pipeline_init_default_pipeline (CoglContext *ctx);
 static inline CoglPipeline *
 _cogl_pipeline_get_parent (CoglPipeline *pipeline)
 {
-  CoglNode *parent_node = COGL_NODE (pipeline)->parent;
-  return COGL_PIPELINE (parent_node);
+  return pipeline->parent;
 }
 
 static inline CoglPipeline *

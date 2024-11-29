@@ -51,6 +51,8 @@
 #include <glib/gprintf.h>
 #include <string.h>
 
+typedef gboolean (*CoglPipelineChildCallback) (CoglPipeline *child, void *user_data);
+
 static void recursively_free_layer_caches (CoglPipeline *pipeline);
 static gboolean _cogl_pipeline_is_weak (CoglPipeline *pipeline);
 
@@ -62,43 +64,83 @@ const CoglPipelineProgend *_cogl_pipeline_progend;
 #include "cogl/driver/gl/cogl-pipeline-vertend-glsl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 
-G_DEFINE_FINAL_TYPE (CoglPipeline, cogl_pipeline, COGL_TYPE_NODE)
+G_DEFINE_FINAL_TYPE (CoglPipeline, cogl_pipeline, G_TYPE_OBJECT)
+
+static void
+cogl_pipeline_unparent (CoglPipeline *pipeline)
+{
+  CoglPipeline *old_parent = pipeline->parent;
+
+  if (old_parent)
+    {
+      if (old_parent->first_child == pipeline)
+        old_parent->first_child = pipeline->next_sibling;
+
+      if (old_parent->last_child == pipeline)
+        old_parent->last_child = pipeline->prev_sibling;
+
+      if (pipeline->prev_sibling)
+        pipeline->prev_sibling->next_sibling = pipeline->next_sibling;
+      if (pipeline->next_sibling)
+        pipeline->next_sibling->prev_sibling = pipeline->prev_sibling;
+    }
+
+  if (pipeline->has_parent_reference)
+    g_object_unref (old_parent);
+
+  pipeline->parent = NULL;
+  pipeline->prev_sibling = NULL;
+  pipeline->next_sibling = NULL;
+}
 
 static void
 _cogl_pipeline_revert_weak_ancestors (CoglPipeline *strong)
 {
-  CoglNode *n;
+  CoglPipeline *p;
 
   g_return_if_fail (!strong->is_weak);
 
   /* This reverts the effect of calling
      _cogl_pipeline_promote_weak_ancestors */
 
-  if (COGL_NODE (strong)->parent == NULL)
+  if (strong->parent == NULL)
     return;
 
-  for (n = COGL_NODE (strong)->parent;
+  for (p = strong->parent;
        /* We can assume that all weak pipelines have a parent */
-       COGL_PIPELINE (n)->is_weak;
-       n = n->parent)
-    /* 'n' is weak so we unref its parent */
-    g_object_unref (n->parent);
+       p->is_weak;
+       p = p->parent)
+    /* 'p' is weak so we unref its parent */
+    g_object_unref (p->parent);
+}
+
+static void
+cogl_pipeline_foreach_child (CoglPipeline              *pipeline,
+                             CoglPipelineChildCallback  callback,
+                             void                      *user_data)
+{
+
+  for (CoglPipeline *child = pipeline->first_child;
+       child != NULL;
+       child = child->next_sibling)
+    {
+      if (!callback (child, user_data))
+        break;
+    }
 }
 
 static gboolean
-destroy_weak_children_cb (CoglNode *node,
-                          void *user_data)
+destroy_weak_children_cb (CoglPipeline *pipeline,
+                          void         *user_data)
 {
-  CoglPipeline *pipeline = COGL_PIPELINE (node);
-
   if (_cogl_pipeline_is_weak (pipeline))
     {
-      _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                         destroy_weak_children_cb,
-                                         NULL);
+      cogl_pipeline_foreach_child (pipeline,
+                                   destroy_weak_children_cb,
+                                   NULL);
 
       pipeline->destroy_callback (pipeline, pipeline->destroy_data);
-      _cogl_pipeline_node_unparent (COGL_NODE (pipeline));
+      cogl_pipeline_unparent (pipeline);
     }
 
   return TRUE;
@@ -113,13 +155,13 @@ cogl_pipeline_dispose (GObject *object)
     _cogl_pipeline_revert_weak_ancestors (pipeline);
 
   /* Weak pipelines don't take a reference on their parent */
-  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                     destroy_weak_children_cb,
-                                     NULL);
+  cogl_pipeline_foreach_child (pipeline,
+                               destroy_weak_children_cb,
+                               NULL);
 
-  g_assert (_cogl_list_empty (&COGL_NODE (pipeline)->children));
+  g_assert (pipeline->first_child == NULL);
 
-  _cogl_pipeline_node_unparent (COGL_NODE (pipeline));
+  cogl_pipeline_unparent (pipeline);
 
   if (pipeline->differences & COGL_PIPELINE_STATE_USER_SHADER &&
       pipeline->big_state->user_program)
@@ -248,10 +290,10 @@ _cogl_pipeline_init_default_pipeline (CoglContext *context)
 
 
 static gboolean
-recursively_free_layer_caches_cb (CoglNode *node,
-                                  void *user_data)
+recursively_free_layer_caches_cb (CoglPipeline *pipeline,
+                                  gpointer      user_data)
 {
-  recursively_free_layer_caches (COGL_PIPELINE (node));
+  recursively_free_layer_caches (pipeline);
   return TRUE;
 }
 
@@ -273,9 +315,9 @@ recursively_free_layer_caches (CoglPipeline *pipeline)
     g_free (pipeline->layers_cache);
   pipeline->layers_cache_dirty = TRUE;
 
-  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                     recursively_free_layer_caches_cb,
-                                     NULL);
+  cogl_pipeline_foreach_child (pipeline,
+                               recursively_free_layer_caches_cb,
+                               NULL);
 }
 
 static void
@@ -283,10 +325,34 @@ _cogl_pipeline_set_parent (CoglPipeline *pipeline,
                            CoglPipeline *parent,
                            gboolean take_strong_reference)
 {
-  /* Chain up */
-  _cogl_pipeline_node_set_parent (COGL_NODE (pipeline),
-                                  COGL_NODE (parent),
-                                  take_strong_reference);
+  g_autoptr (CoglPipeline) owned_parent = NULL;
+
+  g_assert (COGL_IS_PIPELINE (pipeline));
+  g_assert (COGL_IS_PIPELINE (parent));
+
+  if (pipeline->parent == parent &&
+      pipeline->has_parent_reference == take_strong_reference)
+    return;
+
+  if (pipeline->parent)
+    {
+      owned_parent = g_object_ref (pipeline->parent);
+      cogl_pipeline_unparent (pipeline);
+    }
+
+  pipeline->parent = take_strong_reference ? g_object_ref (parent) : parent;
+  pipeline->has_parent_reference = take_strong_reference;
+
+  if (parent->first_child)
+    {
+      parent->first_child->prev_sibling = pipeline;
+      pipeline->next_sibling = parent->first_child;
+    }
+  else
+    {
+      parent->last_child = pipeline;
+    }
+  parent->first_child = pipeline;
 
   /* Since we just changed the ancestry of the pipeline its cache of
    * layers could now be invalid so free it... */
@@ -297,7 +363,7 @@ _cogl_pipeline_set_parent (CoglPipeline *pipeline,
 static void
 _cogl_pipeline_promote_weak_ancestors (CoglPipeline *strong)
 {
-  CoglNode *n;
+  CoglPipeline *p;
 
   g_return_if_fail (!strong->is_weak);
 
@@ -305,15 +371,15 @@ _cogl_pipeline_promote_weak_ancestors (CoglPipeline *strong)
      taking a reference on strong's grandparent. We don't need to take
      a reference on strong's direct parent */
 
-  if (COGL_NODE (strong)->parent == NULL)
+  if (strong->parent == NULL)
     return;
 
-  for (n = COGL_NODE (strong)->parent;
+  for (p = strong->parent;
        /* We can assume that all weak pipelines have a parent */
-       COGL_PIPELINE (n)->is_weak;
-       n = n->parent)
+       p->is_weak;
+       p = p->parent)
     /* 'n' is weak so we take a reference on its parent */
-    g_object_ref (n->parent);
+    g_object_ref (p->parent);
 }
 
 /* XXX: Always have an eye out for opportunities to lower the cost of
@@ -1001,9 +1067,9 @@ _cogl_pipeline_init_multi_property_sparse_state (CoglPipeline *pipeline,
 }
 
 static gboolean
-check_if_strong_cb (CoglNode *node, void *user_data)
+check_if_strong_cb (CoglPipeline *pipeline,
+                    void         *user_data)
 {
-  CoglPipeline *pipeline = COGL_PIPELINE (node);
   gboolean *has_strong_child = user_data;
 
   if (!_cogl_pipeline_is_weak (pipeline))
@@ -1019,9 +1085,9 @@ static gboolean
 has_strong_children (CoglPipeline *pipeline)
 {
   gboolean has_strong_child = FALSE;
-  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                     check_if_strong_cb,
-                                     &has_strong_child);
+  cogl_pipeline_foreach_child (pipeline,
+                               check_if_strong_cb,
+                               &has_strong_child);
   return has_strong_child;
 }
 
@@ -1035,10 +1101,9 @@ _cogl_pipeline_is_weak (CoglPipeline *pipeline)
 }
 
 static gboolean
-reparent_children_cb (CoglNode *node,
-                      void *user_data)
+reparent_children_cb (CoglPipeline *pipeline,
+                      void         *user_data)
 {
-  CoglPipeline *pipeline = COGL_PIPELINE (node);
   CoglPipeline *parent = user_data;
 
   _cogl_pipeline_set_parent (pipeline, parent, TRUE);
@@ -1146,14 +1211,14 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
   /* The simplest descendants to handle are weak pipelines; we simply
    * destroy them if we are modifying a pipeline they depend on. This
    * means weak pipelines never cause us to do a copy-on-write. */
-  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                     destroy_weak_children_cb,
-                                     NULL);
+  cogl_pipeline_foreach_child (pipeline,
+                               destroy_weak_children_cb,
+                               NULL);
 
   /* If there are still children remaining though we'll need to
    * perform a copy-on-write and reparent the dependants as children
    * of the copy. */
-  if (!_cogl_list_empty (&COGL_NODE (pipeline)->children))
+  if (pipeline->first_child != NULL)
     {
       CoglPipeline *new_authority;
 
@@ -1189,9 +1254,9 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
 
       /* Reparent the dependants of pipeline to be children of
        * new_authority instead... */
-      _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                         reparent_children_cb,
-                                         new_authority);
+      cogl_pipeline_foreach_child (pipeline,
+                                   reparent_children_cb,
+                                   new_authority);
 
       /* The children will keep the new authority alive so drop the
        * reference we got when copying... */
@@ -2585,7 +2650,7 @@ _cogl_pipeline_deep_copy (CoglPipeline *pipeline,
 
   for (authority = pipeline;
        authority != ctx->default_pipeline && differences;
-       authority = COGL_PIPELINE (COGL_NODE (authority)->parent))
+       authority = authority->parent)
     {
       unsigned long to_copy = differences & authority->differences;
 

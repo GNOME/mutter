@@ -37,7 +37,6 @@
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-pipeline-layer-private.h"
-#include "cogl/cogl-node-private.h"
 
 #include <glib.h>
 
@@ -139,10 +138,10 @@ dump_layer_ref_cb (CoglPipelineLayer *layer, void *data)
   return TRUE;
 }
 
-static gboolean
-dump_pipeline_cb (CoglNode *node, void *user_data)
+static void
+dump_pipeline_cb (CoglPipeline *pipeline,
+                  gpointer      user_data)
 {
-  CoglPipeline *pipeline = COGL_PIPELINE (node);
   PrintDebugState *state = user_data;
   int pipeline_id = *state->node_id_ptr;
   PrintDebugState state_out;
@@ -231,11 +230,12 @@ dump_pipeline_cb (CoglNode *node, void *user_data)
   state_out.graph = state->graph;
   state_out.indent = state->indent + 2;
 
-  _cogl_pipeline_node_foreach_child (COGL_NODE (pipeline),
-                                     dump_pipeline_cb,
-                                     &state_out);
-
-  return TRUE;
+  for (CoglPipeline *child = pipeline->first_child;
+       child != NULL;
+       child = child->next_sibling)
+    {
+      dump_pipeline_cb (child, &state_out);
+    }
 }
 
 /* This function is just here to be called from GDB so we don't really
@@ -271,7 +271,7 @@ _cogl_debug_dump_pipelines_dot_file (const char  *filename,
   pipeline_state.parent_id = -1;
   pipeline_state.node_id_ptr = &pipeline_id;
   pipeline_state.indent = 0;
-  dump_pipeline_cb ((CoglNode *)ctx->default_pipeline, &pipeline_state);
+  dump_pipeline_cb (ctx->default_pipeline, &pipeline_state);
 
   g_string_append_printf (graph, "}\n");
 

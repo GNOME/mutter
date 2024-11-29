@@ -8,7 +8,6 @@ static void
 test_pipeline_state_blend_constant_ancestry (void)
 {
   CoglPipeline *pipeline;
-  CoglNode *node;
   int pipeline_length = 0;
   int i;
 
@@ -33,7 +32,7 @@ test_pipeline_state_blend_constant_ancestry (void)
       cogl_pipeline_set_blend_constant (pipeline, &color);
     }
 
-  for (node = (CoglNode *) pipeline; node; node = node->parent)
+  for (CoglPipeline *p = pipeline; p; p = p->parent)
     pipeline_length++;
 
   g_assert_cmpint (pipeline_length, <=, 2);
