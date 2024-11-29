@@ -33,6 +33,7 @@
 #include "clutter/clutter-input-pointer-a11y-private.h"
 #include "clutter/clutter-macros.h"
 #include "clutter/clutter-private.h"
+#include "clutter/clutter-sprite-private.h"
 #include "clutter/clutter-stage-private.h"
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-stage-view-private.h"
@@ -99,5 +100,14 @@ CLUTTER_EXPORT
 void clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
                                                        ClutterActor      *ancestor,
                                                        graphene_matrix_t *matrix);
+
+CLUTTER_EXPORT
+ClutterSprite * clutter_backend_get_sprite (ClutterBackend     *backend,
+                                            ClutterStage       *stage,
+                                            const ClutterEvent *for_event);
+
+CLUTTER_EXPORT
+void clutter_backend_destroy_sprite (ClutterBackend *backend,
+                                     ClutterSprite  *sprite);
 
 #undef __CLUTTER_H_INSIDE__

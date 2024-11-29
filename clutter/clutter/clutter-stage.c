@@ -1240,12 +1240,8 @@ clutter_stage_constructed (GObject *gobject)
 
   priv->event_queue = g_queue_new ();
 
-  priv->pointer_devices =
-    g_hash_table_new_full (NULL, NULL,
-                           NULL, (GDestroyNotify) g_object_unref);
-  priv->touch_sequences =
-    g_hash_table_new_full (NULL, NULL,
-                           NULL, (GDestroyNotify) g_object_unref);
+  priv->pointer_devices = g_hash_table_new (NULL, NULL);
+  priv->touch_sequences = g_hash_table_new (NULL, NULL);
 
   priv->key_focus = g_object_new (CLUTTER_TYPE_KEY_FOCUS,
                                   "stage", self,
@@ -3615,6 +3611,8 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
   ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterInputDevice *source_device = clutter_event_get_source_device (event);
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *clutter_backend = clutter_context_get_backend (context);
   ClutterInputDeviceType device_type;
   ClutterSprite *sprite;
   graphene_point_t point;
@@ -3628,8 +3626,7 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
     {
       if (clutter_event_type (event) == CLUTTER_DEVICE_REMOVED)
         {
-          if (device_type != CLUTTER_POINTER_DEVICE &&
-              device_type != CLUTTER_TABLET_DEVICE &&
+          if (device_type != CLUTTER_TABLET_DEVICE &&
               device_type != CLUTTER_PEN_DEVICE &&
               device_type != CLUTTER_ERASER_DEVICE &&
               device_type != CLUTTER_CURSOR_DEVICE)
@@ -3650,6 +3647,7 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
                                        source_device, time_ms);
       clutter_sprite_update (sprite, point, NULL);
       clutter_stage_remove_device_entry (stage, device, sequence);
+      clutter_backend_destroy_sprite (clutter_backend, sprite);
     }
   else
     {
@@ -3666,11 +3664,8 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
 
       if (!sprite)
         {
-          sprite = g_object_new (CLUTTER_TYPE_SPRITE,
-                                 "stage", stage,
-                                 "device", device,
-                                 "sequence", sequence,
-                                 NULL);
+          sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+          g_assert (sprite != NULL);
 
           if (sequence != NULL)
             g_hash_table_insert (priv->touch_sequences, sequence, sprite);

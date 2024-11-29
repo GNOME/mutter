@@ -570,6 +570,29 @@ clutter_backend_is_display_server (ClutterBackend *backend)
   return CLUTTER_BACKEND_GET_CLASS (backend)->is_display_server (backend);
 }
 
+/**
+ * clutter_backend_get_sprite: (skip)
+ */
+ClutterSprite *
+clutter_backend_get_sprite (ClutterBackend     *backend,
+                            ClutterStage       *stage,
+                            const ClutterEvent *for_event)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_sprite (backend,
+                                                          stage,
+                                                          for_event);
+}
+
+/**
+ * clutter_backend_destroy_sprite: (skip)
+ */
+void
+clutter_backend_destroy_sprite (ClutterBackend *backend,
+                                ClutterSprite  *sprite)
+{
+  CLUTTER_BACKEND_GET_CLASS (backend)->destroy_sprite (backend, sprite);
+}
+
 void
 clutter_backend_destroy (ClutterBackend *backend)
 {

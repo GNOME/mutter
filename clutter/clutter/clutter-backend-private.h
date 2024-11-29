@@ -80,6 +80,13 @@ struct _ClutterBackendClass
 
   gboolean              (* is_display_server)  (ClutterBackend *backend);
 
+  ClutterSprite * (* get_sprite) (ClutterBackend     *backend,
+                                  ClutterStage       *stage,
+                                  const ClutterEvent *for_event);
+
+  void (* destroy_sprite) (ClutterBackend *backend,
+                           ClutterSprite  *sprite);
+
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
 };

@@ -42,6 +42,7 @@
 typedef struct _MetaClutterBackendX11Private
 {
   MetaBackend *backend;
+  ClutterSprite *virtual_core_pointer;
 } MetaClutterBackendX11Private;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaClutterBackendX11, meta_clutter_backend_x11,
@@ -120,6 +121,62 @@ meta_clutter_backend_x11_is_display_server (ClutterBackend *clutter_backend)
   return meta_is_wayland_compositor ();
 }
 
+static ClutterSprite *
+meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
+                                     ClutterStage       *stage,
+                                     const ClutterEvent *for_event)
+{
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+  ClutterInputDevice *source_device;
+  ClutterEventSequence *sequence;
+  ClutterInputDeviceType device_type;
+
+  sequence = clutter_event_get_event_sequence (for_event);
+  if (sequence &&
+      (clutter_event_get_flags (for_event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED) == 0)
+    return NULL;
+
+  source_device = clutter_event_get_source_device (for_event);
+  device_type = clutter_input_device_get_device_type (source_device);
+
+  if (device_type == CLUTTER_POINTER_DEVICE ||
+      device_type == CLUTTER_TOUCHPAD_DEVICE ||
+      device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
+      device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE ||
+      device_type == CLUTTER_ERASER_DEVICE)
+    {
+      if (!priv->virtual_core_pointer)
+        {
+          priv->virtual_core_pointer =
+            g_object_new (CLUTTER_TYPE_SPRITE,
+                          "stage", stage,
+                          "device", clutter_event_get_device (for_event),
+                          "sequence", sequence,
+                          NULL);
+        }
+      return priv->virtual_core_pointer;
+    }
+
+  return NULL;
+}
+
+static void
+meta_clutter_backend_x11_destroy_sprite (ClutterBackend *clutter_backend,
+                                         ClutterSprite  *sprite)
+{
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+
+  if (sprite == priv->virtual_core_pointer)
+    g_clear_object (&priv->virtual_core_pointer);
+}
+
 static void
 meta_clutter_backend_x11_init (MetaClutterBackendX11 *clutter_backend_x11)
 {
@@ -134,6 +191,8 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_x11_is_display_server;
+  clutter_backend_class->get_sprite = meta_clutter_backend_x11_get_sprite;
+  clutter_backend_class->destroy_sprite = meta_clutter_backend_x11_destroy_sprite;
 }
 
 MetaClutterBackendX11 *

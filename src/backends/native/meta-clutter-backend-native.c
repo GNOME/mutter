@@ -54,6 +54,10 @@ struct _MetaClutterBackendNative
   ClutterBackend parent;
 
   MetaBackend *backend;
+
+  GHashTable *touch_sprites;
+  GHashTable *stylus_sprites;
+  ClutterSprite *pointer_sprite;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
@@ -101,6 +105,131 @@ meta_clutter_backend_native_is_display_server (ClutterBackend *clutter_backend)
   return TRUE;
 }
 
+static ClutterSprite *
+create_sprite (ClutterBackend     *clutter_backend,
+               ClutterStage       *stage,
+               const ClutterEvent *for_event)
+{
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
+
+  device = clutter_event_get_device (for_event);
+  sequence = clutter_event_get_event_sequence (for_event);
+
+  return g_object_new (CLUTTER_TYPE_SPRITE,
+                       "stage", stage,
+                       "device", device,
+                       "sequence", sequence,
+                       NULL);
+}
+
+static ClutterSprite *
+ensure_sprite (ClutterBackend     *clutter_backend,
+               ClutterStage       *stage,
+               const ClutterEvent *for_event,
+               GHashTable         *ht,
+               gpointer            key)
+{
+  ClutterSprite *sprite;
+
+  sprite = g_hash_table_lookup (ht, key);
+  if (!sprite)
+    {
+      sprite = create_sprite (clutter_backend, stage, for_event);
+      g_hash_table_insert (ht, key, sprite);
+    }
+
+  return sprite;
+}
+
+static ClutterSprite *
+meta_clutter_backend_native_get_sprite (ClutterBackend     *clutter_backend,
+                                        ClutterStage       *stage,
+                                        const ClutterEvent *for_event)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  ClutterInputDevice *source_device;
+  ClutterEventSequence *event_sequence;
+  ClutterInputDeviceType device_type;
+
+  event_sequence = clutter_event_get_event_sequence (for_event);
+  if (event_sequence)
+    {
+      return ensure_sprite (clutter_backend, stage, for_event,
+                            clutter_backend_native->touch_sprites,
+                            event_sequence);
+    }
+
+  source_device = clutter_event_get_source_device (for_event);
+  device_type = clutter_input_device_get_device_type (source_device);
+
+  if (device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE ||
+      device_type == CLUTTER_ERASER_DEVICE)
+    {
+      return ensure_sprite (clutter_backend, stage, for_event,
+                            clutter_backend_native->stylus_sprites,
+                            source_device);
+    }
+
+  if (device_type == CLUTTER_POINTER_DEVICE ||
+      device_type == CLUTTER_TOUCHPAD_DEVICE)
+    {
+      if (!clutter_backend_native->pointer_sprite)
+        {
+          clutter_backend_native->pointer_sprite =
+            create_sprite (clutter_backend, stage, for_event);
+        }
+
+      return clutter_backend_native->pointer_sprite;
+    }
+
+  return NULL;
+}
+
+static void
+meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
+                                            ClutterSprite  *sprite)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
+  g_hash_table_remove (clutter_backend_native->touch_sprites,
+                       clutter_sprite_get_sequence (sprite));
+  g_hash_table_remove (clutter_backend_native->stylus_sprites,
+                       clutter_sprite_get_device (sprite));
+
+  if (clutter_backend_native->pointer_sprite == sprite)
+    g_clear_object (&clutter_backend_native->pointer_sprite);
+}
+
+static void
+meta_clutter_backend_native_constructed (GObject *object)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (object);
+
+  G_OBJECT_CLASS (meta_clutter_backend_native_parent_class)->constructed (object);
+
+  clutter_backend_native->touch_sprites =
+    g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
+  clutter_backend_native->stylus_sprites =
+    g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
+}
+
+static void
+meta_clutter_backend_native_finalize (GObject *object)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (object);
+
+  g_clear_pointer (&clutter_backend_native->touch_sprites, g_hash_table_unref);
+  g_clear_pointer (&clutter_backend_native->stylus_sprites, g_hash_table_unref);
+
+  G_OBJECT_CLASS (meta_clutter_backend_native_parent_class)->finalize (object);
+}
+
 static void
 meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nativen)
 {
@@ -109,12 +238,18 @@ meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nati
 static void
 meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
+
+  object_class->constructed = meta_clutter_backend_native_constructed;
+  object_class->finalize = meta_clutter_backend_native_finalize;
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
+  clutter_backend_class->get_sprite = meta_clutter_backend_native_get_sprite;
+  clutter_backend_class->destroy_sprite = meta_clutter_backend_native_destroy_sprite;
 }
 
 MetaClutterBackendNative *
