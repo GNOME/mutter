@@ -914,6 +914,9 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer     *buffer,
   g_autoptr (CoglScanout) scanout = NULL;
   g_autoptr (GError) error = NULL;
 
+  if (!buffer->resource)
+    return NULL;
+
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
   device_file = meta_renderer_native_get_primary_device_file (renderer_native);
   gbm_device = meta_gbm_device_from_gpu (gpu_kms);
