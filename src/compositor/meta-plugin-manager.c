@@ -113,7 +113,8 @@ on_prepare_shutdown (MetaContext       *context,
 }
 
 MetaPluginManager *
-meta_plugin_manager_new (MetaCompositor *compositor)
+meta_plugin_manager_new (MetaCompositor *compositor,
+                         GVariant       *plugin_options)
 {
   MetaBackend *backend = meta_compositor_get_backend (compositor);
   MetaMonitorManager *monitor_manager =
@@ -123,10 +124,21 @@ meta_plugin_manager_new (MetaCompositor *compositor)
   MetaDisplay *display;
   MetaContext *context;
 
+  if (plugin_options)
+    {
+      plugin = g_object_new (plugin_type,
+                             "options", plugin_options,
+                             NULL);
+    }
+  else
+    {
+      plugin = g_object_new (plugin_type, NULL);
+    }
+
   plugin_mgr = g_new0 (MetaPluginManager, 1);
   plugin_mgr->state = PLUGIN_MANAGER_STATE_STARTING;
   plugin_mgr->compositor = compositor;
-  plugin_mgr->plugin = plugin = g_object_new (plugin_type, NULL);
+  plugin_mgr->plugin = plugin;
 
   _meta_plugin_set_compositor (plugin, compositor);
 

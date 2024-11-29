@@ -319,6 +319,7 @@ meta_compositor_create_view (MetaCompositor   *compositor,
 
 gboolean
 meta_compositor_manage (MetaCompositor  *compositor,
+                        GVariant        *plugin_options,
                         GError         **error)
 {
   MetaCompositorPrivate *priv =
@@ -346,7 +347,7 @@ meta_compositor_manage (MetaCompositor  *compositor,
   if (!META_COMPOSITOR_GET_CLASS (compositor)->manage (compositor, error))
     return FALSE;
 
-  priv->plugin_mgr = meta_plugin_manager_new (compositor);
+  priv->plugin_mgr = meta_plugin_manager_new (compositor, plugin_options);
   meta_plugin_manager_start (priv->plugin_mgr);
 
   return TRUE;
