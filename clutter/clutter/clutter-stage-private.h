@@ -62,6 +62,9 @@ void                clutter_stage_emit_after_paint       (ClutterStage          
 void                clutter_stage_after_update           (ClutterStage          *stage,
                                                           ClutterStageView      *view,
                                                           ClutterFrame          *frame);
+void                clutter_stage_frame_discarded        (ClutterStage          *stage,
+                                                          ClutterStageView      *view,
+                                                          ClutterFrame          *frame);
 
 CLUTTER_EXPORT
 void                _clutter_stage_set_window            (ClutterStage          *stage,

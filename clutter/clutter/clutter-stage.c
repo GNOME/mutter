@@ -534,6 +534,16 @@ clutter_stage_after_update (ClutterStage     *stage,
   priv->update_scheduled = FALSE;
 }
 
+void
+clutter_stage_frame_discarded (ClutterStage     *stage,
+                               ClutterStageView *view,
+                               ClutterFrame     *frame)
+{
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
+
+  priv->update_scheduled = FALSE;
+}
+
 static gboolean
 clutter_stage_get_paint_volume (ClutterActor *self,
                                 ClutterPaintVolume *volume)

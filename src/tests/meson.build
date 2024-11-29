@@ -314,6 +314,11 @@ test_cases += [
       '--compile-schemas',
     ],
   },
+  {
+    'name': 'stage',
+    'suite': 'backend',
+    'sources': [ 'stage-tests.c', ],
+  },
 ]
 
 screen_cast_client = executable('mutter-screen-cast-client',
