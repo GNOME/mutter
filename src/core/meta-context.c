@@ -78,6 +78,7 @@ typedef struct _MetaContextPrivate
   char *nick;
   char *plugin_name;
   GType plugin_gtype;
+  GVariant *plugin_options;
   char *gnome_wm_keybindings;
 
   gboolean unsafe_mode;
@@ -183,6 +184,15 @@ meta_context_set_plugin_name (MetaContext *context,
   g_return_if_fail (priv->plugin_gtype == G_TYPE_NONE);
 
   priv->plugin_name = g_strdup (plugin_name);
+}
+
+void
+meta_context_set_plugin_options (MetaContext *context,
+                                 GVariant    *plugin_options)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  priv->plugin_options = g_variant_ref (plugin_options);
 }
 
 void
@@ -510,6 +520,7 @@ meta_context_start (MetaContext  *context,
                     GError      **error)
 {
   MetaContextPrivate *priv = meta_context_get_instance_private (context);
+  g_autoptr (GVariant) plugin_options = NULL;
 
   g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
 
@@ -523,7 +534,8 @@ meta_context_start (MetaContext  *context,
     priv->wayland_compositor = meta_wayland_compositor_new (context);
 #endif
 
-  priv->display = meta_display_new (context, error);
+  plugin_options = g_steal_pointer (&priv->plugin_options),
+  priv->display = meta_display_new (context, plugin_options, error);
   if (!priv->display)
     {
       priv->state = META_CONTEXT_STATE_TERMINATED;
@@ -882,6 +894,7 @@ meta_context_finalize (GObject *object)
   g_clear_pointer (&priv->trace_file, g_free);
 #endif
 
+  g_clear_pointer (&priv->plugin_options, g_variant_unref);
   g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
   g_clear_pointer (&priv->plugin_name, g_free);
   g_clear_pointer (&priv->name, g_free);

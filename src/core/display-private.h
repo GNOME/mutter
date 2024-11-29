@@ -189,6 +189,7 @@ struct _MetaDisplayClass
   )
 
 MetaDisplay * meta_display_new (MetaContext  *context,
+                                GVariant     *plugin_options,
                                 GError      **error);
 
 #ifdef HAVE_X11_CLIENT

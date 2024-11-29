@@ -42,7 +42,8 @@ typedef enum
  */
 typedef struct MetaPluginManager MetaPluginManager;
 
-MetaPluginManager * meta_plugin_manager_new (MetaCompositor *compositor);
+MetaPluginManager * meta_plugin_manager_new (MetaCompositor *compositor,
+                                             GVariant       *plugin_options);
 
 void meta_plugin_manager_start (MetaPluginManager *plugin_mgr);
 

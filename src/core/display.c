@@ -938,6 +938,7 @@ meta_display_shutdown_x11 (MetaDisplay *display)
 
 MetaDisplay *
 meta_display_new (MetaContext  *context,
+                  GVariant     *plugin_options,
                   GError      **error)
 {
   MetaBackend *backend = meta_context_get_backend (context);
@@ -1063,7 +1064,7 @@ meta_display_new (MetaContext  *context,
   display->last_focus_time = timestamp;
   display->last_user_time = timestamp;
 
-  if (!meta_compositor_manage (display->compositor, error))
+  if (!meta_compositor_manage (display->compositor, plugin_options, error))
     {
       g_object_unref (display);
       return NULL;

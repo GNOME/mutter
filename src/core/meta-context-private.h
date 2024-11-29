@@ -91,3 +91,7 @@ void meta_context_set_trace_file (MetaContext *context,
 #endif
 
 MetaSessionManager * meta_context_get_session_manager (MetaContext *context);
+
+META_EXPORT_TEST
+void meta_context_set_plugin_options (MetaContext *context,
+                                      GVariant    *plugin_options);

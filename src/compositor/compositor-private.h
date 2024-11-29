@@ -90,6 +90,7 @@ void meta_compositor_grab_end (MetaCompositor *compositor);
 void meta_compositor_destroy (MetaCompositor *compositor);
 
 gboolean meta_compositor_manage (MetaCompositor  *compositor,
+                                 GVariant        *plugin_options,
                                  GError         **error);
 
 void meta_compositor_unmanage (MetaCompositor *compositor);
