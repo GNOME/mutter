@@ -1050,11 +1050,12 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return CLUTTER_FRAME_RESULT_IDLE;
 
-  if (!clutter_actor_is_realized (CLUTTER_ACTOR (stage)))
-    return CLUTTER_FRAME_RESULT_IDLE;
-
-  if (!clutter_actor_is_mapped (CLUTTER_ACTOR (stage)))
-    return CLUTTER_FRAME_RESULT_IDLE;
+  if (!clutter_actor_is_realized (CLUTTER_ACTOR (stage)) ||
+      !clutter_actor_is_mapped (CLUTTER_ACTOR (stage)))
+    {
+      clutter_stage_frame_discarded (stage, view, frame);
+      return CLUTTER_FRAME_RESULT_IDLE;
+    }
 
   if (clutter_context_get_show_fps (context))
     begin_frame_timing_measurement (view);
