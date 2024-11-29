@@ -382,11 +382,6 @@ struct _CoglPipeline
   const char *name;
 };
 
-struct _CoglPipelineClass
-{
-   GObjectClass parent_class;
-};
-
 typedef struct _CoglPipelineFragend
 {
   void (*start) (CoglPipeline *pipeline,
