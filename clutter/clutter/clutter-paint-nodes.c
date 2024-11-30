@@ -126,7 +126,7 @@ clutter_root_node_finalize (ClutterPaintNode *node)
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
   g_clear_object (&rnode->color_state);
-  g_object_unref (rnode->framebuffer);
+  g_clear_object (&rnode->framebuffer);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_root_node_parent_class)->finalize (node);
 }
