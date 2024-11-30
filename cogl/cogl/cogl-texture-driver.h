@@ -36,6 +36,8 @@
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-types.h"
 
+typedef struct _CoglTextureDriver CoglTextureDriver;
+
 typedef struct _CoglTextureDriverClass
 {
   GObjectClass parent_class;
@@ -45,10 +47,10 @@ typedef struct _CoglTextureDriverClass
    * non-mipmap filters when creating textures. This is to save some memory as
    * the driver will not allocate room for the mipmap tree.
    */
-  GLuint
-  (* gen) (CoglContext *ctx,
-           GLenum gl_target,
-           CoglPixelFormat internal_format);
+  GLuint (* gen) (CoglTextureDriver *driver,
+                  CoglContext       *ctx,
+                  GLenum             gl_target,
+                  CoglPixelFormat    internal_format);
 
   /*
    * This uploads a sub-region from source_bmp to a single GL texture
@@ -63,20 +65,20 @@ typedef struct _CoglTextureDriverClass
    *
    * XXX: sorry for the ridiculous number of arguments :-(
    */
-  gboolean
-  (* upload_subregion_to_gl) (CoglContext *ctx,
-                              CoglTexture *texture,
-                              int src_x,
-                              int src_y,
-                              int dst_x,
-                              int dst_y,
-                              int width,
-                              int height,
-                              int level,
-                              CoglBitmap *source_bmp,
-                              GLuint source_gl_format,
-                              GLuint source_gl_type,
-                              GError **error);
+  gboolean (* upload_subregion_to_gl) (CoglTextureDriver *driver,
+                                       CoglContext       *ctx,
+                                       CoglTexture       *texture,
+                                       int                src_x,
+                                       int                src_y,
+                                       int                dst_x,
+                                       int                dst_y,
+                                       int                width,
+                                       int                height,
+                                       int                level,
+                                       CoglBitmap        *source_bmp,
+                                       GLuint             source_gl_format,
+                                       GLuint             source_gl_type,
+                                       GError           **error);
 
   /*
    * Replaces the contents of the GL texture with the entire bitmap. On
@@ -84,15 +86,15 @@ typedef struct _CoglTextureDriverClass
    * to copy the bitmap if the rowstride is not a multiple of a possible
    * alignment value because there is no GL_UNPACK_ROW_LENGTH
    */
-  gboolean
-  (* upload_to_gl) (CoglContext *ctx,
-                    GLenum gl_target,
-                    GLuint gl_handle,
-                    CoglBitmap *source_bmp,
-                    GLint internal_gl_format,
-                    GLuint source_gl_format,
-                    GLuint source_gl_type,
-                    GError **error);
+  gboolean (* upload_to_gl) (CoglTextureDriver *driver,
+                             CoglContext       *ctx,
+                             GLenum             gl_target,
+                             GLuint             gl_handle,
+                             CoglBitmap        *source_bmp,
+                             GLint              internal_gl_format,
+                             GLuint             source_gl_format,
+                             GLuint             source_gl_type,
+                             GError           **error);
 
   /*
    * This sets up the glPixelStore state for an download to a destination with
@@ -101,11 +103,11 @@ typedef struct _CoglTextureDriverClass
   /* NB: GLES can't download pixel data into a sub region of a larger
    * destination buffer, the GL driver has a more flexible version of
    * this function that it uses internally. */
-  void
-  (* prep_gl_for_pixels_download) (CoglContext *ctx,
-                                   int image_width,
-                                   int pixels_rowstride,
-                                   int pixels_bpp);
+  void (* prep_gl_for_pixels_download) (CoglTextureDriver *driver,
+                                        CoglContext       *ctx,
+                                        int                image_width,
+                                        int                pixels_rowstride,
+                                        int                pixels_bpp);
 
   /*
    * This driver abstraction is needed because GLES doesn't support
@@ -114,29 +116,29 @@ typedef struct _CoglTextureDriverClass
    * renders the texture and reads it back from the framebuffer. (See
    * _cogl_texture_draw_and_read () )
    */
-  gboolean
-  (* gl_get_tex_image) (CoglContext *ctx,
-                        GLenum gl_target,
-                        GLenum dest_gl_format,
-                        GLenum dest_gl_type,
-                        uint8_t *dest);
+  gboolean (* gl_get_tex_image) (CoglTextureDriver *driver,
+                                 CoglContext       *ctx,
+                                 GLenum             gl_target,
+                                 GLenum             dest_gl_format,
+                                 GLenum             dest_gl_type,
+                                 uint8_t           *dest);
 
   /*
    * It may depend on the driver as to what texture sizes are supported...
    */
-  gboolean
-  (* size_supported) (CoglContext *ctx,
-                      GLenum gl_target,
-                      GLenum gl_intformat,
-                      GLenum gl_format,
-                      GLenum gl_type,
-                      int width,
-                      int height);
+  gboolean (* size_supported) (CoglTextureDriver *driver,
+                               CoglContext       *ctx,
+                               GLenum             gl_target,
+                               GLenum             gl_intformat,
+                               GLenum             gl_format,
+                               GLenum             gl_type,
+                               int                width,
+                               int                height);
 
 
-  gboolean
-  (* format_supports_upload) (CoglContext *ctx,
-                              CoglPixelFormat format);
+  gboolean (* format_supports_upload) (CoglTextureDriver *driver,
+                                       CoglContext       *ctx,
+                                       CoglPixelFormat format);
 
   /*
    * The driver may impose constraints on what formats can be used to store
@@ -144,11 +146,11 @@ typedef struct _CoglTextureDriverClass
    * RGBA_8888, and so we need to manually convert the data if the final
    * destination has another format.
    */
-  CoglPixelFormat
-  (* find_best_gl_get_data_format) (CoglContext     *context,
-                                    CoglPixelFormat format,
-                                    GLenum *closest_gl_format,
-                                    GLenum *closest_gl_type);
+  CoglPixelFormat (* find_best_gl_get_data_format) (CoglTextureDriver *driver,
+                                                    CoglContext       *context,
+                                                    CoglPixelFormat    format,
+                                                    GLenum            *closest_gl_format,
+                                                    GLenum            *closest_gl_type);
 } CoglTextureDriverClass;
 
 G_DECLARE_DERIVABLE_TYPE (CoglTextureDriver,
