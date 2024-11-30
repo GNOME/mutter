@@ -36,7 +36,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/driver/nop/cogl-texture-2d-nop-private.h"
 #include "cogl/driver/nop/cogl-attribute-nop-private.h"
 #include "cogl/driver/nop/cogl-clip-stack-nop-private.h"
 #include "cogl/driver/nop/cogl-nop-framebuffer.h"
@@ -105,16 +104,6 @@ _cogl_driver_nop =
     _cogl_driver_update_features,
     _cogl_driver_nop_create_framebuffer_driver,
     _cogl_driver_nop_flush_framebuffer_state,
-    _cogl_texture_2d_nop_free,
-    _cogl_texture_2d_nop_can_create,
-    _cogl_texture_2d_nop_init,
-    _cogl_texture_2d_nop_allocate,
-    _cogl_texture_2d_nop_copy_from_framebuffer,
-    _cogl_texture_2d_nop_get_gl_handle,
-    _cogl_texture_2d_nop_generate_mipmap,
-    _cogl_texture_2d_nop_copy_from_bitmap,
-    NULL, /* texture_2d_is_get_data_supported */
-    NULL, /* texture_2d_get_data */
     _cogl_nop_flush_attributes_state,
     _cogl_clip_stack_nop_flush,
   };
