@@ -187,13 +187,6 @@ _cogl_egl_destroy_image (CoglContext *ctx,
                          EGLImageKHR image);
 #endif
 
-#ifdef EGL_WL_bind_wayland_display
-gboolean
-_cogl_egl_query_wayland_buffer (CoglContext *ctx,
-                                struct wl_resource *buffer,
-                                int attribute,
-                                int *value);
-#endif
 
 COGL_EXPORT gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
