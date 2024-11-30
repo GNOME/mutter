@@ -128,6 +128,7 @@ GType clutter_root_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterPaintNode *      clutter_root_node_new           (CoglFramebuffer       *framebuffer,
+                                                         ClutterColorState     *color_state,
                                                          const CoglColor       *clear_color,
                                                          CoglBufferBit          clear_flags);
 

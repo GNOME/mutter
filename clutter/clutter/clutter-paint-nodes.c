@@ -86,6 +86,8 @@ struct _ClutterRootNode
 {
   ClutterPaintNode parent_instance;
 
+  ClutterColorState *color_state;
+
   CoglFramebuffer *framebuffer;
 
   CoglBufferBit clear_flags;
@@ -100,6 +102,7 @@ clutter_root_node_pre_draw (ClutterPaintNode    *node,
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
+  clutter_paint_context_push_color_state (paint_context, rnode->color_state);
   clutter_paint_context_push_framebuffer (paint_context, rnode->framebuffer);
 
   cogl_framebuffer_clear (rnode->framebuffer,
@@ -113,6 +116,7 @@ static void
 clutter_root_node_post_draw (ClutterPaintNode    *node,
                              ClutterPaintContext *paint_context)
 {
+  clutter_paint_context_pop_color_state (paint_context);
   clutter_paint_context_pop_framebuffer (paint_context);
 }
 
@@ -121,6 +125,7 @@ clutter_root_node_finalize (ClutterPaintNode *node)
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
+  g_clear_object (&rnode->color_state);
   g_object_unref (rnode->framebuffer);
 
   CLUTTER_PAINT_NODE_CLASS (clutter_root_node_parent_class)->finalize (node);
@@ -151,13 +156,15 @@ clutter_root_node_init (ClutterRootNode *self)
 }
 
 ClutterPaintNode *
-clutter_root_node_new (CoglFramebuffer *framebuffer,
-                       const CoglColor *clear_color,
-                       CoglBufferBit    clear_flags)
+clutter_root_node_new (CoglFramebuffer   *framebuffer,
+                       ClutterColorState *color_state,
+                       const CoglColor   *clear_color,
+                       CoglBufferBit      clear_flags)
 {
   ClutterRootNode *res;
 
   g_return_val_if_fail (framebuffer, NULL);
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), NULL);
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_ROOT_NODE);
 
@@ -166,6 +173,7 @@ clutter_root_node_new (CoglFramebuffer *framebuffer,
 
   res->framebuffer = g_object_ref (framebuffer);
   res->clear_flags = clear_flags;
+  res->color_state = g_object_ref (color_state);
 
   return (ClutterPaintNode *) res;
 }
