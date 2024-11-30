@@ -53,16 +53,21 @@
 #include "cogl/winsys/cogl-winsys-glx-private.h"
 #endif
 
+#ifdef HAVE_GL
+#include "cogl/driver/gl/gl/cogl-texture-driver-gl3-private.h"
+#endif
+#ifdef HAVE_GLES2
+#include "cogl/driver/gl/gles/cogl-texture-driver-gles2-private.h"
+#endif
+
 #ifdef HAVE_X11
 #include "cogl/cogl-xlib-renderer.h"
 #endif
 
 #ifdef HAVE_GL
-extern const CoglTextureDriver _cogl_texture_driver_gl;
 extern const CoglDriverVtable _cogl_driver_gl;
 #endif
 #ifdef HAVE_GLES2
-extern const CoglTextureDriver _cogl_texture_driver_gles;
 extern const CoglDriverVtable _cogl_driver_gles;
 #endif
 
@@ -79,7 +84,6 @@ typedef struct _CoglDriverDescription
    * driver. */
   const CoglPrivateFeature private_features[8];
   const CoglDriverVtable *vtable;
-  const CoglTextureDriver *texture_driver;
   const char *libgl_name;
 } CoglDriverDescription;
 
@@ -92,7 +96,6 @@ static CoglDriverDescription _cogl_drivers[] =
     { COGL_PRIVATE_FEATURE_ANY_GL,
       -1 },
     &_cogl_driver_gl,
-    &_cogl_texture_driver_gl,
     COGL_GL_LIBNAME,
   },
 #endif
@@ -103,7 +106,6 @@ static CoglDriverDescription _cogl_drivers[] =
     { COGL_PRIVATE_FEATURE_ANY_GL,
       -1 },
     &_cogl_driver_gles,
-    &_cogl_texture_driver_gles,
     COGL_GLES2_LIBNAME,
   },
 #endif
@@ -112,7 +114,6 @@ static CoglDriverDescription _cogl_drivers[] =
     "nop",
     { -1 },
     &_cogl_driver_nop,
-    NULL, /* texture driver */
     NULL /* libgl_name */
   }
 };
@@ -164,6 +165,8 @@ cogl_renderer_dispose (GObject *object)
 
   g_slist_free_full (renderer->event_filters,
                      (GDestroyNotify) native_filter_closure_free);
+
+  g_clear_object (&renderer->texture_driver);
 
   G_OBJECT_CLASS (cogl_renderer_parent_class)->dispose (object);
 }
@@ -374,7 +377,26 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
   desc = state.driver_description;
   renderer->driver = desc->id;
   renderer->driver_vtable = desc->vtable;
-  renderer->texture_driver = desc->texture_driver;
+
+  switch (renderer->driver)
+    {
+#ifdef HAVE_GL
+    case COGL_DRIVER_GL3:
+      renderer->texture_driver = g_object_new (COGL_TYPE_TEXTURE_DRIVER_GL3, NULL);
+      break;
+#endif
+#ifdef HAVE_GLES2
+    case COGL_DRIVER_GLES2:
+      renderer->texture_driver = g_object_new (COGL_TYPE_TEXTURE_DRIVER_GLES2, NULL);
+      break;
+#endif
+
+    case COGL_DRIVER_NOP:
+    default:
+      renderer->texture_driver = NULL;
+      break;
+    }
+
   libgl_name = desc->libgl_name;
 
   memset(renderer->private_features, 0, sizeof (renderer->private_features));

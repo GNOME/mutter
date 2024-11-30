@@ -462,7 +462,10 @@ gboolean
 cogl_context_format_supports_upload (CoglContext *ctx,
                                      CoglPixelFormat format)
 {
-  return ctx->texture_driver->format_supports_upload (ctx, format);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+
+  return tex_driver->format_supports_upload (ctx->texture_driver, ctx, format);
 }
 
 void

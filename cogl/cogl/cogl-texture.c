@@ -811,6 +811,7 @@ cogl_texture_get_data (CoglTexture *texture,
 		       uint8_t *data)
 {
   CoglContext *ctx;
+  CoglTextureDriverClass *tex_driver;
   int bpp;
   int byte_size;
   CoglPixelFormat closest_format;
@@ -848,11 +849,13 @@ cogl_texture_get_data (CoglTexture *texture,
     return byte_size;
 
   ctx = cogl_texture_get_context (texture);
+  tex_driver = COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   closest_format =
-    ctx->texture_driver->find_best_gl_get_data_format (ctx,
-                                                       format,
-                                                       &closest_gl_format,
-                                                       &closest_gl_type);
+    tex_driver->find_best_gl_get_data_format (ctx->texture_driver,
+                                              ctx,
+                                              format,
+                                              &closest_gl_format,
+                                              &closest_gl_type);
 
   /* We can assume that whatever data GL gives us will have the
      premult status of the original texture */

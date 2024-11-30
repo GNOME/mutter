@@ -463,6 +463,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       int bpp, rowstride;
       uint8_t *tmp_data;
       gboolean succeeded;
+      CoglTextureDriverClass *tex_driver =
+        COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
       if (_cogl_pixel_format_can_have_premult (read_format))
         {
@@ -480,10 +482,11 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       bpp = cogl_pixel_format_get_bytes_per_pixel (read_format, 0);
       rowstride = cogl_bitmap_get_rowstride (tmp_bmp);
 
-      ctx->texture_driver->prep_gl_for_pixels_download (ctx,
-                                                        rowstride,
-                                                        width,
-                                                        bpp);
+      tex_driver->prep_gl_for_pixels_download (ctx->texture_driver,
+                                               ctx,
+                                               rowstride,
+                                               width,
+                                               bpp);
 
       /* Note: we don't worry about catching errors here since we know
        * we won't be lazily allocating storage for this buffer so it
@@ -522,6 +525,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       gboolean succeeded = FALSE;
       uint8_t *pixels;
       GError *internal_error = NULL;
+      CoglTextureDriverClass *tex_driver =
+        COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
       rowstride = cogl_bitmap_get_rowstride (bitmap);
 
@@ -544,10 +549,11 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
 
       bpp = cogl_pixel_format_get_bytes_per_pixel (bmp_format, 0);
 
-      ctx->texture_driver->prep_gl_for_pixels_download (ctx,
-                                                        rowstride,
-                                                        width,
-                                                        bpp);
+      tex_driver->prep_gl_for_pixels_download (ctx->texture_driver,
+                                               ctx,
+                                               rowstride,
+                                               width,
+                                               bpp);
 
       pixels = _cogl_bitmap_gl_bind (shared_bmp,
                                      COGL_BUFFER_ACCESS_WRITE,
