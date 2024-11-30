@@ -46,6 +46,7 @@
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
 #include <string.h>
@@ -559,6 +560,13 @@ cogl_texture_driver_gles2_find_best_gl_get_data_format (CoglTextureDriver *drive
   return COGL_PIXEL_FORMAT_RGBA_8888;
 }
 
+static gboolean
+cogl_gles2_texture_driver_texture_2d_is_get_data_supported (CoglTextureDriver *driver,
+                                                            CoglTexture2D     *tex_2d)
+{
+  return FALSE;
+}
+
 static void
 cogl_texture_driver_gles2_class_init (CoglTextureDriverGLES2Class *klass)
 {
@@ -572,6 +580,15 @@ cogl_texture_driver_gles2_class_init (CoglTextureDriverGLES2Class *klass)
   driver_klass->size_supported = cogl_texture_driver_gles2_size_supported;
   driver_klass->format_supports_upload = cogl_texture_driver_gles2_upload_supported;
   driver_klass->find_best_gl_get_data_format = cogl_texture_driver_gles2_find_best_gl_get_data_format;
+  driver_klass->texture_2d_free = _cogl_texture_2d_gl_free;
+  driver_klass->texture_2d_can_create = _cogl_texture_2d_gl_can_create;
+  driver_klass->texture_2d_init = _cogl_texture_2d_gl_init;
+  driver_klass->texture_2d_allocate = _cogl_texture_2d_gl_allocate;
+  driver_klass->texture_2d_copy_from_framebuffer = _cogl_texture_2d_gl_copy_from_framebuffer;
+  driver_klass->texture_2d_get_gl_handle = _cogl_texture_2d_gl_get_gl_handle;
+  driver_klass->texture_2d_generate_mipmap = _cogl_texture_2d_gl_generate_mipmap;
+  driver_klass->texture_2d_copy_from_bitmap = _cogl_texture_2d_gl_copy_from_bitmap;
+  driver_klass->texture_2d_is_get_data_supported = cogl_gles2_texture_driver_texture_2d_is_get_data_supported;
 }
 
 static void

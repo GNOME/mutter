@@ -57,8 +57,10 @@ cogl_texture_2d_dispose (GObject *object)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (object);
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
-  ctx->driver_vtable->texture_2d_free (tex_2d);
+  tex_driver->texture_2d_free (ctx->texture_driver, tex_2d);
 
   G_OBJECT_CLASS (cogl_texture_2d_parent_class)->dispose (object);
 }
@@ -87,13 +89,16 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                                         "format", internal_format,
                                         "is-primitive", TRUE,
                                         NULL);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
   tex_2d->is_get_data_supported = TRUE;
 
   tex_2d->gl_target = GL_TEXTURE_2D;
 
-  ctx->driver_vtable->texture_2d_init (tex_2d);
+  tex_driver->texture_2d_init (ctx->texture_driver, tex_2d);
 
   return COGL_TEXTURE (tex_2d);
 }
@@ -103,8 +108,10 @@ _cogl_texture_2d_allocate (CoglTexture *tex,
                            GError **error)
 {
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
-  return ctx->driver_vtable->texture_2d_allocate (tex, error);
+  return tex_driver->texture_2d_allocate (ctx->texture_driver, tex, error);
 }
 
 void
@@ -120,19 +127,22 @@ _cogl_texture_2d_copy_from_framebuffer (CoglTexture2D *tex_2d,
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
   /* Assert that the storage for this texture has been allocated */
   cogl_texture_allocate (tex, NULL); /* (abort on error) */
 
-  ctx->driver_vtable->texture_2d_copy_from_framebuffer (tex_2d,
-                                                        src_x,
-                                                        src_y,
-                                                        width,
-                                                        height,
-                                                        src_fb,
-                                                        dst_x,
-                                                        dst_y,
-                                                        level);
+  tex_driver->texture_2d_copy_from_framebuffer (ctx->texture_driver,
+                                                tex_2d,
+                                                src_x,
+                                                src_y,
+                                                width,
+                                                height,
+                                                src_fb,
+                                                dst_x,
+                                                dst_y,
+                                                level);
 
   tex_2d->mipmaps_dirty = TRUE;
 }
@@ -193,15 +203,17 @@ _cogl_texture_2d_get_gl_texture (CoglTexture *tex,
 {
   CoglContext *ctx = cogl_texture_get_context (tex);
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
-  if (ctx->driver_vtable->texture_2d_get_gl_handle)
+  if (tex_driver->texture_2d_get_gl_handle)
     {
       GLuint handle;
 
       if (out_gl_target)
         *out_gl_target = tex_2d->gl_target;
 
-      handle = ctx->driver_vtable->texture_2d_get_gl_handle (tex_2d);
+      handle = tex_driver->texture_2d_get_gl_handle (ctx->texture_driver, tex_2d);
 
       if (out_gl_handle)
         *out_gl_handle = handle;
@@ -222,6 +234,8 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
       tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
     {
       CoglContext *ctx = cogl_texture_get_context (tex);
+      CoglTextureDriverClass *tex_driver =
+        COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
       /* Since we are about to ask the GPU to generate mipmaps of tex, we
        * better make sure tex is up-to-date.
@@ -232,7 +246,7 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
           _cogl_texture_get_associated_framebuffers (tex))
         ctx->glFlush ();
 
-      ctx->driver_vtable->texture_2d_generate_mipmap (tex_2d);
+      tex_driver->texture_2d_generate_mipmap (ctx->texture_driver, tex_2d);
 
       tex_2d->mipmaps_dirty = FALSE;
     }
@@ -258,17 +272,20 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
 {
   CoglContext *ctx = cogl_texture_get_context (tex);
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
-  if (!ctx->driver_vtable->texture_2d_copy_from_bitmap (tex_2d,
-                                                        src_x,
-                                                        src_y,
-                                                        width,
-                                                        height,
-                                                        bmp,
-                                                        dst_x,
-                                                        dst_y,
-                                                        level,
-                                                        error))
+  if (!tex_driver->texture_2d_copy_from_bitmap (ctx->texture_driver,
+                                                tex_2d,
+                                                src_x,
+                                                src_y,
+                                                width,
+                                                height,
+                                                bmp,
+                                                dst_x,
+                                                dst_y,
+                                                level,
+                                                error))
     {
       return FALSE;
     }
@@ -283,8 +300,10 @@ _cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
-  return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
+  return tex_driver->texture_2d_is_get_data_supported (ctx->texture_driver, tex_2d);
 }
 
 static gboolean
@@ -294,11 +313,13 @@ _cogl_texture_2d_get_data (CoglTexture *tex,
                            uint8_t *data)
 {
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
 
-  if (ctx->driver_vtable->texture_2d_get_data)
+  if (tex_driver->texture_2d_get_data)
     {
       CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-      ctx->driver_vtable->texture_2d_get_data (tex_2d, format, rowstride, data);
+      tex_driver->texture_2d_get_data (ctx->texture_driver, tex_2d, format, rowstride, data);
       return TRUE;
     }
   else
