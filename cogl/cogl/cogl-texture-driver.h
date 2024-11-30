@@ -30,10 +30,16 @@
 
 #pragma once
 
-typedef struct _CoglTextureDriver CoglTextureDriver;
+#include <glib-object.h>
 
-struct _CoglTextureDriver
+#include "cogl/cogl-gl-header.h"
+#include "cogl/cogl-pixel-format.h"
+#include "cogl/cogl-types.h"
+
+typedef struct _CoglTextureDriverClass
 {
+  GObjectClass parent_class;
+
   /*
    * A very small wrapper around glGenTextures() that ensures we default to
    * non-mipmap filters when creating textures. This is to save some memory as
@@ -143,4 +149,12 @@ struct _CoglTextureDriver
                                     CoglPixelFormat format,
                                     GLenum *closest_gl_format,
                                     GLenum *closest_gl_type);
-};
+} CoglTextureDriverClass;
+
+G_DECLARE_DERIVABLE_TYPE (CoglTextureDriver,
+                          cogl_texture_driver,
+                          COGL,
+                          TEXTURE_DRIVER,
+                          GObject)
+
+#define COGL_TYPE_TEXTURE_DRIVER (cogl_texture_driver_get_type ())

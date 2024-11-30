@@ -42,6 +42,7 @@
 #include "cogl/cogl-texture-private.h"
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/driver/gl/gl/cogl-texture-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
@@ -54,6 +55,12 @@
 #ifndef GL_TEXTURE_SWIZZLE_RGBA
 #define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
 #endif
+
+struct _CoglGLTextureDriver {
+  CoglTextureDriver parent_instance;
+};
+
+G_DEFINE_FINAL_TYPE (CoglGLTextureDriver, cogl_gl_texture_driver, COGL_TYPE_TEXTURE_DRIVER)
 
 static GLuint
 _cogl_texture_driver_gen (CoglContext *ctx,
@@ -471,15 +478,22 @@ _cogl_texture_driver_find_best_gl_get_data_format
                                                      closest_gl_type);
 }
 
-const CoglTextureDriver
-_cogl_texture_driver_gl =
-  {
-    _cogl_texture_driver_gen,
-    _cogl_texture_driver_upload_subregion_to_gl,
-    _cogl_texture_driver_upload_to_gl,
-    _cogl_texture_driver_prep_gl_for_pixels_download,
-    _cogl_texture_driver_gl_get_tex_image,
-    _cogl_texture_driver_size_supported,
-    _cogl_texture_driver_upload_supported,
-    _cogl_texture_driver_find_best_gl_get_data_format
-  };
+static void
+cogl_gl_texture_driver_class_init (CoglGLTextureDriverClass *klass)
+{
+  CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
+
+  driver_klass->gen = _cogl_texture_driver_gen;
+  driver_klass->upload_subregion_to_gl = _cogl_texture_driver_upload_subregion_to_gl;
+  driver_klass->upload_to_gl = _cogl_texture_driver_upload_to_gl;
+  driver_klass->prep_gl_for_pixels_download = _cogl_texture_driver_prep_gl_for_pixels_download;
+  driver_klass->gl_get_tex_image = _cogl_texture_driver_gl_get_tex_image;
+  driver_klass->size_supported = _cogl_texture_driver_size_supported;
+  driver_klass->format_supports_upload = _cogl_texture_driver_upload_supported;
+  driver_klass->find_best_gl_get_data_format = _cogl_texture_driver_find_best_gl_get_data_format;
+}
+
+static void
+cogl_gl_texture_driver_init (CoglGLTextureDriver *driver)
+{
+}

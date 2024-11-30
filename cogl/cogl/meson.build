@@ -116,11 +116,13 @@ cogl_common_driver_sources = [
 gl_driver_sources = [
   'driver/gl/gl/cogl-driver-gl.c',
   'driver/gl/gl/cogl-texture-driver-gl.c',
+  'driver/gl/gl/cogl-texture-driver-gl-private.h',
 ]
 
 gles_driver_sources = [
   'driver/gl/gles/cogl-driver-gles.c',
   'driver/gl/gles/cogl-texture-driver-gles.c',
+  'driver/gl/gles/cogl-texture-driver-gles-private.h',
 ]
 
 cogl_driver_sources = [
@@ -263,6 +265,7 @@ cogl_sources = [
   'cogl-texture-2d-sliced-private.h',
   'cogl-texture-2d-sliced.c',
   'cogl-texture-2d.c',
+  'cogl-texture-driver.c',
   'cogl-texture-driver.h',
   'cogl-texture-private.h',
   'cogl-texture.c',

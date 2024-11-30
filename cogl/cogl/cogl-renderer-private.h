@@ -49,7 +49,7 @@ struct _CoglRenderer
   gboolean connected;
   CoglDriver driver_override;
   const CoglDriverVtable *driver_vtable;
-  const CoglTextureDriver *texture_driver;
+  CoglTextureDriver *texture_driver;
   const CoglWinsysVtable *winsys_vtable;
   void *custom_winsys_user_data;
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;

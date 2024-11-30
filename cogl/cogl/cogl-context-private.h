@@ -73,7 +73,7 @@ struct _CoglContext
 
   /* vtables for the driver functions */
   const CoglDriverVtable *driver_vtable;
-  const CoglTextureDriver *texture_driver;
+  CoglTextureDriver *texture_driver;
 
   void *driver_context;
 
