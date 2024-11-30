@@ -1009,6 +1009,7 @@ clutter_actor_node_pre_draw (ClutterPaintNode    *node,
                              ClutterPaintContext *paint_context)
 {
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+  ClutterColorState *color_state;
 
   if (actor_node->opacity_override != -1)
     {
@@ -1019,6 +1020,9 @@ clutter_actor_node_pre_draw (ClutterPaintNode    *node,
     }
 
   CLUTTER_SET_PRIVATE_FLAGS (actor_node->actor, CLUTTER_IN_PAINT);
+
+  color_state = clutter_actor_get_color_state (actor_node->actor);
+  clutter_paint_context_push_color_state (paint_context, color_state);
 
   return TRUE;
 }
@@ -1037,6 +1041,8 @@ clutter_actor_node_post_draw (ClutterPaintNode    *node,
                               ClutterPaintContext *paint_context)
 {
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+
+  clutter_paint_context_pop_color_state (paint_context);
 
   CLUTTER_UNSET_PRIVATE_FLAGS (actor_node->actor, CLUTTER_IN_PAINT);
 
