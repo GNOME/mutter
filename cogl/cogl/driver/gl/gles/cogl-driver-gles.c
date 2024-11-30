@@ -853,12 +853,6 @@ _cogl_driver_update_features (CoglContext  *context,
   return TRUE;
 }
 
-static gboolean
-_cogl_driver_texture_2d_is_get_data_supported (CoglTexture2D *tex_2d)
-{
-  return FALSE;
-}
-
 const CoglDriverVtable
 _cogl_driver_gles =
   {
@@ -872,16 +866,6 @@ _cogl_driver_gles =
     _cogl_driver_update_features,
     _cogl_driver_gl_create_framebuffer_driver,
     _cogl_driver_gl_flush_framebuffer_state,
-    _cogl_texture_2d_gl_free,
-    _cogl_texture_2d_gl_can_create,
-    _cogl_texture_2d_gl_init,
-    _cogl_texture_2d_gl_allocate,
-    _cogl_texture_2d_gl_copy_from_framebuffer,
-    _cogl_texture_2d_gl_get_gl_handle,
-    _cogl_texture_2d_gl_generate_mipmap,
-    _cogl_texture_2d_gl_copy_from_bitmap,
-    _cogl_driver_texture_2d_is_get_data_supported,
-    NULL, /* texture_2d_get_data */
     _cogl_gl_flush_attributes_state,
     _cogl_clip_stack_gl_flush,
     _cogl_buffer_gl_create,
