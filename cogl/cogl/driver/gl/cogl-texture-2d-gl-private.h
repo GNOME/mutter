@@ -65,16 +65,6 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
                                    GError       **error);
 #endif
 
-#if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
-CoglTexture2D *
-_cogl_egl_texture_2d_gl_new_from_image (CoglContext *ctx,
-                                        int width,
-                                        int height,
-                                        CoglPixelFormat format,
-                                        EGLImageKHR image,
-                                        GError **error);
-#endif
-
 void
 _cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
                                                  GLenum min_filter,
