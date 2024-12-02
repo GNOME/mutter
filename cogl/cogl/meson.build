@@ -100,6 +100,8 @@ cogl_common_driver_sources = [
   'driver/gl/cogl-texture-2d-gl-private.h',
   'driver/gl/cogl-texture-2d-gl.c',
   'driver/gl/cogl-texture-gl-private.h',
+  'driver/gl/cogl-texture-driver-gl.c',
+  'driver/gl/cogl-texture-driver-gl-private.h',
   'driver/gl/cogl-texture-gl.c',
   'driver/gl/cogl-util-gl-private.h',
   'driver/gl/cogl-util-gl.c',
