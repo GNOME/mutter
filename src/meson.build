@@ -884,6 +884,8 @@ if have_native_backend
     'backends/native/meta-seat-impl.h',
     'backends/native/meta-seat-native.c',
     'backends/native/meta-seat-native.h',
+    'backends/native/meta-sprite-native.c',
+    'backends/native/meta-sprite-native.h',
     'backends/native/meta-stage-native.c',
     'backends/native/meta-stage-native.h',
     'backends/native/meta-thread-impl.c',
