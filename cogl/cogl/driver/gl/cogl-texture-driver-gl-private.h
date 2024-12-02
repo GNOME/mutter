@@ -28,13 +28,17 @@
 
 #pragma once
 
-#include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
+#include "cogl/cogl-texture-driver.h"
 
+struct _CoglTextureDriverGLClass
+{
+  CoglTextureDriverClass parent_class;
+};
 
-G_DECLARE_FINAL_TYPE (CoglTextureDriverGLES2,
-                      cogl_texture_driver_gles2,
-                      COGL,
-                      TEXTURE_DRIVER_GLES2,
-                      CoglTextureDriverGL)
+G_DECLARE_DERIVABLE_TYPE (CoglTextureDriverGL,
+                          cogl_texture_driver_gl,
+                          COGL,
+                          TEXTURE_DRIVER_GL,
+                          CoglTextureDriver)
 
-#define COGL_TYPE_TEXTURE_DRIVER_GLES2 (cogl_texture_driver_gles2_get_type ())
+#define COGL_TYPE_TEXTURE_DRIVER_GL (cogl_texture_driver_gl_get_type ())

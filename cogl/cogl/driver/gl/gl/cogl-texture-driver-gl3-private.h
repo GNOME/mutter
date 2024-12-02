@@ -28,13 +28,13 @@
 
 #pragma once
 
-#include "cogl/cogl-texture-driver.h"
+#include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
 
 
 G_DECLARE_FINAL_TYPE (CoglTextureDriverGL3,
                       cogl_texture_driver_gl3,
                       COGL,
                       TEXTURE_DRIVER_GL3,
-                      CoglTextureDriver)
+                      CoglTextureDriverGL)
 
 #define COGL_TYPE_TEXTURE_DRIVER_GL3 (cogl_texture_driver_gl3_get_type ())

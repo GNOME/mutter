@@ -117,10 +117,3 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTextureDriver *driver,
                                       int                dst_y,
                                       int                level,
                                       GError           **error);
-
-void
-_cogl_texture_2d_gl_get_data (CoglTextureDriver *driver,
-                              CoglTexture2D     *tex_2d,
-                              CoglPixelFormat    format,
-                              int                rowstride,
-                              uint8_t           *data);

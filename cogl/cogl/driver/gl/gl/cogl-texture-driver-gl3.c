@@ -47,7 +47,6 @@
 #include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
 #include <string.h>
@@ -60,12 +59,12 @@
 
 struct _CoglTextureDriverGL3
 {
-  CoglTextureDriver parent_instance;
+  CoglTextureDriverGL parent_instance;
 };
 
 G_DEFINE_FINAL_TYPE (CoglTextureDriverGL3,
                      cogl_texture_driver_gl3,
-                     COGL_TYPE_TEXTURE_DRIVER)
+                     COGL_TYPE_TEXTURE_DRIVER_GL)
 
 static GLuint
 cogl_texture_driver_gl3_gen (CoglTextureDriver *driver,
@@ -491,10 +490,53 @@ cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriver *driver,
 }
 
 static gboolean
-cogl_gl_texture_driver_is_get_data_supported (CoglTextureDriver *driver,
-                                              CoglTexture2D     *tex_2d)
+cogl_texture_driver_gl3_is_get_data_supported (CoglTextureDriver *driver,
+                                               CoglTexture2D     *tex_2d)
 {
   return tex_2d->is_get_data_supported;
+}
+
+static void
+cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
+                                                CoglTexture2D     *tex_2d,
+                                                CoglPixelFormat    format,
+                                                int                rowstride,
+                                                uint8_t           *data)
+{
+  CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
+  CoglTextureDriverClass *tex_driver =
+    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  uint8_t bpp;
+  int width = cogl_texture_get_width (COGL_TEXTURE (tex_2d));
+  GLenum gl_format;
+  GLenum gl_type;
+
+  g_return_if_fail (format != COGL_PIXEL_FORMAT_ANY);
+  g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
+
+  ctx->driver_vtable->pixel_format_to_gl (ctx,
+                                          format,
+                                          NULL, /* internal format */
+                                          &gl_format,
+                                          &gl_type);
+
+  tex_driver->prep_gl_for_pixels_download (ctx->texture_driver,
+                                           ctx,
+                                           rowstride,
+                                           width,
+                                           bpp);
+
+  _cogl_bind_gl_texture_transient (ctx, tex_2d->gl_target,
+                                   tex_2d->gl_texture);
+
+  tex_driver->gl_get_tex_image (ctx->texture_driver,
+                                ctx,
+                                tex_2d->gl_target,
+                                gl_format,
+                                gl_type,
+                                data);
 }
 
 static void
@@ -510,16 +552,8 @@ cogl_texture_driver_gl3_class_init (CoglTextureDriverGL3Class *klass)
   driver_klass->size_supported = cogl_texture_driver_gl3_size_supported;
   driver_klass->format_supports_upload = cogl_texture_driver_gl3_upload_supported;
   driver_klass->find_best_gl_get_data_format = cogl_texture_driver_gl3_find_best_gl_get_data_format;
-  driver_klass->texture_2d_free = _cogl_texture_2d_gl_free;
-  driver_klass->texture_2d_can_create = _cogl_texture_2d_gl_can_create;
-  driver_klass->texture_2d_init = _cogl_texture_2d_gl_init;
-  driver_klass->texture_2d_allocate = _cogl_texture_2d_gl_allocate;
-  driver_klass->texture_2d_copy_from_framebuffer = _cogl_texture_2d_gl_copy_from_framebuffer;
-  driver_klass->texture_2d_get_gl_handle = _cogl_texture_2d_gl_get_gl_handle;
-  driver_klass->texture_2d_generate_mipmap = _cogl_texture_2d_gl_generate_mipmap;
-  driver_klass->texture_2d_copy_from_bitmap = _cogl_texture_2d_gl_copy_from_bitmap;
-  driver_klass->texture_2d_is_get_data_supported = cogl_gl_texture_driver_is_get_data_supported;
-  driver_klass->texture_2d_get_data = _cogl_texture_2d_gl_get_data;
+  driver_klass->texture_2d_is_get_data_supported = cogl_texture_driver_gl3_is_get_data_supported;
+  driver_klass->texture_2d_get_data = cogl_texture_driver_gl3_texture_2d_gl_get_data;
 }
 
 static void
