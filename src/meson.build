@@ -444,6 +444,8 @@ if have_x11
     'backends/x11/meta-output-xrandr.h',
     'backends/x11/meta-renderer-x11.c',
     'backends/x11/meta-renderer-x11.h',
+    'backends/x11/meta-sprite-x11.c',
+    'backends/x11/meta-sprite-x11.h',
     'backends/x11/meta-stage-x11.c',
     'backends/x11/meta-stage-x11.h',
     'backends/x11/meta-virtual-input-device-x11.c',
