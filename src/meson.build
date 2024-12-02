@@ -456,6 +456,8 @@ if have_x11
     'backends/x11/nested/meta-backend-x11-nested.h',
     'backends/x11/nested/meta-cursor-renderer-x11-nested.c',
     'backends/x11/nested/meta-cursor-renderer-x11-nested.h',
+    'backends/x11/nested/meta-sprite-x11-nested.c',
+    'backends/x11/nested/meta-sprite-x11-nested.h',
     'backends/x11/nested/meta-stage-x11-nested.c',
     'backends/x11/nested/meta-stage-x11-nested.h',
     'backends/x11/nested/meta-renderer-x11-nested.c',
