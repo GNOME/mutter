@@ -31,7 +31,9 @@
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-seat-x11.h"
+#include "backends/x11/meta-sprite-x11.h"
 #include "backends/x11/meta-xkb-a11y-x11.h"
+#include "backends/x11/nested/meta-sprite-x11-nested.h"
 #include "backends/x11/nested/meta-stage-x11-nested.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
@@ -151,8 +153,16 @@ meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
     {
       if (!priv->virtual_core_pointer)
         {
+          GType sprite_type;
+
+          if (meta_is_wayland_compositor ())
+            sprite_type = META_TYPE_SPRITE_X11_NESTED;
+          else
+            sprite_type = META_TYPE_SPRITE_X11;
+
           priv->virtual_core_pointer =
-            g_object_new (CLUTTER_TYPE_SPRITE,
+            g_object_new (sprite_type,
+                          "backend", priv->backend,
                           "stage", stage,
                           "device", clutter_event_get_device (for_event),
                           "sequence", sequence,
