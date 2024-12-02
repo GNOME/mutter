@@ -134,7 +134,8 @@ cogl_context_dispose (GObject *object)
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
 
-  driver->context_deinit (context);
+  if (driver->context_deinit)
+    driver->context_deinit (context);
 
   g_object_unref (context->display);
 
@@ -237,7 +238,8 @@ cogl_context_new (CoglDisplay *display,
       return NULL;
     }
 
-  if (!context->driver_vtable->context_init (context))
+  if (context->driver_vtable->context_init &&
+      !context->driver_vtable->context_init (context))
     {
       g_object_unref (display);
       g_object_unref (context);
@@ -450,7 +452,10 @@ cogl_context_get_graphics_reset_status (CoglContext *context)
 gboolean
 cogl_context_is_hardware_accelerated (CoglContext *context)
 {
-  return context->driver_vtable->is_hardware_accelerated (context);
+  if (context->driver_vtable->is_hardware_accelerated)
+    return context->driver_vtable->is_hardware_accelerated (context);
+  else
+    return FALSE;
 }
 
 gboolean

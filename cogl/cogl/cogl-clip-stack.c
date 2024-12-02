@@ -357,5 +357,6 @@ _cogl_clip_stack_flush (CoglClipStack *stack,
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
-  ctx->driver_vtable->clip_stack_flush (stack, framebuffer);
+  if (ctx->driver_vtable->clip_stack_flush)
+    ctx->driver_vtable->clip_stack_flush (stack, framebuffer);
 }

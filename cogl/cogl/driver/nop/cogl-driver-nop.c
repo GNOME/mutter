@@ -37,8 +37,6 @@
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/driver/nop/cogl-texture-2d-nop-private.h"
-#include "cogl/driver/nop/cogl-attribute-nop-private.h"
-#include "cogl/driver/nop/cogl-clip-stack-nop-private.h"
 #include "cogl/driver/nop/cogl-nop-framebuffer.h"
 
 static gboolean
@@ -48,23 +46,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   memset (ctx->private_features, 0, sizeof (ctx->private_features));
 
   return TRUE;
-}
-
-static gboolean
-_cogl_driver_nop_context_init (CoglContext *context)
-{
-  return TRUE;
-}
-
-static void
-_cogl_driver_nop_context_deinit (CoglContext *context)
-{
-}
-
-static gboolean
-_cogl_driver_nop_is_hardware_accelerated (CoglContext *context)
-{
-  return FALSE;
 }
 
 static const char *
@@ -84,27 +65,19 @@ _cogl_driver_nop_create_framebuffer_driver (CoglContext                        *
                        NULL);
 }
 
-static void
-_cogl_driver_nop_flush_framebuffer_state (CoglContext          *ctx,
-                                          CoglFramebuffer      *draw_buffer,
-                                          CoglFramebuffer      *read_buffer,
-                                          CoglFramebufferState  state)
-{
-}
-
 const CoglDriverVtable
 _cogl_driver_nop =
   {
-    _cogl_driver_nop_context_init,
-    _cogl_driver_nop_context_deinit,
+    NULL,
+    NULL,
     _cogl_driver_nop_get_renderer,
-    _cogl_driver_nop_is_hardware_accelerated,
+    NULL,
     NULL, /* get_graphics_reset_status */
     NULL, /* pixel_format_to_gl */
     NULL, /* _cogl_driver_get_read_pixels_format */
     _cogl_driver_update_features,
     _cogl_driver_nop_create_framebuffer_driver,
-    _cogl_driver_nop_flush_framebuffer_state,
+    NULL,
     _cogl_texture_2d_nop_free,
     _cogl_texture_2d_nop_can_create,
     _cogl_texture_2d_nop_init,
@@ -115,6 +88,6 @@ _cogl_driver_nop =
     _cogl_texture_2d_nop_copy_from_bitmap,
     NULL, /* texture_2d_is_get_data_supported */
     NULL, /* texture_2d_get_data */
-    _cogl_nop_flush_attributes_state,
-    _cogl_clip_stack_nop_flush,
+    NULL,
+    NULL,
   };
