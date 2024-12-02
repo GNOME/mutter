@@ -26,15 +26,29 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include "config.h"
 
 #include "cogl/driver/gl/cogl-texture-driver-opengl-private.h"
+#include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 
+G_DEFINE_TYPE (CoglOpenGLTextureDriver, cogl_open_gl_texture_driver, COGL_TYPE_TEXTURE_DRIVER)
 
-G_DECLARE_FINAL_TYPE (CoglGLES2TextureDriver,
-                      cogl_gles2_texture_driver,
-                      COGL,
-                      GLES2_TEXTURE_DRIVER,
-                      CoglOpenGLTextureDriver)
+static void
+cogl_open_gl_texture_driver_class_init (CoglOpenGLTextureDriverClass *klass)
+{
+  CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
 
-#define COGL_TYPE_GLES2_TEXTURE_DRIVER (cogl_gles2_texture_driver_get_type ())
+  driver_klass->texture_2d_free = _cogl_texture_2d_gl_free;
+  driver_klass->texture_2d_can_create = _cogl_texture_2d_gl_can_create;
+  driver_klass->texture_2d_init = _cogl_texture_2d_gl_init;
+  driver_klass->texture_2d_allocate = _cogl_texture_2d_gl_allocate;
+  driver_klass->texture_2d_copy_from_framebuffer = _cogl_texture_2d_gl_copy_from_framebuffer;
+  driver_klass->texture_2d_get_gl_handle = _cogl_texture_2d_gl_get_gl_handle;
+  driver_klass->texture_2d_generate_mipmap = _cogl_texture_2d_gl_generate_mipmap;
+  driver_klass->texture_2d_copy_from_bitmap = _cogl_texture_2d_gl_copy_from_bitmap;
+}
+
+static void
+cogl_open_gl_texture_driver_init (CoglOpenGLTextureDriver *driver)
+{
+}
