@@ -1054,10 +1054,13 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                       CoglFramebuffer      *read_buffer,
                                       CoglFramebufferState  state)
 {
-  ctx->driver_vtable->flush_framebuffer_state (ctx,
-                                               draw_buffer,
-                                               read_buffer,
-                                               state);
+  if (ctx->driver_vtable->flush_framebuffer_state)
+    {
+      ctx->driver_vtable->flush_framebuffer_state (ctx,
+                                                   draw_buffer,
+                                                   read_buffer,
+                                                   state);
+    }
 }
 
 static void
