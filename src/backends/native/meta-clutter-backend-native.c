@@ -44,6 +44,7 @@
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-seat-native.h"
+#include "backends/native/meta-sprite-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
 #include "core/bell.h"
@@ -110,13 +111,17 @@ create_sprite (ClutterBackend     *clutter_backend,
                ClutterStage       *stage,
                const ClutterEvent *for_event)
 {
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  MetaBackend *backend = clutter_backend_native->backend;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
 
   device = clutter_event_get_device (for_event);
   sequence = clutter_event_get_event_sequence (for_event);
 
-  return g_object_new (CLUTTER_TYPE_SPRITE,
+  return g_object_new (META_TYPE_SPRITE_NATIVE,
+                       "backend", backend,
                        "stage", stage,
                        "device", device,
                        "sequence", sequence,
