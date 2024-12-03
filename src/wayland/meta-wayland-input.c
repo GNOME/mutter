@@ -187,10 +187,6 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput    *input,
         meta_wayland_event_handler_invalidate_focus (handler, device, l->data);
     }
 
-  if (meta_wayland_seat_has_touch (seat) &&
-      (flags & INVALIDATE_FOCUS_FLAG_CANCEL_TOUCH) != 0)
-    meta_wayland_touch_cancel (seat->touch);
-
   g_hash_table_iter_init (&iter, seat->tablet_seat->tablets);
   while (g_hash_table_iter_next (&iter, (gpointer*) &device, NULL))
     {

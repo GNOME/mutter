@@ -216,7 +216,11 @@ default_focus (MetaWaylandEventHandler *handler,
   ClutterInputCapabilities caps;
 
   if (sequence)
-    return;
+    {
+      if (surface != meta_wayland_touch_get_surface (seat->touch, sequence))
+        meta_wayland_touch_cancel (seat->touch);
+      return;
+    }
 
   caps = clutter_input_device_get_capabilities (device);
 
