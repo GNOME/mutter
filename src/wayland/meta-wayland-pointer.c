@@ -57,6 +57,7 @@
 #include "wayland/meta-cursor-sprite-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-cursor-surface.h"
+#include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-popup.h"
 #include "wayland/meta-wayland-private.h"
@@ -1137,8 +1138,17 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 {
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
+  MetaWaylandDragGrab *drag_grab;
+  MetaWaylandSurface *surface;
 
-  if (pointer->current)
+  drag_grab = meta_wayland_data_device_get_current_grab (&seat->data_device);
+  if (drag_grab)
+    surface = meta_wayland_drag_grab_get_origin (drag_grab);
+  else
+    surface = pointer->focus_surface;
+
+  if (surface)
     {
       MetaCursorSprite *cursor_sprite = NULL;
 
