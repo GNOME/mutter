@@ -48,12 +48,6 @@ struct _MetaWaylandInput
   ClutterGrab *grab;
 };
 
-typedef enum
-{
-  INVALIDATE_FOCUS_FLAG_DEFAULT = 0,
-  INVALIDATE_FOCUS_FLAG_CANCEL_TOUCH = 1 << 0,
-} InvalidateFocusFlag;
-
 static void meta_wayland_input_sync_focus (MetaWaylandInput *input);
 
 G_DEFINE_FINAL_TYPE (MetaWaylandInput, meta_wayland_input, G_TYPE_OBJECT)
@@ -143,8 +137,7 @@ meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
 }
 
 static void
-meta_wayland_input_invalidate_all_focus (MetaWaylandInput    *input,
-                                         InvalidateFocusFlag  flags)
+meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
 {
   MetaWaylandEventHandler *handler;
   MetaWaylandSeat *seat = input->seat;
@@ -280,8 +273,7 @@ meta_wayland_input_sync_focus (MetaWaylandInput *input)
 
   g_assert (!wl_list_empty (&input->event_handler_list));
   handler = wl_container_of (input->event_handler_list.next, handler, link);
-  meta_wayland_input_invalidate_all_focus (input,
-                                           INVALIDATE_FOCUS_FLAG_CANCEL_TOUCH);
+  meta_wayland_input_invalidate_all_focus (input);
 }
 
 static void
@@ -334,8 +326,7 @@ meta_wayland_input_attach_event_handler (MetaWaylandInput                *input,
                                 input);
     }
 
-  meta_wayland_input_invalidate_all_focus (input,
-                                           INVALIDATE_FOCUS_FLAG_DEFAULT);
+  meta_wayland_input_invalidate_all_focus (input);
 
   return handler;
 }
@@ -362,8 +353,7 @@ meta_wayland_input_detach_event_handler (MetaWaylandInput        *input,
   wl_list_remove (&handler->link);
 
   if (handler_change && !wl_list_empty (&input->event_handler_list))
-    meta_wayland_input_invalidate_all_focus (input,
-                                             INVALIDATE_FOCUS_FLAG_DEFAULT);
+    meta_wayland_input_invalidate_all_focus (input);
 
   if (input->grab && !should_be_grabbed (input))
     {
