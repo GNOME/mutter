@@ -15,9 +15,6 @@ clutter_tests_interactive_link_args = [
 clutter_tests_interactive_test_sources = [
   'test-events.c',
   'test-grab.c',
-  'test-cogl-shader-glsl.c',
-  'test-cogl-tex-tile.c',
-  'test-cogl-offscreen.c',
   'test-animation.c',
   'test-binding-pool.c',
   'test-text.c',
@@ -55,7 +52,6 @@ executable('test-interactive',
   link_args: clutter_tests_interactive_link_args,
   dependencies: [
     libmutter_test_dep,
-    gdk_pixbuf_dep,
   ],
   install: false,
 )
