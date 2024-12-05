@@ -1027,7 +1027,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
         uint32_t bpp;
         uint32_t drm_format;
         int i;
-        CoglFramebuffer *dmabuf_fb;
+        g_autoptr (CoglFramebuffer) dmabuf_fb = NULL;
         CoglDmaBufHandle *dmabuf_handle;
         const MetaFormatInfo *format_info;
 
@@ -1107,7 +1107,6 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
                                    bpp,
                                    g_steal_pointer (&buffer),
                                    g_object_unref);
-        g_object_unref (dmabuf_fb);
         return dmabuf_handle;
       }
       break;
