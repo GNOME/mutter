@@ -378,6 +378,7 @@ meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
   priv->surface = g_object_ref_sink (surface_actor);
 
   meta_window_actor_add_surface_actor (self, surface_actor);
+  meta_window_actor_update_opacity (self);
 
   if (meta_window_actor_is_frozen (self))
     meta_window_actor_set_frozen (self, TRUE);
