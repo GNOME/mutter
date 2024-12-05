@@ -1,3 +1,14 @@
+47.3
+====
+* Fix maximized X11 when using native xwayland scaling [Jonas; !4147]
+* Fix blank screen in remote headless sessions [Jonas; !4152]
+* Fix touch-triggered popups being cancelled too early [Carlos; !4166]
+* Fix pointer cursor during compositor grabs [Carlos; !4166]
+* Fixed crash [Michel; !4148]
+
+Contributors:
+  Michel Dänzer, Jonas Ådahl, Carlos Garnacho
+
 47.2
 ====
 * Fix warping pointer after releasing pointer constraints [Sebastian K.; !4098]
