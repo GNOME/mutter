@@ -226,7 +226,11 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
   sequence = clutter_event_get_event_sequence (event);
   event_type = clutter_event_type (event);
 
-  if (event_type == CLUTTER_ENTER)
+  touch_info = touch_get_info (touch, sequence, FALSE);
+
+  if (event_type == CLUTTER_ENTER &&
+      !touch_info &&
+      (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) == 0)
     {
       MetaWaylandSurface *surface = NULL;
       MetaBackend *backend;
@@ -250,8 +254,6 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
       touch_info->touch_surface = touch_surface_get (touch, surface);
       clutter_event_get_coords (event, &touch_info->start_x, &touch_info->start_y);
     }
-  else
-    touch_info = touch_get_info (touch, sequence, FALSE);
 
   if (!touch_info)
     return;
