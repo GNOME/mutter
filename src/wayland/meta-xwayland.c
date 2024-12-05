@@ -1360,6 +1360,87 @@ meta_xwayland_get_effective_scale (MetaXWaylandManager *manager)
   return 1;
 }
 
+void
+meta_xwayland_stage_to_protocol_point (MetaXWaylandManager *manager,
+                                       int                  stage_x,
+                                       int                  stage_y,
+                                       int                 *protocol_x,
+                                       int                 *protocol_y)
+{
+  int scale;
+
+  scale = meta_xwayland_get_effective_scale (manager);
+  if (protocol_x)
+    *protocol_x = stage_x * scale;
+  if (protocol_y)
+    *protocol_y = stage_y * scale;
+}
+
+void meta_xwayland_stage_to_protocol_rect (MetaXWaylandManager *manager,
+                                           const MtkRectangle  *stage_rect,
+                                           MtkRectangle        *protocol_rect)
+{
+  meta_xwayland_stage_to_protocol_point (manager,
+                                         stage_rect->x, stage_rect->y,
+                                         &protocol_rect->x, &protocol_rect->y);
+  meta_xwayland_stage_to_protocol_point (manager,
+                                         stage_rect->width, stage_rect->height,
+                                         &protocol_rect->width, &protocol_rect->height);
+}
+
+static int
+scale_and_handle_overflow (int      protocol,
+                           float    scale,
+                           float (* rounding_function) (float value))
+{
+  float value;
+
+  value = rounding_function (protocol * scale);
+  if (value >= (float) INT_MAX)
+    return INT_MAX;
+  else if (value <= (float) INT_MIN)
+    return INT_MIN;
+  else
+    return (int) value;
+}
+
+void
+meta_xwayland_protocol_to_stage (MetaXWaylandManager *xwayland_manager,
+                                 int                  protocol_x,
+                                 int                  protocol_y,
+                                 int                 *stage_x,
+                                 int                 *stage_y,
+                                 MtkRoundingStrategy  rounding_strategy)
+{
+  int xwayland_scale;
+  float scale;
+
+  xwayland_scale = meta_xwayland_get_effective_scale (xwayland_manager);
+  scale = 1.0f / xwayland_scale;
+
+  switch (rounding_strategy)
+    {
+    case MTK_ROUNDING_STRATEGY_SHRINK:
+      if (stage_x)
+        *stage_x = scale_and_handle_overflow (protocol_x, scale, floorf);
+      if (stage_y)
+        *stage_y = scale_and_handle_overflow (protocol_y, scale, floorf);
+      break;
+    case MTK_ROUNDING_STRATEGY_GROW:
+      if (stage_x)
+        *stage_x = scale_and_handle_overflow (protocol_x, scale, ceilf);
+      if (stage_y)
+        *stage_y = scale_and_handle_overflow (protocol_y, scale, ceilf);
+      break;
+    case MTK_ROUNDING_STRATEGY_ROUND:
+      if (stage_x)
+        *stage_x = scale_and_handle_overflow (protocol_x, scale, roundf);
+      if (stage_y)
+        *stage_y = scale_and_handle_overflow (protocol_y, scale, roundf);
+      break;
+    }
+}
+
 int
 meta_xwayland_get_x11_ui_scaling_factor (MetaXWaylandManager *manager)
 {
