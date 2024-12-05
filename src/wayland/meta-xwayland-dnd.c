@@ -341,10 +341,12 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
                     int              y)
 {
   MetaWaylandCompositor *compositor = dnd->manager->compositor;
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
   MetaWaylandDataSource *source = compositor->seat->data_device.dnd_data_source;
   MetaX11Display *x11_display = x11_display_from_dnd (dnd);
   Display *xdisplay = x11_display->xdisplay;
   uint32_t action = 0, user_action, actions;
+  int protocol_x, protocol_y;
   XEvent xev = { 0 };
 
   user_action = meta_wayland_data_source_get_user_action (source);
@@ -360,9 +362,13 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
   xev.xclient.format = 32;
   xev.xclient.window = dest;
 
+  meta_xwayland_stage_to_protocol_point (manager,
+                                         x, y,
+                                         &protocol_x, &protocol_y);
+
   xev.xclient.data.l[0] = x11_display->selection.xwindow;
   xev.xclient.data.l[1] = 0;
-  xev.xclient.data.l[2] = (x << 16) | y;
+  xev.xclient.data.l[2] = (protocol_x << 16) | protocol_y;
   xev.xclient.data.l[3] = time;
   xev.xclient.data.l[4] = action_to_atom (action);
 
@@ -800,6 +806,7 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
                      const ClutterEvent    *event)
 {
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
   MetaX11Display *x11_display = x11_display_from_dnd (dnd);
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   MetaWaylandSurface *focus = NULL;
@@ -820,16 +827,23 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
       focus_window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
     {
       Window dnd_window;
+      MtkRectangle frame_rect;
 
       hide_dnd_window (dnd, x11_display, dnd->current_dnd_window);
       dnd_window = next_dnd_window (dnd);
 
       XMapRaised (xdisplay, dnd_window);
+
+      frame_rect = focus_window->rect;
+      meta_xwayland_stage_to_protocol_rect (manager,
+                                            &frame_rect,
+                                            &frame_rect);
+
       XMoveResizeWindow (xdisplay, dnd_window,
-                         focus_window->rect.x,
-                         focus_window->rect.y,
-                         focus_window->rect.width,
-                         focus_window->rect.height);
+                         frame_rect.x,
+                         frame_rect.y,
+                         frame_rect.width,
+                         frame_rect.height);
     }
   else
     {
