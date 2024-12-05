@@ -255,7 +255,6 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               int               height,
                               GError          **error);
 
-
 /**
  * cogl_renderer_is_dma_buf_supported:
  * @renderer: A #CoglRenderer
