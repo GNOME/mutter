@@ -2027,9 +2027,7 @@ get_supported_kms_modifiers (MetaCrtcKms *crtc_kms,
                              uint32_t     format)
 {
   MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
-  GArray *modifiers;
   GArray *crtc_mods;
-  unsigned int i;
 
   g_return_val_if_fail (plane, NULL);
 
@@ -2037,26 +2035,7 @@ get_supported_kms_modifiers (MetaCrtcKms *crtc_kms,
   if (!crtc_mods)
     return NULL;
 
-  modifiers = g_array_new (FALSE, FALSE, sizeof (uint64_t));
-
-  /*
-   * For each modifier from base_crtc, check if it's available on all other
-   * CRTCs.
-   */
-  for (i = 0; i < crtc_mods->len; i++)
-    {
-      uint64_t modifier = g_array_index (crtc_mods, uint64_t, i);
-
-      g_array_append_val (modifiers, modifier);
-    }
-
-  if (modifiers->len == 0)
-    {
-      g_array_free (modifiers, TRUE);
-      return NULL;
-    }
-
-  return modifiers;
+  return g_array_copy (crtc_mods);
 }
 
 static GArray *
