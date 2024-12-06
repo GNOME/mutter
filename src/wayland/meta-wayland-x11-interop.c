@@ -99,6 +99,7 @@ x11_interop_filter (const struct wl_client *client,
   MetaServiceClientType allowed_client_types[] = {
     META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND,
     META_SERVICE_CLIENT_TYPE_FILECHOOSER_PORTAL_BACKEND,
+    META_SERVICE_CLIENT_TYPE_GLOBAL_SHORTCUTS_PORTAL_BACKEND,
   };
   size_t i;
 

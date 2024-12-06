@@ -9,6 +9,7 @@
         ServiceClientTypes:
            PORTAL_BACKEND: 1
            FILECHOOSER_PORTAL_BACKEND: 2
+           GLOBAL_SHORTCUTS_PORTAL_BACKEND: 3
     -->
     <method name="OpenWaylandServiceConnection">
       <arg name="service_client_type" type="u" direction="in" />
