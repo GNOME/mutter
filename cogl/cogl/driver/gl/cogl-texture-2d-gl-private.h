@@ -36,27 +36,7 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-texture.h"
-#include "cogl/cogl-texture-driver.h"
 
-void
-_cogl_texture_2d_gl_free (CoglTextureDriver *driver,
-                          CoglTexture2D     *tex_2d);
-
-gboolean
-_cogl_texture_2d_gl_can_create (CoglTextureDriver *driver,
-                                CoglContext       *ctx,
-                                int                width,
-                                int                height,
-                                CoglPixelFormat    internal_format);
-
-void
-_cogl_texture_2d_gl_init (CoglTextureDriver *driver,
-                          CoglTexture2D     *tex_2d);
-
-gboolean
-_cogl_texture_2d_gl_allocate (CoglTextureDriver *driver,
-                              CoglTexture       *tex,
-                              GError           **error);
 
 #if defined (HAVE_EGL)
 gboolean
@@ -74,36 +54,3 @@ void
 _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                     GLenum wrap_mode_s,
                                                     GLenum wrap_mode_t);
-
-void
-_cogl_texture_2d_gl_copy_from_framebuffer (CoglTextureDriver *driver,
-                                           CoglTexture2D     *tex_2d,
-                                           int                src_x,
-                                           int                src_y,
-                                           int                width,
-                                           int                height,
-                                           CoglFramebuffer   *src_fb,
-                                           int                dst_x,
-                                           int                dst_y,
-                                           int                level);
-
-unsigned int
-_cogl_texture_2d_gl_get_gl_handle (CoglTextureDriver *driver,
-                                   CoglTexture2D     *tex_2d);
-
-void
-_cogl_texture_2d_gl_generate_mipmap (CoglTextureDriver *driver,
-                                     CoglTexture2D     *tex_2d);
-
-gboolean
-_cogl_texture_2d_gl_copy_from_bitmap (CoglTextureDriver *driver,
-                                      CoglTexture2D     *tex_2d,
-                                      int                src_x,
-                                      int                src_y,
-                                      int                width,
-                                      int                height,
-                                      CoglBitmap        *bitmap,
-                                      int                dst_x,
-                                      int                dst_y,
-                                      int                level,
-                                      GError           **error);
