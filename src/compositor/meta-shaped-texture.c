@@ -1606,10 +1606,9 @@ meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
  * image by alpha blending the two images, and returns the flattened
  * image.
  *
- * Returns: (nullable) (transfer full): a new cairo surface to be freed with
- * cairo_surface_destroy().
+ * Returns: (nullable) (transfer full): a #CoglTexture.
  */
-cairo_surface_t *
+CoglTexture *
 meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                MtkRectangle      *clip)
 {
@@ -1619,7 +1618,9 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
     clutter_context_get_backend (stex->clutter_context);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  cairo_surface_t *surface;
+  CoglTexture *image;
+  int stride;
+  uint8_t *data = NULL;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
 
@@ -1667,20 +1668,24 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                     image_clip->width,
                                     image_clip->height);
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        cogl_texture_get_width (texture),
-                                        cogl_texture_get_height (texture));
+  stride = cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT, 0) * cogl_texture_get_width (texture);
 
   cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                         cairo_image_surface_get_stride (surface),
-                         cairo_image_surface_get_data (surface));
+                         stride,
+                         data);
 
-  cairo_surface_mark_dirty (surface);
+  image = cogl_texture_2d_new_from_data (cogl_context,
+                                         cogl_texture_get_width (texture),
+                                         cogl_texture_get_height (texture),
+                                         COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                         stride,
+                                         data,
+                                         NULL);
 
   if (image_clip)
     g_object_unref (texture);
 
-  return surface;
+  return image;
 }
 
 void

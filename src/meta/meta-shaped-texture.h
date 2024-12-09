@@ -52,7 +52,7 @@ void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
                                            CoglTexture       *mask_texture);
 
 META_EXPORT
-cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture *stex,
-                                                 MtkRectangle      *clip);
+CoglTexture * meta_shaped_texture_get_image (MetaShapedTexture *stex,
+                                             MtkRectangle      *clip);
 
 G_END_DECLS

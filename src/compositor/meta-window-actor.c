@@ -1346,8 +1346,8 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
                                 uint8_t              *data)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
-  cairo_surface_t *image;
-  uint8_t *cr_data;
+  g_autoptr(CoglTexture) image = NULL;
+  uint8_t *cr_data = NULL;
   int cr_stride;
   int cr_width;
   int cr_height;
@@ -1357,10 +1357,14 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
     return;
 
   image = meta_window_actor_get_image (window_actor, bounds);
-  cr_data = cairo_image_surface_get_data (image);
-  cr_width = cairo_image_surface_get_width (image);
-  cr_height = cairo_image_surface_get_height (image);
-  cr_stride = cairo_image_surface_get_stride (image);
+  cr_width = cogl_texture_get_width (image);
+  cr_height = cogl_texture_get_height (image);
+  cr_stride = cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT, 0) * cr_width;
+  cr_data = g_malloc (cr_stride * cr_height);
+  cogl_texture_get_data (image,
+                         COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                         cr_stride,
+                         cr_data);
 
   if (cr_width == bounds->width && cr_height == bounds->height)
     {
@@ -1392,8 +1396,6 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
           dst += bounds->width * bpp;
         }
     }
-
-  cairo_surface_destroy (image);
 }
 
 static gboolean
@@ -1630,21 +1632,22 @@ meta_window_actor_is_single_surface_actor (MetaWindowActor *self)
  * Flattens the layers of @self into one ARGB32 image by alpha blending
  * the images, and returns the flattened image.
  *
- * Returns: (nullable) (transfer full): a new cairo surface to be freed with
- * cairo_surface_destroy().
+ * Returns: (nullable) (transfer full): a #CoglTexture.
  */
-cairo_surface_t *
+CoglTexture *
 meta_window_actor_get_image (MetaWindowActor *self,
                              MtkRectangle    *clip)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
   MetaShapedTexture *stex;
-  cairo_surface_t *surface = NULL;
+  CoglTexture *image = NULL;
   CoglFramebuffer *framebuffer;
   MtkRectangle framebuffer_clip;
   float resource_scale;
   float x, y, width, height;
+  int fb_width, fb_height, stride;
+  uint8_t *data = NULL;
 
   if (!priv->surface)
     return NULL;
@@ -1671,7 +1674,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
           surface_clip->height = clip->height / geometry_scale;
         }
 
-      surface = meta_shaped_texture_get_image (stex, surface_clip);
+      image = meta_shaped_texture_get_image (stex, surface_clip);
       goto out;
     }
 
@@ -1711,25 +1714,30 @@ meta_window_actor_get_image (MetaWindowActor *self,
     goto out;
 
   resource_scale = clutter_actor_get_resource_scale (actor);
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        (int) (framebuffer_clip.width *
-                                               resource_scale),
-                                        (int) (framebuffer_clip.height *
-                                               resource_scale));
+  fb_width = (int) (framebuffer_clip.width * resource_scale);
+  fb_height = (int) (framebuffer_clip.height * resource_scale);
+  stride = cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT, 0) * fb_width;
+
   cogl_framebuffer_read_pixels (framebuffer,
                                 0, 0,
-                                (int) (framebuffer_clip.width * resource_scale),
-                                (int) (framebuffer_clip.height * resource_scale),
+                                fb_width,
+                                fb_height,
                                 COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                cairo_image_surface_get_data (surface));
+                                data);
+
+  image = cogl_texture_2d_new_from_data (cogl_framebuffer_get_context (framebuffer),
+                                         fb_width,
+                                         fb_height,
+                                         COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                         stride,
+                                         data,
+                                         NULL);
 
   g_object_unref (framebuffer);
 
-  cairo_surface_mark_dirty (surface);
-
 out:
   clutter_actor_uninhibit_culling (actor);
-  return surface;
+  return image;
 }
 
 /**

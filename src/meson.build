@@ -13,13 +13,13 @@ mutter_lib_deps = [
 ]
 
 mutter_pkg_deps = [
-  cairo_dep,
   gio_unix_dep,
   glib_dep,
   gsettings_desktop_schemas_dep,
 ]
 
 mutter_pkg_private_deps = [
+  cairo_dep,
   colord_dep,
   lcms2_dep,
   gmodule_no_export_dep,
