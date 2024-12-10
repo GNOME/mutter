@@ -222,7 +222,7 @@ _cogl_sampler_cache_get_entry_cogl (CoglSamplerCache *cache,
 const CoglSamplerCacheEntry *
 _cogl_sampler_cache_get_default_entry (CoglSamplerCache *cache)
 {
-  CoglSamplerCacheEntry key;
+  CoglSamplerCacheEntry key = { 0, };
 
   key.wrap_mode_s = COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC;
   key.wrap_mode_t = COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC;
