@@ -379,7 +379,7 @@ clutter_gesture_action_handle_event (ClutterAction      *action,
         return CLUTTER_EVENT_PROPAGATE;
     }
 
-  switch (clutter_event_type (event))
+  switch (event_type)
     {
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
