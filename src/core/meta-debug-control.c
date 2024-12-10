@@ -170,6 +170,7 @@ meta_debug_control_init (MetaDebugControl *debug_control)
     META_DBUS_DEBUG_CONTROL (debug_control);
   gboolean enable_hdr, force_linear_blending, color_management_protocol;
   gboolean session_management_protocol;
+  gboolean inhibit_hw_cursor;
 
   color_management_protocol =
     g_strcmp0 (getenv ("MUTTER_DEBUG_COLOR_MANAGEMENT_PROTOCOL"), "1") == 0;
@@ -190,6 +191,11 @@ meta_debug_control_init (MetaDebugControl *debug_control)
     g_strcmp0 (getenv ("MUTTER_DEBUG_SESSION_MANAGEMENT_PROTOCOL"), "1") == 0;
   meta_dbus_debug_control_set_session_management_protocol (dbus_debug_control,
                                                            session_management_protocol);
+
+  inhibit_hw_cursor =
+    g_strcmp0 (getenv ("MUTTER_DEBUG_INHIBIT_HW_CURSOR"), "1") == 0;
+  meta_dbus_debug_control_set_inhibit_hw_cursor (dbus_debug_control,
+                                                 inhibit_hw_cursor);
 }
 
 gboolean
@@ -263,4 +269,13 @@ meta_debug_control_set_exported (MetaDebugControl *debug_control,
 
   debug_control->exported = exported;
   g_object_notify_by_pspec (G_OBJECT (debug_control), obj_props[PROP_EXPORTED]);
+}
+
+gboolean
+meta_debug_control_is_hw_cursor_inhibited (MetaDebugControl *debug_control)
+{
+  MetaDBusDebugControl *dbus_debug_control =
+    META_DBUS_DEBUG_CONTROL (debug_control);
+
+  return meta_dbus_debug_control_get_inhibit_hw_cursor (dbus_debug_control);
 }

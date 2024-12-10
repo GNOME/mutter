@@ -215,6 +215,7 @@ void meta_backend_inhibit_hw_cursor (MetaBackend *backend);
 
 void meta_backend_uninhibit_hw_cursor (MetaBackend *backend);
 
+META_EXPORT_TEST
 gboolean meta_backend_is_hw_cursors_inhibited (MetaBackend *backend);
 
 void meta_backend_update_from_event (MetaBackend  *backend,
