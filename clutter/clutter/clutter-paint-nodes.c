@@ -1598,13 +1598,13 @@ clutter_blur_node_new (unsigned int width,
                        float        radius)
 {
   g_autoptr (CoglOffscreen) offscreen = NULL;
+  g_autoptr (CoglTexture) texture = NULL;
   g_autoptr (GError) error = NULL;
   ClutterLayerNode *layer_node;
   ClutterBlurNode *blur_node;
   ClutterContext *context;
   ClutterBackend *backend;
   CoglContext *cogl_context;
-  CoglTexture *texture;
   ClutterBlur *blur;
 
   g_return_val_if_fail (radius >= 0.0, NULL);
@@ -1618,7 +1618,6 @@ clutter_blur_node_new (unsigned int width,
   cogl_texture_set_premultiplied (texture, TRUE);
 
   offscreen = cogl_offscreen_new_with_texture (texture);
-  g_object_unref (texture);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), &error))
     {
       g_warning ("Unable to allocate paint node offscreen: %s",
