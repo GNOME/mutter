@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
+#include "cogl/driver/gl/cogl-framebuffer-fbo-gl-private.h"
 
 #include <gio/gio.h>
 
@@ -43,9 +43,9 @@ typedef struct _CoglGlFbo
   GList *renderbuffers;
 } CoglGlFbo;
 
-struct _CoglGlFramebufferFbo
+struct _CoglFramebufferFboGL
 {
-  CoglGlFramebuffer parent;
+  CoglFramebufferGL parent;
 
   CoglGlFbo gl_fbo;
 
@@ -53,11 +53,11 @@ struct _CoglGlFramebufferFbo
   CoglFramebufferBits bits;
 };
 
-G_DEFINE_FINAL_TYPE (CoglGlFramebufferFbo, cogl_gl_framebuffer_fbo,
-                     COGL_TYPE_GL_FRAMEBUFFER)
+G_DEFINE_FINAL_TYPE (CoglFramebufferFboGL, cogl_framebuffer_fbo_gl,
+                     COGL_TYPE_FRAMEBUFFER_GL)
 
 static gboolean
-ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)
+ensure_bits_initialized (CoglFramebufferFboGL *gl_framebuffer_fbo)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_fbo);
   CoglFramebuffer *framebuffer =
@@ -153,10 +153,10 @@ ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)
 }
 
 static void
-cogl_gl_framebuffer_fbo_query_bits (CoglFramebufferDriver *driver,
+cogl_framebuffer_fbo_gl_query_bits (CoglFramebufferDriver *driver,
                                     CoglFramebufferBits   *bits)
 {
-  CoglGlFramebufferFbo *gl_framebuffer_fbo = COGL_GL_FRAMEBUFFER_FBO (driver);
+  CoglFramebufferFboGL *gl_framebuffer_fbo = COGL_FRAMEBUFFER_FBO_GL (driver);
 
   if (!ensure_bits_initialized (gl_framebuffer_fbo))
     return;
@@ -165,7 +165,7 @@ cogl_gl_framebuffer_fbo_query_bits (CoglFramebufferDriver *driver,
 }
 
 static void
-cogl_gl_framebuffer_fbo_discard_buffers (CoglFramebufferDriver *driver,
+cogl_framebuffer_fbo_gl_discard_buffers (CoglFramebufferDriver *driver,
                                          unsigned long          buffers)
 {
   CoglFramebuffer *framebuffer =
@@ -192,11 +192,11 @@ cogl_gl_framebuffer_fbo_discard_buffers (CoglFramebufferDriver *driver,
 }
 
 static void
-cogl_gl_framebuffer_fbo_bind (CoglGlFramebuffer *gl_framebuffer,
+cogl_framebuffer_fbo_gl_bind (CoglFramebufferGL *gl_framebuffer,
                               GLenum             target)
 {
-  CoglGlFramebufferFbo *gl_framebuffer_fbo =
-    COGL_GL_FRAMEBUFFER_FBO (gl_framebuffer);
+  CoglFramebufferFboGL *gl_framebuffer_fbo =
+    COGL_FRAMEBUFFER_FBO_GL (gl_framebuffer);
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_fbo);
   CoglFramebuffer *framebuffer =
     cogl_framebuffer_driver_get_framebuffer (driver);
@@ -378,8 +378,8 @@ try_creating_fbo (CoglContext                 *ctx,
   return TRUE;
 }
 
-CoglGlFramebufferFbo *
-cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
+CoglFramebufferFboGL *
+cogl_framebuffer_fbo_gl_new (CoglFramebuffer                    *framebuffer,
                              const CoglFramebufferDriverConfig  *driver_config,
                              GError                            **error)
 {
@@ -390,7 +390,7 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
   int level_width;
   int level_height;
   CoglGlFbo *gl_fbo;
-  CoglGlFramebufferFbo *gl_framebuffer_fbo;
+  CoglFramebufferFboGL *gl_framebuffer_fbo;
   CoglOffscreenAllocateFlags allocate_flags;
 
   if (!COGL_IS_OFFSCREEN (framebuffer))
@@ -426,7 +426,7 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
   _cogl_texture_gl_flush_legacy_texobj_filters (texture,
                                                 GL_NEAREST, GL_NEAREST);
 
-  gl_framebuffer_fbo = g_object_new (COGL_TYPE_GL_FRAMEBUFFER_FBO,
+  gl_framebuffer_fbo = g_object_new (COGL_TYPE_FRAMEBUFFER_FBO_GL,
                                      "framebuffer", framebuffer,
                                      NULL);
   gl_fbo = &gl_framebuffer_fbo->gl_fbo;
@@ -518,9 +518,9 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
 }
 
 static void
-cogl_gl_framebuffer_fbo_dispose (GObject *object)
+cogl_framebuffer_fbo_gl_dispose (GObject *object)
 {
-  CoglGlFramebufferFbo *gl_framebuffer_fbo = COGL_GL_FRAMEBUFFER_FBO (object);
+  CoglFramebufferFboGL *gl_framebuffer_fbo = COGL_FRAMEBUFFER_FBO_GL (object);
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_fbo);
   CoglFramebuffer *framebuffer =
     cogl_framebuffer_driver_get_framebuffer (driver);
@@ -536,28 +536,28 @@ cogl_gl_framebuffer_fbo_dispose (GObject *object)
       gl_framebuffer_fbo->gl_fbo.fbo_handle = 0;
     }
 
-  G_OBJECT_CLASS (cogl_gl_framebuffer_fbo_parent_class)->dispose (object);
+  G_OBJECT_CLASS (cogl_framebuffer_fbo_gl_parent_class)->dispose (object);
 }
 
 static void
-cogl_gl_framebuffer_fbo_init (CoglGlFramebufferFbo *gl_framebuffer_fbo)
+cogl_framebuffer_fbo_gl_init (CoglFramebufferFboGL *gl_framebuffer_fbo)
 {
   gl_framebuffer_fbo->dirty_bitmasks = TRUE;
 }
 
 static void
-cogl_gl_framebuffer_fbo_class_init (CoglGlFramebufferFboClass *klass)
+cogl_framebuffer_fbo_gl_class_init (CoglFramebufferFboGLClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   CoglFramebufferDriverClass *driver_class =
     COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
-  CoglGlFramebufferClass *gl_framebuffer_class =
-    COGL_GL_FRAMEBUFFER_CLASS (klass);
+  CoglFramebufferGLClass *gl_framebuffer_class =
+    COGL_FRAMEBUFFER_GL_CLASS (klass);
 
-  object_class->dispose = cogl_gl_framebuffer_fbo_dispose;
+  object_class->dispose = cogl_framebuffer_fbo_gl_dispose;
 
-  driver_class->query_bits = cogl_gl_framebuffer_fbo_query_bits;
-  driver_class->discard_buffers = cogl_gl_framebuffer_fbo_discard_buffers;
+  driver_class->query_bits = cogl_framebuffer_fbo_gl_query_bits;
+  driver_class->discard_buffers = cogl_framebuffer_fbo_gl_discard_buffers;
 
-  gl_framebuffer_class->bind = cogl_gl_framebuffer_fbo_bind;
+  gl_framebuffer_class->bind = cogl_framebuffer_fbo_gl_bind;
 }

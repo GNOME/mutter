@@ -35,9 +35,9 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
-#include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
-#include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
-#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-framebuffer-fbo-gl-private.h"
+#include "cogl/driver/gl/cogl-framebuffer-back-gl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
 #ifdef COGL_ENABLE_DEBUG

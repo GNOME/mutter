@@ -32,7 +32,7 @@
 
 #include <string.h>
 
-#include "cogl/driver/gl/gl/cogl-driver-gl3-private.h"
+#include "cogl/driver/gl/gl3/cogl-driver-gl3-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"

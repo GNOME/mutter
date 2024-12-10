@@ -54,12 +54,12 @@
 #endif
 
 #ifdef HAVE_GL
-#include "cogl/driver/gl/gl/cogl-driver-gl3-private.h"
-#include "cogl/driver/gl/gl/cogl-texture-driver-gl3-private.h"
+#include "cogl/driver/gl/gl3/cogl-driver-gl3-private.h"
+#include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
 #endif
 #ifdef HAVE_GLES2
-#include "cogl/driver/gl/gles/cogl-driver-gles2-private.h"
-#include "cogl/driver/gl/gles/cogl-texture-driver-gles2-private.h"
+#include "cogl/driver/gl/gles2/cogl-driver-gles2-private.h"
+#include "cogl/driver/gl/gles2/cogl-texture-driver-gles2-private.h"
 #endif
 #include "cogl/driver/nop/cogl-driver-nop-private.h"
 

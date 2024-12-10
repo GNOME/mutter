@@ -1,4 +1,5 @@
 /*
+
  * Copyright (C) 2007,2008,2009,2012 Intel Corporation.
  * Copyright (C) 2018 DisplayLink (UK) Ltd.
  * Copyright (C) 2020 Red Hat
@@ -27,7 +28,7 @@
 
 #include "config.h"
 
-#include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
+#include "cogl/driver/gl/cogl-framebuffer-back-gl-private.h"
 
 #include <gio/gio.h>
 
@@ -36,19 +37,19 @@
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
-struct _CoglGlFramebufferBack
+struct _CoglFramebufferBackGL
 {
-  CoglGlFramebuffer parent;
+  CoglFramebufferGL parent;
 
   gboolean dirty_bitmasks;
   CoglFramebufferBits bits;
 };
 
-G_DEFINE_FINAL_TYPE (CoglGlFramebufferBack, cogl_gl_framebuffer_back,
-                     COGL_TYPE_GL_FRAMEBUFFER)
+G_DEFINE_FINAL_TYPE (CoglFramebufferBackGL, cogl_framebuffer_back_gl,
+                     COGL_TYPE_FRAMEBUFFER_GL)
 
 static gboolean
-ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
+ensure_bits_initialized (CoglFramebufferBackGL *gl_framebuffer_back)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
   CoglFramebuffer *framebuffer =
@@ -136,10 +137,10 @@ ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
 }
 
 static void
-cogl_gl_framebuffer_back_query_bits (CoglFramebufferDriver *driver,
+cogl_framebuffer_back_gl_query_bits (CoglFramebufferDriver *driver,
                                      CoglFramebufferBits   *bits)
 {
-  CoglGlFramebufferBack *gl_framebuffer_back = COGL_GL_FRAMEBUFFER_BACK (driver);
+  CoglFramebufferBackGL *gl_framebuffer_back = COGL_FRAMEBUFFER_BACK_GL (driver);
 
   if (!ensure_bits_initialized (gl_framebuffer_back))
     return;
@@ -148,7 +149,7 @@ cogl_gl_framebuffer_back_query_bits (CoglFramebufferDriver *driver,
 }
 
 static void
-cogl_gl_framebuffer_back_discard_buffers (CoglFramebufferDriver *driver,
+cogl_framebuffer_back_gl_discard_buffers (CoglFramebufferDriver *driver,
                                           unsigned long          buffers)
 {
   CoglFramebuffer *framebuffer =
@@ -175,11 +176,11 @@ cogl_gl_framebuffer_back_discard_buffers (CoglFramebufferDriver *driver,
 }
 
 static void
-cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
+cogl_framebuffer_back_gl_bind (CoglFramebufferGL *gl_framebuffer,
                                GLenum             target)
 {
-  CoglGlFramebufferBack *gl_framebuffer_back =
-    COGL_GL_FRAMEBUFFER_BACK (gl_framebuffer);
+  CoglFramebufferBackGL *gl_framebuffer_back =
+    COGL_FRAMEBUFFER_BACK_GL (gl_framebuffer);
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
   CoglFramebuffer *framebuffer =
     cogl_framebuffer_driver_get_framebuffer (driver);
@@ -219,8 +220,8 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
     }
 }
 
-CoglGlFramebufferBack *
-cogl_gl_framebuffer_back_new (CoglFramebuffer                    *framebuffer,
+CoglFramebufferBackGL *
+cogl_framebuffer_back_gl_new (CoglFramebuffer                    *framebuffer,
                               const CoglFramebufferDriverConfig  *driver_config,
                               GError                            **error)
 {
@@ -231,27 +232,27 @@ cogl_gl_framebuffer_back_new (CoglFramebuffer                    *framebuffer,
       return NULL;
     }
 
-  return g_object_new (COGL_TYPE_GL_FRAMEBUFFER_BACK,
+  return g_object_new (COGL_TYPE_FRAMEBUFFER_BACK_GL,
                        "framebuffer", framebuffer,
                        NULL);
 }
 
 static void
-cogl_gl_framebuffer_back_init (CoglGlFramebufferBack *gl_framebuffer_back)
+cogl_framebuffer_back_gl_init (CoglFramebufferBackGL *framebuffer_back)
 {
-  gl_framebuffer_back->dirty_bitmasks = TRUE;
+  framebuffer_back->dirty_bitmasks = TRUE;
 }
 
 static void
-cogl_gl_framebuffer_back_class_init (CoglGlFramebufferBackClass *klass)
+cogl_framebuffer_back_gl_class_init (CoglFramebufferBackGLClass *klass)
 {
   CoglFramebufferDriverClass *driver_class =
     COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
-  CoglGlFramebufferClass *gl_framebuffer_class =
-    COGL_GL_FRAMEBUFFER_CLASS (klass);
+  CoglFramebufferGLClass *framebuffer_class =
+    COGL_FRAMEBUFFER_GL_CLASS (klass);
 
-  driver_class->query_bits = cogl_gl_framebuffer_back_query_bits;
-  driver_class->discard_buffers = cogl_gl_framebuffer_back_discard_buffers;
+  driver_class->query_bits = cogl_framebuffer_back_gl_query_bits;
+  driver_class->discard_buffers = cogl_framebuffer_back_gl_discard_buffers;
 
-  gl_framebuffer_class->bind = cogl_gl_framebuffer_back_bind;
+  framebuffer_class->bind = cogl_framebuffer_back_gl_bind;
 }

@@ -36,23 +36,23 @@
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-framebuffer-driver.h"
 
-#define COGL_TYPE_GL_FRAMEBUFFER (cogl_gl_framebuffer_get_type ())
-G_DECLARE_DERIVABLE_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
-                          COGL, GL_FRAMEBUFFER,
+#define COGL_TYPE_FRAMEBUFFER_GL (cogl_framebuffer_gl_get_type ())
+G_DECLARE_DERIVABLE_TYPE (CoglFramebufferGL, cogl_framebuffer_gl,
+                          COGL, FRAMEBUFFER_GL,
                           CoglFramebufferDriver)
 
-struct _CoglGlFramebufferClass
+struct _CoglFramebufferGLClass
 {
   CoglFramebufferDriverClass parent_class;
 
-  void (* bind) (CoglGlFramebuffer *gl_framebuffer,
+  void (* bind) (CoglFramebufferGL *framebuffer,
                  GLenum             target);
 };
 
 void
-cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
+cogl_framebuffer_gl_bind (CoglFramebufferGL *framebuffer,
                           GLenum             target);
 
 void
-cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
+cogl_framebuffer_gl_flush_state_differences (CoglFramebufferGL *framebuffer,
                                              unsigned long      differences);

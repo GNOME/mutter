@@ -27,12 +27,12 @@
  */
 
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-buffer-gl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
 #include "cogl/driver/gl/cogl-attribute-gl-private.h"
-#include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
-#include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
+#include "cogl/driver/gl/cogl-framebuffer-fbo-gl-private.h"
+#include "cogl/driver/gl/cogl-framebuffer-back-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
@@ -169,9 +169,9 @@ cogl_driver_gl_create_framebuffer_driver (CoglDriver                         *dr
     {
     case COGL_FRAMEBUFFER_DRIVER_TYPE_FBO:
       {
-        CoglGlFramebufferFbo *gl_framebuffer_fbo;
+        CoglFramebufferFboGL *gl_framebuffer_fbo;
 
-        gl_framebuffer_fbo = cogl_gl_framebuffer_fbo_new (framebuffer,
+        gl_framebuffer_fbo = cogl_framebuffer_fbo_gl_new (framebuffer,
                                                           driver_config,
                                                           error);
         if (!gl_framebuffer_fbo)
@@ -181,9 +181,9 @@ cogl_driver_gl_create_framebuffer_driver (CoglDriver                         *dr
       }
     case COGL_FRAMEBUFFER_DRIVER_TYPE_BACK:
       {
-        CoglGlFramebufferBack *gl_framebuffer_back;
+        CoglFramebufferBackGL *gl_framebuffer_back;
 
-        gl_framebuffer_back = cogl_gl_framebuffer_back_new (framebuffer,
+        gl_framebuffer_back = cogl_framebuffer_back_gl_new (framebuffer,
                                                             driver_config,
                                                             error);
         if (!gl_framebuffer_back)
@@ -204,8 +204,8 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
                                         CoglFramebuffer      *read_buffer,
                                         CoglFramebufferState  state)
 {
-  CoglGlFramebuffer *draw_gl_framebuffer;
-  CoglGlFramebuffer *read_gl_framebuffer;
+  CoglFramebufferGL *draw_gl_framebuffer;
+  CoglFramebufferGL *read_gl_framebuffer;
   unsigned long differences;
 
   /* We can assume that any state that has changed for the current
@@ -262,9 +262,9 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
     cogl_framebuffer_allocate (read_buffer, NULL);
 
   draw_gl_framebuffer =
-    COGL_GL_FRAMEBUFFER (cogl_framebuffer_get_driver (draw_buffer));
+    COGL_FRAMEBUFFER_GL (cogl_framebuffer_get_driver (draw_buffer));
   read_gl_framebuffer =
-    COGL_GL_FRAMEBUFFER (cogl_framebuffer_get_driver (read_buffer));
+    COGL_FRAMEBUFFER_GL (cogl_framebuffer_get_driver (read_buffer));
 
   /* We handle buffer binding separately since the method depends on whether
    * we are binding the same buffer for read and write or not unlike all
@@ -273,7 +273,7 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
     {
       if (draw_buffer == read_buffer)
         {
-          cogl_gl_framebuffer_bind (draw_gl_framebuffer, GL_FRAMEBUFFER);
+          cogl_framebuffer_gl_bind (draw_gl_framebuffer, GL_FRAMEBUFFER);
         }
       else
         {
@@ -282,14 +282,14 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
           g_return_if_fail (cogl_context_has_feature
                             (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
 
-          cogl_gl_framebuffer_bind (draw_gl_framebuffer, GL_DRAW_FRAMEBUFFER);
-          cogl_gl_framebuffer_bind (read_gl_framebuffer, GL_READ_FRAMEBUFFER);
+          cogl_framebuffer_gl_bind (draw_gl_framebuffer, GL_DRAW_FRAMEBUFFER);
+          cogl_framebuffer_gl_bind (read_gl_framebuffer, GL_READ_FRAMEBUFFER);
         }
 
       differences &= ~COGL_FRAMEBUFFER_STATE_BIND;
     }
 
-  cogl_gl_framebuffer_flush_state_differences (draw_gl_framebuffer,
+  cogl_framebuffer_gl_flush_state_differences (draw_gl_framebuffer,
                                                differences);
 
   ctx->current_draw_buffer_state_flushed |= state;

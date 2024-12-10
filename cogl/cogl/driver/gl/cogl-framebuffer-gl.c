@@ -45,7 +45,7 @@
 #include <glib.h>
 #include <string.h>
 
-G_DEFINE_ABSTRACT_TYPE (CoglGlFramebuffer, cogl_gl_framebuffer,
+G_DEFINE_ABSTRACT_TYPE (CoglFramebufferGL, cogl_framebuffer_gl,
                         COGL_TYPE_FRAMEBUFFER_DRIVER)
 
 static CoglContext *
@@ -58,7 +58,7 @@ context_from_driver (CoglFramebufferDriver *driver)
 }
 
 static void
-cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_flush_viewport_state (CoglFramebufferGL *gl_framebuffer)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
@@ -100,7 +100,7 @@ cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
 }
 
 static void
-cogl_gl_framebuffer_flush_clip_state (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_flush_clip_state (CoglFramebufferGL *gl_framebuffer)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
@@ -111,7 +111,7 @@ cogl_gl_framebuffer_flush_clip_state (CoglGlFramebuffer *gl_framebuffer)
 }
 
 static void
-cogl_gl_framebuffer_flush_dither_state (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_flush_dither_state (CoglFramebufferGL *gl_framebuffer)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
@@ -131,7 +131,7 @@ cogl_gl_framebuffer_flush_dither_state (CoglGlFramebuffer *gl_framebuffer)
 }
 
 static void
-cogl_gl_framebuffer_flush_modelview_state (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_flush_modelview_state (CoglFramebufferGL *gl_framebuffer)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
@@ -144,7 +144,7 @@ cogl_gl_framebuffer_flush_modelview_state (CoglGlFramebuffer *gl_framebuffer)
 }
 
 static void
-cogl_gl_framebuffer_flush_projection_state (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_flush_projection_state (CoglFramebufferGL *gl_framebuffer)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
@@ -157,7 +157,7 @@ cogl_gl_framebuffer_flush_projection_state (CoglGlFramebuffer *gl_framebuffer)
 }
 
 static void
-cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebufferGL *gl_framebuffer)
 {
   CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
@@ -192,7 +192,7 @@ cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_frameb
 }
 
 void
-cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
+cogl_framebuffer_gl_flush_state_differences (CoglFramebufferGL *gl_framebuffer,
                                              unsigned long      differences)
 {
   int bit;
@@ -206,22 +206,22 @@ cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
       switch (bit)
         {
         case COGL_FRAMEBUFFER_STATE_INDEX_VIEWPORT:
-          cogl_gl_framebuffer_flush_viewport_state (gl_framebuffer);
+          cogl_framebuffer_gl_flush_viewport_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
-          cogl_gl_framebuffer_flush_clip_state (gl_framebuffer);
+          cogl_framebuffer_gl_flush_clip_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          cogl_gl_framebuffer_flush_dither_state (gl_framebuffer);
+          cogl_framebuffer_gl_flush_dither_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
-          cogl_gl_framebuffer_flush_modelview_state (gl_framebuffer);
+          cogl_framebuffer_gl_flush_modelview_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
-          cogl_gl_framebuffer_flush_projection_state (gl_framebuffer);
+          cogl_framebuffer_gl_flush_projection_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          cogl_gl_framebuffer_flush_front_face_winding_state (gl_framebuffer);
+          cogl_framebuffer_gl_flush_front_face_winding_state (gl_framebuffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
           /* Nothing to do for depth write state change; the state will always
@@ -235,15 +235,15 @@ cogl_gl_framebuffer_flush_state_differences (CoglGlFramebuffer *gl_framebuffer,
 }
 
 void
-cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
+cogl_framebuffer_gl_bind (CoglFramebufferGL *gl_framebuffer,
                           GLenum             target)
 {
-  COGL_GL_FRAMEBUFFER_GET_CLASS (gl_framebuffer)->bind (gl_framebuffer,
+  COGL_FRAMEBUFFER_GL_GET_CLASS (gl_framebuffer)->bind (gl_framebuffer,
                                                         target);
 }
 
 static void
-cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
+cogl_framebuffer_gl_clear (CoglFramebufferDriver *driver,
                            unsigned long          buffers,
                            float                  red,
                            float                  green,
@@ -290,7 +290,7 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
 }
 
 static void
-cogl_gl_framebuffer_finish (CoglFramebufferDriver *driver)
+cogl_framebuffer_gl_finish (CoglFramebufferDriver *driver)
 {
   CoglContext *ctx = context_from_driver (driver);
 
@@ -301,7 +301,7 @@ cogl_gl_framebuffer_finish (CoglFramebufferDriver *driver)
 }
 
 static void
-cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
+cogl_framebuffer_gl_flush (CoglFramebufferDriver *driver)
 {
   CoglContext *ctx = context_from_driver (driver);
 
@@ -312,7 +312,7 @@ cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
 }
 
 static void
-cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
+cogl_framebuffer_gl_draw_attributes (CoglFramebufferDriver  *driver,
                                      CoglPipeline           *pipeline,
                                      CoglVerticesMode        mode,
                                      int                     first_vertex,
@@ -332,7 +332,7 @@ cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
 }
 
 static void
-cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
+cogl_framebuffer_gl_draw_indexed_attributes (CoglFramebufferDriver  *driver,
                                              CoglPipeline           *pipeline,
                                              CoglVerticesMode        mode,
                                              int                     first_vertex,
@@ -388,7 +388,7 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
 }
 
 static gboolean
-cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
+cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
                                              int                     x,
                                              int                     y,
                                              CoglReadPixelsFlags     source,
@@ -643,22 +643,22 @@ EXIT:
 }
 
 static void
-cogl_gl_framebuffer_init (CoglGlFramebuffer *gl_framebuffer)
+cogl_framebuffer_gl_init (CoglFramebufferGL *gl_framebuffer)
 {
 }
 
 static void
-cogl_gl_framebuffer_class_init (CoglGlFramebufferClass *klass)
+cogl_framebuffer_gl_class_init (CoglFramebufferGLClass *klass)
 {
   CoglFramebufferDriverClass *driver_class =
     COGL_FRAMEBUFFER_DRIVER_CLASS (klass);
 
-  driver_class->clear = cogl_gl_framebuffer_clear;
-  driver_class->finish = cogl_gl_framebuffer_finish;
-  driver_class->flush = cogl_gl_framebuffer_flush;
-  driver_class->draw_attributes = cogl_gl_framebuffer_draw_attributes;
+  driver_class->clear = cogl_framebuffer_gl_clear;
+  driver_class->finish = cogl_framebuffer_gl_finish;
+  driver_class->flush = cogl_framebuffer_gl_flush;
+  driver_class->draw_attributes = cogl_framebuffer_gl_draw_attributes;
   driver_class->draw_indexed_attributes =
-    cogl_gl_framebuffer_draw_indexed_attributes;
+    cogl_framebuffer_gl_draw_indexed_attributes;
   driver_class->read_pixels_into_bitmap =
-    cogl_gl_framebuffer_read_pixels_into_bitmap;
+    cogl_framebuffer_gl_read_pixels_into_bitmap;
 }
