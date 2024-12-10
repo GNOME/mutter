@@ -168,6 +168,7 @@ struct _MetaBackendPrivate
 
   GList *gpus;
   GList *hw_cursor_inhibitors;
+  int global_hw_cursor_inhibitors;
 
   gboolean in_init;
 
@@ -1817,11 +1818,46 @@ meta_backend_remove_hw_cursor_inhibitor (MetaBackend           *backend,
                                               inhibitor);
 }
 
+void
+meta_backend_inhibit_hw_cursor (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->global_hw_cursor_inhibitors++;
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Global hw cursor inhibitors: %d",
+              priv->global_hw_cursor_inhibitors);
+
+  if (priv->global_hw_cursor_inhibitors == 1)
+    clutter_stage_schedule_update (CLUTTER_STAGE (priv->stage));
+}
+
+void
+meta_backend_uninhibit_hw_cursor (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_return_if_fail (priv->global_hw_cursor_inhibitors > 0);
+
+  priv->global_hw_cursor_inhibitors--;
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Global hw cursor inhibitors: %d",
+              priv->global_hw_cursor_inhibitors);
+
+  if (priv->global_hw_cursor_inhibitors == 0)
+    clutter_stage_schedule_update (CLUTTER_STAGE (priv->stage));
+}
+
 gboolean
 meta_backend_is_hw_cursors_inhibited (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   GList *l;
+
+  if (priv->global_hw_cursor_inhibitors > 0)
+    return TRUE;
 
   for (l = priv->hw_cursor_inhibitors; l; l = l->next)
     {
