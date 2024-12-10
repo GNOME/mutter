@@ -94,16 +94,6 @@ typedef enum
   COGL_READ_PIXELS_NO_FLIP = 1L << 30
 } CoglPrivateReadPixelsFlags;
 
-typedef struct _CoglFramebufferBits
-{
-  int red;
-  int blue;
-  int green;
-  int alpha;
-  int depth;
-  int stencil;
-} CoglFramebufferBits;
-
 gboolean
 cogl_framebuffer_is_allocated (CoglFramebuffer *framebuffer);
 

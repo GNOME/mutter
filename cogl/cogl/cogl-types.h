@@ -332,7 +332,6 @@ typedef struct _CoglBitmap CoglBitmap;
 typedef struct _CoglBuffer CoglBuffer;
 typedef struct _CoglContext CoglContext;
 typedef struct _CoglDisplay CoglDisplay;
-typedef struct _CoglFramebufferBits CoglFramebufferBits;
 typedef struct _CoglFrameInfo CoglFrameInfo;
 typedef struct _CoglIndices CoglIndices;
 typedef struct _CoglParamSpecColor CoglParamSpecColor;
