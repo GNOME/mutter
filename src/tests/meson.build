@@ -318,6 +318,11 @@ test_cases += [
     'suite': 'backend',
     'sources': [ 'stage-tests.c', ],
   },
+  {
+    'name': 'debug-control',
+    'suite': 'core',
+    'sources': [ 'debug-control-tests.c', ],
+  },
 ]
 
 screen_cast_client = executable('mutter-screen-cast-client',

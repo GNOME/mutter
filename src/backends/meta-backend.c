@@ -72,6 +72,7 @@
 #include "clutter/clutter-seat-private.h"
 #include "compositor/meta-dnd-private.h"
 #include "core/meta-context-private.h"
+#include "core/meta-debug-control-private.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
@@ -169,6 +170,7 @@ struct _MetaBackendPrivate
   GList *gpus;
   GList *hw_cursor_inhibitors;
   int global_hw_cursor_inhibitors;
+  gboolean debug_inhibit_hw_cursor;
 
   gboolean in_init;
 
@@ -1186,6 +1188,27 @@ init_stage (MetaBackend *backend)
   META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
 }
 
+static void
+on_debug_control_inhibit_hw_cursor_changed (MetaDebugControl *debug_control,
+                                            GParamSpec       *pspec,
+                                            MetaBackend      *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  gboolean should_inhibit_hw_cursor;
+
+  should_inhibit_hw_cursor =
+    meta_debug_control_is_hw_cursor_inhibited (debug_control);
+  if (should_inhibit_hw_cursor == priv->debug_inhibit_hw_cursor)
+    return;
+
+  priv->debug_inhibit_hw_cursor = should_inhibit_hw_cursor;
+
+  if (should_inhibit_hw_cursor)
+    meta_backend_inhibit_hw_cursor (backend);
+  else
+    meta_backend_uninhibit_hw_cursor (backend);
+}
+
 static gboolean
 meta_backend_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
@@ -1193,6 +1216,7 @@ meta_backend_initable_init (GInitable     *initable,
 {
   MetaBackend *backend = META_BACKEND (initable);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaDebugControl *debug_control;
 
   priv->in_init = TRUE;
 
@@ -1214,6 +1238,11 @@ meta_backend_initable_init (GInitable     *initable,
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
   priv->cursor_tracker = meta_backend_create_cursor_tracker (backend);
+
+  debug_control = meta_context_get_debug_control (priv->context);
+  g_signal_connect (debug_control, "notify::inhibit-hw-cursor",
+                    G_CALLBACK (on_debug_control_inhibit_hw_cursor_changed),
+                    backend);
 
   if (META_BACKEND_GET_CLASS (backend)->is_lid_closed ==
       meta_backend_real_is_lid_closed)
