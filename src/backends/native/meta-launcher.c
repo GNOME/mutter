@@ -64,12 +64,6 @@ G_DEFINE_FINAL_TYPE (MetaLauncher,
                      meta_launcher,
                      G_TYPE_OBJECT)
 
-const char *
-meta_launcher_get_seat_id (MetaLauncher *launcher)
-{
-  return launcher->seat_id;
-}
-
 static void
 meta_launcher_get_property (GObject    *object,
                             guint       prop_id,
@@ -436,12 +430,6 @@ get_seat_id (GError **error)
   return seat_id;
 }
 
-MetaDBusLogin1Session *
-meta_launcher_get_session_proxy (MetaLauncher *launcher)
-{
-  return launcher->session_proxy;
-}
-
 MetaLauncher *
 meta_launcher_new (MetaBackend  *backend,
                    const char   *fallback_session_id,
@@ -534,6 +522,18 @@ gboolean
 meta_launcher_is_session_controller (MetaLauncher *launcher)
 {
   return launcher->have_control;
+}
+
+const char *
+meta_launcher_get_seat_id (MetaLauncher *launcher)
+{
+  return launcher->seat_id;
+}
+
+MetaDBusLogin1Session *
+meta_launcher_get_session_proxy (MetaLauncher *launcher)
+{
+  return launcher->session_proxy;
 }
 
 MetaBackend *
