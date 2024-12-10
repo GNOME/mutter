@@ -350,7 +350,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
 
       _clutter_paint_volume_copy_static (volume, &mutable_volume);
       _clutter_paint_volume_get_bounding_box (&mutable_volume, &raw_box);
-      clutter_paint_volume_free (&mutable_volume);
 
       box = raw_box;
       _clutter_actor_box_enlarge_for_effects (&box);

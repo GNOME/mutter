@@ -3140,8 +3140,6 @@ _clutter_actor_draw_paint_volume (ClutterActor     *self,
       _clutter_actor_draw_paint_volume_full (self, &fake_pv,
                                              &COGL_COLOR_INIT (0, 0, 255, 255),
                                              node);
-
-      clutter_paint_volume_free (&fake_pv);
     }
   else
     {
@@ -7787,8 +7785,6 @@ clutter_actor_queue_redraw_with_clip (ClutterActor       *self,
   clutter_paint_volume_set_height (&volume, clip->height);
 
   _clutter_actor_queue_redraw_full (self, &volume, NULL);
-
-  clutter_paint_volume_free (&volume);
 }
 
 /**
@@ -14288,7 +14284,6 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
 
   if (!CLUTTER_ACTOR_GET_CLASS (self)->get_paint_volume (self, pv))
     {
-      clutter_paint_volume_free (pv);
       CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
                     "Actor failed to report a volume",
                     _clutter_actor_get_debug_name (self));
@@ -14314,7 +14309,6 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
             {
               if (!_clutter_effect_modify_paint_volume (l->data, pv))
                 {
-                  clutter_paint_volume_free (pv);
                   CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
                                 "Effect (%s) failed to report a volume",
                                 _clutter_actor_get_debug_name (self),
@@ -14332,7 +14326,6 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
           for (l = effects; l != NULL; l = l->next)
             if (!_clutter_effect_modify_paint_volume (l->data, pv))
               {
-                clutter_paint_volume_free (pv);
                 CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
                               "Effect (%s) failed to report a volume",
                               _clutter_actor_get_debug_name (self),
@@ -14404,10 +14397,6 @@ ensure_paint_volume (ClutterActor *self)
   if (priv->needs_paint_volume_update)
     {
       priv->had_effects_on_last_paint_volume_update = has_paint_volume_override_effects;
-
-      if (priv->has_paint_volume)
-        clutter_paint_volume_free (&priv->paint_volume);
-
       priv->has_paint_volume = FALSE;
 
       if (_clutter_actor_get_paint_volume_real (self, &priv->paint_volume))

@@ -2864,8 +2864,6 @@ add_selection_to_paint_volume (ClutterText           *text,
   clutter_paint_volume_set_height (&rect_volume, box->y2 - box->y1);
 
   clutter_paint_volume_union (total_volume, &rect_volume);
-
-  clutter_paint_volume_free (&rect_volume);
 }
 
 static void
@@ -2962,8 +2960,6 @@ clutter_text_get_paint_volume (ClutterActor       *self,
 
       clutter_paint_volume_union (volume,
                                   &cursor_paint_volume);
-
-      clutter_paint_volume_free (&cursor_paint_volume);
     }
 
   return TRUE;

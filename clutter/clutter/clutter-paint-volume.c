@@ -52,12 +52,6 @@ G_DEFINE_BOXED_TYPE (ClutterPaintVolume, clutter_paint_volume,
  * We were seeing slice allocation take about 1% cumulative CPU time
  * for some very simple clutter tests which although it isn't a *lot*
  * this is an easy way to basically drop that to 0%.
- *
- * The PaintVolume will be internally marked as static and
- * clutter_paint_volume_free should still be used to "free" static
- * volumes. This allows us to potentially store dynamically allocated
- * data inside paint volumes in the future since we would be able to
- * free it during _paint_volume_free().
  */
 void
 _clutter_paint_volume_init_static (ClutterPaintVolume *pv,
@@ -67,7 +61,6 @@ _clutter_paint_volume_init_static (ClutterPaintVolume *pv,
 
   memset (pv->vertices, 0, 8 * sizeof (graphene_point3d_t));
 
-  pv->is_static = TRUE;
   pv->is_empty = TRUE;
   pv->is_axis_aligned = TRUE;
   pv->is_complete = TRUE;
@@ -82,7 +75,6 @@ _clutter_paint_volume_copy_static (const ClutterPaintVolume *src_pv,
   g_return_if_fail (src_pv != NULL && dst_pv != NULL);
 
   memcpy (dst_pv, src_pv, sizeof (ClutterPaintVolume));
-  dst_pv->is_static = TRUE;
 }
 
 /**
@@ -101,7 +93,6 @@ clutter_paint_volume_copy (const ClutterPaintVolume *pv)
   g_return_val_if_fail (pv != NULL, NULL);
 
   copy = g_memdup2 (pv, sizeof (ClutterPaintVolume));
-  copy->is_static = FALSE;
 
   return copy;
 }
@@ -110,9 +101,7 @@ void
 _clutter_paint_volume_set_from_volume (ClutterPaintVolume       *pv,
                                        const ClutterPaintVolume *src)
 {
-  gboolean is_static = pv->is_static;
   memcpy (pv, src, sizeof (ClutterPaintVolume));
-  pv->is_static = is_static;
 }
 
 /**
@@ -125,9 +114,6 @@ void
 clutter_paint_volume_free (ClutterPaintVolume *pv)
 {
   g_return_if_fail (pv != NULL);
-
-  if (G_LIKELY (pv->is_static))
-    return;
 
   g_free (pv);
 }
@@ -280,7 +266,6 @@ clutter_paint_volume_get_width (const ClutterPaintVolume *pv)
       _clutter_paint_volume_copy_static (pv, &tmp);
       _clutter_paint_volume_axis_align (&tmp);
       width = tmp.vertices[1].x - tmp.vertices[0].x;
-      clutter_paint_volume_free (&tmp);
       return width;
     }
   else
@@ -368,7 +353,6 @@ clutter_paint_volume_get_height (const ClutterPaintVolume *pv)
       _clutter_paint_volume_copy_static (pv, &tmp);
       _clutter_paint_volume_axis_align (&tmp);
       height = tmp.vertices[3].y - tmp.vertices[0].y;
-      clutter_paint_volume_free (&tmp);
       return height;
     }
   else
@@ -457,7 +441,6 @@ clutter_paint_volume_get_depth (const ClutterPaintVolume *pv)
       _clutter_paint_volume_copy_static (pv, &tmp);
       _clutter_paint_volume_axis_align (&tmp);
       depth = tmp.vertices[4].z - tmp.vertices[0].z;
-      clutter_paint_volume_free (&tmp);
       return depth;
     }
   else
@@ -577,8 +560,6 @@ clutter_paint_volume_union_box (ClutterPaintVolume    *pv,
   clutter_paint_volume_set_height (&volume, box->y2 - box->y1);
 
   clutter_paint_volume_union (pv, &volume);
-
-  clutter_paint_volume_free (&volume);
 }
 
 /* The paint_volume setters only update vertices 0, 1, 3 and
@@ -1039,7 +1020,6 @@ _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
        * good. We won't need to add any extra room for sub-pixel positioning
        * in this case.
        */
-      clutter_paint_volume_free (&projected_pv);
       clutter_round_to_256ths (&box->x1);
       clutter_round_to_256ths (&box->y1);
       clutter_round_to_256ths (&box->x2);
@@ -1052,8 +1032,6 @@ _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
     }
 
   _clutter_actor_box_enlarge_for_effects (box);
-
-  clutter_paint_volume_free (&projected_pv);
 }
 
 void
