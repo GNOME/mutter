@@ -143,10 +143,8 @@ endif
 if have_native_backend
   mutter_pkg_private_deps += [
     libinput_dep,
-    gudev_dep,
     libgbm_dep,
     logind_provider_dep,
-    libudev_dep,
     xkbcommon_dep,
   ]
 endif
