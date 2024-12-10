@@ -201,7 +201,7 @@ clutter_clone_get_paint_volume (ClutterActor       *actor,
   if (source_volume == NULL)
     return FALSE;
 
-  _clutter_paint_volume_set_from_volume (volume, source_volume);
+  clutter_paint_volume_init_from_paint_volume (volume, source_volume);
   _clutter_paint_volume_set_reference_actor (volume, actor);
 
   return TRUE;

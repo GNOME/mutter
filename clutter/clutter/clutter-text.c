@@ -2854,7 +2854,7 @@ add_selection_to_paint_volume (ClutterText           *text,
   ClutterPaintVolume rect_volume;
   graphene_point3d_t vertex;
 
-  _clutter_paint_volume_init_static (&rect_volume, CLUTTER_ACTOR (text));
+  clutter_paint_volume_init_from_actor (&rect_volume, CLUTTER_ACTOR (text));
 
   vertex.x = box->x1;
   vertex.y = box->y1;
@@ -2931,7 +2931,7 @@ clutter_text_get_paint_volume (ClutterActor       *self,
 
   resource_scale = clutter_actor_get_resource_scale (self);
 
-  _clutter_paint_volume_init_static (volume, self);
+  clutter_paint_volume_init_from_actor (volume, self);
 
   layout = clutter_text_get_layout (text);
   pango_layout_get_extents (layout, &ink_rect, NULL);
@@ -2953,7 +2953,7 @@ clutter_text_get_paint_volume (ClutterActor       *self,
     {
       ClutterPaintVolume cursor_paint_volume;
 
-      _clutter_paint_volume_init_static (&cursor_paint_volume, self);
+      clutter_paint_volume_init_from_actor (&cursor_paint_volume, self);
 
       clutter_text_get_paint_volume_for_cursor (text, resource_scale,
                                                 &cursor_paint_volume);

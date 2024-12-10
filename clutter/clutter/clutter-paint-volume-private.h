@@ -96,12 +96,10 @@ struct _ClutterPaintVolume
    */
 };
 
-void                _clutter_paint_volume_init_static          (ClutterPaintVolume *pv,
-                                                                ClutterActor *actor);
-void                _clutter_paint_volume_copy_static          (const ClutterPaintVolume *src_pv,
-                                                                ClutterPaintVolume *dst_pv);
-void                _clutter_paint_volume_set_from_volume      (ClutterPaintVolume *pv,
-                                                                const ClutterPaintVolume *src);
+void clutter_paint_volume_init_from_actor (ClutterPaintVolume *pv,
+                                           ClutterActor       *actor);
+void clutter_paint_volume_init_from_paint_volume (ClutterPaintVolume       *dst_pv,
+                                                  const ClutterPaintVolume *src_pv);
 
 void                _clutter_paint_volume_complete             (ClutterPaintVolume *pv);
 void                _clutter_paint_volume_transform            (ClutterPaintVolume      *pv,

@@ -3131,7 +3131,7 @@ _clutter_actor_draw_paint_volume (ClutterActor     *self,
       ClutterPaintVolume fake_pv;
 
       ClutterActor *stage = _clutter_actor_get_stage_internal (self);
-      _clutter_paint_volume_init_static (&fake_pv, stage);
+      clutter_paint_volume_init_from_actor (&fake_pv, stage);
 
       clutter_actor_get_size (self, &width, &height);
       clutter_paint_volume_set_width (&fake_pv, width);
@@ -7774,7 +7774,7 @@ clutter_actor_queue_redraw_with_clip (ClutterActor       *self,
       return;
     }
 
-  _clutter_paint_volume_init_static (&volume, self);
+  clutter_paint_volume_init_from_actor (&volume, self);
 
   origin.x = clip->x;
   origin.y = clip->y;
@@ -14280,7 +14280,7 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
       return FALSE;
     }
 
-  _clutter_paint_volume_init_static (pv, self);
+  clutter_paint_volume_init_from_actor (pv, self);
 
   if (!CLUTTER_ACTOR_GET_CLASS (self)->get_paint_volume (self, pv))
     {
@@ -14866,8 +14866,8 @@ clutter_actor_finish_layout (ClutterActor *self,
 
       if (priv->has_paint_volume)
         {
-          _clutter_paint_volume_copy_static (&priv->paint_volume,
-                                             &priv->visible_paint_volume);
+          clutter_paint_volume_init_from_paint_volume (&priv->visible_paint_volume,
+                                                       &priv->paint_volume);
           _clutter_paint_volume_transform_relative (&priv->visible_paint_volume,
                                                     NULL); /* eye coordinates */
         }

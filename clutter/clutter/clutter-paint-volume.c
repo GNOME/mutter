@@ -54,8 +54,8 @@ G_DEFINE_BOXED_TYPE (ClutterPaintVolume, clutter_paint_volume,
  * this is an easy way to basically drop that to 0%.
  */
 void
-_clutter_paint_volume_init_static (ClutterPaintVolume *pv,
-                                   ClutterActor *actor)
+clutter_paint_volume_init_from_actor (ClutterPaintVolume *pv,
+                                      ClutterActor       *actor)
 {
   pv->actor = actor;
 
@@ -68,8 +68,8 @@ _clutter_paint_volume_init_static (ClutterPaintVolume *pv,
 }
 
 void
-_clutter_paint_volume_copy_static (const ClutterPaintVolume *src_pv,
-                                   ClutterPaintVolume       *dst_pv)
+clutter_paint_volume_init_from_paint_volume (ClutterPaintVolume       *dst_pv,
+                                             const ClutterPaintVolume *src_pv)
 {
 
   g_return_if_fail (src_pv != NULL && dst_pv != NULL);
@@ -95,13 +95,6 @@ clutter_paint_volume_copy (const ClutterPaintVolume *pv)
   copy = g_memdup2 (pv, sizeof (ClutterPaintVolume));
 
   return copy;
-}
-
-void
-_clutter_paint_volume_set_from_volume (ClutterPaintVolume       *pv,
-                                       const ClutterPaintVolume *src)
-{
-  memcpy (pv, src, sizeof (ClutterPaintVolume));
 }
 
 /**
@@ -263,7 +256,7 @@ clutter_paint_volume_get_width (const ClutterPaintVolume *pv)
     {
       ClutterPaintVolume tmp;
       float width;
-      _clutter_paint_volume_copy_static (pv, &tmp);
+      clutter_paint_volume_init_from_paint_volume (&tmp, pv);
       _clutter_paint_volume_axis_align (&tmp);
       width = tmp.vertices[1].x - tmp.vertices[0].x;
       return width;
@@ -350,7 +343,7 @@ clutter_paint_volume_get_height (const ClutterPaintVolume *pv)
     {
       ClutterPaintVolume tmp;
       float height;
-      _clutter_paint_volume_copy_static (pv, &tmp);
+      clutter_paint_volume_init_from_paint_volume (&tmp, pv);
       _clutter_paint_volume_axis_align (&tmp);
       height = tmp.vertices[3].y - tmp.vertices[0].y;
       return height;
@@ -438,7 +431,7 @@ clutter_paint_volume_get_depth (const ClutterPaintVolume *pv)
     {
       ClutterPaintVolume tmp;
       float depth;
-      _clutter_paint_volume_copy_static (pv, &tmp);
+      clutter_paint_volume_init_from_paint_volume (&tmp, pv);
       _clutter_paint_volume_axis_align (&tmp);
       depth = tmp.vertices[4].z - tmp.vertices[0].z;
       return depth;
@@ -484,7 +477,7 @@ clutter_paint_volume_union (ClutterPaintVolume *pv,
 
   if (pv->is_empty)
     {
-      _clutter_paint_volume_set_from_volume (pv, another_pv);
+      clutter_paint_volume_init_from_paint_volume (pv, another_pv);
       goto done;
     }
 
@@ -495,7 +488,7 @@ clutter_paint_volume_union (ClutterPaintVolume *pv,
 
   if (!another_pv->is_axis_aligned || !another_pv->is_complete)
     {
-      _clutter_paint_volume_copy_static (another_pv, &aligned_pv);
+      clutter_paint_volume_init_from_paint_volume (&aligned_pv, another_pv);
       _clutter_paint_volume_axis_align (&aligned_pv);
       _clutter_paint_volume_complete (&aligned_pv);
       another_pv = &aligned_pv;
@@ -550,7 +543,7 @@ clutter_paint_volume_union_box (ClutterPaintVolume    *pv,
   g_return_if_fail (pv != NULL);
   g_return_if_fail (box != NULL);
 
-  _clutter_paint_volume_init_static (&volume, pv->actor);
+  clutter_paint_volume_init_from_actor (&volume, pv->actor);
 
   origin.x = box->x1;
   origin.y = box->y1;
@@ -990,7 +983,7 @@ _clutter_paint_volume_get_stage_paint_box (const ClutterPaintVolume *pv,
   graphene_matrix_t projection;
   float viewport[4];
 
-  _clutter_paint_volume_copy_static (pv, &projected_pv);
+  clutter_paint_volume_init_from_paint_volume (&projected_pv, pv);
 
   graphene_matrix_init_identity (&modelview);
 
