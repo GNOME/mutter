@@ -4375,14 +4375,14 @@ adjust_size_for_tile_match (MetaWindow *window,
 }
 
 void
-meta_window_resize_frame_with_gravity (MetaWindow *window,
+meta_window_resize_frame_with_gravity (MetaWindow  *window,
                                        gboolean     user_op,
                                        int          w,
                                        int          h,
                                        MetaGravity  gravity)
 {
   MetaMoveResizeFlags flags;
-  MtkRectangle rect;
+  MtkRectangle rect = { 0, };
 
   rect.width = w;
   rect.height = h;
