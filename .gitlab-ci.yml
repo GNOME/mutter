@@ -1,8 +1,11 @@
 include:
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/145b1bc7ef1702d2bd71584010d7113c6786a506/templates/fedora.yml'
   - remote: 'https://gitlab.freedesktop.org/freedesktop/ci-templates/-/raw/34f4ade99434043f88e164933f570301fd18b125/templates/ci-fairy.yml'
-  - project: 'Infrastructure/openshift-images/gnome-release-service'
-    file: '/ci-templates/release-module.yml'
+  - component: gitlab.gnome.org/GNOME/citemplates/release-service@master
+    inputs:
+      job-stage: deploy
+      dist-job-name: "dist-mutter-tarball"
+      tarball-artifact-path: $TARBALL_ARTIFACT_PATH
   - component: gitlab.gnome.org/GNOME/citemplates/gnomeos-build-sysext@1.0.0-alpha.1
     inputs:
       meson-options:
@@ -30,6 +33,7 @@ stages:
 
 variables:
   FDO_UPSTREAM_REPO: GNOME/mutter
+  TARBALL_ARTIFACT_PATH: build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz
 
 .skip-git-clone:
   variables:
@@ -753,8 +757,10 @@ dist-mutter-tarball:
   extends: dist-mutter
   artifacts:
     expose_as: 'Get tarball here'
+    name: "${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: always
     paths:
-      - build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz
+      - $TARBALL_ARTIFACT_PATH
   rules:
     - if: '$CI_COMMIT_TAG'
 
