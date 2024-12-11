@@ -94,8 +94,8 @@ cogl_common_driver_sources = [
   'driver/gl/cogl-gl-framebuffer-fbo.h',
   'driver/gl/cogl-pipeline-fragend-glsl-private.h',
   'driver/gl/cogl-pipeline-fragend-glsl.c',
-  'driver/gl/cogl-pipeline-opengl-private.h',
-  'driver/gl/cogl-pipeline-opengl.c',
+  'driver/gl/cogl-pipeline-gl-private.h',
+  'driver/gl/cogl-pipeline-gl.c',
   'driver/gl/cogl-pipeline-progend-glsl-private.h',
   'driver/gl/cogl-pipeline-progend-glsl.c',
   'driver/gl/cogl-pipeline-vertend-glsl-private.h',
@@ -111,17 +111,17 @@ cogl_common_driver_sources = [
 ]
 
 gl_driver_sources = [
-  'driver/gl/gl/cogl-driver-gl3.c',
-  'driver/gl/gl/cogl-driver-gl3-private.h',
-  'driver/gl/gl/cogl-texture-driver-gl3.c',
-  'driver/gl/gl/cogl-texture-driver-gl3-private.h',
+  'driver/gl/gl3/cogl-driver-gl3.c',
+  'driver/gl/gl3/cogl-driver-gl3-private.h',
+  'driver/gl/gl3/cogl-texture-driver-gl3.c',
+  'driver/gl/gl3/cogl-texture-driver-gl3-private.h',
 ]
 
 gles_driver_sources = [
-  'driver/gl/gles/cogl-driver-gles2.c',
-  'driver/gl/gles/cogl-driver-gles2-private.h',
-  'driver/gl/gles/cogl-texture-driver-gles2.c',
-  'driver/gl/gles/cogl-texture-driver-gles2-private.h',
+  'driver/gl/gles2/cogl-driver-gles2.c',
+  'driver/gl/gles2/cogl-driver-gles2-private.h',
+  'driver/gl/gles2/cogl-texture-driver-gles2.c',
+  'driver/gl/gles2/cogl-texture-driver-gles2-private.h',
 ]
 
 cogl_driver_sources = [

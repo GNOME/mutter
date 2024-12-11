@@ -41,7 +41,7 @@
 #include "cogl/cogl-texture-2d-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
 #if defined (HAVE_EGL)

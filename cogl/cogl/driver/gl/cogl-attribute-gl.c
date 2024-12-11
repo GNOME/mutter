@@ -42,7 +42,7 @@
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/driver/gl/cogl-attribute-gl-private.h"
 #include "cogl/driver/gl/cogl-buffer-gl-private.h"
-#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 

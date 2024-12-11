@@ -27,7 +27,7 @@
  */
 
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-pipeline-opengl-private.h"
+#include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-buffer-gl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
 #include "cogl/driver/gl/cogl-attribute-gl-private.h"
