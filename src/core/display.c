@@ -3228,7 +3228,7 @@ check_fullscreen_func (gpointer data)
          status so we need to trigger a re-layering. */
       MetaWindow *top_window = meta_stack_get_top (display->stack);
       if (top_window)
-        meta_stack_update_layer (display->stack, top_window);
+        meta_stack_update_layer (display->stack);
 
       g_signal_emit (display, display_signals[IN_FULLSCREEN_CHANGED], 0, NULL);
     }

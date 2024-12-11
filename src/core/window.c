@@ -6209,11 +6209,11 @@ meta_window_update_layer (MetaWindow *window)
   if (group)
     meta_group_update_layers (group);
   else
-    meta_stack_update_layer (window->display->stack, window);
+    meta_stack_update_layer (window->display->stack);
   meta_stack_thaw (window->display->stack);
 #else
   meta_stack_freeze (window->display->stack);
-  meta_stack_update_layer (window->display->stack, window);
+  meta_stack_update_layer (window->display->stack);
   meta_stack_thaw (window->display->stack);
 #endif
 }
@@ -7332,7 +7332,7 @@ meta_window_set_transient_for (MetaWindow *window,
 
   /* update stacking constraints */
   if (!window->override_redirect)
-    meta_stack_update_transient (window->display->stack, window);
+    meta_stack_update_transient (window->display->stack);
 
   if (!window->constructing && !window->override_redirect)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE | META_QUEUE_CALC_SHOWING);

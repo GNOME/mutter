@@ -134,27 +134,22 @@ void       meta_stack_remove (MetaStack  *stack,
 /**
  * meta_stack_update_layer:
  * @stack: The stack to recalculate
- * @window: Dummy parameter
  *
  * Recalculates the correct layer for all windows in the stack,
  * and moves them about accordingly.
  *
  */
-void       meta_stack_update_layer (MetaStack  *stack,
-                                    MetaWindow *window);
+void       meta_stack_update_layer (MetaStack *stack);
 
 /**
  * meta_stack_update_transient:
  * @stack: The stack to recalculate
- * @window: Dummy parameter
  *
  * Recalculates the correct stacking order for all windows in the stack
  * according to their transience, and moves them about accordingly.
  *
- * FIXME: What's with the dummy parameter?
  */
-void       meta_stack_update_transient (MetaStack  *stack,
-                                        MetaWindow *window);
+void       meta_stack_update_transient (MetaStack *stack);
 
 /**
  * meta_stack_raise:

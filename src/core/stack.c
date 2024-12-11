@@ -245,10 +245,9 @@ meta_stack_remove (MetaStack  *stack,
 }
 
 void
-meta_stack_update_layer (MetaStack  *stack,
-                         MetaWindow *window)
+meta_stack_update_layer (MetaStack *stack)
 {
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+  MetaWorkspaceManager *workspace_manager = stack->display->workspace_manager;
   stack->need_relayer = TRUE;
 
   meta_stack_changed (stack);
@@ -256,10 +255,9 @@ meta_stack_update_layer (MetaStack  *stack,
 }
 
 void
-meta_stack_update_transient (MetaStack  *stack,
-                             MetaWindow *window)
+meta_stack_update_transient (MetaStack *stack)
 {
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+  MetaWorkspaceManager *workspace_manager = stack->display->workspace_manager;
   stack->need_constrain = TRUE;
 
   meta_stack_changed (stack);

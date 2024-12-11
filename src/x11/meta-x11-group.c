@@ -181,8 +181,7 @@ meta_group_update_layers (MetaGroup *group)
       meta_stack_freeze (window->display->stack);
       frozen_stacks = g_slist_prepend (frozen_stacks, window->display->stack);
 
-      meta_stack_update_layer (window->display->stack,
-                               window);
+      meta_stack_update_layer (window->display->stack);
 
       tmp = tmp->next;
     }
