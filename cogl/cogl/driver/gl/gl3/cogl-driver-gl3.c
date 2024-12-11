@@ -64,7 +64,7 @@ cogl_driver_gl3_context_init (CoglDriver  *driver,
 }
 
 static CoglPixelFormat
-cogl_driver_gl3_pixel_format_to_gl (CoglDriver      *driver,
+cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
                                     CoglContext     *context,
                                     CoglPixelFormat  format,
                                     GLenum          *out_glintformat,
@@ -359,7 +359,7 @@ cogl_driver_gl3_pixel_format_to_gl (CoglDriver      *driver,
 }
 
 static CoglPixelFormat
-cogl_driver_gl3_get_read_pixels_format (CoglDriver      *driver,
+cogl_driver_gl3_get_read_pixels_format (CoglDriverGL    *driver,
                                         CoglContext     *context,
                                         CoglPixelFormat  from,
                                         CoglPixelFormat  to,
@@ -600,11 +600,13 @@ static void
 cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+  CoglDriverGLClass *driver_gl_klass = COGL_DRIVER_GL_CLASS (klass);
 
   driver_klass->context_init = cogl_driver_gl3_context_init;
-  driver_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;
-  driver_klass->get_read_pixels_format = cogl_driver_gl3_get_read_pixels_format;
   driver_klass->update_features = cogl_driver_gl3_update_features;
+
+  driver_gl_klass->get_read_pixels_format = cogl_driver_gl3_get_read_pixels_format;
+  driver_gl_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;
 }
 
 static void

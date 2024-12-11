@@ -42,6 +42,7 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-blit.h"
 #include "cogl/cogl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 #include <stdlib.h>
 
@@ -193,7 +194,8 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
                               unsigned int *map_width,
                               unsigned int *map_height)
 {
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   unsigned int size;
@@ -203,7 +205,7 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
 
   g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
 
-  driver_klass->pixel_format_to_gl (ctx->driver,
+  driver_klass->pixel_format_to_gl (driver_gl,
                                     ctx,
                                     format,
                                     &gl_intformat,
@@ -244,14 +246,15 @@ _cogl_atlas_create_map (CoglContext             *ctx,
                         unsigned int             n_textures,
                         CoglAtlasRepositionData *textures)
 {
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
 
-  driver_klass->pixel_format_to_gl (ctx->driver,
+  driver_klass->pixel_format_to_gl (driver_gl,
                                     ctx,
                                     format,
                                     &gl_intformat,

@@ -59,22 +59,6 @@ struct _CoglDriverClass
   CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver  *driver,
                                                          CoglContext *context);
 
-  /* TODO: factor this out since this is OpenGL specific and
-   * so can be ignored by non-OpenGL drivers. */
-  CoglPixelFormat (* pixel_format_to_gl) (CoglDriver      *driver,
-                                          CoglContext     *context,
-                                          CoglPixelFormat  format,
-                                          GLenum          *out_glintformat,
-                                          GLenum          *out_glformat,
-                                          GLenum          *out_gltype);
-
-  CoglPixelFormat (* get_read_pixels_format) (CoglDriver      *driver,
-                                              CoglContext     *context,
-                                              CoglPixelFormat  from,
-                                              CoglPixelFormat  to,
-                                              GLenum          *gl_format_out,
-                                              GLenum          *gl_type_out);
-
   gboolean (* update_features) (CoglDriver   *driver,
                                 CoglContext  *context,
                                 GError      **error);

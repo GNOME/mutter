@@ -40,16 +40,31 @@ typedef struct _CoglDriverGLPrivate
   GLuint next_fake_sampler_object_number;
 } CoglDriverGLPrivate;
 
-struct _CoglDriverGLClass
-{
-  CoglDriverClass parent_class;
-};
 
 G_DECLARE_DERIVABLE_TYPE (CoglDriverGL,
                           cogl_driver_gl,
                           COGL,
                           DRIVER_GL,
                           CoglDriver);
+
+struct _CoglDriverGLClass
+{
+  CoglDriverClass parent_class;
+
+  CoglPixelFormat (* pixel_format_to_gl) (CoglDriverGL    *driver,
+                                          CoglContext     *context,
+                                          CoglPixelFormat  format,
+                                          GLenum          *out_glintformat,
+                                          GLenum          *out_glformat,
+                                          GLenum          *out_gltype);
+
+  CoglPixelFormat (* get_read_pixels_format) (CoglDriverGL    *driver,
+                                              CoglContext     *context,
+                                              CoglPixelFormat  from,
+                                              CoglPixelFormat  to,
+                                              GLenum          *gl_format_out,
+                                              GLenum          *gl_type_out);
+};
 
 #define COGL_TYPE_DRIVER_GL (cogl_driver_gl_get_type ())
 

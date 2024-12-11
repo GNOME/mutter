@@ -96,7 +96,7 @@
 G_DEFINE_FINAL_TYPE (CoglDriverGLES2, cogl_driver_gles2, COGL_TYPE_DRIVER_GL)
 
 static CoglPixelFormat
-cogl_driver_gles2_pixel_format_to_gl (CoglDriver      *driver,
+cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
                                       CoglContext     *context,
                                       CoglPixelFormat  format,
                                       GLenum          *out_glintformat,
@@ -477,7 +477,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriver      *driver,
 }
 
 static CoglPixelFormat
-cogl_driver_gles2_get_read_pixels_format (CoglDriver      *driver,
+cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
                                           CoglContext     *context,
                                           CoglPixelFormat  from,
                                           CoglPixelFormat  to,
@@ -865,10 +865,12 @@ static void
 cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
 {
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
+  CoglDriverGLClass *driver_gl_klass = COGL_DRIVER_GL_CLASS (klass);
 
-  driver_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;
-  driver_klass->get_read_pixels_format = cogl_driver_gles2_get_read_pixels_format;
   driver_klass->update_features = cogl_driver_gles2_update_features;
+
+  driver_gl_klass->get_read_pixels_format = cogl_driver_gles2_get_read_pixels_format;
+  driver_gl_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;
 }
 
 static void

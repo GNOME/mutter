@@ -48,6 +48,7 @@
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -482,9 +483,10 @@ cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriver *driver,
                                                       GLenum            *closest_gl_format,
                                                       GLenum            *closest_gl_type)
 {
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (context->driver);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (context->driver);
+  CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
 
-  return driver_klass->pixel_format_to_gl (context->driver,
+  return driver_klass->pixel_format_to_gl (driver_gl,
                                            context,
                                            format,
                                            NULL, /* don't need */
@@ -509,7 +511,8 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   uint8_t bpp;
   int width = cogl_texture_get_width (COGL_TEXTURE (tex_2d));
   GLenum gl_format;
@@ -520,7 +523,7 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
 
   bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
-  driver_klass->pixel_format_to_gl (ctx->driver,
+  driver_klass->pixel_format_to_gl (driver_gl,
                                     ctx,
                                     format,
                                     NULL, /* internal format */
