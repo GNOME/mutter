@@ -32,7 +32,6 @@
 
 #include <glib-object.h>
 
-#include "cogl/cogl-gl-header.h"
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-types.h"
 
@@ -48,115 +47,9 @@ struct _CoglTextureDriverClass
 {
   GObjectClass parent_class;
 
-  /*
-   * A very small wrapper around glGenTextures() that ensures we default to
-   * non-mipmap filters when creating textures. This is to save some memory as
-   * the driver will not allocate room for the mipmap tree.
-   */
-  GLuint (* gen) (CoglTextureDriver *driver,
-                  CoglContext       *ctx,
-                  GLenum             gl_target,
-                  CoglPixelFormat    internal_format);
-
-  /*
-   * This uploads a sub-region from source_bmp to a single GL texture
-   * handle (i.e a single CoglTexture slice)
-   *
-   * It also updates the array of tex->first_pixels[slice_index] if
-   * dst_{x,y} == 0
-   *
-   * The driver abstraction is in place because GLES doesn't support the pixel
-   * store options required to source from a subregion, so for GLES we have
-   * to manually create a transient source bitmap.
-   *
-   * XXX: sorry for the ridiculous number of arguments :-(
-   */
-  gboolean (* upload_subregion_to_gl) (CoglTextureDriver *driver,
-                                       CoglContext       *ctx,
-                                       CoglTexture       *texture,
-                                       int                src_x,
-                                       int                src_y,
-                                       int                dst_x,
-                                       int                dst_y,
-                                       int                width,
-                                       int                height,
-                                       int                level,
-                                       CoglBitmap        *source_bmp,
-                                       GLuint             source_gl_format,
-                                       GLuint             source_gl_type,
-                                       GError           **error);
-
-  /*
-   * Replaces the contents of the GL texture with the entire bitmap. On
-   * GL this just directly calls glTexImage2D, but under GLES it needs
-   * to copy the bitmap if the rowstride is not a multiple of a possible
-   * alignment value because there is no GL_UNPACK_ROW_LENGTH
-   */
-  gboolean (* upload_to_gl) (CoglTextureDriver *driver,
-                             CoglContext       *ctx,
-                             GLenum             gl_target,
-                             GLuint             gl_handle,
-                             CoglBitmap        *source_bmp,
-                             GLint              internal_gl_format,
-                             GLuint             source_gl_format,
-                             GLuint             source_gl_type,
-                             GError           **error);
-
-  /*
-   * This sets up the glPixelStore state for an download to a destination with
-   * the same size, and with no offset.
-   */
-  /* NB: GLES can't download pixel data into a sub region of a larger
-   * destination buffer, the GL driver has a more flexible version of
-   * this function that it uses internally. */
-  void (* prep_gl_for_pixels_download) (CoglTextureDriver *driver,
-                                        CoglContext       *ctx,
-                                        int                image_width,
-                                        int                pixels_rowstride,
-                                        int                pixels_bpp);
-
-  /*
-   * This driver abstraction is needed because GLES doesn't support
-   * glGetTexImage (). On GLES this currently just returns FALSE which
-   * will lead to a generic fallback path being used that simply
-   * renders the texture and reads it back from the framebuffer. (See
-   * _cogl_texture_draw_and_read () )
-   */
-  gboolean (* gl_get_tex_image) (CoglTextureDriver *driver,
-                                 CoglContext       *ctx,
-                                 GLenum             gl_target,
-                                 GLenum             dest_gl_format,
-                                 GLenum             dest_gl_type,
-                                 uint8_t           *dest);
-
-  /*
-   * It may depend on the driver as to what texture sizes are supported...
-   */
-  gboolean (* size_supported) (CoglTextureDriver *driver,
-                               CoglContext       *ctx,
-                               GLenum             gl_target,
-                               GLenum             gl_intformat,
-                               GLenum             gl_format,
-                               GLenum             gl_type,
-                               int                width,
-                               int                height);
-
-
   gboolean (* format_supports_upload) (CoglTextureDriver *driver,
                                        CoglContext       *ctx,
                                        CoglPixelFormat    format);
-
-  /*
-   * The driver may impose constraints on what formats can be used to store
-   * texture data read from textures. For example GLES currently only supports
-   * RGBA_8888, and so we need to manually convert the data if the final
-   * destination has another format.
-   */
-  CoglPixelFormat (* find_best_gl_get_data_format) (CoglTextureDriver *driver,
-                                                    CoglContext       *context,
-                                                    CoglPixelFormat    format,
-                                                    GLenum            *closest_gl_format,
-                                                    GLenum            *closest_gl_type);
 
 
   /* Destroys any driver specific resources associated with the given

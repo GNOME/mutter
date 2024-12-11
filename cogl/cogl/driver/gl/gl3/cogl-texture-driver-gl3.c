@@ -68,10 +68,10 @@ G_DEFINE_FINAL_TYPE (CoglTextureDriverGL3,
                      COGL_TYPE_TEXTURE_DRIVER_GL)
 
 static GLuint
-cogl_texture_driver_gl3_gen (CoglTextureDriver *driver,
-                             CoglContext       *ctx,
-                             GLenum             gl_target,
-                             CoglPixelFormat    internal_format)
+cogl_texture_driver_gl3_gen (CoglTextureDriverGL *driver,
+                             CoglContext         *ctx,
+                             GLenum               gl_target,
+                             CoglPixelFormat      internal_format)
 {
   GLuint tex;
 
@@ -162,11 +162,11 @@ prep_gl_for_pixels_download_full (CoglContext *ctx,
 }
 
 static void
-cogl_texture_driver_gl3_prep_gl_for_pixels_download (CoglTextureDriver *driver,
-                                                     CoglContext       *ctx,
-                                                     int                image_width,
-                                                     int                pixels_rowstride,
-                                                     int                pixels_bpp)
+cogl_texture_driver_gl3_prep_gl_for_pixels_download (CoglTextureDriverGL *driver,
+                                                     CoglContext         *ctx,
+                                                     int                  image_width,
+                                                     int                  pixels_rowstride,
+                                                     int                  pixels_bpp)
 {
   prep_gl_for_pixels_download_full (ctx,
                                     pixels_rowstride,
@@ -177,20 +177,20 @@ cogl_texture_driver_gl3_prep_gl_for_pixels_download (CoglTextureDriver *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriver  *driver,
-                                                CoglContext        *ctx,
-                                                CoglTexture        *texture,
-                                                int                 src_x,
-                                                int                 src_y,
-                                                int                 dst_x,
-                                                int                 dst_y,
-                                                int                 width,
-                                                int                 height,
-                                                int                 level,
-                                                CoglBitmap         *source_bmp,
-                                                GLuint              source_gl_format,
-                                                GLuint              source_gl_type,
-                                                GError            **error)
+cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
+                                                CoglContext          *ctx,
+                                                CoglTexture          *texture,
+                                                int                   src_x,
+                                                int                   src_y,
+                                                int                   dst_x,
+                                                int                   dst_y,
+                                                int                   width,
+                                                int                   height,
+                                                int                   level,
+                                                CoglBitmap           *source_bmp,
+                                                GLuint                source_gl_format,
+                                                GLuint                source_gl_type,
+                                                GError              **error)
 {
   GLenum gl_target;
   GLuint gl_handle;
@@ -295,15 +295,15 @@ cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriver  *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriver *driver,
-                                      CoglContext       *ctx,
-                                      GLenum             gl_target,
-                                      GLuint             gl_handle,
-                                      CoglBitmap        *source_bmp,
-                                      GLint              internal_gl_format,
-                                      GLuint             source_gl_format,
-                                      GLuint             source_gl_type,
-                                      GError           **error)
+cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriverGL *driver,
+                                      CoglContext         *ctx,
+                                      GLenum               gl_target,
+                                      GLuint               gl_handle,
+                                      CoglBitmap          *source_bmp,
+                                      GLint                internal_gl_format,
+                                      GLuint               source_gl_format,
+                                      GLuint               source_gl_type,
+                                      GError             **error)
 {
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
@@ -359,12 +359,12 @@ cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriver *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriver *driver,
-                                          CoglContext       *ctx,
-                                          GLenum             gl_target,
-                                          GLenum             dest_gl_format,
-                                          GLenum             dest_gl_type,
-                                          uint8_t           *dest)
+cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriverGL *driver,
+                                          CoglContext         *ctx,
+                                          GLenum               gl_target,
+                                          GLenum               dest_gl_format,
+                                          GLenum               dest_gl_type,
+                                          uint8_t             *dest)
 {
   GE (ctx, glGetTexImage (gl_target,
                           0, /* level */
@@ -375,14 +375,14 @@ cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriver *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl3_size_supported (CoglTextureDriver *driver,
-                                        CoglContext       *ctx,
-                                        GLenum             gl_target,
-                                        GLenum             gl_intformat,
-                                        GLenum             gl_format,
-                                        GLenum             gl_type,
-                                        int                width,
-                                        int                height)
+cogl_texture_driver_gl3_size_supported (CoglTextureDriverGL *driver,
+                                        CoglContext         *ctx,
+                                        GLenum               gl_target,
+                                        GLenum               gl_intformat,
+                                        GLenum               gl_format,
+                                        GLenum               gl_type,
+                                        int                  width,
+                                        int                  height)
 {
   GLenum proxy_target;
   GLint new_width = 0;
@@ -477,11 +477,11 @@ cogl_texture_driver_gl3_upload_supported (CoglTextureDriver *driver,
 }
 
 static CoglPixelFormat
-cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriver *driver,
-                                                      CoglContext       *context,
-                                                      CoglPixelFormat    format,
-                                                      GLenum            *closest_gl_format,
-                                                      GLenum            *closest_gl_type)
+cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *driver,
+                                                      CoglContext         *context,
+                                                      CoglPixelFormat      format,
+                                                      GLenum              *closest_gl_format,
+                                                      GLenum              *closest_gl_type)
 {
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (context->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
@@ -509,8 +509,10 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
                                                 uint8_t           *data)
 {
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
-  CoglTextureDriverClass *tex_driver =
-    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglTextureDriverGL *tex_driver_gl =
+    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+  CoglTextureDriverGLClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   uint8_t bpp;
@@ -530,38 +532,40 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
                                     &gl_format,
                                     &gl_type);
 
-  tex_driver->prep_gl_for_pixels_download (ctx->texture_driver,
-                                           ctx,
-                                           rowstride,
-                                           width,
-                                           bpp);
+  tex_driver_klass->prep_gl_for_pixels_download (tex_driver_gl,
+                                                 ctx,
+                                                 rowstride,
+                                                 width,
+                                                 bpp);
 
   _cogl_bind_gl_texture_transient (ctx, tex_2d->gl_target,
                                    tex_2d->gl_texture);
 
-  tex_driver->gl_get_tex_image (ctx->texture_driver,
-                                ctx,
-                                tex_2d->gl_target,
-                                gl_format,
-                                gl_type,
-                                data);
+  tex_driver_klass->gl_get_tex_image (tex_driver_gl,
+                                      ctx,
+                                      tex_2d->gl_target,
+                                      gl_format,
+                                      gl_type,
+                                      data);
 }
 
 static void
 cogl_texture_driver_gl3_class_init (CoglTextureDriverGL3Class *klass)
 {
   CoglTextureDriverClass *driver_klass = COGL_TEXTURE_DRIVER_CLASS (klass);
+  CoglTextureDriverGLClass *driver_gl_klass = COGL_TEXTURE_DRIVER_GL_CLASS (klass);
 
-  driver_klass->gen = cogl_texture_driver_gl3_gen;
-  driver_klass->upload_subregion_to_gl = cogl_texture_driver_gl3_upload_subregion_to_gl;
-  driver_klass->upload_to_gl = cogl_texture_driver_gl3_upload_to_gl;
-  driver_klass->prep_gl_for_pixels_download = cogl_texture_driver_gl3_prep_gl_for_pixels_download;
-  driver_klass->gl_get_tex_image = cogl_texture_driver_gl3_gl_get_tex_image;
-  driver_klass->size_supported = cogl_texture_driver_gl3_size_supported;
   driver_klass->format_supports_upload = cogl_texture_driver_gl3_upload_supported;
-  driver_klass->find_best_gl_get_data_format = cogl_texture_driver_gl3_find_best_gl_get_data_format;
   driver_klass->texture_2d_is_get_data_supported = cogl_texture_driver_gl3_is_get_data_supported;
   driver_klass->texture_2d_get_data = cogl_texture_driver_gl3_texture_2d_gl_get_data;
+
+  driver_gl_klass->gen = cogl_texture_driver_gl3_gen;
+  driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gl3_upload_subregion_to_gl;
+  driver_gl_klass->upload_to_gl = cogl_texture_driver_gl3_upload_to_gl;
+  driver_gl_klass->prep_gl_for_pixels_download = cogl_texture_driver_gl3_prep_gl_for_pixels_download;
+  driver_gl_klass->gl_get_tex_image = cogl_texture_driver_gl3_gl_get_tex_image;
+  driver_gl_klass->size_supported = cogl_texture_driver_gl3_size_supported;
+  driver_gl_klass->find_best_gl_get_data_format = cogl_texture_driver_gl3_find_best_gl_get_data_format;
 }
 
 static void

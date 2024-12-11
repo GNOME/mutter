@@ -62,14 +62,16 @@ cogl_texture_driver_gl_texture_2d_free (CoglTextureDriver *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *driver,
+cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *tex_driver,
                                               CoglContext       *ctx,
                                               int                width,
                                               int                height,
                                               CoglPixelFormat    internal_format)
 {
-  CoglTextureDriverClass *tex_driver =
-    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglTextureDriverGL *tex_driver_gl =
+    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+  CoglTextureDriverGLClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   GLenum gl_intformat;
@@ -88,14 +90,14 @@ cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *driver,
                                     &gl_type);
 
   /* Check that the driver can create a texture with that size */
-  if (!tex_driver->size_supported (ctx->texture_driver,
-                                   ctx,
-                                   GL_TEXTURE_2D,
-                                   gl_intformat,
-                                   gl_format,
-                                   gl_type,
-                                   width,
-                                   height))
+  if (!tex_driver_klass->size_supported (tex_driver_gl,
+                                         ctx,
+                                         GL_TEXTURE_2D,
+                                         gl_intformat,
+                                         gl_format,
+                                         gl_type,
+                                         width,
+                                         height))
     return FALSE;
 
   return TRUE;
@@ -113,8 +115,10 @@ allocate_with_size (CoglTexture2D     *tex_2d,
   CoglContext *ctx = cogl_texture_get_context (tex);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
-  CoglTextureDriverClass *tex_driver =
-    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglTextureDriverGL *tex_driver_gl =
+    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+  CoglTextureDriverGLClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
@@ -143,10 +147,10 @@ allocate_with_size (CoglTexture2D     *tex_2d,
                                     &gl_format,
                                     &gl_type);
 
-  gl_texture = tex_driver->gen (ctx->texture_driver,
-                                ctx,
-                                GL_TEXTURE_2D,
-                                internal_format);
+  gl_texture = tex_driver_klass->gen (tex_driver_gl,
+                                      ctx,
+                                      GL_TEXTURE_2D,
+                                      internal_format);
 
   tex_2d->gl_internal_format = gl_intformat;
 
@@ -185,8 +189,10 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
   CoglContext *ctx = _cogl_bitmap_get_context (bmp);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
-  CoglTextureDriverClass *tex_driver =
-    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglTextureDriverGL *tex_driver_gl =
+    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+  CoglTextureDriverGLClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglPixelFormat internal_format;
   int width = cogl_bitmap_get_width (bmp);
   int height = cogl_bitmap_get_height (bmp);
@@ -230,19 +236,19 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
                                     NULL,
                                     NULL);
 
-  tex_2d->gl_texture = tex_driver->gen (ctx->texture_driver,
-                                        ctx,
-                                        GL_TEXTURE_2D,
-                                        internal_format);
-  if (!tex_driver->upload_to_gl (ctx->texture_driver,
-                                 ctx,
-                                 GL_TEXTURE_2D,
-                                 tex_2d->gl_texture,
-                                 upload_bmp,
-                                 gl_intformat,
-                                 gl_format,
-                                 gl_type,
-                                 error))
+  tex_2d->gl_texture = tex_driver_klass->gen (tex_driver_gl,
+                                              ctx,
+                                              GL_TEXTURE_2D,
+                                              internal_format);
+  if (!tex_driver_klass->upload_to_gl (tex_driver_gl,
+                                       ctx,
+                                       GL_TEXTURE_2D,
+                                       tex_2d->gl_texture,
+                                       upload_bmp,
+                                       gl_intformat,
+                                       gl_format,
+                                       gl_type,
+                                       error))
     {
       g_object_unref (upload_bmp);
       return FALSE;
@@ -268,13 +274,15 @@ allocate_from_egl_image (CoglTexture2D     *tex_2d,
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = cogl_texture_get_context (tex);
   CoglPixelFormat internal_format = loader->src.egl_image.format;
-  CoglTextureDriverClass *tex_driver =
-    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglTextureDriverGL *tex_driver_gl =
+    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+  CoglTextureDriverGLClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
 
-  tex_2d->gl_texture = tex_driver->gen (ctx->texture_driver,
-                                        ctx,
-                                        GL_TEXTURE_2D,
-                                        internal_format);
+  tex_2d->gl_texture = tex_driver_klass->gen (tex_driver_gl,
+                                              ctx,
+                                              GL_TEXTURE_2D,
+                                              internal_format);
 
   if (!cogl_texture_2d_gl_bind_egl_image (tex_2d,
                                           loader->src.egl_image.image,
@@ -471,8 +479,10 @@ cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *driver,
   CoglContext *ctx = cogl_texture_get_context (tex);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
-  CoglTextureDriverClass *tex_driver =
-    COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  CoglTextureDriverGL *tex_driver_gl =
+    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+  CoglTextureDriverGLClass *tex_driver_klass =
+    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglBitmap *upload_bmp;
   CoglPixelFormat upload_format;
   GLenum gl_format;
@@ -503,17 +513,17 @@ cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *driver,
   if (cogl_texture_get_max_level_set (tex) < level)
     cogl_texture_gl_set_max_level (tex, level);
 
-  status = tex_driver->upload_subregion_to_gl (ctx->texture_driver,
-                                               ctx,
-                                               tex,
-                                               src_x, src_y,
-                                               dst_x, dst_y,
-                                               width, height,
-                                               level,
-                                               upload_bmp,
-                                               gl_format,
-                                               gl_type,
-                                               error);
+  status = tex_driver_klass->upload_subregion_to_gl (tex_driver_gl,
+                                                     ctx,
+                                                     tex,
+                                                     src_x, src_y,
+                                                     dst_x, dst_y,
+                                                     width, height,
+                                                     level,
+                                                     upload_bmp,
+                                                     gl_format,
+                                                     gl_type,
+                                                     error);
 
   g_object_unref (upload_bmp);
 

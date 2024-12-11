@@ -54,6 +54,7 @@
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-sub-texture.h"
+#include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -811,7 +812,7 @@ cogl_texture_get_data (CoglTexture *texture,
 		       uint8_t *data)
 {
   CoglContext *ctx;
-  CoglTextureDriverClass *tex_driver;
+  CoglTextureDriverGLClass *tex_driver_gl;
   int bpp;
   int byte_size;
   CoglPixelFormat closest_format;
@@ -849,13 +850,13 @@ cogl_texture_get_data (CoglTexture *texture,
     return byte_size;
 
   ctx = cogl_texture_get_context (texture);
-  tex_driver = COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
+  tex_driver_gl = COGL_TEXTURE_DRIVER_GL_GET_CLASS (ctx->texture_driver);
   closest_format =
-    tex_driver->find_best_gl_get_data_format (ctx->texture_driver,
-                                              ctx,
-                                              format,
-                                              &closest_gl_format,
-                                              &closest_gl_type);
+    tex_driver_gl->find_best_gl_get_data_format (COGL_TEXTURE_DRIVER_GL (ctx->texture_driver),
+                                                 ctx,
+                                                 format,
+                                                 &closest_gl_format,
+                                                 &closest_gl_type);
 
   /* We can assume that whatever data GL gives us will have the
      premult status of the original texture */
