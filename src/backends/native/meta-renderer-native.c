@@ -1089,11 +1089,11 @@ meta_renderer_native_create_dma_buf (CoglRenderer     *cogl_renderer,
                                                            offsets,
                                                            plane_modifiers,
                                                            error);
-
-        close_fds (fds, n_planes);
-
         if (!dmabuf_fb)
-          return NULL;
+          {
+            close_fds (fds, n_planes);
+            return NULL;
+          }
 
         dmabuf_handle =
           cogl_dma_buf_handle_new (dmabuf_fb,
