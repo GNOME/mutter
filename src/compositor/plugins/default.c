@@ -264,7 +264,8 @@ on_switch_workspace_effect_stopped (ClutterTimeline *timeline,
   MetaPlugin               *plugin  = META_PLUGIN (data);
   MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
   MetaDisplay *display = meta_plugin_get_display (plugin);
-  GList *l = meta_get_window_actors (display);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  GList *l = meta_compositor_get_window_actors (compositor);
 
   while (l)
     {
@@ -434,11 +435,12 @@ start (MetaPlugin *plugin)
   MetaDisplay *display = meta_plugin_get_display (plugin);
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
   self->priv->background_group = meta_background_group_new ();
-  clutter_actor_insert_child_below (meta_get_window_group_for_display (display),
+  clutter_actor_insert_child_below (meta_compositor_get_window_group (compositor),
                                     self->priv->background_group, NULL);
 
   g_signal_connect (monitor_manager, "monitors-changed",
@@ -501,7 +503,9 @@ switch_workspace (MetaPlugin *plugin,
   clutter_actor_add_child (stage, workspace1);
   clutter_actor_add_child (stage, workspace2);
 
-  for (l = g_list_last (meta_get_window_actors (display)); l; l = l->prev)
+  for (l = g_list_last (meta_compositor_get_window_actors (compositor));
+       l;
+       l = l->prev)
     {
       MetaWindowActor *window_actor = l->data;
       ActorPrivate    *apriv	    = get_actor_private (window_actor);
@@ -803,6 +807,7 @@ static DisplayTilePreview *
 get_display_tile_preview (MetaDisplay *display)
 {
   DisplayTilePreview *preview;
+  MetaCompositor *compositor;
 
   if (!display_tile_preview_data_quark)
     {
@@ -820,7 +825,8 @@ get_display_tile_preview (MetaDisplay *display)
       clutter_actor_set_background_color (preview->actor, &COGL_COLOR_INIT (0, 0, 255, 255));
       clutter_actor_set_opacity (preview->actor, 100);
 
-      clutter_actor_add_child (meta_get_window_group_for_display (display), preview->actor);
+      compositor = meta_display_get_compositor (display);
+      clutter_actor_add_child (meta_compositor_get_window_group (compositor), preview->actor);
       g_signal_connect (display,
                         "closing",
                         G_CALLBACK (on_display_closing),

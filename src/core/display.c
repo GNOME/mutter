@@ -53,7 +53,6 @@
 #include "core/util-private.h"
 #include "core/window-private.h"
 #include "core/workspace-private.h"
-#include "meta/compositor-mutter.h"
 #include "meta/compositor.h"
 #include "meta/main.h"
 #include "meta/meta-backend.h"

@@ -52,7 +52,7 @@
 #include "backends/meta-gpu.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter/clutter-stage-view-private.h"
-#include "meta/compositor-mutter.h"
+#include "meta/compositor.h"
 #include "tests/meta-ref-test-utils.h"
 
 static void
@@ -154,9 +154,10 @@ capture_view (ClutterStageView *stage_view)
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
   MetaContext *context = meta_backend_get_context (backend);
   MetaDisplay *display = meta_context_get_display (context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
   CaptureViewData data = { 0 };
 
-  meta_disable_unredirect_for_display (display);
+  meta_compositor_disable_unredirect (compositor);
 
   data.loop = g_main_loop_new (NULL, FALSE);
   data.watch = meta_stage_watch_view (stage, stage_view,
@@ -172,7 +173,7 @@ capture_view (ClutterStageView *stage_view)
   g_assert_null (data.watch);
   g_assert_nonnull (data.out_image);
 
-  meta_enable_unredirect_for_display (display);
+  meta_compositor_enable_unredirect (compositor);
 
   return data.out_image;
 }

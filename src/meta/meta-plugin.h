@@ -24,10 +24,10 @@
 #include <gmodule.h>
 
 #include "clutter/clutter.h"
-#include "meta/compositor-mutter.h"
 #include "meta/compositor.h"
 #include "meta/meta-close-dialog.h"
 #include "meta/meta-inhibit-shortcuts-dialog.h"
+#include "meta/meta-window-actor.h"
 #include "meta/types.h"
 
 #define META_TYPE_PLUGIN (meta_plugin_get_type ())

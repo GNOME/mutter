@@ -3,7 +3,6 @@ mutter_public_headers = [
   'boxes.h',
   'common.h',
   'compositor.h',
-  'compositor-mutter.h',
   'display.h',
   'keybindings.h',
   'main.h',

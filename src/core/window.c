@@ -78,7 +78,6 @@
 #include "core/stack.h"
 #include "core/util-private.h"
 #include "core/workspace-private.h"
-#include "meta/compositor-mutter.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
