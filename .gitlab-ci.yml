@@ -596,27 +596,6 @@ test-mutter-coverity:
     paths:
       - coverity
 
-distinfo:
-  extends:
-    - .fdo.distribution-image@fedora
-    - .mutter.fedora@x86_64
-    - .build-mutter-base
-    - .test-setup
-  stage: deploy
-  needs:
-    - job: build-fedora-container@x86_64
-      artifacts: false
-  script:
-    - meson setup . build
-    - .gitlab-ci/export-artifact-path build > dist.env
-  artifacts:
-    reports:
-      dotenv: dist.env
-    paths:
-      - dist.env
-  rules:
-    - if: '$CI_COMMIT_TAG'
-
 dist-mutter:
   extends:
     - .fdo.distribution-image@fedora
@@ -650,22 +629,10 @@ dist-mutter:
 
 dist-mutter-tarball:
   extends: dist-mutter
-  needs:
-    - distinfo
   artifacts:
     expose_as: 'Get tarball here'
     paths:
-      - $TARBALL_ARTIFACT_PATH
-    reports:
-      dotenv: dist.env
-  rules:
-    - if: '$CI_COMMIT_TAG'
-
-release-module:
-  stage: deploy
-  needs:
-    - dist-mutter-tarball
-  extends: .release-module
+      - build/meson-dist/$CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.xz
   rules:
     - if: '$CI_COMMIT_TAG'
 
