@@ -66,12 +66,7 @@ gboolean meta_compositor_is_unredirect_inhibited (MetaCompositor *compositor);
 
 MetaDisplay * meta_compositor_get_display (MetaCompositor *compositor);
 
-MetaBackend * meta_compositor_get_backend (MetaCompositor *compositor);
-
 MetaWindowActor * meta_compositor_get_top_window_actor (MetaCompositor *compositor);
-
-ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
-
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
 gboolean meta_compositor_drag_window (MetaCompositor       *compositor,

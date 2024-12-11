@@ -368,7 +368,7 @@ meta_test_shell_start (MetaPlugin *plugin)
                     test_shell);
 
   if (test_shell->show_stage)
-    clutter_actor_show (meta_get_stage_for_display (display));
+    clutter_actor_show (meta_backend_get_stage (backend));
 }
 
 static void
@@ -378,6 +378,7 @@ meta_test_shell_switch_workspace (MetaPlugin          *plugin,
                                   MetaMotionDirection  direction)
 {
   MetaTestShell *test_shell = META_TEST_SHELL (plugin);
+  MetaCompositor *compositor;
   MetaDisplay *display;
   ClutterActor *stage;
   ClutterActor *workspace1, *workspace2;
@@ -391,7 +392,8 @@ meta_test_shell_switch_workspace (MetaPlugin          *plugin,
     }
 
   display = meta_plugin_get_display (plugin);
-  stage = meta_get_stage_for_display (display);
+  compositor = meta_display_get_compositor (display);
+  stage = CLUTTER_ACTOR (meta_compositor_get_stage (compositor));
 
   meta_display_get_size (display,
                          &screen_width,

@@ -209,27 +209,6 @@ get_compositor_for_display (MetaDisplay *display)
 }
 
 /**
- * meta_get_stage_for_display:
- * @display: a #MetaDisplay
- *
- * Returns: (transfer none): The #ClutterStage for the display
- */
-ClutterActor *
-meta_get_stage_for_display (MetaDisplay *display)
-{
-  MetaCompositor *compositor;
-  MetaCompositorPrivate *priv;
-
-  g_return_val_if_fail (display, NULL);
-
-  compositor = get_compositor_for_display (display);
-  g_return_val_if_fail (compositor, NULL);
-  priv = meta_compositor_get_instance_private (compositor);
-
-  return meta_backend_get_stage (priv->backend);
-}
-
-/**
  * meta_get_window_group_for_display:
  * @display: a #MetaDisplay
  *
@@ -1329,12 +1308,14 @@ void
 meta_compositor_flash_display (MetaCompositor *compositor,
                                MetaDisplay    *display)
 {
+  MetaBackend *backend;
   ClutterActor *stage;
   ClutterActor *flash;
   ClutterTransition *transition;
   gfloat width, height;
 
-  stage = meta_get_stage_for_display (display);
+  backend = meta_compositor_get_backend (compositor);
+  stage = meta_backend_get_stage (backend);
   clutter_actor_get_size (stage, &width, &height);
 
   flash = clutter_actor_new ();
@@ -1517,6 +1498,12 @@ meta_compositor_get_display (MetaCompositor *compositor)
   return priv->display;
 }
 
+/**
+ * meta_compositor_get_stage:
+ * @compositor: a #MetaCompositor
+ *
+ * Returns: (transfer none): The stage corresponding to @compositor
+ */
 ClutterStage *
 meta_compositor_get_stage (MetaCompositor *compositor)
 {
@@ -1526,6 +1513,12 @@ meta_compositor_get_stage (MetaCompositor *compositor)
   return CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
 }
 
+/**
+ * meta_compositor_get_backend:
+ * @compositor: a #MetaCompositor
+ *
+ * Returns: (transfer none): The backend corresponding to @compositor
+ */
 MetaBackend *
 meta_compositor_get_backend (MetaCompositor *compositor)
 {

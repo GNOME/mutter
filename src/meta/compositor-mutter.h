@@ -28,8 +28,6 @@
 #include "meta/types.h"
 
 /* Public compositor API */
-META_EXPORT
-ClutterActor *meta_get_stage_for_display            (MetaDisplay *display);
 
 META_EXPORT
 GList        *meta_get_window_actors                (MetaDisplay *display);

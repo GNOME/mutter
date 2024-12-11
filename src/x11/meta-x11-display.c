@@ -1276,7 +1276,7 @@ static gboolean
 stage_is_focused (MetaX11Display *x11_display)
 {
   MetaDisplay *display = x11_display->display;
-  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  ClutterStage *stage = CLUTTER_STAGE (meta_compositor_get_stage (display->compositor));
   Window xwindow = meta_x11_get_stage_window (stage);
 
   return x11_display->focus_xwindow == xwindow;
@@ -1286,7 +1286,7 @@ static gboolean
 stage_has_focus_actor (MetaX11Display *x11_display)
 {
   MetaDisplay *display = x11_display->display;
-  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  ClutterStage *stage = CLUTTER_STAGE (meta_compositor_get_stage (display->compositor));
   ClutterActor *key_focus;
 
   key_focus = clutter_stage_get_key_focus (stage);
@@ -1542,7 +1542,7 @@ meta_x11_display_new (MetaDisplay  *display,
   if (!meta_is_wayland_compositor ())
     {
       ClutterStage *stage =
-        CLUTTER_STAGE (meta_get_stage_for_display (display));
+        CLUTTER_STAGE (meta_backend_get_stage (backend));
 
       g_signal_connect_object (stage,
                                "notify::key-focus",
@@ -2327,7 +2327,7 @@ meta_x11_display_set_input_focus (MetaX11Display *x11_display,
   MetaFrame *frame;
 #ifdef HAVE_X11
   MetaDisplay *display = x11_display->display;
-  ClutterStage *stage = CLUTTER_STAGE (meta_get_stage_for_display (display));
+  ClutterStage *stage = CLUTTER_STAGE (meta_compositor_get_stage (display->compositor));
 #endif
 
   if (window && META_IS_WINDOW_X11 (window))

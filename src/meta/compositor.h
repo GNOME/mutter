@@ -71,3 +71,9 @@ MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
 
 META_EXPORT
 ClutterActor * meta_compositor_get_feedback_group (MetaCompositor *compositor);
+
+META_EXPORT
+MetaBackend * meta_compositor_get_backend (MetaCompositor *compositor);
+
+META_EXPORT
+ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);

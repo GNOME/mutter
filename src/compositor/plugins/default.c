@@ -453,7 +453,7 @@ start (MetaPlugin *plugin)
   if (meta_is_wayland_compositor ())
     init_keymap (self, backend);
 
-  clutter_actor_show (meta_get_stage_for_display (display));
+  clutter_actor_show (meta_backend_get_stage (backend));
 }
 
 static void
@@ -462,6 +462,7 @@ switch_workspace (MetaPlugin *plugin,
                   MetaMotionDirection direction)
 {
   MetaDisplay *display;
+  MetaCompositor *compositor;
   MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
   GList        *l;
   ClutterActor *stage;
@@ -475,7 +476,8 @@ switch_workspace (MetaPlugin *plugin,
     }
 
   display = meta_plugin_get_display (plugin);
-  stage = meta_get_stage_for_display (display);
+  compositor = meta_display_get_compositor (display);
+  stage = CLUTTER_ACTOR (meta_compositor_get_stage (compositor));
 
   meta_display_get_size (display,
                          &screen_width,
