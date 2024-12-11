@@ -144,8 +144,6 @@ MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 META_EXPORT_TEST
 MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
 
-META_EXPORT_TEST
-MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
                                                                   ClutterInputDevice *device);
 META_EXPORT_TEST

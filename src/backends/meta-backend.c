@@ -1442,6 +1442,12 @@ meta_backend_get_orientation_manager (MetaBackend *backend)
   return priv->orientation_manager;
 }
 
+/**
+ * meta_backend_get_cursor_tracker:
+ * @backend: a #MetaBackend
+ *
+ * Returns: (transfer none): The cursor tracker corresponding to @backend
+ */
 MetaCursorTracker *
 meta_backend_get_cursor_tracker (MetaBackend *backend)
 {

@@ -3195,7 +3195,9 @@ meta_window_x11_property_notify (MetaWindow *window,
 static int
 query_pressed_buttons (MetaWindow *window)
 {
-  MetaCursorTracker *tracker = meta_cursor_tracker_get_for_display (window->display);
+  MetaContext *context = meta_display_get_context (window->display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaCursorTracker *tracker = meta_backend_get_cursor_tracker (backend);
   ClutterModifierType mods;
   int button = 0;
 

@@ -311,26 +311,6 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                               G_TYPE_NONE, 0);
 }
 
-/**
- * meta_cursor_tracker_get_for_display:
- * @display: the #MetaDisplay
- *
- * Retrieves the cursor tracker object for @display.
- *
- * Returns: (transfer none): the cursor tracker object for @display.
- */
-MetaCursorTracker *
-meta_cursor_tracker_get_for_display (MetaDisplay *display)
-{
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-  MetaCursorTracker *tracker = meta_backend_get_cursor_tracker (backend);
-
-  g_assert (tracker);
-
-  return tracker;
-}
-
 static void
 set_window_cursor (MetaCursorTracker *tracker,
                    gboolean           has_cursor,
