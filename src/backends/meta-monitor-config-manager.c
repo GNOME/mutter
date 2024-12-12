@@ -792,7 +792,7 @@ find_monitor_config (MetaMonitorsConfig *config,
             meta_monitor_mode_get_spec (monitor_mode);
 
           if (meta_monitor_spec_equals (meta_monitor_get_spec (monitor),
-                                         monitor_config->monitor_spec) &&
+                                        monitor_config->monitor_spec) &&
               meta_monitor_mode_spec_has_similar_size (mode_spec,
                                                        monitor_config->mode_spec))
             return logical_monitor_config;
