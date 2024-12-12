@@ -63,21 +63,11 @@ struct _CoglAttribute
   const CoglAttributeNameState *name_state;
   gboolean normalized;
 
-  gboolean is_buffered;
-
-  union {
-    struct {
-      CoglAttributeBuffer *attribute_buffer;
-      size_t stride;
-      size_t offset;
-      int n_components;
-      CoglAttributeType type;
-    } buffered;
-    struct {
-      CoglContext *context;
-      CoglBoxedValue boxed;
-    } constant;
-  } d;
+  CoglAttributeBuffer *attribute_buffer;
+  size_t stride;
+  size_t offset;
+  int n_components;
+  CoglAttributeType type;
 };
 
 typedef enum

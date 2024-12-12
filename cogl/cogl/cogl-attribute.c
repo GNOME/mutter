@@ -56,11 +56,7 @@ cogl_attribute_dispose (GObject *object)
 {
   CoglAttribute *attribute = COGL_ATTRIBUTE (object);
 
-  if (attribute->is_buffered)
-    g_object_unref (attribute->d.buffered.attribute_buffer);
-  else
-    _cogl_boxed_value_destroy (&attribute->d.constant.boxed);
-
+  g_clear_object (&attribute->attribute_buffer);
 
   G_OBJECT_CLASS (cogl_attribute_parent_class)->dispose (object);
 }
@@ -216,8 +212,6 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
   CoglBuffer *buffer = COGL_BUFFER (attribute_buffer);
   CoglContext *ctx = buffer->context;
 
-  attribute->is_buffered = TRUE;
-
   attribute->name_state =
     g_hash_table_lookup (ctx->attribute_name_states_hash, name);
   if (!attribute->name_state)
@@ -229,11 +223,11 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
       attribute->name_state = name_state;
     }
 
-  attribute->d.buffered.attribute_buffer = g_object_ref (attribute_buffer);
-  attribute->d.buffered.stride = stride;
-  attribute->d.buffered.offset = offset;
-  attribute->d.buffered.n_components = n_components;
-  attribute->d.buffered.type = type;
+  attribute->attribute_buffer = g_object_ref (attribute_buffer);
+  attribute->stride = stride;
+  attribute->offset = offset;
+  attribute->n_components = n_components;
+  attribute->type = type;
 
   if (attribute->name_state->name_id != COGL_ATTRIBUTE_NAME_ID_CUSTOM_ARRAY)
     {
@@ -265,9 +259,8 @@ CoglAttributeBuffer *
 cogl_attribute_get_buffer (CoglAttribute *attribute)
 {
   g_return_val_if_fail (COGL_IS_ATTRIBUTE (attribute), NULL);
-  g_return_val_if_fail (attribute->is_buffered, NULL);
 
-  return attribute->d.buffered.attribute_buffer;
+  return attribute->attribute_buffer;
 }
 
 static gboolean
@@ -388,8 +381,5 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
 int
 _cogl_attribute_get_n_components (CoglAttribute *attribute)
 {
-  if (attribute->is_buffered)
-    return attribute->d.buffered.n_components;
-  else
-    return attribute->d.constant.boxed.size;
+  return attribute->n_components;
 }

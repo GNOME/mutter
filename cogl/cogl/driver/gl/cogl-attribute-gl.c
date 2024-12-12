@@ -105,61 +105,13 @@ setup_generic_buffered_attribute (CoglContext *context,
     return;
 
   GE( context, glVertexAttribPointer (attrib_location,
-                                      attribute->d.buffered.n_components,
-                                      attribute->d.buffered.type,
+                                      attribute->n_components,
+                                      attribute->type,
                                       attribute->normalized,
-                                      attribute->d.buffered.stride,
-                                      base + attribute->d.buffered.offset) );
+                                      attribute->stride,
+                                      base + attribute->offset) );
   _cogl_bitmask_set (&context->enable_custom_attributes_tmp,
                      attrib_location, TRUE);
-}
-
-static void
-setup_generic_const_attribute (CoglContext *context,
-                               CoglPipeline *pipeline,
-                               CoglAttribute *attribute)
-{
-  int name_index = attribute->name_state->name_index;
-  int attrib_location =
-    _cogl_pipeline_progend_glsl_get_attrib_location (pipeline, name_index);
-  int columns;
-  int i;
-
-  if (attrib_location == -1)
-    return;
-
-  if (attribute->d.constant.boxed.type == COGL_BOXED_MATRIX)
-    columns = attribute->d.constant.boxed.size;
-  else
-    columns = 1;
-
-  /* Note: it's ok to access a COGL_BOXED_FLOAT as a matrix with only
-   * one column... */
-
-  switch (attribute->d.constant.boxed.size)
-    {
-    case 1:
-      GE( context, glVertexAttrib1fv (attrib_location,
-                                      attribute->d.constant.boxed.v.matrix));
-      break;
-    case 2:
-      for (i = 0; i < columns; i++)
-        GE( context, glVertexAttrib2fv (attrib_location + i,
-                                        attribute->d.constant.boxed.v.matrix));
-      break;
-    case 3:
-      for (i = 0; i < columns; i++)
-        GE( context, glVertexAttrib3fv (attrib_location + i,
-                                        attribute->d.constant.boxed.v.matrix));
-      break;
-    case 4:
-      for (i = 0; i < columns; i++)
-        GE( context, glVertexAttrib4fv (attrib_location + i,
-                                        attribute->d.constant.boxed.v.matrix));
-      break;
-    default:
-      g_warn_if_reached ();
-    }
 }
 
 static void
@@ -273,29 +225,22 @@ _cogl_gl_flush_attributes_state (CoglDriver           *driver,
       CoglBuffer *buffer;
       uint8_t *base;
 
-      if (attribute->is_buffered)
-        {
-          attribute_buffer = cogl_attribute_get_buffer (attribute);
-          buffer = COGL_BUFFER (attribute_buffer);
+      attribute_buffer = cogl_attribute_get_buffer (attribute);
+      buffer = COGL_BUFFER (attribute_buffer);
 
-          /* Note: we don't try and catch errors with binding buffers
-           * here since OOM errors at this point indicate that nothing
-           * has yet been uploaded to attribute buffer which we
-           * consider to be a programmer error.
-           */
-          base =
-            _cogl_buffer_gl_bind (buffer,
-                                  COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
-                                  NULL);
+      /* Note: we don't try and catch errors with binding buffers
+        * here since OOM errors at this point indicate that nothing
+        * has yet been uploaded to attribute buffer which we
+        * consider to be a programmer error.
+        */
+      base =
+        _cogl_buffer_gl_bind (buffer,
+                              COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
+                              NULL);
 
-          setup_generic_buffered_attribute (ctx, pipeline, attribute, base);
+      setup_generic_buffered_attribute (ctx, pipeline, attribute, base);
 
-          _cogl_buffer_gl_unbind (buffer);
-        }
-      else
-        {
-          setup_generic_const_attribute (ctx, pipeline, attribute);
-        }
+      _cogl_buffer_gl_unbind (buffer);
     }
 
   apply_attribute_enable_updates (ctx, pipeline);
