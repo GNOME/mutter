@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-egl-gbm.h"
 
 #include <drm_fourcc.h>
 #include <errno.h>
@@ -292,66 +293,30 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   CoglEglImageFlags flags;
   CoglOffscreen *cogl_fbo = NULL;
   CoglTexture *cogl_tex;
-  uint32_t n_planes;
-  uint64_t *modifiers;
-  uint32_t *strides;
-  uint32_t *offsets;
   uint32_t width;
   uint32_t height;
-  uint32_t drm_format;
-  int *fds;
+  uint32_t format;
   gboolean result;
-  int dmabuf_fd = -1;
-  uint32_t i;
   const MetaFormatInfo *format_info;
 
-  dmabuf_fd = gbm_bo_get_fd (buffer_gbm->bo);
-  if (dmabuf_fd == -1)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_EXISTS,
-                   "Failed to export buffer's DMA fd: %s",
-                   g_strerror (errno));
-      return FALSE;
-    }
+  egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
+                                                egl_display,
+                                                buffer_gbm->bo,
+                                                error);
 
-  drm_format = gbm_bo_get_format (buffer_gbm->bo);
-
-  format_info = meta_format_info_from_drm_format (drm_format);
-  g_assert (format_info);
-  cogl_format = format_info->cogl_format;
-
-  width = gbm_bo_get_width (buffer_gbm->bo);
-  height = gbm_bo_get_height (buffer_gbm->bo);
-  n_planes = gbm_bo_get_plane_count (buffer_gbm->bo);
-  fds = g_alloca (sizeof (int) * n_planes);
-  strides = g_alloca (sizeof (uint32_t) * n_planes);
-  offsets = g_alloca (sizeof (uint32_t) * n_planes);
-  modifiers = g_alloca (sizeof (uint64_t) * n_planes);
-
-  for (i = 0; i < n_planes; i++)
-    {
-      fds[i] = dmabuf_fd;
-      strides[i] = gbm_bo_get_stride_for_plane (buffer_gbm->bo, i);
-      offsets[i] = gbm_bo_get_offset (buffer_gbm->bo, i);
-      modifiers[i] = gbm_bo_get_modifier (buffer_gbm->bo);
-    }
-
-  egl_image = meta_egl_create_dmabuf_image (egl,
-                                            egl_display,
-                                            width,
-                                            height,
-                                            drm_format,
-                                            n_planes,
-                                            fds,
-                                            strides,
-                                            offsets,
-                                            modifiers,
-                                            error);
   if (egl_image == EGL_NO_IMAGE_KHR)
     {
       result = FALSE;
       goto out;
     }
+
+  width = gbm_bo_get_width (buffer_gbm->bo);
+  height = gbm_bo_get_height (buffer_gbm->bo);
+  format = gbm_bo_get_format (buffer_gbm->bo);
+
+  format_info = meta_format_info_from_drm_format (format);
+  g_assert (format_info);
+  cogl_format = format_info->cogl_format;
 
   flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
   cogl_tex = cogl_texture_2d_new_from_egl_image (cogl_context,
@@ -388,7 +353,6 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
 
 out:
   g_clear_object (&cogl_fbo);
-  close (dmabuf_fd);
 
   return result;
 }
