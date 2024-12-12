@@ -769,9 +769,9 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
 }
 
 static MetaLogicalMonitorConfig *
-find_monitor_config (MetaMonitorsConfig *config,
-                     MetaMonitor        *monitor,
-                     MetaMonitorMode    *monitor_mode)
+find_logical_monitor_config (MetaMonitorsConfig *config,
+                             MetaMonitor        *monitor,
+                             MetaMonitorMode    *monitor_mode)
 {
   int mode_width, mode_height;
   GList *l;
@@ -822,8 +822,9 @@ get_last_scale_for_monitor (MetaMonitorConfigManager *config_manager,
       MetaMonitorsConfig *config = l->data;
       MetaLogicalMonitorConfig *logical_monitor_config;
 
-      logical_monitor_config = find_monitor_config (config,
-                                                    monitor, monitor_mode);
+      logical_monitor_config = find_logical_monitor_config (config,
+                                                            monitor,
+                                                            monitor_mode);
       if (logical_monitor_config)
         {
           *out_scale = logical_monitor_config->scale;
