@@ -17,9 +17,9 @@
 
 #include "config.h"
 
-#include "backends/edid.h"
 #include "backends/meta-output.h"
 
+#include "backends/edid.h"
 #include "backends/meta-crtc.h"
 
 enum
