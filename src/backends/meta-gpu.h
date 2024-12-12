@@ -21,7 +21,7 @@
 
 #include <glib-object.h>
 
-#include "backends/meta-monitor-manager-private.h"
+#include "core/util-private.h"
 
 #define META_TYPE_GPU (meta_gpu_get_type ())
 META_EXPORT_TEST

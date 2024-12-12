@@ -20,6 +20,7 @@
 #include "backends/meta-crtc.h"
 
 #include "backends/meta-gpu.h"
+#include "meta/meta-backend.h"
 
 enum
 {

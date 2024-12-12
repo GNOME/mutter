@@ -24,6 +24,7 @@
 
 #include <colord.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-color-profile.h"

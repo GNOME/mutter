@@ -21,6 +21,7 @@
 
 #include "backends/edid.h"
 #include "backends/meta-crtc.h"
+#include "backends/meta-monitor-manager-private.h"
 
 enum
 {
