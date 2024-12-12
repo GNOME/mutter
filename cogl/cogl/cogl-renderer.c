@@ -65,6 +65,7 @@
 
 #ifdef HAVE_X11
 #include "cogl/cogl-xlib-renderer.h"
+#include "cogl/cogl-xlib-renderer-private.h"
 #endif
 
 
@@ -200,13 +201,14 @@ void
 cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
                                         Display *xdisplay)
 {
+  CoglXlibRenderer *xlib_renderer;
   g_return_if_fail (COGL_IS_RENDERER (renderer));
 
   /* NB: Renderers are considered immutable once connected */
   g_return_if_fail (!renderer->connected);
 
-  renderer->foreign_xdpy = xdisplay;
-
+  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
+  xlib_renderer->xdpy = xdisplay;
 }
 #endif /* HAVE_X11 */
 

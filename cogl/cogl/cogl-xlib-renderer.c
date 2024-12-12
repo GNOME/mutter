@@ -46,7 +46,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char *_cogl_x11_display_name = NULL;
 static GList *_cogl_xlib_renderers = NULL;
 
 static void
@@ -86,33 +85,6 @@ static void
 unregister_xlib_renderer (CoglRenderer *renderer)
 {
   _cogl_xlib_renderers = g_list_remove (_cogl_xlib_renderers, renderer);
-}
-
-static Display *
-assert_xlib_display (CoglRenderer *renderer, GError **error)
-{
-  Display *xdpy = renderer->foreign_xdpy;
-  CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  /* A foreign display may have already been set... */
-  if (xdpy)
-    {
-      xlib_renderer->xdpy = xdpy;
-      return xdpy;
-    }
-
-  xdpy = XOpenDisplay (_cogl_x11_display_name);
-  if (xdpy == NULL)
-    {
-      g_set_error (error,
-                   COGL_RENDERER_ERROR,
-                   COGL_RENDERER_ERROR_XLIB_DISPLAY_OPEN,
-                   "Failed to open X Display %s", _cogl_x11_display_name);
-      return NULL;
-    }
-
-  xlib_renderer->xdpy = xdpy;
-  return xdpy;
 }
 
 static void
@@ -402,8 +374,7 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
   int damage_error;
   int randr_error;
 
-  if (!assert_xlib_display (renderer, error))
-    return FALSE;
+  g_return_val_if_fail (xlib_renderer->xdpy != NULL, FALSE);
 
   if (getenv ("COGL_X11_SYNC"))
     XSynchronize (xlib_renderer->xdpy, TRUE);
@@ -444,9 +415,6 @@ _cogl_xlib_renderer_disconnect (CoglRenderer *renderer)
 
   g_list_free_full (xlib_renderer->outputs, (GDestroyNotify) free_xlib_output);
   xlib_renderer->outputs = NULL;
-
-  if (!renderer->foreign_xdpy && xlib_renderer->xdpy)
-    XCloseDisplay (xlib_renderer->xdpy);
 
   g_clear_pointer (&renderer->custom_winsys_user_data, _xlib_renderer_data_free);
 

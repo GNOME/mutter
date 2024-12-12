@@ -56,10 +56,6 @@ struct _CoglRenderer
 
   CoglList idle_closures;
 
-#ifdef HAVE_X11
-  Display *foreign_xdpy;
-#endif
-
   CoglDriverId driver_id;
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)];
