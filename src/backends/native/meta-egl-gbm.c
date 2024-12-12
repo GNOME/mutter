@@ -46,10 +46,10 @@ create_gbm_bo_egl_image (MetaEgl        *egl,
   unsigned int width;
   unsigned int height;
   uint32_t i, n_planes;
-  uint32_t strides[4] = { 0 };
-  uint32_t offsets[4] = { 0 };
-  uint64_t modifiers[4] = { 0 };
-  int fds[4] = { -1, -1, -1, -1 };
+  uint32_t *strides;
+  uint32_t *offsets;
+  uint64_t *modifiers;
+  int *fds;
   uint32_t format;
   EGLImageKHR egl_image;
   gboolean use_modifiers;
@@ -67,6 +67,11 @@ create_gbm_bo_egl_image (MetaEgl        *egl,
   format = gbm_bo_get_format (shared_bo);
 
   n_planes = gbm_bo_get_plane_count (shared_bo);
+  fds = g_alloca (sizeof (*fds) * n_planes);
+  strides = g_alloca (sizeof (*strides) * n_planes);
+  offsets = g_alloca (sizeof (*offsets) * n_planes);
+  modifiers = g_alloca (sizeof (*modifiers) * n_planes);
+
   for (i = 0; i < n_planes; i++)
     {
       strides[i] = gbm_bo_get_stride_for_plane (shared_bo, i);
