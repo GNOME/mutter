@@ -543,7 +543,6 @@ build-wayland-only@x86_64:
     - pushd build
     - gcovr --root=..
         --filter='\.\./src/'
-        --filter='\.\./subprojects/'
         --filter='\.\./clutter/'
         --filter='\.\./cogl/'
         --filter='\.\./mtk/'
