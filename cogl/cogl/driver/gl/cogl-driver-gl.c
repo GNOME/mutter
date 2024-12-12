@@ -26,9 +26,9 @@
  * SOFTWARE.
  */
 
+#include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
-#include "cogl/driver/gl/cogl-buffer-gl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
 #include "cogl/driver/gl/cogl-attribute-gl-private.h"
 #include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
@@ -296,6 +296,12 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
   ctx->current_draw_buffer_changes &= ~state;
 }
 
+static CoglBufferImpl *
+cogl_driver_gl_create_buffer_impl (CoglDriver *driver)
+{
+  return g_object_new (COGL_TYPE_BUFFER_IMPL_GL, NULL);
+}
+
 static void
 cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
                                   CoglContext           *context,
@@ -533,11 +539,7 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
   driver_klass->flush_framebuffer_state = cogl_driver_gl_flush_framebuffer_state;
   driver_klass->flush_attributes_state = _cogl_gl_flush_attributes_state;
   driver_klass->clip_stack_flush = _cogl_clip_stack_gl_flush;
-  driver_klass->buffer_create = _cogl_buffer_gl_create;
-  driver_klass->buffer_destroy = _cogl_buffer_gl_destroy;
-  driver_klass->buffer_map_range = _cogl_buffer_gl_map_range;
-  driver_klass->buffer_unmap = _cogl_buffer_gl_unmap;
-  driver_klass->buffer_set_data = _cogl_buffer_gl_set_data;
+  driver_klass->create_buffer_impl = cogl_driver_gl_create_buffer_impl;
   driver_klass->sampler_init = cogl_driver_gl_sampler_init_init;
   driver_klass->sampler_free = cogl_driver_gl_sampler_free;
   driver_klass->set_uniform = cogl_driver_gl_set_uniform; /* XXX name is weird... */
