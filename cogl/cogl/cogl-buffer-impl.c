@@ -24,36 +24,20 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 #include "config.h"
 
-#include "cogl/cogl-driver-private.h"
+#include "cogl/cogl-buffer-impl-private.h"
 
-G_DEFINE_ABSTRACT_TYPE (CoglDriver, cogl_driver, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE (CoglBufferImpl, cogl_buffer_impl, G_TYPE_OBJECT)
 
-static CoglBufferImpl *
-cogl_driver_default_create_buffer_impl (CoglDriver *driver)
+static void
+cogl_buffer_impl_class_init (CoglBufferImplClass *klass)
 {
-  g_assert_not_reached ();
 }
 
 static void
-cogl_driver_class_init (CoglDriverClass *klass)
+cogl_buffer_impl_init (CoglBufferImpl *impl)
 {
-  klass->create_buffer_impl = cogl_driver_default_create_buffer_impl;
-}
-
-static void
-cogl_driver_init (CoglDriver *driver)
-{
-}
-
-CoglBufferImpl *
-cogl_driver_create_buffer_impl (CoglDriver *driver)
-{
-  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return klass->create_buffer_impl (driver);
 }

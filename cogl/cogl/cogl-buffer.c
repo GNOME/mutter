@@ -57,6 +57,7 @@ enum
   PROP_0,
 
   PROP_CONTEXT,
+  PROP_IMPL,
   PROP_SIZE,
   PROP_DEFAULT_TARGET,
   PROP_UPDATE_HINT,
@@ -108,14 +109,16 @@ cogl_buffer_dispose (GObject *object)
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {
-      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+      CoglBufferImplClass *impl_klass = COGL_BUFFER_IMPL_GET_CLASS (buffer->impl);
 
-      driver_klass->buffer_destroy (buffer->context->driver, buffer);
+      impl_klass->destroy (buffer->impl, buffer);
     }
   else
     {
       g_free (buffer->data);
     }
+
+  g_clear_object (&buffer->impl);
 
   G_OBJECT_CLASS (cogl_buffer_parent_class)->dispose (object);
 }
@@ -132,6 +135,10 @@ cogl_buffer_set_property (GObject      *gobject,
     {
     case PROP_CONTEXT:
       buffer->context = g_value_get_object (value);
+      break;
+
+    case PROP_IMPL:
+      buffer->impl = g_value_get_object (value);
       break;
 
     case PROP_SIZE:
@@ -157,9 +164,10 @@ cogl_buffer_set_property (GObject      *gobject,
           }
         else
           {
-            CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+            g_assert (buffer->impl != NULL);
+            CoglBufferImplClass *impl_klass = COGL_BUFFER_IMPL_GET_CLASS (buffer->impl);
 
-            driver_klass->buffer_create (buffer->context->driver, buffer);
+            impl_klass->create (buffer->impl, buffer);
 
             buffer->flags |= COGL_BUFFER_FLAG_BUFFER_OBJECT;
           }
@@ -187,6 +195,11 @@ cogl_buffer_class_init (CoglBufferClass *klass)
   obj_props[PROP_CONTEXT] =
     g_param_spec_object ("context", NULL, NULL,
                          COGL_TYPE_CONTEXT,
+                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IMPL] =
+    g_param_spec_object ("impl", NULL, NULL,
+                         COGL_TYPE_BUFFER_IMPL,
                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SIZE] =
@@ -295,15 +308,15 @@ cogl_buffer_map_range (CoglBuffer *buffer,
     }
   else
     {
-      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+      CoglBufferImplClass *impl_klass = COGL_BUFFER_IMPL_GET_CLASS (buffer->impl);
 
-      buffer->data = driver_klass->buffer_map_range (buffer->context->driver,
-                                                     buffer,
-                                                     offset,
-                                                     size,
-                                                     access,
-                                                     hints,
-                                                     error);
+      buffer->data = impl_klass->map_range (buffer->impl,
+                                            buffer,
+                                            offset,
+                                            size,
+                                            access,
+                                            hints,
+                                            error);
     }
 
   return buffer->data;
@@ -323,9 +336,9 @@ cogl_buffer_unmap (CoglBuffer *buffer)
     }
   else
     {
-      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+      CoglBufferImplClass *impl_klass = COGL_BUFFER_IMPL_GET_CLASS (buffer->impl);
 
-      driver_klass->buffer_unmap (buffer->context->driver, buffer);
+      impl_klass->unmap (buffer->impl, buffer);
     }
 }
 
@@ -419,14 +432,14 @@ cogl_buffer_set_data (CoglBuffer *buffer,
     }
   else
     {
-      CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (buffer->context->driver);
+      CoglBufferImplClass *impl_klass = COGL_BUFFER_IMPL_GET_CLASS (buffer->impl);
 
-      status = driver_klass->buffer_set_data (buffer->context->driver,
-                                              buffer,
-                                              offset,
-                                              data,
-                                              size,
-                                              &ignore_error);
+      status = impl_klass->set_data (buffer->impl,
+                                     buffer,
+                                     offset,
+                                     data,
+                                     size,
+                                     &ignore_error);
     }
 
   g_clear_error (&ignore_error);

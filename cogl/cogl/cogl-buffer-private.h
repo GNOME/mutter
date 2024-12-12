@@ -36,9 +36,8 @@
 
 #include <glib.h>
 
-#include "cogl/cogl-buffer.h"
+#include "cogl/cogl-buffer-impl-private.h"
 #include "cogl/cogl-context.h"
-#include "cogl/cogl-gl-header.h"
 
 G_BEGIN_DECLS
 
@@ -60,7 +59,8 @@ struct _CoglBuffer
 
   CoglBufferFlags flags;
 
-  GLuint gl_handle; /* OpenGL handle */
+  CoglBufferImpl *impl;
+
   unsigned int size; /* size of the buffer, in bytes */
   CoglBufferUpdateHint update_hint;
 

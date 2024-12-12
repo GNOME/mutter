@@ -37,7 +37,7 @@
 #include "cogl/cogl-buffer-private.h"
 #include "cogl/cogl-pixel-buffer.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/driver/gl/cogl-buffer-gl-private.h"
+#include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 
 uint8_t *

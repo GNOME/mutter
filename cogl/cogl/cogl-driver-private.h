@@ -30,6 +30,7 @@
 
 #pragma once
 
+#include "cogl/cogl-buffer-impl-private.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-framebuffer-private.h"
@@ -94,36 +95,7 @@ struct _CoglDriverClass
                         CoglClipStack   *stack,
                         CoglFramebuffer *framebuffer);
 
-  /* Enables the driver to create some meta data to represent a buffer
-   * but with no corresponding storage allocated yet.
-   */
-  void (* buffer_create) (CoglDriver *driver,
-                          CoglBuffer *buffer);
-
-  void (* buffer_destroy) (CoglDriver *driver,
-                           CoglBuffer *buffer);
-
-  /* Maps a buffer into the CPU */
-  void * (* buffer_map_range) (CoglDriver       *driver,
-                               CoglBuffer       *buffer,
-                               size_t            offset,
-                               size_t            size,
-                               CoglBufferAccess  access,
-                               CoglBufferMapHint hints,
-                               GError          **error);
-
-  /* Unmaps a buffer */
-  void (* buffer_unmap) (CoglDriver *driver,
-                         CoglBuffer *buffer);
-
-  /* Uploads data to the buffer without needing to map it necessarily
-   */
-  gboolean (* buffer_set_data) (CoglDriver  *driver,
-                                CoglBuffer  *buffer,
-                                unsigned int offset,
-                                const void  *data,
-                                unsigned int size,
-                                GError     **error);
+  CoglBufferImpl * (* create_buffer_impl) (CoglDriver *driver);
 
   void (*sampler_init) (CoglDriver            *driver,
                         CoglContext           *context,
@@ -154,6 +126,8 @@ struct _CoglDriverClass
 };
 
 #define COGL_TYPE_DRIVER (cogl_driver_get_type ())
+
+CoglBufferImpl * cogl_driver_create_buffer_impl (CoglDriver *driver);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 

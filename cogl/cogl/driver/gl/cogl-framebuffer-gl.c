@@ -40,7 +40,7 @@
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
-#include "cogl/driver/gl/cogl-buffer-gl-private.h"
+#include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
   #include "cogl/driver/gl/cogl-driver-gl-private.h"
   #include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
 

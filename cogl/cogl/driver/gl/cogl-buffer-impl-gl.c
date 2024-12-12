@@ -35,8 +35,17 @@
 #include "config.h"
 
 #include "cogl/cogl-context-private.h"
-#include "cogl/driver/gl/cogl-buffer-gl-private.h"
+#include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
+
+struct _CoglBufferImplGL
+{
+  CoglBufferImpl parent_instance;
+
+  GLuint gl_handle; /* OpenGL handle */
+};
+
+G_DEFINE_FINAL_TYPE (CoglBufferImplGL, cogl_buffer_impl_gl, COGL_TYPE_BUFFER_IMPL)
 
 /*
  * GL/GLES compatibility defines for the buffer API:
@@ -76,20 +85,23 @@
 #define GL_MAP_INVALIDATE_BUFFER_BIT 0x0008
 #endif
 
-void
-_cogl_buffer_gl_create (CoglDriver *driver,
-                        CoglBuffer *buffer)
+static void
+cogl_buffer_impl_gl_create (CoglBufferImpl *impl,
+                            CoglBuffer     *buffer)
 {
+  CoglBufferImplGL *gl_impl = COGL_BUFFER_IMPL_GL (impl);
   CoglContext *ctx = buffer->context;
 
-  GE (ctx, glGenBuffers (1, &buffer->gl_handle));
+  GE (ctx, glGenBuffers (1, &gl_impl->gl_handle));
 }
 
-void
-_cogl_buffer_gl_destroy (CoglDriver *driver,
-                         CoglBuffer *buffer)
+static void
+cogl_buffer_impl_gl_destroy (CoglBufferImpl *impl,
+                             CoglBuffer     *buffer)
 {
-  GE( buffer->context, glDeleteBuffers (1, &buffer->gl_handle) );
+  CoglBufferImplGL *gl_impl = COGL_BUFFER_IMPL_GL (impl);
+
+  GE (buffer->context, glDeleteBuffers (1, &gl_impl->gl_handle));
 }
 
 static GLenum
@@ -168,8 +180,9 @@ _cogl_buffer_access_to_gl_enum (CoglBufferAccess access)
 }
 
 static void *
-_cogl_buffer_bind_no_create (CoglBuffer *buffer,
-                             CoglBufferBindTarget target)
+cogl_buffer_impl_gl_bind_no_create (CoglBufferImplGL     *gl_impl,
+                                    CoglBuffer           *buffer,
+                                    CoglBufferBindTarget  target)
 {
   CoglContext *ctx = buffer->context;
 
@@ -188,21 +201,21 @@ _cogl_buffer_bind_no_create (CoglBuffer *buffer,
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {
       GLenum gl_target = convert_bind_target_to_gl_target (buffer->last_target);
-      GE( ctx, glBindBuffer (gl_target, buffer->gl_handle) );
+      GE( ctx, glBindBuffer (gl_target, gl_impl->gl_handle) );
       return NULL;
     }
   else
     return buffer->data;
 }
 
-void *
-_cogl_buffer_gl_map_range (CoglDriver         *driver,
-                           CoglBuffer         *buffer,
-                           size_t              offset,
-                           size_t              size,
-                           CoglBufferAccess    access,
-                           CoglBufferMapHint   hints,
-                           GError            **error)
+static void *
+cogl_buffer_impl_gl_map_range (CoglBufferImpl     *impl,
+                               CoglBuffer         *buffer,
+                               size_t              offset,
+                               size_t              size,
+                               CoglBufferAccess    access,
+                               CoglBufferMapHint   hints,
+                               GError            **error)
 {
   uint8_t *data;
   CoglBufferBindTarget target;
@@ -222,7 +235,9 @@ _cogl_buffer_gl_map_range (CoglDriver         *driver,
     }
 
   target = buffer->last_target;
-  _cogl_buffer_bind_no_create (buffer, target);
+  cogl_buffer_impl_gl_bind_no_create (COGL_BUFFER_IMPL_GL (buffer->impl),
+                                      buffer,
+                                      target);
 
   gl_target = convert_bind_target_to_gl_target (target);
 
@@ -328,13 +343,15 @@ _cogl_buffer_gl_map_range (CoglDriver         *driver,
   return data;
 }
 
-void
-_cogl_buffer_gl_unmap (CoglDriver *driver,
-                       CoglBuffer *buffer)
+static void
+cogl_buffer_impl_gl_unmap (CoglBufferImpl *impl,
+                           CoglBuffer     *buffer)
 {
   CoglContext *ctx = buffer->context;
 
-  _cogl_buffer_bind_no_create (buffer, buffer->last_target);
+  cogl_buffer_impl_gl_bind_no_create (COGL_BUFFER_IMPL_GL (impl),
+                                      buffer,
+                                      buffer->last_target);
 
   GE( ctx, glUnmapBuffer (convert_bind_target_to_gl_target
                           (buffer->last_target)) );
@@ -343,13 +360,13 @@ _cogl_buffer_gl_unmap (CoglDriver *driver,
   _cogl_buffer_gl_unbind (buffer);
 }
 
-gboolean
-_cogl_buffer_gl_set_data (CoglDriver    *driver,
-                          CoglBuffer    *buffer,
-                          unsigned int   offset,
-                          const void    *data,
-                          unsigned int   size,
-                          GError       **error)
+static gboolean
+cogl_buffer_impl_gl_set_data (CoglBufferImpl  *impl,
+                              CoglBuffer      *buffer,
+                              unsigned int     offset,
+                              const void      *data,
+                              unsigned int     size,
+                              GError         **error)
 {
   CoglBufferBindTarget target;
   GLenum gl_target;
@@ -393,7 +410,9 @@ _cogl_buffer_gl_bind (CoglBuffer *buffer,
 {
   void *ret;
 
-  ret = _cogl_buffer_bind_no_create (buffer, target);
+  ret = cogl_buffer_impl_gl_bind_no_create (COGL_BUFFER_IMPL_GL (buffer->impl),
+                                            buffer,
+                                            target);
 
   /* create an empty store if we don't have one yet. creating the store
    * lazily allows the user of the CoglBuffer to set a hint before the
@@ -428,4 +447,21 @@ _cogl_buffer_gl_unbind (CoglBuffer *buffer)
     }
 
   ctx->current_buffer[buffer->last_target] = NULL;
+}
+
+static void
+cogl_buffer_impl_gl_class_init (CoglBufferImplGLClass *klass)
+{
+  CoglBufferImplClass *buffer_klass = COGL_BUFFER_IMPL_CLASS (klass);
+
+  buffer_klass->create = cogl_buffer_impl_gl_create;
+  buffer_klass->destroy = cogl_buffer_impl_gl_destroy;
+  buffer_klass->map_range = cogl_buffer_impl_gl_map_range;
+  buffer_klass->unmap = cogl_buffer_impl_gl_unmap;
+  buffer_klass->set_data = cogl_buffer_impl_gl_set_data;
+}
+
+static void
+cogl_buffer_impl_gl_init (CoglBufferImplGL *impl)
+{
 }
