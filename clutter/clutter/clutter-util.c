@@ -66,13 +66,12 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
       /* XXX: we should find a way to cache this per actor */
       graphene_matrix_multiply (modelview, projection, &modelview_projection);
 
-      cogl_graphene_matrix_project_points (&modelview_projection,
-                                           3,
-                                           sizeof (graphene_point3d_t),
-                                           vertices_in,
-                                           sizeof (ClutterVertex4),
-                                           vertices_tmp,
-                                           n_vertices);
+      cogl_graphene_matrix_project_points_f3 (&modelview_projection,
+                                              sizeof (graphene_point3d_t),
+                                              vertices_in,
+                                              sizeof (ClutterVertex4),
+                                              vertices_tmp,
+                                              n_vertices);
     }
   else
     {
@@ -84,13 +83,12 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
                                              vertices_tmp,
                                              n_vertices);
 
-      cogl_graphene_matrix_project_points (projection,
-                                           3,
-                                           sizeof (ClutterVertex4),
-                                           vertices_tmp,
-                                           sizeof (ClutterVertex4),
-                                           vertices_tmp,
-                                           n_vertices);
+      cogl_graphene_matrix_project_points_f3 (projection,
+                                              sizeof (ClutterVertex4),
+                                              vertices_tmp,
+                                              sizeof (ClutterVertex4),
+                                              vertices_tmp,
+                                              n_vertices);
     }
 
   for (i = 0; i < n_vertices; i++)

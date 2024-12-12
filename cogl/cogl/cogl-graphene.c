@@ -91,34 +91,6 @@ transform_points_f2 (const graphene_matrix_t *matrix,
 }
 
 static void
-project_points_f2 (const graphene_matrix_t *matrix,
-                   size_t                   stride_in,
-                   const void              *points_in,
-                   size_t                   stride_out,
-                   void                    *points_out,
-                   int                      n_points)
-{
-  graphene_vec4_t rows[4];
-  int i;
-
-  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
-
-  for (i = 0; i < n_points; i++)
-    {
-      Point2f p = *(Point2f *)((uint8_t *)points_in + i * stride_in);
-      Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
-      graphene_vec4_t point;
-
-      graphene_vec4_init (&point, p.x, p.y, 0.f, 1.f);
-
-      o->x = graphene_vec4_dot (&rows[0], &point);
-      o->y = graphene_vec4_dot (&rows[1], &point);
-      o->z = graphene_vec4_dot (&rows[2], &point);
-      o->w = graphene_vec4_dot (&rows[3], &point);
-    }
-}
-
-static void
 transform_points_f3 (const graphene_matrix_t *matrix,
                      size_t                   stride_in,
                      const void              *points_in,
@@ -145,13 +117,13 @@ transform_points_f3 (const graphene_matrix_t *matrix,
     }
 }
 
-static void
-project_points_f3 (const graphene_matrix_t *matrix,
-                   size_t                   stride_in,
-                   const void              *points_in,
-                   size_t                   stride_out,
-                   void                    *points_out,
-                   int                      n_points)
+void
+cogl_graphene_matrix_project_points_f3 (const graphene_matrix_t *matrix,
+                                        size_t                   stride_in,
+                                        const void              *points_in,
+                                        size_t                   stride_out,
+                                        void                    *points_out,
+                                        int                      n_points)
 {
   graphene_vec4_t rows[4];
   int i;
@@ -173,33 +145,6 @@ project_points_f3 (const graphene_matrix_t *matrix,
     }
 }
 
-static void
-project_points_f4 (const graphene_matrix_t *matrix,
-                   size_t                   stride_in,
-                   const void              *points_in,
-                   size_t                   stride_out,
-                   void                    *points_out,
-                   int                      n_points)
-{
-  graphene_vec4_t rows[4];
-  int i;
-
-  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
-
-  for (i = 0; i < n_points; i++)
-    {
-      Point4f p = *(Point4f *)((uint8_t *)points_in + i * stride_in);
-      Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
-      graphene_vec4_t point;
-
-      graphene_vec4_init (&point, p.x, p.y, p.z, p.w);
-
-      o->x = graphene_vec4_dot (&rows[0], &point);
-      o->y = graphene_vec4_dot (&rows[1], &point);
-      o->z = graphene_vec4_dot (&rows[2], &point);
-      o->w = graphene_vec4_dot (&rows[3], &point);
-    }
-}
 
 void
 cogl_graphene_matrix_project_point (const graphene_matrix_t *matrix,
@@ -246,39 +191,5 @@ cogl_graphene_matrix_transform_points (const graphene_matrix_t *matrix,
                            stride_in, points_in,
                            stride_out, points_out,
                            n_points);
-    }
-}
-
-void
-cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
-                                     int                      n_components,
-                                     size_t                   stride_in,
-                                     const void              *points_in,
-                                     size_t                   stride_out,
-                                     void                    *points_out,
-                                     int                      n_points)
-{
-  if (n_components == 2)
-    {
-      project_points_f2 (matrix,
-                         stride_in, points_in,
-                         stride_out, points_out,
-                         n_points);
-    }
-  else if (n_components == 3)
-    {
-      project_points_f3 (matrix,
-                         stride_in, points_in,
-                         stride_out, points_out,
-                         n_points);
-    }
-  else
-    {
-      g_return_if_fail (n_components == 4);
-
-      project_points_f4 (matrix,
-                         stride_in, points_in,
-                         stride_out, points_out,
-                         n_points);
     }
 }
