@@ -23,6 +23,11 @@ TRANSFORM_STRINGS = {
     7: 'flipped-270',
 }
 
+COLOR_MODES = {
+    0: 'default',
+    1: 'BT.2100',
+}
+
 
 class Source(enum.Enum):
     DBUS = 1
@@ -69,6 +74,13 @@ class MonitorConfig:
         elif not is_last and level not in lines:
             lines.append(level)
 
+    def maybe_describe(self, property, value):
+        if property == 'color-modes':
+            return [COLOR_MODES.get(color_mode)
+                    for color_mode in value]
+        else:
+            return value
+
     def print_properties(self, *, level, lines, properties):
         property_list = list(properties)
 
@@ -76,8 +88,9 @@ class MonitorConfig:
                         data=f'Properties: ({len(property_list)})')
         for property in property_list:
             is_last = property == property_list[-1]
+            property_value = self.maybe_describe(property, properties[property])
             self.print_data(level=level + 1, is_last=is_last, lines=lines,
-                            data=f'{property} ⇒ {properties[property]}')
+                            data=f'{property} ⇒ {property_value}')
 
     def print_current_state(self, short):
         variant = self.get_current_state()
