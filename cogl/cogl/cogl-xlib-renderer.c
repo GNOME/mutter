@@ -46,8 +46,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static GList *_cogl_xlib_renderers = NULL;
-
 static void
 _xlib_renderer_data_free (CoglXlibRenderer *data)
 {
@@ -67,24 +65,6 @@ _cogl_xlib_renderer_get_data (CoglRenderer *renderer)
     renderer->custom_winsys_user_data = g_new0 (CoglXlibRenderer, 1);
 
   return renderer->custom_winsys_user_data;
-}
-
-static void
-register_xlib_renderer (CoglRenderer *renderer)
-{
-  GList *l;
-
-  for (l = _cogl_xlib_renderers; l; l = l->next)
-    if (l->data == renderer)
-      return;
-
-  _cogl_xlib_renderers = g_list_prepend (_cogl_xlib_renderers, renderer);
-}
-
-static void
-unregister_xlib_renderer (CoglRenderer *renderer)
-{
-  _cogl_xlib_renderers = g_list_remove (_cogl_xlib_renderers, renderer);
 }
 
 static void
@@ -398,8 +378,6 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
                  | RROutputPropertyNotifyMask);
   update_outputs (renderer, FALSE);
 
-  register_xlib_renderer (renderer);
-
   _cogl_renderer_add_native_filter (renderer,
                                     (CoglNativeFilterFunc)randr_filter,
                                     renderer);
@@ -417,8 +395,6 @@ _cogl_xlib_renderer_disconnect (CoglRenderer *renderer)
   xlib_renderer->outputs = NULL;
 
   g_clear_pointer (&renderer->custom_winsys_user_data, _xlib_renderer_data_free);
-
-  unregister_xlib_renderer (renderer);
 }
 
 Display *
