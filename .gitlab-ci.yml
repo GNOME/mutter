@@ -385,6 +385,7 @@ check-code-style:
         --werror
         --fatal-meson-warnings
         --warnlevel 2
+        --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Db_coverage=true
         -Ddocs=true
@@ -430,6 +431,7 @@ build-without-opengl-and-glx@x86_64:
     - meson setup . build
         --prefix /usr
         --werror
+        --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Dopengl=false
         -Dglx=false
@@ -454,6 +456,7 @@ build-without-native-backend-and-wayland@x86_64:
     - meson setup . build
         --prefix /usr
         --werror
+        --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Dnative_backend=false
         -Dudev=false
@@ -479,6 +482,7 @@ build-wayland-xwayland@x86_64:
     - meson setup . build
         --prefix /usr
         --werror
+        --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=true
@@ -503,6 +507,7 @@ build-wayland-only@x86_64:
     - meson setup . build
         --prefix /usr
         --werror
+        --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=false
@@ -709,6 +714,7 @@ dist-mutter:
     - meson setup . build
         --prefix /usr
         --werror
+        --wrap-mode nofallback
         -Dbuildtype=debugoptimized
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - mkdir -m 1777 /tmp/.X11-unix
