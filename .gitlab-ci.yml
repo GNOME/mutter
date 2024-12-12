@@ -427,7 +427,9 @@ build-without-opengl-and-glx@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
-    - meson setup . build --werror --prefix /usr
+    - meson setup . build
+        --prefix /usr
+        --werror
         -Dbuildtype=debugoptimized
         -Dopengl=false
         -Dglx=false
@@ -449,7 +451,9 @@ build-without-native-backend-and-wayland@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
-    - meson setup . build --werror --prefix /usr
+    - meson setup . build
+        --prefix /usr
+        --werror
         -Dbuildtype=debugoptimized
         -Dnative_backend=false
         -Dudev=false
@@ -472,7 +476,9 @@ build-wayland-xwayland@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
-    - meson setup . build --werror --prefix /usr
+    - meson setup . build
+        --prefix /usr
+        --werror
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=true
@@ -494,7 +500,9 @@ build-wayland-only@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
-    - meson setup . build --werror --prefix /usr
+    - meson setup . build
+        --prefix /usr
+        --werror
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=false
@@ -698,7 +706,9 @@ dist-mutter:
     - job: build-fedora-container@x86_64
       artifacts: false
   script:
-    - meson setup . build --werror --prefix /usr
+    - meson setup . build
+        --prefix /usr
+        --werror
         -Dbuildtype=debugoptimized
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - mkdir -m 1777 /tmp/.X11-unix
