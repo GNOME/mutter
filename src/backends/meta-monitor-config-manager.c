@@ -802,6 +802,20 @@ find_logical_monitor_config (MetaMonitorsConfig *config,
   return NULL;
 }
 
+static GList *
+get_relevant_configs (MetaMonitorConfigManager *config_manager)
+{
+  GList *configs = NULL;
+
+  if (config_manager->current_config)
+    configs = g_list_append (configs, config_manager->current_config);
+
+  configs = g_list_concat (configs,
+                           g_list_copy (config_manager->config_history.head));
+
+  return configs;
+}
+
 static gboolean
 get_last_scale_for_monitor (MetaMonitorConfigManager *config_manager,
                             MetaMonitor              *monitor,
@@ -811,11 +825,7 @@ get_last_scale_for_monitor (MetaMonitorConfigManager *config_manager,
   g_autoptr (GList) configs = NULL;
   GList *l;
 
-  if (config_manager->current_config)
-    configs = g_list_append (configs, config_manager->current_config);
-
-  configs = g_list_concat (configs,
-                           g_list_copy (config_manager->config_history.head));
+  configs = get_relevant_configs (config_manager);
 
   for (l = configs; l; l = l->next)
     {
