@@ -106,6 +106,8 @@ libmutter_name = 'mutter-' + libmutter_api_version
 mutter_installed_tests_datadir = datadir / 'installed-tests' / libmutter_name
 mutter_installed_tests_libexecdir = libexecdir / 'installed-tests' / libmutter_name
 
+subproject('gvdb')
+
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
