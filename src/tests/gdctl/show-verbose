@@ -30,10 +30,11 @@ Monitors:
 │  │       ├──Preferred scale: 1.0
 │  │       ├──Supported scales: [1.0, 1.25, 1.5, 1.7475727796554565]
 │  │       └──Properties: (0)
-│  └──Properties: (3)
+│  └──Properties: (4)
 │      ├──is-builtin ⇒  no
 │      ├──display-name ⇒  MetaProduct's Inc. 14"
-│      └──is-for-lease ⇒  no
+│      ├──is-for-lease ⇒  no
+│      └──supported-color-modes ⇒  [0]
 └──Monitor DP-2 (MetaProduct's Inc. 13")
    ├──Vendor: MetaProduct's Inc.
    ├──Product: MetaMonitor
@@ -65,10 +66,11 @@ Monitors:
    │       ├──Preferred scale: 1.0
    │       ├──Supported scales: [1.0]
    │       └──Properties: (0)
-   └──Properties: (3)
+   └──Properties: (4)
        ├──is-builtin ⇒  no
        ├──display-name ⇒  MetaProduct's Inc. 13"
-       └──is-for-lease ⇒  no
+       ├──is-for-lease ⇒  no
+       └──supported-color-modes ⇒  [0]
 
 Logical monitors:
 ├──Logical monitor #1

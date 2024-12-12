@@ -2002,6 +2002,23 @@ request_persistent_confirmation (MetaMonitorManager *manager)
 #define LOGICAL_MONITOR_FORMAT "(iidub" LOGICAL_MONITOR_MONITORS_FORMAT "a{sv})"
 #define LOGICAL_MONITORS_FORMAT "a" LOGICAL_MONITOR_FORMAT
 
+static GVariant *
+generate_color_modes_variant (MetaMonitor *monitor)
+{
+  GVariantBuilder builder;
+  GList *l;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("au"));
+  for (l = meta_monitor_get_supported_color_modes (monitor); l; l = l->next)
+    {
+      MetaColorMode color_mode = GPOINTER_TO_INT (l->data);
+
+      g_variant_builder_add (&builder, "u", color_mode);
+    }
+
+  return g_variant_builder_end (&builder);
+}
+
 static gboolean
 meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
                                                GDBusMethodInvocation *invocation,
@@ -2158,6 +2175,10 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "is-for-lease",
                              g_variant_new_boolean (is_for_lease));
+
+      g_variant_builder_add (&monitor_properties_builder, "{sv}",
+                             "supported-color-modes",
+                             generate_color_modes_variant (monitor));
 
       g_variant_builder_add (&monitors_builder, MONITOR_FORMAT,
                              monitor_spec->connector,

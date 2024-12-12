@@ -393,10 +393,15 @@
 	                              Variable Refresh Rate is active (absence
 	                              of this means unknown)
 	    - "is-for-lease" (b): whether the monitor is for lease or not
+	    - "supported-color-modes" (au): list of supported color modes
 
         Possible mode flags:
 	  1 : preferred mode
 	  2 : current mode
+
+        Available color modes:
+          0 : default
+          1 : BT.2100
 
 
 	@logical_monitors represent current logical monitor configuration

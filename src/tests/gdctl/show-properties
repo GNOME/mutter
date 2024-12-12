@@ -12,10 +12,11 @@ Monitors:
 │  │       └──Properties: (2)
 │  │           ├──is-current ⇒  yes
 │  │           └──is-preferred ⇒  yes
-│  └──Properties: (3)
+│  └──Properties: (4)
 │      ├──is-builtin ⇒  no
 │      ├──display-name ⇒  MetaProduct's Inc. 14"
-│      └──is-for-lease ⇒  no
+│      ├──is-for-lease ⇒  no
+│      └──supported-color-modes ⇒  [0]
 └──Monitor DP-2 (MetaProduct's Inc. 13")
    ├──Vendor: MetaProduct's Inc.
    ├──Product: MetaMonitor
@@ -29,10 +30,11 @@ Monitors:
    │       └──Properties: (2)
    │           ├──is-current ⇒  yes
    │           └──is-preferred ⇒  yes
-   └──Properties: (3)
+   └──Properties: (4)
        ├──is-builtin ⇒  no
        ├──display-name ⇒  MetaProduct's Inc. 13"
-       └──is-for-lease ⇒  no
+       ├──is-for-lease ⇒  no
+       └──supported-color-modes ⇒  [0]
 
 Logical monitors:
 ├──Logical monitor #1
