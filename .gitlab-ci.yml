@@ -626,7 +626,10 @@ coverage:
     - compgen -G "coverage-*.json" > /dev/null || exit 0
     - mkdir coveragereport
     - gcovr --add-tracefile 'coverage-*.json'
-        --html-details --print-summary --output coveragereport/index.html
+        --html-details
+        --html-theme github.blue
+        --print-summary
+        --output coveragereport/index.html
     - gcovr --add-tracefile 'coverage-*.json'
         --xml --output coveragereport/coverage.xml
   artifacts:
