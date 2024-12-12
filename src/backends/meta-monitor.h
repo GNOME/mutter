@@ -355,4 +355,6 @@ void meta_monitor_set_for_lease (MetaMonitor *monitor,
 META_EXPORT_TEST
 gboolean meta_monitor_is_for_lease (MetaMonitor *monitor);
 
+GList * meta_monitor_get_supported_color_modes (MetaMonitor *monitor);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorSpec, meta_monitor_spec_free)

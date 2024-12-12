@@ -40,6 +40,12 @@ typedef enum
   META_OUTPUT_HDR_METADATA_EOTF_HLG,
 } MetaOutputHdrMetadataEOTF;
 
+typedef enum _MetaColorMode
+{
+  META_COLOR_MODE_DEFAULT = 0,
+  META_COLOR_MODE_BT2100 = 1,
+} MetaColorMode;
+
 typedef enum _MetaOutputRGBRange
 {
   META_OUTPUT_RGB_RANGE_UNKNOWN = 0,

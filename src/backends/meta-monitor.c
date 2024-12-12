@@ -70,6 +70,8 @@ typedef struct _MetaMonitorPrivate
   char *display_name;
 
   gboolean is_for_lease;
+
+  GList *color_modes;
 } MetaMonitorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitor, meta_monitor, G_TYPE_OBJECT)
@@ -201,6 +203,27 @@ meta_monitor_generate_spec (MetaMonitor *monitor)
   };
 
   priv->spec = monitor_spec;
+}
+
+static void
+meta_monitor_init_supported_color_modes (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
+
+  priv->color_modes =
+    g_list_append (NULL, GINT_TO_POINTER (META_COLOR_MODE_DEFAULT));
+
+  if ((output_info->supported_color_spaces &
+       (1 << META_OUTPUT_COLORSPACE_BT2020)) &&
+      (output_info->supported_hdr_eotfs &
+       (1 << META_OUTPUT_HDR_METADATA_EOTF_PQ)))
+    {
+      priv->color_modes =
+        g_list_append (priv->color_modes,
+                       GINT_TO_POINTER (META_COLOR_MODE_BT2100));
+    }
 }
 
 static const double known_diagonals[] = {
@@ -588,6 +611,7 @@ meta_monitor_finalize (GObject *object)
   MetaMonitor *monitor = META_MONITOR (object);
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
+  g_list_free (priv->color_modes);
   g_hash_table_destroy (priv->mode_ids);
   g_list_free_full (priv->modes, (GDestroyNotify) meta_monitor_mode_free);
   meta_monitor_spec_free (priv->spec);
@@ -837,6 +861,7 @@ meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
   meta_output_set_monitor (output, monitor);
 
   meta_monitor_generate_spec (monitor);
+  meta_monitor_init_supported_color_modes (monitor);
 
   meta_monitor_normal_generate_modes (monitor_normal);
 
@@ -2361,6 +2386,14 @@ meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
     }
 
   return TRUE;
+}
+
+GList *
+meta_monitor_get_supported_color_modes (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  return priv->color_modes;
 }
 
 gboolean
