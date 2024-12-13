@@ -111,6 +111,15 @@ class MonitorsState:
     def get_current_state(self) -> GLib.Variant:
         raise NotImplementedError()
 
+    def get_monitors_variant(self):
+        return self.current_state[1]
+
+    def get_logical_monitors_variant(self):
+        return self.current_state[2]
+
+    def get_properties_variant(self):
+        return self.current_state[3]
+
     def print_mode(self, mode, is_last, show_properties, lines):
         print_data(level=2, is_last=is_last, lines=lines, data=f"{mode[0]}")
 
@@ -147,10 +156,8 @@ class MonitorsState:
             print_properties(level=3, lines=lines, properties=mode_properties)
 
     def print_current_state(self, show_modes=False, show_properties=False):
-        variant = self.current_state
-
         print("Monitors:")
-        monitors = variant[1]
+        monitors = self.get_monitors_variant()
         lines = []
         for monitor in monitors:
             is_last = monitor == monitors[-1]
@@ -208,7 +215,7 @@ class MonitorsState:
 
         print()
         print("Logical monitors:")
-        logical_monitors = variant[2]
+        logical_monitors = self.get_logical_monitors_variant()
         index = 1
         for logical_monitor in logical_monitors:
             is_last = logical_monitor == logical_monitors[-1]
@@ -266,7 +273,7 @@ class MonitorsState:
             index += 1
 
         if show_properties:
-            properties = variant[3]
+            properties = self.get_properties_variant()
             print()
             print_properties(level=-1, lines=lines, properties=properties)
 
