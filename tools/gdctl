@@ -139,6 +139,8 @@ class Monitor:
         ]
         self.properties = variant[2]
 
+        self.display_name = self.properties.get("display-name", None)
+
 
 class MonitorsState:
     STATE_VARIANT_TYPE = GLib.VariantType.new(
@@ -213,11 +215,18 @@ class MonitorsState:
             modes = monitor.modes
             properties = monitor.properties
 
+            if monitor.display_name:
+                monitor_title = (
+                    f"Monitor {monitor.connector} ({monitor.display_name})"
+                )
+            else:
+                monitor_title = f"Monitor {monitor.connector}"
+
             print_data(
                 level=0,
                 is_last=is_last,
                 lines=lines,
-                data=f"Monitor {monitor.connector}",
+                data=monitor_title,
             )
 
             if monitor.vendor:
