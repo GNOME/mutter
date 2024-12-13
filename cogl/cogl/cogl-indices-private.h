@@ -41,7 +41,6 @@ struct _CoglIndices
   GObject parent_instance;
 
   CoglIndexBuffer *buffer;
-  size_t offset;
 
   CoglIndicesType type;
 

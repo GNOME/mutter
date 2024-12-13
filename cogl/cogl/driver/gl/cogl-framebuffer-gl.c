@@ -348,7 +348,6 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
     cogl_framebuffer_driver_get_framebuffer (driver);
   CoglBuffer *buffer;
   uint8_t *base;
-  size_t buffer_offset;
   size_t index_size;
   GLenum indices_gl_type = 0;
 
@@ -364,7 +363,6 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
    */
   base = _cogl_buffer_gl_bind (buffer,
                                COGL_BUFFER_BIND_TARGET_INDEX_BUFFER, NULL);
-  buffer_offset = cogl_indices_get_offset (indices);
   index_size = cogl_indices_type_get_size (cogl_indices_get_indices_type (indices));
 
   switch (cogl_indices_get_indices_type (indices))
@@ -384,7 +382,7 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
       glDrawElements ((GLenum)mode,
                       n_vertices,
                       indices_gl_type,
-                      base + buffer_offset + index_size * first_vertex));
+                      base + index_size * first_vertex));
 
   _cogl_buffer_gl_unbind (buffer);
 }

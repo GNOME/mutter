@@ -114,11 +114,6 @@ cogl_indices_new (CoglContext *context,
                   const void *indices_data,
                   int n_indices);
 
-COGL_EXPORT CoglIndices *
-cogl_indices_new_for_buffer (CoglIndicesType type,
-                             CoglIndexBuffer *buffer,
-                             size_t offset);
-
 /**
  * cogl_indices_get_buffer:
  *
@@ -129,9 +124,5 @@ cogl_indices_get_buffer (CoglIndices *indices);
 
 COGL_EXPORT CoglIndicesType
 cogl_indices_get_indices_type (CoglIndices *indices);
-
-COGL_EXPORT size_t
-cogl_indices_get_offset (CoglIndices *indices);
-
 
 G_END_DECLS
