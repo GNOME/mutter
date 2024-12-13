@@ -1530,7 +1530,6 @@ maybe_unset_key_focus (ClutterActor *self)
     return;
 
   clutter_stage_set_key_focus (CLUTTER_STAGE (stage), NULL);
-  clutter_actor_remove_accessible_state (self, ATK_STATE_FOCUSED);
 }
 
 static void
@@ -12980,10 +12979,7 @@ clutter_actor_grab_key_focus (ClutterActor *self)
 
   stage = _clutter_actor_get_stage_internal (self);
   if (stage != NULL)
-    {
-      clutter_stage_set_key_focus (CLUTTER_STAGE (stage), self);
-      clutter_actor_add_accessible_state (self, ATK_STATE_FOCUSED);
-    }
+    clutter_stage_set_key_focus (CLUTTER_STAGE (stage), self);
 }
 
 static void
@@ -13516,6 +13512,13 @@ _clutter_actor_set_has_key_focus (ClutterActor *self,
 
       if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
         return;
+
+      if (has_key_focus)
+        clutter_actor_add_accessible_state (self,
+                                            ATK_STATE_FOCUSED);
+      else
+        clutter_actor_remove_accessible_state (self,
+                                               ATK_STATE_FOCUSED);
 
       if (has_key_focus)
         g_signal_emit (self, actor_signals[KEY_FOCUS_IN], 0);
