@@ -34,6 +34,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-cursor.h"
 #include "backends/meta-display-config-shared.h"
+#include "backends/meta-output.h"
 #include "backends/meta-viewport-info.h"
 #include "core/util-private.h"
 #include "meta/display.h"
@@ -107,6 +108,7 @@ struct _MetaOutputAssignment
   gboolean has_max_bpc;
   unsigned int max_bpc;
   unsigned int rgb_range;
+  MetaColorMode color_mode;
 };
 
 /*

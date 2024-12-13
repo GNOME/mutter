@@ -318,17 +318,10 @@ size_t meta_monitor_get_gamma_lut_size (MetaMonitor *monitor);
 void meta_monitor_set_gamma_lut (MetaMonitor        *monitor,
                                  const MetaGammaLut *lut);
 
-MetaOutputColorspace meta_monitor_get_color_space (MetaMonitor *monitor);
+MetaColorMode meta_monitor_get_color_mode (MetaMonitor *monitor);
 
-gboolean meta_monitor_set_color_space (MetaMonitor           *monitor,
-                                       MetaOutputColorspace   color_space,
-                                       GError               **error);
-
-MetaOutputHdrMetadata * meta_monitor_get_hdr_metadata (MetaMonitor *monitor);
-
-gboolean meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
-                                        MetaOutputHdrMetadata  *metadata,
-                                        GError                **error);
+META_EXPORT_TEST
+GList * meta_monitor_get_supported_color_modes (MetaMonitor *monitor);
 
 META_EXPORT_TEST
 gboolean meta_parse_monitor_mode (const char *string,
@@ -354,7 +347,5 @@ void meta_monitor_set_for_lease (MetaMonitor *monitor,
 
 META_EXPORT_TEST
 gboolean meta_monitor_is_for_lease (MetaMonitor *monitor);
-
-GList * meta_monitor_get_supported_color_modes (MetaMonitor *monitor);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorSpec, meta_monitor_spec_free)

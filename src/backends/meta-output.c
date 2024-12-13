@@ -39,8 +39,6 @@ static GParamSpec *obj_props[N_PROPS];
 
 enum
 {
-  COLOR_SPACE_CHANGED,
-  HDR_METADATA_CHANGED,
   BACKLIGHT_CHANGED,
 
   N_SIGNALS
@@ -74,8 +72,7 @@ typedef struct _MetaOutputPrivate
   MetaPrivacyScreenState privacy_screen_state;
   gboolean is_privacy_screen_enabled;
 
-  MetaOutputHdrMetadata hdr_metadata;
-  MetaOutputColorspace color_space;
+  MetaColorMode color_mode;
   MetaOutputRGBRange rgb_range;
 } MetaOutputPrivate;
 
@@ -284,6 +281,8 @@ meta_output_assign_crtc (MetaOutput                 *output,
   priv->has_max_bpc = output_assignment->has_max_bpc;
   if (priv->has_max_bpc)
     priv->max_bpc = output_assignment->max_bpc;
+
+  priv->color_mode = output_assignment->color_mode;
 }
 
 void
@@ -538,56 +537,36 @@ meta_output_info_get_min_refresh_rate (const MetaOutputInfo *output_info,
 }
 
 void
-meta_output_set_color_space (MetaOutput           *output,
-                             MetaOutputColorspace  color_space)
+meta_output_get_color_metadata (MetaOutput            *output,
+                                MetaOutputHdrMetadata *hdr_metadata,
+                                MetaOutputColorspace  *colorspace)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  priv->color_space = color_space;
-
-  g_signal_emit (output, signals[COLOR_SPACE_CHANGED], 0);
-}
-
-MetaOutputColorspace
-meta_output_peek_color_space (MetaOutput *output)
-{
-  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
-
-  return priv->color_space;
-}
-
-const char *
-meta_output_colorspace_get_name (MetaOutputColorspace color_space)
-{
-  switch (color_space)
+  switch (priv->color_mode)
     {
-    case META_OUTPUT_COLORSPACE_UNKNOWN:
-      return "Unknown";
-    case META_OUTPUT_COLORSPACE_DEFAULT:
-      return "Default";
-    case META_OUTPUT_COLORSPACE_BT2020:
-      return "bt.2020";
+    case META_COLOR_MODE_DEFAULT:
+      *hdr_metadata = (MetaOutputHdrMetadata) {
+        .active = FALSE
+      };
+      *colorspace = META_OUTPUT_COLORSPACE_DEFAULT;
+      break;
+    case META_COLOR_MODE_BT2100:
+      *hdr_metadata = (MetaOutputHdrMetadata) {
+        .active = TRUE,
+        .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
+      };
+      *colorspace = META_OUTPUT_COLORSPACE_BT2020;
+      break;
     }
-  g_assert_not_reached ();
 }
 
-void
-meta_output_set_hdr_metadata (MetaOutput            *output,
-                              MetaOutputHdrMetadata *metadata)
+MetaColorMode
+meta_output_get_color_mode (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  priv->hdr_metadata = *metadata;
-
-  g_signal_emit (output, signals[HDR_METADATA_CHANGED], 0);
-}
-
-MetaOutputHdrMetadata *
-meta_output_peek_hdr_metadata (MetaOutput *output)
-{
-  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
-
-  return &priv->hdr_metadata;
+  return priv->color_mode;
 }
 
 MetaOutputRGBRange
@@ -629,8 +608,6 @@ meta_output_init (MetaOutput *output)
   priv->is_primary = FALSE;
   priv->is_presentation = FALSE;
   priv->is_underscanning = FALSE;
-  priv->color_space = META_OUTPUT_COLORSPACE_DEFAULT;
-  priv->hdr_metadata.active = FALSE;
   priv->has_max_bpc = FALSE;
   priv->max_bpc = 0;
   priv->rgb_range = META_OUTPUT_RGB_RANGE_AUTO;
@@ -671,20 +648,6 @@ meta_output_class_init (MetaOutputClass *klass)
                           G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
-  signals[COLOR_SPACE_CHANGED] =
-    g_signal_new ("color-space-changed",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
-  signals[HDR_METADATA_CHANGED] =
-    g_signal_new ("hdr-metadata-changed",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
   signals[BACKLIGHT_CHANGED] =
     g_signal_new ("backlight-changed",
                   G_TYPE_FROM_CLASS (klass),

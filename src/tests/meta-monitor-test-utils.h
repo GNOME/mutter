@@ -118,6 +118,8 @@ typedef struct _MonitorTestCaseOutput
   int backlight_max;
   gboolean has_edid_info;
   MetaEdidInfo edid_info;
+  uint64_t supported_color_spaces;
+  uint64_t supported_hdr_eotfs;
 } MonitorTestCaseOutput;
 
 typedef struct _MonitorTestCaseCrtc

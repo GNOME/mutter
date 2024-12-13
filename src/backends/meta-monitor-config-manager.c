@@ -290,6 +290,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
     .has_max_bpc = data->monitor_config->has_max_bpc,
     .max_bpc = data->monitor_config->max_bpc,
     .rgb_range = data->monitor_config->rgb_range,
+    .color_mode = data->monitor_config->color_mode,
   };
 
   g_ptr_array_add (data->crtc_assignments, crtc_assignment);
@@ -658,7 +659,8 @@ find_primary_monitor (MetaMonitorManager *monitor_manager,
 
 static MetaMonitorConfig *
 create_monitor_config (MetaMonitor     *monitor,
-                       MetaMonitorMode *mode)
+                       MetaMonitorMode *mode,
+                       MetaColorMode    color_mode)
 {
   MetaMonitorSpec *monitor_spec;
   MetaMonitorModeSpec *mode_spec;
@@ -673,6 +675,7 @@ create_monitor_config (MetaMonitor     *monitor,
     .mode_spec = g_memdup2 (mode_spec, sizeof (MetaMonitorModeSpec)),
     .enable_underscanning = meta_monitor_is_underscanning (monitor),
     .rgb_range = meta_monitor_get_rgb_range (monitor),
+    .color_mode = color_mode,
   };
 
   monitor_config->has_max_bpc =
@@ -724,12 +727,13 @@ scale_logical_monitor_width (MetaLogicalMonitorLayoutMode  layout_mode,
 }
 
 static MetaLogicalMonitorConfig *
-create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_manager,
-                                         MetaMonitor                 *monitor,
-                                         int                          x,
-                                         int                          y,
-                                         float                        scale,
-                                         MetaLogicalMonitorLayoutMode layout_mode)
+create_preferred_logical_monitor_config (MetaMonitorManager           *monitor_manager,
+                                         MetaMonitor                  *monitor,
+                                         int                           x,
+                                         int                           y,
+                                         float                         scale,
+                                         MetaColorMode                 color_mode,
+                                         MetaLogicalMonitorLayoutMode  layout_mode)
 {
   MetaMonitorMode *mode;
   int width, height;
@@ -742,7 +746,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
   scale_logical_monitor_width (layout_mode, scale,
                                width, height, &width, &height);
 
-  monitor_config = create_monitor_config (monitor, mode);
+  monitor_config = create_monitor_config (monitor, mode, color_mode);
 
   transform = get_monitor_transform (monitor_manager, monitor);
   if (mtk_monitor_transform_is_rotated (transform))
@@ -796,6 +800,32 @@ find_logical_monitor_config (MetaMonitorsConfig *config,
               meta_monitor_mode_spec_has_similar_size (mode_spec,
                                                        monitor_config->mode_spec))
             return logical_monitor_config;
+        }
+    }
+
+  return NULL;
+}
+
+static MetaMonitorConfig *
+find_monitor_config (MetaMonitorsConfig *config,
+                     MetaMonitor        *monitor)
+{
+  GList *l;
+
+  for (l = config->logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+      GList *l_monitor;
+
+      for (l_monitor = logical_monitor_config->monitor_configs;
+           l_monitor;
+           l_monitor = l_monitor->next)
+        {
+          MetaMonitorConfig *monitor_config = l_monitor->data;
+
+          if (meta_monitor_spec_equals (meta_monitor_get_spec (monitor),
+                                        monitor_config->monitor_spec))
+            return monitor_config;
         }
     }
 
@@ -873,6 +903,32 @@ compute_scale_for_monitor (MetaMonitorConfigManager *config_manager,
                                                             layout_mode,
                                                             target_monitor,
                                                             monitor_mode);
+}
+
+static gboolean
+get_last_color_mode_for_monitor (MetaMonitorConfigManager *config_manager,
+                                 MetaMonitor              *monitor,
+                                 MetaColorMode            *out_color_mode)
+{
+  g_autoptr (GList) configs = NULL;
+  GList *l;
+
+  configs = get_relevant_configs (config_manager);
+
+  for (l = configs; l; l = l->next)
+    {
+      MetaMonitorsConfig *config = l->data;
+      MetaMonitorConfig *monitor_config;
+
+      monitor_config = find_monitor_config (config, monitor);
+      if (monitor_config)
+        {
+          *out_color_mode = monitor_config->color_mode;
+          return TRUE;
+        }
+    }
+
+  return FALSE;
 }
 
 typedef enum _MonitorPositioningMode
@@ -953,6 +1009,7 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
       MetaMonitor *monitor = l->data;
       MetaLogicalMonitorConfig *logical_monitor_config;
       gboolean has_suggested_position;
+      MetaColorMode color_mode;
 
       switch (positioning)
         {
@@ -967,10 +1024,15 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
 
       scale = compute_scale_for_monitor (config_manager, monitor,
                                          primary_monitor);
+      if (!get_last_color_mode_for_monitor (config_manager, monitor,
+                                            &color_mode))
+        color_mode = META_COLOR_MODE_DEFAULT;
+
       logical_monitor_config =
         create_preferred_logical_monitor_config (monitor_manager,
                                                  monitor,
                                                  x, y, scale,
+                                                 color_mode,
                                                  layout_mode);
       logical_monitor_config->is_primary = (monitor == primary_monitor);
       logical_monitor_configs = g_list_append (logical_monitor_configs,
@@ -1262,6 +1324,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
     {
       MetaMonitor *other_monitor = l->data;
       MetaMonitorMode *mode = NULL;
+      MetaColorMode color_mode;
       GList *ll;
       float scale;
 
@@ -1282,7 +1345,16 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       scale = compute_scale_for_monitor (config_manager, other_monitor,
                                          primary_monitor);
       best_scale = MAX (best_scale, scale);
-      monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (other_monitor, mode));
+
+      if (!get_last_color_mode_for_monitor (config_manager, monitor,
+                                            &color_mode))
+        color_mode = META_COLOR_MODE_DEFAULT;
+
+      monitor_configs =
+        g_list_prepend (monitor_configs,
+                        create_monitor_config (other_monitor,
+                                               mode,
+                                               color_mode));
     }
 
   scale_logical_monitor_width (layout_mode, best_scale,

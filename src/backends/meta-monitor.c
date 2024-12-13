@@ -2310,90 +2310,21 @@ meta_monitor_get_min_refresh_rate (MetaMonitor *monitor,
                                                 min_refresh_rate);
 }
 
-MetaOutputColorspace
-meta_monitor_get_color_space (MetaMonitor *monitor)
-{
-  MetaOutput *output = meta_monitor_get_main_output (monitor);
-
-  return meta_output_peek_color_space (output);
-}
-
-gboolean
-meta_monitor_set_color_space (MetaMonitor           *monitor,
-                              MetaOutputColorspace   color_space,
-                              GError               **error)
-{
-  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-  GList *l;
-
-  for (l = priv->outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-      const MetaOutputInfo *output_info = meta_output_get_info (output);
-
-      if (!(output_info->supported_color_spaces & (1 << color_space)))
-        {
-          g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                               "The color space is not supported by this monitor");
-          return FALSE;
-        }
-    }
-
-  for (l = priv->outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-
-      meta_output_set_color_space (output, color_space);
-    }
-
-  return TRUE;
-}
-
-MetaOutputHdrMetadata *
-meta_monitor_get_hdr_metadata (MetaMonitor *monitor)
-{
-  MetaOutput *output = meta_monitor_get_main_output (monitor);
-
-  return meta_output_peek_hdr_metadata (output);
-}
-
-gboolean
-meta_monitor_set_hdr_metadata (MetaMonitor            *monitor,
-                               MetaOutputHdrMetadata  *metadata,
-                               GError                **error)
-{
-  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-  GList *l;
-
-  for (l = priv->outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-      const MetaOutputInfo *output_info = meta_output_get_info (output);
-
-      if (!(output_info->supported_hdr_eotfs & (1 << metadata->eotf)))
-        {
-          g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                               "HDR metadata is not supported by this monitor");
-          return FALSE;
-        }
-    }
-
-  for (l = priv->outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-
-      meta_output_set_hdr_metadata (output, metadata);
-    }
-
-  return TRUE;
-}
-
 GList *
 meta_monitor_get_supported_color_modes (MetaMonitor *monitor)
 {
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
   return priv->color_modes;
+}
+
+MetaColorMode
+meta_monitor_get_color_mode (MetaMonitor *monitor)
+{
+  MetaOutput *output;
+
+  output = meta_monitor_get_main_output (monitor);
+  return meta_output_get_color_mode (output);
 }
 
 gboolean

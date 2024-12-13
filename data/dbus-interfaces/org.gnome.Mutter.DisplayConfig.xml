@@ -393,6 +393,7 @@
 	                              Variable Refresh Rate is active (absence
 	                              of this means unknown)
 	    - "is-for-lease" (b): whether the monitor is for lease or not
+	    - "color-mode" (u): current color mode
 	    - "supported-color-modes" (au): list of supported color modes
 
         Possible mode flags:
@@ -499,6 +500,8 @@
 	        - "underscanning" (b): enable monitor underscanning;
 					      may only be set when underscanning
 					      is supported (see GetCurrentState).
+		- "color-mode" (u): selected color mode. Defaults to
+				    "default". See GetCurrentState().
 
 	@properties may effect the global monitor configuration state. Possible
 	properties are:

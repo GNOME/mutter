@@ -797,6 +797,10 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                                          (uint8_t *) &setup->outputs[i].edid_info,
                                          sizeof (setup->outputs[i].edid_info));
         }
+      output_info->supported_color_spaces =
+        setup->outputs[i].supported_color_spaces;
+      output_info->supported_hdr_eotfs =
+        setup->outputs[i].supported_hdr_eotfs;
 
       output = g_object_new (META_TYPE_OUTPUT_TEST,
                              "id", (uint64_t) i,

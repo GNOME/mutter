@@ -165,6 +165,7 @@ typedef enum
   STATE_MONITOR_UNDERSCANNING,
   STATE_MONITOR_MAXBPC,
   STATE_MONITOR_RGB_RANGE,
+  STATE_MONITOR_COLOR_MODE,
   STATE_DISABLED,
   STATE_FOR_LEASE,
   STATE_POLICY,
@@ -464,6 +465,10 @@ handle_start_element (GMarkupParseContext  *context,
           {
             parser->state = STATE_MONITOR_RGB_RANGE;
           }
+        else if (g_str_equal (element_name, "colormode"))
+          {
+            parser->state = STATE_MONITOR_COLOR_MODE;
+          }
         else
           {
             g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
@@ -573,6 +578,13 @@ handle_start_element (GMarkupParseContext  *context,
       {
         g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
                      "Invalid element '%s' under rgbrange", element_name);
+        return;
+      }
+
+    case STATE_MONITOR_COLOR_MODE:
+      {
+        g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
+                     "Invalid element '%s' under colormode", element_name);
         return;
       }
 
@@ -1435,6 +1447,14 @@ handle_end_element (GMarkupParseContext  *context,
         return;
       }
 
+    case STATE_MONITOR_COLOR_MODE:
+      {
+        g_assert (g_str_equal (element_name, "colormode"));
+
+        parser->state = STATE_MONITOR;
+        return;
+      }
+
     case STATE_MONITOR:
       {
         MetaLogicalMonitorConfig *logical_monitor_config;
@@ -2045,6 +2065,26 @@ handle_text (GMarkupParseContext *context,
         return;
       }
 
+    case STATE_MONITOR_COLOR_MODE:
+      {
+        if (text_equals (text, text_len, "default"))
+          {
+            parser->current_monitor_config->color_mode =
+              META_COLOR_MODE_DEFAULT;
+          }
+        else if (text_equals (text, text_len, "bt2100"))
+          {
+            parser->current_monitor_config->color_mode =
+              META_COLOR_MODE_BT2100;
+          }
+        else
+          {
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                         "Invalid color mode %.*s", (int)text_len, text);
+          }
+        return;
+      }
+
     case STATE_STORE:
       {
         MetaConfigStore store;
@@ -2220,6 +2260,28 @@ append_rgb_range (GString            *buffer,
 }
 
 static void
+append_color_mode (GString       *buffer,
+                   MetaColorMode  rgb_range,
+                   const char    *indentation)
+{
+  const char *color_mode_str;
+
+  switch (rgb_range)
+    {
+    case META_COLOR_MODE_BT2100:
+      color_mode_str = "bt2100";
+      break;
+    case META_COLOR_MODE_DEFAULT:
+    default:
+      return;
+    }
+
+  g_string_append_printf (buffer, "%s<colormode>%s</colormode>\n",
+                          indentation,
+                          color_mode_str);
+}
+
+static void
 append_monitors (GString *buffer,
                  GList   *monitor_configs)
 {
@@ -2251,6 +2313,7 @@ append_monitors (GString *buffer,
       if (monitor_config->enable_underscanning)
         g_string_append (buffer, "        <underscanning>yes</underscanning>\n");
       append_rgb_range (buffer, monitor_config->rgb_range, "        ");
+      append_color_mode (buffer, monitor_config->color_mode, "        ");
 
       if (monitor_config->has_max_bpc)
         {

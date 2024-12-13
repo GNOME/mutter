@@ -34,6 +34,7 @@ typedef struct _MetaMonitorConfig
   gboolean has_max_bpc;
   unsigned int max_bpc;
   MetaOutputRGBRange rgb_range;
+  MetaColorMode color_mode;
 } MetaMonitorConfig;
 
 typedef struct _MetaLogicalMonitorConfig

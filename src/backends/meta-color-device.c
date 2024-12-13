@@ -626,61 +626,27 @@ on_manager_ready (MetaColorManager *color_manager,
   create_cd_device (color_device);
 }
 
-static ClutterColorimetry
-get_colorimetry_from_monitor (MetaMonitor *monitor)
+static void
+get_color_metadata_from_monitor (MetaMonitor        *monitor,
+                                 ClutterColorimetry *colorimetry,
+                                 ClutterEOTF        *eotf)
 {
-  ClutterColorimetry colorimetry;
+  colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+  eotf->type = CLUTTER_EOTF_TYPE_NAMED;
 
-  colorimetry.type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
-
-  switch (meta_monitor_get_color_space (monitor))
+  switch (meta_monitor_get_color_mode (monitor))
     {
-    case META_OUTPUT_COLORSPACE_DEFAULT:
-    case META_OUTPUT_COLORSPACE_UNKNOWN:
-      colorimetry.colorspace = CLUTTER_COLORSPACE_SRGB;
-      break;
-    case META_OUTPUT_COLORSPACE_BT2020:
-      colorimetry.colorspace = CLUTTER_COLORSPACE_BT2020;
-      break;
+    case META_COLOR_MODE_DEFAULT:
+      colorimetry->colorspace = CLUTTER_COLORSPACE_SRGB;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      return;
+    case META_COLOR_MODE_BT2100:
+      colorimetry->colorspace = CLUTTER_COLORSPACE_BT2020;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
+      return;
     }
 
-  return colorimetry;
-}
-
-static ClutterEOTF
-get_eotf_from_monitor (MetaMonitor *monitor)
-{
-  ClutterEOTF eotf;
-  const MetaOutputHdrMetadata *hdr_metadata =
-    meta_monitor_get_hdr_metadata (monitor);
-
-  eotf.type = CLUTTER_EOTF_TYPE_NAMED;
-
-  if (!hdr_metadata->active)
-    {
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
-      return eotf;
-    }
-
-  switch (hdr_metadata->eotf)
-    {
-    case META_OUTPUT_HDR_METADATA_EOTF_PQ:
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
-      break;
-    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_SDR:
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
-      break;
-    case META_OUTPUT_HDR_METADATA_EOTF_TRADITIONAL_GAMMA_HDR:
-      g_warning ("Unhandled HDR EOTF (traditional gamma hdr)");
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
-      break;
-    case META_OUTPUT_HDR_METADATA_EOTF_HLG:
-      g_warning ("Unhandled HDR EOTF (HLG)");
-      eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
-      break;
-    }
-
-  return eotf;
+  g_assert_not_reached ();
 }
 
 static UpdateResult
@@ -699,8 +665,7 @@ update_color_state (MetaColorDevice *color_device)
   float reference_luminance_factor;
   UpdateResult result = 0;
 
-  colorimetry = get_colorimetry_from_monitor (monitor);
-  eotf = get_eotf_from_monitor (monitor);
+  get_color_metadata_from_monitor (monitor, &colorimetry, &eotf);
 
   if (meta_debug_control_is_hdr_forced (debug_control))
     {
@@ -1401,127 +1366,6 @@ meta_color_device_get_assigned_profile (MetaColorDevice *color_device)
   return color_device->assigned_profile;
 }
 
-static void
-set_color_space_and_hdr_metadata (MetaMonitor           *monitor,
-                                  gboolean               enable,
-                                  MetaOutputColorspace  *color_space,
-                                  MetaOutputHdrMetadata *hdr_metadata)
-{
-  MetaBackend *backend = meta_monitor_get_backend (monitor);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-
-  if (enable &&
-      !cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
-    {
-      g_warning ("Tried to enable HDR without half float rendering support, ignoring");
-      enable = FALSE;
-    }
-
-  if (enable)
-    {
-      *color_space = META_OUTPUT_COLORSPACE_BT2020;
-      *hdr_metadata = (MetaOutputHdrMetadata) {
-        .active = TRUE,
-        .eotf = META_OUTPUT_HDR_METADATA_EOTF_PQ,
-      };
-
-      meta_topic (META_DEBUG_COLOR,
-                  "ColorDevice: Trying to enabling HDR mode "
-                  "(Colorimetry: bt.2020, TF: PQ, HDR Metadata: Minimal):");
-    }
-  else
-    {
-      *color_space = META_OUTPUT_COLORSPACE_DEFAULT;
-      *hdr_metadata = (MetaOutputHdrMetadata) {
-        .active = FALSE,
-      };
-
-      meta_topic (META_DEBUG_COLOR,
-                  "ColorDevice: Trying to enable default mode "
-                  "(Colorimetry: default, TF: default, HDR Metadata: None):");
-    }
-}
-
-static UpdateResult
-update_hdr (MetaColorDevice *color_device)
-{
-  MetaMonitor *monitor = color_device->monitor;
-  MetaBackend *backend = meta_monitor_get_backend (monitor);
-  MetaContext *context = meta_backend_get_context (backend);
-  MetaDebugControl *debug_control = meta_context_get_debug_control (context);
-  MetaOutputColorspace color_space;
-  MetaOutputHdrMetadata hdr_metadata;
-  gboolean hdr_enabled;
-  g_autoptr (GError) error = NULL;
-
-  hdr_enabled = meta_debug_control_is_hdr_enabled (debug_control);
-  set_color_space_and_hdr_metadata (monitor, hdr_enabled,
-                                    &color_space, &hdr_metadata);
-
-  if (meta_monitor_get_color_space (monitor) == color_space &&
-      meta_output_hdr_metadata_equal (meta_monitor_get_hdr_metadata (monitor),
-                                      &hdr_metadata))
-    return 0;
-
-  if (!meta_monitor_set_color_space (monitor, color_space, &error))
-    {
-      meta_monitor_set_color_space (monitor,
-                                    META_OUTPUT_COLORSPACE_DEFAULT,
-                                    NULL);
-      meta_monitor_set_hdr_metadata (monitor, &(MetaOutputHdrMetadata) {
-                                       .active = FALSE,
-                                     }, NULL);
-
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
-        {
-          meta_topic (META_DEBUG_COLOR,
-                      "ColorDevice: Colorimetry not supported "
-                      "on monitor %s",
-                      meta_monitor_get_display_name (monitor));
-        }
-      else
-        {
-          g_warning ("Failed to set color space on monitor %s: %s",
-                     meta_monitor_get_display_name (monitor), error->message);
-        }
-
-      return 0;
-    }
-
-  if (!meta_monitor_set_hdr_metadata (monitor, &hdr_metadata, &error))
-    {
-      meta_monitor_set_color_space (monitor,
-                                    META_OUTPUT_COLORSPACE_DEFAULT,
-                                    NULL);
-      meta_monitor_set_hdr_metadata (monitor, &(MetaOutputHdrMetadata) {
-                                       .active = FALSE,
-                                     }, NULL);
-
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED))
-        {
-          meta_topic (META_DEBUG_COLOR,
-                      "ColorDevice: HDR Metadata not supported "
-                      "on monitor %s",
-                      meta_monitor_get_display_name (monitor));
-        }
-      else
-        {
-          g_warning ("Failed to set HDR metadata on monitor %s: %s",
-                     meta_monitor_get_display_name (monitor),
-                     error->message);
-        }
-
-      return 0;
-    }
-
-    meta_topic (META_DEBUG_COLOR,
-                "ColorDevice: successfully set on monitor %s",
-                meta_monitor_get_display_name (monitor));
-
-  return UPDATE_RESULT_CALIBRATION;
-}
-
 static UpdateResult
 update_white_point (MetaColorDevice *color_device)
 {
@@ -1588,7 +1432,6 @@ meta_color_device_update (MetaColorDevice *color_device)
   if (!meta_monitor_is_active (monitor))
     return;
 
-  result |= update_hdr (color_device);
   result |= update_white_point (color_device);
   result |= update_color_state (color_device);
 

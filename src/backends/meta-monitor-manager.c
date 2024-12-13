@@ -2050,6 +2050,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       GList *k;
       gboolean is_builtin;
       gboolean is_for_lease;
+      MetaColorMode color_mode;
       const char *display_name;
 
       current_mode = meta_monitor_get_current_mode (monitor);
@@ -2175,6 +2176,11 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "is-for-lease",
                              g_variant_new_boolean (is_for_lease));
+
+      color_mode = meta_monitor_get_color_mode (monitor);
+      g_variant_builder_add (&monitor_properties_builder, "{sv}",
+                             "color-mode",
+                             g_variant_new_uint32 (color_mode));
 
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "supported-color-modes",
@@ -2471,6 +2477,8 @@ create_monitor_config_from_variant (MetaMonitorManager *manager,
   g_autoptr (GVariant) properties_variant = NULL;
   gboolean enable_underscanning = FALSE;
   gboolean set_underscanning = FALSE;
+  MetaColorMode color_mode = META_COLOR_MODE_DEFAULT;
+  uint32_t color_mode_value;
 
   g_variant_get (monitor_config_variant, "(ss@a{sv})",
                  &connector,
@@ -2506,6 +2514,10 @@ create_monitor_config_from_variant (MetaMonitorManager *manager,
         }
     }
 
+  if (g_variant_lookup (properties_variant, "color-mode", "u",
+                        &color_mode_value))
+    color_mode = color_mode_value;
+
   monitor_spec = meta_monitor_spec_clone (meta_monitor_get_spec (monitor));
 
   monitor_mode_spec = g_new0 (MetaMonitorModeSpec, 1);
@@ -2515,7 +2527,8 @@ create_monitor_config_from_variant (MetaMonitorManager *manager,
   *monitor_config = (MetaMonitorConfig) {
     .monitor_spec = monitor_spec,
     .mode_spec = monitor_mode_spec,
-    .enable_underscanning = enable_underscanning
+    .enable_underscanning = enable_underscanning,
+    .color_mode = color_mode,
   };
 
   return monitor_config;
