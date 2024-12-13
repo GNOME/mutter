@@ -42,10 +42,36 @@ class Transform(Enum):
                 return "flipped-270"
 
 
-LAYOUT_MODE = {
-    1: "logical",
-    2: "physical",
-}
+class LayoutMode(Enum):
+    LOGICAL = 1
+    PHYSICAL = 2
+
+    def __str__(self):
+        match self:
+            case self.LOGICAL:
+                return "logical"
+            case self.PHYSICAL:
+                return "physical"
+
+
+def translate_property(name, value):
+    enum_properties = {
+        "layout-mode": LayoutMode,
+    }
+
+    if name in enum_properties:
+        if isinstance(value, list):
+            return [enum_properties[name](element) for element in value]
+        else:
+            return enum_properties[name](value)
+    else:
+        return value
+
+
+def translate_properties(variant):
+    return {
+        key: translate_property(key, value) for key, value in variant.items()
+    }
 
 
 def print_data(*, level: int, is_last: bool, lines: list[int], data: str):
@@ -78,22 +104,6 @@ def print_data(*, level: int, is_last: bool, lines: list[int], data: str):
         lines.append(level)
 
 
-def maybe_describe(property_name, value):
-    enum_properties = {
-        "layout-mode": LAYOUT_MODE,
-    }
-
-    if property_name in enum_properties:
-        if isinstance(value, list):
-            return [
-                enum_properties[property_name].get(entry) for entry in value
-            ]
-        else:
-            return enum_properties[property_name].get(value)
-    else:
-        return value
-
-
 def print_properties(*, level, lines, properties):
     property_keys = list(properties.keys())
 
@@ -105,7 +115,14 @@ def print_properties(*, level, lines, properties):
     )
     for key in property_keys:
         is_last = key == property_keys[-1]
-        value_string = maybe_describe(key, properties[key])
+
+        value = properties[key]
+        if isinstance(value, list):
+            elements_string = ", ".join([str(element) for element in value])
+            value_string = f"[{elements_string}]"
+        else:
+            value_string = str(value)
+
         print_data(
             level=level + 1,
             is_last=is_last,
@@ -139,7 +156,7 @@ class MonitorMode:
             refresh_rate=variant[3],
             preferred_scale=variant[4],
             supported_scales=variant[5],
-            properties=variant[6],
+            properties=translate_properties(variant[6]),
         )
 
 
@@ -157,7 +174,7 @@ class Monitor:
             MonitorMode.from_variant(mode_variant)
             for mode_variant in variant[1]
         ]
-        self.properties = variant[2]
+        self.properties = translate_properties(variant[2])
 
         self.display_name = self.properties.get("display-name", None)
 
@@ -189,7 +206,7 @@ class LogicalMonitor:
         monitors = [
             monitors_state.monitors[connector] for connector in connectors
         ]
-        properties = variant[6]
+        properties = translate_properties(variant[6])
 
         return cls(
             monitors=monitors,
@@ -208,6 +225,8 @@ class MonitorsState:
 
     def __init__(self):
         self.current_state = self.get_current_state()
+
+        self.properties = translate_properties(self.current_state[3])
 
         self.init_monitors()
         self.init_logical_monitors()
@@ -425,7 +444,7 @@ class MonitorsState:
             index += 1
 
         if show_properties:
-            properties = self.get_properties_variant()
+            properties = self.properties
             print()
             print_properties(level=-1, lines=lines, properties=properties)
 
