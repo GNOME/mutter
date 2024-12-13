@@ -3,6 +3,7 @@
 import argparse
 import sys
 
+from dataclasses import dataclass
 from gi.repository import GLib, Gio
 
 NAME = "org.gnome.Mutter.DisplayConfig"
@@ -100,6 +101,45 @@ def strip_dbus_error_prefix(message):
         return message
 
 
+@dataclass
+class MonitorMode:
+    name: str
+    resolution: tuple[int, int]
+    refresh_rate: float
+    preferred_scale: float
+    supported_scales: list[float]
+    refresh_rate: float
+    properties: dict
+
+    @classmethod
+    def from_variant(cls, variant):
+        return cls(
+            name=variant[0],
+            resolution=(variant[1], variant[2]),
+            refresh_rate=variant[3],
+            preferred_scale=variant[4],
+            supported_scales=variant[5],
+            properties=variant[6],
+        )
+
+
+class Monitor:
+    def __init__(self, variant):
+        self.init_from_variant(variant)
+
+    def init_from_variant(self, variant):
+        spec = variant[0]
+        self.connector = spec[0]
+        self.vendor = spec[1] if spec[1] != "" else None
+        self.product = spec[2] if spec[2] != "" else None
+        self.serial = spec[3] if spec[3] != "" else None
+        self.modes = [
+            MonitorMode.from_variant(mode_variant)
+            for mode_variant in variant[1]
+        ]
+        self.properties = variant[2]
+
+
 class MonitorsState:
     STATE_VARIANT_TYPE = GLib.VariantType.new(
         "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})"
@@ -108,8 +148,16 @@ class MonitorsState:
     def __init__(self):
         self.current_state = self.get_current_state()
 
+        self.init_monitors()
+
     def get_current_state(self) -> GLib.Variant:
         raise NotImplementedError()
+
+    def init_monitors(self):
+        self.monitors = {}
+        for monitor_variant in self.get_monitors_variant():
+            monitor = Monitor(monitor_variant)
+            self.monitors[monitor.connector] = monitor
 
     def get_monitors_variant(self):
         return self.current_state[1]
@@ -121,61 +169,78 @@ class MonitorsState:
         return self.current_state[3]
 
     def print_mode(self, mode, is_last, show_properties, lines):
-        print_data(level=2, is_last=is_last, lines=lines, data=f"{mode[0]}")
+        print_data(level=2, is_last=is_last, lines=lines, data=f"{mode.name}")
 
         if not show_properties:
             return
 
+        width, height = mode.resolution
         print_data(
             level=3,
             is_last=False,
             lines=lines,
-            data=f"Dimension: {mode[1]}x{mode[2]}",
+            data=f"Dimension: {width}x{height}",
         )
         print_data(
             level=3,
             is_last=False,
             lines=lines,
-            data=f"Refresh rate: {mode[3]:.3f}",
+            data=f"Refresh rate: {mode.refresh_rate:.3f}",
         )
         print_data(
             level=3,
             is_last=False,
             lines=lines,
-            data=f"Preferred scale: {mode[4]}",
+            data=f"Preferred scale: {mode.preferred_scale}",
         )
         print_data(
             level=3,
             is_last=False,
             lines=lines,
-            data=f"Supported scales: {mode[5]}",
+            data=f"Supported scales: {mode.supported_scales}",
         )
 
         if show_properties:
-            mode_properties = mode[6]
+            mode_properties = mode.properties
             print_properties(level=3, lines=lines, properties=mode_properties)
 
     def print_current_state(self, show_modes=False, show_properties=False):
         print("Monitors:")
-        monitors = self.get_monitors_variant()
         lines = []
+        monitors = list(self.monitors.values())
         for monitor in monitors:
             is_last = monitor == monitors[-1]
-            spec = monitor[0]
-            modes = monitor[1]
-            properties = monitor[2]
+            modes = monitor.modes
+            properties = monitor.properties
+
             print_data(
                 level=0,
                 is_last=is_last,
                 lines=lines,
-                data="Monitor {}".format(spec[0]),
+                data=f"Monitor {monitor.connector}",
             )
-            print_data(
-                level=1,
-                is_last=False,
-                lines=lines,
-                data=f"EDID: vendor: {spec[1]}, product: {spec[2]}, serial: {spec[3]}",
-            )
+
+            if monitor.vendor:
+                print_data(
+                    level=1,
+                    is_last=False,
+                    lines=lines,
+                    data=f"Vendor: {monitor.vendor}",
+                )
+            if monitor.product:
+                print_data(
+                    level=1,
+                    is_last=False,
+                    lines=lines,
+                    data=f"Product: {monitor.product}",
+                )
+            if monitor.serial:
+                print_data(
+                    level=1,
+                    is_last=False,
+                    lines=lines,
+                    data=f"Serial: {monitor.serial}",
+                )
 
             if show_modes:
                 print_data(
@@ -189,13 +254,18 @@ class MonitorsState:
                     self.print_mode(mode, is_last, show_properties, lines)
             else:
                 mode = next(
-                    (mode for mode in modes if "is-current" in mode[6]), None
+                    (mode for mode in modes if "is-current" in mode.properties),
+                    None,
                 )
                 if mode:
                     mode_type = "Current"
                 else:
                     mode = next(
-                        (mode for mode in modes if "is-preferred" in mode[6]),
+                        (
+                            mode
+                            for mode in modes
+                            if "is-preferred" in mode.properties
+                        ),
                         None,
                     )
                     if mode:
