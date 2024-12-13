@@ -250,33 +250,24 @@ class LogicalMonitor:
 
 class MonitorsState:
     def __init__(self, display_config):
-        self.current_state = display_config.get_current_state()
+        current_state = display_config.get_current_state()
 
-        self.properties = translate_properties(self.current_state[3])
+        self.properties = translate_properties(current_state[3])
 
-        self.init_monitors()
-        self.init_logical_monitors()
+        self.init_monitors(current_state)
+        self.init_logical_monitors(current_state)
 
-    def init_monitors(self):
+    def init_monitors(self, current_state):
         self.monitors = {}
-        for monitor_variant in self.get_monitors_variant():
+        for monitor_variant in current_state[1]:
             monitor = Monitor(monitor_variant)
             self.monitors[monitor.connector] = monitor
 
-    def init_logical_monitors(self):
+    def init_logical_monitors(self, current_state):
         self.logical_monitors = []
-        for variant in self.get_logical_monitors_variant():
+        for variant in current_state[2]:
             logical_monitor = LogicalMonitor.new_from_variant(self, variant)
             self.logical_monitors.append(logical_monitor)
-
-    def get_monitors_variant(self):
-        return self.current_state[1]
-
-    def get_logical_monitors_variant(self):
-        return self.current_state[2]
-
-    def get_properties_variant(self):
-        return self.current_state[3]
 
     def print_mode(self, mode, is_last, show_properties, lines):
         print_data(level=2, is_last=is_last, lines=lines, data=f"{mode.name}")
