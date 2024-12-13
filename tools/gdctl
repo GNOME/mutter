@@ -140,6 +140,34 @@ def strip_dbus_error_prefix(message):
         return message
 
 
+class DisplayConfig:
+    STATE_VARIANT_TYPE = GLib.VariantType.new(
+        "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})"
+    )
+
+    def __init__(self):
+        self._proxy = Gio.DBusProxy.new_for_bus_sync(
+            bus_type=Gio.BusType.SESSION,
+            flags=Gio.DBusProxyFlags.NONE,
+            info=None,
+            name=NAME,
+            object_path=OBJECT_PATH,
+            interface_name=INTERFACE,
+            cancellable=None,
+        )
+
+    def get_current_state(self) -> GLib.Variant:
+        variant = self._proxy.call_sync(
+            method_name="GetCurrentState",
+            parameters=None,
+            flags=Gio.DBusCallFlags.NO_AUTO_START,
+            timeout_msec=-1,
+            cancellable=None,
+        )
+        assert variant.get_type().equal(self.STATE_VARIANT_TYPE)
+        return variant
+
+
 @dataclass
 class MonitorMode:
     name: str
@@ -221,20 +249,13 @@ class LogicalMonitor:
 
 
 class MonitorsState:
-    STATE_VARIANT_TYPE = GLib.VariantType.new(
-        "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})"
-    )
-
-    def __init__(self):
-        self.current_state = self.get_current_state()
+    def __init__(self, display_config):
+        self.current_state = display_config.get_current_state()
 
         self.properties = translate_properties(self.current_state[3])
 
         self.init_monitors()
         self.init_logical_monitors()
-
-    def get_current_state(self) -> GLib.Variant:
-        raise NotImplementedError()
 
     def init_monitors(self):
         self.monitors = {}
@@ -451,31 +472,6 @@ class MonitorsState:
             print_properties(level=-1, lines=lines, properties=properties)
 
 
-class MonitorsStateDBus(MonitorsState):
-    def __init__(self):
-        self._proxy = Gio.DBusProxy.new_for_bus_sync(
-            bus_type=Gio.BusType.SESSION,
-            flags=Gio.DBusProxyFlags.NONE,
-            info=None,
-            name=NAME,
-            object_path=OBJECT_PATH,
-            interface_name=INTERFACE,
-            cancellable=None,
-        )
-        super().__init__()
-
-    def get_current_state(self) -> GLib.Variant:
-        variant = self._proxy.call_sync(
-            method_name="GetCurrentState",
-            parameters=None,
-            flags=Gio.DBusCallFlags.NO_AUTO_START,
-            timeout_msec=-1,
-            cancellable=None,
-        )
-        assert variant.get_type().equal(self.STATE_VARIANT_TYPE)
-        return variant
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Display control utility")
 
@@ -512,7 +508,8 @@ if __name__ == "__main__":
     match args.command:
         case "show":
             try:
-                monitors_state = MonitorsStateDBus()
+                display_config = DisplayConfig()
+                monitors_state = MonitorsState(display_config)
             except GLib.Error as e:
                 if e.domain == GLib.quark_to_string(Gio.DBusError.quark()):
                     error_message = strip_dbus_error_prefix(e.message)
