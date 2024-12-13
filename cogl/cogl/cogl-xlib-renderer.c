@@ -356,9 +356,6 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
 
   g_return_val_if_fail (xlib_renderer->xdpy != NULL, FALSE);
 
-  if (getenv ("COGL_X11_SYNC"))
-    XSynchronize (xlib_renderer->xdpy, TRUE);
-
   /* Check whether damage events are supported on this display */
   if (!XDamageQueryExtension (xlib_renderer->xdpy,
                               &x11_renderer->damage_base,
