@@ -643,24 +643,12 @@ clutter_stage_emit_key_focus_event (ClutterStage *stage,
                                     gboolean      focus_in)
 {
   ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  AtkObject *old_accessible, *new_accessible = NULL;
 
   if (priv->key_focused_actor == NULL)
     return;
 
-  old_accessible = clutter_actor_get_accessible (priv->key_focused_actor);
-  new_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
-
   _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), focus_in);
 
-  if (old_accessible)
-    atk_object_notify_state_change (old_accessible,
-                                    ATK_STATE_FOCUSED,
-                                    !focus_in);
-  if (new_accessible)
-    atk_object_notify_state_change (new_accessible,
-                                    ATK_STATE_FOCUSED,
-                                    focus_in);
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
 
@@ -2114,7 +2102,6 @@ clutter_stage_set_key_focus (ClutterStage *stage,
                              ClutterActor *actor)
 {
   ClutterStagePrivate *priv;
-  AtkObject *old_accessible, *new_accessible = NULL;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
   g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
@@ -2136,7 +2123,6 @@ clutter_stage_set_key_focus (ClutterStage *stage,
       ClutterActor *old_focused_actor;
 
       old_focused_actor = priv->key_focused_actor;
-      old_accessible = clutter_actor_get_accessible (old_focused_actor);
 
       /* set key_focused_actor to NULL before emitting the signal or someone
        * might hide the previously focused actor in the signal handler
@@ -2147,7 +2133,6 @@ clutter_stage_set_key_focus (ClutterStage *stage,
     }
   else
     {
-      old_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
       _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), FALSE);
     }
   /* Note, if someone changes key focus in focus-out signal handler we'd be
@@ -2169,25 +2154,13 @@ clutter_stage_set_key_focus (ClutterStage *stage,
     {
       if (actor != NULL)
         {
-          new_accessible = clutter_actor_get_accessible (actor);
           _clutter_actor_set_has_key_focus (actor, TRUE);
         }
       else
         {
-          new_accessible = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
           _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
         }
     }
-
-  if (old_accessible)
-    atk_object_notify_state_change (old_accessible,
-                                    ATK_STATE_FOCUSED,
-                                    FALSE);
-  if (new_accessible)
-    atk_object_notify_state_change (new_accessible,
-                                    ATK_STATE_FOCUSED,
-                                    TRUE);
-
 
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
