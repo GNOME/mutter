@@ -5,22 +5,42 @@ import sys
 
 from dataclasses import dataclass
 from gi.repository import GLib, Gio
+from enum import Enum
 
 NAME = "org.gnome.Mutter.DisplayConfig"
 INTERFACE = "org.gnome.Mutter.DisplayConfig"
 OBJECT_PATH = "/org/gnome/Mutter/DisplayConfig"
 
 
-TRANSFORM_STRINGS = {
-    0: "normal",
-    1: "90",
-    2: "180",
-    3: "270",
-    4: "flipped",
-    5: "flipped-90",
-    6: "flipped-180",
-    7: "flipped-270",
-}
+class Transform(Enum):
+    NORMAL = 0
+    ROTATE_90 = 1
+    ROTATE_180 = 2
+    ROTATE_270 = 3
+    FLIPPED = 4
+    ROTATE_90_FLIPPED = 5
+    ROTATE_270_FLIPPED = 6
+    ROTATE_180_FLIPPED = 7
+
+    def __str__(self):
+        match self:
+            case self.NORMAL:
+                return "normal"
+            case self.ROTATE_90:
+                return "90"
+            case self.ROTATE_180:
+                return "180"
+            case self.ROTATE_270:
+                return "270"
+            case self.FLIPPED:
+                return "flipped"
+            case self.ROTATE_90_FLIPPED:
+                return "flipped-90"
+            case self.ROTATE_180_FLIPPED:
+                return "flipped-180"
+            case self.ROTATE_270_FLIPPED:
+                return "flipped-270"
+
 
 LAYOUT_MODE = {
     1: "logical",
@@ -142,6 +162,45 @@ class Monitor:
         self.display_name = self.properties.get("display-name", None)
 
 
+class LogicalMonitor:
+    def __init__(
+        self,
+        monitors,
+        scale,
+        position=(0, 0),
+        transform=Transform.NORMAL,
+        is_primary=False,
+        properties={},
+    ):
+        self.position = position
+        self.scale = scale
+        self.transform = transform
+        self.is_primary = is_primary
+        self.monitors = monitors
+        self.properties = properties
+
+    @classmethod
+    def new_from_variant(cls, monitors_state, variant):
+        position = (variant[0], variant[1])
+        scale = variant[2]
+        transform = Transform(variant[3])
+        is_primary = variant[4]
+        connectors = [connector for connector, _, _, _ in variant[5]]
+        monitors = [
+            monitors_state.monitors[connector] for connector in connectors
+        ]
+        properties = variant[6]
+
+        return cls(
+            monitors=monitors,
+            position=position,
+            scale=scale,
+            transform=transform,
+            is_primary=is_primary,
+            properties=properties,
+        )
+
+
 class MonitorsState:
     STATE_VARIANT_TYPE = GLib.VariantType.new(
         "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})"
@@ -151,6 +210,7 @@ class MonitorsState:
         self.current_state = self.get_current_state()
 
         self.init_monitors()
+        self.init_logical_monitors()
 
     def get_current_state(self) -> GLib.Variant:
         raise NotImplementedError()
@@ -160,6 +220,12 @@ class MonitorsState:
         for monitor_variant in self.get_monitors_variant():
             monitor = Monitor(monitor_variant)
             self.monitors[monitor.connector] = monitor
+
+    def init_logical_monitors(self):
+        self.logical_monitors = []
+        for variant in self.get_logical_monitors_variant():
+            logical_monitor = LogicalMonitor.new_from_variant(self, variant)
+            self.logical_monitors.append(logical_monitor)
 
     def get_monitors_variant(self):
         return self.current_state[1]
@@ -294,42 +360,41 @@ class MonitorsState:
 
         print()
         print("Logical monitors:")
-        logical_monitors = self.get_logical_monitors_variant()
         index = 1
-        for logical_monitor in logical_monitors:
-            is_last = logical_monitor == logical_monitors[-1]
-            properties = logical_monitor[2]
+        for logical_monitor in self.logical_monitors:
+            is_last = logical_monitor == self.logical_monitors[-1]
             print_data(
                 level=0,
                 is_last=is_last,
                 lines=lines,
                 data=f"Logical monitor #{index}",
             )
+            (x, y) = logical_monitor.position
             print_data(
                 level=1,
                 is_last=False,
                 lines=lines,
-                data=f"Position: ({logical_monitor[0]}, {logical_monitor[1]})",
+                data=f"Position: ({x}, {y})",
             )
             print_data(
                 level=1,
                 is_last=False,
                 lines=lines,
-                data=f"Scale: {logical_monitor[2]}",
+                data=f"Scale: {logical_monitor.scale}",
             )
             print_data(
                 level=1,
                 is_last=False,
                 lines=lines,
-                data=f"Transform: {TRANSFORM_STRINGS.get(logical_monitor[3])}",
+                data=f"Transform: {logical_monitor.transform}",
             )
             print_data(
                 level=1,
                 is_last=False,
                 lines=lines,
-                data=f"Primary: {logical_monitor[4]}",
+                data=f"Primary: {'yes' if logical_monitor.is_primary else 'no'}",
             )
-            monitors = logical_monitor[5]
+            monitors = logical_monitor.monitors
             print_data(
                 level=1,
                 is_last=not show_properties,
@@ -338,15 +403,23 @@ class MonitorsState:
             )
             for monitor in monitors:
                 is_last = monitor == monitors[-1]
+
+                if monitor.display_name:
+                    monitor_title = (
+                        f"{monitor.connector} ({monitor.display_name})"
+                    )
+                else:
+                    monitor_title = f"{monitor.connector}"
+
                 print_data(
                     level=2,
                     is_last=is_last,
                     lines=lines,
-                    data=f"{monitor[0]} ({monitor[1]}, {monitor[2]}, {monitor[3]})",
+                    data=monitor_title,
                 )
 
             if show_properties:
-                properties = logical_monitor[6]
+                properties = logical_monitor.properties
                 print_properties(level=1, lines=lines, properties=properties)
 
             index += 1
