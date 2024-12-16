@@ -52,8 +52,6 @@ static void meta_window_set_stack_position_no_sync (MetaWindow *window,
 static void stack_do_relayer (MetaStack *stack);
 static void stack_do_constrain (MetaStack *stack);
 static void stack_do_resort (MetaStack *stack);
-static void stack_ensure_sorted (MetaStack *stack);
-
 
 enum
 {
@@ -180,7 +178,7 @@ meta_stack_changed (MetaStack *stack)
 
   COGL_TRACE_BEGIN_SCOPED (MetaStackChangedSort, "Meta::Stack::changed()");
 
-  stack_ensure_sorted (stack);
+  meta_stack_ensure_sorted (stack);
   g_signal_emit (stack, signals[CHANGED], 0);
 }
 
@@ -274,7 +272,7 @@ meta_stack_raise (MetaStack  *stack,
   int max_stack_position = window->stack_position;
   MetaWorkspace *workspace;
 
-  stack_ensure_sorted (stack);
+  meta_stack_ensure_sorted (stack);
 
   workspace = meta_window_get_workspace (window);
   for (l = stack->sorted; l; l = l->next)
@@ -303,7 +301,7 @@ meta_stack_lower (MetaStack  *stack,
   int min_stack_position = window->stack_position;
   MetaWorkspace *workspace;
 
-  stack_ensure_sorted (stack);
+  meta_stack_ensure_sorted (stack);
 
   workspace = meta_window_get_workspace (window);
   for (l = stack->sorted; l; l = l->next)
@@ -835,7 +833,8 @@ stack_do_resort (MetaStack *stack)
 }
 
 /**
- * stack_ensure_sorted:
+ * meta_stack_ensure_sorted:
+ * @stack: The stack to potentially sort
  *
  * Puts the stack into canonical form.
  *
@@ -845,8 +844,8 @@ stack_do_resort (MetaStack *stack)
  * and if it wasn't already it might have become so during all the previous
  * activity).
  */
-static void
-stack_ensure_sorted (MetaStack *stack)
+void
+meta_stack_ensure_sorted (MetaStack *stack)
 {
   stack_do_relayer (stack);
   stack_do_constrain (stack);
@@ -856,7 +855,7 @@ stack_ensure_sorted (MetaStack *stack)
 MetaWindow *
 meta_stack_get_top (MetaStack *stack)
 {
-  stack_ensure_sorted (stack);
+  meta_stack_ensure_sorted (stack);
 
   if (stack->sorted)
     return stack->sorted->data;
@@ -872,7 +871,7 @@ meta_stack_get_above (MetaStack  *stack,
   GList *link;
   MetaWindow *above;
 
-  stack_ensure_sorted (stack);
+  meta_stack_ensure_sorted (stack);
 
   link = g_list_find (stack->sorted, window);
   if (link == NULL)
@@ -897,7 +896,7 @@ meta_stack_get_below (MetaStack  *stack,
   GList *link;
   MetaWindow *below;
 
-  stack_ensure_sorted (stack);
+  meta_stack_ensure_sorted (stack);
 
   link = g_list_find (stack->sorted, window);
 
@@ -922,7 +921,7 @@ meta_stack_list_windows (MetaStack     *stack,
   GList *workspace_windows = NULL;
   GList *link;
 
-  stack_ensure_sorted (stack); /* do adds/removes */
+  meta_stack_ensure_sorted (stack); /* do adds/removes */
 
   link = stack->sorted;
 
@@ -950,7 +949,7 @@ meta_stack_windows_cmp (MetaStack  *stack,
 {
   /* -1 means a below b */
 
-  stack_ensure_sorted (stack); /* update constraints, layers */
+  meta_stack_ensure_sorted (stack); /* update constraints, layers */
 
   if (window_a->layer < window_b->layer)
     return -1;

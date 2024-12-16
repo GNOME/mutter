@@ -296,3 +296,5 @@ void meta_window_set_stack_position (MetaWindow *window,
 
 void meta_stack_update_window_tile_matches (MetaStack     *stack,
                                             MetaWorkspace *workspace);
+
+void meta_stack_ensure_sorted (MetaStack *stack);
