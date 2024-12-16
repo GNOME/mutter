@@ -2361,7 +2361,7 @@ meta_display_unmanage_windows (MetaDisplay *display,
 
   winlist = meta_display_list_windows (display,
                                        META_LIST_INCLUDE_OVERRIDE_REDIRECT);
-  winlist = g_slist_sort (winlist, meta_display_stack_cmp);
+  winlist = g_slist_sort (winlist, meta_window_stack_position_compare);
   g_slist_foreach (winlist, (GFunc)g_object_ref, NULL);
 
   /* Unmanage all windows */
@@ -2416,7 +2416,7 @@ meta_display_sort_windows_by_stacking (MetaDisplay *display,
 {
   GSList *copy = g_slist_copy (windows);
 
-  copy = g_slist_sort (copy, meta_display_stack_cmp);
+  copy = g_slist_sort (copy, meta_window_stack_position_compare);
 
   return copy;
 }
@@ -3594,11 +3594,11 @@ update_window_visibilities (MetaDisplay *display,
     }
 
   /* Sort bottom to top */
-  unplaced = g_list_sort (unplaced, window_stack_cmp);
-  should_hide = g_list_sort (should_hide, window_stack_cmp);
+  unplaced = g_list_sort (unplaced, meta_window_stack_position_compare);
+  should_hide = g_list_sort (should_hide, meta_window_stack_position_compare);
 
   /* Sort top to bottom */
-  should_show = g_list_sort (should_show, window_stack_cmp);
+  should_show = g_list_sort (should_show, meta_window_stack_position_compare);
   should_show = g_list_reverse (should_show);
 
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayShowUnplacedWindows,

@@ -953,7 +953,7 @@ save_state (MetaContext *context)
   windows = meta_display_list_windows (display, META_LIST_DEFAULT);
   stack_position = 0;
 
-  windows = g_slist_sort (windows, meta_display_stack_cmp);
+  windows = g_slist_sort (windows, meta_window_stack_position_compare);
   tmp = windows;
   stack_position = 0;
 

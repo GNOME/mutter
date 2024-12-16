@@ -7186,7 +7186,7 @@ meta_window_find_tile_match (MetaWindow   *window,
       MtkRectangle above_rect, bottommost_rect, topmost_rect;
       MetaWindowDrag *window_drag;
 
-      if (meta_stack_windows_cmp (window->display->stack, match, window) > 0)
+      if (meta_window_stack_position_compare (match, window) > 0)
         {
           topmost = match;
           bottommost = window;
