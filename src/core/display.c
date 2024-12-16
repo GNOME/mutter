@@ -2383,16 +2383,6 @@ meta_display_unmanage_windows (MetaDisplay *display,
   g_slist_free (winlist);
 }
 
-int
-meta_display_stack_cmp (const void *a,
-                        const void *b)
-{
-  MetaWindow *aw = (void*) a;
-  MetaWindow *bw = (void*) b;
-
-  return meta_stack_windows_cmp (aw->display->stack, aw, bw);
-}
-
 /**
  * meta_display_sort_windows_by_stacking:
  * @display: a #MetaDisplay
@@ -3551,17 +3541,6 @@ static const char* meta_window_queue_names[META_N_QUEUE_TYPES] =
     "move-resize",
   };
 #endif
-
-static int
-window_stack_cmp (gconstpointer a,
-                  gconstpointer b)
-{
-  MetaWindow *aw = (gpointer) a;
-  MetaWindow *bw = (gpointer) b;
-
-  return meta_stack_windows_cmp (aw->display->stack,
-                                 aw, bw);
-}
 
 static void
 warn_on_incorrectly_unmanaged_window (MetaWindow *window)

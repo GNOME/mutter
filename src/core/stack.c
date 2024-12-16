@@ -942,27 +942,6 @@ meta_stack_list_windows (MetaStack     *stack,
   return workspace_windows;
 }
 
-int
-meta_stack_windows_cmp (MetaStack  *stack,
-                        MetaWindow *window_a,
-                        MetaWindow *window_b)
-{
-  /* -1 means a below b */
-
-  meta_stack_ensure_sorted (stack); /* update constraints, layers */
-
-  if (window_a->layer < window_b->layer)
-    return -1;
-  else if (window_a->layer > window_b->layer)
-    return 1;
-  else if (window_a->stack_position < window_b->stack_position)
-    return -1;
-  else if (window_a->stack_position > window_b->stack_position)
-    return 1;
-  else
-    return 0; /* not reached */
-}
-
 void
 meta_window_set_stack_position_no_sync (MetaWindow *window,
                                         int         position)

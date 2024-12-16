@@ -196,10 +196,6 @@ MetaDisplay * meta_display_new (MetaContext  *context,
 void meta_display_manage_all_xwindows (MetaDisplay *display);
 #endif
 
-/* Utility function to compare the stacking of two windows */
-int           meta_display_stack_cmp           (const void *a,
-                                                const void *b);
-
 /* Each MetaWindow is uniquely identified by a 64-bit "stamp"; unlike a
  * a MetaWindow *, a stamp will never be recycled
  */
