@@ -731,6 +731,9 @@ void meta_window_stack_just_below (MetaWindow *window,
 void meta_window_stack_just_above (MetaWindow *window,
                                    MetaWindow *above_this_one);
 
+int meta_window_stack_position_compare (gconstpointer window_a,
+                                        gconstpointer window_b);
+
 void meta_window_set_user_time (MetaWindow *window,
                                 guint32     timestamp);
 

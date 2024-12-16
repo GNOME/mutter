@@ -6784,6 +6784,39 @@ meta_window_get_layer (MetaWindow *window)
 }
 
 /**
+ * meta_window_stack_position_compare:
+ * @window_a: A #MetaWindow
+ * @window_b: Another #MetaWindow
+ *
+ * Comparison function for windows within a stack.
+ *
+ * Returns: -1 if window_a is below window_b, honouring layers; 1 if it's
+ * above it; 0 if you passed in the same window twice!
+ */
+int
+meta_window_stack_position_compare (gconstpointer window_a,
+                                    gconstpointer window_b)
+{
+  const MetaWindow *meta_window_a = window_a;
+  const MetaWindow *meta_window_b = window_b;
+  MetaStack *stack = meta_window_a->display->stack;
+
+  meta_stack_ensure_sorted (stack); /* update constraints, layers */
+
+  /* Go by layer, then stack_position */
+  if (meta_window_a->layer < meta_window_b->layer)
+    return -1; /* move meta_window_a later in list */
+  else if (meta_window_a->layer > meta_window_b->layer)
+    return 1;
+  else if (meta_window_a->stack_position < meta_window_b->stack_position)
+    return -1; /* move meta_window_a later in list */
+  else if (meta_window_a->stack_position > meta_window_b->stack_position)
+    return 1;
+  else
+    return 0; /* not reached */
+}
+
+/**
  * meta_window_get_transient_for:
  * @window: a #MetaWindow
  *
