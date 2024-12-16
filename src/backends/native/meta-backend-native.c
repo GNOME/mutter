@@ -154,24 +154,22 @@ meta_backend_native_create_default_seat (MetaBackend  *backend,
   ClutterContext *clutter_context =
     meta_backend_get_clutter_context (backend);
   const char *seat_id = NULL;
-  MetaSeatNativeFlag flags;
+  MetaSeatNativeFlag flags = META_SEAT_NATIVE_FLAG_NONE;
 
   switch (priv->mode)
     {
     case META_BACKEND_NATIVE_MODE_DEFAULT:
+      seat_id = get_seat_id (backend_native);
+      break;
     case META_BACKEND_NATIVE_MODE_HEADLESS:
     case META_BACKEND_NATIVE_MODE_TEST_HEADLESS:
       seat_id = get_seat_id (backend_native);
+      flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
       break;
     case META_BACKEND_NATIVE_MODE_TEST_VKMS:
       seat_id = META_BACKEND_TEST_INPUT_SEAT;
       break;
     }
-
-  if (meta_backend_is_headless (backend))
-    flags = META_SEAT_NATIVE_FLAG_NO_LIBINPUT;
-  else
-    flags = META_SEAT_NATIVE_FLAG_NONE;
 
   return CLUTTER_SEAT (g_object_new (META_TYPE_SEAT_NATIVE,
                                      "backend", backend,
