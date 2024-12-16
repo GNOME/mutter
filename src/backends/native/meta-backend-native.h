@@ -28,6 +28,7 @@
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-kms-types.h"
 
+#define META_BACKEND_HEADLESS_INPUT_SEAT "meta-headless-seat0"
 #define META_BACKEND_TEST_INPUT_SEAT "meta-test-seat0"
 
 #define META_TYPE_BACKEND_NATIVE (meta_backend_native_get_type ())
