@@ -1132,7 +1132,6 @@ meta_window_constructed (GObject *object)
   window->net_wm_user_time_set = FALSE;
   window->input = TRUE;
   window->calc_placement = FALSE;
-  window->have_focus_click_grab = FALSE;
 
   window->unmaps_pending = 0;
   window->reparents_pending = 0;
@@ -5447,32 +5446,6 @@ meta_window_set_focused_internal (MetaWindow *window,
       if (window->override_redirect)
         return;
 
-      /* Ungrab click to focus button since the sync grab can interfere
-       * with some things you might do inside the focused window, by
-       * causing the client to get funky enter/leave events.
-       *
-       * The reason we usually have a passive grab on the window is
-       * so that we can intercept clicks and raise the window in
-       * response. For click-to-focus we don't need that since the
-       * focused window is already raised. When raise_on_click is
-       * FALSE we also don't need that since we don't do anything
-       * when the window is clicked.
-       *
-       * There is dicussion in bugs 102209, 115072, and 461577
-       */
-#ifdef HAVE_X11
-      if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
-          !meta_prefs_get_raise_on_click ())
-        {
-          meta_x11_keybindings_ungrab_focus_window_button (&window->display->key_binding_manager,
-                                                           window);
-          /* Since we ungrab with XIAnyModifier above, all button
-             grabs go way so we need to re-grab the window buttons. */
-          meta_x11_keybindings_grab_window_buttons (&window->display->key_binding_manager,
-                                                    window);
-        }
-#endif
-
       g_signal_emit (window, window_signals[FOCUS], 0);
 
       if (!window->attached_focus_window)
@@ -5490,13 +5463,6 @@ meta_window_set_focused_internal (MetaWindow *window,
 
       if (!window->attached_focus_window)
         meta_window_update_appears_focused (window);
-
-      /* Re-grab for click to focus and raise-on-click, if necessary */
-#ifdef HAVE_X11
-      if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
-          !meta_prefs_get_raise_on_click ())
-        meta_x11_keybindings_grab_focus_window_button (&window->display->key_binding_manager, window);
-#endif
     }
 }
 

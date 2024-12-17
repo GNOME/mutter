@@ -30,7 +30,10 @@
 #include "compositor/meta-sync-ring.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "core/display-private.h"
+#include "core/window-private.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 #define IS_GESTURE_EVENT(et) ((et) == CLUTTER_TOUCH_BEGIN || \
                               (et) == CLUTTER_TOUCH_UPDATE || \
@@ -45,11 +48,13 @@ struct _MetaCompositorX11
 
   gulong before_update_handler_id;
   gulong after_update_handler_id;
+  gulong focus_window_handler_id;
 
   gboolean frame_has_updated_xsurfaces;
   gboolean have_x11_sync_object;
 
   MetaWindow *unredirected_window;
+  MetaWindow *focus_window;
 
   gboolean xserver_uses_monotonic_clock;
   int64_t xserver_time_query_time_us;
@@ -403,6 +408,178 @@ on_after_update (ClutterStage     *stage,
 }
 
 static void
+meta_change_button_grab (MetaCompositorX11   *compositor_x11,
+                         MetaWindow          *window,
+                         gboolean             grab,
+                         MetaPassiveGrabMode  grab_mode,
+                         int                  button,
+                         int                  modmask)
+{
+  MetaBackend *backend =
+    meta_compositor_get_backend (META_COMPOSITOR (compositor_x11));
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  Window xwindow;
+
+  xwindow = meta_window_x11_get_toplevel_xwindow (window);
+
+  if (grab)
+    {
+      meta_backend_x11_passive_button_grab (backend_x11,
+                                            xwindow,
+                                            button,
+                                            grab_mode,
+                                            modmask);
+    }
+  else
+    {
+      meta_backend_x11_passive_button_ungrab (backend_x11,
+                                              xwindow,
+                                              button,
+                                              modmask);
+    }
+}
+
+static void
+meta_change_buttons_grab (MetaCompositorX11   *compositor_x11,
+                          MetaWindow          *window,
+                          gboolean             grab,
+                          MetaPassiveGrabMode  grab_mode,
+                          int                  modmask)
+{
+#define MAX_BUTTON 3
+  int i;
+
+  /* Grab Alt + button1 for moving window.
+   * Grab Alt + button2 for resizing window.
+   * Grab Alt + button3 for popping up window menu.
+   */
+  for (i = 1; i <= MAX_BUTTON; i++)
+    {
+      meta_change_button_grab (compositor_x11, window, grab,
+                               grab_mode, i, modmask);
+    }
+
+  /* Grab Alt + Shift + button1 for snap-moving window. */
+  meta_change_button_grab (compositor_x11, window,
+                           grab, grab_mode,
+                           1, modmask | CLUTTER_SHIFT_MASK);
+
+#undef MAX_BUTTON
+}
+
+static void
+meta_compositor_x11_grab_window_buttons (MetaCompositorX11 *compositor_x11,
+                                         MetaWindow        *window)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  int modmask;
+
+  meta_topic (META_DEBUG_X11, "Grabbing window buttons for %s", window->desc);
+
+  modmask = meta_display_get_compositor_modifiers (display);
+
+  if (modmask != 0)
+    {
+      meta_change_buttons_grab (compositor_x11, window, TRUE,
+                                META_GRAB_MODE_ASYNC, modmask);
+    }
+}
+
+static void
+meta_compositor_x11_ungrab_window_buttons (MetaCompositorX11 *compositor_x11,
+                                           MetaWindow        *window)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  int modmask;
+
+  meta_topic (META_DEBUG_X11, "Ungrabbing window buttons for %s", window->desc);
+
+  modmask = meta_display_get_compositor_modifiers (display);
+
+  if (modmask != 0)
+    {
+      meta_change_buttons_grab (compositor_x11, window, FALSE,
+                                META_GRAB_MODE_ASYNC, modmask);
+    }
+}
+
+static void
+meta_compositor_x11_grab_focus_window_button (MetaCompositorX11 *compositor_x11,
+                                              MetaWindow        *window)
+{
+  /* Grab button 1 for activating unfocused windows */
+  meta_topic (META_DEBUG_X11, "Grabbing unfocused window buttons for %s",
+              window->desc);
+
+  meta_change_buttons_grab (compositor_x11, window, TRUE,
+                            META_GRAB_MODE_SYNC, 0);
+}
+
+static void
+meta_compositor_x11_ungrab_focus_window_button (MetaCompositorX11 *compositor_x11,
+                                                MetaWindow        *window)
+{
+  meta_topic (META_DEBUG_X11, "Ungrabbing unfocused window buttons for %s",
+              window->desc);
+
+  meta_change_buttons_grab (compositor_x11, window, FALSE,
+                            META_GRAB_MODE_ASYNC, 0);
+}
+
+static void
+on_focus_window_change (MetaDisplay    *display,
+                        GParamSpec     *pspec,
+                        MetaCompositor *compositor)
+{
+  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
+  MetaWindow *focus, *old_focus;
+  gboolean needs_grab_change;
+
+  old_focus = compositor_x11->focus_window;
+  focus = meta_display_get_focus_window (display);
+
+  if (focus && (focus->type == META_WINDOW_DOCK || focus->override_redirect))
+    focus = NULL;
+
+  if (focus == old_focus)
+    return;
+
+  needs_grab_change =
+    (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
+     !meta_prefs_get_raise_on_click());
+
+  if (old_focus && needs_grab_change)
+    {
+      /* Restore passive grabs applying to out of focus windows */
+      meta_compositor_x11_ungrab_window_buttons (compositor_x11, old_focus);
+      meta_compositor_x11_grab_focus_window_button (compositor_x11, old_focus);
+    }
+
+  if (focus && needs_grab_change)
+    {
+      /* Ungrab click to focus button since the sync grab can interfere
+       * with some things you might do inside the focused window, by
+       * causing the client to get funky enter/leave events.
+       *
+       * The reason we usually have a passive grab on the window is
+       * so that we can intercept clicks and raise the window in
+       * response. For click-to-focus we don't need that since the
+       * focused window is already raised. When raise_on_click is
+       * FALSE we also don't need that since we don't do anything
+       * when the window is clicked.
+       *
+       * There is dicussion in bugs 102209, 115072, and 461577
+       */
+      meta_compositor_x11_ungrab_focus_window_button (compositor_x11, focus);
+      meta_compositor_x11_grab_window_buttons (compositor_x11, focus);
+    }
+
+  compositor_x11->focus_window = focus;
+}
+
+static void
 meta_compositor_x11_before_paint (MetaCompositor     *compositor,
                                   MetaCompositorView *compositor_view)
 {
@@ -432,6 +609,20 @@ meta_compositor_x11_before_paint (MetaCompositor     *compositor,
 }
 
 static void
+meta_compositor_x11_add_window (MetaCompositor *compositor,
+                                MetaWindow     *window)
+{
+  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
+  MetaCompositorClass *parent_class;
+
+  if (window->type != META_WINDOW_DOCK && !window->override_redirect)
+    meta_compositor_x11_grab_focus_window_button (compositor_x11, window);
+
+  parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
+  parent_class->add_window (compositor, window);
+}
+
+static void
 meta_compositor_x11_remove_window (MetaCompositor *compositor,
                                    MetaWindow     *window)
 {
@@ -440,6 +631,16 @@ meta_compositor_x11_remove_window (MetaCompositor *compositor,
 
   if (compositor_x11->unredirected_window == window)
     set_unredirected_window (compositor_x11, NULL);
+
+  if (window == compositor_x11->focus_window)
+    {
+      meta_compositor_x11_ungrab_window_buttons (compositor_x11, window);
+      compositor_x11->focus_window = NULL;
+    }
+  else if (window->type != META_WINDOW_DOCK && !window->override_redirect)
+    {
+      meta_compositor_x11_ungrab_focus_window_button (compositor_x11, window);
+    }
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
   parent_class->remove_window (compositor, window);
@@ -503,6 +704,50 @@ meta_compositor_x11_handle_event (MetaCompositor     *compositor,
   return CLUTTER_EVENT_PROPAGATE;
 }
 
+static void
+meta_compositor_x11_notify_mapping_change (MetaCompositor   *compositor,
+                                           MetaMappingType   type,
+                                           MetaMappingState  state)
+{
+  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+  /* Ungrab before change, grab again after it */
+  gboolean grab = state == META_MAPPING_STATE_POST_CHANGE;
+
+  switch (type)
+    {
+    case META_MAPPING_TYPE_BUTTON:
+      windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+
+      for (l = windows; l; l = l->next)
+        {
+          MetaWindow *window = l->data;
+          void (*func) (MetaCompositorX11*, MetaWindow*);
+
+          if (window == compositor_x11->focus_window)
+            {
+              func = grab ?
+                meta_compositor_x11_grab_window_buttons :
+                meta_compositor_x11_ungrab_window_buttons;
+            }
+          else
+            {
+              func = grab ?
+                meta_compositor_x11_grab_focus_window_button :
+                meta_compositor_x11_ungrab_focus_window_button;
+            }
+
+          func (compositor_x11, window);
+        }
+
+      break;
+    default:
+      break;
+    }
+}
+
 Window
 meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11)
 {
@@ -525,6 +770,7 @@ meta_compositor_x11_constructed (GObject *object)
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (object);
   MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
   ClutterStage *stage = meta_compositor_get_stage (compositor);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
 
   compositor_x11->before_update_handler_id =
     g_signal_connect (stage, "before-update",
@@ -532,6 +778,10 @@ meta_compositor_x11_constructed (GObject *object)
   compositor_x11->after_update_handler_id =
     g_signal_connect (stage, "after-update",
                       G_CALLBACK (on_after_update), compositor);
+
+  compositor_x11->focus_window_handler_id =
+    g_signal_connect (display, "notify::focus-window",
+                      G_CALLBACK (on_focus_window_change), compositor);
 
   G_OBJECT_CLASS (meta_compositor_x11_parent_class)->constructed (object);
 }
@@ -542,6 +792,7 @@ meta_compositor_x11_dispose (GObject *object)
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (object);
   MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
   ClutterStage *stage = meta_compositor_get_stage (compositor);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
 
   if (compositor_x11->have_x11_sync_object)
     {
@@ -551,6 +802,7 @@ meta_compositor_x11_dispose (GObject *object)
 
   g_clear_signal_handler (&compositor_x11->before_update_handler_id, stage);
   g_clear_signal_handler (&compositor_x11->after_update_handler_id, stage);
+  g_clear_signal_handler (&compositor_x11->focus_window_handler_id, display);
 
   G_OBJECT_CLASS (meta_compositor_x11_parent_class)->dispose (object);
 }
@@ -572,9 +824,12 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
   compositor_class->manage = meta_compositor_x11_manage;
   compositor_class->unmanage = meta_compositor_x11_unmanage;
   compositor_class->before_paint = meta_compositor_x11_before_paint;
+  compositor_class->add_window = meta_compositor_x11_add_window;
   compositor_class->remove_window = meta_compositor_x11_remove_window;
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_x11_monotonic_to_high_res_xserver_time;
   compositor_class->create_view = meta_compositor_x11_create_view;
   compositor_class->handle_event = meta_compositor_x11_handle_event;
+  compositor_class->notify_mapping_change =
+    meta_compositor_x11_notify_mapping_change;
 }

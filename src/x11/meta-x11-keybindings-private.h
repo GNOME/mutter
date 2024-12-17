@@ -25,18 +25,6 @@
 
 #pragma once
 
-void meta_x11_keybindings_grab_window_buttons (MetaKeyBindingManager *keys,
-                                               MetaWindow            *window);
-
-void meta_x11_keybindings_ungrab_window_buttons (MetaKeyBindingManager *keys,
-                                                 MetaWindow            *window);
-
-void meta_x11_keybindings_grab_focus_window_button (MetaKeyBindingManager *keys,
-                                                    MetaWindow            *window);
-
-void meta_x11_keybindings_ungrab_focus_window_button (MetaKeyBindingManager *keys,
-                                                      MetaWindow            *window);
-
 void meta_x11_display_grab_keys (MetaX11Display *x11_display);
 
 void meta_x11_display_ungrab_keys (MetaX11Display *x11_display);

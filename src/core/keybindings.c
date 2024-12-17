@@ -1241,31 +1241,8 @@ prefs_changed_callback (MetaPreference pref,
 #endif
       break;
     case META_PREF_MOUSE_BUTTON_MODS:
-      {
-#ifdef HAVE_X11
-        GSList *windows, *l;
-        windows = meta_display_list_windows (display, META_LIST_DEFAULT);
-
-        for (l = windows; l; l = l->next)
-          {
-            MetaWindow *w = l->data;
-            meta_x11_keybindings_ungrab_window_buttons (&display->key_binding_manager, w);
-          }
-#endif
-
-        update_window_grab_modifiers (display);
-
-#ifdef HAVE_X11
-        for (l = windows; l; l = l->next)
-          {
-            MetaWindow *w = l->data;
-            if (w->type != META_WINDOW_DOCK)
-              meta_x11_keybindings_grab_window_buttons (&display->key_binding_manager, w);
-          }
-
-        g_slist_free (windows);
-#endif
-      }
+      update_window_grab_modifiers (display);
+      break;
     default:
       break;
     }

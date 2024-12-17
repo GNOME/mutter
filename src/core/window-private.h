@@ -540,9 +540,6 @@ struct _MetaWindow
    */
   guint calc_placement : 1;
 
-  /* if TRUE we have a grab on the focus click buttons */
-  guint have_focus_click_grab : 1;
-
   /* if TRUE, window is attached to its parent */
   guint attached : 1;
 
