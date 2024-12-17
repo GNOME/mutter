@@ -47,6 +47,8 @@ struct _MetaCompositorClass
                          MetaCompositorView *compositor_view);
   void (* after_paint) (MetaCompositor     *compositor,
                         MetaCompositorView *compositor_view);
+  void (* add_window) (MetaCompositor *compositor,
+                       MetaWindow     *window);
   void (* remove_window) (MetaCompositor *compositor,
                           MetaWindow     *window);
   int64_t (* monotonic_to_high_res_xserver_time) (MetaCompositor *compositor,

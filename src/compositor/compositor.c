@@ -333,9 +333,9 @@ meta_compositor_unmanage (MetaCompositor *compositor)
   META_COMPOSITOR_GET_CLASS (compositor)->unmanage (compositor);
 }
 
-void
-meta_compositor_add_window (MetaCompositor    *compositor,
-                            MetaWindow        *window)
+static void
+meta_compositor_real_add_window (MetaCompositor    *compositor,
+                                 MetaWindow        *window)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -391,6 +391,13 @@ meta_compositor_real_remove_window (MetaCompositor *compositor,
   MetaWindowActor *window_actor = meta_window_actor_from_window (window);
 
   meta_window_actor_queue_destroy (window_actor);
+}
+
+void
+meta_compositor_add_window (MetaCompositor *compositor,
+                            MetaWindow     *window)
+{
+  META_COMPOSITOR_GET_CLASS (compositor)->add_window (compositor, window);
 }
 
 void
@@ -1196,6 +1203,7 @@ meta_compositor_class_init (MetaCompositorClass *klass)
   object_class->dispose = meta_compositor_dispose;
 
   klass->unmanage = meta_compositor_real_unmanage;
+  klass->add_window = meta_compositor_real_add_window;
   klass->remove_window = meta_compositor_real_remove_window;
   klass->before_paint = meta_compositor_real_before_paint;
   klass->after_paint = meta_compositor_real_after_paint;
