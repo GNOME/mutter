@@ -32,6 +32,11 @@
 #include "core/display-private.h"
 #include "x11/meta-x11-display-private.h"
 
+#define IS_GESTURE_EVENT(et) ((et) == CLUTTER_TOUCH_BEGIN || \
+                              (et) == CLUTTER_TOUCH_UPDATE || \
+                              (et) == CLUTTER_TOUCH_END || \
+                              (et) == CLUTTER_TOUCH_CANCEL)
+
 struct _MetaCompositorX11
 {
   MetaCompositor parent;
@@ -478,6 +483,26 @@ meta_compositor_x11_create_view (MetaCompositor   *compositor,
   return meta_compositor_view_new (stage_view);
 }
 
+static gboolean
+meta_compositor_x11_handle_event (MetaCompositor     *compositor,
+                                  const ClutterEvent *event,
+                                  MetaWindow         *event_window,
+                                  MetaEventMode       mode_hint)
+{
+  MetaBackend *backend = meta_compositor_get_backend (compositor);
+
+  if (clutter_event_type (event) == CLUTTER_BUTTON_PRESS)
+    {
+      meta_backend_x11_allow_events (META_BACKEND_X11 (backend),
+                                     event, mode_hint);
+    }
+
+  if (event_window && !IS_GESTURE_EVENT (clutter_event_type (event)))
+    return CLUTTER_EVENT_STOP;
+
+  return CLUTTER_EVENT_PROPAGATE;
+}
+
 Window
 meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11)
 {
@@ -551,4 +576,5 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
   compositor_class->monotonic_to_high_res_xserver_time =
    meta_compositor_x11_monotonic_to_high_res_xserver_time;
   compositor_class->create_view = meta_compositor_x11_create_view;
+  compositor_class->handle_event = meta_compositor_x11_handle_event;
 }

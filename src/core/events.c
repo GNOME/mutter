@@ -34,11 +34,6 @@
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
 
-#ifdef HAVE_X11_CLIENT
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-input-device-x11.h"
-#endif
-
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
@@ -47,22 +42,8 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
-#define IS_GESTURE_EVENT(et) ((et) == CLUTTER_TOUCHPAD_SWIPE || \
-                              (et) == CLUTTER_TOUCHPAD_PINCH || \
-                              (et) == CLUTTER_TOUCHPAD_HOLD || \
-                              (et) == CLUTTER_TOUCH_BEGIN || \
-                              (et) == CLUTTER_TOUCH_UPDATE || \
-                              (et) == CLUTTER_TOUCH_END || \
-                              (et) == CLUTTER_TOUCH_CANCEL)
-
 #define IS_KEY_EVENT(et) ((et) == CLUTTER_KEY_PRESS || \
                           (et) == CLUTTER_KEY_RELEASE)
-
-typedef enum
-{
-  EVENTS_UNFREEZE_SYNC,
-  EVENTS_UNFREEZE_REPLAY,
-} EventsUnfreezeMethod;
 
 static ClutterStage *
 stage_from_display (MetaDisplay *display)
@@ -179,51 +160,6 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
   return FALSE;
 }
 
-#ifdef HAVE_X11
-static void
-maybe_unfreeze_pointer_events (MetaBackend          *backend,
-                               const ClutterEvent   *event,
-                               EventsUnfreezeMethod  unfreeze_method)
-{
-  ClutterInputDevice *device;
-  Display *xdisplay;
-  int event_mode;
-  int device_id;
-  uint32_t time_ms;
-
-  if (clutter_event_type (event) != CLUTTER_BUTTON_PRESS)
-    return;
-
-  if (!META_IS_BACKEND_X11 (backend))
-    return;
-
-  device = clutter_event_get_device (event);
-  device_id = meta_input_device_x11_get_device_id (device);
-  time_ms = clutter_event_get_time (event);
-  switch (unfreeze_method)
-    {
-    case EVENTS_UNFREEZE_SYNC:
-      event_mode = XISyncDevice;
-      meta_topic (META_DEBUG_X11,
-                  "Syncing events time %u device %i",
-                  (unsigned int) time_ms, device_id);
-      break;
-    case EVENTS_UNFREEZE_REPLAY:
-      event_mode = XIReplayDevice;
-      meta_topic (META_DEBUG_X11,
-                  "Replaying events time %u device %i",
-                  (unsigned int) time_ms, device_id);
-      break;
-    default:
-      g_assert_not_reached ();
-      return;
-    }
-
-  xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-  XIAllowEvents (xdisplay, device_id, event_mode, time_ms);
-}
-#endif
-
 static gboolean
 meta_display_handle_event (MetaDisplay        *display,
                            const ClutterEvent *event,
@@ -241,6 +177,7 @@ meta_display_handle_event (MetaDisplay        *display,
   gboolean has_grab;
   gboolean a11y_grabbed;
   MetaTabletActionMapper *mapper;
+  MetaEventMode mode_hint;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
   MetaWaylandTextInput *wayland_text_input = NULL;
@@ -452,10 +389,6 @@ meta_display_handle_event (MetaDisplay        *display,
       if (meta_window_handle_ungrabbed_event (window, event))
         return CLUTTER_EVENT_STOP;
 
-#ifdef HAVE_X11
-      /* Now replay the button press event to release our own sync grab. */
-      maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_REPLAY);
-#endif
       /* If the focus window has an active close dialog let clutter
        * events go through, so fancy clutter dialogs can get to handle
        * all events.
@@ -463,15 +396,16 @@ meta_display_handle_event (MetaDisplay        *display,
       if (window->close_dialog &&
           meta_close_dialog_is_visible (window->close_dialog))
         return CLUTTER_EVENT_PROPAGATE;
+
+      /* Now replay the button press event to release our own sync grab. */
+      mode_hint = META_EVENT_MODE_REPLAY;
     }
   else
     {
       /* We could not match the event with a window, make sure we sync
        * the pointer to discard the sequence and don't keep events frozen.
        */
-#ifdef HAVE_X11
-      maybe_unfreeze_pointer_events (backend, event, EVENTS_UNFREEZE_SYNC);
-#endif
+      mode_hint = META_EVENT_MODE_KEEP_FROZEN;
     }
 
 #ifdef HAVE_WAYLAND
@@ -487,14 +421,9 @@ meta_display_handle_event (MetaDisplay        *display,
       if (meta_wayland_compositor_handle_event (wayland_compositor, event))
         return CLUTTER_EVENT_STOP;
     }
-  else
 #endif
-    {
-      if (window && !IS_GESTURE_EVENT (event_type))
-        return CLUTTER_EVENT_STOP;
-    }
 
-  return CLUTTER_EVENT_PROPAGATE;
+  return meta_compositor_handle_event (compositor, event, window, mode_hint);
 }
 
 static gboolean
