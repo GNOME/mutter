@@ -806,8 +806,11 @@ foreach test_case: test_cases
 
   test_depends = [ default_plugin ] + test_case.get('depends', [])
 
+  args = test_case.get('args', [])
+
   test(test_case['name'], test_executable,
     suite: ['core', 'mutter/' + test_case['suite']],
+    args: args,
     env: test_env,
     depends: test_depends,
     is_parallel: false,
@@ -1057,6 +1060,7 @@ if have_installed_tests
     installed_tests_cdata.set('reftestresultdir', '/tmp/mutter-ref-test-results')
     installed_tests_cdata.set('testname', test_case['name'])
     installed_tests_cdata.set('testexecutable', 'mutter-' + test_case['name'])
+    installed_tests_cdata.set('testargs', ' '.join(test_case.get('args', [])))
     installed_tests_cdata.set('runnerargs', ' '.join(runner_args))
 
     configure_file(
