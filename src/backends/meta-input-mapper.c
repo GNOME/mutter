@@ -991,6 +991,9 @@ meta_input_mapper_add_device (MetaInputMapper    *mapper,
                               ClutterInputDevice *device)
 {
   MetaMapperInputInfo *info;
+  ClutterInputDeviceType type;
+  MetaPowerSave power_save_mode;
+  gboolean on;
 
   g_return_if_fail (mapper != NULL);
   g_return_if_fail (device != NULL);
@@ -1001,6 +1004,15 @@ meta_input_mapper_add_device (MetaInputMapper    *mapper,
   info = mapper_input_info_new (device, mapper);
   g_hash_table_insert (mapper->input_devices, device, info);
   mapper_recalculate_input (mapper, info);
+
+  type = clutter_input_device_get_device_type (device);
+  if (type == CLUTTER_TOUCHSCREEN_DEVICE)
+    {
+      power_save_mode =
+        meta_monitor_manager_get_power_save_mode (mapper->monitor_manager);
+      on = power_save_mode == META_POWER_SAVE_ON;
+      g_signal_emit (mapper, signals[DEVICE_ENABLED], 0, device, on);
+    }
 }
 
 void
