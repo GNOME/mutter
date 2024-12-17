@@ -1594,3 +1594,17 @@ meta_compositor_get_current_window_drag (MetaCompositor *compositor)
 
   return priv->current_drag;
 }
+
+gboolean
+meta_compositor_handle_event (MetaCompositor     *compositor,
+                              const ClutterEvent *event,
+                              MetaWindow         *event_window,
+                              MetaEventMode       mode_hint)
+{
+  MetaCompositorClass *klass = META_COMPOSITOR_GET_CLASS (compositor);
+
+  if (!klass->handle_event)
+    return CLUTTER_EVENT_PROPAGATE;
+
+  return klass->handle_event (compositor, event, event_window, mode_hint);
+}

@@ -4,6 +4,7 @@
 
 #include <graphene.h>
 
+#include "backends/meta-backend-private.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "compositor/meta-compositor-view.h"
@@ -36,6 +37,11 @@ struct _MetaCompositorClass
 
   MetaCompositorView * (* create_view) (MetaCompositor   *compositor,
                                         ClutterStageView *stage_view);
+
+  gboolean (* handle_event) (MetaCompositor     *compositor,
+                             const ClutterEvent *event,
+                             MetaWindow         *event_window,
+                             MetaEventMode       mode_hint);
 };
 
 void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
@@ -155,6 +161,11 @@ void meta_compositor_show_window_menu (MetaCompositor     *compositor,
 				       MetaWindowMenuType  menu,
                                        int                 x,
                                        int                 y);
+
+gboolean meta_compositor_handle_event (MetaCompositor     *compositor,
+                                       const ClutterEvent *event,
+                                       MetaWindow         *event_window,
+                                       MetaEventMode       mode_hint);
 
 /*
  * This function takes a 64 bit time stamp from the monotonic clock, and clamps
