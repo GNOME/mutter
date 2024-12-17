@@ -64,3 +64,7 @@ void meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11);
 MetaX11Barriers * meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11);
 
 void meta_backend_x11_reset_cached_logical_monitor (MetaBackendX11 *backend_x11);
+
+void meta_backend_x11_allow_events (MetaBackendX11     *backend_x11,
+                                    const ClutterEvent *event,
+                                    MetaEventMode       event_mode);

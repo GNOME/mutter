@@ -48,6 +48,7 @@
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-color-manager-x11.h"
 #include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
@@ -1189,4 +1190,47 @@ meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11)
     meta_backend_x11_get_instance_private (backend_x11);
 
   return priv->barriers;
+}
+
+void
+meta_backend_x11_allow_events (MetaBackendX11     *backend_x11,
+                               const ClutterEvent *event,
+                               MetaEventMode       event_mode)
+{
+  MetaBackendX11Private *priv =
+    meta_backend_x11_get_instance_private (backend_x11);
+  ClutterInputDevice *device;
+  int xi_event_mode, device_id;
+  uint32_t time_ms;
+
+  device = clutter_event_get_device (event);
+  device_id = meta_input_device_x11_get_device_id (device);
+  time_ms = clutter_event_get_time (event);
+
+  switch (event_mode)
+    {
+    case META_EVENT_MODE_KEEP_FROZEN:
+      xi_event_mode = XISyncDevice;
+      meta_topic (META_DEBUG_X11,
+                  "Events kept frozen, time %u device %i",
+                  (unsigned int) time_ms, device_id);
+      break;
+    case META_EVENT_MODE_REPLAY:
+      xi_event_mode = XIReplayDevice;
+      meta_topic (META_DEBUG_X11,
+                  "Replaying events time %u device %i",
+                  (unsigned int) time_ms, device_id);
+      break;
+    case META_EVENT_MODE_THAW:
+      xi_event_mode = XIAsyncDevice;
+      meta_topic (META_DEBUG_X11,
+                  "Keeping events grabbed, time %u device %i",
+                  (unsigned int) time_ms, device_id);
+      break;
+    default:
+      g_assert_not_reached ();
+      return;
+    }
+
+  XIAllowEvents (priv->xdisplay, device_id, xi_event_mode, time_ms);
 }

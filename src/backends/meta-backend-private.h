@@ -52,6 +52,13 @@ typedef enum
   META_SEQUENCE_PENDING_END
 } MetaSequenceState;
 
+typedef enum _MetaEventMode
+{
+  META_EVENT_MODE_KEEP_FROZEN,
+  META_EVENT_MODE_THAW,
+  META_EVENT_MODE_REPLAY,
+} MetaEventMode;
+
 struct _MetaBackendClass
 {
   GObjectClass parent_class;
