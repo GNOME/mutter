@@ -31,6 +31,14 @@
 #include "backends/x11/meta-backend-x11-types.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 
+typedef enum _MetaPassiveGrabMode MetaPassiveGrabMode;
+
+enum _MetaPassiveGrabMode
+{
+  META_GRAB_MODE_SYNC,
+  META_GRAB_MODE_ASYNC,
+};
+
 #define META_TYPE_BACKEND_X11 (meta_backend_x11_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaBackendX11, meta_backend_x11,
                           META, BACKEND_X11, MetaBackend)
@@ -64,6 +72,17 @@ void meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11);
 MetaX11Barriers * meta_backend_x11_get_barriers (MetaBackendX11 *backend_x11);
 
 void meta_backend_x11_reset_cached_logical_monitor (MetaBackendX11 *backend_x11);
+
+void meta_backend_x11_passive_button_grab (MetaBackendX11      *backend_x11,
+                                           Window               xwindow,
+                                           int                  button,
+                                           MetaPassiveGrabMode  grab_mode,
+                                           ClutterModifierType  modifiers);
+
+void meta_backend_x11_passive_button_ungrab (MetaBackendX11      *backend_x11,
+                                             Window               xwindow,
+                                             int                  button,
+                                             ClutterModifierType  modifiers);
 
 void meta_backend_x11_allow_events (MetaBackendX11     *backend_x11,
                                     const ClutterEvent *event,
