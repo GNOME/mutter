@@ -12,7 +12,22 @@ INTERFACE = "org.gnome.Mutter.DisplayConfig"
 OBJECT_PATH = "/org/gnome/Mutter/DisplayConfig"
 
 
-class Transform(Enum):
+class NamedEnum(Enum):
+    def __str__(self):
+        return next(
+            string for enum, string in type(self).enum_names() if enum == self
+        )
+
+    @classmethod
+    def from_string(cls, string):
+        return next(
+            enum
+            for enum, enum_string in cls.enum_names()
+            if string == enum_string
+        )
+
+
+class Transform(NamedEnum):
     NORMAL = 0
     ROTATE_90 = 1
     ROTATE_180 = 2
@@ -22,36 +37,30 @@ class Transform(Enum):
     ROTATE_270_FLIPPED = 6
     ROTATE_180_FLIPPED = 7
 
-    def __str__(self):
-        match self:
-            case self.NORMAL:
-                return "normal"
-            case self.ROTATE_90:
-                return "90"
-            case self.ROTATE_180:
-                return "180"
-            case self.ROTATE_270:
-                return "270"
-            case self.FLIPPED:
-                return "flipped"
-            case self.ROTATE_90_FLIPPED:
-                return "flipped-90"
-            case self.ROTATE_180_FLIPPED:
-                return "flipped-180"
-            case self.ROTATE_270_FLIPPED:
-                return "flipped-270"
+    @classmethod
+    def enum_names(cls):
+        return [
+            (Transform.NORMAL, "normal"),
+            (Transform.ROTATE_90, "90"),
+            (Transform.ROTATE_180, "180"),
+            (Transform.ROTATE_270, "270"),
+            (Transform.FLIPPED, "flipped"),
+            (Transform.ROTATE_90_FLIPPED, "flipped-90"),
+            (Transform.ROTATE_180_FLIPPED, "flipped-180"),
+            (Transform.ROTATE_270_FLIPPED, "flipped-270"),
+        ]
 
 
-class LayoutMode(Enum):
+class LayoutMode(NamedEnum):
     LOGICAL = 1
     PHYSICAL = 2
 
-    def __str__(self):
-        match self:
-            case self.LOGICAL:
-                return "logical"
-            case self.PHYSICAL:
-                return "physical"
+    @classmethod
+    def enum_names(cls):
+        return [
+            (LayoutMode.LOGICAL, "logical"),
+            (LayoutMode.PHYSICAL, "physical"),
+        ]
 
 
 def translate_property(name, value):
