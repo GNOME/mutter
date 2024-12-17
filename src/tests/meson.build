@@ -148,6 +148,7 @@ test_env_variables = {
   'XDG_CONFIG_HOME': mutter_builddir / '.config',
   'MUTTER_TEST_PLUGIN_PATH': '@0@'.format(default_plugin.full_path()),
   'MUTTER_REF_TEST_RESULT_DIR': mutter_builddir / 'meson-logs' / 'tests' / 'ref-tests',
+  'MUTTER_GDCTL_TEST_RESULT_DIR': mutter_builddir / 'meson-logs' / 'tests' / 'gdctl',
   'GSETTINGS_SCHEMA_DIR': ':'.join([mutter_builddir / 'src' / 'tests',
                                     locally_compiled_schemas_dir]),
 }
@@ -204,6 +205,9 @@ install_data(
   install_dir: tests_datadir,
 )
 install_subdir('dbusmock-templates',
+  install_dir: tests_datadir,
+)
+install_subdir('gdctl',
   install_dir: tests_datadir,
 )
 
@@ -276,6 +280,12 @@ test_cases += [
     'name': 'monitor-backlight',
     'suite': 'backend',
     'sources': [ 'monitor-backlight-tests.c', ]
+  },
+  {
+    'name': 'monitor-dbus',
+    'suite': 'backend',
+    'sources': [ 'monitor-dbus-tests.c', ],
+    'args': gdctl.full_path(),
   },
   {
     'name': 'stage-views',
@@ -808,6 +818,7 @@ foreach test_case: test_cases
 
   args = test_case.get('args', [])
 
+  message('test @0@ args: @1@'.format(test_case['name'], args))
   test(test_case['name'], test_executable,
     suite: ['core', 'mutter/' + test_case['suite']],
     args: args,
@@ -1058,6 +1069,7 @@ if have_installed_tests
     installed_tests_cdata.set('libexecdir', libexecdir)
     installed_tests_cdata.set('pkgdatadir', pkgdatadir)
     installed_tests_cdata.set('reftestresultdir', '/tmp/mutter-ref-test-results')
+    installed_tests_cdata.set('gdctltestresultdir', '/tmp/mutter-gdctl-test-results')
     installed_tests_cdata.set('testname', test_case['name'])
     installed_tests_cdata.set('testexecutable', 'mutter-' + test_case['name'])
     installed_tests_cdata.set('testargs', ' '.join(test_case.get('args', [])))
