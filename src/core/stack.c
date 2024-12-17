@@ -363,23 +363,12 @@ meta_stack_update_window_tile_matches (MetaStack     *stack,
  * so the lower stack position is later in the list
  */
 static int
-compare_window_position (void *a,
-                         void *b)
+compare_window_position (gconstpointer window_a,
+                         gconstpointer window_b)
 {
-  MetaWindow *window_a = a;
-  MetaWindow *window_b = b;
-
-  /* Go by layer, then stack_position */
-  if (window_a->layer < window_b->layer)
-    return 1; /* move window_a later in list */
-  else if (window_a->layer > window_b->layer)
-    return -1;
-  else if (window_a->stack_position < window_b->stack_position)
-    return 1; /* move window_a later in list */
-  else if (window_a->stack_position > window_b->stack_position)
-    return -1;
-  else
-    return 0; /* not reached */
+  /* Windows are sorted bottom-to-top in public API
+   * but for internal use we need to sort them top-to-bottom */
+  return meta_window_stack_position_compare (window_b, window_a);
 }
 
 /*
@@ -824,12 +813,13 @@ stack_do_resort (MetaStack *stack)
   meta_topic (META_DEBUG_STACK,
               "Sorting stack list");
 
-  stack->sorted = g_list_sort (stack->sorted,
-                               (GCompareFunc) compare_window_position);
+  /* To prevent compare_window_position from calling into
+   * stack_do_resort recursively we reset need_resort early */
+  stack->need_resort = FALSE;
+
+  stack->sorted = g_list_sort (stack->sorted, compare_window_position);
 
   meta_display_queue_check_fullscreen (stack->display);
-
-  stack->need_resort = FALSE;
 }
 
 /**
