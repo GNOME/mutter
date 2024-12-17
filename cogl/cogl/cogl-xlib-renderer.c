@@ -332,12 +332,10 @@ randr_filter (XEvent *event,
   CoglRenderer *renderer = data;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
-  CoglX11Renderer *x11_renderer =
-    (CoglX11Renderer *) xlib_renderer;
 
-  if (x11_renderer->randr_base != -1 &&
-      (event->xany.type == x11_renderer->randr_base + RRScreenChangeNotify ||
-       event->xany.type == x11_renderer->randr_base + RRNotify) &&
+  if (xlib_renderer->randr_base != -1 &&
+      (event->xany.type == xlib_renderer->randr_base + RRScreenChangeNotify ||
+       event->xany.type == xlib_renderer->randr_base + RRNotify) &&
       event->xany.serial >= xlib_renderer->outputs_update_serial)
     update_outputs (renderer, TRUE);
 
@@ -349,8 +347,6 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
 {
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
-  CoglX11Renderer *x11_renderer =
-    (CoglX11Renderer *) xlib_renderer;
   int damage_error;
   int randr_error;
 
@@ -358,15 +354,15 @@ _cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error)
 
   /* Check whether damage events are supported on this display */
   if (!XDamageQueryExtension (xlib_renderer->xdpy,
-                              &x11_renderer->damage_base,
+                              &xlib_renderer->damage_base,
                               &damage_error))
-    x11_renderer->damage_base = -1;
+    xlib_renderer->damage_base = -1;
 
   /* Check whether randr is supported on this display */
   if (!XRRQueryExtension (xlib_renderer->xdpy,
-                          &x11_renderer->randr_base,
+                          &xlib_renderer->randr_base,
                           &randr_error))
-    x11_renderer->randr_base = -1;
+    xlib_renderer->randr_base = -1;
 
   XRRSelectInput(xlib_renderer->xdpy,
                  DefaultRootWindow (xlib_renderer->xdpy),

@@ -48,15 +48,10 @@ typedef struct _CoglXlibOutput
   SubpixelOrder subpixel_order;
 } CoglXlibOutput;
 
-typedef struct _CoglX11Renderer
+typedef struct _CoglXlibRenderer
 {
   int damage_base;
   int randr_base;
-} CoglX11Renderer;
-
-typedef struct _CoglXlibRenderer
-{
-  CoglX11Renderer _parent;
 
   Display *xdpy;
 

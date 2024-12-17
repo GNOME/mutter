@@ -77,11 +77,10 @@ _cogl_texture_pixmap_x11_get_winsys (CoglTexturePixmapX11 *tex_pixmap)
 static int
 _cogl_xlib_get_damage_base (CoglContext *ctx)
 {
-  CoglX11Renderer *x11_renderer;
+  CoglXlibRenderer *xlib_renderer =
+    _cogl_xlib_renderer_get_data (ctx->display->renderer);
 
-  x11_renderer =
-    (CoglX11Renderer *) _cogl_xlib_renderer_get_data (ctx->display->renderer);
-  return x11_renderer->damage_base;
+  return xlib_renderer->damage_base;
 }
 
 static void
