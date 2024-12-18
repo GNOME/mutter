@@ -89,6 +89,7 @@ libdir = prefix / get_option('libdir')
 libexecdir = prefix / get_option('libexecdir')
 includedir = prefix / get_option('includedir')
 sysconfdir = get_option('sysconfdir')
+mandir = prefix / get_option('mandir')
 
 pkgname = '@0@-@1@'.format(meson.project_name(), libmutter_api_version)
 
@@ -738,6 +739,7 @@ meson.add_dist_script('meson/check-version.py', meson.project_version(), 'NEWS')
 summary('prefix', prefix, section: 'Directories')
 summary('libexecdir', libexecdir, section: 'Directories')
 summary('pkgdatadir', pkgdatadir, section: 'Directories')
+summary('mandir', mandir, section: 'Directories')
 
 summary('buildtype', get_option('buildtype'), section: 'Build Configuration')
 summary('debug', get_option('debug'), section: 'Build Configuration')
