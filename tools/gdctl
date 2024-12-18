@@ -76,6 +76,18 @@ class LayoutMode(NamedEnum):
         ]
 
 
+class ColorMode(NamedEnum):
+    DEFAULT = 0
+    BT2100 = 1
+
+    @classmethod
+    def enum_names(cls):
+        return [
+            (ColorMode.DEFAULT, "default"),
+            (ColorMode.BT2100, "bt2100"),
+        ]
+
+
 class ConfigMethod(Enum):
     VERIFY = 0
     TEMPORARY = 1
@@ -85,6 +97,8 @@ class ConfigMethod(Enum):
 def translate_property(name, value):
     enum_properties = {
         "layout-mode": LayoutMode,
+        "color-mode": ColorMode,
+        "supported-color-modes": ColorMode,
     }
 
     if name in enum_properties:
