@@ -691,8 +691,10 @@ meta_compositor_x11_handle_event (MetaCompositor     *compositor,
                                   MetaEventMode       mode_hint)
 {
   MetaBackend *backend = meta_compositor_get_backend (compositor);
+  ClutterEventType event_type = clutter_event_type (event);
 
-  if (clutter_event_type (event) == CLUTTER_BUTTON_PRESS)
+  if (event_type == CLUTTER_BUTTON_PRESS ||
+      event_type == CLUTTER_KEY_PRESS)
     {
       meta_backend_x11_allow_events (META_BACKEND_X11 (backend),
                                      event, mode_hint);
