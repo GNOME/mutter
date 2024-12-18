@@ -1535,20 +1535,9 @@ process_special_modifier_key (MetaDisplay          *display,
                               GFunc                 trigger_callback)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
+  MetaCompositor *compositor = display->compositor;
   ClutterModifierType modifiers;
   uint32_t hardware_keycode;
-#ifdef HAVE_X11
-  ClutterInputDevice *device;
-  uint32_t time_ms;
-  Display *xdisplay;
-
-  time_ms = clutter_event_get_time (event);
-  device = clutter_event_get_device (event);
-  if (META_IS_BACKEND_X11 (keys->backend))
-    xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (keys->backend));
-  else
-    xdisplay = NULL;
-#endif
 
   hardware_keycode = clutter_event_get_key_code (event);
   modifiers = get_modifiers (event);
@@ -1559,16 +1548,6 @@ process_special_modifier_key (MetaDisplay          *display,
         {
           *modifier_press_only = FALSE;
 
-          /* If this is a wayland session, we can avoid the shenanigans
-           * about passive grabs below, and let the event continue to
-           * be processed through the regular paths.
-           */
-#ifdef HAVE_X11
-          if (!xdisplay)
-            return FALSE;
-#else
-          return FALSE;
-#endif
           /* OK, the user hit modifier+key rather than pressing and
            * releasing the modifier key alone. We want to handle the key
            * sequence "normally". Unfortunately, using
@@ -1581,33 +1560,12 @@ process_special_modifier_key (MetaDisplay          *display,
            * the event. Other clients with global grabs will be out of
            * luck.
            */
-          if (process_event (display, window, event))
-            {
-              /* As normally, after we've handled a global key
-               * binding, we unfreeze the keyboard but keep the grab
-               * (this is important for something like cycling
-               * windows */
-#ifdef HAVE_X11
-              if (xdisplay)
-                {
-                  XIAllowEvents (xdisplay,
-                                 meta_input_device_x11_get_device_id (device),
-                                 XIAsyncDevice, time_ms);
-                }
-#endif
-            }
-          else
+          if (!process_event (display, window, event))
             {
               /* Replay the event so it gets delivered to our
                * per-window key bindings or to the application */
-#ifdef HAVE_X11
-              if (xdisplay)
-                {
-                  XIAllowEvents (xdisplay,
-                                 meta_input_device_x11_get_device_id (device),
-                                 XIReplayDevice, time_ms);
-                }
-#endif
+              meta_compositor_handle_event (compositor, event, window,
+                                            META_EVENT_MODE_REPLAY);
             }
         }
       else if (clutter_event_type (event) == CLUTTER_KEY_RELEASE)
@@ -1616,47 +1574,14 @@ process_special_modifier_key (MetaDisplay          *display,
 
           *modifier_press_only = FALSE;
 
-          /* We want to unfreeze events, but keep the grab so that if the user
-           * starts typing into the overlay we get all the keys */
-#ifdef HAVE_X11
-          if (xdisplay)
-            {
-              XIAllowEvents (xdisplay,
-                             meta_input_device_x11_get_device_id (device),
-                             XIAsyncDevice, time_ms);
-            }
-#endif
-
           binding = get_keybinding (keys, resolved_key_combo);
-          if (binding &&
-              meta_compositor_filter_keybinding (display->compositor, binding))
-            return TRUE;
-          trigger_callback (display, NULL);
-        }
-      else
-        {
-          /* In some rare race condition, mutter might not receive the Super_L
-           * KeyRelease event because:
-           * - the compositor might end the modal mode and call XIUngrabDevice
-           *   while the key is still down
-           * - passive grabs are only activated on KeyPress and not KeyRelease.
-           *
-           * In this case, modifier_press_only might be wrong.
-           * Mutter still ought to acknowledge events, otherwise the X server
-           * will not send the next events.
-           *
-           * https://bugzilla.gnome.org/show_bug.cgi?id=666101
-           */
-#ifdef HAVE_X11
-          if (xdisplay)
-            {
-              XIAllowEvents (xdisplay,
-                             meta_input_device_x11_get_device_id (device),
-                             XIAsyncDevice, time_ms);
-            }
-#endif
+          if (!binding ||
+              !meta_compositor_filter_keybinding (display->compositor, binding))
+            trigger_callback (display, NULL);
         }
 
+      meta_compositor_handle_event (compositor, event, window,
+                                    META_EVENT_MODE_THAW);
       return TRUE;
     }
   else if (clutter_event_type (event) == CLUTTER_KEY_PRESS &&
@@ -1666,14 +1591,8 @@ process_special_modifier_key (MetaDisplay          *display,
       *modifier_press_only = TRUE;
       /* We keep the keyboard frozen - this allows us to use ReplayKeyboard
        * on the next event if it's not the release of the modifier key */
-#ifdef HAVE_X11
-      if (xdisplay)
-        {
-          XIAllowEvents (xdisplay,
-                         meta_input_device_x11_get_device_id (device),
-                         XISyncDevice, time_ms);
-        }
-#endif
+      meta_compositor_handle_event (compositor, event, window,
+                                    META_EVENT_MODE_KEEP_FROZEN);
 
       return TRUE;
     }
@@ -1683,9 +1602,9 @@ process_special_modifier_key (MetaDisplay          *display,
 
 
 static gboolean
-process_overlay_key (MetaDisplay     *display,
-                     ClutterEvent    *event,
-                     MetaWindow      *window)
+process_overlay_key (MetaDisplay  *display,
+                     ClutterEvent *event,
+                     MetaWindow   *window)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
@@ -1713,9 +1632,9 @@ handle_locate_pointer (MetaDisplay *display)
 }
 
 static gboolean
-process_locate_pointer_key (MetaDisplay     *display,
-                            ClutterEvent    *event,
-                            MetaWindow      *window)
+process_locate_pointer_key (MetaDisplay  *display,
+                            ClutterEvent *event,
+                            MetaWindow   *window)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
@@ -1770,6 +1689,8 @@ process_key_event (MetaDisplay     *display,
                    MetaWindow      *window,
                    ClutterEvent    *event)
 {
+  MetaCompositor *compositor = display->compositor;
+
   if (process_overlay_key (display, event, window))
     return TRUE;
 
@@ -1779,23 +1700,8 @@ process_key_event (MetaDisplay     *display,
   if (process_iso_next_group (display, event))
     return TRUE;
 
-#ifdef HAVE_X11
-  {
-    MetaContext *context = meta_display_get_context (display);
-    MetaBackend *backend = meta_context_get_backend (context);
-    ClutterInputDevice *device;
-
-    if (META_IS_BACKEND_X11 (backend))
-      {
-        Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-        device = clutter_event_get_device (event);
-        XIAllowEvents (xdisplay,
-                       meta_input_device_x11_get_device_id (device),
-                       XIAsyncDevice,
-                       clutter_event_get_time (event));
-      }
-  }
-#endif
+  meta_compositor_handle_event (compositor, event, window,
+                                META_EVENT_MODE_THAW);
 
   /* Do the normal keybindings */
   return process_event (display, window, event);
