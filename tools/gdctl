@@ -28,6 +28,17 @@ class NamedEnum(Enum):
             if string == enum_string
         )
 
+    @classmethod
+    def maybe_from_string(cls, string):
+        if string:
+            return next(
+                enum
+                for enum, enum_string in cls.enum_names()
+                if string == enum_string
+            )
+        else:
+            return None
+
 
 class Transform(NamedEnum):
     NORMAL = 0
