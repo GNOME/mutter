@@ -347,74 +347,12 @@ paint_egl_image (ContextData *context_data,
   GLBAS (gles3, glDeleteTextures, (1, &texture));
 }
 
-static EGLImageKHR
-meta_create_gbm_bo_egl_image (MetaEgl        *egl,
-                              EGLDisplay      egl_display,
-                              struct gbm_bo  *shared_bo,
-                              GError        **error)
-{
-  int shared_bo_fd;
-  unsigned int width;
-  unsigned int height;
-  uint32_t i, n_planes;
-  uint32_t strides[4] = { 0 };
-  uint32_t offsets[4] = { 0 };
-  uint64_t modifiers[4] = { 0 };
-  int fds[4] = { -1, -1, -1, -1 };
-  uint32_t format;
-  EGLImageKHR egl_image;
-  gboolean use_modifiers;
-
-  shared_bo_fd = gbm_bo_get_fd (shared_bo);
-  if (shared_bo_fd < 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to export gbm_bo: %s", strerror (errno));
-      return FALSE;
-    }
-
-  width = gbm_bo_get_width (shared_bo);
-  height = gbm_bo_get_height (shared_bo);
-  format = gbm_bo_get_format (shared_bo);
-
-  n_planes = gbm_bo_get_plane_count (shared_bo);
-  for (i = 0; i < n_planes; i++)
-    {
-      strides[i] = gbm_bo_get_stride_for_plane (shared_bo, i);
-      offsets[i] = gbm_bo_get_offset (shared_bo, i);
-      modifiers[i] = gbm_bo_get_modifier (shared_bo);
-      fds[i] = shared_bo_fd;
-    }
-
-  /* Workaround for https://gitlab.gnome.org/GNOME/mutter/issues/18 */
-  if (modifiers[0] == DRM_FORMAT_MOD_LINEAR ||
-      modifiers[0] == DRM_FORMAT_MOD_INVALID)
-    use_modifiers = FALSE;
-  else
-    use_modifiers = TRUE;
-
-  egl_image = meta_egl_create_dmabuf_image (egl,
-                                            egl_display,
-                                            width,
-                                            height,
-                                            format,
-                                            n_planes,
-                                            fds,
-                                            strides,
-                                            offsets,
-                                            use_modifiers ? modifiers : NULL,
-                                            error);
-  close (shared_bo_fd);
-
-  return egl_image;
-}
-
 gboolean
 meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
                                            MetaGles3      *gles3,
                                            EGLDisplay      egl_display,
                                            EGLContext      egl_context,
-                                           EGLSurface      egl_surface,
+                                           EGLImageKHR     egl_image,
                                            struct gbm_bo  *shared_bo,
                                            GError        **error)
 {
@@ -423,7 +361,6 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
   GQuark context_data_quark;
   ContextData *context_data;
   gboolean can_blit;
-  EGLImageKHR egl_image = EGL_NO_IMAGE;
 
   context_data_quark = get_quark_for_egl_context (egl_context);
   context_data = g_object_get_qdata (G_OBJECT (gles3), context_data_quark);
@@ -447,17 +384,10 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
   width = gbm_bo_get_width (shared_bo);
   height = gbm_bo_get_height (shared_bo);
 
-  egl_image = meta_create_gbm_bo_egl_image (egl,
-                                            egl_display,
-                                            shared_bo,
-                                            error);
-
   if (can_blit)
     blit_egl_image (gles3, egl_image, width, height);
   else
     paint_egl_image (context_data, gles3, egl_image, width, height);
-
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
 
   return TRUE;
 }

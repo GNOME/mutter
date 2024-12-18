@@ -50,6 +50,7 @@
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
+#include "backends/native/meta-egl-gbm.h"
 #include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
@@ -879,6 +880,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   struct gbm_bo *bo;
   EGLSync egl_sync = EGL_NO_SYNC;
   g_autofd int sync_fd = -1;
+  EGLImageKHR egl_image;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
                            "copy_shared_framebuffer_gpu()");
@@ -932,11 +934,19 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
 
   buffer_gbm = META_DRM_BUFFER_GBM (primary_gpu_fb);
   bo = meta_drm_buffer_gbm_get_bo (buffer_gbm);
+  egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, bo, error);
+
+  if (!egl_image)
+    {
+      g_prefix_error (error, "Failed to create EGL image from buffer object for secondary GPU: ");
+      goto done;
+    }
+
   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
                                                   gles3,
                                                   egl_display,
                                                   renderer_gpu_data->secondary.egl_context,
-                                                  secondary_gpu_state->egl_surface,
+                                                  egl_image,
                                                   bo,
                                                   error))
     {

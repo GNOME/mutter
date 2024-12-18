@@ -30,7 +30,7 @@ gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
                                                     MetaGles3      *gles3,
                                                     EGLDisplay      egl_display,
                                                     EGLContext      egl_context,
-                                                    EGLSurface      egl_surface,
+                                                    EGLImageKHR     egl_image,
                                                     struct gbm_bo  *shared_bo,
                                                     GError        **error);
 
