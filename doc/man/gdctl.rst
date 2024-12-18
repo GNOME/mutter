@@ -134,6 +134,12 @@ MONITOR OPTIONS
 
   Set the mode of the monitor.
 
+``--color-mode``, ``-c``
+
+  Set the color mode of the monitor. Available color modes are ``default`` and
+  ``bt2100``.
+
+
 EXAMPLES
 --------
 
