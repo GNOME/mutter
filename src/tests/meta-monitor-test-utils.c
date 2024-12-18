@@ -238,6 +238,12 @@ check_logical_monitor (MetaMonitorManager             *monitor_manager,
   GList *l;
   int i;
 
+  g_debug ("Checking logical monitor with layout %dx%d+%d+%d",
+           test_logical_monitor->layout.width,
+           test_logical_monitor->layout.height,
+           test_logical_monitor->layout.x,
+           test_logical_monitor->layout.y);
+
   logical_monitor = logical_monitor_from_layout (monitor_manager,
                                                  &test_logical_monitor->layout);
   g_assert_nonnull (logical_monitor);
