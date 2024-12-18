@@ -20,6 +20,7 @@
 
 #include <stdarg.h>
 
+#include "backends/meta-monitor-config-manager.h"
 #include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-test/meta-context-test.h"
 
@@ -86,6 +87,149 @@ static MonitorTestCaseSetup test_case_setup = {
   },
   .n_outputs = 2,
   .n_crtcs = 2
+};
+
+static MonitorTestCaseExpect test_case_expect = {
+  .monitors = {
+    {
+      .outputs = { 0 },
+      .n_outputs = 1,
+      .modes = {
+        {
+          .width = 3840,
+          .height = 2160,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 0,
+              .crtc_mode = 0,
+            },
+          },
+        },
+        {
+          .width = 3840,
+          .height = 2160,
+          .refresh_rate = 30.0,
+          .crtc_modes = {
+            {
+              .output = 0,
+              .crtc_mode = 1,
+            },
+          },
+        },
+        {
+          .width = 2560,
+          .height = 1440,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 0,
+              .crtc_mode = 2,
+            },
+          },
+        },
+        {
+          .width = 1440,
+          .height = 900,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 0,
+              .crtc_mode = 3,
+            },
+          },
+        },
+      },
+      .n_modes = 4,
+      .current_mode = 0,
+      .width_mm = 300,
+      .height_mm = 190,
+    },
+    {
+      .outputs = { 1 },
+      .n_outputs = 1,
+      .modes = {
+        {
+          .width = 2560,
+          .height = 1440,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 1,
+              .crtc_mode = 2,
+            },
+          },
+        },
+        {
+          .width = 1440,
+          .height = 900,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 1,
+              .crtc_mode = 3,
+            },
+          },
+        },
+        {
+          .width = 1366,
+          .height = 768,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 1,
+              .crtc_mode = 4,
+            },
+          },
+        },
+        {
+          .width = 800,
+          .height = 600,
+          .refresh_rate = 60.0,
+          .crtc_modes = {
+            {
+              .output = 1,
+              .crtc_mode = 5,
+            },
+          },
+        },
+      },
+      .n_modes = 4,
+      .current_mode = 0,
+      .width_mm = 290,
+      .height_mm = 180,
+    },
+  },
+  .n_monitors = 2,
+  .logical_monitors = {
+    {
+      .monitors = { 0 },
+      .n_monitors = 1,
+      .layout = { .x = 0, .y = 0, .width = 1744, .height = 981 },
+      .scale = 2.2018349170684814,
+    },
+    {
+      .monitors = { 1 },
+      .n_monitors = 1,
+      .layout = { .x = 1744, .y = 0, .width = 1456, .height = 819 },
+      .scale = 1.7582417726516724,
+    },
+  },
+  .n_logical_monitors = 2,
+  .primary_logical_monitor = 0,
+  .n_outputs = 2,
+  .crtcs = {
+    {
+      .current_mode = 0,
+    },
+    {
+      .current_mode = 2,
+      .x = 1744,
+    }
+  },
+  .n_crtcs = 2,
+  .screen_width = 3200,
+  .screen_height = 981,
 };
 
 static void
@@ -158,6 +302,39 @@ run_diff (const char *output_path,
                                             NULL);
   g_subprocess_wait (subprocess, NULL, &error);
   g_assert_no_error (error);
+}
+
+static void
+check_gdctl_result (const char *first_argument,
+                    ...)
+{
+  g_autoptr (GPtrArray) args = NULL;
+  va_list va_args;
+  char *arg;
+  g_autoptr (GSubprocessLauncher) launcher = NULL;
+  g_autoptr (GSubprocess) subprocess = NULL;
+  gboolean process_done = FALSE;
+  GError *error = NULL;
+
+  args = g_ptr_array_new ();
+  g_ptr_array_add (args, gdctl_path);
+  g_ptr_array_add (args, (char *) first_argument);
+  va_start (va_args, first_argument);
+  while ((arg = va_arg (va_args, char *)))
+    g_ptr_array_add (args, arg);
+  va_end (va_args);
+  g_ptr_array_add (args, NULL);
+
+  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+
+  subprocess = g_subprocess_launcher_spawnv (launcher,
+                                             (const char * const*) args->pdata,
+                                             &error);
+  g_subprocess_wait_check_async (subprocess, NULL,
+                                 wait_check_cb, &process_done);
+
+  while (!process_done)
+    g_main_context_iteration (NULL, TRUE);
 }
 
 static void
@@ -256,10 +433,245 @@ meta_test_monitor_dbus_get_state (void)
 }
 
 static void
+meta_test_monitor_dbus_apply_verify (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitorsConfig *config;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  config = meta_monitor_config_manager_get_current (config_manager);
+
+  check_gdctl_result ("set",
+                      "--verbose",
+                      "--verify",
+                      "--layout-mode", "logical",
+                      "--logical-monitor",
+                      "--primary",
+                      "--monitor", "DP-1",
+                      "--logical-monitor",
+                      "--monitor", "DP-2",
+                      "--right-of", "DP-1",
+                      NULL);
+  g_assert_true (config ==
+                 meta_monitor_config_manager_get_current (config_manager));
+}
+
+static void
+setup_apply_configuration_test (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MetaMonitorTestSetup *test_setup;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case_expect));
+}
+
+static void
+meta_test_monitor_dbus_apply_left_of (void)
+{
+  MonitorTestCaseExpect expect;
+
+  setup_apply_configuration_test ();
+
+  check_gdctl_result ("set",
+                      "--verbose",
+                      "--layout-mode", "logical",
+                      "--logical-monitor",
+                      "--primary",
+                      "--monitor", "DP-1",
+                      "--logical-monitor",
+                      "--monitor", "DP-2",
+                      "--left-of", "DP-1",
+                      NULL);
+
+  expect = test_case_expect;
+  expect.logical_monitors[0].layout.x = 1456;
+  expect.logical_monitors[1].layout.x = 0;
+  expect.crtcs[0].x = 1456;
+  expect.crtcs[1].x = 0;
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &expect));
+}
+
+static void
+meta_test_monitor_dbus_apply_right_of_transform (void)
+{
+  MonitorTestCaseExpect expect;
+
+  setup_apply_configuration_test ();
+
+  check_gdctl_result ("set",
+                      "--verbose",
+                      "--layout-mode", "logical",
+                      "--logical-monitor",
+                      "--primary",
+                      "--monitor", "DP-2",
+                      "--transform", "270",
+                      "--logical-monitor",
+                      "--monitor", "DP-1",
+                      "--right-of", "DP-2",
+                      "--y", "400",
+                      NULL);
+
+  expect = test_case_expect;
+  expect.logical_monitors[0].layout.x = 0;
+  expect.logical_monitors[0].layout.y = 0;
+  expect.logical_monitors[0].layout.width = 819;
+  expect.logical_monitors[0].layout.height = 1456;
+  expect.logical_monitors[0].scale = 1.7582417726516724;
+  expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_270;
+  expect.logical_monitors[0].monitors[0] = 1;
+
+  expect.logical_monitors[1].layout.x = 819;
+  expect.logical_monitors[1].layout.y = 400;
+  expect.logical_monitors[1].layout.width = 1744;
+  expect.logical_monitors[1].layout.height = 981;
+  expect.logical_monitors[1].scale = 2.2018349170684814;
+  expect.logical_monitors[1].monitors[0] = 0;
+
+  expect.crtcs[1].x = 0;
+  expect.crtcs[1].y = 0;
+  expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_270;
+  expect.crtcs[0].x = 819;
+  expect.crtcs[0].y = 400;
+  expect.screen_width = 2563;
+  expect.screen_height = 1456;
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &expect));
+}
+
+static void
+meta_test_monitor_dbus_apply_mode_scale_below_transform (void)
+{
+  MonitorTestCaseExpect expect;
+
+  setup_apply_configuration_test ();
+
+  check_gdctl_result ("set",
+                      "--verbose",
+                      "--layout-mode", "logical",
+                      "--logical-monitor",
+                      "--primary",
+                      "--monitor", "DP-2",
+                      "--transform", "270",
+                      "--logical-monitor",
+                      "--monitor", "DP-1",
+                      "--below", "DP-2",
+                      "--transform", "90",
+                      "--x", "100",
+                      "--mode", "1440x900@60.000",
+                      "--scale", "1.5",
+                      NULL);
+
+  expect = test_case_expect;
+  expect.monitors[0].current_mode = 3;
+  expect.logical_monitors[0].layout.x = 0;
+  expect.logical_monitors[0].layout.y = 0;
+  expect.logical_monitors[0].layout.width = 819;
+  expect.logical_monitors[0].layout.height = 1456;
+  expect.logical_monitors[0].scale = 1.7582417726516724;
+  expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_270;
+  expect.logical_monitors[0].monitors[0] = 1;
+  expect.logical_monitors[1].layout.x = 100;
+  expect.logical_monitors[1].layout.y = 1456;
+  expect.logical_monitors[1].layout.width = 600;
+  expect.logical_monitors[1].layout.height = 960;
+  expect.logical_monitors[1].scale = 1.5;
+  expect.logical_monitors[1].transform = MTK_MONITOR_TRANSFORM_90;
+  expect.logical_monitors[1].monitors[0] = 0;
+  expect.crtcs[0].x = 100;
+  expect.crtcs[0].y = 1456;
+  expect.crtcs[0].current_mode = 3;
+  expect.crtcs[0].transform = MTK_MONITOR_TRANSFORM_90;
+  expect.crtcs[1].x = 0;
+  expect.crtcs[1].y = 0;
+  expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_270;
+  expect.screen_width = 819;
+  expect.screen_height = 2416;
+
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &expect));
+}
+
+static void
+meta_test_monitor_dbus_apply_mirror (void)
+{
+  MonitorTestCaseExpect expect;
+
+  setup_apply_configuration_test ();
+
+  check_gdctl_result ("set",
+                      "--verbose",
+                      "--layout-mode", "logical",
+                      "--logical-monitor",
+                      "--primary",
+                      "--monitor", "DP-1",
+                      "--mode", "2560x1440@60.000",
+                      "--monitor", "DP-2",
+                      "--scale", "1.7582417726516724",
+                      NULL);
+
+  expect = test_case_expect;
+  expect.monitors[0].current_mode = 2;
+  expect.logical_monitors[0].layout.width = 1456;
+  expect.logical_monitors[0].layout.height = 819;
+  expect.logical_monitors[0].scale = 1.7582417726516724;
+  expect.logical_monitors[0].monitors[0] = 0;
+  expect.logical_monitors[0].monitors[1] = 1;
+  expect.logical_monitors[0].n_monitors = 2;
+  expect.n_logical_monitors = 1;
+  expect.screen_width = 1456;
+  expect.screen_height = 819;
+  expect.crtcs[0].x = 0;
+  expect.crtcs[0].y = 0;
+  expect.crtcs[0].current_mode = 2;
+  expect.crtcs[1].x = 0;
+  expect.crtcs[1].y = 0;
+
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &expect));
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/monitor/dbus/get-state",
                    meta_test_monitor_dbus_get_state);
+  g_test_add_func ("/backends/native/monitor/dbus/apply/verify",
+                   meta_test_monitor_dbus_apply_verify);
+  g_test_add_func ("/backends/native/monitor/dbus/apply/left-of",
+                   meta_test_monitor_dbus_apply_left_of);
+  g_test_add_func ("/backends/native/monitor/dbus/apply/right-of-transform",
+                   meta_test_monitor_dbus_apply_right_of_transform);
+  g_test_add_func ("/backends/native/monitor/dbus/apply/mode-scale-below-transform",
+                   meta_test_monitor_dbus_apply_mode_scale_below_transform);
+  g_test_add_func ("/backends/native/monitor/dbus/apply/mirror",
+                   meta_test_monitor_dbus_apply_mirror);
 }
 
 int
