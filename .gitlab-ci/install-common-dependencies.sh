@@ -78,11 +78,10 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
-## Add necessary dependencies here, for example
-# if ! pkgconf --atleast-version 1.23.0 wayland-server
-# then
-#     ./$SCRIPTS_DIR/install-meson-project.sh \
-#       "${OPTIONS[@]}" \
-#       https://gitlab.freedesktop.org/wayland/wayland.git \
-#       1.23.0
-# fi
+if ! pkgconf --atleast-version 48.alpha gsettings-desktop-schemas
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
+      master
+fi
