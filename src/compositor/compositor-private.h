@@ -13,9 +13,26 @@
 #include "compositor/meta-window-drag.h"
 #include "meta/compositor.h"
 #include "meta/display.h"
+#include "meta/prefs.h"
 
 /* Wait 2ms after vblank before starting to draw next frame */
 #define META_SYNC_DELAY 2
+
+typedef enum _MetaMappingType MetaMappingType;
+
+enum _MetaMappingType
+{
+  META_MAPPING_TYPE_BUTTON,
+  META_MAPPING_TYPE_KEY,
+};
+
+typedef enum _MetaMappingState MetaMappingState;
+
+enum _MetaMappingState
+{
+  META_MAPPING_STATE_PRE_CHANGE,
+  META_MAPPING_STATE_POST_CHANGE,
+};
 
 typedef struct _MetaLaters MetaLaters;
 
@@ -42,6 +59,10 @@ struct _MetaCompositorClass
                              const ClutterEvent *event,
                              MetaWindow         *event_window,
                              MetaEventMode       mode_hint);
+
+  void (* notify_mapping_change) (MetaCompositor   *compositor,
+                                  MetaMappingType   type,
+                                  MetaMappingState  state);
 };
 
 void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
@@ -166,6 +187,10 @@ gboolean meta_compositor_handle_event (MetaCompositor     *compositor,
                                        const ClutterEvent *event,
                                        MetaWindow         *event_window,
                                        MetaEventMode       mode_hint);
+
+void meta_compositor_notify_mapping_change (MetaCompositor   *compositor,
+                                            MetaMappingType   type,
+                                            MetaMappingState  state);
 
 /*
  * This function takes a 64 bit time stamp from the monotonic clock, and clamps

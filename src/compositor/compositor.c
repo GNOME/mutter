@@ -1608,3 +1608,16 @@ meta_compositor_handle_event (MetaCompositor     *compositor,
 
   return klass->handle_event (compositor, event, event_window, mode_hint);
 }
+
+void
+meta_compositor_notify_mapping_change (MetaCompositor   *compositor,
+                                       MetaMappingType   type,
+                                       MetaMappingState  state)
+{
+  MetaCompositorClass *klass = META_COMPOSITOR_GET_CLASS (compositor);
+
+  if (!klass->notify_mapping_change)
+    return;
+
+  return klass->notify_mapping_change (compositor, type, state);
+}
