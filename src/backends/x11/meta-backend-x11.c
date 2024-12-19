@@ -1258,6 +1258,75 @@ meta_backend_x11_passive_button_ungrab (MetaBackendX11      *backend_x11,
 }
 
 void
+meta_backend_x11_passive_key_grab (MetaBackendX11      *backend_x11,
+                                   Window               xwindow,
+                                   int                  keycode,
+                                   MetaPassiveGrabMode  grab_mode,
+                                   ClutterModifierType  modmask)
+{
+  MetaBackendX11Private *priv =
+    meta_backend_x11_get_instance_private (backend_x11);
+  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
+  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+  XIGrabModifiers mods = { 0, };
+
+  mtk_x11_error_trap_push (priv->xdisplay);
+
+  XISetMask (mask.mask, XI_KeyPress);
+  XISetMask (mask.mask, XI_KeyRelease);
+
+  if (modmask == 0)
+    mods.modifiers = XIAnyModifier;
+  else
+    mods.modifiers = modmask;
+
+  XIGrabKeycode (priv->xdisplay,
+                 META_VIRTUAL_CORE_KEYBOARD_ID,
+                 keycode, xwindow,
+                 (grab_mode == META_GRAB_MODE_SYNC ?
+                  XIGrabModeSync :
+                  XIGrabModeAsync),
+                 XIGrabModeAsync, False,
+                 &mask, 1, &mods);
+
+  XSync (priv->xdisplay, False);
+
+  mtk_x11_error_trap_pop (priv->xdisplay);
+}
+
+void
+meta_backend_x11_passive_key_ungrab (MetaBackendX11      *backend_x11,
+                                     Window               xwindow,
+                                     int                  keycode,
+                                     ClutterModifierType  modmask)
+{
+  MetaBackendX11Private *priv =
+    meta_backend_x11_get_instance_private (backend_x11);
+  unsigned char mask_bits[XIMaskLen (XI_LASTEVENT)] = { 0 };
+  XIEventMask mask = { XIAllMasterDevices, sizeof (mask_bits), mask_bits };
+  XIGrabModifiers mods = { 0, };
+
+  mtk_x11_error_trap_push (priv->xdisplay);
+
+  XISetMask (mask.mask, XI_KeyPress);
+  XISetMask (mask.mask, XI_KeyRelease);
+
+  if (modmask == 0)
+    mods.modifiers = XIAnyModifier;
+  else
+    mods.modifiers = modmask;
+
+  XIUngrabKeycode (priv->xdisplay,
+                   META_VIRTUAL_CORE_KEYBOARD_ID,
+                   keycode, xwindow,
+                   1, &mods);
+
+  XSync (priv->xdisplay, False);
+
+  mtk_x11_error_trap_pop (priv->xdisplay);
+}
+
+void
 meta_backend_x11_allow_events (MetaBackendX11     *backend_x11,
                                const ClutterEvent *event,
                                MetaEventMode       event_mode)
