@@ -52,6 +52,7 @@ struct _MetaCompositorX11
 
   gboolean frame_has_updated_xsurfaces;
   gboolean have_x11_sync_object;
+  gboolean have_root_window_key_grab;
 
   MetaWindow *unredirected_window;
   MetaWindow *focus_window;
@@ -61,7 +62,16 @@ struct _MetaCompositorX11
   int64_t xserver_time_offset_us;
 };
 
+typedef struct
+{
+  MetaCompositorX11 *compositor_x11;
+  Window xwindow;
+  gboolean grab;
+} KeyGrabData;
+
 G_DEFINE_TYPE (MetaCompositorX11, meta_compositor_x11, META_TYPE_COMPOSITOR)
+
+static void meta_compositor_x11_grab_root_window_keys (MetaCompositorX11 *compositor_x11);
 
 static void
 process_damage (MetaCompositorX11  *compositor_x11,
@@ -201,6 +211,8 @@ meta_compositor_x11_manage (MetaCompositor  *compositor,
   compositor_x11->have_x11_sync_object = meta_sync_ring_init (cogl_context, xdisplay);
 
   meta_x11_display_redirect_windows (x11_display, display);
+
+  meta_compositor_x11_grab_root_window_keys (compositor_x11);
 
   return TRUE;
 }
@@ -529,6 +541,135 @@ meta_compositor_x11_ungrab_focus_window_button (MetaCompositorX11 *compositor_x1
 }
 
 static void
+meta_compositor_x11_change_keygrab (MetaCompositorX11    *compositor_x11,
+                                    Window                xwindow,
+                                    gboolean              grab,
+                                    MetaResolvedKeyCombo *resolved_combo)
+{
+  MetaBackend *backend =
+    meta_compositor_get_backend (META_COMPOSITOR (compositor_x11));
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
+  int i;
+
+  for (i = 0; i < resolved_combo->len; i++)
+    {
+      xkb_keycode_t keycode = resolved_combo->keycodes[i];
+
+      meta_topic (META_DEBUG_KEYBINDINGS,
+                  "%s keybinding keycode %d mask 0x%x on 0x%lx",
+                  grab ? "Grabbing" : "Ungrabbing",
+                  keycode, resolved_combo->mask, xwindow);
+
+      if (grab)
+        {
+          meta_backend_x11_passive_key_grab (backend_x11, xwindow,
+                                             keycode,
+                                             META_GRAB_MODE_SYNC,
+                                             resolved_combo->mask);
+        }
+      else
+        {
+          meta_backend_x11_passive_key_ungrab (backend_x11, xwindow,
+                                               keycode,
+                                               resolved_combo->mask);
+        }
+    }
+}
+
+static void
+passive_key_grab_foreach (MetaDisplay          *display,
+                          MetaKeyBindingFlags   flags,
+                          MetaResolvedKeyCombo *resolved_combo,
+                          gpointer              user_data)
+{
+  MetaX11Display *x11_display = display->x11_display;
+  Window xroot = x11_display->xroot;
+  KeyGrabData *data = user_data;
+
+  /* Ignore the key bindings marked as META_KEY_BINDING_NO_AUTO_GRAB. */
+  if ((flags & META_KEY_BINDING_NO_AUTO_GRAB) != 0 &&
+      data->grab)
+    return;
+
+  if ((flags & META_KEY_BINDING_PER_WINDOW) != 0 &&
+      data->xwindow == xroot)
+    return;
+
+  meta_compositor_x11_change_keygrab (data->compositor_x11,
+                                      data->xwindow,
+                                      data->grab,
+                                      resolved_combo);
+}
+
+static void
+meta_compositor_x11_grab_window_keys (MetaCompositorX11 *compositor_x11,
+                                      Window             xwindow)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  KeyGrabData data = { compositor_x11, xwindow, TRUE };
+
+  meta_display_keybinding_foreach (display,
+                                   passive_key_grab_foreach,
+                                   &data);
+}
+
+static void
+meta_compositor_x11_ungrab_window_keys (MetaCompositorX11 *compositor_x11,
+                                        Window             xwindow)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  KeyGrabData data = { compositor_x11, xwindow, FALSE };
+
+  meta_display_keybinding_foreach (display,
+                                   passive_key_grab_foreach,
+                                   &data);
+}
+
+static void
+meta_compositor_x11_grab_root_window_keys (MetaCompositorX11 *compositor_x11)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaX11Display *x11_display = display->x11_display;
+  Window xroot = x11_display->xroot;
+  KeyGrabData data = { compositor_x11, xroot, TRUE };
+
+  if (compositor_x11->have_root_window_key_grab)
+    return;
+
+  meta_display_keybinding_foreach (display,
+                                   passive_key_grab_foreach,
+                                   &data);
+  compositor_x11->have_root_window_key_grab = TRUE;
+}
+
+static void
+meta_compositor_x11_ungrab_root_window_keys (MetaCompositorX11 *compositor_x11)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaX11Display *x11_display = display->x11_display;
+  Window xroot = x11_display->xroot;
+  KeyGrabData data = { compositor_x11, xroot, FALSE };
+
+  if (!compositor_x11->have_root_window_key_grab)
+    return;
+
+  meta_display_keybinding_foreach (display,
+                                   passive_key_grab_foreach,
+                                   &data);
+  compositor_x11->have_root_window_key_grab = FALSE;
+}
+
+static gboolean
+should_have_passive_grab (MetaWindow *window)
+{
+  return window->type != META_WINDOW_DOCK && !window->override_redirect;
+}
+
+static void
 on_focus_window_change (MetaDisplay    *display,
                         GParamSpec     *pspec,
                         MetaCompositor *compositor)
@@ -540,7 +681,7 @@ on_focus_window_change (MetaDisplay    *display,
   old_focus = compositor_x11->focus_window;
   focus = meta_display_get_focus_window (display);
 
-  if (focus && (focus->type == META_WINDOW_DOCK || focus->override_redirect))
+  if (focus && !should_have_passive_grab (focus))
     focus = NULL;
 
   if (focus == old_focus)
@@ -580,6 +721,51 @@ on_focus_window_change (MetaDisplay    *display,
 }
 
 static void
+on_window_type_changed (MetaWindow        *window,
+                        GParamSpec        *pspec,
+                        MetaCompositorX11 *compositor_x11)
+{
+  Window xwindow;
+
+  xwindow = meta_window_x11_get_toplevel_xwindow (window);
+
+  if (should_have_passive_grab (window))
+    meta_compositor_x11_grab_window_keys (compositor_x11, xwindow);
+  else
+    meta_compositor_x11_ungrab_window_keys (compositor_x11, xwindow);
+}
+
+static void
+on_window_decorated_changed (MetaWindow        *window,
+                             GParamSpec        *pspec,
+                             MetaCompositorX11 *compositor_x11)
+{
+  Window old_effective_toplevel = None, xwindow;
+
+  /* We must clean up the passive grab on the prior effective toplevel */
+  if (window->decorated)
+    {
+      old_effective_toplevel = meta_window_x11_get_xwindow (window);
+    }
+  else
+    {
+      MetaFrame *frame;
+
+      frame = meta_window_x11_get_frame (window);
+      old_effective_toplevel = meta_frame_get_xwindow (frame);
+    }
+
+  if (old_effective_toplevel != None)
+    {
+      meta_compositor_x11_ungrab_window_keys (compositor_x11,
+                                              old_effective_toplevel);
+    }
+
+  xwindow = meta_window_x11_get_toplevel_xwindow (window);
+  meta_compositor_x11_grab_window_keys (compositor_x11, xwindow);
+}
+
+static void
 meta_compositor_x11_before_paint (MetaCompositor     *compositor,
                                   MetaCompositorView *compositor_view)
 {
@@ -614,9 +800,24 @@ meta_compositor_x11_add_window (MetaCompositor *compositor,
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
+  Window xwindow;
 
-  if (window->type != META_WINDOW_DOCK && !window->override_redirect)
-    meta_compositor_x11_grab_focus_window_button (compositor_x11, window);
+  if (should_have_passive_grab (window))
+    {
+      xwindow = meta_window_x11_get_toplevel_xwindow (window);
+
+      meta_compositor_x11_grab_focus_window_button (compositor_x11, window);
+      meta_compositor_x11_grab_window_keys (compositor_x11, xwindow);
+
+      g_signal_connect_object (window, "notify::window-type",
+                               G_CALLBACK (on_window_type_changed),
+                               compositor,
+                               G_CONNECT_DEFAULT);
+      g_signal_connect_object (window, "notify::decorated",
+                               G_CALLBACK (on_window_decorated_changed),
+                               compositor,
+                               G_CONNECT_DEFAULT);
+    }
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
   parent_class->add_window (compositor, window);
@@ -628,6 +829,7 @@ meta_compositor_x11_remove_window (MetaCompositor *compositor,
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
+  Window xwindow;
 
   if (compositor_x11->unredirected_window == window)
     set_unredirected_window (compositor_x11, NULL);
@@ -637,10 +839,18 @@ meta_compositor_x11_remove_window (MetaCompositor *compositor,
       meta_compositor_x11_ungrab_window_buttons (compositor_x11, window);
       compositor_x11->focus_window = NULL;
     }
-  else if (window->type != META_WINDOW_DOCK && !window->override_redirect)
+  else if (should_have_passive_grab (window))
     {
       meta_compositor_x11_ungrab_focus_window_button (compositor_x11, window);
     }
+
+  xwindow = meta_window_x11_get_toplevel_xwindow (window);
+  meta_compositor_x11_ungrab_window_keys (compositor_x11, xwindow);
+
+  g_signal_handlers_disconnect_by_func (window, on_window_type_changed,
+                                        compositor);
+  g_signal_handlers_disconnect_by_func (window, on_window_decorated_changed,
+                                        compositor);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
   parent_class->remove_window (compositor, window);
@@ -745,7 +955,24 @@ meta_compositor_x11_notify_mapping_change (MetaCompositor   *compositor,
         }
 
       break;
-    default:
+    case META_MAPPING_TYPE_KEY:
+      windows = meta_display_list_windows (display, META_LIST_DEFAULT);
+
+      if (grab)
+        meta_compositor_x11_grab_root_window_keys (compositor_x11);
+      else
+        meta_compositor_x11_ungrab_root_window_keys (compositor_x11);
+
+      for (l = windows; l; l = l->next)
+        {
+          MetaWindow *window = l->data;
+          Window xwindow = meta_window_x11_get_toplevel_xwindow (window);
+
+          if (grab)
+            meta_compositor_x11_grab_window_keys (compositor_x11, xwindow);
+          else
+            meta_compositor_x11_ungrab_window_keys (compositor_x11, xwindow);
+        }
       break;
     }
 }
@@ -805,6 +1032,8 @@ meta_compositor_x11_dispose (GObject *object)
   g_clear_signal_handler (&compositor_x11->before_update_handler_id, stage);
   g_clear_signal_handler (&compositor_x11->after_update_handler_id, stage);
   g_clear_signal_handler (&compositor_x11->focus_window_handler_id, display);
+
+  meta_compositor_x11_ungrab_root_window_keys (compositor_x11);
 
   G_OBJECT_CLASS (meta_compositor_x11_parent_class)->dispose (object);
 }

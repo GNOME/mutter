@@ -56,7 +56,6 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-group-private.h"
-#include "x11/meta-x11-keybindings-private.h"
 #include "x11/session.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
@@ -792,8 +791,6 @@ meta_window_x11_unmanage (MetaWindow *window)
 
   if (META_X11_DISPLAY_HAS_SHAPE (x11_display))
     XShapeSelectInput (x11_display->xdisplay, priv->xwindow, NoEventMask);
-
-  meta_window_ungrab_keys (window);
 
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
@@ -4225,8 +4222,6 @@ meta_window_x11_new (MetaDisplay       *display,
        */
       window->placed = TRUE;
     }
-
-  meta_window_grab_keys (window);
 
   mtk_x11_error_trap_pop (x11_display->xdisplay); /* pop the XSync()-reducing trap */
   return window;

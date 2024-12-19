@@ -61,7 +61,6 @@
 #include "x11/events.h"
 #include "x11/group-props.h"
 #include "x11/meta-x11-frame.h"
-#include "x11/meta-x11-keybindings-private.h"
 #include "x11/meta-x11-selection-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11.h"
@@ -287,8 +286,6 @@ meta_x11_display_dispose (GObject *object)
   meta_x11_startup_notification_release (x11_display);
 
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
-
-  meta_x11_display_ungrab_keys (x11_display);
 
   g_clear_object (&x11_display->x11_stack);
 
@@ -1633,9 +1630,6 @@ meta_x11_display_new (MetaDisplay  *display,
   set_desktop_geometry_hint (x11_display);
 
   x11_display->x11_stack = meta_x11_stack_new (x11_display);
-
-  x11_display->keys_grabbed = FALSE;
-  meta_x11_display_grab_keys (x11_display);
 
   meta_x11_display_update_workspace_layout (x11_display);
 

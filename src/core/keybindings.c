@@ -41,13 +41,6 @@
 #include "meta/compositor.h"
 #include "meta/prefs.h"
 
-#ifdef HAVE_X11
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-input-device-x11.h"
-#include "x11/meta-x11-display-private.h"
-#include "x11/meta-x11-keybindings-private.h"
-#endif
-
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #endif
@@ -1150,9 +1143,9 @@ reload_keybindings (MetaDisplay *display)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
-#ifdef HAVE_X11
-  meta_x11_keybindings_ungrab_key_bindings (display);
-#endif
+  meta_compositor_notify_mapping_change (display->compositor,
+                                         META_MAPPING_TYPE_KEY,
+                                         META_MAPPING_STATE_PRE_CHANGE);
 
   /* Deciphering the modmap depends on the loaded keysyms to find out
    * what modifiers is Super and so forth, so we need to reload it
@@ -1161,9 +1154,9 @@ reload_keybindings (MetaDisplay *display)
 
   reload_combos (keys);
 
-#ifdef HAVE_X11
-  meta_x11_keybindings_grab_key_bindings (display);
-#endif
+  meta_compositor_notify_mapping_change (display->compositor,
+                                         META_MAPPING_TYPE_KEY,
+                                         META_MAPPING_STATE_POST_CHANGE);
 }
 
 ClutterModifierType
@@ -1224,21 +1217,9 @@ prefs_changed_callback (MetaPreference pref,
 
   switch (pref)
     {
-    case META_PREF_LOCATE_POINTER:
-#ifdef HAVE_X11
-      meta_x11_keybindings_maybe_update_locate_pointer_keygrab (display,
-                                                                meta_prefs_is_locate_pointer_enabled ());
-#endif
-      break;
     case META_PREF_KEYBINDINGS:
-#ifdef HAVE_X11
-      meta_x11_keybindings_ungrab_key_bindings (display);
-#endif
       rebuild_key_binding_table (keys);
       reload_combos (keys);
-#ifdef HAVE_X11
-      meta_x11_keybindings_grab_key_bindings (display);
-#endif
       break;
     case META_PREF_MOUSE_BUTTON_MODS:
       update_window_grab_modifiers (display);
@@ -1310,13 +1291,9 @@ meta_display_grab_accelerator (MetaDisplay         *display,
       return META_KEYBINDING_ACTION_NONE;
     }
 
-#ifdef HAVE_X11
-  if (!meta_is_wayland_compositor ())
-    {
-      meta_x11_keybindings_change_keygrab (keys, display->x11_display->xroot,
-                                           TRUE, &resolved_combo);
-    }
-#endif
+  meta_compositor_notify_mapping_change (display->compositor,
+                                         META_MAPPING_TYPE_KEY,
+                                         META_MAPPING_STATE_PRE_CHANGE);
 
   grab = g_new0 (MetaKeyGrab, 1);
   grab->action = next_dynamic_keybinding_action ();
@@ -1335,6 +1312,10 @@ meta_display_grab_accelerator (MetaDisplay         *display,
 
   g_hash_table_add (keys->key_bindings, binding);
   index_binding (keys, binding);
+
+  meta_compositor_notify_mapping_change (display->compositor,
+                                         META_MAPPING_TYPE_KEY,
+                                         META_MAPPING_STATE_POST_CHANGE);
 
   return grab->action;
 }
@@ -1362,13 +1343,9 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
     {
       int i;
 
-#ifdef HAVE_X11
-      if (!meta_is_wayland_compositor ())
-        {
-          meta_x11_keybindings_change_keygrab (keys, display->x11_display->xroot,
-                                               FALSE, &binding->resolved_combo);
-        }
-#endif
+      meta_compositor_notify_mapping_change (display->compositor,
+                                             META_MAPPING_TYPE_KEY,
+                                             META_MAPPING_STATE_PRE_CHANGE);
 
       for (i = 0; i < binding->resolved_combo.len; i++)
         {
@@ -1377,6 +1354,10 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
         }
 
       g_hash_table_remove (keys->key_bindings, binding);
+
+      meta_compositor_notify_mapping_change (display->compositor,
+                                             META_MAPPING_TYPE_KEY,
+                                             META_MAPPING_STATE_POST_CHANGE);
     }
 
   g_hash_table_remove (external_grabs, key);
@@ -2803,8 +2784,6 @@ meta_display_init_keys (MetaDisplay *display)
 
   update_window_grab_modifiers (display);
 
-  /* Keys are actually grabbed in meta_screen_grab_keys() */
-
   meta_prefs_add_listener (prefs_changed_callback, display);
 
   g_signal_connect_swapped (backend, "keymap-changed",
@@ -2864,5 +2843,47 @@ meta_display_process_keybinding_event (MetaDisplay        *display,
 
     default:
       return FALSE;
+    }
+}
+
+void
+meta_display_keybinding_foreach (MetaDisplay           *display,
+                                 MetaKeyBindingForeach  func,
+                                 gpointer               user_data)
+{
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
+  MetaKeyBinding *binding;
+  GHashTableIter iter;
+  int i;
+
+  if (keys->overlay_resolved_key_combo.len != 0)
+    {
+      func (display, META_KEY_BINDING_NONE,
+            &keys->overlay_resolved_key_combo, user_data);
+    }
+
+  if (keys->locate_pointer_resolved_key_combo.len != 0)
+    {
+      func (display,
+            meta_prefs_is_locate_pointer_enabled () ?
+            META_KEY_BINDING_NONE :
+            META_KEY_BINDING_NO_AUTO_GRAB,
+            &keys->locate_pointer_resolved_key_combo, user_data);
+    }
+
+  for (i = 0; i < keys->n_iso_next_group_combos; i++)
+    {
+      func (display, META_KEY_BINDING_NONE,
+            &keys->iso_next_group_combos[i], user_data);
+    }
+
+  g_hash_table_iter_init (&iter, keys->key_bindings);
+
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &binding))
+    {
+      if (binding->resolved_combo.len == 0)
+        continue;
+
+      func (display, binding->flags, &binding->resolved_combo, user_data);
     }
 }

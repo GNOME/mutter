@@ -156,8 +156,6 @@ struct _MetaX11Display
 
   guint is_server_focus : 1;
 
-  guint keys_grabbed : 1;
-
   guint closing : 1;
 
   int composite_event_base;

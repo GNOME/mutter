@@ -28,7 +28,6 @@
 
 #ifdef HAVE_X11_CLIENT
 #include "x11/meta-x11-frame.h"
-#include "x11/meta-x11-keybindings-private.h"
 #include "x11/window-x11.h"
 #endif
 
@@ -401,12 +400,6 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 
   g_clear_signal_handler (&window_drag->unmanaged_id, grab_window);
   g_clear_signal_handler (&window_drag->size_changed_id, grab_window);
-
-  meta_topic (META_DEBUG_WINDOW_OPS,
-              "Restoring passive key grabs on %s", grab_window->desc);
-#ifdef HAVE_X11
-  meta_window_grab_keys (grab_window);
-#endif
 
   meta_display_set_cursor (display, META_CURSOR_DEFAULT);
 
@@ -1888,11 +1881,6 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
           return FALSE;
         }
     }
-
-  /* Temporarily release the passive key grabs on the window */
-#ifdef HAVE_X11
-  meta_window_ungrab_keys (grab_window);
-#endif
 
   g_set_object (&window_drag->effective_grab_window, grab_window);
   window_drag->unmanaged_id =

@@ -492,8 +492,6 @@ if have_x11_client
     'x11/meta-x11-frame.h',
     'x11/meta-x11-group.c',
     'x11/meta-x11-group-private.h',
-    'x11/meta-x11-keybindings-private.h',
-    'x11/meta-x11-keybindings.c',
     'x11/meta-x11-selection.c',
     'x11/meta-x11-selection-private.h',
     'x11/meta-x11-selection-input-stream.c',

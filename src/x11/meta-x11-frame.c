@@ -29,7 +29,6 @@
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
-#include "x11/meta-x11-keybindings-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11-private.h"
 
@@ -199,9 +198,6 @@ meta_window_x11_set_frame_xwindow (MetaWindow *window,
   XMapWindow (x11_display->xdisplay, priv->frame->xwindow);
   mtk_x11_error_trap_pop (x11_display->xdisplay);
 
-  /* Move keybindings to frame instead of window */
-  meta_window_grab_keys (window);
-
   /* Even though the property was already set, notify
    * on it so other bits of the machinery catch up
    * on the new frame.
@@ -289,9 +285,6 @@ meta_window_destroy_frame (MetaWindow *window)
     window->restore_focus_on_map = TRUE;
 
   meta_x11_display_unregister_x_window (x11_display, frame->xwindow);
-
-  /* Move keybindings to window instead of frame */
-  meta_window_grab_keys (window);
 
   /* Put our state back where it should be */
   if (!window->unmanaging)

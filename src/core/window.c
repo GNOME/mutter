@@ -88,7 +88,6 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-group-private.h"
-#include "x11/meta-x11-keybindings-private.h"
 #include "x11/window-props.h"
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
@@ -5582,10 +5581,6 @@ meta_window_type_changed (MetaWindow *window)
 
   /* update stacking constraints */
   meta_window_update_layer (window);
-
-#ifdef HAVE_X11
-  meta_window_grab_keys (window);
-#endif
 
   g_object_freeze_notify (object);
 
