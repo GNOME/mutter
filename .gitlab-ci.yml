@@ -105,7 +105,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 41
-    BASE_TAG: '2025-01-28.0'
+    BASE_TAG: '2025-01-29.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       clang
@@ -124,6 +124,7 @@ variables:
       zenity
       python3-dbusmock
       gnome-desktop-testing
+      ruff
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
@@ -347,7 +348,7 @@ build-fedora-container@aarch64:
     - !reference [.pipeline-guard, rules]
   when: manual
 
-check-code-style:
+check-c-code-style:
   extends:
     - .mutter.distribution-image
     - .mutter.fedora@x86_64
@@ -364,6 +365,23 @@ check-code-style:
       export common_parent_sha=$(diff --old-line-format='' --new-line-format='' <(git rev-list --first-parent "target/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME") <(git rev-list --first-parent HEAD) | head -1) ;
       python3 -u ./check-style.py --dry-run --sha $common_parent_sha ;
   allow_failure: true
+  rules:
+    - !reference [.only-merge-requests, rules]
+
+check-python-code-style:
+  extends:
+    - .mutter.distribution-image
+    - .mutter.fedora@x86_64
+  variables:
+    PYTHON_FILES:
+      tools/gdctl
+  stage: code-review
+  needs:
+    - job: build-fedora-container@x86_64
+      artifacts: false
+  script:
+    - ruff format --line-length 80 --check $PYTHON_FILES
+    - ruff check $PYTHON_FILES
   rules:
     - !reference [.only-merge-requests, rules]
 
