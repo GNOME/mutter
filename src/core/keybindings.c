@@ -1191,11 +1191,36 @@ update_window_grab_modifiers (MetaDisplay *display)
 }
 
 static void
+notify_preference_change (MetaDisplay      *display,
+                          MetaPreference    pref,
+                          MetaMappingState  state)
+{
+  switch (pref)
+    {
+    case META_PREF_LOCATE_POINTER:
+    case META_PREF_KEYBINDINGS:
+      meta_compositor_notify_mapping_change (display->compositor,
+                                             META_MAPPING_TYPE_KEY,
+                                             state);
+      break;
+    case META_PREF_MOUSE_BUTTON_MODS:
+      meta_compositor_notify_mapping_change (display->compositor,
+                                             META_MAPPING_TYPE_BUTTON,
+                                             state);
+      break;
+    default:
+      break;
+    }
+}
+
+static void
 prefs_changed_callback (MetaPreference pref,
                         void          *data)
 {
   MetaDisplay *display = data;
   MetaKeyBindingManager *keys = &display->key_binding_manager;
+
+  notify_preference_change (display, pref, META_MAPPING_STATE_PRE_CHANGE);
 
   switch (pref)
     {
@@ -1244,6 +1269,8 @@ prefs_changed_callback (MetaPreference pref,
     default:
       break;
     }
+
+  notify_preference_change (display, pref, META_MAPPING_STATE_POST_CHANGE);
 }
 
 void
