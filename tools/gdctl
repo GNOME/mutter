@@ -120,6 +120,8 @@ def print_properties(*, level, lines, properties):
         if isinstance(value, list):
             elements_string = ", ".join([str(element) for element in value])
             value_string = f"[{elements_string}]"
+        elif isinstance(value, bool):
+            value_string = "yes" if value else "no"
         else:
             value_string = str(value)
 
