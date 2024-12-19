@@ -352,8 +352,6 @@ meta_cursor_sprite_constructed (GObject *object)
 
   g_assert (priv->cursor_tracker);
 
-  meta_cursor_tracker_register_cursor_sprite (priv->cursor_tracker, sprite);
-
   g_clear_object (&priv->texture);
 
   G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->constructed (object);
@@ -369,7 +367,6 @@ meta_cursor_sprite_finalize (GObject *object)
   g_clear_object (&priv->texture);
   g_clear_object (&priv->color_state);
 
-  meta_cursor_tracker_unregister_cursor_sprite (priv->cursor_tracker, sprite);
   g_clear_object (&priv->cursor_tracker);
 
   G_OBJECT_CLASS (meta_cursor_sprite_parent_class)->finalize (object);

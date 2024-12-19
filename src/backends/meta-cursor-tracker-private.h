@@ -54,9 +54,3 @@ MetaBackend * meta_cursor_tracker_get_backend (MetaCursorTracker *tracker);
 void meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker);
 
 void meta_cursor_tracker_destroy (MetaCursorTracker *tracker);
-
-void meta_cursor_tracker_register_cursor_sprite (MetaCursorTracker *tracker,
-                                                 MetaCursorSprite  *sprite);
-
-void meta_cursor_tracker_unregister_cursor_sprite (MetaCursorTracker *tracker,
-                                                   MetaCursorSprite  *sprite);
