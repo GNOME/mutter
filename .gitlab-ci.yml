@@ -11,6 +11,7 @@ include:
       meson-options:
         -Dxwayland_initfd=enabled
         -Dprofiler=true
+        -Dbash_completion=false
 
 build-sysext:
   before_script:
@@ -124,6 +125,7 @@ variables:
       zenity
       python3-dbusmock
       gnome-desktop-testing
+      python3-argcomplete
       ruff
 
     FDO_DISTRIBUTION_EXEC: |
@@ -193,8 +195,6 @@ variables:
         ninja -C build src/tests/kvm/bzImage
         mkdir -p /opt/mutter
         cp build/src/tests/kvm/bzImage /opt/mutter/bzImage
-
-        dnf install -y python3-argcomplete
 
         git clone https://github.com/arighi/virtme-ng.git
         cd virtme-ng

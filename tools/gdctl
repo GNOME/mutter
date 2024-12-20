@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
+import argcomplete
 import sys
 
 from dataclasses import dataclass
 from gi.repository import GLib, Gio
 from enum import Enum, Flag
+from argcomplete.completers import BaseCompleter, SuppressCompleter
 
 NAME = "org.gnome.Mutter.DisplayConfig"
 INTERFACE = "org.gnome.Mutter.DisplayConfig"
@@ -1130,6 +1132,70 @@ class GdctlParser(argparse.ArgumentParser):
         return namespace
 
 
+class MonitorCompleter(BaseCompleter):
+    def __call__(self, **kwargs):
+        try:
+            display_config = DisplayConfig()
+            monitors_state = MonitorsState(display_config)
+            return tuple(monitors_state.monitors)
+        except Exception:
+            return ()
+
+
+class MonitorModeCompleter(BaseCompleter):
+    def __call__(self, parsed_args=None, **kwargs):
+        try:
+            (connector,) = parsed_args._current_sub_group["key"]
+
+            display_config = DisplayConfig()
+            monitors_state = MonitorsState(display_config)
+
+            monitor = monitors_state.monitors[connector]
+            return (mode.name for mode in monitor.modes)
+        except Exception:
+            return ()
+
+
+class ScaleCompleter(BaseCompleter):
+    def __call__(self, parsed_args=None, **kwargs):
+        try:
+            (connector,) = parsed_args._current_sub_group["key"]
+
+            display_config = DisplayConfig()
+            monitors_state = MonitorsState(display_config)
+
+            monitor = monitors_state.monitors[connector]
+
+            mode = parsed_args._current_sub_group.get("mode", None)
+            if not mode:
+                mode = monitor.preferred_mode
+
+            scales = mode.supported_scales
+            scales.sort(key=lambda scale: abs(scale - mode.preferred_scale))
+
+            return (repr(scale) for scale in scales)
+        except Exception:
+            return ()
+
+
+class NamedEnumCompleter(BaseCompleter):
+    def __init__(self, enum_type):
+        self.enum_type = enum_type
+
+    def __call__(self, **kwargs):
+        return (str(enum_value) for enum_value in self.enum_type)
+
+
+class LayoutModeCompleter(NamedEnumCompleter):
+    def __init__(self):
+        super().__init__(LayoutMode)
+
+
+class TransformCompleter(NamedEnumCompleter):
+    def __init__(self):
+        super().__init__(Transform)
+
+
 if __name__ == "__main__":
     parser = GdctlParser(
         description="Display control utility",
@@ -1196,7 +1262,7 @@ if __name__ == "__main__":
         choices=[str(layout_mode) for layout_mode in list(LayoutMode)],
         type=str,
         action=AppendToGlobal,
-    )
+    ).completer = LayoutModeCompleter()
     set_parser.add_argument(
         "-L",
         "--logical-monitor",
@@ -1216,8 +1282,9 @@ if __name__ == "__main__":
         dest="monitors",
         metavar="CONNECTOR",
         action=SubGroupAction,
+        nargs=1,
         help="Configure monitor",
-    )
+    ).completer = MonitorCompleter()
     monitor_parser = set_parser.add_argument_group(
         "monitor",
         "Monitor options (pass after --monitor)",
@@ -1229,7 +1296,7 @@ if __name__ == "__main__":
         action=AppendToSubGroup,
         help="Monitor mode",
         type=str,
-    )
+    ).completer = MonitorModeCompleter()
     logical_monitor_parser.add_argument(
         "--primary",
         "-p",
@@ -1245,7 +1312,7 @@ if __name__ == "__main__":
         action=AppendToGroup,
         help="Logical monitor scale",
         type=float,
-    )
+    ).completer = ScaleCompleter()
     logical_monitor_parser.add_argument(
         "--transform",
         "-t",
@@ -1253,7 +1320,7 @@ if __name__ == "__main__":
         help="Apply viewport transform",
         choices=[str(transform) for transform in list(Transform)],
         type=str,
-    )
+    ).completer = TransformCompleter()
     logical_monitor_parser.add_argument(
         "--x",
         "-x",
@@ -1274,28 +1341,38 @@ if __name__ == "__main__":
         metavar="CONNECTOR",
         help="Place right of other monitor",
         type=str,
-    )
+    ).completer = MonitorCompleter()
     logical_monitor_parser.add_argument(
         "--left-of",
         action=AppendToGroup,
         metavar="CONNECTOR",
         help="Place left of other monitor",
         type=str,
-    )
+    ).completer = MonitorCompleter()
     logical_monitor_parser.add_argument(
         "--above",
         action=AppendToGroup,
         metavar="CONNECTOR",
         help="Place above other monitor",
         type=str,
-    )
+    ).completer = MonitorCompleter()
     logical_monitor_parser.add_argument(
         "--below",
         action=AppendToGroup,
         metavar="CONNECTOR",
         help="Place below other monitor",
         type=str,
-    )
+    ).completer = MonitorCompleter()
+
+    for action in [
+        GroupAction,
+        SubGroupAction,
+        AppendToGroup,
+        AppendToSubGroup,
+        AppendToGlobal,
+    ]:
+        argcomplete.safe_actions.add(action)
+    argcomplete.autocomplete(parser, default_completer=SuppressCompleter)
 
     args = parser.parse_args()
 

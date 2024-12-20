@@ -224,3 +224,9 @@ option('fonts',
   value: true,
   description: 'Enable font rendering integration using Pango'
 )
+
+option('bash_completion',
+  type: 'boolean',
+  value: true,
+  description: 'Integrate bash completion for gdctl'
+)

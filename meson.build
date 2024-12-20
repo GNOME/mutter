@@ -378,6 +378,7 @@ have_kvm_tests = false
 have_tty_tests = false
 have_installed_tests = false
 have_x11_tests = false
+have_bash_completion = get_option('bash_completion')
 
 if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
@@ -743,6 +744,8 @@ summary('mandir', mandir, section: 'Directories')
 
 summary('buildtype', get_option('buildtype'), section: 'Build Configuration')
 summary('debug', get_option('debug'), section: 'Build Configuration')
+
+summary('Bash completion', have_bash_completion, section: 'Shell integration')
 
 summary('OpenGL', have_gl, section: 'Rendering APIs')
 summary('GLES2', have_gles2, section: 'Rendering APIs')
