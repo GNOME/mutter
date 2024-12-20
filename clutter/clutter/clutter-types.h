@@ -84,6 +84,7 @@ typedef struct _ClutterVirtualInputDevice       ClutterVirtualInputDevice;
 typedef struct _ClutterInputMethod              ClutterInputMethod;
 typedef struct _ClutterInputFocus               ClutterInputFocus;
 typedef struct _ClutterFocus                    ClutterFocus;
+typedef struct _ClutterKeyFocus                 ClutterKeyFocus;
 
 typedef union _ClutterEvent                     ClutterEvent;
 
