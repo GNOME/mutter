@@ -58,6 +58,7 @@
 #include "clutter/clutter-grab-private.h"
 #include "clutter/clutter-input-device-private.h"
 #include "clutter/clutter-input-only-actor.h"
+#include "clutter/clutter-key-focus-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-mutter.h"
@@ -121,8 +122,6 @@ typedef struct _ClutterStagePrivate
   graphene_matrix_t view;
   float viewport[4];
 
-  ClutterActor *key_focused_actor;
-
   ClutterGrab *topmost_grab;
   ClutterGrabState grab_state;
 
@@ -138,6 +137,7 @@ typedef struct _ClutterStagePrivate
 
   GHashTable *pointer_devices;
   GHashTable *touch_sequences;
+  ClutterKeyFocus *key_focus;
 
   GPtrArray *all_active_gestures;
 
@@ -638,20 +638,6 @@ clutter_stage_hide (ClutterActor *self)
   CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->hide (self);
 }
 
-static void
-clutter_stage_emit_key_focus_event (ClutterStage *stage,
-                                    gboolean      focus_in)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-
-  if (priv->key_focused_actor == NULL)
-    return;
-
-  _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), focus_in);
-
-  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
-}
-
 gboolean
 clutter_stage_is_active (ClutterStage *stage)
 {
@@ -670,6 +656,7 @@ clutter_stage_set_active (ClutterStage *stage,
 {
   ClutterStagePrivate *priv;
   AtkObject *accessible;
+  ClutterActor *focus_actor;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
@@ -697,7 +684,13 @@ clutter_stage_set_active (ClutterStage *stage,
         g_signal_emit_by_name (accessible, "deactivate", 0);
     }
 
-  clutter_stage_emit_key_focus_event (stage, is_active);
+  focus_actor =
+    clutter_focus_get_current_actor (CLUTTER_FOCUS (priv->key_focus));
+
+  if (clutter_focus_set_current_actor (CLUTTER_FOCUS (priv->key_focus),
+                                       focus_actor, NULL,
+                                       CLUTTER_CURRENT_TIME))
+    g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
 
 void
@@ -1282,6 +1275,10 @@ clutter_stage_constructed (GObject *gobject)
     g_hash_table_new_full (NULL, NULL,
                            NULL, (GDestroyNotify) free_pointer_device_entry);
 
+  priv->key_focus = g_object_new (CLUTTER_TYPE_KEY_FOCUS,
+                                  "stage", self,
+                                  NULL);
+
   priv->all_active_gestures = g_ptr_array_sized_new (64);
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
@@ -1333,8 +1330,9 @@ clutter_stage_get_property (GObject    *gobject,
 			    GValue     *value,
 			    GParamSpec *pspec)
 {
+  ClutterStage *stage = CLUTTER_STAGE (gobject);
   ClutterStagePrivate *priv =
-    clutter_stage_get_instance_private (CLUTTER_STAGE (gobject));
+    clutter_stage_get_instance_private (stage);
 
   switch (prop_id)
     {
@@ -1343,7 +1341,7 @@ clutter_stage_get_property (GObject    *gobject,
       break;
 
     case PROP_KEY_FOCUS:
-      g_value_set_object (value, priv->key_focused_actor);
+      g_value_set_object (value, clutter_stage_get_key_focus (stage));
       break;
 
     case PROP_IS_GRABBED:
@@ -1392,6 +1390,7 @@ clutter_stage_dispose (GObject *object)
 
   g_hash_table_remove_all (priv->pointer_devices);
   g_hash_table_remove_all (priv->touch_sequences);
+  g_clear_object (&priv->key_focus);
 
   G_OBJECT_CLASS (clutter_stage_parent_class)->dispose (object);
 }
@@ -2116,57 +2115,10 @@ clutter_stage_set_key_focus (ClutterStage *stage,
       actor = NULL;
     }
 
-  /* avoid emitting signals and notifications if we're setting the same
-   * actor as the key focus
-   */
-  if (priv->key_focused_actor == actor)
-    return;
-
-  if (priv->key_focused_actor != NULL)
-    {
-      ClutterActor *old_focused_actor;
-
-      old_focused_actor = priv->key_focused_actor;
-
-      /* set key_focused_actor to NULL before emitting the signal or someone
-       * might hide the previously focused actor in the signal handler
-       */
-      priv->key_focused_actor = NULL;
-
-      _clutter_actor_set_has_key_focus (old_focused_actor, FALSE);
-    }
-  else
-    {
-      _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), FALSE);
-    }
-  /* Note, if someone changes key focus in focus-out signal handler we'd be
-   * overriding the latter call below moving the focus where it was originally
-   * intended. The order of events would be:
-   *   1st focus-out, 2nd focus-out (on stage), 2nd focus-in, 1st focus-in
-   */
-  priv->key_focused_actor = actor;
-
-  /* If the key focused actor is allowed to receive key events according
-   * to the given grab (or there is none) set key focus on it, otherwise
-   * key focus is delayed until there are grabbing conditions that allow
-   * it to get key focus.
-   */
-  if (!priv->topmost_grab ||
-      priv->topmost_grab->actor == CLUTTER_ACTOR (stage) ||
-      priv->topmost_grab->actor == actor ||
-      (actor && clutter_actor_contains (priv->topmost_grab->actor, actor)))
-    {
-      if (actor != NULL)
-        {
-          _clutter_actor_set_has_key_focus (actor, TRUE);
-        }
-      else
-        {
-          _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
-        }
-    }
-
-  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
+  if (clutter_focus_set_current_actor (CLUTTER_FOCUS (priv->key_focus),
+                                       actor, NULL,
+                                       CLUTTER_CURRENT_TIME))
+    g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
 
 /**
@@ -2185,7 +2137,11 @@ clutter_stage_get_key_focus (ClutterStage *stage)
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 
   priv = clutter_stage_get_instance_private (stage);
-  return priv->key_focused_actor;
+
+  if (!priv->key_focus)
+    return NULL;
+
+  return clutter_focus_get_current_actor (CLUTTER_FOCUS (priv->key_focus));
 }
 
 /*** Perspective boxed type ******/
@@ -3806,33 +3762,6 @@ clutter_stage_notify_grab_on_pointer_entry (ClutterStage       *stage,
 }
 
 static void
-clutter_stage_notify_grab_on_key_focus (ClutterStage *stage,
-                                        ClutterActor *grab_actor,
-                                        ClutterActor *old_grab_actor)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterActor *key_focus;
-  gboolean focus_in_grab, focus_in_old_grab;
-
-  key_focus = priv->key_focused_actor ?
-              priv->key_focused_actor : CLUTTER_ACTOR (stage);
-
-  focus_in_grab =
-    !grab_actor ||
-    grab_actor == key_focus ||
-    clutter_actor_contains (grab_actor, key_focus);
-  focus_in_old_grab =
-    !old_grab_actor ||
-    old_grab_actor == key_focus ||
-    clutter_actor_contains (old_grab_actor, key_focus);
-
-  if (focus_in_grab && !focus_in_old_grab)
-    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (key_focus), TRUE);
-  else if (!focus_in_grab && focus_in_old_grab)
-    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (key_focus), FALSE);
-}
-
-static void
 clutter_stage_notify_grab (ClutterStage *stage,
                            ClutterGrab  *cur,
                            ClutterGrab  *old)
@@ -3871,7 +3800,10 @@ clutter_stage_notify_grab (ClutterStage *stage,
                                                   old_actor);
     }
 
-  clutter_stage_notify_grab_on_key_focus (stage, cur_actor, old_actor);
+  clutter_focus_notify_grab (CLUTTER_FOCUS (priv->key_focus),
+                             priv->topmost_grab,
+                             cur_actor,
+                             old_actor);
 }
 
 static ClutterGrab *
@@ -4189,8 +4121,14 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
     case CLUTTER_IM_COMMIT:
     case CLUTTER_IM_DELETE:
     case CLUTTER_IM_PREEDIT:
-      return priv->key_focused_actor ?
-             priv->key_focused_actor : CLUTTER_ACTOR (stage);
+      {
+        ClutterActor *key_focus;
+
+        key_focus =
+          clutter_focus_get_current_actor (CLUTTER_FOCUS (priv->key_focus));
+
+        return key_focus ? key_focus : CLUTTER_ACTOR (stage);
+      }
     case CLUTTER_MOTION:
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
@@ -4427,9 +4365,11 @@ clutter_stage_emit_event (ClutterStage       *self,
     case CLUTTER_IM_DELETE:
     case CLUTTER_IM_PREEDIT:
       {
-        target_actor = priv->key_focused_actor ?
-                       priv->key_focused_actor : CLUTTER_ACTOR (self);
-        break;
+        target_actor =
+          clutter_focus_get_current_actor (CLUTTER_FOCUS (priv->key_focus));
+
+        if (!target_actor)
+          target_actor = CLUTTER_ACTOR (self);
       }
 
     /* x11 stage enter/leave events */
