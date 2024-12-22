@@ -55,9 +55,6 @@ typedef struct _CoglGLXRenderer
     COGL_GLX_UST_IS_OTHER
   } ust_type;
 
-  /* GModule pointing to libGL which we use to get glX functions out of */
-  GModule *libgl_module;
-
   CoglClosure *flush_notifications_idle;
 
   /* Copy of the winsys features that are based purely on the
