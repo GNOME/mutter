@@ -159,9 +159,8 @@ clutter_backend_real_resolution_changed (ClutterBackend *backend)
 }
 
 static gboolean
-clutter_backend_do_real_create_context (ClutterBackend  *backend,
-                                        CoglDriverId     driver_id,
-                                        GError         **error)
+clutter_backend_real_create_context (ClutterBackend  *backend,
+                                     GError         **error)
 {
   ClutterBackendClass *klass;
 
@@ -175,7 +174,6 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Connecting the renderer");
-  cogl_renderer_set_driver (backend->cogl_renderer, driver_id);
   if (!cogl_renderer_connect (backend->cogl_renderer, error))
     goto error;
 
@@ -197,6 +195,9 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
   /* the display owns the renderer and the swap chain */
   g_object_unref (backend->cogl_renderer);
 
+  backend->cogl_source = cogl_glib_source_new (backend->cogl_renderer, G_PRIORITY_DEFAULT);
+  g_source_attach (backend->cogl_source, NULL);
+
   return TRUE;
 
 error:
@@ -204,80 +205,6 @@ error:
   g_clear_object (&backend->cogl_renderer);
 
   return FALSE;
-}
-
-static const struct {
-  const char *driver_name;
-  const char *driver_desc;
-  CoglDriverId driver_id;
-} all_known_drivers[] = {
-  { "gl3", "OpenGL 3.1 core profile", COGL_DRIVER_ID_GL3 },
-  { "gles2", "OpenGL ES 2.0", COGL_DRIVER_ID_GLES2 },
-  { "any", "Default Cogl driver", COGL_DRIVER_ID_ANY },
-};
-
-static gboolean
-clutter_backend_real_create_context (ClutterBackend  *backend,
-                                     GError         **error)
-{
-  GError *internal_error = NULL;
-  const char *drivers_list;
-  char **known_drivers;
-  int i;
-
-  if (backend->cogl_context != NULL)
-    return TRUE;
-
-  drivers_list = g_getenv ("CLUTTER_DRIVER");
-  if (drivers_list == NULL)
-    drivers_list = "*";
-
-  known_drivers = g_strsplit (drivers_list, ",", 0);
-
-  for (i = 0; backend->cogl_context == NULL && known_drivers[i] != NULL; i++)
-    {
-      const char *driver_name = known_drivers[i];
-      gboolean is_any = g_str_equal (driver_name, "*");
-      int j;
-
-      for (j = 0; j < G_N_ELEMENTS (all_known_drivers); j++)
-        {
-          if (is_any ||
-              g_str_equal (all_known_drivers[j].driver_name, driver_name))
-            {
-              CLUTTER_NOTE (BACKEND, "Checking for the %s driver", all_known_drivers[j].driver_desc);
-
-              if (clutter_backend_do_real_create_context (backend, all_known_drivers[j].driver_id, &internal_error))
-                break;
-
-              if (internal_error)
-                {
-                  CLUTTER_NOTE (BACKEND, "Unable to use the %s driver: %s",
-                                all_known_drivers[j].driver_desc,
-                                internal_error->message);
-                  g_clear_error (&internal_error);
-                }
-            }
-        }
-    }
-
-  g_strfreev (known_drivers);
-
-  if (backend->cogl_context == NULL)
-    {
-      if (internal_error != NULL)
-        g_propagate_error (error, internal_error);
-      else
-        g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                             "Unable to initialize the Clutter backend: no available drivers found.");
-
-      return FALSE;
-    }
-
-  backend->cogl_source = cogl_glib_source_new (backend->cogl_renderer, G_PRIORITY_DEFAULT);
-  g_source_attach (backend->cogl_source, NULL);
-
-  return TRUE;
 }
 
 static void
