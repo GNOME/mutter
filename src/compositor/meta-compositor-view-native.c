@@ -159,7 +159,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
-  ClutterColorState *view_color_state;
+  ClutterColorState *output_color_state;
   ClutterColorState *surface_color_state;
   MetaWaylandSurface *surface;
 
@@ -290,11 +290,11 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  view_color_state =
-    clutter_stage_view_get_color_state (CLUTTER_STAGE_VIEW (view));
+  output_color_state =
+    clutter_stage_view_get_output_color_state (CLUTTER_STAGE_VIEW (view));
   surface_color_state =
     clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
-  if (!clutter_color_state_equals (view_color_state, surface_color_state))
+  if (!clutter_color_state_equals (output_color_state, surface_color_state))
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: "
