@@ -277,21 +277,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
         invalid_override = driver_name;
     }
 
-  if (renderer->driver_override != COGL_DRIVER_ID_ANY)
-    {
-      if (driver_override != COGL_DRIVER_ID_ANY &&
-          renderer->driver_override != driver_override)
-        {
-          g_set_error (error, COGL_RENDERER_ERROR,
-                       COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                       "Application driver selection conflicts with driver "
-                       "specified in configuration");
-          return FALSE;
-        }
-
-      driver_override = renderer->driver_override;
-    }
-
   if (driver_override != COGL_DRIVER_ID_ANY)
     {
       gboolean found = FALSE;
@@ -549,14 +534,6 @@ cogl_renderer_get_proc_address (CoglRenderer *renderer,
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   return winsys->renderer_get_proc_address (renderer, name);
-}
-
-void
-cogl_renderer_set_driver (CoglRenderer *renderer,
-                          CoglDriverId  driver)
-{
-  g_return_if_fail (!renderer->connected);
-  renderer->driver_override = driver;
 }
 
 CoglDriverId

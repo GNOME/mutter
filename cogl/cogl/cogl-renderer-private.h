@@ -47,7 +47,6 @@ struct _CoglRenderer
   CoglDisplay *display;
 
   gboolean connected;
-  CoglDriverId driver_override;
   CoglDriver *driver;
   CoglTextureDriver *texture_driver;
   const CoglWinsysVtable *winsys_vtable;
