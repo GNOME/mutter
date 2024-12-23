@@ -107,11 +107,6 @@ gboolean clutter_stage_get_device_coords (ClutterStage         *stage,
                                           graphene_point_t     *coords);
 
 CLUTTER_EXPORT
-void clutter_get_debug_flags (ClutterDebugFlag     *debug_flags,
-                              ClutterDrawDebugFlag *draw_flags,
-                              ClutterPickDebugFlag *pick_flags);
-
-CLUTTER_EXPORT
 void clutter_actor_notify_transform_invalid (ClutterActor *self);
 
 CLUTTER_EXPORT

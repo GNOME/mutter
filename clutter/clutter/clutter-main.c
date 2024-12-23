@@ -563,7 +563,7 @@ _clutter_clear_events_queue (void)
 }
 
 /**
- * clutter_add_debug_flags: (skip)
+ * clutter_add_debug_flags:
  *
  * Adds the debug flags passed to the list of debug flags.
  */
@@ -578,7 +578,7 @@ clutter_add_debug_flags (ClutterDebugFlag     debug_flags,
 }
 
 /**
- * clutter_remove_debug_flags: (skip)
+ * clutter_remove_debug_flags:
  *
  * Removes the debug flags passed from the list of debug flags.
  */

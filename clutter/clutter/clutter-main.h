@@ -120,6 +120,11 @@ CLUTTER_EXPORT
 ClutterTextDirection    clutter_get_default_text_direction      (void);
 
 CLUTTER_EXPORT
+void                    clutter_get_debug_flags                 (ClutterDebugFlag     *debug_flags,
+                                                                 ClutterDrawDebugFlag *draw_flags,
+                                                                 ClutterPickDebugFlag *pick_flags);
+
+CLUTTER_EXPORT
 void                    clutter_add_debug_flags                 (ClutterDebugFlag     debug_flags,
                                                                  ClutterDrawDebugFlag draw_flags,
                                                                  ClutterPickDebugFlag pick_flags);
