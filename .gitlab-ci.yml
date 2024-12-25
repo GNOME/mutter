@@ -375,6 +375,8 @@ check-python-code-style:
   variables:
     PYTHON_FILES:
       tools/gdctl
+      clutter/clutter/gen-keyname-table.py
+      clutter/clutter/clutter-keysyms-update.py
   stage: code-review
   needs:
     - job: build-fedora-container@x86_64
