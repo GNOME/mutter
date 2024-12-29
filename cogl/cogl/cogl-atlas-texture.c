@@ -255,16 +255,6 @@ _cogl_atlas_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                    wrap_mode_t);
 }
 
-static int
-_cogl_atlas_texture_get_max_waste (CoglTexture *tex)
-{
-  CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
-  CoglTextureClass *klass = COGL_TEXTURE_GET_CLASS (atlas_tex->sub_texture);
-
-  /* Forward on to the sub texture */
-  return klass->get_max_waste (COGL_TEXTURE (atlas_tex->sub_texture));
-}
-
 static gboolean
 _cogl_atlas_texture_is_sliced (CoglTexture *tex)
 {
@@ -814,7 +804,6 @@ cogl_atlas_texture_class_init (CoglAtlasTextureClass *klass)
   texture_class->allocate = _cogl_atlas_texture_allocate;
   texture_class->set_region = _cogl_atlas_texture_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_atlas_texture_foreach_sub_texture_in_region;
-  texture_class->get_max_waste = _cogl_atlas_texture_get_max_waste;
   texture_class->is_sliced = _cogl_atlas_texture_is_sliced;
   texture_class->can_hardware_repeat = _cogl_atlas_texture_can_hardware_repeat;
 

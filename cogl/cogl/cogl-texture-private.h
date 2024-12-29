@@ -152,8 +152,6 @@ struct _CoglTextureClass
                                           CoglTextureForeachCallback  callback,
                                           void                       *user_data);
 
-  int (* get_max_waste) (CoglTexture *tex);
-
   gboolean (* is_sliced) (CoglTexture *tex);
 
   gboolean (* can_hardware_repeat) (CoglTexture *tex);

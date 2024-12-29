@@ -735,14 +735,6 @@ _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
   g_return_val_if_reached (FALSE);
 }
 
-static int
-_cogl_texture_2d_sliced_get_max_waste (CoglTexture *tex)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-
-  return tex_2ds->max_waste;
-}
-
 static gboolean
 _cogl_texture_2d_sliced_is_sliced (CoglTexture *tex)
 {
@@ -1192,7 +1184,6 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
   texture_class->allocate = _cogl_texture_2d_sliced_allocate;
   texture_class->set_region = _cogl_texture_2d_sliced_set_region;
   texture_class->foreach_sub_texture_in_region = _cogl_texture_2d_sliced_foreach_sub_texture_in_region;
-  texture_class->get_max_waste = _cogl_texture_2d_sliced_get_max_waste;
   texture_class->is_sliced = _cogl_texture_2d_sliced_is_sliced;
   texture_class->can_hardware_repeat = _cogl_texture_2d_sliced_can_hardware_repeat;
   texture_class->transform_coords_to_gl = _cogl_texture_2d_sliced_transform_coords_to_gl;
