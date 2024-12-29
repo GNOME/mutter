@@ -229,4 +229,20 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
 
 #endif
 
+/**
+ * cogl_texture_2d_set_auto_mipmap:
+ * @texture: A #CoglTexture2D
+ * @value: The new value for whether to auto mipmap
+ *
+ * Sets whether the texture will automatically update the smaller
+ * mipmap levels after any part of level 0 is updated. The update will
+ * only occur whenever the texture is used for drawing with a texture
+ * filter that requires the lower mipmap levels. An application should
+ * disable this if it wants to upload its own data for the other
+ * levels. By default auto mipmapping is enabled.
+ */
+COGL_EXPORT void
+cogl_texture_2d_set_auto_mipmap (CoglTexture2D *texture,
+                                 gboolean       value);
+
 G_END_DECLS

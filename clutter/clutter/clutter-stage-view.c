@@ -192,7 +192,7 @@ create_offscreen (ClutterStageView  *view,
                                                  width, height, format);
     }
 
-  cogl_texture_set_auto_mipmap (texture, FALSE);
+  cogl_texture_2d_set_auto_mipmap (COGL_TEXTURE_2D (texture), FALSE);
 
   if (!cogl_texture_allocate (texture, error))
     return FALSE;

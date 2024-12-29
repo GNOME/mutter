@@ -63,7 +63,6 @@
 typedef struct _CoglTexturePrivate
 {
   CoglContext *context;
-  gboolean is_primitive;
   CoglTextureLoader *loader;
   GList *framebuffers;
   int max_level_set;
@@ -90,7 +89,6 @@ enum
   PROP_HEIGHT,
   PROP_LOADER,
   PROP_FORMAT,
-  PROP_IS_PRIMITIVE,
 
   PROP_LAST
 };
@@ -177,10 +175,6 @@ cogl_texture_set_property (GObject      *gobject,
       priv->premultiplied = TRUE;
       break;
 
-    case PROP_IS_PRIMITIVE:
-      priv->is_primitive = g_value_get_boolean (value);
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -222,10 +216,6 @@ cogl_texture_class_init (CoglTextureClass *klass)
                        COGL_PIXEL_FORMAT_ANY,
                        G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_IS_PRIMITIVE] =
-    g_param_spec_boolean ("is-primitive", NULL, NULL,
-                          FALSE, G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
-                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class,
                                      PROP_LAST,
@@ -1384,18 +1374,4 @@ cogl_texture_set_max_level_set (CoglTexture *texture,
   CoglTexturePrivate *priv =
     cogl_texture_get_instance_private (texture);
   priv->max_level_set = max_level_set;
-}
-
-void
-cogl_texture_set_auto_mipmap (CoglTexture *texture,
-                              gboolean     value)
-{
-  CoglTexturePrivate *priv;
-  g_return_if_fail (COGL_IS_TEXTURE (texture));
-  priv = cogl_texture_get_instance_private (texture);
-  g_return_if_fail (priv->is_primitive);
-
-  g_assert (COGL_TEXTURE_GET_CLASS (texture)->set_auto_mipmap != NULL);
-
-  COGL_TEXTURE_GET_CLASS (texture)->set_auto_mipmap (texture, value);
 }

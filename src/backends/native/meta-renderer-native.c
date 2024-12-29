@@ -1300,7 +1300,7 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
                                              view_width, view_height,
                                              format);
     }
-  cogl_texture_set_auto_mipmap (tex, FALSE);
+  cogl_texture_2d_set_auto_mipmap (COGL_TEXTURE_2D (tex), FALSE);
 
   if (!cogl_texture_allocate (tex, error))
     {

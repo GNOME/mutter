@@ -388,7 +388,7 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
 
   bitmap_texture = cogl_texture_2d_new_with_size (cogl_context,
                                                   bitmap_width, bitmap_height);
-  cogl_texture_set_auto_mipmap (bitmap_texture, FALSE);
+  cogl_texture_2d_set_auto_mipmap (COGL_TEXTURE_2D (bitmap_texture), FALSE);
   if (!cogl_texture_allocate (bitmap_texture, error))
     {
       g_object_unref (bitmap_texture);

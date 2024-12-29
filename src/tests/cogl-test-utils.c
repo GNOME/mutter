@@ -193,7 +193,7 @@ set_auto_mipmap_cb (CoglTexture *sub_texture,
                     const float *meta_coords,
                     void        *user_data)
 {
-  cogl_texture_set_auto_mipmap (sub_texture, FALSE);
+  cogl_texture_2d_set_auto_mipmap (COGL_TEXTURE_2D (sub_texture), FALSE);
 }
 
 CoglTexture *

@@ -182,10 +182,6 @@ struct _CoglTextureClass
 
   CoglPixelFormat (* get_format) (CoglTexture *tex);
   GLenum (* get_gl_format) (CoglTexture *tex);
-
-  /* Only needs to be implemented if is_primitive == TRUE */
-  void (* set_auto_mipmap) (CoglTexture *texture,
-                            gboolean     value);
 };
 
 gboolean

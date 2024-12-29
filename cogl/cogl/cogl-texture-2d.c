@@ -66,12 +66,10 @@ cogl_texture_2d_dispose (GObject *object)
 }
 
 void
-_cogl_texture_2d_set_auto_mipmap (CoglTexture *tex,
-                                  gboolean value)
+cogl_texture_2d_set_auto_mipmap (CoglTexture2D *tex,
+                                 gboolean       value)
 {
-  CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-
-  tex_2d->auto_mipmap = value;
+  tex->auto_mipmap = value;
 }
 
 CoglTexture *
@@ -87,7 +85,6 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                                         "height", height,
                                         "loader", loader,
                                         "format", internal_format,
-                                        "is-primitive", TRUE,
                                         NULL);
   CoglTextureDriverClass *tex_driver =
     COGL_TEXTURE_DRIVER_GET_CLASS (ctx->texture_driver);
@@ -355,7 +352,6 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_texture_2d_get_format;
   texture_class->get_gl_format = _cogl_texture_2d_get_gl_format;
-  texture_class->set_auto_mipmap = _cogl_texture_2d_set_auto_mipmap;
 }
 
 static void

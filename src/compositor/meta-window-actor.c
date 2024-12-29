@@ -1585,7 +1585,7 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
   if (!texture)
     return NULL;
 
-  cogl_texture_set_auto_mipmap (texture, FALSE);
+  cogl_texture_2d_set_auto_mipmap (COGL_TEXTURE_2D (texture), FALSE);
 
   offscreen = cogl_offscreen_new_with_texture (texture);
   framebuffer = COGL_FRAMEBUFFER (offscreen);
