@@ -96,35 +96,29 @@ enum
 static GParamSpec *obj_props[PROP_LAST];
 
 static void
-_cogl_texture_free_loader (CoglTexture *texture)
+cogl_texture_loader_free (CoglTextureLoader *loader)
 {
-  CoglTexturePrivate *priv =
-    cogl_texture_get_instance_private (texture);
-
-  if (priv->loader)
+  switch (loader->src_type)
     {
-      CoglTextureLoader *loader = priv->loader;
-      switch (loader->src_type)
-        {
-        case COGL_TEXTURE_SOURCE_TYPE_SIZE:
-        case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
-        case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
-          break;
-        case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
-          g_object_unref (loader->src.bitmap.bitmap);
-          break;
-        }
-      g_free (loader);
-      priv->loader = NULL;
+    case COGL_TEXTURE_SOURCE_TYPE_SIZE:
+    case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
+    case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
+      break;
+    case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
+      g_clear_object (&loader->src.bitmap.bitmap);
+      break;
     }
+  g_free (loader);
 }
 
 static void
 cogl_texture_dispose (GObject *object)
 {
   CoglTexture *texture = COGL_TEXTURE (object);
+  CoglTexturePrivate *priv =
+    cogl_texture_get_instance_private (texture);
 
-  _cogl_texture_free_loader (texture);
+  g_clear_pointer (&priv->loader, cogl_texture_loader_free);
 
   G_OBJECT_CLASS (cogl_texture_parent_class)->dispose (object);
 }
@@ -241,9 +235,14 @@ cogl_texture_error_quark (void)
 }
 
 CoglTextureLoader *
-_cogl_texture_create_loader (void)
+cogl_texture_loader_new (CoglTextureSourceType src_type)
 {
-  return g_new0 (CoglTextureLoader, 1);
+  CoglTextureLoader *loader;
+
+  loader = g_new0 (CoglTextureLoader, 1);
+  loader->src_type = src_type;
+
+  return loader;
 }
 
 gboolean
@@ -1147,7 +1146,7 @@ _cogl_texture_set_allocated (CoglTexture *texture,
   priv->height = height;
   priv->allocated = TRUE;
 
-  _cogl_texture_free_loader (texture);
+  g_clear_pointer (&priv->loader, cogl_texture_loader_free);
 }
 
 gboolean

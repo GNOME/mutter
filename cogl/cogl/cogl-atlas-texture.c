@@ -863,8 +863,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
    * data structure */
   g_return_val_if_fail (width > 0 && height > 0, NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_SIZE);
   loader->src.sized.width = width;
   loader->src.sized.height = height;
   loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
@@ -881,8 +880,7 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp)
 
   g_return_val_if_fail (COGL_IS_BITMAP (bmp), NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_BITMAP);
   loader->src.bitmap.bitmap = g_object_ref (bmp);
 
   return _cogl_atlas_texture_create_base (_cogl_bitmap_get_context (bmp),

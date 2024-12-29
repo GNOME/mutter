@@ -91,8 +91,7 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                                   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
                         NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL);
   loader->src.egl_image_external.width = width;
   loader->src.egl_image_external.height = height;
   loader->src.egl_image_external.alloc = alloc;

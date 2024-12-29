@@ -370,8 +370,7 @@ cogl_texture_2d_new_with_format (CoglContext     *ctx,
   g_return_val_if_fail (width >= 1, NULL);
   g_return_val_if_fail (height >= 1, NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_SIZE);
   loader->src.sized.width = width;
   loader->src.sized.height = height;
   loader->src.sized.format = format;
@@ -389,8 +388,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
   g_return_val_if_fail (width >= 1, NULL);
   g_return_val_if_fail (height >= 1, NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZE;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_SIZE);
   loader->src.sized.width = width;
   loader->src.sized.height = height;
   loader->src.sized.format = COGL_PIXEL_FORMAT_ANY;
@@ -406,8 +404,7 @@ cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
 
   g_return_val_if_fail (bmp != NULL, NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_BITMAP);
   loader->src.bitmap.bitmap = g_object_ref (bmp);
 
   return  _cogl_texture_2d_create_base (_cogl_bitmap_get_context (bmp),
@@ -483,8 +480,7 @@ cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
                         COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE),
                         NULL);
 
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE;
+  loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE);
   loader->src.egl_image.image = image;
   loader->src.egl_image.width = width;
   loader->src.egl_image.height = height;

@@ -296,7 +296,7 @@ _cogl_texture_set_allocated (CoglTexture *texture,
                              int height);
 
 CoglTextureLoader *
-_cogl_texture_create_loader (void);
+cogl_texture_loader_new (CoglTextureSourceType type);
 
 void
 _cogl_texture_copy_internal_format (CoglTexture *src,
