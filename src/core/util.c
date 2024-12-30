@@ -102,8 +102,8 @@ ensure_logfile (void)
 
       if (err != NULL)
         {
-          meta_warning ("Failed to open debug log: %s",
-                        err->message);
+          g_warning ("Failed to open debug log: %s",
+                     err->message);
           g_error_free (err);
           return;
         }
@@ -112,8 +112,8 @@ ensure_logfile (void)
 
       if (logfile == NULL)
         {
-          meta_warning ("Failed to fdopen() log file %s: %s",
-                        filename, strerror (errno));
+          g_warning ("Failed to fdopen() log file %s: %s",
+                     filename, strerror (errno));
           close (fd);
         }
       else
