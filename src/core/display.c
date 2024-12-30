@@ -1872,8 +1872,8 @@ meta_display_ping_window (MetaWindow *window,
 
   if (serial == 0)
     {
-      meta_warning ("Tried to ping window %s with a bad serial! Not allowed.",
-                    window->desc);
+      g_warning ("Tried to ping window %s with a bad serial! Not allowed.",
+                 window->desc);
       return;
     }
 
@@ -1894,9 +1894,10 @@ meta_display_ping_window (MetaWindow *window,
 
       if (serial == pending_ping_data->serial)
         {
-          meta_warning ("Ping serial %u was reused for window %s, "
-                        "previous use was for window %s.",
-                        serial, window->desc, pending_ping_data->window->desc);
+          meta_topic (META_DEBUG_DISPLAY,
+                      "Ping serial %u was reused for window %s, "
+                      "previous use was for window %s.",
+                      serial, window->desc, pending_ping_data->window->desc);
           return;
         }
     }
