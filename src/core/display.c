@@ -2447,11 +2447,12 @@ meta_display_sanity_check_timestamps (MetaDisplay *display,
 {
   if (XSERVER_TIME_IS_BEFORE (timestamp, display->last_focus_time))
     {
-      meta_warning ("last_focus_time (%u) is greater than comparison "
-                    "timestamp (%u).  This most likely represents a buggy "
-                    "client sending inaccurate timestamps in messages such as "
-                    "_NET_ACTIVE_WINDOW.  Trying to work around...",
-                    display->last_focus_time, timestamp);
+      meta_topic (META_DEBUG_X11,
+                  "last_focus_time (%u) is greater than comparison "
+                  "timestamp (%u).  This most likely represents a buggy "
+                  "client sending inaccurate timestamps in messages such as "
+                  "_NET_ACTIVE_WINDOW.  Trying to work around...",
+                  display->last_focus_time, timestamp);
       display->last_focus_time = timestamp;
     }
   if (XSERVER_TIME_IS_BEFORE (timestamp, display->last_user_time))
@@ -2459,11 +2460,12 @@ meta_display_sanity_check_timestamps (MetaDisplay *display,
       GSList *windows;
       GSList *tmp;
 
-      meta_warning ("last_user_time (%u) is greater than comparison "
-                    "timestamp (%u).  This most likely represents a buggy "
-                    "client sending inaccurate timestamps in messages such as "
-                    "_NET_ACTIVE_WINDOW.  Trying to work around...",
-                    display->last_user_time, timestamp);
+      meta_topic (META_DEBUG_X11,
+                  "last_user_time (%u) is greater than comparison "
+                  "timestamp (%u).  This most likely represents a buggy "
+                  "client sending inaccurate timestamps in messages such as "
+                  "_NET_ACTIVE_WINDOW.  Trying to work around...",
+                  display->last_user_time, timestamp);
       display->last_user_time = timestamp;
 
       windows = meta_display_list_windows (display, META_LIST_DEFAULT);
@@ -2474,9 +2476,10 @@ meta_display_sanity_check_timestamps (MetaDisplay *display,
 
           if (XSERVER_TIME_IS_BEFORE (timestamp, window->net_wm_user_time))
             {
-              meta_warning ("%s appears to be one of the offending windows "
-                            "with a timestamp of %u.  Working around...",
-                            window->desc, window->net_wm_user_time);
+              meta_topic (META_DEBUG_X11,
+                          "%s appears to be one of the offending windows "
+                          "with a timestamp of %u.  Working around...",
+                          window->desc, window->net_wm_user_time);
               window->net_wm_user_time_set = FALSE;
               meta_window_set_user_time (window, timestamp);
             }
