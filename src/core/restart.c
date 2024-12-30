@@ -79,9 +79,9 @@ restart_helper_read_line_callback (GObject      *source_object,
                                                           &length, &error);
   if (line == NULL)
     {
-      meta_warning ("Failed to read output from restart helper%s%s",
-                    error ? ": " : NULL,
-                    error ? error->message : NULL);
+      g_warning ("Failed to read output from restart helper%s%s",
+                 error ? ": " : NULL,
+                 error ? error->message : NULL);
     }
   else
     g_free (line); /* We don't actually care what the restart helper outputs */
@@ -177,7 +177,7 @@ meta_restart (const char  *message,
                                  NULL, /* standard_error */
                                  &error))
     {
-      meta_warning ("Failed to start restart helper: %s", error->message);
+      g_warning ("Failed to start restart helper: %s", error->message);
       goto error;
     }
 
