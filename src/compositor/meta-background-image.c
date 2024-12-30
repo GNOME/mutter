@@ -157,6 +157,8 @@ file_loaded (GObject      *source_object,
              GAsyncResult *result,
              gpointer      user_data)
 {
+  ClutterBackend *backend = clutter_get_default_backend ();
+  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   MetaBackgroundImage *image = META_BACKGROUND_IMAGE (source_object);
   g_autoptr (GError) error = NULL;
   g_autoptr (GError) local_error = NULL;
@@ -192,7 +194,7 @@ file_loaded (GObject      *source_object,
   pixels = gdk_pixbuf_get_pixels (pixbuf);
   has_alpha = gdk_pixbuf_get_has_alpha (pixbuf);
 
-  texture = meta_create_texture (width, height,
+  texture = meta_create_texture (width, height, ctx,
                                  has_alpha ? COGL_TEXTURE_COMPONENTS_RGBA : COGL_TEXTURE_COMPONENTS_RGB,
                                  META_TEXTURE_ALLOW_SLICING);
 
