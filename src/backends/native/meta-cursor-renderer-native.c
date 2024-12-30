@@ -1093,7 +1093,8 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
 
       if (!supports_exact_cursor_size (crtc_kms, width, height))
         {
-          meta_warning ("Invalid cursor size %ux%u, falling back to SW GL cursors)", width, height);
+          g_warning ("Invalid cursor size %ux%u, falling back to SW GL cursors)",
+                     width, height);
           return FALSE;
         }
 
@@ -1107,7 +1108,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
                           GBM_BO_USE_CURSOR);
       if (!bo)
         {
-          meta_warning ("Importing HW cursor from wl_buffer failed");
+          g_warning ("Importing HW cursor from wl_buffer failed");
           return FALSE;
         }
 
@@ -1116,8 +1117,8 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
                                                  &error);
       if (!buffer_gbm)
         {
-          meta_warning ("Failed to create DRM buffer wrapper: %s",
-                        error->message);
+          g_warning ("Failed to create DRM buffer wrapper: %s",
+                     error->message);
           gbm_bo_destroy (bo);
           return FALSE;
         }
