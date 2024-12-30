@@ -546,14 +546,15 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
               const MetaCrtcModeInfo *crtc_mode_info =
                 meta_crtc_mode_get_info (crtc_mode);
 
-              meta_warning ("Configuring CRTC %d with mode %d (%d x %d @ %f) at position %d, %d and transform %u failed",
-                            (unsigned) meta_crtc_get_id (crtc),
-                            (unsigned) mode,
-                            crtc_mode_info->width, crtc_mode_info->height,
-                            (float) crtc_mode_info->refresh_rate,
-                            (int) roundf (crtc_assignment->layout.origin.x),
-                            (int) roundf (crtc_assignment->layout.origin.y),
-                            crtc_assignment->transform);
+              g_warning ("Configuring CRTC %d with mode %d (%d x %d @ %f) "
+                         "at position %d, %d and transform %u failed",
+                         (unsigned) meta_crtc_get_id (crtc),
+                         (unsigned) mode,
+                         crtc_mode_info->width, crtc_mode_info->height,
+                         (float) crtc_mode_info->refresh_rate,
+                         (int) roundf (crtc_assignment->layout.origin.x),
+                         (int) roundf (crtc_assignment->layout.origin.y),
+                         crtc_assignment->transform);
               continue;
             }
 
