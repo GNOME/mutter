@@ -54,7 +54,8 @@ G_DEFINE_TYPE_WITH_CODE (MetaCursorSpriteXfixes,
                                                 meta_screen_cast_xfixes_init_initable_iface))
 
 static gboolean
-meta_cursor_sprite_xfixes_realize_texture (MetaCursorSprite *sprite)
+meta_cursor_sprite_xfixes_realize_texture (MetaCursorSprite *sprite,
+                                           CoglContext      *cogl_context)
 {
   return TRUE;
 }

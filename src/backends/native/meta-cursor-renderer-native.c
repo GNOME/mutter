@@ -233,9 +233,11 @@ meta_cursor_renderer_native_update_animation (MetaCursorRendererNative *native)
     meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorRenderer *renderer = META_CURSOR_RENDERER (native);
   MetaCursorSprite *cursor_sprite = meta_cursor_renderer_get_cursor (renderer);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (priv->backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
   priv->animation_timeout_id = 0;
-  meta_cursor_sprite_tick_frame (cursor_sprite);
+  meta_cursor_sprite_tick_frame (cursor_sprite, cogl_context);
   meta_cursor_renderer_force_update (renderer);
 }
 
@@ -289,6 +291,8 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   gboolean cursor_changed;
   GList *views;
   GList *l;
@@ -328,7 +332,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
       if (cursor_sprite && !meta_backend_is_hw_cursors_inhibited (backend))
         {
-          meta_cursor_sprite_realize_texture (cursor_sprite);
+          meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
 
           if (cursor_changed ||
               !cursor_stage_view->is_hw_cursor_valid)

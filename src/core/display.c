@@ -1695,6 +1695,8 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
     {
       if (best_scale != 0.0f)
         {
+          ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+          CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
           float ceiled_scale;
           int cursor_width, cursor_height;
 
@@ -1702,7 +1704,7 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
           meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
                                                       (int) ceiled_scale);
 
-          meta_cursor_sprite_realize_texture (cursor_sprite);
+          meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
           meta_cursor_sprite_xcursor_get_scaled_image_size (sprite_xcursor,
                                                             &cursor_width,
                                                             &cursor_height);

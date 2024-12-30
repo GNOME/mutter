@@ -212,8 +212,13 @@ static gboolean
 meta_cursor_renderer_real_update_cursor (MetaCursorRenderer *renderer,
                                          MetaCursorSprite   *cursor_sprite)
 {
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (priv->backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+
   if (cursor_sprite)
-    meta_cursor_sprite_realize_texture (cursor_sprite);
+    meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
 
   return TRUE;
 }
@@ -347,6 +352,10 @@ calculate_sprite_geometry (MetaCursorRenderer *renderer,
                            graphene_size_t    *size,
                            graphene_point_t   *hotspot)
 {
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (priv->backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   CoglTexture *texture;
   MtkMonitorTransform cursor_transform;
   const graphene_rect_t *src_rect;
@@ -354,7 +363,7 @@ calculate_sprite_geometry (MetaCursorRenderer *renderer,
   int tex_width, tex_height;
   int dst_width, dst_height;
 
-  meta_cursor_sprite_realize_texture (cursor_sprite);
+  meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!texture)
     return FALSE;

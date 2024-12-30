@@ -39,8 +39,12 @@ static gboolean
 meta_cursor_renderer_x11_nested_update_cursor (MetaCursorRenderer *renderer,
                                                MetaCursorSprite   *cursor_sprite)
 {
+  MetaBackend *backend = meta_cursor_renderer_get_backend (renderer);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+
   if (cursor_sprite)
-    meta_cursor_sprite_realize_texture (cursor_sprite);
+    meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
   return TRUE;
 }
 

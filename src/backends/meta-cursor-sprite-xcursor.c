@@ -206,14 +206,13 @@ load_cursor_on_client (MetaCursor cursor,
 }
 
 static void
-load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
+load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor,
+                                 CoglContext             *cogl_context)
 {
   MetaCursorSprite *sprite = META_CURSOR_SPRITE (sprite_xcursor);
   XcursorImage *xc_image;
   int width, height, rowstride;
   CoglPixelFormat cogl_format;
-  ClutterBackend *clutter_backend;
-  CoglContext *cogl_context;
   CoglTexture *texture;
   GError *error = NULL;
   int hotspot_x, hotspot_y;
@@ -231,8 +230,6 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
 #endif
 
-  clutter_backend = clutter_get_default_backend ();
-  cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   texture = cogl_texture_2d_new_from_data (cogl_context,
                                            width, height,
                                            cogl_format,
@@ -310,7 +307,8 @@ meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xc
 }
 
 static void
-meta_cursor_sprite_xcursor_tick_frame (MetaCursorSprite *sprite)
+meta_cursor_sprite_xcursor_tick_frame (MetaCursorSprite *sprite,
+                                       CoglContext      *cogl_context)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
 
@@ -323,7 +321,7 @@ meta_cursor_sprite_xcursor_tick_frame (MetaCursorSprite *sprite)
     sprite_xcursor->current_frame = 0;
 
   meta_cursor_sprite_clear_texture (sprite);
-  load_from_current_xcursor_image (sprite_xcursor);
+  load_from_current_xcursor_image (sprite_xcursor, cogl_context);
 }
 
 static unsigned int
@@ -339,7 +337,8 @@ meta_cursor_sprite_xcursor_get_current_frame_time (MetaCursorSprite *sprite)
 }
 
 static void
-load_cursor_from_theme (MetaCursorSprite *sprite)
+load_cursor_from_theme (MetaCursorSprite *sprite,
+                        CoglContext      *cogl_context)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
 
@@ -359,18 +358,19 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
     load_cursor_on_client (sprite_xcursor->cursor,
                            sprite_xcursor->theme_scale);
 
-  load_from_current_xcursor_image (sprite_xcursor);
+  load_from_current_xcursor_image (sprite_xcursor, cogl_context);
 }
 
 static gboolean
-meta_cursor_sprite_xcursor_realize_texture (MetaCursorSprite *sprite)
+meta_cursor_sprite_xcursor_realize_texture (MetaCursorSprite *sprite,
+                                            CoglContext      *cogl_context)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
   gboolean retval = sprite_xcursor->invalidated;
 
   if (sprite_xcursor->theme_dirty)
     {
-      load_cursor_from_theme (sprite);
+      load_cursor_from_theme (sprite, cogl_context);
       retval = TRUE;
     }
 

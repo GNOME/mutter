@@ -346,6 +346,10 @@ meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker)
 CoglTexture *
 meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (priv->backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   MetaCursorSprite *cursor_sprite;
 
   cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
@@ -353,7 +357,7 @@ meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
   if (!cursor_sprite)
     return NULL;
 
-  meta_cursor_sprite_realize_texture (cursor_sprite);
+  meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
   return meta_cursor_sprite_get_cogl_texture (cursor_sprite);
 }
 

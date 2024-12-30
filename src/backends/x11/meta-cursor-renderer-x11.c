@@ -89,6 +89,8 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
 {
   MetaCursorRendererX11 *x11 = META_CURSOR_RENDERER_X11 (renderer);
   MetaBackend *backend = meta_cursor_renderer_get_backend (renderer);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (backend);
   Window xwindow = meta_backend_x11_get_xwindow (backend_x11);
   Display *xdisplay = meta_backend_x11_get_xdisplay (backend_x11);
@@ -96,7 +98,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
   if (xwindow == None)
     {
       if (cursor_sprite)
-        meta_cursor_sprite_realize_texture (cursor_sprite);
+        meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
       return TRUE;
     }
 
@@ -136,7 +138,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
     }
 
   if (cursor_sprite)
-    meta_cursor_sprite_realize_texture (cursor_sprite);
+    meta_cursor_sprite_realize_texture (cursor_sprite, cogl_context);
 
   return !x11->server_cursor_visible;
 }

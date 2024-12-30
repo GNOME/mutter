@@ -87,9 +87,10 @@ meta_cursor_sprite_is_animated (MetaCursorSprite *sprite)
 }
 
 void
-meta_cursor_sprite_tick_frame (MetaCursorSprite *sprite)
+meta_cursor_sprite_tick_frame (MetaCursorSprite *sprite,
+                               CoglContext      *cogl_context)
 {
-  return META_CURSOR_SPRITE_GET_CLASS (sprite)->tick_frame (sprite);
+  return META_CURSOR_SPRITE_GET_CLASS (sprite)->tick_frame (sprite, cogl_context);
 }
 
 unsigned int
@@ -335,9 +336,10 @@ meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
 }
 
 gboolean
-meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite)
+meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite,
+                                    CoglContext      *cogl_context)
 {
-  return META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite);
+  return META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite, cogl_context);
 }
 
 void
