@@ -491,7 +491,7 @@ meta_sync_ring_reboot (CoglContext *ctx,
 
   if (!meta_sync_ring_get ())
     {
-      meta_warning ("MetaSyncRing: Too many reboots -- disabling");
+      g_warning ("MetaSyncRing: Too many reboots -- disabling");
       return FALSE;
     }
 
@@ -516,13 +516,13 @@ meta_sync_ring_after_frame (CoglContext *ctx)
       GLenum status = meta_sync_check_update_finished (sync_to_reset, 0);
       if (status == GL_TIMEOUT_EXPIRED)
         {
-          meta_warning ("MetaSyncRing: We should never wait for a sync -- add more syncs?");
+          g_warning ("MetaSyncRing: We should never wait for a sync -- add more syncs?");
           status = meta_sync_check_update_finished (sync_to_reset, MAX_SYNC_WAIT_TIME);
         }
 
       if (status != GL_ALREADY_SIGNALED && status != GL_CONDITION_SATISFIED)
         {
-          meta_warning ("MetaSyncRing: Timed out waiting for sync object.");
+          g_warning ("MetaSyncRing: Timed out waiting for sync object.");
           return meta_sync_ring_reboot (ctx, ring->xdisplay);
         }
 
@@ -562,7 +562,7 @@ meta_sync_ring_insert_wait (CoglContext *ctx)
     }
   else if (sync->state != META_SYNC_STATE_READY)
     {
-      meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?");
+      g_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?");
       if (!meta_sync_ring_reboot (ctx, ring->xdisplay))
         return FALSE;
     }
