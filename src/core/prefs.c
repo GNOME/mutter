@@ -1137,8 +1137,8 @@ maybe_give_disable_workarounds_warning (void)
     {
       first_disable = FALSE;
 
-      meta_warning ("Workarounds for broken applications disabled. "
-                    "Some applications may not behave properly.");
+      g_warning ("Workarounds for broken applications disabled. "
+                 "Some applications may not behave properly.");
     }
 }
 
@@ -1227,12 +1227,10 @@ mouse_button_mods_handler (GVariant *value,
 
   if (!string_value || !meta_parse_modifier (string_value, &mods))
     {
-      meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse new GSettings value");
-
-      meta_warning ("\"%s\" found in configuration database is "
-                    "not a valid value for mouse button modifier",
-                    string_value);
+      g_warning ("Failed to parse new GSettings value: "
+                 "\"%s\" found in configuration database is "
+                 "not a valid value for mouse button modifier",
+                 string_value);
 
       return FALSE;
     }
@@ -1770,10 +1768,10 @@ update_binding (MetaKeyPref *binding,
 
       if (!meta_parse_accelerator (strokes[i], combo))
         {
-          meta_topic (META_DEBUG_KEYBINDINGS,
-                      "Failed to parse new GSettings value");
-          meta_warning ("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"",
-                        strokes[i], binding->name);
+          g_warning ("Failed to parse new GSettings value: "
+                     "\"%s\" found in configuration database is not a valid "
+                     "value for keybinding \"%s\"",
+                     strokes[i], binding->name);
 
           g_free (combo);
 
@@ -1940,7 +1938,7 @@ meta_prefs_add_keybinding (const char           *name,
 
   if (g_hash_table_lookup (key_bindings, name))
     {
-      meta_warning ("Trying to re-add keybinding \"%s\".", name);
+      g_warning ("Trying to re-add keybinding \"%s\".", name);
       return FALSE;
     }
 
@@ -1990,13 +1988,13 @@ meta_prefs_remove_keybinding (const char *name)
   pref = g_hash_table_lookup (key_bindings, name);
   if (!pref)
     {
-      meta_warning ("Trying to remove non-existent keybinding \"%s\".", name);
+      g_warning ("Trying to remove non-existent keybinding \"%s\".", name);
       return FALSE;
     }
 
   if (pref->builtin)
     {
-      meta_warning ("Trying to remove builtin keybinding \"%s\".", name);
+      g_warning ("Trying to remove builtin keybinding \"%s\".", name);
       return FALSE;
     }
 
