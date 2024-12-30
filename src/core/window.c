@@ -5151,21 +5151,7 @@ meta_window_raise (MetaWindow  *window)
    * constraints in stack.c then magically take care of raising all
    * the child windows appropriately.
    */
-  if (window->display->stack == ancestor->display->stack)
-    {
-      meta_stack_raise (window->display->stack, ancestor);
-    }
-  else
-    {
-      meta_warning (
-                    "Either stacks aren't per screen or some window has a weird "
-                    "transient_for hint; window->display->stack != "
-                    "ancestor->screen->stack.  window = %s, ancestor = %s.",
-                    window->desc, ancestor->desc);
-      /* We could raise the window here, but don't want to do that twice and
-       * so we let the case below handle that.
-       */
-    }
+  meta_stack_raise (window->display->stack, ancestor);
 
   /* Okay, so stacking constraints misses one case: If a window has
    * two children and we want to raise one of those children, then
