@@ -5985,7 +5985,8 @@ meta_window_get_current_tile_monitor_number (MetaWindow *window)
 
   if (tile_monitor_number < 0)
     {
-      meta_warning ("%s called with an invalid monitor number; using 0 instead", G_STRFUNC);
+      g_warning ("%s called with an invalid monitor number; "
+                 "using 0 instead", G_STRFUNC);
       tile_monitor_number = 0;
     }
 
@@ -7282,8 +7283,8 @@ meta_window_set_transient_for (MetaWindow *window,
 
   if (check_transient_for_loop (window, parent))
     {
-      meta_warning ("Setting %s transient for %s would create a loop.",
-                    window->desc, parent->desc);
+      g_warning ("Setting %s transient for %s would create a loop.",
+                 window->desc, parent->desc);
       return;
     }
 
