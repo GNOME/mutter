@@ -591,11 +591,11 @@ index_binding (MetaKeyBindingManager *keys,
           if (i > 0)
             continue;
 
-          meta_warning ("Overwriting existing binding of keysym %x"
-                        " with keysym %x (keycode %x).",
-                        binding->combo.keysym,
-                        existing->combo.keysym,
-                        binding->resolved_combo.keycodes[i]);
+          g_warning ("Overwriting existing binding of keysym %x"
+                     " with keysym %x (keycode %x).",
+                     binding->combo.keysym,
+                     existing->combo.keysym,
+                     binding->resolved_combo.keycodes[i]);
         }
 
       g_hash_table_replace (keys->key_bindings_index,
@@ -1259,9 +1259,9 @@ meta_display_grab_accelerator (MetaDisplay         *display,
 
   if (!meta_parse_accelerator (accelerator, &combo))
     {
-      meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse accelerator");
-      meta_warning ("\"%s\" is not a valid accelerator", accelerator);
+      g_warning ("Failed to parse accelerator: "
+                 "\"%s\" is not a valid accelerator",
+                 accelerator);
 
       return META_KEYBINDING_ACTION_NONE;
     }
