@@ -49,7 +49,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "window-ops", META_DEBUG_WINDOW_OPS },
   { "geometry", META_DEBUG_GEOMETRY },
   { "placement", META_DEBUG_PLACEMENT },
-  { "ping", META_DEBUG_PING },
+  { "display", META_DEBUG_DISPLAY },
   { "keybindings", META_DEBUG_KEYBINDINGS },
   { "sync", META_DEBUG_SYNC },
   { "startup", META_DEBUG_STARTUP },
@@ -282,10 +282,10 @@ meta_topic_to_string (MetaDebugTopic topic)
       return "WINDOW_OPS";
     case META_DEBUG_PLACEMENT:
       return "PLACEMENT";
+    case META_DEBUG_DISPLAY:
+      return "DISPLAY";
     case META_DEBUG_GEOMETRY:
       return "GEOMETRY";
-    case META_DEBUG_PING:
-      return "PING";
     case META_DEBUG_KEYBINDINGS:
       return "KEYBINDINGS";
     case META_DEBUG_SYNC:

@@ -1831,7 +1831,7 @@ meta_display_ping_timeout (gpointer data)
 
   ping_data->ping_timeout_id = 0;
 
-  meta_topic (META_DEBUG_PING,
+  meta_topic (META_DEBUG_DISPLAY,
               "Ping %u on window %s timed out",
               ping_data->serial, ping_data->window->desc);
 
@@ -1886,7 +1886,7 @@ meta_display_ping_window (MetaWindow *window,
 
       if (window == pending_ping_data->window)
         {
-          meta_topic (META_DEBUG_PING,
+          meta_topic (META_DEBUG_DISPLAY,
                       "Window %s already is being pinged with serial %u",
                       window->desc, pending_ping_data->serial);
           return;
@@ -1912,7 +1912,7 @@ meta_display_ping_window (MetaWindow *window,
 
   display->pending_pings = g_slist_prepend (display->pending_pings, ping_data);
 
-  meta_topic (META_DEBUG_PING,
+  meta_topic (META_DEBUG_DISPLAY,
               "Sending ping with serial %u to window %s",
               serial, window->desc);
 
@@ -1936,7 +1936,7 @@ meta_display_pong_for_serial (MetaDisplay    *display,
 {
   GSList *tmp;
 
-  meta_topic (META_DEBUG_PING, "Received a pong with serial %u", serial);
+  meta_topic (META_DEBUG_DISPLAY, "Received a pong with serial %u", serial);
 
   for (tmp = display->pending_pings; tmp; tmp = tmp->next)
     {
@@ -1944,7 +1944,7 @@ meta_display_pong_for_serial (MetaDisplay    *display,
 
       if (serial == ping_data->serial)
         {
-          meta_topic (META_DEBUG_PING,
+          meta_topic (META_DEBUG_DISPLAY,
                       "Matching ping found for pong %u",
                       ping_data->serial);
 

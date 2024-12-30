@@ -32,7 +32,7 @@
  * @META_DEBUG_WINDOW_OPS: window operations
  * @META_DEBUG_GEOMETRY: geometry
  * @META_DEBUG_PLACEMENT: window placement
- * @META_DEBUG_PING: ping
+ * @META_DEBUG_DISPLAY: display
  * @META_DEBUG_KEYBINDINGS: keybindings
  * @META_DEBUG_SYNC: sync
  * @META_DEBUG_STARTUP: startup
@@ -63,7 +63,7 @@ typedef enum
   META_DEBUG_WINDOW_OPS      = 1 << 6,
   META_DEBUG_GEOMETRY        = 1 << 7,
   META_DEBUG_PLACEMENT       = 1 << 8,
-  META_DEBUG_PING            = 1 << 9,
+  META_DEBUG_DISPLAY         = 1 << 9,
   META_DEBUG_KEYBINDINGS     = 1 << 10,
   META_DEBUG_SYNC            = 1 << 11,
   META_DEBUG_STARTUP         = 1 << 12,
