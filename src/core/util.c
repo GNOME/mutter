@@ -379,34 +379,6 @@ meta_bug (const char *format, ...)
 }
 
 void
-meta_warning (const char *format, ...)
-{
-  va_list args;
-  gchar *str;
-  FILE *out;
-
-  g_return_if_fail (format != NULL);
-
-  va_start (args, format);
-  str = g_strdup_vprintf (format, args);
-  va_end (args);
-
-#ifdef WITH_VERBOSE_MODE
-  out = logfile ? logfile : stderr;
-#else
-  out = stderr;
-#endif
-
-  utf8_fputs ("Window manager warning: ", out);
-  utf8_fputs (str, out);
-  utf8_fputs ("\n", out);
-
-  fflush (out);
-
-  g_free (str);
-}
-
-void
 meta_fatal (const char *format, ...)
 {
   va_list args;
