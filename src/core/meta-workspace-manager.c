@@ -558,11 +558,12 @@ meta_workspace_manager_update_workspace_layout (MetaWorkspaceManager *workspace_
   workspace_manager->rows_of_workspaces = n_rows;
   workspace_manager->columns_of_workspaces = n_columns;
 
-  meta_verbose ("Workspace layout rows = %d cols = %d orientation = %d starting corner = %u",
-                workspace_manager->rows_of_workspaces,
-                workspace_manager->columns_of_workspaces,
-                workspace_manager->vertical_workspaces,
-                workspace_manager->starting_corner);
+  meta_topic (META_DEBUG_WORKSPACES,
+              "Workspace layout rows = %d cols = %d orientation = %d starting corner = %u",
+              workspace_manager->rows_of_workspaces,
+              workspace_manager->columns_of_workspaces,
+              workspace_manager->vertical_workspaces,
+              workspace_manager->starting_corner);
   g_object_notify (G_OBJECT (workspace_manager), "layout-columns");
   g_object_notify (G_OBJECT (workspace_manager), "layout-rows");
 }
@@ -650,11 +651,12 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
 
   grid_area = rows * cols;
 
-  meta_verbose ("Getting layout rows = %d cols = %d current = %d "
-                "num_spaces = %d vertical = %s corner = %s",
-                rows, cols, current_space, num_workspaces,
-                workspace_manager->vertical_workspaces ? "(true)" : "(false)",
-                meta_workspace_manager_corner_to_string (workspace_manager->starting_corner));
+  meta_topic (META_DEBUG_WORKSPACES,
+              "Getting layout rows = %d cols = %d current = %d "
+              "num_spaces = %d vertical = %s corner = %s",
+              rows, cols, current_space, num_workspaces,
+              workspace_manager->vertical_workspaces ? "(true)" : "(false)",
+              meta_workspace_manager_corner_to_string (workspace_manager->starting_corner));
 
   /* ok, we want to setup the distances in the workspace array to go
    * in each direction. Remember, there are many ways that a workspace
@@ -860,7 +862,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
   layout->current_col = current_col;
 
 #ifdef WITH_VERBOSE_MODE
-  if (meta_is_verbose ())
+  if (meta_is_topic_enabled (META_DEBUG_WORKSPACES))
     {
       g_autoptr (GString) str = NULL;
 
@@ -887,7 +889,8 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
             }
           ++r;
         }
-      meta_verbose ("%s", str->str);
+      meta_topic (META_DEBUG_WORKSPACES,
+                  "%s", str->str);
     }
 #endif /* WITH_VERBOSE_MODE */
 }

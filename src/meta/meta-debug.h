@@ -83,6 +83,7 @@ typedef enum
   META_DEBUG_KMS_DEADLINE    = 1 << 26,
   META_DEBUG_SESSION_MANAGEMENT = 1 << 27,
   META_DEBUG_X11             = 1 << 28,
+  META_DEBUG_WORKSPACES      = 1 << 29,
 } MetaDebugTopic;
 
 META_EXPORT

@@ -547,8 +547,9 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   g_return_if_fail (META_IS_WORKSPACE (workspace));
   g_return_if_fail (meta_workspace_index (workspace) != -1);
 
-  meta_verbose ("Activating workspace %d",
-                meta_workspace_index (workspace));
+  meta_topic (META_DEBUG_WORKSPACES,
+              "Activating workspace %d",
+              meta_workspace_index (workspace));
 
   if (workspace->manager->active_workspace == workspace)
     {
@@ -1261,8 +1262,9 @@ meta_workspace_get_neighbor (MetaWorkspace      *workspace,
   meta_workspace_manager_calc_workspace_layout (workspace->manager, num_workspaces,
                                                 current_space, &layout);
 
-  meta_verbose ("Getting neighbor of %d in direction %s",
-                current_space, meta_motion_direction_to_string (direction));
+  meta_topic (META_DEBUG_WORKSPACES,
+              "Getting neighbor of %d in direction %s",
+              current_space, meta_motion_direction_to_string (direction));
 
   ltr = (clutter_get_text_direction () == CLUTTER_TEXT_DIRECTION_LTR);
 
@@ -1301,8 +1303,9 @@ meta_workspace_get_neighbor (MetaWorkspace      *workspace,
     meta_bug ("calc_workspace_layout left an invalid (too-high) workspace number %d in the grid",
               i);
 
-  meta_verbose ("Neighbor workspace is %d at row %d col %d",
-                i, layout.current_row, layout.current_col);
+  meta_topic (META_DEBUG_WORKSPACES,
+              "Neighbor workspace is %d at row %d col %d",
+              i, layout.current_row, layout.current_col);
 
   meta_workspace_manager_free_workspace_layout (&layout);
 

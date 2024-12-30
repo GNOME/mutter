@@ -69,6 +69,7 @@ static const GDebugKey meta_debug_keys[] = {
   { "kms-deadline", META_DEBUG_KMS_DEADLINE },
   { "session-management", META_DEBUG_SESSION_MANAGEMENT },
   { "x11", META_DEBUG_X11 },
+  { "workspaces", META_DEBUG_WORKSPACES },
 };
 
 static gint verbose_topics = 0;
@@ -326,6 +327,8 @@ meta_topic_to_string (MetaDebugTopic topic)
       return "SESSION_MANAGEMENT";
     case META_DEBUG_X11:
       return "X11";
+    case META_DEBUG_WORKSPACES:
+      return "WORKSPACES";
     }
 
   return "WM";
