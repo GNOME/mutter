@@ -424,14 +424,14 @@ meta_monitor_manager_dummy_read_current (MetaMonitorManager *manager)
       num_monitors = g_ascii_strtoll (num_monitors_str, NULL, 10);
       if (num_monitors <= 0)
         {
-          meta_warning ("Invalid number of dummy monitors");
+          g_warning ("Invalid number of dummy monitors");
           num_monitors = 1;
         }
 
       if (num_monitors > MAX_MONITORS)
         {
-          meta_warning ("Clamping monitor count to max (%d)",
-                        MAX_MONITORS);
+          g_warning ("Clamping monitor count to max (%d)",
+                     MAX_MONITORS);
           num_monitors = MAX_MONITORS;
         }
     }
@@ -447,8 +447,10 @@ meta_monitor_manager_dummy_read_current (MetaMonitorManager *manager)
 
       scales_str_list = g_strsplit (monitor_scales_str, ",", -1);
       if (g_strv_length (scales_str_list) != num_monitors)
-        meta_warning ("Number of specified monitor scales differ from number "
-                      "of monitors (defaults to 1).");
+        {
+          g_warning ("Number of specified monitor scales differ from number "
+                     "of monitors (defaults to 1).");
+        }
       for (i = 0; i < num_monitors && scales_str_list[i]; i++)
         {
           float scale = (float) g_ascii_strtod (scales_str_list[i], NULL);
