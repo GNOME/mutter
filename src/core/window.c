@@ -5723,12 +5723,15 @@ meta_window_recalc_features (MetaWindow *window)
        * about these apps but make them work.
        */
 
-      meta_warning ("Window %s sets an MWM hint indicating it isn't resizable, but sets min size %d x %d and max size %d x %d; this doesn't make much sense.",
-                    window->desc,
-                    window->size_hints.min_width,
-                    window->size_hints.min_height,
-                    window->size_hints.max_width,
-                    window->size_hints.max_height);
+      meta_topic (META_DEBUG_X11,
+                  "Window %s sets an MWM hint indicating it isn't resizable, "
+                  "but sets min size %d x %d and max size %d x %d; "
+                  "this doesn't make much sense.",
+                  window->desc,
+                  window->size_hints.min_width,
+                  window->size_hints.min_height,
+                  window->size_hints.max_width,
+                  window->size_hints.max_height);
     }
 
   window->has_fullscreen_func = TRUE;

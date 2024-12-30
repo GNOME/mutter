@@ -383,9 +383,9 @@ meta_display_handle_event (MetaDisplay        *display,
            * nor do we want to use them to sanity check other timestamps.
            * See bug 313490 for more details.
            */
-          meta_warning ("Event has no timestamp! You may be using a broken "
-                        "program such as xse.  Please ask the authors of that "
-                        "program to fix it.");
+          meta_topic (META_DEBUG_X11,
+                      "Event has no timestamp! You may be using a program "
+                      "injecting events with invalid timestamps.");
         }
       else
         {
