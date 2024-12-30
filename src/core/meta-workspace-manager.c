@@ -481,10 +481,10 @@ meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_ma
  * the "active-workspace-changed" signal will be emitted.
  * If the workspace's index is the same as @new_index or the workspace
  * will not be found in the list, this function will return.
- * 
+ *
  * Calling this function will also emit the "workspaces-reordered" signal.
  */
-void 
+void
 meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manager,
                                           MetaWorkspace        *workspace,
                                           int                   new_index)
@@ -506,7 +506,7 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
   if (new_index == index)
     return;
 
-  active_index = 
+  active_index =
     meta_workspace_manager_get_active_workspace_index (workspace_manager);
 
   workspace_manager->workspaces =
@@ -1016,7 +1016,7 @@ meta_workspace_manager_get_active_workspace (MetaWorkspaceManager *workspace_man
   return workspace_manager->active_workspace;
 }
 
-void 
+void
 meta_workspace_manager_workspace_switched (MetaWorkspaceManager *workspace_manager,
                                            int                   from,
                                            int                   to,
