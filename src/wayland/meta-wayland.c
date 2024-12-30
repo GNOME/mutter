@@ -755,9 +755,14 @@ set_gnome_env (const char *name,
   if (error)
     {
       char *remote_error;
+      const char *ignored_remote_errors[] = {
+        "org.gnome.SessionManager.NotInInitialization",
+        "org.freedesktop.DBus.Error.NameHasNoOwner",
+        NULL,
+      };
 
       remote_error = g_dbus_error_get_remote_error (error);
-      if (g_strcmp0 (remote_error, "org.gnome.SessionManager.NotInInitialization") != 0)
+      if (!g_strv_contains (ignored_remote_errors, remote_error))
         {
           meta_warning ("Failed to set environment variable %s for gnome-session: %s",
                         name, error->message);
