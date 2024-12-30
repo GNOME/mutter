@@ -671,7 +671,7 @@ ensure_wallpaper_texture (MetaBackground *self,
       GError *catch_error = NULL;
       CoglPipeline *pipeline;
 
-      self->wallpaper_texture = meta_create_texture (width, height,
+      self->wallpaper_texture = meta_create_texture (width, height, cogl_context,
                                                      COGL_TEXTURE_COMPONENTS_RGBA,
                                                      META_TEXTURE_FLAGS_NONE);
       offscreen = cogl_offscreen_new_with_texture (self->wallpaper_texture);
@@ -830,6 +830,7 @@ meta_background_get_texture (MetaBackground       *self,
 
           monitor->texture = meta_create_texture (texture_width,
                                                   texture_height,
+                                                  cogl_context,
                                                   COGL_TEXTURE_COMPONENTS_RGBA,
                                                   META_TEXTURE_FLAGS_NONE);
           offscreen = cogl_offscreen_new_with_texture (monitor->texture);

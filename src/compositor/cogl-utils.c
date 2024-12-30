@@ -68,7 +68,8 @@ meta_create_texture_pipeline (CoglContext *cogl_context,
  * meta_create_texture:
  * @width: width of the texture to create
  * @height: height of the texture to create
- * @components; components to store in the texture (color or alpha)
+ * @ctx: A #CoglContext
+ * @components: components to store in the texture (color or alpha)
  * @flags: flags that affect the allocation behavior
  *
  * Creates a texture of the given size with the specified components
@@ -82,13 +83,12 @@ meta_create_texture_pipeline (CoglContext *cogl_context,
  * be as small as 2048x2048 on reasonably current systems.
  */
 CoglTexture *
-meta_create_texture (int                   width,
-                     int                   height,
-                     CoglTextureComponents components,
-                     MetaTextureFlags      flags)
+meta_create_texture (int                    width,
+                     int                    height,
+                     CoglContext           *ctx,
+                     CoglTextureComponents  components,
+                     MetaTextureFlags       flags)
 {
-  ClutterBackend *backend = clutter_get_default_backend ();
-  CoglContext *ctx = clutter_backend_get_cogl_context (backend);
   CoglTexture *texture;
 
   texture = cogl_texture_2d_new_with_size (ctx, width, height);
