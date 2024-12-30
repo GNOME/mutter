@@ -1337,8 +1337,11 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
   MetaWindow *current_focus_window = NULL;
 
   if (timestamp == META_CURRENT_TIME)
-    meta_warning ("META_CURRENT_TIME used to choose focus window; "
+    {
+      meta_topic (META_DEBUG_FOCUS,
+                  "META_CURRENT_TIME used to choose focus window; "
                   "focus window may not be correct.");
+    }
 
   current_focus_window = workspace_find_focused_window (workspace);
 
@@ -1577,8 +1580,9 @@ try_to_set_focus_and_check (MetaWindow *window,
   if (not_this_one &&
       meta_display_get_focus_window (window->display) == not_this_one)
     {
-      meta_warning ("Failed to focus window %s while avoiding %s",
-                    window->desc, not_this_one->desc);
+      meta_topic (META_DEBUG_FOCUS,
+                  "Failed to focus window %s while avoiding %s",
+                  window->desc, not_this_one->desc);
 
       return FALSE;
     }
