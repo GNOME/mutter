@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <gio/gio.h>
+#include <glib/gstdio.h>
 #include <drm_fourcc.h>
 
 #include "backends/native/meta-egl-gbm.h"
@@ -42,7 +43,7 @@ create_gbm_bo_egl_image (MetaEgl        *egl,
                          struct gbm_bo  *shared_bo,
                          GError        **error)
 {
-  int shared_bo_fd;
+  g_autofd int shared_bo_fd = -1;
   unsigned int width;
   unsigned int height;
   uint32_t i, n_planes;
@@ -98,7 +99,6 @@ create_gbm_bo_egl_image (MetaEgl        *egl,
                                             offsets,
                                             use_modifiers ? modifiers : NULL,
                                             error);
-  close (shared_bo_fd);
 
   return egl_image;
 }
