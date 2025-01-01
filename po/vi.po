@@ -4,21 +4,27 @@
 # Nguyễn Thái Ngọc Duy <pclouds@gmail.com>, 2002-2004, 2007, 2008, 2011-2013.
 # Clytie Siddall <clytie@riverland.net.au>, 2005-2009.
 # Trần Ngọc Quân <vnwildman@gmail.com>, 2014-2023.
+# Cas Pascal <casboi86@gmail.com>, 2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter main\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2023-10-31 23:39+0000\n"
-"PO-Revision-Date: 2023-11-11 14:05+0700\n"
-"Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
-"Language-Team: Vietnamese <Vietnamese <gnome-vi-list@gnome.org>>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2024-10-15 16:31+0000\n"
+"PO-Revision-Date: 2024-11-06 15:39+0700\n"
+"Last-Translator: Cas Pascal <casboi86@gmail.com>\n"
+"Language-Team: Vietnamese <gnome-vi-list@gnome.org>\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
-"X-Generator: Gtranslator 42.0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Gtranslator 46.1\n"
+"X-DL-Lang: vi\n"
+"X-DL-Module: mutter\n"
+"X-DL-Branch: gnome-47\n"
+"X-DL-Domain: po\n"
+"X-DL-State: None\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -248,19 +254,19 @@ msgstr "Phóng to cửa sổ theo chiều dọc"
 msgid "Maximize window horizontally"
 msgstr "Phóng to cửa sổ theo chiều ngang"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:164
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
 msgid "View split on left"
 msgstr "Phân đôi bên trái"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:169
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
 msgid "View split on right"
 msgstr "Phân đôi bên phải"
 
-#: data/org.gnome.mutter.gschema.xml.in:15
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid "Modifier to use for extended window management operations"
 msgstr "Phím bổ trợ dùng cho chức năng quản lý cửa sổ mở rộng"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:17
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -268,14 +274,14 @@ msgid ""
 "set to the empty string."
 msgstr ""
 "Phím này sẽ khởi tạo “overlay”, cái mà phối hợp tổng quan cửa sổ và hệ thống "
-"chạy ứng dụng. Mặc định là \"phím Windows\" trên phần cứng PC. Nó được kỳ "
-"vọng rằng tổ hợp hoặc là mặc định, hoặc chuỗi rỗng."
+"chạy ứng dụng. Mặc định là \"phím Windows\" trên phần cứng PC. Tổ hợp phím "
+"chỉ nhận giá trị mặc định hoặc một chuỗi rỗng."
 
-#: data/org.gnome.mutter.gschema.xml.in:28
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid "Attach modal dialogs"
 msgstr "Gắn hộp thoại cách thức"
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:30
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -285,11 +291,11 @@ msgstr ""
 "xuất hiện gắn với thanh tiêu đề của cửa sổ cha và được di chuyển cùng với "
 "cửa sổ cha."
 
-#: data/org.gnome.mutter.gschema.xml.in:38
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Bật lợp cạnh khi thả cửa sổ trên cạnh màn hình"
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -299,11 +305,11 @@ msgstr ""
 "dọc và điều chỉnh chiều ngang phủ hết nửa màn hình. Thả cửa sổ trên đỉnh màn "
 "hình sẽ phóng to toàn màn hình."
 
-#: data/org.gnome.mutter.gschema.xml.in:48
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid "Workspaces are managed dynamically"
 msgstr "Không gian làm việc được quản lý động"
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -313,11 +319,11 @@ msgstr ""
 "làm việc (xác định bởi khóa num-workspaces trong org.gnome.desktop.wm."
 "preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:58
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
 msgstr "Không gian làm việc chỉ trên màn hình chính"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -325,11 +331,11 @@ msgstr ""
 "Xác định chuyển không gian làm việc cho cửa sổ trên mọi màn hình hay chỉ "
 "trên màn hình chính."
 
-#: data/org.gnome.mutter.gschema.xml.in:67
-msgid "Delay focus changes until the pointer stops moving"
-msgstr "Khoảng chờ con trỏ dừng di chuyển trước khi thay đổi tiêu điểm"
-
 #: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Không thay đổi tiêu điểm trước khi con trỏ dừng di chuyển "
+
+#: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -339,11 +345,11 @@ msgstr ""
 "không thay đổi tức thì khi vào cửa sổ, mà chỉ sau khi con trỏ ngừng di "
 "chuyển."
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid "Draggable border width"
 msgstr "Độ rộng biên có thể kéo"
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:80
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -351,33 +357,33 @@ msgstr ""
 "Kích thước biên có thể kéo. Nếu biên thấy được của chủ đề không đủ, biên vô "
 "hình sẽ được thêm vào để thỏa mãn giá trị này."
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Tự động phóng to cửa sổ gần bằng màn hình"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:90
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 msgstr "Nếu bật, sẽ tự động phóng to cửa sổ mới với kích thước tối đa."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
 msgstr "Đặt cửa sổ mới ở chính giữa"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 "Nếu chọn, các cửa sổ mới sẽ luôn được đặt tại trung tâm của màn hình đang "
-"hoạt động của màn hình."
+"hoạt động."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid "Enable experimental features"
 msgstr "Bật các tính băng thử nghiệm"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:109
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -388,55 +394,58 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “rt-scheduler” — makes mutter request a "
-"low priority real-time scheduling. Requires a restart. • “autoclose-"
-"xwayland” — automatically terminates Xwayland if all relevant X11 clients "
-"are gone. Requires a restart."
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
+"native-scaling” — lets Xwayland clients use their native scaling support. If "
+"scaling is not supported by client, the client will be unscaled. Setting "
+"only takes effect when “scale-monitor-framebuffer” is enabled as well."
 msgstr ""
 "Để bật các tính năng thử nghiệm, thêm các từ khóa tính năng vào danh sách. "
-"Việc tính năng mới có yêu cầu khởi động lại hay không là phụ thuộc vào tính "
-"năng đã cho. Bất kỳ tính năng thử nghiệp nào sẽ không được yêu cầu cho đến "
-"khi nó sẵn có, hoặc cấu hình được. Đừng cho rằng thêm bất kỳ thứ gì trong "
-"cài đặt này thử nghiệm trong tương lai. Các từ khóa hiện có thể là: • “scale-"
-"monitor-framebuffer” — làm cho mutter mặc định bố trí các màn hình lôgíc "
-"trong một không gian tọa độ điểm ảnh lôgíc, trong khi co giãn các bộ đệm "
-"khung màn hình thay vì nội dung của cửa sổ, để quản lý các màn hình HiDPI. "
-"Không yêu cầu khởi động lại. • “kms-modifiers” — làm cho mutter luôn phân bổ "
-"bộ đệm scanout với bổ từ rõ ràng, nếu được hỗ trợ bởi trình điều khiển. Yêu "
-"cầu khởi động lại. • “rt-scheduler” — làm mutter yêu cầu một lịch trình thời "
-"gian thực ưu tiên thấp. Thực thi hoặc người dùng phải có CAP_SYS_NICE. Phải "
-"khởi động lại. • “autoclose-xwayland” — tự động chấm dứt Xwayland nếu mọi "
-"trình khách ra đi. Không yêu cầu khởi động lại."
+"Một số tính năng có thể yêu khởi động lại bộ tổng hợp. Các tính năng không "
+"bắt buộc phải có sẵn hoặc cấu hình được. Các tính năng thử nhiệm có thể thay "
+"đổi trong tương lai. Các từ khóa có sẵn hiện tại: • “scale-monitor-"
+"framebuffer” — • “scale-monitor-framebuffer” — làm cho mutter mặc định bố "
+"trí các màn hình lôgíc trong một không gian tọa độ điểm ảnh lôgíc, trong khi "
+"co giãn các bộ đệm khung màn hình thay vì nội dung của cửa sổ, để quản lý "
+"các màn hình HiDPI. Không yêu cầu khởi động lại. • “kms-modifiers” — làm cho "
+"mutter luôn phân bổ bộ đệm scanout với bổ từ rõ ràng, nếu được hỗ trợ bởi "
+"trình điều khiển. Yêu cầu khởi động lại. • “rt-scheduler” — làm mutter yêu "
+"cầu một lịch trình thời gian thực ưu tiên thấp. Thực thi hoặc người dùng "
+"phải có CAP_SYS_NICE. Phải khởi động lại. • “autoclose-xwayland” — tự động "
+"chấm dứt Xwayland nếu mọi trình khách ra đi. Không yêu cầu khởi động lại."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Modifier to use to locate the pointer"
 msgstr "Chỉnh sửa để dùng để định vị con trỏ"
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Khóa này sẽ khởi tạo thao tác “định vị con trỏ”."
 
-#: data/org.gnome.mutter.gschema.xml.in:149
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid "Timeout for check-alive ping"
-msgstr "Thời gian chờ để kiểm tra ping còn sống"
+msgstr "Thời gian chờ để kiểm tra tiến trình không bị treo"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
-"Số mili giây mà máy khách phải trả lời yêu cầu ping để không bị cho là đang "
-"ngủ đông. Sử dụng 0 sẽ vô hiệu hóa kiểm tra sống."
+"Thời gian (milli giây) trễ nhất mà một máy khách phải trả lời để không bị "
+"coi là bị treo. Giá trị 0 coi như không kiểm tra."
 
-#: data/org.gnome.mutter.gschema.xml.in:174
+#: data/org.gnome.mutter.gschema.xml.in:184
 msgid "Switch monitor configurations"
 msgstr "Chuyển các cấu hình màn hình"
 
-#: data/org.gnome.mutter.gschema.xml.in:179
+#: data/org.gnome.mutter.gschema.xml.in:189
 msgid "Rotates the built-in monitor configuration"
 msgstr "Quay cấu hình màn hình tích hợp"
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#: data/org.gnome.mutter.gschema.xml.in:194
 msgid "Cancel any active input capture session"
 msgstr "Hủy mọi phiên chụp liệu đầu vào đang hoạt động"
 
@@ -588,26 +597,26 @@ msgstr ""
 "trợ tùy chọn dòng lệnh +byteswappedclients/-byteswappedclients để kiểm soát "
 "cài đặt đó. Xwayland cần được khởi động lại để cài đặt này có hiệu lực."
 
-#: src/backends/meta-monitor.c:251
+#: src/backends/meta-monitor.c:240
 msgid "Built-in display"
 msgstr "Màn hình tích hợp"
 
-#: src/backends/meta-monitor.c:278
+#: src/backends/meta-monitor.c:267
 msgid "Unknown"
 msgstr "Không rõ"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:269
 msgid "Unknown Display"
 msgstr "Không hiểu màn hình"
 
-#: src/backends/meta-monitor.c:288
+#: src/backends/meta-monitor.c:277
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:296
+#: src/backends/meta-monitor.c:285
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -619,78 +628,82 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Sự kiện chuông"
 
-#: src/core/display.c:723
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
-msgstr "Màn hình riêng tư được bật"
+msgstr "Màn hình riêng tư đã bật"
 
-#: src/core/display.c:724
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
-msgstr "Màn hình riêng tư bị bật"
+msgstr "Màn hình riêng tư đã tắt"
 
-#: src/core/meta-context-main.c:579
+#: src/core/meta-context-main.c:621
 msgid "Replace the running window manager"
 msgstr "Thay thế bộ quản lý cửa sổ đang chạy"
 
-#: src/core/meta-context-main.c:585
+#: src/core/meta-context-main.c:627
 msgid "X Display to use"
 msgstr "Màn hình X cần dùng"
 
-#: src/core/meta-context-main.c:591
+#: src/core/meta-context-main.c:633
 msgid "Disable connection to session manager"
 msgstr "Vô hiệu hóa kết nối với bộ quản lý phiên làm việc"
 
-#: src/core/meta-context-main.c:597
+#: src/core/meta-context-main.c:639
 msgid "Specify session management ID"
 msgstr "Ghi rõ mã số quản lý phiên làm việc"
 
-#: src/core/meta-context-main.c:603
+#: src/core/meta-context-main.c:645
 msgid "Initialize session from savefile"
 msgstr "Khởi động phiên làm việc từ tập tin lưu"
 
-#: src/core/meta-context-main.c:609
+#: src/core/meta-context-main.c:651
 msgid "Make X calls synchronous"
 msgstr "Khiến các cú gọi X đồng bộ"
 
-#: src/core/meta-context-main.c:617
+#: src/core/meta-context-main.c:659
 msgid "Run as a wayland compositor"
-msgstr "Chạy như là một “bộ tổng hợp wayland”"
+msgstr "Chạy dưới dạng bộ tổng hợp wayland"
 
-#: src/core/meta-context-main.c:623
+#: src/core/meta-context-main.c:666
 msgid "Run as a nested compositor"
-msgstr "Chạy như là một “bộ tổng hợp lồng nhau”"
+msgstr "Chạy dưới dạng bộ tổng hợp con (lồng nhau)"
 
-#: src/core/meta-context-main.c:629
+#: src/core/meta-context-main.c:672
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Chạy bộ tổng hợp wayland mà không khởi chạy Xwayland"
 
-#: src/core/meta-context-main.c:635
+#: src/core/meta-context-main.c:679
 msgid "Specify Wayland display name to use"
-msgstr "Chỉ định tên thiết bị hiển thị Wayland muốn dùng"
+msgstr "Chỉ định tên hiển thị Wayland muốn dùng"
 
-#: src/core/meta-context-main.c:643
+#: src/core/meta-context-main.c:687
 msgid "Run as a full display server, rather than nested"
-msgstr "Chạy như là một dịch vụ hiển thị đầy đủ, thay cho lồng nhau"
+msgstr "Chạy như là một máy chủ hiển thị đầy đủ, thay vì lồng nhau"
 
-#: src/core/meta-context-main.c:648
+#: src/core/meta-context-main.c:692
 msgid "Run as a headless display server"
-msgstr "Chạy như là một dịch vụ hiển thị không có đầu"
+msgstr "Chạy như là một máy chủ hiển thị không màn hình"
 
-#: src/core/meta-context-main.c:653
+#: src/core/meta-context-main.c:697
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Thêm màn hình ảo lâu dài (WxH hoặc WxH@R)"
 
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
-msgstr "Chạy với ứng dụng chạy phía sau X11"
+msgstr "Chạy với phần cuối X11"
 
-#: src/core/meta-context-main.c:671
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "Hiệu suất hồ sơ bằng cách sử dụng thiết bị theo dõi"
+
+#: src/core/meta-context-main.c:721
+msgid "Enable debug control D-Bus interface"
+msgstr "Bật giao điện điều khiển debug D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:805
+#: src/core/meta-pad-action-mapper.c:549
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Chuyển chế độ (Nhóm %d)"
@@ -698,11 +711,11 @@ msgstr "Chuyển chế độ (Nhóm %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:827
+#: src/core/meta-pad-action-mapper.c:571
 msgid "Switch monitor"
 msgstr "Chuyển màn hình"
 
-#: src/core/meta-pad-action-mapper.c:829
+#: src/core/meta-pad-action-mapper.c:573
 msgid "Show on-screen help"
 msgstr "Hiển thị trợ giúp trên-màn-hình"
 
@@ -719,16 +732,16 @@ msgstr "Hiển thị phiên bản"
 msgid "Mutter plugin to use"
 msgstr "Phần bổ sung Mutter cần dùng"
 
-#: src/core/prefs.c:1843
+#: src/core/prefs.c:1842
 #, c-format
 msgid "Workspace %d"
 msgstr "Không gian làm việc %d"
 
-#: src/core/util.c:139
+#: src/core/util.c:141
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter đã được biên dịch không hỗ trợ chế độ chi tiết"
 
-#: src/core/workspace.c:512
+#: src/core/workspace.c:508
 msgid "Workspace switched"
 msgstr "Đã chuyển đổi không gian làm việc"
 
@@ -737,7 +750,7 @@ msgstr "Đã chuyển đổi không gian làm việc"
 msgid "Mode Switch: Mode %d"
 msgstr "Chuyển chế độ: Chế độ %d"
 
-#: src/x11/meta-x11-display.c:717
+#: src/x11/meta-x11-display.c:850
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -746,19 +759,19 @@ msgstr ""
 "Màn hình “%s” đã có bộ quản lý cửa sổ rồi; hãy thử dùng tùy chọn --replace "
 "để thay thế bộ quản lý cửa sổ đang dùng."
 
-#: src/x11/meta-x11-display.c:1082
+#: src/x11/meta-x11-display.c:1230
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gặp lỗi khi mở bộ hiển thị Hệ thống Cửa sổ X “%s”"
 
-#: src/x11/meta-x11-display.c:1209
+#: src/x11/meta-x11-display.c:1465
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Màn hình %d trên bộ hiển thị “%s” là không hợp lệ"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2460
+#: src/x11/meta-x11-display.c:2785
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
