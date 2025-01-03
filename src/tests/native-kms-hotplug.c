@@ -385,7 +385,7 @@ emulate_hotplug (void)
 }
 
 static void
-meta_test_power_save_implicit_on (void)
+meta_test_power_save_no_implicit_on (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
@@ -423,8 +423,10 @@ meta_test_power_save_implicit_on (void)
                                 disconnect_connector_filter, NULL);
   emulate_hotplug ();
 
-  while (!power_save_mode_changed || !monitors_changed)
+  while (!monitors_changed)
     g_main_context_iteration (NULL, TRUE);
+
+  g_assert_false (power_save_mode_changed);
 
   g_signal_handler_disconnect (monitor_manager, power_save_handler_id);
   g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
@@ -445,8 +447,8 @@ init_tests (void)
                    meta_test_disconnect_connect);
   g_test_add_func ("/hotplug/switch-config",
                    meta_test_switch_config);
-  g_test_add_func ("/hotplug/power-save-implicit-off",
-                   meta_test_power_save_implicit_on);
+  g_test_add_func ("/hotplug/power-save-no-implicit-on",
+                   meta_test_power_save_no_implicit_on);
 }
 
 int

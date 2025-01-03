@@ -100,27 +100,6 @@ meta_monitor_manager_native_read_edid (MetaMonitorManager *manager,
 }
 
 static void
-meta_monitor_manager_native_read_current_state (MetaMonitorManager *manager)
-{
-  MetaMonitorManagerClass *parent_class =
-    META_MONITOR_MANAGER_CLASS (meta_monitor_manager_native_parent_class);
-  MetaPowerSave power_save_mode;
-
-  power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
-    {
-      MetaPowerSaveChangeReason reason;
-
-      reason = META_POWER_SAVE_CHANGE_REASON_HOTPLUG;
-      meta_monitor_manager_power_save_mode_changed (manager,
-                                                    META_POWER_SAVE_ON,
-                                                    reason);
-    }
-
-  parent_class->read_current_state (manager);
-}
-
-static void
 meta_monitor_manager_native_set_power_save_mode (MetaMonitorManager *manager,
                                                  MetaPowerSave       mode)
 {
@@ -712,8 +691,6 @@ meta_monitor_manager_native_class_init (MetaMonitorManagerNativeClass *klass)
 
   manager_class->read_edid =
     meta_monitor_manager_native_read_edid;
-  manager_class->read_current_state =
-    meta_monitor_manager_native_read_current_state;
   manager_class->ensure_initial_config =
     meta_monitor_manager_native_ensure_initial_config;
   manager_class->apply_monitors_config =
