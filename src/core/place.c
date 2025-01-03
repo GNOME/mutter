@@ -168,13 +168,15 @@ find_next_cascade (MetaWindow *window,
                    /* visible windows on relevant workspaces */
                    GList      *windows,
                    int        *new_x,
-                   int        *new_y)
+                   int        *new_y,
+                   gboolean    place_centered)
 {
   MetaDisplay *display = meta_window_get_display (window);
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   GList *tmp;
   GList *sorted;
+  int adjusted_center_x, adjusted_center_y;
   int cascade_origin_x, cascade_x, cascade_y;
   int x_threshold, y_threshold;
   MtkRectangle frame_rect;
@@ -201,21 +203,48 @@ find_next_cascade (MetaWindow *window,
   current = meta_backend_get_current_logical_monitor (backend);
   meta_window_get_work_area_for_logical_monitor (window, current, &work_area);
 
-  sorted = g_list_copy (windows);
-  if (ltr)
-    sorted = g_list_sort_with_data (sorted, northwest_cmp, &work_area);
-  else
-    sorted = g_list_sort_with_data (sorted, northeast_cmp, &work_area);
-
   meta_window_get_frame_rect (window, &frame_rect);
   window_width = frame_rect.width;
   window_height = frame_rect.height;
 
-  cascade_origin_x = ltr
-    ? MAX (0, work_area.x)
-    : work_area.x + work_area.width - window_width;
+  sorted = g_list_copy (windows);
+  if (place_centered)
+    {
+      WindowDistanceComparisonData window_distance_data = {
+        .area = work_area,
+        .window = frame_rect,
+        .ltr = ltr,
+      };
+
+      sorted = g_list_sort_with_data (sorted, window_distance_cmp,
+                                      &window_distance_data);
+    }
+  else if (ltr)
+    {
+      sorted = g_list_sort_with_data (sorted, northwest_cmp, &work_area);
+    }
+  else
+    {
+      sorted = g_list_sort_with_data (sorted, northeast_cmp, &work_area);
+    }
+
+  adjusted_center_x = work_area.x + work_area.width / 2 - window_width / 2;
+  adjusted_center_y = work_area.y + work_area.height / 2 - window_height / 2;
+
+  if (place_centered)
+    {
+      cascade_origin_x = adjusted_center_x;
+    }
+  else if (ltr)
+    {
+      cascade_origin_x = MAX (0, work_area.x);
+    }
+  else
+    {
+      cascade_origin_x = work_area.x + work_area.width - window_width;
+    }
   cascade_x = cascade_origin_x;
-  cascade_y = MAX (0, work_area.y);
+  cascade_y = MAX (0, place_centered ? adjusted_center_y : work_area.y);
 
   /* Find first cascade position that's not used. */
 
@@ -259,7 +288,7 @@ find_next_cascade (MetaWindow *window,
                (work_area.y + work_area.height)))
             {
               cascade_x = cascade_origin_x;
-              cascade_y = MAX (0, work_area.y);
+              cascade_y = MAX (0, place_centered ? adjusted_center_y : work_area.y);
 
               cascade_stage += 1;
               if (ltr)
@@ -979,6 +1008,8 @@ meta_window_place (MetaWindow        *window,
 
       meta_topic (META_DEBUG_PLACEMENT, "Centered window %s on monitor %d",
                   window->desc, logical_monitor->number);
+
+      find_next_cascade (window, windows, &x, &y, place_centered);
     }
   else
     {
@@ -989,7 +1020,7 @@ meta_window_place (MetaWindow        *window,
       /* No good fit? Fall back to cascading... */
       if (!find_first_fit (window, windows, logical_monitor,
                            &x, &y))
-        find_next_cascade (window, windows, &x, &y);
+        find_next_cascade (window, windows, &x, &y, place_centered);
     }
 
   /* Maximize windows if they are too big for their work area (bit of
