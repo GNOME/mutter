@@ -776,7 +776,8 @@ meta_window_place (MetaWindow        *window,
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   g_autoptr (GList) windows = NULL;
-  MetaLogicalMonitor *logical_monitor;
+  MetaLogicalMonitor *logical_monitor = NULL;
+  gboolean place_centered = FALSE;
 
   meta_topic (META_DEBUG_PLACEMENT, "Placing window %s", window->desc);
 
@@ -912,13 +913,15 @@ meta_window_place (MetaWindow        *window,
    * on the sides of the parent window or something.
    */
 
-  if (window_place_centered (window))
+  windows = find_windows_relevant_for_placement (window);
+  logical_monitor = meta_backend_get_current_logical_monitor (backend);
+  place_centered = window_place_centered (window);
+
+  if (place_centered)
     {
       /* Center on current monitor */
       MtkRectangle work_area;
       MtkRectangle frame_rect;
-
-      logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
       meta_window_get_work_area_for_logical_monitor (window,
                                                      logical_monitor,
@@ -930,13 +933,18 @@ meta_window_place (MetaWindow        *window,
 
       meta_topic (META_DEBUG_PLACEMENT, "Centered window %s on monitor %d",
                   window->desc, logical_monitor->number);
-
-      goto done_check_denied_focus;
     }
+  else
+    {
+      /* "Origin" placement algorithm */
+      x = logical_monitor->rect.x;
+      y = logical_monitor->rect.y;
 
-  windows = find_windows_relevant_for_placement (window);
-
-  logical_monitor = meta_backend_get_current_logical_monitor (backend);
+      /* No good fit? Fall back to cascading... */
+      if (!find_first_fit (window, windows, logical_monitor,
+                           &x, &y))
+        find_next_cascade (window, windows, &x, &y);
+    }
 
   /* Maximize windows if they are too big for their work area (bit of
    * a hack here). Assume undecorated windows probably don't intend to
@@ -963,18 +971,6 @@ meta_window_place (MetaWindow        *window,
         }
     }
 
-  /* "Origin" placement algorithm */
-  x = logical_monitor->rect.x;
-  y = logical_monitor->rect.y;
-
-  if (find_first_fit (window, windows, logical_monitor,
-                      &x, &y))
-    goto done_check_denied_focus;
-
-  /* No good fit? Fall back to cascading... */
-  find_next_cascade (window, windows, &x, &y);
-
-done_check_denied_focus:
   /* If the window is being denied focus and isn't a transient of the
    * focus window, we do NOT want it to overlap with the focus window
    * if at all possible.  This is guaranteed to only be called if the
