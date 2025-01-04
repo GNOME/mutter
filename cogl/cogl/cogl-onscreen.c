@@ -134,15 +134,18 @@ cogl_onscreen_class_init (CoglOnscreenClass *klass)
 }
 
 static void
-notify_event (CoglOnscreen *onscreen,
+notify_event (CoglOnscreen  *onscreen,
               CoglFrameEvent event,
               CoglFrameInfo *info)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+  CoglClosure *closure, *tmp;
 
-  _cogl_closure_list_invoke (&priv->frame_closures,
-                             CoglFrameCallback,
-                             onscreen, event, info);
+  _cogl_list_for_each_safe (closure, tmp, &priv->frame_closures, link)
+  {
+    CoglFrameCallback cb = closure->function;
+    cb (onscreen, event, info, closure->user_data);
+  }
 }
 
 static void

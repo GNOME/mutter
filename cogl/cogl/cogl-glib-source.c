@@ -80,8 +80,13 @@ cogl_glib_source_dispatch (GSource *source,
                            void *user_data)
 {
   CoglGLibSource *cogl_source = (CoglGLibSource *) source;
+  CoglClosure *closure, *tmp;
 
-  _cogl_closure_list_invoke_no_args (&cogl_source->renderer->idle_closures);
+  _cogl_list_for_each_safe (closure, tmp, &cogl_source->renderer->idle_closures, link)
+  {
+    void (*cb) (void *) = closure->function;
+    cb (closure->user_data);
+  }
 
   return TRUE;
 }
