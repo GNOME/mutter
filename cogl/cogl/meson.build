@@ -164,8 +164,6 @@ cogl_sources = [
   'cogl-buffer-impl.c',
   'cogl-clip-stack.c',
   'cogl-clip-stack.h',
-  'cogl-closure-list-private.h',
-  'cogl-closure-list.c',
   'cogl-color.c',
   'cogl-context-private.h',
   'cogl-context.c',

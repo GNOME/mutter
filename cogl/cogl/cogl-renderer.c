@@ -117,7 +117,7 @@ idle_source_prepare (GSource *source,
 {
   IdleSource *idle_source = (IdleSource *) source;
 
-  if (_cogl_list_empty (&idle_source->renderer->idle_closures))
+  if (idle_source->renderer->idle_closures->len == 0)
     {
       *timeout = -1;
       idle_source->expiration_time = -1;
@@ -150,13 +150,17 @@ idle_source_dispatch (GSource     *source,
                       void        *user_data)
 {
   IdleSource *idle_source = (IdleSource *) source;
-  CoglClosure *closure, *tmp;
+  CoglRenderer *renderer = idle_source->renderer;
 
-  _cogl_list_for_each_safe (closure, tmp, &idle_source->renderer->idle_closures, link)
-  {
-    void (*cb) (void *) = closure->function;
-    cb (closure->user_data);
-  }
+  for (size_t i = 0; i < renderer->idle_closures->len; i++)
+    {
+      CoglClosure *closure = g_ptr_array_index (renderer->idle_closures, i);
+      void (*cb) (void *) = closure->function;
+
+      cb (closure->user_data);
+    }
+
+  g_ptr_array_set_size (renderer->idle_closures, 0);
 
   return TRUE;
 }
@@ -173,14 +177,12 @@ static void
 cogl_renderer_dispose (GObject *object)
 {
   CoglRenderer *renderer = COGL_RENDERER (object);
-  CoglClosure *closure, *next;
 
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   g_clear_pointer (&renderer->idle_closures_source, g_source_destroy);
-
-  _cogl_list_for_each_safe (closure, next, &renderer->idle_closures, link)
-    _cogl_closure_disconnect (closure);
+  g_ptr_array_free (renderer->idle_closures, TRUE);
+  g_clear_pointer (&renderer->idle_closures, g_free);
 
   if (winsys)
     winsys->renderer_disconnect (renderer);
@@ -231,6 +233,7 @@ cogl_renderer_new (void)
 
   renderer->connected = FALSE;
   renderer->event_filters = NULL;
+  renderer->idle_closures = g_ptr_array_new_with_free_func (g_free);
 
   renderer->idle_closures_source = g_source_new (&idle_source_funcs,
                                                  sizeof (IdleSource));
@@ -239,8 +242,6 @@ cogl_renderer_new (void)
 
   idle_source->renderer = renderer;
   g_source_attach (renderer->idle_closures_source, NULL);
-
-  _cogl_list_init (&renderer->idle_closures);
 
   return renderer;
 }
@@ -721,7 +722,7 @@ cogl_renderer_add_idle_closure (CoglRenderer *renderer,
   closure->function = function;
   closure->user_data = user_data;
 
-  _cogl_list_insert (&renderer->idle_closures, &closure->link);
+  g_ptr_array_add (renderer->idle_closures, closure);
 
   return closure;
 }

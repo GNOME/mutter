@@ -600,8 +600,7 @@ flush_pending_notifications_idle (void *user_data)
 
   /* This needs to be disconnected before invoking the callbacks in
    * case the callbacks cause it to be queued again */
-  _cogl_closure_disconnect (glx_renderer->flush_notifications_idle);
-  glx_renderer->flush_notifications_idle = NULL;
+  g_clear_pointer (&glx_renderer->flush_notifications_idle, g_free);
 
   g_list_foreach (context->framebuffers,
                   flush_pending_notifications_cb,

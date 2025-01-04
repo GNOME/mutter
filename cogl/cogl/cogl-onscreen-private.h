@@ -32,7 +32,6 @@
 
 #include "cogl/cogl-onscreen.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/cogl-closure-list-private.h"
 #include "cogl/cogl-list.h"
 #include "mtk/mtk-rectangle.h"
 

@@ -79,4 +79,10 @@ _cogl_check_extension (const char *name, char * const *ext);
 #define _cogl_has_private_feature(ctx, feature) \
   COGL_FLAGS_GET ((ctx)->private_features, (feature))
 
+typedef struct _CoglClosure
+{
+  void *function;
+  void *user_data;
+} CoglClosure;
+
 G_END_DECLS

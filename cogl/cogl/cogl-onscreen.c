@@ -37,12 +37,11 @@
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-closure-list-private.h"
 #include "cogl/cogl-renderer-private.h"
 
 typedef struct _CoglOnscreenPrivate
 {
-  CoglList frame_closures;
+  GPtrArray *frame_closures;
 
   int64_t frame_counter;
   int64_t swap_frame_counter; /* frame counter at last all to
@@ -102,11 +101,10 @@ cogl_onscreen_dispose (GObject *object)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (object);
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglClosure *closure, *next;
   CoglFrameInfo *frame_info;
 
-  _cogl_list_for_each_safe (closure, next, &priv->frame_closures, link)
-    _cogl_closure_disconnect (closure);
+  g_ptr_array_free (priv->frame_closures, TRUE);
+  g_clear_pointer (&priv->frame_closures, g_free);
 
   while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
     g_object_unref (frame_info);
@@ -120,7 +118,7 @@ cogl_onscreen_init (CoglOnscreen *onscreen)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
 
-  _cogl_list_init (&priv->frame_closures);
+  priv->frame_closures = g_ptr_array_new_with_free_func (g_free);
 }
 
 static void
@@ -141,13 +139,15 @@ notify_event (CoglOnscreen  *onscreen,
               CoglFrameInfo *info)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-  CoglClosure *closure, *tmp;
 
-  _cogl_list_for_each_safe (closure, tmp, &priv->frame_closures, link)
-  {
-    CoglFrameCallback cb = closure->function;
-    cb (onscreen, event, info, closure->user_data);
-  }
+  for (size_t i = 0; i < priv->frame_closures->len; i++)
+    {
+      CoglClosure *closure = g_ptr_array_index (priv->frame_closures, i);
+      CoglFrameCallback cb = closure->function;
+      cb (onscreen, event, info, closure->user_data);
+    }
+
+  g_ptr_array_set_size (priv->frame_closures, 0);
 }
 
 static void
@@ -165,7 +165,7 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
   _cogl_list_init (&context->onscreen_events_queue);
 
   g_clear_pointer (&context->onscreen_dispatch_idle,
-                   _cogl_closure_disconnect);
+                   g_free);
 
   _cogl_list_for_each_safe (event, tmp, &queue, link)
     {
@@ -470,7 +470,7 @@ cogl_onscreen_add_frame_callback (CoglOnscreen     *onscreen,
   closure->function = callback;
   closure->user_data = user_data;
 
-  _cogl_list_insert (&priv->frame_closures, &closure->link);
+  g_ptr_array_add (priv->frame_closures, closure);
 
   return closure;
 }
@@ -479,9 +479,12 @@ void
 cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
                                      CoglFrameClosure *closure)
 {
+  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+
   g_return_if_fail (closure);
 
-  _cogl_closure_disconnect (closure);
+  g_ptr_array_remove (priv->frame_closures, closure);
+  g_free (closure);
 }
 
 void

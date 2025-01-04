@@ -35,7 +35,6 @@
 #include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context.h"
-#include "cogl/cogl-closure-list-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
 typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *renderer);
@@ -54,7 +53,7 @@ struct _CoglRenderer
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
 
   GSource *idle_closures_source;
-  CoglList idle_closures;
+  GPtrArray *idle_closures;
 
   CoglDriverId driver_id;
   unsigned long private_features
