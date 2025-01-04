@@ -43,7 +43,6 @@
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-display-private.h"
-#include "cogl/cogl-glib-source-private.h"
 
 #include "cogl/winsys/cogl-winsys-private.h"
 
@@ -103,6 +102,65 @@ typedef struct _CoglNativeFilterClosure
   void *data;
 } CoglNativeFilterClosure;
 
+typedef struct _IdleSource
+{
+  GSource source;
+
+  CoglRenderer *renderer;
+
+  int64_t expiration_time;
+} IdleSource;
+
+static gboolean
+idle_source_prepare (GSource *source,
+                     int     *timeout)
+{
+  IdleSource *idle_source = (IdleSource *) source;
+
+  if (_cogl_list_empty (&idle_source->renderer->idle_closures))
+    {
+      *timeout = -1;
+      idle_source->expiration_time = -1;
+    }
+  else
+    {
+      /* Round up to ensure that we don't try again too early */
+      *timeout = 999 / 1000;
+      idle_source->expiration_time = g_source_get_time (source);
+    }
+
+  return *timeout == 0;
+}
+
+static gboolean
+idle_source_check (GSource *source)
+{
+  IdleSource *idle_source = (IdleSource *) source;
+
+  if (idle_source->expiration_time >= 0 &&
+      g_source_get_time (source) >= idle_source->expiration_time)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
+idle_source_dispatch (GSource     *source,
+                      GSourceFunc  callback,
+                      void        *user_data)
+{
+  IdleSource *idle_source = (IdleSource *) source;
+  CoglClosure *closure, *tmp;
+
+  _cogl_list_for_each_safe (closure, tmp, &idle_source->renderer->idle_closures, link)
+  {
+    void (*cb) (void *) = closure->function;
+    cb (closure->user_data);
+  }
+
+  return TRUE;
+}
+
 static void
 native_filter_closure_free (CoglNativeFilterClosure *closure)
 {
@@ -159,11 +217,24 @@ CoglRenderer *
 cogl_renderer_new (void)
 {
   CoglRenderer *renderer = g_object_new (COGL_TYPE_RENDERER, NULL);
+  static GSourceFuncs idle_source_funcs =
+  {
+    idle_source_prepare,
+    idle_source_check,
+    idle_source_dispatch,
+    NULL
+  };
+  IdleSource *idle_source;
 
   renderer->connected = FALSE;
   renderer->event_filters = NULL;
 
-  renderer->idle_closures_source = cogl_glib_source_new (renderer);
+  renderer->idle_closures_source = g_source_new (&idle_source_funcs,
+                                                 sizeof (IdleSource));
+  g_source_set_name (renderer->idle_closures_source, "[mutter] Cogl");
+  idle_source = (IdleSource *) renderer->idle_closures_source;
+
+  idle_source->renderer = renderer;
   g_source_attach (renderer->idle_closures_source, NULL);
 
   _cogl_list_init (&renderer->idle_closures);

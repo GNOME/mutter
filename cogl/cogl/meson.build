@@ -191,8 +191,6 @@ cogl_sources = [
   'cogl-framebuffer-driver.h',
   'cogl-framebuffer-private.h',
   'cogl-framebuffer.c',
-  'cogl-glib-source.c',
-  'cogl-glib-source-private.h',
   'cogl-gl-header.h',
   'cogl-glsl-shader-boilerplate.h',
   'cogl-graphene.c',
