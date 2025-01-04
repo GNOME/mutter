@@ -53,6 +53,7 @@ struct _CoglRenderer
   void *custom_winsys_user_data;
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
 
+  GSource *idle_closures_source;
   CoglList idle_closures;
 
   CoglDriverId driver_id;

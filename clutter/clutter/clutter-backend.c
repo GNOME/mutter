@@ -95,7 +95,6 @@ clutter_backend_dispose (GObject *gobject)
       backend->stage_window = NULL;
     }
 
-  g_clear_pointer (&backend->cogl_source, g_source_destroy);
 #ifdef HAVE_FONTS
   g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
 #endif
@@ -200,9 +199,6 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
 
   /* the display owns the renderer and the swap chain */
   g_object_unref (backend->cogl_renderer);
-
-  backend->cogl_source = cogl_glib_source_new (backend->cogl_renderer, G_PRIORITY_DEFAULT);
-  g_source_attach (backend->cogl_source, NULL);
 
   return TRUE;
 

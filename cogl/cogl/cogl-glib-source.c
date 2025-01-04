@@ -31,7 +31,7 @@
 #include "config.h"
 
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/cogl-glib-source.h"
+#include "cogl/cogl-glib-source-private.h"
 
 typedef struct _CoglGLibSource
 {

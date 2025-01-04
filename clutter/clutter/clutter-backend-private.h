@@ -47,7 +47,6 @@ struct _ClutterBackend
   CoglRenderer *cogl_renderer;
   CoglDisplay *cogl_display;
   CoglContext *cogl_context;
-  GSource *cogl_source;
 
   CoglOnscreen *dummy_onscreen;
 

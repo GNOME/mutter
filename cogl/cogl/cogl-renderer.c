@@ -43,6 +43,7 @@
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-display-private.h"
+#include "cogl/cogl-glib-source-private.h"
 
 #include "cogl/winsys/cogl-winsys-private.h"
 
@@ -117,6 +118,7 @@ cogl_renderer_dispose (GObject *object)
 
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
+  g_clear_pointer (&renderer->idle_closures_source, g_source_destroy);
   _cogl_closure_list_disconnect_all (&renderer->idle_closures);
 
   if (winsys)
@@ -160,6 +162,9 @@ cogl_renderer_new (void)
 
   renderer->connected = FALSE;
   renderer->event_filters = NULL;
+
+  renderer->idle_closures_source = cogl_glib_source_new (renderer, G_PRIORITY_DEFAULT);
+  g_source_attach (renderer->idle_closures_source, NULL);
 
   _cogl_list_init (&renderer->idle_closures);
 
