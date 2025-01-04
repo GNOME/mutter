@@ -78,3 +78,8 @@ void
 _cogl_renderer_remove_native_filter (CoglRenderer *renderer,
                                      CoglNativeFilterFunc func,
                                      void *data);
+
+CoglClosure *
+cogl_renderer_add_idle_closure (CoglRenderer *renderer,
+                                void         *function,
+                                void         *user_data);

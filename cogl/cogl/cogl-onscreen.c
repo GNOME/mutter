@@ -203,9 +203,9 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
   if (!ctx->onscreen_dispatch_idle)
     {
       ctx->onscreen_dispatch_idle =
-        _cogl_closure_list_add (&ctx->display->renderer->idle_closures,
-                                _cogl_dispatch_onscreen_cb,
-                                ctx);
+        cogl_renderer_add_idle_closure (ctx->display->renderer,
+                                        _cogl_dispatch_onscreen_cb,
+                                        ctx);
     }
 }
 

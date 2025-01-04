@@ -710,3 +710,11 @@ cogl_renderer_bind_api (CoglRenderer *renderer)
 
   winsys->renderer_bind_api (renderer);
 }
+
+CoglClosure *
+cogl_renderer_add_idle_closure (CoglRenderer *renderer,
+                                void         *function,
+                                void         *user_data)
+{
+  return _cogl_closure_list_add (&renderer->idle_closures, function, user_data);
+}
