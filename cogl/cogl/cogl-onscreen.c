@@ -465,10 +465,14 @@ cogl_onscreen_add_frame_callback (CoglOnscreen     *onscreen,
                                   void             *user_data)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+  CoglClosure *closure = g_new0 (CoglClosure, 1);
 
-  return _cogl_closure_list_add (&priv->frame_closures,
-                                 callback,
-                                 user_data);
+  closure->function = callback;
+  closure->user_data = user_data;
+
+  _cogl_list_insert (&priv->frame_closures, &closure->link);
+
+  return closure;
 }
 
 void

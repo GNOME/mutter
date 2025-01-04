@@ -716,5 +716,12 @@ cogl_renderer_add_idle_closure (CoglRenderer *renderer,
                                 void         *function,
                                 void         *user_data)
 {
-  return _cogl_closure_list_add (&renderer->idle_closures, function, user_data);
+  CoglClosure *closure = g_new0 (CoglClosure, 1);
+
+  closure->function = function;
+  closure->user_data = user_data;
+
+  _cogl_list_insert (&renderer->idle_closures, &closure->link);
+
+  return closure;
 }
