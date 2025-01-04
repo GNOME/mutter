@@ -43,7 +43,6 @@ G_BEGIN_DECLS
 /**
  * cogl_glib_source_new:
  * @renderer: A #CoglRenderer
- * @priority: The priority of the #GSource
  *
  * Creates a #GSource which handles Cogl's internal system event
  * processing.
@@ -51,7 +50,6 @@ G_BEGIN_DECLS
  * Return value: a new #GSource
  */
 COGL_EXPORT GSource *
-cogl_glib_source_new (CoglRenderer *renderer,
-                      int           priority);
+cogl_glib_source_new (CoglRenderer *renderer);
 
 G_END_DECLS

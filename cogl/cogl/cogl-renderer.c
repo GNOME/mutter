@@ -163,7 +163,7 @@ cogl_renderer_new (void)
   renderer->connected = FALSE;
   renderer->event_filters = NULL;
 
-  renderer->idle_closures_source = cogl_glib_source_new (renderer, G_PRIORITY_DEFAULT);
+  renderer->idle_closures_source = cogl_glib_source_new (renderer);
   g_source_attach (renderer->idle_closures_source, NULL);
 
   _cogl_list_init (&renderer->idle_closures);
