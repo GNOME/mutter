@@ -114,8 +114,6 @@ typedef struct _CoglRendererEGL
   EGLint egl_version_major;
   EGLint egl_version_minor;
 
-  CoglClosure *resize_notify_idle;
-
   /* Data specific to the EGL platform */
   void *platform;
   /* vtable for platform specific parts */
