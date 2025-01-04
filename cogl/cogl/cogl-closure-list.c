@@ -38,9 +38,6 @@ _cogl_closure_disconnect (CoglClosure *closure)
 {
   _cogl_list_remove (&closure->link);
 
-  if (closure->destroy_cb)
-    closure->destroy_cb (closure->user_data);
-
   g_free (closure);
 }
 
@@ -56,14 +53,12 @@ _cogl_closure_list_disconnect_all (CoglList *list)
 CoglClosure *
 _cogl_closure_list_add (CoglList *list,
                         void *function,
-                        void *user_data,
-                        GDestroyNotify destroy_cb)
+                        void *user_data)
 {
   CoglClosure *closure = g_new0 (CoglClosure, 1);
 
   closure->function = function;
   closure->user_data = user_data;
-  closure->destroy_cb = destroy_cb;
 
   _cogl_list_insert (list, &closure->link);
 

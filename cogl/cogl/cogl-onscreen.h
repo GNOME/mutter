@@ -340,8 +340,6 @@ GType cogl_frame_closure_get_type (void);
  * @callback: (scope notified) (closure user_data): A callback function
  *            to call for frame events
  * @user_data: A private pointer to be passed to @callback
- * @destroy: (allow-none): An optional callback to destroy @user_data
- *           when the @callback is removed or @onscreen is freed.
  *
  * Installs a @callback function that will be called for significant
  * events relating to the given @onscreen framebuffer.
@@ -371,10 +369,9 @@ GType cogl_frame_closure_get_type (void);
  *          remove the callback and associated @user_data later.
  */
 COGL_EXPORT CoglFrameClosure *
-cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
+cogl_onscreen_add_frame_callback (CoglOnscreen     *onscreen,
                                   CoglFrameCallback callback,
-                                  void *user_data,
-                                  GDestroyNotify destroy);
+                                  void             *user_data);
 
 /**
  * cogl_onscreen_remove_frame_callback:

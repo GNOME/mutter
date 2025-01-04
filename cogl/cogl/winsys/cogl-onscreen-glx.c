@@ -625,8 +625,7 @@ set_sync_pending (CoglOnscreen *onscreen)
       glx_renderer->flush_notifications_idle =
         _cogl_closure_list_add (&renderer->idle_closures,
                                 flush_pending_notifications_idle,
-                                context,
-                                NULL);
+                                context);
     }
 
   onscreen_glx->pending_sync_notify++;
@@ -649,8 +648,7 @@ set_complete_pending (CoglOnscreen *onscreen)
       glx_renderer->flush_notifications_idle =
         _cogl_closure_list_add (&renderer->idle_closures,
                                 flush_pending_notifications_idle,
-                                context,
-                                NULL);
+                                context);
     }
 
   onscreen_glx->pending_complete_notify++;
@@ -1009,8 +1007,7 @@ cogl_onscreen_glx_resize (CoglOnscreen    *onscreen,
       glx_renderer->flush_notifications_idle =
         _cogl_closure_list_add (&renderer->idle_closures,
                                 flush_pending_notifications_idle,
-                                context,
-                                NULL);
+                                context);
     }
 
   if (configure_event->send_event)

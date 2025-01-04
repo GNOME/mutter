@@ -203,8 +203,7 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
       ctx->onscreen_dispatch_idle =
         _cogl_closure_list_add (&ctx->display->renderer->idle_closures,
                                 _cogl_dispatch_onscreen_cb,
-                                ctx,
-                                NULL);
+                                ctx);
     }
 }
 
@@ -459,17 +458,15 @@ cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
 }
 
 CoglFrameClosure *
-cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
+cogl_onscreen_add_frame_callback (CoglOnscreen     *onscreen,
                                   CoglFrameCallback callback,
-                                  void *user_data,
-                                  GDestroyNotify destroy)
+                                  void             *user_data)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
 
   return _cogl_closure_list_add (&priv->frame_closures,
                                  callback,
-                                 user_data,
-                                 destroy);
+                                 user_data);
 }
 
 void

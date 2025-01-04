@@ -181,7 +181,7 @@ meta_test_disconnect_connect (void)
 
   g_debug ("Wait until page flip completes");
   cogl_onscreen_add_frame_callback (COGL_ONSCREEN (onscreen),
-                                    frame_cb, &state, NULL);
+                                    frame_cb, &state);
   while (state < PRESENTED)
     g_main_context_iteration (NULL, TRUE);
 

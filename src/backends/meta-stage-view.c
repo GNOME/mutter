@@ -127,8 +127,7 @@ meta_stage_view_constructed (GObject *object)
       priv->frame_cb_closure =
         cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
                                           frame_cb,
-                                          view,
-                                          NULL);
+                                          view);
     }
 
   G_OBJECT_CLASS (meta_stage_view_parent_class)->constructed (object);

@@ -54,7 +54,6 @@ typedef struct _CoglClosure
 
   void *function;
   void *user_data;
-  GDestroyNotify destroy_cb;
 } CoglClosure;
 
 /*
@@ -73,6 +72,5 @@ _cogl_closure_list_disconnect_all (CoglList *list);
 CoglClosure *
 _cogl_closure_list_add (CoglList *list,
                         void *function,
-                        void *user_data,
-                        GDestroyNotify destroy_cb);
+                        void *user_data);
 
