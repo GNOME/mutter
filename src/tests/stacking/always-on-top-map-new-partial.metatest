@@ -1,6 +1,9 @@
 resize_monitor default 400 400
 set_pref center-new-windows true
 
+# Since every new spawned window will be cascaded by 50,
+# we also need to update the always-above ones by the same value
+
 new_client w wayland
 create w/1 csd
 resize w/1 100 100
@@ -12,6 +15,8 @@ assert_stacking w/1
 create w/2 csd
 resize w/2 100 100
 show w/2
+# This is the starting point of the cascade
+move w/2 150 150
 
 assert_focused w/2
 assert_stacking w/1 w/2
@@ -26,11 +31,11 @@ assert_stacking w/1 w/2 w/3
 # Mark two windows as always-above
 
 make_above w/1 true
-move w/1 201 150
+move w/1 251 200
 assert_stacking w/2 w/3 w/1
 
 make_above w/3 true
-move w/3 0 0
+move w/3 50 50
 assert_stacking w/2 w/1 w/3
 
 # Map another window while the other non-aways-on-top window has focus.
@@ -42,18 +47,21 @@ assert_focused w/2
 create w/4 csd
 resize w/4 100 100
 show w/4
+assert_position w/4 200 200
 
 assert_focused w/4
 assert_stacking w/2 w/4 w/1 w/3
 
-# Move one of the always-on-top window so that the next mapped one will be
+# Move the always-on-top windows so that the next mapped one will be
 # mostly non-visible, thus not take focus.
 
-move w/1 180 150
+move w/1 280 250
+move w/3 100 100
 
 create w/5 csd
 resize w/5 100 100
 show w/5
+assert_position w/5 250 250
 
 assert_focused w/4
 assert_stacking w/2 w/5 w/4 w/1 w/3
