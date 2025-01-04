@@ -102,9 +102,11 @@ cogl_onscreen_dispose (GObject *object)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (object);
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
+  CoglClosure *closure, *next;
   CoglFrameInfo *frame_info;
 
-  _cogl_closure_list_disconnect_all (&priv->frame_closures);
+  _cogl_list_for_each_safe (closure, next, &priv->frame_closures, link)
+    _cogl_closure_disconnect (closure);
 
   while ((frame_info = g_queue_pop_tail (&priv->pending_frame_infos)))
     g_object_unref (frame_info);

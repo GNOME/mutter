@@ -40,7 +40,7 @@
  * point will provide api to add a callback for that particular point.
  * The function can take a function pointer with the correct
  * signature.  Internally the Cogl code can use _cogl_closure_list_add,
- * _cogl_closure_disconnect and _cogl_closure_list_disconnect_all
+ * _cogl_closure_disconnect
  *
  * In the future we could consider exposing the CoglClosure type which
  * would allow applications to use _cogl_closure_disconnect() directly
@@ -65,9 +65,6 @@ typedef struct _CoglClosure
  * then it will be invoked. */
 void
 _cogl_closure_disconnect (CoglClosure *closure);
-
-void
-_cogl_closure_list_disconnect_all (CoglList *list);
 
 CoglClosure *
 _cogl_closure_list_add (CoglList *list,

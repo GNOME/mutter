@@ -173,11 +173,14 @@ static void
 cogl_renderer_dispose (GObject *object)
 {
   CoglRenderer *renderer = COGL_RENDERER (object);
+  CoglClosure *closure, *next;
 
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   g_clear_pointer (&renderer->idle_closures_source, g_source_destroy);
-  _cogl_closure_list_disconnect_all (&renderer->idle_closures);
+
+  _cogl_list_for_each_safe (closure, next, &renderer->idle_closures, link)
+    _cogl_closure_disconnect (closure);
 
   if (winsys)
     winsys->renderer_disconnect (renderer);

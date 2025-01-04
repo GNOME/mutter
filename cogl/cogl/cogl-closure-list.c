@@ -41,15 +41,6 @@ _cogl_closure_disconnect (CoglClosure *closure)
   g_free (closure);
 }
 
-void
-_cogl_closure_list_disconnect_all (CoglList *list)
-{
-  CoglClosure *closure, *next;
-
-  _cogl_list_for_each_safe (closure, next, list, link)
-    _cogl_closure_disconnect (closure);
-}
-
 CoglClosure *
 _cogl_closure_list_add (CoglList *list,
                         void *function,
