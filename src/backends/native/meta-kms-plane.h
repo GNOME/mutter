@@ -31,6 +31,21 @@ enum _MetaKmsPlaneType
   META_KMS_PLANE_TYPE_OVERLAY,
 };
 
+typedef enum _MetaKmsPlaneYCbCrColorEncoding
+{
+  META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT601 = 0,
+  META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT709,
+  META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT2020,
+  META_KMS_PLANE_YCBCR_COLOR_ENCODING_N_PROPS,
+} MetaKmsPlaneYCbCrColorEncoding;
+
+typedef enum _MetaKmsPlaneYCbCrColorRanges
+{
+  META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED = 0,
+  META_KMS_PLANE_YCBCR_COLOR_RANGE_FULL,
+  META_KMS_PLANE_YCBCR_COLOR_RANGE_N_PROPS,
+} MetaKmsPlaneYCbCrColorRange;
+
 #define META_TYPE_KMS_PLANE meta_kms_plane_get_type ()
 G_DECLARE_FINAL_TYPE (MetaKmsPlane, meta_kms_plane,
                       META, KMS_PLANE, GObject)
@@ -46,6 +61,12 @@ MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
 
 gboolean meta_kms_plane_is_transform_handled (MetaKmsPlane         *plane,
                                               MetaMonitorTransform  transform);
+
+gboolean meta_kms_plane_is_color_encoding_handled (MetaKmsPlane                   *plane,
+                                                   MetaKmsPlaneYCbCrColorEncoding  encoding);
+
+gboolean meta_kms_plane_is_color_range_handled (MetaKmsPlane                *plane,
+                                                MetaKmsPlaneYCbCrColorRange  range);
 
 gboolean meta_kms_plane_supports_cursor_hotspot (MetaKmsPlane *plane);
 
@@ -64,5 +85,13 @@ gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
 void meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
                                          MetaKmsPlaneAssignment *plane_assignment,
                                          MetaMonitorTransform    transform);
+
+void meta_kms_plane_update_set_color_encoding (MetaKmsPlane                   *plane,
+                                               MetaKmsPlaneAssignment         *plane_assignment,
+                                               MetaKmsPlaneYCbCrColorEncoding  encoding);
+
+void meta_kms_plane_update_set_color_range (MetaKmsPlane                *plane,
+                                            MetaKmsPlaneAssignment      *plane_assignment,
+                                            MetaKmsPlaneYCbCrColorRange  range);
 
 const char * meta_kms_plane_type_to_string (MetaKmsPlaneType plane_type);

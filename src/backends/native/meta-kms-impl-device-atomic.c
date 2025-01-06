@@ -756,6 +756,39 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
                                error))
         return FALSE;
     }
+
+  if (plane_assignment->color_encoding.has_update)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting plane (%u, %s) color encoding to %u",
+                  meta_kms_plane_get_id (plane),
+                  meta_kms_impl_device_get_path (impl_device),
+                  plane_assignment->color_encoding.value);
+
+      if (!add_plane_property (impl_device,
+                               plane, req,
+                               META_KMS_PLANE_PROP_YCBCR_COLOR_ENCODING,
+                               plane_assignment->color_encoding.value,
+                               error))
+        return FALSE;
+    }
+
+  if (plane_assignment->color_range.has_update)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting plane (%u, %s) color range to %u",
+                  meta_kms_plane_get_id (plane),
+                  meta_kms_impl_device_get_path (impl_device),
+                  plane_assignment->color_range.value);
+
+      if (!add_plane_property (impl_device,
+                               plane, req,
+                               META_KMS_PLANE_PROP_YCBCR_COLOR_RANGE,
+                               plane_assignment->color_range.value,
+                               error))
+        return FALSE;
+    }
+
   return TRUE;
 }
 
