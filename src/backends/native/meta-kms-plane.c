@@ -34,6 +34,8 @@ typedef struct _MetaKmsPlanePropTable
 {
   MetaKmsProp props[META_KMS_PLANE_N_PROPS];
   MetaKmsEnum rotation_bitmask[META_KMS_PLANE_ROTATION_BIT_N_PROPS];
+  MetaKmsEnum color_encodings[META_KMS_PLANE_YCBCR_COLOR_ENCODING_N_PROPS];
+  MetaKmsEnum color_ranges[META_KMS_PLANE_YCBCR_COLOR_RANGE_N_PROPS];
 } MetaKmsPlanePropTable;
 
 struct _MetaKmsPlane
@@ -177,6 +179,34 @@ meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
   meta_kms_plane_assignment_set_rotation (plane_assignment, kms_rotation);
 }
 
+void
+meta_kms_plane_update_set_color_encoding (MetaKmsPlane                   *plane,
+                                          MetaKmsPlaneAssignment         *plane_assignment,
+                                          MetaKmsPlaneYCbCrColorEncoding  encoding)
+{
+  MetaKmsProp *prop =
+    &plane->prop_table.props[META_KMS_PLANE_PROP_YCBCR_COLOR_ENCODING];
+
+  g_return_if_fail (meta_kms_plane_is_color_encoding_handled (plane, encoding));
+
+  if (prop->value != encoding)
+    meta_kms_plane_assignment_set_color_encoding (plane_assignment, encoding);
+}
+
+void
+meta_kms_plane_update_set_color_range (MetaKmsPlane                *plane,
+                                       MetaKmsPlaneAssignment      *plane_assignment,
+                                       MetaKmsPlaneYCbCrColorRange  range)
+{
+  MetaKmsProp *prop =
+    &plane->prop_table.props[META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED];
+
+  g_return_if_fail (meta_kms_plane_is_color_range_handled (plane, range));
+
+  if (prop->value != range)
+    meta_kms_plane_assignment_set_color_range (plane_assignment, range);
+}
+
 gboolean
 meta_kms_plane_is_transform_handled (MetaKmsPlane        *plane,
                                      MtkMonitorTransform  transform)
@@ -207,6 +237,26 @@ meta_kms_plane_is_transform_handled (MetaKmsPlane        *plane,
     }
 
   return FALSE;
+}
+
+gboolean
+meta_kms_plane_is_color_encoding_handled (MetaKmsPlane                   *plane,
+                                          MetaKmsPlaneYCbCrColorEncoding  encoding)
+{
+  MetaKmsProp *prop =
+    &plane->prop_table.props[META_KMS_PLANE_PROP_YCBCR_COLOR_ENCODING];
+
+  return prop->supported_variants & (1 << encoding);
+}
+
+gboolean
+meta_kms_plane_is_color_range_handled (MetaKmsPlane                *plane,
+                                       MetaKmsPlaneYCbCrColorRange  range)
+{
+  MetaKmsProp *prop =
+    &plane->prop_table.props[META_KMS_PLANE_PROP_YCBCR_COLOR_RANGE];
+
+  return prop->supported_variants & (1 << range);
 }
 
 gboolean
@@ -618,6 +668,22 @@ init_properties (MetaKmsPlane            *plane,
           .name = "SIZE_HINTS",
           .type = DRM_MODE_PROP_BLOB,
         },
+      [META_KMS_PLANE_PROP_YCBCR_COLOR_ENCODING] =
+        {
+          .name = "COLOR_ENCODING",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->color_encodings,
+          .num_enum_values = META_KMS_PLANE_YCBCR_COLOR_ENCODING_N_PROPS,
+          .default_value = META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT709,
+        },
+      [META_KMS_PLANE_PROP_YCBCR_COLOR_RANGE] =
+        {
+          .name = "COLOR_RANGE",
+          .type = DRM_MODE_PROP_ENUM,
+          .enum_values = prop_table->color_ranges,
+          .num_enum_values = META_KMS_PLANE_YCBCR_COLOR_RANGE_N_PROPS,
+          .default_value = META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED,
+        },
     },
     .rotation_bitmask = {
       [META_KMS_PLANE_ROTATION_BIT_ROTATE_0] =
@@ -649,6 +715,30 @@ init_properties (MetaKmsPlane            *plane,
         {
           .name = "reflect-y",
           .bitmask = META_KMS_PLANE_ROTATION_REFLECT_Y,
+        },
+    },
+    .color_encodings = {
+      [META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT601] =
+        {
+          .name = "ITU-R BT.601 YCbCr",
+        },
+      [META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT709] =
+        {
+          .name = "ITU-R BT.709 YCbCr",
+        },
+      [META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT2020] =
+        {
+          .name = "ITU-R BT.2020 YCbCr",
+        },
+    },
+    .color_ranges = {
+      [META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED] =
+        {
+          .name = "YCbCr limited range",
+        },
+      [META_KMS_PLANE_YCBCR_COLOR_RANGE_FULL] =
+        {
+          .name = "YCbCr full range",
         },
     },
   };

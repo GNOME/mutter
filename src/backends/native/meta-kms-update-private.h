@@ -71,6 +71,16 @@ typedef struct _MetaKmsPlaneAssignment
     int x;
     int y;
   } cursor_hotspot;
+
+  struct {
+    gboolean has_update;
+    MetaKmsPlaneYCbCrColorEncoding value;
+  } color_encoding;
+
+  struct {
+    gboolean has_update;
+    MetaKmsPlaneYCbCrColorRange value;
+  } color_range;
 } MetaKmsPlaneAssignment;
 
 typedef struct _MetaKmsModeSet
@@ -171,6 +181,12 @@ MetaKmsFeedback * meta_kms_feedback_new_failed (GList  *failed_planes,
 
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                              MetaKmsPlaneRotation    rotation);
+
+void meta_kms_plane_assignment_set_color_encoding (MetaKmsPlaneAssignment         *plane_assignment,
+                                                   MetaKmsPlaneYCbCrColorEncoding  color_encoding);
+
+void meta_kms_plane_assignment_set_color_range (MetaKmsPlaneAssignment      *plane_assignment,
+                                                MetaKmsPlaneYCbCrColorRange  range);
 
 META_EXPORT_TEST
 MetaKmsPlaneAssignment * meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,

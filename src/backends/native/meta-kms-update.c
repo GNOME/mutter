@@ -661,6 +661,22 @@ meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment
 }
 
 void
+meta_kms_plane_assignment_set_color_encoding (MetaKmsPlaneAssignment         *plane_assignment,
+                                              MetaKmsPlaneYCbCrColorEncoding  encoding)
+{
+  plane_assignment->color_encoding.has_update = TRUE;
+  plane_assignment->color_encoding.value = encoding;
+}
+
+void
+meta_kms_plane_assignment_set_color_range (MetaKmsPlaneAssignment      *plane_assignment,
+                                           MetaKmsPlaneYCbCrColorRange  range)
+{
+  plane_assignment->color_range.has_update = TRUE;
+  plane_assignment->color_range.value = range;
+}
+
+void
 meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
                                               int                     x,
                                               int                     y)
