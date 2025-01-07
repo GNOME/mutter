@@ -132,9 +132,9 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
 
   xwayland_surface->highest_scale_monitor_handler_id =
     g_signal_connect_swapped (window, "highest-scale-monitor-changed",
-                              G_CALLBACK (meta_wayland_surface_notify_highest_scale_monitor),
+                              G_CALLBACK (meta_wayland_surface_notify_preferred_scale_monitor),
                               surface);
-  meta_wayland_surface_notify_highest_scale_monitor (surface);
+  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
 static void

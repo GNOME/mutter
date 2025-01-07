@@ -162,9 +162,9 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
 
   priv->highest_scale_monitor_handler_id =
     g_signal_connect_swapped (window, "highest-scale-monitor-changed",
-                              G_CALLBACK (meta_wayland_surface_notify_highest_scale_monitor),
+                              G_CALLBACK (meta_wayland_surface_notify_preferred_scale_monitor),
                               surface);
-  meta_wayland_surface_notify_highest_scale_monitor (surface);
+  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
 void

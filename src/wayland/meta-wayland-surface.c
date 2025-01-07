@@ -2554,7 +2554,7 @@ meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface)
 }
 
 static void
-committed_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
+committed_state_handle_preferred_scale_monitor (MetaWaylandSurface *surface)
 {
   MetaWaylandSurface *subsurface_surface;
   double scale;
@@ -2590,11 +2590,11 @@ committed_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->committed_state,
                                            subsurface_surface)
-    committed_state_handle_highest_scale_monitor (subsurface_surface);
+    committed_state_handle_preferred_scale_monitor (subsurface_surface);
 }
 
 static void
-applied_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
+applied_state_handle_preferred_scale_monitor (MetaWaylandSurface *surface)
 {
   MetaWaylandSurface *subsurface_surface;
   MetaSurfaceActor *actor = meta_wayland_surface_get_actor (surface);
@@ -2604,14 +2604,14 @@ applied_state_handle_highest_scale_monitor (MetaWaylandSurface *surface)
 
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (&surface->applied_state,
                                            subsurface_surface)
-    applied_state_handle_highest_scale_monitor (subsurface_surface);
+    applied_state_handle_preferred_scale_monitor (subsurface_surface);
 }
 
 void
-meta_wayland_surface_notify_highest_scale_monitor (MetaWaylandSurface *surface)
+meta_wayland_surface_notify_preferred_scale_monitor (MetaWaylandSurface *surface)
 {
-  applied_state_handle_highest_scale_monitor (surface);
-  committed_state_handle_highest_scale_monitor (surface);
+  applied_state_handle_preferred_scale_monitor (surface);
+  committed_state_handle_preferred_scale_monitor (surface);
 }
 
 void
