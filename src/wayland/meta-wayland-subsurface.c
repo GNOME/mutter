@@ -572,7 +572,7 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
   surface->sub.synchronous = TRUE;
   surface->committed_state.parent = parent;
 
-  meta_wayland_surface_notify_highest_scale_monitor (surface);
+  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 
   reference =
     g_node_last_child (parent->committed_state.subsurface_branch_node)->data;
