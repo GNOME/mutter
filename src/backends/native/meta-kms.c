@@ -52,16 +52,7 @@ struct _MetaKms
   gulong lease_handler_id;
   gulong removed_handler_id;
 
-  MetaKmsImpl *impl;
-  gboolean in_impl_task;
-  gboolean waiting_for_impl_task;
-
   GList *devices;
-
-  GList *pending_updates;
-
-  GList *pending_callbacks;
-  guint callback_source_id;
 
   int kernel_thread_inhibit_count;
 
