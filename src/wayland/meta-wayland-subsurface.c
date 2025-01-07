@@ -211,6 +211,20 @@ meta_wayland_subsurface_notify_subsurface_state_changed (MetaWaylandSurfaceRole 
     return meta_wayland_surface_notify_subsurface_state_changed (parent);
 }
 
+static MetaLogicalMonitor *
+meta_wayland_subsurface_get_preferred_scale_monitor (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurface *parent;
+
+  parent = surface->committed_state.parent;
+  if (!parent)
+    return NULL;
+
+  return meta_wayland_surface_get_preferred_scale_monitor (parent);
+}
+
 static int
 meta_wayland_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
@@ -269,6 +283,8 @@ meta_wayland_subsurface_class_init (MetaWaylandSubsurfaceClass *klass)
   surface_role_class->is_synchronized = meta_wayland_subsurface_is_synchronized;
   surface_role_class->notify_subsurface_state_changed =
     meta_wayland_subsurface_notify_subsurface_state_changed;
+  surface_role_class->get_preferred_scale_monitor =
+    meta_wayland_subsurface_get_preferred_scale_monitor;
 
   actor_surface_class->get_geometry_scale =
     meta_wayland_subsurface_get_geometry_scale;

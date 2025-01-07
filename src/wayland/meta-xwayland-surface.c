@@ -201,6 +201,20 @@ meta_xwayland_surface_get_window (MetaWaylandSurfaceRole *surface_role)
   return xwayland_surface->window;
 }
 
+static MetaLogicalMonitor *
+meta_xwayland_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (!window)
+    return NULL;
+
+  return meta_window_get_highest_scale_monitor (window);
+}
+
 static int
 meta_xwayland_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
@@ -258,6 +272,8 @@ meta_xwayland_surface_class_init (MetaXwaylandSurfaceClass *klass)
     meta_xwayland_surface_get_relative_coordinates;
   surface_role_class->get_toplevel = meta_xwayland_surface_get_toplevel;
   surface_role_class->get_window = meta_xwayland_surface_get_window;
+  surface_role_class->get_preferred_scale_monitor =
+    meta_xwayland_surface_get_preferred_scale_monitor;
 
   actor_surface_class->get_geometry_scale =
     meta_xwayland_surface_get_geometry_scale;
