@@ -130,6 +130,32 @@ dnd_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
 }
 
 static MetaLogicalMonitor *
+dnd_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandActorSurface *actor_surface =
+    META_WAYLAND_ACTOR_SURFACE (surface_role);
+  MetaSurfaceActor *surface_actor =
+    meta_wayland_actor_surface_get_actor (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+     meta_backend_get_monitor_manager (backend);
+  graphene_rect_t extentsf = GRAPHENE_RECT_INIT_ZERO;
+  MtkRectangle extents;
+
+  clutter_actor_get_transformed_extents (CLUTTER_ACTOR (surface_actor),
+                                         &extentsf);
+  mtk_rectangle_from_graphene_rect (&extentsf,
+                                    MTK_ROUNDING_STRATEGY_GROW,
+                                    &extents);
+  return meta_monitor_manager_get_highest_scale_monitor_from_rect (monitor_manager,
+                                                                   &extents);
+}
+
+static MetaLogicalMonitor *
 dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
 {
   MetaWaylandSurfaceRoleDND *surface_role_dnd =
@@ -226,6 +252,8 @@ meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
 
   surface_role_class->assigned = dnd_surface_assigned;
   surface_role_class->apply_state = dnd_surface_apply_state;
+  surface_role_class->get_preferred_scale_monitor =
+    dnd_surface_get_preferred_scale_monitor;
 
   actor_surface_class->get_geometry_scale = dnd_subsurface_get_geometry_scale;
   actor_surface_class->sync_actor_state = dnd_subsurface_sync_actor_state;

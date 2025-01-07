@@ -1481,27 +1481,6 @@ surface_output_disconnect_signals (gpointer key,
                                         surface);
 }
 
-double
-meta_wayland_surface_get_highest_output_scale (MetaWaylandSurface *surface)
-{
-  double scale = 0.0;
-  MetaWindow *window;
-  MetaLogicalMonitor *logical_monitor;
-
-  window = meta_wayland_surface_get_window (surface);
-  if (!window)
-    goto out;
-
-  logical_monitor = meta_window_get_highest_scale_monitor (window);
-  if (!logical_monitor)
-    goto out;
-
-  scale = meta_logical_monitor_get_scale (logical_monitor);
-
-out:
-  return scale;
-}
-
 static MtkMonitorTransform
 meta_wayland_surface_get_output_transform (MetaWaylandSurface *surface)
 {
@@ -2536,14 +2515,18 @@ static void
 committed_state_handle_preferred_scale_monitor (MetaWaylandSurface *surface)
 {
   MetaWaylandSurface *subsurface_surface;
+  MetaLogicalMonitor *logical_monitor;
   double scale;
 
   /* Nothing to do if the client already destroyed the wl_surface */
   if (!surface->resource)
     return;
 
-  scale = meta_wayland_surface_get_highest_output_scale (surface);
+  logical_monitor = meta_wayland_surface_get_preferred_scale_monitor (surface);
+  if (!logical_monitor)
+    return;
 
+  scale = meta_logical_monitor_get_scale (logical_monitor);
   meta_wayland_fractional_scale_maybe_send_preferred_scale (surface, scale);
 
   if (wl_resource_get_version (surface->resource) >=
@@ -2653,6 +2636,18 @@ MetaLogicalMonitor *
 meta_wayland_surface_get_main_monitor (MetaWaylandSurface *surface)
 {
   return surface->main_monitor;
+}
+
+MetaLogicalMonitor *
+meta_wayland_surface_get_preferred_scale_monitor (MetaWaylandSurface *surface)
+{
+  MetaWaylandSurfaceRoleClass *surface_role_class;
+
+  if (!surface->role)
+    return NULL;
+
+  surface_role_class = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface->role);
+  return surface_role_class->get_preferred_scale_monitor (surface->role);
 }
 
 gboolean

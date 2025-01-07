@@ -313,6 +313,34 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
   return graphene_rect_contains_point (&logical_monitor_rect, &point);
 }
 
+static MetaLogicalMonitor *
+meta_wayland_cursor_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandCursorSurface *cursor_surface =
+    META_WAYLAND_CURSOR_SURFACE (surface_role);
+  MetaWaylandCursorSurfacePrivate *priv =
+    meta_wayland_cursor_surface_get_instance_private (cursor_surface);
+  MetaWaylandSurface *surface = meta_wayland_surface_role_get_surface (surface_role);
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  ClutterInputDevice *device;
+  graphene_point_t point;
+
+  if (!priv->cursor_renderer)
+    return FALSE;
+
+  device = meta_cursor_renderer_get_input_device (priv->cursor_renderer);
+  clutter_seat_query_state (clutter_input_device_get_seat (device),
+                            device, NULL, &point, NULL);
+
+  return meta_monitor_manager_get_logical_monitor_at (monitor_manager,
+                                                      point.x,
+                                                      point.y);
+}
+
 static void
 meta_wayland_cursor_surface_dispose (GObject *object)
 {
@@ -407,6 +435,8 @@ meta_wayland_cursor_surface_class_init (MetaWaylandCursorSurfaceClass *klass)
   surface_role_class->apply_state = meta_wayland_cursor_surface_apply_state;
   surface_role_class->is_on_logical_monitor =
     meta_wayland_cursor_surface_is_on_logical_monitor;
+  surface_role_class->get_preferred_scale_monitor =
+    meta_wayland_cursor_surface_get_preferred_scale_monitor;
 
   object_class->constructed = meta_wayland_cursor_surface_constructed;
   object_class->dispose = meta_wayland_cursor_surface_dispose;
