@@ -136,3 +136,6 @@ GSubprocess * meta_launch_test_executable (const char *name,
 
 META_EXPORT
 void meta_wait_test_process (GSubprocess *subprocess);
+
+META_EXPORT
+void meta_wait_for_window_cursor (MetaContext *context);

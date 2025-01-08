@@ -19,7 +19,6 @@
 #include "config.h"
 
 #include "backends/meta-cursor-sprite-xcursor.h"
-#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-screen-cast.h"
 #include "clutter/clutter.h"
@@ -320,16 +319,6 @@ wait_for_no_windows (void)
 }
 
 static void
-meta_wait_for_window_cursor (void)
-{
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-
-  while (!meta_cursor_tracker_has_window_cursor (cursor_tracker))
-    g_main_context_iteration (NULL, TRUE);
-}
-
-static void
 test_client_cursor (ClutterStageView    *view,
                     const char          *scale_method,
                     MetaCursor           cursor,
@@ -363,7 +352,7 @@ test_client_cursor (ClutterStageView    *view,
   meta_wait_for_window_shown (window);
   window_actor = meta_window_actor_from_window (window);
   g_assert_nonnull (window_actor);
-  meta_wait_for_window_cursor ();
+  meta_wait_for_window_cursor (test_context);
 
   meta_ref_test_verify_view (view,
                              ref_test_name,
