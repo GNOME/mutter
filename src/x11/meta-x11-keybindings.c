@@ -467,7 +467,7 @@ meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
     meta_x11_keybindings_change_keygrab (keys, x11_display->xroot,
-                                         grab, &keys->iso_next_group_combo[i]);
+                                         grab, &keys->iso_next_group_combos[i]);
 
   change_binding_keygrabs (keys, x11_display->xroot,
                            FALSE, grab);

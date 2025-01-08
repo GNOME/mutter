@@ -462,7 +462,7 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
   int i;
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
-    resolved_key_combo_reset (&keys->iso_next_group_combo[i]);
+    resolved_key_combo_reset (&keys->iso_next_group_combos[i]);
 
   keys->n_iso_next_group_combos = 0;
 
@@ -470,9 +470,9 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
   if (iso_next_group_option == NULL)
     return;
 
-  get_keycodes_for_keysym (keys, XKB_KEY_ISO_Next_Group, keys->iso_next_group_combo);
+  get_keycodes_for_keysym (keys, XKB_KEY_ISO_Next_Group, keys->iso_next_group_combos);
 
-  if (keys->iso_next_group_combo[0].len == 0)
+  if (keys->iso_next_group_combos[0].len == 0)
     return;
 
   keys->n_iso_next_group_combos = 1;
@@ -489,51 +489,51 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
       g_str_equal (iso_next_group_option, "menu_toggle") ||
       g_str_equal (iso_next_group_option, "caps_toggle"))
     {
-      keys->iso_next_group_combo[0].mask = 0;
+      keys->iso_next_group_combos[0].mask = 0;
     }
   else if (g_str_equal (iso_next_group_option, "shift_caps_toggle") ||
            g_str_equal (iso_next_group_option, "shifts_toggle"))
     {
-      keys->iso_next_group_combo[0].mask = CLUTTER_SHIFT_MASK;
+      keys->iso_next_group_combos[0].mask = CLUTTER_SHIFT_MASK;
     }
   else if (g_str_equal (iso_next_group_option, "alt_caps_toggle") ||
            g_str_equal (iso_next_group_option, "alt_space_toggle"))
     {
-      keys->iso_next_group_combo[0].mask = CLUTTER_MOD1_MASK;
+      keys->iso_next_group_combos[0].mask = CLUTTER_MOD1_MASK;
     }
   else if (g_str_equal (iso_next_group_option, "ctrl_shift_toggle") ||
            g_str_equal (iso_next_group_option, "lctrl_lshift_toggle") ||
            g_str_equal (iso_next_group_option, "rctrl_rshift_toggle"))
     {
-      resolved_key_combo_copy (&keys->iso_next_group_combo[0],
-                               &keys->iso_next_group_combo[1]);
+      resolved_key_combo_copy (&keys->iso_next_group_combos[0],
+                               &keys->iso_next_group_combos[1]);
 
-      keys->iso_next_group_combo[0].mask = CLUTTER_SHIFT_MASK;
-      keys->iso_next_group_combo[1].mask = CLUTTER_CONTROL_MASK;
+      keys->iso_next_group_combos[0].mask = CLUTTER_SHIFT_MASK;
+      keys->iso_next_group_combos[1].mask = CLUTTER_CONTROL_MASK;
       keys->n_iso_next_group_combos = 2;
     }
   else if (g_str_equal (iso_next_group_option, "ctrl_alt_toggle"))
     {
-      resolved_key_combo_copy (&keys->iso_next_group_combo[0],
-                               &keys->iso_next_group_combo[1]);
+      resolved_key_combo_copy (&keys->iso_next_group_combos[0],
+                               &keys->iso_next_group_combos[1]);
 
-      keys->iso_next_group_combo[0].mask = CLUTTER_MOD1_MASK;
-      keys->iso_next_group_combo[1].mask = CLUTTER_CONTROL_MASK;
+      keys->iso_next_group_combos[0].mask = CLUTTER_MOD1_MASK;
+      keys->iso_next_group_combos[1].mask = CLUTTER_CONTROL_MASK;
       keys->n_iso_next_group_combos = 2;
     }
   else if (g_str_equal (iso_next_group_option, "alt_shift_toggle") ||
            g_str_equal (iso_next_group_option, "lalt_lshift_toggle"))
     {
-      resolved_key_combo_copy (&keys->iso_next_group_combo[0],
-                               &keys->iso_next_group_combo[1]);
+      resolved_key_combo_copy (&keys->iso_next_group_combos[0],
+                               &keys->iso_next_group_combos[1]);
 
-      keys->iso_next_group_combo[0].mask = CLUTTER_MOD1_MASK;
-      keys->iso_next_group_combo[1].mask = CLUTTER_SHIFT_MASK;
+      keys->iso_next_group_combos[0].mask = CLUTTER_MOD1_MASK;
+      keys->iso_next_group_combos[1].mask = CLUTTER_SHIFT_MASK;
       keys->n_iso_next_group_combos = 2;
     }
   else
     {
-      resolved_key_combo_reset (keys->iso_next_group_combo);
+      resolved_key_combo_reset (keys->iso_next_group_combos);
       keys->n_iso_next_group_combos = 0;
     }
 }
@@ -1707,7 +1707,7 @@ process_iso_next_group (MetaDisplay  *display,
 
   for (i = 0; i < keys->n_iso_next_group_combos; ++i)
     {
-      if (mask == keys->iso_next_group_combo[i].mask)
+      if (mask == keys->iso_next_group_combos[i].mask)
         {
           /* If the signal handler returns TRUE the keyboard will
              remain frozen. It's the signal handler's responsibility

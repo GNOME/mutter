@@ -118,7 +118,7 @@ typedef struct
   gboolean overlay_key_only_pressed;
   MetaResolvedKeyCombo locate_pointer_resolved_key_combo;
   gboolean locate_pointer_key_only_pressed;
-  MetaResolvedKeyCombo iso_next_group_combo[2];
+  MetaResolvedKeyCombo iso_next_group_combos[2];
   int n_iso_next_group_combos;
 
   /*
