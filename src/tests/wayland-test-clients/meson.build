@@ -109,6 +109,12 @@ wayland_test_clients = [
       libmutter_mtk_dep,
     ],
   },
+  {
+    'name': 'surface-scale-client',
+    'extra_deps': [
+      wayland_cursor_dep,
+    ],
+  },
 ]
 
 test_client_executables = {}

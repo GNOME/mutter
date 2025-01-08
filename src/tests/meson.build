@@ -492,6 +492,17 @@ test_cases += [
       cursor_screen_cast_client,
     ]
   },
+  {
+    'name': 'surface-scale-tests',
+    'suite': 'backends/native',
+    'sources': [
+      'surface-scale-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('cursor-tests-client'),
+    ]
+  },
 ]
 
 # KMS tests
