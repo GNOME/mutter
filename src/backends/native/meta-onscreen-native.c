@@ -464,6 +464,32 @@ apply_transform (MetaCrtcKms            *crtc_kms,
                                       hw_transform);
 }
 
+static void
+apply_color_encoding (MetaKmsPlaneAssignment *kms_plane_assignment,
+                      MetaKmsPlane           *kms_plane)
+{
+  if (!meta_kms_plane_is_color_encoding_handled (kms_plane,
+                                                 META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT709))
+    return;
+
+  meta_kms_plane_update_set_color_encoding (kms_plane,
+                                            kms_plane_assignment,
+                                            META_KMS_PLANE_YCBCR_COLOR_ENCODING_BT709);
+}
+
+static void
+apply_color_range (MetaKmsPlaneAssignment *kms_plane_assignment,
+                   MetaKmsPlane           *kms_plane)
+{
+  if (!meta_kms_plane_is_color_range_handled (kms_plane,
+                                              META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED))
+    return;
+
+  meta_kms_plane_update_set_color_range (kms_plane,
+                                         kms_plane_assignment,
+                                         META_KMS_PLANE_YCBCR_COLOR_RANGE_LIMITED);
+}
+
 static MetaKmsPlaneAssignment *
 assign_primary_plane (MetaCrtcKms            *crtc_kms,
                       MetaDrmBuffer          *buffer,
@@ -503,6 +529,8 @@ assign_primary_plane (MetaCrtcKms            *crtc_kms,
                                                    *dst_rect,
                                                    flags);
   apply_transform (crtc_kms, plane_assignment, primary_kms_plane);
+  apply_color_encoding (plane_assignment, primary_kms_plane);
+  apply_color_range (plane_assignment, primary_kms_plane);
 
   return plane_assignment;
 }
