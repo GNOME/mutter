@@ -25,6 +25,7 @@
 #include <string.h>
 #include <X11/Xlib-xcb.h>
 
+#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-backend-native.h"
@@ -993,4 +994,14 @@ meta_wait_test_process (GSubprocess *subprocess)
                                  loop);
   g_main_loop_run (loop);
   g_assert_true (g_subprocess_get_successful (subprocess));
+}
+
+void
+meta_wait_for_window_cursor (MetaContext *context)
+{
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  while (!meta_cursor_tracker_has_window_cursor (cursor_tracker))
+    g_main_context_iteration (NULL, TRUE);
 }
