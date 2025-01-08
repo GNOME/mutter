@@ -416,7 +416,7 @@ handle_registry_global (void               *user_data,
     {
       display->compositor =
         wl_registry_bind (registry, id, &wl_compositor_interface,
-                          MIN (version, 5));
+                          MIN (version, 6));
     }
   else if (strcmp (interface, wl_subcompositor_interface.name) == 0)
     {
@@ -772,6 +772,44 @@ wayland_surface_init (WaylandSurface *surface)
 {
 }
 
+static void
+surface_enter (void              *user_data,
+               struct wl_surface *wl_surface,
+               struct wl_output  *output)
+{
+}
+
+static void
+surface_leave (void              *user_data,
+               struct wl_surface *wl_surface,
+               struct wl_output  *output)
+{
+}
+
+static void
+surface_preferred_buffer_scale (void              *user_data,
+                                struct wl_surface *wl_surface,
+                                int32_t            factor)
+{
+  WaylandSurface *surface = user_data;
+
+  surface->preferred_buffer_scale = factor;
+}
+
+static void
+surface_preferred_buffer_transform (void              *user_data,
+                                    struct wl_surface *wl_surface,
+                                    uint32_t           transform)
+{
+}
+
+static const struct wl_surface_listener surface_listener = {
+  surface_enter,
+  surface_leave,
+  surface_preferred_buffer_scale,
+  surface_preferred_buffer_transform,
+};
+
 WaylandSurface *
 wayland_surface_new (WaylandDisplay *display,
                      const char     *title,
@@ -788,7 +826,9 @@ wayland_surface_new (WaylandDisplay *display,
   surface->default_height = default_height;
   surface->color = color;
   surface->wl_surface = wl_compositor_create_surface (display->compositor);
-  wl_surface_set_user_data (surface->wl_surface, surface);
+  wl_surface_add_listener (surface->wl_surface,
+                           &surface_listener,
+                           surface);
   surface->xdg_surface = xdg_wm_base_get_xdg_surface (display->xdg_wm_base,
                                                       surface->wl_surface);
   xdg_surface_add_listener (surface->xdg_surface, &xdg_surface_listener,
