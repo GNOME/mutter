@@ -119,6 +119,8 @@ WaylandSurface * wayland_surface_new (WaylandDisplay *display,
                                       int             default_height,
                                       uint32_t        color);
 
+WaylandSurface * wayland_surface_new_unassigned (WaylandDisplay *display);
+
 gboolean wayland_surface_has_state (WaylandSurface          *surface,
                                     enum xdg_toplevel_state  state);
 

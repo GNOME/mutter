@@ -847,6 +847,22 @@ wayland_surface_new (WaylandDisplay *display,
   return surface;
 }
 
+WaylandSurface *
+wayland_surface_new_unassigned (WaylandDisplay *display)
+{
+  WaylandSurface *surface;
+
+  surface = g_object_new (WAYLAND_TYPE_SURFACE, NULL);
+
+  surface->display = display;
+  surface->wl_surface = wl_compositor_create_surface (display->compositor);
+  wl_surface_add_listener (surface->wl_surface,
+                           &surface_listener,
+                           surface);
+
+  return surface;
+}
+
 gboolean
 wayland_surface_has_state (WaylandSurface          *surface,
                            enum xdg_toplevel_state  state)
