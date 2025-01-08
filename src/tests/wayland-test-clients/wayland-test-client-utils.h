@@ -90,6 +90,8 @@ typedef struct _WaylandSurface
 
   uint32_t color;
   gboolean is_opaque;
+
+  int32_t preferred_buffer_scale;
 } WaylandSurface;
 
 #define WAYLAND_TYPE_SURFACE (wayland_surface_get_type ())
