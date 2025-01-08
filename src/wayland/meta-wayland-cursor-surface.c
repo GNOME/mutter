@@ -191,6 +191,7 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
 
   meta_wayland_surface_set_main_monitor (surface, logical_monitor);
   meta_wayland_surface_update_outputs (surface);
+  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
 static void
@@ -523,6 +524,10 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
 {
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (cursor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
 
   if (priv->cursor_renderer == renderer)
     return;
@@ -543,6 +548,7 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
 
   priv->cursor_renderer = renderer;
   update_cursor_sprite_texture (cursor_surface);
+  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
 MetaCursorRenderer *
