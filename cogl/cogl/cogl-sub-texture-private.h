@@ -41,9 +41,7 @@ struct _CoglSubTexture
   /* This is the texture that was passed in to
      _cogl_sub_texture_new. If this is also a sub texture then we will
      use the full texture from that to render instead of making a
-     chain. However we want to preserve the next texture in case the
-     user is expecting us to keep a reference and also so that we can
-     later add a cogl_sub_texture_get_parent_texture() function. */
+     chain. */
   CoglTexture *next_texture;
   /* This is the texture that will actually be used to draw. It will
      point to the end of the chain if a sub texture of a sub texture
