@@ -422,9 +422,3 @@ cogl_sub_texture_new (CoglContext *ctx,
 
   return COGL_TEXTURE (sub_tex);
 }
-
-CoglTexture *
-cogl_sub_texture_get_parent (CoglSubTexture *sub_texture)
-{
-  return sub_texture->next_texture;
-}
