@@ -731,6 +731,9 @@ meta_wayland_buffer_dec_use_count (MetaWaylandBuffer *buffer)
       if (buffer->resource)
         wl_buffer_send_release (buffer->resource);
 
+      if (!buffer->release_points->len)
+        return;
+
       sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
       if (sync_fd < 0)
         {
