@@ -109,8 +109,8 @@ process_event (MetaEis          *eis,
       client = g_hash_table_lookup (eis->eis_clients, eis_client);
       if (!client)
         {
-          g_warning ("Event for unknown EIS client: %s",
-                     eis_client_get_name (eis_client));
+          meta_topic (META_DEBUG_EIS, "Event for unknown EIS client: %s",
+                      eis_client_get_name (eis_client));
           return;
         }
       meta_eis_client_process_event (client, event);

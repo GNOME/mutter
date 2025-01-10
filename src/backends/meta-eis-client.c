@@ -842,7 +842,7 @@ meta_eis_client_process_event (MetaEisClient    *client,
     case EIS_EVENT_DEVICE_STOP_EMULATING:
       break;
     default:
-      g_warning ("Unhandled EIS event type %d", type);
+      meta_topic (META_DEBUG_EIS, "Unhandled EIS event type %d", type);
       return FALSE;
     }
 
