@@ -4,11 +4,11 @@
 
 ```mermaid
 stateDiagram
-    Init --> Scheduled/ScheduledNow : schedule update() -> now
-    Idle --> Scheduled/ScheduledNow : schedule update() -> given presentation time
-    Scheduled/ScheduledNow --> Dispatching : target time hit
-    Dispatching --> PendingPresented : queued page flip
-    Dispatching --> Idle : no queued page flip
-    PendingPresented --> Scheduled/ScheduledNow : page flipped, if recent schedule update
-    PendingPresented --> Idle : page flipped
+    INIT --> SCHEDULED* : first frame scheduled
+    IDLE --> SCHEDULED* : next frame scheduled
+    SCHEDULED* --> IDLE : frame clock inhibited or mode changed
+    SCHEDULED* --> SCHEDULED* : schedule upgraded to SCHEDULED_NOW
+    SCHEDULED* --> DISPATCHING : the update time has arrived
+    DISPATCHING --> PENDING_PRESENTED : the update has been handed to the backend
+    PENDING_PRESENTED --> IDLE : frame was either presented or aborted with nothing to draw
 ```
