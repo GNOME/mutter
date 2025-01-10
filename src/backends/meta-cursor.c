@@ -454,3 +454,12 @@ meta_cursor_sprite_get_color_state (MetaCursorSprite *sprite)
 
   return priv->color_state;
 }
+
+MetaCursorTracker *
+meta_cursor_sprite_get_cursor_tracker (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  return priv->cursor_tracker;
+}

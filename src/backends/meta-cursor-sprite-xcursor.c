@@ -209,6 +209,10 @@ static void
 load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
 {
   MetaCursorSprite *sprite = META_CURSOR_SPRITE (sprite_xcursor);
+  MetaCursorTracker *cursor_tracker =
+    meta_cursor_sprite_get_cursor_tracker (sprite);
+  MetaBackend *backend =
+    meta_cursor_tracker_get_backend (cursor_tracker);
   XcursorImage *xc_image;
   int width, height, rowstride;
   CoglPixelFormat cogl_format;
@@ -231,7 +235,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
 #endif
 
-  clutter_backend = clutter_get_default_backend ();
+  clutter_backend = meta_backend_get_clutter_backend (backend);
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   texture = cogl_texture_2d_new_from_data (cogl_context,
                                            width, height,
