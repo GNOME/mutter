@@ -292,7 +292,8 @@ verify_screen_cast_content (const char               *ref_test_name,
   test_seq_no_string = g_strdup_printf ("%d", test_seq_no);
   reftest_flags = META_REFTEST_FLAG_NONE;
   subprocess =
-    meta_launch_test_executable ("mutter-cursor-tests-screen-cast-client",
+    meta_launch_test_executable (G_SUBPROCESS_FLAGS_NONE,
+                                 "mutter-cursor-tests-screen-cast-client",
                                  ref_test_name,
                                  test_seq_no_string,
                                  cursor_mode_to_string (cursor_mode),

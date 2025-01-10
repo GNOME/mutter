@@ -920,8 +920,9 @@ meta_flush_input (MetaContext *context)
 }
 
 GSubprocess *
-meta_launch_test_executable (const char *name,
-                             const char *argv0,
+meta_launch_test_executable (GSubprocessFlags  subprocess_flags,
+                             const char       *name,
+                             const char       *argv0,
                              ...)
 {
   g_autoptr (GPtrArray) args = NULL;
@@ -945,7 +946,7 @@ meta_launch_test_executable (const char *name,
   g_ptr_array_add (args, NULL);
   va_end (ap);
 
-  launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
+  launcher = g_subprocess_launcher_new (subprocess_flags);
   g_subprocess_launcher_setenv (launcher,
                                 "XDG_RUNTIME_DIR", getenv ("XDG_RUNTIME_DIR"),
                                 TRUE);

@@ -130,8 +130,9 @@ META_EXPORT
 void meta_flush_input (MetaContext *context);
 
 META_EXPORT
-GSubprocess * meta_launch_test_executable (const char *name,
-                                           const char *argv0,
+GSubprocess * meta_launch_test_executable (GSubprocessFlags  subprocess_flags,
+                                           const char       *name,
+                                           const char       *argv0,
                                            ...);
 
 META_EXPORT
