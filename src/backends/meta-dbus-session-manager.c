@@ -287,14 +287,11 @@ generate_session_id (MetaDbusSessionManager *session_manager)
 {
   MetaDbusSessionManagerPrivate *priv =
     meta_dbus_session_manager_get_instance_private (session_manager);
-  g_autoptr (GRand) rand = NULL;
   char *session_id;
-
-  rand = g_rand_new ();
 
   while (TRUE)
     {
-      session_id = meta_generate_random_id (rand, 32);
+      session_id = g_uuid_string_random ();
       if (g_hash_table_lookup (priv->sessions, session_id))
         g_free (session_id);
       else
