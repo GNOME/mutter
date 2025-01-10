@@ -120,7 +120,6 @@ remove_device (MetaEisClient     *client,
                struct eis_device *eis_device,
                gboolean           remove_from_hashtable)
 {
-  MetaEisDevice *device = eis_device_get_user_data (eis_device);
   struct eis_keymap *eis_keymap = eis_device_keyboard_get_keymap (eis_device);
 
   if (eis_keymap)
@@ -129,11 +128,6 @@ remove_device (MetaEisClient     *client,
       if (f)
         meta_anonymous_file_free (f);
     }
-
-  eis_device_pause (eis_device);
-  eis_device_remove (eis_device);
-  g_clear_pointer (&device->eis_device, eis_device_unref);
-  g_clear_object (&device->device);
 
   if (remove_from_hashtable)
     g_hash_table_remove (client->eis_devices, eis_device);
@@ -165,22 +159,23 @@ drop_device (gpointer htkey,
   return TRUE;
 }
 
-static gboolean
-drop_abs_devices (gpointer key,
-                  gpointer value,
-                  gpointer data)
+static void
+remove_abs_devices (gpointer key,
+                    gpointer value,
+                    gpointer data)
 {
   struct eis_device *eis_device = key;
 
   if (!eis_device_has_capability (eis_device, EIS_DEVICE_CAP_POINTER_ABSOLUTE))
-    return FALSE;
+    return;
 
-  return drop_device (key, value, data);
+  eis_device_remove (eis_device);
 }
 
 static void
 meta_eis_device_free (MetaEisDevice *device)
 {
+  g_clear_object (&device->device);
   eis_device_unref (device->eis_device);
   free (device);
 }
@@ -383,8 +378,10 @@ handle_motion_relative (MetaEisClient	 *client,
                         struct eis_event *event)
 {
   struct eis_device *eis_device = eis_event_get_device (event);
-  MetaEisDevice *device = eis_device_get_user_data (eis_device);
+  MetaEisDevice *device;
   double dx, dy;
+
+  device = eis_device_get_user_data (eis_device);
 
   dx = eis_event_pointer_get_dx (event);
   dy = eis_event_pointer_get_dy (event);
@@ -608,7 +605,6 @@ on_keymap_changed (MetaBackend *backend,
                    gpointer     data)
 {
   MetaEisClient *client = data;
-  MetaEisDevice *keyboard;
 
   /* Changing the keymap means we have to remove our device and recreate it
    * with the new keymap.
@@ -617,9 +613,7 @@ on_keymap_changed (MetaBackend *backend,
   meta_topic (META_DEBUG_EIS,
               "Recreating keyboard device with new keyboard");
 
-  keyboard = g_steal_pointer (&client->keyboard_device);
-  g_hash_table_remove (client->eis_devices,
-                       keyboard->eis_device);
+  eis_device_remove (client->keyboard_device->eis_device);
 
   client->keyboard_device = add_device (client,
                                         client->eis_seat,
@@ -740,7 +734,7 @@ meta_eis_client_process_event (MetaEisClient    *client,
                         "Seat %s bindings updated, destroying pointer device",
                         eis_seat_get_name (eis_seat));
             pointer = g_steal_pointer (&client->pointer_device);
-            remove_device (client, pointer->eis_device, TRUE);
+            eis_device_remove (pointer->eis_device);
           }
 
         if (wants_keyboard_device && !client->keyboard_device)
@@ -770,7 +764,7 @@ meta_eis_client_process_event (MetaEisClient    *client,
                         eis_seat_get_name (eis_seat));
 
             keyboard = g_steal_pointer (&client->keyboard_device);
-            remove_device (client, keyboard->eis_device, TRUE);
+            eis_device_remove (keyboard->eis_device);
             g_clear_signal_handler (&client->keymap_changed_handler_id,
                                     meta_eis_get_backend (client->eis));
           }
@@ -790,9 +784,9 @@ meta_eis_client_process_event (MetaEisClient    *client,
                         "Seat %s bindings updated, destroying absolute pointer devices",
                         eis_seat_get_name (eis_seat));
 
-            g_hash_table_foreach_remove (client->eis_devices,
-                                         drop_abs_devices,
-                                         client);
+            g_hash_table_foreach (client->eis_devices,
+                                  remove_abs_devices,
+                                  client);
             client->have_abs_pointer_devices = FALSE;
           }
         break;
@@ -854,9 +848,9 @@ update_viewports (MetaEisClient *client)
 {
   meta_topic (META_DEBUG_EIS, "Updating viewports");
 
-  g_hash_table_foreach_remove (client->eis_devices,
-                               drop_abs_devices,
-                               client);
+  g_hash_table_foreach (client->eis_devices,
+                        remove_abs_devices,
+                        client);
 
   if (client->have_abs_pointer_devices)
     add_abs_pointer_devices (client);
