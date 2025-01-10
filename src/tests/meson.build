@@ -431,6 +431,23 @@ cursor_screen_cast_client = executable('mutter-cursor-tests-screen-cast-client',
   install_rpath: pkglibdir,
 )
 
+remote_desktop_tests_client = executable('mutter-remote-desktop-tests-client',
+  sources: [
+    'remote-desktop-tests-client.c',
+    remote_desktop_utils,
+  ],
+  include_directories: tests_includes,
+  c_args: [
+    tests_c_args,
+    '-DG_LOG_DOMAIN="mutter-remote-desktop-tests-client"',
+  ],
+  dependencies: [
+    remote_desktop_utils_deps,
+  ],
+  install: have_installed_tests,
+  install_dir: mutter_installed_tests_libexecdir,
+)
+
 # Native backend tests
 test_cases += [
   {
@@ -515,7 +532,17 @@ test_cases += [
     ],
     'depends': [
       test_client_executables.get('cursor-tests-client'),
-    ]
+    ],
+  },
+  {
+    'name': 'remote-desktop-tests',
+    'suite': 'backends/native',
+    'sources': [
+      'remote-desktop-tests.c',
+    ],
+    'depends': [
+      remote_desktop_tests_client,
+    ],
   },
 ]
 

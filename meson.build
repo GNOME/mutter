@@ -38,7 +38,7 @@ libcanberra_req = '>= 0.26'
 libwacom_req = '>= 0.13'
 atk_req = '>= 2.5.3'
 harfbuzz_req = '>= 2.6'
-libei_req = '>= 1.0.901'
+libei_req = '>= 1.3.901'
 libdisplay_info_req = '>= 0.2'
 
 # optional version requirements

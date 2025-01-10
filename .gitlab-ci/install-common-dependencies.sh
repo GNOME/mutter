@@ -101,4 +101,12 @@ then
       master
 fi
 
+if ! pkgconf --atleast-version 1.3.901 libeis-1.0
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.freedesktop.org/libinput/libei.git \
+      1.3.901
+fi
+
 pip_install argcomplete

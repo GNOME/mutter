@@ -490,3 +490,12 @@ meta_dbus_session_manager_get_interface_skeleton (MetaDbusSessionManager *sessio
 
   return priv->interface_skeleton;
 }
+
+size_t
+meta_dbus_session_manager_get_num_sessions (MetaDbusSessionManager *session_manager)
+{
+  MetaDbusSessionManagerPrivate *priv =
+    meta_dbus_session_manager_get_instance_private (session_manager);
+
+  return g_hash_table_size (priv->sessions);
+}

@@ -146,6 +146,8 @@ Stream * session_record_monitor (Session    *session,
                                  const char *connector,
                                  CursorMode  cursor_mode);
 
+const char * session_get_id (Session *session);
+
 Session * session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
                        MetaDBusScreenCastSession    *screen_cast_session_proxy);
 

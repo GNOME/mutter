@@ -876,6 +876,15 @@ session_record_monitor (Session    *session,
   return stream;
 }
 
+const char *
+session_get_id (Session *session)
+{
+  MetaDBusRemoteDesktopSession *proxy =
+    session->remote_desktop_session_proxy;
+
+  return meta_dbus_remote_desktop_session_get_session_id (proxy);
+}
+
 Session *
 session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
              MetaDBusScreenCastSession    *screen_cast_session_proxy)

@@ -1920,6 +1920,12 @@ device_types_to_eis_device_types (MetaRemoteDesktopDeviceTypes device_types)
   return eis_device_types;
 }
 
+MetaEis *
+meta_remote_desktop_session_get_eis (MetaRemoteDesktopSession *session)
+{
+  return session->eis;
+}
+
 static gboolean
 handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
                        GDBusMethodInvocation        *invocation,
