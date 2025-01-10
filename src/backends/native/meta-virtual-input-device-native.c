@@ -450,15 +450,15 @@ pick_keycode_for_keyval_in_current_group_in_impl (ClutterVirtualInputDevice *vir
 {
   MetaVirtualInputDeviceNative *virtual_native =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
-  ClutterBackend *backend;
+  ClutterSeat *seat;
   ClutterKeymap *keymap;
   struct xkb_keymap *xkb_keymap;
   struct xkb_state  *state;
   guint keycode, layout;
   xkb_keycode_t min_keycode, max_keycode;
 
-  backend = clutter_get_default_backend ();
-  keymap = clutter_seat_get_keymap (clutter_backend_get_default_seat (backend));
+  seat = clutter_virtual_input_device_get_seat (virtual_device);
+  keymap = clutter_seat_get_keymap (seat);
   xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (META_KEYMAP_NATIVE (keymap));
   state = meta_seat_impl_get_xkb_state_in_impl (virtual_native->seat->impl);
 
