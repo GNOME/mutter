@@ -26,6 +26,8 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
+#include "backends/meta-fd-source.h"
+
 #define CURSOR_META_SIZE(width, height) \
  (sizeof(struct spa_meta_cursor) + \
   sizeof(struct spa_meta_bitmap) + width * height * 4)
@@ -532,6 +534,236 @@ session_notify_absolute_pointer (Session *session,
     g_error ("Failed to send absolute pointer motion event: %s", error->message);
 }
 
+static gboolean
+ei_source_prepare (gpointer user_data)
+{
+  Session *session = user_data;
+  struct ei_event *ei_event;
+  gboolean retval;
+
+  ei_event = ei_peek_event (session->ei);
+  retval = !!ei_event;
+  ei_event_unref (ei_event);
+
+  return retval;
+}
+
+static void
+process_ei_event (Session         *session,
+                  struct ei_event *ei_event)
+{
+  g_debug ("Processing event %s",
+           ei_event_type_to_string (ei_event_get_type (ei_event)));
+
+  switch (ei_event_get_type (ei_event))
+    {
+    case EI_EVENT_SEAT_ADDED:
+      {
+        struct ei_seat *ei_seat = ei_event_get_seat (ei_event);
+        size_t i;
+
+        g_assert_null (session->ei_seat);
+        session->ei_seat = ei_seat;
+
+        for (i = 0; i < session->seat_caps->len; i++)
+          {
+            enum ei_device_capability cap =
+              g_array_index (session->seat_caps, enum ei_device_capability, i);
+
+            g_assert_true (ei_seat_has_capability (ei_seat, cap));
+            ei_seat_bind_capabilities (ei_seat, cap, NULL);
+          }
+        break;
+      }
+    case EI_EVENT_SEAT_REMOVED:
+      {
+        g_assert_true (session->ei_seat == ei_event_get_seat (ei_event));
+
+        session->ei_seat = NULL;
+        break;
+      }
+    case EI_EVENT_DEVICE_RESUMED:
+      {
+        struct ei_device *ei_device = ei_event_get_device (ei_event);
+
+        if (ei_device_has_capability (ei_device, EI_DEVICE_CAP_POINTER) ||
+            ei_device_has_capability (ei_device, EI_DEVICE_CAP_POINTER_ABSOLUTE))
+          session->pointer = ei_device;
+        else if (ei_device_has_capability (ei_device, EI_DEVICE_CAP_KEYBOARD))
+          session->keyboard = ei_device;
+
+        ei_device_start_emulating (ei_event_get_device (ei_event),
+                                   ++session->ei_sequence);
+        break;
+      }
+    case EI_EVENT_DEVICE_REMOVED:
+      {
+        struct ei_device *ei_device = ei_event_get_device (ei_event);
+
+        if (ei_device == session->pointer)
+          session->pointer = NULL;
+        if (ei_device == session->keyboard)
+          session->keyboard = NULL;
+        break;
+      }
+    case EI_EVENT_PONG:
+      {
+        g_assert_true (session->ping == ei_event_pong_get_ping (ei_event));
+        g_clear_pointer (&session->ping, ei_ping_unref);
+      }
+    default:
+      break;
+    }
+}
+
+static gboolean
+ei_source_dispatch (gpointer user_data)
+{
+  Session *session = user_data;
+  struct ei_event *ei_event;
+
+  ei_event = ei_get_event (session->ei);
+  if (!ei_event)
+    {
+      ei_dispatch (session->ei);
+
+      ei_event = ei_get_event (session->ei);
+      if (!ei_event)
+        return G_SOURCE_CONTINUE;
+    }
+
+  process_ei_event (session, ei_event);
+  ei_event_unref (ei_event);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+log_handler (struct ei             *ei,
+             enum ei_log_priority   priority,
+             const char            *message,
+             struct ei_log_context *ctx)
+{
+  int message_length = strlen (message);
+
+  if (priority >= EI_LOG_PRIORITY_ERROR)
+    g_critical ("libei: %.*s", message_length, message);
+  else if (priority >= EI_LOG_PRIORITY_WARNING)
+    g_warning ("libei: %.*s", message_length, message);
+  else if (priority >= EI_LOG_PRIORITY_INFO)
+    g_info ("libei: %.*s", message_length, message);
+  else
+    g_debug ("libei: %.*s", message_length, message);
+}
+
+void
+session_connect_to_eis (Session *session)
+{
+  GVariantBuilder builder;
+  GVariant *options;
+  MetaDBusRemoteDesktopSession *proxy;
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  GError *error = NULL;
+  int fd;
+  struct ei *ei;
+  int ret;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE_VARDICT);
+  options = g_variant_builder_end (&builder);
+
+  proxy = session->remote_desktop_session_proxy;
+  if (!meta_dbus_remote_desktop_session_call_connect_to_eis_sync (proxy,
+                                                                  options,
+                                                                  NULL,
+                                                                  &fd_variant,
+                                                                  &fd_list,
+                                                                  NULL, &error))
+    g_error ("Failed to connect to EIS: %s", error->message);
+
+  fd = g_unix_fd_list_get (fd_list, g_variant_get_handle (fd_variant), &error);
+  if (fd == -1)
+    g_error ("Failed to get EIS file descriptor: %s", error->message);
+
+  ei = ei_new_sender (session);
+  ei_log_set_handler (ei, log_handler);
+  ei_log_set_priority (ei, EI_LOG_PRIORITY_DEBUG);
+
+  ret = ei_setup_backend_fd (ei, fd);
+  if (ret < 0)
+    g_error ("Failed to setup libei backend: %s", g_strerror (errno));
+
+  session->ei = ei;
+  session->ei_source = meta_create_fd_source (ei_get_fd (ei),
+                                              "libei",
+                                              ei_source_prepare,
+                                              ei_source_dispatch,
+                                              session,
+                                              NULL);
+  g_source_attach (session->ei_source, NULL);
+  g_source_unref (session->ei_source);
+}
+
+static int
+find_seat_capability_index (Session                   *session,
+                            enum ei_device_capability  cap)
+{
+  int i;
+
+  for (i = 0; i < session->seat_caps->len; i++)
+    {
+      enum ei_device_capability device_cap =
+        g_array_index (session->seat_caps, enum ei_device_capability, i);
+
+      if (device_cap == cap)
+        return i;
+    }
+
+  return -1;
+}
+
+static gboolean
+has_seat_capability (Session                   *session,
+                     enum ei_device_capability  cap)
+{
+  return find_seat_capability_index (session, cap) >= 0;
+}
+
+void
+session_add_seat_capability (Session                   *session,
+                             enum ei_device_capability  cap)
+{
+  g_assert_false (has_seat_capability (session, cap));
+  g_array_append_val (session->seat_caps, cap);
+
+  if (session->ei_seat)
+    ei_seat_bind_capabilities (session->ei_seat, cap, NULL);
+}
+
+void
+session_remove_seat_capability (Session                   *session,
+                                enum ei_device_capability  cap)
+{
+  g_assert_true (has_seat_capability (session, cap));
+  g_array_remove_index (session->seat_caps,
+                        find_seat_capability_index (session, cap));
+
+  if (session->ei_seat)
+    ei_seat_unbind_capabilities (session->ei_seat, cap, NULL);
+}
+
+void
+session_ei_roundtrip (Session *session)
+{
+  g_assert_null (session->ping);
+
+  session->ping = ei_new_ping (session->ei);
+  ei_ping (session->ping);
+
+  while (session->ping)
+    g_main_context_iteration (NULL, TRUE);
+}
+
 void
 session_start (Session *session)
 {
@@ -559,6 +791,10 @@ void
 session_stop (Session *session)
 {
   GError *error = NULL;
+
+  g_clear_pointer (&session->ei, ei_unref);
+  g_clear_pointer (&session->ei_source, g_source_destroy);
+  g_clear_pointer (&session->seat_caps, g_array_unref);
 
   if (session->remote_desktop_session_proxy)
     {
@@ -649,6 +885,7 @@ session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
   session = g_new0 (Session, 1);
   session->remote_desktop_session_proxy = remote_desktop_session_proxy;
   session->screen_cast_session_proxy = screen_cast_session_proxy;
+  session->seat_caps = g_array_new (FALSE, FALSE, sizeof (enum ei_device_capability));
 
   return session;
 }
@@ -656,6 +893,7 @@ session_new (MetaDBusRemoteDesktopSession *remote_desktop_session_proxy,
 void
 session_free (Session *session)
 {
+  g_assert_null (session->ei);
   g_clear_object (&session->screen_cast_session_proxy);
   g_clear_object (&session->remote_desktop_session_proxy);
   g_free (session);

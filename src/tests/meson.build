@@ -339,8 +339,15 @@ test_cases += [
 remote_desktop_utils = [
   'remote-desktop-utils.c',
   'remote-desktop-utils.h',
+  '../backends/meta-fd-source.c',
+  '../backends/meta-fd-source.h',
   built_dbus_sources['meta-dbus-remote-desktop'],
   built_dbus_sources['meta-dbus-screen-cast'],
+]
+remote_desktop_utils_deps = [
+  gio_dep,
+  libei_dep,
+  libpipewire_dep,
 ]
 
 screen_cast_client = executable('mutter-screen-cast-client',
@@ -354,8 +361,7 @@ screen_cast_client = executable('mutter-screen-cast-client',
     '-DG_LOG_DOMAIN="mutter-screen-cast-client"',
   ],
   dependencies: [
-    gio_dep,
-    libpipewire_dep,
+    remote_desktop_utils_deps,
   ],
   install: have_installed_tests,
   install_dir: mutter_installed_tests_libexecdir,
@@ -417,8 +423,7 @@ cursor_screen_cast_client = executable('mutter-cursor-tests-screen-cast-client',
     '-DG_LOG_DOMAIN="mutter-cursor-tests-screen-cast-client"',
   ],
   dependencies: [
-    gio_dep,
-    libpipewire_dep,
+    remote_desktop_utils_deps,
     reftest_deps,
   ],
   install: have_installed_tests,
