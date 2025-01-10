@@ -49,6 +49,10 @@ GQuark meta_test_client_error_quark (void);
 typedef struct _MetaAsyncWaiter MetaAsyncWaiter;
 typedef struct _MetaTestClient MetaTestClient;
 
+typedef gboolean (* MetaTestCommandFunc) (int      argc,
+                                          GStrv    argv,
+                                          gpointer user_data);
+
 META_EXPORT
 gboolean meta_async_waiter_process_x11_event (MetaAsyncWaiter       *waiter,
                                               MetaX11Display        *x11_display,
@@ -134,6 +138,11 @@ GSubprocess * meta_launch_test_executable (GSubprocessFlags  subprocess_flags,
                                            const char       *name,
                                            const char       *argv0,
                                            ...);
+
+META_EXPORT
+void meta_test_process_watch_commands (GSubprocess         *subprocess,
+                                       MetaTestCommandFunc  func,
+                                       gpointer             user_data);
 
 META_EXPORT
 void meta_wait_test_process (GSubprocess *subprocess);

@@ -74,9 +74,22 @@ typedef struct
   GList *subprocesses;
 } ClientProcessHandler;
 
+typedef struct _MetaTestComandWatcher
+{
+  MetaTestCommandFunc func;
+  gpointer user_data;
+
+  GDataInputStream *client_stdout;
+  GOutputStream *client_stdin;
+  GCancellable *cancellable;
+} MetaTestCommandWatcher;
+
 G_DEFINE_QUARK (meta-test-client-error-quark, meta_test_client_error)
 
 static char *test_runner_client_path;
+
+static void read_line_async (GDataInputStream       *client_stdout,
+                             MetaTestCommandWatcher *watcher);
 
 void
 meta_ensure_test_client_path (int    argc,
@@ -966,6 +979,119 @@ meta_launch_test_executable (GSubprocessFlags  subprocess_flags,
     g_error ("Failed to launch screen cast test client: %s", error->message);
 
   return subprocess;
+}
+
+static void
+process_line (const char             *line,
+              MetaTestCommandWatcher *watcher)
+{
+  g_autoptr (GError) error = NULL;
+  g_auto (GStrv) argv = NULL;
+  int argc;
+
+  if (!g_shell_parse_argv (line, &argc, &argv, &error))
+    g_assert_no_error (error);
+
+  if (!watcher->func (argc, argv, watcher->user_data))
+    g_error ("Unknown command '%s'", line);
+
+  if (watcher->client_stdin)
+    {
+      g_output_stream_printf (watcher->client_stdin, NULL, NULL, &error,
+                              "OK\n");
+      g_assert_no_error (error);
+      g_output_stream_flush (watcher->client_stdin, NULL, &error);
+      g_assert_no_error (error);
+    }
+}
+
+static void
+line_read_cb (GObject      *source_object,
+              GAsyncResult *res,
+              gpointer      user_data)
+{
+  GDataInputStream *client_stdout = G_DATA_INPUT_STREAM (source_object);
+  MetaTestCommandWatcher *watcher = user_data;
+  g_autoptr (GError) error = NULL;
+  g_autofree char *line = NULL;
+
+  line = g_data_input_stream_read_line_finish_utf8 (client_stdout,
+                                                    res,
+                                                    NULL,
+                                                    &error);
+  if (error)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        g_error ("Failed to read line: %s", error->message);
+      return;
+    }
+
+  if (line)
+    process_line (line, watcher);
+
+  read_line_async (client_stdout, watcher);
+}
+
+static void
+read_line_async (GDataInputStream       *client_stdout,
+                 MetaTestCommandWatcher *watcher)
+{
+  g_data_input_stream_read_line_async (client_stdout,
+                                       G_PRIORITY_DEFAULT,
+                                       watcher->cancellable,
+                                       line_read_cb,
+                                       watcher);
+}
+
+static void
+watcher_test_client_exited (GObject      *source_object,
+                            GAsyncResult *result,
+                            gpointer      user_data)
+{
+  MetaTestCommandWatcher *watcher = user_data;
+  GError *error = NULL;
+
+  if (!g_subprocess_wait_finish (G_SUBPROCESS (source_object),
+                                 result,
+                                 &error))
+    g_error ("Screen cast test client exited with an error: %s", error->message);
+
+  g_cancellable_cancel (watcher->cancellable);
+  g_clear_object (&watcher->client_stdout);
+  g_clear_object (&watcher->client_stdin);
+  g_free (watcher);
+}
+
+void
+meta_test_process_watch_commands (GSubprocess         *subprocess,
+                                  MetaTestCommandFunc  func,
+                                  gpointer             user_data)
+{
+  MetaTestCommandWatcher *watcher;
+  GInputStream *stdout_stream;
+  GOutputStream *stdin_stream;
+
+  watcher = g_new0 (MetaTestCommandWatcher, 1);
+
+  watcher->func = func;
+  watcher->user_data = user_data;
+
+  stdout_stream = g_subprocess_get_stdout_pipe (subprocess);
+  if (stdout_stream)
+    watcher->client_stdout = g_data_input_stream_new (stdout_stream);
+
+  stdin_stream = g_subprocess_get_stdin_pipe (subprocess);
+  if (stdin_stream)
+    watcher->client_stdin = g_object_ref (stdin_stream);
+
+  watcher->cancellable = g_cancellable_new ();
+
+  read_line_async (watcher->client_stdout, watcher);
+
+  g_subprocess_wait_check_async (subprocess,
+                                 NULL,
+                                 watcher_test_client_exited,
+                                 watcher);
 }
 
 static void
