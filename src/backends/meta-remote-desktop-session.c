@@ -409,7 +409,15 @@ initialize_viewports (MetaRemoteDesktopSession *session)
         {
           MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (l->data);
 
-          meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
+          if (meta_screen_cast_stream_is_configured (stream))
+            {
+              meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
+            }
+          else
+            {
+              g_signal_connect (stream, "notify::is-configured",
+                                G_CALLBACK (on_stream_is_configured), session);
+            }
         }
 
       g_signal_connect (session->screen_cast_session,
