@@ -1,3 +1,80 @@
+48.alpha
+========
+* gwakeup: Reduce wake-ups to only first item in queue [Christian; !4007]
+* x11: Reduce chances XPending does recvmsg() syscall [Christian; !4006]
+* Fix grabbing tablet devices [Jonas Å.; !4033]
+* Improve color-management support [Joan; !3913, !3948, !4020, !4062, !4144]
+* Fix misplaced windows and random resizes on scaled monitors [Jonas Å.; !4041]
+* Improve detecting preferred primary devices [Kamil; !4055]
+* Merge CoglPango into Clutter [Bilal; !4004]
+* Always depend on libdisplay-info for EDID parsing [Sebastian W.; !3602]
+* Fix explicit sync with virtual monitors w/o pipewire streams [Doğukan; !4056]
+* Introspect `event` parameter in MetaKeyHandlerFunc [Guacamolie; !4079]
+* Fix warping pointer after releasing pointer constraints [Sebastian K.; !4098]
+* Avoid CPU stalls with NVIDIA secondary GPUs with directly-attached monitors
+  [Gert-dev; !4015]
+* Fix updating cursor immediately when starting window drag [Olivier; !3639]
+* Add pipeline hooks to user program pipelines [Sebastian W.; !4037]
+* Allow to configure monitors as for-lease [José; !4112, !4121]
+* Add support for system bell protocol [Jonas Å.; !3675]
+* Prefer GPUs with built-in panels connected as primary GPU [Mario; !4114]
+* Add `configure` signal to allow tweaking original window configuration
+  [Olivier; !4076]
+* Fix cursor glitches when using virtual monitors [Jonas Å.; !4066]
+* Default to high thread instead of realtime priority for KMS thread
+  [Jonas Å.; !4124]
+* Add built-in renderdoc support [Sebastian W.; !4061]
+* Ensure frame events are sent for cursor surfaces [Michel; !4113]
+* Allow BGRX8888 format on big endian [Jocelyn; !4088]
+* Fix touchscreen drag-and-drop on wayland [Alessandro; !4091]
+* Fix maximized X11 when using native Xwayland scaling [Jonas Å.; !4147]
+* Implement xdg-toplevel-drag-v1 protocol [Nick; !4107]
+* Fix blank screen in remote headless sessions [Jonas Å.; !4152]
+* Query screen cast format modifiers via CoglRenderer [Jonas Å.; !3900]
+* Also request high priority secondary EGL context [Jonas Å.; !2973]
+* Fix Xwayland DND coordinates when using fractional scaling [Jonas Å.; !4169]
+* Remove ClutterImage [Bilal; !4133]
+* Fix applying initial _NET_WM_WINDOW_OPACITY on Xwayland [Olivier; !4170]
+* Implement wp_viewport support for cursor surfaces [Jonas Å., Robert; !3859]
+* Improve input → output latency of cursor movements [Michel; !3964]
+* Make font-rendering support optional [Bilal; !4106]
+* Improve frame rate on monitors attached to secondary GPUs in copy mode
+  [Gert-dev; !4027]
+* Add support for commit-timing-v1 and fifo-v1 protocols [Derek; !3355]
+* Use BT709 coefficients and limited range for YUV conversion by default
+  [Robert; !4204]
+* Send preferred scales to all surface roles [Jonas Å.; !4205]
+* Fixed crashes [Michel, Joan, Daniel, José, Jason, Bilal, Robert, Jonas D.,
+  Peter; !4028, !4032, !4019, !4029, !4030, !4059, !4070, !4034, !3176, !3650,
+  !4117, !4136]
+* Misc. bug fixes and cleanups [Sebastian W., Florian, Joan, Jonas Å., José,
+  Christian, Robert, Marco, Michel, Bilal, Daniel, Sebastian K., Jakub, Jonas D,
+  Takao, Ikey, Georges, Carlos, Corentin, Philip, Bartłomiej; !4036, !4040,
+  !4042, !3965, !4016, !3926, !4031, !4011, !3424, !4047, !4049, !4058, !4068,
+  !4048, !4071, !4074, !3980, !4078, !4080, !4035, !4075, !4090, !4093, !4060,
+  !4069, !3961, !4101, !4057, !4104, !4105, !4108, !4109, !4077, !4111, !4115,
+  !4116, !4087, !4018, !3943, !4123, !4122, !4103, !4064, !4100, !4065, !4125,
+  !4128, !4127, !4129, !4126, !3604, !4150, !4161, !4162, !4160, !4137, !4148,
+  !4166, !4157, !4156, !4158, !4168, !4149, !4165, !4155, !4174, !4163, !4173,
+  !4175, !4176, !4131, !4132, !4179, !4178, !4130, !4180, !4177, !4184, !4186,
+  !4189, !4187, !4197, !4199, !4194, !4181, !4200, !4196, !3878, !4201]
+
+Contributors:
+  Alessandro Astone, Georges Basile Stavracas Neto, Nick Diego Yamane,
+  Ikey Doherty, Jonas Dreßler, Michel Dänzer, Bilal Elmoussaoui,
+  José Expósito, Jocelyn Falempe, Derek Foreman, Olivier Fourdan,
+  Takao Fujiwara, Carlos Garnacho, Jason Gerecke, Gert-dev, Guacamolie,
+  Christian Hergert, Peter Hutterer, Sebastian Keller, Doğukan Korkmaztürk,
+  Mario Limonciello, Robert Mader, Florian Müllner, Corentin Noël,
+  Robert Obkircher, Bartłomiej Piotrowski, Jakub Steiner, Kamil Szczęk,
+  Joan Torres, Marco Trevisan (Treviño), Daniel van Vugt, Sebastian Wick,
+  Philip Withnall, Jonas Ådahl
+
+Translators:
+  Vincent Chatelain [fr], Jordi Mas i Hernandez [ca], Daniel Mustieles [es],
+  Jürgen Benvenuti [de], Nathan Follens [nl], Danial Behzadi [fa],
+  Марко Костић [sr], Scrambled 777 [hi], Cas Pascal [vi]
+
 47.0
 ====
 * Fix resizing of electron windows [Jonas; !3997]
