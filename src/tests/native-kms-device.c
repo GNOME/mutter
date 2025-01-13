@@ -311,7 +311,7 @@ meta_test_kms_device_mode_set (void)
                     ==,
                     meta_kms_crtc_get_id (crtc));
 
-  meta_kms_update_states_sync (meta_kms_device_get_kms (device), NULL);
+  meta_kms_update_states_sync (meta_kms_device_get_kms (device));
   assert_crtc_state_equals (&crtc_state,
                             meta_kms_crtc_get_current_state (crtc));
   assert_connector_state_equals (&connector_state,
