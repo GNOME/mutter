@@ -38,6 +38,7 @@ documentation and API references below first.
 - [Building and Running](doc/building-and-running.md)
 - [Debugging](doc/debugging.md)
 - [Monitor configuration](doc/monitor-configuration.md)
+- [Multi-GPU](doc/multi-gpu.md)
 
 ## API Reference
 
