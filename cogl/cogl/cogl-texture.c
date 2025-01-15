@@ -63,6 +63,7 @@
 typedef struct _CoglTexturePrivate
 {
   CoglContext *context;
+  CoglTextureDriver *tex_driver;
   CoglTextureLoader *loader;
   GList *framebuffers;
   int max_level_set;
@@ -85,6 +86,7 @@ enum
   PROP_0,
 
   PROP_CONTEXT,
+  PROP_TEXTURE_DRIVER,
   PROP_WIDTH,
   PROP_HEIGHT,
   PROP_LOADER,
@@ -139,6 +141,10 @@ cogl_texture_set_property (GObject      *gobject,
       priv->context = g_value_get_object (value);
       break;
 
+    case PROP_TEXTURE_DRIVER:
+      priv->tex_driver = g_value_get_object (value);
+      break;
+
     case PROP_WIDTH:
       priv->width = g_value_get_int (value);
       break;
@@ -186,6 +192,11 @@ cogl_texture_class_init (CoglTextureClass *klass)
   obj_props[PROP_CONTEXT] =
     g_param_spec_object ("context", NULL, NULL,
                          COGL_TYPE_CONTEXT,
+                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_TEXTURE_DRIVER] =
+    g_param_spec_object ("texture-driver", NULL, NULL,
+                         COGL_TYPE_TEXTURE_DRIVER,
                          G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_WIDTH] =
