@@ -396,6 +396,7 @@ cogl_sub_texture_new (CoglContext *ctx,
 
   sub_tex = g_object_new (COGL_TYPE_SUB_TEXTURE,
                           "context", ctx,
+                          "texture-driver", ctx->texture_driver,
                           "width", sub_width,
                           "height", sub_height,
                           "format", cogl_texture_get_format (next_texture),

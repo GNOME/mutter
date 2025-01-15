@@ -1020,6 +1020,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctx,
 
   tex_pixmap = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11,
                              "context", ctx,
+                             "texture-driver", ctx->texture_driver,
                              "width", pixmap_width,
                              "height", pixmap_height,
                              "format", internal_format,
@@ -1116,6 +1117,7 @@ CoglTexture *
 cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
 {
   CoglTexture *texture_left = COGL_TEXTURE (tfp_left);
+  CoglContext *ctx = cogl_texture_get_context (texture_left);
   CoglTexturePixmapX11 *tfp_right;
   CoglPixelFormat internal_format;
 
@@ -1126,7 +1128,8 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
                      : COGL_PIXEL_FORMAT_RGB_888);
 
   tfp_right = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11,
-                            "context", cogl_texture_get_context (texture_left),
+                            "context", ctx,
+                            "texture-driver", ctx->texture_driver,
                             "width", cogl_texture_get_width (texture_left),
                             "height", cogl_texture_get_height (texture_left),
                             "format", internal_format,
