@@ -838,6 +838,7 @@ _cogl_atlas_texture_create_base (CoglContext *ctx,
      to set as the data for the rectangle in the atlas */
   atlas_tex = g_object_new (COGL_TYPE_ATLAS_TEXTURE,
                             "context", ctx,
+                            "texture-driver", ctx->texture_driver,
                             "width", width,
                             "height", height,
                             "loader", loader,
