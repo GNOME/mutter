@@ -81,8 +81,6 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                               CoglTextureLoader *loader)
 {
   CoglTextureDriver *tex_driver = cogl_driver_create_texture_driver (ctx->driver);
-  CoglTextureDriverClass *tex_driver_class =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
 
  CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D,
                                         "context", ctx,
@@ -98,8 +96,6 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
   tex_2d->is_get_data_supported = TRUE;
 
   tex_2d->gl_target = GL_TEXTURE_2D;
-
-  tex_driver_class->texture_2d_init (tex_driver, tex_2d);
 
   return COGL_TEXTURE (tex_2d);
 }
@@ -362,6 +358,18 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 static void
 cogl_texture_2d_init (CoglTexture2D *self)
 {
+  self->gl_texture = 0;
+
+  /* We default to GL_LINEAR for both filters */
+  self->gl_legacy_texobj_min_filter = GL_LINEAR;
+  self->gl_legacy_texobj_mag_filter = GL_LINEAR;
+
+  /* Wrap mode not yet set */
+  self->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
+  self->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
+
+  self->egl_image_external.user_data = NULL;
+  self->egl_image_external.destroy = NULL;
 }
 
 CoglTexture *

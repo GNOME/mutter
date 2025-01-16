@@ -396,24 +396,6 @@ cogl_texture_driver_gl_texture_2d_allocate (CoglTextureDriver *driver,
 }
 
 static void
-cogl_texture_driver_gl_texture_2d_init (CoglTextureDriver *driver,
-                                        CoglTexture2D     *tex_2d)
-{
-  tex_2d->gl_texture = 0;
-
-  /* We default to GL_LINEAR for both filters */
-  tex_2d->gl_legacy_texobj_min_filter = GL_LINEAR;
-  tex_2d->gl_legacy_texobj_mag_filter = GL_LINEAR;
-
-  /* Wrap mode not yet set */
-  tex_2d->gl_legacy_texobj_wrap_mode_s = GL_FALSE;
-  tex_2d->gl_legacy_texobj_wrap_mode_t = GL_FALSE;
-
-  tex_2d->egl_image_external.user_data = NULL;
-  tex_2d->egl_image_external.destroy = NULL;
-}
-
-static void
 cogl_texture_driver_gl_texture_2d_copy_from_framebuffer (CoglTextureDriver *driver,
                                                          CoglTexture2D     *tex_2d,
                                                          int                src_x,
@@ -536,7 +518,6 @@ cogl_texture_driver_gl_class_init (CoglTextureDriverGLClass *klass)
 
   driver_klass->texture_2d_free = cogl_texture_driver_gl_texture_2d_free;
   driver_klass->texture_2d_can_create = cogl_texture_driver_gl_texture_2d_can_create;
-  driver_klass->texture_2d_init = cogl_texture_driver_gl_texture_2d_init;
   driver_klass->texture_2d_allocate = cogl_texture_driver_gl_texture_2d_allocate;
   driver_klass->texture_2d_copy_from_framebuffer = cogl_texture_driver_gl_texture_2d_copy_from_framebuffer;
   driver_klass->texture_2d_get_gl_handle = cogl_texture_driver_gl_texture_2d_get_gl_handle;

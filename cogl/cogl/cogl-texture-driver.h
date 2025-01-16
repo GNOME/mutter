@@ -61,14 +61,6 @@ struct _CoglTextureDriverClass
                                       int                height,
                                       CoglPixelFormat    internal_format);
 
-  /* Initializes driver private state before allocating any specific
-  * storage for a 2D texture, where base texture and texture 2D
-  * members will already be initialized before passing control to
-  * the driver.
-  */
-  void (* texture_2d_init) (CoglTextureDriver *driver,
-                            CoglTexture2D     *tex_2d);
-
   /* Allocates (uninitialized) storage for the given texture according
   * to the configured size and format of the texture */
   gboolean (* texture_2d_allocate) (CoglTextureDriver *driver,
