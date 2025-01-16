@@ -868,6 +868,22 @@ meta_window_wayland_protocol_to_stage (MetaWindow          *window,
     *stage_y = protocol_y;
 }
 
+static MetaGravity
+meta_window_wayland_get_gravity (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaWaylandSurface *surface = wl_window->surface;
+  MetaWaylandToplevelDrag *toplevel_drag;
+
+  /* Force nortwest gravity on toplevel drags */
+  toplevel_drag = get_toplevel_drag (window);
+
+  if (toplevel_drag && surface == toplevel_drag->dragged_surface)
+    return META_GRAVITY_NORTH_WEST;
+
+  return META_WINDOW_CLASS (meta_window_wayland_parent_class)->get_gravity (window);
+}
+
 static MetaStackLayer
 meta_window_wayland_calculate_layer (MetaWindow *window)
 {
@@ -986,6 +1002,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->set_transient_for = meta_window_wayland_set_transient_for;
   window_class->stage_to_protocol = meta_window_wayland_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_wayland_protocol_to_stage;
+  window_class->get_gravity = meta_window_wayland_get_gravity;
 
   obj_props[PROP_SURFACE] =
     g_param_spec_object ("surface", NULL, NULL,
