@@ -47,11 +47,6 @@ struct _CoglTextureDriverClass
 {
   GObjectClass parent_class;
 
-  gboolean (* format_supports_upload) (CoglTextureDriver *driver,
-                                       CoglContext       *ctx,
-                                       CoglPixelFormat    format);
-
-
   /* Destroys any driver specific resources associated with the given
   * 2D texture. */
   void (* texture_2d_free) (CoglTextureDriver *driver,

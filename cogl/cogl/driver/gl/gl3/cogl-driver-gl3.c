@@ -633,6 +633,76 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
   return TRUE;
 }
 
+static gboolean
+cogl_driver_gl3_format_supports_upload (CoglDriver      *driver,
+                                        CoglContext     *ctx,
+                                        CoglPixelFormat  format)
+{
+  switch (format)
+    {
+    case COGL_PIXEL_FORMAT_A_8:
+    case COGL_PIXEL_FORMAT_R_8:
+    case COGL_PIXEL_FORMAT_RG_88:
+    case COGL_PIXEL_FORMAT_BGRX_8888:
+    case COGL_PIXEL_FORMAT_BGRA_8888:
+    case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
+    case COGL_PIXEL_FORMAT_RGB_888:
+    case COGL_PIXEL_FORMAT_BGR_888:
+    case COGL_PIXEL_FORMAT_RGBA_1010102:
+    case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+    case COGL_PIXEL_FORMAT_BGRA_1010102:
+    case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
+    case COGL_PIXEL_FORMAT_XBGR_2101010:
+    case COGL_PIXEL_FORMAT_ABGR_2101010:
+    case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
+    case COGL_PIXEL_FORMAT_XRGB_2101010:
+    case COGL_PIXEL_FORMAT_ARGB_2101010:
+    case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+    case COGL_PIXEL_FORMAT_RGBX_8888:
+    case COGL_PIXEL_FORMAT_RGBA_8888:
+    case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
+    case COGL_PIXEL_FORMAT_XRGB_8888:
+    case COGL_PIXEL_FORMAT_ARGB_8888:
+    case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
+    case COGL_PIXEL_FORMAT_XBGR_8888:
+    case COGL_PIXEL_FORMAT_ABGR_8888:
+    case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
+    case COGL_PIXEL_FORMAT_RGB_565:
+    case COGL_PIXEL_FORMAT_RGBA_4444:
+    case COGL_PIXEL_FORMAT_RGBA_4444_PRE:
+    case COGL_PIXEL_FORMAT_RGBA_5551:
+    case COGL_PIXEL_FORMAT_RGBA_5551_PRE:
+    case COGL_PIXEL_FORMAT_BGRX_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
+    case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_RGBX_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
+    case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
+    case COGL_PIXEL_FORMAT_R_16:
+    case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
+      return TRUE;
+    case COGL_PIXEL_FORMAT_DEPTH_16:
+    case COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8:
+    case COGL_PIXEL_FORMAT_ANY:
+    case COGL_PIXEL_FORMAT_YUV:
+      g_assert_not_reached ();
+      return FALSE;
+    }
+
+  g_assert_not_reached ();
+  return FALSE;
+}
+
 static void
 cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
 {
@@ -641,6 +711,7 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
 
   driver_klass->context_init = cogl_driver_gl3_context_init;
   driver_klass->update_features = cogl_driver_gl3_update_features;
+  driver_klass->format_supports_upload = cogl_driver_gl3_format_supports_upload;
 
   driver_gl_klass->get_read_pixels_format = cogl_driver_gl3_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;
