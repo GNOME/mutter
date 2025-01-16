@@ -430,10 +430,46 @@ cogl_texture_driver_gl_texture_2d_copy_from_framebuffer (CoglTextureDriver *driv
 }
 
 static void
+cogl_texture_gl_set_max_level (CoglTexture *texture,
+                               int          max_level)
+{
+  CoglContext *ctx = cogl_texture_get_context (texture);
+
+  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL))
+    {
+      GLuint gl_handle;
+      GLenum gl_target;
+
+      cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
+
+      cogl_texture_set_max_level_set (texture, max_level);
+
+      _cogl_bind_gl_texture_transient (ctx, gl_target,
+                                       gl_handle);
+
+      GE( ctx, glTexParameteri (gl_target,
+                                GL_TEXTURE_MAX_LEVEL, cogl_texture_get_max_level_set (texture)));
+    }
+}
+
+static void
 cogl_texture_driver_gl_texture_2d_generate_mipmap (CoglTextureDriver *driver,
                                                    CoglTexture2D     *tex_2d)
 {
-  _cogl_texture_gl_generate_mipmaps (COGL_TEXTURE (tex_2d));
+  CoglTexture *texture = COGL_TEXTURE (tex_2d);
+  CoglContext *ctx = cogl_texture_get_context (texture);
+  int n_levels = _cogl_texture_get_n_levels (texture);
+  GLuint gl_handle;
+  GLenum gl_target;
+
+  if (cogl_texture_get_max_level_set (texture) != n_levels - 1)
+    cogl_texture_gl_set_max_level (texture, n_levels - 1);
+
+  cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
+
+  _cogl_bind_gl_texture_transient (ctx, gl_target,
+                                   gl_handle);
+  GE( ctx, glGenerateMipmap (gl_target) );
 }
 
 static gboolean
