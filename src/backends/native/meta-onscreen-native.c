@@ -2250,6 +2250,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   struct gbm_device *gbm_device;
   struct gbm_surface *new_gbm_surface = NULL;
   EGLNativeWindowType egl_native_window;
+  gboolean should_be_sharable;
   EGLSurface new_egl_surface;
   EGLConfig egl_config;
   uint32_t format;
@@ -2261,6 +2262,8 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   render_device_gbm = META_RENDER_DEVICE_GBM (renderer_gpu_data->render_device);
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
 
+  should_be_sharable = should_surface_be_sharable (onscreen);
+
   if (!(cogl_renderer_egl->private_features &
         COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
       !choose_onscreen_egl_config (onscreen, &egl_config, error))
@@ -2270,7 +2273,8 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
                                     cogl_renderer_egl->edpy,
                                     egl_config);
 
-  if (meta_renderer_native_use_modifiers (renderer_native))
+  if (!should_be_sharable &&
+      meta_renderer_native_use_modifiers (renderer_native))
     modifiers = get_supported_modifiers (onscreen, format);
   else
     modifiers = NULL;
@@ -2289,7 +2293,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
     {
       uint32_t flags = GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING;
 
-      if (should_surface_be_sharable (onscreen))
+      if (should_be_sharable)
         flags |= GBM_BO_USE_LINEAR;
 
       new_gbm_surface = gbm_surface_create (gbm_device,
