@@ -36,6 +36,7 @@
 #include "cogl/cogl-meta-texture.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-texture-2d.h"
+#include "cogl/cogl-texture-driver.h"
 
 
 /* Encodes three possibiloities result of transforming a quad */
@@ -136,7 +137,7 @@ struct _CoglTextureClass
 
   /* This should copy the image data of the texture into @data. The
      requested format will have been first passed through
-     ctx->texture_driver->find_best_gl_get_data_format so it should
+     TextureDriverClass.find_best_gl_get_data_format so it should
      always be a format that is valid for GL (ie, no conversion should
      be necessary). */
   gboolean (* get_data) (CoglTexture    *tex,
@@ -313,3 +314,5 @@ cogl_texture_set_max_level_set (CoglTexture *texture,
                                 int          max_level_set);
 
 gboolean cogl_texture_is_allocated (CoglTexture *texture);
+
+CoglTextureDriver * cogl_texture_get_driver (CoglTexture *texture);

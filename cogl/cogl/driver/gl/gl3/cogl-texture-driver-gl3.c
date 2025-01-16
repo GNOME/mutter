@@ -371,7 +371,7 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
 {
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   CoglTextureDriverGL *tex_driver_gl =
-    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
+    COGL_TEXTURE_DRIVER_GL (driver);
   CoglTextureDriverGLClass *tex_driver_klass =
     COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
