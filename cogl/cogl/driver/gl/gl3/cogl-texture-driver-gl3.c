@@ -139,43 +139,6 @@ prep_gl_for_pixels_upload_full (CoglContext *ctx,
   _cogl_texture_gl_prep_alignment_for_pixels_upload (ctx, pixels_rowstride);
 }
 
-/* OpenGL - unlike GLES - can download pixel data into a sub region of
- * a larger destination buffer */
-static void
-prep_gl_for_pixels_download_full (CoglContext *ctx,
-                                  int image_width,
-                                  int pixels_rowstride,
-                                  int image_height,
-                                  int pixels_src_x,
-                                  int pixels_src_y,
-                                  int pixels_bpp)
-{
-  GE( ctx, glPixelStorei (GL_PACK_ROW_LENGTH, pixels_rowstride / pixels_bpp) );
-
-  GE( ctx, glPixelStorei (GL_PACK_SKIP_PIXELS, pixels_src_x) );
-  GE( ctx, glPixelStorei (GL_PACK_SKIP_ROWS, pixels_src_y) );
-
-  _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,
-                                                       pixels_bpp,
-                                                       image_width,
-                                                       pixels_rowstride);
-}
-
-static void
-cogl_texture_driver_gl3_prep_gl_for_pixels_download (CoglTextureDriverGL *driver,
-                                                     CoglContext         *ctx,
-                                                     int                  image_width,
-                                                     int                  pixels_rowstride,
-                                                     int                  pixels_bpp)
-{
-  prep_gl_for_pixels_download_full (ctx,
-                                    pixels_rowstride,
-                                    image_width,
-                                    0 /* image height */,
-                                    0, 0, /* pixels_src_x/y */
-                                    pixels_bpp);
-}
-
 static gboolean
 cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
                                                 CoglContext          *ctx,
@@ -532,11 +495,11 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
                                     &gl_format,
                                     &gl_type);
 
-  tex_driver_klass->prep_gl_for_pixels_download (tex_driver_gl,
-                                                 ctx,
-                                                 rowstride,
-                                                 width,
-                                                 bpp);
+  driver_klass->prep_gl_for_pixels_download (driver_gl,
+                                             ctx,
+                                             rowstride,
+                                             width,
+                                             bpp);
 
   _cogl_bind_gl_texture_transient (ctx, tex_2d->gl_target,
                                    tex_2d->gl_texture);
@@ -562,7 +525,6 @@ cogl_texture_driver_gl3_class_init (CoglTextureDriverGL3Class *klass)
   driver_gl_klass->gen = cogl_texture_driver_gl3_gen;
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gl3_upload_subregion_to_gl;
   driver_gl_klass->upload_to_gl = cogl_texture_driver_gl3_upload_to_gl;
-  driver_gl_klass->prep_gl_for_pixels_download = cogl_texture_driver_gl3_prep_gl_for_pixels_download;
   driver_gl_klass->gl_get_tex_image = cogl_texture_driver_gl3_gl_get_tex_image;
   driver_gl_klass->size_supported = cogl_texture_driver_gl3_size_supported;
   driver_gl_klass->find_best_gl_get_data_format = cogl_texture_driver_gl3_find_best_gl_get_data_format;

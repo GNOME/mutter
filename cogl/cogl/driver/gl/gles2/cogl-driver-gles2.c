@@ -36,6 +36,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
 #ifndef GL_UNSIGNED_INT_24_8
@@ -476,6 +477,20 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
   return required_format;
 }
 
+
+static void
+cogl_driver_gles2_prep_gl_for_pixels_download (CoglDriverGL *driver,
+                                               CoglContext  *ctx,
+                                               int           pixels_rowstride,
+                                               int           image_width,
+                                               int           pixels_bpp)
+{
+  _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,
+                                                       pixels_bpp,
+                                                       image_width,
+                                                       pixels_rowstride);
+}
+
 static CoglPixelFormat
 cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
                                           CoglContext     *context,
@@ -871,6 +886,7 @@ cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
 
   driver_gl_klass->get_read_pixels_format = cogl_driver_gles2_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;
+  driver_gl_klass->prep_gl_for_pixels_download = cogl_driver_gles2_prep_gl_for_pixels_download;
 }
 
 static void
