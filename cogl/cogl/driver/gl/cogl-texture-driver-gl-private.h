@@ -123,3 +123,12 @@ struct _CoglTextureDriverGLClass
 };
 
 #define COGL_TYPE_TEXTURE_DRIVER_GL (cogl_texture_driver_gl_get_type ())
+
+/* GL and GLES3 have this by default, but GLES2 does not except via extension.
+ * So really it's probably always available. Even if we used it and it wasn't
+ * available in some driver then there are no adverse consequences to the
+ * command simply being ignored...
+ */
+#ifndef GL_TEXTURE_MAX_LEVEL
+#define GL_TEXTURE_MAX_LEVEL 0x813D
+#endif

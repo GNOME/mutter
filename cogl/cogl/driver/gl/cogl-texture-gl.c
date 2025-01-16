@@ -98,56 +98,6 @@ _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
                                                                     mag_filter);
 }
 
-/* GL and GLES3 have this by default, but GLES2 does not except via extension.
- * So really it's probably always available. Even if we used it and it wasn't
- * available in some driver then there are no adverse consequences to the
- * command simply being ignored...
- */
-#ifndef GL_TEXTURE_MAX_LEVEL
-#define GL_TEXTURE_MAX_LEVEL 0x813D
-#endif
-
-void
-cogl_texture_gl_set_max_level (CoglTexture *texture,
-                               int max_level)
-{
-  CoglContext *ctx = cogl_texture_get_context (texture);
-
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL))
-    {
-      GLuint gl_handle;
-      GLenum gl_target;
-
-      cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
-
-      cogl_texture_set_max_level_set (texture, max_level);
-
-      _cogl_bind_gl_texture_transient (ctx, gl_target,
-                                       gl_handle);
-
-      GE( ctx, glTexParameteri (gl_target,
-                                GL_TEXTURE_MAX_LEVEL, cogl_texture_get_max_level_set (texture)));
-    }
-}
-
-void
-_cogl_texture_gl_generate_mipmaps (CoglTexture *texture)
-{
-  CoglContext *ctx = cogl_texture_get_context (texture);
-  int n_levels = _cogl_texture_get_n_levels (texture);
-  GLuint gl_handle;
-  GLenum gl_target;
-
-  if (cogl_texture_get_max_level_set (texture) != n_levels - 1)
-    cogl_texture_gl_set_max_level (texture, n_levels - 1);
-
-  cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
-
-  _cogl_bind_gl_texture_transient (ctx, gl_target,
-                                   gl_handle);
-  GE( ctx, glGenerateMipmap (gl_target) );
-}
-
 GLenum
 _cogl_texture_gl_get_format (CoglTexture *texture)
 {
