@@ -68,10 +68,6 @@ cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *tex_driver,
                                               int                height,
                                               CoglPixelFormat    internal_format)
 {
-  CoglTextureDriverGL *tex_driver_gl =
-    COGL_TEXTURE_DRIVER_GL (ctx->texture_driver);
-  CoglTextureDriverGLClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   GLenum gl_intformat;
@@ -90,14 +86,14 @@ cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *tex_driver,
                                     &gl_type);
 
   /* Check that the driver can create a texture with that size */
-  if (!tex_driver_klass->size_supported (tex_driver_gl,
-                                         ctx,
-                                         GL_TEXTURE_2D,
-                                         gl_intformat,
-                                         gl_format,
-                                         gl_type,
-                                         width,
-                                         height))
+  if (!driver_klass->texture_size_supported (driver_gl,
+                                             ctx,
+                                             GL_TEXTURE_2D,
+                                             gl_intformat,
+                                             gl_format,
+                                             gl_type,
+                                             width,
+                                             height))
     return FALSE;
 
   return TRUE;

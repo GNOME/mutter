@@ -491,6 +491,25 @@ cogl_driver_gles2_prep_gl_for_pixels_download (CoglDriverGL *driver,
                                                        pixels_rowstride);
 }
 
+static gboolean
+cogl_driver_gles2_texture_size_supported (CoglDriverGL *driver,
+                                          CoglContext  *ctx,
+                                          GLenum        gl_target,
+                                          GLenum        gl_intformat,
+                                          GLenum        gl_format,
+                                          GLenum        gl_type,
+                                          int           width,
+                                          int           height)
+{
+  GLint max_size;
+
+  /* GLES doesn't support a proxy texture target so let's at least
+     check whether the size is greater than GL_MAX_TEXTURE_SIZE */
+  GE( ctx, glGetIntegerv (GL_MAX_TEXTURE_SIZE, &max_size) );
+
+  return width <= max_size && height <= max_size;
+}
+
 static CoglPixelFormat
 cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
                                           CoglContext     *context,
@@ -977,6 +996,7 @@ cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
   driver_gl_klass->get_read_pixels_format = cogl_driver_gles2_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;
   driver_gl_klass->prep_gl_for_pixels_download = cogl_driver_gles2_prep_gl_for_pixels_download;
+  driver_gl_klass->texture_size_supported = cogl_driver_gles2_texture_size_supported;
 }
 
 static void

@@ -76,6 +76,17 @@ struct _CoglDriverGLClass
                                         int           image_width,
                                         int           pixels_rowstride,
                                         int           pixels_bpp);
+  /*
+   * It may depend on the driver as to what texture sizes are supported...
+   */
+  gboolean (* texture_size_supported) (CoglDriverGL *driver,
+                                       CoglContext  *ctx,
+                                       GLenum        gl_target,
+                                       GLenum        gl_intformat,
+                                       GLenum        gl_format,
+                                       GLenum        gl_type,
+                                       int           width,
+                                       int           height);
 };
 
 #define COGL_TYPE_DRIVER_GL (cogl_driver_gl_get_type ())

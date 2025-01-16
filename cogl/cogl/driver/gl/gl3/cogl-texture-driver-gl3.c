@@ -337,38 +337,6 @@ cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriverGL *driver,
   return TRUE;
 }
 
-static gboolean
-cogl_texture_driver_gl3_size_supported (CoglTextureDriverGL *driver,
-                                        CoglContext         *ctx,
-                                        GLenum               gl_target,
-                                        GLenum               gl_intformat,
-                                        GLenum               gl_format,
-                                        GLenum               gl_type,
-                                        int                  width,
-                                        int                  height)
-{
-  GLenum proxy_target;
-  GLint new_width = 0;
-
-  if (gl_target == GL_TEXTURE_2D)
-    proxy_target = GL_PROXY_TEXTURE_2D;
-  else if (gl_target == GL_TEXTURE_RECTANGLE_ARB)
-    proxy_target = GL_PROXY_TEXTURE_RECTANGLE_ARB;
-  else
-    /* Unknown target, assume it's not supported */
-    return FALSE;
-
-  /* Proxy texture allows for a quick check for supported size */
-  GE( ctx, glTexImage2D (proxy_target, 0, gl_intformat,
-                         width, height, 0 /* border */,
-                         gl_format, gl_type, NULL) );
-
-  GE( ctx, glGetTexLevelParameteriv (proxy_target, 0,
-                                     GL_TEXTURE_WIDTH, &new_width) );
-
-  return new_width != 0;
-}
-
 static CoglPixelFormat
 cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *driver,
                                                       CoglContext         *context,
@@ -455,7 +423,6 @@ cogl_texture_driver_gl3_class_init (CoglTextureDriverGL3Class *klass)
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gl3_upload_subregion_to_gl;
   driver_gl_klass->upload_to_gl = cogl_texture_driver_gl3_upload_to_gl;
   driver_gl_klass->gl_get_tex_image = cogl_texture_driver_gl3_gl_get_tex_image;
-  driver_gl_klass->size_supported = cogl_texture_driver_gl3_size_supported;
   driver_gl_klass->find_best_gl_get_data_format = cogl_texture_driver_gl3_find_best_gl_get_data_format;
 }
 
