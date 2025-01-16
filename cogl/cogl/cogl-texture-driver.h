@@ -81,14 +81,6 @@ struct _CoglTextureDriverClass
                                              int                dst_y,
                                              int                level);
 
-  /* If the given texture has a corresponding OpenGL texture handle
-  * then return that.
-  *
-  * This is optional
-  */
-  unsigned int (* texture_2d_get_gl_handle) (CoglTextureDriver *driver,
-                                             CoglTexture2D     *tex_2d);
-
   /* Update all mipmap levels > 0 */
   void (* texture_2d_generate_mipmap) (CoglTextureDriver *driver,
                                        CoglTexture2D     *tex_2d);

@@ -193,26 +193,14 @@ _cogl_texture_2d_get_gl_texture (CoglTexture *tex,
                                  GLenum *out_gl_target)
 {
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
-  CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
-  CoglTextureDriverClass *tex_driver_klass =
-    COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
 
-  if (tex_driver_klass->texture_2d_get_gl_handle)
-    {
-      GLuint handle;
+  if (out_gl_target)
+    *out_gl_target = tex_2d->gl_target;
 
-      if (out_gl_target)
-        *out_gl_target = tex_2d->gl_target;
+  if (out_gl_handle)
+    *out_gl_handle = tex_2d->gl_texture;
 
-      handle = tex_driver_klass->texture_2d_get_gl_handle (tex_driver, tex_2d);
-
-      if (out_gl_handle)
-        *out_gl_handle = handle;
-
-      return handle ? TRUE : FALSE;
-    }
-  else
-    return FALSE;
+  return tex_2d->gl_texture ? TRUE : FALSE;
 }
 
 static void
