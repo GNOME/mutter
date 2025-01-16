@@ -37,6 +37,7 @@
 #include "cogl/cogl-feature-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-gl-private.h"
 
 G_DEFINE_FINAL_TYPE (CoglDriverGL3, cogl_driver_gl3, COGL_TYPE_DRIVER_GL);
 
@@ -358,6 +359,42 @@ cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
   return required_format;
 }
 
+/* OpenGL - unlike GLES - can download pixel data into a sub region of
+ * a larger destination buffer */
+static void
+prep_gl_for_pixels_download_full (CoglContext *ctx,
+                                  int image_width,
+                                  int pixels_rowstride,
+                                  int image_height,
+                                  int pixels_src_x,
+                                  int pixels_src_y,
+                                  int pixels_bpp)
+{
+  GE( ctx, glPixelStorei (GL_PACK_ROW_LENGTH, pixels_rowstride / pixels_bpp) );
+
+  GE( ctx, glPixelStorei (GL_PACK_SKIP_PIXELS, pixels_src_x) );
+  GE( ctx, glPixelStorei (GL_PACK_SKIP_ROWS, pixels_src_y) );
+
+  _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,
+                                                       pixels_bpp,
+                                                       image_width,
+                                                       pixels_rowstride);
+}
+static void
+cogl_driver_gl3_prep_gl_for_pixels_download (CoglDriverGL *driver,
+                                             CoglContext  *ctx,
+                                             int           image_width,
+                                             int           pixels_rowstride,
+                                             int           pixels_bpp)
+{
+  prep_gl_for_pixels_download_full (ctx,
+                                    pixels_rowstride,
+                                    image_width,
+                                    0 /* image height */,
+                                    0, 0, /* pixels_src_x/y */
+                                    pixels_bpp);
+}
+
 static CoglPixelFormat
 cogl_driver_gl3_get_read_pixels_format (CoglDriverGL    *driver,
                                         CoglContext     *context,
@@ -607,6 +644,7 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
 
   driver_gl_klass->get_read_pixels_format = cogl_driver_gl3_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;
+  driver_gl_klass->prep_gl_for_pixels_download = cogl_driver_gl3_prep_gl_for_pixels_download;
 }
 
 static void

@@ -96,19 +96,6 @@ struct _CoglTextureDriverGLClass
                              GError             **error);
 
   /*
-   * This sets up the glPixelStore state for an download to a destination with
-   * the same size, and with no offset.
-   */
-  /* NB: GLES can't download pixel data into a sub region of a larger
-   * destination buffer, the GL driver has a more flexible version of
-   * this function that it uses internally. */
-  void (* prep_gl_for_pixels_download) (CoglTextureDriverGL *driver,
-                                        CoglContext         *ctx,
-                                        int                  image_width,
-                                        int                  pixels_rowstride,
-                                        int                  pixels_bpp);
-
-  /*
    * This driver abstraction is needed because GLES doesn't support
    * glGetTexImage (). On GLES this currently just returns FALSE which
    * will lead to a generic fallback path being used that simply

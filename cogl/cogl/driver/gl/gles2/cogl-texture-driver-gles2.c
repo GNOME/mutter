@@ -145,19 +145,6 @@ _cogl_texture_driver_prep_gl_for_pixels_upload (CoglContext *ctx,
                                   pixels_bpp);
 }
 
-static void
-cogl_texture_driver_gles2_prep_gl_for_pixels_download (CoglTextureDriverGL *driver,
-                                                       CoglContext         *ctx,
-                                                       int                  pixels_rowstride,
-                                                       int                  image_width,
-                                                       int                  pixels_bpp)
-{
-  _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,
-                                                       pixels_bpp,
-                                                       image_width,
-                                                       pixels_rowstride);
-}
-
 static CoglBitmap *
 prepare_bitmap_alignment_for_upload (CoglContext *ctx,
                                      CoglBitmap *src_bmp,
@@ -578,7 +565,6 @@ cogl_texture_driver_gles2_class_init (CoglTextureDriverGLES2Class *klass)
   driver_gl_klass->gen = cogl_texture_driver_gles2_gen;
   driver_gl_klass->upload_subregion_to_gl = cogl_texture_driver_gles2_upload_subregion_to_gl;
   driver_gl_klass->upload_to_gl = cogl_texture_driver_gles2_upload_to_gl;
-  driver_gl_klass->prep_gl_for_pixels_download = cogl_texture_driver_gles2_prep_gl_for_pixels_download;
   driver_gl_klass->gl_get_tex_image = cogl_texture_driver_gles2_gl_get_tex_image;
   driver_gl_klass->size_supported = cogl_texture_driver_gles2_size_supported;
   driver_gl_klass->find_best_gl_get_data_format = cogl_texture_driver_gles2_find_best_gl_get_data_format;
