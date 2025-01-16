@@ -110,18 +110,6 @@ struct _CoglTextureDriverGLClass
                                  uint8_t             *dest);
 
   /*
-   * It may depend on the driver as to what texture sizes are supported...
-   */
-  gboolean (* size_supported) (CoglTextureDriverGL *driver,
-                               CoglContext         *ctx,
-                               GLenum               gl_target,
-                               GLenum               gl_intformat,
-                               GLenum               gl_format,
-                               GLenum               gl_type,
-                               int                  width,
-                               int                  height);
-
-  /*
    * The driver may impose constraints on what formats can be used to store
    * texture data read from textures. For example GLES currently only supports
    * RGBA_8888, and so we need to manually convert the data if the final

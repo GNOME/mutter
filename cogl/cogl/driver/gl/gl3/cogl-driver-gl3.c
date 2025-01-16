@@ -395,6 +395,38 @@ cogl_driver_gl3_prep_gl_for_pixels_download (CoglDriverGL *driver,
                                     pixels_bpp);
 }
 
+static gboolean
+cogl_driver_gl3_texture_size_supported (CoglDriverGL *driver,
+                                        CoglContext  *ctx,
+                                        GLenum        gl_target,
+                                        GLenum        gl_intformat,
+                                        GLenum        gl_format,
+                                        GLenum        gl_type,
+                                        int           width,
+                                        int           height)
+{
+  GLenum proxy_target;
+  GLint new_width = 0;
+
+  if (gl_target == GL_TEXTURE_2D)
+    proxy_target = GL_PROXY_TEXTURE_2D;
+  else if (gl_target == GL_TEXTURE_RECTANGLE_ARB)
+    proxy_target = GL_PROXY_TEXTURE_RECTANGLE_ARB;
+  else
+    /* Unknown target, assume it's not supported */
+    return FALSE;
+
+  /* Proxy texture allows for a quick check for supported size */
+  GE( ctx, glTexImage2D (proxy_target, 0, gl_intformat,
+                         width, height, 0 /* border */,
+                         gl_format, gl_type, NULL) );
+
+  GE( ctx, glGetTexLevelParameteriv (proxy_target, 0,
+                                     GL_TEXTURE_WIDTH, &new_width) );
+
+  return new_width != 0;
+}
+
 static CoglPixelFormat
 cogl_driver_gl3_get_read_pixels_format (CoglDriverGL    *driver,
                                         CoglContext     *context,
@@ -716,6 +748,7 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
   driver_gl_klass->get_read_pixels_format = cogl_driver_gl3_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;
   driver_gl_klass->prep_gl_for_pixels_download = cogl_driver_gl3_prep_gl_for_pixels_download;
+  driver_gl_klass->texture_size_supported = cogl_driver_gl3_texture_size_supported;
 }
 
 static void
