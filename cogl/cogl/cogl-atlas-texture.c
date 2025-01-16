@@ -586,15 +586,6 @@ _cogl_atlas_texture_get_format (CoglTexture *tex)
   return atlas_tex->internal_format;
 }
 
-static GLenum
-_cogl_atlas_texture_get_gl_format (CoglTexture *tex)
-{
-  CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
-
-  /* Forward on to the sub texture */
-  return _cogl_texture_gl_get_format (atlas_tex->sub_texture);
-}
-
 static gboolean
 _cogl_atlas_texture_can_use_format (CoglPixelFormat format)
 {
@@ -815,7 +806,6 @@ cogl_atlas_texture_class_init (CoglAtlasTextureClass *klass)
   texture_class->ensure_non_quad_rendering = _cogl_atlas_texture_ensure_non_quad_rendering;
   texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_atlas_texture_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_atlas_texture_get_format;
-  texture_class->get_gl_format = _cogl_atlas_texture_get_gl_format;
 }
 
 static void

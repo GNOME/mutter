@@ -328,12 +328,6 @@ _cogl_texture_2d_get_format (CoglTexture *tex)
   return COGL_TEXTURE_2D (tex)->internal_format;
 }
 
-static GLenum
-_cogl_texture_2d_get_gl_format (CoglTexture *tex)
-{
-  return COGL_TEXTURE_2D (tex)->gl_internal_format;
-}
-
 static void
 cogl_texture_2d_class_init (CoglTexture2DClass *klass)
 {
@@ -356,7 +350,6 @@ cogl_texture_2d_class_init (CoglTexture2DClass *klass)
   texture_class->ensure_non_quad_rendering = _cogl_texture_2d_ensure_non_quad_rendering;
   texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_texture_2d_get_format;
-  texture_class->get_gl_format = _cogl_texture_2d_get_gl_format;
 }
 
 static void

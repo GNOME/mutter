@@ -182,7 +182,6 @@ struct _CoglTextureClass
                                               GLenum       wrap_mode_t);
 
   CoglPixelFormat (* get_format) (CoglTexture *tex);
-  GLenum (* get_gl_format) (CoglTexture *tex);
 };
 
 gboolean

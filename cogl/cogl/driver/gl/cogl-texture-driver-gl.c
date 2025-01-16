@@ -43,9 +43,13 @@
 #define GL_TEXTURE_EXTERNAL_OES           0x8D65
 #endif /* defined (HAVE_EGL) */
 
+typedef struct _CoglTextureDriverGLPrivate {
+  /* The internal format of the GL texture represented as a GL enum */
+  GLenum gl_internal_format;
+} CoglTextureDriverGLPrivate;
 
 
-G_DEFINE_TYPE (CoglTextureDriverGL, cogl_texture_driver_gl, COGL_TYPE_TEXTURE_DRIVER)
+G_DEFINE_TYPE_WITH_PRIVATE (CoglTextureDriverGL, cogl_texture_driver_gl, COGL_TYPE_TEXTURE_DRIVER)
 
 static void
 cogl_texture_driver_gl_texture_2d_free (CoglTextureDriver *driver,
@@ -114,6 +118,8 @@ allocate_with_size (CoglTexture2D     *tex_2d,
   CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
   CoglTextureDriverGL *tex_driver_gl =
     COGL_TEXTURE_DRIVER_GL (tex_driver);
+  CoglTextureDriverGLPrivate *priv =
+    cogl_texture_driver_gl_get_instance_private (tex_driver_gl);
   CoglTextureDriverGLClass *tex_driver_klass =
     COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   GLenum gl_intformat;
@@ -149,7 +155,7 @@ allocate_with_size (CoglTexture2D     *tex_2d,
                                       GL_TEXTURE_2D,
                                       internal_format);
 
-  tex_2d->gl_internal_format = gl_intformat;
+  priv->gl_internal_format = gl_intformat;
 
   _cogl_bind_gl_texture_transient (ctx, GL_TEXTURE_2D,
                                    gl_texture);
@@ -167,7 +173,6 @@ allocate_with_size (CoglTexture2D     *tex_2d,
     }
 
   tex_2d->gl_texture = gl_texture;
-  tex_2d->gl_internal_format = gl_intformat;
 
   tex_2d->internal_format = internal_format;
 
@@ -189,6 +194,8 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   CoglTextureDriverGL *tex_driver_gl =
     COGL_TEXTURE_DRIVER_GL (tex_driver);
+  CoglTextureDriverGLPrivate *priv =
+    cogl_texture_driver_gl_get_instance_private (tex_driver_gl);
   CoglTextureDriverGLClass *tex_driver_klass =
     COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglPixelFormat internal_format;
@@ -252,7 +259,7 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
       return FALSE;
     }
 
-  tex_2d->gl_internal_format = gl_intformat;
+  priv->gl_internal_format = gl_intformat;
 
   g_object_unref (upload_bmp);
 
@@ -547,4 +554,13 @@ cogl_texture_driver_gl_class_init (CoglTextureDriverGLClass *klass)
 static void
 cogl_texture_driver_gl_init (CoglTextureDriverGL *driver)
 {
+}
+
+GLenum
+cogl_texture_driver_gl_get_format (CoglTextureDriverGL *driver)
+{
+  CoglTextureDriverGLPrivate *priv =
+    cogl_texture_driver_gl_get_instance_private (driver);
+
+  return priv->gl_internal_format;
 }

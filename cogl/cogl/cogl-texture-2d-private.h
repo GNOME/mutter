@@ -49,8 +49,6 @@ struct _CoglTexture2D
   /* TODO: factor out these OpenGL specific members into some form
    * of driver private state. */
 
-  /* The internal format of the GL texture represented as a GL enum */
-  GLenum gl_internal_format;
   /* The texture object number */
   GLuint gl_texture;
   GLenum gl_target;

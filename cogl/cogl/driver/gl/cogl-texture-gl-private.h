@@ -58,9 +58,6 @@ cogl_texture_gl_set_max_level (CoglTexture *texture,
 void
 _cogl_texture_gl_generate_mipmaps (CoglTexture *texture);
 
-GLenum
-_cogl_texture_gl_get_format (CoglTexture *texture);
-
 static inline GLfloat
 _cogl_texture_min_filter_get_lod_bias (GLenum min_filter)
 {

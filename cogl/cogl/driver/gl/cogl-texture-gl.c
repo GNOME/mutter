@@ -147,9 +147,3 @@ _cogl_texture_gl_generate_mipmaps (CoglTexture *texture)
                                    gl_handle);
   GE( ctx, glGenerateMipmap (gl_target) );
 }
-
-GLenum
-_cogl_texture_gl_get_format (CoglTexture *texture)
-{
-  return COGL_TEXTURE_GET_CLASS (texture)->get_gl_format (texture);
-}

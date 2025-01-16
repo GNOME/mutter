@@ -123,3 +123,5 @@ struct _CoglTextureDriverGLClass
 };
 
 #define COGL_TYPE_TEXTURE_DRIVER_GL (cogl_texture_driver_gl_get_type ())
+
+GLenum cogl_texture_driver_gl_get_format (CoglTextureDriverGL *driver);

@@ -337,14 +337,6 @@ _cogl_sub_texture_get_format (CoglTexture *tex)
   return cogl_texture_get_format (sub_tex->full_texture);
 }
 
-static GLenum
-_cogl_sub_texture_get_gl_format (CoglTexture *tex)
-{
-  CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
-
-  return _cogl_texture_gl_get_format (sub_tex->full_texture);
-}
-
 static void
 cogl_sub_texture_class_init (CoglSubTextureClass *klass)
 {
@@ -367,7 +359,6 @@ cogl_sub_texture_class_init (CoglSubTextureClass *klass)
   texture_class->ensure_non_quad_rendering = _cogl_sub_texture_ensure_non_quad_rendering;
   texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_sub_texture_get_format;
-  texture_class->get_gl_format = _cogl_sub_texture_get_gl_format;
 }
 
 static void

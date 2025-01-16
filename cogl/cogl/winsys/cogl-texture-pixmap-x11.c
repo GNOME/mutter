@@ -936,15 +936,6 @@ _cogl_texture_pixmap_x11_get_format (CoglTexture *tex)
   return cogl_texture_get_format (child_tex);
 }
 
-static GLenum
-_cogl_texture_pixmap_x11_get_gl_format (CoglTexture *tex)
-{
-  CoglTexturePixmapX11 *tex_pixmap = COGL_TEXTURE_PIXMAP_X11 (tex);
-  CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
-
-  return _cogl_texture_gl_get_format (child_tex);
-}
-
 static void
 cogl_texture_pixmap_x11_class_init (CoglTexturePixmapX11Class *klass)
 {
@@ -967,7 +958,6 @@ cogl_texture_pixmap_x11_class_init (CoglTexturePixmapX11Class *klass)
   texture_class->ensure_non_quad_rendering = _cogl_texture_pixmap_x11_ensure_non_quad_rendering;
   texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_pixmap_x11_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_texture_pixmap_x11_get_format;
-  texture_class->get_gl_format = _cogl_texture_pixmap_x11_get_gl_format;
 }
 
 static void

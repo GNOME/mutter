@@ -929,20 +929,6 @@ _cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
     }
 }
 
-static GLenum
-_cogl_texture_2d_sliced_get_gl_format (CoglTexture *tex)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  CoglTexture2D *slice_tex;
-
-  /* Assert that we've allocated our slices at this point */
-  cogl_texture_allocate (tex, NULL); /* (abort on error) */
-
-  /* Pass the call on to the first slice */
-  slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, 0);
-  return _cogl_texture_gl_get_format (COGL_TEXTURE (slice_tex));
-}
-
 static gboolean
 _cogl_texture_2d_sliced_upload_subregion (CoglTexture2DSliced *tex_2ds,
                                           int src_x,
@@ -1196,7 +1182,6 @@ cogl_texture_2d_sliced_class_init (CoglTexture2DSlicedClass *klass)
   texture_class->ensure_non_quad_rendering = _cogl_texture_2d_sliced_ensure_non_quad_rendering;
   texture_class->gl_flush_legacy_texobj_wrap_modes = _cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes;
   texture_class->get_format = _cogl_texture_2d_sliced_get_format;
-  texture_class->get_gl_format = _cogl_texture_2d_sliced_get_gl_format;
 }
 
 static void
