@@ -1214,7 +1214,7 @@ _cogl_texture_2d_sliced_create_base (CoglContext *ctx,
 {
   CoglTexture2DSliced *tex_2ds = g_object_new (COGL_TYPE_TEXTURE_2D_SLICED,
                                                "context", ctx,
-                                               "texture-driver", ctx->texture_driver,
+                                               "texture-driver", cogl_driver_create_texture_driver (ctx->driver),
                                                "width", width,
                                                "height", height,
                                                "loader", loader,

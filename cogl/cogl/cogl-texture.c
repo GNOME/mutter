@@ -121,6 +121,7 @@ cogl_texture_dispose (GObject *object)
     cogl_texture_get_instance_private (texture);
 
   g_clear_pointer (&priv->loader, cogl_texture_loader_free);
+  g_clear_object (&priv->tex_driver);
 
   G_OBJECT_CLASS (cogl_texture_parent_class)->dispose (object);
 }
