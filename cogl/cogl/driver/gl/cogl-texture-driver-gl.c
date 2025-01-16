@@ -429,13 +429,6 @@ cogl_texture_driver_gl_texture_2d_copy_from_framebuffer (CoglTextureDriver *driv
                             width, height);
 }
 
-static unsigned int
-cogl_texture_driver_gl_texture_2d_get_gl_handle (CoglTextureDriver *driver,
-                                                 CoglTexture2D     *tex_2d)
-{
-  return tex_2d->gl_texture;
-}
-
 static void
 cogl_texture_driver_gl_texture_2d_generate_mipmap (CoglTextureDriver *driver,
                                                    CoglTexture2D     *tex_2d)
@@ -520,7 +513,6 @@ cogl_texture_driver_gl_class_init (CoglTextureDriverGLClass *klass)
   driver_klass->texture_2d_can_create = cogl_texture_driver_gl_texture_2d_can_create;
   driver_klass->texture_2d_allocate = cogl_texture_driver_gl_texture_2d_allocate;
   driver_klass->texture_2d_copy_from_framebuffer = cogl_texture_driver_gl_texture_2d_copy_from_framebuffer;
-  driver_klass->texture_2d_get_gl_handle = cogl_texture_driver_gl_texture_2d_get_gl_handle;
   driver_klass->texture_2d_generate_mipmap = cogl_texture_driver_gl_texture_2d_generate_mipmap;
   driver_klass->texture_2d_copy_from_bitmap = cogl_texture_driver_gl_texture_2d_copy_from_bitmap;
 }
