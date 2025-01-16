@@ -981,6 +981,10 @@ clutter_frame_clock_uninhibit (ClutterFrameClock *frame_clock)
 static gboolean
 want_triple_buffering (ClutterFrameClock *frame_clock)
 {
+  if (G_UNLIKELY (clutter_paint_debug_flags &
+                  CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING))
+    return FALSE;
+
   return TRUE;
 }
 

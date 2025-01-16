@@ -81,6 +81,7 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
   { "disable-dynamic-max-render-time", CLUTTER_DEBUG_DISABLE_DYNAMIC_MAX_RENDER_TIME },
   { "max-render-time", CLUTTER_DEBUG_PAINT_MAX_RENDER_TIME },
+  { "disable-triple-buffering", CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING },
 };
 
 typedef struct _ClutterContextPrivate
