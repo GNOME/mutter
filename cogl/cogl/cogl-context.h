@@ -398,4 +398,8 @@ COGL_EXPORT EGLDisplay
 cogl_context_get_egl_display (CoglContext *context);
 #endif /* HAVE_EGL */
 
+COGL_EXPORT gboolean
+cogl_context_format_supports_upload (CoglContext     *ctx,
+                                     CoglPixelFormat  format);
+
 G_END_DECLS
