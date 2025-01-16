@@ -80,7 +80,7 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                               CoglPixelFormat internal_format,
                               CoglTextureLoader *loader)
 {
-  CoglTextureDriver *tex_driver = ctx->texture_driver;
+  CoglTextureDriver *tex_driver = cogl_driver_create_texture_driver (ctx->driver);
   CoglTextureDriverClass *tex_driver_class =
     COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
 

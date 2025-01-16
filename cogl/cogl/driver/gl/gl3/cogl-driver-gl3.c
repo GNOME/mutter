@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "cogl/driver/gl/gl3/cogl-driver-gl3-private.h"
+#include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
@@ -735,6 +736,12 @@ cogl_driver_gl3_format_supports_upload (CoglDriver      *driver,
   return FALSE;
 }
 
+static CoglTextureDriver *
+cogl_driver_gl3_create_texture_driver (CoglDriver *driver)
+{
+  return g_object_new (COGL_TYPE_TEXTURE_DRIVER_GL3, NULL);
+}
+
 static void
 cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
 {
@@ -744,6 +751,7 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
   driver_klass->context_init = cogl_driver_gl3_context_init;
   driver_klass->update_features = cogl_driver_gl3_update_features;
   driver_klass->format_supports_upload = cogl_driver_gl3_format_supports_upload;
+  driver_klass->create_texture_driver = cogl_driver_gl3_create_texture_driver;
 
   driver_gl_klass->get_read_pixels_format = cogl_driver_gl3_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;

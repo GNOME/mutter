@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "cogl/driver/gl/gles2/cogl-driver-gles2-private.h"
+#include "cogl/driver/gl/gles2/cogl-texture-driver-gles2-private.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-private.h"
@@ -984,6 +985,12 @@ cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
   return FALSE;
 }
 
+static CoglTextureDriver *
+cogl_driver_gles2_create_texture_driver (CoglDriver *driver)
+{
+  return g_object_new (COGL_TYPE_TEXTURE_DRIVER_GLES2, NULL);
+}
+
 static void
 cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
 {
@@ -992,6 +999,7 @@ cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
 
   driver_klass->update_features = cogl_driver_gles2_update_features;
   driver_klass->format_supports_upload = cogl_driver_gles2_format_supports_upload;
+  driver_klass->create_texture_driver = cogl_driver_gles2_create_texture_driver;
 
   driver_gl_klass->get_read_pixels_format = cogl_driver_gles2_get_read_pixels_format;
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;

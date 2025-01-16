@@ -39,10 +39,17 @@ cogl_driver_default_create_buffer_impl (CoglDriver *driver)
   g_assert_not_reached ();
 }
 
+static CoglTextureDriver *
+cogl_driver_default_create_texture_driver (CoglDriver *driver)
+{
+  g_assert_not_reached ();
+}
+
 static void
 cogl_driver_class_init (CoglDriverClass *klass)
 {
   klass->create_buffer_impl = cogl_driver_default_create_buffer_impl;
+  klass->create_texture_driver = cogl_driver_default_create_texture_driver;
 }
 
 static void
@@ -56,4 +63,12 @@ cogl_driver_create_buffer_impl (CoglDriver *driver)
   CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
 
   return klass->create_buffer_impl (driver);
+}
+
+CoglTextureDriver *
+cogl_driver_create_texture_driver (CoglDriver *driver)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->create_texture_driver (driver);
 }

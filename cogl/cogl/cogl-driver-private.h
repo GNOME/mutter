@@ -36,6 +36,7 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/cogl-sampler-cache-private.h"
+#include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-texture-private.h"
 
 G_DECLARE_DERIVABLE_TYPE (CoglDriver,
@@ -101,6 +102,8 @@ struct _CoglDriverClass
 
   CoglBufferImpl * (* create_buffer_impl) (CoglDriver *driver);
 
+  CoglTextureDriver * (* create_texture_driver) (CoglDriver *driver);
+
   void (*sampler_init) (CoglDriver            *driver,
                         CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
@@ -132,6 +135,8 @@ struct _CoglDriverClass
 #define COGL_TYPE_DRIVER (cogl_driver_get_type ())
 
 CoglBufferImpl * cogl_driver_create_buffer_impl (CoglDriver *driver);
+
+CoglTextureDriver * cogl_driver_create_texture_driver (CoglDriver *driver);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 

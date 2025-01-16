@@ -72,7 +72,6 @@ struct _CoglContext
   CoglDriverId driver_id;
 
   CoglDriver *driver;
-  CoglTextureDriver *texture_driver;
 
   int glsl_major;
   int glsl_minor;

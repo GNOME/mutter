@@ -1020,7 +1020,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctx,
 
   tex_pixmap = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11,
                              "context", ctx,
-                             "texture-driver", ctx->texture_driver,
+                             "texture-driver", cogl_driver_create_texture_driver (ctx->driver),
                              "width", pixmap_width,
                              "height", pixmap_height,
                              "format", internal_format,
@@ -1129,7 +1129,7 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
 
   tfp_right = g_object_new (COGL_TYPE_TEXTURE_PIXMAP_X11,
                             "context", ctx,
-                            "texture-driver", ctx->texture_driver,
+                            "texture-driver", cogl_driver_create_texture_driver (ctx->driver),
                             "width", cogl_texture_get_width (texture_left),
                             "height", cogl_texture_get_height (texture_left),
                             "format", internal_format,

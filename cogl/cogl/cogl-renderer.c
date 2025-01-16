@@ -55,11 +55,9 @@
 
 #ifdef HAVE_GL
 #include "cogl/driver/gl/gl3/cogl-driver-gl3-private.h"
-#include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
 #endif
 #ifdef HAVE_GLES2
 #include "cogl/driver/gl/gles2/cogl-driver-gles2-private.h"
-#include "cogl/driver/gl/gles2/cogl-texture-driver-gles2-private.h"
 #endif
 #include "cogl/driver/nop/cogl-driver-nop-private.h"
 
@@ -129,7 +127,6 @@ cogl_renderer_dispose (GObject *object)
                      (GDestroyNotify) native_filter_closure_free);
 
   g_clear_object (&renderer->driver);
-  g_clear_object (&renderer->texture_driver);
 
   G_OBJECT_CLASS (cogl_renderer_parent_class)->dispose (object);
 }
@@ -339,14 +336,12 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 #ifdef HAVE_GL
     case COGL_DRIVER_ID_GL3:
       renderer->driver = g_object_new (COGL_TYPE_DRIVER_GL3, NULL);
-      renderer->texture_driver = g_object_new (COGL_TYPE_TEXTURE_DRIVER_GL3, NULL);
       libgl_name = COGL_GL_LIBNAME;
       break;
 #endif
 #ifdef HAVE_GLES2
     case COGL_DRIVER_ID_GLES2:
       renderer->driver = g_object_new (COGL_TYPE_DRIVER_GLES2, NULL);
-      renderer->texture_driver = g_object_new (COGL_TYPE_TEXTURE_DRIVER_GLES2, NULL);
       libgl_name = COGL_GLES2_LIBNAME;
       break;
 #endif
@@ -354,7 +349,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
     case COGL_DRIVER_ID_NOP:
     default:
       renderer->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
-      renderer->texture_driver = NULL;
       break;
     }
 
