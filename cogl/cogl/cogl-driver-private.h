@@ -64,6 +64,10 @@ struct _CoglDriverClass
                                 CoglContext  *context,
                                 GError      **error);
 
+  gboolean (* format_supports_upload) (CoglDriver      *driver,
+                                       CoglContext     *ctx,
+                                       CoglPixelFormat  format);
+
   CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
                                                          CoglContext                        *context,
                                                          CoglFramebuffer                    *framebuffer,

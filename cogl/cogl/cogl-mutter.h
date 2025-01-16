@@ -53,8 +53,4 @@ void cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
                                       void                        *user_data);
 
 COGL_EXPORT
-gboolean cogl_context_format_supports_upload (CoglContext     *ctx,
-                                              CoglPixelFormat  format);
-
-COGL_EXPORT
 void cogl_init (void);
