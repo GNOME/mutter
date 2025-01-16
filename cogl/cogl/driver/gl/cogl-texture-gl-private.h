@@ -51,13 +51,6 @@ _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
                                               unsigned int min_filter,
                                               unsigned int mag_filter);
 
-void
-cogl_texture_gl_set_max_level (CoglTexture *texture,
-                               int max_level);
-
-void
-_cogl_texture_gl_generate_mipmaps (CoglTexture *texture);
-
 static inline GLfloat
 _cogl_texture_min_filter_get_lod_bias (GLenum min_filter)
 {
