@@ -1878,11 +1878,7 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
                                                                   handle_drag_event,
                                                                   window_drag,
                                                                   NULL);
-      grab_actor = clutter_stage_get_grab_actor (stage);
-      clutter_actor_set_name (grab_actor, "Window drag helper");
-      clutter_actor_set_accessible_name (grab_actor, "Window drag helper");
       clutter_grab_activate (window_drag->grab);
-
       if ((clutter_grab_get_seat_state (window_drag->grab) &
            CLUTTER_GRAB_STATE_POINTER) == 0 &&
           !meta_grab_op_is_keyboard (grab_op))
