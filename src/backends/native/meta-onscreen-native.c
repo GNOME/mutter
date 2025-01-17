@@ -1503,29 +1503,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   g_warn_if_fail (!onscreen_native->next_frame);
   onscreen_native->next_frame = clutter_frame_ref (frame);
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode == META_POWER_SAVE_ON)
-    {
-      kms_update = meta_frame_native_ensure_kms_update (frame_native,
-                                                        kms_device);
-      meta_kms_update_add_result_listener (kms_update,
-                                           &swap_buffer_result_listener_vtable,
-                                           NULL,
-                                           onscreen_native,
-                                           NULL);
-
-      ensure_crtc_modes (onscreen, kms_update);
-      meta_onscreen_native_flip_crtc (onscreen,
-                                      onscreen_native->view,
-                                      onscreen_native->crtc,
-                                      kms_update,
-                                      META_KMS_ASSIGN_PLANE_FLAG_NONE,
-                                      region);
-    }
-  else
+  if (power_save_mode != META_POWER_SAVE_ON)
     {
       meta_renderer_native_queue_power_save_page_flip (renderer_native,
                                                        onscreen);
@@ -1533,6 +1512,24 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                 CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
       return;
     }
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                    kms_device);
+  meta_kms_update_add_result_listener (kms_update,
+                                       &swap_buffer_result_listener_vtable,
+                                       NULL,
+                                       onscreen_native,
+                                       NULL);
+
+  ensure_crtc_modes (onscreen, kms_update);
+  meta_onscreen_native_flip_crtc (onscreen,
+                                  onscreen_native->view,
+                                  onscreen_native->crtc,
+                                  kms_update,
+                                  META_KMS_ASSIGN_PLANE_FLAG_NONE,
+                                  region);
 
   COGL_TRACE_BEGIN_ANCHORED (MetaRendererNativePostKmsUpdate,
                              "Meta::OnscreenNative::swap_buffers_with_damage#post_pending_update()");
