@@ -349,8 +349,10 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
 #ifdef HAVE_WAYLAND
       if (context_main->options.no_x11)
         return META_X11_DISPLAY_POLICY_DISABLED;
+#ifdef HAVE_LOGIND
       else if (sd_pid_get_user_unit (0, &unit) < 0)
         return META_X11_DISPLAY_POLICY_MANDATORY;
+#endif
       else
         return META_X11_DISPLAY_POLICY_ON_DEMAND;
 #else /* HAVE_WAYLAND */
