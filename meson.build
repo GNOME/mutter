@@ -239,6 +239,19 @@ if have_wayland
   endif
 endif
 
+have_logind = get_option('logind')
+if have_logind
+  logind_dep = dependency('libsystemd', required: false)
+
+  if not logind_dep.found()
+    logind_dep = dependency('libelogind', required: false)
+  endif
+
+  if not logind_dep.found()
+    error('No logind provider dependency found: tried libsystemd and libelogind')
+  endif
+endif
+
 have_libgudev = get_option('udev')
 if have_libgudev
   libudev_dep = dependency('libudev', version: udev_req)
@@ -251,18 +264,13 @@ if have_libgudev
   endif
 endif
 
-have_libsystemd = get_option('systemd')
-libsystemd_dep = dependency('libsystemd', required: have_libsystemd)
-
 have_native_backend = get_option('native_backend')
 if have_native_backend
   libgbm_dep = dependency('gbm', version: gbm_req)
   libinput_dep = dependency('libinput', version: libinput_req)
 
-  if libsystemd_dep.found()
-    logind_provider_dep = libsystemd_dep
-  else
-    logind_provider_dep = dependency('libelogind')
+  if not have_logind
+    error('The native backend requires logind to be enabled')
   endif
 
   if not have_egl
@@ -557,7 +565,7 @@ cdata.set('HAVE_WAYLAND', have_wayland)
 cdata.set('HAVE_XWAYLAND', have_xwayland)
 cdata.set('HAVE_X11', have_x11)
 cdata.set('HAVE_X11_CLIENT', have_x11_client)
-cdata.set('HAVE_LIBSYSTEMD', have_libsystemd)
+cdata.set('HAVE_LOGIND', have_logind)
 cdata.set('HAVE_NATIVE_BACKEND', have_native_backend)
 cdata.set('HAVE_REMOTE_DESKTOP', have_remote_desktop)
 cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)

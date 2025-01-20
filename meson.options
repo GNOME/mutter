@@ -51,10 +51,10 @@ option('x11',
   description: 'Enable X11 support'
 )
 
-option('systemd',
+option('logind',
   type: 'boolean',
   value: true,
-  description: 'Enable systemd support'
+  description: 'Enable logind support'
 )
 
 option('native_backend',
