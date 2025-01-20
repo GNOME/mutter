@@ -254,6 +254,10 @@ endif
 
 have_libgudev = get_option('udev')
 if have_libgudev
+  if not have_logind
+    error('The udev support requires logind')
+  endif
+
   libudev_dep = dependency('libudev', version: udev_req)
   gudev_dep = dependency('gudev-1.0', version: gudev_req)
   udev_dep = dependency('udev')
