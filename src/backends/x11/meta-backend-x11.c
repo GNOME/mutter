@@ -43,7 +43,6 @@
 #include "backends/meta-color-manager.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-keymap-utils.h"
-#include "backends/meta-launcher.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-barrier-x11.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
@@ -60,6 +59,10 @@
 #include "meta/util.h"
 #include "mtk/mtk-x11.h"
 #include "x11/window-x11.h"
+
+#ifdef HAVE_LOGIND
+#include "backends/meta-launcher.h"
+#endif
 
 typedef struct _MetaBackendX11Private
 {
@@ -612,6 +615,7 @@ meta_backend_x11_init_post (MetaBackend  *backend,
   return TRUE;
 }
 
+#ifdef HAVE_LOGIND
 static gboolean
 meta_backend_x11_create_launcher (MetaBackend   *backend,
                                   MetaLauncher **launcher_out,
@@ -636,6 +640,7 @@ meta_backend_x11_create_launcher (MetaBackend   *backend,
   *launcher_out = g_steal_pointer (&launcher);
   return TRUE;
 }
+#endif
 
 static ClutterBackend *
 meta_backend_x11_create_clutter_backend (MetaBackend    *backend,
@@ -1083,7 +1088,9 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->init_render = meta_backend_x11_init_render;
   backend_class->init_post = meta_backend_x11_init_post;
 
+#ifdef HAVE_LOGIND
   backend_class->create_launcher = meta_backend_x11_create_launcher;
+#endif
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->create_color_manager = meta_backend_x11_create_color_manager;
   backend_class->create_default_seat = meta_backend_x11_create_default_seat;

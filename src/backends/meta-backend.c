@@ -62,7 +62,6 @@
 #include "backends/meta-input-capture.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
-#include "backends/meta-launcher.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-dummy.h"
 #include "backends/meta-remote-access-controller-private.h"
@@ -93,6 +92,10 @@
 
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
+#endif
+
+#ifdef HAVE_LOGIND
+#include "backends/meta-launcher.h"
 #endif
 
 #ifdef HAVE_LIBGUDEV
@@ -149,7 +152,9 @@ struct _MetaBackendPrivate
   MetaIdleManager *idle_manager;
   MetaRenderer *renderer;
   MetaColorManager *color_manager;
+#ifdef HAVE_LOGIND
   MetaLauncher *launcher;
+#endif
 #ifdef HAVE_LIBGUDEV
   MetaUdev *udev;
 #endif
@@ -265,7 +270,9 @@ meta_backend_finalize (GObject *object)
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
 
+#ifdef HAVE_LOGIND
   g_clear_object (&priv->launcher);
+#endif
 
 #ifdef HAVE_LIBGUDEV
   g_clear_object (&priv->udev);
@@ -964,6 +971,7 @@ meta_backend_class_init (MetaBackendClass *klass)
                   G_TYPE_NONE, 0);
 }
 
+#ifdef HAVE_LOGIND
 static void
 meta_backend_pause (MetaBackend *backend)
 {
@@ -1018,6 +1026,7 @@ meta_backend_create_launcher (MetaBackend   *backend,
   *launcher_out = g_steal_pointer (&launcher);
   return ret;
 }
+#endif
 
 static MetaMonitorManager *
 meta_backend_create_monitor_manager (MetaBackend *backend,
@@ -1326,8 +1335,10 @@ meta_backend_initable_init (GInitable     *initable,
              system_bus_gotten_cb,
              backend);
 
+#ifdef HAVE_LOGIND
   if (!meta_backend_create_launcher (backend, &priv->launcher, error))
       return FALSE;
+#endif
 
 #ifdef HAVE_LIBGUDEV
   priv->udev = meta_udev_new (backend);
@@ -1524,6 +1535,7 @@ meta_backend_get_color_manager (MetaBackend *backend)
   return priv->color_manager;
 }
 
+#ifdef HAVE_LOGIND
 MetaLauncher *
 meta_backend_get_launcher (MetaBackend *backend)
 {
@@ -1531,6 +1543,7 @@ meta_backend_get_launcher (MetaBackend *backend)
 
   return priv->launcher;
 }
+#endif
 
 #ifdef HAVE_LIBGUDEV
 MetaUdev *

@@ -162,8 +162,10 @@ MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 META_EXPORT_TEST
 MetaColorManager * meta_backend_get_color_manager (MetaBackend *backend);
 
+#ifdef HAVE_LOGIND
 META_EXPORT_TEST
 MetaLauncher * meta_backend_get_launcher (MetaBackend *backend);
+#endif
 
 #ifdef HAVE_LIBGUDEV
 META_EXPORT_TEST
