@@ -3262,6 +3262,57 @@ cull_actor (ClutterActor        *self,
   return TRUE;
 }
 
+/* Remove any transitions on properties with @prefix. */
+static void
+_clutter_actor_remove_transitions_for_prefix (ClutterActor *actor,
+                                              const char   *prefix)
+{
+  ClutterAnimationInfo *info;
+
+  info = _clutter_actor_get_animation_info (actor);
+
+  if (info->transitions != NULL)
+    {
+      GHashTableIter iter;
+      gpointer key, value;
+      g_autoptr (GPtrArray) to_remove = g_ptr_array_new_with_free_func (NULL);
+
+      g_hash_table_iter_init (&iter, info->transitions);
+
+      while (g_hash_table_iter_next (&iter, &key, &value))
+        {
+          if (g_str_has_prefix (key, prefix))
+            g_ptr_array_add (to_remove, key);
+        }
+
+      for (unsigned int i = 0; i < to_remove->len; i++)
+        clutter_actor_remove_transition (actor, to_remove->pdata[i]);
+    }
+}
+
+/* Remove any transitions on the properties of @meta.
+ * @section should be "actions", "constraints" or "effects" */
+static void
+_clutter_actor_remove_transitions_for_meta_internal (ClutterActor     *actor,
+                                                     const char       *section,
+                                                     ClutterActorMeta *meta)
+{
+  g_autofree char *meta_prefix =
+      g_strdup_printf ("@%s.%s.", section,
+                       clutter_actor_meta_get_name (meta));
+  _clutter_actor_remove_transitions_for_prefix (actor, meta_prefix);
+}
+
+/* Remove any transitions on the properties of any #ClutterActorMeta in @section.
+ * @section should be "actions", "constraints" or "effects" */
+static void
+_clutter_actor_remove_transitions_for_meta_section_internal (ClutterActor *actor,
+                                                             const char   *section)
+{
+  g_autofree char *meta_prefix = g_strdup_printf ("@%s.", section);
+  _clutter_actor_remove_transitions_for_prefix (actor, meta_prefix);
+}
+
 /* This is the same as clutter_actor_add_effect except that it doesn't
    queue a redraw and it doesn't notify on the effect property */
 static void
@@ -3289,6 +3340,10 @@ _clutter_actor_remove_effect_internal (ClutterActor  *self,
 
   if (priv->effects == NULL)
     return;
+
+  /* Remove any transitions on the effect’s properties. */
+  _clutter_actor_remove_transitions_for_meta_internal (self, "effects",
+                                                       CLUTTER_ACTOR_META (effect));
 
   _clutter_meta_group_remove_meta (priv->effects, CLUTTER_ACTOR_META (effect));
 
@@ -13753,6 +13808,10 @@ clutter_actor_remove_action (ClutterActor  *self,
   if (priv->actions == NULL)
     return;
 
+  /* Remove any transitions on the actions’s properties. */
+  _clutter_actor_remove_transitions_for_meta_internal (self, "actions",
+                                                       CLUTTER_ACTOR_META (action));
+
   _clutter_meta_group_remove_meta (priv->actions, CLUTTER_ACTOR_META (action));
 
   if (_clutter_meta_group_peek_metas (priv->actions) == NULL)
@@ -13787,6 +13846,9 @@ clutter_actor_remove_action_by_name (ClutterActor *self,
   meta = _clutter_meta_group_get_meta (priv->actions, name);
   if (meta == NULL)
     return;
+
+  /* Remove any transitions on the actions’s properties. */
+  _clutter_actor_remove_transitions_for_meta_internal (self, "actions", meta);
 
   _clutter_meta_group_remove_meta (priv->actions, meta);
 
@@ -13854,6 +13916,7 @@ clutter_actor_clear_actions (ClutterActor *self)
   if (self->priv->actions == NULL)
     return;
 
+  _clutter_actor_remove_transitions_for_meta_section_internal (self, "actions");
   _clutter_meta_group_clear_metas_no_internal (self->priv->actions);
 }
 
@@ -13945,6 +14008,10 @@ clutter_actor_remove_constraint (ClutterActor      *self,
   if (priv->constraints == NULL)
     return;
 
+  /* Remove any transitions on the constraint’s properties. */
+  _clutter_actor_remove_transitions_for_meta_internal (self, "constraints",
+                                                       CLUTTER_ACTOR_META (constraint));
+
   _clutter_meta_group_remove_meta (priv->constraints,
                                    CLUTTER_ACTOR_META (constraint));
 
@@ -13982,6 +14049,9 @@ clutter_actor_remove_constraint_by_name (ClutterActor *self,
   meta = _clutter_meta_group_get_meta (priv->constraints, name);
   if (meta == NULL)
     return;
+
+  /* Remove any transitions on the constraint’s properties. */
+  _clutter_actor_remove_transitions_for_meta_internal (self, "constraints", meta);
 
   _clutter_meta_group_remove_meta (priv->constraints, meta);
   clutter_actor_queue_relayout (self);
@@ -14048,6 +14118,7 @@ clutter_actor_clear_constraints (ClutterActor *self)
   if (self->priv->constraints == NULL)
     return;
 
+  _clutter_actor_remove_transitions_for_meta_section_internal (self, "constraints");
   _clutter_meta_group_clear_metas_no_internal (self->priv->constraints);
 
   clutter_actor_queue_relayout (self);
@@ -14273,6 +14344,7 @@ clutter_actor_clear_effects (ClutterActor *self)
   if (self->priv->effects == NULL)
     return;
 
+  _clutter_actor_remove_transitions_for_meta_section_internal (self, "effects");
   _clutter_meta_group_clear_metas_no_internal (self->priv->effects);
 
   clutter_actor_queue_redraw (self);
