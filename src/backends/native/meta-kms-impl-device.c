@@ -701,6 +701,18 @@ update_connectors (MetaKmsImplDevice *impl_device,
       g_list_length (connectors) == g_list_length (priv->connectors))
     return changes;
 
+  if (added_connector)
+    {
+      meta_topic (META_DEBUG_KMS, "%s: New connector(s) added", __func__);
+    }
+  else
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "%s: Connectors list length changed from %d to %d",
+                  __func__, g_list_length (priv->connectors),
+                  g_list_length (connectors));
+    }
+
   g_list_free_full (priv->connectors, g_object_unref);
   priv->connectors = g_list_reverse (g_steal_pointer (&connectors));
 

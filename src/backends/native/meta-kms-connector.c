@@ -943,78 +943,144 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
                                   MetaKmsConnectorState *new_state)
 {
   if (state->current_crtc_id != new_state->current_crtc_id)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "current CRTC ID changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->common_possible_crtcs != new_state->common_possible_crtcs)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "common possible CRTCs changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->common_possible_clones != new_state->common_possible_clones)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "common possible clones changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->encoder_device_idxs != new_state->encoder_device_idxs)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "encoder device idxs changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->width_mm != new_state->width_mm)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "width_mm changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->height_mm != new_state->height_mm)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "height_mm changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->has_scaling != new_state->has_scaling)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "has_scaling changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->non_desktop != new_state->non_desktop)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "non_desktop changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->subpixel_order != new_state->subpixel_order)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "subpixel order changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->suggested_x != new_state->suggested_x)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "suggested_x changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->suggested_y != new_state->suggested_y)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "suggested_y changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->hotplug_mode_update != new_state->hotplug_mode_update)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "hotplug_mode_update changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->panel_orientation_transform !=
       new_state->panel_orientation_transform)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "panel orientation transform changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (!meta_tile_info_equal (&state->tile_info, &new_state->tile_info))
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "tile info changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (!edid_equal (state->edid_data, new_state->edid_data))
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "EDID changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (!kms_modes_equal (state->modes, new_state->modes))
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "modes changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->max_bpc.supported != new_state->max_bpc.supported ||
       state->max_bpc.value != new_state->max_bpc.value ||
       state->max_bpc.min_value != new_state->max_bpc.min_value ||
       state->max_bpc.max_value != new_state->max_bpc.max_value)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "max_bpc changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->colorspace.value != new_state->colorspace.value ||
       state->colorspace.supported != new_state->colorspace.supported)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "colorspace changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->hdr.supported != new_state->hdr.supported ||
       state->hdr.unknown != new_state->hdr.unknown ||
       !meta_output_hdr_metadata_equal (&state->hdr.value, &new_state->hdr.value))
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "HDR changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->broadcast_rgb.value != new_state->broadcast_rgb.value ||
       state->broadcast_rgb.supported != new_state->broadcast_rgb.supported)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "broadcast_rgb changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->vrr_capable != new_state->vrr_capable)
-    return META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS, "vrr_capable changed");
+      return META_KMS_RESOURCE_CHANGE_FULL;
+    }
 
   if (state->privacy_screen_state != new_state->privacy_screen_state)
-    return META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+    {
+      meta_topic (META_DEBUG_KMS, "privacy screen state changed");
+      return META_KMS_RESOURCE_CHANGE_PRIVACY_SCREEN;
+    }
 
   return META_KMS_RESOURCE_CHANGE_NONE;
 }
@@ -1065,6 +1131,9 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
       if (drm_connector->connection != connector->connection)
         {
           connector->connection = drm_connector->connection;
+          meta_topic (META_DEBUG_KMS,
+                      "%s: connector status changed",
+                      __func__);
           changes |= META_KMS_RESOURCE_CHANGE_FULL;
         }
 
@@ -1089,13 +1158,31 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
   if (drm_connector->connection != connector->connection)
     {
       connector->connection = drm_connector->connection;
+      meta_topic (META_DEBUG_KMS,
+                  "%s: connector status changed",
+                  __func__);
       changes |= META_KMS_RESOURCE_CHANGE_FULL;
     }
 
   if (!current_state)
-    connector_changes = META_KMS_RESOURCE_CHANGE_FULL;
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "%s: no current connector state for reference",
+                  __func__);
+      connector_changes = META_KMS_RESOURCE_CHANGE_FULL;
+    }
   else
-    connector_changes = meta_kms_connector_state_changes (current_state, state);
+    {
+      connector_changes = meta_kms_connector_state_changes (current_state, state);
+
+      if (connector_changes & META_KMS_RESOURCE_CHANGE_FULL)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "%s: meta_kms_connector_state_changes triggered "
+                      "returned META_KMS_RESOURCE_CHANGE_FULL",
+                      __func__);
+        }
+    }
 
   changes |= connector_changes;
 

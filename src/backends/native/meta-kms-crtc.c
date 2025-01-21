@@ -302,11 +302,24 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
   if (!crtc_state.is_active)
     {
       if (crtc->current_state.is_active)
-        changes |= META_KMS_RESOURCE_CHANGE_FULL;
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "%s: CRTC is_active disabled",
+                      __func__);
+          changes |= META_KMS_RESOURCE_CHANGE_FULL;
+        }
     }
   else
     {
       changes = meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
+
+      if (changes & META_KMS_RESOURCE_CHANGE_FULL)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "%s: meta_kms_crtc_state_changes returned "
+                      "META_KMS_RESOURCE_CHANGE_FULL",
+                      __func__);
+        }
     }
 
   g_clear_pointer (&crtc->current_state.gamma.value,
@@ -346,6 +359,9 @@ meta_kms_crtc_update_state_in_impl (MetaKmsCrtc *crtc)
       crtc->current_state.is_active = FALSE;
       crtc->current_state.rect = (MtkRectangle) { };
       crtc->current_state.is_drm_mode_valid = FALSE;
+      meta_topic (META_DEBUG_KMS,
+                  "%s: drm_crtc=%p drm_props=%p",
+                  __func__, drm_crtc, drm_props);
       changes = META_KMS_RESOURCE_CHANGE_FULL;
       goto out;
     }
