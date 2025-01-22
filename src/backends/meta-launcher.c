@@ -447,8 +447,9 @@ on_active_changed (MetaDBusLogin1Session *session,
 }
 
 MetaLauncher *
-meta_launcher_new (MetaBackend  *backend,
-                   GError      **error)
+meta_launcher_new (MetaBackend        *backend,
+                   MetaLauncherFlags   flags,
+                   GError            **error)
 {
   g_autoptr (MetaLauncher) launcher = NULL;
   g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
@@ -471,19 +472,22 @@ meta_launcher_new (MetaBackend  *backend,
       g_clear_error (&local_error);
     }
 
-  if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
-                                                        FALSE,
-                                                        NULL,
-                                                        &local_error))
+  if (flags & META_LAUNCHER_FLAG_TAKE_CONTROL)
     {
-      meta_topic (META_DEBUG_BACKEND,
-                  "Failed to take control of the session: %s",
-                  local_error->message);
-      g_clear_error (&local_error);
-    }
-  else
-    {
-      have_control = TRUE;
+      if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
+                                                            FALSE,
+                                                            NULL,
+                                                            &local_error))
+        {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Failed to take control of the session: %s",
+                      local_error->message);
+          g_clear_error (&local_error);
+        }
+      else
+        {
+          have_control = TRUE;
+        }
     }
 
   launcher = g_object_new (META_TYPE_LAUNCHER, NULL);
