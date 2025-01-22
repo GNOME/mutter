@@ -697,6 +697,7 @@ input_mapper_power_save_mode_changed_cb (MetaMonitorManager        *monitor_mana
                                          MetaInputMapper           *mapper)
 {
   ClutterInputDevice *device;
+  ClutterSeat *seat;
   MetaLogicalMonitor *logical_monitor;
   MetaMonitor *builtin;
   MetaPowerSave power_save_mode;
@@ -719,6 +720,10 @@ input_mapper_power_save_mode_changed_cb (MetaMonitorManager        *monitor_mana
                                                   logical_monitor,
                                                   CLUTTER_TOUCHSCREEN_DEVICE);
   if (!device)
+    return;
+
+  seat = clutter_input_device_get_seat (device);
+  if (!clutter_seat_get_touch_mode (seat))
     return;
 
   g_signal_emit (mapper, signals[DEVICE_ENABLED], 0, device, on);
