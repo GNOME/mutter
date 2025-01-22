@@ -816,7 +816,7 @@ meta_backend_native_create_launcher (MetaBackend   *backend,
       priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
     return TRUE;
 
-  launcher = meta_launcher_new (backend, error);
+  launcher = meta_launcher_new (backend, META_LAUNCHER_FLAG_TAKE_CONTROL, error);
   if (!launcher)
     return FALSE;
 
