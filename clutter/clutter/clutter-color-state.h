@@ -54,6 +54,12 @@ struct _ClutterColorStateClass
                             ClutterColorState *target_color_state,
                             CoglPipeline      *pipeline);
 
+  void (* do_transform) (ClutterColorState *color_state,
+                         ClutterColorState *target_color_state,
+                         const float       *input,
+                         float             *output,
+                         int                n_samples);
+
   gboolean (* equals) (ClutterColorState *color_state,
                        ClutterColorState *other_color_state);
 
@@ -80,6 +86,13 @@ CLUTTER_EXPORT
 void clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                           ClutterColorState *target_color_state,
                                           CoglPipeline      *pipeline);
+
+CLUTTER_EXPORT
+void clutter_color_state_do_transform (ClutterColorState *color_state,
+                                       ClutterColorState *target_color_state,
+                                       const float       *input,
+                                       float             *output,
+                                       int                n_samples);
 
 CLUTTER_EXPORT
 gboolean clutter_color_state_equals (ClutterColorState *color_state,

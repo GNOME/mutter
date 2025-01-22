@@ -187,6 +187,139 @@ clutter_eotf_get_default_luminance (ClutterEOTF eotf)
   g_assert_not_reached ();
 }
 
+static float
+clutter_eotf_apply_srgb (float input)
+{
+  if (input <= 0.04045f)
+    return input / 12.92f;
+  else
+    return powf ((input + 0.055f) / 1.055f, 12.0f / 5.0f);
+}
+
+static float
+clutter_eotf_apply_srgb_inv (float input)
+{
+  if (input <= 0.0031308f)
+    return input * 12.92f;
+  else
+    return powf (input, (5.0f / 12.0f)) * 1.055f - 0.055f;
+}
+
+static float
+clutter_eotf_apply_pq (float input)
+{
+  float c1, c2, c3, oo_m1, oo_m2, num, den;
+
+  c1 = 0.8359375f;
+  c2 = 18.8515625f;
+  c3 = 18.6875f;
+  oo_m1 = 1.0f / 0.1593017f;
+  oo_m2 = 1.0f / 78.84375f;
+  num = MAX (powf (input, oo_m2) - c1, 0.0f);
+  den = c2 - c3 * powf (input, oo_m2);
+  return powf (num / den, oo_m1);
+}
+
+static float
+clutter_eotf_apply_pq_inv (float input)
+{
+  float c1, c2, c3, m1, m2, in_pow_m1, num, den;
+
+  c1 = 0.8359375f;
+  c2 = 18.8515625f;
+  c3 = 18.6875f;
+  m1 = 0.1593017f;
+  m2 = 78.84375f;
+  in_pow_m1 = powf (input, m1);
+  num = c1 + c2 * in_pow_m1;
+  den = 1.0f + c3 * in_pow_m1;
+  return powf (num / den, m2);
+}
+
+static float
+clutter_eotf_apply_bt709 (float input)
+{
+  if (input < 0.08124f)
+    return input / 4.5f;
+  else
+    return powf ((input + 0.099f) / 1.099f, 1.0f / 0.45f);
+}
+
+static float
+clutter_eotf_apply_bt709_inv (float input)
+{
+  if (input < 0.018f)
+    return input * 4.5f;
+  else
+    return 1.099f * powf (input, 0.45f) - 0.099f;
+}
+
+static float
+clutter_eotf_apply_gamma (float input,
+                          float gamma_exp)
+{
+  /* This avoids returning nan */
+  return G_APPROX_VALUE (input, 0.0f, FLT_EPSILON) ?
+         0.0f :
+         powf (input, gamma_exp);
+}
+
+static float
+clutter_eotf_apply (ClutterEOTF eotf,
+                    float       input)
+{
+  switch (eotf.type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          return clutter_eotf_apply_srgb (input);
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return clutter_eotf_apply_pq (input);
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
+          return clutter_eotf_apply_bt709 (input);
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return input;
+        }
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      return clutter_eotf_apply_gamma (input, eotf.gamma_exp);
+    }
+
+  g_warning ("Didn't apply tranfer function %s",
+             clutter_eotf_to_string (eotf));
+  return input;
+}
+
+static float
+clutter_eotf_apply_inv (ClutterEOTF eotf,
+                        float       input)
+{
+  switch (eotf.type)
+    {
+    case CLUTTER_EOTF_TYPE_NAMED:
+      switch (eotf.tf_name)
+        {
+        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+          return clutter_eotf_apply_srgb_inv (input);
+        case CLUTTER_TRANSFER_FUNCTION_PQ:
+          return clutter_eotf_apply_pq_inv (input);
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
+          return clutter_eotf_apply_bt709_inv (input);
+        case CLUTTER_TRANSFER_FUNCTION_LINEAR:
+          return input;
+        }
+      break;
+    case CLUTTER_EOTF_TYPE_GAMMA:
+      return clutter_eotf_apply_gamma (input, 1.0f / eotf.gamma_exp);
+    }
+
+  g_warning ("Didn't apply inv tranfer function %s",
+             clutter_eotf_to_string (eotf));
+  return input;
+}
+
 /* Primaries and white point retrieved from:
  * https://www.color.org */
 static const ClutterPrimaries srgb_primaries = {
@@ -1203,6 +1336,72 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
                                        pipeline);
 }
 
+static void
+clutter_color_state_params_do_transform (ClutterColorState *color_state,
+                                         ClutterColorState *target_color_state,
+                                         const float       *input,
+                                         float             *output,
+                                         int                n_samples)
+{
+  ClutterColorStateParams *color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (color_state);
+  ClutterColorStateParams *target_color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (target_color_state);
+  ClutterEOTF eotf = color_state_params->eotf;
+  ClutterEOTF target_eotf = target_color_state_params->eotf;
+  int i;
+  float result[3];
+  float color_trans_mat[9];
+  float lum_mapping;
+  graphene_matrix_t g_color_trans_mat;
+  graphene_vec3_t g_result;
+
+  get_color_space_mapping_matrix (color_state_params,
+                                  target_color_state_params,
+                                  color_trans_mat);
+  graphene_matrix_init_from_float (
+    &g_color_trans_mat,
+    (float [16]) {
+     color_trans_mat[0], color_trans_mat[1], color_trans_mat[2], 0.0f,
+     color_trans_mat[3], color_trans_mat[4], color_trans_mat[5], 0.0f,
+     color_trans_mat[6], color_trans_mat[7], color_trans_mat[8], 0.0f,
+     0.0f, 0.0f, 0.0f, 1.0f,
+    });
+
+  lum_mapping = get_luminance_mapping (color_state_params,
+                                       target_color_state_params);
+
+  for (i = 0; i < n_samples; i++)
+    {
+      /* EOTF */
+      result[0] = clutter_eotf_apply (eotf, input[0]);
+      result[1] = clutter_eotf_apply (eotf, input[1]);
+      result[2] = clutter_eotf_apply (eotf, input[2]);
+
+      /* Luminance mapping */
+      result[0] = result[0] * lum_mapping;
+      result[1] = result[1] * lum_mapping;
+      result[2] = result[2] * lum_mapping;
+
+      /* Color space mapping */
+      graphene_vec3_init_from_float (&g_result, result);
+      graphene_matrix_transform_vec3 (&g_color_trans_mat, &g_result, &g_result);
+      graphene_vec3_to_float (&g_result, result);
+
+      /* Inverse EOTF */
+      result[0] = clutter_eotf_apply_inv (target_eotf, result[0]);
+      result[1] = clutter_eotf_apply_inv (target_eotf, result[1]);
+      result[2] = clutter_eotf_apply_inv (target_eotf, result[2]);
+
+      output[0] = CLAMP (result[0], 0.0f, 1.0f);
+      output[1] = CLAMP (result[1], 0.0f, 1.0f);
+      output[2] = CLAMP (result[2], 0.0f, 1.0f);
+
+      input += 3;
+      output += 3;
+    }
+}
+
 static gboolean
 clutter_color_state_params_equals (ClutterColorState *color_state,
                                    ClutterColorState *other_color_state)
@@ -1336,6 +1535,7 @@ clutter_color_state_params_class_init (ClutterColorStateParamsClass *klass)
   color_state_class->init_color_transform_key = clutter_color_state_params_init_color_transform_key;
   color_state_class->create_transform_snippet = clutter_color_state_params_create_transform_snippet;
   color_state_class->update_uniforms = clutter_color_state_params_update_uniforms;
+  color_state_class->do_transform = clutter_color_state_params_do_transform;
   color_state_class->equals = clutter_color_state_params_equals;
   color_state_class->to_string = clutter_color_state_params_to_string;
   color_state_class->required_format = clutter_color_state_params_required_format;
