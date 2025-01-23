@@ -904,10 +904,10 @@ get_color_space_trans_matrices (ClutterColorStateParams *color_state_params,
   graphene_matrix_init_from_float (
     &primaries_mat,
     (float [16]) {
-    primaries->r_x, primaries->r_y, 1 - primaries->r_x - primaries->r_y, 0,
-    primaries->g_x, primaries->g_y, 1 - primaries->g_x - primaries->g_y, 0,
-    primaries->b_x, primaries->b_y, 1 - primaries->b_x - primaries->b_y, 0,
-    0, 0, 0, 1,
+    primaries->r_x, primaries->r_y, 1 - primaries->r_x - primaries->r_y, 0.0f,
+    primaries->g_x, primaries->g_y, 1 - primaries->g_x - primaries->g_y, 0.0f,
+    primaries->b_x, primaries->b_y, 1 - primaries->b_x - primaries->b_y, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
   });
 
   if (!graphene_matrix_inverse (&primaries_mat, &inv_primaries_mat))
@@ -920,10 +920,10 @@ get_color_space_trans_matrices (ClutterColorStateParams *color_state_params,
   graphene_matrix_init_from_float (
     &coefficients_mat,
     (float [16]) {
-    graphene_vec3_get_x (&coefficients), 0, 0, 0,
-    0, graphene_vec3_get_y (&coefficients), 0, 0,
-    0, 0, graphene_vec3_get_z (&coefficients), 0,
-    0, 0, 0, 1,
+    graphene_vec3_get_x (&coefficients), 0.0f, 0.0f, 0.0f,
+    0.0f, graphene_vec3_get_y (&coefficients), 0.0f, 0.0f,
+    0.0f, 0.0f, graphene_vec3_get_z (&coefficients), 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
   });
 
   graphene_matrix_multiply (&coefficients_mat, &primaries_mat, rgb_to_xyz);
@@ -989,19 +989,19 @@ get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
   graphene_matrix_init_from_float (
     &bradford_mat,
     (float [16]) {
-    0.8951f, -0.7502f, 0.0389f, 0,
-    0.2664f, 1.7135f, -0.0685f, 0,
-    -0.1614f, 0.0367f, 1.0296f, 0,
-    0, 0, 0, 1,
+    0.8951f, -0.7502f, 0.0389f, 0.0f,
+    0.2664f, 1.7135f, -0.0685f, 0.0f,
+    -0.1614f, 0.0367f, 1.0296f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
   });
 
   graphene_matrix_init_from_float (
     &inv_bradford_mat,
     (float [16]) {
-    0.9869929f, 0.4323053f, -0.0085287f, 0,
-    -0.1470543f, 0.5183603f, 0.0400428f, 0,
-    0.1599627f, 0.0492912f, 0.9684867f, 0,
-    0, 0, 0, 1,
+    0.9869929f, 0.4323053f, -0.0085287f, 0.0f,
+    -0.1470543f, 0.5183603f, 0.0400428f, 0.0f,
+    0.1599627f, 0.0492912f, 0.9684867f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
   });
 
   xyY_to_XYZ (source_primaries->w_x, source_primaries->w_y, 1.0f,
@@ -1020,10 +1020,10 @@ get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
   graphene_matrix_init_from_float (
     &coefficients_mat,
     (float [16]) {
-    graphene_vec3_get_x (&coefficients), 0, 0, 0,
-    0, graphene_vec3_get_y (&coefficients), 0, 0,
-    0, 0, graphene_vec3_get_z (&coefficients), 0,
-    0, 0, 0, 1,
+    graphene_vec3_get_x (&coefficients), 0.0f, 0.0f, 0.0f,
+    0.0f, graphene_vec3_get_y (&coefficients), 0.0f, 0.0f,
+    0.0f, 0.0f, graphene_vec3_get_z (&coefficients), 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
   });
 
   graphene_matrix_multiply (&bradford_mat, &coefficients_mat,
