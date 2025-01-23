@@ -1392,6 +1392,14 @@ static const MetaKmsResultListenerVtable swap_buffer_result_listener_vtable = {
 };
 
 static void
+scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
+                         gpointer               user_data);
+
+static const MetaKmsResultListenerVtable scanout_result_listener_vtable = {
+  .feedback = scanout_result_feedback,
+};
+
+static void
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                                const MtkRegion *region,
                                                CoglFrameInfo   *frame_info,
@@ -1546,6 +1554,9 @@ post_next_frame (CoglOnscreen *onscreen)
   MetaFrameNative *frame_native;
   MtkRegion *region;
   int sync_fd;
+  const MetaKmsResultListenerVtable *listener;
+  MetaKmsAssignPlaneFlag flip_flags;
+  gboolean is_direct_scanout;
 
   COGL_TRACE_SCOPED_ANCHOR (MetaRendererNativePostKmsUpdate);
 
@@ -1565,8 +1576,21 @@ post_next_frame (CoglOnscreen *onscreen)
   kms_device = meta_kms_crtc_get_device (kms_crtc);
   kms_update = meta_frame_native_ensure_kms_update (frame_native,
                                                     kms_device);
+
+  is_direct_scanout = meta_frame_native_get_scanout (frame_native) != NULL;
+  if (is_direct_scanout)
+    {
+      listener = &scanout_result_listener_vtable;
+      flip_flags = META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC;
+    }
+  else
+    {
+      listener = &swap_buffer_result_listener_vtable;
+      flip_flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
+    }
+
   meta_kms_update_add_result_listener (kms_update,
-                                       &swap_buffer_result_listener_vtable,
+                                       listener,
                                        NULL,
                                        onscreen_native,
                                        NULL);
@@ -1576,7 +1600,7 @@ post_next_frame (CoglOnscreen *onscreen)
                                   onscreen_native->view,
                                   onscreen_native->crtc,
                                   kms_update,
-                                  META_KMS_ASSIGN_PLANE_FLAG_NONE,
+                                  flip_flags,
                                   region);
 
   COGL_TRACE_BEGIN_ANCHORED (MetaRendererNativePostKmsUpdate,
@@ -1630,7 +1654,8 @@ post_next_frame (CoglOnscreen *onscreen)
     }
 
   meta_topic (META_DEBUG_KMS,
-              "Posting primary plane composite update for CRTC %u (%s)",
+              "Posting primary plane %s update for CRTC %u (%s)",
+              is_direct_scanout ? "direct scanout" : "composite",
               meta_kms_crtc_get_id (kms_crtc),
               meta_kms_device_get_path (kms_device));
 
@@ -1732,10 +1757,6 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
   meta_onscreen_native_clear_posted_fb (onscreen);
 }
 
-static const MetaKmsResultListenerVtable scanout_result_listener_vtable = {
-  .feedback = scanout_result_feedback,
-};
-
 static gboolean
 meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                                      CoglScanout    *scanout,
@@ -1751,35 +1772,8 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaPowerSave power_save_mode;
   ClutterFrame *frame = user_data;
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  MetaKmsCrtc *kms_crtc;
-  MetaKmsDevice *kms_device;
-  MetaKmsUpdate *kms_update;
-
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
-    {
-      g_set_error_literal (error,
-                           COGL_SCANOUT_ERROR,
-                           COGL_SCANOUT_ERROR_INHIBITED,
-                           "Direct scanout is inhibited during power saving mode");
-      return FALSE;
-    }
-
-  if (meta_renderer_native_has_pending_mode_set (renderer_native))
-    {
-      g_set_error_literal (error,
-                           COGL_SCANOUT_ERROR,
-                           COGL_SCANOUT_ERROR_INHIBITED,
-                           "Direct scanout is inhibited when a mode set is pending");
-      return FALSE;
-    }
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1798,33 +1792,9 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     frame_info->has_valid_gpu_rendering_duration = TRUE;
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-  kms_update = meta_frame_native_ensure_kms_update (frame_native, kms_device);
-
-  meta_kms_update_add_result_listener (kms_update,
-                                       &scanout_result_listener_vtable,
-                                       NULL,
-                                       onscreen_native,
-                                       NULL);
-
-  meta_onscreen_native_flip_crtc (onscreen,
-                                  onscreen_native->view,
-                                  onscreen_native->crtc,
-                                  kms_update,
-                                  META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC,
-                                  NULL);
-
-  meta_topic (META_DEBUG_KMS,
-              "Posting direct scanout update for CRTC %u (%s)",
-              meta_kms_crtc_get_id (kms_crtc),
-              meta_kms_device_get_path (kms_device));
-
-  kms_update = meta_frame_native_steal_kms_update (frame_native);
-  meta_kms_device_post_update (kms_device, kms_update,
-                               META_KMS_UPDATE_FLAG_NONE);
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 
+  post_next_frame (onscreen);
   return TRUE;
 }
 
