@@ -564,8 +564,6 @@ find_first_fit (MetaWindow         *window,
                 /* visible windows on relevant workspaces */
                 GList              *windows,
                 MetaLogicalMonitor *logical_monitor,
-                int                 x,
-                int                 y,
                 int                *new_x,
                 int                *new_y)
 {
@@ -971,9 +969,8 @@ meta_window_place (MetaWindow        *window,
   x = logical_monitor->rect.x;
   y = logical_monitor->rect.y;
 
-  if (find_first_fit (window, windows,
-                      logical_monitor,
-                      x, y, &x, &y))
+  if (find_first_fit (window, windows, logical_monitor,
+                      &x, &y))
     goto done_check_denied_focus;
 
   /* No good fit? Fall back to cascading... */
@@ -1009,8 +1006,7 @@ done_check_denied_focus:
           y = logical_monitor->rect.y;
 
           found_fit = find_first_fit (window, focus_window_list,
-                                      logical_monitor,
-                                      x, y, &x, &y);
+                                      logical_monitor, &x, &y);
           g_list_free (focus_window_list);
         }
 
