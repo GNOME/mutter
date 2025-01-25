@@ -509,7 +509,7 @@ init_tests (void)
                    meta_test_kms_render_basic);
   g_test_add_func ("/backends/native/kms/render/client-scanout",
                    meta_test_kms_render_client_scanout);
-  g_test_add_func ("/backends/native/kms/render/client-scanout-fallabck",
+  g_test_add_func ("/backends/native/kms/render/client-scanout-fallback",
                    meta_test_kms_render_client_scanout_fallback);
   g_test_add_func ("/backends/native/kms/render/empty-config",
                    meta_test_kms_render_empty_config);
