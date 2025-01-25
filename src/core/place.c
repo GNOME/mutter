@@ -121,8 +121,6 @@ static void
 find_next_cascade (MetaWindow *window,
                    /* visible windows on relevant workspaces */
                    GList      *windows,
-                   int         x,
-                   int         y,
                    int        *new_x,
                    int        *new_y)
 {
@@ -974,7 +972,7 @@ meta_window_place (MetaWindow        *window,
     goto done_check_denied_focus;
 
   /* No good fit? Fall back to cascading... */
-  find_next_cascade (window, windows, x, y, &x, &y);
+  find_next_cascade (window, windows, &x, &y);
 
 done_check_denied_focus:
   /* If the window is being denied focus and isn't a transient of the
