@@ -30,9 +30,5 @@ explaining exactly what the test is for, how the test was designed to work,
 and possibly a rationale for the approach taken for testing. Tests for specific
 bugs should reference the bug report URL or number.
 
-• When running tests under Valgrind, you should follow the instructions
-available here:
-
-        https://wiki.gnome.org/Valgrind
-
-and also use the suppression file available in the Git repository.
+• When running tests under Valgrind use the suppression file available in the
+Git repository.
