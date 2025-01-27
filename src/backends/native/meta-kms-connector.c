@@ -899,11 +899,10 @@ static gboolean
 edid_equal (GBytes *old_edid,
             GBytes *new_edid)
 {
-  if ((old_edid && !new_edid) || !new_edid ||
-      !g_bytes_equal (old_edid, new_edid))
-    return FALSE;
+  if (old_edid && new_edid)
+    return g_bytes_equal (old_edid, new_edid);
 
-  return TRUE;
+  return !old_edid && !new_edid;
 }
 
 static gboolean
