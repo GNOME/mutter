@@ -1,5 +1,5 @@
 <!-- 
-Please read https://wiki.gnome.org/Community/GettingInTouch/BugReportingGuidelines
+Please read https://handbook.gnome.org/issues/reporting.html
 first to ensure that you create a clear and specific issue.
 -->
 
