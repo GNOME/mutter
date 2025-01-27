@@ -159,6 +159,21 @@ buffer_ycbcr_basic (void)
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
+static void
+buffer_shm_destroy_before_release (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "shm-destroy-before-release");
+
+  wait_for_sync_point (0);
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
 static gboolean
 set_true (gpointer user_data)
 {
@@ -1687,6 +1702,8 @@ init_tests (void)
                    buffer_single_pixel_buffer);
   g_test_add_func ("/wayland/buffer/ycbcr-basic",
                    buffer_ycbcr_basic);
+  g_test_add_func ("/wayland/buffer/shm-destroy-before-release",
+                   buffer_shm_destroy_before_release);
   g_test_add_func ("/wayland/idle-inhibit/instant-destroy",
                    idle_inhibit_instant_destroy);
   g_test_add_func ("/wayland/registry/filter",

@@ -958,6 +958,7 @@ wayland_test_cases = [
       test_client_executables.get('invalid-xdg-shell-actions'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
+      test_client_executables.get('shm-destroy-before-release'),
       test_client_executables.get('single-pixel-buffer'),
       test_client_executables.get('subsurface-corner-cases'),
       test_client_executables.get('subsurface-parent-unmapped'),

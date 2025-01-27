@@ -64,6 +64,9 @@ wayland_test_clients = [
     ],
   },
   {
+    'name': 'shm-destroy-before-release',
+  },
+  {
     'name': 'single-pixel-buffer',
   },
   {
