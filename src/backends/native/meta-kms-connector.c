@@ -896,6 +896,17 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsConnectorState,
                                meta_kms_connector_state_free);
 
 static gboolean
+edid_equal (GBytes *old_edid,
+            GBytes *new_edid)
+{
+  if ((old_edid && !new_edid) || !new_edid ||
+      !g_bytes_equal (old_edid, new_edid))
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
 kms_modes_equal (GList *modes,
                  GList *other_modes)
 {
@@ -968,8 +979,7 @@ meta_kms_connector_state_changes (MetaKmsConnectorState *state,
   if (!meta_tile_info_equal (&state->tile_info, &new_state->tile_info))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
-  if ((state->edid_data && !new_state->edid_data) || !state->edid_data ||
-      !g_bytes_equal (state->edid_data, new_state->edid_data))
+  if (!edid_equal (state->edid_data, new_state->edid_data))
     return META_KMS_RESOURCE_CHANGE_FULL;
 
   if (!kms_modes_equal (state->modes, new_state->modes))
