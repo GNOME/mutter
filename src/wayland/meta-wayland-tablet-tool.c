@@ -484,16 +484,10 @@ tool_set_cursor (struct wl_client   *client,
   MetaWaylandTabletTool *tool = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface;
 
-  surface = (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
+  if (!meta_wayland_tablet_tool_check_focus_serial (tool, client, serial))
+    return;
 
-  if (tool->focus_surface == NULL)
-    return;
-  if (tool->cursor_renderer == NULL)
-    return;
-  if (wl_resource_get_client (tool->focus_surface->resource) != client)
-    return;
-  if (tool->proximity_serial - serial > G_MAXUINT32 / 2)
-    return;
+  surface = (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
 
   if (surface &&
       !meta_wayland_surface_assign_role (surface,
@@ -1041,4 +1035,21 @@ meta_wayland_tablet_tool_focus_surface (MetaWaylandTabletTool *tool,
                                         MetaWaylandSurface    *surface)
 {
   meta_wayland_tablet_tool_set_focus (tool, surface, NULL);
+}
+
+gboolean
+meta_wayland_tablet_tool_check_focus_serial (MetaWaylandTabletTool *tool,
+                                             struct wl_client      *client,
+                                             uint32_t               serial)
+{
+  if (tool->focus_surface == NULL)
+    return FALSE;
+  if (tool->cursor_renderer == NULL)
+    return FALSE;
+  if (wl_resource_get_client (tool->focus_surface->resource) != client)
+    return FALSE;
+  if (tool->proximity_serial - serial > G_MAXUINT32 / 2)
+    return FALSE;
+
+  return TRUE;
 }

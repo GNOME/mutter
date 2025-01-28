@@ -1224,14 +1224,10 @@ pointer_set_cursor (struct wl_client *client,
   if (!pointer)
     return;
 
-  surface = (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
+  if (!meta_wayland_pointer_check_focus_serial (pointer, client, serial))
+    return;
 
-  if (pointer->focus_surface == NULL)
-    return;
-  if (wl_resource_get_client (pointer->focus_surface->resource) != client)
-    return;
-  if (pointer->focus_serial - serial > G_MAXUINT32 / 2)
-    return;
+  surface = (surface_resource ? wl_resource_get_user_data (surface_resource) : NULL);
 
   if (surface &&
       !meta_wayland_surface_assign_role (surface,
@@ -1549,4 +1545,19 @@ MetaWaylandPointerClient *
 meta_wayland_pointer_get_focus_client (MetaWaylandPointer *pointer)
 {
   return pointer->focus_client;
+}
+
+gboolean
+meta_wayland_pointer_check_focus_serial (MetaWaylandPointer *pointer,
+                                         struct wl_client   *client,
+                                         uint32_t            serial)
+{
+  if (pointer->focus_surface == NULL)
+    return FALSE;
+  if (wl_resource_get_client (pointer->focus_surface->resource) != client)
+    return FALSE;
+  if (pointer->focus_serial - serial > G_MAXUINT32 / 2)
+    return FALSE;
+
+  return TRUE;
 }
