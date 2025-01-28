@@ -53,6 +53,8 @@ struct _MetaWaylandTabletTool
   MetaCursorRenderer *cursor_renderer;
   MetaCursorSpriteXcursor *default_sprite;
 
+  MetaCursor cursor_shape;
+
   MetaWaylandSurface *current;
   guint32 pressed_buttons;
   guint32 button_count;
@@ -115,7 +117,10 @@ move_resources_for_client (struct wl_list   *destination,
 static void
 meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
 {
-  MetaCursorSprite *cursor = NULL;
+  MetaBackend *backend = backend_from_tool (tool);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
+  g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
 
   if (tool->cursor_renderer == NULL)
     return;
@@ -127,18 +132,29 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
         {
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (tool->cursor_surface->role);
+          MetaCursorSprite *sprite;
 
-          cursor = meta_wayland_cursor_surface_get_sprite (cursor_surface);
+          sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
+          cursor_sprite = g_object_ref (sprite);
         }
-      else
-        cursor = NULL;
+      else if (tool->cursor_shape != META_CURSOR_INVALID)
+        {
+          MetaCursorSpriteXcursor *sprite;
+
+          sprite = meta_cursor_sprite_xcursor_new (tool->cursor_shape,
+                                                   cursor_tracker);
+          cursor_sprite = META_CURSOR_SPRITE (sprite);
+        }
     }
   else if (tool->current_tablet)
-    cursor = META_CURSOR_SPRITE (tool->default_sprite);
-  else
-    cursor = NULL;
+    {
+      MetaCursorSprite *sprite;
 
-  meta_cursor_renderer_set_cursor (tool->cursor_renderer, cursor);
+      sprite = META_CURSOR_SPRITE (tool->default_sprite);
+      cursor_sprite = g_object_ref (sprite);
+    }
+
+  meta_cursor_renderer_set_cursor (tool->cursor_renderer, cursor_sprite);
 }
 
 static void
@@ -160,6 +176,7 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
     }
 
   tool->cursor_surface = surface;
+  tool->cursor_shape = META_CURSOR_INVALID;
 
   if (tool->cursor_surface)
     {
@@ -167,6 +184,27 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
       wl_resource_add_destroy_listener (tool->cursor_surface->resource,
                                         &tool->cursor_surface_destroy_listener);
     }
+
+  meta_wayland_tablet_tool_update_cursor_surface (tool);
+}
+
+void
+meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
+                                           MetaCursor             shape)
+{
+  if (tool->cursor_surface)
+    {
+      MetaWaylandCursorSurface *cursor_surface;
+
+      cursor_surface = META_WAYLAND_CURSOR_SURFACE (tool->cursor_surface->role);
+      meta_wayland_cursor_surface_set_renderer (cursor_surface, NULL);
+
+      meta_wayland_surface_update_outputs (tool->cursor_surface);
+      wl_list_remove (&tool->cursor_surface_destroy_listener.link);
+    }
+
+  tool->cursor_surface = NULL;
+  tool->cursor_shape = shape;
 
   meta_wayland_tablet_tool_update_cursor_surface (tool);
 }

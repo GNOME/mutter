@@ -604,6 +604,8 @@ if have_wayland
     'wayland/meta-wayland-color-management.c',
     'wayland/meta-wayland-color-management.h',
     'wayland/meta-wayland-commit-timing.c',
+    'wayland/meta-wayland-cursor-shape.c',
+    'wayland/meta-wayland-cursor-shape.h',
     'wayland/meta-wayland-fifo.c',
     'wayland/meta-wayland-cursor-surface.c',
     'wayland/meta-wayland-cursor-surface.h',
@@ -1107,6 +1109,7 @@ if have_wayland
   #  - protocol stability ('private', 'stable' or 'unstable')
   #  - protocol version (if stability is 'unstable')
   wayland_protocols = [
+    ['cursor-shape-v1', 'private', ],
     ['drm-lease', 'staging', 'v1', ],
     ['fractional-scale', 'staging', 'v1', ],
     ['gtk-shell', 'private', ],
