@@ -4,7 +4,7 @@ import argparse
 import argcomplete
 import sys
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from gi.repository import GLib, Gio
 from enum import Enum, Flag
 from argcomplete.completers import BaseCompleter, SuppressCompleter
@@ -288,27 +288,18 @@ class Monitor:
         self.display_name = self.properties.get("display-name", None)
 
 
+@dataclass
 class LogicalMonitor:
-    def __init__(
-        self,
-        monitors,
-        scale,
-        position=(0, 0),
-        transform=Transform.NORMAL,
-        is_primary=False,
-        properties={},
-        args=None,
-    ):
-        self.position = position
-        self.scale = scale
-        self.transform = transform
-        self.is_primary = is_primary
-        self.monitors = monitors
-        self.properties = properties
-        self.args = args
+    monitors: list[Monitor]
+    scale: float
+    position: tuple[int, int] | None = (0, 0)
+    transform: Transform = Transform.NORMAL
+    is_primary: bool = False
+    properties: dict = field(default_factory=dict)
+    args: dict | None = None
 
     @classmethod
-    def new_from_variant(cls, monitors_state, variant):
+    def from_variant(cls, monitors_state, variant):
         position = (variant[0], variant[1])
         scale = variant[2]
         transform = Transform(variant[3])
@@ -682,9 +673,8 @@ def create_logical_monitor(monitors_state, layout_mode, logical_monitor_args):
         monitors.append(monitor)
 
     return LogicalMonitor(
-        monitors_state,
-        monitors,
-        scale,
+        monitors=monitors,
+        scale=scale,
         is_primary=is_primary,
         transform=transform,
         position=None,
@@ -833,7 +823,7 @@ class MonitorsState:
     def init_logical_monitors(self, current_state):
         self.logical_monitors = []
         for variant in current_state[2]:
-            logical_monitor = LogicalMonitor.new_from_variant(self, variant)
+            logical_monitor = LogicalMonitor.from_variant(self, variant)
             self.logical_monitors.append(logical_monitor)
 
     def create_current_config(self):
