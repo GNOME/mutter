@@ -260,32 +260,53 @@ class MonitorMode:
         )
 
 
+@dataclass
 class Monitor:
-    def __init__(self, variant):
-        self.init_from_variant(variant)
+    connector: str
+    vendor: str
+    product: str
+    display_name: str
+    serial: str
+    modes: list[MonitorMode]
+    properties: dict
+    current_mode: MonitorMode | None
+    preferred_mode: MonitorMode | None
 
-    def init_from_variant(self, variant):
+    @classmethod
+    def from_variant(cls, variant):
         spec = variant[0]
-        self.connector = spec[0]
-        self.vendor = spec[1] if spec[1] != "" else None
-        self.product = spec[2] if spec[2] != "" else None
-        self.serial = spec[3] if spec[3] != "" else None
-        self.modes = [
+        connector = spec[0]
+        vendor = spec[1] if spec[1] != "" else None
+        product = spec[2] if spec[2] != "" else None
+        serial = spec[3] if spec[3] != "" else None
+        modes = [
             MonitorMode.from_variant(mode_variant)
             for mode_variant in variant[1]
         ]
-        self.properties = translate_properties(variant[2])
+        properties = translate_properties(variant[2])
 
-        self.current_mode = next(
-            (mode for mode in self.modes if "is-current" in mode.properties),
+        current_mode = next(
+            (mode for mode in modes if "is-current" in mode.properties),
             None,
         )
-        self.preferred_mode = next(
-            (mode for mode in self.modes if "is-preferred" in mode.properties),
+        preferred_mode = next(
+            (mode for mode in modes if "is-preferred" in mode.properties),
             None,
         )
 
-        self.display_name = self.properties.get("display-name", None)
+        display_name = properties.get("display-name", None)
+
+        return cls(
+            connector=connector,
+            vendor=vendor,
+            product=product,
+            serial=serial,
+            modes=modes,
+            properties=properties,
+            current_mode=current_mode,
+            preferred_mode=preferred_mode,
+            display_name=display_name,
+        )
 
 
 @dataclass
@@ -817,7 +838,7 @@ class MonitorsState:
     def init_monitors(self, current_state):
         self.monitors = {}
         for monitor_variant in current_state[1]:
-            monitor = Monitor(monitor_variant)
+            monitor = Monitor.from_variant(monitor_variant)
             self.monitors[monitor.connector] = monitor
 
     def init_logical_monitors(self, current_state):
