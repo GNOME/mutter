@@ -809,24 +809,45 @@ meta_backend_native_create_launcher (MetaBackend   *backend,
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (native);
   g_autoptr (MetaLauncher) launcher = NULL;
+  g_autoptr (GError) local_error = NULL;
 
-  *launcher_out = NULL;
+  /* We don't want to track the session the headless mode got started on. */
+  if (priv->mode == META_BACKEND_NATIVE_MODE_HEADLESS)
+    {
+      *launcher_out = NULL;
+      return TRUE;
+    }
 
-  if (priv->mode == META_BACKEND_NATIVE_MODE_HEADLESS ||
-      priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
-    return TRUE;
+  launcher = meta_launcher_new (backend, &local_error);
 
-  launcher = meta_launcher_new (backend, error);
+  /* Headless test is allowed to run with and without a launcher */
+  if (!launcher && priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
+    {
+      *launcher_out = NULL;
+      return TRUE;
+    }
+
+  /* For everything else we do need a launcher */
   if (!launcher)
-    return FALSE;
+    {
+      g_propagate_error (error, g_steal_pointer (&local_error));
+      return FALSE;
+    }
 
-
-  if (!meta_launcher_get_seat_id (launcher))
+  /* If we have no seat, go headless without launcher */
+  if (!meta_launcher_get_seat_id (launcher) &&
+      priv->mode == META_BACKEND_NATIVE_MODE_DEFAULT)
     {
       priv->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
       g_message ("No seat assigned, running headlessly");
+
+      *launcher_out = NULL;
+      return TRUE;
     }
-  else if (!meta_launcher_take_control (launcher, error))
+
+  /* When there is a head (default or vkms modes), we need to take control */
+  if (!meta_launcher_take_control (launcher, error) &&
+      priv->mode != META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
     {
       g_prefix_error_literal (error, "Failed to take control of the session: ");
       return FALSE;
