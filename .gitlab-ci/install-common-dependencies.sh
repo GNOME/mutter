@@ -35,6 +35,21 @@ pkgconf() {
   env "${ENV[@]}" pkgconf --env-only "$@"
 }
 
+pip_install() {
+  local pkg=$1
+
+  for destdir in "${DESTDIRS[@]}"; do
+    local pypaths=($destdir/usr/lib*/python3*/site-packages)
+    if ! pip3 list "${pypaths[@]/#/--path=}" | grep $pkg >/dev/null
+    then
+      pip3 install --ignore-installed \
+        --root-user-action ignore \
+        --prefix $destdir/usr \
+        $pkg
+    fi
+  done
+}
+
 TEMP=$(getopt \
   --name=$(basename $0) \
   --options='h' \
@@ -85,3 +100,5 @@ then
       https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
       master
 fi
+
+pip_install argcomplete

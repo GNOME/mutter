@@ -106,7 +106,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 41
-    BASE_TAG: '2025-01-29.0'
+    BASE_TAG: '2025-01-30.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       clang
@@ -125,7 +125,6 @@ variables:
       zenity
       python3-dbusmock
       gnome-desktop-testing
-      python3-argcomplete
       ruff
 
     FDO_DISTRIBUTION_EXEC: |
