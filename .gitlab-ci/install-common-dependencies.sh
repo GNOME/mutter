@@ -42,7 +42,7 @@ pip_install() {
     local pypaths=($destdir/usr/lib*/python3*/site-packages)
     if ! pip3 list "${pypaths[@]/#/--path=}" | grep $pkg >/dev/null
     then
-      pip3 install --ignore-installed \
+      sudo pip3 install --ignore-installed \
         --root-user-action ignore \
         --prefix $destdir/usr \
         $pkg
