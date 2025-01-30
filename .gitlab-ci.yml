@@ -165,7 +165,7 @@ variables:
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
                       gnome-shell \
-                      $(NULL)
+                      $NULL
 
       # Work-around for podman-push aborting on permission issue
       # https://gitlab.gnome.org/Infrastructure/Infrastructure/-/issues/1247
