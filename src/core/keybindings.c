@@ -1701,40 +1701,34 @@ process_iso_next_group (MetaDisplay *display,
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaKeyBindingManager *keys = &display->key_binding_manager;
-  gboolean activate;
-  xkb_keycode_t keycode =
-    (xkb_keycode_t) clutter_event_get_key_code ((ClutterEvent *) event);
+  uint32_t keyval = clutter_event_get_key_symbol ((ClutterEvent *) event);
   ClutterModifierType modifiers;
   xkb_mod_mask_t mask;
-  int i, j;
+  xkb_mod_mask_t iso_next_group_combo_mask;
+  int i;
 
   if (clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_RELEASE)
     return FALSE;
 
-  activate = FALSE;
   modifiers = get_modifiers ((ClutterEvent *) event);
   mask = mask_from_event_params (keys, modifiers);
-
+  iso_next_group_combo_mask = 0;
   for (i = 0; i < keys->n_iso_next_group_combos; ++i)
+    iso_next_group_combo_mask |= keys->iso_next_group_combo[i].mask;
+
+  if (keyval == XKB_KEY_ISO_Next_Group &&
+      (mask & iso_next_group_combo_mask) == iso_next_group_combo_mask)
     {
-      for (j = 0; j <  keys->iso_next_group_combo[i].len; ++j)
-        {
-          if (keycode == keys->iso_next_group_combo[i].keycodes[j] &&
-              mask == keys->iso_next_group_combo[i].mask)
-            {
-              /* If the signal handler returns TRUE the keyboard will
-                 remain frozen. It's the signal handler's responsibility
-                 to unfreeze it. */
-              if (!meta_display_modifiers_accelerator_activate (display))
-                meta_backend_unfreeze_keyboard (backend,
-                                                clutter_event_get_time ((ClutterEvent *) event));
-              activate = TRUE;
-              break;
-            }
-        }
+      /* If the signal handler returns TRUE the keyboard will
+         remain frozen. It's the signal handler's responsibility
+         to unfreeze it. */
+      if (!meta_display_modifiers_accelerator_activate (display))
+        meta_backend_unfreeze_keyboard (backend,
+                                        clutter_event_get_time ((ClutterEvent *) event));
+      return TRUE;
     }
 
-  return activate;
+  return FALSE;
 }
 
 static gboolean
