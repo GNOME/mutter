@@ -3679,6 +3679,8 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
                                             CLUTTER_DEVICE_UPDATE_NONE,
                                             point,
                                             time_ms);
+
+      clutter_focus_update_from_event (CLUTTER_FOCUS (sprite), event);
     }
 }
 
