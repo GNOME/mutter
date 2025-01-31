@@ -1704,28 +1704,29 @@ process_iso_next_group (MetaDisplay  *display,
   uint32_t keyval = clutter_event_get_key_symbol (event);
   ClutterModifierType modifiers;
   xkb_mod_mask_t mask;
-  xkb_mod_mask_t iso_next_group_combo_mask;
   int i;
 
   if (clutter_event_type (event) == CLUTTER_KEY_RELEASE)
     return FALSE;
 
+  if (keyval != XKB_KEY_ISO_Next_Group)
+    return FALSE;
+
   modifiers = get_modifiers (event);
   mask = mask_from_event_params (keys, modifiers);
-  iso_next_group_combo_mask = 0;
-  for (i = 0; i < keys->n_iso_next_group_combos; ++i)
-    iso_next_group_combo_mask |= keys->iso_next_group_combo[i].mask;
 
-  if (keyval == XKB_KEY_ISO_Next_Group &&
-      (mask & iso_next_group_combo_mask) == iso_next_group_combo_mask)
+  for (i = 0; i < keys->n_iso_next_group_combos; ++i)
     {
-      /* If the signal handler returns TRUE the keyboard will
-         remain frozen. It's the signal handler's responsibility
-         to unfreeze it. */
-      if (!meta_display_modifiers_accelerator_activate (display))
-        meta_backend_unfreeze_keyboard (backend,
-                                        clutter_event_get_time (event));
-      return TRUE;
+      if (mask == keys->iso_next_group_combo[i].mask)
+        {
+          /* If the signal handler returns TRUE the keyboard will
+             remain frozen. It's the signal handler's responsibility
+             to unfreeze it. */
+          if (!meta_display_modifiers_accelerator_activate (display))
+            meta_backend_unfreeze_keyboard (backend,
+                                            clutter_event_get_time (event));
+          return TRUE;
+        }
     }
 
   return FALSE;
