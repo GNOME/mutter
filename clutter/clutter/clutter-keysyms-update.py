@@ -128,7 +128,7 @@ Exiting...""",
             XF86KEYSYM_URL,
             "XF86XK_",
             output_file,
-            ("XF86XK_Q", "XF86XK_Calculater"),
+            ("XF86XK_Q", "XF86XK_Calculater", "XF86XK_Break"),
             {
                 "XF86XK_XF86BackForward": "XF86XK_AudioForward",
                 "XF86XK_Clear": "XF86XK_WindowClear",

@@ -2330,7 +2330,6 @@
 #define CLUTTER_KEY_Audio 0x10081188
 #define CLUTTER_KEY_ChannelUp 0x10081192
 #define CLUTTER_KEY_ChannelDown 0x10081193
-#define CLUTTER_KEY_Break 0x1008119b
 #define CLUTTER_KEY_VideoPhone 0x100811a0
 #define CLUTTER_KEY_ZoomReset 0x100811a4
 #define CLUTTER_KEY_Editor 0x100811a6
