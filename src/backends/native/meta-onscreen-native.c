@@ -537,6 +537,7 @@ assign_primary_plane (MetaCrtcKms            *crtc_kms,
 
 static void
 meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
+                                ClutterFrame           *frame,
                                 MetaRendererView       *view,
                                 MetaCrtc               *crtc,
                                 MetaKmsUpdate          *kms_update,
@@ -545,7 +546,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  g_autoptr (ClutterFrame) frame = NULL;
   MetaFrameNative *frame_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
@@ -560,9 +560,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
 
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
                            "Meta::OnscreenNative::flip_crtc()");
-
-  frame = g_steal_pointer (&onscreen_native->next_frame);
-  g_return_if_fail (frame);
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
 
@@ -620,10 +617,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
       break;
 #endif
     }
-
-  g_warn_if_fail (!onscreen_native->posted_frame);
-  g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
-  onscreen_native->posted_frame = g_steal_pointer (&frame);
 
   meta_kms_update_add_page_flip_listener (kms_update,
                                           kms_crtc,
@@ -1568,7 +1561,11 @@ post_next_frame (CoglOnscreen *onscreen)
       return;
     }
 
-  frame = clutter_frame_ref (onscreen_native->next_frame);
+  frame = g_steal_pointer (&onscreen_native->next_frame);
+  g_warn_if_fail (!onscreen_native->posted_frame);
+  g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
+  onscreen_native->posted_frame = clutter_frame_ref (frame);
+
   frame_native = meta_frame_native_from_frame (frame);
   region = meta_frame_native_get_damage (frame_native);
 
@@ -1597,6 +1594,7 @@ post_next_frame (CoglOnscreen *onscreen)
 
   ensure_crtc_modes (onscreen, kms_update);
   meta_onscreen_native_flip_crtc (onscreen,
+                                  frame,
                                   onscreen_native->view,
                                   onscreen_native->crtc,
                                   kms_update,
