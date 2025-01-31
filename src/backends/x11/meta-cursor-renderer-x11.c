@@ -73,7 +73,7 @@ create_x_cursor (Display    *xdisplay,
 {
   Cursor result;
 
-  if (cursor == META_CURSOR_BLANK)
+  if (cursor == META_CURSOR_NONE)
     return create_blank_cursor (xdisplay);
 
   result = XcursorLibraryLoadCursor (xdisplay, meta_cursor_get_name (cursor));
@@ -109,7 +109,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
       MetaCursor cursor;
 
       cursor = meta_cursor_sprite_xcursor_get_cursor (sprite_xcursor);
-      if (cursor != META_CURSOR_NONE)
+      if (cursor != META_CURSOR_INVALID)
         {
           Cursor xcursor;
 

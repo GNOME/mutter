@@ -53,43 +53,78 @@ meta_cursor_get_name (MetaCursor cursor)
     {
     case META_CURSOR_DEFAULT:
       return "default";
-    case META_CURSOR_NORTH_RESIZE:
-      return "n-resize";
-    case META_CURSOR_SOUTH_RESIZE:
-      return "s-resize";
-    case META_CURSOR_WEST_RESIZE:
-      return "w-resize";
-    case META_CURSOR_EAST_RESIZE:
+    case META_CURSOR_CONTEXT_MENU:
+        return "context-menu";
+    case META_CURSOR_HELP:
+        return "help";
+    case META_CURSOR_POINTER:
+        return "pointer";
+    case META_CURSOR_PROGRESS:
+        return "progress";
+    case META_CURSOR_WAIT:
+      return "wait";
+    case META_CURSOR_CELL:
+      return "cell";
+    case META_CURSOR_CROSSHAIR:
+      return "crosshair";
+    case META_CURSOR_TEXT:
+      return "text";
+    case META_CURSOR_VERTICAL_TEXT:
+        return "vertical-text";
+    case META_CURSOR_ALIAS:
+        return "alias";
+    case META_CURSOR_COPY:
+      return "copy";
+    case META_CURSOR_MOVE:
+      return "move";
+    case META_CURSOR_NO_DROP:
+      return "no-drop";
+    case META_CURSOR_NOT_ALLOWED:
+      return "not-allowed";
+    case META_CURSOR_GRAB:
+      return "grab";
+    case META_CURSOR_GRABBING:
+      return "grabbing";
+    case META_CURSOR_E_RESIZE:
       return "e-resize";
-    case META_CURSOR_SE_RESIZE:
-      return "se-resize";
-    case META_CURSOR_SW_RESIZE:
-      return "sw-resize";
+    case META_CURSOR_N_RESIZE:
+      return "n-resize";
     case META_CURSOR_NE_RESIZE:
       return "ne-resize";
     case META_CURSOR_NW_RESIZE:
       return "nw-resize";
-    case META_CURSOR_MOVE_OR_RESIZE_WINDOW:
-      return "move";
-    case META_CURSOR_BUSY:
-      return "wait";
-    case META_CURSOR_DND_IN_DRAG:
-      return "default";
-    case META_CURSOR_DND_MOVE:
-      return "default";
-    case META_CURSOR_DND_COPY:
-      return "copy";
-    case META_CURSOR_DND_UNSUPPORTED_TARGET:
-      return "no-drop";
-    case META_CURSOR_POINTING_HAND:
-      return "pointer";
-    case META_CURSOR_CROSSHAIR:
-      return "crosshair";
-    case META_CURSOR_IBEAM:
-      return "text";
-    case META_CURSOR_BLANK:
+    case META_CURSOR_S_RESIZE:
+      return "s-resize";
+    case META_CURSOR_SE_RESIZE:
+      return "se-resize";
+    case META_CURSOR_SW_RESIZE:
+      return "sw-resize";
+    case META_CURSOR_W_RESIZE:
+      return "w-resize";
+    case META_CURSOR_EW_RESIZE:
+      return "ew-resize";
+    case META_CURSOR_NS_RESIZE:
+        return "ns-resize";
+    case META_CURSOR_NESW_RESIZE:
+        return "nesw-resize";
+    case META_CURSOR_NWSE_RESIZE:
+        return "nwse-resize";
+    case META_CURSOR_COL_RESIZE:
+        return "col-resize";
+    case META_CURSOR_ROW_RESIZE:
+        return "row-resize";
+    case META_CURSOR_ALL_SCROLL:
+      return "all-scroll";
+    case META_CURSOR_ZOOM_IN:
+      return "zoom-in";
+    case META_CURSOR_ZOOM_OUT:
+      return "zoom-out";
+    case META_CURSOR_DND_ASK:
+      return "dnd-ask";
+    case META_CURSOR_ALL_RESIZE:
+      return "all-resize";
+    case META_CURSOR_INVALID:
     case META_CURSOR_NONE:
-    case META_CURSOR_LAST:
       break;
     }
 
@@ -104,43 +139,78 @@ meta_cursor_get_legacy_name (MetaCursor cursor)
     {
     case META_CURSOR_DEFAULT:
       return "left_ptr";
-    case META_CURSOR_NORTH_RESIZE:
-      return "top_side";
-    case META_CURSOR_SOUTH_RESIZE:
-      return "bottom_side";
-    case META_CURSOR_WEST_RESIZE:
-      return "left_side";
-    case META_CURSOR_EAST_RESIZE:
+    case META_CURSOR_CONTEXT_MENU:
+        return "left_ptr";
+    case META_CURSOR_HELP:
+        return "question_arrow";
+    case META_CURSOR_POINTER:
+        return "hand";
+    case META_CURSOR_PROGRESS:
+        return "left_ptr_watch";
+    case META_CURSOR_WAIT:
+      return "watch";
+    case META_CURSOR_CELL:
+      return "crosshair";
+    case META_CURSOR_CROSSHAIR:
+      return "cross";
+    case META_CURSOR_TEXT:
+      return "xterm";
+    case META_CURSOR_VERTICAL_TEXT:
+        return "xterm";
+    case META_CURSOR_ALIAS:
+        return "dnd-link";
+    case META_CURSOR_COPY:
+      return "dnd-copy";
+    case META_CURSOR_MOVE:
+      return "dnd-move";
+    case META_CURSOR_NO_DROP:
+      return "dnd-none";
+    case META_CURSOR_NOT_ALLOWED:
+      return "crossed_circle";
+    case META_CURSOR_GRAB:
+      return "hand2";
+    case META_CURSOR_GRABBING:
+      return "hand2";
+    case META_CURSOR_E_RESIZE:
       return "right_side";
-    case META_CURSOR_SE_RESIZE:
-      return "bottom_right_corner";
-    case META_CURSOR_SW_RESIZE:
-      return "bottom_left_corner";
+    case META_CURSOR_N_RESIZE:
+      return "top_side";
     case META_CURSOR_NE_RESIZE:
       return "top_right_corner";
     case META_CURSOR_NW_RESIZE:
       return "top_left_corner";
-    case META_CURSOR_MOVE_OR_RESIZE_WINDOW:
-      return "fleur";
-    case META_CURSOR_BUSY:
-      return "watch";
-    case META_CURSOR_DND_IN_DRAG:
-      return "dnd-none";
-    case META_CURSOR_DND_MOVE:
-      return "dnd-move";
-    case META_CURSOR_DND_COPY:
+    case META_CURSOR_S_RESIZE:
+      return "bottom_side";
+    case META_CURSOR_SE_RESIZE:
+      return "bottom_right_corner";
+    case META_CURSOR_SW_RESIZE:
+      return "bottom_left_corner";
+    case META_CURSOR_W_RESIZE:
+      return "left_side";
+    case META_CURSOR_EW_RESIZE:
+      return "h_double_arrow";
+    case META_CURSOR_NS_RESIZE:
+        return "v_double_arrow";
+    case META_CURSOR_NESW_RESIZE:
+        return "fd_double_arrow";
+    case META_CURSOR_NWSE_RESIZE:
+        return "bd_double_arrow";
+    case META_CURSOR_COL_RESIZE:
+        return "h_double_arrow";
+    case META_CURSOR_ROW_RESIZE:
+        return "v_double_arrow";
+    case META_CURSOR_ALL_SCROLL:
+      return "left_ptr";
+    case META_CURSOR_ZOOM_IN:
+      return "left_ptr";
+    case META_CURSOR_ZOOM_OUT:
+      return "left_ptr";
+    case META_CURSOR_DND_ASK:
       return "dnd-copy";
-    case META_CURSOR_DND_UNSUPPORTED_TARGET:
-      return "dnd-none";
-    case META_CURSOR_POINTING_HAND:
-      return "hand2";
-    case META_CURSOR_CROSSHAIR:
-      return "crosshair";
-    case META_CURSOR_IBEAM:
-      return "xterm";
-    case META_CURSOR_BLANK:
+    case META_CURSOR_ALL_RESIZE:
+      return "dnd-move";
+    case META_CURSOR_INVALID:
     case META_CURSOR_NONE:
-    case META_CURSOR_LAST:
       break;
     }
 
@@ -177,7 +247,7 @@ load_cursor_on_client (MetaCursor cursor,
   int fallback_size, i;
   const char *cursor_names[2];
 
-  if (cursor == META_CURSOR_BLANK)
+  if (cursor == META_CURSOR_NONE)
     return create_blank_cursor_images ();
 
   cursor_names[0] = meta_cursor_get_name (cursor);
@@ -347,7 +417,7 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
 
-  g_assert (sprite_xcursor->cursor != META_CURSOR_NONE);
+  g_assert (sprite_xcursor->cursor != META_CURSOR_INVALID);
 
   sprite_xcursor->theme_dirty = FALSE;
 

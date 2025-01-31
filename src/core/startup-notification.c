@@ -143,7 +143,7 @@ meta_startup_notification_update_cursor (MetaStartupNotification *sn)
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting busy cursor");
-      cursor = META_CURSOR_BUSY;
+      cursor = META_CURSOR_WAIT;
     }
   else
     {

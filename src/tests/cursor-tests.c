@@ -419,7 +419,7 @@ meta_test_native_cursor_scaling (void)
   };
   int i;
 
-  cursor = META_CURSOR_MOVE_OR_RESIZE_WINDOW;
+  cursor = META_CURSOR_MOVE;
   meta_display_set_cursor (display, cursor);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
@@ -535,7 +535,7 @@ meta_test_native_cursor_cropping (void)
 
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
-                          META_CURSOR_MOVE_OR_RESIZE_WINDOW,
+                          META_CURSOR_MOVE,
                           MTK_MONITOR_TRANSFORM_NORMAL,
                           ref_test_name, 0,
                           meta_ref_test_determine_ref_test_flag ());
@@ -629,7 +629,7 @@ meta_test_native_cursor_transform (void)
                           meta_ref_test_determine_ref_test_flag ());
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
-                          META_CURSOR_MOVE_OR_RESIZE_WINDOW,
+                          META_CURSOR_MOVE,
                           test_cases[i].transform,
                           ref_test_name, 2,
                           meta_ref_test_determine_ref_test_flag ());
