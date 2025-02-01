@@ -103,3 +103,7 @@ META_EXPORT_TEST
 const MetaKmsConnectorState * meta_kms_connector_get_current_state (MetaKmsConnector *connector);
 
 gboolean meta_kms_connector_is_non_desktop (MetaKmsConnector *connector);
+
+gboolean meta_kms_connector_supports_colorspace (MetaKmsConnector *connector);
+
+gboolean meta_kms_connector_supports_hdr_metadata (MetaKmsConnector *connector);
