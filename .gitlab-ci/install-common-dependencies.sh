@@ -50,6 +50,29 @@ pip_install() {
   done
 }
 
+check_gsettings_key() {
+  local schema=$1
+  local key=$2
+
+  local rv=0
+
+  for destdir in "${DESTDIRS[@]}"; do
+    local schemadir=$(realpath $destdir/usr/share/glib-2.0/schemas/)
+    local targetdir=$(mktemp --directory)
+
+    if ! glib-compile-schemas --targetdir $targetdir $schemadir 2>/dev/null ||\
+       ! env -i "XDG_DATA_DIRS=/dev/null" \
+           gsettings --schemadir $targetdir get $schema $key >/dev/null 2>&1
+    then
+      rv=1
+    fi
+
+    rm -rf $targetdir
+  done
+
+  return $rv
+}
+
 TEMP=$(getopt \
   --name=$(basename $0) \
   --options='h' \
@@ -110,3 +133,11 @@ then
 fi
 
 pip_install argcomplete
+
+if ! check_gsettings_key org.gnome.login-screen banner-message-source
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.gnome.org/GNOME/gdm.git \
+      main
+fi

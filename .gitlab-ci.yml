@@ -106,13 +106,14 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 41
-    BASE_TAG: '2025-02-04.0'
+    BASE_TAG: '2025-02-04.1'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
+      accountsservice-devel
       clang
       gcovr
-      gdm
       gnome-shell
+      itstool
       python3-docutils
       sassc
       uncrustify
