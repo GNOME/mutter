@@ -6,7 +6,10 @@ install_data(
 if have_bash_completion
   bash_completion = dependency('bash-completion', required: false)
   if bash_completion.found()
-    bash_completion_dir = bash_completion.get_variable(pkgconfig: 'completionsdir')
+    bash_completion_dir = bash_completion.get_variable(
+      pkgconfig: 'completionsdir',
+      pkgconfig_define: ['datadir', datadir],
+    )
   else
     bash_completion_dir = get_option('sysconfdir') / 'bash_completion.d'
   endif
