@@ -363,7 +363,7 @@ cogl_headers_all = [
 ]
 
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
-libmutter_cogl = shared_library(libmutter_cogl_name,
+libmutter_cogl = library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],
   version: '0.0.0',
   soversion: 0,

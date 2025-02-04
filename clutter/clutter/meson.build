@@ -287,7 +287,7 @@ if have_fonts
 endif
 
 libmutter_clutter_name = 'mutter-clutter-' + libmutter_api_version
-libmutter_clutter = shared_library(libmutter_clutter_name,
+libmutter_clutter = library(libmutter_clutter_name,
   sources: sources,
   version: '0.0.0',
   soversion: 0,
