@@ -1,3 +1,16 @@
+47.5
+====
+* Synchronize device enabled state when adding device [Yao; !4188]
+* Do not use modifiers if surface should be sharable [Michel; !4219]
+* Fix notifying shell about modifier-only keyboard layout switches
+  [Olivier; !4232, !4237]
+* Fixed crashes [Jonas, Philip; #3839, !4222]
+* Misc. bug fixes and cleanups [Michel, Alessandro, Daniel; !4208, !4225, !4228]
+
+Contributors:
+  Alessandro Astone, Michel Dänzer, Olivier Fourdan, Daniel van Vugt,
+  Yao Wei (魏銘廷), Philip Withnall, Jonas Ådahl
+
 47.4
 ====
 * Use BT709 coefficients and limited range for YUV conversion by defaults
