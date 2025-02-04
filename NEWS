@@ -1,3 +1,25 @@
+48.beta
+=======
+* Update cursors via the frame clock in virtual monitors [Jonas; !4067]
+* Synchronize device enabled state when adding device [Yao; !4188]
+* Do not use modifiers if surface should be sharable [Michel; !4219]
+* Add accessible state tracking in Clutter [Bilal; !4089]
+* Introduce GNOME Display Control (gdctl) utility [Jonas; !4190]
+* Fix notifying shell about modifier-only keyboard layout switches
+  [Olivier; !4232, !4237]
+* Configure HDR via DisplayConfig D-Bus API [Jonas; !4192]
+* Fixed crashes [Philip, Jonas; !4222, !4210]
+* Misc. bug fixes and cleanups [Michel, Sebastian W., Jonas, José, Alessandro,
+  Sebastian K., Daniel, Philip, Carlos, Florian, Alberto, Bilal; !4208, !4022,
+  !4005, !4218, !4225, !4229, !4228, !4231, !4223, !3972, !4233, !4234, !4242,
+  !4198]
+
+Contributors:
+  Alessandro Astone, Michel Dänzer, Bilal Elmoussaoui, José Expósito,
+  Olivier Fourdan, Carlos Garnacho, Sebastian Keller, Florian Müllner,
+  Alberto Ruiz, Daniel van Vugt, Yao Wei (魏銘廷), Sebastian Wick,
+  Philip Withnall, Jonas Ådahl
+
 48.alpha
 ========
 * gwakeup: Reduce wake-ups to only first item in queue [Christian; !4007]
