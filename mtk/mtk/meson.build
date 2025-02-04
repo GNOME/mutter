@@ -29,7 +29,7 @@ mtk_private_headers = [
 
 
 libmutter_mtk_name = 'mutter-mtk-' + libmutter_api_version
-libmutter_mtk = shared_library(libmutter_mtk_name,
+libmutter_mtk = library(libmutter_mtk_name,
   sources: [
     mtk_sources,
     mtk_headers,

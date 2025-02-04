@@ -1242,7 +1242,7 @@ endforeach
 
 subdir('third_party')
 
-libmutter = shared_library(libmutter_name,
+libmutter = library(libmutter_name,
   mutter_sources,
   mutter_built_sources,
   version: '0.0.0',
