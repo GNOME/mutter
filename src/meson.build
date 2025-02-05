@@ -963,6 +963,11 @@ endif
 
 dbus_interfaces = [
   {
+    'name': 'meta-dbus-a11y',
+    'interface': 'org.freedesktop.a11y.xml',
+    'prefix': 'org.freedesktop.a11y',
+  },
+  {
     'name': 'meta-dbus-display-config',
     'interface': 'org.gnome.Mutter.DisplayConfig.xml',
     'prefix': 'org.gnome.Mutter.',
