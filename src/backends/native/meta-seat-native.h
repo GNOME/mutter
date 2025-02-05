@@ -137,3 +137,7 @@ void meta_seat_native_run_impl_task (MetaSeatNative *seat,
                                      GSourceFunc     dispatch_func,
                                      gpointer        user_data,
                                      GDestroyNotify  destroy_notify);
+
+void meta_seat_native_set_a11y_modifiers (MetaSeatNative *seat,
+                                          const uint32_t *modifiers,
+                                          int             n_modifiers);

@@ -657,6 +657,14 @@ meta_seat_native_set_viewports (MetaSeatNative   *seat,
 }
 
 void
+meta_seat_native_set_a11y_modifiers (MetaSeatNative *seat,
+                                     const uint32_t *modifiers,
+                                     int             n_modifiers)
+{
+  meta_seat_impl_set_a11y_modifiers (seat->impl, modifiers, n_modifiers);
+}
+
+void
 meta_seat_native_run_impl_task (MetaSeatNative *seat,
                                 GSourceFunc     dispatch_func,
                                 gpointer        user_data,
