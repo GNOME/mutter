@@ -39,6 +39,7 @@
 #include <drm_fourcc.h>
 #include <stdlib.h>
 
+#include "backends/meta-a11y-manager.h"
 #include "backends/meta-color-manager.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-manager.h"
@@ -176,6 +177,23 @@ update_viewports (MetaBackend *backend)
   g_object_unref (viewports);
 }
 
+static void
+on_a11y_modifiers_changed (MetaA11yManager *a11y_manager,
+                           MetaBackend     *backend)
+{
+  MetaSeatNative *seat;
+  ClutterBackend *clutter_backend;
+  g_autofree uint32_t *modifiers;
+  int n_modifiers;
+
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  seat = META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
+  modifiers = meta_a11y_manager_get_modifier_keysyms (a11y_manager,
+                                                      &n_modifiers);
+
+  meta_seat_native_set_a11y_modifiers (seat, modifiers, n_modifiers);
+}
+
 static gboolean
 meta_backend_native_init_post (MetaBackend  *backend,
                                GError      **error)
@@ -185,6 +203,7 @@ meta_backend_native_init_post (MetaBackend  *backend,
     meta_backend_native_get_instance_private (backend_native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaA11yManager *a11y_manager = meta_backend_get_a11y_manager (backend);
 
   g_clear_pointer (&priv->startup_render_devices,
                    g_hash_table_unref);
@@ -192,6 +211,12 @@ meta_backend_native_init_post (MetaBackend  *backend,
   g_signal_connect_swapped (monitor_manager, "monitors-changed-internal",
                             G_CALLBACK (update_viewports), backend);
   update_viewports (backend);
+
+  g_signal_connect_object (a11y_manager,
+                           "a11y-modifiers-changed",
+                           G_CALLBACK (on_a11y_modifiers_changed),
+                           backend,
+                           G_CONNECT_DEFAULT);
 
   return TRUE;
 }
