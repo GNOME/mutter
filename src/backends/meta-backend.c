@@ -52,6 +52,7 @@
 
 #include <stdlib.h>
 
+#include "backends/meta-a11y-manager.h"
 #include "backends/meta-barrier-private.h"
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-cursor-renderer.h"
@@ -169,6 +170,7 @@ struct _MetaBackendPrivate
   MetaRemoteDesktop *remote_desktop;
 #endif
   MetaInputCapture *input_capture;
+  MetaA11yManager *a11y_manager;
 
 #ifdef HAVE_LIBWACOM
   WacomDeviceDatabase *wacom_db;
@@ -243,6 +245,7 @@ meta_backend_dispose (GObject *object)
   g_clear_object (&priv->input_capture);
   g_clear_object (&priv->dbus_session_watcher);
   g_clear_object (&priv->remote_access_controller);
+  g_clear_object (&priv->a11y_manager);
   g_clear_object (&priv->dnd);
   g_clear_object (&priv->renderdoc);
 
@@ -1444,6 +1447,8 @@ meta_backend_initable_init (GInitable     *initable,
     priv->remote_access_controller,
     META_DBUS_SESSION_MANAGER (priv->input_capture));
 
+  priv->a11y_manager = meta_a11y_manager_new (backend);
+
   if (!meta_monitor_manager_is_headless (priv->monitor_manager))
     init_pointer_position (backend);
 
@@ -1684,6 +1689,19 @@ meta_backend_get_remote_access_controller (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->remote_access_controller;
+}
+
+/**
+ * meta_backend_get_a11y_manager:
+ *
+ * Returns: (transfer none): the #MetaA11yManager
+ */
+MetaA11yManager *
+meta_backend_get_a11y_manager (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->a11y_manager;
 }
 
 /**

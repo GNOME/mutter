@@ -28,6 +28,7 @@
 #include "meta/meta-backend.h"
 #include "meta/meta-idle-monitor.h"
 #include "meta/meta-orientation-manager.h"
+#include "backends/meta-a11y-manager.h"
 #include "backends/meta-backend-types.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-egl.h"
@@ -190,6 +191,8 @@ MetaScreenCast * meta_backend_get_screen_cast (MetaBackend *backend);
 #endif
 
 MetaInputCapture * meta_backend_get_input_capture (MetaBackend *backend);
+
+MetaA11yManager * meta_backend_get_a11y_manager (MetaBackend *backend);
 
 gboolean meta_backend_grab_device (MetaBackend *backend,
                                    int          device_id,
