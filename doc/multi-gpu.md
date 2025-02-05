@@ -40,3 +40,23 @@ Created gbm renderer for '/dev/dri/card1'
 Created gbm renderer for '/dev/dri/card2'
 GPU /dev/dri/card1 selected primary given udev rule
 ```
+
+## Copy modes
+
+Mutter composites the buffer to be displayed on all displays on the primary GPU,
+regardless of which GPU the display is connected to.
+
+Therefore, when a display is connected to a secondary GPU, the contents to be
+displayed on that display need to be copied from the primary GPU to the
+secondary GPU.
+
+There are 3 copy modes available:
+
+ - Secondary GPU copy mode: The copy is performed by the secondary GPU. This is
+   the default copy mode.
+ - Zero-copy mode: The primary GPU exports a framebuffer and the secondary GPU
+   imports it. This mode is tried if the secondary GPU copy mode fails.
+ - Primary GPU copy mode: The primary GPU copies its contents to a dumb buffer
+   and the secondary GPU scan-outs from it. First, the GPU is used to perform
+   the copy and, if it fails, the copy is perform by the CPU. This mode is used
+   if the zero-copy mode fails.
