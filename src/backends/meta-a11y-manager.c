@@ -374,3 +374,27 @@ meta_a11y_manager_new (MetaBackend *backend)
                        "backend", backend,
                        NULL);
 }
+
+uint32_t *
+meta_a11y_manager_get_modifier_keysyms (MetaA11yManager *a11y_manager,
+                                        int             *n_modifiers)
+{
+  GArray *modifier_keysyms;
+  GHashTableIter iter;
+  gpointer key;
+
+  modifier_keysyms = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+
+  g_hash_table_iter_init (&iter, a11y_manager->all_grabbed_modifiers);
+  while (g_hash_table_iter_next (&iter, &key, NULL))
+    {
+      uint32_t keysym = GPOINTER_TO_UINT (key);
+
+      g_array_append_val (modifier_keysyms, keysym);
+    }
+
+  if (n_modifiers)
+    *n_modifiers = modifier_keysyms->len;
+
+  return (uint32_t *) g_array_free (modifier_keysyms, FALSE);
+}

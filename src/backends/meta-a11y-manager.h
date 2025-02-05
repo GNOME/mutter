@@ -27,3 +27,6 @@
 G_DECLARE_FINAL_TYPE (MetaA11yManager, meta_a11y_manager, META, A11Y_MANAGER, GObject)
 
 MetaA11yManager * meta_a11y_manager_new (MetaBackend *backend);
+
+uint32_t * meta_a11y_manager_get_modifier_keysyms (MetaA11yManager *a11y_manager,
+                                                   int             *n_modifiers);
