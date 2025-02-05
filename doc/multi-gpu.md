@@ -60,3 +60,7 @@ There are 3 copy modes available:
    and the secondary GPU scan-outs from it. First, the GPU is used to perform
    the copy and, if it fails, the copy is perform by the CPU. This mode is used
    if the zero-copy mode fails.
+
+For debug purposes, it is possible to force the copy mode by setting the
+environment variable `MUTTER_DEBUG_MULTI_GPU_FORCE_COPY_MODE` to `zero-copy`,
+`primary-gpu-gpu` or `primary-gpu-cpu`.

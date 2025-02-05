@@ -1909,6 +1909,33 @@ maybe_restore_cogl_egl_api (MetaRendererNative *renderer_native)
   cogl_renderer_bind_api (cogl_renderer);
 }
 
+static void
+set_default_secondary_gpu_copy_mode (MetaRendererNativeGpuData *gpu_data)
+{
+  const char *copy_mode;
+
+  gpu_data->secondary.copy_mode =
+    META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU;
+
+  copy_mode = getenv ("MUTTER_DEBUG_MULTI_GPU_FORCE_COPY_MODE");
+  if (!copy_mode || *copy_mode == '\0')
+    return;
+
+  if (strcmp (copy_mode, "primary-gpu-gpu") == 0)
+    {
+      gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+    }
+  else if (strcmp (copy_mode, "primary-gpu-cpu") == 0)
+    {
+      gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+      gpu_data->secondary.copy_mode_primary_force_cpu = TRUE;
+    }
+  else if (strcmp (copy_mode, "zero-copy") == 0)
+    {
+      gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO;
+    }
+}
+
 static gboolean
 init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
                              GError                   **error)
@@ -1984,7 +2011,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
 
   renderer_gpu_data->secondary.egl_context = egl_context;
   renderer_gpu_data->secondary.egl_config = egl_config;
-  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU;
+  set_default_secondary_gpu_copy_mode (renderer_gpu_data);
 
   renderer_gpu_data->secondary.has_EGL_EXT_image_dma_buf_import_modifiers =
     meta_egl_has_extensions (egl, egl_display, NULL,
