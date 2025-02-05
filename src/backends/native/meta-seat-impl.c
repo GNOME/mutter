@@ -103,6 +103,14 @@ static guint signals[N_SIGNALS] = { 0 };
 typedef struct _MetaSeatImplPrivate
 {
   GHashTable *device_files;
+
+  struct {
+    GHashTable *grabbed_modifiers;
+    GHashTable *pressed_modifiers;
+    uint32_t last_keysym;
+    uint32_t last_keysym_time;
+    gboolean saw_first_release;
+  } a11y;
 } MetaSeatImplPrivate;
 
 static void meta_seat_impl_initable_iface_init (GInitableIface *iface);
@@ -389,6 +397,65 @@ emit_signal (MetaSeatImpl *seat_impl,
                                          (GDestroyNotify) signal_data_free);
 }
 
+static gboolean
+is_a11y_modifier_first_click (MetaSeatImpl *seat_impl,
+                              uint32_t      keysym,
+                              uint32_t      event_time,
+                              gboolean      is_press)
+{
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+  gboolean is_same_keysym = keysym == priv->a11y.last_keysym;
+  gboolean event_soon_enough =
+    event_time - priv->a11y.last_keysym_time < seat_impl->repeat_delay;
+  gboolean is_grabbed_modifier =
+    g_hash_table_contains (priv->a11y.grabbed_modifiers, GUINT_TO_POINTER (keysym));
+
+  priv->a11y.last_keysym = keysym;
+  priv->a11y.last_keysym_time = event_time;
+
+  /* This is not an event for a grabbed modifier */
+  if (!is_grabbed_modifier)
+    return FALSE;
+
+  if (!is_press && g_hash_table_contains (priv->a11y.pressed_modifiers,
+                                          GUINT_TO_POINTER (keysym)))
+    {
+      g_hash_table_remove (priv->a11y.pressed_modifiers,
+                           GUINT_TO_POINTER (keysym));
+      /* This is a release event for a previously pressed modifier */
+      return FALSE;
+    }
+
+  if (is_same_keysym && event_soon_enough)
+    {
+      if (is_press && priv->a11y.saw_first_release)
+        {
+          priv->a11y.saw_first_release = FALSE;
+          g_hash_table_add (priv->a11y.pressed_modifiers,
+                            GUINT_TO_POINTER (keysym));
+
+          /* This is the second press event and it is on time, process
+           * it normally
+           */
+          return FALSE;
+        }
+      else
+        {
+          priv->a11y.saw_first_release = TRUE;
+          /* This is the first release event, wait for the second press event */
+          return TRUE;
+        }
+    }
+  else
+    {
+      /* This is either a different modifier, the first press
+       * event, or not on time to progress
+       */
+      priv->a11y.saw_first_release = FALSE;
+      return TRUE;
+    }
+}
+
 void
 meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                    ClutterInputDevice *device,
@@ -401,6 +468,8 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
   ClutterEventFlags flags = CLUTTER_EVENT_NONE;
   enum xkb_state_component changed_state;
   uint32_t keycode;
+  uint32_t keysym;
+  gboolean should_ignore;
 
   if (state != AUTOREPEAT_VALUE)
     {
@@ -421,6 +490,16 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
       flags = CLUTTER_EVENT_FLAG_REPEATED;
     }
 
+  keycode = meta_xkb_evdev_to_keycode (key);
+  keysym = xkb_state_key_get_one_sym (seat_impl->xkb, keycode);
+
+  should_ignore = is_a11y_modifier_first_click (seat_impl,
+                                                keysym,
+                                                time_us / 1000,
+                                                state);
+  if (should_ignore)
+    flags |= CLUTTER_EVENT_FLAG_A11Y_MODIFIER_FIRST_CLICK;
+
   event = meta_key_event_new_from_evdev (device,
                                          seat_impl->core_keyboard,
                                          flags,
@@ -428,11 +507,9 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                          seat_impl->button_state,
                                          time_us, key, state);
 
-  keycode = meta_xkb_evdev_to_keycode (key);
-
   /* We must be careful and not pass multiple releases to xkb, otherwise it gets
      confused and locks the modifiers */
-  if (state != AUTOREPEAT_VALUE)
+  if (!should_ignore && state != AUTOREPEAT_VALUE)
     {
       changed_state = xkb_state_update_key (seat_impl->xkb, keycode,
                                             state ? XKB_KEY_DOWN : XKB_KEY_UP);
@@ -2938,6 +3015,9 @@ input_thread (MetaSeatImpl *seat_impl)
                            NULL,
                            (GDestroyNotify) meta_device_file_release);
 
+  priv->a11y.grabbed_modifiers = g_hash_table_new (NULL, NULL);
+  priv->a11y.pressed_modifiers = g_hash_table_new (NULL, NULL);
+
   seat_impl->input_settings = meta_input_settings_native_new_in_impl (seat_impl);
   g_signal_connect_object (seat_impl->input_settings, "kbd-a11y-changed",
                            G_CALLBACK (kbd_a11y_changed_cb), seat_impl, 0);
@@ -3098,6 +3178,9 @@ destroy_in_impl (GTask *task)
   meta_seat_impl_clear_repeat_source (seat_impl);
 
   g_clear_pointer (&priv->device_files, g_hash_table_destroy);
+
+  g_clear_pointer (&priv->a11y.grabbed_modifiers, g_hash_table_destroy);
+  g_clear_pointer (&priv->a11y.pressed_modifiers, g_hash_table_destroy);
 
   g_main_loop_quit (seat_impl->input_loop);
   g_task_return_boolean (task, TRUE);
@@ -3818,6 +3901,50 @@ meta_seat_impl_set_viewports (MetaSeatImpl     *seat_impl,
 
   g_mutex_clear (&data.mutex);
   g_cond_clear (&data.cond);
+}
+
+static gboolean
+set_a11y_modifiers (GTask *task)
+{
+  MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+  GArray *modifiers = g_task_get_task_data (task);
+  int i;
+
+  g_hash_table_remove_all (priv->a11y.grabbed_modifiers);
+
+  for (i = 0; i < modifiers->len; i++)
+    {
+      uint32_t keysym;
+
+      keysym = g_array_index (modifiers, uint32_t, i);
+      g_hash_table_add (priv->a11y.grabbed_modifiers,
+                        GUINT_TO_POINTER (keysym));
+    }
+
+  g_task_return_boolean (task, TRUE);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_seat_impl_set_a11y_modifiers (MetaSeatImpl   *seat_impl,
+                                   const uint32_t *modifiers,
+                                   int             n_modifiers)
+{
+  g_autoptr (GTask) task = NULL;
+  GArray *modifiers_copy;
+
+  g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
+
+  modifiers_copy = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+  g_array_append_vals (modifiers_copy, modifiers, n_modifiers);
+
+  task = g_task_new (seat_impl, NULL, NULL, NULL);
+  g_task_set_task_data (task, modifiers_copy,
+                        (GDestroyNotify) g_array_unref);
+  meta_seat_impl_run_input_task (seat_impl, task,
+                                 (GSourceFunc) set_a11y_modifiers);
 }
 
 MetaSeatImpl *

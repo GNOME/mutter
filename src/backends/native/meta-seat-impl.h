@@ -263,3 +263,7 @@ void meta_seat_impl_add_virtual_input_device (MetaSeatImpl       *seat_impl,
 
 void meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
                                                  ClutterInputDevice *device);
+
+void meta_seat_impl_set_a11y_modifiers (MetaSeatImpl   *seat_impl,
+                                        const uint32_t *modifiers,
+                                        int             n_modifiers);
