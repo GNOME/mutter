@@ -59,6 +59,7 @@ typedef struct _MetaRendererNativeGpuData
    */
   struct {
     MetaSharedFramebufferCopyMode copy_mode;
+    gboolean copy_mode_primary_force_cpu;
     gboolean has_EGL_EXT_image_dma_buf_import_modifiers;
     gboolean needs_explicit_sync;
 

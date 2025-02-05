@@ -1279,12 +1279,17 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen    *onscreen,
           /* prepare fallback */
           G_GNUC_FALLTHROUGH;
         case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
-          copy = copy_shared_framebuffer_primary_gpu (onscreen,
-                                                      secondary_gpu_state,
-                                                      region);
+          if (!renderer_gpu_data->secondary.copy_mode_primary_force_cpu)
+            {
+              copy = copy_shared_framebuffer_primary_gpu (onscreen,
+                                                          secondary_gpu_state,
+                                                          region);
+            }
+
           if (!copy)
             {
-              if (!secondary_gpu_state->noted_primary_gpu_copy_failed)
+              if (!secondary_gpu_state->noted_primary_gpu_copy_failed &&
+                  !renderer_gpu_data->secondary.copy_mode_primary_force_cpu)
                 {
                   meta_topic (META_DEBUG_KMS,
                               "Using primary GPU to copy for %s failed once.",
