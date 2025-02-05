@@ -28,5 +28,8 @@ G_DECLARE_FINAL_TYPE (MetaA11yManager, meta_a11y_manager, META, A11Y_MANAGER, GO
 
 MetaA11yManager * meta_a11y_manager_new (MetaBackend *backend);
 
+gboolean meta_a11y_manager_notify_clients (MetaA11yManager    *a11y_manager,
+                                           const ClutterEvent *event);
+
 uint32_t * meta_a11y_manager_get_modifier_keysyms (MetaA11yManager *a11y_manager,
                                                    int             *n_modifiers);

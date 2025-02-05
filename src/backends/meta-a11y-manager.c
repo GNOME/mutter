@@ -27,6 +27,12 @@
 
 #include "meta-dbus-a11y.h"
 
+#define MOUSE_BUTTONS_MASK (CLUTTER_BUTTON1_MASK | \
+                            CLUTTER_BUTTON2_MASK | \
+                            CLUTTER_BUTTON3_MASK | \
+                            CLUTTER_BUTTON4_MASK | \
+                            CLUTTER_BUTTON5_MASK)
+
 enum
 {
   A11Y_MODIFIERS_CHANGED,
@@ -373,6 +379,148 @@ meta_a11y_manager_new (MetaBackend *backend)
   return g_object_new (META_TYPE_A11Y_MANAGER,
                        "backend", backend,
                        NULL);
+}
+
+static gboolean
+should_grab_keypress (MetaA11yManager     *a11y_manager,
+                      MetaA11yKeyGrabber  *grabber,
+                      uint32_t             keysym,
+                      ClutterModifierType  modifiers)
+{
+  int i;
+
+  if (grabber->grab_all)
+    return TRUE;
+
+  if (grabber->modifiers)
+    {
+      for (i = 0; i < grabber->modifiers->len; i++)
+        {
+          uint32_t modifier_keysym;
+
+          modifier_keysym = g_array_index (grabber->modifiers, uint32_t, i);
+
+          if (keysym == modifier_keysym ||
+              g_hash_table_contains (a11y_manager->grabbed_keypresses,
+                                     GUINT_TO_POINTER (modifier_keysym)))
+            return TRUE;
+        }
+    }
+
+  if (grabber->keystrokes)
+    {
+      for (i = 0; i < grabber->keystrokes->len; i++)
+        {
+          MetaA11yKeystroke *keystroke =
+            &(g_array_index (grabber->keystrokes, MetaA11yKeystroke, i));
+
+          if (keysym == keystroke->keysym && modifiers == keystroke->modifiers)
+            return TRUE;
+        }
+    }
+
+  return FALSE;
+}
+
+static gboolean
+is_grabbed_modifier_key (MetaA11yManager *a11y_manager,
+                         uint32_t         keysym)
+{
+  return g_hash_table_contains (a11y_manager->all_grabbed_modifiers,
+                                GUINT_TO_POINTER (keysym));
+}
+
+static void
+notify_client (MetaA11yManager     *a11y_manager,
+               MetaA11yKeyGrabber  *key_grabber,
+               gboolean             released,
+               ClutterModifierType  state,
+               uint32_t             keysym,
+               uint32_t             unichar,
+               uint32_t             keycode)
+{
+  g_autoptr (GError) error = NULL;
+
+  if (!g_dbus_connection_emit_signal (key_grabber->connection,
+                                      key_grabber->bus_name,
+                                      "/org/freedesktop/a11y/Manager",
+                                      "org.freedesktop.a11y.KeyboardMonitor",
+                                      "KeyEvent",
+                                      g_variant_new ("(buuuq)",
+                                                     released,
+                                                     state,
+                                                     keysym,
+                                                     unichar,
+                                                     (uint16_t) keycode),
+                                      &error))
+    g_warning ("Could not emit a11y KeyEvent: %s", error->message);
+}
+
+gboolean
+meta_a11y_manager_notify_clients (MetaA11yManager    *a11y_manager,
+                                  const ClutterEvent *event)
+{
+  gboolean a11y_grabbed = FALSE;
+  gboolean released = clutter_event_type (event) == CLUTTER_KEY_RELEASE;
+  /* A grabbed modifier is a11y grabbed if it was not double pressed, otherwise we process it normally */
+  gboolean is_ignorable =
+    !!(clutter_event_get_flags (event) &
+       CLUTTER_EVENT_FLAG_A11Y_MODIFIER_FIRST_CLICK);
+  /* The Clutter event modifiers mask includes mouse buttons as well,
+   * but they're not expected by ATs, so we filter them out.
+  */
+  uint32_t keysym = clutter_event_get_key_symbol (event);
+  uint32_t unichar = clutter_event_get_key_unicode (event);
+  uint32_t keycode = clutter_event_get_key_code (event);
+  ClutterModifierType state;
+  GList *l;
+
+  state = clutter_event_get_state (event) & ~MOUSE_BUTTONS_MASK;
+
+  for (l = a11y_manager->key_grabbers; l; l = l->next)
+    {
+      MetaA11yKeyGrabber *grabber = l->data;
+
+      if (should_grab_keypress (a11y_manager, grabber, keysym, state))
+        {
+          notify_client (a11y_manager, grabber, released,
+                         state, keysym, unichar, keycode);
+        }
+    }
+
+  if (is_grabbed_modifier_key (a11y_manager, keysym) && !is_ignorable)
+    return FALSE;
+
+  if (released)
+    {
+      if (g_hash_table_contains (a11y_manager->grabbed_keypresses,
+                                 GUINT_TO_POINTER (keysym)))
+        {
+          g_hash_table_remove (a11y_manager->grabbed_keypresses,
+                               GUINT_TO_POINTER (keysym));
+          a11y_grabbed = TRUE;
+        }
+    }
+  else
+    {
+      if (g_hash_table_contains (a11y_manager->grabbed_keypresses,
+                                 GUINT_TO_POINTER (keysym)))
+        a11y_grabbed = TRUE;
+
+      for (l = a11y_manager->key_grabbers; l; l = l->next)
+        {
+          MetaA11yKeyGrabber *grabber = l->data;
+
+          if (should_grab_keypress (a11y_manager, grabber, keysym, state))
+            {
+              g_hash_table_add (a11y_manager->grabbed_keypresses,
+                                GUINT_TO_POINTER (keysym));
+              a11y_grabbed = TRUE;
+            }
+        }
+    }
+
+  return a11y_grabbed;
 }
 
 uint32_t *
