@@ -543,10 +543,21 @@ meta_pad_action_mapper_get_button_label (MetaPadActionMapper *mapper,
 
   if (group >= 0)
     {
-      /* TRANSLATORS: This string refers to a button that switches between
-       * different modes.
-       */
-      return g_strdup_printf (_("Mode Switch (Group %d)"), group);
+      int n_groups = clutter_input_device_get_n_mode_groups (pad);
+      if (n_groups > 1)
+        {
+          /* TRANSLATORS: This string refers to a button that switches between
+           * different modes in that button group.
+           */
+          return g_strdup_printf (_("Mode Switch (Group %d)"), group);
+        }
+      else
+        {
+          /* TRANSLATORS: This string refers to a button that switches between
+           * different modes.
+           */
+          return g_strdup_printf (_("Mode Switch"));
+        }
     }
 
   action = meta_pad_action_mapper_get_button_action (mapper, pad, button);
