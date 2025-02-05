@@ -24,6 +24,7 @@
 
 #include "core/events.h"
 
+#include "backends/meta-a11y-manager.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-manager.h"
@@ -230,6 +231,7 @@ meta_display_handle_event (MetaDisplay        *display,
 {
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
+  MetaA11yManager *a11y_manager = meta_backend_get_a11y_manager (backend);
   MetaCompositor *compositor = meta_display_get_compositor (display);
   ClutterInputDevice *device;
   MetaWindow *window = NULL;
@@ -237,6 +239,7 @@ meta_display_handle_event (MetaDisplay        *display,
   ClutterEventSequence *sequence;
   ClutterEventType event_type;
   gboolean has_grab;
+  gboolean a11y_grabbed;
   MetaTabletActionMapper *mapper;
 #ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
@@ -264,6 +267,13 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (meta_display_process_captured_input (display, event))
     return CLUTTER_EVENT_STOP;
+
+  if (IS_KEY_EVENT (event_type))
+    {
+      a11y_grabbed = meta_a11y_manager_notify_clients (a11y_manager, event);
+      if (a11y_grabbed)
+        return CLUTTER_EVENT_STOP;
+    }
 
   device = clutter_event_get_device (event);
   clutter_input_pointer_a11y_update (device, event);
