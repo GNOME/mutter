@@ -1091,6 +1091,7 @@ if have_installed_tests
   install_subdir('migration', install_dir: tests_datadir)
   install_subdir('ref-tests', install_dir: tests_datadir)
   install_subdir('icc-profiles', install_dir: tests_datadir)
+  install_subdir('xcursors', install_dir: tests_datadir)
 
   install_data('org.gnome.mutter.test.gschema.xml', install_dir: tests_datadir)
 

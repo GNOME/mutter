@@ -127,7 +127,7 @@ on_pointer_enter (WaylandSurface    *surface,
            "and actual scale %f",
            effective_theme_size, theme_size, scale);
 
-  cursor_theme = wl_cursor_theme_load ("Adwaita",
+  cursor_theme = wl_cursor_theme_load (NULL,
                                        effective_theme_size,
                                        display->shm);
   cursor = wl_cursor_theme_get_cursor (cursor_theme, cursor_name);
