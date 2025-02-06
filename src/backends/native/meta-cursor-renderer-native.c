@@ -774,6 +774,7 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
                                        int                       height,
                                        int                       rowstride,
                                        const graphene_matrix_t  *matrix,
+                                       CoglPixelFormat           dst_format,
                                        int                       dst_width,
                                        int                       dst_height,
                                        GError                  **error)
@@ -801,7 +802,7 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
   dst_texture = cogl_texture_2d_new_with_format (cogl_context,
                                                  dst_width,
                                                  dst_height,
-                                                 COGL_PIXEL_FORMAT_BGRA_8888_PRE);
+                                                 dst_format);
   offscreen = cogl_offscreen_new_with_texture (dst_texture);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), error))
     return NULL;
@@ -976,6 +977,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        height,
                                                        rowstride,
                                                        &matrix,
+                                                       COGL_PIXEL_FORMAT_BGRA_8888_PRE,
                                                        crtc_dst_width,
                                                        crtc_dst_height,
                                                        &error);
