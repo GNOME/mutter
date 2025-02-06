@@ -58,7 +58,7 @@ SET OPTIONS
 
 ``--persistent``, ``-P``
 
-  Store applied configuration on persistant storage and restore when applicable.
+  Store applied configuration on persistent storage and restore when applicable.
 
 ``--verbose``, ``-v``
 
