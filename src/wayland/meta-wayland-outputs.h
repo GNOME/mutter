@@ -33,6 +33,8 @@ const GList * meta_wayland_output_get_resources (MetaWaylandOutput *wayland_outp
 
 MetaMonitor * meta_wayland_output_get_monitor (MetaWaylandOutput *wayland_output);
 
+MetaMonitorMode * meta_wayland_output_get_monitor_mode (MetaWaylandOutput *wayland_output);
+
 void meta_wayland_outputs_finalize (MetaWaylandCompositor *compositor);
 
 void meta_wayland_outputs_init (MetaWaylandCompositor *compositor);
