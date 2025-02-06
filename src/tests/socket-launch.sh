@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 export LISTEN_PID=$$
 exec "$@"
