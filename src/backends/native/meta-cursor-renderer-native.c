@@ -99,6 +99,8 @@ typedef struct _MetaCursorRendererNativeGpuData
 {
   gboolean hw_cursor_broken;
 
+  uint32_t drm_format;
+  CoglPixelFormat cogl_format;
   uint64_t cursor_width;
   uint64_t cursor_height;
 } MetaCursorRendererNativeGpuData;
@@ -849,7 +851,10 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   MetaCrtc *crtc = META_CRTC (crtc_kms);
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   MetaLogicalMonitor *logical_monitor;
   MetaMonitor *monitor;
   float monitor_scale;
@@ -872,6 +877,9 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   gboolean retval = FALSE;
   graphene_point_t hotspot;
   int hot_x, hot_y;
+
+  cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
 
   monitor = meta_output_get_monitor (meta_crtc_get_outputs (crtc)->data);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -954,7 +962,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
 
   if (width != crtc_dst_width || height != crtc_dst_height ||
       !graphene_matrix_is_identity (&matrix) ||
-      gbm_format != GBM_FORMAT_ARGB8888 ||
+      gbm_format != cursor_renderer_gpu_data->drm_format ||
       !clutter_color_state_equals (cursor_color_state, target_color_state))
     {
       const MetaFormatInfo *format_info;
@@ -977,7 +985,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        height,
                                                        rowstride,
                                                        &matrix,
-                                                       COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+                                                       cursor_renderer_gpu_data->cogl_format,
                                                        crtc_dst_width,
                                                        crtc_dst_height,
                                                        &error);
@@ -989,11 +997,11 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
         }
 
       bpp =
-        cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+        cogl_pixel_format_get_bytes_per_pixel (cursor_renderer_gpu_data->cogl_format,
                                                0);
       cursor_rowstride = crtc_dst_width * bpp;
       cursor_data = g_malloc (crtc_dst_height * cursor_rowstride);
-      cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+      cogl_texture_get_data (texture, cursor_renderer_gpu_data->cogl_format,
                              cursor_rowstride,
                              cursor_data);
 
@@ -1007,7 +1015,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                 cursor_rowstride,
                                                 &hotspot,
                                                 relative_transform,
-                                                GBM_FORMAT_ARGB8888);
+                                                cursor_renderer_gpu_data->drm_format);
     }
   else
     {
@@ -1020,7 +1028,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
                                                        rowstride,
                                                        &hotspot,
                                                        MTK_MONITOR_TRANSFORM_NORMAL,
-                                                       GBM_FORMAT_ARGB8888);
+                                                       cursor_renderer_gpu_data->drm_format);
     }
 
   return retval;
@@ -1284,6 +1292,9 @@ init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 
   cursor_renderer_gpu_data =
     meta_create_cursor_renderer_native_gpu_data (gpu_kms);
+
+  cursor_renderer_gpu_data->drm_format = DRM_FORMAT_ARGB8888;
+  cursor_renderer_gpu_data->cogl_format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
 
   if (!meta_kms_device_get_cursor_size (kms_device, &width, &height))
     {
