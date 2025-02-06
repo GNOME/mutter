@@ -51,6 +51,7 @@
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "common/meta-cogl-drm-formats.h"
+#include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
@@ -99,6 +100,7 @@ typedef struct _MetaCursorRendererNativeGpuData
 {
   gboolean hw_cursor_broken;
 
+  gboolean use_gbm;
   uint32_t drm_format;
   CoglPixelFormat cogl_format;
   uint64_t cursor_width;
@@ -546,11 +548,13 @@ create_cursor_drm_buffer (MetaGpuKms      *gpu_kms,
                           uint32_t         format,
                           GError         **error)
 {
-  struct gbm_device *gbm_device;
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
 
-  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
-  if (gbm_device)
+  if (cursor_renderer_gpu_data->use_gbm)
     {
+      struct gbm_device *gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+
       return create_cursor_drm_buffer_gbm (gpu_kms, device_file, gbm_device,
                                            pixels,
                                            width, height, stride,
@@ -1283,18 +1287,105 @@ on_monitors_changed (MetaMonitorManager       *monitors,
   meta_cursor_renderer_force_update (renderer);
 }
 
+static gboolean
+cursor_planes_support_format (MetaKmsDevice  *kms_device,
+                              const uint32_t  format)
+{
+  gboolean supported = FALSE;
+  GList *l;
+
+  for (l = meta_kms_device_get_planes (kms_device); l; l = l->next)
+    {
+      MetaKmsPlane *plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (plane) != META_KMS_PLANE_TYPE_CURSOR)
+        continue;
+
+      if (!meta_kms_plane_is_format_supported (plane, format))
+        return FALSE;
+
+      supported = TRUE;
+    }
+
+  return supported;
+}
+
+static const MetaFormatInfo *
+find_cursor_format_info (MetaGpuKms        *gpu_kms,
+                         struct gbm_device *gbm_device)
+{
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  uint32_t formats[] = {
+    DRM_FORMAT_ARGB8888,
+    DRM_FORMAT_RGBA8888,
+    DRM_FORMAT_BGRA8888,
+    DRM_FORMAT_ABGR8888
+  };
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (formats); i++)
+    {
+      if (gbm_device &&
+          !gbm_device_is_format_supported (gbm_device, formats[i],
+                                           GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE))
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "GBM doesn't support format 0x%x for %s",
+                      formats[i], meta_kms_device_get_path (kms_device));
+          continue;
+        }
+
+      if (cursor_planes_support_format (kms_device, formats[i]))
+        return meta_format_info_from_drm_format (formats[i]);
+
+      meta_topic (META_DEBUG_KMS,
+                  "Cursor plane doesn't support format 0x%x for %s",
+                  formats[i], meta_kms_device_get_path (kms_device));
+    }
+
+  return NULL;
+}
+
 static void
 init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 {
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  const MetaFormatInfo *format_info;
+  struct gbm_device *gbm_device;
   uint64_t width, height;
+  MetaDrmFormatBuf tmp;
 
   cursor_renderer_gpu_data =
     meta_create_cursor_renderer_native_gpu_data (gpu_kms);
 
-  cursor_renderer_gpu_data->drm_format = DRM_FORMAT_ARGB8888;
-  cursor_renderer_gpu_data->cogl_format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  format_info = find_cursor_format_info (gpu_kms, gbm_device);
+  if (!format_info && gbm_device)
+    {
+      gbm_device = NULL;
+      format_info = find_cursor_format_info (gpu_kms, NULL);
+    }
+
+  if (!format_info)
+    {
+      g_warning ("Couldn't find suitable cursor plane format for %s, "
+                 "disabling HW cursor",
+                 meta_kms_device_get_path (kms_device));
+      cursor_renderer_gpu_data->hw_cursor_broken = TRUE;
+      return;
+    }
+
+  cursor_renderer_gpu_data->use_gbm = gbm_device != NULL;
+  cursor_renderer_gpu_data->drm_format = format_info->drm_format;
+  cursor_renderer_gpu_data->cogl_format = format_info->cogl_format;
+
+  meta_topic (META_DEBUG_KMS,
+              "Using cursor plane format %s (0x%x) for %s, use_gbm=%d",
+              meta_drm_format_to_string (&tmp, format_info->drm_format),
+              format_info->drm_format,
+              meta_kms_device_get_path (kms_device),
+              cursor_renderer_gpu_data->use_gbm);
 
   if (!meta_kms_device_get_cursor_size (kms_device, &width, &height))
     {
