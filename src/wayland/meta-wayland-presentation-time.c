@@ -323,6 +323,8 @@ meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *fee
   uint32_t seq_hi, seq_lo;
   uint32_t flags;
   const GList *l;
+  MetaMonitorMode *mode;
+  gboolean is_vrr;
 
   if (output == NULL)
     {
@@ -337,7 +339,16 @@ meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *fee
   tv_sec_lo = time_s;
   tv_nsec = (uint32_t) us2ns (time_us - s2us (time_s));
 
-  refresh_interval_ns = (uint32_t) (0.5 + s2ns (1) / frame_info->refresh_rate);
+  mode = meta_wayland_output_get_monitor_mode (output);
+
+  is_vrr = meta_monitor_mode_get_refresh_rate_mode (mode) ==
+           META_CRTC_REFRESH_RATE_MODE_VARIABLE;
+
+  /* The refresh rate interval is required to be 0 for vrr. */
+  if (is_vrr)
+    refresh_interval_ns = 0;
+  else
+    refresh_interval_ns = (uint32_t) (0.5 + s2ns (1) / frame_info->refresh_rate);
 
   maybe_update_presentation_sequence (surface, frame_info, output);
 

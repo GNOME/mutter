@@ -86,6 +86,12 @@ meta_wayland_output_get_logical_monitor (MetaWaylandOutput *wayland_output)
   return meta_monitor_get_logical_monitor (wayland_output->monitor);
 }
 
+MetaMonitorMode *
+meta_wayland_output_get_monitor_mode (MetaWaylandOutput *wayland_output)
+{
+  return wayland_output->mode;
+}
+
 static void
 output_resource_destroy (struct wl_resource *res)
 {
