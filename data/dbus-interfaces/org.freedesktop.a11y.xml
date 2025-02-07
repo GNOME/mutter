@@ -16,7 +16,7 @@
         GrabKeyboard:
 
         Starts grabbing all key events. The client receives the events
-        through the KeyEvent signal as always, but the events aren't handled
+        through the KeyEvent signal, and in addition, the events aren't handled
         normally by the compositor. This includes changes to the state
         of toggles like Caps Lock, Num Lock, and Scroll Lock.
 
@@ -33,8 +33,35 @@
 
         After calling this method, the key grabs specified in the last call
         to SetKeyGrabs, if any, are still in effect.
+        Also, the client will still receive key events through the KeyEvent
+        signal, if it has called WatchKeyboard.
     -->
     <method name="UngrabKeyboard" />
+
+    <!--
+        WatchKeyboard:
+
+        Starts watching all key events. The client receives the events
+        through the KeyEvent signal, but the events are still handled
+        normally by the compositor. This includes changes to the state
+        of toggles like Caps Lock, Num Lock, and Scroll Lock.
+
+        This behavior stays in effect until the same client calls
+        UnwatchKeyboard or closes its D-Bus connection.
+    -->
+    <method name="WatchKeyboard" />
+
+    <!--
+        UnwatchKeyboard:
+
+        Reverses the effect of calling WatchKeyboard. If WatchKeyboard wasn't
+        previously called, this method does nothing.
+
+        After calling this method, the key grabs specified in the last call
+        to SetKeyGrabs, if any, are still in effect,
+        but other key events are no longer reported to this client.
+    -->
+    <method name="UnwatchKeyboard" />
 
     <!--
         SetKeyGrabs:
@@ -43,7 +70,7 @@
 
         Sets the current key grabs for the calling client, overriding
         any previous call to this method. For grabbed key events, the
-        KeyEvent signal is still emitted, but normal key event handling
+        KeyEvent signal is emitted, and normal key event handling
         is suppressed, including state changes for toggles like Caps Lock
         and Num Lock.
 

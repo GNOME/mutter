@@ -63,6 +63,7 @@ typedef struct _MetaA11yKeyGrabber
   char *bus_name;
   guint bus_name_watcher_id;
   gboolean grab_all;
+  gboolean watch_all;
   GArray *modifiers;
   GArray *keystrokes;
 } MetaA11yKeyGrabber;
@@ -210,6 +211,34 @@ handle_ungrab_keyboard (MetaDBusKeyboardMonitor *skeleton,
 }
 
 static gboolean
+handle_watch_keyboard (MetaDBusKeyboardMonitor *skeleton,
+                       GDBusMethodInvocation   *invocation,
+                       MetaA11yManager         *a11y_manager)
+{
+  MetaA11yKeyGrabber *grabber;
+
+  grabber = ensure_key_grabber (a11y_manager, invocation);
+  grabber->watch_all = TRUE;
+  meta_dbus_keyboard_monitor_complete_watch_keyboard (skeleton, invocation);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
+handle_unwatch_keyboard (MetaDBusKeyboardMonitor *skeleton,
+                         GDBusMethodInvocation   *invocation,
+                         MetaA11yManager         *a11y_manager)
+{
+  MetaA11yKeyGrabber *grabber;
+
+  grabber = ensure_key_grabber (a11y_manager, invocation);
+  grabber->watch_all = FALSE;
+  meta_dbus_keyboard_monitor_complete_unwatch_keyboard (skeleton, invocation);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
 handle_set_key_grabs (MetaDBusKeyboardMonitor *skeleton,
                       GDBusMethodInvocation   *invocation,
                       GVariant                *modifiers,
@@ -257,6 +286,10 @@ on_bus_acquired (GDBusConnection *connection,
                     G_CALLBACK (handle_grab_keyboard), manager);
   g_signal_connect (manager->keyboard_monitor_skeleton, "handle-ungrab-keyboard",
                     G_CALLBACK (handle_ungrab_keyboard), manager);
+  g_signal_connect (manager->keyboard_monitor_skeleton, "handle-watch-keyboard",
+                    G_CALLBACK (handle_watch_keyboard), manager);
+  g_signal_connect (manager->keyboard_monitor_skeleton, "handle-unwatch-keyboard",
+                    G_CALLBACK (handle_unwatch_keyboard), manager);
   g_signal_connect (manager->keyboard_monitor_skeleton, "handle-set-key-grabs",
                     G_CALLBACK (handle_set_key_grabs), manager);
 
@@ -423,6 +456,18 @@ should_grab_keypress (MetaA11yManager     *a11y_manager,
 }
 
 static gboolean
+should_watch_keypress (MetaA11yManager     *a11y_manager,
+                       MetaA11yKeyGrabber  *grabber,
+                       uint32_t             keysym,
+                       ClutterModifierType  modifiers)
+{
+  if (grabber->watch_all)
+    return TRUE;
+
+  return should_grab_keypress (a11y_manager, grabber, keysym, modifiers);
+}
+
+static gboolean
 is_grabbed_modifier_key (MetaA11yManager *a11y_manager,
                          uint32_t         keysym)
 {
@@ -481,7 +526,7 @@ meta_a11y_manager_notify_clients (MetaA11yManager    *a11y_manager,
     {
       MetaA11yKeyGrabber *grabber = l->data;
 
-      if (should_grab_keypress (a11y_manager, grabber, keysym, state))
+      if (should_watch_keypress (a11y_manager, grabber, keysym, state))
         {
           notify_client (a11y_manager, grabber, released,
                          state, keysym, unichar, keycode);
