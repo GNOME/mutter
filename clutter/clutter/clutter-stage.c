@@ -2171,7 +2171,7 @@ clutter_stage_set_key_focus (ClutterStage *stage,
  *
  * Retrieves the actor that is currently under key focus.
  *
- * Return value: (transfer none): the actor with key focus, or the stage
+ * Return value: (transfer none) (nullable): the actor with key focus
  */
 ClutterActor *
 clutter_stage_get_key_focus (ClutterStage *stage)
@@ -2181,10 +2181,7 @@ clutter_stage_get_key_focus (ClutterStage *stage)
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 
   priv = clutter_stage_get_instance_private (stage);
-  if (priv->key_focused_actor)
-    return priv->key_focused_actor;
-
-  return CLUTTER_ACTOR (stage);
+  return priv->key_focused_actor;
 }
 
 /*** Perspective boxed type ******/

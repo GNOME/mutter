@@ -77,7 +77,7 @@ stage_has_key_focus (MetaDisplay *display)
 {
   ClutterStage *stage = stage_from_display (display);
 
-  return clutter_stage_get_key_focus (stage) == CLUTTER_ACTOR (stage);
+  return clutter_stage_get_key_focus (stage) == NULL;
 }
 
 static gboolean

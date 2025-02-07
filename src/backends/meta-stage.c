@@ -307,12 +307,6 @@ key_focus_actor_changed (ClutterStage *stage,
 {
   ClutterActor *key_focus = clutter_stage_get_key_focus (stage);
 
-  /* If there's no explicit key focus, clutter_stage_get_key_focus()
-   * returns the stage.
-   */
-  if (key_focus == CLUTTER_ACTOR (stage))
-    key_focus = NULL;
-
   clutter_stage_set_active (stage, key_focus != NULL);
 }
 

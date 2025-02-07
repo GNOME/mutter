@@ -1301,7 +1301,7 @@ stage_has_focus_actor (MetaX11Display *x11_display)
 
   key_focus = clutter_stage_get_key_focus (stage);
 
-  return key_focus != CLUTTER_ACTOR (stage);
+  return key_focus != NULL;
 }
 
 static void
