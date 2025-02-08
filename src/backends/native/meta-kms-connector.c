@@ -918,14 +918,21 @@ kms_modes_equal (GList *modes,
     {
       GList *k;
       MetaKmsMode *mode = l->data;
+      gboolean found_match = FALSE;
 
       for (k = other_modes; k; k = k->next)
         {
           MetaKmsMode *other_mode = k->data;
 
           if (!meta_kms_mode_equal (mode, other_mode))
-            return FALSE;
+            continue;
+
+          found_match = TRUE;
+          break;
         }
+
+      if (!found_match)
+        return FALSE;
     }
 
   return TRUE;
