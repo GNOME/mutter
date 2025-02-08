@@ -206,6 +206,8 @@ input_cb (ClutterActor *actor,
       event_type == CLUTTER_KEY_RELEASE)
     {
       source_actor = clutter_stage_get_key_focus (CLUTTER_STAGE (stage));
+      if (source_actor == NULL)
+        source_actor = stage;
     }
   else
     {

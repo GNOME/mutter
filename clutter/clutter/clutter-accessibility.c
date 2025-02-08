@@ -230,6 +230,8 @@ check_key_visibility (ClutterStage *stage)
   ClutterActor *focus;
 
   focus = clutter_stage_get_key_focus (stage);
+  if (focus == NULL)
+    focus = CLUTTER_ACTOR (stage);
   accessible = clutter_actor_get_accessible (focus);
 
   g_return_val_if_fail (accessible != NULL, 0);

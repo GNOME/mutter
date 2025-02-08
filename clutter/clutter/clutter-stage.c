@@ -4178,9 +4178,12 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
 {
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
+  ClutterStagePrivate *priv;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
   g_return_val_if_fail (event != NULL, NULL);
+
+  priv = clutter_stage_get_instance_private (stage);
 
   switch (clutter_event_type (event))
     {
@@ -4193,7 +4196,8 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
     case CLUTTER_IM_COMMIT:
     case CLUTTER_IM_DELETE:
     case CLUTTER_IM_PREEDIT:
-      return clutter_stage_get_key_focus (stage);
+      return priv->key_focused_actor ?
+             priv->key_focused_actor : CLUTTER_ACTOR (stage);
     case CLUTTER_MOTION:
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
