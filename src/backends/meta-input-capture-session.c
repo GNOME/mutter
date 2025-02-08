@@ -1188,6 +1188,10 @@ static void
 meta_input_capture_session_finalize (GObject *object)
 {
   MetaInputCaptureSession *session = META_INPUT_CAPTURE_SESSION (object);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+
+  g_signal_handlers_disconnect_by_func (backend, on_keymap_changed, session);
 
   g_clear_pointer (&session->barriers, g_hash_table_unref);
 
