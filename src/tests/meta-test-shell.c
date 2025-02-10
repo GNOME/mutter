@@ -326,7 +326,7 @@ on_overlay_key (MetaDisplay   *display,
     {
       test_shell->overview.grab = clutter_stage_grab (stage, CLUTTER_ACTOR (stage));
       test_shell->overview.prev_focus = clutter_stage_get_key_focus (stage);
-      clutter_stage_set_key_focus (stage, CLUTTER_ACTOR (stage));
+      clutter_stage_set_key_focus (stage, NULL);
     }
   else
     {
