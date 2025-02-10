@@ -2110,7 +2110,11 @@ clutter_stage_set_key_focus (ClutterStage *stage,
 
   /* normalize the key focus. NULL == stage */
   if (actor == CLUTTER_ACTOR (stage))
-    actor = NULL;
+    {
+      g_warning ("Stage key focus was set to stage itself, "
+                 "unsetting focus instead");
+      actor = NULL;
+    }
 
   /* avoid emitting signals and notifications if we're setting the same
    * actor as the key focus
