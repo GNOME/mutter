@@ -620,6 +620,14 @@ meta_context_destroy (MetaContext *context)
   g_object_unref (context);
 }
 
+gboolean
+meta_context_get_unsafe_mode (MetaContext *context)
+{
+  MetaContextPrivate *priv = meta_context_get_instance_private (context);
+
+  return priv->unsafe_mode;
+}
+
 void
 meta_context_set_unsafe_mode (MetaContext *context,
                               gboolean     enable)

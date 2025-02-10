@@ -70,6 +70,8 @@ const char * meta_context_get_gnome_wm_keybindings (MetaContext *context);
 void meta_context_set_unsafe_mode (MetaContext *context,
                                    gboolean     enable);
 
+gboolean meta_context_get_unsafe_mode (MetaContext *context);
+
 #ifdef HAVE_WAYLAND
 META_EXPORT_TEST
 MetaServiceChannel * meta_context_get_service_channel (MetaContext *context);

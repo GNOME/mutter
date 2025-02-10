@@ -213,6 +213,8 @@ mutter_sources = [
   'backends/meta-cursor-sprite-xcursor.h',
   'backends/meta-cursor-tracker.c',
   'backends/meta-cursor-tracker-private.h',
+  'backends/meta-dbus-access-checker.c',
+  'backends/meta-dbus-access-checker.h',
   'backends/meta-dbus-session-manager.c',
   'backends/meta-dbus-session-manager.h',
   'backends/meta-dbus-session-watcher.c',

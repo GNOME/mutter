@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "backends/meta-a11y-manager.h"
+#include "backends/meta-dbus-access-checker.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "meta/util.h"
@@ -78,6 +79,8 @@ typedef struct _MetaA11yManager
   GList *key_grabbers;
   GHashTable *grabbed_keypresses;
   GHashTable *all_grabbed_modifiers;
+
+  MetaDbusAccessChecker *access_checker;
 } MetaA11yManager;
 
 G_DEFINE_TYPE (MetaA11yManager, meta_a11y_manager, G_TYPE_OBJECT)
@@ -183,6 +186,28 @@ ensure_key_grabber (MetaA11yManager       *a11y_manager,
 }
 
 static gboolean
+check_access (GDBusInterfaceSkeleton *skeleton,
+              GDBusMethodInvocation  *invocation,
+              gpointer                user_data)
+{
+  MetaA11yManager *a11y_manager = META_A11Y_MANAGER (user_data);
+  const char *sender =
+    g_dbus_method_invocation_get_sender (invocation);
+
+  if (!meta_dbus_access_checker_is_sender_allowed (a11y_manager->access_checker,
+                                                   sender))
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Access denied");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 handle_grab_keyboard (MetaDBusKeyboardMonitor *skeleton,
                       GDBusMethodInvocation   *invocation,
                       MetaA11yManager         *a11y_manager)
@@ -279,9 +304,12 @@ on_bus_acquired (GDBusConnection *connection,
                  gpointer         user_data)
 {
   MetaA11yManager *manager = user_data;
+  MetaContext *context = meta_backend_get_context (manager->backend);
 
   manager->keyboard_monitor_skeleton = meta_dbus_keyboard_monitor_skeleton_new ();
 
+  g_signal_connect (manager->keyboard_monitor_skeleton, "g-authorize-method",
+                    G_CALLBACK (check_access), manager);
   g_signal_connect (manager->keyboard_monitor_skeleton, "handle-grab-keyboard",
                     G_CALLBACK (handle_grab_keyboard), manager);
   g_signal_connect (manager->keyboard_monitor_skeleton, "handle-ungrab-keyboard",
@@ -297,6 +325,10 @@ on_bus_acquired (GDBusConnection *connection,
                                     connection,
                                     "/org/freedesktop/a11y/Manager",
                                     NULL);
+
+  manager->access_checker = meta_dbus_access_checker_new (connection, context);
+  meta_dbus_access_checker_allow_sender (manager->access_checker,
+                                         "org.gnome.Orca.KeyboardMonitor");
 }
 
 static void
@@ -323,6 +355,7 @@ meta_a11y_manager_finalize (GObject *object)
   g_list_free_full (a11y_manager->key_grabbers,
                     (GDestroyNotify) key_grabber_free);
   g_clear_object (&a11y_manager->keyboard_monitor_skeleton);
+  g_clear_object (&a11y_manager->access_checker);
   g_clear_pointer (&a11y_manager->grabbed_keypresses, g_hash_table_destroy);
   g_clear_pointer (&a11y_manager->all_grabbed_modifiers, g_hash_table_destroy);
   g_bus_unown_name (a11y_manager->dbus_name_id);
