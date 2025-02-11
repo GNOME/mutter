@@ -1350,11 +1350,16 @@ static void
 init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 {
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  MetaKms *kms = meta_kms_device_get_kms (kms_device);
+  MetaBackend *backend = meta_kms_get_backend (kms);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   const MetaFormatInfo *format_info;
   struct gbm_device *gbm_device;
   uint64_t width, height;
   MetaDrmFormatBuf tmp;
+
+  if (meta_backend_is_headless (backend))
+    return;
 
   cursor_renderer_gpu_data =
     meta_create_cursor_renderer_native_gpu_data (gpu_kms);
