@@ -53,6 +53,52 @@ typedef enum
   META_BOTTOM
 } MetaWindowDirection;
 
+typedef struct
+{
+  MtkRectangle area;
+  MtkRectangle window;
+  gboolean ltr;
+} WindowDistanceComparisonData;
+
+static gint
+window_distance_cmp (gconstpointer a,
+                     gconstpointer b,
+                     gpointer      user_data)
+{
+  MetaWindow *aw = (gpointer) a;
+  MetaWindow *bw = (gpointer) b;
+  WindowDistanceComparisonData *data = user_data;
+  MtkRectangle *area = &data->area;
+  MtkRectangle *window = &data->window;
+  MtkRectangle a_frame;
+  MtkRectangle b_frame;
+  int from_origin_a;
+  int from_origin_b;
+  int ax, ay, bx, by;
+  int corner_x, corner_y;
+
+  meta_window_get_frame_rect (aw, &a_frame);
+  meta_window_get_frame_rect (bw, &b_frame);
+  ax = a_frame.x - area->x;
+  ay = a_frame.y - area->y;
+  bx = b_frame.x - area->x;
+  by = b_frame.y - area->y;
+  corner_x = area->width / 2 + ((data->ltr ? -1 : 1) * window->width / 2);
+  corner_y = area->height / 2 - window->height / 2;
+
+  from_origin_a = (corner_x - ax) * (corner_x - ax) +
+                  (corner_y - ay) * (corner_y - ay);
+  from_origin_b = (corner_x - bx) * (corner_x - bx) +
+                  (corner_y - by) * (corner_y - by);
+
+  if (from_origin_a < from_origin_b)
+    return -1;
+  else if (from_origin_a > from_origin_b)
+    return 1;
+  else
+    return 0;
+}
+
 static gint
 northwest_cmp (gconstpointer a,
                gconstpointer b,
