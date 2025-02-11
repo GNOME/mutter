@@ -161,14 +161,14 @@ get_pad_feature_gsettings (ClutterInputDevice *device,
 {
   GSettings *settings;
   g_autofree char *path = NULL;
-  const gchar *vendor, *product;
+  guint vendor, product;
   char tag;
 
   tag = 'A' + feature_number;
   vendor = clutter_input_device_get_vendor_id (device);
   product = clutter_input_device_get_product_id (device);
 
-  path = g_strdup_printf ("/org/gnome/desktop/peripherals/tablets/%s:%s/%s%c%s/",
+  path = g_strdup_printf ("/org/gnome/desktop/peripherals/tablets/%.4x:%.4x/%s%c%s/",
                           vendor, product, feature, tag,
                           suffix ? suffix : "");
   settings = g_settings_new_with_path ("org.gnome.desktop.peripherals.tablet.pad-button",

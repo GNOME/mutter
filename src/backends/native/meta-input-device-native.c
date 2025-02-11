@@ -1508,15 +1508,15 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
   ClutterInputDeviceType type;
   ClutterInputCapabilities capabilities;
   ClutterInputMode mode;
-  char *vendor, *product;
+  unsigned int vendor, product;
   int n_rings = 0, n_strips = 0, n_groups = 1, n_buttons = 0;
   char *node_path;
   double width, height;
 
   capabilities = translate_device_capabilities (libinput_device);
   type = determine_device_type (libinput_device);
-  vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
-  product = g_strdup_printf ("%.4x", libinput_device_get_id_product (libinput_device));
+  vendor = libinput_device_get_id_vendor (libinput_device);
+  product = libinput_device_get_id_product (libinput_device);
   node_path = g_strdup_printf ("/dev/input/%s", libinput_device_get_sysname (libinput_device));
 
   if (libinput_device_has_capability (libinput_device,
@@ -1554,8 +1554,6 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
 
   libinput_device_set_user_data (libinput_device, device);
   libinput_device_ref (libinput_device);
-  g_free (vendor);
-  g_free (product);
   g_free (node_path);
 
   if (libinput_device_has_capability (libinput_device,

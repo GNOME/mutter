@@ -87,8 +87,8 @@ struct _ClutterInputDevicePrivate
 
   ClutterSeat *seat;
 
-  char *vendor_id;
-  char *product_id;
+  guint vendor_id;
+  guint product_id;
   char *node_path;
 
   int n_rings;
@@ -156,8 +156,6 @@ clutter_input_device_dispose (GObject *gobject)
     clutter_input_device_get_instance_private (device);
 
   g_clear_pointer (&priv->device_name, g_free);
-  g_clear_pointer (&priv->vendor_id, g_free);
-  g_clear_pointer (&priv->product_id, g_free);
   g_clear_pointer (&priv->node_path, g_free);
 
   if (device->accessibility_virtual_device)
@@ -203,11 +201,11 @@ clutter_input_device_set_property (GObject      *gobject,
       break;
 
     case PROP_VENDOR_ID:
-      priv->vendor_id = g_value_dup_string (value);
+      priv->vendor_id = g_value_get_uint (value);
       break;
 
     case PROP_PRODUCT_ID:
-      priv->product_id = g_value_dup_string (value);
+      priv->product_id = g_value_get_uint (value);
       break;
 
     case PROP_N_RINGS:
@@ -273,11 +271,11 @@ clutter_input_device_get_property (GObject    *gobject,
       break;
 
     case PROP_VENDOR_ID:
-      g_value_set_string (value, priv->vendor_id);
+      g_value_set_uint (value, priv->vendor_id);
       break;
 
     case PROP_PRODUCT_ID:
-      g_value_set_string (value, priv->product_id);
+      g_value_set_uint (value, priv->product_id);
       break;
 
     case PROP_N_RINGS:
@@ -388,26 +386,24 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
   /**
    * ClutterInputDevice:vendor-id:
    *
-   * Vendor ID of this device.2
+   * Vendor ID of this device.
    */
   obj_props[PROP_VENDOR_ID] =
-    g_param_spec_string ("vendor-id", NULL, NULL,
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_STATIC_STRINGS |
-                         G_PARAM_CONSTRUCT_ONLY);
+    g_param_spec_uint ("vendor-id", NULL, NULL,
+                       0, 0xffff, 0,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:product-id:
    *
-   * Product ID of this device.2
+   * Product ID of this device.
    */
   obj_props[PROP_PRODUCT_ID] =
-    g_param_spec_string ("product-id", NULL, NULL,
-                         NULL,
-                         G_PARAM_READWRITE |
-                         G_PARAM_STATIC_STRINGS |
-                         G_PARAM_CONSTRUCT_ONLY);
+    g_param_spec_uint ("product-id", NULL, NULL,
+                       0, 0xffff, 0,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   obj_props[PROP_N_RINGS] =
     g_param_spec_int ("n-rings", NULL, NULL,
@@ -566,16 +562,16 @@ clutter_input_device_get_device_mode (ClutterInputDevice *device)
  *
  * Gets the vendor ID of this device.
  *
- * Returns: the vendor ID2
+ * Returns: the vendor ID
  */
-const gchar *
+guint
 clutter_input_device_get_vendor_id (ClutterInputDevice *device)
 {
   ClutterInputDevicePrivate *priv =
     clutter_input_device_get_instance_private (device);
 
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
+  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
 
   return priv->vendor_id;
 }
@@ -588,14 +584,14 @@ clutter_input_device_get_vendor_id (ClutterInputDevice *device)
  *
  * Returns: the product ID2
  */
-const gchar *
+guint
 clutter_input_device_get_product_id (ClutterInputDevice *device)
 {
   ClutterInputDevicePrivate *priv =
     clutter_input_device_get_instance_private (device);
 
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
+  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
 
   return priv->product_id;
 }

@@ -1380,7 +1380,8 @@ meta_input_keyboard_a11y_settings_changed (GSettings  *settings,
 static GSettings *
 lookup_device_settings (ClutterInputDevice *device)
 {
-  const gchar *group, *schema, *vendor, *product;
+  const gchar *group, *schema;
+  guint vendor, product;
   ClutterInputCapabilities capabilities;
   GSettings *settings;
   gchar *path;
@@ -1406,7 +1407,7 @@ lookup_device_settings (ClutterInputDevice *device)
 
   vendor = clutter_input_device_get_vendor_id (device);
   product = clutter_input_device_get_product_id (device);
-  path = g_strdup_printf ("/org/gnome/desktop/peripherals/%s/%s:%s/",
+  path = g_strdup_printf ("/org/gnome/desktop/peripherals/%s/%.4x:%.4x/",
                           group, vendor, product);
 
   settings = g_settings_new_with_path (schema, path);
@@ -1433,7 +1434,7 @@ lookup_tool_settings (ClutterInputDeviceTool *tool,
    * real serial, so let's custom-case this */
   if (serial == 0 || serial == 1)
     {
-      path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/default-%s:%s/",
+      path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/default-%.4x:%.4x/",
                               clutter_input_device_get_vendor_id (device),
                               clutter_input_device_get_product_id (device));
     }

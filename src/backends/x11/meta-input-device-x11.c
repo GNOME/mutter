@@ -126,19 +126,10 @@ meta_input_device_x11_is_grouped (ClutterInputDevice *device,
     return TRUE;
 #endif
 
-  if (clutter_input_device_get_vendor_id (device) &&
-      clutter_input_device_get_product_id (device) &&
-      clutter_input_device_get_vendor_id (other_device) &&
-      clutter_input_device_get_product_id (other_device))
-    {
-      if (strcmp (clutter_input_device_get_vendor_id (device),
-                  clutter_input_device_get_vendor_id (other_device)) == 0 &&
-          strcmp (clutter_input_device_get_product_id (device),
-                  clutter_input_device_get_product_id (other_device)) == 0)
-        return TRUE;
-    }
-
-  return FALSE;
+  return clutter_input_device_get_vendor_id (device) ==
+         clutter_input_device_get_vendor_id (other_device) &&
+         clutter_input_device_get_product_id (device) ==
+         clutter_input_device_get_product_id (other_device);
 }
 
 static void

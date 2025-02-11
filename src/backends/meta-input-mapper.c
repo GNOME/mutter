@@ -134,7 +134,8 @@ G_DEFINE_TYPE_WITH_CODE (MetaInputMapper, meta_input_mapper,
 static GSettings *
 get_device_settings (ClutterInputDevice *device)
 {
-  const char *group, *schema, *vendor, *product;
+  const char *group, *schema;
+  guint vendor, product;
   ClutterInputDeviceType type;
   GSettings *settings;
   char *path;
@@ -162,7 +163,7 @@ get_device_settings (ClutterInputDevice *device)
 
   vendor = clutter_input_device_get_vendor_id (device);
   product = clutter_input_device_get_product_id (device);
-  path = g_strdup_printf ("/org/gnome/desktop/peripherals/%s/%s:%s/",
+  path = g_strdup_printf ("/org/gnome/desktop/peripherals/%s/%.4x:%.4x/",
                           group, vendor, product);
 
   settings = g_settings_new_with_path (schema, path);

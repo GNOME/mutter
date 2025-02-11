@@ -322,8 +322,8 @@ is_touchpad_device (MetaSeatX11  *seat_x11,
 static gboolean
 get_device_ids (MetaSeatX11   *seat_x11,
                 XIDeviceInfo  *info,
-                char         **vendor_id,
-                char         **product_id)
+                guint         *vendor_id,
+                guint         *product_id)
 {
   Display *xdisplay = xdisplay_from_seat (seat_x11);
   gulong nitems, bytes_after;
@@ -346,9 +346,9 @@ get_device_ids (MetaSeatX11   *seat_x11,
     }
 
   if (vendor_id)
-    *vendor_id = g_strdup_printf ("%.4x", data[0]);
+    *vendor_id = data[0];
   if (product_id)
-    *product_id = g_strdup_printf ("%.4x", data[1]);
+    *product_id = data[1];
 
   XFree (data);
 
@@ -602,7 +602,8 @@ create_device (MetaSeatX11    *seat_x11,
   ClutterInputDevice *retval;
   ClutterInputMode mode;
   uint32_t num_touches = 0, num_rings = 0, num_strips = 0;
-  char *vendor_id = NULL, *product_id = NULL, *node_path = NULL;
+  guint vendor_id = 0, product_id = 0;
+  char *node_path = NULL;
 
   if (info->use == XIMasterKeyboard || info->use == XISlaveKeyboard)
     {
@@ -728,8 +729,6 @@ create_device (MetaSeatX11    *seat_x11,
                             info->classes,
                             info->num_classes);
 
-  g_free (vendor_id);
-  g_free (product_id);
   g_free (node_path);
 
   g_debug ("Created device '%s' (id: %d, has-cursor: %s)",
