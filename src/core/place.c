@@ -72,9 +72,8 @@ northwest_cmp (gconstpointer a,
   bx = b_frame.x;
   by = b_frame.y;
 
-  /* probably there's a fast good-enough-guess we could use here. */
-  from_origin_a = (int) sqrt (ax * ax + ay * ay);
-  from_origin_b = (int) sqrt (bx * bx + by * by);
+  from_origin_a = ax * ax + ay * ay;
+  from_origin_b = bx * bx + by * by;
 
   if (from_origin_a < from_origin_b)
     return -1;
@@ -105,9 +104,8 @@ northeast_cmp (gconstpointer a,
   bx = (area->x + area->width) - (b_frame.x + b_frame.width);
   by = b_frame.y;
 
-  /* probably there's a fast good-enough-guess we could use here. */
-  from_origin_a = (int) sqrt (ax * ax + ay * ay);
-  from_origin_b = (int) sqrt (bx * bx + by * by);
+  from_origin_a = ax * ax + ay * ay;
+  from_origin_b = bx * bx + by * by;
 
   if (from_origin_a < from_origin_b)
     return -1;
