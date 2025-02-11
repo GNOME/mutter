@@ -55,10 +55,12 @@ typedef enum
 
 static gint
 northwest_cmp (gconstpointer a,
-               gconstpointer b)
+               gconstpointer b,
+               gpointer      user_data)
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
+  MtkRectangle *area = user_data;
   MtkRectangle a_frame;
   MtkRectangle b_frame;
   int from_origin_a;
@@ -67,10 +69,10 @@ northwest_cmp (gconstpointer a,
 
   meta_window_get_frame_rect (aw, &a_frame);
   meta_window_get_frame_rect (bw, &b_frame);
-  ax = a_frame.x;
-  ay = a_frame.y;
-  bx = b_frame.x;
-  by = b_frame.y;
+  ax = a_frame.x - area->x;
+  ay = a_frame.y - area->y;
+  bx = b_frame.x - area->x;
+  by = b_frame.y - area->y;
 
   from_origin_a = ax * ax + ay * ay;
   from_origin_b = bx * bx + by * by;
@@ -100,9 +102,9 @@ northeast_cmp (gconstpointer a,
   meta_window_get_frame_rect (aw, &a_frame);
   meta_window_get_frame_rect (bw, &b_frame);
   ax = (area->x + area->width) - (a_frame.x + a_frame.width);
-  ay = a_frame.y;
+  ay = a_frame.y - area->y;
   bx = (area->x + area->width) - (b_frame.x + b_frame.width);
-  by = b_frame.y;
+  by = b_frame.y - area->y;
 
   from_origin_a = ax * ax + ay * ay;
   from_origin_b = bx * bx + by * by;
@@ -155,7 +157,7 @@ find_next_cascade (MetaWindow *window,
 
   sorted = g_list_copy (windows);
   if (ltr)
-    sorted = g_list_sort (sorted, northwest_cmp);
+    sorted = g_list_sort_with_data (sorted, northwest_cmp, &work_area);
   else
     sorted = g_list_sort_with_data (sorted, northeast_cmp, &work_area);
 
