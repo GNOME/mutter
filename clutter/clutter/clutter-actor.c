@@ -3256,9 +3256,9 @@ static void
 _clutter_actor_remove_transitions_for_prefix (ClutterActor *actor,
                                               const char   *prefix)
 {
-  ClutterAnimationInfo *info;
+  const ClutterAnimationInfo *info;
 
-  info = _clutter_actor_get_animation_info (actor);
+  info = _clutter_actor_get_animation_info_or_defaults (actor);
 
   if (info->transitions != NULL)
     {
