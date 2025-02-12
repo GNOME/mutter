@@ -106,7 +106,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 41
-    BASE_TAG: '2025-02-12.1'
+    BASE_TAG: '2025-02-13.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -127,6 +127,7 @@ variables:
       python3-dbusmock
       gnome-desktop-testing
       ruff
+      mypy
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
@@ -384,6 +385,7 @@ check-python-code-style:
   script:
     - ruff format --line-length 80 --check $PYTHON_FILES
     - ruff check $PYTHON_FILES
+    - mypy $PYTHON_FILES
   rules:
     - !reference [.only-merge-requests, rules]
 
