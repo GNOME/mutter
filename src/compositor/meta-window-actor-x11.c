@@ -417,6 +417,13 @@ has_shadow (MetaWindowActorX11 *actor_x11)
     return FALSE;
 
   /*
+   * Do not add shadows to undecorated shaped windows; they are clearly
+   * special, and it's impossible to second-guess the intended behavior.
+   */
+  if (priv->shape_region != NULL)
+    return FALSE;
+
+  /*
    * Generate shadows for all other windows.
    */
   return TRUE;
