@@ -11,9 +11,9 @@
 import os
 import sys
 import re
-from typing import TextIO
+from typing import TextIO, Iterable
 
-import requests
+import requests  # type: ignore[import-untyped]
 
 KEYSYMDEF_URL = "https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/raw/master/include/X11/keysymdef.h"
 XF86KEYSYM_URL = "https://gitlab.freedesktop.org/xorg/proto/xorgproto/-/raw/master/include/X11/XF86keysym.h"
@@ -58,22 +58,23 @@ def get_and_filter_header(
     url: str,
     prefix: str,
     output_file: TextIO,
-    filter_out: tuple[str] | None = None,
+    filter_out: Iterable[str] | None = None,
     replaces: dict[str, str] | None = None,
 ):
     """
-    Fetches and processes a header file containing macro definitions, filtering and transforming
-    entries based on the specified prefix, exclusions, and replacements.
+    Fetches and processes a header file containing macro definitions, filtering
+    and transforming entries based on the specified prefix, exclusions, and
+    replacements.
 
     Args:
-        url (str): The URL to fetch the file content from.
-        prefix (str): The prefix to filter the macro definitions in the file.
-        output_file (TextIO): The file object where the filtered and transformed definitions
-                              will be written.
-        filter_out (tuple, optional): A tuple of macro names to exclude from processing.
-                                      Defaults to None.
-        replaces (dict, optional): A dictionary mapping macro names to their replacements.
-                                   Defaults to None.
+        url: The URL to fetch the file content from.
+        prefix: The prefix to filter the macro definitions in the file.
+        output_file: The file object where the filtered and transformed
+                     definitions will be written.
+        filter_out: An iterable producing macro names to exclude from
+                    processing. Defaults to None.
+        replaces: A dictionary mapping macro names to their replacements.
+                  Defaults to None.
     """
     for line in requests.get(url, timeout=5).text.splitlines():
         if not line.startswith("#define " + prefix):
