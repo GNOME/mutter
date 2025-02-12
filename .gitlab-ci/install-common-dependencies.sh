@@ -141,3 +141,11 @@ then
       https://gitlab.gnome.org/GNOME/gdm.git \
       main
 fi
+
+if ! pkgconf --atleast-version 1.83.4 gjs-1.0
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.gnome.org/GNOME/gjs.git \
+      master
+fi
