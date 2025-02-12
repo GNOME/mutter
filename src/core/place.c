@@ -40,6 +40,11 @@
 #include "x11/window-x11-private.h"
 #endif
 
+/* arbitrary-ish threshold, honors user attempts to manually cascade. */
+#define CASCADE_FUZZ 15
+/* space between top-left corners of cascades */
+#define CASCADE_INTERVAL 50
+
 typedef enum
 {
   META_LEFT,
@@ -141,10 +146,6 @@ find_next_cascade (MetaWindow *window,
    * position, we move on.
    */
 
-  /* arbitrary-ish threshold, honors user attempts to
-   * manually cascade.
-   */
-#define CASCADE_FUZZ 15
   x_threshold = CASCADE_FUZZ;
   y_threshold = CASCADE_FUZZ;
 
@@ -216,7 +217,6 @@ find_next_cascade (MetaWindow *window,
               cascade_x = cascade_origin_x;
               cascade_y = MAX (0, work_area.y);
 
-#define CASCADE_INTERVAL 50 /* space between top-left corners of cascades */
               cascade_stage += 1;
               if (ltr)
                 cascade_x += CASCADE_INTERVAL * cascade_stage;
@@ -294,21 +294,21 @@ find_most_freespace (MetaWindow *window,
 
   /* Find out which side of the focus_window can show the most of the window */
   side = META_LEFT;
-  max_area = left*max_height;
-  if (right*max_height > max_area)
+  max_area = left * max_height;
+  if (right * max_height > max_area)
     {
       side = META_RIGHT;
-      max_area = right*max_height;
+      max_area = right * max_height;
     }
-  if (top*max_width > max_area)
+  if (top * max_width > max_area)
     {
       side = META_TOP;
-      max_area = top*max_width;
+      max_area = top * max_width;
     }
-  if (bottom*max_width > max_area)
+  if (bottom * max_width > max_area)
     {
       side = META_BOTTOM;
-      max_area = bottom*max_width;
+      max_area = bottom * max_width;
     }
 
   /* Give up if there's no where to put it (i.e. focus window is maximized) */
@@ -383,9 +383,9 @@ window_place_centered (MetaWindow *window)
   type = window->type;
 
   return (type == META_WINDOW_DIALOG ||
-    type == META_WINDOW_MODAL_DIALOG ||
-    type == META_WINDOW_SPLASHSCREEN ||
-    (type == META_WINDOW_NORMAL && meta_prefs_get_center_new_windows ()));
+          type == META_WINDOW_MODAL_DIALOG ||
+          type == META_WINDOW_SPLASHSCREEN ||
+         (type == META_WINDOW_NORMAL && meta_prefs_get_center_new_windows ()));
 }
 
 static void
@@ -450,14 +450,14 @@ rectangle_overlaps_some_window (MtkRectangle *rect,
         case META_WINDOW_DESKTOP:
         case META_WINDOW_DIALOG:
         case META_WINDOW_MODAL_DIALOG:
-	/* override redirect window types: */
-	case META_WINDOW_DROPDOWN_MENU:
-	case META_WINDOW_POPUP_MENU:
-	case META_WINDOW_TOOLTIP:
-	case META_WINDOW_NOTIFICATION:
-	case META_WINDOW_COMBO:
-	case META_WINDOW_DND:
-	case META_WINDOW_OVERRIDE_OTHER:
+        /* override redirect window types: */
+        case META_WINDOW_DROPDOWN_MENU:
+        case META_WINDOW_POPUP_MENU:
+        case META_WINDOW_TOOLTIP:
+        case META_WINDOW_NOTIFICATION:
+        case META_WINDOW_COMBO:
+        case META_WINDOW_DND:
+        case META_WINDOW_OVERRIDE_OTHER:
           break;
 
         case META_WINDOW_NORMAL:
@@ -478,7 +478,8 @@ rectangle_overlaps_some_window (MtkRectangle *rect,
 }
 
 static gint
-leftmost_cmp (gconstpointer a, gconstpointer b)
+leftmost_cmp (gconstpointer a,
+              gconstpointer b)
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
@@ -507,7 +508,8 @@ rightmost_cmp (gconstpointer a,
 }
 
 static gint
-topmost_cmp (gconstpointer a, gconstpointer b)
+topmost_cmp (gconstpointer a,
+             gconstpointer b)
 {
   MetaWindow *aw = (gpointer) a;
   MetaWindow *bw = (gpointer) b;
@@ -786,16 +788,16 @@ meta_window_place (MetaWindow        *window,
 
   switch (window->type)
     {
-      /* Run placement algorithm on these. */
+    /* Run placement algorithm on these. */
     case META_WINDOW_NORMAL:
     case META_WINDOW_DIALOG:
     case META_WINDOW_MODAL_DIALOG:
     case META_WINDOW_SPLASHSCREEN:
       break;
 
-      /* Assume the app knows best how to place these, no placement
-       * algorithm ever (other than "leave them as-is")
-       */
+    /* Assume the app knows best how to place these, no placement
+     * algorithm ever (other than "leave them as-is")
+     */
     case META_WINDOW_DESKTOP:
     case META_WINDOW_DOCK:
     case META_WINDOW_TOOLBAR:
@@ -816,9 +818,9 @@ meta_window_place (MetaWindow        *window,
     {
       switch (window->type)
         {
-          /* Only accept USER_POSITION on normal windows because the app is full
-           * of shit claiming the user set -geometry for a dialog or dock
-           */
+        /* Only accept USER_POSITION on normal windows because the app is full
+         * of shit claiming the user set -geometry for a dialog or dock
+         */
         case META_WINDOW_NORMAL:
           if (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION)
             {
@@ -831,26 +833,26 @@ meta_window_place (MetaWindow        *window,
             }
           break;
 
-          /* Ignore even USER_POSITION on dialogs, splashscreen */
+        /* Ignore even USER_POSITION on dialogs, splashscreen */
         case META_WINDOW_DIALOG:
         case META_WINDOW_MODAL_DIALOG:
         case META_WINDOW_SPLASHSCREEN:
           break;
 
-          /* Assume the app knows best how to place these. */
+        /* Assume the app knows best how to place these. */
         case META_WINDOW_DESKTOP:
         case META_WINDOW_DOCK:
         case META_WINDOW_TOOLBAR:
         case META_WINDOW_MENU:
         case META_WINDOW_UTILITY:
-	/* override redirect window types: */
-	case META_WINDOW_DROPDOWN_MENU:
-	case META_WINDOW_POPUP_MENU:
-	case META_WINDOW_TOOLTIP:
-	case META_WINDOW_NOTIFICATION:
-	case META_WINDOW_COMBO:
-	case META_WINDOW_DND:
-	case META_WINDOW_OVERRIDE_OTHER:
+        /* override redirect window types: */
+        case META_WINDOW_DROPDOWN_MENU:
+        case META_WINDOW_POPUP_MENU:
+        case META_WINDOW_TOOLTIP:
+        case META_WINDOW_NOTIFICATION:
+        case META_WINDOW_COMBO:
+        case META_WINDOW_DND:
+        case META_WINDOW_OVERRIDE_OTHER:
           if (window->size_hints.flags & META_SIZE_HINTS_PROGRAM_POSITION)
             {
               meta_topic (META_DEBUG_PLACEMENT,
@@ -898,7 +900,7 @@ meta_window_place (MetaWindow        *window,
           /* "visually" center window over parent, leaving twice as
            * much space below as on top.
            */
-          y += (parent_frame_rect.height - frame_rect.height)/3;
+          y += (parent_frame_rect.height - frame_rect.height) / 3;
 
           meta_topic (META_DEBUG_PLACEMENT,
                       "Centered window %s over transient parent",
@@ -977,7 +979,7 @@ meta_window_place (MetaWindow        *window,
   /* No good fit? Fall back to cascading... */
   find_next_cascade (window, windows, x, y, &x, &y);
 
- done_check_denied_focus:
+done_check_denied_focus:
   /* If the window is being denied focus and isn't a transient of the
    * focus window, we do NOT want it to overlap with the focus window
    * if at all possible.  This is guaranteed to only be called if the
@@ -1010,7 +1012,7 @@ meta_window_place (MetaWindow        *window,
                                       logical_monitor,
                                       x, y, &x, &y);
           g_list_free (focus_window_list);
-	}
+        }
 
       /* If that still didn't work, just place it where we can see as much
        * as possible.
@@ -1019,7 +1021,7 @@ meta_window_place (MetaWindow        *window,
         find_most_freespace (window, focus_window, x, y, &x, &y);
     }
 
- done:
+done:
   *new_x = x;
   *new_y = y;
 }
