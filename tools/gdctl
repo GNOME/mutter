@@ -5,13 +5,24 @@ import argcomplete
 import sys
 
 from dataclasses import dataclass, field
-from gi.repository import GLib, Gio
+from typing import NamedTuple, Any
+from gi.repository import GLib, Gio  # type: ignore
 from enum import Enum, Flag
 from argcomplete.completers import BaseCompleter, SuppressCompleter
 
 NAME = "org.gnome.Mutter.DisplayConfig"
 INTERFACE = "org.gnome.Mutter.DisplayConfig"
 OBJECT_PATH = "/org/gnome/Mutter/DisplayConfig"
+
+
+class Dimension(NamedTuple):
+    width: int
+    height: int
+
+
+class Position(NamedTuple):
+    x: int | None
+    y: int | None
 
 
 class NamedEnum(Enum):
@@ -125,8 +136,7 @@ def print_data(*, level: int, is_last: bool, lines: list[int], data: str):
 
     if level >= 0:
         indent = level
-        buffer = f"{link:{padding}>{indent * 4}}──{data}"
-        buffer = list(buffer)
+        buffer = list(f"{link:{padding}>{indent * 4}}──{data}")
         for line in lines:
             if line == level:
                 continue
@@ -134,11 +144,10 @@ def print_data(*, level: int, is_last: bool, lines: list[int], data: str):
             if line > 0:
                 index -= 1
             buffer[index] = "│"
-        buffer = "".join(buffer)
     else:
-        buffer = data
+        buffer = list(data)
 
-    print(buffer)
+    print("".join(buffer))
 
     if is_last and level in lines:
         lines.remove(level)
@@ -182,7 +191,7 @@ def strip_dbus_error_prefix(message):
         return message
 
 
-def transform_size(size, transform) -> tuple[int, int]:
+def transform_size(size: Dimension, transform) -> Dimension:
     match transform:
         case (
             Transform.NORMAL
@@ -198,14 +207,14 @@ def transform_size(size, transform) -> tuple[int, int]:
             | Transform.ROTATE_270_FLIPPED
         ):
             width, height = size
-            return (height, width)
+            return Dimension(height, width)
         case _:
             raise NotImplementedError
 
 
-def scale_size(size, scale) -> tuple[int, int]:
+def scale_size(size: Dimension, scale) -> Dimension:
     width, height = size
-    return (round(width / scale), round(height / scale))
+    return Dimension(round(width / scale), round(height / scale))
 
 
 class DisplayConfig:
@@ -266,11 +275,10 @@ class DisplayConfig:
 @dataclass
 class MonitorMode:
     name: str
-    resolution: tuple[int, int]
+    resolution: Dimension
     refresh_rate: float
     preferred_scale: float
     supported_scales: list[float]
-    refresh_rate: float
     properties: dict
 
     @classmethod
@@ -341,11 +349,11 @@ class Monitor:
 class LogicalMonitor:
     monitors: list[Monitor]
     scale: float
-    position: tuple[int, int] | None = (0, 0)
+    position: Position = Position(0, 0)
     transform: Transform = Transform.NORMAL
     is_primary: bool = False
-    properties: dict = field(default_factory=dict)
-    args: dict | None = None
+    properties: dict[str, Any] = field(default_factory=dict)
+    args: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_variant(cls, monitors_state, variant):
@@ -434,7 +442,7 @@ def place_right_of(
     else:
         y = None
 
-    logical_monitor.position = (x, y)
+    logical_monitor.position = Position(x, y)
 
 
 def place_left_of(
@@ -459,7 +467,7 @@ def place_left_of(
     else:
         y = None
 
-    logical_monitor.position = (x, y)
+    logical_monitor.position = Position(x, y)
 
 
 def place_below(
@@ -479,9 +487,9 @@ def place_below(
     if set_x_position:
         x, _ = connector_logical_monitor.position
     else:
-        x = logical_monitor.position[0]
+        x = logical_monitor.position.x
 
-    logical_monitor.position = (x, y)
+    logical_monitor.position = Position(x, y)
 
 
 def place_above(
@@ -504,9 +512,9 @@ def place_above(
     if set_x_position:
         x, _ = connector_logical_monitor.position
     else:
-        x = logical_monitor.position[0]
+        x = logical_monitor.position.x
 
-    logical_monitor.position = (x, y)
+    logical_monitor.position = Position(x, y)
 
 
 class PositionType(Flag):
@@ -536,13 +544,13 @@ def calculate_position(
 
     set_y_position = vertical_args == 0
 
+    x = None
+    y = None
+
     if "x" in logical_monitor.args:
         x = int(logical_monitor.args["x"])
-        if set_y_position:
-            y = 0
-        else:
-            y = None
-        logical_monitor.position = (x, y)
+        y = 0 if set_y_position else None
+        logical_monitor.position = Position(x, y)
         position_types |= PositionType.ABSOLUTE_X
     elif "right_of" in logical_monitor.args:
         connector = logical_monitor.args["right_of"]
@@ -573,17 +581,14 @@ def calculate_position(
         )
         position_types |= PositionType.RELATIVE_X
     else:
-        logical_monitor.position = (0, 0)
+        logical_monitor.position = Position(0, 0)
 
     set_x_position = horizontal_args == 0
 
     if "y" in logical_monitor.args:
         y = int(logical_monitor.args["y"])
-        if set_x_position:
-            x = 0
-        else:
-            x = logical_monitor.position[0]
-        logical_monitor.position = (x, y)
+        x = 0 if set_x_position else logical_monitor.position.x
+        logical_monitor.position = Position(x, y)
         position_types |= PositionType.ABSOLUTE_Y
     elif "below" in logical_monitor.args:
         connector = logical_monitor.args["below"]
@@ -613,17 +618,19 @@ def calculate_position(
         x, y = logical_monitor.position
         if not y:
             y = 0
-        logical_monitor.position = (x, y)
+        logical_monitor.position = Position(x, y)
 
-    assert logical_monitor.position[0] is not None
-    assert logical_monitor.position[1] is not None
+    assert logical_monitor.position.x is not None
+    assert logical_monitor.position.y is not None
 
     return position_types
 
 
 def align_horizontally(logical_monitors: list[LogicalMonitor]):
     min_x = min(
-        logical_monitor.position[0] for logical_monitor in logical_monitors
+        logical_monitor.position.x
+        for logical_monitor in logical_monitors
+        if logical_monitor.position.x is not None
     )
 
     dx = min_x
@@ -632,12 +639,16 @@ def align_horizontally(logical_monitors: list[LogicalMonitor]):
 
     for logical_monitor in logical_monitors:
         x, y = logical_monitor.position
-        logical_monitor.position = (x - dx, y)
+        logical_monitor.position = Position(
+            x - dx if x is not None else None, y
+        )
 
 
 def align_vertically(logical_monitors: list[LogicalMonitor]):
     min_y = min(
-        logical_monitor.position[1] for logical_monitor in logical_monitors
+        logical_monitor.position.y
+        for logical_monitor in logical_monitors
+        if logical_monitor.position.y is not None
     )
 
     dy = min_y
@@ -646,7 +657,9 @@ def align_vertically(logical_monitors: list[LogicalMonitor]):
 
     for logical_monitor in logical_monitors:
         x, y = logical_monitor.position
-        logical_monitor.position = (x, y - dy)
+        logical_monitor.position = Position(
+            x, y - dy if y is not None else None
+        )
 
 
 def calculate_positions(
@@ -1324,7 +1337,7 @@ if __name__ == "__main__":
         choices=[str(layout_mode) for layout_mode in list(LayoutMode)],
         type=str,
         action=AppendToGlobal,
-    ).completer = LayoutModeCompleter()
+    ).completer = LayoutModeCompleter()  # type: ignore[attr-defined]
     set_parser.add_argument(
         "-L",
         "--logical-monitor",
@@ -1346,7 +1359,7 @@ if __name__ == "__main__":
         action=SubGroupAction,
         nargs=1,
         help="Configure monitor",
-    ).completer = MonitorCompleter()
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
     monitor_parser = set_parser.add_argument_group(
         "monitor",
         "Monitor options (pass after --monitor)",
@@ -1358,7 +1371,7 @@ if __name__ == "__main__":
         action=AppendToSubGroup,
         help="Monitor mode",
         type=str,
-    ).completer = MonitorModeCompleter()
+    ).completer = MonitorModeCompleter()  # type: ignore[attr-defined]
     monitor_parser.add_argument(
         "--color-mode",
         "-c",
@@ -1366,7 +1379,7 @@ if __name__ == "__main__":
         help="Color mode",
         choices=[str(color_mode) for color_mode in list(ColorMode)],
         type=str,
-    ).completer = ColorModeCompleter()
+    ).completer = ColorModeCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--primary",
         "-p",
@@ -1382,7 +1395,7 @@ if __name__ == "__main__":
         action=AppendToGroup,
         help="Logical monitor scale",
         type=float,
-    ).completer = ScaleCompleter()
+    ).completer = ScaleCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--transform",
         "-t",
@@ -1390,7 +1403,7 @@ if __name__ == "__main__":
         help="Apply viewport transform",
         choices=[str(transform) for transform in list(Transform)],
         type=str,
-    ).completer = TransformCompleter()
+    ).completer = TransformCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--x",
         "-x",
@@ -1411,28 +1424,28 @@ if __name__ == "__main__":
         metavar="CONNECTOR",
         help="Place right of other monitor",
         type=str,
-    ).completer = MonitorCompleter()
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--left-of",
         action=AppendToGroup,
         metavar="CONNECTOR",
         help="Place left of other monitor",
         type=str,
-    ).completer = MonitorCompleter()
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--above",
         action=AppendToGroup,
         metavar="CONNECTOR",
         help="Place above other monitor",
         type=str,
-    ).completer = MonitorCompleter()
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--below",
         action=AppendToGroup,
         metavar="CONNECTOR",
         help="Place below other monitor",
         type=str,
-    ).completer = MonitorCompleter()
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
 
     for action in [
         GroupAction,
@@ -1442,7 +1455,7 @@ if __name__ == "__main__":
         AppendToGlobal,
     ]:
         argcomplete.safe_actions.add(action)
-    argcomplete.autocomplete(parser, default_completer=SuppressCompleter)
+    argcomplete.autocomplete(parser, default_completer=SuppressCompleter)  # type: ignore[arg-type]
 
     args = parser.parse_args()
 
