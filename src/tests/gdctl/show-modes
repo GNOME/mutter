@@ -8,6 +8,9 @@ Monitors:
 │      ├──3840x2160@30.000
 │      ├──2560x1440@60.000
 │      └──1440x900@60.000
+│  └──Preferences:
+│      └──Luminances:
+│          └──default ⇒  100.0 (default) (current)
 └──Monitor DP-2 (MetaProduct's Inc. 13")
    ├──Vendor: MetaProduct's Inc.
    ├──Product: MetaMonitor
@@ -17,6 +20,9 @@ Monitors:
        ├──1440x900@60.000
        ├──1366x768@60.000
        └──800x600@60.000
+   └──Preferences:
+       └──Luminances:
+           └──default ⇒  100.0 (default) (current)
 
 Logical monitors:
 ├──Logical monitor #1

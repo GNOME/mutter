@@ -30,6 +30,9 @@ Monitors:
 │  │       ├──Preferred scale: 1.0
 │  │       ├──Supported scales: [1.0, 1.25, 1.5, 1.7475727796554565]
 │  │       └──Properties: (0)
+│  ├──Preferences:
+│  │   └──Luminances:
+│  │       └──default ⇒  100.0 (default) (current)
 │  └──Properties: (5)
 │      ├──is-builtin ⇒  no
 │      ├──display-name ⇒  MetaProduct's Inc. 14"
@@ -67,6 +70,9 @@ Monitors:
    │       ├──Preferred scale: 1.0
    │       ├──Supported scales: [1.0]
    │       └──Properties: (0)
+   ├──Preferences:
+   │   └──Luminances:
+   │       └──default ⇒  100.0 (default) (current)
    └──Properties: (5)
        ├──is-builtin ⇒  no
        ├──display-name ⇒  MetaProduct's Inc. 13"

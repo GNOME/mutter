@@ -197,6 +197,41 @@ def print_properties(*, level, lines, properties):
         )
 
 
+def print_monitor_prefs(
+    display_config, monitor, level: int, lines: list[int], is_last: bool
+):
+    print_data(
+        level=level,
+        is_last=is_last,
+        lines=lines,
+        data="Preferences:",
+    )
+
+    print_data(
+        level=level + 1,
+        is_last=True,
+        lines=lines,
+        data="Luminances:",
+    )
+
+    for color_mode in monitor.supported_color_modes:
+        (output_luminance, is_unset) = display_config.get_luminance(
+            monitor, color_mode
+        )
+        is_last = color_mode == monitor.supported_color_modes[-1]
+
+        is_default_string = " (default)" if is_unset else ""
+        is_current_string = (
+            " (current)" if monitor.color_mode == color_mode else ""
+        )
+        print_data(
+            level=level + 2,
+            is_last=is_last,
+            lines=lines,
+            data=f"{color_mode} ⇒  {output_luminance}{is_default_string}{is_current_string}",
+        )
+
+
 def strip_dbus_error_prefix(message):
     if message.startswith("GDBus.Error"):
         return message.partition(" ")[2]
@@ -290,6 +325,50 @@ class DisplayConfig:
             cancellable=None,
         )
 
+    def get_luminance(self, monitor, color_mode) -> tuple[float, bool]:
+        variant = self._proxy.get_cached_property("Luminance")
+
+        luminance_entry = next(
+            entry
+            for entry in variant
+            if entry["connector"] == monitor.connector
+            and ColorMode(entry["color-mode"]) == color_mode
+        )
+        output_luminance = luminance_entry["luminance"]
+        is_unset = luminance_entry["is-unset"]
+
+        return (output_luminance, is_unset)
+
+    def set_luminance(self, monitor, color_mode, luminance):
+        parameters = GLib.Variant(
+            "(sud)",
+            (
+                monitor.connector,
+                color_mode.value,
+                luminance,
+            ),
+        )
+        self._proxy.call_sync(
+            method_name="SetLuminance",
+            parameters=parameters,
+            flags=Gio.DBusCallFlags.NO_AUTO_START,
+            timeout_msec=-1,
+            cancellable=None,
+        )
+
+    def reset_luminance(self, monitor, color_mode):
+        parameters = GLib.Variant(
+            "(su)",
+            (monitor.connector, color_mode.value),
+        )
+        self._proxy.call_sync(
+            method_name="ResetLuminance",
+            parameters=parameters,
+            flags=Gio.DBusCallFlags.NO_AUTO_START,
+            timeout_msec=-1,
+            cancellable=None,
+        )
+
 
 @dataclass
 class MonitorMode:
@@ -324,6 +403,7 @@ class Monitor:
     current_mode: MonitorMode | None
     preferred_mode: MonitorMode | None
     color_mode: ColorMode | None
+    supported_color_modes: list[ColorMode]
 
     @classmethod
     def from_variant(cls, variant):
@@ -349,6 +429,7 @@ class Monitor:
 
         display_name = properties.get("display-name", None)
         color_mode = properties.get("color-mode", None)
+        supported_color_modes = properties.get("supported-color-modes")
 
         return cls(
             connector=connector,
@@ -361,6 +442,7 @@ class Monitor:
             preferred_mode=preferred_mode,
             display_name=display_name,
             color_mode=color_mode,
+            supported_color_modes=supported_color_modes,
         )
 
 
@@ -915,6 +997,7 @@ class MonitorsState:
     def __init__(self, display_config):
         current_state = display_config.get_current_state()
 
+        self.display_config = display_config
         self.server_serial = current_state[0]
         self.properties = translate_properties(current_state[3])
         self.supports_changing_layout_mode = self.properties.get(
@@ -1054,11 +1137,19 @@ class MonitorsState:
                 if mode:
                     print_data(
                         level=1,
-                        is_last=not show_properties,
+                        is_last=False,
                         lines=lines,
                         data=f"{mode_type} mode",
                     )
                     self.print_mode(mode, True, show_properties, lines)
+
+            print_monitor_prefs(
+                self.display_config,
+                monitor,
+                level=1,
+                lines=lines,
+                is_last=not show_properties,
+            )
 
             if show_properties:
                 print_properties(level=1, lines=lines, properties=properties)
@@ -1200,7 +1291,14 @@ class Config:
 
 class GroupAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
-        namespace._current_group = {}
+        if len(values) == 1:
+            (value,) = values
+            namespace._current_group = {
+                "key": value,
+            }
+        else:
+            namespace._current_group = {}
+
         groups = namespace.__dict__.setdefault(self.dest, [])
         groups.append(namespace._current_group)
 
@@ -1509,6 +1607,40 @@ if __name__ == "__main__":
         type=str,
     ).completer = MonitorCompleter()  # type: ignore[attr-defined]
 
+    prefs_parser = subparser.add_parser(
+        "prefs",
+        help="Set display preferences",
+    )
+    prefs_parser.add_argument(
+        "-M",
+        "--monitor",
+        dest="monitors",
+        metavar="CONNECTOR",
+        action=GroupAction,
+        nargs=1,
+        default=[],
+        help="Change monitor preferences",
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
+    monitor_prefs_parser = prefs_parser.add_argument_group(
+        "monitor",
+        "Monitor preferences (pass after --monitor)",
+        argument_default=argparse.SUPPRESS,
+    )
+    monitor_prefs_parser.add_argument(
+        "-l",
+        "--luminance",
+        action=AppendToGroup,
+        type=float,
+        nargs=1,
+    )
+    monitor_prefs_parser.add_argument(
+        "--reset-luminance",
+        action=AppendToGroup,
+        type=bool,
+        const=True,
+        nargs=0,
+    )
+
     if argcomplete:
         for action in [
             GroupAction,
@@ -1585,3 +1717,45 @@ if __name__ == "__main__":
                         file=sys.stderr,
                     )
                 sys.exit(1)
+        case "prefs":
+            try:
+                display_config = DisplayConfig()
+                monitors_state = MonitorsState(display_config)
+            except GLib.Error as e:
+                if e.domain == GLib.quark_to_string(Gio.DBusError.quark()):
+                    error_message = strip_dbus_error_prefix(e.message)
+                    print(
+                        f"Failed to retrieve current state: {error_message}",
+                        file=sys.stderr,
+                    )
+                sys.exit(1)
+
+            for monitor_prefs in args.monitors:
+                connector = monitor_prefs["key"]
+
+                if (
+                    "luminance" in monitor_prefs
+                    and "reset_luminance" in monitor_prefs
+                ):
+                    print(
+                        "Cannot both set and reset luminance",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+
+                if connector not in monitors_state.monitors:
+                    print(
+                        f"Monitor with connector {connector} not found",
+                        file=sys.stderr,
+                    )
+                    sys.exit(1)
+
+                monitor = monitors_state.monitors[connector]
+
+                if "luminance" in monitor_prefs:
+                    (luminance,) = monitor_prefs["luminance"]
+                    display_config.set_luminance(
+                        monitor, monitor.color_mode, luminance
+                    )
+                elif "reset_luminance" in monitor_prefs:
+                    display_config.reset_luminance(monitor, monitor.color_mode)
