@@ -286,6 +286,19 @@ on_cursor_sprite_texture_changed (MetaCursorSprite   *cursor_sprite,
 }
 
 static gboolean
+is_hw_cursor_available_for_gpu (MetaGpuKms *gpu_kms)
+{
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+
+  cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
+  if (!cursor_renderer_gpu_data || cursor_renderer_gpu_data->hw_cursor_broken)
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
 meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
                                            MetaCursorSprite   *cursor_sprite)
 {
@@ -316,6 +329,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
       MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
       MetaCrtc *crtc = meta_renderer_view_get_crtc (renderer_view);
       MetaCrtcNative *crtc_native = META_CRTC_NATIVE (crtc);
+      MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
       ClutterColorState *target_color_state =
         clutter_stage_view_get_output_color_state (CLUTTER_STAGE_VIEW (view));
       CursorStageView *cursor_stage_view = NULL;
@@ -325,6 +339,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
       g_assert (cursor_stage_view);
 
       if (!META_IS_CRTC_KMS (crtc) ||
+          !is_hw_cursor_available_for_gpu (gpu_kms) ||
           !meta_crtc_native_is_hw_cursor_supported (crtc_native))
         {
           if (cursor_stage_view->has_hw_cursor)
@@ -1051,16 +1066,13 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_wayland);
   MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   CoglTexture *texture;
   uint width, height;
   MetaWaylandBuffer *buffer;
   struct wl_resource *buffer_resource;
   struct wl_shm_buffer *shm_buffer;
 
-  cursor_renderer_gpu_data =
-    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
-  if (!cursor_renderer_gpu_data || cursor_renderer_gpu_data->hw_cursor_broken)
+  if (!is_hw_cursor_available_for_gpu (gpu_kms))
     return FALSE;
 
   buffer = meta_cursor_sprite_wayland_get_buffer (sprite_wayland);
