@@ -666,6 +666,14 @@ kms_test_cases = [
     'variants': kms_test_variants,
   },
   {
+    'name': 'kms-cursor-force-disable',
+    'suite': 'backends/native',
+    'sources': [
+      'native-kms-cursor-force-disable.c',
+      wayland_test_utils,
+    ],
+  },
+  {
     'name': 'kms-cursor-hotplug',
     'suite': 'backends/native',
     'sources': [
