@@ -164,6 +164,19 @@
       </description>
     </key>
 
+    <key name="output-luminance" type="a(ssssud)">
+      <default>[]</default>
+      <!-- TRANSLATORS: Luminance is different from brightness.
+           See https://en.wikipedia.org/wiki/Luminance -->
+      <summary>Per output luminance settings</summary>
+      <description>
+        Per output and color mode luminance setting. Each entry consists of a
+        tuple with connector, vendor, product, serial, and a color mode, as well
+        as an associated floating point value representing the output luminance
+        in percent (%). The default when not specified is 100%.
+      </description>
+    </key>
+
     <child name="keybindings" schema="org.gnome.mutter.keybindings"/>
 
   </schema>
