@@ -7,7 +7,6 @@
 
     <property name="ForceHDR" type="b" access="readwrite" />
     <property name="ForceLinearBlending" type="b" access="readwrite" />
-    <property name="LuminancePercentage" type="u" access="readwrite" />
     <property name="SessionManagementProtocol" type="b" access="readwrite" />
     <property name="InhibitHwCursor" type="b" access="readwrite" />
     <property name="CursorShapeProtocol" type="b" access="readwrite" />
