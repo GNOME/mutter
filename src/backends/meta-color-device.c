@@ -657,10 +657,13 @@ update_color_state (MetaColorDevice *color_device)
     meta_color_manager_get_backend (color_device->color_manager);
   MetaContext *context = meta_backend_get_context (backend);
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
+  MetaSettings *settings = meta_backend_get_settings (backend);
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorimetry colorimetry;
   ClutterEOTF eotf;
+  MetaMonitorSpec *monitor_spec;
+  MetaColorMode color_mode;
   ClutterLuminance luminance;
   float reference_luminance_factor;
   UpdateResult result = 0;
@@ -677,8 +680,13 @@ update_color_state (MetaColorDevice *color_device)
 
   luminance = *clutter_eotf_get_default_luminance (eotf);
 
+  monitor_spec = meta_monitor_get_spec (color_device->monitor);
+  color_mode = meta_monitor_get_color_mode (color_device->monitor);
   reference_luminance_factor =
-    meta_debug_control_get_luminance_percentage (debug_control) / 100.0f;
+    (float) meta_settings_get_output_luminance (settings,
+                                                monitor_spec,
+                                                color_mode) /
+    100.0f;
   luminance.ref = luminance.ref * reference_luminance_factor;
 
   color_state = clutter_color_state_params_new_from_primitives (clutter_context,
@@ -703,6 +711,7 @@ meta_color_device_new (MetaColorManager *color_manager,
   MetaBackend *backend = meta_color_manager_get_backend (color_manager);
   MetaContext *context = meta_backend_get_context (backend);
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
+  MetaSettings *settings = meta_backend_get_settings (backend);
   MetaColorDevice *color_device;
 
   color_device = g_object_new (META_TYPE_COLOR_DEVICE, NULL);
@@ -729,7 +738,7 @@ meta_color_device_new (MetaColorManager *color_manager,
                           color_device);
     }
 
-  g_signal_connect_object (debug_control, "notify::luminance-percentage",
+  g_signal_connect_object (settings, "output-luminance-changed",
                            G_CALLBACK (meta_color_device_update),
                            color_device,
                            G_CONNECT_SWAPPED | G_CONNECT_AFTER);
