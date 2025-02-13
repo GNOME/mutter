@@ -21,9 +21,9 @@
 
 #include <glib-object.h>
 
+#include "core/util-private.h"
 #include "meta/meta-settings.h"
 #include "meta/types.h"
-#include "core/util-private.h"
 
 typedef enum _MetaExperimentalFeature
 {
