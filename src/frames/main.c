@@ -19,12 +19,15 @@
 
 #include "config.h"
 
+#include "meta-frames-client.h"
 #include "meta-window-tracker.h"
 
 #include <gdk/x11/gdkx.h>
 #include <glib-unix.h>
 #include <gmodule.h>
 #include <X11/extensions/Xfixes.h>
+
+static gboolean should_monitor_color_scheme = TRUE;
 
 typedef void (* InitFunc) (void);
 
@@ -63,6 +66,7 @@ load_libadwaita (void)
   if (!g_module_symbol (libadwaita, "adw_init", (gpointer *) &adw_init))
     return;
 
+  should_monitor_color_scheme = FALSE;
   adw_init ();
 }
 
@@ -72,6 +76,12 @@ on_sigterm (gpointer user_data)
   exit (0);
 
   return G_SOURCE_REMOVE;
+}
+
+gboolean
+meta_frames_client_should_monitor_color_scheme (void)
+{
+  return should_monitor_color_scheme;
 }
 
 int

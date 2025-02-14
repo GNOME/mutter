@@ -22,6 +22,7 @@
 #include "meta-window-tracker.h"
 
 #include "meta-frame.h"
+#include "meta-frames-client.h"
 
 #include <gdesktop-enums.h>
 #include <gdk/x11/gdkx.h>
@@ -93,6 +94,8 @@ update_color_scheme (MetaWindowTracker *window_tracker)
 {
   GDesktopColorScheme color_scheme;
   gboolean is_dark;
+
+  g_assert (window_tracker->interface_settings != NULL);
 
   color_scheme = g_settings_get_enum (window_tracker->interface_settings,
                                       "color-scheme");
@@ -422,12 +425,15 @@ meta_window_tracker_class_init (MetaWindowTrackerClass *klass)
 static void
 meta_window_tracker_init (MetaWindowTracker *window_tracker)
 {
-  window_tracker->interface_settings = g_settings_new ("org.gnome.desktop.interface");
-  g_signal_connect (window_tracker->interface_settings,
-                    "changed::color-scheme",
-                    G_CALLBACK (on_color_scheme_changed_cb),
-                    window_tracker);
-  update_color_scheme (window_tracker);
+  if (meta_frames_client_should_monitor_color_scheme ())
+    {
+      window_tracker->interface_settings = g_settings_new ("org.gnome.desktop.interface");
+      g_signal_connect (window_tracker->interface_settings,
+                        "changed::color-scheme",
+                        G_CALLBACK (on_color_scheme_changed_cb),
+                        window_tracker);
+      update_color_scheme (window_tracker);
+    }
 
   window_tracker->frames =
     g_hash_table_new_full (NULL, NULL, NULL,
