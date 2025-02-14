@@ -54,3 +54,10 @@ meta_frame_native_set_damage (MetaFrameNative *frame_native,
 
 MtkRegion *
 meta_frame_native_get_damage (MetaFrameNative *frame_native);
+
+void
+meta_frame_native_set_sync_fd (MetaFrameNative *frame_native,
+                               int              sync_fd);
+
+int
+meta_frame_native_steal_sync_fd (MetaFrameNative *frame_native);
