@@ -27,6 +27,7 @@
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
 #include "tests/meta-test-utils.h"
+#include "tests/meta-kms-test-utils.h"
 
 typedef enum _State
 {
@@ -137,21 +138,15 @@ meta_test_disconnect_connect (void)
     meta_backend_get_monitor_manager (backend);
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaUdev *udev = meta_backend_get_udev (backend);
-  g_autolist (GObject) udev_devices = NULL;
-  GUdevDevice *udev_device;
+  g_autoptr (GUdevDevice) udev_device = NULL;
   GList *logical_monitors;
   gulong after_paint_handler_id;
   gulong presented_handler_id;
   ClutterStageView *view;
   CoglFramebuffer *onscreen;
-  g_autoptr (GError) error = NULL;
   State state;
 
-  udev_devices = meta_udev_list_drm_devices (udev,
-                                             META_UDEV_DEVICE_TYPE_CARD,
-                                             &error);
-  g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
-  udev_device = g_list_first (udev_devices)->data;
+  udev_device = meta_get_test_udev_device (udev);
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -372,15 +367,9 @@ emulate_hotplug (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaUdev *udev = meta_backend_get_udev (backend);
-  g_autoptr (GError) error = NULL;
-  g_autolist (GObject) udev_devices = NULL;
-  GUdevDevice *udev_device;
+  g_autoptr (GUdevDevice) udev_device = NULL;
 
-  udev_devices = meta_udev_list_drm_devices (udev,
-                                             META_UDEV_DEVICE_TYPE_CARD,
-                                             &error);
-  g_assert_cmpuint (g_list_length (udev_devices), ==, 1);
-  udev_device = g_list_first (udev_devices)->data;
+  udev_device = meta_get_test_udev_device (udev);
   g_signal_emit_by_name (udev, "hotplug", udev_device);
 }
 

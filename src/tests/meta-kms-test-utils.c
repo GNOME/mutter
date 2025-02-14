@@ -165,3 +165,28 @@ meta_get_mode_rect (MetaKmsMode *mode)
                              meta_kms_mode_get_width (mode),
                              meta_kms_mode_get_height (mode));
 }
+
+GUdevDevice *
+meta_get_test_udev_device (MetaUdev *udev)
+{
+  g_autolist (GObject) list = NULL;
+  g_autoptr (GError) error = NULL;
+  GUdevDevice *test_device = NULL;
+  GList *l;
+
+  list = meta_udev_list_drm_devices (udev, META_UDEV_DEVICE_TYPE_CARD, &error);
+
+  for (l = list; l; l = l->next)
+    {
+      GUdevDevice *udev_device = l->data;
+
+      if (meta_is_udev_test_device (udev_device))
+        {
+          g_assert_null (test_device);
+          g_set_object (&test_device, udev_device);
+        }
+    }
+
+  g_assert_nonnull (test_device);
+  return test_device;
+}

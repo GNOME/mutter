@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "backends/meta-udev.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-kms-types.h"
 #include "meta/meta-context.h"
@@ -45,3 +46,5 @@ MetaDrmBuffer * meta_create_test_mode_dumb_buffer (MetaKmsDevice *device,
 MetaFixed16Rectangle meta_get_mode_fixed_rect_16 (MetaKmsMode *mode);
 
 MtkRectangle meta_get_mode_rect (MetaKmsMode *mode);
+
+GUdevDevice * meta_get_test_udev_device (MetaUdev *udev);

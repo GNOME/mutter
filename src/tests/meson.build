@@ -653,7 +653,11 @@ kms_test_cases = [
   {
     'name': 'kms-headless-start',
     'suite': 'backend/native/kms',
-    'sources': [ 'native-kms-headless-start.c', ],
+    'sources': [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
+      'native-kms-headless-start.c',
+    ],
   },
   {
     'name': 'kms-hotplug',

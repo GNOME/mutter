@@ -42,6 +42,7 @@ gboolean meta_is_udev_device_disable_vrr (GUdevDevice *device);
 
 gboolean meta_is_udev_device_ignore (GUdevDevice *device);
 
+META_EXPORT_TEST
 gboolean meta_is_udev_test_device (GUdevDevice *device);
 
 gboolean meta_is_udev_device_preferred_primary (GUdevDevice *device);
