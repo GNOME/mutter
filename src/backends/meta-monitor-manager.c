@@ -1311,7 +1311,7 @@ meta_monitor_manager_constructed (GObject *object)
   g_signal_connect_object (settings,
                            "experimental-features-changed",
                            G_CALLBACK (experimental_features_changed),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
 
   g_signal_connect_object (settings,
                            "privacy-screen-changed",
@@ -1327,7 +1327,7 @@ meta_monitor_manager_constructed (GObject *object)
   g_signal_connect_object (meta_backend_get_orientation_manager (backend),
                            "orientation-changed",
                            G_CALLBACK (orientation_changed),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
 
   g_signal_connect_object (meta_backend_get_orientation_manager (backend),
                            "notify::has-accelerometer",
@@ -1337,7 +1337,7 @@ meta_monitor_manager_constructed (GObject *object)
   g_signal_connect_object (backend,
                            "lid-is-closed-changed",
                            G_CALLBACK (lid_is_closed_changed),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
 
   g_signal_connect (context, "started", G_CALLBACK (on_started), manager);
   g_signal_connect (backend, "prepare-shutdown",
@@ -3312,28 +3312,28 @@ monitor_manager_setup_dbus_config_handlers (MetaMonitorManager *manager)
 {
   g_signal_connect_object (manager->display_config, "handle-get-resources",
                            G_CALLBACK (meta_monitor_manager_handle_get_resources),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-change-backlight",
                            G_CALLBACK (meta_monitor_manager_handle_change_backlight),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-set-backlight",
                            G_CALLBACK (meta_monitor_manager_handle_set_backlight),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-get-crtc-gamma",
                            G_CALLBACK (meta_monitor_manager_handle_get_crtc_gamma),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-set-crtc-gamma",
                            G_CALLBACK (meta_monitor_manager_handle_set_crtc_gamma),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-get-current-state",
                            G_CALLBACK (meta_monitor_manager_handle_get_current_state),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-apply-monitors-config",
                            G_CALLBACK (meta_monitor_manager_handle_apply_monitors_config),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
   g_signal_connect_object (manager->display_config, "handle-set-output-ctm",
                            G_CALLBACK (meta_monitor_manager_handle_set_output_ctm),
-                           manager, 0);
+                           manager, G_CONNECT_DEFAULT);
 }
 
 static void
