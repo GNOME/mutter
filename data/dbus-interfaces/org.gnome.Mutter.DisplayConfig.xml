@@ -247,6 +247,47 @@
     <property name="Backlight" type="(uaa{sv})" access="read" />
 
     <!--
+        SetOutputLuminance:
+
+        Sets the luminance of a monitor when in the specified color mode (see
+        GetCurrentState() for available color modes). The luminance is a
+        floating point value representing the luminance in percent (%).
+    -->
+    <method name="SetLuminance">
+      <arg name="connector" direction="in" type="s" />
+      <arg name="color_mode" direction="in" type="u" />
+      <arg name="luminance" direction="in" type="d" />
+    </method>
+
+    <!--
+        ResetOutputLuminance:
+
+        Resets the luminance of a monitor to its default when in the specified
+        color mode (see GetCurrentState() for available color modes).
+    -->
+    <method name="ResetLuminance">
+      <arg name="connector" direction="in" type="s" />
+      <arg name="color_mode" direction="in" type="u" />
+    </method>
+
+    <!--
+        Luminance:
+
+        Luminance settings. The property is a list of dictionaries of luminance
+        settings entries.
+
+        The luminance setting is per color mode and monitor.
+
+        Each dictionary consists of the following entries:
+	  * 'connector' (s) - The associated connector.
+	  * 'color-mode' (u) - The associated color mode.
+	  * 'luminance' (d) - The current luminance.
+	  * 'is-unset' (b) - True if the luminance is not explicitly set.
+	  * 'default' (d) - The default luminance.
+    -->
+    <property name="Luminance" type="aa{sv}" access="read" />
+
+    <!--
         GetCrtcGamma:
 	@serial: configuration serial
 	@crtc: API id of the crtc
