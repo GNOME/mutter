@@ -91,6 +91,8 @@ struct _MetaInputCaptureSession
   struct eis *eis;
   struct eis_client *eis_client;
   struct eis_seat *eis_seat;
+  gboolean want_eis_pointer;
+  gboolean want_eis_keyboard;
   struct eis_device *eis_pointer;
   struct eis_device *eis_keyboard;
   GSource *eis_source;
@@ -343,6 +345,23 @@ remove_eis_keyboard (MetaInputCaptureSession *session)
 }
 
 static void
+ensure_eis_devices (MetaInputCaptureSession *session)
+{
+  if (session->eis_seat)
+    {
+      if (session->want_eis_pointer)
+        ensure_eis_pointer (session);
+      else if (session->eis_pointer)
+        clear_eis_pointer (session);
+
+      if (session->want_eis_keyboard)
+        ensure_eis_keyboard (session);
+      else if (session->eis_keyboard)
+        clear_eis_keyboard (session);
+    }
+}
+
+static void
 on_keymap_changed (MetaBackend *backend,
                    gpointer     user_data)
 {
@@ -394,17 +413,15 @@ process_eis_event (MetaInputCaptureSession *session,
       g_clear_pointer (&session->eis_client, eis_client_unref);
       break;
     case EIS_EVENT_SEAT_BIND:
-      if (eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_POINTER) &&
-          eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_BUTTON) &&
-          eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_SCROLL))
-        ensure_eis_pointer (session);
-      else if (session->eis_pointer)
-        clear_eis_pointer (session);
+      session->want_eis_pointer =
+        eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_POINTER) &&
+        eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_BUTTON) &&
+        eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_SCROLL);
 
-      if (eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_KEYBOARD))
-        ensure_eis_keyboard (session);
-      else if (session->eis_keyboard)
-        clear_eis_keyboard (session);
+      session->want_eis_keyboard =
+        eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_KEYBOARD);
+
+      ensure_eis_devices (session);
       break;
     case EIS_EVENT_DEVICE_CLOSED:
       eis_device = eis_event_get_device (eis_event);
@@ -530,6 +547,8 @@ meta_input_capture_session_enable (MetaInputCaptureSession  *session,
       input_capture_barrier->barrier = barrier;
     }
 
+  ensure_eis_devices (session);
+
   session->state = INPUT_CAPTURE_STATE_ENABLED;
   session->cancel_requested = FALSE;
 
@@ -578,10 +597,9 @@ meta_input_capture_session_disable (MetaInputCaptureSession *session)
     }
 
   clear_all_barriers (session);
+  clear_eis_pointer (session);
+  clear_eis_keyboard (session);
 
-  g_clear_pointer (&session->eis_pointer, eis_device_unref);
-  g_clear_pointer (&session->eis_keyboard, eis_device_unref);
-  g_clear_pointer (&session->eis_seat, eis_seat_unref);
 
   session->state = INPUT_CAPTURE_STATE_INIT;
 
@@ -1203,6 +1221,7 @@ meta_input_capture_session_finalize (GObject *object)
   g_free (session->object_path);
   g_clear_object (&session->viewports);
   g_clear_pointer (&session->keymap_file, mtk_anonymous_file_free);
+  g_clear_pointer (&session->eis_seat, eis_seat_unref);
   g_clear_pointer (&session->eis_source, g_source_destroy);
   g_clear_pointer (&session->eis, eis_unref);
 
