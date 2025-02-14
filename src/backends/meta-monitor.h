@@ -283,7 +283,7 @@ META_EXPORT_TEST
 gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
-MetaMonitorSpec * meta_monitor_spec_clone (MetaMonitorSpec *monitor_id);
+MetaMonitorSpec * meta_monitor_spec_clone (const MetaMonitorSpec *monitor_id);
 
 guint meta_monitor_spec_hash (gconstpointer key);
 

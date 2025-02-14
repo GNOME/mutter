@@ -104,7 +104,7 @@ static void
 meta_monitor_mode_free (MetaMonitorMode *mode);
 
 MetaMonitorSpec *
-meta_monitor_spec_clone (MetaMonitorSpec *monitor_spec)
+meta_monitor_spec_clone (const MetaMonitorSpec *monitor_spec)
 {
   MetaMonitorSpec *new_monitor_spec;
 
