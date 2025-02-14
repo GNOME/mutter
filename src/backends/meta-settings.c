@@ -401,6 +401,14 @@ find_luminance_entry (MetaSettings          *settings,
   return NULL;
 }
 
+gboolean
+meta_settings_has_output_luminance (MetaSettings          *settings,
+                                    const MetaMonitorSpec *monitor_spec,
+                                    MetaColorMode          color_mode)
+{
+  return !!find_luminance_entry (settings, monitor_spec, color_mode);
+}
+
 double
 meta_settings_get_output_luminance (MetaSettings          *settings,
                                     const MetaMonitorSpec *monitor_spec,
@@ -423,6 +431,76 @@ meta_settings_get_default_output_luminance (MetaSettings          *settings,
                                             MetaColorMode          color_mode)
 {
   return 100.0;
+}
+
+static void
+sync_luminance_settings (MetaSettings *settings)
+{
+  GVariantBuilder builder;
+  size_t i;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a(ssssud)"));
+
+  for (i = 0; i < settings->output_luminance->len; i++)
+    {
+      LuminanceEntry *entry =
+        g_ptr_array_index (settings->output_luminance, i);
+
+      g_variant_builder_add (&builder, "(ssssud)",
+                             entry->monitor_spec->connector,
+                             entry->monitor_spec->vendor,
+                             entry->monitor_spec->product,
+                             entry->monitor_spec->serial,
+                             entry->color_mode,
+                             entry->luminance);
+    }
+
+  g_settings_set_value (settings->mutter_settings,
+                        "output-luminance",
+                        g_variant_builder_end (&builder));
+}
+
+void
+meta_settings_set_output_luminance (MetaSettings          *settings,
+                                    const MetaMonitorSpec *monitor_spec,
+                                    MetaColorMode          color_mode,
+                                    double                 luminance)
+{
+  LuminanceEntry *entry;
+
+  entry = find_luminance_entry (settings, monitor_spec, color_mode);
+  if (entry)
+    {
+      entry->luminance = luminance;
+    }
+  else
+    {
+      entry = luminance_entry_new (monitor_spec, color_mode, luminance);
+      g_ptr_array_add (settings->output_luminance, entry);
+    }
+
+  sync_luminance_settings (settings);
+}
+
+void
+meta_settings_reset_output_luminance (MetaSettings          *settings,
+                                      const MetaMonitorSpec *monitor_spec,
+                                      MetaColorMode          color_mode)
+{
+  size_t i;
+
+  for (i = 0; i < settings->output_luminance->len; i++)
+    {
+      LuminanceEntry *entry = g_ptr_array_index (settings->output_luminance, i);
+
+      if (luminance_entry_matches (entry, monitor_spec, color_mode))
+        {
+          g_ptr_array_remove_index (settings->output_luminance, i);
+          break;
+        }
+    }
+
+  sync_luminance_settings (settings);
 }
 
 static void
