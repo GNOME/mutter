@@ -375,6 +375,13 @@ maybe_update_longterm_max_duration_us (ClutterFrameClock *frame_clock,
   frame_clock->longterm_promotion_us = frame_info->presentation_time;
 }
 
+static int64_t
+get_max_update_duration_us (ClutterFrameClock *frame_clock)
+{
+  return MAX (frame_clock->longterm_max_update_duration_us,
+              frame_clock->shortterm_max_update_duration_us);
+}
+
 void
 clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
@@ -642,8 +649,7 @@ clutter_frame_clock_compute_max_render_time_us (ClutterFrameClock *frame_clock,
    * - A constant to account for variations in the above estimates.
    */
   *max_render_time_us =
-    MAX (frame_clock->longterm_max_update_duration_us,
-         frame_clock->shortterm_max_update_duration_us) +
+    get_max_update_duration_us (frame_clock) +
     frame_clock->vblank_duration_us +
     clutter_max_render_time_constant_us;
 
@@ -1469,7 +1475,6 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
 {
   const Frame *last_presentation = frame_clock->prev_presentation;
   int64_t max_render_time_us;
-  int64_t max_update_duration_us;
   GString *string;
 
   string = g_string_new ("Max render time: ");
@@ -1487,14 +1492,10 @@ clutter_frame_clock_get_max_render_time_debug_info (ClutterFrameClock *frame_clo
   else
     g_string_append_printf (string, " (no measurements last frame)");
 
-  max_update_duration_us =
-    MAX (frame_clock->longterm_max_update_duration_us,
-         frame_clock->shortterm_max_update_duration_us);
-
   g_string_append_printf (string, "\nVblank duration: %ld µs +",
                           frame_clock->vblank_duration_us);
   g_string_append_printf (string, "\nUpdate duration: %ld µs +",
-                          max_update_duration_us);
+                          get_max_update_duration_us (frame_clock));
   g_string_append_printf (string, "\nConstant: %d µs",
                           clutter_max_render_time_constant_us);
 
