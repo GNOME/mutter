@@ -380,7 +380,7 @@ check_gdctl_output (const char *expected_output_file,
   g_ptr_array_add (args, NULL);
 
   launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_STDOUT_PIPE |
-                                        G_SUBPROCESS_FLAGS_STDERR_PIPE);
+                                        G_SUBPROCESS_FLAGS_STDERR_MERGE);
 
   subprocess = g_subprocess_launcher_spawnv (launcher,
                                              (const char * const*) args->pdata,
