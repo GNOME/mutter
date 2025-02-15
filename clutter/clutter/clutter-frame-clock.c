@@ -360,10 +360,18 @@ maybe_update_longterm_max_duration_us (ClutterFrameClock *frame_clock,
   if (frame_clock->longterm_max_update_duration_us >
       frame_clock->shortterm_max_update_duration_us)
     {
+      int64_t old_duration_us;
+
       /* Exponential drop-off toward the short-term max */
+      old_duration_us = frame_clock->longterm_max_update_duration_us;
       frame_clock->longterm_max_update_duration_us -=
         (frame_clock->longterm_max_update_duration_us -
          frame_clock->shortterm_max_update_duration_us) / 2;
+
+      CLUTTER_NOTE (FRAME_TIMINGS,
+                    "Maximum update duration estimate updated: %ldµs → %ldµs",
+                    old_duration_us,
+                    frame_clock->longterm_max_update_duration_us);
     }
   else
     {
@@ -496,6 +504,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       int64_t dispatch_to_swap_us, swap_to_rendering_done_us, swap_to_flip_us;
       int64_t dispatch_time_us = presented_frame->dispatch_time_us;
       int64_t flip_time_us = presented_frame->flip_time_us;
+      int64_t max_duration_us;
 
       if (frame_info->cpu_time_before_buffer_swap_us == 0)
         {
@@ -523,12 +532,22 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                     swap_to_rendering_done_us,
                     swap_to_flip_us);
 
+      max_duration_us = get_max_update_duration_us (frame_clock);
+
       frame_clock->shortterm_max_update_duration_us =
         CLAMP (presented_frame->dispatch_lateness_us + dispatch_to_swap_us +
                MAX (swap_to_rendering_done_us, swap_to_flip_us) +
                frame_clock->deadline_evasion_us,
                frame_clock->shortterm_max_update_duration_us,
                2 * frame_clock->refresh_interval_us);
+
+      if (frame_clock->shortterm_max_update_duration_us > max_duration_us)
+        {
+          CLUTTER_NOTE (FRAME_TIMINGS,
+                        "Maximum update duration estimate updated: %ldµs → %ldµs",
+                        max_duration_us,
+                        frame_clock->shortterm_max_update_duration_us);
+        }
 
       maybe_update_longterm_max_duration_us (frame_clock, frame_info);
 
