@@ -1029,8 +1029,15 @@ clutter_frame_clock_uninhibit (ClutterFrameClock *frame_clock)
 static gboolean
 want_triple_buffering (ClutterFrameClock *frame_clock)
 {
+  int64_t max_update_time_estimate_us;
+
   if (G_UNLIKELY (clutter_paint_debug_flags &
                   CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING))
+    return FALSE;
+
+  if (clutter_frame_clock_estimate_max_update_time_us (frame_clock,
+                                                       &max_update_time_estimate_us) &&
+      max_update_time_estimate_us < frame_clock->refresh_interval_us)
     return FALSE;
 
   return TRUE;
