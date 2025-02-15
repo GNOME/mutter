@@ -14,3 +14,8 @@ LIBDIR="lib/$(gcc -print-multiarch)"
 ./$SCRIPTS_DIR/install-common-dependencies.sh --libdir=$LIBDIR --destdir=$DESTDIR --destdir=/
 
 # Install below missing dependencies that are exclusive to GNOME OS
+
+./$SCRIPTS_DIR/install-meson-project.sh \
+    --libdir=$LIBDIR --destdir=$DESTDIR --destdir=/ \
+    https://gitlab.gnome.org/GNOME/zenity.git \
+    master
