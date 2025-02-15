@@ -238,7 +238,7 @@ read_all_cb (GObject      *source_object,
              gpointer      user_data)
 {
   gboolean *done = user_data;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   g_input_stream_read_all_finish (G_INPUT_STREAM (source_object),
                                   res,
@@ -255,7 +255,7 @@ wait_check_cb (GObject      *source_object,
                gpointer      user_data)
 {
   gboolean *done = user_data;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   g_subprocess_wait_check_finish (G_SUBPROCESS (source_object), res, &error);
   g_assert_no_error (error);
@@ -269,7 +269,7 @@ save_output (const char *output,
 {
   const char *gdctl_result_dir;
   char *output_path;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   gdctl_result_dir = g_getenv ("MUTTER_GDCTL_TEST_RESULT_DIR");
   g_assert_no_errno (g_mkdir_with_parents (gdctl_result_dir, 0755));
@@ -290,7 +290,7 @@ run_diff (const char *output_path,
 {
   g_autoptr (GSubprocessLauncher) launcher = NULL;
   g_autoptr (GSubprocess) subprocess = NULL;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
   subprocess = g_subprocess_launcher_spawn (launcher,
@@ -313,8 +313,8 @@ check_gdctl_result (const char *first_argument,
   char *arg;
   g_autoptr (GSubprocessLauncher) launcher = NULL;
   g_autoptr (GSubprocess) subprocess = NULL;
+  g_autoptr (GError) error = NULL;
   gboolean process_done = FALSE;
-  GError *error = NULL;
 
   args = g_ptr_array_new ();
   g_ptr_array_add (args, gdctl_path);
@@ -351,7 +351,7 @@ check_gdctl_output (const char *expected_output_file,
   g_autofree char *output = NULL;
   gboolean read_done = FALSE;
   gboolean process_done = FALSE;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   g_autofree char *expected_output_path = NULL;
   g_autofree char *expected_output = NULL;
 
