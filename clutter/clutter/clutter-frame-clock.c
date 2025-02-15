@@ -424,15 +424,12 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
           frame_info->presentation_time != frame_info->target_presentation_time)
         {
           int64_t diff_us;
-          int n_missed_frames;
 
           diff_us = llabs (frame_info->presentation_time -
                            frame_info->target_presentation_time);
-          n_missed_frames =
+          frame_clock->n_missed_frames +=
             (int) roundf ((float) diff_us /
                           (float) frame_clock->refresh_interval_us);
-
-          frame_clock->n_missed_frames = n_missed_frames;
         }
 
       now_us = g_get_monotonic_time ();
