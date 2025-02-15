@@ -89,6 +89,21 @@ COGL_EXPORT
 int64_t cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info);
 
 /**
+ * cogl_frame_info_get_target_presentation_time_us:
+ * @info: a #CoglFrameInfo object
+ *
+ * Gets the target presentation time for the frame. This is the time at
+ * which the frame was expected to became visible to the user.
+ *
+ * The target presentation time measured in microseconds, is based on
+ * CLOCK_MONOTONIC.
+ *
+ * Return value: the presentation time for the frame if available, or 0
+ */
+COGL_EXPORT
+int64_t cogl_frame_info_get_target_presentation_time_us (CoglFrameInfo *info);
+
+/**
  * cogl_frame_info_get_refresh_rate:
  * @info: a #CoglFrameInfo object
  *
