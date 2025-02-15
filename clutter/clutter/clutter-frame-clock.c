@@ -664,9 +664,13 @@ static gboolean
 clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
                                                  int64_t           *max_update_time_estimate_us)
 {
-  int64_t refresh_interval_us;
+  int64_t maximum_us;
 
-  refresh_interval_us = frame_clock->refresh_interval_us;
+  if (G_UNLIKELY (clutter_paint_debug_flags &
+                  CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING))
+    maximum_us = frame_clock->refresh_interval_us;
+  else
+    maximum_us = 2 * frame_clock->refresh_interval_us;
 
   if (!frame_clock->ever_got_measurements ||
       G_UNLIKELY (clutter_paint_debug_flags &
@@ -691,7 +695,7 @@ clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
     clutter_max_render_time_constant_us;
 
   *max_update_time_estimate_us = CLAMP (*max_update_time_estimate_us, 0,
-                                        2 * refresh_interval_us);
+                                        maximum_us);
 
   return TRUE;
 }
