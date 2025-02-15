@@ -556,6 +556,29 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                     presented_frame->dispatch_lateness_us);
     }
 
+  if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_TIMINGS)) &&
+      frame_info->target_presentation_time > 0 &&
+      frame_info->presentation_time > 0)
+    {
+      int64_t diff_us;
+      int n_missed_cycles;
+
+      diff_us =
+        frame_info->presentation_time - frame_info->target_presentation_time;
+      n_missed_cycles = (int) roundf ((float) llabs (diff_us) /
+                                      (float) frame_clock->refresh_interval_us);
+
+      if (n_missed_cycles)
+        {
+          CLUTTER_NOTE (FRAME_TIMINGS,
+                        "Frame presented %" G_GINT64_FORMAT "µs "
+                        "(%d refresh cycle%s) %s",
+                        (int64_t)llabs (diff_us), n_missed_cycles,
+                        n_missed_cycles > 1 ? "s" : "",
+                        diff_us > 0 ? "late" : "early");
+        }
+    }
+
   if (frame_info->refresh_rate > 1.0)
     {
       clutter_frame_clock_set_refresh_rate (frame_clock,
