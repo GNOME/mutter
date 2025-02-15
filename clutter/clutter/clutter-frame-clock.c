@@ -89,11 +89,10 @@ typedef struct _Frame
   int64_t dispatch_time_us;
   int64_t dispatch_lateness_us;
   int64_t presentation_time_us;
-  int64_t next_presentation_time_us;
+  int64_t target_presentation_time_us;
   int64_t flip_time_us;
   int64_t dispatch_interval_us;
   ClutterFrameInfoFlag presentation_flags;
-  gboolean has_next_presentation_time;
   gboolean got_measurements;
 } Frame;
 
@@ -413,23 +412,22 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   frame_clock->next_presentation =
     g_steal_pointer (&frame_clock->next_next_presentation);
 
-  presented_frame->next_presentation_time_us =
-    frame_clock->next_presentation_time_us;
-  presented_frame->has_next_presentation_time =
-    frame_clock->is_next_presentation_time_valid;
+  presented_frame->target_presentation_time_us =
+    frame_info->target_presentation_time;
 
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
     {
       int64_t now_us;
 
-      if (presented_frame->has_next_presentation_time &&
-          frame_info->presentation_time != 0)
+      if (frame_info->presentation_time > 0 &&
+          frame_info->target_presentation_time > 0 &&
+          frame_info->presentation_time != frame_info->target_presentation_time)
         {
           int64_t diff_us;
           int n_missed_frames;
 
           diff_us = llabs (frame_info->presentation_time -
-                           presented_frame->next_presentation_time_us);
+                           frame_info->target_presentation_time);
           n_missed_frames =
             (int) roundf ((float) diff_us /
                           (float) frame_clock->refresh_interval_us);
@@ -804,9 +802,9 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       next_presentation_time_us = now_us - current_phase_us + refresh_interval_us;
     }
 
-  if (last_presentation->has_next_presentation_time)
+  if (last_presentation->target_presentation_time_us > 0)
     {
-      int64_t time_since_last_next_presentation_time_us;
+      int64_t time_since_last_target_presentation_time_us;
 
       /*
        * Skip one interval if we got an early presented event.
@@ -819,13 +817,13 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
        *       \        next_presentation_time_us is thus right after the last one
        *        but got an unexpected early presentation
        *             \_/
-       *             time_since_last_next_presentation_time_us
+       *             time_since_last_target_presentation_time_us
        *
        */
-      time_since_last_next_presentation_time_us =
-        next_presentation_time_us - last_presentation->next_presentation_time_us;
-      if (time_since_last_next_presentation_time_us > 0 &&
-          time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
+      time_since_last_target_presentation_time_us =
+        next_presentation_time_us - last_presentation->target_presentation_time_us;
+      if (time_since_last_target_presentation_time_us > 0 &&
+          time_since_last_target_presentation_time_us < (refresh_interval_us / 2))
         {
           next_presentation_time_us =
             frame_clock->next_presentation_time_us + refresh_interval_us;
