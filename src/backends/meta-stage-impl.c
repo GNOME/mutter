@@ -751,6 +751,7 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
   CoglFramebuffer *framebuffer =
     clutter_stage_view_get_onscreen (stage_view);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  int64_t target_presentation_time_us;
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
 
@@ -771,6 +772,13 @@ meta_stage_impl_scanout_view (MetaStageImpl     *stage_impl,
     }
 
   priv->global_frame_counter++;
+
+  if (clutter_frame_get_target_presentation_time (frame,
+                                                  &target_presentation_time_us))
+    {
+      cogl_frame_info_set_target_presentation_time (frame_info,
+                                                    target_presentation_time_us);
+    }
 
   return TRUE;
 }
