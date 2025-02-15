@@ -11,6 +11,7 @@ fi
 
 export GDK_BACKEND=x11
 export G_DEBUG=fatal-warnings
+export MUTTER_DEBUG=${MUTTER_DEBUG:-x11}
 
 echo \# Launching mutter > /dev/stderr
 $MUTTER --x11 --mutter-plugin="$MUTTER_TEST_PLUGIN_PATH" &
