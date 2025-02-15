@@ -249,18 +249,32 @@ read_all_cb (GObject      *source_object,
   *done = TRUE;
 }
 
+typedef struct
+{
+  gboolean done;
+  GError *error;
+} WaitCheckData;
+
+static void
+wait_check_data_clear (WaitCheckData *data)
+{
+  g_clear_error (&data->error);
+}
+
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC (WaitCheckData, wait_check_data_clear);
+
 static void
 wait_check_cb (GObject      *source_object,
                GAsyncResult *res,
                gpointer      user_data)
 {
-  gboolean *done = user_data;
+  WaitCheckData *data = user_data;
   g_autoptr (GError) error = NULL;
 
   g_subprocess_wait_check_finish (G_SUBPROCESS (source_object), res, &error);
-  g_assert_no_error (error);
 
-  *done = TRUE;
+  data->done = TRUE;
+  data->error = g_steal_pointer (&error);
 }
 
 static char *
@@ -314,7 +328,7 @@ check_gdctl_result (const char *first_argument,
   g_autoptr (GSubprocessLauncher) launcher = NULL;
   g_autoptr (GSubprocess) subprocess = NULL;
   g_autoptr (GError) error = NULL;
-  gboolean process_done = FALSE;
+  g_auto (WaitCheckData) wait_data = {0};
 
   args = g_ptr_array_new ();
   g_ptr_array_add (args, gdctl_path);
@@ -331,10 +345,12 @@ check_gdctl_result (const char *first_argument,
                                              (const char * const*) args->pdata,
                                              &error);
   g_subprocess_wait_check_async (subprocess, NULL,
-                                 wait_check_cb, &process_done);
+                                 wait_check_cb, &wait_data);
 
-  while (!process_done)
+  while (!wait_data.done)
     g_main_context_iteration (NULL, TRUE);
+
+  g_assert_no_error (wait_data.error);
 }
 
 static void
@@ -350,10 +366,10 @@ check_gdctl_output (const char *expected_output_file,
   size_t max_output_size;
   g_autofree char *output = NULL;
   gboolean read_done = FALSE;
-  gboolean process_done = FALSE;
   g_autoptr (GError) error = NULL;
   g_autofree char *expected_output_path = NULL;
   g_autofree char *expected_output = NULL;
+  g_auto (WaitCheckData) wait_data = {0};
 
   args = g_ptr_array_new ();
   g_ptr_array_add (args, gdctl_path);
@@ -381,10 +397,13 @@ check_gdctl_output (const char *expected_output_file,
                                  &read_done);
 
   g_subprocess_wait_check_async (subprocess, NULL,
-                                 wait_check_cb, &process_done);
+                                 wait_check_cb, &wait_data);
 
-  while (!read_done || !process_done)
+  while (!read_done || !wait_data.done)
     g_main_context_iteration (NULL, TRUE);
+
+  g_test_message ("%s", output);
+  g_assert_no_error (wait_data.error);
 
   expected_output_path = g_test_build_filename (G_TEST_DIST,
                                                 "tests",
