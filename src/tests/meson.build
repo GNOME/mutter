@@ -992,8 +992,11 @@ if have_x11_tests
     '+iglx -noreset',
   ]
 
+  zenity = find_program('zenity', required: true)
+
   foreach mode: ['', 'sync']
     x11_env = test_env
+    x11_env.set('ZENITY', zenity.full_path())
     if mode == 'sync'
       x11_env.set('MUTTER_SYNC', '1')
     endif

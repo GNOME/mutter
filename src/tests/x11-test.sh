@@ -21,10 +21,10 @@ echo \# Launched with pid $MUTTER1_PID
 sleep 2
 
 echo Launching a couple of X11 clients > /dev/stderr
-zenity --warning &
+${ZENITY:-zenity} --warning &
 ZENITY1_PID=$!
 sleep 2
-zenity --info &
+${ZENITY:-zenity} --info &
 ZENITY2_PID=$!
 sleep 4
 
