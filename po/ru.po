@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-09-03 20:10+0000\n"
-"PO-Revision-Date: 2024-09-03 23:27+0300\n"
+"POT-Creation-Date: 2025-02-05 13:44+0000\n"
+"PO-Revision-Date: 2025-02-07 15:22+0300\n"
 "Last-Translator: Artur So <arturios2005@mail.ru>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.5\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -423,11 +423,11 @@ msgstr ""
 "X11 удалены. Требуется перезагрузка. • \"variable-refresh-rate\" - "
 "заставляет mutter динамически подстраивать частоту обновления монитора, если "
 "это поддерживается монитором, GPU и драйвером DRM. Настраивается в "
-"Настройках. Требуется перезагрузка. • \"xwayland-native-scaling\" - позволяет клиентам "
-"Xwayland использовать свою собственную поддержку масштабирования. Если "
-"масштабирование не поддерживается клиентом, клиент будет без "
-"масштабирования. Настройка действует только в том случае, если также "
-"включено \"scale-monitor-framebuffer\"."
+"Настройках. Требуется перезагрузка. • \"xwayland-native-scaling\" - "
+"позволяет клиентам Xwayland использовать свою собственную поддержку "
+"масштабирования. Если масштабирование не поддерживается клиентом, клиент "
+"будет без масштабирования. Настройка действует только в том случае, если "
+"также включено \"scale-monitor-framebuffer\"."
 
 #: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Modifier to use to locate the pointer"
@@ -615,26 +615,26 @@ msgstr ""
 "управления этой настройкой. Xwayland должен быть перезапущен, чтобы эта "
 "настройка вступила в силу."
 
-#: src/backends/meta-monitor.c:240
+#: src/backends/meta-monitor.c:266
 msgid "Built-in display"
 msgstr "Встроенный дисплей"
 
-#: src/backends/meta-monitor.c:267
+#: src/backends/meta-monitor.c:293
 msgid "Unknown"
 msgstr "Неизвестный"
 
-#: src/backends/meta-monitor.c:269
+#: src/backends/meta-monitor.c:295
 msgid "Unknown Display"
 msgstr "Неизвестный дисплей"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:303
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -646,94 +646,102 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Событие звонка"
 
-#: src/core/display.c:742
+#: src/core/display.c:741
 msgid "Privacy Screen Enabled"
 msgstr "Экран конфиденциальности включен"
 
-#: src/core/display.c:743
+#: src/core/display.c:742
 msgid "Privacy Screen Disabled"
 msgstr "Экран конфиденциальности отключен"
 
-#: src/core/meta-context-main.c:601
+#: src/core/meta-context-main.c:621
 msgid "Replace the running window manager"
 msgstr "Заменить запущенный оконный менеджер"
 
-#: src/core/meta-context-main.c:607
+#: src/core/meta-context-main.c:627
 msgid "X Display to use"
 msgstr "Используемый дисплей X"
 
-#: src/core/meta-context-main.c:613
+#: src/core/meta-context-main.c:633
 msgid "Disable connection to session manager"
 msgstr "Запретить подключение к менеджеру сеансов"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:639
 msgid "Specify session management ID"
 msgstr "Указать идентификатор управления сеансом"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:645
 msgid "Initialize session from savefile"
 msgstr "Инициализировать сеанс из сохранённого файла"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:651
 msgid "Make X calls synchronous"
 msgstr "Сделать X-вызовы синхронными"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:659
 msgid "Run as a wayland compositor"
 msgstr "Запустить в качестве композитора wayland"
 
-#: src/core/meta-context-main.c:646
+#: src/core/meta-context-main.c:666
 msgid "Run as a nested compositor"
 msgstr "Запустить в качестве встроенного композитора"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:672
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запуск wayland compositor без запуска Xwayland"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:679
 msgid "Specify Wayland display name to use"
 msgstr "Указать отображаемое имя Wayland для использования"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:687
 msgid "Run as a full display server, rather than nested"
 msgstr "Запустить в качестве полноэкранного сервера вместо встроенного"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:692
 msgid "Run as a headless display server"
 msgstr "Запуск в качестве сервера отображения без дисплея"
 
-#: src/core/meta-context-main.c:677
+#: src/core/meta-context-main.c:697
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Добавить постоянный виртуальный монитор (WxH или WxH@R)"
 
-#: src/core/meta-context-main.c:689
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "Запуск с бэкендом X11"
 
-#: src/core/meta-context-main.c:695
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "Производительность профиля с использованием инструментария трассировки"
 
-#: src/core/meta-context-main.c:701
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "Включить управление отладкой интерфейса D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
+#. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:549
+#: src/core/meta-pad-action-mapper.c:552
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Переключатель режима: группа %d"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:559
+#, c-format
+msgid "Mode Switch"
+msgstr "Переключатель режима"
+
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:571
+#: src/core/meta-pad-action-mapper.c:582
 msgid "Switch monitor"
 msgstr "Переключить монитор"
 
-#: src/core/meta-pad-action-mapper.c:573
+#: src/core/meta-pad-action-mapper.c:584
 msgid "Show on-screen help"
 msgstr "Показать справку на экране"
 
@@ -750,7 +758,7 @@ msgstr "Вывести версию"
 msgid "Mutter plugin to use"
 msgstr "Использовать модуль mutter"
 
-#: src/core/prefs.c:1842
+#: src/core/prefs.c:1840
 #, c-format
 msgid "Workspace %d"
 msgstr "Рабочий стол %d"
@@ -768,7 +776,7 @@ msgstr "Рабочий стол переключен"
 msgid "Mode Switch: Mode %d"
 msgstr "Переключатель режима: режим %d"
 
-#: src/x11/meta-x11-display.c:850
+#: src/x11/meta-x11-display.c:858
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -777,19 +785,19 @@ msgstr ""
 "Дисплей «%s» уже использует менеджер окон; попробуйте использовать параметр "
 "--replace, чтобы заменить текущий менеджер окон."
 
-#: src/x11/meta-x11-display.c:1230
+#: src/x11/meta-x11-display.c:1243
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не удалось открыть дисплей X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1465
+#: src/x11/meta-x11-display.c:1476
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Экран %d на дисплее «%s» недействителен"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2785
+#: src/x11/meta-x11-display.c:2799
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -800,7 +808,7 @@ msgstr "На экране %i дисплея «%s» уже запущен дру�
 msgid "Format %s not supported"
 msgstr "Формат %s не поддерживается"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:555
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
