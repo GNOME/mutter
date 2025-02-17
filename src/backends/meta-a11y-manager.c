@@ -22,6 +22,7 @@
 
 #include "backends/meta-a11y-manager.h"
 #include "backends/meta-dbus-access-checker.h"
+#include "core/meta-debug-control-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "meta/util.h"
@@ -191,8 +192,15 @@ check_access (GDBusInterfaceSkeleton *skeleton,
               gpointer                user_data)
 {
   MetaA11yManager *a11y_manager = META_A11Y_MANAGER (user_data);
+  MetaContext *context =
+    meta_backend_get_context (a11y_manager->backend);
   const char *sender =
     g_dbus_method_invocation_get_sender (invocation);
+  MetaDebugControl *debug_control =
+    meta_context_get_debug_control (context);
+
+  if (meta_debug_control_is_a11y_manager_without_access_control (debug_control))
+    return TRUE;
 
   if (!meta_dbus_access_checker_is_sender_allowed (a11y_manager->access_checker,
                                                    sender))

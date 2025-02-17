@@ -173,6 +173,7 @@ meta_debug_control_init (MetaDebugControl *debug_control)
   gboolean session_management_protocol;
   gboolean cursor_shape_protocol;
   gboolean inhibit_hw_cursor;
+  gboolean a11y_manager_without_access_control;
 
   color_management_protocol =
     g_strcmp0 (getenv ("MUTTER_DEBUG_COLOR_MANAGEMENT_PROTOCOL"), "1") == 0;
@@ -203,6 +204,11 @@ meta_debug_control_init (MetaDebugControl *debug_control)
     g_strcmp0 (getenv ("MUTTER_DEBUG_CURSOR_SHAPE_PROTOCOL"), "1") == 0;
   meta_dbus_debug_control_set_cursor_shape_protocol (dbus_debug_control,
                                                      cursor_shape_protocol);
+
+  a11y_manager_without_access_control =
+    g_strcmp0 (getenv ("MUTTER_DEBUG_A11Y_MANAGER_WITHOUT_ACCESS_CONTROL"), "1") == 0;
+  meta_dbus_debug_control_set_a11y_manager_without_access_control (dbus_debug_control,
+                                                                   a11y_manager_without_access_control);
 }
 
 gboolean
@@ -294,4 +300,13 @@ meta_debug_control_is_cursor_shape_protocol_enabled (MetaDebugControl *debug_con
     META_DBUS_DEBUG_CONTROL (debug_control);
 
   return meta_dbus_debug_control_get_cursor_shape_protocol (dbus_debug_control);
+}
+
+gboolean
+meta_debug_control_is_a11y_manager_without_access_control (MetaDebugControl *debug_control)
+{
+  MetaDBusDebugControl *dbus_debug_control =
+    META_DBUS_DEBUG_CONTROL (debug_control);
+
+  return meta_dbus_debug_control_get_a11y_manager_without_access_control (dbus_debug_control);
 }
