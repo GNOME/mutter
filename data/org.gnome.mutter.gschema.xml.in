@@ -94,7 +94,7 @@
     </key>
 
     <key name="center-new-windows" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>Place new windows in the center</summary>
       <description>
         When true, the new windows will always be put in the center of the
