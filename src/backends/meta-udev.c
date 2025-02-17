@@ -137,9 +137,7 @@ gboolean
 meta_udev_is_drm_device (MetaUdev    *udev,
                          GUdevDevice *device)
 {
-  MetaLauncher *launcher = meta_backend_get_launcher (udev->backend);
   const char *device_type;
-  const char *device_seat;
 
   /* Filter out devices that are not character device, like card0-VGA-1. */
   if (g_udev_device_get_device_type (device) != G_UDEV_DEVICE_TYPE_CHAR)
@@ -149,17 +147,21 @@ meta_udev_is_drm_device (MetaUdev    *udev,
   if (g_strcmp0 (device_type, DRM_CARD_UDEV_DEVICE_TYPE) != 0)
     return FALSE;
 
-  device_seat = g_udev_device_get_property (device, "ID_SEAT");
-  if (!device_seat)
-    {
-      /* When ID_SEAT is not set, it means seat0. */
-      device_seat = "seat0";
-    }
-
   /* Skip devices that do not belong to our seat. */
-  if (launcher)
+  if (!meta_backend_is_headless (udev->backend))
     {
+      MetaLauncher *launcher = meta_backend_get_launcher (udev->backend);
+      const char *device_seat;
       const char *seat_id;
+
+      g_return_val_if_fail (launcher, TRUE);
+
+      device_seat = g_udev_device_get_property (device, "ID_SEAT");
+      if (!device_seat)
+        {
+          /* When ID_SEAT is not set, it means seat0. */
+          device_seat = "seat0";
+        }
 
       seat_id = meta_launcher_get_seat_id (launcher);
       if (g_strcmp0 (seat_id, device_seat))
