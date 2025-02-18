@@ -2407,11 +2407,23 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
                                     cogl_renderer_egl->edpy,
                                     egl_config);
 
-  if (!should_be_sharable &&
-      meta_renderer_native_use_modifiers (renderer_native))
-    modifiers = get_supported_modifiers (onscreen, format);
+  if (meta_renderer_native_use_modifiers (renderer_native))
+    {
+      if (should_be_sharable)
+        {
+          modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t), 1);
+          g_array_set_size (modifiers, 1);
+          ((uint64_t *) modifiers->data)[0] = DRM_FORMAT_MOD_LINEAR;
+        }
+      else
+        {
+          modifiers = get_supported_modifiers (onscreen, format);
+        }
+    }
   else
-    modifiers = NULL;
+    {
+      modifiers = NULL;
+    }
 
   if (modifiers)
     {
