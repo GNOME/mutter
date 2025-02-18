@@ -84,7 +84,7 @@ meta_test_cursor_force_disable (void)
         break;
       g_main_context_iteration (NULL, TRUE);
     }
-  g_assert_true (cursor_sprite);
+  g_assert_nonnull (cursor_sprite);
 }
 
 static void
