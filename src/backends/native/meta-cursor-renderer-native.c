@@ -329,7 +329,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
       MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
       MetaCrtc *crtc = meta_renderer_view_get_crtc (renderer_view);
       MetaCrtcNative *crtc_native = META_CRTC_NATIVE (crtc);
-      MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+      MetaGpu *gpu = meta_crtc_get_gpu (crtc);
       ClutterColorState *target_color_state =
         clutter_stage_view_get_output_color_state (CLUTTER_STAGE_VIEW (view));
       CursorStageView *cursor_stage_view = NULL;
@@ -339,7 +339,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
       g_assert (cursor_stage_view);
 
       if (!META_IS_CRTC_KMS (crtc) ||
-          !is_hw_cursor_available_for_gpu (gpu_kms) ||
+          !is_hw_cursor_available_for_gpu (META_GPU_KMS (gpu)) ||
           !meta_crtc_native_is_hw_cursor_supported (crtc_native))
         {
           if (cursor_stage_view->has_hw_cursor)
