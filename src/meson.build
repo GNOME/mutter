@@ -1118,20 +1118,24 @@ if have_wayland
   #  - protocol stability ('private', 'stable' or 'unstable')
   #  - protocol version (if stability is 'unstable')
   wayland_protocols = [
+    ['color-management-v1', 'private', ],
+    ['commit-timing', 'staging', 'v1', ],
     ['cursor-shape-v1', 'private', ],
     ['drm-lease', 'staging', 'v1', ],
     ['fractional-scale', 'staging', 'v1', ],
+    ['fifo', 'staging', 'v1', ],
     ['gtk-shell', 'private', ],
     ['idle-inhibit', 'unstable', 'v1', ],
     ['keyboard-shortcuts-inhibit', 'unstable', 'v1', ],
     ['linux-dmabuf', 'stable', 'v1', ],
+    ['linux-drm-syncobj-v1', 'private', ],
     ['pointer-constraints', 'unstable', 'v1', ],
     ['pointer-gestures', 'unstable', 'v1', ],
     ['presentation-time', 'stable', ],
     ['primary-selection', 'unstable', 'v1', ],
     ['relative-pointer', 'unstable', 'v1', ],
+    ['session-management-v1', 'private', ],
     ['single-pixel-buffer', 'staging', 'v1', ],
-    ['xdg-system-bell', 'staging', 'v1', ],
     ['tablet', 'unstable', 'v2', ],
     ['text-input', 'unstable', 'v3', ],
     ['viewporter', 'stable', ],
@@ -1141,13 +1145,9 @@ if have_wayland
     ['xdg-foreign', 'unstable', 'v2', ],
     ['xdg-output', 'unstable', 'v1', ],
     ['xdg-shell', 'stable', ],
+    ['xdg-system-bell', 'staging', 'v1', ],
     ['xdg-toplevel-drag', 'staging', 'v1'],
     ['xwayland-keyboard-grab', 'unstable', 'v1', ],
-    ['linux-drm-syncobj-v1', 'private', ],
-    ['color-management-v1', 'private', ],
-    ['session-management-v1', 'private', ],
-    ['commit-timing', 'staging', 'v1', ],
-    ['fifo', 'staging', 'v1', ],
   ]
   if have_wayland_eglstream
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
