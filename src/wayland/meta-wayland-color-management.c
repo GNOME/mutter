@@ -27,7 +27,6 @@
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager.h"
 #include "compositor/meta-surface-actor-wayland.h"
-#include "core/meta-debug-control-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -39,7 +38,6 @@ struct _MetaWaylandColorManager
   GObject parent;
 
   MetaWaylandCompositor *compositor;
-  struct wl_global *global;
 
   gulong color_state_changed_handler_id;
 
@@ -1593,48 +1591,19 @@ meta_wayland_color_manager_new (MetaWaylandCompositor *compositor)
   return color_manager;
 }
 
-static void
-update_enabled (MetaWaylandColorManager *color_manager)
-{
-  MetaWaylandCompositor *compositor = color_manager->compositor;
-  MetaDebugControl *debug_control =
-    meta_context_get_debug_control (compositor->context);
-  gboolean is_enabled =
-    meta_debug_control_is_color_management_protocol_enabled (debug_control);
-
-  if (is_enabled && color_manager->global == NULL)
-    {
-      color_manager->global =
-        wl_global_create (compositor->wayland_display,
-                          &wp_color_manager_v1_interface,
-                          META_WP_COLOR_MANAGEMENT_VERSION,
-                          color_manager,
-                          color_management_bind);
-
-      if (color_manager->global == NULL)
-        g_error ("Failed to register a global wp_color_management object");
-    }
-  else if (!is_enabled)
-    {
-      g_clear_pointer (&color_manager->global, wl_global_destroy);
-    }
-}
-
 void
 meta_wayland_init_color_management (MetaWaylandCompositor *compositor)
 {
-  MetaDebugControl *debug_control =
-    meta_context_get_debug_control (compositor->context);
   g_autoptr (MetaWaylandColorManager) color_manager = NULL;
 
   color_manager = meta_wayland_color_manager_new (compositor);
 
-  g_signal_connect_data (debug_control, "notify::color-management-protocol",
-                         G_CALLBACK (update_enabled),
-                         color_manager, NULL,
-                         G_CONNECT_SWAPPED | G_CONNECT_AFTER);
-
-  update_enabled (color_manager);
+  if (wl_global_create (compositor->wayland_display,
+                        &wp_color_manager_v1_interface,
+                        META_WP_COLOR_MANAGEMENT_VERSION,
+                        color_manager,
+                        color_management_bind) == NULL)
+    g_error ("Failed to register a global wp_color_management object");
 
   g_object_set_data_full (G_OBJECT (compositor), "-meta-wayland-color-manager",
                           g_steal_pointer (&color_manager),

@@ -20,8 +20,6 @@
 
 #include "meta/meta-debug-control.h"
 
-gboolean meta_debug_control_is_color_management_protocol_enabled (MetaDebugControl *debug_control);
-
 gboolean meta_debug_control_is_linear_blending_forced (MetaDebugControl *debug_control);
 
 gboolean meta_debug_control_is_hdr_forced (MetaDebugControl *debug_control);
