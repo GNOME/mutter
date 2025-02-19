@@ -249,7 +249,7 @@ meta_input_settings_native_set_tap_and_drag_lock_enabled (MetaInputSettings  *se
   if (libinput_device_config_tap_get_finger_count (libinput_device) > 0)
     libinput_device_config_tap_set_drag_lock_enabled (libinput_device,
                                                       enabled ?
-                                                      LIBINPUT_CONFIG_DRAG_LOCK_ENABLED :
+                                                      LIBINPUT_CONFIG_DRAG_LOCK_ENABLED_STICKY :
                                                       LIBINPUT_CONFIG_DRAG_LOCK_DISABLED);
 }
 
