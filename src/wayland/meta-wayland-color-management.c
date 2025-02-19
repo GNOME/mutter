@@ -214,6 +214,10 @@ wayland_tf_to_clutter (enum wp_color_manager_v1_transfer_function  tf,
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT709;
       return TRUE;
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_LINEAR:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+      return TRUE;
     default:
       return FALSE;
     }
@@ -1453,6 +1457,8 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                                WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ);
   wp_color_manager_v1_send_supported_tf_named (resource,
                                                WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886);
+  wp_color_manager_v1_send_supported_tf_named (resource,
+                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_LINEAR);
   wp_color_manager_v1_send_supported_primaries_named (resource,
                                                       WP_COLOR_MANAGER_V1_PRIMARIES_SRGB);
   wp_color_manager_v1_send_supported_primaries_named (resource,
