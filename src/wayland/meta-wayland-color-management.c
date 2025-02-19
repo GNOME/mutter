@@ -167,6 +167,18 @@ get_clutter_color_manager (MetaWaylandColorManager *color_manager)
 }
 
 static float
+scaled_uint32_to_float_chromaticity (uint32_t value)
+{
+  return value * 0.000001f;
+}
+
+static uint32_t
+float_to_scaled_uint32_chromaticity (float value)
+{
+  return (uint32_t) (value * 1000000);
+}
+
+static float
 scaled_uint32_to_float (uint32_t value)
 {
   return value * 0.0001f;
@@ -179,28 +191,28 @@ float_to_scaled_uint32 (float value)
 }
 
 static gboolean
-wayland_tf_to_clutter (enum xx_color_manager_v4_transfer_function  tf,
+wayland_tf_to_clutter (enum wp_color_manager_v1_transfer_function  tf,
                        ClutterEOTF                                *eotf)
 {
   switch (tf)
     {
-    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA22:
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22:
       eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
       eotf->gamma_exp = 2.2f;
       return TRUE;
-    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA28:
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28:
       eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
       eotf->gamma_exp = 2.8f;
       return TRUE;
-    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB:
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
       return TRUE;
-    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_ST2084_PQ:
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
       return TRUE;
-    case XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_BT709:
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT709;
       return TRUE;
@@ -209,38 +221,38 @@ wayland_tf_to_clutter (enum xx_color_manager_v4_transfer_function  tf,
     }
 }
 
-static enum xx_color_manager_v4_transfer_function
+static enum wp_color_manager_v1_transfer_function
 clutter_tf_to_wayland (ClutterTransferFunction tf)
 {
   switch (tf)
     {
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
-      return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB;
+      return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB;
     case CLUTTER_TRANSFER_FUNCTION_PQ:
-      return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_ST2084_PQ;
+      return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ;
     case CLUTTER_TRANSFER_FUNCTION_BT709:
-      return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_BT709;
+      return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886;
     case CLUTTER_TRANSFER_FUNCTION_LINEAR:
-      return XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_LINEAR;
+      return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_EXT_LINEAR;
     }
   g_assert_not_reached ();
 }
 
 static gboolean
-wayland_primaries_to_clutter (enum xx_color_manager_v4_primaries  primaries,
+wayland_primaries_to_clutter (enum wp_color_manager_v1_primaries  primaries,
                               ClutterColorimetry                 *colorimetry)
 {
   switch (primaries)
     {
-    case XX_COLOR_MANAGER_V4_PRIMARIES_SRGB:
+    case WP_COLOR_MANAGER_V1_PRIMARIES_SRGB:
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       colorimetry->colorspace = CLUTTER_COLORSPACE_SRGB;
       return TRUE;
-    case XX_COLOR_MANAGER_V4_PRIMARIES_BT2020:
+    case WP_COLOR_MANAGER_V1_PRIMARIES_BT2020:
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       colorimetry->colorspace = CLUTTER_COLORSPACE_BT2020;
       return TRUE;
-    case XX_COLOR_MANAGER_V4_PRIMARIES_NTSC:
+    case WP_COLOR_MANAGER_V1_PRIMARIES_NTSC:
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       colorimetry->colorspace = CLUTTER_COLORSPACE_NTSC;
       return TRUE;
@@ -249,17 +261,17 @@ wayland_primaries_to_clutter (enum xx_color_manager_v4_primaries  primaries,
     }
 }
 
-static enum xx_color_manager_v4_primaries
+static enum wp_color_manager_v1_primaries
 clutter_colorspace_to_wayland (ClutterColorspace colorspace)
 {
   switch (colorspace)
     {
     case CLUTTER_COLORSPACE_SRGB:
-      return XX_COLOR_MANAGER_V4_PRIMARIES_SRGB;
+      return WP_COLOR_MANAGER_V1_PRIMARIES_SRGB;
     case CLUTTER_COLORSPACE_BT2020:
-      return XX_COLOR_MANAGER_V4_PRIMARIES_BT2020;
+      return WP_COLOR_MANAGER_V1_PRIMARIES_BT2020;
     case CLUTTER_COLORSPACE_NTSC:
-      return XX_COLOR_MANAGER_V4_PRIMARIES_NTSC;
+      return WP_COLOR_MANAGER_V1_PRIMARIES_NTSC;
     }
   g_assert_not_reached ();
 }
@@ -307,7 +319,7 @@ meta_wayland_image_description_new (MetaWaylandColorManager *color_manager,
 static MetaWaylandImageDescription *
 meta_wayland_image_description_new_failed (MetaWaylandColorManager            *color_manager,
                                            struct wl_resource                 *resource,
-                                           enum xx_image_description_v4_cause  cause,
+                                           enum wp_image_description_v1_cause  cause,
                                            const char                         *message)
 {
   MetaWaylandImageDescription *image_desc;
@@ -315,7 +327,7 @@ meta_wayland_image_description_new_failed (MetaWaylandColorManager            *c
   image_desc = meta_wayland_image_description_new (color_manager, resource);
   image_desc->state = META_WAYLAND_IMAGE_DESCRIPTION_STATE_FAILED;
   image_desc->has_info = FALSE;
-  xx_image_description_v4_send_failed (resource, cause, message);
+  wp_image_description_v1_send_failed (resource, cause, message);
 
   return image_desc;
 }
@@ -332,7 +344,7 @@ meta_wayland_image_description_new_color_state (MetaWaylandColorManager         
   image_desc->state = META_WAYLAND_IMAGE_DESCRIPTION_STATE_READY;
   image_desc->has_info = !!(flags & META_WAYLAND_IMAGE_DESCRIPTION_FLAGS_ALLOW_INFO);
   image_desc->color_state = g_object_ref (color_state);
-  xx_image_description_v4_send_ready (resource,
+  wp_image_description_v1_send_ready (resource,
                                       clutter_color_state_get_id (color_state));
 
   return image_desc;
@@ -365,8 +377,8 @@ static void
 send_information (struct wl_resource *info_resource,
                   ClutterColorState  *color_state)
 {
-  enum xx_color_manager_v4_primaries primaries_named;
-  enum xx_color_manager_v4_transfer_function tf;
+  enum wp_color_manager_v1_primaries primaries_named;
+  enum wp_color_manager_v1_transfer_function tf;
   ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterPrimaries *primaries;
@@ -380,32 +392,32 @@ send_information (struct wl_resource *info_resource,
     {
     case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
       primaries_named = clutter_colorspace_to_wayland (colorimetry->colorspace);
-      xx_image_description_info_v4_send_primaries_named (info_resource,
+      wp_image_description_info_v1_send_primaries_named (info_resource,
                                                          primaries_named);
 
       primaries = clutter_colorspace_to_primaries (colorimetry->colorspace);
-      xx_image_description_info_v4_send_primaries (
+      wp_image_description_info_v1_send_primaries (
         info_resource,
-        float_to_scaled_uint32 (primaries->r_x),
-        float_to_scaled_uint32 (primaries->r_y),
-        float_to_scaled_uint32 (primaries->g_x),
-        float_to_scaled_uint32 (primaries->g_y),
-        float_to_scaled_uint32 (primaries->b_x),
-        float_to_scaled_uint32 (primaries->b_y),
-        float_to_scaled_uint32 (primaries->w_x),
-        float_to_scaled_uint32 (primaries->w_y));
+        float_to_scaled_uint32_chromaticity (primaries->r_x),
+        float_to_scaled_uint32_chromaticity (primaries->r_y),
+        float_to_scaled_uint32_chromaticity (primaries->g_x),
+        float_to_scaled_uint32_chromaticity (primaries->g_y),
+        float_to_scaled_uint32_chromaticity (primaries->b_x),
+        float_to_scaled_uint32_chromaticity (primaries->b_y),
+        float_to_scaled_uint32_chromaticity (primaries->w_x),
+        float_to_scaled_uint32_chromaticity (primaries->w_y));
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      xx_image_description_info_v4_send_primaries (
+      wp_image_description_info_v1_send_primaries (
         info_resource,
-        float_to_scaled_uint32 (colorimetry->primaries->r_x),
-        float_to_scaled_uint32 (colorimetry->primaries->r_y),
-        float_to_scaled_uint32 (colorimetry->primaries->g_x),
-        float_to_scaled_uint32 (colorimetry->primaries->g_y),
-        float_to_scaled_uint32 (colorimetry->primaries->b_x),
-        float_to_scaled_uint32 (colorimetry->primaries->b_y),
-        float_to_scaled_uint32 (colorimetry->primaries->w_x),
-        float_to_scaled_uint32 (colorimetry->primaries->w_y));
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->r_x),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->r_y),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->g_x),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->g_y),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->b_x),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->b_y),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->w_x),
+        float_to_scaled_uint32_chromaticity (colorimetry->primaries->w_y));
       break;
     }
 
@@ -414,23 +426,23 @@ send_information (struct wl_resource *info_resource,
     {
     case CLUTTER_EOTF_TYPE_NAMED:
       tf = clutter_tf_to_wayland (eotf->tf_name);
-      xx_image_description_info_v4_send_tf_named (info_resource, tf);
+      wp_image_description_info_v1_send_tf_named (info_resource, tf);
       break;
     case CLUTTER_EOTF_TYPE_GAMMA:
       if (G_APPROX_VALUE (eotf->gamma_exp, 2.2f, 0.0001f))
-        xx_image_description_info_v4_send_tf_named (info_resource,
-                                                    XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA22);
+        wp_image_description_info_v1_send_tf_named (info_resource,
+                                                    WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22);
       else if (G_APPROX_VALUE (eotf->gamma_exp, 2.8f, 0.0001f))
-        xx_image_description_info_v4_send_tf_named (info_resource,
-                                                    XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA28);
+        wp_image_description_info_v1_send_tf_named (info_resource,
+                                                    WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28);
       else
-        xx_image_description_info_v4_send_tf_power (info_resource,
+        wp_image_description_info_v1_send_tf_power (info_resource,
                                                     float_to_scaled_uint32 (eotf->gamma_exp));
       break;
     }
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
-  xx_image_description_info_v4_send_luminances (info_resource,
+  wp_image_description_info_v1_send_luminances (info_resource,
                                                 float_to_scaled_uint32 (lum->min),
                                                 (uint32_t) lum->max,
                                                 (uint32_t) lum->ref);
@@ -447,7 +459,7 @@ image_description_get_information (struct wl_client   *client,
   if (image_desc->state != META_WAYLAND_IMAGE_DESCRIPTION_STATE_READY)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_V4_ERROR_NOT_READY,
+                              WP_IMAGE_DESCRIPTION_V1_ERROR_NOT_READY,
                               "The image description is not ready");
       return;
     }
@@ -455,7 +467,7 @@ image_description_get_information (struct wl_client   *client,
   if (!image_desc->has_info)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_V4_ERROR_NO_INFORMATION,
+                              WP_IMAGE_DESCRIPTION_V1_ERROR_NO_INFORMATION,
                               "The image description has no information");
       return;
     }
@@ -464,17 +476,17 @@ image_description_get_information (struct wl_client   *client,
 
   info_resource =
     wl_resource_create (client,
-                        &xx_image_description_info_v4_interface,
+                        &wp_image_description_info_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
   send_information (info_resource, image_desc->color_state);
 
-  xx_image_description_info_v4_send_done (info_resource);
+  wp_image_description_info_v1_send_done (info_resource);
   wl_resource_destroy (info_resource);
 }
 
-static const struct xx_image_description_v4_interface
+static const struct wp_image_description_v1_interface
   meta_wayland_image_description_interface =
 {
   image_description_destroy,
@@ -527,7 +539,8 @@ update_preferred_color_state (MetaWaylandColorManagementSurface *cm_surface)
     {
       struct wl_resource *resource = l->data;
 
-      xx_color_management_feedback_surface_v4_send_preferred_changed (resource);
+      wp_color_management_surface_feedback_v1_send_preferred_changed (resource,
+                                                                      clutter_color_state_get_id (color_state));
     }
 }
 
@@ -670,9 +683,8 @@ color_management_surface_set_image_description (struct wl_client   *client,
 
   if (!cm_surface)
     {
-      /* FIXME: the next version will have an ERROR_INERT */
       wl_resource_post_error (resource,
-                              XX_COLOR_MANAGEMENT_SURFACE_V4_ERROR_IMAGE_DESCRIPTION,
+                              WP_COLOR_MANAGEMENT_SURFACE_V1_ERROR_INERT,
                               "Underlying surface object has been destroyed");
       return;
     }
@@ -681,18 +693,18 @@ color_management_surface_set_image_description (struct wl_client   *client,
       image_desc->state != META_WAYLAND_IMAGE_DESCRIPTION_STATE_READY)
     {
       wl_resource_post_error (resource,
-                              XX_COLOR_MANAGEMENT_SURFACE_V4_ERROR_IMAGE_DESCRIPTION,
+                              WP_COLOR_MANAGEMENT_SURFACE_V1_ERROR_IMAGE_DESCRIPTION,
                               "Trying to set an image description which is not ready");
       return;
     }
 
   switch (render_intent)
     {
-    case XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL:
+    case WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL:
       break;
     default:
       wl_resource_post_error (resource,
-                              XX_COLOR_MANAGEMENT_SURFACE_V4_ERROR_RENDER_INTENT,
+                              WP_COLOR_MANAGEMENT_SURFACE_V1_ERROR_RENDER_INTENT,
                               "Trying to use an unsupported rendering intent");
       return;
     }
@@ -709,9 +721,8 @@ color_management_surface_unset_image_description (struct wl_client   *client,
 
   if (!cm_surface)
     {
-      /* FIXME: the next version will have an ERROR_INERT */
       wl_resource_post_error (resource,
-                              XX_COLOR_MANAGEMENT_SURFACE_V4_ERROR_IMAGE_DESCRIPTION,
+                              WP_COLOR_MANAGEMENT_SURFACE_V1_ERROR_INERT,
                               "Underlying surface object has been destroyed");
       return;
     }
@@ -719,7 +730,7 @@ color_management_surface_unset_image_description (struct wl_client   *client,
   set_image_description (cm_surface, NULL);
 }
 
-static const struct xx_color_management_surface_v4_interface
+static const struct wp_color_management_surface_v1_interface
   meta_wayland_color_management_surface_interface =
 {
   color_management_surface_destroy,
@@ -829,7 +840,7 @@ color_management_output_get_image_description (struct wl_client   *client,
 
   image_desc_resource =
     wl_resource_create (client,
-                        &xx_image_description_v4_interface,
+                        &wp_image_description_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
@@ -851,7 +862,7 @@ color_management_output_get_image_description (struct wl_client   *client,
       image_desc =
         meta_wayland_image_description_new_failed (color_manager,
                                                    image_desc_resource,
-                                                   XX_IMAGE_DESCRIPTION_V4_CAUSE_NO_OUTPUT,
+                                                   WP_IMAGE_DESCRIPTION_V1_CAUSE_NO_OUTPUT,
                                                    "Underlying output object has been destroyed");
     }
 
@@ -861,7 +872,7 @@ color_management_output_get_image_description (struct wl_client   *client,
                                   image_description_destructor);
 }
 
-static const struct xx_color_management_output_v4_interface
+static const struct wp_color_management_output_v1_interface
   meta_wayland_color_management_output_interface =
 {
   color_management_output_destroy,
@@ -915,14 +926,14 @@ creator_params_create (struct wl_client   *client,
   if (!creator_params->is_colorimetry_set || !creator_params->is_eotf_set)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INCOMPLETE_SET,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INCOMPLETE_SET,
                               "Not all required parameters were set");
       return;
     }
 
   image_desc_resource =
     wl_resource_create (client,
-                        &xx_image_description_v4_interface,
+                        &wp_image_description_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
@@ -958,7 +969,7 @@ creator_params_set_tf_named (struct wl_client   *client,
   if (creator_params->is_eotf_set)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_ALREADY_SET,
                               "The transfer characteristics were already set");
       return;
     }
@@ -966,7 +977,7 @@ creator_params_set_tf_named (struct wl_client   *client,
   if (!wayland_tf_to_clutter (tf, &eotf))
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_TF,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_TF,
                               "The named transfer function is not supported");
       return;
     }
@@ -986,7 +997,7 @@ creator_params_set_tf_power (struct wl_client   *client,
   if (creator_params->is_eotf_set)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_ALREADY_SET,
                               "The transfer characteristics were already set");
       return;
     }
@@ -994,7 +1005,7 @@ creator_params_set_tf_power (struct wl_client   *client,
   if (eexp < 10000 || eexp > 100000)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_TF,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_TF,
                               "The exponent must be between 1.0 and 10.0");
       return;
     }
@@ -1016,7 +1027,7 @@ creator_params_set_primaries_named (struct wl_client   *client,
   if (creator_params->is_colorimetry_set)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_ALREADY_SET,
                               "The primaries were already set");
       return;
     }
@@ -1024,7 +1035,7 @@ creator_params_set_primaries_named (struct wl_client   *client,
   if (!wayland_primaries_to_clutter (primaries, &colorimetry))
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_PRIMARIES,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_PRIMARIES_NAMED,
                               "The named primaries are not supported");
       return;
     }
@@ -1052,20 +1063,20 @@ creator_params_set_primaries (struct wl_client   *client,
   if (creator_params->is_colorimetry_set)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_ALREADY_SET,
                               "The primaries were already set");
       return;
     }
 
   primaries = g_new0 (ClutterPrimaries, 1);
-  primaries->r_x = scaled_uint32_to_float (r_x);
-  primaries->r_y = scaled_uint32_to_float (r_y);
-  primaries->g_x = scaled_uint32_to_float (g_x);
-  primaries->g_y = scaled_uint32_to_float (g_y);
-  primaries->b_x = scaled_uint32_to_float (b_x);
-  primaries->b_y = scaled_uint32_to_float (b_y);
-  primaries->w_x = scaled_uint32_to_float (w_x);
-  primaries->w_y = scaled_uint32_to_float (w_y);
+  primaries->r_x = scaled_uint32_to_float_chromaticity (r_x);
+  primaries->r_y = scaled_uint32_to_float_chromaticity (r_y);
+  primaries->g_x = scaled_uint32_to_float_chromaticity (g_x);
+  primaries->g_y = scaled_uint32_to_float_chromaticity (g_y);
+  primaries->b_x = scaled_uint32_to_float_chromaticity (b_x);
+  primaries->b_y = scaled_uint32_to_float_chromaticity (b_y);
+  primaries->w_x = scaled_uint32_to_float_chromaticity (w_x);
+  primaries->w_y = scaled_uint32_to_float_chromaticity (w_y);
 
   if (primaries->r_x < 0.0f || primaries->r_x > 1.0f ||
       primaries->r_y < 0.0f || primaries->r_y > 1.0f ||
@@ -1099,7 +1110,7 @@ creator_params_set_luminance (struct wl_client   *client,
   if (creator_params->is_luminance_set)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_ALREADY_SET,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_ALREADY_SET,
                               "The luminance was already set");
       return;
     }
@@ -1108,18 +1119,18 @@ creator_params_set_luminance (struct wl_client   *client,
   max = (float) max_lum;
   ref = (float) reference_lum;
 
-  if (max < ref)
+  if (max <= min)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_LUMINANCE,
-                              "The maximum luminance is smaller than the reference luminance");
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_LUMINANCE,
+                              "The maximum luminance is smaller than the minimum luminance");
       return;
     }
 
   if (ref <= min)
     {
       wl_resource_post_error (resource,
-                              XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_LUMINANCE,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_LUMINANCE,
                               "The reference luminance is less or equal to the minimum luminance");
       return;
     }
@@ -1144,7 +1155,7 @@ creator_params_set_mastering_display_primaries (struct wl_client   *client,
                                                 int32_t             w_y)
 {
   wl_resource_post_error (resource,
-                          XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_MASTERING,
+                          WP_COLOR_MANAGER_V1_ERROR_UNSUPPORTED_FEATURE,
                           "Setting mastering display primaries is not supported");
 }
 
@@ -1155,7 +1166,7 @@ creator_params_set_mastering_luminance (struct wl_client   *client,
                                         uint32_t            max_lum)
 {
   wl_resource_post_error (resource,
-                          XX_IMAGE_DESCRIPTION_CREATOR_PARAMS_V4_ERROR_INVALID_MASTERING,
+                          WP_COLOR_MANAGER_V1_ERROR_UNSUPPORTED_FEATURE,
                           "Setting mastering display luminances is not supported");
 }
 
@@ -1177,7 +1188,7 @@ creator_params_set_max_fall (struct wl_client   *client,
   /* FIXME: technically we must send errors in some cases */
 }
 
-static const struct xx_image_description_creator_params_v4_interface
+static const struct wp_image_description_creator_params_v1_interface
   meta_wayland_image_description_creator_params_interface =
 {
   creator_params_create,
@@ -1220,7 +1231,7 @@ color_manager_get_output (struct wl_client   *client,
 
   cm_output_resource =
     wl_resource_create (client,
-                        &xx_color_management_output_v4_interface,
+                        &wp_color_management_output_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
@@ -1253,14 +1264,14 @@ color_manager_get_surface (struct wl_client   *client,
   if (cm_surface->resource)
     {
       wl_resource_post_error (resource,
-                              XX_COLOR_MANAGER_V4_ERROR_SURFACE_EXISTS,
+                              WP_COLOR_MANAGER_V1_ERROR_SURFACE_EXISTS,
                               "surface already requested");
       return;
     }
 
   cm_surface->resource =
     wl_resource_create (client,
-                        &xx_color_management_surface_v4_interface,
+                        &wp_color_management_surface_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
@@ -1271,14 +1282,14 @@ color_manager_get_surface (struct wl_client   *client,
 }
 
 static void
-color_management_feedback_surface_destroy (struct wl_client   *client,
+color_management_surface_feedback_destroy (struct wl_client   *client,
                                            struct wl_resource *resource)
 {
   wl_resource_destroy (resource);
 }
 
 static void
-color_management_feedback_surface_get_preferred (struct wl_client   *client,
+color_management_surface_feedback_get_preferred (struct wl_client   *client,
                                                  struct wl_resource *resource,
                                                  uint32_t            id)
 {
@@ -1292,14 +1303,14 @@ color_management_feedback_surface_get_preferred (struct wl_client   *client,
   if (!surface)
     {
       wl_resource_post_error (resource,
-                              XX_COLOR_MANAGEMENT_FEEDBACK_SURFACE_V4_ERROR_INERT,
+                              WP_COLOR_MANAGEMENT_SURFACE_FEEDBACK_V1_ERROR_INERT,
                               "Underlying surface object has been destroyed");
       return;
     }
 
   image_desc_resource =
     wl_resource_create (client,
-                        &xx_image_description_v4_interface,
+                        &wp_image_description_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
@@ -1316,15 +1327,25 @@ color_management_feedback_surface_get_preferred (struct wl_client   *client,
                                   image_description_destructor);
 }
 
-static const struct xx_color_management_feedback_surface_v4_interface
-  meta_wayland_color_management_feedback_surface_interface =
+static void
+color_management_surface_feedback_get_preferred_parametric (struct wl_client   *client,
+                                                            struct wl_resource *resource,
+                                                            uint32_t            id)
 {
-  color_management_feedback_surface_destroy,
-  color_management_feedback_surface_get_preferred,
+  /* we currently only support parametric ones, so this is the same as get_preferred */
+  color_management_surface_feedback_get_preferred (client, resource, id);
+}
+
+static const struct wp_color_management_surface_feedback_v1_interface
+  meta_wayland_color_management_surface_feedback_interface =
+{
+  color_management_surface_feedback_destroy,
+  color_management_surface_feedback_get_preferred,
+  color_management_surface_feedback_get_preferred_parametric,
 };
 
 static void
-color_management_feedback_surface_destructor (struct wl_resource *resource)
+color_management_surface_feedback_destructor (struct wl_resource *resource)
 {
   MetaWaylandColorManagementSurface *cm_surface =
     wl_resource_get_user_data (resource);
@@ -1337,7 +1358,7 @@ color_management_feedback_surface_destructor (struct wl_resource *resource)
 }
 
 static void
-color_manager_get_feedback_surface (struct wl_client   *client,
+color_manager_get_surface_feedback (struct wl_client   *client,
                                     struct wl_resource *resource,
                                     uint32_t            id,
                                     struct wl_resource *surface_resource)
@@ -1345,42 +1366,42 @@ color_manager_get_feedback_surface (struct wl_client   *client,
   MetaWaylandColorManager *color_manager = wl_resource_get_user_data (resource);
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
   MetaWaylandColorManagementSurface *cm_surface;
-  struct wl_resource *cm_feedback_surface_resource;
+  struct wl_resource *cm_surface_feedback_resource;
 
   cm_surface = ensure_color_management_surface (color_manager, surface);
 
-  cm_feedback_surface_resource =
+  cm_surface_feedback_resource =
     wl_resource_create (client,
-                        &xx_color_management_feedback_surface_v4_interface,
+                        &wp_color_management_surface_feedback_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
-  wl_resource_set_implementation (cm_feedback_surface_resource,
-                                  &meta_wayland_color_management_feedback_surface_interface,
+  wl_resource_set_implementation (cm_surface_feedback_resource,
+                                  &meta_wayland_color_management_surface_feedback_interface,
                                   cm_surface,
-                                  color_management_feedback_surface_destructor);
+                                  color_management_surface_feedback_destructor);
 
   cm_surface->feedback_resources =
     g_list_prepend (cm_surface->feedback_resources,
-                    cm_feedback_surface_resource);
+                    cm_surface_feedback_resource);
 
   update_preferred_color_state (cm_surface);
 }
 
 static void
-color_manager_new_icc_creator (struct wl_client   *client,
-                               struct wl_resource *resource,
-                               uint32_t            id)
+color_manager_create_icc_creator (struct wl_client   *client,
+                                  struct wl_resource *resource,
+                                  uint32_t            id)
 {
   wl_resource_post_error (resource,
-                          XX_COLOR_MANAGER_V4_ERROR_UNSUPPORTED_FEATURE,
+                          WP_COLOR_MANAGER_V1_ERROR_UNSUPPORTED_FEATURE,
                           "ICC-based image description creator is unsupported");
 }
 
 static void
-color_manager_new_parametric_creator (struct wl_client   *client,
-                                      struct wl_resource *resource,
-                                      uint32_t            id)
+color_manager_create_parametric_creator (struct wl_client   *client,
+                                         struct wl_resource *resource,
+                                         uint32_t            id)
 {
   MetaWaylandColorManager *color_manager = wl_resource_get_user_data (resource);
   MetaWaylandCreatorParams *creator_params;
@@ -1388,7 +1409,7 @@ color_manager_new_parametric_creator (struct wl_client   *client,
 
   creator_resource =
     wl_resource_create (client,
-                        &xx_image_description_creator_params_v4_interface,
+                        &wp_image_description_creator_params_v1_interface,
                         wl_resource_get_version (resource),
                         id);
 
@@ -1402,45 +1423,57 @@ color_manager_new_parametric_creator (struct wl_client   *client,
 }
 
 static void
-color_manager_send_supported_events (struct wl_resource *resource)
+color_manager_create_windows_scrgb (struct wl_client   *client,
+                                    struct wl_resource *resource,
+                                    uint32_t            id)
 {
-  xx_color_manager_v4_send_supported_intent (resource,
-                                             XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL);
-  xx_color_manager_v4_send_supported_feature (resource,
-                                              XX_COLOR_MANAGER_V4_FEATURE_PARAMETRIC);
-  xx_color_manager_v4_send_supported_feature (resource,
-                                              XX_COLOR_MANAGER_V4_FEATURE_SET_PRIMARIES);
-  xx_color_manager_v4_send_supported_feature (resource,
-                                              XX_COLOR_MANAGER_V4_FEATURE_SET_TF_POWER);
-  xx_color_manager_v4_send_supported_feature (resource,
-                                              XX_COLOR_MANAGER_V4_FEATURE_SET_LUMINANCES);
-  xx_color_manager_v4_send_supported_tf_named (resource,
-                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA22);
-  xx_color_manager_v4_send_supported_tf_named (resource,
-                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_GAMMA28);
-  xx_color_manager_v4_send_supported_tf_named (resource,
-                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB);
-  xx_color_manager_v4_send_supported_tf_named (resource,
-                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_ST2084_PQ);
-  xx_color_manager_v4_send_supported_tf_named (resource,
-                                               XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_BT709);
-  xx_color_manager_v4_send_supported_primaries_named (resource,
-                                                      XX_COLOR_MANAGER_V4_PRIMARIES_SRGB);
-  xx_color_manager_v4_send_supported_primaries_named (resource,
-                                                      XX_COLOR_MANAGER_V4_PRIMARIES_BT2020);
-  xx_color_manager_v4_send_supported_primaries_named (resource,
-                                                      XX_COLOR_MANAGER_V4_PRIMARIES_NTSC);
+  wl_resource_post_error (resource,
+                          WP_COLOR_MANAGER_V1_ERROR_UNSUPPORTED_FEATURE,
+                          "Windows scRGB is not supported");
 }
 
-static const struct xx_color_manager_v4_interface
+static void
+color_manager_send_supported_events (struct wl_resource *resource)
+{
+  wp_color_manager_v1_send_supported_intent (resource,
+                                             WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
+  wp_color_manager_v1_send_supported_feature (resource,
+                                              WP_COLOR_MANAGER_V1_FEATURE_PARAMETRIC);
+  wp_color_manager_v1_send_supported_feature (resource,
+                                              WP_COLOR_MANAGER_V1_FEATURE_SET_PRIMARIES);
+  wp_color_manager_v1_send_supported_feature (resource,
+                                              WP_COLOR_MANAGER_V1_FEATURE_SET_TF_POWER);
+  wp_color_manager_v1_send_supported_feature (resource,
+                                              WP_COLOR_MANAGER_V1_FEATURE_SET_LUMINANCES);
+  wp_color_manager_v1_send_supported_tf_named (resource,
+                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22);
+  wp_color_manager_v1_send_supported_tf_named (resource,
+                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28);
+  wp_color_manager_v1_send_supported_tf_named (resource,
+                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB);
+  wp_color_manager_v1_send_supported_tf_named (resource,
+                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ);
+  wp_color_manager_v1_send_supported_tf_named (resource,
+                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886);
+  wp_color_manager_v1_send_supported_primaries_named (resource,
+                                                      WP_COLOR_MANAGER_V1_PRIMARIES_SRGB);
+  wp_color_manager_v1_send_supported_primaries_named (resource,
+                                                      WP_COLOR_MANAGER_V1_PRIMARIES_BT2020);
+  wp_color_manager_v1_send_supported_primaries_named (resource,
+                                                      WP_COLOR_MANAGER_V1_PRIMARIES_NTSC);
+  wp_color_manager_v1_send_done (resource);
+}
+
+static const struct wp_color_manager_v1_interface
   meta_wayland_color_manager_interface =
 {
   color_manager_destroy,
   color_manager_get_output,
   color_manager_get_surface,
-  color_manager_get_feedback_surface,
-  color_manager_new_icc_creator,
-  color_manager_new_parametric_creator,
+  color_manager_get_surface_feedback,
+  color_manager_create_icc_creator,
+  color_manager_create_parametric_creator,
+  color_manager_create_windows_scrgb,
 };
 
 static void
@@ -1453,7 +1486,7 @@ color_management_bind (struct wl_client *client,
   struct wl_resource *resource;
 
   resource = wl_resource_create (client,
-                                 &xx_color_manager_v4_interface,
+                                 &wp_color_manager_v1_interface,
                                  version,
                                  id);
 
@@ -1487,7 +1520,7 @@ update_output_color_state (MetaWaylandColorManager *color_manager,
         {
           struct wl_resource *resource = l->data;
 
-          xx_color_management_output_v4_send_image_description_changed (resource);
+          wp_color_management_output_v1_send_image_description_changed (resource);
         }
     }
 
@@ -1573,8 +1606,8 @@ update_enabled (MetaWaylandColorManager *color_manager)
     {
       color_manager->global =
         wl_global_create (compositor->wayland_display,
-                          &xx_color_manager_v4_interface,
-                          META_XX_COLOR_MANAGEMENT_VERSION,
+                          &wp_color_manager_v1_interface,
+                          META_WP_COLOR_MANAGEMENT_VERSION,
                           color_manager,
                           color_management_bind);
 

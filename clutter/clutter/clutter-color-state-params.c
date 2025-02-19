@@ -149,6 +149,13 @@ static const ClutterLuminance sdr_default_luminance = {
   .ref = 80.0f,
 };
 
+static const ClutterLuminance bt709_default_luminance = {
+  .type = CLUTTER_LUMINANCE_TYPE_DERIVED,
+  .min = 0.01f,
+  .max = 100.0f,
+  .ref = 100.0f,
+};
+
 static const ClutterLuminance pq_default_luminance = {
   .type = CLUTTER_LUMINANCE_TYPE_DERIVED,
   .min = 0.005f,
@@ -165,9 +172,10 @@ clutter_eotf_get_default_luminance (ClutterEOTF eotf)
       switch (eotf.tf_name)
         {
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return &sdr_default_luminance;
+        case CLUTTER_TRANSFER_FUNCTION_BT709:
+          return &bt709_default_luminance;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_default_luminance;
         }

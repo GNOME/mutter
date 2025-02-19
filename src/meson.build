@@ -1118,7 +1118,7 @@ if have_wayland
   #  - protocol stability ('private', 'stable' or 'unstable')
   #  - protocol version (if stability is 'unstable')
   wayland_protocols = [
-    ['color-management-v1', 'private', ],
+    ['color-management', 'staging', 'v1', ],
     ['commit-timing', 'staging', 'v1', ],
     ['cursor-shape-v1', 'private', ],
     ['drm-lease', 'staging', 'v1', ],

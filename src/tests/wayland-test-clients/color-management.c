@@ -91,6 +91,12 @@ wait_for_configure (WaylandDisplay *display)
 }
 
 static uint32_t
+float_to_scaled_uint32_chromaticity (float value)
+{
+  return (uint32_t) (value * 1000000);
+}
+
+static uint32_t
 float_to_scaled_uint32 (float value)
 {
   return (uint32_t) (value * 10000);
@@ -98,7 +104,7 @@ float_to_scaled_uint32 (float value)
 
 static void
 handle_image_description_failed (void                           *data,
-                                 struct xx_image_description_v4 *image_description_v4,
+                                 struct wp_image_description_v1 *image_description_v4,
                                  uint32_t                        cause,
                                  const char                     *msg)
 
@@ -110,7 +116,7 @@ handle_image_description_failed (void                           *data,
 
 static void
 handle_image_description_ready (void                           *data,
-                                struct xx_image_description_v4 *image_description_v4,
+                                struct wp_image_description_v1 *image_description_v4,
                                 uint32_t                        identity)
 {
   ImageDescriptionContext *image_description_context = data;
@@ -118,7 +124,7 @@ handle_image_description_ready (void                           *data,
   image_description_context->image_description_id = identity;
 }
 
-static const struct xx_image_description_v4_listener image_description_listener = {
+static const struct wp_image_description_v1_listener image_description_listener = {
   handle_image_description_failed,
   handle_image_description_ready,
 };
@@ -134,7 +140,7 @@ wait_for_image_description_ready (ImageDescriptionContext *image_description,
 
 static void
 create_image_description_from_params (WaylandDisplay                  *display,
-                                      struct xx_image_description_v4 **image_description,
+                                      struct wp_image_description_v1 **image_description,
                                       int                              primaries_named,
                                       Primaries                       *primaries,
                                       int                              tf_named,
@@ -144,41 +150,41 @@ create_image_description_from_params (WaylandDisplay                  *display,
                                       float                            ref_lum)
 
 {
-  struct xx_image_description_creator_params_v4 *creator_params;
+  struct wp_image_description_creator_params_v1 *creator_params;
   ImageDescriptionContext image_description_context;
 
   creator_params =
-    xx_color_manager_v4_new_parametric_creator (display->color_management_mgr);
+    wp_color_manager_v1_create_parametric_creator (display->color_management_mgr);
 
   if (primaries_named != -1)
-    xx_image_description_creator_params_v4_set_primaries_named (
+    wp_image_description_creator_params_v1_set_primaries_named (
       creator_params,
       primaries_named);
 
   if (primaries)
-    xx_image_description_creator_params_v4_set_primaries (
+    wp_image_description_creator_params_v1_set_primaries (
       creator_params,
-      float_to_scaled_uint32 (primaries->r_x),
-      float_to_scaled_uint32 (primaries->r_y),
-      float_to_scaled_uint32 (primaries->g_x),
-      float_to_scaled_uint32 (primaries->g_y),
-      float_to_scaled_uint32 (primaries->b_x),
-      float_to_scaled_uint32 (primaries->b_y),
-      float_to_scaled_uint32 (primaries->w_x),
-      float_to_scaled_uint32 (primaries->w_y));
+      float_to_scaled_uint32_chromaticity (primaries->r_x),
+      float_to_scaled_uint32_chromaticity (primaries->r_y),
+      float_to_scaled_uint32_chromaticity (primaries->g_x),
+      float_to_scaled_uint32_chromaticity (primaries->g_y),
+      float_to_scaled_uint32_chromaticity (primaries->b_x),
+      float_to_scaled_uint32_chromaticity (primaries->b_y),
+      float_to_scaled_uint32_chromaticity (primaries->w_x),
+      float_to_scaled_uint32_chromaticity (primaries->w_y));
 
   if (tf_named != -1)
-    xx_image_description_creator_params_v4_set_tf_named (
+    wp_image_description_creator_params_v1_set_tf_named (
       creator_params,
       tf_named);
 
   if (tf_power >= 1.0f)
-    xx_image_description_creator_params_v4_set_tf_power (
+    wp_image_description_creator_params_v1_set_tf_power (
       creator_params,
       float_to_scaled_uint32 (tf_power));
 
   if (min_lum >= 0.0f && max_lum > 0.0f && ref_lum >= 0.0f)
-    xx_image_description_creator_params_v4_set_luminances (
+    wp_image_description_creator_params_v1_set_luminances (
       creator_params,
       float_to_scaled_uint32 (min_lum),
       (uint32_t) max_lum,
@@ -188,8 +194,8 @@ create_image_description_from_params (WaylandDisplay                  *display,
   image_description_context.creation_failed = FALSE;
 
   *image_description =
-    xx_image_description_creator_params_v4_create (creator_params);
-  xx_image_description_v4_add_listener (
+    wp_image_description_creator_params_v1_create (creator_params);
+  wp_image_description_v1_add_listener (
     *image_description,
     &image_description_listener,
     &image_description_context);
@@ -208,8 +214,8 @@ main (int    argc,
   struct xdg_toplevel *xdg_toplevel;
   struct xdg_surface *xdg_surface;
   struct wl_surface *surface;
-  struct xx_color_management_surface_v4 *color_surface;
-  struct xx_image_description_v4 *image_description;
+  struct wp_color_management_surface_v1 *color_surface;
+  struct wp_image_description_v1 *image_description;
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
@@ -220,7 +226,7 @@ main (int    argc,
   xdg_toplevel_add_listener (xdg_toplevel, &xdg_toplevel_listener, NULL);
   xdg_toplevel_set_title (xdg_toplevel, "color-management");
   color_surface =
-    xx_color_manager_v4_get_surface (display->color_management_mgr, surface);
+    wp_color_manager_v1_get_surface (display->color_management_mgr, surface);
 
   wl_surface_commit (surface);
   wait_for_configure (display);
@@ -230,42 +236,42 @@ main (int    argc,
 
   create_image_description_from_params (display,
                                         &image_description,
-                                        XX_COLOR_MANAGER_V4_PRIMARIES_BT2020,
+                                        WP_COLOR_MANAGER_V1_PRIMARIES_BT2020,
                                         NULL,
-                                        XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_ST2084_PQ,
+                                        WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ,
                                         -1.0f,
                                         0.005f,
                                         10000.0f,
                                         303.0f);
-  xx_color_management_surface_v4_set_image_description (
+  wp_color_management_surface_v1_set_image_description (
     color_surface,
     image_description,
-    XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL);
+    WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
 
   wl_surface_commit (surface);
 
-  xx_image_description_v4_destroy (image_description);
+  wp_image_description_v1_destroy (image_description);
 
   test_driver_sync_point (display->test_driver, 1, NULL);
   wait_for_sync_event (display, 1);
 
   create_image_description_from_params (display,
                                         &image_description,
-                                        XX_COLOR_MANAGER_V4_PRIMARIES_SRGB,
+                                        WP_COLOR_MANAGER_V1_PRIMARIES_SRGB,
                                         NULL,
-                                        XX_COLOR_MANAGER_V4_TRANSFER_FUNCTION_SRGB,
+                                        WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB,
                                         -1.0f,
                                         0.2f,
                                         80.0f,
                                         70.0f);
-  xx_color_management_surface_v4_set_image_description (
+  wp_color_management_surface_v1_set_image_description (
     color_surface,
     image_description,
-    XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL);
+    WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
 
   wl_surface_commit (surface);
 
-  xx_image_description_v4_destroy (image_description);
+  wp_image_description_v1_destroy (image_description);
 
   test_driver_sync_point (display->test_driver, 2, NULL);
   wait_for_sync_event (display, 2);
@@ -279,19 +285,19 @@ main (int    argc,
                                         -1.0f,
                                         -1.0f,
                                         -1.0f);
-  xx_color_management_surface_v4_set_image_description (
+  wp_color_management_surface_v1_set_image_description (
     color_surface,
     image_description,
-    XX_COLOR_MANAGER_V4_RENDER_INTENT_PERCEPTUAL);
+    WP_COLOR_MANAGER_V1_RENDER_INTENT_PERCEPTUAL);
 
   wl_surface_commit (surface);
 
-  xx_image_description_v4_destroy (image_description);
+  wp_image_description_v1_destroy (image_description);
 
   test_driver_sync_point (display->test_driver, 3, NULL);
   wait_for_sync_event (display, 3);
 
-  xx_color_management_surface_v4_destroy (color_surface);
+  wp_color_management_surface_v1_destroy (color_surface);
 
   return EXIT_SUCCESS;
 }
