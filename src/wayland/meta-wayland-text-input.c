@@ -378,6 +378,27 @@ move_resources_for_client (struct wl_list *destination,
     }
 }
 
+static void
+reset_text_input_focus (MetaWaylandTextInput *text_input)
+{
+  if (wl_list_empty (&text_input->focus_resource_list))
+    {
+      ClutterInputFocus *focus = text_input->input_focus;
+      MetaBackend *backend = backend_from_text_input (text_input);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterInputMethod *input_method;
+
+      if (clutter_input_focus_is_focused (focus))
+        {
+          input_method = clutter_backend_get_input_method (clutter_backend);
+          clutter_input_focus_reset (focus);
+          meta_wayland_text_input_focus_flush_done (focus);
+          clutter_input_method_focus_out (input_method);
+        }
+    }
+}
+
 void
 meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
 				   MetaWaylandSurface   *surface)
@@ -391,20 +412,7 @@ meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
     {
       if (!wl_list_empty (&text_input->focus_resource_list))
         {
-          ClutterInputFocus *focus = text_input->input_focus;
-          MetaBackend *backend = backend_from_text_input (text_input);
-          ClutterBackend *clutter_backend =
-            meta_backend_get_clutter_backend (backend);
-          ClutterInputMethod *input_method;
           struct wl_resource *resource;
-
-          if (clutter_input_focus_is_focused (focus))
-            {
-              input_method = clutter_backend_get_input_method (clutter_backend);
-              clutter_input_focus_reset (focus);
-              meta_wayland_text_input_focus_flush_done (focus);
-              clutter_input_method_focus_out (input_method);
-            }
 
           wl_resource_for_each (resource, &text_input->focus_resource_list)
             {
@@ -414,6 +422,8 @@ meta_wayland_text_input_set_focus (MetaWaylandTextInput *text_input,
 
           move_resources (&text_input->resource_list,
                           &text_input->focus_resource_list);
+
+          reset_text_input_focus (text_input);
         }
 
       wl_list_remove (&text_input->surface_listener.link);
@@ -459,6 +469,7 @@ text_input_destructor (struct wl_resource *resource)
 
   g_hash_table_remove (text_input->resource_serials, resource);
   wl_list_remove (wl_resource_get_link (resource));
+  reset_text_input_focus (text_input);
 }
 
 static void
