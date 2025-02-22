@@ -734,6 +734,11 @@ meta_color_device_new (MetaColorManager *color_manager,
                            color_device,
                            G_CONNECT_SWAPPED | G_CONNECT_AFTER);
 
+  g_signal_connect_object (debug_control, "notify::force-hdr",
+                           G_CALLBACK (meta_color_device_update),
+                           color_device,
+                           G_CONNECT_SWAPPED | G_CONNECT_AFTER);
+
   return color_device;
 }
 
