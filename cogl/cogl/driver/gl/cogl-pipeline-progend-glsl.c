@@ -729,6 +729,7 @@ needs_recompile (CoglShader   *shader,
    * are the pipeline layer-indices, texture-unit-indices and
    * snippets
    */
+  CoglPipeline *authority, *authority_prev;
 
   if (pipeline == prev)
     return FALSE;
@@ -739,11 +740,25 @@ needs_recompile (CoglShader   *shader,
   switch (shader->type)
     {
     case COGL_SHADER_TYPE_VERTEX:
-      if (!_cogl_pipeline_vertex_snippets_state_equal (prev, pipeline))
+      authority =
+        _cogl_pipeline_get_authority (pipeline,
+                                      COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
+      authority_prev =
+        _cogl_pipeline_get_authority (prev,
+                                      COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
+
+      if (!_cogl_pipeline_vertex_snippets_state_equal (authority_prev, authority))
         return TRUE;
       break;
     case COGL_SHADER_TYPE_FRAGMENT:
-      if (!_cogl_pipeline_fragment_snippets_state_equal (prev, pipeline))
+      authority =
+        _cogl_pipeline_get_authority (pipeline,
+                                      COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
+      authority_prev =
+        _cogl_pipeline_get_authority (prev,
+                                      COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
+
+      if (!_cogl_pipeline_fragment_snippets_state_equal (authority_prev, authority))
         return TRUE;
       break;
     default:
