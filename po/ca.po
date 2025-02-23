@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: metacity 2.24\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
 "POT-Creation-Date: 2024-09-03 20:10+0000\n"
-"PO-Revision-Date: 2024-09-17 21:52+0200\n"
+"PO-Revision-Date: 2025-02-23 21:52+0200\n"
 "Last-Translator: maite guix <maite.guix@me.com>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
 "Language: ca\n"
@@ -524,7 +524,7 @@ msgstr "Torna a habilitar les dreceres"
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
-"Permetre la captura amb Xwayland per a bloquejar el focus del teclat amb "
+"Permetre la captura amb X11 per a bloquejar el focus del teclat amb "
 "Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
