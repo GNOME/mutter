@@ -3,14 +3,14 @@
 # This file is distributed under the same license as the metacity package.
 # Alexander Didebulidze <didebuli@in.tum.de>, 2006.
 # Vladimer Sichinava ვლადიმერ სიჭინავა <vsichi@gnome.org>, 2007.
-# Ekaterine Papava <papava.e@gtu.ge>, 2023-2024.
+# Ekaterine Papava <papava.e@gtu.ge>, 2023-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-09-03 20:10+0000\n"
-"PO-Revision-Date: 2024-09-08 04:55+0200\n"
+"POT-Creation-Date: 2025-02-22 11:59+0000\n"
+"PO-Revision-Date: 2025-02-23 07:01+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.5\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -609,26 +609,26 @@ msgstr ""
 "byteswappedclients ამ პარამეტრის გასაკონტროლებლად. Xwayland უნდა განახლდეს, "
 "რომ ეს პარამეტრი ამოქმედდეს."
 
-#: src/backends/meta-monitor.c:240
+#: src/backends/meta-monitor.c:266
 msgid "Built-in display"
 msgstr "ჩაშენებული ეკრანი"
 
-#: src/backends/meta-monitor.c:267
+#: src/backends/meta-monitor.c:293
 msgid "Unknown"
 msgstr "უცნობია"
 
-#: src/backends/meta-monitor.c:269
+#: src/backends/meta-monitor.c:295
 msgid "Unknown Display"
 msgstr "უცნობი ეკრანი"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:303
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -640,94 +640,102 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "მოვლენის ზარი"
 
-#: src/core/display.c:742
+#: src/core/display.c:741
 msgid "Privacy Screen Enabled"
 msgstr "კონფიდენციალური ეკრანი ჩართულია"
 
-#: src/core/display.c:743
+#: src/core/display.c:742
 msgid "Privacy Screen Disabled"
 msgstr "კონფიდენციალური ეკრანი გამორთულია"
 
-#: src/core/meta-context-main.c:601
+#: src/core/meta-context-main.c:621
 msgid "Replace the running window manager"
 msgstr "ფანჯრების გაშვებული მმართველის შეცვლა"
 
-#: src/core/meta-context-main.c:607
+#: src/core/meta-context-main.c:627
 msgid "X Display to use"
 msgstr "გამოყენებადი X"
 
-#: src/core/meta-context-main.c:613
+#: src/core/meta-context-main.c:633
 msgid "Disable connection to session manager"
 msgstr "სესიების მმართველთან კავშირის გაუქმება"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:639
 msgid "Specify session management ID"
 msgstr "სესიის მართვის ID-ის მითითება"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:645
 msgid "Initialize session from savefile"
 msgstr "სესიის დამახსოვრებული ფაილიდან ჩატვირთვა"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:651
 msgid "Make X calls synchronous"
 msgstr "X-ის ფუნქციების სინქრონულად გამოძახება"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:659
 msgid "Run as a wayland compositor"
 msgstr "Wayland-ის კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:646
+#: src/core/meta-context-main.c:666
 msgid "Run as a nested compositor"
 msgstr "ჩადგმულ კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:672
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland კომპოზიტორის Xwayland-ის შესრულებს გარეშე გაშვება"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:679
 msgid "Specify Wayland display name to use"
 msgstr "მიუთითეთ Wayland-ის ეკრანის სახელი"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:687
 msgid "Run as a full display server, rather than nested"
 msgstr "ჩადგმულის მაგიერ ეკრანის სრულ სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:692
 msgid "Run as a headless display server"
 msgstr "უთავო ეკრანის სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:677
+#: src/core/meta-context-main.c:697
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "მუდმინი ვირტუალური ეკრანის დამატება (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:689
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "X11 უკანაბოლოთი გაშვება"
 
-#: src/core/meta-context-main.c:695
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "წარმადობის პროფილირება ტრეისის ინსტრუმენტებით"
 
-#: src/core/meta-context-main.c:701
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "გამართვის კონტროლის D-Bus-ის ინტერფეისის ჩართვა"
 
 #. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
+#. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:549
+#: src/core/meta-pad-action-mapper.c:552
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "რეჟიმის შეცვლა (ჯგუფი %d)"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:559
+#, c-format
+msgid "Mode Switch"
+msgstr "რეჟიმის გადართვა"
+
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:571
+#: src/core/meta-pad-action-mapper.c:582
 msgid "Switch monitor"
 msgstr "ეკრანის შეცვლა"
 
-#: src/core/meta-pad-action-mapper.c:573
+#: src/core/meta-pad-action-mapper.c:584
 msgid "Show on-screen help"
 msgstr "ეკრანზე ნაჩვენები დახმარება"
 
@@ -744,7 +752,7 @@ msgstr "მიმდინარე ვერსიის დაბეჭდვ�
 msgid "Mutter plugin to use"
 msgstr "Mutter-ის დამატება"
 
-#: src/core/prefs.c:1842
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "სამუშაო სივრცე %d"
@@ -762,7 +770,7 @@ msgstr "სამუშაო სივრცე გადაირთო"
 msgid "Mode Switch: Mode %d"
 msgstr "რეჟიმის შეცვლა რეჟიმი %d"
 
-#: src/x11/meta-x11-display.c:850
+#: src/x11/meta-x11-display.c:858
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -771,19 +779,19 @@ msgstr ""
 "ეკრანს \"%s\" ფანჯრების მმართველი უკვე გააჩნიათ. მის ჩასანაცვლებლად, სცადეთ, "
 "--replace პარამეტრი გამოიყენოთ."
 
-#: src/x11/meta-x11-display.c:1230
+#: src/x11/meta-x11-display.c:1243
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "ფანჯრების X სისტემის ეკრანის (%s) გახსნის შეცდომა"
 
-#: src/x11/meta-x11-display.c:1465
+#: src/x11/meta-x11-display.c:1476
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "ასლი \"%d\" ეკრანზე \"%s\" არასწორია"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2785
+#: src/x11/meta-x11-display.c:2799
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -795,7 +803,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "ფორმატი მხარდაუჭერელია: %s"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:555
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s-ზე)"
