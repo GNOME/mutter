@@ -155,6 +155,7 @@ of the two mirrored monitors.
             --logical-monitor
             --monitor DP-2
             --right-of DP-1
+            --transform 270
 
 BUGS
 ----
