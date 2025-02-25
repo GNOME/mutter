@@ -100,9 +100,21 @@ enum
 
 static guint signals[N_SIGNALS] = { 0 };
 
+/* Index matches libinput_led bit offsets */
+typedef enum _MetaKeyboardLed MetaKeyboardLed;
+enum _MetaKeyboardLed
+{
+  KEYBOARD_LED_NUM_LOCK,
+  KEYBOARD_LED_CAPS_LOCK,
+  KEYBOARD_LED_SCROLL_LOCK,
+  N_KEYBOARD_LEDS,
+};
+
 typedef struct _MetaSeatImplPrivate
 {
   GHashTable *device_files;
+
+  xkb_led_index_t keyboard_leds[N_KEYBOARD_LEDS];
 
   struct {
     GHashTable *grabbed_modifiers;
@@ -156,24 +168,24 @@ meta_seat_impl_run_input_task (MetaSeatImpl *seat_impl,
 void
 meta_seat_impl_sync_leds_in_impl (MetaSeatImpl *seat_impl)
 {
+  MetaSeatImplPrivate *priv =
+    meta_seat_impl_get_instance_private (seat_impl);
   GSList *iter;
   MetaInputDeviceNative *device_native;
-  int caps_lock, num_lock, scroll_lock;
   enum libinput_led leds = 0;
+  int i;
 
-  caps_lock = xkb_state_led_index_is_active (seat_impl->xkb,
-                                             seat_impl->caps_lock_led);
-  num_lock = xkb_state_led_index_is_active (seat_impl->xkb,
-                                            seat_impl->num_lock_led);
-  scroll_lock = xkb_state_led_index_is_active (seat_impl->xkb,
-                                               seat_impl->scroll_lock_led);
+  for (i = 0; i < N_KEYBOARD_LEDS; i++)
+    {
+      xkb_led_index_t led_idx = priv->keyboard_leds[i];
 
-  if (caps_lock)
-    leds |= LIBINPUT_LED_CAPS_LOCK;
-  if (num_lock)
-    leds |= LIBINPUT_LED_NUM_LOCK;
-  if (scroll_lock)
-    leds |= LIBINPUT_LED_SCROLL_LOCK;
+      if (led_idx == XKB_LED_INVALID)
+        continue;
+      if (!xkb_state_led_index_is_active (seat_impl->xkb, led_idx))
+        continue;
+
+      leds |= 1 << i;
+    }
 
   for (iter = seat_impl->devices; iter; iter = iter->next)
     {
@@ -2989,6 +3001,30 @@ init_core_devices (MetaSeatImpl *seat_impl)
   seat_impl->core_keyboard = device;
 }
 
+static void
+update_keyboard_leds (MetaSeatImpl *seat_impl)
+{
+  MetaSeatImplPrivate *priv =
+    meta_seat_impl_get_instance_private (seat_impl);
+  struct xkb_keymap *xkb_keymap;
+  /* Index matches MetaKeyboardLed enum */
+  const char *led_map[] = {
+    XKB_LED_NAME_NUM,
+    XKB_LED_NAME_CAPS,
+    XKB_LED_NAME_SCROLL,
+  };
+  int i;
+
+  G_STATIC_ASSERT (G_N_ELEMENTS (led_map) == N_KEYBOARD_LEDS);
+
+  xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (seat_impl->keymap);
+  if (!xkb_keymap)
+    return;
+
+  for (i = 0; i < G_N_ELEMENTS (led_map); i++)
+    priv->keyboard_leds[i] = xkb_keymap_led_get_index (xkb_keymap, led_map[i]);
+}
+
 static gpointer
 input_thread (MetaSeatImpl *seat_impl)
 {
@@ -3029,13 +3065,7 @@ input_thread (MetaSeatImpl *seat_impl)
   if (xkb_keymap)
     {
       seat_impl->xkb = xkb_state_new (xkb_keymap);
-
-      seat_impl->caps_lock_led =
-        xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_CAPS);
-      seat_impl->num_lock_led =
-        xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_NUM);
-      seat_impl->scroll_lock_led =
-        xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
+      update_keyboard_leds (seat_impl);
     }
 
   if (meta_input_settings_maybe_restore_numlock_state (seat_impl->input_settings))
@@ -3513,12 +3543,7 @@ meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl)
                          locked_mods,
                          0, 0, seat_impl->layout_idx);
 
-  seat_impl->caps_lock_led =
-    xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_CAPS);
-  seat_impl->num_lock_led =
-    xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_NUM);
-  seat_impl->scroll_lock_led =
-    xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
+  update_keyboard_leds (seat_impl);
 
   meta_seat_impl_sync_leds_in_impl (seat_impl);
   meta_keymap_native_update_in_impl (seat_impl->keymap,
