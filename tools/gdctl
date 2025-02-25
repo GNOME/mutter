@@ -920,12 +920,11 @@ class MonitorsState:
         if not show_properties:
             return
 
-        width, height = mode.resolution
         print_data(
             level=3,
             is_last=False,
             lines=lines,
-            data=f"Dimension: {width}x{height}",
+            data=f"Dimension: {mode.resolution}",
         )
         print_data(
             level=3,
