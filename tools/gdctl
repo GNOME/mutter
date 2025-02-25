@@ -298,7 +298,7 @@ class MonitorMode:
     def from_variant(cls, variant):
         return cls(
             name=variant[0],
-            resolution=(variant[1], variant[2]),
+            resolution=Dimension(variant[1], variant[2]),
             refresh_rate=variant[3],
             preferred_scale=variant[4],
             supported_scales=variant[5],
