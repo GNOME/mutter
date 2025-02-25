@@ -26,6 +26,9 @@ class Dimension(NamedTuple):
     width: int
     height: int
 
+    def __str__(self):
+        return f"{self.width}x{self.height}"
+
 
 class Position(NamedTuple):
     x: int | None
