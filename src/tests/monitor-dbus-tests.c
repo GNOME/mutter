@@ -677,6 +677,32 @@ meta_test_monitor_dbus_apply_mirror (void)
 }
 
 static void
+meta_test_monitor_dbus_apply_for_lease (void)
+{
+  MonitorTestCaseExpect expect;
+
+  setup_apply_configuration_test ();
+
+  check_gdctl_result ("set",
+                      "--verbose",
+                      "--layout-mode", "logical",
+                      "--logical-monitor",
+                      "--primary",
+                      "--monitor", "DP-1",
+                      "--for-lease-monitor", "DP-2",
+                      NULL);
+
+  expect = test_case_expect;
+  expect.n_logical_monitors = 1;
+  expect.screen_width = 1744;
+  expect.monitors[1].current_mode = -1;
+  expect.crtcs[1].current_mode = -1;
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &expect));
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/monitor/dbus/get-state",
@@ -691,6 +717,8 @@ init_tests (void)
                    meta_test_monitor_dbus_apply_mode_scale_below_transform);
   g_test_add_func ("/backends/native/monitor/dbus/apply/mirror",
                    meta_test_monitor_dbus_apply_mirror);
+  g_test_add_func ("/backends/native/monitor/dbus/apply/for-lease",
+                   meta_test_monitor_dbus_apply_for_lease);
 }
 
 int

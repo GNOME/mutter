@@ -260,11 +260,17 @@ class DisplayConfig:
     def apply_monitors_config(self, config, config_method):
         serial = config.monitors_state.server_serial
         logical_monitors = config.generate_logical_monitor_tuples()
+        monitors_for_lease = config.generate_monitors_for_lease_tuples()
         properties = {}
 
         if monitors_state.supports_changing_layout_mode:
             properties["layout-mode"] = GLib.Variant(
                 "u", config.layout_mode.value
+            )
+
+        if monitors_for_lease:
+            properties["monitors-for-lease"] = GLib.Variant(
+                "a(ssss)", monitors_for_lease
             )
 
         parameters = GLib.Variant(
@@ -781,9 +787,15 @@ def generate_configuration(monitors_state, args):
         for monitor in logical_monitor.monitors:
             monitor_mappings[monitor.connector] = logical_monitor
 
+    monitors_for_lease = []
+    for connector in args.monitors_for_lease:
+        monitors_for_lease.append(monitors_state.monitors[connector])
+
     calculate_positions(logical_monitors, layout_mode, monitor_mappings)
 
-    return Config(monitors_state, logical_monitors, layout_mode)
+    return Config(
+        monitors_state, logical_monitors, layout_mode, monitors_for_lease
+    )
 
 
 def derive_config_method(args):
@@ -812,7 +824,7 @@ def print_config(config):
 
     print_data(
         level=0,
-        is_last=True,
+        is_last=False,
         lines=lines,
         data=f"Logical monitors ({len(config.logical_monitors)})",
     )
@@ -881,6 +893,22 @@ def print_config(config):
                 )
 
         index += 1
+
+    print_data(
+        level=0,
+        is_last=True,
+        lines=lines,
+        data=f"Monitors for lease ({len(config.monitors_for_lease)})",
+    )
+
+    for monitor in config.monitors_for_lease:
+        is_last = monitor == config.monitors_for_lease[-1]
+        print_data(
+            level=1,
+            is_last=is_last,
+            lines=lines,
+            data=f"Monitor {monitor.connector} ({monitor.display_name})",
+        )
 
 
 class MonitorsState:
@@ -1112,6 +1140,7 @@ class Config:
     monitors_state: MonitorsState
     logical_monitors: list[LogicalMonitor]
     layout_mode: LayoutMode
+    monitors_for_lease: Monitor
 
     def generate_monitor_tuples(self, monitors):
         tuples = []
@@ -1151,6 +1180,19 @@ class Config:
                     transform,
                     is_primary,
                     monitors,
+                )
+            )
+        return tuples
+
+    def generate_monitors_for_lease_tuples(self):
+        tuples = []
+        for monitor in self.monitors_for_lease:
+            tuples.append(
+                (
+                    monitor.connector,
+                    monitor.vendor,
+                    monitor.product,
+                    monitor.serial,
                 )
             )
         return tuples
@@ -1358,6 +1400,14 @@ if __name__ == "__main__":
         nargs=0,
         default=[],
     )
+    set_parser.add_argument(
+        "-e",
+        "--for-lease-monitor",
+        dest="monitors_for_lease",
+        action="append",
+        type=str,
+        default=[],
+    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser = set_parser.add_argument_group(
         "logical_monitor",
         "Logical monitor options (pass after --logical-monitor)",

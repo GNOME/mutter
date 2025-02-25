@@ -77,6 +77,10 @@ SET OPTIONS
 
   Add and configure a logical monitor. See LOGICAL MONITOR OPTIONS.
 
+``--for-lease-monitor``, ``-e``
+
+  Set a monitor, that is not part of any logical monitor, available for lease.
+
 LOGICAL MONITOR OPTIONS
 -----------------------
 
@@ -156,6 +160,16 @@ of the two mirrored monitors.
             --monitor DP-2
             --right-of DP-1
             --transform 270
+
+Set eDP-1 and DP-2 as available for lease.
+
+::
+
+  gdctl set --logical-monitor
+            --primary
+            --monitor DP-1
+            --for-lease-monitor eDP-1
+            --for-lease-monitor DP-2
 
 BUGS
 ----
