@@ -172,8 +172,6 @@ on_after_paint (ClutterStage          *stage,
           wl_list_insert_list (feedbacks,
                                &surface->presentation_time.feedback_list);
           wl_list_init (&surface->presentation_time.feedback_list);
-
-          surface->presentation_time.needs_sequence_update = TRUE;
         }
 
       compositor->presentation_time.feedback_surfaces =
@@ -261,10 +259,13 @@ maybe_update_presentation_sequence (MetaWaylandSurface *surface,
 {
   unsigned int sequence_delta;
 
-  if (!surface->presentation_time.needs_sequence_update)
+  if (surface->presentation_time.last_output == output &&
+      surface->presentation_time.last_view_frame_counter ==
+      frame_info->view_frame_counter)
     return;
 
-  surface->presentation_time.needs_sequence_update = FALSE;
+  surface->presentation_time.last_view_frame_counter =
+    frame_info->view_frame_counter;
 
   if (!(frame_info->flags & CLUTTER_FRAME_INFO_FLAG_VSYNC))
     goto invalid_sequence;
@@ -434,7 +435,5 @@ meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *pres
       wl_list_insert_list (feedbacks,
                            &surface->presentation_time.feedback_list);
       wl_list_init (&surface->presentation_time.feedback_list);
-
-      surface->presentation_time.needs_sequence_update = TRUE;
     }
 }

@@ -265,7 +265,7 @@ struct _MetaWaylandSurface
     MetaWaylandOutput *last_output;
     unsigned int last_output_sequence;
     gboolean is_last_output_sequence_valid;
-    gboolean needs_sequence_update;
+    int64_t last_view_frame_counter;
 
     /*
      * Sequence has an undefined base, but is guaranteed to monotonically
