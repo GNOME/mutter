@@ -159,12 +159,16 @@ def GetSessionByPID(self, pid):
     return session_path
 
 def create_session(self, host_bus):
-    session_id = 'dummy'
-    seat_id = 'seat0'
+    session_id = None
+    seat_id = None
 
     if host_bus:
         session_id = find_host_session_id(host_bus)
         seat_id = find_host_seat_id(host_bus, session_id)
+
+    if not seat_id:
+        session_id = 'dummy'
+        seat_id = 'seat0'
 
     if not self.preferred_session_id or host_bus:
         self.preferred_session_id = session_id
