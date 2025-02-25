@@ -31,6 +31,9 @@ class Position(NamedTuple):
     x: int | None
     y: int | None
 
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
 
 class NamedEnum(Enum):
     def __str__(self):
