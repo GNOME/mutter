@@ -117,20 +117,6 @@ meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *pr
                                                  int64_t                      view_frame_counter);
 
 static void
-discard_non_cursor_feedbacks (struct wl_list *feedbacks)
-{
-  MetaWaylandPresentationFeedback *feedback, *next;
-
-  wl_list_for_each_safe (feedback, next, feedbacks, link)
-    {
-      if (META_IS_WAYLAND_CURSOR_SURFACE (feedback->surface->role))
-        continue;
-
-      meta_wayland_presentation_feedback_discard (feedback);
-    }
-}
-
-static void
 on_after_paint (ClutterStage          *stage,
                 ClutterStageView      *stage_view,
                 ClutterFrame          *frame,
@@ -139,20 +125,9 @@ on_after_paint (ClutterStage          *stage,
   struct wl_list *feedbacks;
   GList *l;
 
-  /*
-   * We just painted this stage view, which means that all non-cursor feedbacks
-   * that didn't fire (e.g. due to page flip failing) are now obsolete and
-   * should be discarded.
-   *
-   * Cursor feedbacks have a similar mechanism done separately, mainly because
-   * they are painted earlier, in prepare_frame(). This means that the feedbacks
-   * list currently contains stale non-cursor feedbacks and up-to-date cursor
-   * feedbacks.
-   */
   feedbacks =
     meta_wayland_presentation_time_ensure_feedbacks (&compositor->presentation_time,
                                                      stage_view, frame->frame_count);
-  discard_non_cursor_feedbacks (feedbacks);
 
   l = compositor->presentation_time.feedback_surfaces;
   while (l)
@@ -453,27 +428,39 @@ meta_wayland_presentation_time_present_feedbacks (MetaWaylandCompositor *composi
                                                   ClutterStageView      *stage_view,
                                                   ClutterFrameInfo      *frame_info)
 {
-  MetaWaylandPresentationFeedback *feedback, *next;
   struct wl_list *feedbacks;
-  MetaWaylandOutput *output;
   GHashTable *hash_table;
+  GHashTableIter iter;
+  int64_t *key;
 
   hash_table = g_hash_table_lookup (compositor->presentation_time.feedbacks,
                                     stage_view);
   if (!hash_table)
     return;
 
-  feedbacks = g_hash_table_lookup (hash_table, &frame_info->view_frame_counter);
-  if (!feedbacks)
-    return;
-
-  output = get_output_for_stage_view (compositor, stage_view);
-
-  wl_list_for_each_safe (feedback, next, feedbacks, link)
+  g_hash_table_iter_init (&iter, hash_table);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &key, (gpointer *)&feedbacks))
     {
-      meta_wayland_presentation_feedback_present (feedback,
-                                                  frame_info,
-                                                  output);
+      MetaWaylandPresentationFeedback *feedback, *next;
+
+      if (*key > frame_info->view_frame_counter)
+        continue;
+
+      if (*key == frame_info->view_frame_counter)
+        {
+          MetaWaylandOutput *output;
+
+          output = get_output_for_stage_view (compositor, stage_view);
+          wl_list_for_each_safe (feedback, next, feedbacks, link)
+            {
+              meta_wayland_presentation_feedback_present (feedback,
+                                                          frame_info,
+                                                          output);
+            }
+        }
+
+      /* This discards feedbacks for older frames which were never presented */
+      g_hash_table_iter_remove (&iter);
     }
 
   g_hash_table_remove (hash_table, &frame_info->view_frame_counter);
@@ -485,28 +472,19 @@ meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *pres
                                                int64_t                      view_frame_counter,
                                                MetaWaylandCursorSurface    *cursor_surface)
 {
-  struct wl_list *feedbacks;
-  MetaWaylandPresentationFeedback *feedback, *next;
   MetaWaylandSurfaceRole *role = META_WAYLAND_SURFACE_ROLE (cursor_surface);
   MetaWaylandSurface *surface = meta_wayland_surface_role_get_surface (role);
+  struct wl_list *feedbacks;
 
+  if (wl_list_empty (&surface->presentation_time.feedback_list))
+    return;
+
+  /* Add new feedbacks. */
   feedbacks =
     meta_wayland_presentation_time_ensure_feedbacks (presentation_time,
                                                      stage_view,
                                                      view_frame_counter);
-
-  /* Discard previous feedbacks for this cursor as now it has gone stale. */
-  wl_list_for_each_safe (feedback, next, feedbacks, link)
-    {
-      if (feedback->surface->role == role)
-        meta_wayland_presentation_feedback_discard (feedback);
-    }
-
-  /* Add new feedbacks. */
-  if (!wl_list_empty (&surface->presentation_time.feedback_list))
-    {
-      wl_list_insert_list (feedbacks,
-                           &surface->presentation_time.feedback_list);
-      wl_list_init (&surface->presentation_time.feedback_list);
-    }
+  wl_list_insert_list (feedbacks,
+                       &surface->presentation_time.feedback_list);
+  wl_list_init (&surface->presentation_time.feedback_list);
 }
