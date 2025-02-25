@@ -139,5 +139,8 @@
 /* libdrm defines struct drm_plane_size_hint */
 #mesondefine HAVE_DRM_PLANE_SIZE_HINT
 
+/* Whether xkbcommon has led definitions for kana/compose */
+#mesondefine HAVE_XKBCOMMON_KANA_COMPOSE_LEDS
+
 /* Building with font rendering integration support */
 #mesondefine HAVE_FONTS

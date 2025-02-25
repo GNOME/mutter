@@ -157,3 +157,11 @@ then
       https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
       1.41
 fi
+
+if ! pkgconf --atleast-version 1.8.0 libxkbcommon
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://github.com/xkbcommon/libxkbcommon.git \
+      master
+fi

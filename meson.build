@@ -590,6 +590,8 @@ cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 cdata.set('HAVE_EVENTFD', have_eventfd)
 cdata.set('HAVE_FONTS', have_fonts)
 cdata.set('HAVE_DRM_PLANE_SIZE_HINT', have_drm_plane_size_hint)
+cdata.set('HAVE_XKBCOMMON_KANA_COMPOSE_LEDS',
+  xkbcommon_dep.version().version_compare('>= 1.8.0'))
 
 if have_x11_client
   xkb_base = xkeyboard_config_dep.get_variable('xkb_base')
