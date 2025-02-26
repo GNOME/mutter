@@ -1137,6 +1137,15 @@ creator_params_set_luminance (struct wl_client   *client,
       return;
     }
 
+  if (ref > max)
+    {
+      wl_resource_post_error (resource,
+                              WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_LUMINANCE,
+                              "The reference luminance is bigger than the maximum luminance, "
+                              "extended target volume unsupported");
+      return;
+    }
+
   creator_params->lum.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
   creator_params->lum.min = min;
   creator_params->lum.max = max;
