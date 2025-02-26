@@ -1666,7 +1666,7 @@ if __name__ == "__main__":
                 if e.domain == GLib.quark_to_string(Gio.DBusError.quark()):
                     error_message = strip_dbus_error_prefix(e.message)
                     print(
-                        f"Failed retrieve current state: {error_message}",
+                        f"Failed to retrieve current state: {error_message}",
                         file=sys.stderr,
                     )
                 sys.exit(1)
@@ -1690,7 +1690,7 @@ if __name__ == "__main__":
                 if e.domain == GLib.quark_to_string(Gio.DBusError.quark()):
                     error_message = strip_dbus_error_prefix(e.message)
                     print(
-                        f"Failed retrieve current state: {error_message}",
+                        f"Failed to retrieve current state: {error_message}",
                         file=sys.stderr,
                     )
                 sys.exit(1)
