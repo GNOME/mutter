@@ -1621,7 +1621,10 @@ clutter_color_state_params_new_full (ClutterContext          *context,
     {
       color_state_params->luminance.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
       color_state_params->luminance.min = min_lum;
-      color_state_params->luminance.max = max_lum;
+      if (transfer_function == CLUTTER_TRANSFER_FUNCTION_PQ)
+        color_state_params->luminance.max = min_lum + 10000.0f;
+      else
+        color_state_params->luminance.max = max_lum;
       color_state_params->luminance.ref = ref_lum;
     }
   else
