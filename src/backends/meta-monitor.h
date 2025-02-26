@@ -288,8 +288,8 @@ MetaMonitorSpec * meta_monitor_spec_clone (const MetaMonitorSpec *monitor_id);
 guint meta_monitor_spec_hash (gconstpointer key);
 
 META_EXPORT_TEST
-gboolean meta_monitor_spec_equals (MetaMonitorSpec *monitor_id,
-                                   MetaMonitorSpec *other_monitor_id);
+gboolean meta_monitor_spec_equals (const MetaMonitorSpec *monitor_id,
+                                   const MetaMonitorSpec *other_monitor_id);
 
 META_EXPORT_TEST
 int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
