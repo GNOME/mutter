@@ -1833,7 +1833,7 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
       g_warning ("Direct scanout page flip failed: %s", error->message);
 
       cogl_scanout_notify_failed (scanout, onscreen);
-      if (onscreen_native->next_frame == NULL)
+      if (onscreen_native->next_frame == NULL && view != NULL)
         {
           clutter_stage_view_add_redraw_clip (view, NULL);
           clutter_stage_view_schedule_update_now (view);
