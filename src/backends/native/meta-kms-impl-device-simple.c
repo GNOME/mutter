@@ -1396,50 +1396,55 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
 
       meta_topic (META_DEBUG_KMS,
                   "[simple] Setting HW cursor of CRTC %u (%s) to %u "
-                  "(size: %dx%d, hot: (%d, %d))",
+                  "(size: %dx%d, position: (%d, %d), hot: (%d, %d))",
                   crtc_id,
                   meta_kms_impl_device_get_path (impl_device),
                   handle_u32,
                   width, height,
+                  plane_assignment->dst_rect.x,
+                  plane_assignment->dst_rect.y,
                   plane_assignment->cursor_hotspot.x,
                   plane_assignment->cursor_hotspot.y);
 
       if (plane_assignment->cursor_hotspot.is_valid)
         {
-          ret = drmModeSetCursor2 (fd,
-                                   crtc_id,
-                                   handle_u32,
-                                   width, height,
-                                   plane_assignment->cursor_hotspot.x,
-                                   plane_assignment->cursor_hotspot.y);
+          struct drm_mode_cursor2 arg;
+
+          arg.flags = DRM_MODE_CURSOR_BO | DRM_MODE_CURSOR_MOVE;
+          arg.crtc_id = crtc_id;
+          arg.x = plane_assignment->dst_rect.x;
+          arg.y = plane_assignment->dst_rect.y;
+          arg.width = width;
+          arg.height = height;
+          arg.handle = handle_u32;
+          arg.hot_x = plane_assignment->cursor_hotspot.x;
+          arg.hot_y = plane_assignment->cursor_hotspot.y;
+
+          ret = drmIoctl (fd, DRM_IOCTL_MODE_CURSOR2, &arg);
         }
 
       if (ret != 0)
         {
-          ret = drmModeSetCursor (fd, crtc_id,
-                                  handle_u32,
-                                  width, height);
+          struct drm_mode_cursor arg;
+
+          arg.flags = DRM_MODE_CURSOR_BO | DRM_MODE_CURSOR_MOVE;
+          arg.crtc_id = crtc_id;
+          arg.x = plane_assignment->dst_rect.x;
+          arg.y = plane_assignment->dst_rect.y;
+          arg.width = width;
+          arg.height = height;
+          arg.handle = handle_u32;
+
+          ret = drmIoctl (fd, DRM_IOCTL_MODE_CURSOR, &arg);
         }
 
       if (ret != 0)
         {
           g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                       "drmModeSetCursor failed: %s", g_strerror (-ret));
+                       "drmIoctl failed: %s", g_strerror (-ret));
           return FALSE;
         }
     }
-
-  meta_topic (META_DEBUG_KMS,
-              "[simple] Moving HW cursor of CRTC %u (%s) to (%d, %d)",
-              crtc_id,
-              meta_kms_impl_device_get_path (impl_device),
-              plane_assignment->dst_rect.x,
-              plane_assignment->dst_rect.y);
-
-  drmModeMoveCursor (fd,
-                     crtc_id,
-                     plane_assignment->dst_rect.x,
-                     plane_assignment->dst_rect.y);
 
   return TRUE;
 }
