@@ -454,6 +454,18 @@ handle_registry_global (void               *user_data,
         wl_registry_bind (registry, id,
                           &wp_color_manager_v1_interface, 1);
     }
+  else if (strcmp (interface, wp_cursor_shape_manager_v1_interface.name) == 0)
+    {
+      int cusor_shape_version = 1;
+
+      if (display->capabilities & WAYLAND_DISPLAY_CAPABILITY_CURSOR_SHAPE_V2)
+        cusor_shape_version = 2;
+
+      display->cursor_shape_mgr =
+        wl_registry_bind (registry, id,
+                          &wp_cursor_shape_manager_v1_interface,
+                          cusor_shape_version);
+    }
   else if (strcmp (interface, wp_viewporter_interface.name) == 0)
     {
       display->viewporter = wl_registry_bind (registry, id,

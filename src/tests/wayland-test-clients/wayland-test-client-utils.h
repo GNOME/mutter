@@ -7,6 +7,7 @@
 #include <wayland-client.h>
 
 #include "color-management-v1-client-protocol.h"
+#include "cursor-shape-v1-client-protocol.h"
 #include "fractional-scale-v1-client-protocol.h"
 #include "linux-dmabuf-v1-client-protocol.h"
 #include "single-pixel-buffer-v1-client-protocol.h"
@@ -20,6 +21,7 @@ typedef enum _WaylandDisplayCapabilities
   WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER = 1 << 0,
   WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V4 = 1 << 1,
   WAYLAND_DISPLAY_CAPABILITY_XDG_SHELL_V6 = 1 << 2,
+  WAYLAND_DISPLAY_CAPABILITY_CURSOR_SHAPE_V2 = 1 << 3,
 } WaylandDisplayCapabilities;
 
 typedef struct _DmaBufFormat
@@ -44,6 +46,7 @@ typedef struct _WaylandDisplay
   struct wp_fractional_scale_manager_v1 *fractional_scale_mgr;
   struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
   struct wp_color_manager_v1 *color_management_mgr;
+  struct wp_cursor_shape_manager_v1 *cursor_shape_mgr;
   struct wp_viewporter *viewporter;
   struct xdg_wm_base *xdg_wm_base;
   struct wl_seat *wl_seat;
