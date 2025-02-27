@@ -757,6 +757,7 @@ wayland_test_cases = [
     'depends': [
       test_client,
       test_client_executables.get('buffer-transform'),
+      test_client_executables.get('cursor-shape'),
       test_client_executables.get('dma-buf-scanout'),
       test_client_executables.get('fractional-scale'),
       test_client_executables.get('fullscreen'),

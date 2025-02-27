@@ -22,6 +22,9 @@ wayland_test_clients = [
     'name': 'color-management',
   },
   {
+    'name': 'cursor-shape',
+  },
+  {
     'name': 'dma-buf-scanout',
   },
   {
