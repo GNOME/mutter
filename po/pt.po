@@ -1,18 +1,19 @@
 # mutter's Portuguese Translation
-# Copyright © 2001-2024 mutter
+# Copyright © 2001-2025 mutter
 # Distributed under the same licence as the mutter package
 # Duarte Loreto <happyguy_pt@hotmail.com>, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014.
 # Pedro Albuquerque <palbuquerque73@openmailbox.com>, 2015.
 # Tiago Santos <tiagofsantos81@sapo.pt>, 2016.
 # Juliano de Souza Camargo <julianosc@protonmail.com>, 2020.
-# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020, 2021, 2022, 2023, 2024.
+# Hugo Carvalho <hugokarvalho@hotmail.com>, 2020, 2021, 2022, 2023, 2024, 2025.
+# João Carvalhinho <joao.carvalhinho@gmail.com>, 2024, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: 3.10\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-09-03 20:10+0000\n"
-"PO-Revision-Date: 2024-09-08 11:21+0100\n"
+"POT-Creation-Date: 2025-02-24 14:18+0000\n"
+"PO-Revision-Date: 2025-02-27 01:34+0000\n"
 "Last-Translator: Hugo Carvalho <hugokarvalho@hotmail.com>\n"
 "Language-Team: https://l10n.gnome.org/teams/pt/\n"
 "Language: pt\n"
@@ -614,26 +615,26 @@ msgstr ""
 "configuração. O Xwayland precisa de ser reiniciado para que esta "
 "configuração tenha efeito."
 
-#: src/backends/meta-monitor.c:240
+#: src/backends/meta-monitor.c:266
 msgid "Built-in display"
 msgstr "Ecrã embutido"
 
-#: src/backends/meta-monitor.c:267
+#: src/backends/meta-monitor.c:293
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: src/backends/meta-monitor.c:269
+#: src/backends/meta-monitor.c:295
 msgid "Unknown Display"
 msgstr "Ecrã desconhecido"
 
-#: src/backends/meta-monitor.c:277
+#: src/backends/meta-monitor.c:303
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:285
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -645,94 +646,102 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Evento de campainha"
 
-#: src/core/display.c:742
+#: src/core/display.c:741
 msgid "Privacy Screen Enabled"
 msgstr "Ecrã de privacidade ativado"
 
-#: src/core/display.c:743
+#: src/core/display.c:742
 msgid "Privacy Screen Disabled"
 msgstr "Ecrã de privacidade desativado"
 
-#: src/core/meta-context-main.c:601
+#: src/core/meta-context-main.c:621
 msgid "Replace the running window manager"
 msgstr "Substituir o gestor de janelas em execução"
 
-#: src/core/meta-context-main.c:607
+#: src/core/meta-context-main.c:627
 msgid "X Display to use"
 msgstr "Ecrã X a utilizar"
 
-#: src/core/meta-context-main.c:613
+#: src/core/meta-context-main.c:633
 msgid "Disable connection to session manager"
 msgstr "Desativar a ligação ao gestor de sessão"
 
-#: src/core/meta-context-main.c:619
+#: src/core/meta-context-main.c:639
 msgid "Specify session management ID"
 msgstr "Especificar a ID de gestão de sessão"
 
-#: src/core/meta-context-main.c:625
+#: src/core/meta-context-main.c:645
 msgid "Initialize session from savefile"
 msgstr "Inicializar a sessão a partir de um ficheiro de gravação de sessão"
 
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:651
 msgid "Make X calls synchronous"
 msgstr "Fazer as chamadas X sincronamente"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:659
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor wayland"
 
-#: src/core/meta-context-main.c:646
+#: src/core/meta-context-main.c:666
 msgid "Run as a nested compositor"
 msgstr "Executar como compositor aninhado"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:672
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor wayland sem a utilização do Xwayland"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:679
 msgid "Specify Wayland display name to use"
 msgstr "Especificar o nome do visor Wayland a utilizar"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:687
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como servidor de ecrã inteiro, em vez de aninhado"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:692
 msgid "Run as a headless display server"
 msgstr "Executar como um servidor sem monitor"
 
-#: src/core/meta-context-main.c:677
+#: src/core/meta-context-main.c:697
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:689
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "Executar com a infira-estrutura X11"
 
-#: src/core/meta-context-main.c:695
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "Desempenho do perfil utilizando instrumentação de rastreio"
 
-#: src/core/meta-context-main.c:701
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "Ativar o controlo de depuração da interface D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
+#. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:549
+#: src/core/meta-pad-action-mapper.c:552
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alteração de modo (Grupo %d)"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:559
+#, c-format
+msgid "Mode Switch"
+msgstr "Alteração de Modo"
+
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:571
+#: src/core/meta-pad-action-mapper.c:582
 msgid "Switch monitor"
 msgstr "Alternar monitor"
 
-#: src/core/meta-pad-action-mapper.c:573
+#: src/core/meta-pad-action-mapper.c:584
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda no ecrã"
 
@@ -749,7 +758,7 @@ msgstr "Imprimir a versão"
 msgid "Mutter plugin to use"
 msgstr "Extensão Mutter a utilizar"
 
-#: src/core/prefs.c:1842
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "Área de trabalho %d"
@@ -767,7 +776,7 @@ msgstr "Área de trabalho alterada"
 msgid "Mode Switch: Mode %d"
 msgstr "Alteração de Modo: Modo %d"
 
-#: src/x11/meta-x11-display.c:850
+#: src/x11/meta-x11-display.c:858
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -776,19 +785,19 @@ msgstr ""
 "O ecrã “%s” já tem um gestor de janelas; tente utilizar a opção --replace "
 "para substituir o gestor de janelas atual."
 
-#: src/x11/meta-x11-display.c:1230
+#: src/x11/meta-x11-display.c:1243
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falha ao abrir ecrã “%s” do sistema Janelas X"
 
-#: src/x11/meta-x11-display.c:1465
+#: src/x11/meta-x11-display.c:1476
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecrã %d no monitor “%s” é inválido"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2785
+#: src/x11/meta-x11-display.c:2799
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -800,7 +809,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "O formato “%s” não é suportado"
 
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:555
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (em %s)"
