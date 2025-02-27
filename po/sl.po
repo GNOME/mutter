@@ -5,23 +5,24 @@
 # Andraž Tori <andraz.tori1@guest.arnes.si>, 2000.
 # Matjaž Horvat <m@owca.info>, 2006.
 # Matej Urbančič <mateju@src.gnome.org>, 2007–2024.
+# Martin Srebotnjak <miles@filmsi.net>, 2024-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-05 13:44+0000\n"
-"PO-Revision-Date: 2025-02-05 19:30+0100\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-02-27 19:26+0100\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
-"n%100==4 ? 3 : 0);\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
+"%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -252,11 +253,11 @@ msgstr "Razpni okno navpično"
 msgid "Maximize window horizontally"
 msgstr "Razpni okno vodoravno"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Poglej razdelek na levi"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Poglej razdelek na desni"
 
@@ -443,15 +444,33 @@ msgstr ""
 "preden sistem sporoči napako odziva. Vrednost 0 povsem omogoči preverjanje "
 "stanja povezave."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Nastavitve svetilnosti na izhod"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Nastavitev svetilnosti barvnega načina na izhod. Vsak vnos je sestavljen iz "
+"n-tice s priključkom, proizvajalcem, izdelkom, serijsko številko in barvnim "
+"načinom ter povezane vrednosti s plavajočo vejico, ki predstavlja izhodno "
+"svetilnost v odstotkih (%). Privzeta vrednost, če ni določena, je 100 %."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Nastavitve nadzornika preklopa"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Zavrti vgrajene nastavitve zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Prekliči vse dejavne seje zajemanja"
 
@@ -746,7 +765,7 @@ msgid "Mutter plugin to use"
 msgstr "Vstavek Mutter za uporabo"
 
 # G:1 K:0 O:0
-#: src/core/prefs.c:1840
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "Delovna površina %d"
