@@ -81,7 +81,7 @@ SET OPTIONS
 
   Add and configure a logical monitor. See LOGICAL MONITOR OPTIONS.
 
-``--for-lease-monitor``, ``-e``
+``--for-lease-monitor CONNECTOR``, ``-e CONNECTOR``
 
   Set a monitor, that is not part of any logical monitor, available for lease.
 
@@ -113,7 +113,7 @@ LOGICAL MONITOR OPTIONS
 
   Set the X position of the currently configured logical monitor.
 
-``--y``, ``-y Y``             Y position
+``--y Y``, ``-y Y``             Y position
 
   Set the Y position of the currently configured logical monitor.
 
@@ -138,11 +138,11 @@ LOGICAL MONITOR OPTIONS
 MONITOR OPTIONS
 ---------------
 
-``--mode``, ``-m``
+``--mode MODE``, ``-m MODE``
 
   Set the mode of the monitor.
 
-``--color-mode``, ``-c``
+``--color-mode COLOR-MODE``, ``-c COLOR-MODE``
 
   Set the color mode of the monitor. Available color modes are ``default`` and
   ``bt2100``.
