@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lt\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-25 03:27+0000\n"
-"PO-Revision-Date: 2025-02-26 23:02+0200\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-02-28 23:14+0200\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -253,11 +253,11 @@ msgstr "Išdidinti langą vertikaliai"
 msgid "Maximize window horizontally"
 msgstr "Išdidinti langą horizontaliai"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Rodyti skyrimą kairėje"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Rodyti skyrimą dešinėje"
 
@@ -444,15 +444,33 @@ msgstr ""
 "Per kiek milisekundžių klientas turi atsakyti į ping užklausą, kad nebūtų "
 "aptiktas kaip pakibęs. 0 išjungtas šį tikrinimą."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Apšvietimo nuostatos išvesčiai"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Spalvos veiksenos apšvietimas išvesčiai. Kiekvienas įrašas susideda iš "
+"junginio su jungtimi, gamintoju, produktu, serijos numeriu ir spalvos "
+"veiksena, taip pat susietu slankaus kablelio skaičiumi, nurodančiu išvesties "
+"apšvietimą procentais (%). Kai nenurodyta, numatyta 100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Perjungti monitorių konfigūracijas"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Suka integruotas monitorių konfigūracijas"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Nutraukti bet kokią aktyvų įvesties sekimo seansą"
 
