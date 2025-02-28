@@ -94,6 +94,9 @@ wayland_test_clients = [
     'name': 'xdg-session-management-replace',
   },
   {
+    'name': 'xdg-session-management-restore',
+  },
+  {
     'name': 'xdg-toplevel-bounds',
   },
   {

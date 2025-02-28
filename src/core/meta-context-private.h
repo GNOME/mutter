@@ -92,6 +92,7 @@ void meta_context_set_trace_file (MetaContext *context,
                                   const char  *trace_file);
 #endif
 
+META_EXPORT_TEST
 MetaSessionManager * meta_context_get_session_manager (MetaContext *context);
 
 META_EXPORT_TEST

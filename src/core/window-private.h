@@ -660,6 +660,7 @@ gboolean    meta_window_has_fullscreen_monitors (MetaWindow *window);
 void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
                                                         MtkRectangle  *monitor_rect);
 
+META_EXPORT_TEST
 void        meta_window_resize_frame (MetaWindow  *window,
                                       gboolean     user_op,
                                       int          w,
