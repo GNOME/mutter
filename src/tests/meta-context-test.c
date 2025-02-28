@@ -83,6 +83,15 @@ ensure_gsettings_memory_backend (void)
 }
 
 static void
+ensure_xcursor_path (void)
+{
+  g_autofree char *xcursor_path = NULL;
+
+  xcursor_path = g_test_build_filename (G_TEST_DIST, "xcursors", NULL);
+  g_setenv ("XCURSOR_PATH", xcursor_path, TRUE);
+}
+
+static void
 meta_context_test_finalize (GObject *object)
 {
   MetaContextTest *context_test = META_CONTEXT_TEST (object);
@@ -125,6 +134,7 @@ meta_context_test_configure (MetaContext   *context,
   meta_context_set_plugin_gtype (context, META_TYPE_TEST_SHELL);
 
   ensure_gsettings_memory_backend ();
+  ensure_xcursor_path ();
 
   return TRUE;
 }
