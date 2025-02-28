@@ -396,6 +396,24 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
       break;
     }
 
+  if (toplevel_state->workspace_idx >= 0)
+    {
+      meta_window_change_workspace_by_index (window,
+                                             toplevel_state->workspace_idx,
+                                             TRUE);
+    }
+
+  if (rect)
+    {
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE |
+                                META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE |
+                                META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               *rect);
+    }
+
   switch (toplevel_state->window_state)
     {
     case WINDOW_STATE_NONE:
@@ -415,24 +433,6 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
 
   if (toplevel_state->is_minimized)
     meta_window_minimize (window);
-
-  if (toplevel_state->workspace_idx >= 0)
-    {
-      meta_window_change_workspace_by_index (window,
-                                             toplevel_state->workspace_idx,
-                                             TRUE);
-    }
-
-  if (rect)
-    {
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE |
-                                META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE |
-                                META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
-    }
 
   window->placed = TRUE;
 
