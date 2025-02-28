@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-13 23:10+0000\n"
-"PO-Revision-Date: 2025-02-20 22:24+0100\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-02-28 12:56+0100\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -252,11 +252,11 @@ msgstr "Maximalizovat okno svisle"
 msgid "Maximize window horizontally"
 msgstr "Maximalizovat okno vodorovně"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Rozdělit okno přes levou půlku obrazovky"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Rozdělit okno přes pravou půlku obrazovky"
 
@@ -444,15 +444,34 @@ msgstr ""
 "Počet milisekund, které má klient na odpověď na na kontrolní pingnutí "
 "sloužící k detekci, jestli nazatuhl. Nastavením na 0 se kontrola zcela vypne."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Nastavení svítivosti podle výstupu"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Nastavení svítivosti podle výstupu a režimu barev. Každá položka se skládá z "
+"n-tice obsahující konektor, výrobce, produkt, sériové číslo a režim barev, "
+"jakož i přidruženou hodnotu s plovoucí desetinnou čárkou představující "
+"výstupní svítivost v procentech (%). Výchozí hodnota, pokud není zadáno, je "
+"100 %."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Přepnout nastavení monitoru"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Postupně mění vestavěná nastavení monitoru"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Zrušit jakoukoli aktivní relaci zachycení vstupu"
 
