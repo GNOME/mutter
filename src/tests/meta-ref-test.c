@@ -158,6 +158,7 @@ capture_view (ClutterStageView *stage_view)
   CaptureViewData data = { 0 };
 
   meta_compositor_disable_unredirect (compositor);
+  meta_backend_inhibit_hw_cursor (backend);
 
   data.loop = g_main_loop_new (NULL, FALSE);
   data.watch = meta_stage_watch_view (stage, stage_view,
@@ -173,6 +174,7 @@ capture_view (ClutterStageView *stage_view)
   g_assert_null (data.watch);
   g_assert_nonnull (data.out_image);
 
+  meta_backend_uninhibit_hw_cursor (backend);
   meta_compositor_enable_unredirect (compositor);
 
   return data.out_image;

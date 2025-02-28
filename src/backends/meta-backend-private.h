@@ -246,8 +246,10 @@ void meta_backend_add_hw_cursor_inhibitor (MetaBackend           *backend,
 void meta_backend_remove_hw_cursor_inhibitor (MetaBackend           *backend,
                                               MetaHwCursorInhibitor *inhibitor);
 
+META_EXPORT_TEST
 void meta_backend_inhibit_hw_cursor (MetaBackend *backend);
 
+META_EXPORT_TEST
 void meta_backend_uninhibit_hw_cursor (MetaBackend *backend);
 
 META_EXPORT_TEST
