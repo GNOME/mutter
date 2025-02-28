@@ -363,15 +363,10 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
           !is_hw_cursor_available_for_gpu (META_GPU_KMS (gpu)) ||
           !meta_crtc_native_is_hw_cursor_supported (crtc_native))
         {
-          if (cursor_stage_view->has_hw_cursor)
-            {
-              meta_stage_view_uninhibit_cursor_overlay (view);
-              cursor_stage_view->has_hw_cursor = FALSE;
-            }
-          continue;
+          cursor_stage_view->is_hw_cursor_valid = TRUE;
+          has_hw_cursor = FALSE;
         }
-
-      if (cursor_sprite && !meta_backend_is_hw_cursors_inhibited (backend))
+      else if (cursor_sprite && !meta_backend_is_hw_cursors_inhibited (backend))
         {
           meta_cursor_sprite_realize_texture (cursor_sprite);
 
