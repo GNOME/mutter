@@ -1391,7 +1391,6 @@ main (int   argc,
   MetaTestRunFlags test_run_flags;
 
   g_setenv ("MUTTER_DEBUG_SESSION_MANAGEMENT_PROTOCOL", "1", TRUE);
-  g_setenv ("MUTTER_DEBUG_CURSOR_SHAPE_PROTOCOL", "1", TRUE);
 
 #ifdef MUTTER_PRIVILEGED_TEST
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,

@@ -20,7 +20,6 @@
 
 #include "wayland/meta-wayland-cursor-shape.h"
 
-#include "core/meta-debug-control-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-xdg-shell.h"
@@ -282,48 +281,12 @@ bind_cursor_shape (struct wl_client *client,
                                   NULL, NULL);
 }
 
-static void
-update_enabled (MetaWaylandCompositor *compositor)
-{
-  MetaDebugControl *debug_control =
-    meta_context_get_debug_control (compositor->context);
-  gboolean is_enabled =
-    meta_debug_control_is_cursor_shape_protocol_enabled (debug_control);
-  struct wl_global *global;
-
-  global = g_object_get_data (G_OBJECT (compositor),
-                              "-meta-wayland-cursor-shape");
-
-  if (is_enabled && global == NULL)
-    {
-
-      global = wl_global_create (compositor->wayland_display,
-                                 &wp_cursor_shape_manager_v1_interface,
-                                 META_WP_CURSOR_SHAPE_VERSION,
-                                 NULL, bind_cursor_shape);
-      if (global == NULL)
-        g_error ("Failed to register a global cursor-shape object");
-    }
-  else if (!is_enabled)
-    {
-      g_clear_pointer (&global, wl_global_destroy);
-    }
-
-  g_object_set_data (G_OBJECT (compositor),
-                     "-meta-wayland-cursor-shape",
-                     global);
-}
-
 void
 meta_wayland_init_cursor_shape (MetaWaylandCompositor *compositor)
 {
-  MetaDebugControl *debug_control =
-    meta_context_get_debug_control (compositor->context);
-
-  g_signal_connect_data (debug_control, "notify::cursor-shape-protocol",
-                         G_CALLBACK (update_enabled),
-                         compositor, NULL,
-                         G_CONNECT_SWAPPED | G_CONNECT_AFTER);
-
-  update_enabled (compositor);
+  if (wl_global_create (compositor->wayland_display,
+                        &wp_cursor_shape_manager_v1_interface,
+                        META_WP_CURSOR_SHAPE_VERSION,
+                        NULL, bind_cursor_shape) == NULL)
+    g_error ("Failed to register a global cursor-shape object");
 }

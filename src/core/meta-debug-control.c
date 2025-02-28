@@ -170,7 +170,6 @@ meta_debug_control_init (MetaDebugControl *debug_control)
     META_DBUS_DEBUG_CONTROL (debug_control);
   gboolean force_hdr, force_linear_blending;
   gboolean session_management_protocol;
-  gboolean cursor_shape_protocol;
   gboolean inhibit_hw_cursor;
   gboolean a11y_manager_without_access_control;
 
@@ -191,11 +190,6 @@ meta_debug_control_init (MetaDebugControl *debug_control)
     g_strcmp0 (getenv ("MUTTER_DEBUG_INHIBIT_HW_CURSOR"), "1") == 0;
   meta_dbus_debug_control_set_inhibit_hw_cursor (dbus_debug_control,
                                                  inhibit_hw_cursor);
-
-  cursor_shape_protocol =
-    g_strcmp0 (getenv ("MUTTER_DEBUG_CURSOR_SHAPE_PROTOCOL"), "1") == 0;
-  meta_dbus_debug_control_set_cursor_shape_protocol (dbus_debug_control,
-                                                     cursor_shape_protocol);
 
   a11y_manager_without_access_control =
     g_strcmp0 (getenv ("MUTTER_DEBUG_A11Y_MANAGER_WITHOUT_ACCESS_CONTROL"), "1") == 0;
@@ -265,15 +259,6 @@ meta_debug_control_is_hw_cursor_inhibited (MetaDebugControl *debug_control)
     META_DBUS_DEBUG_CONTROL (debug_control);
 
   return meta_dbus_debug_control_get_inhibit_hw_cursor (dbus_debug_control);
-}
-
-gboolean
-meta_debug_control_is_cursor_shape_protocol_enabled (MetaDebugControl *debug_control)
-{
-  MetaDBusDebugControl *dbus_debug_control =
-    META_DBUS_DEBUG_CONTROL (debug_control);
-
-  return meta_dbus_debug_control_get_cursor_shape_protocol (dbus_debug_control);
 }
 
 gboolean
