@@ -286,6 +286,7 @@ test_cases += [
     'suite': 'backend',
     'sources': [ 'monitor-dbus-tests.c', ],
     'args': gdctl.full_path(),
+    'installed_args': bindir / 'gdctl',
   },
   {
     'name': 'stage-views',
@@ -1112,6 +1113,12 @@ if have_installed_tests
       endforeach
     endif
 
+    if test_case.has_key('installed_args')
+      args = test_case.get('installed_args', [])
+    else
+      args = test_case.get('args', [])
+    endif
+
     installed_tests_cdata = configuration_data()
     installed_tests_cdata.set('apiversion', libmutter_api_version)
     installed_tests_cdata.set('libexecdir', libexecdir)
@@ -1120,7 +1127,7 @@ if have_installed_tests
     installed_tests_cdata.set('gdctltestresultdir', '/tmp/mutter-gdctl-test-results')
     installed_tests_cdata.set('testname', test_case['name'])
     installed_tests_cdata.set('testexecutable', 'mutter-' + test_case['name'])
-    installed_tests_cdata.set('testargs', ' '.join(test_case.get('args', [])))
+    installed_tests_cdata.set('testargs', ' '.join(args))
     installed_tests_cdata.set('runnerargs', ' '.join(runner_args))
 
     configure_file(
