@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-22 11:59+0000\n"
-"PO-Revision-Date: 2025-02-23 09:42+0100\n"
+"POT-Creation-Date: 2025-02-28 00:25+0000\n"
+"PO-Revision-Date: 2025-02-28 11:26+0100\n"
 "Last-Translator: Alexander Shopov <ash@kambanaria.org>\n"
 "Language-Team: Bulgarian <dict@fsa-bg.org>\n"
 "Language: bg\n"
@@ -251,11 +251,11 @@ msgstr "Максимизиране на прозореца вертикално"
 msgid "Maximize window horizontally"
 msgstr "Максимизиране на прозореца хоризонтално"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Разделѐн отляво изглед"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Разделѐн отдясно изглед"
 
@@ -313,12 +313,12 @@ msgstr "Динамично управление на работните мест
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Дали се ползва динамично управление на работните места или броят им е "
-"установено число (зададено чрез ключа „num-workspaces“ в „org.gnome.desktop."
-"wm.preferences“)."
+"установено число (зададено чрез ключа „num-workspaces“ в "
+"„org.gnome.desktop.wm.preferences“)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -444,15 +444,33 @@ msgstr ""
 "Брой милисекунди, в които клиентът трябва да отговори на заявка за проверка "
 "на състоянието, за да не се счита за забил. Стойност 0 изключва проверката."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Настройки на яркост за изходното устройство"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Настройки на яркостта за всяко изходно устройство и цветови режим. Всеки "
+"запис е наредена петорка от връзка, производител, продукт, сериен номер и "
+"цветови режим, на който е зададена стойност с плаваща запетая, която е "
+"яркостта в проценти[%]. Стандартната стойност, когато не е зададена, е 100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Смяна на настройките на екрана"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Завъртане на вградения екран"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Спиране на всички сесии за запис на входа"
 
