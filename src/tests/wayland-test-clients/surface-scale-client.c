@@ -104,7 +104,7 @@ on_pointer_enter (WaylandSurface    *surface,
   cursor_theme = wl_cursor_theme_load (NULL,
                                        theme_size,
                                        display->shm);
-  cursor = wl_cursor_theme_get_cursor (cursor_theme, "left_ptr");
+  cursor = wl_cursor_theme_get_cursor (cursor_theme, "default");
   image = cursor->images[0];
   buffer = wl_cursor_image_get_buffer (image);
   g_assert_nonnull (buffer);
