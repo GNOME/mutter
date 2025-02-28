@@ -448,7 +448,7 @@ clear_superseded_frame (CoglOnscreen *onscreen)
 
   g_clear_pointer (&onscreen_native->superseded_frame, clutter_frame_unref);
 
-  frame_info = cogl_onscreen_peek_tail_frame_info (onscreen);
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
   meta_onscreen_native_notify_frame_complete (onscreen);
 }
