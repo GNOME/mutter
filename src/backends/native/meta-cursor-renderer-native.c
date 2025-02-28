@@ -1177,8 +1177,9 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
 
       if (!supports_exact_cursor_size (crtc_kms, width, height))
         {
-          g_warning ("Invalid cursor size %ux%u, falling back to SW GL cursors)",
-                     width, height);
+          meta_topic (META_DEBUG_KMS,
+                      "Invalid cursor size %ux%u, falling back to SW GL cursors)",
+                      width, height);
           return FALSE;
         }
 
