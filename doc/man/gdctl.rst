@@ -138,7 +138,7 @@ LOGICAL MONITOR OPTIONS
 MONITOR OPTIONS
 ---------------
 
-``--mode``, ``-M``
+``--mode``, ``-m``
 
   Set the mode of the monitor.
 
