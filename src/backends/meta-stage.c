@@ -377,7 +377,7 @@ queue_cursor_overlay_redraw_clutter_rect (MetaStage       *stage,
         continue;
 
       if (meta_stage_view_is_cursor_overlay_inhibited (META_STAGE_VIEW (view)))
-        return;
+        continue;
 
       clutter_stage_view_get_layout (view, &view_layout);
 
