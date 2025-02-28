@@ -8975,7 +8975,7 @@ meta_test_monitor_migrated_rotated (void)
                                                MONITOR_TEST_FLAG_NONE);
 
   old_config_path = g_test_build_filename (G_TEST_DIST,
-                                           "tests", "migration",
+                                           "migration",
                                            "rotated.xml",
                                            NULL);
 
@@ -8998,7 +8998,7 @@ meta_test_monitor_migrated_rotated (void)
   check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
-                                       "tests", "migration",
+                                       "migration",
                                        "rotated-finished.xml",
                                        NULL);
   expected_data = meta_read_file (expected_path);
@@ -9253,7 +9253,7 @@ meta_test_monitor_migrated_horizontal_strip (void)
                                                MONITOR_TEST_FLAG_NONE);
 
   old_config_path = g_test_build_filename (G_TEST_DIST,
-                                           "tests", "migration",
+                                           "migration",
                                            "horizontal-strip.xml",
                                            NULL);
 
@@ -9276,7 +9276,7 @@ meta_test_monitor_migrated_horizontal_strip (void)
   check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
-                                       "tests", "migration",
+                                       "migration",
                                        "horizontal-strip-finished.xml",
                                        NULL);
   expected_data = meta_read_file (expected_path);
@@ -9304,7 +9304,7 @@ meta_test_monitor_custom_detached_groups (void)
   g_autofree char *path = NULL;
   g_autoptr (GError) error = NULL;
 
-  path = g_test_build_filename (G_TEST_DIST, "tests", "monitor-configs",
+  path = g_test_build_filename (G_TEST_DIST, "monitor-configs",
                                 "detached-groups.xml", NULL);
   meta_monitor_config_store_set_custom (config_store, path, NULL,
                                         META_MONITORS_CONFIG_FLAG_NONE,
@@ -11028,14 +11028,12 @@ main (int   argc,
   g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   path = g_test_build_filename (G_TEST_DIST,
-                                "tests",
                                 "monitor-configs",
                                 "system",
                                 NULL);
   g_setenv ("XDG_CONFIG_DIRS", path, TRUE);
   g_free (path);
   path = g_test_build_filename (G_TEST_DIST,
-                                "tests",
                                 "monitor-configs",
                                 "user",
                                 NULL);

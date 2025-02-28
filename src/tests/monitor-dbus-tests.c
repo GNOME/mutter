@@ -406,7 +406,6 @@ check_gdctl_output (const char *expected_output_file,
   g_assert_no_error (wait_data.error);
 
   expected_output_path = g_test_build_filename (G_TEST_DIST,
-                                                "tests",
                                                 "gdctl",
                                                 expected_output_file,
                                                 NULL);

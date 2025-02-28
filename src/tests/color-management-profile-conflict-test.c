@@ -122,7 +122,6 @@ main (int argc, char **argv)
   g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
 
   system_profile_path = g_test_build_filename (G_TEST_DIST,
-                                               "tests",
                                                "icc-profiles",
                                                "vx239-calibrated.icc",
                                                NULL);

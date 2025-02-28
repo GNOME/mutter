@@ -722,7 +722,7 @@ meta_test_color_management_profile_system (void)
 
   g_assert_null (meta_color_device_get_assigned_profile (color_device));
 
-  path = g_test_get_filename (G_TEST_DIST, "tests", "icc-profiles", "sRGB.icc",
+  path = g_test_get_filename (G_TEST_DIST, "icc-profiles", "sRGB.icc",
                               NULL);
   add_colord_system_profile (srgb_profile_id, path);
   color_profiles[0] = srgb_profile_id;
@@ -1107,7 +1107,7 @@ meta_test_color_management_night_light_calibrated (void)
   set_night_light_temperature (6500);
   set_night_light_active (FALSE);
   path = g_test_get_filename (G_TEST_DIST,
-                              "tests", "icc-profiles", "vx239-calibrated.icc",
+                              "icc-profiles", "vx239-calibrated.icc",
                               NULL);
   add_colord_system_profile (profile_id, path);
   color_profiles[0] = profile_id;
@@ -1358,7 +1358,7 @@ meta_test_color_management_night_light_uncalibrated (void)
 
   set_night_light_temperature (6500);
   set_night_light_active (FALSE);
-  path = g_test_get_filename (G_TEST_DIST, "tests", "icc-profiles", "sRGB.icc",
+  path = g_test_get_filename (G_TEST_DIST, "icc-profiles", "sRGB.icc",
                               NULL);
   add_colord_system_profile (srgb_profile_id, path);
   color_profiles[0] = srgb_profile_id;

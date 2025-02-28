@@ -323,7 +323,7 @@ meta_ref_test_verify (MetaRefTestAdaptor  adaptor,
   depathify (test_name);
 
   dist_dir = g_test_get_dir (G_TEST_DIST);
-  ref_image_path = g_strdup_printf ("%s/tests/ref-tests/%s_%d.ref.png",
+  ref_image_path = g_strdup_printf ("%s/ref-tests/%s_%d.ref.png",
                                     dist_dir,
                                     test_name, test_seq_no);
 

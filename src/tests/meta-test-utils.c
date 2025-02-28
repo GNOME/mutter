@@ -96,8 +96,6 @@ meta_ensure_test_client_path (int    argc,
                               char **argv)
 {
   test_runner_client_path = g_test_build_filename (G_TEST_BUILT,
-                                                   "src",
-                                                   "tests",
                                                    "mutter-test-client",
                                                    NULL);
   if (!g_file_test (test_runner_client_path,
@@ -785,7 +783,7 @@ meta_set_custom_monitor_config_full (MetaBackend            *backend,
 
   config_store = meta_monitor_config_manager_get_store (config_manager);
 
-  path = g_test_build_filename (G_TEST_DIST, "tests", "monitor-configs",
+  path = g_test_build_filename (G_TEST_DIST, "monitor-configs",
                                 filename, NULL);
   if (!meta_monitor_config_store_set_custom (config_store, path, NULL,
                                              configs_flags,

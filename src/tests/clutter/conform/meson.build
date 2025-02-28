@@ -61,8 +61,8 @@ clutter_conform_tests += clutter_conform_tests_classes_tests
 clutter_conform_tests += clutter_conform_tests_general_tests
 
 test_env = environment()
-test_env.set('G_TEST_SRCDIR', meson.current_source_dir())
-test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
+test_env.set('G_TEST_SRCDIR', mutter_srcdir / 'src' / 'tests')
+test_env.set('G_TEST_BUILDDIR', mutter_builddir / 'src' / 'tests')
 test_env.set('G_ENABLE_DIAGNOSTIC', '0')
 test_env.set('CLUTTER_ENABLE_DIAGNOSTIC', '0')
 test_env.set('GSETTINGS_SCHEMA_DIR', locally_compiled_schemas_dir)

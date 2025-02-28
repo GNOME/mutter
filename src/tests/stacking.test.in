@@ -1,5 +1,5 @@
 [Test]
 Description=Mutter stacking test: @stacking_test@
-Exec=sh -ec '@libexecdir@/installed-tests/mutter-@apiversion@/mutter-installed-dbus-session.py -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner @tests_datadir@/stacking/@stacking_test@.metatest'
+Exec=sh -ec 'env G_TEST_SRCDIR=@pkgdatadir@/tests G_TEST_BUILDDIR=@libexecdir@/installed-tests/mutter-@apiversion@ @libexecdir@/installed-tests/mutter-@apiversion@/mutter-installed-dbus-session.py -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner @tests_datadir@/stacking/@stacking_test@.metatest'
 Type=session
 Output=TAP
