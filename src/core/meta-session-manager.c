@@ -63,6 +63,14 @@ enum
 
 static GParamSpec *props[N_PROPS] = { 0, };
 
+enum
+{
+  SESSION_INSTANTIATED,
+  N_SIGNALS,
+};
+
+static guint signals[N_SIGNALS] = { 0, };
+
 #define MAX_SIZE (10 * 1024 * 1024)
 
 static void meta_session_manager_initable_iface_init (GInitableIface *iface);
@@ -140,6 +148,15 @@ meta_session_manager_class_init (MetaSessionManagerClass *klass)
   object_class->set_property = meta_session_manager_set_property;
   object_class->get_property = meta_session_manager_get_property;
   object_class->finalize = meta_session_manager_finalize;
+
+  signals[SESSION_INSTANTIATED] =
+    g_signal_new ("session-instantiated",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_STRING,
+                  META_TYPE_SESSION_STATE);
 
   props[PROP_NAME] =
     g_param_spec_string ("name", NULL, NULL,
@@ -317,6 +334,10 @@ meta_session_manager_get_session (MetaSessionManager  *manager,
   g_hash_table_insert (manager->sessions,
                        (gpointer) meta_session_state_get_name (session_state),
                        g_object_ref (session_state));
+
+  g_signal_emit (manager, signals[SESSION_INSTANTIATED], 0,
+                 meta_session_state_get_name (session_state),
+                 session_state);
 
   return g_steal_pointer (&session_state);
 }
