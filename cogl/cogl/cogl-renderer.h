@@ -197,6 +197,24 @@ typedef enum
 } CoglDriverId;
 
 /**
+ * cogl_renderer_set_driver:
+ * @renderer: An unconnected #CoglRenderer
+ *
+ * Requests that Cogl should try to use a specific underlying driver
+ * for rendering.
+ *
+ * If you select an unsupported driver then cogl_renderer_connect()
+ * will fail and report an error. Most applications should not
+ * explicitly select a driver and should rely on Cogl automatically
+ * choosing the driver.
+ *
+ * This may only be called on an un-connected #CoglRenderer.
+ */
+COGL_EXPORT void
+cogl_renderer_set_driver (CoglRenderer *renderer,
+                          CoglDriverId  driver);
+
+/**
  * cogl_renderer_get_driver_id:
  * @renderer: A connected #CoglRenderer
  *
