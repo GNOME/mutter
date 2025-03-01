@@ -22,9 +22,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-22 11:59+0000\n"
-"PO-Revision-Date: 2025-02-23 10:41+0100\n"
-"Last-Translator: Guillaume Bernard <associations@guillaume-bernard.fr>\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-03-01 15:17+0100\n"
+"Last-Translator: Vincent Chatelain <vincent_chatelain@proton.me>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -262,11 +262,11 @@ msgstr "Maximiser la fenêtre verticalement"
 msgid "Maximize window horizontally"
 msgstr "Maximiser la fenêtre horizontalement"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Vue divisée sur la gauche"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Vue divisée sur la droite"
 
@@ -463,15 +463,34 @@ msgstr ""
 "ping et ne pas être considéré comme figé. Utiliser 0 désactivera "
 "complètement la vérification d’activité."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Paramètres de luminance par sortie"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Paramètre de luminance par sortie et mode de couleur. Chaque élément est "
+"constitué d’un uplet contenant un connecteur, un vendeur, un produit, un "
+"numéro de série et un mode de couleur, ainsi que d’une valeur à virgule "
+"flottante représentant la luminance de sortie en pourcentage (%). Lorsque "
+"non définie, cette valeur vaut 100% par défaut."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Changer de configuration de moniteur"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Passe à la prochaine configuration intégrée de moniteur"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Annuler toutes les sessions de capture d’entrée actives"
 
