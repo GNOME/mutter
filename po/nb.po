@@ -5,15 +5,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter 3.38.x\n"
-"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-10-06 15:26+0000\n"
-"PO-Revision-Date: 2020-12-04 16:33+0100\n"
-"Last-Translator: Kjartan Maraas <kmaraas@gnome.org>\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-03-02 15:32+0100\n"
+"Last-Translator: Brage <bragefuglseth@gnome.org>\n"
 "Language-Team: Norwegian bokmål <i18n-no@lister.ping.uio.no>\n"
 "Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -21,135 +22,151 @@ msgstr "Navigasjon"
 
 #: data/50-mutter-navigation.xml:9
 msgid "Move window to workspace 1"
-msgstr "Flytt vindu til arbeidsområde 1"
+msgstr "Flytt vindu til område 1"
 
 #: data/50-mutter-navigation.xml:12
 msgid "Move window to workspace 2"
-msgstr "Flytt vindu til arbeidsområde 2"
+msgstr "Flytt vindu til område 2"
 
 #: data/50-mutter-navigation.xml:15
 msgid "Move window to workspace 3"
-msgstr "Flytt vindu til arbeidsområde 3"
+msgstr "Flytt vindu til område 3"
 
 #: data/50-mutter-navigation.xml:18
 msgid "Move window to workspace 4"
-msgstr "Flytt vindu til arbeidsområde 4"
+msgstr "Flytt vindu til område 4"
 
 #: data/50-mutter-navigation.xml:21
 msgid "Move window to last workspace"
-msgstr "Flytt vindu til siste arbeidsområde"
+msgstr "Flytt vindu til siste område"
 
 #: data/50-mutter-navigation.xml:24
-msgid "Move window one workspace up"
-msgstr "Flytt vindu ett arbeidsområde opp"
+msgid "Move window one workspace to the left"
+msgstr "Flytt vindu ett område til venstre"
 
 #: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Flytt vindu ett område til høyre"
+
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Flytt vindu ett område opp"
+
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
-msgstr "Flytt vindu ett arbeidsområde ned"
+msgstr "Flytt vindu ett område ned"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
-msgstr "Flytt vindu en skjerm til venstre"
+msgstr "Flytt vindu én skjerm til venstre"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
-msgstr "Flytt vindu en skjerm til høyre"
+msgstr "Flytt vindu én skjerm til høyre"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
-msgstr "Flytt vindu en skjerm opp"
+msgstr "Flytt vindu én skjerm opp"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
-msgstr "Flytt vindu en skjerm ned"
+msgstr "Flytt vindu én skjerm ned"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
 msgstr "Bytt programmer"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "Bytt til forrige program"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "Bytt vinduer"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "Bytt forrige vindu"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
 msgstr "Bytt mellom et programs vinduer"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "Bytt til forrige vindu i et program"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "Bytt systemkontroller"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "Bytt til forrige systemkontroll"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "Bytt vinduer direkte"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "Bytt direkte til forrige vindu"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
 msgstr "Bytt mellom et programs vinduer direkte"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "Bytt direkte til forrive vindu i et program"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "Bytt systemkontroller direkte"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "Bytt direkte til forrige systemkontroll"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "Skjul alle normale vinduer"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
-msgstr "Bytt til arbeidsområde 1"
+msgstr "Bytt til område 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
-msgstr "Bytt til arbeidsområde 2"
+msgstr "Bytt til område 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
-msgstr "Bytt til arbeidsområde 3"
+msgstr "Bytt til område 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
-msgstr "Bytt til arbeidsområde 4"
+msgstr "Bytt til område 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
-msgstr "Bytt til siste arbeidsområde"
+msgstr "Bytt til siste område"
 
-#: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "Flytt til arbeidsområdet over"
+#: data/50-mutter-navigation.xml:131
+msgid "Switch to workspace on the left"
+msgstr "Bytt til venstre område"
 
-#: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "Flytt til arbeidsområdet under"
+#: data/50-mutter-navigation.xml:134
+msgid "Switch to workspace on the right"
+msgstr "Bytt til høyre område"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Switch to workspace above"
+msgstr "Bytt til område over"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Switch to workspace below"
+msgstr "Bytt til område under"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -158,10 +175,6 @@ msgstr "System"
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "Vis kommandolinje"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "Vis oversikt over aktiviteter"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -209,7 +222,7 @@ msgstr "Endre størrelse på vindu"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr "Slå av/på om vinduet skal vises på alle arbeidsområder eller bare ett"
+msgstr "Slå av/på om vinduet skal vises på alle områder eller bare ett"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
@@ -231,23 +244,19 @@ msgstr "Maksimer vinduet vertikalt"
 msgid "Maximize window horizontally"
 msgstr "Maksimer vinduet horisontalt"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Visning delt til venstre"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Visning delt til høyre"
 
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "Mutter"
-
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid "Modifier to use for extended window management operations"
 msgstr "Endringstast som skal brukes for utvidede vindushåndteringsoperasjoner"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:17
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -259,11 +268,11 @@ msgstr ""
 "tasten» på PC-maskinvare. Det forventes at denne bindingen er satt til "
 "forvalg eller en tom streng."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid "Attach modal dialogs"
 msgstr "Fest modale dialoger"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:30
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -273,11 +282,11 @@ msgstr ""
 "tittellinjen på opphavsvinduet og flyttes sammen med dette i stedet for å ha "
 "individuelle tittellinjer."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Slå på kantflising ved slipp av vinduer på skjermkantene"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -288,43 +297,31 @@ msgstr ""
 "skjermkanter. Hvis vindu slippes på øverste kant av skjermen maksimeres de "
 "fullstendig."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid "Workspaces are managed dynamically"
 msgstr "Arbeidsområder håndteres dynamisk"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
-"Bestemmer om arbeidsområder skal håndteres dynamisk eller om det er et fast "
-"antall arbeidsområder (bestemt av num-workspaces nøkkelen i org.gnome."
-"desktop.wm.preferences)."
+"Bestemmer om områder skal håndteres dynamisk eller om det er et fast antall "
+"områder (bestemt av num-workspaces nøkkelen i org.gnome.desktop.wm."
+"preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
 msgstr "Arbeidsområder kun på primær skjerm"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
-"Bestemmer om bytting mellom arbeidsområder skal skje for vinduer på alle "
-"skjermer eller kun på primær skjerm."
-
-#: data/org.gnome.mutter.gschema.xml.in:59
-msgid "No tab popup"
-msgstr "Ingen tabulatordialog"
-
-#: data/org.gnome.mutter.gschema.xml.in:60
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
-"Bestemmer om bruk av dialog og uthevingsramme skal slås av for bytting "
-"mellom vinduer."
+"Bestemmer om bytting mellom områder skal skje for vinduer på alle skjermer "
+"eller kun på primær skjerm."
 
 #: data/org.gnome.mutter.gschema.xml.in:68
 msgid "Delay focus changes until the pointer stops moving"
@@ -366,21 +363,21 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
-msgstr "Plasser nye vinduer i senter"
+msgstr "Midtstill nye vinduer"
 
 #: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
-"Når denne er «true» vil mye vinduer alltid plasseres midt på aktivt område "
-"på skjermen."
+"Hvis denne innstillingen er på, vil nye vinduer alltid plasseres midt på "
+"aktivt område på skjermen."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid "Enable experimental features"
 msgstr "Slå på eksperimentelle funksjoner"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:109
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -389,45 +386,83 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
-"mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
-"initializes Xwayland lazily if there are X11 clients. Requires restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
+"native-scaling” — lets Xwayland clients use their native scaling support. If "
+"scaling is not supported by client, the client will be unscaled. Setting "
+"only takes effect when “scale-monitor-framebuffer” is enabled as well."
 msgstr ""
+"For å slå på eksperimentelle funksjoner, legg til nøkkelord i listen. Noen "
+"funksjoner krever at visningssystemet startes på nytt. Det kreves ikke at en "
+"eksperimentell funksjon fortsatt er tilgjengelig eller mulig å sette opp. "
+"Ingenting som legges til her er garantert å vare. Gyldige nøkkelord for "
+"øyeblikket: • «scale-monitor-framebuffer» – sett opp skjermer i et "
+"koordinatsystem basert på virtuelle piksler, og skaler alt som sendes til "
+"skjermen i stedet for individuelle vinduer, for å styre HiDPI-skjermer. "
+"Krever ikke omstart. • «kms-modifiers» – send alltid buffere med eksplisitte "
+"modifikatorer, hvis det støttes av driveren. Krever omstart. • «autoclose-"
+"xwayland» – avslutt Xwayland automatisk hvis alle X11-klienter er borte. "
+"Krever omstart. • «variable-refresh-rate» – juster oppdateringsfrekvensen "
+"til monitoren automatisk hvis det støttes av monitoren, grafikkortet og DRM-"
+"driveren. Kan endres i Innstillinger. Krever omstart. • «xwayland-native-"
+"scaling» – la Xwayland-klienter bruke sin egen skalering. Hvis de ikke "
+"støtter skalering, vil de vises uskalert. Dette gjøres bare når «scale-"
+"monitor-framebuffer» også er på."
 
-#: data/org.gnome.mutter.gschema.xml.in:134
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Modifier to use to locate the pointer"
-msgstr ""
+msgstr "Modifikator for å finne pekeren"
 
-#: data/org.gnome.mutter.gschema.xml.in:135
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "This key will initiate the “locate pointer” action."
-msgstr ""
+msgstr "Dette vil sette i gang «finn peker»-handlingen."
 
-#: data/org.gnome.mutter.gschema.xml.in:142
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid "Timeout for check-alive ping"
-msgstr ""
+msgstr "Nedtelling til kontrollforespørsel"
 
-#: data/org.gnome.mutter.gschema.xml.in:143
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
+"Antall millisekunder til en klient må svare på en kontrollforespørsel for å "
+"ikke merkes som fryst. Å bruke 0 vil slå av kontrolleringen fullstendig."
 
-#: data/org.gnome.mutter.gschema.xml.in:165
-msgid "Select window from tab popup"
-msgstr "Fjern vindu fra tabulatordialog"
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Luminans hos utdataenheter"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
-msgid "Cancel tab popup"
-msgstr "Avbryt tabulatordialog"
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Innstilling for luminans for hver utdataenhet og fargemodus. Hver oppføring "
+"består av en tuplett med overgang, produsent, serienummer og fargemodus, i "
+"tillegg til en numerisk verdi som representerer luminansen i prosent (%). "
+"Standardverdien er 100 %."
 
-#: data/org.gnome.mutter.gschema.xml.in:175
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Bytt skjermkonfigurasjon"
 
-#: data/org.gnome.mutter.gschema.xml.in:180
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterer mellom innebyggede skjermkonfigurasjoner"
+
+#: data/org.gnome.mutter.gschema.xml.in:207
+msgid "Cancel any active input capture session"
+msgstr "Avbryt pågående inndataopptak"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
@@ -483,7 +518,7 @@ msgstr "Slå på snarveier igjen"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
-msgstr ""
+msgstr "Tillat låsing av tastaturfokus med Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
@@ -528,45 +563,43 @@ msgid ""
 "needs to be restarted for this setting to take effect."
 msgstr ""
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2683
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "Modusbytte: (Gruppe %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
 
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2706
-msgid "Switch monitor"
-msgstr "Bytt skjerm"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
 
-#: src/backends/meta-input-settings.c:2708
-msgid "Show on-screen help"
-msgstr "Vis hjelp på skjermen"
-
-#: src/backends/meta-monitor.c:235
+#: src/backends/meta-monitor.c:266
 msgid "Built-in display"
 msgstr "Innebygget skjerm"
 
-#: src/backends/meta-monitor.c:264
+#: src/backends/meta-monitor.c:293
 msgid "Unknown"
 msgstr "Ukjent"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:295
 msgid "Unknown Display"
 msgstr "Ukjent skjerm"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:303
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:282
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -574,131 +607,148 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:79
-msgid "Compositor"
-msgstr "Compositor"
-
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:516
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr "En annen compositing manager kjører skjerm %i på display «%s»."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:193
 msgid "Bell event"
 msgstr "Klokkehendelse"
 
-#: src/core/main.c:190
-msgid "Disable connection to session manager"
-msgstr "Deaktiver tilkobling til sesjonshåndtereren"
+#: src/core/display.c:741
+msgid "Privacy Screen Enabled"
+msgstr ""
 
-#: src/core/main.c:196
+#: src/core/display.c:742
+msgid "Privacy Screen Disabled"
+msgstr ""
+
+#: src/core/meta-context-main.c:621
 msgid "Replace the running window manager"
 msgstr "Erstatt kjørende vindushåndterer"
 
-#: src/core/main.c:202
-msgid "Specify session management ID"
-msgstr "Oppgi sesjonshåndterings-ID"
-
-#: src/core/main.c:207
+#: src/core/meta-context-main.c:627
 msgid "X Display to use"
 msgstr "X-skjerm som skal brukes"
 
-#: src/core/main.c:213
+#: src/core/meta-context-main.c:633
+msgid "Disable connection to session manager"
+msgstr "Deaktiver tilkobling til sesjonshåndtereren"
+
+#: src/core/meta-context-main.c:639
+msgid "Specify session management ID"
+msgstr "Oppgi sesjonshåndterings-ID"
+
+#: src/core/meta-context-main.c:645
 msgid "Initialize session from savefile"
 msgstr "Initier sesjonen fra en lagret fil"
 
-#: src/core/main.c:219
+#: src/core/meta-context-main.c:651
 msgid "Make X calls synchronous"
 msgstr "Gjør X-kall synkrone"
 
-#: src/core/main.c:226
+#: src/core/meta-context-main.c:659
 msgid "Run as a wayland compositor"
 msgstr "Kjør som en wayland-kompositør"
 
-#: src/core/main.c:232
+#: src/core/meta-context-main.c:666
 msgid "Run as a nested compositor"
 msgstr "Kjør som en nøstet kompositør"
 
-#: src/core/main.c:238
+#: src/core/meta-context-main.c:672
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kjør wayland compositor uten å starte Xwayland"
 
-#: src/core/main.c:246
+#: src/core/meta-context-main.c:679
+msgid "Specify Wayland display name to use"
+msgstr ""
+
+#: src/core/meta-context-main.c:687
 msgid "Run as a full display server, rather than nested"
 msgstr "Kjør som en full skjermtjener, heller enn nøstet"
 
-#: src/core/main.c:252
+#: src/core/meta-context-main.c:692
+#, fuzzy
+#| msgid "Run as a full display server, rather than nested"
+msgid "Run as a headless display server"
+msgstr "Kjør som en full skjermtjener, heller enn nøstet"
+
+#: src/core/meta-context-main.c:697
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr ""
+
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "Kjør med X11-motor"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
-#, c-format
-msgid "“%s” is not responding."
-msgstr "«%s» svarer ikke."
-
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "Programmet svarer ikke."
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
+#: src/core/meta-context-main.c:715
+msgid "Profile performance using trace instrumentation"
 msgstr ""
-"Du kan velge å vente en kort stund for å se om det fortsetter eller tvinge "
-"programmet til å avslutte helt."
 
-#: src/core/meta-close-dialog-default.c:165
-msgid "_Force Quit"
-msgstr "_Tvungen nedstenging"
-
-#: src/core/meta-close-dialog-default.c:165
-msgid "_Wait"
-msgstr "_Vent"
-
-#: src/core/mutter.c:38
-#, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
+#: src/core/meta-context-main.c:721
+msgid "Enable debug control D-Bus interface"
 msgstr ""
-"mutter %s\n"
-"Opphavsrett © 2001-%d Havoc Pennington, Red Hat, Inc, og andre\n"
-"Dette er fri programvare; se i kildekoden for kopibetingelser.\n"
-"Det gis INGEN garanti; ikke en gang for SALGBARHET eller PASSENDE FOR ET "
-"BESTEMT FORMÅL.\n"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes in that button group.
+#.
+#: src/core/meta-pad-action-mapper.c:552
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Modusbytte: (Gruppe %d)"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:559
+#, fuzzy, c-format
+#| msgid "Mode Switch: Mode %d"
+msgid "Mode Switch"
+msgstr "Modusbytte: Modus %d"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:582
+msgid "Switch monitor"
+msgstr "Bytt skjerm"
+
+#: src/core/meta-pad-action-mapper.c:584
+msgid "Show on-screen help"
+msgstr "Vis hjelp på skjermen"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+msgid "Compositor"
+msgstr "Compositor"
+
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "Skriv versjonsnummer"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "Mutter-tillegg som skal brukes"
 
-#: src/core/prefs.c:1911
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbeidsområde %d"
 
-#: src/core/util.c:118
-msgid "Mutter was compiled without support for verbose mode\n"
+#: src/core/util.c:140
+#, fuzzy
+#| msgid "Mutter was compiled without support for verbose mode\n"
+msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter er kompilert uten støtte for «verbose» modus\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:568
+#: src/core/workspace.c:508
+#, fuzzy
+#| msgid "Workspace %d"
+msgid "Workspace switched"
+msgstr "Arbeidsområde %d"
+
+#: src/wayland/meta-wayland-tablet-pad.c:532
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Modusbytte: Modus %d"
 
-#: src/x11/meta-x11-display.c:676
+#: src/x11/meta-x11-display.c:858
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -707,34 +757,104 @@ msgstr ""
 "Skjerm «%s» har allerede en vindushåndterer; prøv å bruke flagget --replace "
 "for å erstatte aktiv vindushåndterer."
 
-#: src/x11/meta-x11-display.c:1089
-msgid "Failed to initialize GDK\n"
-msgstr "Klarte ikke å initiere GDK\n"
-
-#: src/x11/meta-x11-display.c:1113
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
+#: src/x11/meta-x11-display.c:1243
+#, fuzzy, c-format
+#| msgid "Failed to open X Window System display “%s”\n"
+msgid "Failed to open X Window System display “%s”"
 msgstr "Klarte ikke å åpne X Window System skjerm «%s»\n"
 
-#: src/x11/meta-x11-display.c:1196
-#, c-format
-msgid "Screen %d on display “%s” is invalid\n"
+#: src/x11/meta-x11-display.c:1476
+#, fuzzy, c-format
+#| msgid "Screen %d on display “%s” is invalid\n"
+msgid "Screen %d on display “%s” is invalid"
 msgstr "Skjerm %d på display «%s» er ugyldig\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:460
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2799
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "En annen compositing manager kjører skjerm %i på display «%s»."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s er ikke støttet"
 
-#: src/x11/session.c:1821
-msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"Disse vinduene støtter ikke «lagre aktiv konfigurasjon», og vil måtte "
-"startes på nytt manuelt neste gang du logger inn."
-
-#: src/x11/window-props.c:548
+#: src/x11/window-props.c:555
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "Flytt til arbeidsområdet over"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "Flytt til arbeidsområdet under"
+
+#~ msgid "Show the activities overview"
+#~ msgstr "Vis oversikt over aktiviteter"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "Ingen tabulatordialog"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be "
+#~ "disabled for window cycling."
+#~ msgstr ""
+#~ "Bestemmer om bruk av dialog og uthevingsramme skal slås av for bytting "
+#~ "mellom vinduer."
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "Fjern vindu fra tabulatordialog"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "Avbryt tabulatordialog"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "«%s» svarer ikke."
+
+#~ msgid "Application is not responding."
+#~ msgstr "Programmet svarer ikke."
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "Du kan velge å vente en kort stund for å se om det fortsetter eller "
+#~ "tvinge programmet til å avslutte helt."
+
+#~ msgid "_Force Quit"
+#~ msgstr "_Tvungen nedstenging"
+
+#~ msgid "_Wait"
+#~ msgstr "_Vent"
+
+#, c-format
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Opphavsrett © 2001-%d Havoc Pennington, Red Hat, Inc, og andre\n"
+#~ "Dette er fri programvare; se i kildekoden for kopibetingelser.\n"
+#~ "Det gis INGEN garanti; ikke en gang for SALGBARHET eller PASSENDE FOR ET "
+#~ "BESTEMT FORMÅL.\n"
+
+#~ msgid "Failed to initialize GDK\n"
+#~ msgstr "Klarte ikke å initiere GDK\n"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "Disse vinduene støtter ikke «lagre aktiv konfigurasjon», og vil måtte "
+#~ "startes på nytt manuelt neste gang du logger inn."
