@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-22 11:59+0000\n"
-"PO-Revision-Date: 2025-02-23 07:01+0100\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-03-02 08:59+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -248,11 +248,11 @@ msgstr "ფანჯრის ვერტიკალურად მაქს�
 msgid "Maximize window horizontally"
 msgstr "ფანჯრის ჰორიზონტალურად გაშლა"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "ხედის მარცხნივ გაყოფა"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "ხედის მარჯვნივ გაყოფა"
 
@@ -442,15 +442,34 @@ msgstr ""
 "მილიწამების რაოდენობა, რომელიც კლიენტს აქვს, რომ პინგს პასუხი გასცეს, სანამ "
 "ის დაკიდებულად გამოცხადდება. მნიშვნელობა 0 ამ შემოწმებას სრულად გამორთავს."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "თითოეული გამოტანის განათების პარამეტრები"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"პარამეტრი თითოეული გამოტანის და ფერის პარამეტრის განათებისთვის. თითოეული "
+"ჩანაწერი შედგება კორტეჟისგან კონექტორით, მომწოდებლით, პროდუქტით, სერიულით და "
+"ფერის რეჟიმით. ასევე შეიცავს ასოცირებულ მცურავმძიმიან მნიშვნელობას, რომელიც "
+"განათების მნიშვნელობაა პროცენტებში (%). ნაგულისხმევი, როცა მითითებული არაა, "
+"არის 100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "ეკრანის კონფიგურაციის გადართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "ეკრანის ჩაშენებული კონფიგურაციის შემობრუნება"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "ყველა არსებული ეკრანის ჩაჭერის სესიის გაუქმება"
 
