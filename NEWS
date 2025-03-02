@@ -1,3 +1,49 @@
+48.rc
+=====
+* Support presentation-time version 2 [Dudemanguy; !4227]
+* Honor wl_surface.offset on cursor surfaces [Carlos; !4239]
+* Allow to activate the overview with either Super key [Alessandro B.; !4050]
+* Implement dynamic triple buffering [Daniel; !1441]
+* Implement the cursor_shape_v1 protocol [Sebastian; !3668]
+* Improve window placement when centering new windows [Mattia; !4202]
+* Fix sharable surfaces with nvidia as primary [Daniel; !4284]
+* Default to sticky drag lock [Peter; !4292]
+* Implement a11y keyboard monitoring support [Lukáš; !4217]
+* Support wp_color_management_v1 protocol [Sebastian; !4291]
+* Fix dma-bufs support for headless sessions [Jonas; !4281]
+* Allow to mark monitors for lease via gdctl [José; !4300]
+* Fixed confused IM focus state after closing some windows [Keyu; !4164]
+* Center new windows by default [Mattia; !4294]
+* Add output luminance settings [Jonas; !4271]
+* Do not use triple buffering when update time fits into refresh interval
+  [Michel; !4282]
+* Fixed crashes [Peter, Alban, Michel, Sebastian; !4247, !4257, !4272, !4298]
+* Misc. bug fixes and cleanups [Peter, Nick, Jeremy, Michel, Corentin, Florian,
+  Sebastian, Marco, Bilal, Alessandro A., Daniel, José, Jonas, Joan, Mattia,
+  Carlos, Robert, Philip; !4248, !4220, !4253, !4254, !4224, !4255, !4244,
+  !4259, !4268, !4270, !4267, !4256, !4279, !4280, !4277, !4278, !4285, !4276,
+  !4289, !4288, !4290, !4252, !4235, !4209, !4260, !4251, !4274, !4302, !4230,
+  !4183, !4299, !4308, !4297, !4310, !4311, !4312, !4314]
+
+Contributors:
+  Alessandro Astone, Alessandro Bono, Alban Browaeys, Jeremy Bícha,
+  Nick Diego Yamane, Dudemanguy, Michel Dänzer, Bilal Elmoussaoui,
+  José Expósito, Mattia Formichetti, Carlos Garnacho, Peter Hutterer,
+  Robert Mader, Florian Müllner, Corentin Noël, Keyu Tao, Joan Torres,
+  Marco Trevisan (Treviño), Lukáš Tyrychtr, Daniel van Vugt, Sebastian Wick,
+  Philip Withnall, Jonas Ådahl
+
+Translators:
+  Martin [sl], Sabri Ünal [tr], Artur S0 [ru], Daniel Rusek [cs],
+  Piotr Drąg [pl], Jürgen Benvenuti [de], Ekaterine Papava [ka],
+  Alexander Shopov [bg], Alexandre Franke [fr], Jordi Mas [ca],
+  Yuri Chornoivan [uk], Yosef Or Boczko [he], Danial Behzadi [fa],
+  Luming Zh [zh_CN], Aurimas Černius [lt], Quentin PAGÈS [oc],
+  Hugo Carvalho [pt], Rafael Fontenelle [pt_BR], Jordi Mas i Hernandez [ca],
+  Fran Dieguez [gl], Álvaro Burns [pt_BR], Asier Sarasua Garmendia [eu],
+  Vincent Chatelain [fr], Yaron Shahrabani [he], Brage Fuglseth [nb],
+  Daniel Mustieles [es]
+
 48.beta
 =======
 * Update cursors via the frame clock in virtual monitors [Jonas; !4067]
