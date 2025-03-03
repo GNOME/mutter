@@ -374,6 +374,7 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
 
 static void
 set_color_state (ClutterStageView   *view,
+                 GParamSpec         *pspec,
                  ClutterColorState **dest_color_state,
                  ClutterColorState  *color_state)
 {
@@ -383,6 +384,7 @@ set_color_state (ClutterStageView   *view,
   g_set_object (dest_color_state, color_state);
 
   clutter_stage_view_invalidate_offscreen (view);
+  g_object_notify_by_pspec (G_OBJECT (view), pspec);
 }
 
 void
@@ -392,7 +394,10 @@ clutter_stage_view_set_color_state (ClutterStageView  *view,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  set_color_state (view, &priv->color_state, color_state);
+  set_color_state (view,
+                   obj_props[PROP_COLOR_STATE],
+                   &priv->color_state,
+                   color_state);
 }
 
 void
@@ -402,7 +407,10 @@ clutter_stage_view_set_output_color_state (ClutterStageView  *view,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  set_color_state (view, &priv->output_color_state, color_state);
+  set_color_state (view,
+                   obj_props[PROP_OUTPUT_COLOR_STATE],
+                   &priv->output_color_state,
+                   color_state);
 }
 
 static void
@@ -418,10 +426,20 @@ clutter_stage_view_ensure_color_states (ClutterStageView *view)
     clutter_color_manager_get_default_color_state (color_manager);
 
   if (!priv->color_state)
-    set_color_state (view, &priv->color_state, color_state);
+    {
+      set_color_state (view,
+                       obj_props[PROP_COLOR_STATE],
+                       &priv->color_state,
+                       color_state);
+    }
 
   if (!priv->output_color_state)
-    set_color_state (view, &priv->output_color_state, color_state);
+    {
+      set_color_state (view,
+                       obj_props[PROP_OUTPUT_COLOR_STATE],
+                       &priv->output_color_state,
+                       color_state);
+    }
 }
 
 static void
@@ -1276,11 +1294,16 @@ clutter_stage_view_set_property (GObject      *object,
       priv->use_shadowfb = g_value_get_boolean (value);
       break;
     case PROP_COLOR_STATE:
-      set_color_state (view, &priv->color_state, g_value_get_object (value));
+      set_color_state (view,
+                       obj_props[PROP_COLOR_STATE],
+                       &priv->color_state,
+                       g_value_get_object (value));
       break;
     case PROP_OUTPUT_COLOR_STATE:
       set_color_state (view,
-                       &priv->output_color_state, g_value_get_object (value));
+                       obj_props[PROP_OUTPUT_COLOR_STATE],
+                       &priv->output_color_state,
+                       g_value_get_object (value));
       break;
     case PROP_SCALE:
       priv->scale = g_value_get_float (value);
@@ -1423,14 +1446,16 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                          CLUTTER_TYPE_COLOR_STATE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT |
-                         G_PARAM_STATIC_STRINGS);
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   obj_props[PROP_OUTPUT_COLOR_STATE] =
     g_param_spec_object ("output-color-state", NULL, NULL,
                          CLUTTER_TYPE_COLOR_STATE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT |
-                         G_PARAM_STATIC_STRINGS);
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   obj_props[PROP_SCALE] =
     g_param_spec_float ("scale", NULL, NULL,
