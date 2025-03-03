@@ -510,6 +510,19 @@ send_drm_fd (struct wl_client          *client,
   return TRUE;
 }
 
+static gboolean
+send_on_device_bind_events (struct wl_client          *client,
+                            MetaWaylandDrmLeaseDevice *lease_device,
+                            struct wl_resource        *device_resource)
+{
+  if (!send_drm_fd (client, lease_device, device_resource))
+    return FALSE;
+
+  send_connectors (lease_device, device_resource);
+  wp_drm_lease_device_v1_send_done (device_resource);
+  return TRUE;
+}
+
 static void
 wp_drm_lease_device_destructor (struct wl_resource *resource)
 {
@@ -538,11 +551,8 @@ lease_device_bind (struct wl_client *client,
                                   g_rc_box_acquire (lease_device),
                                   wp_drm_lease_device_destructor);
 
-  if (send_drm_fd (client, lease_device, resource))
+  if (send_on_device_bind_events (client, lease_device, resource))
     {
-      send_connectors (lease_device, resource);
-      wp_drm_lease_device_v1_send_done (resource);
-
       lease_device->resources = g_list_prepend (lease_device->resources,
                                                 resource);
     }
