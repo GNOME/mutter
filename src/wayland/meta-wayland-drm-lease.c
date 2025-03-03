@@ -35,6 +35,7 @@
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms.h"
 #include "backends/edid.h"
+#include "backends/meta-launcher.h"
 #include "wayland/meta-wayland-private.h"
 
 #include "drm-lease-v1-server-protocol.h"
@@ -645,6 +646,49 @@ on_device_removed (MetaDrmLeaseManager        *drm_lease_manager,
 }
 
 static void
+send_pending_on_device_bind_events (MetaWaylandDrmLeaseManager *lease_manager,
+                                    MetaWaylandDrmLeaseDevice  *lease_device)
+{
+  GList *l;
+
+  for (l = lease_device->pending_resources; l;)
+    {
+      struct wl_resource *resource = l->data;
+      struct wl_client *client = resource->client;
+      GList *l_next = l->next;
+
+      if (send_on_device_bind_events (client, lease_device, resource))
+        {
+          lease_device->pending_resources =
+            g_list_remove_link (lease_device->pending_resources, l);
+          lease_device->resources =
+            g_list_insert_before_link (lease_device->resources,
+                                       lease_device->resources,
+                                       l);
+        }
+
+      l = l_next;
+    }
+}
+
+static void
+on_active_session_changed (MetaLauncher *launcher,
+                           GParamSpec   *pspec,
+                           gpointer      user_data)
+{
+  MetaWaylandDrmLeaseManager *lease_manager = user_data;
+  MetaWaylandDrmLeaseDevice *lease_device;
+  GHashTableIter iter;
+
+  if (!meta_launcher_is_session_active (launcher))
+    return;
+
+  g_hash_table_iter_init (&iter, lease_manager->devices);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &lease_device))
+    send_pending_on_device_bind_events (lease_manager, lease_device);
+}
+
+static void
 on_connector_added (MetaDrmLeaseManager        *drm_lease_manager,
                     MetaKmsConnector           *kms_connector,
                     gboolean                    is_last_connector_update,
@@ -714,6 +758,7 @@ meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
 {
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
+  MetaLauncher *launcher = meta_backend_get_launcher (backend);
   MetaBackendNative *backend_native;
   MetaKms *kms;
   MetaWaylandDrmLeaseManager *lease_manager;
@@ -752,6 +797,13 @@ meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
   g_signal_connect (lease_manager->drm_lease_manager, "connector-removed",
                     G_CALLBACK (on_connector_removed),
                     lease_manager);
+
+  if (launcher)
+    {
+      g_signal_connect (launcher, "notify::session-active",
+                        G_CALLBACK (on_active_session_changed),
+                        lease_manager);
+    }
 
   return lease_manager;
 }
