@@ -65,6 +65,11 @@ typedef struct _MetaWaylandDrmLeaseDevice
   GHashTable *connectors;
 
   GList *resources;
+
+  /* List of pointers to struct wl_resource with the clients that are waiting
+   * for a drm_fd event.
+   */
+  GList *pending_resources;
 } MetaWaylandDrmLeaseDevice;
 
 typedef struct _MetaWaylandDrmLeaseConnector
@@ -488,7 +493,7 @@ send_connectors (MetaWaylandDrmLeaseDevice *lease_device,
     send_new_connector_resource (lease_device, device_resource, lease_connector);
 }
 
-static void
+static gboolean
 send_drm_fd (struct wl_client          *client,
              MetaWaylandDrmLeaseDevice *lease_device,
              struct wl_resource        *device_resource)
@@ -499,13 +504,10 @@ send_drm_fd (struct wl_client          *client,
   impl_device = meta_kms_device_get_impl_device (lease_device->kms_device);
   fd = meta_kms_impl_device_open_non_privileged_fd (impl_device);
   if (fd < 0)
-    {
-      wl_client_post_implementation_error (client,
-                                           "Error getting DRM lease device fd");
-      return;
-    }
+    return FALSE;
 
   wp_drm_lease_device_v1_send_drm_fd (device_resource, fd);
+  return TRUE;
 }
 
 static void
@@ -515,6 +517,8 @@ wp_drm_lease_device_destructor (struct wl_resource *resource)
     wl_resource_get_user_data (resource);
 
   lease_device->resources = g_list_remove (lease_device->resources, resource);
+  lease_device->pending_resources =
+    g_list_remove (lease_device->pending_resources, resource);
   meta_wayland_drm_lease_device_release (lease_device);
 }
 
@@ -534,11 +538,19 @@ lease_device_bind (struct wl_client *client,
                                   g_rc_box_acquire (lease_device),
                                   wp_drm_lease_device_destructor);
 
-  send_drm_fd (client, lease_device, resource);
-  send_connectors (lease_device, resource);
-  wp_drm_lease_device_v1_send_done (resource);
+  if (send_drm_fd (client, lease_device, resource))
+    {
+      send_connectors (lease_device, resource);
+      wp_drm_lease_device_v1_send_done (resource);
 
-  lease_device->resources = g_list_prepend (lease_device->resources, resource);
+      lease_device->resources = g_list_prepend (lease_device->resources,
+                                                resource);
+    }
+  else
+    {
+      lease_device->pending_resources =
+        g_list_prepend (lease_device->pending_resources, resource);
+    }
 }
 
 static void
