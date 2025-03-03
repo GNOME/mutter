@@ -158,6 +158,11 @@ def GetSessionByPID(self, pid):
     session_path = f'{MAIN_OBJ}/session/{self.preferred_session_id}'
     return session_path
 
+@dbus.service.method(MANAGER_IFACE, in_signature='ssss', out_signature='h')
+def Inhibit(self, what, who, why, mode):
+    # Return an arbitrary FD
+    return os.open('/dev/null', os.O_RDONLY)
+
 def create_session(self, host_bus):
     session_id = None
     seat_id = None
