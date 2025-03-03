@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-22 11:59+0000\n"
-"PO-Revision-Date: 2025-02-24 19:19+0330\n"
+"POT-Creation-Date: 2025-02-27 12:47+0000\n"
+"PO-Revision-Date: 2025-03-03 18:51+0330\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
 "Language-Team: Persian\n"
 "Language: fa\n"
@@ -250,11 +250,11 @@ msgstr "بیشینه‌کردن عمودی پنجره"
 msgid "Maximize window horizontally"
 msgstr "بیشینه‌کردن افقی پنجره"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "نمایش انشعاب در سمت راست"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "نمایش انشعاب در سمت راست"
 
@@ -435,15 +435,32 @@ msgstr ""
 "تعداد میلی‌ثانیه‌هایی که کارخواه باید به درخواست پینگ پاسخ دهد تا به عنوان یخ‌زده "
 "شناخته نشود. استفاده از 0 بررسی زنده را به طور کامل از کار می‌اندازد."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "به ازای تنظیمات نوردهی"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple with "
+"connector, vendor, product, serial, and a color mode, as well as an associated "
+"floating point value representing the output luminance in percent (%). The "
+"default when not specified is 100%."
+msgstr ""
+"به ازای تنظیمات نوردهی دحالت رنگی و خروجی. هر مدخلی از یک چندتایی از وصل‌کننده، "
+"سازنده، محصول، سریال و حالت رنگی تشکیل شده به همراه مقداری اعضاری که نوردهی خروجی "
+"را به درصد (٪) نشان می‌دهد. مقدار پیش‌گزیده ۱۰۰٪ است."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "تعویض پیکربندی‌های نمایشگر"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "پیکربندی نمایشگر توکار را می‌چرخاند"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "لغو همهٔ نشست‌های ضبط ورودی فعّال"
 
