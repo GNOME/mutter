@@ -139,6 +139,19 @@ get_cursor_stage_view (MetaStageView *view)
                              quark_cursor_stage_view);
 }
 
+static void
+on_output_color_state_changed (MetaStageView *view,
+                               gpointer       user_data)
+{
+  CursorStageView *cursor_stage_view;
+
+  cursor_stage_view = get_cursor_stage_view (view);
+  if (!cursor_stage_view)
+    return;
+
+  cursor_stage_view->is_hw_cursor_valid = FALSE;
+}
+
 static CursorStageView *
 ensure_cursor_stage_view (MetaStageView *view)
 {
@@ -149,6 +162,12 @@ ensure_cursor_stage_view (MetaStageView *view)
     {
       cursor_stage_view = g_new0 (CursorStageView, 1);
       cursor_stage_view->is_hw_cursor_valid = FALSE;
+
+      g_signal_connect (G_OBJECT (view),
+                        "notify::output-color-state",
+                        G_CALLBACK (on_output_color_state_changed),
+                        NULL);
+
       g_object_set_qdata_full (G_OBJECT (view),
                                quark_cursor_stage_view,
                                cursor_stage_view,
