@@ -1367,6 +1367,27 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   this_dispatch_time_us = time_us;
 #endif
 
+  switch (frame_clock->state)
+    {
+    case CLUTTER_FRAME_CLOCK_STATE_INIT:
+    case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE:
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
+      g_warning ("Frame clock dispatched in an unscheduled state %d",
+                 frame_clock->state);
+      return;
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
+      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE;
+      break;
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
+      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO;
+      break;
+    }
+
   /* Discarding the old prev_dispatch early here allows us to keep the
    * frame_pool size equal to nbuffers instead of nbuffers+1.
    */
@@ -1423,26 +1444,6 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   this_dispatch->dispatch_time_us = time_us;
   g_source_set_ready_time (frame_clock->source, -1);
-
-  switch (frame_clock->state)
-    {
-    case CLUTTER_FRAME_CLOCK_STATE_INIT:
-    case CLUTTER_FRAME_CLOCK_STATE_IDLE:
-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE:
-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
-      g_warn_if_reached ();
-      return;
-    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
-    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
-    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
-      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE;
-      break;
-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
-      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO;
-      break;
-    }
 
   frame_count = frame_clock->frame_count++;
 
