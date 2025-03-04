@@ -1,3 +1,13 @@
+47.6
+====
+* Support presentation-time version 2 [Dudemanguy; !4227]
+* Honor wl_surface.offset on cursor surfaces [Carlos; !4239]
+* Fix sharable surfaces with nvidia as primary [Daniel; !4295]
+* Fixed crash [Jonas; !4257]
+
+Contributors:
+  Dudemanguy, Carlos Garnacho, Daniel van Vugt, Jonas Ådahl
+
 47.5
 ====
 * Synchronize device enabled state when adding device [Yao; !4188]
