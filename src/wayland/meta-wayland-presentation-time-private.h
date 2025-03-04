@@ -56,9 +56,11 @@ void meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback
                                                  ClutterFrameInfo                *frame_info,
                                                  MetaWaylandOutput               *output);
 
-struct wl_list * meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *presentation_time,
-                                                                  ClutterStageView            *stage_view);
+void meta_wayland_presentation_time_present_feedbacks (MetaWaylandCompositor *compositor,
+                                                       ClutterStageView      *stage_view,
+                                                       ClutterFrameInfo      *frame_info);
 
 void meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *presentation_time,
                                                     ClutterStageView            *stage_view,
+                                                    int64_t                      view_frame_counter,
                                                     MetaWaylandCursorSurface    *cursor_surface);

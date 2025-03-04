@@ -248,7 +248,8 @@ meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor_rend
     {
       meta_cursor_renderer_emit_painted (cursor_renderer,
                                          cursor_sprite,
-                                         CLUTTER_STAGE_VIEW (view));
+                                         CLUTTER_STAGE_VIEW (view),
+                                         frame->frame_count);
       cursor_stage_view->needs_emit_painted = FALSE;
     }
 }

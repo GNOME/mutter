@@ -491,6 +491,7 @@ static void
 on_cursor_painted (MetaCursorRenderer       *renderer,
                    MetaCursorSprite         *displayed_sprite,
                    ClutterStageView         *stage_view,
+                   int64_t                   view_frame_counter,
                    MetaWaylandCursorSurface *cursor_surface)
 {
   MetaWaylandCursorSurfacePrivate *priv =
@@ -519,6 +520,7 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
 
   meta_wayland_presentation_time_cursor_painted (&compositor->presentation_time,
                                                  stage_view,
+                                                 view_frame_counter,
                                                  cursor_surface);
 }
 

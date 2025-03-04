@@ -111,6 +111,11 @@ wp_presentation_bind (struct wl_client *client,
   wp_presentation_send_clock_id (resource, CLOCK_MONOTONIC);
 }
 
+static struct wl_list *
+meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *presentation_time,
+                                                 ClutterStageView            *stage_view,
+                                                 int64_t                      view_frame_counter);
+
 static void
 discard_non_cursor_feedbacks (struct wl_list *feedbacks)
 {
@@ -146,7 +151,7 @@ on_after_paint (ClutterStage          *stage,
    */
   feedbacks =
     meta_wayland_presentation_time_ensure_feedbacks (&compositor->presentation_time,
-                                                     stage_view);
+                                                     stage_view, frame->frame_count);
   discard_non_cursor_feedbacks (feedbacks);
 
   l = compositor->presentation_time.feedback_surfaces;
@@ -229,7 +234,8 @@ meta_wayland_init_presentation_time (MetaWaylandCompositor *compositor)
   ClutterActor *stage = meta_backend_get_stage (backend);
 
   compositor->presentation_time.feedbacks =
-    g_hash_table_new_full (NULL, NULL, NULL, destroy_feedback_list);
+    g_hash_table_new_full (NULL, NULL, NULL,
+                           (GDestroyNotify) g_hash_table_destroy);
 
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), compositor);
@@ -390,27 +396,93 @@ meta_wayland_presentation_feedback_present (MetaWaylandPresentationFeedback *fee
   wl_resource_destroy (feedback->resource);
 }
 
-struct wl_list *
+static struct wl_list *
 meta_wayland_presentation_time_ensure_feedbacks (MetaWaylandPresentationTime *presentation_time,
-                                                 ClutterStageView            *stage_view)
+                                                 ClutterStageView            *stage_view,
+                                                 int64_t                      view_frame_counter)
 {
-  if (!g_hash_table_contains (presentation_time->feedbacks, stage_view))
+  GHashTable *hash_table;
+  struct wl_list *list;
+
+  hash_table = g_hash_table_lookup (presentation_time->feedbacks, stage_view);
+  if (!hash_table)
     {
-      struct wl_list *list;
-
-      list = g_new0 (struct wl_list, 1);
-      wl_list_init (list);
-      g_hash_table_insert (presentation_time->feedbacks, stage_view, list);
-
-      return list;
+      hash_table = g_hash_table_new_full (g_int64_hash, g_int64_equal, g_free,
+                                          destroy_feedback_list);
+      g_hash_table_insert (presentation_time->feedbacks, stage_view, hash_table);
     }
 
-  return g_hash_table_lookup (presentation_time->feedbacks, stage_view);
+  list = g_hash_table_lookup (hash_table, &view_frame_counter);
+  if (!list)
+    {
+      int64_t *key;
+
+      key = g_new (int64_t, 1);
+      *key = view_frame_counter;
+      list = g_new0 (struct wl_list, 1);
+      wl_list_init (list);
+      g_hash_table_insert (hash_table, key, list);
+    }
+
+  return list;
+}
+
+static MetaWaylandOutput *
+get_output_for_stage_view (MetaWaylandCompositor *compositor,
+                           ClutterStageView      *stage_view)
+{
+  MetaCrtc *crtc;
+  MetaOutput *output;
+  MetaMonitor *monitor;
+
+  crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (stage_view));
+
+  /*
+   * All outputs occupy the same region of the screen, as their contents are
+   * the same, so pick the first one.
+   */
+  output = meta_crtc_get_outputs (crtc)->data;
+
+  monitor = meta_output_get_monitor (output);
+  return g_hash_table_lookup (compositor->outputs,
+                              meta_monitor_get_spec (monitor));
+}
+
+void
+meta_wayland_presentation_time_present_feedbacks (MetaWaylandCompositor *compositor,
+                                                  ClutterStageView      *stage_view,
+                                                  ClutterFrameInfo      *frame_info)
+{
+  MetaWaylandPresentationFeedback *feedback, *next;
+  struct wl_list *feedbacks;
+  MetaWaylandOutput *output;
+  GHashTable *hash_table;
+
+  hash_table = g_hash_table_lookup (compositor->presentation_time.feedbacks,
+                                    stage_view);
+  if (!hash_table)
+    return;
+
+  feedbacks = g_hash_table_lookup (hash_table, &frame_info->view_frame_counter);
+  if (!feedbacks)
+    return;
+
+  output = get_output_for_stage_view (compositor, stage_view);
+
+  wl_list_for_each_safe (feedback, next, feedbacks, link)
+    {
+      meta_wayland_presentation_feedback_present (feedback,
+                                                  frame_info,
+                                                  output);
+    }
+
+  g_hash_table_remove (hash_table, &frame_info->view_frame_counter);
 }
 
 void
 meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *presentation_time,
                                                ClutterStageView            *stage_view,
+                                               int64_t                      view_frame_counter,
                                                MetaWaylandCursorSurface    *cursor_surface)
 {
   struct wl_list *feedbacks;
@@ -420,7 +492,8 @@ meta_wayland_presentation_time_cursor_painted (MetaWaylandPresentationTime *pres
 
   feedbacks =
     meta_wayland_presentation_time_ensure_feedbacks (presentation_time,
-                                                     stage_view);
+                                                     stage_view,
+                                                     view_frame_counter);
 
   /* Discard previous feedbacks for this cursor as now it has gone stale. */
   wl_list_for_each_safe (feedback, next, feedbacks, link)

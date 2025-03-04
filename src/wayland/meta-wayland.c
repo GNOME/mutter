@@ -538,49 +538,15 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
   meta_wayland_seat_update (compositor->seat, event);
 }
 
-static MetaWaylandOutput *
-get_output_for_stage_view (MetaWaylandCompositor *compositor,
-                           ClutterStageView      *stage_view)
-{
-  MetaCrtc *crtc;
-  MetaOutput *output;
-  MetaMonitor *monitor;
-
-  crtc = meta_renderer_view_get_crtc (META_RENDERER_VIEW (stage_view));
-
-  /*
-   * All outputs occupy the same region of the screen, as their contents are
-   * the same, so pick the first one.
-   */
-  output = meta_crtc_get_outputs (crtc)->data;
-
-  monitor = meta_output_get_monitor (output);
-  return g_hash_table_lookup (compositor->outputs,
-                              meta_monitor_get_spec (monitor));
-}
-
 static void
 on_presented (ClutterStage          *stage,
               ClutterStageView      *stage_view,
               ClutterFrameInfo      *frame_info,
               MetaWaylandCompositor *compositor)
 {
-  MetaWaylandPresentationFeedback *feedback, *next;
-  struct wl_list *feedbacks;
-  MetaWaylandOutput *output;
-
-  feedbacks =
-    meta_wayland_presentation_time_ensure_feedbacks (&compositor->presentation_time,
-                                                     stage_view);
-
-  output = get_output_for_stage_view (compositor, stage_view);
-
-  wl_list_for_each_safe (feedback, next, feedbacks, link)
-    {
-      meta_wayland_presentation_feedback_present (feedback,
-                                                  frame_info,
-                                                  output);
-    }
+  meta_wayland_presentation_time_present_feedbacks (compositor,
+                                                    stage_view,
+                                                    frame_info);
 }
 
 static void

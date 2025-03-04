@@ -70,7 +70,8 @@ graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *rendere
 
 void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite,
-                                        ClutterStageView   *stage_view);
+                                        ClutterStageView   *stage_view,
+                                        int64_t             view_frame_counter);
 ClutterInputDevice * meta_cursor_renderer_get_input_device (MetaCursorRenderer *renderer);
 
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
