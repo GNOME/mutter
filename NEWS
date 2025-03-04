@@ -1,3 +1,12 @@
+46.9
+====
+* Support presentation-time version 2 [Dudemanguy; !4227]
+* Honor wl_surface.offset on cursor surfaces [Carlos; !4239]
+* Fix crash [Jonas; !4257]
+
+Contributors:
+  Dudemanguy, Carlos Garnacho, Jonas Ådahl
+
 46.8
 ====
 * Use BT709 coefficients and limited range for YUV conversion by defaults
