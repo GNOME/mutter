@@ -1382,6 +1382,9 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   if (crtc_frame->deadline.armed)
     return TRUE;
 
+  if (!meta_kms_crtc_get_current_state (crtc_frame->crtc)->is_drm_mode_valid)
+    return FALSE;
+
   if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
                                          &next_deadline_us,
                                          &next_presentation_us,
@@ -1399,9 +1402,7 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
         }
       else
         {
-          if (!g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND))
-            g_warning ("Failed to determine deadline: %s", local_error->message);
-
+          g_warning ("Failed to determine deadline: %s", local_error->message);
           priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_DISABLED;
         }
 
