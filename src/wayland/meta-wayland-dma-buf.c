@@ -533,6 +533,7 @@ static struct gbm_bo *
 import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
                        MetaGpuKms               *gpu_kms,
                        int                       n_planes,
+                       uint32_t                  drm_format,
                        gboolean                 *use_modifier,
                        GError                  **error)
 {
@@ -556,7 +557,7 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
       import_with_modifier = (struct gbm_import_fd_modifier_data) {
         .width = dma_buf->width,
         .height = dma_buf->height,
-        .format = dma_buf->drm_format,
+        .format = drm_format,
         .num_fds = n_planes,
         .modifier = dma_buf->drm_modifier,
       };
@@ -583,7 +584,7 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
       import_legacy = (struct gbm_import_fd_data) {
         .width = dma_buf->width,
         .height = dma_buf->height,
-        .format = dma_buf->drm_format,
+        .format = drm_format,
         .stride = dma_buf->strides[0],
         .fd = dma_buf->fds[0],
       };
@@ -662,6 +663,8 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
   g_autoptr (CoglScanout) scanout = NULL;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferFlags flags;
+  const MetaFormatInfo *format_info;
+  uint32_t drm_format;
   gboolean use_modifier;
   int n_planes;
 
@@ -672,9 +675,24 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
   crtc = meta_renderer_view_get_crtc (renderer_view);
   g_return_val_if_fail (META_IS_CRTC_KMS (crtc), NULL);
   crtc_kms = META_CRTC_KMS (crtc);
-  if (!crtc_supports_modifier (crtc_kms,
-                               dma_buf->drm_format,
-                               dma_buf->drm_modifier))
+
+  format_info = meta_format_info_from_drm_format (dma_buf->drm_format);
+  g_assert (format_info);
+
+  if (format_info->opaque_substitute != DRM_FORMAT_INVALID &&
+      crtc_supports_modifier (crtc_kms,
+                              format_info->opaque_substitute,
+                              dma_buf->drm_modifier))
+    {
+      drm_format = format_info->opaque_substitute;
+    }
+  else if (crtc_supports_modifier (crtc_kms,
+                                   dma_buf->drm_format,
+                                   dma_buf->drm_modifier))
+    {
+      drm_format = dma_buf->drm_format;
+    }
+  else
     {
       meta_topic (META_DEBUG_RENDER,
                   "DRM format 0x%x (0x%lx) not supported by primary plane",
@@ -696,7 +714,11 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
 
   device_file = meta_renderer_native_get_primary_device_file (renderer_native);
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
-  gbm_bo = import_scanout_gbm_bo (dma_buf, gpu_kms, n_planes, &use_modifier,
+  gbm_bo = import_scanout_gbm_bo (dma_buf,
+                                  gpu_kms,
+                                  n_planes,
+                                  drm_format,
+                                  &use_modifier,
                                   &error);
   if (!gbm_bo)
     {
@@ -1402,7 +1424,18 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
           if (!crtc_supports_modifier (crtc_kms,
                                        format.drm_format,
                                        format.drm_modifier))
-            continue;
+            {
+              const MetaFormatInfo *format_info;
+
+              format_info = meta_format_info_from_drm_format (format.drm_format);
+              g_assert (format_info);
+
+              if (format_info->opaque_substitute == DRM_FORMAT_INVALID ||
+                  !crtc_supports_modifier (crtc_kms,
+                                           format_info->opaque_substitute,
+                                           format.drm_modifier))
+                continue;
+            }
 
           g_array_append_val (formats, format);
         }
