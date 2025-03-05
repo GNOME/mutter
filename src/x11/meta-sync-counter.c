@@ -519,7 +519,7 @@ meta_sync_counter_complete_frame (MetaSyncCounter  *sync_counter,
     {
       GList *l_next = l->next;
       FrameData *frame = l->data;
-      int64_t frame_counter = frame_info->frame_counter;
+      int64_t frame_counter = frame_info->global_frame_counter;
 
       if (frame->frame_counter != -1 && frame->frame_counter <= frame_counter)
         {
