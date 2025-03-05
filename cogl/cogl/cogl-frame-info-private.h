@@ -68,6 +68,7 @@ struct _CoglFrameInfo
   float refresh_rate;
 
   int64_t global_frame_counter;
+  int64_t view_frame_counter;
 
   CoglFrameInfoFlag flags;
 
@@ -84,7 +85,8 @@ struct _CoglFrameInfo
 
 COGL_EXPORT
 CoglFrameInfo *cogl_frame_info_new (CoglContext *context,
-                                    int64_t      global_frame_counter);
+                                    int64_t      global_frame_counter,
+                                    int64_t      view_frame_counter);
 
 COGL_EXPORT
 void cogl_frame_info_set_target_presentation_time (CoglFrameInfo *info,

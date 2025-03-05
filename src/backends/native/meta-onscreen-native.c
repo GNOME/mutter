@@ -147,6 +147,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen);
 
 static void
 post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
+                              ClutterFrame       *frame,
                               MetaKmsUpdate      *kms_update);
 
 static gboolean
@@ -1670,7 +1671,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
                                        region))
     {
       kms_update = meta_frame_native_steal_kms_update (frame_native);
-      post_nonprimary_plane_update (onscreen_native, kms_update);
+      post_nonprimary_plane_update (onscreen_native, frame, kms_update);
       return;
     }
 
@@ -1897,7 +1898,8 @@ meta_onscreen_native_get_window_handles (CoglOnscreen *onscreen,
 }
 
 static void
-add_onscreen_frame_info (MetaCrtc *crtc)
+add_onscreen_frame_info (MetaCrtc     *crtc,
+                         ClutterFrame *frame)
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   MetaBackend *backend = meta_gpu_get_backend (gpu);
@@ -1907,7 +1909,8 @@ add_onscreen_frame_info (MetaCrtc *crtc)
   MetaRendererView *view = meta_renderer_get_view_for_crtc (renderer, crtc);
 
   meta_stage_impl_add_onscreen_frame_info (META_STAGE_IMPL (stage_window),
-                                           CLUTTER_STAGE_VIEW (view));
+                                           CLUTTER_STAGE_VIEW (view),
+                                           frame);
 }
 
 void
@@ -2122,13 +2125,14 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
       onscreen_native->needs_flush = FALSE;
     }
 
-  post_nonprimary_plane_update (onscreen_native, kms_update);
+  post_nonprimary_plane_update (onscreen_native, frame, kms_update);
 
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
 
 static void
 post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
+                              ClutterFrame       *frame,
                               MetaKmsUpdate      *kms_update)
 {
   MetaCrtc *crtc = onscreen_native->crtc;
@@ -2148,7 +2152,7 @@ post_nonprimary_plane_update (MetaOnscreenNative *onscreen_native,
                                           NULL,
                                           g_object_ref (onscreen_native->view),
                                           g_object_unref);
-  add_onscreen_frame_info (crtc);
+  add_onscreen_frame_info (crtc, frame);
 
   meta_topic (META_DEBUG_KMS,
               "Posting non-primary plane update for CRTC %u (%s)",

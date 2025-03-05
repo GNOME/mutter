@@ -37,4 +37,5 @@ struct _MetaStageViewClass
 
 ClutterDamageHistory * meta_stage_view_get_damage_history (MetaStageView *view);
 void meta_stage_view_perform_fake_swap (MetaStageView *view,
-                                        int64_t        counter);
+                                        int64_t        global_frame_counter,
+                                        int64_t        view_frame_counter);
