@@ -34,7 +34,17 @@
 #define UNIFORM_NAME_GAMMA_EXP "gamma_exp"
 #define UNIFORM_NAME_INV_GAMMA_EXP "inv_gamma_exp"
 #define UNIFORM_NAME_COLOR_SPACE_MAPPING "color_transformation_matrix"
+#define UNIFORM_NAME_TO_LMS "to_lms"
+#define UNIFORM_NAME_FROM_LMS "from_lms"
+#define UNIFORM_NAME_SRC_MAX_LUM "src_max_lum"
+#define UNIFORM_NAME_DST_MAX_LUM "dst_max_lum"
+#define UNIFORM_NAME_SRC_REF_LUM "src_ref_lum"
+#define UNIFORM_NAME_TONEMAPPING_REF_LUM "tone_mapping_ref_lum"
+#define UNIFORM_NAME_LINEAR_TONEMAPPING "linear_mapping"
 #define UNIFORM_NAME_LUMINANCE_MAPPING "luminance_factor"
+#define D65_X 0.95047f
+#define D65_Y 1.0f
+#define D65_Z 1.08883f
 
 typedef struct _ClutterColorStateParams
 {
@@ -507,6 +517,33 @@ get_eotf_key (ClutterEOTF eotf)
     }
 }
 
+static gboolean
+needs_lum_mapping (ClutterColorStateParams *color_state_params,
+                   ClutterColorStateParams *target_color_state_params)
+{
+  const ClutterLuminance *lum;
+  const ClutterLuminance *target_lum;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
+
+  return !luminances_equal (color_state_params, target_color_state_params) &&
+         lum->max <= target_lum->max;
+}
+
+static gboolean
+needs_tone_mapping (ClutterColorStateParams *color_state_params,
+                    ClutterColorStateParams *target_color_state_params)
+{
+  const ClutterLuminance *lum;
+  const ClutterLuminance *target_lum;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
+
+  return lum->max > target_lum->max;
+}
+
 static void
 clutter_color_state_params_init_color_transform_key (ClutterColorState        *color_state,
                                                      ClutterColorState        *target_color_state,
@@ -519,10 +556,12 @@ clutter_color_state_params_init_color_transform_key (ClutterColorState        *c
 
   key->source_eotf_bits = get_eotf_key (color_state_params->eotf);
   key->target_eotf_bits = get_eotf_key (target_color_state_params->eotf);
-  key->luminance_bit = luminances_equal (color_state_params,
-                                         target_color_state_params) ? 0 : 1;
+  key->luminance_bit = needs_lum_mapping (color_state_params,
+                                          target_color_state_params) ? 1 : 0;
   key->color_trans_bit = colorimetry_equal (color_state_params,
                                             target_color_state_params) ? 0 : 1;
+  key->tone_mapping_bit = needs_tone_mapping (color_state_params,
+                                              target_color_state_params) ? 1 : 0;
 }
 
 static const char srgb_eotf_source[] =
@@ -811,7 +850,7 @@ get_luminance_mapping_snippet (ClutterColorStateParams  *color_state_params,
                                ClutterColorStateParams  *target_color_state_params,
                                const ColorOpSnippet    **luminance_mapping_snippet)
 {
-  if (luminances_equal (color_state_params, target_color_state_params))
+  if (!needs_lum_mapping (color_state_params, target_color_state_params))
     return;
 
   *luminance_mapping_snippet = &luminance_mapping;
@@ -837,6 +876,90 @@ static const ColorOpSnippet color_space_mapping = {
   .name = "color_space_mapping",
 };
 
+static const char tone_mapping_source[] =
+  "uniform mat3 " UNIFORM_NAME_TO_LMS ";\n"
+  "uniform mat3 " UNIFORM_NAME_FROM_LMS ";\n"
+  "uniform float " UNIFORM_NAME_SRC_MAX_LUM ";\n"
+  "uniform float " UNIFORM_NAME_DST_MAX_LUM ";\n"
+  "uniform float " UNIFORM_NAME_SRC_REF_LUM ";\n"
+  "uniform float " UNIFORM_NAME_TONEMAPPING_REF_LUM ";\n"
+  "uniform float " UNIFORM_NAME_LINEAR_TONEMAPPING ";\n"
+  "\n"
+  "const mat3 to_ictcp = mat3(\n"
+  "  0.5,  1.613769531250,  4.378173828125,\n"
+  "  0.5, -3.323486328125, -4.245605468750,\n"
+  "  0.0,  1.709716796875, -0.132568359375\n"
+  ");\n"
+  "\n"
+  "const mat3 from_ictcp = mat3(\n"
+  "  1.0,               1.0,             1.0,\n"
+  "  0.00860903703793, -0.008609037037,  0.56031335710680,\n"
+  "  0.11102962500303, -0.111029625003, -0.32062717498732\n"
+  ");\n"
+  "\n"
+  "float pq_eotf_float (float color) {\n"
+  "  const float c1 = 0.8359375;\n"
+  "  const float c2 = 18.8515625;\n"
+  "  const float c3 = 18.6875;\n"
+  "  const float oo_m1 = 1.0 / 0.1593017578125;\n"
+  "  const float oo_m2 = 1.0 / 78.84375;\n"
+  "  float num = max (pow (color, oo_m2) - c1, 0.0);\n"
+  "  float den = c2 - c3 * pow (color, oo_m2);\n"
+  "  return pow (num / den, oo_m1);\n"
+  "}\n"
+  "\n"
+  "float pq_inv_eotf_float (float color) {\n"
+  "  const float m1 = 0.1593017578125;\n"
+  "  const float m2 = 78.84375;\n"
+  "  const float c1 = 0.8359375;\n"
+  "  const float c2 = 18.8515625;\n"
+  "  const float c3 = 18.6875;\n"
+  "  float color_pow_m1 = pow (color, m1);\n"
+  "  float num = c1 + c2 * color_pow_m1;\n"
+  "  float denum = 1.0 + c3 * color_pow_m1;\n"
+  "  return pow (num / denum, m2);\n"
+  "}\n"
+  "\n"
+  "// ICtCp tone_mapping:\n"
+  "// @color: Normalized ([0,1]) in target colorspace\n"
+  "// Returns: Normalized ([0,1]) tone mapped value\n"
+  "vec3 tone_mapping (vec3 color)\n"
+  "{\n"
+  "  color = " UNIFORM_NAME_TO_LMS " * color;\n"
+  "  color = pq_inv_eotf (color);\n"
+  "  color = to_ictcp * color;\n"
+  "  float luminance = pq_eotf_float (color.r) * " UNIFORM_NAME_SRC_MAX_LUM ";\n"
+  "\n"
+  "  if (luminance < " UNIFORM_NAME_SRC_REF_LUM ")\n"
+  "    {\n"
+  "      luminance *= " UNIFORM_NAME_LINEAR_TONEMAPPING "\n;"
+  "    }\n"
+  "  else\n"
+  "    {\n"
+  "      float x = (luminance - " UNIFORM_NAME_SRC_REF_LUM ") / "
+                   "(" UNIFORM_NAME_SRC_MAX_LUM " - " UNIFORM_NAME_SRC_REF_LUM ")\n;"
+  "      luminance = " UNIFORM_NAME_TONEMAPPING_REF_LUM " + (" UNIFORM_NAME_DST_MAX_LUM " - "
+                     "" UNIFORM_NAME_TONEMAPPING_REF_LUM ") * (5.0 * x) / (4.0 * x + 1.0);\n"
+  "    }\n"
+  "\n"
+  "  color.r = pq_inv_eotf_float (luminance / " UNIFORM_NAME_DST_MAX_LUM ");\n"
+  "  color = from_ictcp * color;\n"
+  "  color = pq_eotf (color);\n"
+  "  color = " UNIFORM_NAME_FROM_LMS " * color;\n"
+  "\n"
+  "  return color;\n"
+  "}\n"
+  "\n"
+  "vec4 tone_mapping (vec4 color)\n"
+  "{\n"
+  "  return vec4 (tone_mapping (color.rgb), color.a);\n"
+  "}\n";
+
+static const ColorOpSnippet tone_mapping = {
+  .source = tone_mapping_source,
+  .name = "tone_mapping",
+};
+
 static void
 get_color_space_mapping_snippet (ClutterColorStateParams  *color_state_params,
                                  ClutterColorStateParams  *target_color_state_params,
@@ -846,6 +969,17 @@ get_color_space_mapping_snippet (ClutterColorStateParams  *color_state_params,
     return;
 
   *color_space_mapping_snippet = &color_space_mapping;
+}
+
+static void
+get_tone_mapping_snippet (ClutterColorStateParams  *color_state_params,
+                          ClutterColorStateParams  *target_color_state_params,
+                          const ColorOpSnippet    **tone_mapping_snippet)
+{
+  if (!needs_tone_mapping (color_state_params, target_color_state_params))
+    return;
+
+  *tone_mapping_snippet = &tone_mapping;
 }
 
 static void
@@ -885,6 +1019,7 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
   const ColorOpSnippet *inv_eotf_snippet = NULL;
   const ColorOpSnippet *color_space_mapping_snippet = NULL;
   const ColorOpSnippet *luminance_mapping_snippet = NULL;
+  const ColorOpSnippet *tone_mapping_snippet = NULL;
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
   ClutterColorStateParams *target_color_state_params =
@@ -904,6 +1039,9 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
   get_color_space_mapping_snippet (color_state_params,
                                    target_color_state_params,
                                    &color_space_mapping_snippet);
+  get_tone_mapping_snippet (color_state_params,
+                            target_color_state_params,
+                            &tone_mapping_snippet);
 
   /*
    * The following statements generate a shader snippet that transforms colors
@@ -931,6 +1069,16 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
   append_color_op_snippet_global (inv_eotf_snippet, snippet_globals);
   append_color_op_snippet_global (luminance_mapping_snippet, snippet_globals);
   append_color_op_snippet_global (color_space_mapping_snippet, snippet_globals);
+  if (tone_mapping_snippet)
+    {
+      if (eotf_snippet != &pq_eotf)
+        append_color_op_snippet_global (&pq_eotf, snippet_globals);
+
+      if (inv_eotf_snippet != &pq_inv_eotf)
+        append_color_op_snippet_global (&pq_inv_eotf, snippet_globals);
+
+      append_color_op_snippet_global (tone_mapping_snippet, snippet_globals);
+    }
 
   g_string_append_printf (snippet_source,
                           "  vec3 %s = cogl_color_out.rgb;\n",
@@ -945,6 +1093,10 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
                                   snippet_color_var);
 
   append_color_op_snippet_source (color_space_mapping_snippet,
+                                  snippet_source,
+                                  snippet_color_var);
+
+  append_color_op_snippet_source (tone_mapping_snippet,
                                   snippet_source,
                                   snippet_color_var);
 
@@ -971,6 +1123,9 @@ get_luminance_mapping (ClutterColorStateParams *color_state_params,
 {
   const ClutterLuminance *lum;
   const ClutterLuminance *target_lum;
+
+  if (!needs_lum_mapping (color_state_params, target_color_state_params))
+    return 1.0f;
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
   target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
@@ -1175,6 +1330,42 @@ get_white_point_XYZ (ClutterColorStateParams *color_state_params,
 }
 
 static void
+get_chromatic_adaptation_to (ClutterColorStateParams *color_state_params,
+                             float                    white_X,
+                             float                    white_Y,
+                             float                    white_Z,
+                             graphene_matrix_t       *chromatic_adaptation)
+{
+  graphene_vec3_t src_white_point_XYZ;
+  graphene_vec3_t dst_white_point_XYZ;
+
+  get_white_point_XYZ (color_state_params, &src_white_point_XYZ);
+  graphene_vec3_init (&dst_white_point_XYZ, white_X, white_Y, white_Z);
+
+  compute_chromatic_adaptation (&src_white_point_XYZ,
+                                &dst_white_point_XYZ,
+                                chromatic_adaptation);
+}
+
+static void
+get_chromatic_adaptation_from (ClutterColorStateParams *color_state_params,
+                               float                    white_X,
+                               float                    white_Y,
+                               float                    white_Z,
+                               graphene_matrix_t       *chromatic_adaptation)
+{
+  graphene_vec3_t src_white_point_XYZ;
+  graphene_vec3_t dst_white_point_XYZ;
+
+  graphene_vec3_init (&src_white_point_XYZ, white_X, white_Y, white_Z);
+  get_white_point_XYZ (color_state_params, &dst_white_point_XYZ);
+
+  compute_chromatic_adaptation (&src_white_point_XYZ,
+                                &dst_white_point_XYZ,
+                                chromatic_adaptation);
+}
+
+static void
 get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
                           ClutterColorStateParams *target_color_state_params,
                           graphene_matrix_t       *chromatic_adaptation)
@@ -1283,7 +1474,7 @@ update_luminance_mapping_uniforms (ClutterColorStateParams *color_state_params,
   float lum_mapping;
   int uniform_location_luminance_mapping;
 
-  if (luminances_equal (color_state_params, target_color_state_params))
+  if (!needs_lum_mapping (color_state_params, target_color_state_params))
     return;
 
   lum_mapping = get_luminance_mapping (color_state_params,
@@ -1325,6 +1516,177 @@ update_color_space_mapping_uniforms (ClutterColorStateParams *color_state_params
                                     color_space_mapping_matrix);
 }
 
+static gboolean
+get_lms_mapping_matrices (ClutterColorStateParams *color_state_params,
+                          float                    to_lms[9],
+                          float                    from_lms[9])
+{
+  graphene_matrix_t matrix;
+  graphene_matrix_t chad, inv_chad;
+  graphene_matrix_t rgb_to_xyz, xyz_to_rgb;
+  graphene_matrix_t lms, inv_lms;
+
+  get_color_space_trans_matrices (color_state_params,
+                                  &rgb_to_xyz,
+                                  &xyz_to_rgb);
+  get_chromatic_adaptation_to (color_state_params,
+                               D65_X, D65_Y, D65_Z,
+                               &chad);
+  get_chromatic_adaptation_from (color_state_params,
+                                 D65_X, D65_Y, D65_Z,
+                                 &inv_chad);
+
+  /* This is the HPE LMS transform matrix with a crosstalk matrix applied.
+   * Reference: https://professional.dolby.com/siteassets/pdfs/ictcp_dolbywhitepaper_v071.pdf */
+  graphene_matrix_init_from_float (
+    &lms,
+    (float [16]) {
+    0.35930f, -0.1921f, 0.0071f, 0.0f,
+    0.69760f,  1.1005f, 0.0748f, 0.0f,
+    -0.0359f,  0.0754f, 0.8433f, 0.0f,
+    0.0f,      0.0f,    0.0f,    1.0f
+  });
+
+  graphene_matrix_init_from_float (
+    &inv_lms,
+    (float [16]) {
+    2.0700350f,  0.364750f, -0.049781f, 0.0f,
+    -1.326231f,  0.680546f, -0.049198f, 0.0f,
+    0.2067020f, -0.045320f,  1.188097f, 0.0f,
+    0.0f,        0.0f,       0.0f,      1.0f
+  });
+
+  graphene_matrix_init_identity (&matrix);
+  graphene_matrix_multiply (&matrix, &rgb_to_xyz, &matrix);
+  graphene_matrix_multiply (&matrix, &chad, &matrix);
+  graphene_matrix_multiply (&matrix, &lms, &matrix);
+
+  to_lms[0] = graphene_matrix_get_value (&matrix, 0, 0);
+  to_lms[1] = graphene_matrix_get_value (&matrix, 0, 1);
+  to_lms[2] = graphene_matrix_get_value (&matrix, 0, 2);
+  to_lms[3] = graphene_matrix_get_value (&matrix, 1, 0);
+  to_lms[4] = graphene_matrix_get_value (&matrix, 1, 1);
+  to_lms[5] = graphene_matrix_get_value (&matrix, 1, 2);
+  to_lms[6] = graphene_matrix_get_value (&matrix, 2, 0);
+  to_lms[7] = graphene_matrix_get_value (&matrix, 2, 1);
+  to_lms[8] = graphene_matrix_get_value (&matrix, 2, 2);
+
+  graphene_matrix_init_identity (&matrix);
+  graphene_matrix_multiply (&matrix, &inv_lms, &matrix);
+  graphene_matrix_multiply (&matrix, &inv_chad, &matrix);
+  graphene_matrix_multiply (&matrix, &xyz_to_rgb, &matrix);
+
+  from_lms[0] = graphene_matrix_get_value (&matrix, 0, 0);
+  from_lms[1] = graphene_matrix_get_value (&matrix, 0, 1);
+  from_lms[2] = graphene_matrix_get_value (&matrix, 0, 2);
+  from_lms[3] = graphene_matrix_get_value (&matrix, 1, 0);
+  from_lms[4] = graphene_matrix_get_value (&matrix, 1, 1);
+  from_lms[5] = graphene_matrix_get_value (&matrix, 1, 2);
+  from_lms[6] = graphene_matrix_get_value (&matrix, 2, 0);
+  from_lms[7] = graphene_matrix_get_value (&matrix, 2, 1);
+  from_lms[8] = graphene_matrix_get_value (&matrix, 2, 2);
+
+  return TRUE;
+}
+
+static float
+get_tonemapping_ref_lum (const ClutterLuminance *lum)
+{
+  float headroom;
+
+  /* The tone mapper needs for dst lum at least a headroom of 1.5 */
+  headroom = lum->max / lum->ref;
+  return headroom >= 1.5f ? lum->ref : lum->max / 1.5f;
+}
+
+static void
+update_tone_mapping_uniforms (ClutterColorStateParams *color_state_params,
+                              ClutterColorStateParams *target_color_state_params,
+                              CoglPipeline            *pipeline)
+{
+  float to_lms[9] = { 0 };
+  float from_lms[9] = { 0 };
+  int uniform_location_to_lms;
+  int uniform_location_from_lms;
+  int uniform_location_src_max_lum;
+  int uniform_location_dst_max_lum;
+  int uniform_location_src_ref_lum;
+  int uniform_location_tonemapping_ref_lum;
+  int uniform_location_linear_tonemapping;
+  float tonemapping_ref_lum;
+  const ClutterLuminance *lum;
+  const ClutterLuminance *target_lum;
+
+  if (!needs_tone_mapping (color_state_params, target_color_state_params))
+    return;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
+
+  get_lms_mapping_matrices (target_color_state_params,
+                            to_lms,
+                            from_lms);
+
+  uniform_location_to_lms =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_TO_LMS);
+
+  cogl_pipeline_set_uniform_matrix (pipeline,
+                                    uniform_location_to_lms,
+                                    3,
+                                    1,
+                                    FALSE,
+                                    to_lms);
+
+  uniform_location_from_lms =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_FROM_LMS);
+
+  cogl_pipeline_set_uniform_matrix (pipeline,
+                                    uniform_location_from_lms,
+                                    3,
+                                    1,
+                                    FALSE,
+                                    from_lms);
+
+  uniform_location_src_max_lum =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_SRC_MAX_LUM);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_src_max_lum,
+                                lum->max);
+
+  uniform_location_dst_max_lum =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_DST_MAX_LUM);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_dst_max_lum,
+                                target_lum->max);
+
+  uniform_location_src_ref_lum =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_SRC_REF_LUM);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_src_ref_lum,
+                                lum->ref);
+
+  tonemapping_ref_lum = get_tonemapping_ref_lum (target_lum);
+
+  uniform_location_tonemapping_ref_lum =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_TONEMAPPING_REF_LUM);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_tonemapping_ref_lum,
+                                tonemapping_ref_lum);
+
+  uniform_location_linear_tonemapping =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_LINEAR_TONEMAPPING);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_linear_tonemapping,
+                                tonemapping_ref_lum / lum->ref);
+}
+
 static void
 clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
                                             ClutterColorState *target_color_state,
@@ -1346,6 +1708,115 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
   update_color_space_mapping_uniforms (color_state_params,
                                        target_color_state_params,
                                        pipeline);
+
+  update_tone_mapping_uniforms (color_state_params,
+                                target_color_state_params,
+                                pipeline);
+}
+
+static void
+clutter_color_state_params_apply_tone_mapping (ClutterColorStateParams *color_state_params,
+                                               ClutterColorStateParams *target_color_state_params,
+                                               const float              input[3],
+                                               float                    output[3])
+{
+  const ClutterLuminance *lum;
+  const ClutterLuminance *target_lum;
+  float to_lms[9] = { 0 };
+  float from_lms[9] = { 0 };
+  float result[3];
+  float tonemapping_ref_lum, luminance;
+  graphene_matrix_t g_to_lms, g_from_lms;
+  graphene_matrix_t to_ictcp, from_ictcp;
+  graphene_vec3_t g_result;
+
+  if (!needs_tone_mapping (color_state_params, target_color_state_params))
+    {
+      memcpy (output, input, sizeof (float) * 3);
+      return;
+    }
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
+
+  get_lms_mapping_matrices (target_color_state_params, to_lms, from_lms);
+  graphene_matrix_init_from_float (
+    &g_to_lms,
+    (float [16]) {
+    to_lms[0], to_lms[1], to_lms[2], 0.0f,
+    to_lms[3], to_lms[4], to_lms[5], 0.0f,
+    to_lms[6], to_lms[7], to_lms[8], 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  });
+  graphene_matrix_init_from_float (
+    &g_from_lms,
+    (float [16]) {
+    from_lms[0], from_lms[1], from_lms[2], 0.0f,
+    from_lms[3], from_lms[4], from_lms[5], 0.0f,
+    from_lms[6], from_lms[7], from_lms[8], 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  });
+
+  graphene_matrix_init_from_float (
+    &to_ictcp,
+    (float [16]) {
+    0.5f,  1.6137695f,  4.3781738f, 0.0f,
+    0.5f, -3.3234863f, -4.2456054f, 0.0f,
+    0.0f,  1.7097167f, -0.1325683f, 0.0f,
+    0.0f,  0.0f,        0.0f,       1.0f,
+  });
+  graphene_matrix_init_from_float (
+    &from_ictcp,
+    (float [16]) {
+    1.0f,        1.0f,        1.0f,       0.0f,
+    0.0086090f, -0.0086090f,  0.5603133f, 0.0f,
+    0.1110296f, -0.1110296f, -0.3206271f, 0.0f,
+    0.0f,        0.0f,        0.0f,       1.0f,
+  });
+
+  tonemapping_ref_lum = get_tonemapping_ref_lum (target_lum);
+
+  memcpy (result, input, sizeof (float) * 3);
+  graphene_vec3_init_from_float (&g_result, result);
+  graphene_matrix_transform_vec3 (&g_to_lms, &g_result, &g_result);
+  graphene_vec3_to_float (&g_result, result);
+
+  result[0] = clutter_eotf_apply_pq_inv (result[0]);
+  result[1] = clutter_eotf_apply_pq_inv (result[1]);
+  result[2] = clutter_eotf_apply_pq_inv (result[2]);
+
+  graphene_vec3_init_from_float (&g_result, result);
+  graphene_matrix_transform_vec3 (&to_ictcp, &g_result, &g_result);
+  graphene_vec3_to_float (&g_result, result);
+
+  luminance = clutter_eotf_apply_pq (result[0]) * lum->max;
+  if (luminance < lum->ref)
+    {
+      luminance *= tonemapping_ref_lum / lum->ref;
+    }
+  else
+    {
+      float num = luminance - lum->ref;
+      float den = lum->max - lum->ref;
+      luminance = tonemapping_ref_lum +
+                  (target_lum->max - tonemapping_ref_lum) *
+                  powf (num / den, 0.5f);
+    }
+  result[0] = clutter_eotf_apply_pq_inv (luminance / target_lum->max);
+
+  graphene_vec3_init_from_float (&g_result, result);
+  graphene_matrix_transform_vec3 (&from_ictcp, &g_result, &g_result);
+  graphene_vec3_to_float (&g_result, result);
+
+  result[0] = clutter_eotf_apply_pq (result[0]);
+  result[1] = clutter_eotf_apply_pq (result[1]);
+  result[2] = clutter_eotf_apply_pq (result[2]);
+
+  graphene_vec3_init_from_float (&g_result, result);
+  graphene_matrix_transform_vec3 (&g_from_lms, &g_result, &g_result);
+  graphene_vec3_to_float (&g_result, result);
+
+  memcpy (output, result, sizeof (float) * 3);
 }
 
 static void
@@ -1399,6 +1870,12 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
       graphene_vec3_init_from_float (&g_result, result);
       graphene_matrix_transform_vec3 (&g_color_trans_mat, &g_result, &g_result);
       graphene_vec3_to_float (&g_result, result);
+
+      /* Tone mapping */
+      clutter_color_state_params_apply_tone_mapping (color_state_params,
+                                                     target_color_state_params,
+                                                     result,
+                                                     result);
 
       /* Inverse EOTF */
       result[0] = clutter_eotf_apply_inv (target_eotf, result[0]);

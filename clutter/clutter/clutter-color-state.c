@@ -81,7 +81,8 @@ clutter_color_transform_key_hash (gconstpointer data)
   return key->source_eotf_bits << 0 &
          key->target_eotf_bits << 4 &
          key->luminance_bit    << 8 &
-         key->color_trans_bit  << 9;
+         key->color_trans_bit  << 9 &
+         key->tone_mapping_bit << 10;
 }
 
 gboolean
@@ -94,7 +95,8 @@ clutter_color_transform_key_equal (gconstpointer data1,
   return (key1->source_eotf_bits == key2->source_eotf_bits &&
           key1->target_eotf_bits == key2->target_eotf_bits &&
           key1->luminance_bit == key2->luminance_bit &&
-          key1->color_trans_bit == key2->color_trans_bit);
+          key1->color_trans_bit == key2->color_trans_bit &&
+          key1->tone_mapping_bit == key2->tone_mapping_bit);
 }
 
 void
