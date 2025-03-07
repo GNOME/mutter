@@ -44,9 +44,11 @@ struct _MetaCompositorClass
                        GError         **error);
   void (* unmanage) (MetaCompositor *compositor);
   void (* before_paint) (MetaCompositor     *compositor,
-                         MetaCompositorView *compositor_view);
+                         MetaCompositorView *compositor_view,
+                         ClutterFrame       *frame);
   void (* after_paint) (MetaCompositor     *compositor,
-                        MetaCompositorView *compositor_view);
+                        MetaCompositorView *compositor_view,
+                        ClutterFrame       *frame);
   void (* add_window) (MetaCompositor *compositor,
                        MetaWindow     *window);
   void (* remove_window) (MetaCompositor *compositor,

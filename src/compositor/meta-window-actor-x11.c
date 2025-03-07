@@ -1212,7 +1212,8 @@ handle_stage_views_changed (MetaWindowActorX11 *actor_x11)
 
 static void
 meta_window_actor_x11_before_paint (MetaWindowActor  *actor,
-                                    ClutterStageView *stage_view)
+                                    ClutterStageView *stage_view,
+                                    ClutterFrame     *frame)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
 
@@ -1291,13 +1292,14 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
 
 static void
 meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
-                                   ClutterStageView *stage_view)
+                                   ClutterStageView *stage_view,
+                                   ClutterFrame     *frame)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
   MetaSyncCounter *sync_counter;
   MetaWindowDrag *window_drag;
   MetaWindow *window;
-  MetaFrame *frame;
+  MetaFrame *window_frame;
 
   actor_x11->repaint_scheduled = FALSE;
 
@@ -1314,10 +1316,10 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
     {
       sync_counter = meta_window_x11_get_sync_counter (window);
       meta_sync_counter_send_frame_drawn (sync_counter);
-      frame = meta_window_x11_get_frame (window);
-      if (frame)
+      window_frame = meta_window_x11_get_frame (window);
+      if (window_frame)
         {
-          sync_counter = meta_frame_get_sync_counter (frame);
+          sync_counter = meta_frame_get_sync_counter (window_frame);
           meta_sync_counter_send_frame_drawn (sync_counter);
         }
     }

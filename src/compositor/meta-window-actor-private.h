@@ -22,9 +22,11 @@ struct _MetaWindowActorClass
                              gboolean         skip_sync_delay);
 
   void (*before_paint) (MetaWindowActor  *actor,
-                        ClutterStageView *stage_view);
+                        ClutterStageView *stage_view,
+                        ClutterFrame     *frame);
   void (*after_paint) (MetaWindowActor  *actor,
-                       ClutterStageView *stage_view);
+                       ClutterStageView *stage_view,
+                       ClutterFrame     *frame);
 
   void (*queue_destroy) (MetaWindowActor *actor);
   void (*set_frozen) (MetaWindowActor *actor,
@@ -55,9 +57,11 @@ void meta_window_actor_size_change   (MetaWindowActor *self,
                                       MtkRectangle    *old_buffer_rect);
 
 void meta_window_actor_before_paint   (MetaWindowActor    *self,
-                                       ClutterStageView   *stage_view);
+                                       ClutterStageView   *stage_view,
+                                       ClutterFrame       *frame);
 void meta_window_actor_after_paint    (MetaWindowActor    *self,
-                                       ClutterStageView   *stage_view);
+                                       ClutterStageView   *stage_view,
+                                       ClutterFrame       *frame);
 void meta_window_actor_frame_complete (MetaWindowActor    *self,
                                        ClutterFrameInfo   *frame_info,
                                        gint64              presentation_time);

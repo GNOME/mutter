@@ -767,7 +767,8 @@ on_window_decorated_changed (MetaWindow        *window,
 
 static void
 meta_compositor_x11_before_paint (MetaCompositor     *compositor,
-                                  MetaCompositorView *compositor_view)
+                                  MetaCompositorView *compositor_view,
+                                  ClutterFrame       *frame)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
@@ -775,7 +776,7 @@ meta_compositor_x11_before_paint (MetaCompositor     *compositor,
   maybe_unredirect_top_window (compositor_x11);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->before_paint (compositor, compositor_view);
+  parent_class->before_paint (compositor, compositor_view, frame);
 
   /* We must sync after MetaCompositor's before_paint because that's the final
    * time XDamageSubtract may happen before painting (when it calls

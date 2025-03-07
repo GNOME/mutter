@@ -1120,22 +1120,24 @@ meta_window_actor_sync_visibility (MetaWindowActor *self)
 
 void
 meta_window_actor_before_paint (MetaWindowActor  *self,
-                                ClutterStageView *stage_view)
+                                ClutterStageView *stage_view,
+                                ClutterFrame     *frame)
 {
   if (meta_window_actor_is_destroyed (self))
     return;
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->before_paint (self, stage_view);
+  META_WINDOW_ACTOR_GET_CLASS (self)->before_paint (self, stage_view, frame);
 }
 
 void
 meta_window_actor_after_paint (MetaWindowActor  *self,
-                               ClutterStageView *stage_view)
+                               ClutterStageView *stage_view,
+                               ClutterFrame     *frame)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->after_paint (self, stage_view);
+  META_WINDOW_ACTOR_GET_CLASS (self)->after_paint (self, stage_view, frame);
 
   if (meta_window_actor_is_destroyed (self))
     return;

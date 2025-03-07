@@ -913,7 +913,8 @@ on_presented (ClutterStage     *stage,
 
 static void
 meta_compositor_real_before_paint (MetaCompositor     *compositor,
-                                   MetaCompositorView *compositor_view)
+                                   MetaCompositorView *compositor_view,
+                                   ClutterFrame       *frame)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -944,12 +945,13 @@ meta_compositor_real_before_paint (MetaCompositor     *compositor,
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
   for (l = priv->windows; l; l = l->next)
-    meta_window_actor_before_paint (l->data, stage_view);
+    meta_window_actor_before_paint (l->data, stage_view, frame);
 }
 
 static void
 meta_compositor_before_paint (MetaCompositor     *compositor,
-                              MetaCompositorView *compositor_view)
+                              MetaCompositorView *compositor_view,
+                              ClutterFrame       *frame)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -961,12 +963,15 @@ meta_compositor_before_paint (MetaCompositor     *compositor,
 
   priv->frame_in_progress = TRUE;
 
-  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor, compositor_view);
+  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor,
+                                                        compositor_view,
+                                                        frame);
 }
 
 static void
 meta_compositor_real_after_paint (MetaCompositor     *compositor,
-                                  MetaCompositorView *compositor_view)
+                                  MetaCompositorView *compositor_view,
+                                  ClutterFrame       *frame)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -1008,20 +1013,27 @@ meta_compositor_real_after_paint (MetaCompositor     *compositor,
 
       actor_stage_views = clutter_actor_peek_stage_views (actor);
       if (g_list_find (actor_stage_views, stage_view))
-        meta_window_actor_after_paint (META_WINDOW_ACTOR (actor), stage_view);
+        {
+          meta_window_actor_after_paint (META_WINDOW_ACTOR (actor),
+                                         stage_view,
+                                         frame);
+        }
     }
 }
 
 static void
 meta_compositor_after_paint (MetaCompositor     *compositor,
-                             MetaCompositorView *compositor_view)
+                             MetaCompositorView *compositor_view,
+                             ClutterFrame       *frame)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
 
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPostPaint,
                            "Meta::Compositor::after_paint()");
-  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor, compositor_view);
+  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor,
+                                                       compositor_view,
+                                                       frame);
 
   priv->frame_in_progress = FALSE;
 }
@@ -1039,7 +1051,7 @@ on_before_paint (ClutterStage     *stage,
 
   g_assert (compositor_view != NULL);
 
-  meta_compositor_before_paint (compositor, compositor_view);
+  meta_compositor_before_paint (compositor, compositor_view, frame);
 }
 
 static void
@@ -1055,7 +1067,7 @@ on_after_paint (ClutterStage     *stage,
 
   g_assert (compositor_view != NULL);
 
-  meta_compositor_after_paint (compositor, compositor_view);
+  meta_compositor_after_paint (compositor, compositor_view, frame);
 }
 
 static void

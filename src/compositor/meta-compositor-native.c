@@ -32,7 +32,8 @@ G_DEFINE_TYPE (MetaCompositorNative, meta_compositor_native,
 
 static void
 meta_compositor_native_before_paint (MetaCompositor     *compositor,
-                                     MetaCompositorView *compositor_view)
+                                     MetaCompositorView *compositor_view,
+                                     ClutterFrame       *frame)
 {
   MetaCompositorViewNative *compositor_view_native =
     META_COMPOSITOR_VIEW_NATIVE (compositor_view);
@@ -47,7 +48,7 @@ meta_compositor_native_before_paint (MetaCompositor     *compositor,
                                                                compositor);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_native_parent_class);
-  parent_class->before_paint (compositor, compositor_view);
+  parent_class->before_paint (compositor, compositor_view, frame);
 }
 
 static MetaCompositorView *
