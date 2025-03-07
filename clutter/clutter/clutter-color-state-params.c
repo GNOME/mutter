@@ -849,15 +849,23 @@ get_color_space_mapping_snippet (ClutterColorStateParams  *color_state_params,
 }
 
 static void
-append_color_op_snippet (const ColorOpSnippet *color_snippet,
-                         GString              *snippet_globals,
-                         GString              *snippet_source,
-                         const char           *snippet_color_var)
+append_color_op_snippet_global (const ColorOpSnippet *color_snippet,
+                                GString              *snippet_globals)
 {
   if (!color_snippet)
     return;
 
   g_string_append_printf (snippet_globals, "%s\n", color_snippet->source);
+}
+
+static void
+append_color_op_snippet_source (const ColorOpSnippet *color_snippet,
+                                GString              *snippet_source,
+                                const char           *snippet_color_var)
+{
+  if (!color_snippet)
+    return;
+
   g_string_append_printf (snippet_source,
                           "  %s = %s (%s);\n",
                           snippet_color_var,
@@ -919,29 +927,30 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
    *
    */
 
+  append_color_op_snippet_global (eotf_snippet, snippet_globals);
+  append_color_op_snippet_global (inv_eotf_snippet, snippet_globals);
+  append_color_op_snippet_global (luminance_mapping_snippet, snippet_globals);
+  append_color_op_snippet_global (color_space_mapping_snippet, snippet_globals);
+
   g_string_append_printf (snippet_source,
                           "  vec3 %s = cogl_color_out.rgb;\n",
                           snippet_color_var);
 
-  append_color_op_snippet (eotf_snippet,
-                           snippet_globals,
-                           snippet_source,
-                           snippet_color_var);
+  append_color_op_snippet_source (eotf_snippet,
+                                  snippet_source,
+                                  snippet_color_var);
 
-  append_color_op_snippet (luminance_mapping_snippet,
-                           snippet_globals,
-                           snippet_source,
-                           snippet_color_var);
+  append_color_op_snippet_source (luminance_mapping_snippet,
+                                  snippet_source,
+                                  snippet_color_var);
 
-  append_color_op_snippet (color_space_mapping_snippet,
-                           snippet_globals,
-                           snippet_source,
-                           snippet_color_var);
+  append_color_op_snippet_source (color_space_mapping_snippet,
+                                  snippet_source,
+                                  snippet_color_var);
 
-  append_color_op_snippet (inv_eotf_snippet,
-                           snippet_globals,
-                           snippet_source,
-                           snippet_color_var);
+  append_color_op_snippet_source (inv_eotf_snippet,
+                                  snippet_source,
+                                  snippet_color_var);
 
   g_string_append_printf (snippet_source,
                           "  cogl_color_out = vec4 (%s, cogl_color_out.a);\n",
