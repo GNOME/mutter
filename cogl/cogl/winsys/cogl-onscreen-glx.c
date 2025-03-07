@@ -783,7 +783,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen  *onscreen,
                                       rect[0], rect[1], x2, y2,
                                       GL_COLOR_BUFFER_BIT, GL_NEAREST);
         }
-      context->glDrawBuffer (context->current_gl_draw_buffer);
+      context->glDrawBuffer (GL_BACK);
     }
 
   /* NB: unlike glXSwapBuffers, glXCopySubBuffer and
