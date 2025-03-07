@@ -196,7 +196,6 @@ struct _CoglContext
   GLuint                  current_gl_program;
 
   gboolean current_gl_dither_enabled;
-  GLenum current_gl_draw_buffer;
 
   /* Clipping */
   /* TRUE if we have a valid clipping stack flushed. In that case
