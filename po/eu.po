@@ -10,8 +10,8 @@
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-22 11:59+0000\n"
-"PO-Revision-Date: 2025-03-01 10:00+0100\n"
+"POT-Creation-Date: 2025-03-05 02:13+0000\n"
+"PO-Revision-Date: 2025-03-09 10:00+0100\n"
 "Last-Translator: Asier Saratsua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -248,11 +248,11 @@ msgstr "Maximizatu leihoa bertikalean"
 msgid "Maximize window horizontally"
 msgstr "Maximizatu leihoa horizontalean"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Ikusi zatia ezkerrean"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Ikusi zatia eskuinean"
 
@@ -395,15 +395,29 @@ msgid ""
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr "Bezero batek ping eskari bati erantzuteko duen milisegundo kopurua, izoztutzat hartu baino lehen. Erabiltzen den balioa 0 bada, bizirik egotearen egiaztatzea erabat desgaituko da."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Irteerako luminantzia-ezarpenen arabera"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr "Irteerako eta kolore-moduko luminantzia-ezarpenaren arabera. Sarrera bakoitza tupla bat da, non konektorea, fabrikatzailea, produktua, serieko zenbakia eta kolore-modu bat, bai eta irteerako luminantzia adierazten duen koma mugikorreko balio bat ehunekoetan (%), ematen diren. Zehazten ez denean, balio lehenetsia %100 da."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Aldatu monitorearen konfigurazioak"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Biratu barneko monitorearen konfigurazioa"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Utzi bertan behera sarrera aktiboen kaptura-saio guztiak"
 
