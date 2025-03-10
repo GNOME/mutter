@@ -191,25 +191,39 @@ meta_drm_timeline_get_eventfd (MetaDrmTimeline *timeline,
                                uint64_t         sync_point,
                                GError         **error)
 {
+#ifdef HAVE_EVENTFD
   g_autofd int fd = -1;
 
-#ifdef HAVE_EVENTFD
   fd = eventfd (0, EFD_CLOEXEC);
   if (fd < 0)
-    return -1;
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "eventfd() failed: %s",
+                   g_strerror (errno));
+      return -1;
+    }
 
   if (drmSyncobjEventfd (timeline->drm, timeline->drm_syncobj,
                          sync_point, fd, 0) != 0)
     {
       g_set_error (error,
                    G_IO_ERROR,
-                   G_IO_ERROR_NOT_SUPPORTED,
-                   "DRM_IOCTL_SYNCOBJ_EVENTFD: Failed to export eventfd");
+                   G_IO_ERROR_FAILED,
+                   "drmSyncobjEventfd() failed: %s",
+                   g_strerror (errno));
       return -1;
     }
-#endif
 
   return g_steal_fd (&fd);
+#else
+  g_set_error (error,
+               G_IO_ERROR,
+               g_io_error_from_errno (ENOSYS),
+               "Failed to get eventfd: HAVE_EVENTFD not defined at compile time");
+  return -1;
+#endif
 }
 
 gboolean
