@@ -534,6 +534,11 @@ meta_renderer_native_setup_egl_display (CoglDisplay *cogl_display,
 
   cogl_display_egl->platform = renderer_native;
 
+#ifdef HAVE_EGL_DEVICE
+  if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
+    cogl_renderer_egl->needs_config = TRUE;
+#endif
+
   /* Force a full modeset / drmModeSetCrtc on
    * the first swap buffers call.
    */
