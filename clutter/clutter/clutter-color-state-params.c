@@ -1037,7 +1037,7 @@ xyY_to_XYZ (float            x,
  * Reference:
  *   https://www.ryanjuckett.com/rgb-color-space-conversion/
  */
-static gboolean
+static void
 get_color_space_trans_matrices (ClutterColorStateParams *color_state_params,
                                 graphene_matrix_t       *rgb_to_xyz,
                                 graphene_matrix_t       *xyz_to_rgb)
@@ -1059,7 +1059,12 @@ get_color_space_trans_matrices (ClutterColorStateParams *color_state_params,
   });
 
   if (!graphene_matrix_inverse (&primaries_mat, &inv_primaries_mat))
-    return FALSE;
+    {
+      g_warning ("Failed computing color space mapping matrix");
+      graphene_matrix_init_identity (rgb_to_xyz);
+      graphene_matrix_init_identity (xyz_to_rgb);
+      return;
+    }
 
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f,  &white_point_XYZ);
 
@@ -1077,23 +1082,11 @@ get_color_space_trans_matrices (ClutterColorStateParams *color_state_params,
   graphene_matrix_multiply (&coefficients_mat, &primaries_mat, rgb_to_xyz);
 
   if (!graphene_matrix_inverse (rgb_to_xyz, xyz_to_rgb))
-    return FALSE;
-
-  return TRUE;
-}
-
-static gboolean
-primaries_white_point_equal (ClutterColorStateParams *color_state_params,
-                             ClutterColorStateParams *other_color_state_params)
-{
-  const ClutterPrimaries *primaries;
-  const ClutterPrimaries *other_primaries;
-
-  primaries = get_primaries (color_state_params);
-  other_primaries = get_primaries (other_color_state_params);
-
-  return chromaticity_equal (primaries->w_x, primaries->w_y,
-                             other_primaries->w_x, other_primaries->w_y);
+    {
+      g_warning ("Failed computing color space mapping matrix");
+      graphene_matrix_init_identity (rgb_to_xyz);
+      graphene_matrix_init_identity (xyz_to_rgb);
+    }
 }
 
 /*
@@ -1207,33 +1200,20 @@ get_color_space_mapping_matrix (ClutterColorStateParams *color_state_params,
   graphene_matrix_t target_rgb_to_xyz, target_xyz_to_rgb;
   graphene_matrix_t chromatic_adaptation;
 
-  if (!get_color_space_trans_matrices (color_state_params,
-                                       &src_rgb_to_xyz,
-                                       &src_xyz_to_rgb) ||
-      !get_color_space_trans_matrices (target_color_state_params,
-                                       &target_rgb_to_xyz,
-                                       &target_xyz_to_rgb))
-    {
-      graphene_matrix_init_identity (&matrix);
-    }
-  else
-    {
-      if (!primaries_white_point_equal (color_state_params,
-                                        target_color_state_params))
-        {
-          get_chromatic_adaptation (color_state_params,
-                                    target_color_state_params,
-                                    &chromatic_adaptation);
-          graphene_matrix_multiply (&src_rgb_to_xyz, &chromatic_adaptation,
-                                    &matrix);
-          graphene_matrix_multiply (&matrix, &target_xyz_to_rgb,
-                                    &matrix);
-        }
-      else
-        {
-          graphene_matrix_multiply (&src_rgb_to_xyz, &target_xyz_to_rgb, &matrix);
-        }
-    }
+  get_color_space_trans_matrices (color_state_params,
+                                  &src_rgb_to_xyz,
+                                  &src_xyz_to_rgb);
+  get_color_space_trans_matrices (target_color_state_params,
+                                  &target_rgb_to_xyz,
+                                  &target_xyz_to_rgb);
+  get_chromatic_adaptation (color_state_params,
+                            target_color_state_params,
+                            &chromatic_adaptation);
+
+  graphene_matrix_init_identity (&matrix);
+  graphene_matrix_multiply (&matrix, &src_rgb_to_xyz, &matrix);
+  graphene_matrix_multiply (&matrix, &chromatic_adaptation, &matrix);
+  graphene_matrix_multiply (&matrix, &target_xyz_to_rgb, &matrix);
 
   out_color_space_mapping[0] = graphene_matrix_get_value (&matrix, 0, 0);
   out_color_space_mapping[1] = graphene_matrix_get_value (&matrix, 0, 1);
