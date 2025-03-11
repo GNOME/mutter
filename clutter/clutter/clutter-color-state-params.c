@@ -1122,15 +1122,12 @@ primaries_white_point_equal (ClutterColorStateParams *color_state_params,
  *   http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
  */
 static void
-get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
-                          ClutterColorStateParams *target_color_state_params,
-                          graphene_matrix_t       *chromatic_adaptation)
+compute_chromatic_adaptation (graphene_vec3_t   *src_white_point_XYZ,
+                              graphene_vec3_t   *dst_white_point_XYZ,
+                              graphene_matrix_t *chromatic_adaptation)
 {
-  const ClutterPrimaries *source_primaries = get_primaries (color_state_params);
-  const ClutterPrimaries *target_primaries = get_primaries (target_color_state_params);
   graphene_matrix_t coefficients_mat;
   graphene_matrix_t bradford_mat, inv_bradford_mat;
-  graphene_vec3_t src_white_point_XYZ, dst_white_point_XYZ;
   graphene_vec3_t src_white_point_LMS, dst_white_point_LMS;
   graphene_vec3_t coefficients;
 
@@ -1152,14 +1149,9 @@ get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
     0.0f, 0.0f, 0.0f, 1.0f,
   });
 
-  xyY_to_XYZ (source_primaries->w_x, source_primaries->w_y, 1.0f,
-              &src_white_point_XYZ);
-  xyY_to_XYZ (target_primaries->w_x, target_primaries->w_y, 1.0f,
-              &dst_white_point_XYZ);
-
-  graphene_matrix_transform_vec3 (&bradford_mat, &src_white_point_XYZ,
+  graphene_matrix_transform_vec3 (&bradford_mat, src_white_point_XYZ,
                                   &src_white_point_LMS);
-  graphene_matrix_transform_vec3 (&bradford_mat, &dst_white_point_XYZ,
+  graphene_matrix_transform_vec3 (&bradford_mat, dst_white_point_XYZ,
                                   &dst_white_point_LMS);
 
   graphene_vec3_divide (&dst_white_point_LMS, &src_white_point_LMS,
@@ -1178,6 +1170,31 @@ get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
                             chromatic_adaptation);
   graphene_matrix_multiply (chromatic_adaptation, &inv_bradford_mat,
                             chromatic_adaptation);
+}
+
+static void
+get_white_point_XYZ (ClutterColorStateParams *color_state_params,
+                     graphene_vec3_t         *white_point_XYZ)
+{
+  const ClutterPrimaries *primaries = get_primaries (color_state_params);
+
+  xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, white_point_XYZ);
+}
+
+static void
+get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
+                          ClutterColorStateParams *target_color_state_params,
+                          graphene_matrix_t       *chromatic_adaptation)
+{
+  graphene_vec3_t src_white_point_XYZ;
+  graphene_vec3_t dst_white_point_XYZ;
+
+  get_white_point_XYZ (color_state_params, &src_white_point_XYZ);
+  get_white_point_XYZ (target_color_state_params, &dst_white_point_XYZ);
+
+  compute_chromatic_adaptation (&src_white_point_XYZ,
+                                &dst_white_point_XYZ,
+                                chromatic_adaptation);
 }
 
 static void
