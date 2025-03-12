@@ -30,4 +30,10 @@ void meta_ref_test_verify_view (ClutterStageView *view,
                                 MetaReftestFlag   flags);
 
 META_EXPORT
+void meta_ref_test_verify_view_undamaged (ClutterStageView *view,
+                                          const char       *test_name_unescaped,
+                                          int               test_seq_no,
+                                          MetaReftestFlag   flags);
+
+META_EXPORT
 MetaReftestFlag meta_ref_test_determine_ref_test_flag (void);

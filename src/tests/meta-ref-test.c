@@ -146,7 +146,8 @@ on_after_paint (MetaStage        *stage,
 }
 
 static cairo_surface_t *
-capture_view (ClutterStageView *stage_view)
+capture_view (ClutterStageView *stage_view,
+              gboolean          queue_damage)
 {
   MetaRendererView *view = META_RENDERER_VIEW (stage_view);
   MetaCrtc *crtc = meta_renderer_view_get_crtc (view);
@@ -165,7 +166,8 @@ capture_view (ClutterStageView *stage_view)
                                       META_STAGE_WATCH_AFTER_PAINT,
                                       on_after_paint,
                                       &data);
-  clutter_stage_view_add_redraw_clip (stage_view, NULL);
+  if (queue_damage)
+    clutter_stage_view_add_redraw_clip (stage_view, NULL);
   clutter_stage_view_schedule_update (stage_view);
 
   g_main_loop_run (data.loop);
@@ -185,7 +187,15 @@ view_adaptor_capture (gpointer adaptor_data)
 {
   ClutterStageView *view = CLUTTER_STAGE_VIEW (adaptor_data);
 
-  return capture_view (view);
+  return capture_view (view, TRUE);
+}
+
+static cairo_surface_t *
+view_adaptor_capture_undamaged (gpointer adaptor_data)
+{
+  ClutterStageView *view = CLUTTER_STAGE_VIEW (adaptor_data);
+
+  return capture_view (view, FALSE);
 }
 
 static void
@@ -208,6 +218,22 @@ meta_ref_test_verify_view (ClutterStageView *view,
     assert_software_rendered (view);
 
   meta_ref_test_verify (view_adaptor_capture,
+                        view,
+                        test_name_unescaped,
+                        test_seq_no,
+                        flags);
+}
+
+void
+meta_ref_test_verify_view_undamaged (ClutterStageView *view,
+                                     const char       *test_name_unescaped,
+                                     int               test_seq_no,
+                                     MetaReftestFlag   flags)
+{
+  if (flags & META_REFTEST_FLAG_UPDATE_REF)
+    assert_software_rendered (view);
+
+  meta_ref_test_verify (view_adaptor_capture_undamaged,
                         view,
                         test_name_unescaped,
                         test_seq_no,
