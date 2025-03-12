@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "backends/meta-renderer.h"
 #include "backends/meta-stage-view-private.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
@@ -899,4 +900,15 @@ meta_stage_impl_get_backend (MetaStageImpl *stage_impl)
     meta_stage_impl_get_instance_private (stage_impl);
 
   return priv->backend;
+}
+
+void
+meta_stage_impl_rebuild_views (MetaStageImpl *stage_impl)
+{
+  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  meta_renderer_rebuild_views (renderer);
+  clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
 }

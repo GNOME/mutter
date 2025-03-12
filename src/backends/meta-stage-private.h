@@ -70,4 +70,6 @@ META_EXPORT_TEST
 void meta_stage_remove_watch (MetaStage      *stage,
                               MetaStageWatch *watch);
 
+void meta_stage_rebuild_views (MetaStage *stage);
+
 G_END_DECLS

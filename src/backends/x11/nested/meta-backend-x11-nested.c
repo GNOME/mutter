@@ -21,6 +21,7 @@
 
 #include "backends/meta-input-settings-dummy.h"
 #include "backends/meta-monitor-manager-dummy.h"
+#include "backends/meta-stage-private.h"
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "backends/x11/nested/meta-cursor-renderer-x11-nested.h"
 #include "backends/x11/nested/meta-renderer-x11-nested.h"
@@ -98,16 +99,8 @@ static void
 meta_backend_x11_nested_update_stage (MetaBackend *backend)
 {
   ClutterActor *stage = meta_backend_get_stage (backend);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  int width, height;
 
-  meta_renderer_rebuild_views (renderer);
-  clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
-
-  meta_monitor_manager_get_screen_size (monitor_manager, &width, &height);
-  clutter_actor_set_size (stage, width, height);
+  meta_stage_rebuild_views (META_STAGE (stage));
 }
 
 static void
