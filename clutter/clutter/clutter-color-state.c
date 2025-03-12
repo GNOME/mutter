@@ -74,13 +74,23 @@ enum
   N_PROPS
 };
 
+enum
+{
+  DESTROYED,
+
+  N_SIGNALS,
+};
+
 static GParamSpec *obj_props[N_PROPS];
+
+static guint signals[N_SIGNALS];
 
 typedef struct _ClutterColorStatePrivate
 {
   ClutterContext *context;
 
   uint64_t id;
+  gboolean disposed;
 } ClutterColorStatePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorState,
@@ -187,6 +197,21 @@ clutter_color_state_constructed (GObject *object)
 }
 
 static void
+clutter_color_state_dispose (GObject *object)
+{
+  ClutterColorState *color_state = CLUTTER_COLOR_STATE (object);
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
+
+  if (!priv->disposed)
+    g_signal_emit (color_state, signals[DESTROYED], 0);
+
+  priv->disposed = TRUE;
+
+  G_OBJECT_CLASS (clutter_color_state_parent_class)->dispose (object);
+}
+
+static void
 clutter_color_state_set_property (GObject      *object,
                                   guint         prop_id,
                                   const GValue *value,
@@ -237,6 +262,7 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->constructed = clutter_color_state_constructed;
+  object_class->dispose = clutter_color_state_dispose;
   object_class->set_property = clutter_color_state_set_property;
   object_class->get_property = clutter_color_state_get_property;
 
@@ -252,6 +278,13 @@ clutter_color_state_class_init (ClutterColorStateClass *klass)
                                                  G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
+
+  signals[DESTROYED] = g_signal_new ("destroyed",
+                                     G_TYPE_FROM_CLASS (klass),
+                                     G_SIGNAL_RUN_LAST,
+                                     0,
+                                     NULL, NULL, NULL,
+                                     G_TYPE_NONE, 0);
 }
 
 static void
