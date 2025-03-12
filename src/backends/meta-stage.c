@@ -36,6 +36,12 @@ struct _MetaStageWatch
   gpointer user_data;
 };
 
+typedef struct _MetaOverlayViewState
+{
+  graphene_rect_t painted_rect;
+  gboolean has_painted_rect;
+} MetaOverlayViewState;
+
 struct _MetaOverlay
 {
   MetaStage *stage;
@@ -47,8 +53,8 @@ struct _MetaOverlay
 
   graphene_matrix_t transform;
   graphene_rect_t current_rect;
-  graphene_rect_t previous_rect;
-  gboolean previous_is_valid;
+
+  GHashTable *view_states;
 };
 
 struct _MetaStage
@@ -75,6 +81,7 @@ meta_overlay_new (MetaStage *stage)
   overlay = g_new0 (MetaOverlay, 1);
   overlay->stage = stage;
   overlay->pipeline = cogl_pipeline_new (ctx);
+  overlay->view_states = g_hash_table_new_full (NULL, NULL, NULL, g_free);
 
   return overlay;
 }
@@ -84,6 +91,7 @@ meta_overlay_free (MetaOverlay *overlay)
 {
   if (overlay->pipeline)
     g_object_unref (overlay->pipeline);
+  g_hash_table_unref (overlay->view_states);
 
   g_free (overlay);
 }
@@ -113,19 +121,57 @@ meta_overlay_set (MetaOverlay             *overlay,
   overlay->current_rect = *dst_rect;
 }
 
+static MetaOverlayViewState *
+get_view_state (MetaOverlay      *overlay,
+                ClutterStageView *view)
+{
+  return g_hash_table_lookup (overlay->view_states, view);
+}
+
+static MetaOverlayViewState *
+ensure_view_state (MetaOverlay      *overlay,
+                   ClutterStageView *view)
+{
+  MetaOverlayViewState *view_state;
+
+  view_state = get_view_state (overlay, view);
+
+  if (!view_state)
+    {
+      view_state = g_new0 (MetaOverlayViewState, 1);
+      g_hash_table_insert (overlay->view_states, view, view_state);
+    }
+
+  return view_state;
+}
+
+static void
+meta_overlay_invalidate_views (MetaOverlay *overlay)
+{
+  g_hash_table_remove_all (overlay->view_states);
+}
+
 static void
 meta_overlay_paint (MetaOverlay         *overlay,
                     ClutterPaintContext *paint_context)
 {
+  ClutterStageView *view;
+  MetaOverlayViewState *view_state = NULL;
   CoglFramebuffer *framebuffer;
 
-  if (!overlay->texture)
-    return;
+  view = clutter_paint_context_get_stage_view (paint_context);
+  if (view)
+    view_state = ensure_view_state (overlay, view);
 
-  if (!overlay->is_visible &&
+  if ((!overlay->texture ||
+       !overlay->is_visible) &&
       !(clutter_paint_context_get_paint_flags (paint_context) &
         CLUTTER_PAINT_FLAG_FORCE_CURSORS))
-    return;
+    {
+      if (view_state)
+        view_state->has_painted_rect = FALSE;
+      return;
+    }
 
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_draw_rectangle (framebuffer,
@@ -137,10 +183,10 @@ meta_overlay_paint (MetaOverlay         *overlay,
                                    (overlay->current_rect.origin.y +
                                     overlay->current_rect.size.height));
 
-  if (!graphene_rect_equal (&overlay->previous_rect, &overlay->current_rect))
+  if (view_state)
     {
-      overlay->previous_rect = overlay->current_rect;
-      overlay->previous_is_valid = TRUE;
+      view_state->painted_rect = overlay->current_rect;
+      view_state->has_painted_rect = TRUE;
     }
 }
 
@@ -347,67 +393,68 @@ meta_stage_new (MetaBackend *backend)
 }
 
 static void
-queue_cursor_overlay_redraw_clutter_rect (MetaStage       *stage,
-                                          MetaOverlay     *overlay,
-                                          graphene_rect_t *rect)
+intersect_and_queue_redraw (ClutterStageView   *view,
+                            const MtkRectangle *clip)
 {
-  MtkRectangle clip = {
-    .x = (int) floorf (rect->origin.x),
-    .y = (int) floorf (rect->origin.y),
-    .width = (int) ceilf (rect->size.width),
-    .height = (int) ceilf (rect->size.height)
-  };
-  GList *l;
+  MtkRectangle view_layout;
+  MtkRectangle view_clip;
+
+  clutter_stage_view_get_layout (view, &view_layout);
+
+  if (mtk_rectangle_intersect (clip, &view_layout, &view_clip))
+    {
+      clutter_stage_view_add_redraw_clip (view, &view_clip);
+      clutter_stage_view_schedule_update (view);
+    }
+}
+
+static void
+cursor_rect_to_clip (const graphene_rect_t *cursor_rect,
+                     MtkRectangle          *clip_rect)
+{
+  mtk_rectangle_from_graphene_rect (cursor_rect,
+                                    MTK_ROUNDING_STRATEGY_GROW,
+                                    clip_rect);
 
   /* Since we're flooring the coordinates, we need to enlarge the clip by the
    * difference between the actual coordinate and the floored value */
-  clip.width += (int) ceilf (rect->origin.x - clip.x) * 2;
-  clip.height += (int) ceilf (rect->origin.y - clip.y) * 2;
-
-  for (l = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
-       l;
-       l = l->next)
-    {
-      ClutterStageView *view = l->data;
-      MtkRectangle view_layout;
-      MtkRectangle view_clip;
-
-      if (clutter_stage_view_get_default_paint_flags (view) &
-          CLUTTER_PAINT_FLAG_NO_CURSORS)
-        continue;
-
-      if (meta_stage_view_is_cursor_overlay_inhibited (META_STAGE_VIEW (view)))
-        continue;
-
-      clutter_stage_view_get_layout (view, &view_layout);
-
-      if (mtk_rectangle_intersect (&clip, &view_layout, &view_clip))
-        {
-          clutter_stage_view_add_redraw_clip (view, &view_clip);
-          clutter_stage_view_schedule_update (view);
-        }
-    }
+  clip_rect->width += (int) ceilf (cursor_rect->origin.x - clip_rect->x) * 2;
+  clip_rect->height += (int) ceilf (cursor_rect->origin.y - clip_rect->y) * 2;
 }
 
 static void
 queue_redraw_for_cursor_overlay (MetaStage   *stage,
                                  MetaOverlay *overlay)
 {
-  /* Clear the location the overlay was at before, if we need to. */
-  if (overlay->previous_is_valid)
-    {
-      queue_cursor_overlay_redraw_clutter_rect (stage,
-                                                overlay,
-                                                &overlay->previous_rect);
-      overlay->previous_is_valid = FALSE;
-    }
+  GList *l;
 
-  /* Draw the overlay at the new position */
-  if (overlay->is_visible && overlay->texture)
+  for (l = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+       l;
+       l = l->next)
     {
-      queue_cursor_overlay_redraw_clutter_rect (stage,
-                                                overlay,
-                                                &overlay->current_rect);
+      ClutterStageView *view = CLUTTER_STAGE_VIEW (l->data);
+      MetaOverlayViewState *view_state;
+
+      view_state = ensure_view_state (overlay, view);
+      if (view_state->has_painted_rect)
+        {
+          MtkRectangle clip;
+
+          cursor_rect_to_clip (&view_state->painted_rect, &clip);
+          intersect_and_queue_redraw (view, &clip);
+        }
+
+      if (overlay->is_visible &&
+          overlay->texture &&
+          !(clutter_stage_view_get_default_paint_flags (view) &
+            CLUTTER_PAINT_FLAG_NO_CURSORS) &&
+          !meta_stage_view_is_cursor_overlay_inhibited (META_STAGE_VIEW (view)))
+        {
+          MtkRectangle clip;
+
+          cursor_rect_to_clip (&overlay->current_rect, &clip);
+          intersect_and_queue_redraw (view, &clip);
+        }
     }
 }
 
@@ -513,4 +560,8 @@ meta_stage_rebuild_views (MetaStage *stage)
 
   meta_monitor_manager_get_screen_size (monitor_manager, &width, &height);
   clutter_actor_set_size (CLUTTER_ACTOR (stage), width, height);
+
+  g_list_foreach (stage->overlays,
+                  (GFunc) meta_overlay_invalidate_views,
+                  NULL);
 }
