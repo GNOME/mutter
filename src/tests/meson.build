@@ -513,6 +513,14 @@ test_cases += [
     ],
   },
   {
+    'name': 'cursor-overlay-tests',
+    'suite': 'backends/native',
+    'sources': [
+      'cursor-overlay-tests.c',
+      wayland_test_utils,
+    ],
+  },
+  {
     'name': 'cursor-tests',
     'suite': 'backends/native',
     'sources': [
