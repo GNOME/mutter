@@ -54,18 +54,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init))
 
-void
-meta_stage_native_rebuild_views (MetaStageNative *stage_native)
-{
-  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_native);
-  MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  ClutterActor *stage = meta_backend_get_stage (backend);
-
-  meta_renderer_rebuild_views (renderer);
-  clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
-}
-
 static gboolean
 meta_stage_native_can_clip_redraws (ClutterStageWindow *stage_window)
 {
