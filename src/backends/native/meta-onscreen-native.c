@@ -1672,6 +1672,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
     {
       kms_update = meta_frame_native_steal_kms_update (frame_native);
       post_nonprimary_plane_update (onscreen_native, frame, kms_update);
+      onscreen_native->posted_frame = clutter_frame_ref (frame);
       return;
     }
 
@@ -2126,6 +2127,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
     }
 
   post_nonprimary_plane_update (onscreen_native, frame, kms_update);
+  onscreen_native->posted_frame = clutter_frame_ref (frame);
 
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
