@@ -159,13 +159,22 @@ static void
 meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaFrameNative *frame_native;
 
   if (!onscreen_native->posted_frame)
     return;
 
-  g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
-  onscreen_native->presented_frame =
-    g_steal_pointer (&onscreen_native->posted_frame);
+  frame_native = meta_frame_native_from_frame (onscreen_native->posted_frame);
+  if (!meta_frame_native_get_buffer (frame_native))
+    {
+      g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
+    }
+  else
+    {
+      g_clear_pointer (&onscreen_native->presented_frame, clutter_frame_unref);
+      onscreen_native->presented_frame =
+        g_steal_pointer (&onscreen_native->posted_frame);
+    }
 }
 
 static void
@@ -1675,6 +1684,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
     {
       kms_update = meta_frame_native_steal_kms_update (frame_native);
       post_nonprimary_plane_update (onscreen_native, frame, kms_update);
+      onscreen_native->posted_frame = clutter_frame_ref (frame);
       return;
     }
 
@@ -2034,6 +2044,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                               gpointer               user_data)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   const GError *error;
   CoglFrameInfo *frame_info;
 
@@ -2059,6 +2070,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
+  g_clear_pointer (&onscreen_native->posted_frame, clutter_frame_unref);
 }
 
 static const MetaKmsResultListenerVtable finish_frame_result_listener_vtable = {
@@ -2131,6 +2143,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
     }
 
   post_nonprimary_plane_update (onscreen_native, frame, kms_update);
+  onscreen_native->posted_frame = clutter_frame_ref (frame);
 
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 }
