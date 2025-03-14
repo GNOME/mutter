@@ -233,6 +233,30 @@ static const char y_u_v_shader[] =
   "  return yuva;\n"
   "}\n";
 
+/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane, shifted by 6 bits (2^6=64) */
+static const char y_u_v_shader_10bit_lsb[] =
+  "vec4 sample_y_u_v_10bit_lsb(vec4 unused)\n"
+  "{\n"
+  "  vec4 yuva;\n"
+  "  yuva.a = 1.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x * 64.0;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x * 64.0;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x * 64.0;\n"
+  "  return yuva;\n"
+  "}\n";
+
+/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane, shifted by 4 bits (2^4=16) */
+static const char y_u_v_shader_12bit_lsb[] =
+  "vec4 sample_y_u_v_12bit_lsb(vec4 unused)\n"
+  "{\n"
+  "  vec4 yuva;\n"
+  "  yuva.a = 1.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x * 16.0;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x * 16.0;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x * 16.0;\n"
+  "  return yuva;\n"
+  "}\n";
+
 typedef struct _MetaMultiTextureFormatFullInfo
 {
   MetaMultiTextureFormatInfo info;
@@ -342,6 +366,132 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
     .info = {
       .n_planes = 3,
       .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 1, 1 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S010] = {
+    .name = "S010",
+    .snippet = {
+      .source = y_u_v_shader_10bit_lsb,
+      .name = "sample_y_u_v_10bit_lsb",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 2, 2 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S210] = {
+    .name = "S210",
+    .snippet = {
+      .source = y_u_v_shader_10bit_lsb,
+      .name = "sample_y_u_v_10bit_lsb",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S410] = {
+    .name = "S410",
+    .snippet = {
+      .source = y_u_v_shader_10bit_lsb,
+      .name = "sample_y_u_v_10bit_lsb",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 1, 1 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S012] = {
+    .name = "S012",
+    .snippet = {
+      .source = y_u_v_shader_12bit_lsb,
+      .name = "sample_y_u_v_12bit_lsb",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 2, 2 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S212] = {
+    .name = "S212",
+    .snippet = {
+      .source = y_u_v_shader_12bit_lsb,
+      .name = "sample_y_u_v_12bit_lsb",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S412] = {
+    .name = "S412",
+    .snippet = {
+      .source = y_u_v_shader_12bit_lsb,
+      .name = "sample_y_u_v_12bit_lsb",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 1, 1 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S016] = {
+    .name = "S016",
+    .snippet = {
+      .source = y_u_v_shader,
+      .name = "sample_y_u_v",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 2, 2 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S216] = {
+    .name = "S216",
+    .snippet = {
+      .source = y_u_v_shader,
+      .name = "sample_y_u_v",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_S416] = {
+    .name = "S416",
+    .snippet = {
+      .source = y_u_v_shader,
+      .name = "sample_y_u_v",
+    },
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_R_16 },
       .plane_indices = { 0, 1, 2 },
       .hsub = { 1, 1, 1 },
       .vsub = { 1, 1, 1 },
