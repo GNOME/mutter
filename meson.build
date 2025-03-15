@@ -352,6 +352,12 @@ if have_introspection
     '-U_GNU_SOURCE',
   ]
 
+  if gobject_introspection_dep.version().version_compare('>=1.83.2')
+    introspection_args += [
+     '--doc-format=gi-docgen',
+    ]
+  endif
+
   introspection_common = {
     'install_dir_gir': pkglibdir,
     'install_dir_typelib': pkglibdir,
