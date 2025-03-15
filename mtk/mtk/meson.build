@@ -64,12 +64,13 @@ if have_introspection
     ],
     nsversion: libmutter_api_version,
     namespace: 'Mtk',
+    header: 'mtk/mtk.h',
     export_packages: [libmutter_mtk_name],
     includes: [
       'GObject-2.0',
       'Graphene-1.0',
     ],
-    extra_args: mtk_introspection_args + ['--c-include=mtk/mtk.h'],
+    extra_args: mtk_introspection_args,
     kwargs: introspection_common,
   )
 

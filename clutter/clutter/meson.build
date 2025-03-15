@@ -314,11 +314,10 @@ if have_introspection
     '-DCLUTTER_COMPILATION=1',
     '-DG_LOG_DOMAIN="Clutter"'
   ]
-
-  extra_args = clutter_introspection_args + ['--c-include=clutter/clutter.h']
+  gi_headers = ['clutter/clutter.h']
   if have_fonts
-    extra_args += [
-      '--c-include=clutter/clutter-pango.h'
+    gi_headers += [
+      'clutter/clutter-pango.h'
     ]
   endif
 
@@ -347,7 +346,8 @@ if have_introspection
       'Pango-1.0',
     ],
     dependencies: [cogl_deps],
-    extra_args: extra_args,
+    header: gi_headers,
+    extra_args: clutter_introspection_args,
     kwargs: introspection_common,
   )
 endif
