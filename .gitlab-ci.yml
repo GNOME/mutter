@@ -21,6 +21,7 @@ build-sysext:
   # https://gitlab.gnome.org/Infrastructure/Infrastructure/-/issues/1665
   tags:
     - x86_64_v3
+  when: manual
 
 stages:
  - review
