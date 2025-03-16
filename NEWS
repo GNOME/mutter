@@ -1,3 +1,27 @@
+48.0
+====
+* Improve wp_color_management_v1 support [Joan; !4304]
+* Fix cursor brightness not following HDR luminance setting [Sebastian; !4315]
+* Fix black screen with nvidia driver [Bilal, Daniel; !4323, !4324]
+* Adjust presentation time feedback for triple buffering [Michel; !4325]
+* Fix broken overlay cursor damage tracking [Jonas; !4331]
+* Add support for Kana and Compose USB HID LEDs [Martin; !4002]
+* Fix frequent frame skips under some circumstances [Michel; !4306]
+* Fix random output freezes [Jonas, Michel; !4321]
+* Fixed crashes [Daniel, Michel; !4316, !4326]
+* Misc. bug fixes and cleanups [Daniel, José, Carlos, Sebastian, Jonas; !4309,
+  !3921, !4301, !4307, !4327, !4337]
+
+Contributors:
+  Michel Dänzer, Bilal Elmoussaoui, José Expósito, Carlos Garnacho,
+  Martin Rys, Joan Torres, Daniel van Vugt, Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Artur S0 [ru], Balázs Úr [hu], Jordi Mas i Hernandez [ca],
+  Ask Hjorth Larsen [da], Asier Saratsua Garmendia [eu], Emin Tufan Çetin [tr],
+  Anders Jonsson [sv], Gwan-gyeong Mun [ko], Andika Triwidada [id],
+  Pawan Chitrakar [ne], A S Alam [pa], Bruce Cowan [en_GB], Cas Pascal [vi]
+
 48.rc
 =====
 * Support presentation-time version 2 [Dudemanguy; !4227]
