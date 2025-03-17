@@ -185,12 +185,11 @@ queue_send_frame_messages_timeout (MetaWindowActorX11 *actor_x11)
 }
 
 static void
-assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11)
+assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11,
+                                ClutterFrame       *clutter_frame)
 {
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-  MetaCompositor *compositor = window->display->compositor;
-  ClutterStage *stage = meta_compositor_get_stage (compositor);
   MetaFrame *frame;
   MetaSyncCounter *sync_counter;
 
@@ -202,13 +201,13 @@ assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11)
 
   sync_counter = meta_window_x11_get_sync_counter (window);
   meta_sync_counter_assign_counter_to_frames (sync_counter,
-                                              clutter_stage_get_frame_counter (stage));
+                                              clutter_frame->frame_count);
   frame = meta_window_x11_get_frame (window);
   if (frame)
     {
       sync_counter = meta_frame_get_sync_counter (frame);
       meta_sync_counter_assign_counter_to_frames (sync_counter,
-                                                  clutter_stage_get_frame_counter (stage));
+                                                  clutter_frame->frame_count);
     }
 }
 
@@ -1219,7 +1218,7 @@ meta_window_actor_x11_before_paint (MetaWindowActor  *actor,
 
   handle_updates (actor_x11);
 
-  assign_frame_counter_to_frames (actor_x11);
+  assign_frame_counter_to_frames (actor_x11, frame);
 }
 
 static void
@@ -1237,8 +1236,11 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
   * and send the completion events normally */
   if (actor_x11->send_frame_messages_timer != 0)
     {
+      ClutterFrame *frame;
+
       remove_frame_messages_timer (actor_x11);
-      assign_frame_counter_to_frames (actor_x11);
+      frame = clutter_paint_context_get_frame (paint_context);
+      assign_frame_counter_to_frames (actor_x11, frame);
     }
 
   window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
