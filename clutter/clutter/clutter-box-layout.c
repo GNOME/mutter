@@ -1068,6 +1068,14 @@ clutter_box_layout_set_orientation (ClutterBoxLayout   *layout,
 
   priv->orientation = orientation;
 
+  if (priv->container != NULL)
+    {
+      clutter_actor_set_request_mode (CLUTTER_ACTOR (priv->container),
+                                      orientation == CLUTTER_ORIENTATION_VERTICAL
+                                        ? CLUTTER_REQUEST_HEIGHT_FOR_WIDTH
+                                        : CLUTTER_REQUEST_WIDTH_FOR_HEIGHT);
+    }
+
   manager = CLUTTER_LAYOUT_MANAGER (layout);
 
   clutter_layout_manager_layout_changed (manager);
