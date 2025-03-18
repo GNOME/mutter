@@ -1280,6 +1280,32 @@ wayland_buffer_shm_allocate (WaylandBuffer *buffer,
       vsub[1] = 2;
       vsub[2] = 2;
       break;
+    case DRM_FORMAT_YUV422:
+      shm->n_planes = 3;
+      shm_format = priv->format;
+      bpp[0] = 1;
+      bpp[1] = 1;
+      bpp[2] = 1;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      hsub[2] = 2;
+      vsub[0] = 1;
+      vsub[1] = 1;
+      vsub[2] = 1;
+      break;
+    case DRM_FORMAT_YUV444:
+      shm->n_planes = 3;
+      shm_format = priv->format;
+      bpp[0] = 1;
+      bpp[1] = 1;
+      bpp[2] = 1;
+      hsub[0] = 1;
+      hsub[1] = 1;
+      hsub[2] = 1;
+      vsub[0] = 1;
+      vsub[1] = 1;
+      vsub[2] = 1;
+      break;
     default:
       g_assert_not_reached ();
     }
@@ -1513,6 +1539,30 @@ alloc_dmabuf_complex (WaylandBuffer *buffer,
       vsub[0] = 1;
       vsub[1] = 2;
       vsub[2] = 2;
+      break;
+    case DRM_FORMAT_YUV422:
+      dmabuf->n_planes = 3;
+      formats[0] = DRM_FORMAT_R8;
+      formats[1] = DRM_FORMAT_R8;
+      formats[2] = DRM_FORMAT_R8;
+      hsub[0] = 1;
+      hsub[1] = 2;
+      hsub[2] = 2;
+      vsub[0] = 1;
+      vsub[1] = 1;
+      vsub[2] = 1;
+      break;
+    case DRM_FORMAT_YUV444:
+      dmabuf->n_planes = 3;
+      formats[0] = DRM_FORMAT_R8;
+      formats[1] = DRM_FORMAT_R8;
+      formats[2] = DRM_FORMAT_R8;
+      hsub[0] = 1;
+      hsub[1] = 1;
+      hsub[2] = 1;
+      vsub[0] = 1;
+      vsub[1] = 1;
+      vsub[2] = 1;
       break;
     default:
       return FALSE;

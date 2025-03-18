@@ -1134,6 +1134,8 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
     WL_SHM_FORMAT_NV12,
     WL_SHM_FORMAT_P010,
     WL_SHM_FORMAT_YUV420,
+    WL_SHM_FORMAT_YUV422,
+    WL_SHM_FORMAT_YUV444,
   };
 
   wl_display_init_shm (compositor->wayland_display);

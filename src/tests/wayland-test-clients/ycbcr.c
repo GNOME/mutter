@@ -85,6 +85,8 @@ draw (WaylandDisplay *display,
       planes[0] = wayland_buffer_mmap_plane (buffer, 0, &strides[0]);
       break;
     case DRM_FORMAT_YUV420:
+    case DRM_FORMAT_YUV422:
+    case DRM_FORMAT_YUV444:
       planes[0] = wayland_buffer_mmap_plane (buffer, 0, &strides[0]);
       planes[1] = wayland_buffer_mmap_plane (buffer, 1, &strides[1]);
       planes[2] = wayland_buffer_mmap_plane (buffer, 2, &strides[2]);
@@ -129,6 +131,34 @@ draw (WaylandDisplay *display,
               pixel = planes[1] + (y / 2 * strides[1]) + x / 2;
               pixel[0] = (uint8_t) (cb * 255);
               pixel = planes[2] + (y / 2 * strides[2]) + x / 2;
+              pixel[0] = (uint8_t) (cr * 255);
+              break;
+            case DRM_FORMAT_YUV422:
+              /*
+               3 plane YCbCr
+               index 0: Y plane, [7:0] Y
+               index 1: Cb plane, [7:0] Cb
+               index 2: Cr plane, [7:0] Cr
+               2x1 subsampled Cb (1) and Cr (2) planes */
+              pixel = planes[0] + (y * strides[0]) + x;
+              pixel[0] = (uint8_t) (luma * 255);
+              pixel = planes[1] + (y * strides[1]) + x / 2;
+              pixel[0] = (uint8_t) (cb * 255);
+              pixel = planes[2] + (y * strides[2]) + x / 2;
+              pixel[0] = (uint8_t) (cr * 255);
+              break;
+            case DRM_FORMAT_YUV444:
+              /*
+               3 plane YCbCr
+               index 0: Y plane, [7:0] Y
+               index 1: Cb plane, [7:0] Cb
+               index 2: Cr plane, [7:0] Cr
+               non-subsampled Cb (1) and Cr (2) planes */
+              pixel = planes[0] + (y * strides[0]) + x;
+              pixel[0] = (uint8_t) (luma * 255);
+              pixel = planes[1] + (y * strides[1]) + x;
+              pixel[0] = (uint8_t) (cb * 255);
+              pixel = planes[2] + (y * strides[2]) + x;
               pixel[0] = (uint8_t) (cr * 255);
               break;
             default:
@@ -220,6 +250,22 @@ main (int    argc,
   draw (display, DRM_FORMAT_YUV420, shader_color_gradient);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 2);
+
+  draw (display, DRM_FORMAT_YUV422, shader_luma_gradient);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 0);
+
+  draw (display, DRM_FORMAT_YUV422, shader_color_gradient);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 3);
+
+  draw (display, DRM_FORMAT_YUV444, shader_luma_gradient);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 0);
+
+  draw (display, DRM_FORMAT_YUV444, shader_color_gradient);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 4);
 
   g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&xdg_surface, xdg_surface_destroy);

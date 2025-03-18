@@ -147,6 +147,30 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
       .vsub = { 1, 2, 2 },
     },
   },
+  [META_MULTI_TEXTURE_FORMAT_YUV422] = {
+    .name = "YUV422",
+    .rgb_shader = y_u_v_shader,
+    .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 2, 2 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
+  [META_MULTI_TEXTURE_FORMAT_YUV444] = {
+    .name = "YUV444",
+    .rgb_shader = y_u_v_shader,
+    .snippet_once = G_ONCE_INIT,
+    .info = {
+      .n_planes = 3,
+      .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
+      .plane_indices = { 0, 1, 2 },
+      .hsub = { 1, 1, 1 },
+      .vsub = { 1, 1, 1 },
+    },
+  },
 };
 
 const char *
