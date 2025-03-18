@@ -326,14 +326,9 @@ check-merge-request:
   rules:
     - !reference [.only-merge-requests, rules]
 
-.dummy-container-build:
-  script:
-    - echo Dummy container build
-
 build-fedora-container@x86_64:
   extends:
-    #- .fdo.container-build@fedora@x86_64
-    - .dummy-container-build
+    - .fdo.container-build@fedora@x86_64
     - .mutter.fedora@x86_64
     - .mutter.skip-git-clone
   stage: prepare
@@ -342,8 +337,7 @@ build-fedora-container@x86_64:
 
 build-fedora-container@aarch64:
   extends:
-    #- .fdo.container-build@fedora@aarch64
-    - .dummy-container-build
+    - .fdo.container-build@fedora@aarch64
     - .mutter.fedora@aarch64
     - .mutter.skip-git-clone
   stage: prepare
