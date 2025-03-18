@@ -42,7 +42,6 @@ struct _ClutterStageWindowClass
   gboolean          (* can_clip_redraws)        (ClutterStageWindow *stage_window);
 
   GList            *(* get_views)               (ClutterStageWindow *stage_window);
-  int64_t           (* get_frame_counter)       (ClutterStageWindow *stage_window);
   void              (* prepare_frame)           (ClutterStageWindow *stage_window,
                                                  ClutterStageView   *view,
                                                  ClutterFrame       *frame);
@@ -81,7 +80,5 @@ void              _clutter_stage_window_prepare_frame           (ClutterStageWin
 void              _clutter_stage_window_finish_frame            (ClutterStageWindow *window,
                                                                  ClutterStageView   *view,
                                                                  ClutterFrame       *frame);
-
-int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
 
 G_END_DECLS
