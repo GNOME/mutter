@@ -24,6 +24,7 @@
 #include "backends/meta-cursor.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-logical-monitor.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "meta/prefs.h"
@@ -461,6 +462,60 @@ meta_cursor_sprite_xcursor_invalidate (MetaCursorSprite *sprite)
   sprite_xcursor->invalidated = TRUE;
 }
 
+static void
+meta_cursor_sprite_xcursor_prepare_at (MetaCursorSprite *sprite,
+                                       float             best_scale,
+                                       int               x,
+                                       int               y)
+{
+  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
+  MetaCursorTracker *cursor_tracker =
+    meta_cursor_sprite_get_cursor_tracker (sprite);
+  MetaBackend *backend =
+    meta_cursor_tracker_get_backend (cursor_tracker);
+
+  if (!meta_is_wayland_compositor ())
+    return;
+
+  if (meta_backend_is_stage_views_scaled (backend))
+    {
+      if (best_scale != 0.0f)
+        {
+          float ceiled_scale;
+          int cursor_width, cursor_height;
+
+          ceiled_scale = ceilf (best_scale);
+          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
+                                                      (int) ceiled_scale);
+
+          meta_cursor_sprite_realize_texture (sprite);
+          meta_cursor_sprite_xcursor_get_scaled_image_size (sprite_xcursor,
+                                                            &cursor_width,
+                                                            &cursor_height);
+          meta_cursor_sprite_set_viewport_dst_size (sprite,
+                                                    cursor_width,
+                                                    cursor_height);
+        }
+    }
+  else
+    {
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaLogicalMonitor *logical_monitor;
+
+      logical_monitor =
+        meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+
+      /* Reload the cursor texture if the scale has changed. */
+      if (logical_monitor)
+        {
+          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
+                                                      (int) logical_monitor->scale);
+          meta_cursor_sprite_set_texture_scale (sprite, 1.0f);
+        }
+    }
+}
+
 static ClutterColorState *
 ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
 {
@@ -544,4 +599,5 @@ meta_cursor_sprite_xcursor_class_init (MetaCursorSpriteXcursorClass *klass)
   cursor_sprite_class->tick_frame = meta_cursor_sprite_xcursor_tick_frame;
   cursor_sprite_class->get_current_frame_time =
     meta_cursor_sprite_xcursor_get_current_frame_time;
+  cursor_sprite_class->prepare_at = meta_cursor_sprite_xcursor_prepare_at;
 }

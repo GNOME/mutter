@@ -21,6 +21,12 @@
 #include "wayland/meta-cursor-sprite-wayland.h"
 
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-logical-monitor.h"
+#include "wayland/meta-wayland-private.h"
+
+#ifdef HAVE_XWAYLAND
+#include "wayland/meta-xwayland.h"
+#endif
 
 struct _MetaCursorSpriteWayland
 {
@@ -63,6 +69,94 @@ meta_cursor_sprite_wayland_invalidate (MetaCursorSprite *sprite)
 
   sprite_wayland = META_CURSOR_SPRITE_WAYLAND (sprite);
   sprite_wayland->invalidated = TRUE;
+}
+
+static void
+meta_cursor_sprite_wayland_prepare_at (MetaCursorSprite *sprite,
+                                       float             best_scale,
+                                       int               x,
+                                       int               y)
+{
+  MetaCursorSpriteWayland *sprite_wayland = META_CURSOR_SPRITE_WAYLAND (sprite);
+  MetaCursorTracker *cursor_tracker =
+    meta_cursor_sprite_get_cursor_tracker (sprite);
+  MetaBackend *backend =
+    meta_cursor_tracker_get_backend (cursor_tracker);
+  MetaWaylandSurface *surface = sprite_wayland->surface;
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor;
+
+  logical_monitor =
+    meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+  if (logical_monitor)
+    {
+      int surface_scale;
+      float texture_scale;
+#ifdef HAVE_XWAYLAND
+      MetaXWaylandManager *xwayland_manager =
+        &surface->compositor->xwayland_manager;
+
+      if (meta_wayland_surface_is_xwayland (surface))
+        surface_scale = meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
+      else
+#endif /* HAVE_XWAYLAND */
+        surface_scale = surface->applied_state.scale;
+
+      if (surface->viewport.has_dst_size)
+        texture_scale = 1.0f;
+      else if (meta_backend_is_stage_views_scaled (backend))
+        texture_scale = 1.0f / surface_scale;
+      else
+        texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
+                         surface_scale);
+
+      meta_cursor_sprite_set_texture_scale (sprite, texture_scale);
+      meta_cursor_sprite_set_texture_transform (sprite,
+                                                surface->buffer_transform);
+
+      if (surface->viewport.has_src_rect)
+        {
+          meta_cursor_sprite_set_viewport_src_rect (sprite,
+                                                    &surface->viewport.src_rect);
+        }
+      else
+        {
+          meta_cursor_sprite_reset_viewport_src_rect (sprite);
+        }
+
+      if (surface->viewport.has_dst_size)
+        {
+          int dst_width;
+          int dst_height;
+
+          if (meta_backend_is_stage_views_scaled (backend))
+            {
+              dst_width = surface->viewport.dst_width;
+              dst_height = surface->viewport.dst_height;
+            }
+          else
+            {
+              float monitor_scale =
+                meta_logical_monitor_get_scale (logical_monitor);
+
+              dst_width = (int) (surface->viewport.dst_width * monitor_scale);
+              dst_height = (int) (surface->viewport.dst_height * monitor_scale);
+            }
+
+          meta_cursor_sprite_set_viewport_dst_size (sprite,
+                                                    dst_width,
+                                                    dst_height);
+        }
+      else
+        {
+          meta_cursor_sprite_reset_viewport_dst_size (sprite);
+        }
+    }
+
+  meta_wayland_surface_set_main_monitor (surface, logical_monitor);
+  meta_wayland_surface_update_outputs (surface);
+  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
 static ClutterColorState *
@@ -135,4 +229,5 @@ meta_cursor_sprite_wayland_class_init (MetaCursorSpriteWaylandClass *klass)
   cursor_sprite_class->invalidate =
     meta_cursor_sprite_wayland_invalidate;
   cursor_sprite_class->is_animated = meta_cursor_sprite_wayland_is_animated;
+  cursor_sprite_class->prepare_at = meta_cursor_sprite_wayland_prepare_at;
 }

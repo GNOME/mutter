@@ -32,7 +32,6 @@
 #include "wayland/meta-wayland-tablet.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "backends/meta-input-settings-private.h"
-#include "backends/meta-logical-monitor.h"
 
 #include "tablet-unstable-v2-server-protocol.h"
 
@@ -425,39 +424,6 @@ tablet_tool_handle_cursor_surface_destroy (struct wl_listener *listener,
   meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
 }
 
-static void
-tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
-                        float                    best_scale,
-                        int                      x,
-                        int                      y,
-                        MetaWaylandTabletTool   *tool)
-{
-  MetaBackend *backend = backend_from_tool (tool);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *logical_monitor;
-
-  logical_monitor =
-    meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
-
-  /* Reload the cursor texture if the scale has changed. */
-  if (logical_monitor)
-    {
-      MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
-      float ceiled_scale;
-
-      ceiled_scale = ceilf (logical_monitor->scale);
-      meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                  (int) ceiled_scale);
-
-      if (meta_backend_is_stage_views_scaled (backend))
-        meta_cursor_sprite_set_texture_scale (cursor_sprite,
-                                              1.0f / ceiled_scale);
-      else
-        meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0f);
-    }
-}
-
 MetaWaylandTabletTool *
 meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
                               ClutterInputDeviceTool *device_tool)
@@ -480,9 +446,6 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
 
   tool->default_sprite = meta_cursor_sprite_xcursor_new (META_CURSOR_DEFAULT,
                                                          cursor_tracker);
-  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (tool->default_sprite),
-                                       (MetaCursorPrepareFunc) tool_cursor_prepare_at,
-                                       tool);
 
   return tool;
 }
@@ -504,8 +467,6 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
       wl_list_init (wl_resource_get_link (resource));
     }
 
-  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (tool->default_sprite),
-                                       NULL, NULL);
   g_object_unref (tool->default_sprite);
 
   g_free (tool);

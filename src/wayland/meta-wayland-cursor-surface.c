@@ -30,10 +30,6 @@
 #include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
 
-#ifdef HAVE_XWAYLAND
-#include "wayland/meta-xwayland.h"
-#endif
-
 typedef struct _MetaWaylandCursorSurfacePrivate MetaWaylandCursorSurfacePrivate;
 
 struct _MetaWaylandCursorSurfacePrivate
@@ -102,96 +98,6 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
     }
 
   meta_cursor_renderer_force_update (priv->cursor_renderer);
-}
-
-static void
-cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
-                          float                     best_scale,
-                          int                       x,
-                          int                       y,
-                          MetaWaylandCursorSurface *cursor_surface)
-{
-  MetaWaylandSurfaceRole *role = META_WAYLAND_SURFACE_ROLE (cursor_surface);
-  MetaWaylandSurface *surface = meta_wayland_surface_role_get_surface (role);
-  MetaContext *context =
-    meta_wayland_compositor_get_context (surface->compositor);
-  MetaBackend *backend = meta_context_get_backend (context);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *logical_monitor;
-
-  logical_monitor =
-    meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
-  if (logical_monitor)
-    {
-      int surface_scale;
-      float texture_scale;
-#ifdef HAVE_XWAYLAND
-      MetaWaylandCompositor *wayland_compositor =
-        meta_context_get_wayland_compositor (context);
-      MetaXWaylandManager *xwayland_manager =
-        &wayland_compositor->xwayland_manager;
-
-      if (meta_wayland_surface_is_xwayland (surface))
-        surface_scale = meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
-      else
-#endif /* HAVE_XWAYLAND */
-        surface_scale = surface->applied_state.scale;
-
-      if (surface->viewport.has_dst_size)
-        texture_scale = 1.0f;
-      else if (meta_backend_is_stage_views_scaled (backend))
-        texture_scale = 1.0f / surface_scale;
-      else
-        texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
-                         surface_scale);
-
-      meta_cursor_sprite_set_texture_scale (cursor_sprite, texture_scale);
-      meta_cursor_sprite_set_texture_transform (cursor_sprite,
-                                                surface->buffer_transform);
-
-      if (surface->viewport.has_src_rect)
-        {
-          meta_cursor_sprite_set_viewport_src_rect (cursor_sprite,
-                                                    &surface->viewport.src_rect);
-        }
-      else
-        {
-          meta_cursor_sprite_reset_viewport_src_rect (cursor_sprite);
-        }
-
-      if (surface->viewport.has_dst_size)
-        {
-          int dst_width;
-          int dst_height;
-
-          if (meta_backend_is_stage_views_scaled (backend))
-            {
-              dst_width = surface->viewport.dst_width;
-              dst_height = surface->viewport.dst_height;
-            }
-          else
-            {
-              float monitor_scale =
-                meta_logical_monitor_get_scale (logical_monitor);
-
-              dst_width = (int) (surface->viewport.dst_width * monitor_scale);
-              dst_height = (int) (surface->viewport.dst_height * monitor_scale);
-            }
-
-          meta_cursor_sprite_set_viewport_dst_size (cursor_sprite,
-                                                    dst_width,
-                                                    dst_height);
-        }
-      else
-        {
-          meta_cursor_sprite_reset_viewport_dst_size (cursor_sprite);
-        }
-    }
-
-  meta_wayland_surface_set_main_monitor (surface, logical_monitor);
-  meta_wayland_surface_update_outputs (surface);
-  meta_wayland_surface_notify_preferred_scale_monitor (surface);
 }
 
 static void
@@ -362,17 +268,8 @@ meta_wayland_cursor_surface_dispose (GObject *object)
   wl_list_for_each_safe (cb, next, &priv->frame_callbacks, link)
     wl_resource_destroy (cb->resource);
 
-  g_signal_handlers_disconnect_by_func (priv->cursor_sprite,
-                                        cursor_sprite_prepare_at, cursor_surface);
-
   g_clear_object (&priv->cursor_renderer);
-
-  if (priv->cursor_sprite)
-    {
-      meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (priv->cursor_sprite),
-                                           NULL, NULL);
-      g_clear_object (&priv->cursor_sprite);
-    }
+  g_clear_object (&priv->cursor_sprite);
 
   if (priv->buffer)
     {
@@ -413,9 +310,6 @@ meta_wayland_cursor_surface_constructed (GObject *object)
 
   priv->cursor_sprite = meta_cursor_sprite_wayland_new (surface,
                                                         cursor_tracker);
-  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (priv->cursor_sprite),
-                                       (MetaCursorPrepareFunc) cursor_sprite_prepare_at,
-                                       cursor_surface);
 }
 
 static void

@@ -65,9 +65,6 @@ typedef struct _MetaCursorSpritePrivate
 
   ClutterColorState *color_state;
 
-  MetaCursorPrepareFunc prepare_func;
-  gpointer prepare_func_data;
-
   MetaCursorTracker *cursor_tracker;
 } MetaCursorSpritePrivate;
 
@@ -310,28 +307,15 @@ meta_cursor_sprite_get_viewport_dst_size (MetaCursorSprite *sprite,
 }
 
 void
-meta_cursor_sprite_set_prepare_func (MetaCursorSprite      *sprite,
-                                     MetaCursorPrepareFunc  func,
-                                     gpointer               user_data)
-{
-  MetaCursorSpritePrivate *priv =
-    meta_cursor_sprite_get_instance_private (sprite);
-
-  priv->prepare_func = func;
-  priv->prepare_func_data = user_data;
-}
-
-void
 meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
                                float               best_scale,
                                int                 x,
                                int                 y)
 {
-  MetaCursorSpritePrivate *priv =
-    meta_cursor_sprite_get_instance_private (sprite);
+  MetaCursorSpriteClass *sprite_class = META_CURSOR_SPRITE_GET_CLASS (sprite);
 
-  if (priv->prepare_func)
-    priv->prepare_func (sprite, best_scale, x, y, priv->prepare_func_data);
+  if (sprite_class->prepare_at)
+    sprite_class->prepare_at (sprite, best_scale, x, y);
 }
 
 gboolean

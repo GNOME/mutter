@@ -1681,64 +1681,6 @@ meta_display_notify_window_created (MetaDisplay  *display,
   g_signal_emit (display, display_signals[WINDOW_CREATED], 0, window);
 }
 
-static void
-root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
-                        float                    best_scale,
-                        int                      x,
-                        int                      y,
-                        MetaDisplay             *display)
-{
-  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
-  MetaBackend *backend = backend_from_display (display);
-
-  if (meta_backend_is_stage_views_scaled (backend))
-    {
-      if (best_scale != 0.0f)
-        {
-          float ceiled_scale;
-          int cursor_width, cursor_height;
-
-          ceiled_scale = ceilf (best_scale);
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      (int) ceiled_scale);
-
-          meta_cursor_sprite_realize_texture (cursor_sprite);
-          meta_cursor_sprite_xcursor_get_scaled_image_size (sprite_xcursor,
-                                                            &cursor_width,
-                                                            &cursor_height);
-          meta_cursor_sprite_set_viewport_dst_size (cursor_sprite,
-                                                    cursor_width,
-                                                    cursor_height);
-        }
-    }
-  else
-    {
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
-      MetaLogicalMonitor *logical_monitor;
-
-      logical_monitor =
-        meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
-
-      /* Reload the cursor texture if the scale has changed. */
-      if (logical_monitor)
-        {
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      (int) logical_monitor->scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0f);
-        }
-    }
-}
-
-static void
-manage_root_cursor_sprite_scale (MetaDisplay             *display,
-                                 MetaCursorSpriteXcursor *sprite_xcursor)
-{
-  meta_cursor_sprite_set_prepare_func (META_CURSOR_SPRITE (sprite_xcursor),
-                                       (MetaCursorPrepareFunc) root_cursor_prepare_at,
-                                       display);
-}
-
 void
 meta_display_reload_cursor (MetaDisplay *display)
 {
@@ -1748,10 +1690,6 @@ meta_display_reload_cursor (MetaDisplay *display)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   sprite_xcursor = meta_cursor_sprite_xcursor_new (cursor, cursor_tracker);
-
-  if (meta_is_wayland_compositor ())
-    manage_root_cursor_sprite_scale (display, sprite_xcursor);
-
   meta_cursor_tracker_set_root_cursor (cursor_tracker,
                                        META_CURSOR_SPRITE (sprite_xcursor));
   g_object_unref (sprite_xcursor);
