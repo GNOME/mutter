@@ -105,12 +105,13 @@ variables:
   extends:
     - .skip-git-clone
   variables:
-    FDO_DISTRIBUTION_VERSION: 41
-    BASE_TAG: '2025-03-28.0'
+    FDO_DISTRIBUTION_VERSION: 42
+    BASE_TAG: '2025-03-31.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
       clang
+      egl-wayland-devel
       gcovr
       gnome-shell
       itstool
@@ -124,7 +125,6 @@ variables:
       qemu-system-x86-core
       busybox
       zenity
-      python3-dbusmock
       gnome-desktop-testing
       ruff
       mypy

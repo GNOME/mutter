@@ -116,32 +116,6 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
-if ! pkgconf --atleast-version 48.alpha gsettings-desktop-schemas
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-      master
-fi
-
-if ! pkgconf --atleast-version 1.3.901 libeis-1.0
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.freedesktop.org/libinput/libei.git \
-      1.3.901
-fi
-
-pip_install argcomplete
-
-if ! check_gsettings_key org.gnome.login-screen banner-message-source
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.gnome.org/GNOME/gdm.git \
-      main
-fi
-
 if ! pkgconf --atleast-version 1.83.4 gjs-1.0
 then
     ./$SCRIPTS_DIR/install-meson-project.sh \
@@ -150,18 +124,10 @@ then
       master
 fi
 
-if ! pkgconf --atleast-version 1.41 wayland-protocols
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-      1.41
-fi
-
-if ! pkgconf --atleast-version 1.8.0 libxkbcommon
-then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://github.com/xkbcommon/libxkbcommon.git \
-      master
-fi
+#if ! pkgconf --atleast-version 1.41 wayland-protocols
+#then
+#    ./$SCRIPTS_DIR/install-meson-project.sh \
+#      "${OPTIONS[@]}" \
+#      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
+#      1.41
+#fi
