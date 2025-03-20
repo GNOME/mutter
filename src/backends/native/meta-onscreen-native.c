@@ -1601,6 +1601,9 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaOutputKms *output_kms = META_OUTPUT_KMS (onscreen_native->output);
+  MetaKmsConnector *kms_connector =
+    meta_output_kms_get_kms_connector (output_kms);
   MetaPowerSave power_save_mode;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
@@ -1686,9 +1689,10 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       if (meta_renderer_native_has_pending_mode_sets (renderer_native))
         {
           meta_topic (META_DEBUG_KMS,
-                      "Postponing primary plane composite update for CRTC %u (%s)",
+                      "Postponing primary plane composite update for CRTC %u (%s) to %s",
                       meta_kms_crtc_get_id (kms_crtc),
-                      meta_kms_device_get_path (kms_device));
+                      meta_kms_device_get_path (kms_device),
+                      meta_kms_connector_get_name (kms_connector));
 
           kms_update = meta_frame_native_steal_kms_update (frame_native);
           meta_renderer_native_queue_mode_set_update (renderer_native,
@@ -1728,10 +1732,11 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
     }
 
   meta_topic (META_DEBUG_KMS,
-              "Posting primary plane %s update for CRTC %u (%s)",
+              "Posting primary plane %s update for CRTC %u (%s) to %s",
               is_direct_scanout ? "direct scanout" : "composite",
               meta_kms_crtc_get_id (kms_crtc),
-              meta_kms_device_get_path (kms_device));
+              meta_kms_device_get_path (kms_device),
+              meta_kms_connector_get_name (kms_connector));
 
   kms_update = meta_frame_native_steal_kms_update (frame_native);
 
