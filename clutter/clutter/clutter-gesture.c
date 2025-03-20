@@ -1332,6 +1332,10 @@ clutter_gesture_class_init (ClutterGestureClass *klass)
    * implementation or a user of a gesture to prohibit the gesture
    * from starting when needed.
    *
+   * Note that to limit a gesture to certain input devices, this signal
+   * should *not* be used. Instead listen to the ::should-handle-sequence
+   * signal and look at the input device of the @sequence_begin_event.
+   *
    * Returns: %TRUE if the gesture may recognize, %FALSE if it may not.
    */
   obj_signals[MAY_RECOGNIZE] =
