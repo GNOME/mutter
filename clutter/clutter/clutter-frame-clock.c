@@ -165,10 +165,43 @@ static void
 clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                            int64_t            target_us);
 
+static const char *
+clutter_frame_clock_state_to_string (ClutterFrameClockState state)
+{
+  switch (state)
+    {
+    case CLUTTER_FRAME_CLOCK_STATE_INIT:
+      return "init";
+    case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+      return "idle";
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+      return "scheduled";
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
+      return "scheduled-now";
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
+      return "scheduled-later";
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE:
+      return "dispatched-one";
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
+      return "dispatched-one-and-scheduled";
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
+      return "dispatched-one-and-scheduled-now";
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
+      return "dispatched-one-and-scheduled-later";
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
+      return "dispatched-two";
+    }
+  g_assert_not_reached ();
+}
+
 static void
 clutter_frame_clock_set_state (ClutterFrameClock      *frame_clock,
                                ClutterFrameClockState  state)
 {
+  CLUTTER_NOTE (FRAME_CLOCK, "Frame clock %s state transition: %s => %s",
+                frame_clock->output_name,
+                clutter_frame_clock_state_to_string (frame_clock->state),
+                clutter_frame_clock_state_to_string (state));
   frame_clock->state = state;
 }
 
@@ -412,6 +445,10 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented,
                        frame_clock->output_name);
 
+  CLUTTER_NOTE (FRAME_CLOCK, "Frame %ld for %s presented",
+                frame_info->view_frame_counter,
+                frame_clock->output_name);
+
   g_return_if_fail (frame_clock->next_presentation);
   clear_frame (&frame_clock->prev_presentation);
   presented_frame = frame_clock->prev_presentation =
@@ -634,6 +671,9 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 {
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyReady, "Clutter::FrameClock::ready()");
   COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyReady, frame_clock->output_name);
+
+  CLUTTER_NOTE (FRAME_CLOCK, "Frame for %s ready",
+                frame_clock->output_name);
 
   if (frame_clock->next_next_presentation)
     clear_frame (&frame_clock->next_next_presentation);
@@ -1489,6 +1529,10 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
 
   frame->has_frame_deadline = frame_clock->has_next_frame_deadline;
   frame->frame_deadline_us = frame_clock->next_frame_deadline_us;
+
+  CLUTTER_NOTE (FRAME_CLOCK, "Dispatching frame %ld for %s",
+                frame->frame_count,
+                frame_clock->output_name);
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockEvents, "Clutter::FrameListener::before_frame()");
   if (iface->before_frame)
