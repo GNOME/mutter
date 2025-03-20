@@ -30,7 +30,7 @@ G_BEGIN_DECLS
  * @META_MULTI_TEXTURE_FORMAT_YUYV: YUYV, 32 bits, 16 bpc (Y), 8 bpc (U & V)
  * @META_MULTI_TEXTURE_FORMAT_NV12: 2 planes: 1 Y-plane, 1 UV-plane (2x2 subsampled)
  * @META_MULTI_TEXTURE_FORMAT_YUV420: 3 planes: 1 Y-plane, 1 U-plane (2x2 subsampled), 1 V-plane (2x2 subsampled)
- * 
+ *
  * A representation for complex pixel formats
  *
  * Some pixel formats that are used in the wild are a bit more complex than
