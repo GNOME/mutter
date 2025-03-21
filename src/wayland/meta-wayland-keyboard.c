@@ -807,10 +807,16 @@ meta_wayland_keyboard_set_focus (MetaWaylandKeyboard *keyboard,
                           &keyboard->focus_resource_list);
         }
 
+      if (!surface ||
+          wl_resource_get_client (keyboard->focus_surface->resource) !=
+          wl_resource_get_client (surface->resource))
+        {
+          g_hash_table_remove_all (keyboard->key_down_serials);
+          keyboard->last_key_up_serial = 0;
+        }
+
       wl_list_remove (&keyboard->focus_surface_listener.link);
       keyboard->focus_surface = NULL;
-      g_hash_table_remove_all (keyboard->key_down_serials);
-      keyboard->last_key_up_serial = 0;
     }
 
   if (surface != NULL)
