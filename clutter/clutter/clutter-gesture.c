@@ -703,6 +703,18 @@ recognizing gesture to win, we need to do influencing in the same step ...
                   /* ... For recognize-on-recognize, it's not really a question we
                    * can answer, so just let the "first child" win, similar to
                    * recognize-on-cancel ...
+                   * WELL, actually.. by letting the "first child" win, we cause
+                   * a problem: For the "bottom-bar gesture", that recognizes
+                   * the "overview swipe-up" tracker on recognize of the "bottom-bar gesture"
+                   * and that "overview swipe-up" recognize now cancels the "bottom-bar gesture"
+                   * Then the overview enters SHOWING state and .enabled property of
+                   * the "bottom-bar gesture" gets set to FALSE. This cancels all
+                   * points moves the "bottom-bar gesture" to WAITING, which in turn
+                   * kills the priv->in_relationship_with list of "bottom-bar gesture"
+                   * and now we won't uninhibit the "horiz overview workspace switching gesture"
+                   * even though we would have uninhibited that on recognize of "bottom-bar gesture".
+                   * I think without the extra WAITING state transition, this would
+                   * not have been an issue, but with that it actually becomes one.
                    */
                   set_state (other_gesture, pending_state, TRUE);
                   set_state_after (other_gesture);
