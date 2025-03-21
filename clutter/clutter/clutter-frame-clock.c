@@ -706,7 +706,7 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
       clutter_frame_clock_set_state (frame_clock,
-                                     CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW);
+                                     CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER);
       maybe_reschedule_update (frame_clock);
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
