@@ -265,10 +265,12 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
                               GError **error)
 {
   const char *driver_name = g_getenv ("COGL_DRIVER");
-  CoglDriverId picked_driver, driver_override = COGL_DRIVER_ID_ANY;
+  CoglDriverId picked_driver, driver_override;
   const char *invalid_override = NULL;
   const char *libgl_name = NULL;
   int i;
+
+  picked_driver = driver_override = COGL_DRIVER_ID_ANY;
 
   if (driver_name)
     {
