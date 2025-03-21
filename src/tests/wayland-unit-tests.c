@@ -805,6 +805,10 @@ toplevel_sessions_restore (void)
   g_assert_cmpint (frame_rect.width, ==, 200);
   g_assert_cmpint (frame_rect.height, ==, 200);
 
+  g_signal_handlers_disconnect_by_func (session_manager,
+					on_session_instantiated,
+					&session_id);
+
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
 }
@@ -885,6 +889,10 @@ toplevel_sessions_restore_fullscreen (void)
   g_assert_cmpint (frame_rect.y, ==, 0);
   g_assert_cmpint (frame_rect.width, ==, 800);
   g_assert_cmpint (frame_rect.height, ==, 600);
+
+  g_signal_handlers_disconnect_by_func (session_manager,
+					on_session_instantiated,
+					&session_id);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
