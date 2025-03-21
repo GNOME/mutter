@@ -227,10 +227,12 @@ handle_take_focus (GtkWidget *window,
 {
   GdkWindow *gdkwindow = gtk_widget_get_window (window);
   GdkDisplay *display = gtk_widget_get_display (window);
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   Atom wm_protocols =
     gdk_x11_get_xatom_by_name_for_display (display, "WM_PROTOCOLS");
   Atom wm_take_focus =
     gdk_x11_get_xatom_by_name_for_display (display, "WM_TAKE_FOCUS");
+  G_GNUC_END_IGNORE_DEPRECATIONS
 
   if (xevent->xany.type != ClientMessage ||
       xevent->xany.window != GDK_WINDOW_XID (gdkwindow))
@@ -477,9 +479,11 @@ process_line (const char *line)
         }
 
       GdkWindow *gdkwindow = gtk_widget_get_window (window);
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
       Display *xdisplay = gdk_x11_display_get_xdisplay (display);
       Window xwindow = GDK_WINDOW_XID (gdkwindow);
       Atom wm_take_focus = gdk_x11_get_xatom_by_name_for_display (display, "WM_TAKE_FOCUS");
+      G_GNUC_END_IGNORE_DEPRECATIONS
       gboolean add = g_ascii_strcasecmp(argv[2], "true") == 0;
       Atom *protocols = NULL;
       Atom *new_protocols;
@@ -699,8 +703,10 @@ process_line (const char *line)
       XSyncValue sync_value;
       XSyncIntToValue (&sync_value, value);
 
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
       XSyncSetCounter (gdk_x11_display_get_xdisplay (gdk_display_get_default ()),
                        counter, sync_value);
+      G_GNUC_END_IGNORE_DEPRECATIONS
     }
   else if (strcmp (argv[0], "minimize") == 0)
     {
@@ -878,9 +884,11 @@ process_line (const char *line)
     }
   else if (strcmp (argv[0], "assert_primary_monitor") == 0)
     {
-      Display *xdisplay = gdk_x11_display_get_xdisplay (display);
       GdkWindow *root_window = gdk_screen_get_root_window ((gdk_screen_get_default ()));
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+      Display *xdisplay = gdk_x11_display_get_xdisplay (display);
       Window root_xwindow = gdk_x11_window_get_xid (root_window);
+      G_GNUC_END_IGNORE_DEPRECATIONS
       XRRScreenResources *resources;
       RROutput primary_output;
       XRROutputInfo *output_info;
