@@ -1089,7 +1089,6 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
   CoglTexture *texture;
   uint width, height;
   MetaWaylandBuffer *buffer;
-  struct wl_resource *buffer_resource;
   struct wl_shm_buffer *shm_buffer;
 
   if (!is_hw_cursor_available_for_gpu (gpu_kms))
@@ -1099,11 +1098,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
   if (!buffer)
     return FALSE;
 
-  buffer_resource = meta_wayland_buffer_get_resource (buffer);
-  if (!buffer_resource)
-    return FALSE;
-
-  shm_buffer = wl_shm_buffer_get (buffer_resource);
+  shm_buffer = buffer->shm.buffer;
   if (shm_buffer)
     {
       int rowstride = wl_shm_buffer_get_stride (shm_buffer);

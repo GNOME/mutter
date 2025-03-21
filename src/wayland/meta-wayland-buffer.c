@@ -426,6 +426,9 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
       return FALSE;
     }
 
+  g_clear_pointer (&buffer->shm.buffer, wl_shm_buffer_unref);
+  buffer->shm.buffer = wl_shm_buffer_ref (shm_buffer);
+
   cogl_format = format_info->cogl_format;
   multi_format = format_info->multi_texture_format;
 
@@ -789,7 +792,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
 
   n_rectangles = mtk_region_num_rectangles (region);
 
-  shm_buffer = wl_shm_buffer_get (buffer->resource);
+  shm_buffer = buffer->shm.buffer;
   stride = wl_shm_buffer_get_stride (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
   shm_format = wl_shm_buffer_get_format (shm_buffer);
@@ -1048,6 +1051,7 @@ meta_wayland_buffer_finalize (GObject *object)
   g_clear_pointer (&buffer->single_pixel.single_pixel_buffer,
                    meta_wayland_single_pixel_buffer_free);
   g_clear_object (&buffer->single_pixel.texture);
+  g_clear_pointer (&buffer->shm.buffer, wl_shm_buffer_unref);
 
   G_OBJECT_CLASS (meta_wayland_buffer_parent_class)->finalize (object);
 }

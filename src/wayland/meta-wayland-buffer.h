@@ -78,6 +78,10 @@ struct _MetaWaylandBuffer
     MetaMultiTexture *texture;
   } single_pixel;
 
+  struct {
+    struct wl_shm_buffer *buffer;
+  } shm;
+
   GHashTable *tainted_scanout_onscreens;
 
   GPtrArray *release_points;
