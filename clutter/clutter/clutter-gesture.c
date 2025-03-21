@@ -114,6 +114,8 @@ static const char * state_to_string[] = {
 };
 G_STATIC_ASSERT (sizeof (state_to_string) / sizeof (state_to_string[0]) == CLUTTER_N_GESTURE_STATES);
 
+static int global_recursion_depth = 0;
+
 typedef struct
 {
   ClutterSprite *sprite;
@@ -189,27 +191,23 @@ debug_message (ClutterGesture *self,
 
 static inline void
 debug_message_recursion (ClutterGesture *self,
-                         unsigned int    recursion_depth,
                          const char     *format,
-                         ...) G_GNUC_PRINTF (3, 4);
+                         ...) G_GNUC_PRINTF (2, 3);
 
 static void
-maybe_move_to_waiting (ClutterGesture *self,
-                       unsigned int    recursion_depth);
+maybe_move_to_waiting (ClutterGesture *self);
 
 static void
 set_state (ClutterGesture      *self,
            ClutterGestureState  new_state,
-           gboolean             influence_others,
-           unsigned int         recursion_depth);
+           gboolean             influence_others);
 
 static void
 set_state_authoritative (ClutterGesture      *self,
                          ClutterGestureState  new_state);
 
 static void
-set_state_after (ClutterGesture *self,
-                 unsigned int    recursion_depth);
+set_state_after (ClutterGesture *self);
 
 inline void
 debug_message (ClutterGesture *self,
@@ -228,7 +226,8 @@ debug_message (ClutterGesture *self,
       name = clutter_actor_meta_get_name (CLUTTER_ACTOR_META (self));
 
       CLUTTER_NOTE (GESTURES,
-                    "<%s> [%p] %s",
+                    "%*s<%s> [%p] %s",
+                    global_recursion_depth * 2, "",
                     name ? name : G_OBJECT_TYPE_NAME (self),
                     self, str);
 
@@ -239,7 +238,6 @@ debug_message (ClutterGesture *self,
 
 inline void
 debug_message_recursion (ClutterGesture *self,
-                         unsigned int    recursion_depth,
                          const char     *format,
                          ...)
 {
@@ -256,7 +254,7 @@ debug_message_recursion (ClutterGesture *self,
 
       CLUTTER_NOTE (GESTURES,
                     "%*s<%s> [%p] %s",
-                    recursion_depth * 2, "",
+                    global_recursion_depth * 2, "",
                     name ? name : G_OBJECT_TYPE_NAME (self),
                     self, str);
 
@@ -375,7 +373,7 @@ cancel_sequence (ClutterGesture *self,
 out:
   seq_data->ended = TRUE;
 
-  maybe_move_to_waiting (self, 0);
+  maybe_move_to_waiting (self);
 }
 
 static void
@@ -456,7 +454,7 @@ out:
       seq_data->ended = TRUE;
     }
 
-  maybe_move_to_waiting (self, 0);
+  maybe_move_to_waiting (self);
 }
 
 static void
@@ -599,8 +597,7 @@ maybe_cancel_independent_gestures (ClutterGesture *self)
 }
 
 static void
-maybe_influence_other_gestures (ClutterGesture      *self,
-                                unsigned int         recursion_depth)
+maybe_influence_other_gestures (ClutterGesture      *self)
 {
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
 
@@ -624,7 +621,7 @@ maybe_influence_other_gestures (ClutterGesture      *self,
 
           if (!g_hash_table_contains (priv->in_relationship_with, other_gesture))
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Was already CANCELLED before");
               priv->cancel_on_recognizing->pdata[i] = NULL;
               continue;
@@ -635,13 +632,13 @@ maybe_influence_other_gestures (ClutterGesture      *self,
           if (other_priv->state == CLUTTER_GESTURE_STATE_CANCELLED ||
               other_priv->state == CLUTTER_GESTURE_STATE_COMPLETED)
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Was already CANCELLED or COMPLETED by an influencing recursed by us");
               priv->cancel_on_recognizing->pdata[i] = NULL;
               continue;
             }
 
-          set_state (other_gesture, CLUTTER_GESTURE_STATE_CANCELLED, TRUE, recursion_depth);
+          set_state (other_gesture, CLUTTER_GESTURE_STATE_CANCELLED, TRUE);
         }
 
       /* The CANCELLED influencing is a two step process: We start with the
@@ -665,8 +662,8 @@ recognizing gesture to win, we need to do influencing in the same step ...
           if (!other_gesture)
             continue;
 
-          set_state_after (other_gesture, recursion_depth);
-          maybe_move_to_waiting (other_gesture, recursion_depth);
+          set_state_after (other_gesture);
+          maybe_move_to_waiting (other_gesture);
         }
 
 
@@ -682,7 +679,7 @@ recognizing gesture to win, we need to do influencing in the same step ...
 
           if (!g_hash_table_contains (priv->in_relationship_with, other_gesture))
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Was already CANCELLED by an influencing before us");
               continue;
             }
@@ -692,7 +689,7 @@ recognizing gesture to win, we need to do influencing in the same step ...
           if (other_priv->state == CLUTTER_GESTURE_STATE_CANCELLED ||
               other_priv->state == CLUTTER_GESTURE_STATE_COMPLETED)
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Was already CANCELLED or COMPLETED by an influencing recursed by us");
               continue;
             }
@@ -707,14 +704,14 @@ recognizing gesture to win, we need to do influencing in the same step ...
                    * can answer, so just let the "first child" win, similar to
                    * recognize-on-cancel ...
                    */
-                  set_state (other_gesture, pending_state, TRUE, recursion_depth);
-                  set_state_after (other_gesture, recursion_depth);
-                  maybe_move_to_waiting (other_gesture, recursion_depth);
+                  set_state (other_gesture, pending_state, TRUE);
+                  set_state_after (other_gesture);
+                  maybe_move_to_waiting (other_gesture);
                 }
             }
           else
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Still inhibited");
             }
         }
@@ -734,7 +731,7 @@ recognizing gesture to win, we need to do influencing in the same step ...
 
           if (!g_hash_table_contains (priv->in_relationship_with, other_gesture))
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Was already CANCELLED by an influencing before us");
               continue;
             }
@@ -744,7 +741,7 @@ recognizing gesture to win, we need to do influencing in the same step ...
           if (other_priv->state == CLUTTER_GESTURE_STATE_CANCELLED ||
               other_priv->state == CLUTTER_GESTURE_STATE_COMPLETED)
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Was already CANCELLED or COMPLETED by an influencing recursed by us");
               continue;
             }
@@ -759,14 +756,14 @@ recognizing gesture to win, we need to do influencing in the same step ...
                    * recognize-on-cancel, here for the recognizing gesture to win,
                    * we need to do influencing in the same step".
                    */
-                  set_state (other_gesture, pending_state, TRUE, recursion_depth);
-                  set_state_after (other_gesture, recursion_depth);
-                  maybe_move_to_waiting (other_gesture, recursion_depth);
+                  set_state (other_gesture, pending_state, TRUE);
+                  set_state_after (other_gesture);
+                  maybe_move_to_waiting (other_gesture);
                 }
             }
           else
             {
-              debug_message_recursion (other_gesture, recursion_depth,
+              debug_message_recursion (other_gesture,
                                        "Still inhibited");
             }
         }
@@ -776,15 +773,14 @@ recognizing gesture to win, we need to do influencing in the same step ...
 static void
 set_state (ClutterGesture      *self,
            ClutterGestureState  new_state,
-           gboolean             influence_others,
-           unsigned int         recursion_depth)
+           gboolean             influence_others)
 {
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
   ClutterGestureState old_state;
 
   if (priv->state == new_state)
     {
-      debug_message_recursion (self, recursion_depth,
+      debug_message_recursion (self,
                                "Skipping state change %s -> %s",
                                state_to_string[priv->state],
                                state_to_string[new_state]);
@@ -903,7 +899,7 @@ set_state (ClutterGesture      *self,
       maybe_cancel_independent_gestures (self);
 
       /*if (influence_others)
-        maybe_influence_other_gestures (self, 1); // TODO: should check for new_state
+        maybe_influence_other_gestures (self); // TODO: should check for new_state
        */
     }
 
@@ -943,12 +939,10 @@ set_state (ClutterGesture      *self,
 }
 
 static void
-maybe_influence_other_gestures (ClutterGesture *self,
-                                unsigned int    recursion_depth);
+maybe_influence_other_gestures (ClutterGesture *self);
 
 static void
-set_state_after (ClutterGesture *self,
-                 unsigned int    recursion_depth)
+set_state_after (ClutterGesture *self)
 {
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
   ClutterGestureClass *gesture_class = CLUTTER_GESTURE_GET_CLASS (self);
@@ -961,7 +955,7 @@ set_state_after (ClutterGesture *self,
   new_state = priv->state;
   priv->last_state = priv->state;
 
-  debug_message_recursion (self, recursion_depth,
+  debug_message_recursion (self,
                            "State change (%s -> %s)",
                            state_to_string[old_state],
                            state_to_string[new_state]);
@@ -1019,18 +1013,29 @@ set_state_after (ClutterGesture *self,
       (old_state != CLUTTER_GESTURE_STATE_RECOGNIZING &&
        new_state == CLUTTER_GESTURE_STATE_COMPLETED) ||
       new_state == CLUTTER_GESTURE_STATE_CANCELLED)
-    maybe_influence_other_gestures (self, recursion_depth + 1);
+    {
+      global_recursion_depth += 1;
+      maybe_influence_other_gestures (self);
+      global_recursion_depth -= 1;
+    }
 
   /* If state has been set recursively by influencing, no need to emit
    * notify::state signal again (same reasoning as above).
    */
   if (priv->state != new_state)
     {
-      debug_message_recursion (self, recursion_depth,
-                               "State was changed recursively, not emitting signals "
+      debug_message_recursion (self,
+                               "Detected recursive state change, not emitting signals "
                                "for gesture users.");
       return;
     }
+
+  debug_message_recursion (self,
+                           "Emitting signals "
+                           "for gesture users.");
+
+  global_recursion_depth += 1;
+
 
   /* First we emit the signal handlers for gesture users. We need to do this
    * before invoking ->state_changed() because the context of the gesture should
@@ -1053,6 +1058,8 @@ set_state_after (ClutterGesture *self,
       g_signal_emit (self, obj_signals[RECOGNIZE], 0);
     }
 
+  global_recursion_depth -= 1;
+
   /* If state has been set recursively by influencing, no need to emit
    * notify::state signal again (same reasoning as above).
    */
@@ -1068,12 +1075,15 @@ set_state_after (ClutterGesture *self,
    * see explanation above), or not influencing at all (which is super
    * unexpected, given that notify::state is easily available to users).
    */
+  global_recursion_depth += 1;
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_STATE]);
+  global_recursion_depth -= 1;
+
+  priv->last_state = priv->state;
 }
 
 void
-maybe_move_to_waiting (ClutterGesture *self,
-                       unsigned int    recursion_depth)
+maybe_move_to_waiting (ClutterGesture *self)
 {
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
   unsigned int i;
@@ -1090,17 +1100,17 @@ maybe_move_to_waiting (ClutterGesture *self,
         return;
     }
 
-  set_state (self, CLUTTER_GESTURE_STATE_WAITING, FALSE, recursion_depth);
-  set_state_after (self, recursion_depth);
+  set_state (self, CLUTTER_GESTURE_STATE_WAITING, FALSE);
+  set_state_after (self);
 }
 
 void
 set_state_authoritative (ClutterGesture      *self,
                          ClutterGestureState  new_state)
 {
-  set_state (self, new_state, TRUE, recursion_depth);
-  set_state_after (self, 0);
-  maybe_move_to_waiting (self, recursion_depth);
+  set_state (self, new_state, TRUE);
+  set_state_after (self);
+  maybe_move_to_waiting (self);
 }
 
 static gboolean
@@ -1344,7 +1354,7 @@ clutter_gesture_handle_event (ClutterAction      *action,
     {
       seq_data->ended = TRUE;
 
-      maybe_move_to_waiting (self, 0);
+      maybe_move_to_waiting (self);
     }
 
   /* If we were already RECOGNIZING, a new point was added and the gesture
@@ -1365,7 +1375,7 @@ clutter_gesture_handle_event (ClutterAction      *action,
       debug_message (self,
                      "Cancelling other gestures on newly added point automatically");
 
-      maybe_influence_other_gestures (self, 1);
+      maybe_influence_other_gestures (self);
     }
 
   return CLUTTER_EVENT_PROPAGATE;
@@ -2522,12 +2532,12 @@ clutter_gesture_uninhibit (ClutterGesture *self)
         {
           ClutterGestureState pending_state = priv->pending_state;
 
-          set_state (self, pending_state, TRUE, 0);
+          set_state (self, pending_state, TRUE);
         }
     }
   else
     {
-      debug_message_recursion (self, 0,
+      debug_message_recursion (self,
                                "Still inhibited");
     }
 }
