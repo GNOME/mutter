@@ -119,7 +119,7 @@ set_up_frame (MetaWindowTracker *window_tracker,
               Window             xwindow)
 {
   GdkDisplay *display = window_tracker->display;
-  Display *xdisplay = gdk_x11_display_get_xdisplay (display);
+  Display *xdisplay;
   GdkSurface *surface;
   Window xframe;
   unsigned long data[1];
@@ -130,11 +130,14 @@ set_up_frame (MetaWindowTracker *window_tracker,
                              GUINT_TO_POINTER (xwindow)))
     return;
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
   /* Create a frame window */
   frame = meta_frame_new (xwindow);
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   xframe = gdk_x11_surface_get_xid (surface);
 
+  xdisplay = gdk_x11_display_get_xdisplay (display);
   gdk_x11_display_error_trap_push (display);
 
   XAddToSaveSet (xdisplay, xwindow);
@@ -154,6 +157,8 @@ set_up_frame (MetaWindowTracker *window_tracker,
       return;
     }
 
+  G_GNUC_END_IGNORE_DEPRECATIONS
+
   g_hash_table_insert (window_tracker->frames,
                        GUINT_TO_POINTER (xframe), frame);
   g_hash_table_insert (window_tracker->client_windows,
@@ -166,12 +171,15 @@ listen_set_up_frame (MetaWindowTracker *window_tracker,
                      Window             xwindow)
 {
   GdkDisplay *display = window_tracker->display;
-  Display *xdisplay = gdk_x11_display_get_xdisplay (display);
+  Display *xdisplay;
   int format;
   Atom type;
   unsigned long nitems, bytes_after;
   unsigned char *data;
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
+  xdisplay = gdk_x11_display_get_xdisplay (display);
   gdk_x11_display_error_trap_push (display);
 
   XSelectInput (xdisplay, xwindow,
@@ -190,6 +198,8 @@ listen_set_up_frame (MetaWindowTracker *window_tracker,
   if (gdk_x11_display_error_trap_pop (display))
     return;
 
+  G_GNUC_END_IGNORE_DEPRECATIONS
+
   if (nitems > 0 && data[0])
     set_up_frame (window_tracker, xwindow);
 
@@ -201,7 +211,7 @@ remove_frame (MetaWindowTracker *window_tracker,
               Window             xwindow)
 {
   GdkDisplay *display = window_tracker->display;
-  Display *xdisplay = gdk_x11_display_get_xdisplay (display);
+  Display *xdisplay;
   GtkWidget *frame;
   GdkSurface *surface;
   Window xframe;
@@ -211,12 +221,18 @@ remove_frame (MetaWindowTracker *window_tracker,
   if (!frame)
     return;
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
+  xdisplay = gdk_x11_display_get_xdisplay (display);
+
   surface = gtk_native_get_surface (GTK_NATIVE (frame));
   xframe = gdk_x11_surface_get_xid (surface);
 
   gdk_x11_display_error_trap_push (display);
   XRemoveFromSaveSet (xdisplay, xwindow);
   gdk_x11_display_error_trap_pop_ignored (display);
+
+  G_GNUC_END_IGNORE_DEPRECATIONS
 
   g_hash_table_remove (window_tracker->client_windows,
                        GUINT_TO_POINTER (xwindow));
@@ -229,10 +245,14 @@ on_xevent (GdkDisplay *display,
            XEvent     *xevent,
            gpointer    user_data)
 {
-  Window xroot = gdk_x11_display_get_xrootwindow (display);
+  Window xroot;
   Window xwindow = xevent->xany.window;
   MetaWindowTracker *window_tracker = user_data;
   GtkWidget *frame;
+
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
+  xroot = gdk_x11_display_get_xrootwindow (display);
 
   if (xevent->type == CreateNotify &&
       xevent->xcreatewindow.parent == xroot &&
@@ -303,6 +323,7 @@ on_xevent (GdkDisplay *display,
             }
         }
     }
+  G_GNUC_END_IGNORE_DEPRECATIONS
 
   return GDK_EVENT_PROPAGATE;
 }
@@ -332,12 +353,17 @@ meta_window_tracker_constructed (GObject *object)
 {
   MetaWindowTracker *window_tracker = META_WINDOW_TRACKER (object);
   GdkDisplay *display = window_tracker->display;
-  Display *xdisplay = gdk_x11_display_get_xdisplay (display);
-  Window xroot = gdk_x11_display_get_xrootwindow (display);
+  Display *xdisplay;
+  Window xroot;
   Window *windows, ignored1, ignored2;
   unsigned int i, n_windows;
 
   G_OBJECT_CLASS (meta_window_tracker_parent_class)->constructed (object);
+
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+
+  xdisplay = gdk_x11_display_get_xdisplay (display);
+  xroot = gdk_x11_display_get_xrootwindow (display);
 
   query_xi_extension (window_tracker, xdisplay);
 
@@ -381,6 +407,8 @@ meta_window_tracker_constructed (GObject *object)
 
       listen_set_up_frame (window_tracker, windows[i]);
     }
+
+  G_GNUC_END_IGNORE_DEPRECATIONS
 
   XFree (windows);
 }

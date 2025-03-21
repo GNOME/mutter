@@ -111,7 +111,9 @@ main (int   argc,
   if (should_load_libadwaita ())
     load_libadwaita ();
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   xdisplay = gdk_x11_display_get_xdisplay (display);
+  G_GNUC_END_IGNORE_DEPRECATIONS
   XFixesSetClientDisconnectMode (xdisplay,
                                  XFixesClientDisconnectFlagTerminate);
 
