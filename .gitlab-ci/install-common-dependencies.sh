@@ -124,6 +124,14 @@ then
       master
 fi
 
+if ! pkgconf --atleast-version 1.24 wayland-server
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.freedesktop.org/wayland/wayland.git \
+      1.24.0
+fi
+
 if ! pkgconf --atleast-version 1.44 wayland-protocols
 then
     ./$SCRIPTS_DIR/install-meson-project.sh \
