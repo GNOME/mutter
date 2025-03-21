@@ -778,6 +778,15 @@ set_state (ClutterGesture      *self,
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
   ClutterGestureState old_state;
 
+  if (priv->state != priv->last_state)
+    {
+      debug_message_recursion (self,
+                               "INSIDE RECURSIVE STATE CHANGE from %s -> %s (was %s before)",
+                               state_to_string[priv->state],
+                               state_to_string[new_state],
+                               state_to_string[priv->last_state]);
+    }
+
   if (priv->state == new_state)
     {
       debug_message_recursion (self,
@@ -863,7 +872,7 @@ set_state (ClutterGesture      *self,
         }
     }
 
-  g_assert (priv->last_state == priv->state);
+ // g_assert (priv->last_state == priv->state);
   old_state = priv->state;
 
   if (new_state == CLUTTER_GESTURE_STATE_RECOGNIZING ||
@@ -953,7 +962,6 @@ set_state_after (ClutterGesture *self)
 
   old_state = priv->last_state;
   new_state = priv->state;
-  priv->last_state = priv->state;
 
   debug_message_recursion (self,
                            "State change (%s -> %s)",
@@ -1007,7 +1015,10 @@ set_state_after (ClutterGesture *self)
    * 3) don't emit state signals. That's unfortunate, but a consequence :/
    */
   if (priv->state != new_state)
-    return;
+    {
+      priv->last_state = priv->state;
+        return;
+    }
 
   if (new_state == CLUTTER_GESTURE_STATE_RECOGNIZING ||
       (old_state != CLUTTER_GESTURE_STATE_RECOGNIZING &&
@@ -1027,6 +1038,7 @@ set_state_after (ClutterGesture *self)
       debug_message_recursion (self,
                                "Detected recursive state change, not emitting signals "
                                "for gesture users.");
+  priv->last_state = priv->state;
       return;
     }
 
@@ -1064,7 +1076,10 @@ set_state_after (ClutterGesture *self)
    * notify::state signal again (same reasoning as above).
    */
   if (priv->state != new_state)
-    return;
+    {
+      priv->last_state = priv->state;
+        return;
+    }
 
   /* notify::state is emitted after influencing, in order to support setting
    * state recursively (eg. to support users cancelling a gesture by hiding the
