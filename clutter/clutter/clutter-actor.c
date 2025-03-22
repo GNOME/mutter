@@ -9710,7 +9710,9 @@ clutter_actor_get_fixed_position (ClutterActor *self,
  *
  * The result can only be assumed valid inside a paint() method, or an
  * allocate() function of an actor that explicitly gets allocated after @self;
- * anywhere else, it may be out-of-date.
+ * anywhere else, it may be out-of-date. Calling this on an actor that has
+ * never been allocated is a programming error: it warns and returns an
+ * empty rect.
  */
 void
 clutter_actor_get_transformed_extents (ClutterActor    *self,
@@ -9719,6 +9721,16 @@ clutter_actor_get_transformed_extents (ClutterActor    *self,
   graphene_quad_t quad;
   graphene_point3d_t v[4];
   ClutterActorBox box;
+
+  if (!clutter_actor_box_is_initialized (&self->priv->allocation))
+    {
+      g_warn_if_reached ();
+
+      if (rect)
+        *rect = GRAPHENE_RECT_INIT_ZERO;
+
+      return;
+    }
 
   box.x1 = 0;
   box.y1 = 0;
@@ -9734,6 +9746,11 @@ clutter_actor_get_transformed_extents (ClutterActor    *self,
 
       if (rect)
         graphene_quad_bounds (&quad, rect);
+    }
+  else
+    {
+      if (rect)
+        *rect = GRAPHENE_RECT_INIT_ZERO;
     }
 }
 
