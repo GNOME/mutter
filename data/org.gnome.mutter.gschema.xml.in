@@ -24,16 +24,6 @@
       </description>
     </key>
 
-    <key name="attach-modal-dialogs" type="b">
-      <default>false</default>
-      <summary>Attach modal dialogs</summary>
-      <description>
-        When true, instead of having independent titlebars, modal dialogs
-        appear attached to the titlebar of the parent window and are moved
-        together with the parent window.
-      </description>
-    </key>
-
     <key name="edge-tiling" type="b">
       <default>false</default>
       <summary>Enable edge tiling when dropping windows on screen edges</summary>

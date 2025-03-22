@@ -279,7 +279,7 @@ static MetaBoolPreference preferences_bool[] =
   {
     {
       { "attach-modal-dialogs",
-        SCHEMA_MUTTER,
+        SCHEMA_GENERAL,
         META_PREF_ATTACH_MODAL_DIALOGS,
       },
       &attach_modal_dialogs,
