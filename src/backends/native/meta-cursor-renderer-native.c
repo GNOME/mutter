@@ -340,6 +340,12 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   COGL_TRACE_BEGIN_SCOPED (MetaCursorRendererNative,
                            "Meta::CursorRendererNative::update_cursor()");
 
+  if (kms_cursor_manager == NULL)
+    {
+      g_warn_if_fail (meta_kms_is_shutting_down (kms));
+      return FALSE;
+    }
+
   cursor_changed = priv->current_cursor != cursor_sprite;
 
   views = meta_renderer_get_views (renderer);
