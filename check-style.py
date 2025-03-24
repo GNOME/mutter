@@ -6,6 +6,12 @@ import re
 import subprocess
 import sys
 import tempfile
+from enum import Enum
+
+class Action(Enum):
+    WRITE = 1
+    PRINT = 2
+    FILTER = 3
 
 # Path relative to this script
 uncrustify_cfg = 'tools/uncrustify.cfg'
@@ -13,6 +19,15 @@ uncrustify_cfg = 'tools/uncrustify.cfg'
 def run_diff(sha):
     proc = subprocess.run(
         ["git", "diff", "-U0", "--function-context", "--default-prefix", sha, "HEAD"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        encoding="utf-8",
+    )
+    return proc.stdout.strip().splitlines()
+
+def generate_diff_of_whole_file(file):
+    proc = subprocess.run(
+        ["git", "diff", "-U0", "--function-context", "--default-prefix", "--no-index", "--", "/dev/null", file],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         encoding="utf-8",
@@ -41,7 +56,7 @@ def find_chunks(diff):
 
     return chunks
 
-def reformat_chunks(chunks, rewrite):
+def reformat_chunks(chunks, action):
     # Creates temp file with INDENT-ON/OFF comments
     def create_temp_file(file, start, end):
         with open(file) as f:
@@ -93,7 +108,7 @@ def reformat_chunks(chunks, rewrite):
         # Remove INDENT-ON/OFF comments
         formatted = remove_indent_comments(reindented)
 
-        if dry_run is True:
+        if action != Action.WRITE:
             # Show changes
             proc = subprocess.run(
                 ["diff", "-up", "--color=always", chunk['file'], formatted.name],
@@ -103,9 +118,12 @@ def reformat_chunks(chunks, rewrite):
             )
             diff = proc.stdout
             if diff != '':
-                output = re.sub('\t', '↦\t', diff)
-                print(output)
+                if action == Action.PRINT:
+                    output = re.sub('\t', '↦\t', diff)
+                    print(output)
                 changed = True
+            elif action == Action.FILTER:
+                chunks.remove(chunk)
         else:
             # Apply changes
             diff = subprocess.run(
@@ -140,7 +158,26 @@ dry_run = args.dry_run
 
 diff = run_diff(sha)
 chunks = find_chunks(diff)
-changed = reformat_chunks(chunks, rewrite)
+changed = reformat_chunks(chunks, Action.FILTER)
+
+if changed:
+    last_file_changed = None
+    file_reformatted = False
+    for chunk in chunks:
+        file = chunk['file']
+        if file is not last_file_changed:
+            last_file_changed = file
+            super_diff = generate_diff_of_whole_file(file)
+            super_chunks = find_chunks(super_diff)
+            file_reformatted = reformat_chunks(super_chunks, Action.FILTER)
+        if not file_reformatted:
+            chunks.remove(chunk)
+
+    if dry_run:
+        action = Action.PRINT
+    else:
+        action = Action.WRITE
+    changed = reformat_chunks(chunks, action)
 
 if dry_run is not True and rewrite is True:
     proc = subprocess.run(["git", "add", "-p"])
