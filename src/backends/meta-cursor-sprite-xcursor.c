@@ -30,6 +30,12 @@
 #include "meta/prefs.h"
 #include "meta/util.h"
 
+typedef struct _MetaCursorSpriteXcursorKey
+{
+  MetaCursor cursor;
+  int theme_scale;
+} MetaCursorSpriteXcursorKey;
+
 struct _MetaCursorSpriteXcursor
 {
   MetaCursorSprite parent;
@@ -40,12 +46,68 @@ struct _MetaCursorSpriteXcursor
   XcursorImages *xcursor_images;
 
   int theme_scale;
-  gboolean theme_dirty;
   gboolean invalidated;
 };
 
 G_DEFINE_TYPE (MetaCursorSpriteXcursor, meta_cursor_sprite_xcursor,
                META_TYPE_CURSOR_SPRITE)
+
+static unsigned int
+sprite_key_hash (gconstpointer data)
+{
+  const MetaCursorSpriteXcursorKey *key = data;
+
+  return key->cursor << 0  &
+         key->theme_scale << 8;
+}
+
+static gboolean
+sprite_key_equal (gconstpointer data1,
+                  gconstpointer data2)
+{
+  const MetaCursorSpriteXcursorKey *key1 = data1;
+  const MetaCursorSpriteXcursorKey *key2 = data2;
+
+  return (key1->cursor == key2->cursor &&
+          key1->theme_scale == key2->theme_scale);
+}
+
+static GHashTable *
+ensure_cache (MetaCursorSpriteXcursor *sprite_xcursor)
+{
+  MetaCursorSprite *sprite = META_CURSOR_SPRITE (sprite_xcursor);
+  MetaCursorTracker *cursor_tracker =
+    meta_cursor_sprite_get_cursor_tracker (sprite);
+  GHashTable *cache;
+  static GOnce quark_once = G_ONCE_INIT;
+
+  g_once (&quark_once, (GThreadFunc) g_quark_from_static_string,
+          (gpointer) "-meta-cursor-sprite-xcursor-cache");
+
+  cache = g_object_get_qdata (G_OBJECT (cursor_tracker),
+                              GPOINTER_TO_INT (quark_once.retval));
+  if (!cache)
+    {
+      cache = g_hash_table_new_full (sprite_key_hash, sprite_key_equal,
+                                     g_free,
+                                     (GDestroyNotify) xcursor_images_destroy);
+
+      g_object_set_qdata_full (G_OBJECT (cursor_tracker),
+                               GPOINTER_TO_INT (quark_once.retval),
+                               cache,
+                               (GDestroyNotify) g_hash_table_unref);
+    }
+
+  return cache;
+}
+
+static void
+drop_cache (MetaCursorSpriteXcursor *sprite_xcursor)
+{
+  GHashTable *cache = ensure_cache (sprite_xcursor);
+
+  g_hash_table_remove_all (cache);
+}
 
 const char *
 meta_cursor_get_name (MetaCursor cursor)
@@ -293,7 +355,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   GError *error = NULL;
   int hotspot_x, hotspot_y;
 
-  g_assert (!meta_cursor_sprite_get_cogl_texture (sprite));
+  meta_cursor_sprite_clear_texture (sprite);
 
   xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
   width = (int) xc_image->width;
@@ -345,9 +407,11 @@ void
 meta_cursor_sprite_xcursor_set_theme_scale (MetaCursorSpriteXcursor *sprite_xcursor,
                                             int                      theme_scale)
 {
-  if (sprite_xcursor->theme_scale != theme_scale)
-    sprite_xcursor->theme_dirty = TRUE;
+  if (sprite_xcursor->theme_scale == theme_scale)
+    return;
+
   sprite_xcursor->theme_scale = theme_scale;
+  sprite_xcursor->xcursor_images = NULL;
 }
 
 void
@@ -397,7 +461,6 @@ meta_cursor_sprite_xcursor_tick_frame (MetaCursorSprite *sprite)
   if (sprite_xcursor->current_frame >= sprite_xcursor->xcursor_images->nimage)
     sprite_xcursor->current_frame = 0;
 
-  meta_cursor_sprite_clear_texture (sprite);
   load_from_current_xcursor_image (sprite_xcursor);
 }
 
@@ -413,28 +476,38 @@ meta_cursor_sprite_xcursor_get_current_frame_time (MetaCursorSprite *sprite)
   return xcursor_images->images[sprite_xcursor->current_frame]->delay;
 }
 
-static void
+static gboolean
 load_cursor_from_theme (MetaCursorSprite *sprite)
 {
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
+  GHashTable *cache = ensure_cache (sprite_xcursor);
+  XcursorImages *xcursor_images;
+  MetaCursorSpriteXcursorKey key = {
+    .cursor = sprite_xcursor->cursor,
+    .theme_scale = sprite_xcursor->theme_scale,
+  };
 
   g_assert (sprite_xcursor->cursor != META_CURSOR_INVALID);
 
-  sprite_xcursor->theme_dirty = FALSE;
-
-  /* We might be reloading with a different scale. If so clear the old data. */
-  if (sprite_xcursor->xcursor_images)
+  xcursor_images = g_hash_table_lookup (cache, &key);
+  if (!xcursor_images)
     {
-      meta_cursor_sprite_clear_texture (sprite);
-      xcursor_images_destroy (sprite_xcursor->xcursor_images);
+      xcursor_images = load_cursor_on_client (sprite_xcursor->cursor,
+                                              sprite_xcursor->theme_scale);
+
+      g_hash_table_insert (cache,
+                           g_memdup2 (&key, sizeof (key)),
+                           xcursor_images);
     }
 
   sprite_xcursor->current_frame = 0;
-  sprite_xcursor->xcursor_images =
-    load_cursor_on_client (sprite_xcursor->cursor,
-                           sprite_xcursor->theme_scale);
 
+  if (sprite_xcursor->xcursor_images == xcursor_images)
+    return FALSE;
+
+  sprite_xcursor->xcursor_images = xcursor_images;
   load_from_current_xcursor_image (sprite_xcursor);
+  return TRUE;
 }
 
 static gboolean
@@ -443,11 +516,8 @@ meta_cursor_sprite_xcursor_realize_texture (MetaCursorSprite *sprite)
   MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (sprite);
   gboolean retval = sprite_xcursor->invalidated;
 
-  if (sprite_xcursor->theme_dirty)
-    {
-      load_cursor_from_theme (sprite);
-      retval = TRUE;
-    }
+  if (load_cursor_from_theme (sprite))
+    retval = TRUE;
 
   sprite_xcursor->invalidated = FALSE;
 
@@ -554,7 +624,8 @@ on_prefs_changed (MetaCursorSprite *cursor,
   MetaCursorSpriteXcursor *sprite_xcursor =
     META_CURSOR_SPRITE_XCURSOR (user_data);
 
-  sprite_xcursor->theme_dirty = TRUE;
+  drop_cache (sprite_xcursor);
+  sprite_xcursor->xcursor_images = NULL;
 }
 
 MetaCursorSpriteXcursor *
@@ -581,30 +652,15 @@ meta_cursor_sprite_xcursor_new (MetaCursor         cursor,
 }
 
 static void
-meta_cursor_sprite_xcursor_finalize (GObject *object)
-{
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (object);
-
-  g_clear_pointer (&sprite_xcursor->xcursor_images,
-                   xcursor_images_destroy);
-
-  G_OBJECT_CLASS (meta_cursor_sprite_xcursor_parent_class)->finalize (object);
-}
-
-static void
 meta_cursor_sprite_xcursor_init (MetaCursorSpriteXcursor *sprite_xcursor)
 {
   sprite_xcursor->theme_scale = 1;
-  sprite_xcursor->theme_dirty = TRUE;
 }
 
 static void
 meta_cursor_sprite_xcursor_class_init (MetaCursorSpriteXcursorClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaCursorSpriteClass *cursor_sprite_class = META_CURSOR_SPRITE_CLASS (klass);
-
-  object_class->finalize = meta_cursor_sprite_xcursor_finalize;
 
   cursor_sprite_class->realize_texture =
     meta_cursor_sprite_xcursor_realize_texture;
