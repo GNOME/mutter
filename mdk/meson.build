@@ -63,6 +63,7 @@ executable('mutter-devkit',
   ],
   c_args: mdk_c_args,
   dependencies: [
+    gmodule_no_export_dep,
     gtk4_dep,
     libpipewire_dep,
     libei_dep,

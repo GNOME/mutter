@@ -23,6 +23,37 @@
 #include "mdk-context.h"
 #include "mdk-monitor.h"
 
+typedef void (* AdwaitaInitFunc) (void);
+
+static gboolean
+should_load_libadwaita (void)
+{
+  g_auto(GStrv) desktops = NULL;
+  const char *current_desktop;
+
+  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
+  if (current_desktop != NULL)
+    desktops = g_strsplit (current_desktop, ":", -1);
+
+  return desktops && g_strv_contains ((const char * const *) desktops, "GNOME");
+}
+
+static void
+load_libadwaita (void)
+{
+  GModule *libadwaita;
+  AdwaitaInitFunc adw_init;
+
+  libadwaita = g_module_open ("libadwaita-1.so.0", G_MODULE_BIND_LAZY);
+  if (!libadwaita)
+    return;
+
+  if (!g_module_symbol (libadwaita, "adw_init", (gpointer *) &adw_init))
+    return;
+
+  adw_init ();
+}
+
 static void
 activate_about (GSimpleAction *action,
                 GVariant      *parameter,
@@ -166,6 +197,9 @@ main (int    argc,
     { "about", activate_about, NULL, NULL, NULL },
     { "toggle_emulate_touch", .state = "false", },
   };
+
+  if (should_load_libadwaita ())
+    load_libadwaita ();
 
   context = mdk_context_new ();
 
