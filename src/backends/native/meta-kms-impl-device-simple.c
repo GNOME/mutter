@@ -33,6 +33,7 @@
 
 typedef gboolean (* MetaKmsSimpleProcessFunc) (MetaKmsImplDevice  *impl_device,
                                                MetaKmsUpdate      *update,
+                                               GArray             *blob_ids,
                                                gpointer            entry_data,
                                                GError            **error);
 
@@ -138,6 +139,45 @@ get_connector_property (MetaKmsImplDevice     *impl_device,
   return TRUE;
 }
 
+static uint32_t
+store_new_blob (MetaKmsImplDevice  *impl_device,
+                GArray             *blob_ids,
+                const void         *data,
+                size_t              size,
+                GError            **error)
+{
+  int fd = meta_kms_impl_device_get_fd (impl_device);
+  uint32_t blob_id;
+  int ret;
+
+  ret = drmModeCreatePropertyBlob (fd, data, size, &blob_id);
+  if (ret < 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "drmModeCreatePropertyBlob: %s", g_strerror (-ret));
+      return 0;
+    }
+
+  g_array_append_val (blob_ids, blob_id);
+
+  return blob_id;
+}
+
+static void
+release_blob_ids (MetaKmsImplDevice *impl_device,
+                  GArray            *blob_ids)
+{
+  int fd = meta_kms_impl_device_get_fd (impl_device);
+  unsigned int i;
+
+  for (i = 0; i < blob_ids->len; i++)
+    {
+      uint32_t blob_id = g_array_index (blob_ids, uint32_t, i);
+
+      drmModeDestroyPropertyBlob (fd, blob_id);
+    }
+}
+
 static gboolean
 set_connector_property (MetaKmsImplDevice     *impl_device,
                         MetaKmsConnector      *connector,
@@ -223,6 +263,7 @@ set_crtc_property (MetaKmsImplDevice  *impl_device,
 static gboolean
 process_connector_update (MetaKmsImplDevice  *impl_device,
                           MetaKmsUpdate      *update,
+                          GArray             *blob_ids,
                           gpointer            update_entry,
                           GError            **error)
 {
@@ -312,6 +353,7 @@ process_connector_update (MetaKmsImplDevice  *impl_device,
 static gboolean
 process_crtc_update (MetaKmsImplDevice  *impl_device,
                      MetaKmsUpdate      *update,
+                     GArray             *blob_ids,
                      gpointer            update_entry,
                      GError            **error)
 {
@@ -424,6 +466,7 @@ set_plane_rotation (MetaKmsImplDevice  *impl_device,
 static gboolean
 process_mode_set (MetaKmsImplDevice  *impl_device,
                   MetaKmsUpdate      *update,
+                  GArray             *blob_ids,
                   gpointer            update_entry,
                   GError            **error)
 {
@@ -567,6 +610,7 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
 static gboolean
 process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
                             MetaKmsUpdate      *update,
+                            GArray             *blob_ids,
                             gpointer            update_entry,
                             GError            **error)
 {
@@ -1268,6 +1312,7 @@ err:
 static gboolean
 process_entries (MetaKmsImplDevice         *impl_device,
                  MetaKmsUpdate             *update,
+                 GArray                    *blob_ids,
                  GList                     *entries,
                  MetaKmsSimpleProcessFunc   func,
                  GError                   **error)
@@ -1276,7 +1321,7 @@ process_entries (MetaKmsImplDevice         *impl_device,
 
   for (l = entries; l; l = l->next)
     {
-      if (!func (impl_device, update, l->data, error))
+      if (!func (impl_device, update, blob_ids, l->data, error))
         return FALSE;
     }
 
@@ -1583,6 +1628,9 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 {
   GError *error = NULL;
   GList *failed_planes = NULL;
+  g_autoptr (GArray) blob_ids = NULL;
+
+  blob_ids = g_array_new (FALSE, TRUE, sizeof (uint32_t));
 
   meta_topic (META_DEBUG_KMS, "[simple] Processing update");
 
@@ -1591,6 +1639,7 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 
   if (!process_entries (impl_device,
                         update,
+                        blob_ids,
                         meta_kms_update_get_mode_sets (update),
                         process_mode_set,
                         &error))
@@ -1598,6 +1647,7 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 
   if (!process_entries (impl_device,
                         update,
+                        blob_ids,
                         meta_kms_update_get_connector_updates (update),
                         process_connector_update,
                         &error))
@@ -1605,6 +1655,7 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 
   if (!process_entries (impl_device,
                         update,
+                        blob_ids,
                         meta_kms_update_get_crtc_color_updates (update),
                         process_crtc_color_updates,
                         &error))
@@ -1612,6 +1663,7 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 
   if (!process_entries (impl_device,
                         update,
+                        blob_ids,
                         meta_kms_update_get_crtc_updates (update),
                         process_crtc_update,
                         &error))
@@ -1624,9 +1676,13 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
                                   &error))
     goto err;
 
+  release_blob_ids (impl_device, blob_ids);
+
   return meta_kms_feedback_new_passed (failed_planes);
 
 err:
+  release_blob_ids (impl_device, blob_ids);
+
   return meta_kms_feedback_new_failed (failed_planes, error);
 }
 
