@@ -547,6 +547,16 @@ ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
   return color_state;
 }
 
+static void
+on_prefs_changed (MetaCursorSprite *cursor,
+                  gpointer          user_data)
+{
+  MetaCursorSpriteXcursor *sprite_xcursor =
+    META_CURSOR_SPRITE_XCURSOR (user_data);
+
+  sprite_xcursor->theme_dirty = TRUE;
+}
+
 MetaCursorSpriteXcursor *
 meta_cursor_sprite_xcursor_new (MetaCursor         cursor,
                                 MetaCursorTracker *cursor_tracker)
@@ -561,6 +571,11 @@ meta_cursor_sprite_xcursor_new (MetaCursor         cursor,
                                  "color-state", color_state,
                                  NULL);
   sprite_xcursor->cursor = cursor;
+
+  g_signal_connect_object (cursor_tracker, "cursor-prefs-changed",
+                           G_CALLBACK (on_prefs_changed),
+                           sprite_xcursor,
+                           G_CONNECT_DEFAULT);
 
   return sprite_xcursor;
 }

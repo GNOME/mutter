@@ -86,6 +86,7 @@ enum
   CURSOR_CHANGED,
   POSITION_INVALIDATED,
   VISIBILITY_CHANGED,
+  CURSOR_PREFS_CHANGED,
   LAST_SIGNAL
 };
 
@@ -193,6 +194,17 @@ meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
   return priv->displayed_cursor;
 }
 
+static void
+on_prefs_changed (MetaPreference pref,
+                  gpointer       user_data)
+{
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (user_data);
+
+  if (pref == META_PREF_CURSOR_SIZE ||
+      pref == META_PREF_CURSOR_THEME)
+    g_signal_emit (tracker, signals[CURSOR_PREFS_CHANGED], 0);
+}
+
 void
 meta_cursor_tracker_destroy (MetaCursorTracker *tracker)
 {
@@ -209,6 +221,8 @@ meta_cursor_tracker_init (MetaCursorTracker *tracker)
   priv->is_showing = FALSE;
   priv->x = -1.0;
   priv->y = -1.0;
+
+  meta_prefs_add_listener (on_prefs_changed, tracker);
 }
 
 static void
@@ -269,6 +283,16 @@ meta_cursor_tracker_dispose (GObject *object)
 }
 
 static void
+meta_cursor_tracker_finalize (GObject *object)
+{
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
+
+  meta_prefs_remove_listener (on_prefs_changed, tracker);
+
+  G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->finalize (object);
+}
+
+static void
 meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -276,6 +300,7 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
   object_class->get_property = meta_cursor_tracker_get_property;
   object_class->set_property = meta_cursor_tracker_set_property;
   object_class->dispose = meta_cursor_tracker_dispose;
+  object_class->finalize = meta_cursor_tracker_finalize;
 
   klass->set_force_track_position =
     meta_cursor_tracker_real_set_force_track_position;
@@ -309,6 +334,12 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                               G_SIGNAL_RUN_LAST,
                                               0, NULL, NULL, NULL,
                                               G_TYPE_NONE, 0);
+
+  signals[CURSOR_PREFS_CHANGED] = g_signal_new ("cursor-prefs-changed",
+                                                G_TYPE_FROM_CLASS (klass),
+                                                G_SIGNAL_RUN_LAST,
+                                                0, NULL, NULL, NULL,
+                                                G_TYPE_NONE, 0);
 }
 
 static void
