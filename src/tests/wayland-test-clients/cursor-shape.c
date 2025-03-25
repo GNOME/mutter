@@ -128,6 +128,9 @@ main (int    argc,
                                            WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT);
       wp_cursor_shape_device_v1_destroy (cursor_shape_device);
       wait_for_view_verified (display, 1);
+      /* make sure disabling the cursor works */
+      wl_pointer_set_cursor (pointer, serial, NULL, 0, 0);
+      wait_for_view_verified (display, 3);
 
       return EXIT_SUCCESS;
     }
