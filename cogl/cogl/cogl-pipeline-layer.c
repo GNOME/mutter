@@ -687,6 +687,9 @@ _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
   if (layer0 == layer1)
     return TRUE;
 
+  if (layer0->index != layer1->index)
+    return FALSE;
+
   layers_difference =
     _cogl_pipeline_layer_compare_differences (layer0, layer1);
 
