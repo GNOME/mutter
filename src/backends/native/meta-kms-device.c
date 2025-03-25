@@ -785,6 +785,9 @@ meta_kms_device_new (MetaKms            *kms,
   if (device->caps.addfb2_modifiers)
     device->flags |= META_KMS_DEVICE_FLAG_HAS_ADDFB2;
 
+  if (device->caps.supports_color_modes)
+    device->flags |= META_KMS_DEVICE_FLAG_SUPPORTS_COLOR_MODES;
+
   return device;
 }
 

@@ -367,6 +367,8 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
                      GError           **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
+  MetaKmsDevice *device = meta_kms_connector_get_device (kms_connector);
+  MetaKmsDeviceFlag device_flags = meta_kms_device_get_flags (device);
   uint32_t connector_id;
   uint32_t gpu_id;
   g_autoptr (MetaOutputInfo) output_info = NULL;
@@ -453,7 +455,8 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
 
   output_info->tile_info = connector_state->tile_info;
 
-  if (output_info->edid_info)
+  if ((device_flags & META_KMS_DEVICE_FLAG_SUPPORTS_COLOR_MODES) &&
+      output_info->edid_info)
     {
       struct di_supported_signal_colorimetry *edid_colorimetry =
         &output_info->edid_info->colorimetry;
@@ -467,7 +470,8 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
         output_info->supported_color_spaces |= (1 << META_OUTPUT_COLORSPACE_BT2020);
     }
 
-  if (connector_state->hdr.supported &&
+  if ((device_flags & META_KMS_DEVICE_FLAG_SUPPORTS_COLOR_MODES) &&
+      connector_state->hdr.supported &&
       output_info->edid_info &&
       output_info->edid_info->hdr_static_metadata.type1)
     {

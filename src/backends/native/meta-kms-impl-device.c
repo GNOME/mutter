@@ -231,7 +231,7 @@ meta_kms_impl_device_has_cursor_plane_for (MetaKmsImplDevice *impl_device,
   return FALSE;
 }
 
-const MetaKmsDeviceCaps *
+MetaKmsDeviceCaps *
 meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =

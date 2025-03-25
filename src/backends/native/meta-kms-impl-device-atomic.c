@@ -1423,6 +1423,9 @@ meta_kms_impl_device_atomic_initable_init (GInitable     *initable,
                                            GError       **error)
 {
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
+  MetaKmsDeviceCaps *caps = meta_kms_impl_device_get_caps (impl_device);
+
+  caps->supports_color_modes = TRUE;
 
   if (!initable_parent_iface->init (initable, cancellable, error))
     return FALSE;
