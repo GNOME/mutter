@@ -1263,10 +1263,14 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
     }
 
   xdg_popup->parent_surface = parent_surface;
-  xdg_popup->parent_surface_unmapped_handler_id =
-    g_signal_connect (parent_surface, "unmapped",
-                      G_CALLBACK (on_parent_surface_unmapped),
-                      xdg_popup);
+
+  if (xdg_popup->resource)
+    {
+      xdg_popup->parent_surface_unmapped_handler_id =
+        g_signal_connect (parent_surface, "unmapped",
+                          G_CALLBACK (on_parent_surface_unmapped),
+                          xdg_popup);
+    }
 
   meta_wayland_shell_surface_destroy_window (shell_surface);
   meta_wayland_actor_surface_reset_actor (META_WAYLAND_ACTOR_SURFACE (surface_role));
