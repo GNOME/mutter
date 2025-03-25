@@ -2318,6 +2318,15 @@ meta_monitor_get_supported_color_modes (MetaMonitor *monitor)
   return priv->color_modes;
 }
 
+gboolean
+meta_monitor_is_color_mode_supported (MetaMonitor   *monitor,
+                                      MetaColorMode  color_mode)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  return !!g_list_find (priv->color_modes, GINT_TO_POINTER (color_mode));
+}
+
 MetaColorMode
 meta_monitor_get_color_mode (MetaMonitor *monitor)
 {

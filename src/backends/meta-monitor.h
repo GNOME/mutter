@@ -323,6 +323,9 @@ MetaColorMode meta_monitor_get_color_mode (MetaMonitor *monitor);
 META_EXPORT_TEST
 GList * meta_monitor_get_supported_color_modes (MetaMonitor *monitor);
 
+gboolean meta_monitor_is_color_mode_supported (MetaMonitor   *monitor,
+                                               MetaColorMode  color_mode);
+
 META_EXPORT_TEST
 gboolean meta_parse_monitor_mode (const char *string,
                                   int        *out_width,
