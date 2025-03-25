@@ -923,7 +923,12 @@ get_last_color_mode_for_monitor (MetaMonitorConfigManager *config_manager,
       monitor_config = find_monitor_config (config, monitor);
       if (monitor_config)
         {
-          *out_color_mode = monitor_config->color_mode;
+          MetaColorMode color_mode = monitor_config->color_mode;
+
+          if (!meta_monitor_is_color_mode_supported (monitor, color_mode))
+            continue;
+
+          *out_color_mode = color_mode;
           return TRUE;
         }
     }

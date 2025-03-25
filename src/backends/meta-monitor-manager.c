@@ -52,6 +52,7 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-config-store.h"
+#include "backends/meta-monitor-config-utils.h"
 #include "backends/meta-output.h"
 #include "backends/meta-virtual-monitor.h"
 #include "clutter/clutter.h"
@@ -130,6 +131,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
 static void initialize_dbus_interface (MetaMonitorManager *manager);
 static void monitor_manager_setup_dbus_config_handlers (MetaMonitorManager *manager);
 
+static gboolean meta_monitors_config_has_monitors_connected (MetaMonitorsConfig *config,
+                                                             MetaMonitorManager *manager);
 static gboolean
 meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
                                          MetaMonitorsConfig *config);
@@ -692,6 +695,82 @@ should_use_stored_config (MetaMonitorManager *manager)
           !meta_monitor_manager_has_hotplug_mode_update (manager));
 }
 
+static gboolean
+is_logical_monitor_config_amend_needed (MetaMonitorManager       *manager,
+                                        MetaLogicalMonitorConfig *logical_monitor_config)
+{
+  GList *l;
+
+  for (l = logical_monitor_config->monitor_configs; l; l = l->next)
+    {
+      MetaMonitorConfig *monitor_config = l->data;
+      MetaMonitorSpec *monitor_spec = monitor_config->monitor_spec;
+      MetaMonitor *monitor;
+
+      monitor = meta_monitor_manager_get_monitor_from_spec (manager,
+                                                            monitor_spec);
+      if (!meta_monitor_is_color_mode_supported (monitor,
+                                                 monitor_config->color_mode))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+is_monitors_config_amend_needed (MetaMonitorManager *manager,
+                                 MetaMonitorsConfig *config)
+{
+  GList *l;
+
+  g_assert (meta_monitors_config_has_monitors_connected (config, manager));
+
+  for (l = config->logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      if (is_logical_monitor_config_amend_needed (manager,
+                                                  logical_monitor_config))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static void
+amend_monitor_config (MetaMonitorConfig  *monitor_config,
+                      MetaMonitorManager *manager)
+{
+  MetaMonitorSpec *monitor_spec = monitor_config->monitor_spec;
+  MetaMonitor *monitor;
+
+  monitor = meta_monitor_manager_get_monitor_from_spec (manager,
+                                                        monitor_spec);
+  if (!meta_monitor_is_color_mode_supported (monitor,
+                                             monitor_config->color_mode))
+    monitor_config->color_mode = META_COLOR_MODE_DEFAULT;
+}
+
+static void
+amend_logical_monitor_config (MetaLogicalMonitorConfig *logical_monitor_config,
+                              MetaMonitorManager       *manager)
+{
+  g_list_foreach (logical_monitor_config->monitor_configs,
+                  (GFunc) amend_monitor_config,
+                  manager);
+}
+
+static void
+amend_monitors_config (MetaMonitorManager *manager,
+                       MetaMonitorsConfig *config,
+                       MetaMonitorsConfig *base_config)
+{
+  g_list_foreach (config->logical_monitor_configs,
+                  (GFunc) amend_logical_monitor_config,
+                  manager);
+  meta_monitors_config_set_parent_config (config, base_config);
+}
+
 MetaMonitorsConfig *
 meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
 {
@@ -714,6 +793,7 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       if (config)
         {
           g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
+          g_autoptr (MetaMonitorsConfig) amended_config = NULL;
 
           if (manager->panel_orientation_managed)
             {
@@ -722,6 +802,13 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
 
               if (oriented_config)
                 config = oriented_config;
+            }
+
+          if (is_monitors_config_amend_needed (manager, config))
+            {
+              amended_config = meta_monitors_config_copy (config);
+              amend_monitors_config (manager, amended_config, config);
+              config = amended_config;
             }
 
           if (!meta_monitor_manager_apply_monitors_config (manager,
@@ -798,6 +885,7 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
   if (config)
     {
       g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
+      g_autoptr (MetaMonitorsConfig) amended_config = NULL;
 
       if (manager->panel_orientation_managed)
         {
@@ -809,26 +897,35 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
             config = oriented_config;
         }
 
-      config = g_object_ref (config);
-
       if (meta_monitor_manager_is_config_complete (manager, config))
         {
+          if (is_monitors_config_amend_needed (manager, config))
+            {
+              amended_config = meta_monitors_config_copy (config);
+              amend_monitors_config (manager, amended_config, config);
+              config = amended_config;
+            }
+
           if (!meta_monitor_manager_apply_monitors_config (manager,
                                                            config,
                                                            method,
                                                            &error))
             {
+              config = NULL;
               g_warning ("Failed to use suggested monitor configuration: %s",
                          error->message);
               g_clear_error (&error);
             }
           else
             {
+              config = g_object_ref (config);
               goto done;
             }
         }
-
-      g_clear_object (&config);
+      else
+        {
+          config = NULL;
+        }
     }
 
   config = meta_monitor_config_manager_create_linear (manager->config_manager);
