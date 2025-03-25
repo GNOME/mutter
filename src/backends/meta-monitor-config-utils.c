@@ -74,6 +74,36 @@ meta_clone_logical_monitor_config_list (GList *logical_monitor_configs)
                            NULL);
 }
 
+MetaMonitorsConfig *
+meta_monitors_config_copy (MetaMonitorsConfig *monitors_config)
+{
+  MetaMonitorsConfig *new_monitors_config;
+  GList *logical_monitor_configs;
+  GList *disabled_monitor_specs;
+  GList *for_lease_monitor_specs;
+
+  logical_monitor_configs =
+    meta_clone_logical_monitor_config_list (monitors_config->logical_monitor_configs);
+  disabled_monitor_specs =
+    g_list_copy_deep (monitors_config->disabled_monitor_specs,
+                      (GCopyFunc) meta_monitor_spec_clone,
+                      NULL);
+  for_lease_monitor_specs =
+    g_list_copy_deep (monitors_config->for_lease_monitor_specs,
+                      (GCopyFunc) meta_monitor_spec_clone,
+                      NULL);
+
+  new_monitors_config =
+    meta_monitors_config_new_full (logical_monitor_configs,
+                                   disabled_monitor_specs,
+                                   for_lease_monitor_specs,
+                                   monitors_config->layout_mode,
+                                   monitors_config->flags);
+  new_monitors_config->switch_config = monitors_config->switch_config;
+
+  return new_monitors_config;
+}
+
 static GList *
 find_adjacent_neighbours (GList                    *logical_monitor_configs,
                           MetaLogicalMonitorConfig *logical_monitor_config)
