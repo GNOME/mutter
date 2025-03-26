@@ -65,6 +65,7 @@ static GParamSpec *props[N_PROPS] = { 0 };
 enum
 {
   DESTROY,
+  ACTION_CHANGED,
   LAST_SIGNAL
 };
 
@@ -244,6 +245,13 @@ meta_wayland_data_source_class_init (MetaWaylandDataSourceClass *klass)
 
   signals[DESTROY] =
     g_signal_new ("destroy",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  signals[ACTION_CHANGED] =
+    g_signal_new ("action-changed",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
@@ -520,6 +528,8 @@ meta_wayland_data_source_set_current_action (MetaWaylandDataSource              
 
   if (!meta_wayland_data_source_get_in_ask (source))
     META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->action (source, action);
+
+  g_signal_emit (source, signals[ACTION_CHANGED], 0);
 }
 
 void
