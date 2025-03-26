@@ -123,8 +123,6 @@ meta_wayland_cursor_shape_device_new_tool (MetaWaylandTabletTool *tool)
 
   cursor_shape_device->type = META_WAYLAND_CURSOR_SHAPE_DEVICE_TYPE_TOOL;
   cursor_shape_device->tool = tool;
-  g_object_add_weak_pointer (G_OBJECT (tool),
-                             (gpointer *) &cursor_shape_device->tool);
 
   return cursor_shape_device;
 }
@@ -134,8 +132,6 @@ meta_wayland_cursor_shape_device_free (MetaWaylandCursorShapeDevice *cursor_shap
 {
   if (cursor_shape_device->type == META_WAYLAND_CURSOR_SHAPE_DEVICE_TYPE_POINTER)
     g_clear_weak_pointer ((gpointer *) &cursor_shape_device->pointer);
-  if (cursor_shape_device->type == META_WAYLAND_CURSOR_SHAPE_DEVICE_TYPE_TOOL)
-    g_clear_weak_pointer ((gpointer *) &cursor_shape_device->tool);
 
   g_free (cursor_shape_device);
 }
