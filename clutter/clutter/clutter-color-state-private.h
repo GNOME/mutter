@@ -38,6 +38,12 @@ typedef struct _ClutterColorTransformKey
   guint tone_mapping_bit  : 1;
 } ClutterColorTransformKey;
 
+typedef struct _ClutterColorOpSnippet
+{
+  const char *source;
+  const char *name;
+} ClutterColorOpSnippet;
+
 void clutter_color_transform_key_init (ClutterColorTransformKey *key,
                                        ClutterColorState        *color_state,
                                        ClutterColorState        *target_color_state);
@@ -46,3 +52,10 @@ guint clutter_color_transform_key_hash (gconstpointer data);
 
 gboolean clutter_color_transform_key_equal (gconstpointer data1,
                                             gconstpointer data2);
+
+void clutter_color_op_snippet_append_global (const ClutterColorOpSnippet *color_snippet,
+                                             GString                     *snippet_global);
+
+void clutter_color_op_snippet_append_source (const ClutterColorOpSnippet *color_snippet,
+                                             GString                     *snippet_source,
+                                             const char                  *snippet_color_var);

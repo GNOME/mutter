@@ -51,6 +51,7 @@
 
 #include "clutter/clutter-color-manager-private.h"
 #include "clutter/clutter-color-state-params.h"
+#include "clutter/clutter-main.h"
 
 enum
 {
@@ -216,15 +217,57 @@ clutter_color_state_init (ClutterColorState *color_state)
 {
 }
 
-static CoglSnippet *
-clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
-                                              ClutterColorState *target_color_state)
+static void
+clutter_color_state_append_transform_snippet (ClutterColorState *color_state,
+                                              ClutterColorState *target_color_state,
+                                              GString           *snippet_globals,
+                                              GString           *snippet_source,
+                                              const char        *snippet_color_var)
 {
   ClutterColorStateClass *color_state_class =
     CLUTTER_COLOR_STATE_GET_CLASS (color_state);
 
-  return color_state_class->create_transform_snippet (color_state,
-                                                      target_color_state);
+  color_state_class->append_transform_snippet (color_state,
+                                               target_color_state,
+                                               snippet_globals,
+                                               snippet_source,
+                                               snippet_color_var);
+}
+
+static CoglSnippet *
+clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
+                                              ClutterColorState *target_color_state)
+{
+  CoglSnippet *snippet;
+  const char *snippet_color_var;
+  g_autoptr (GString) snippet_globals = NULL;
+  g_autoptr (GString) snippet_source = NULL;
+
+  snippet_globals = g_string_new (NULL);
+  snippet_source = g_string_new (NULL);
+  snippet_color_var = "color_state_color";
+
+  g_string_append_printf (snippet_source,
+                          "  vec3 %s = cogl_color_out.rgb;\n",
+                          snippet_color_var);
+
+  clutter_color_state_append_transform_snippet (color_state,
+                                                target_color_state,
+                                                snippet_globals,
+                                                snippet_source,
+                                                snippet_color_var);
+
+  g_string_append_printf (snippet_source,
+                          "  cogl_color_out = vec4 (%s, cogl_color_out.a);\n",
+                          snippet_color_var);
+
+  snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                              snippet_globals->str,
+                              snippet_source->str);
+  cogl_snippet_set_capability (snippet,
+                               CLUTTER_PIPELINE_CAPABILITY,
+                               CLUTTER_PIPELINE_CAPABILITY_COLOR_STATE);
+  return snippet;
 }
 
 static CoglSnippet *
@@ -395,4 +438,29 @@ clutter_color_state_get_blending (ClutterColorState *color_state,
   g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), FALSE);
 
   return color_state_class->get_blending (color_state, force);
+}
+
+void
+clutter_color_op_snippet_append_global (const ClutterColorOpSnippet *color_snippet,
+                                        GString                     *snippet_global)
+{
+  if (!color_snippet)
+    return;
+
+  g_string_append_printf (snippet_global, "%s\n", color_snippet->source);
+}
+
+void
+clutter_color_op_snippet_append_source (const ClutterColorOpSnippet *color_snippet,
+                                        GString                     *snippet_source,
+                                        const char                  *snippet_color_var)
+{
+  if (!color_snippet)
+    return;
+
+  g_string_append_printf (snippet_source,
+                          "  %s = %s (%s);\n",
+                          snippet_color_var,
+                          color_snippet->name,
+                          snippet_color_var);
 }

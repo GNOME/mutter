@@ -47,8 +47,11 @@ struct _ClutterColorStateClass
                                      ClutterColorState        *target_color_state,
                                      ClutterColorTransformKey *key);
 
-  CoglSnippet * (* create_transform_snippet) (ClutterColorState *color_state,
-                                              ClutterColorState *target_color_state);
+  void (* append_transform_snippet) (ClutterColorState *color_state,
+                                     ClutterColorState *target_color_state,
+                                     GString           *snippet_globals,
+                                     GString           *snippet_source,
+                                     const char        *snippet_color_var);
 
   void (* update_uniforms) (ClutterColorState *color_state,
                             ClutterColorState *target_color_state,
