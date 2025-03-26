@@ -2482,22 +2482,25 @@ meta_monitor_manager_is_config_applicable (MetaMonitorManager *manager,
 }
 
 static gboolean
-meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
-                                         MetaMonitorsConfig *config)
+meta_monitors_config_has_monitors_connected (MetaMonitorsConfig *config,
+                                             MetaMonitorManager *manager)
 {
-  MetaMonitorsConfigKey *current_state_key;
-  gboolean is_config_complete;
+  g_autoptr (MetaMonitorsConfigKey) current_state_key = NULL;
 
   current_state_key =
     meta_create_monitors_config_key_for_current_state (manager);
   if (!current_state_key)
     return FALSE;
 
-  is_config_complete = meta_monitors_config_key_equal (current_state_key,
-                                                       config->key);
-  meta_monitors_config_key_free (current_state_key);
+  return meta_monitors_config_key_equal (current_state_key,
+                                         config->key);
+}
 
-  if (!is_config_complete)
+static gboolean
+meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
+                                         MetaMonitorsConfig *config)
+{
+  if (!meta_monitors_config_has_monitors_connected (config, manager))
     return FALSE;
 
   return meta_monitor_manager_is_config_applicable (manager, config, NULL);
