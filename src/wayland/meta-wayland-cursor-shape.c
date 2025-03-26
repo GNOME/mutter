@@ -238,9 +238,9 @@ static void
 cursor_manager_get_tablet_tool_v2 (struct wl_client   *client,
                                    struct wl_resource *resource,
                                    uint32_t            id,
-                                   struct wl_resource *pointer_resource)
+                                   struct wl_resource *tool_resource)
 {
-  MetaWaylandTabletTool *tool = wl_resource_get_user_data (resource);
+  MetaWaylandTabletTool *tool = wl_resource_get_user_data (tool_resource);
   g_autoptr (MetaWaylandCursorShapeDevice) cursor_shape_device = NULL;
   struct wl_resource *shape_device_resource;
 
