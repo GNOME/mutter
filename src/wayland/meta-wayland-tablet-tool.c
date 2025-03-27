@@ -201,6 +201,10 @@ meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
       meta_wayland_surface_update_outputs (tool->cursor_surface);
       wl_list_remove (&tool->cursor_surface_destroy_listener.link);
     }
+  else if (tool->cursor_shape == shape)
+    {
+      return;
+    }
 
   tool->cursor_surface = NULL;
   tool->cursor_shape = shape;
