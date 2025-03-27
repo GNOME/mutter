@@ -54,10 +54,13 @@ struct _ClutterColorStateClass
                             ClutterColorState *target_color_state,
                             CoglPipeline      *pipeline);
 
-  void (* do_transform) (ClutterColorState *color_state,
-                         ClutterColorState *target_color_state,
-                         float             *data,
-                         int                n_samples);
+  void (* do_transform_to_XYZ) (ClutterColorState *color_state,
+                                float             *data,
+                                int                n_samples);
+
+  void (* do_transform_from_XYZ) (ClutterColorState *color_state,
+                                  float             *data,
+                                  int                n_samples);
 
   gboolean (* equals) (ClutterColorState *color_state,
                        ClutterColorState *other_color_state);

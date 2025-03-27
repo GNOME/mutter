@@ -50,6 +50,7 @@
 #include "clutter/clutter-color-state-private.h"
 
 #include "clutter/clutter-color-manager-private.h"
+#include "clutter/clutter-color-state-params.h"
 
 enum
 {
@@ -279,14 +280,28 @@ clutter_color_state_do_transform (ClutterColorState *color_state,
 {
   ClutterColorStateClass *color_state_class =
     CLUTTER_COLOR_STATE_GET_CLASS (color_state);
+  ClutterColorStateClass *target_color_state_class =
+    CLUTTER_COLOR_STATE_GET_CLASS (target_color_state);
 
   g_return_if_fail (CLUTTER_IS_COLOR_STATE (color_state));
   g_return_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state));
 
-  color_state_class->do_transform (color_state,
-                                   target_color_state,
-                                   data,
-                                   n_samples);
+  color_state_class->do_transform_to_XYZ (color_state,
+                                          data,
+                                          n_samples);
+
+  if (CLUTTER_IS_COLOR_STATE_PARAMS (color_state) ||
+      CLUTTER_IS_COLOR_STATE_PARAMS (target_color_state))
+    {
+      clutter_color_state_params_do_tone_mapping (color_state,
+                                                  target_color_state,
+                                                  data,
+                                                  n_samples);
+    }
+
+  target_color_state_class->do_transform_from_XYZ (target_color_state,
+                                                   data,
+                                                   n_samples);
 }
 
 void

@@ -141,4 +141,10 @@ const ClutterPrimaries * clutter_colorspace_to_primaries (ClutterColorspace colo
 CLUTTER_EXPORT
 void clutter_primaries_ensure_normalized_range (ClutterPrimaries *primaries);
 
+CLUTTER_EXPORT
+void clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
+                                                 ClutterColorState *other_color_state,
+                                                 float             *data,
+                                                 int                n_samples);
+
 G_END_DECLS

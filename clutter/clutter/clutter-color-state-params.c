@@ -1776,96 +1776,131 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
 }
 
 static void
-clutter_color_state_params_apply_tone_mapping (ClutterColorStateParams *color_state_params,
-                                               ClutterColorStateParams *target_color_state_params,
-                                               float                    data[4])
+clutter_luminance_apply_tone_mapping (const ClutterLuminance *lum,
+                                      const ClutterLuminance *target_lum,
+                                      float                  *data,
+                                      int                     n_samples)
 {
-  const ClutterLuminance *lum;
-  const ClutterLuminance *target_lum;
+  float result[4];
   float tonemapping_ref_lum, luminance;
   graphene_matrix_t to_LMS, from_LMS;
+  graphene_matrix_t to_D65, from_D65;
   graphene_matrix_t to_ictcp, from_ictcp;
   graphene_vec4_t g_result;
-  float *result = data;
+  graphene_vec3_t D65_XYZ, D50_XYZ;
+  int i;
 
-  if (!needs_tone_mapping (color_state_params, target_color_state_params))
-    return;
+  /* Data is in XYZ (D50) */
+  graphene_vec3_init (&D65_XYZ, D65_X, D65_Y, D65_Z);
+  graphene_vec3_init (&D50_XYZ, D50_X, D50_Y, D50_Z);
 
-  lum = clutter_color_state_params_get_luminance (color_state_params);
-  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
+  compute_chromatic_adaptation (&D50_XYZ, &D65_XYZ, &to_D65);
+  get_to_LMS (&to_LMS);
+  graphene_matrix_multiply (&to_D65, &to_LMS, &to_LMS);
 
-  clutter_color_state_params_get_to_LMS (target_color_state_params, &to_LMS);
-  clutter_color_state_params_get_from_LMS (target_color_state_params, &from_LMS);
+  compute_chromatic_adaptation (&D65_XYZ, &D50_XYZ, &from_D65);
+  get_from_LMS (&from_LMS);
+  graphene_matrix_multiply (&from_LMS, &from_D65, &from_LMS);
 
   get_ictcp_mapping_matrices (&to_ictcp, &from_ictcp);
 
   tonemapping_ref_lum = get_tonemapping_ref_lum (target_lum);
 
-  graphene_vec4_init_from_float (&g_result, result);
-  graphene_matrix_transform_vec4 (&to_LMS, &g_result, &g_result);
-  graphene_vec4_to_float (&g_result, result);
-
-  result[0] = clutter_eotf_apply_pq_inv (result[0]);
-  result[1] = clutter_eotf_apply_pq_inv (result[1]);
-  result[2] = clutter_eotf_apply_pq_inv (result[2]);
-
-  graphene_vec4_init_from_float (&g_result, result);
-  graphene_matrix_transform_vec4 (&to_ictcp, &g_result, &g_result);
-  graphene_vec4_to_float (&g_result, result);
-
-  luminance = clutter_eotf_apply_pq (result[0]) * lum->max;
-  if (luminance < lum->ref)
+  for (i = 0; i < n_samples; i++)
     {
-      luminance *= tonemapping_ref_lum / lum->ref;
+      result[0] = data[0];
+      result[1] = data[1];
+      result[2] = data[2];
+      result[3] = 1.0f;
+
+      /* To LMS (D65) */
+      graphene_vec4_init_from_float (&g_result, result);
+      graphene_matrix_transform_vec4 (&to_LMS, &g_result, &g_result);
+      graphene_vec4_to_float (&g_result, result);
+
+      /* Encode in PQ */
+      result[0] = clutter_eotf_apply_pq_inv (result[0]);
+      result[1] = clutter_eotf_apply_pq_inv (result[1]);
+      result[2] = clutter_eotf_apply_pq_inv (result[2]);
+
+      /* To ICtCp */
+      graphene_vec4_init_from_float (&g_result, result);
+      graphene_matrix_transform_vec4 (&to_ictcp, &g_result, &g_result);
+      graphene_vec4_to_float (&g_result, result);
+
+      /* Work with I channel */
+      luminance = clutter_eotf_apply_pq (result[0]) * lum->max;
+      if (luminance < lum->ref)
+        {
+          luminance *= tonemapping_ref_lum / lum->ref;
+        }
+      else
+        {
+          float num = luminance - lum->ref;
+          float den = lum->max - lum->ref;
+          luminance = tonemapping_ref_lum +
+                      (target_lum->max - tonemapping_ref_lum) *
+                      powf (num / den, 0.5f);
+        }
+      result[0] = clutter_eotf_apply_pq_inv (luminance / target_lum->max);
+
+      /* To LMS in PQ */
+      graphene_vec4_init_from_float (&g_result, result);
+      graphene_matrix_transform_vec4 (&from_ictcp, &g_result, &g_result);
+      graphene_vec4_to_float (&g_result, result);
+
+      /* Unencode PQ */
+      result[0] = clutter_eotf_apply_pq (result[0]);
+      result[1] = clutter_eotf_apply_pq (result[1]);
+      result[2] = clutter_eotf_apply_pq (result[2]);
+
+      /* To XYZ (D50) */
+      graphene_vec4_init_from_float (&g_result, result);
+      graphene_matrix_transform_vec4 (&from_LMS, &g_result, &g_result);
+      graphene_vec4_to_float (&g_result, result);
+
+      data[0] = result[0];
+      data[1] = result[1];
+      data[2] = result[2];
+
+      data += 3;
     }
-  else
-    {
-      float num = luminance - lum->ref;
-      float den = lum->max - lum->ref;
-      luminance = tonemapping_ref_lum +
-                  (target_lum->max - tonemapping_ref_lum) *
-                  powf (num / den, 0.5f);
-    }
-  result[0] = clutter_eotf_apply_pq_inv (luminance / target_lum->max);
-
-  graphene_vec4_init_from_float (&g_result, result);
-  graphene_matrix_transform_vec4 (&from_ictcp, &g_result, &g_result);
-  graphene_vec4_to_float (&g_result, result);
-
-  result[0] = clutter_eotf_apply_pq (result[0]);
-  result[1] = clutter_eotf_apply_pq (result[1]);
-  result[2] = clutter_eotf_apply_pq (result[2]);
-
-  graphene_vec4_init_from_float (&g_result, result);
-  graphene_matrix_transform_vec4 (&from_LMS, &g_result, &g_result);
-  graphene_vec4_to_float (&g_result, result);
 }
 
 static void
-clutter_color_state_params_do_transform (ClutterColorState *color_state,
-                                         ClutterColorState *target_color_state,
-                                         float             *data,
-                                         int                n_samples)
+clutter_luminance_apply_luminance_mapping (const ClutterLuminance *lum,
+                                           const ClutterLuminance *target_lum,
+                                           float                  *data,
+                                           int                     n_samples)
+{
+  float lum_mapping;
+  int i;
+
+  clutter_luminance_get_luminance_mapping (lum, target_lum, &lum_mapping);
+  for (i = 0; i < n_samples; i++)
+    {
+      data[0] *= lum_mapping;
+      data[1] *= lum_mapping;
+      data[2] *= lum_mapping;
+      data += 3;
+    }
+}
+
+static void
+clutter_color_state_params_do_transform_to_XYZ (ClutterColorState *color_state,
+                                                float             *data,
+                                                int                n_samples)
 {
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
-  ClutterColorStateParams *target_color_state_params =
-    CLUTTER_COLOR_STATE_PARAMS (target_color_state);
   ClutterEOTF eotf = color_state_params->eotf;
-  ClutterEOTF target_eotf = target_color_state_params->eotf;
   int i;
   float result[4];
-  float lum_mapping;
   graphene_matrix_t color_trans_mat;
   graphene_vec4_t g_result;
 
-  clutter_color_state_params_get_color_space_mapping (color_state_params,
-                                                      target_color_state_params,
-                                                      &color_trans_mat);
-
-  clutter_color_state_params_get_luminance_mapping (color_state_params,
-                                                    target_color_state_params,
-                                                    &lum_mapping);
+  clutter_color_state_params_get_to_XYZ (color_state_params,
+                                         &color_trans_mat);
 
   for (i = 0; i < n_samples; i++)
     {
@@ -1875,31 +1910,106 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
       result[2] = clutter_eotf_apply (eotf, data[2]);
       result[3] = 1.0f;
 
-      /* Luminance mapping */
-      result[0] = result[0] * lum_mapping;
-      result[1] = result[1] * lum_mapping;
-      result[2] = result[2] * lum_mapping;
+      /* Color space mapping */
+      graphene_vec4_init_from_float (&g_result, result);
+      graphene_matrix_transform_vec4 (&color_trans_mat, &g_result, &g_result);
+      graphene_vec4_to_float (&g_result, result);
+
+      data[0] = result[0];
+      data[1] = result[1];
+      data[2] = result[2];
+
+      data += 3;
+    }
+}
+
+static void
+clutter_color_state_params_do_transform_from_XYZ (ClutterColorState *color_state,
+                                                  float             *data,
+                                                  int                n_samples)
+{
+  ClutterColorStateParams *color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (color_state);
+  ClutterEOTF eotf = color_state_params->eotf;
+  int i;
+  float result[4];
+  graphene_matrix_t color_trans_mat;
+  graphene_vec4_t g_result;
+
+  clutter_color_state_params_get_from_XYZ (color_state_params,
+                                           &color_trans_mat);
+
+  for (i = 0; i < n_samples; i++)
+    {
+      result[0] = data[0];
+      result[1] = data[1];
+      result[2] = data[2];
+      result[3] = 1.0f;
 
       /* Color space mapping */
       graphene_vec4_init_from_float (&g_result, result);
       graphene_matrix_transform_vec4 (&color_trans_mat, &g_result, &g_result);
       graphene_vec4_to_float (&g_result, result);
 
-      /* Tone mapping */
-      clutter_color_state_params_apply_tone_mapping (color_state_params,
-                                                     target_color_state_params,
-                                                     result);
-
       /* Inverse EOTF */
-      result[0] = clutter_eotf_apply_inv (target_eotf, result[0]);
-      result[1] = clutter_eotf_apply_inv (target_eotf, result[1]);
-      result[2] = clutter_eotf_apply_inv (target_eotf, result[2]);
+      result[0] = clutter_eotf_apply_inv (eotf, result[0]);
+      result[1] = clutter_eotf_apply_inv (eotf, result[1]);
+      result[2] = clutter_eotf_apply_inv (eotf, result[2]);
 
       data[0] = CLAMP (result[0], 0.0f, 1.0f);
       data[1] = CLAMP (result[1], 0.0f, 1.0f);
       data[2] = CLAMP (result[2], 0.0f, 1.0f);
 
       data += 3;
+    }
+}
+
+void
+clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
+                                            ClutterColorState *other_color_state,
+                                            float             *data,
+                                            int                n_samples)
+{
+  const ClutterLuminance *src_lum;
+  const ClutterLuminance *dst_lum;
+  ClutterColorStateParams *color_state_params;
+
+  if (CLUTTER_IS_COLOR_STATE_PARAMS (color_state))
+    {
+      color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+      src_lum = clutter_color_state_params_get_luminance (color_state_params);
+    }
+  else
+    {
+      src_lum = &sdr_default_luminance;
+    }
+
+  if (CLUTTER_IS_COLOR_STATE_PARAMS (other_color_state))
+    {
+      color_state_params = CLUTTER_COLOR_STATE_PARAMS (other_color_state);
+      dst_lum = clutter_color_state_params_get_luminance (color_state_params);
+    }
+  else
+    {
+      dst_lum = &sdr_default_luminance;
+    }
+
+  if (clutter_luminances_equal (src_lum, dst_lum))
+    return;
+
+  if (clutter_luminance_needs_tone_mapping (src_lum, dst_lum))
+    {
+      clutter_luminance_apply_tone_mapping (src_lum,
+                                            dst_lum,
+                                            data,
+                                            n_samples);
+    }
+  else
+    {
+      clutter_luminance_apply_luminance_mapping (src_lum,
+                                                 dst_lum,
+                                                 data,
+                                                 n_samples);
     }
 }
 
@@ -2036,7 +2146,8 @@ clutter_color_state_params_class_init (ClutterColorStateParamsClass *klass)
   color_state_class->init_color_transform_key = clutter_color_state_params_init_color_transform_key;
   color_state_class->create_transform_snippet = clutter_color_state_params_create_transform_snippet;
   color_state_class->update_uniforms = clutter_color_state_params_update_uniforms;
-  color_state_class->do_transform = clutter_color_state_params_do_transform;
+  color_state_class->do_transform_to_XYZ = clutter_color_state_params_do_transform_to_XYZ;
+  color_state_class->do_transform_from_XYZ = clutter_color_state_params_do_transform_from_XYZ;
   color_state_class->equals = clutter_color_state_params_equals;
   color_state_class->to_string = clutter_color_state_params_to_string;
   color_state_class->required_format = clutter_color_state_params_required_format;
