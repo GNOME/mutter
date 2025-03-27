@@ -3825,12 +3825,17 @@ meta_seat_impl_new (MetaSeatNative     *seat_native,
                     const char         *seat_id,
                     MetaSeatNativeFlag  flags)
 {
-  return g_initable_new (META_TYPE_SEAT_IMPL,
-                         NULL, NULL,
-                         "seat", seat_native,
-                         "seat-id", seat_id,
-                         "flags", flags,
-                         NULL);
+  return g_object_new (META_TYPE_SEAT_IMPL,
+                       "seat", seat_native,
+                       "seat-id", seat_id,
+                       "flags", flags,
+                       NULL);
+}
+
+void
+meta_seat_impl_setup (MetaSeatImpl *seat_impl)
+{
+  g_initable_init (G_INITABLE (seat_impl), NULL, NULL);
 }
 
 static gboolean

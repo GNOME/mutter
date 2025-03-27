@@ -130,6 +130,8 @@ MetaSeatImpl * meta_seat_impl_new (MetaSeatNative     *seat_native,
                                    const char         *seat_id,
                                    MetaSeatNativeFlag  flags);
 
+void meta_seat_impl_setup (MetaSeatImpl *seat_impl);
+
 void meta_seat_impl_start (MetaSeatImpl *seat_impl);
 
 void meta_seat_impl_destroy (MetaSeatImpl *seat_impl);
