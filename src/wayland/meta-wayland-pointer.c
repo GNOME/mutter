@@ -102,6 +102,7 @@ struct _MetaWaylandPointer
   gulong cursor_surface_destroy_id;
 
   MetaCursor cursor_shape;
+  MetaCursorSpriteXcursor *shape_sprite;
 
   guint32 grab_button;
   guint32 grab_serial;
@@ -1165,11 +1166,14 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
         }
       else if (pointer->cursor_shape != META_CURSOR_INVALID)
         {
-          MetaCursorSpriteXcursor *sprite;
+          if (!pointer->shape_sprite)
+            {
+              pointer->shape_sprite =
+                meta_cursor_sprite_xcursor_new (pointer->cursor_shape,
+                                                cursor_tracker);
+            }
 
-          sprite = meta_cursor_sprite_xcursor_new (pointer->cursor_shape,
-                                                   cursor_tracker);
-          cursor_sprite = META_CURSOR_SPRITE (sprite);
+          cursor_sprite = g_object_ref (META_CURSOR_SPRITE (pointer->shape_sprite));
         }
 
       meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
@@ -1205,6 +1209,7 @@ meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
 
   pointer->cursor_surface = cursor_surface;
   pointer->cursor_shape = META_CURSOR_INVALID;
+  g_clear_object (&pointer->shape_sprite);
 
   if (prev_cursor_surface)
     {
@@ -1241,6 +1246,7 @@ meta_wayland_pointer_set_cursor_shape (MetaWaylandPointer *pointer,
 
   pointer->cursor_surface = NULL;
   pointer->cursor_shape = shape;
+  g_clear_object (&pointer->shape_sprite);
 
   meta_wayland_pointer_update_cursor_surface (pointer);
 }
@@ -1534,6 +1540,8 @@ static void
 meta_wayland_pointer_finalize (GObject *object)
 {
   MetaWaylandPointer *pointer = META_WAYLAND_POINTER (object);
+
+  g_clear_object (&pointer->shape_sprite);
 
   g_clear_pointer (&pointer->pointer_clients, g_hash_table_unref);
 
