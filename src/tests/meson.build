@@ -712,6 +712,18 @@ kms_test_cases = [
 
 privileged_test_cases += kms_test_cases
 
+if libevdev_dep.found()
+  privileged_test_cases += [
+    {
+      'name': 'a11y-mouse-keys-test',
+      'suite': 'a11y',
+      'sources': [
+        'a11y-mouse-keys-test.c',
+      ],
+    },
+  ]
+endif
+
 # Wayland tests
 wayland_test_cases = [
   {
