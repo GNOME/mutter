@@ -716,12 +716,17 @@ handle_release_points (MetaWaylandBuffer *buffer)
 {
   MetaContext *context = meta_wayland_compositor_get_context (buffer->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  ClutterBackend *clutter_backend;
+  CoglContext *cogl_context;
   MetaWaylandSyncPoint *sync_point;
   g_autoptr (GError) error = NULL;
   g_autofd int sync_fd = -1;
 
+  if (!backend)
+    return;
+
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
   if (sync_fd < 0)
     {
