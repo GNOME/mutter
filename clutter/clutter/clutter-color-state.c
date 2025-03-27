@@ -251,7 +251,7 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
 
   clutter_color_manager_add_snippet (color_manager,
                                      &transform_key,
-                                     g_object_ref (snippet));
+                                     snippet);
   return snippet;
 }
 
