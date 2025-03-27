@@ -25,6 +25,13 @@ mutter_test_sources = [
   'meta-test-utils.h',
 ]
 
+if libevdev_dep.found()
+  mutter_test_sources += [
+    'meta-input-test-utils.c',
+    'meta-input-test-utils.h',
+  ]
+endif
+
 libmutter_test_name = 'mutter-test-' + libmutter_api_version
 
 cogl_test_utils = files (
@@ -52,6 +59,12 @@ tests_deps = [
   wayland_client_dep,
   gvdb_dep,
 ]
+
+if libevdev_dep.found()
+  tests_deps += [
+    libevdev_dep,
+  ]
+endif
 
 libmutter_test = shared_library(libmutter_test_name,
                                 mutter_test_sources,

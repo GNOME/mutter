@@ -383,6 +383,7 @@ have_bash_completion = get_option('bash_completion')
 if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
   dbusmock_dep = python.find_installation('python3', modules: ['dbusmock'], required: false)
+  libevdev_dep = dependency('libevdev', required: false)
 
   if not have_native_backend
     error('Tests require the native backend to be enabled')

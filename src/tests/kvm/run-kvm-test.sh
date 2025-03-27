@@ -2,6 +2,7 @@
 
 set -e
 
+DIRNAME="$(dirname "$0")"
 WRAPPER="$1"
 WRAPPER_ARGS="$2"
 TEST_RESULT="$3"
@@ -17,6 +18,7 @@ export MALLOC_PERTURB_="123"
 mkdir -p -m 700 $XDG_RUNTIME_DIR
 
 glib-compile-schemas $GSETTINGS_SCHEMA_DIR
+$DIRNAME/install-udev-rules.sh
 
 status=0
 "$WRAPPER" $WRAPPER_ARGS "${@:4}" || status=$?
