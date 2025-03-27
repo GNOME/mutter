@@ -858,6 +858,33 @@ meta_wait_for_paint (MetaContext *context)
   g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
 }
 
+static void
+on_after_update (ClutterStage     *stage,
+                 ClutterStageView *view,
+                 ClutterFrame     *frame,
+                 gboolean         *done)
+{
+  *done = TRUE;
+}
+
+void
+meta_wait_for_update (MetaContext *context)
+{
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  gulong after_update_handler_id;
+  gboolean done = FALSE;
+
+  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+
+  after_update_handler_id = g_signal_connect (stage, "after-update",
+                                              G_CALLBACK (on_after_update),
+                                              &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+  g_signal_handler_disconnect (stage, after_update_handler_id);
+}
+
 MetaVirtualMonitor *
 meta_create_test_monitor (MetaContext *context,
                           int          width,

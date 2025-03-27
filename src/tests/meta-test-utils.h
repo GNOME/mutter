@@ -125,6 +125,9 @@ META_EXPORT
 void meta_wait_for_paint (MetaContext *context);
 
 META_EXPORT
+void meta_wait_for_update (MetaContext *context);
+
+META_EXPORT
 MetaVirtualMonitor * meta_create_test_monitor (MetaContext *context,
                                                int          width,
                                                int          height,
