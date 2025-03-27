@@ -1117,22 +1117,34 @@ clutter_color_state_params_create_transform_snippet (ClutterColorState *color_st
   return snippet;
 }
 
-static float
-get_luminance_mapping (ClutterColorStateParams *color_state_params,
-                       ClutterColorStateParams *target_color_state_params)
+static void
+clutter_luminance_get_luminance_mapping (const ClutterLuminance *lum,
+                                         const ClutterLuminance *target_lum,
+                                         float                  *lum_mapping)
+{
+  /* this is a very basic, non-contrast preserving way of matching the reference
+   * luminance level */
+  *lum_mapping = (target_lum->ref / lum->ref) * (lum->max / target_lum->max);
+}
+
+static void
+clutter_color_state_params_get_luminance_mapping (ClutterColorStateParams *color_state_params,
+                                                  ClutterColorStateParams *target_color_state_params,
+                                                  float                   *lum_mapping)
 {
   const ClutterLuminance *lum;
   const ClutterLuminance *target_lum;
 
   if (!needs_lum_mapping (color_state_params, target_color_state_params))
-    return 1.0f;
+    {
+      *lum_mapping = 1.0f;
+      return;
+    }
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
   target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
 
-  /* this is a very basic, non-contrast preserving way of matching the reference
-   * luminance level */
-  return (target_lum->ref / lum->ref) * (lum->max / target_lum->max);
+  clutter_luminance_get_luminance_mapping (lum, target_lum, lum_mapping);
 }
 
 static void
@@ -1382,9 +1394,9 @@ get_chromatic_adaptation (ClutterColorStateParams *color_state_params,
 }
 
 static void
-get_color_space_mapping_matrix (ClutterColorStateParams *color_state_params,
-                                ClutterColorStateParams *target_color_state_params,
-                                float                    out_color_space_mapping[9])
+clutter_color_state_params_get_color_space_mapping (ClutterColorStateParams *color_state_params,
+                                                    ClutterColorStateParams *target_color_state_params,
+                                                    float                    out_color_space_mapping[9])
 {
   graphene_matrix_t matrix;
   graphene_matrix_t src_rgb_to_xyz, src_xyz_to_rgb;
@@ -1477,8 +1489,9 @@ update_luminance_mapping_uniforms (ClutterColorStateParams *color_state_params,
   if (!needs_lum_mapping (color_state_params, target_color_state_params))
     return;
 
-  lum_mapping = get_luminance_mapping (color_state_params,
-                                       target_color_state_params);
+  clutter_color_state_params_get_luminance_mapping (color_state_params,
+                                                    target_color_state_params,
+                                                    &lum_mapping);
 
   uniform_location_luminance_mapping =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1500,9 +1513,9 @@ update_color_space_mapping_uniforms (ClutterColorStateParams *color_state_params
   if (colorimetry_equal (color_state_params, target_color_state_params))
     return;
 
-  get_color_space_mapping_matrix (color_state_params,
-                                  target_color_state_params,
-                                  color_space_mapping_matrix);
+  clutter_color_state_params_get_color_space_mapping (color_state_params,
+                                                      target_color_state_params,
+                                                      color_space_mapping_matrix);
 
   uniform_location_color_space_mapping =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1839,9 +1852,9 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
   graphene_matrix_t g_color_trans_mat;
   graphene_vec3_t g_result;
 
-  get_color_space_mapping_matrix (color_state_params,
-                                  target_color_state_params,
-                                  color_trans_mat);
+  clutter_color_state_params_get_color_space_mapping (color_state_params,
+                                                      target_color_state_params,
+                                                      color_trans_mat);
   graphene_matrix_init_from_float (
     &g_color_trans_mat,
     (float [16]) {
@@ -1851,8 +1864,9 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
      0.0f, 0.0f, 0.0f, 1.0f,
     });
 
-  lum_mapping = get_luminance_mapping (color_state_params,
-                                       target_color_state_params);
+  clutter_color_state_params_get_luminance_mapping (color_state_params,
+                                                    target_color_state_params,
+                                                    &lum_mapping);
 
   for (i = 0; i < n_samples; i++)
     {
