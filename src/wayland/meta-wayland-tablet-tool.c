@@ -53,6 +53,7 @@ struct _MetaWaylandTabletTool
   MetaCursorSpriteXcursor *default_sprite;
 
   MetaCursor cursor_shape;
+  MetaCursorSpriteXcursor *shape_sprite;
 
   MetaWaylandSurface *current;
   guint32 pressed_buttons;
@@ -138,11 +139,14 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
         }
       else if (tool->cursor_shape != META_CURSOR_INVALID)
         {
-          MetaCursorSpriteXcursor *sprite;
+          if (!tool->shape_sprite)
+            {
+              tool->shape_sprite =
+                meta_cursor_sprite_xcursor_new (tool->cursor_shape,
+                                                cursor_tracker);
+            }
 
-          sprite = meta_cursor_sprite_xcursor_new (tool->cursor_shape,
-                                                   cursor_tracker);
-          cursor_sprite = META_CURSOR_SPRITE (sprite);
+          cursor_sprite = g_object_ref (META_CURSOR_SPRITE (tool->shape_sprite));
         }
     }
   else if (tool->current_tablet)
@@ -176,6 +180,7 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
 
   tool->cursor_surface = surface;
   tool->cursor_shape = META_CURSOR_INVALID;
+  g_clear_object (&tool->shape_sprite);
 
   if (tool->cursor_surface)
     {
@@ -208,6 +213,7 @@ meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
 
   tool->cursor_surface = NULL;
   tool->cursor_shape = shape;
+  g_clear_object (&tool->shape_sprite);
 
   meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
@@ -472,6 +478,7 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
     }
 
   g_object_unref (tool->default_sprite);
+  g_object_unref (tool->shape_sprite);
 
   g_free (tool);
 }
