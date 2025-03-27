@@ -117,7 +117,7 @@ class Login1Session(mockobject.DBusMockObject):
         if not devname:
             raise dbus.exceptions.DBusException(f'Device file {major}:{minor} doesn\\\'t exist',
                                                 major=major, minor=minor)
-        fd = os.open('/dev/' + devname, os.O_RDWR | os.O_CLOEXEC)
+        fd = os.open('/dev/' + devname, os.O_RDWR | os.O_CLOEXEC | os.O_NONBLOCK)
         unix_fd = dbus.types.UnixFd(fd)
         os.close(fd)
         return (unix_fd, False)
