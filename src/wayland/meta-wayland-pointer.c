@@ -1153,16 +1153,14 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 
   if (surface)
     {
-      g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
+      MetaCursorSprite *cursor_sprite = NULL;
 
       if (pointer->cursor_surface)
         {
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (pointer->cursor_surface->role);
-          MetaCursorSprite *sprite;
 
-          sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
-          cursor_sprite = g_object_ref (sprite);
+          cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
         }
       else if (pointer->cursor_shape != META_CURSOR_INVALID)
         {
@@ -1173,7 +1171,7 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
                                                 cursor_tracker);
             }
 
-          cursor_sprite = g_object_ref (META_CURSOR_SPRITE (pointer->shape_sprite));
+          cursor_sprite = META_CURSOR_SPRITE (pointer->shape_sprite);
         }
 
       meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);

@@ -120,7 +120,7 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
   MetaBackend *backend = backend_from_tool (tool);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
-  g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
+  MetaCursorSprite *cursor_sprite = NULL;
 
   if (tool->cursor_renderer == NULL)
     return;
@@ -132,10 +132,8 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
         {
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (tool->cursor_surface->role);
-          MetaCursorSprite *sprite;
 
-          sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
-          cursor_sprite = g_object_ref (sprite);
+          cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
         }
       else if (tool->cursor_shape != META_CURSOR_INVALID)
         {
@@ -146,15 +144,12 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
                                                 cursor_tracker);
             }
 
-          cursor_sprite = g_object_ref (META_CURSOR_SPRITE (tool->shape_sprite));
+          cursor_sprite = META_CURSOR_SPRITE (tool->shape_sprite);
         }
     }
   else if (tool->current_tablet)
     {
-      MetaCursorSprite *sprite;
-
-      sprite = META_CURSOR_SPRITE (tool->default_sprite);
-      cursor_sprite = g_object_ref (sprite);
+      cursor_sprite = META_CURSOR_SPRITE (tool->default_sprite);
     }
 
   meta_cursor_renderer_set_cursor (tool->cursor_renderer, cursor_sprite);
