@@ -318,6 +318,7 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
+  meta_onscreen_native_promote_posted_frame (onscreen);
   maybe_post_next_frame (onscreen);
 }
 
