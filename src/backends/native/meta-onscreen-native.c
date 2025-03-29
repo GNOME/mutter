@@ -156,7 +156,7 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                           GError             **error);
 
 static void
-meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
+meta_onscreen_native_promote_posted_frame (CoglOnscreen *onscreen)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaFrameNative *frame_native;
@@ -261,7 +261,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
 
   meta_onscreen_native_notify_frame_complete (onscreen);
-  meta_onscreen_native_swap_drm_fb (onscreen);
+  meta_onscreen_native_promote_posted_frame (onscreen);
   maybe_post_next_frame (onscreen);
 }
 
