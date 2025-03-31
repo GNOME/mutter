@@ -71,6 +71,8 @@ struct _MetaDrmLeaseManager
   gulong resources_changed_handler_id;
   gulong lease_changed_handler_id;
   gulong monitors_changed_handler_id;
+  gulong backend_pause_handler_id;
+  gulong backend_resume_handler_id;
 
   /* MetaKmsDevice *kms_device */
   GList *devices;
@@ -84,6 +86,8 @@ struct _MetaDrmLeaseManager
    * Value: MetaDrmLease *lease
    */
   GHashTable *leased_connectors;
+
+  gboolean is_paused;
 };
 
 G_DEFINE_TYPE (MetaDrmLeaseManager, meta_drm_lease_manager, G_TYPE_OBJECT)
@@ -665,6 +669,9 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
   new_leased_connectors =
     g_hash_table_new_similar (lease_manager->leased_connectors);
 
+  if (lease_manager->is_paused)
+    goto scanned_resources;
+
   for (l = meta_kms_get_devices (kms); l; l = l->next)
     {
       MetaKmsDevice *kms_device = l->data;
@@ -696,6 +703,8 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
             }
         }
     }
+
+scanned_resources:
 
   g_hash_table_iter_init (&iter, lease_manager->leased_connectors);
   while (g_hash_table_iter_next (&iter, (gpointer *)&kms_connector, NULL))
@@ -863,6 +872,21 @@ on_lease_changed (MetaKms             *kms,
 }
 
 static void
+on_pause (MetaBackend         *backend,
+          MetaDrmLeaseManager *lease_manager)
+{
+  lease_manager->is_paused = TRUE;
+  update_resources (lease_manager);
+}
+
+static void
+on_resume (MetaBackend         *backend,
+           MetaDrmLeaseManager *lease_manager)
+{
+  lease_manager->is_paused = FALSE;
+}
+
+static void
 meta_drm_lease_manager_constructed (GObject *object)
 {
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
@@ -885,6 +909,10 @@ meta_drm_lease_manager_constructed (GObject *object)
     g_signal_connect_swapped (monitor_manager, "monitors-changed-internal",
                               G_CALLBACK (update_resources),
                               lease_manager);
+  lease_manager->backend_pause_handler_id =
+    g_signal_connect (backend, "pause", G_CALLBACK (on_pause), lease_manager);
+  lease_manager->backend_resume_handler_id =
+    g_signal_connect (backend, "resume", G_CALLBACK (on_resume), lease_manager);
 
   lease_manager->leases =
     g_hash_table_new_full (NULL, NULL,
@@ -944,6 +972,10 @@ meta_drm_lease_manager_dispose (GObject *object)
   g_clear_signal_handler (&lease_manager->lease_changed_handler_id, kms);
   g_clear_signal_handler (&lease_manager->monitors_changed_handler_id,
                           monitor_manager);
+  g_clear_signal_handler (&lease_manager->backend_pause_handler_id,
+                          backend);
+  g_clear_signal_handler (&lease_manager->backend_resume_handler_id,
+                          backend);
 
   g_list_free_full (g_steal_pointer (&lease_manager->devices), g_object_unref);
   g_list_free_full (g_steal_pointer (&lease_manager->connectors),

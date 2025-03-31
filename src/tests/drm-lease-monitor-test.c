@@ -77,10 +77,26 @@ test_drm_lease_lease_suspend_resume (void)
 }
 
 static void
+test_drm_lease_lease_suspend_no_resume (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+
+  drm_mock_set_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR,
+                                disconnect_connector_filter, NULL);
+  fake_udev_hotplug ();
+  meta_backend_pause (backend);
+
+  drm_mock_unset_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR);
+  fake_udev_hotplug ();
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/drm-lease/suspend-resume",
                    test_drm_lease_lease_suspend_resume);
+  g_test_add_func ("/wayland/drm-lease/suspend-no-resume",
+                   test_drm_lease_lease_suspend_no_resume);
 }
 
 int
