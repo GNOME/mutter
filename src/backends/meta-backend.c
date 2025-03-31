@@ -975,7 +975,7 @@ meta_backend_class_init (MetaBackendClass *klass)
 }
 
 #ifdef HAVE_LOGIND
-static void
+void
 meta_backend_pause (MetaBackend *backend)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaBackendPause,
@@ -984,7 +984,7 @@ meta_backend_pause (MetaBackend *backend)
   META_BACKEND_GET_CLASS (backend)->pause (backend);
 }
 
-static void
+void
 meta_backend_resume (MetaBackend *backend)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaBackendResume,

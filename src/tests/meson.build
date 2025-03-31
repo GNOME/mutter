@@ -708,6 +708,13 @@ kms_test_cases = [
       wayland_test_utils,
     ],
   },
+  {
+    'name': 'drm-lease-monitor',
+    'suite': 'backends/native',
+    'sources': [
+      'drm-lease-monitor-test.c',
+    ],
+  },
 ]
 
 privileged_test_cases += kms_test_cases

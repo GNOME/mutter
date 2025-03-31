@@ -262,6 +262,12 @@ char * meta_backend_get_vendor_name (MetaBackend *backend,
                                      const char  *pnp_id);
 
 META_EXPORT_TEST
+void meta_backend_pause (MetaBackend *backend);
+
+META_EXPORT_TEST
+void meta_backend_resume (MetaBackend *backend);
+
+META_EXPORT_TEST
 uint32_t meta_clutter_button_to_evdev (uint32_t clutter_button);
 
 META_EXPORT_TEST
