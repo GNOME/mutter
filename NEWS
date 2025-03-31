@@ -1,3 +1,25 @@
+48.1
+====
+* Fixed occasional screen freezes [Michel, Jonas; !4338, !4334, !4375]
+* Fix tablet tool cursor sizes when set via the cursor shape protocol
+  [Jan; !4345]
+* Fix hiding the cursor when using the cursor shape protocl [Sebastian; !4358]
+* Fall back to the default color mode when a HDR monitor looses HDR capabilities
+  [Sebastian, Jonas; !4357, !4364]
+* Disable HDR support with non-atomic (legacy) KMS drivers [Sebastian; !4357]
+* Fix the cursor shape protocol when being used with tablets [Carlos; !4367]
+* Immediately update cursors on theme and size changes [Sebastian; !4359]
+* Avoid cursor stuttering when cursor set via the cursor shape protocol
+  [Michel; !4371]
+* Handle DnD cursor feedback in compositor [Carlos; !4368]
+* Fixed crashes [Orko, Michel, Jonas, Daniel; !4351, !4372, !4374, !4370, !4378]
+* Misc. bug fixes and cleanups [Daniel, Florian, Carlos, Michel; !4340, !4343,
+  !4352, !4353, !4361, !4369, !4377]
+
+Contributors:
+  Jan Alexander Steffens (heftig), Michel Dänzer, Orko Garai, Carlos Garnacho,
+  Florian Müllner, Daniel van Vugt, Sebastian Wick, Jonas Ådahl
+
 48.0
 ====
 * Improve wp_color_management_v1 support [Joan; !4304]
