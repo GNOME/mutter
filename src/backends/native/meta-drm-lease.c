@@ -871,10 +871,12 @@ meta_drm_lease_manager_constructed (GObject *object)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
+  /* Connect to MetaKms::resources-changed using G_CONNECT_AFTER to make sure
+   * MetaMonitorManager state is up to date. */
   lease_manager->resources_changed_handler_id =
-    g_signal_connect (kms, "resources-changed",
-                      G_CALLBACK (on_resources_changed),
-                      lease_manager);
+    g_signal_connect_after (kms, "resources-changed",
+                            G_CALLBACK (on_resources_changed),
+                            lease_manager);
   lease_manager->lease_changed_handler_id =
     g_signal_connect (kms, "lease-changed",
                       G_CALLBACK (on_lease_changed),
