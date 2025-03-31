@@ -697,13 +697,6 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
         }
     }
 
-  for (l = lease_manager->connectors; l; l = l->next)
-    {
-      kms_connector = l->data;
-
-      removed_connectors = g_list_append (removed_connectors, kms_connector);
-    }
-
   g_hash_table_iter_init (&iter, lease_manager->leased_connectors);
   while (g_hash_table_iter_next (&iter, (gpointer *)&kms_connector, NULL))
     {
@@ -713,7 +706,7 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
         leases_to_revoke = g_list_append (leases_to_revoke, lease);
     }
 
-  g_list_free (g_steal_pointer (&lease_manager->connectors));
+  removed_connectors = g_steal_pointer (&lease_manager->connectors);
   lease_manager->connectors = new_connectors;
 
   g_clear_pointer (&lease_manager->leased_connectors, g_hash_table_unref);
