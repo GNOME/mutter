@@ -25,6 +25,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-launcher.h"
 #include "backends/meta-udev.h"
+#include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-kms-types.h"
 
@@ -44,3 +45,5 @@ gboolean meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
 
 META_EXPORT_TEST
 MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);
+
+MetaDrmLeaseManager * meta_backend_native_get_drm_lease_manager (MetaBackendNative *backend_native);

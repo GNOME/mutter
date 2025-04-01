@@ -892,6 +892,31 @@ on_resume (MetaBackend         *backend,
 }
 
 static void
+on_prepare_shutdown (MetaBackend         *backend,
+                     MetaDrmLeaseManager *lease_manager)
+{
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  g_clear_signal_handler (&lease_manager->resources_changed_handler_id, kms);
+  g_clear_signal_handler (&lease_manager->lease_changed_handler_id, kms);
+  g_clear_signal_handler (&lease_manager->monitors_changed_handler_id,
+                          monitor_manager);
+  g_clear_signal_handler (&lease_manager->backend_pause_handler_id,
+                          backend);
+  g_clear_signal_handler (&lease_manager->backend_resume_handler_id,
+                          backend);
+
+  g_list_free_full (g_steal_pointer (&lease_manager->devices), g_object_unref);
+  g_list_free_full (g_steal_pointer (&lease_manager->connectors),
+                    g_object_unref);
+  g_clear_pointer (&lease_manager->leases, g_hash_table_unref);
+  g_clear_pointer (&lease_manager->leased_connectors, g_hash_table_unref);
+}
+
+static void
 meta_drm_lease_manager_constructed (GObject *object)
 {
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
@@ -900,6 +925,10 @@ meta_drm_lease_manager_constructed (GObject *object)
   MetaBackend *backend = meta_kms_get_backend (kms);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+
+  g_signal_connect (backend, "prepare-shutdown",
+                    G_CALLBACK (on_prepare_shutdown),
+                    lease_manager);
 
   /* Connect to MetaKms::resources-changed using G_CONNECT_AFTER to make sure
    * MetaMonitorManager state is up to date. */
@@ -966,34 +995,6 @@ meta_drm_lease_manager_get_property (GObject    *object,
 }
 
 static void
-meta_drm_lease_manager_dispose (GObject *object)
-{
-  MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
-  MetaKms *kms =
-    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
-  MetaBackend *backend = meta_kms_get_backend (kms);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-
-  g_clear_signal_handler (&lease_manager->resources_changed_handler_id, kms);
-  g_clear_signal_handler (&lease_manager->lease_changed_handler_id, kms);
-  g_clear_signal_handler (&lease_manager->monitors_changed_handler_id,
-                          monitor_manager);
-  g_clear_signal_handler (&lease_manager->backend_pause_handler_id,
-                          backend);
-  g_clear_signal_handler (&lease_manager->backend_resume_handler_id,
-                          backend);
-
-  g_list_free_full (g_steal_pointer (&lease_manager->devices), g_object_unref);
-  g_list_free_full (g_steal_pointer (&lease_manager->connectors),
-                    g_object_unref);
-  g_clear_pointer (&lease_manager->leases, g_hash_table_unref);
-  g_clear_pointer (&lease_manager->leased_connectors, g_hash_table_unref);
-
-  G_OBJECT_CLASS (meta_drm_lease_manager_parent_class)->dispose (object);
-}
-
-static void
 meta_drm_lease_manager_class_init (MetaDrmLeaseManagerClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -1001,7 +1002,6 @@ meta_drm_lease_manager_class_init (MetaDrmLeaseManagerClass *klass)
   object_class->constructed = meta_drm_lease_manager_constructed;
   object_class->set_property = meta_drm_lease_manager_set_property;
   object_class->get_property = meta_drm_lease_manager_get_property;
-  object_class->dispose = meta_drm_lease_manager_dispose;
 
   props_manager[PROP_MANAGER_BACKEND] =
     g_param_spec_object ("backend", NULL, NULL,

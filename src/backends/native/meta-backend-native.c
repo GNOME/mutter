@@ -51,6 +51,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-device-pool-private.h"
+#include "backends/native/meta-drm-lease.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-monitor-manager-native.h"
@@ -94,6 +95,8 @@ typedef struct _MetaBackendNativePrivate
 #ifdef HAVE_EGL_DEVICE
   MetaRenderDeviceEglStream *render_device_egl_stream;
 #endif
+
+  MetaDrmLeaseManager *drm_lease_manager;
 } MetaBackendNativePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendNative,
@@ -217,6 +220,10 @@ meta_backend_native_init_post (MetaBackend  *backend,
                            G_CALLBACK (on_a11y_modifiers_changed),
                            backend,
                            G_CONNECT_DEFAULT);
+
+  priv->drm_lease_manager = g_object_new (META_TYPE_DRM_LEASE_MANAGER,
+                                          "backend", backend,
+                                          NULL);
 
   return TRUE;
 }
@@ -898,6 +905,15 @@ meta_backend_native_get_kms (MetaBackendNative *backend_native)
     meta_backend_native_get_instance_private (backend_native);
 
   return priv->kms;
+}
+
+MetaDrmLeaseManager *
+meta_backend_native_get_drm_lease_manager (MetaBackendNative *backend_native)
+{
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (backend_native);
+
+  return priv->drm_lease_manager;
 }
 
 gboolean

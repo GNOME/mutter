@@ -43,7 +43,6 @@
 struct _MetaWaylandDrmLeaseManager
 {
   MetaWaylandCompositor *compositor;
-  MetaDrmLeaseManager *drm_lease_manager;
 
   /* Key:   MetaKmsDevice *kms_device
    * Value: MetaWaylandDrmLeaseDevice *lease_device
@@ -51,6 +50,11 @@ struct _MetaWaylandDrmLeaseManager
   GHashTable *devices;
 
   GList *leases;
+
+  gulong device_added_handler_id;
+  gulong device_removed_handler_id;
+  gulong connector_added_handler_id;
+  gulong connector_removed_handler_id;
 };
 
 typedef struct _MetaWaylandDrmLeaseDevice
@@ -97,6 +101,17 @@ typedef struct _MetaWaylandDrmLease
   uint32_t lessee_id;
   struct wl_resource *resource;
 } MetaWaylandDrmLease;
+
+static MetaDrmLeaseManager *
+drm_lease_manager_from_lease_manager (MetaWaylandDrmLeaseManager *lease_manager)
+{
+  MetaWaylandCompositor *compositor = lease_manager->compositor;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+
+  return meta_backend_native_get_drm_lease_manager (backend_native);
+}
 
 static void
 meta_wayland_drm_lease_device_free (MetaWaylandDrmLeaseDevice *lease_device)
@@ -147,8 +162,10 @@ meta_wayland_drm_lease_release (MetaWaylandDrmLease *lease)
 static void
 meta_wayland_drm_lease_revoke (MetaWaylandDrmLease *lease)
 {
+  MetaDrmLeaseManager *drm_lease_manager =
+    drm_lease_manager_from_lease_manager (lease->lease_manager);
   MetaDrmLease *drm_lease =
-    meta_drm_lease_manager_get_lease_from_id (lease->lease_manager->drm_lease_manager,
+    meta_drm_lease_manager_get_lease_from_id (drm_lease_manager,
                                               lease->lessee_id);
 
   if (drm_lease)
@@ -181,12 +198,14 @@ static void
 wp_drm_lease_destructor (struct wl_resource *resource)
 {
   MetaWaylandDrmLease *lease = wl_resource_get_user_data (resource);
+  MetaDrmLeaseManager *drm_lease_manager =
+    drm_lease_manager_from_lease_manager (lease->lease_manager);
   MetaDrmLease *drm_lease;
 
   meta_wayland_drm_lease_revoke (lease);
 
   drm_lease =
-    meta_drm_lease_manager_get_lease_from_id (lease->lease_manager->drm_lease_manager,
+    meta_drm_lease_manager_get_lease_from_id (drm_lease_manager,
                                               lease->lessee_id);
   if (drm_lease)
     {
@@ -241,7 +260,8 @@ wp_drm_lease_request_submit (struct wl_client   *client,
   MetaWaylandDrmLeaseDevice *lease_device = lease_request->lease_device;
   MetaWaylandDrmLeaseManager *lease_manager = lease_device->lease_manager;
   MetaKmsDevice *kms_device = lease_device->kms_device;
-  MetaDrmLeaseManager *drm_lease_manager = lease_manager->drm_lease_manager;
+  MetaDrmLeaseManager *drm_lease_manager =
+    drm_lease_manager_from_lease_manager (lease_manager);
   MetaWaylandDrmLease *lease;
   g_autoptr (GList) connectors = NULL;
   g_autoptr (MetaDrmLease) drm_lease = NULL;
@@ -583,7 +603,8 @@ meta_wayland_drm_lease_device_new (MetaWaylandDrmLeaseManager *lease_manager,
 {
   struct wl_display *wayland_display =
     meta_wayland_compositor_get_wayland_display (lease_manager->compositor);
-  MetaDrmLeaseManager *drm_lease_manager = lease_manager->drm_lease_manager;
+  MetaDrmLeaseManager *drm_lease_manager =
+    drm_lease_manager_from_lease_manager (lease_manager);
   MetaWaylandDrmLeaseDevice *lease_device;
   g_autoptr (GList) kms_connectors = NULL;
 
@@ -765,34 +786,36 @@ meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
   if (!META_IS_BACKEND_NATIVE (backend))
     return NULL;
 
-  drm_lease_manager = g_object_new (META_TYPE_DRM_LEASE_MANAGER,
-                                    "backend", backend,
-                                    NULL);
-
   lease_manager = g_new0 (MetaWaylandDrmLeaseManager, 1);
   lease_manager->compositor = compositor;
-  lease_manager->drm_lease_manager = drm_lease_manager;
   lease_manager->devices =
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_wayland_drm_lease_device_release);
 
+  drm_lease_manager =
+    drm_lease_manager_from_lease_manager (lease_manager);
+
   g_list_foreach (meta_drm_lease_manager_get_devices (drm_lease_manager),
                   (GFunc) meta_wayland_drm_lease_manager_add_device,
                   lease_manager);
 
-  g_signal_connect (lease_manager->drm_lease_manager, "device-added",
-                    G_CALLBACK (on_device_added),
-                    lease_manager);
-  g_signal_connect (lease_manager->drm_lease_manager, "device-removed",
-                    G_CALLBACK (on_device_removed),
-                    lease_manager);
-  g_signal_connect (lease_manager->drm_lease_manager, "connector-added",
-                    G_CALLBACK (on_connector_added),
-                    lease_manager);
-  g_signal_connect (lease_manager->drm_lease_manager, "connector-removed",
-                    G_CALLBACK (on_connector_removed),
-                    lease_manager);
+  lease_manager->device_added_handler_id =
+    g_signal_connect (drm_lease_manager, "device-added",
+                      G_CALLBACK (on_device_added),
+                      lease_manager);
+  lease_manager->device_removed_handler_id =
+    g_signal_connect (drm_lease_manager, "device-removed",
+                      G_CALLBACK (on_device_removed),
+                      lease_manager);
+  lease_manager->connector_added_handler_id =
+    g_signal_connect (drm_lease_manager, "connector-added",
+                      G_CALLBACK (on_connector_added),
+                      lease_manager);
+  lease_manager->connector_removed_handler_id =
+    g_signal_connect (drm_lease_manager, "connector-removed",
+                      G_CALLBACK (on_connector_removed),
+                      lease_manager);
 
   if (launcher)
     {
@@ -808,9 +831,18 @@ static void
 meta_wayland_drm_lease_manager_free (gpointer data)
 {
   MetaWaylandDrmLeaseManager *lease_manager = data;
+  MetaDrmLeaseManager *drm_lease_manager =
+    drm_lease_manager_from_lease_manager (lease_manager);
 
+  g_clear_signal_handler (&lease_manager->device_added_handler_id,
+                          drm_lease_manager);
+  g_clear_signal_handler (&lease_manager->device_removed_handler_id,
+                          drm_lease_manager);
+  g_clear_signal_handler (&lease_manager->connector_added_handler_id,
+                          drm_lease_manager);
+  g_clear_signal_handler (&lease_manager->connector_removed_handler_id,
+                          drm_lease_manager);
   g_clear_pointer (&lease_manager->devices, g_hash_table_unref);
-  g_clear_pointer (&lease_manager->drm_lease_manager, g_object_unref);
   g_list_foreach (lease_manager->leases,
                   (GFunc) meta_wayland_drm_lease_release,
                   NULL);
