@@ -759,18 +759,14 @@ meta_wayland_drm_lease_manager_new (MetaWaylandCompositor *compositor)
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaLauncher *launcher = meta_backend_get_launcher (backend);
-  MetaBackendNative *backend_native;
-  MetaKms *kms;
   MetaWaylandDrmLeaseManager *lease_manager;
   MetaDrmLeaseManager *drm_lease_manager;
 
   if (!META_IS_BACKEND_NATIVE (backend))
     return NULL;
 
-  backend_native = META_BACKEND_NATIVE (backend);
-  kms = meta_backend_native_get_kms (backend_native);
   drm_lease_manager = g_object_new (META_TYPE_DRM_LEASE_MANAGER,
-                                    "meta-kms", kms,
+                                    "backend", backend,
                                     NULL);
 
   lease_manager = g_new0 (MetaWaylandDrmLeaseManager, 1);

@@ -34,7 +34,7 @@ enum
 {
   PROP_0,
 
-  PROP_MANAGER_META_KMS,
+  PROP_MANAGER_BACKEND,
 
   N_PROPS_MANAGER,
 };
@@ -66,7 +66,7 @@ struct _MetaDrmLeaseManager
 {
   GObject parent;
 
-  MetaKms *kms;
+  MetaBackend *backend;
 
   gulong resources_changed_handler_id;
   gulong lease_changed_handler_id;
@@ -221,7 +221,8 @@ find_resources_to_lease (MetaDrmLeaseManager  *lease_manager,
                          GList               **out_planes,
                          GError              **error)
 {
-  MetaKms *kms = lease_manager->kms;
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
   g_autoptr (GList) assignments = NULL;
   g_autoptr (GList) crtcs = NULL;
   g_autoptr (GList) planes = NULL;
@@ -622,11 +623,13 @@ update_devices (MetaDrmLeaseManager  *lease_manager,
                 GList               **added_devices_out,
                 GList               **removed_devices_out)
 {
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
   g_autoptr (GList) added_devices = NULL;
   GList *new_devices;
   GList *l;
 
-  new_devices = g_list_copy (meta_kms_get_devices (lease_manager->kms));
+  new_devices = g_list_copy (meta_kms_get_devices (kms));
 
   for (l = new_devices; l; l = l->next)
     {
@@ -654,7 +657,8 @@ update_connectors (MetaDrmLeaseManager  *lease_manager,
                    GList               **removed_connectors_out,
                    GList               **leases_to_revoke_out)
 {
-  MetaKms *kms = lease_manager->kms;
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
   GList *new_connectors = NULL;
   GHashTable *new_leased_connectors;
   MetaDrmLease *lease = NULL;
@@ -816,7 +820,8 @@ did_lease_disappear (MetaDrmLease  *lease,
 static void
 update_leases (MetaDrmLeaseManager *lease_manager)
 {
-  MetaKms *kms = lease_manager->kms;
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
   MetaDrmLease *lease;
   GList *l;
   g_autoptr (GList) disappeared_leases = NULL;
@@ -890,7 +895,8 @@ static void
 meta_drm_lease_manager_constructed (GObject *object)
 {
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
-  MetaKms *kms = lease_manager->kms;
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
   MetaBackend *backend = meta_kms_get_backend (kms);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -934,8 +940,8 @@ meta_drm_lease_manager_set_property (GObject      *object,
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
   switch (prop_id)
     {
-    case PROP_MANAGER_META_KMS:
-      lease_manager->kms = g_value_get_object (value);
+    case PROP_MANAGER_BACKEND:
+      lease_manager->backend = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -951,8 +957,8 @@ meta_drm_lease_manager_get_property (GObject    *object,
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
   switch (prop_id)
     {
-    case PROP_MANAGER_META_KMS:
-      g_value_set_object (value, lease_manager->kms);
+    case PROP_MANAGER_BACKEND:
+      g_value_set_object (value, lease_manager->backend);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -963,7 +969,8 @@ static void
 meta_drm_lease_manager_dispose (GObject *object)
 {
   MetaDrmLeaseManager *lease_manager = META_DRM_LEASE_MANAGER (object);
-  MetaKms *kms = lease_manager->kms;
+  MetaKms *kms =
+    meta_backend_native_get_kms (META_BACKEND_NATIVE (lease_manager->backend));
   MetaBackend *backend = meta_kms_get_backend (kms);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -996,9 +1003,9 @@ meta_drm_lease_manager_class_init (MetaDrmLeaseManagerClass *klass)
   object_class->get_property = meta_drm_lease_manager_get_property;
   object_class->dispose = meta_drm_lease_manager_dispose;
 
-  props_manager[PROP_MANAGER_META_KMS] =
-    g_param_spec_object ("meta-kms", NULL, NULL,
-                         META_TYPE_KMS,
+  props_manager[PROP_MANAGER_BACKEND] =
+    g_param_spec_object ("backend", NULL, NULL,
+                         META_TYPE_BACKEND_NATIVE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
