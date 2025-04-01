@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-25 03:27+0000\n"
-"PO-Revision-Date: 2025-02-27 10:47+1100\n"
+"POT-Creation-Date: 2025-03-25 23:05+0000\n"
+"PO-Revision-Date: 2025-04-02 10:32+1100\n"
 "Last-Translator: Quentin PAGÈS\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -247,11 +247,11 @@ msgstr "Maximizar la fenèstra verticalament"
 msgid "Maximize window horizontally"
 msgstr "Maximizar la fenèstra orizontalament"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:174
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Vista devesida a esquèrra"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:179
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Vista devesida a dreita"
 
@@ -448,15 +448,34 @@ msgstr ""
 "èsser pas detectat coma blocat. L’utilizacion de 0 desactivarà complètament "
 "la verificacion."
 
-#: data/org.gnome.mutter.gschema.xml.in:184
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Per paramètre de luminositat en sortida"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Per sortida e paramètre de luminositat de mòde de color. Cada entrada "
+"consistís en un tuple amb connector, fabricant, produch, numèro de seria, e "
+"un mòde de color, tanben coma una valor de nombre decimal associada que "
+"representa la luminositat de sortida en percentatge (%). La valor per defaut "
+"quand es pas especificada es 100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Bascular la configuracion del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:189
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Vira la configuracion d’usina del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:194
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Anullar tot session de capture d’entrada activa"
 
