@@ -36,6 +36,8 @@ typedef struct _ClutterColorTransformKey
   guint color_trans_bit  : 1;
   /* When there is a tone mapping snippet */
   guint tone_mapping_bit  : 1;
+  /* When there is a 3D LUT snippet */
+  guint lut_3d           : 1;
 } ClutterColorTransformKey;
 
 typedef struct _ClutterColorOpSnippet
@@ -59,3 +61,17 @@ void clutter_color_op_snippet_append_global (const ClutterColorOpSnippet *color_
 void clutter_color_op_snippet_append_source (const ClutterColorOpSnippet *color_snippet,
                                              GString                     *snippet_source,
                                              const char                  *snippet_color_var);
+
+void clutter_color_state_init_3d_lut_transform_key (ClutterColorState        *color_state,
+                                                    ClutterColorState        *target_color_state,
+                                                    ClutterColorTransformKey *key);
+
+void clutter_color_state_append_3d_lut_transform_snippet (ClutterColorState *color_state,
+                                                          ClutterColorState *target_color_state,
+                                                          GString           *snippet_globals,
+                                                          GString           *snippet_source,
+                                                          const char        *snippet_color_var);
+
+void clutter_color_state_update_3d_lut_uniforms (ClutterColorState *color_state,
+                                                 ClutterColorState *target_color_state,
+                                                 CoglPipeline      *pipeline);
