@@ -944,6 +944,9 @@ meta_backend_native_activate_vt (MetaBackendNative  *backend_native,
 static void
 meta_backend_native_pause (MetaBackend *backend)
 {
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaBackendNativePrivate *priv =
+    meta_backend_native_get_instance_private (backend_native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerNative *monitor_manager_native =
@@ -954,6 +957,7 @@ meta_backend_native_pause (MetaBackend *backend)
 
   meta_seat_native_release_devices (seat);
   meta_monitor_manager_native_pause (monitor_manager_native);
+  meta_drm_lease_manager_pause (priv->drm_lease_manager);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->pause (backend);
 }
@@ -978,6 +982,7 @@ meta_backend_native_resume (MetaBackend *backend)
 
   meta_monitor_manager_native_resume (monitor_manager_native);
   meta_kms_resume (priv->kms);
+  meta_drm_lease_manager_resume (priv->drm_lease_manager);
 
   meta_seat_native_reclaim_devices (seat);
 

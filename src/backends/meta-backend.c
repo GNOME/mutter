@@ -123,8 +123,6 @@ enum
   LID_IS_CLOSED_CHANGED,
   GPU_ADDED,
   PREPARE_SHUTDOWN,
-  PAUSE,
-  RESUME,
 
   N_SIGNALS
 };
@@ -974,20 +972,6 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
-  signals[PAUSE] =
-    g_signal_new ("pause",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
-  signals[RESUME] =
-    g_signal_new ("resume",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
 }
 
 #ifdef HAVE_LOGIND
@@ -997,7 +981,6 @@ meta_backend_pause (MetaBackend *backend)
   COGL_TRACE_BEGIN_SCOPED (MetaBackendPause,
                            "Meta::Backend::pause()");
 
-  g_signal_emit (backend, signals[PAUSE], 0);
   META_BACKEND_GET_CLASS (backend)->pause (backend);
 }
 
@@ -1008,7 +991,6 @@ meta_backend_resume (MetaBackend *backend)
                            "Meta::Backend::resume()");
 
   META_BACKEND_GET_CLASS (backend)->resume (backend);
-  g_signal_emit (backend, signals[RESUME], 0);
 }
 
 static void

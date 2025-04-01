@@ -29,6 +29,10 @@ G_DECLARE_FINAL_TYPE (MetaDrmLease, meta_drm_lease,
 G_DECLARE_FINAL_TYPE (MetaDrmLeaseManager, meta_drm_lease_manager,
                       META, DRM_LEASE_MANAGER, GObject)
 
+void meta_drm_lease_manager_pause (MetaDrmLeaseManager *lease_manager);
+
+void meta_drm_lease_manager_resume (MetaDrmLeaseManager *lease_manager);
+
 uint32_t meta_drm_lease_get_id (MetaDrmLease *lease);
 
 int meta_drm_lease_steal_fd (MetaDrmLease *lease);
