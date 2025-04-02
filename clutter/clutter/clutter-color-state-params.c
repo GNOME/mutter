@@ -1099,25 +1099,36 @@ clutter_color_state_params_append_transform_snippet (ClutterColorState *color_st
       clutter_color_op_snippet_append_global (tone_mapping_snippet, snippet_globals);
     }
 
+  g_string_append_printf (snippet_globals,
+                          "vec3 transform_color_state (vec3 %s)\n"
+                          "{\n",
+                          snippet_color_var);
+
   clutter_color_op_snippet_append_source (eotf_snippet,
-                                          snippet_source,
+                                          snippet_globals,
                                           snippet_color_var);
 
   clutter_color_op_snippet_append_source (luminance_mapping_snippet,
-                                          snippet_source,
+                                          snippet_globals,
                                           snippet_color_var);
 
   clutter_color_op_snippet_append_source (color_space_mapping_snippet,
-                                          snippet_source,
+                                          snippet_globals,
                                           snippet_color_var);
 
   clutter_color_op_snippet_append_source (tone_mapping_snippet,
-                                          snippet_source,
+                                          snippet_globals,
                                           snippet_color_var);
 
   clutter_color_op_snippet_append_source (inv_eotf_snippet,
-                                          snippet_source,
+                                          snippet_globals,
                                           snippet_color_var);
+
+  g_string_append_printf (snippet_globals,
+                          "  return %s;\n"
+                          "}\n"
+                          "\n",
+                          snippet_color_var);
 }
 
 static float

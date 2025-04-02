@@ -22,6 +22,11 @@ static TestColor test_colors[] = {
   { 0.0f,   0.66f, 0.44f, 1.0f },
   { 0.166f, 0.0f,  0.93f, 1.0f },
   { 0.99f,  0.75f, 0.0f,  1.0f },
+  { 1.0f,   0.5f,  0.25f, 0.5f },
+  { 1.0f,   1.0f,  1.0f,  0.9f },
+  { 1.0f,   1.0f,  1.0f,  0.5f },
+  { 1.0f,   1.0f,  1.0f,  0.3f },
+  { 1.0f,   1.0f,  1.0f,  0.1f },
 };
 
 #define ACTOR_SIZE 10.0f
@@ -183,14 +188,20 @@ validate_transform (ClutterActor      *stage,
 
   for (int i = 0; i < G_N_ELEMENTS (test_colors); i++)
     {
-      cpu_color[0] = test_colors[i].r * test_colors[i].a;
-      cpu_color[1] = test_colors[i].g * test_colors[i].a;
-      cpu_color[2] = test_colors[i].b * test_colors[i].a;
+      /* Start unpremultiplied */
+      cpu_color[0] = test_colors[i].r;
+      cpu_color[1] = test_colors[i].g;
+      cpu_color[2] = test_colors[i].b;
 
       clutter_color_state_do_transform (src_color_state,
                                         blend_color_state,
                                         cpu_color,
                                         1);
+
+      /* Premultiply */
+      cpu_color[0] *= test_colors[i].a;
+      cpu_color[1] *= test_colors[i].a;
+      cpu_color[2] *= test_colors[i].a;
 
       x = (int) (i * ACTOR_SIZE);
       y = 0;
@@ -212,11 +223,12 @@ validate_transform (ClutterActor      *stage,
       if (!transform_passed)
         {
           g_test_message ("Failed blend color transform:\n"
-                          "input  (%.5f, %.5f, %.5f)\n"
+                          "input  (%.5f, %.5f, %.5f, %.5f)\n"
                           "cpu    (%.5f, %.5f, %.5f)\n"
                           "shader (%.5f, %.5f, %.5f)\n"
                           "diff   (%.5f, %.5f, %.5f)\n",
                           test_colors[i].r, test_colors[i].g, test_colors[i].b,
+                          test_colors[i].a,
                           cpu_color[0], cpu_color[1], cpu_color[2],
                           shader_color[0], shader_color[1], shader_color[2],
                           ABS (cpu_color[0] - shader_color[0]),
@@ -249,11 +261,12 @@ validate_transform (ClutterActor      *stage,
       if (!transform_passed)
         {
           g_test_message ("Failed output color transform:\n"
-                          "input  (%.5f, %.5f, %.5f)\n"
+                          "input  (%.5f, %.5f, %.5f, %.5f)\n"
                           "cpu    (%.5f, %.5f, %.5f)\n"
                           "shader (%.5f, %.5f, %.5f)\n"
                           "diff   (%.5f, %.5f, %.5f)\n",
                           test_colors[i].r, test_colors[i].g, test_colors[i].b,
+                          test_colors[i].a,
                           cpu_color[0], cpu_color[1], cpu_color[2],
                           shader_color[0], shader_color[1], shader_color[2],
                           ABS (cpu_color[0] - shader_color[0]),

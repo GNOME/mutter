@@ -371,9 +371,21 @@ clutter_color_state_append_3d_lut_transform_snippet (ClutterColorState *color_st
 {
   clutter_color_op_snippet_append_global (&sample_3d_lut,
                                           snippet_globals);
+
+  g_string_append_printf (snippet_globals,
+                          "vec3 transform_color_state (vec3 %s)\n"
+                          "{\n",
+                          snippet_color_var);
+
   clutter_color_op_snippet_append_source (&sample_3d_lut,
-                                          snippet_source,
+                                          snippet_globals,
                                           snippet_color_var);
+
+  g_string_append_printf (snippet_globals,
+                          "  return %s;\n"
+                          "}\n"
+                          "\n",
+                          snippet_color_var);
 }
 
 static void
@@ -416,10 +428,6 @@ clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
   snippet_source = g_string_new (NULL);
   snippet_color_var = "color_state_color";
 
-  g_string_append_printf (snippet_source,
-                          "  vec3 %s = cogl_color_out.rgb;\n",
-                          snippet_color_var);
-
   clutter_color_state_append_transform_snippet (color_state,
                                                 target_color_state,
                                                 snippet_globals,
@@ -427,8 +435,14 @@ clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
                                                 snippet_color_var);
 
   g_string_append_printf (snippet_source,
-                          "  cogl_color_out = vec4 (%s, cogl_color_out.a);\n",
-                          snippet_color_var);
+                          "\n"
+                          "  if (cogl_color_out.a > 0.0)\n"
+                          "    {\n"
+                          "      cogl_color_out.rgb =\n"
+                          "        transform_color_state (cogl_color_out.rgb / cogl_color_out.a);\n"
+                          "    }\n"
+                          "\n"
+                          "  cogl_color_out.rgb *= cogl_color_out.a;\n");
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                               snippet_globals->str,
