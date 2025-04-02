@@ -605,6 +605,37 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
 }
 #endif
 
+static gboolean
+has_modifier (GArray   *modifiers,
+              uint64_t  drm_modifier)
+{
+  int i;
+
+  for (i = 0; i < modifiers->len; i++)
+    {
+      if (drm_modifier == g_array_index (modifiers, uint64_t, i))
+        return TRUE;
+    }
+  return FALSE;
+}
+
+static gboolean
+crtc_supports_modifier (MetaCrtcKms *crtc_kms,
+                        uint32_t     drm_format,
+                        uint64_t     drm_modifier)
+{
+  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+  GArray *crtc_modifiers;
+
+  g_return_val_if_fail (plane, FALSE);
+
+  crtc_modifiers = meta_kms_plane_get_modifiers_for_format (plane, drm_format);
+  if (!crtc_modifiers)
+    return FALSE;
+
+  return has_modifier (crtc_modifiers, drm_modifier);
+}
+
 CoglScanout *
 meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                           CoglOnscreen          *onscreen,
@@ -1295,37 +1326,6 @@ find_scanout_tranche_func (gconstpointer a,
     return 0;
   else
     return -1;
-}
-
-static gboolean
-has_modifier (GArray   *modifiers,
-              uint64_t  drm_modifier)
-{
-  int i;
-
-  for (i = 0; i < modifiers->len; i++)
-    {
-      if (drm_modifier == g_array_index (modifiers, uint64_t, i))
-        return TRUE;
-    }
-  return FALSE;
-}
-
-static gboolean
-crtc_supports_modifier (MetaCrtcKms *crtc_kms,
-                        uint32_t     drm_format,
-                        uint64_t     drm_modifier)
-{
-  MetaKmsPlane *plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
-  GArray *crtc_modifiers;
-
-  g_return_val_if_fail (plane, FALSE);
-
-  crtc_modifiers = meta_kms_plane_get_modifiers_for_format (plane, drm_format);
-  if (!crtc_modifiers)
-    return FALSE;
-
-  return has_modifier (crtc_modifiers, drm_modifier);
 }
 
 static void
