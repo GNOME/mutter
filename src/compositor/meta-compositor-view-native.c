@@ -344,6 +344,7 @@ try_assign_next_scanout (MetaCompositorView *compositor_view,
       return;
     }
 
+  meta_topic (META_DEBUG_RENDER, "Assigning scanout to stage view");
   clutter_stage_view_assign_next_scanout (stage_view, scanout);
 }
 
