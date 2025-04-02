@@ -500,12 +500,11 @@ load_cursor_from_theme (MetaCursorSprite *sprite)
                            xcursor_images);
     }
 
-  sprite_xcursor->current_frame = 0;
-
   if (sprite_xcursor->xcursor_images == xcursor_images)
     return FALSE;
 
   sprite_xcursor->xcursor_images = xcursor_images;
+  sprite_xcursor->current_frame = 0;
   load_from_current_xcursor_image (sprite_xcursor);
   return TRUE;
 }
