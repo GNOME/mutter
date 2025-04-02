@@ -961,6 +961,7 @@ scanout_destroyed (gpointer  data,
 CoglScanout *
 meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                          CoglOnscreen          *onscreen,
+                                         ClutterStageView      *stage_view,
                                          const graphene_rect_t *src_rect,
                                          const MtkRectangle    *dst_rect)
 {
@@ -1002,6 +1003,7 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
       {
         scanout = meta_wayland_dma_buf_try_acquire_scanout (buffer,
                                                             onscreen,
+                                                            stage_view,
                                                             src_rect,
                                                             dst_rect);
         break;

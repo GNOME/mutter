@@ -104,6 +104,7 @@ void                    meta_wayland_buffer_process_damage      (MetaWaylandBuff
                                                                  MtkRegion             *region);
 CoglScanout *           meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                                                  CoglOnscreen          *onscreen,
+                                                                 ClutterStageView      *stage_view,
                                                                  const graphene_rect_t *src_rect,
                                                                  const MtkRectangle    *dst_rect);
 
