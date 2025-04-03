@@ -28,6 +28,7 @@ typedef enum _CursorScaleMethod
   CURSOR_SCALE_METHOD_BUFFER_SCALE,
   CURSOR_SCALE_METHOD_VIEWPORT,
   CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
+  CURSOR_SCALE_METHOD_SHAPE,
 } CursorScaleMethod;
 
 static CursorScaleMethod scale_method;
@@ -63,6 +64,17 @@ wl_output_transform_from_monitor_transform (MtkMonitorTransform transform)
 static struct wl_surface *cursor_surface;
 static struct wp_viewport *cursor_viewport;
 
+static enum wp_cursor_shape_device_v1_shape
+cursor_shape_from_name (const char *name)
+{
+  if (strcmp (name, "default") == 0)
+    return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_DEFAULT;
+  else if (strcmp (name, "move") == 0)
+    return WP_CURSOR_SHAPE_DEVICE_V1_SHAPE_MOVE;
+  else
+    g_assert_not_reached ();
+}
+
 static void
 on_pointer_enter (WaylandSurface    *surface,
                   struct wl_pointer *pointer,
@@ -88,6 +100,25 @@ on_pointer_enter (WaylandSurface    *surface,
   int hotspot_y = 0;
   enum wl_output_transform buffer_transform;
 
+  switch (scale_method)
+    {
+    case CURSOR_SCALE_METHOD_BUFFER_SCALE:
+    case CURSOR_SCALE_METHOD_VIEWPORT:
+    case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
+      break;
+    case CURSOR_SCALE_METHOD_SHAPE:
+      {
+        struct wp_cursor_shape_device_v1 *cursor_shape_device;
+        cursor_shape_device =
+          wp_cursor_shape_manager_v1_get_pointer (display->cursor_shape_mgr,
+                                                  pointer);
+        wp_cursor_shape_device_v1_set_shape (cursor_shape_device,
+                                             serial,
+                                             cursor_shape_from_name (cursor_name));
+        goto out;
+      }
+    }
+
   if (!cursor_surface)
     cursor_surface = wl_compositor_create_surface (display->compositor);
 
@@ -103,6 +134,9 @@ on_pointer_enter (WaylandSurface    *surface,
           cursor_viewport = wp_viewporter_get_viewport (display->viewporter,
                                                         cursor_surface);
         }
+      break;
+    case CURSOR_SCALE_METHOD_SHAPE:
+      g_assert_not_reached ();
       break;
     }
 
@@ -120,6 +154,9 @@ on_pointer_enter (WaylandSurface    *surface,
     case CURSOR_SCALE_METHOD_VIEWPORT:
     case CURSOR_SCALE_METHOD_VIEWPORT_CROPPED:
       effective_theme_size = (int) (theme_size * ceilf (scale));
+      break;
+    case CURSOR_SCALE_METHOD_SHAPE:
+      g_assert_not_reached ();
       break;
     }
 
@@ -164,6 +201,9 @@ on_pointer_enter (WaylandSurface    *surface,
       hotspot_y = (int) roundf ((image_hotspot_y -
                                  (image_height / 4)) / image_scale);
       break;
+    case CURSOR_SCALE_METHOD_SHAPE:
+      g_assert_not_reached ();
+      break;
     }
 
   buffer_transform =
@@ -198,12 +238,16 @@ on_pointer_enter (WaylandSurface    *surface,
                                    (int) roundf (image_width / 2 / image_scale),
                                    (int) roundf (image_height / 2 / image_scale));
       break;
+    case CURSOR_SCALE_METHOD_SHAPE:
+      g_assert_not_reached ();
+      break;
     }
 
   wl_surface_commit (cursor_surface);
 
   wl_cursor_theme_destroy (cursor_theme);
 
+out:
   test_driver_sync_point (display->test_driver, 0, NULL);
 }
 
@@ -220,6 +264,8 @@ main (int    argc,
     scale_method = CURSOR_SCALE_METHOD_VIEWPORT;
   else if (g_strcmp0 (argv[1], "viewport-cropped") == 0)
     scale_method = CURSOR_SCALE_METHOD_VIEWPORT_CROPPED;
+  else if (g_strcmp0 (argv[1], "shape") == 0)
+    scale_method = CURSOR_SCALE_METHOD_SHAPE;
   else
     g_error ("Missing scale method");
 

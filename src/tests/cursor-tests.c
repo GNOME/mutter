@@ -35,6 +35,7 @@
 #define CURSOR_SCALE_METHOD_BUFFER_SCALE "buffer-scale"
 #define CURSOR_SCALE_METHOD_VIEWPORT "viewport"
 #define CURSOR_SCALE_METHOD_VIEWPORT_CROPPED "viewport-cropped"
+#define CURSOR_SCALE_METHOD_SHAPE "shape"
 
 struct _MetaCrossOverlay
 {
@@ -459,6 +460,12 @@ meta_test_native_cursor_scaling (void)
                           meta_ref_test_determine_ref_test_flag ());
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT,
+                          cursor,
+                          MTK_MONITOR_TRANSFORM_NORMAL,
+                          ref_test_name, 0,
+                          META_REFTEST_FLAG_NONE);
+      test_client_cursor (view,
+                          CURSOR_SCALE_METHOD_SHAPE,
                           cursor,
                           MTK_MONITOR_TRANSFORM_NORMAL,
                           ref_test_name, 0,
