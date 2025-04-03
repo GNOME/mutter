@@ -512,6 +512,26 @@ workspace_switch_sound (MetaWorkspace *from,
   meta_workspace_manager_free_workspace_layout (&layout);
 }
 
+static void
+workspace_a11y_notification (MetaWorkspace *workspace)
+{
+  MetaContext *context = meta_display_get_context (workspace->display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  AtkObject *stage_accessible = clutter_actor_get_accessible (stage);
+  int index;
+
+  if (!stage_accessible)
+    return;
+
+  index = meta_workspace_index (workspace);
+  g_signal_emit_by_name (stage_accessible,
+                         "notification",
+                         meta_prefs_get_workspace_name (index),
+                         ATK_LIVE_POLITE,
+                         NULL);
+}
+
 /**
  * meta_workspace_activate_with_focus:
  * @workspace: a #MetaWorkspace
@@ -577,6 +597,8 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   g_signal_emit_by_name (workspace->manager, "active-workspace-changed");
 
   g_object_notify_by_pspec (G_OBJECT (workspace), obj_props[PROP_ACTIVE]);
+
+  workspace_a11y_notification (workspace);
 
   if (old == NULL)
     return;
