@@ -1778,7 +1778,6 @@ meta_backend_set_keymap (MetaBackend *backend,
 
 struct xkb_keymap *
 meta_backend_get_keymap (MetaBackend *backend)
-
 {
   return META_BACKEND_GET_CLASS (backend)->get_keymap (backend);
 }
