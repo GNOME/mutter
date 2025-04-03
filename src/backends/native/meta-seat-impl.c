@@ -3700,6 +3700,20 @@ meta_seat_impl_reclaim_devices (MetaSeatImpl *seat_impl)
   g_object_unref (task);
 }
 
+gboolean
+meta_seat_impl_set_keyboard_map_finish (MetaSeatImpl  *seat_impl,
+                                        GAsyncResult  *result,
+                                        GError       **error)
+{
+  GTask *task = G_TASK (result);
+
+  g_return_val_if_fail (g_task_is_valid (result, seat_impl), FALSE);
+  g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+                        meta_seat_impl_set_keyboard_map_async, FALSE);
+
+  return g_task_propagate_boolean (task, error);
+}
+
 static gboolean
 set_keyboard_map (GTask *task)
 {
@@ -3710,16 +3724,21 @@ set_keyboard_map (GTask *task)
   keymap = seat_impl->keymap;
   meta_keymap_native_set_keyboard_map_in_impl (keymap, xkb_keymap);
 
-  meta_seat_impl_update_xkb_state_in_impl (seat_impl);
+  g_task_set_priority (task, G_PRIORITY_HIGH);
   g_task_return_boolean (task, TRUE);
+
+  meta_seat_impl_update_xkb_state_in_impl (seat_impl);
 
   return G_SOURCE_REMOVE;
 }
 
 /**
- * meta_seat_impl_set_keyboard_map: (skip)
+ * meta_seat_impl_set_keyboard_map_async: (skip)
  * @seat_impl: the #ClutterSeat created by the evdev backend
  * @keymap: the new keymap
+ * @cancellable: a #GCancellable
+ * @callback: callback to call when index has changed
+ * @user_data: user data to pass to the callback
  *
  * Instructs @evdev to use the specified keyboard map. This will cause
  * the backend to drop the state and create a new one with the new
@@ -3727,15 +3746,19 @@ set_keyboard_map (GTask *task)
  * is pressed when calling this function.
  */
 void
-meta_seat_impl_set_keyboard_map (MetaSeatImpl      *seat_impl,
-                                 struct xkb_keymap *xkb_keymap)
+meta_seat_impl_set_keyboard_map_async (MetaSeatImpl        *seat_impl,
+                                       struct xkb_keymap   *xkb_keymap,
+                                       GCancellable        *cancellable,
+                                       GAsyncReadyCallback  callback,
+                                       gpointer             user_data)
 {
   GTask *task;
 
   g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
   g_return_if_fail (xkb_keymap != NULL);
 
-  task = g_task_new (seat_impl, NULL, NULL, NULL);
+  task = g_task_new (seat_impl, cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_seat_impl_set_keyboard_map_async);
   g_task_set_task_data (task,
                         xkb_keymap_ref (xkb_keymap),
                         (GDestroyNotify) xkb_keymap_unref);

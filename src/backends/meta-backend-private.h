@@ -124,11 +124,12 @@ struct _MetaBackendClass
                                   ClutterEventSequence *sequence,
                                   MetaSequenceState     state);
 
-  void (* set_keymap) (MetaBackend *backend,
-                       const char  *layouts,
-                       const char  *variants,
-                       const char  *options,
-                       const char  *model);
+  void (* set_keymap_async) (MetaBackend *backend,
+                             const char  *layouts,
+                             const char  *variants,
+                             const char  *options,
+                             const char  *model,
+                             GTask       *task);
 
   struct xkb_keymap * (* get_keymap) (MetaBackend *backend);
 
@@ -215,6 +216,7 @@ void meta_backend_finish_touch_sequence (MetaBackend          *backend,
 META_EXPORT_TEST
 MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *backend);
 
+META_EXPORT_TEST
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
 
 xkb_layout_index_t meta_backend_get_keymap_layout_group (MetaBackend *backend);

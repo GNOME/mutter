@@ -414,11 +414,12 @@ init_keymap (MetaDefaultPlugin *self,
   if (!g_variant_lookup (props, "X11Model", "s", &x11_model))
     x11_model = g_strdup ("");
 
-  meta_backend_set_keymap (backend,
-                           x11_layout,
-                           x11_variant,
-                           x11_options,
-                           x11_model);
+  meta_backend_set_keymap_async (backend,
+                                 x11_layout,
+                                 x11_variant,
+                                 x11_options,
+                                 x11_model,
+                                 NULL, NULL, NULL);
 }
 
 static void

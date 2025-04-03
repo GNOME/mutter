@@ -38,6 +38,21 @@ meta_test_remote_desktop_emit_after_unbind (void)
   meta_wait_test_process (subprocess);
 }
 
+static void
+set_keymap_cb (GObject      *source_object,
+               GAsyncResult *result,
+               gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  gboolean *done = user_data;
+  g_autoptr (GError) error = NULL;
+
+  g_assert_true (meta_backend_set_keymap_finish (backend, result, &error));
+  g_assert_no_error (error);
+
+  *done = TRUE;
+}
+
 static gboolean
 remote_desktop_test_client_command (int      argc,
                                     GStrv    argv,
@@ -54,9 +69,17 @@ remote_desktop_test_client_command (int      argc,
       MetaBackend *backend = meta_context_get_backend (test_context);
       const char *layout = argv[1];
       const char *variant = argv[2];
+      g_autoptr (GMainContext) main_context = NULL;
+      gboolean done = FALSE;
 
       g_debug ("Switching keyboard layout to %s, %s", layout, variant);
-      meta_backend_set_keymap (backend, layout, variant, "", "");
+      main_context = g_main_context_new ();
+      g_main_context_push_thread_default (main_context);
+      meta_backend_set_keymap_async (backend, layout, variant, "", "",
+                                     NULL, set_keymap_cb, &done);
+      while (!done)
+        g_main_context_iteration (main_context, TRUE);
+      g_main_context_pop_thread_default (main_context);
 
       return TRUE;
     }

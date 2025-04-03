@@ -155,12 +155,15 @@ meta_backend_x11_nested_lock_layout_group (MetaBackend *backend,
 }
 
 static void
-meta_backend_x11_nested_set_keymap (MetaBackend *backend,
-                                    const char  *layouts,
-                                    const char  *variants,
-                                    const char  *options,
-                                    const char  *model)
+meta_backend_x11_nested_set_keymap_async (MetaBackend *backend,
+                                          const char  *layouts,
+                                          const char  *variants,
+                                          const char  *options,
+                                          const char  *model,
+                                          GTask       *task)
 {
+  g_task_return_boolean (task, TRUE);
+  g_object_unref (task);
 }
 
 static gboolean
@@ -286,7 +289,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   backend_class->update_stage = meta_backend_x11_nested_update_stage;
   backend_class->select_stage_events = meta_backend_x11_nested_select_stage_events;
   backend_class->lock_layout_group = meta_backend_x11_nested_lock_layout_group;
-  backend_class->set_keymap = meta_backend_x11_nested_set_keymap;
+  backend_class->set_keymap_async = meta_backend_x11_nested_set_keymap_async;
   backend_class->is_lid_closed = meta_backend_x11_nested_is_lid_closed;
   backend_class->set_pointer_constraint = meta_backend_x11_nested_set_pointer_constraint;
 

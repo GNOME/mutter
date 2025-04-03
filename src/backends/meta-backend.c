@@ -1766,14 +1766,41 @@ meta_backend_get_current_logical_monitor (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->get_current_logical_monitor (backend);
 }
 
-void
-meta_backend_set_keymap (MetaBackend *backend,
-                         const char  *layouts,
-                         const char  *variants,
-                         const char  *options,
-                         const char  *model)
+gboolean
+meta_backend_set_keymap_finish (MetaBackend   *backend,
+                                GAsyncResult  *result,
+                                GError       **error)
 {
-  META_BACKEND_GET_CLASS (backend)->set_keymap (backend, layouts, variants, options, model);
+  GTask *task = G_TASK (result);
+
+  g_return_val_if_fail (g_task_is_valid (result, backend), FALSE);
+  g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+                        meta_backend_set_keymap_async, FALSE);
+
+  return g_task_propagate_boolean (task, error);
+}
+
+void
+meta_backend_set_keymap_async (MetaBackend         *backend,
+                               const char          *layouts,
+                               const char          *variants,
+                               const char          *options,
+                               const char          *model,
+                               GCancellable        *cancellable,
+                               GAsyncReadyCallback  callback,
+                               gpointer             user_data)
+{
+  GTask *task;
+
+  task = g_task_new (G_OBJECT (backend), cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_backend_set_keymap_async);
+
+  META_BACKEND_GET_CLASS (backend)->set_keymap_async (backend,
+                                                      layouts,
+                                                      variants,
+                                                      options,
+                                                      model,
+                                                      task);
 }
 
 struct xkb_keymap *

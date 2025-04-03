@@ -42,11 +42,19 @@ META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
 
 META_EXPORT
-void meta_backend_set_keymap (MetaBackend *backend,
-                              const char  *layouts,
-                              const char  *variants,
-                              const char  *options,
-                              const char  *model);
+gboolean meta_backend_set_keymap_finish (MetaBackend   *backend,
+                                         GAsyncResult  *result,
+                                         GError       **error);
+
+META_EXPORT
+void meta_backend_set_keymap_async (MetaBackend         *backend,
+                                    const char          *layouts,
+                                    const char          *variants,
+                                    const char          *options,
+                                    const char          *model,
+                                    GCancellable        *cancellable,
+                                    GAsyncReadyCallback  callback,
+                                    gpointer             user_data);
 
 META_EXPORT
 void meta_backend_lock_layout_group (MetaBackend *backend,

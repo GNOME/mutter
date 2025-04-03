@@ -696,6 +696,13 @@ test_cases += [
       remote_desktop_tests_client,
     ],
   },
+  {
+    'name': 'keyboard-map-tests',
+    'suite': 'backends/native',
+    'sources': [
+      'keyboard-map-tests.c',
+    ],
+  }
 ]
 
 # KMS tests
