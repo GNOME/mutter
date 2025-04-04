@@ -115,8 +115,15 @@ gboolean meta_seat_native_set_keyboard_map_finish (MetaSeatNative  *seat_native,
 
 struct xkb_keymap * meta_seat_native_get_keyboard_map (MetaSeatNative *seat);
 
-void meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
-                                                 xkb_layout_index_t  idx);
+gboolean meta_seat_native_set_keyboard_layout_index_finish (MetaSeatNative  *seat_native,
+                                                            GAsyncResult    *result,
+                                                            GError         **error);
+
+void meta_seat_native_set_keyboard_layout_index_async (MetaSeatNative      *seat,
+                                                       xkb_layout_index_t   idx,
+                                                       GCancellable        *cancellable,
+                                                       GAsyncReadyCallback  callback,
+                                                       gpointer             user_data);
 
 xkb_layout_index_t meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat);
 

@@ -135,8 +135,9 @@ struct _MetaBackendClass
 
   xkb_layout_index_t (* get_keymap_layout_group) (MetaBackend *backend);
 
-  void (* lock_layout_group) (MetaBackend *backend,
-                              guint        idx);
+  void (* set_keymap_layout_group_async) (MetaBackend        *backend,
+                                          xkb_layout_index_t  idx,
+                                          GTask              *task);
 
   void (* update_stage) (MetaBackend *backend);
 
@@ -219,6 +220,7 @@ MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *back
 META_EXPORT_TEST
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
 
+META_EXPORT_TEST
 xkb_layout_index_t meta_backend_get_keymap_layout_group (MetaBackend *backend);
 
 gboolean meta_backend_is_lid_closed (MetaBackend *backend);

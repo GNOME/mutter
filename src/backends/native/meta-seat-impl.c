@@ -3766,6 +3766,21 @@ meta_seat_impl_set_keyboard_map_async (MetaSeatImpl        *seat_impl,
   g_object_unref (task);
 }
 
+gboolean
+meta_seat_impl_set_keyboard_layout_index_finish (MetaSeatImpl  *seat_impl,
+                                                 GAsyncResult  *result,
+                                                 GError       **error)
+{
+  GTask *task = G_TASK (result);
+
+  g_return_val_if_fail (g_task_is_valid (result, seat_impl), FALSE);
+  g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+                        meta_seat_impl_set_keyboard_layout_index_async,
+                        FALSE);
+
+  return g_task_propagate_boolean (task, error);
+}
+
 static gboolean
 set_keyboard_layout_index (GTask *task)
 {
@@ -3785,37 +3800,44 @@ set_keyboard_layout_index (GTask *task)
   locked_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED);
 
   xkb_state_update_mask (state, depressed_mods, latched_mods, locked_mods, 0, 0, idx);
+
+  seat_impl->layout_idx = idx;
+
+  g_task_return_boolean (task, TRUE);
+
+  meta_seat_impl_sync_leds_in_impl (seat_impl);
   meta_keymap_native_update_in_impl (seat_impl->keymap,
                                      seat_impl,
                                      seat_impl->xkb);
 
-  seat_impl->layout_idx = idx;
-
-  meta_seat_impl_sync_leds_in_impl (seat_impl);
-
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
-
-  g_task_return_boolean (task, TRUE);
 
   return G_SOURCE_REMOVE;
 }
 
 /**
- * meta_seat_impl_set_keyboard_layout_index: (skip)
+ * meta_seat_impl_set_keyboard_layout_index_async: (skip)
  * @seat_impl: the #ClutterSeat created by the evdev backend
  * @idx: the xkb layout index to set
+ * @cancellable: a #GCancellable
+ * @callback: callback to call when index has changed
+ * @user_data: user data to pass to the callback
  *
  * Sets the xkb layout index on the backend's #xkb_state .
  */
 void
-meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
-                                          xkb_layout_index_t  idx)
+meta_seat_impl_set_keyboard_layout_index_async (MetaSeatImpl        *seat_impl,
+                                                xkb_layout_index_t   idx,
+                                                GCancellable        *cancellable,
+                                                GAsyncReadyCallback  callback,
+                                                gpointer             user_data)
 {
   GTask *task;
 
   g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
 
-  task = g_task_new (seat_impl, NULL, NULL, NULL);
+  task = g_task_new (seat_impl, cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_seat_impl_set_keyboard_layout_index_async);
   g_task_set_task_data (task, GUINT_TO_POINTER (idx), NULL);
   meta_seat_impl_run_input_task (seat_impl, task,
                                  (GSourceFunc) set_keyboard_layout_index);

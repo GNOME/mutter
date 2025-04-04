@@ -57,8 +57,16 @@ void meta_backend_set_keymap_async (MetaBackend         *backend,
                                     gpointer             user_data);
 
 META_EXPORT
-void meta_backend_lock_layout_group (MetaBackend *backend,
-                                     guint        idx);
+gboolean meta_backend_set_keymap_layout_group_finish (MetaBackend   *backend,
+                                                      GAsyncResult  *result,
+                                                      GError       **error);
+
+META_EXPORT
+void meta_backend_set_keymap_layout_group_async (MetaBackend         *backend,
+                                                 uint32_t             idx,
+                                                 GCancellable        *cancellable,
+                                                 GAsyncReadyCallback  callback,
+                                                 gpointer             user_data);
 
 META_EXPORT
 MetaContext * meta_backend_get_context (MetaBackend *backend);

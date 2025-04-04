@@ -216,8 +216,15 @@ void meta_seat_impl_set_keyboard_map_async (MetaSeatImpl        *seat_impl,
                                             GAsyncReadyCallback  callback,
                                             gpointer             user_data);
 
-void meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
-                                               xkb_layout_index_t  idx);
+gboolean meta_seat_impl_set_keyboard_layout_index_finish (MetaSeatImpl  *seat_impl,
+                                                          GAsyncResult  *result,
+                                                          GError       **error);
+
+void meta_seat_impl_set_keyboard_layout_index_async (MetaSeatImpl        *seat_impl,
+                                                     xkb_layout_index_t   idx,
+                                                     GCancellable        *cancellable,
+                                                     GAsyncReadyCallback  callback,
+                                                     gpointer             user_data);
 
 void meta_seat_impl_set_keyboard_repeat_in_impl (MetaSeatImpl *seat_impl,
                                                  gboolean      repeat,

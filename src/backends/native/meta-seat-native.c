@@ -666,21 +666,74 @@ meta_seat_native_get_keyboard_map (MetaSeatNative *seat)
   return seat->xkb_keymap;
 }
 
+gboolean
+meta_seat_native_set_keyboard_layout_index_finish (MetaSeatNative  *seat_native,
+                                                   GAsyncResult    *result,
+                                                   GError         **error)
+{
+  GTask *task = G_TASK (result);
+
+  g_return_val_if_fail (g_task_is_valid (result, seat_native), FALSE);
+  g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+                        meta_seat_native_set_keyboard_layout_index_async,
+                        FALSE);
+
+  return g_task_propagate_boolean (task, error);
+}
+
+static void
+set_seat_impl_layout_index_cb (GObject      *source_object,
+                               GAsyncResult *result,
+                               gpointer      user_data)
+{
+  MetaSeatImpl *seat_impl = META_SEAT_IMPL (source_object);
+  g_autoptr (GTask) task = user_data;
+  MetaSeatNative *seat_native =
+    META_SEAT_NATIVE (g_task_get_source_object (task));
+  g_autoptr (GError) error = NULL;
+  xkb_layout_index_t idx = GPOINTER_TO_UINT (g_task_get_task_data (task));
+  xkb_layout_index_t old_idx;
+
+  if (!meta_seat_impl_set_keyboard_layout_index_finish (seat_impl,
+                                                        result,
+                                                        &error))
+    {
+      g_task_return_error (task, error);
+      return;
+    }
+
+  old_idx = seat_native->xkb_layout_index;
+  seat_native->xkb_layout_index = idx;
+
+  g_task_return_boolean (task, old_idx != idx);
+}
+
 /**
- * meta_seat_native_set_keyboard_layout_index: (skip)
+ * meta_seat_native_set_keyboard_layout_index_async: (skip)
  * @seat: the #ClutterSeat created by the evdev backend
  * @idx: the xkb layout index to set
  *
  * Sets the xkb layout index on the backend's #xkb_state .
  */
 void
-meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
-                                            xkb_layout_index_t  idx)
+meta_seat_native_set_keyboard_layout_index_async (MetaSeatNative      *seat_native,
+                                                  xkb_layout_index_t   idx,
+                                                  GCancellable        *cancellable,
+                                                  GAsyncReadyCallback  callback,
+                                                  gpointer             user_data)
 {
-  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+  g_autoptr (GTask) task = NULL;
 
-  seat->xkb_layout_index = idx;
-  meta_seat_impl_set_keyboard_layout_index (seat->impl, idx);
+  g_return_if_fail (META_IS_SEAT_NATIVE (seat_native));
+
+  task = g_task_new (G_OBJECT (seat_native), cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_seat_native_set_keyboard_layout_index_async);
+  g_task_set_task_data (task, GUINT_TO_POINTER (idx), NULL);
+
+  meta_seat_impl_set_keyboard_layout_index_async (seat_native->impl, idx,
+                                                  cancellable,
+                                                  set_seat_impl_layout_index_cb,
+                                                  g_steal_pointer (&task));
 }
 
 /**

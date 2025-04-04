@@ -74,10 +74,64 @@ meta_test_native_keyboard_map_set_async (void)
 }
 
 static void
+set_keymap_layout_group_cb (GObject      *source_object,
+                            GAsyncResult *result,
+                            gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  gboolean *done = user_data;
+  g_autoptr (GError) error = NULL;
+
+  g_assert_true (meta_backend_set_keymap_layout_group_finish (backend,
+                                                              result,
+                                                              &error));
+  g_assert_no_error (error);
+
+  *done = TRUE;
+}
+
+static void
+meta_test_native_keyboard_map_set_layout_index (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  gboolean done = FALSE;
+  struct xkb_keymap *keymap;
+
+  meta_backend_set_keymap_async (backend,
+                                 "us,se",
+                                 "dvorak-alt-intl,svdvorak",
+                                 NULL, NULL, NULL,
+                                 set_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  keymap = xkb_keymap_ref (meta_backend_get_keymap (backend));
+  g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
+                   ==,
+                   "English (Dvorak, alt. intl.)");
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 1),
+                   ==,
+                   "Swedish (Svdvorak)");
+
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+  done = FALSE;
+  meta_backend_set_keymap_layout_group_async (backend, 1, NULL,
+                                              set_keymap_layout_group_cb,
+                                              &done);
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 1);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/keyboard-map/set-async",
                    meta_test_native_keyboard_map_set_async);
+  g_test_add_func ("/backends/native/keyboard-map/set-layout-index",
+                   meta_test_native_keyboard_map_set_layout_index);
 }
 
 int

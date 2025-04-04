@@ -1815,11 +1815,35 @@ meta_backend_get_keymap_layout_group (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->get_keymap_layout_group (backend);
 }
 
-void
-meta_backend_lock_layout_group (MetaBackend *backend,
-                                guint idx)
+gboolean
+meta_backend_set_keymap_layout_group_finish (MetaBackend   *backend,
+                                             GAsyncResult  *result,
+                                             GError       **error)
 {
-  META_BACKEND_GET_CLASS (backend)->lock_layout_group (backend, idx);
+  GTask *task = G_TASK (result);
+
+  g_return_val_if_fail (g_task_is_valid (result, backend), FALSE);
+  g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+                        meta_backend_set_keymap_layout_group_async, FALSE);
+
+  return g_task_propagate_boolean (task, error);
+}
+
+void
+meta_backend_set_keymap_layout_group_async (MetaBackend         *backend,
+                                            uint32_t             idx,
+                                            GCancellable        *cancellable,
+                                            GAsyncReadyCallback  callback,
+                                            gpointer             user_data)
+{
+  GTask *task;
+
+  task = g_task_new (G_OBJECT (backend), cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_backend_set_keymap_layout_group_async);
+
+  META_BACKEND_GET_CLASS (backend)->set_keymap_layout_group_async (backend,
+                                                                   idx,
+                                                                   task);
 }
 
 /**

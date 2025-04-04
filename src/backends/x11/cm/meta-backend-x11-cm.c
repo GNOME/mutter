@@ -412,8 +412,9 @@ meta_backend_x11_cm_set_keymap_async (MetaBackend *backend,
 }
 
 static void
-meta_backend_x11_cm_lock_layout_group (MetaBackend *backend,
-                                       guint        idx)
+meta_backend_x11_cm_set_keymap_layout_group_async (MetaBackend        *backend,
+                                                   xkb_layout_index_t  idx,
+                                                   GTask              *task)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (x11);
@@ -421,6 +422,9 @@ meta_backend_x11_cm_lock_layout_group (MetaBackend *backend,
 
   x11_cm->locked_group = idx;
   XkbLockGroup (xdisplay, XkbUseCoreKbd, idx);
+
+  g_task_return_boolean (task, TRUE);
+  g_object_unref (task);
 }
 
 static gboolean
@@ -562,8 +566,8 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_class->get_input_settings = meta_backend_x11_cm_get_input_settings;
   backend_class->update_stage = meta_backend_x11_cm_update_stage;
   backend_class->select_stage_events = meta_backend_x11_cm_select_stage_events;
-  backend_class->lock_layout_group = meta_backend_x11_cm_lock_layout_group;
   backend_class->set_keymap_async = meta_backend_x11_cm_set_keymap_async;
+  backend_class->set_keymap_layout_group_async = meta_backend_x11_cm_set_keymap_layout_group_async;
 
   backend_x11_class->handle_host_xevent = meta_backend_x11_cm_handle_host_xevent;
   backend_x11_class->translate_device_event = meta_backend_x11_cm_translate_device_event;
