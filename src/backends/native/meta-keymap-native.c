@@ -35,7 +35,10 @@ struct _MetaKeymapNative
 {
   ClutterKeymap parent_instance;
 
-  struct xkb_keymap *keymap;
+  struct {
+    struct xkb_keymap *keymap;
+  } impl;
+
   gboolean num_lock;
   gboolean caps_lock;
 };
@@ -48,7 +51,7 @@ meta_keymap_native_finalize (GObject *object)
 {
   MetaKeymapNative *keymap = META_KEYMAP_NATIVE (object);
 
-  xkb_keymap_unref (keymap->keymap);
+  xkb_keymap_unref (keymap->impl.keymap);
 
   G_OBJECT_CLASS (meta_keymap_native_parent_class)->finalize (object);
 }
@@ -84,7 +87,7 @@ meta_keymap_native_init (MetaKeymapNative *keymap)
 
   ctx = meta_create_xkb_context ();
   g_assert (ctx);
-  keymap->keymap = xkb_keymap_new_from_names (ctx, &names, 0);
+  keymap->impl.keymap = xkb_keymap_new_from_names (ctx, &names, 0);
   xkb_context_unref (ctx);
 }
 
@@ -94,15 +97,14 @@ meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative  *keymap,
 {
   g_return_if_fail (xkb_keymap != NULL);
 
-  if (keymap->keymap)
-    xkb_keymap_unref (keymap->keymap);
-  keymap->keymap = xkb_keymap_ref (xkb_keymap);
+  g_clear_pointer (&keymap->impl.keymap, xkb_keymap_unref);
+  keymap->impl.keymap = xkb_keymap_ref (xkb_keymap);
 }
 
 struct xkb_keymap *
 meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap)
 {
-  return keymap->keymap;
+  return keymap->impl.keymap;
 }
 
 typedef struct
