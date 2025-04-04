@@ -494,6 +494,7 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   pointer->cursor_surface = NULL;
+  pointer->cursor_shape = META_CURSOR_INVALID;
 
   clutter_seat = clutter_backend_get_default_seat (clutter_backend);
   pointer->device = clutter_seat_get_pointer (clutter_seat);
@@ -531,6 +532,7 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
   meta_wayland_pointer_set_current (pointer, NULL);
 
   pointer->cursor_surface = NULL;
+  pointer->cursor_shape = META_CURSOR_INVALID;
 }
 
 static int
