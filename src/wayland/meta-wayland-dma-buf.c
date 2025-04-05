@@ -633,6 +633,9 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
   if (!crtc_modifiers)
     return FALSE;
 
+  if (drm_modifier == DRM_FORMAT_MOD_INVALID)
+    return TRUE;
+
   return has_modifier (crtc_modifiers, drm_modifier);
 }
 
@@ -1374,6 +1377,9 @@ ensure_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback,
             g_array_index (dma_buf_manager->formats,
                            MetaWaylandDmaBufFormat,
                            i);
+
+          if (format.drm_modifier == DRM_FORMAT_MOD_INVALID)
+            continue;
 
           if (!crtc_supports_modifier (crtc_kms,
                                        format.drm_format,
