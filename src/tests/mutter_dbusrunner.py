@@ -191,16 +191,21 @@ class MutterDBusRunner(DBusTestCase):
     @classmethod
     def get_pipewire_socket_names(klass):
         pipewire_socket_unit = '/usr/lib/systemd/user/pipewire.socket'
-
-        config = configparser.ConfigParser(strict=False,
-                                           empty_lines_in_values=False,
-                                           dict_type=MultiOrderedDict,
-                                           interpolation=None)
-        res = config.read([pipewire_socket_unit])
-
+        if os.path.exists(pipewire_socket_unit):
+            config = configparser.ConfigParser(strict=False,
+                                               empty_lines_in_values=False,
+                                               dict_type=MultiOrderedDict,
+                                               interpolation=None)
+            config.read([pipewire_socket_unit])
+            socket_names = config.get('Socket', 'ListenStream')
+        else:
+            # The pipewire.socket file was not found, use the default
+            # value used by pipewire as a fallback (c.f. 'man
+            # pipewire.conf'):
+            socket_names = ['%t/pipewire-0']
         runtime_dir = os.environ['XDG_RUNTIME_DIR']
         return [socket_name.replace('%t', runtime_dir)
-                for socket_name in config.get('Socket', 'ListenStream')]
+                for socket_name in socket_names]
 
     @classmethod
     def enable_pipewire_sockets(klass):
