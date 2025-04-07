@@ -207,6 +207,29 @@ def print_monitor_prefs(
         data="Preferences:",
     )
 
+    (_, backlight_entry) = display_config.get_backlight(monitor)
+    if backlight_entry:
+        print_data(
+            level=level + 1,
+            is_last=False,
+            lines=lines,
+            data="Backlight:",
+        )
+
+        props = [
+            (k, v) for (k, v) in backlight_entry.items() if k != "connector"
+        ]
+        for prop in props:
+            is_last = prop == props[-1]
+            (k, v) = prop
+
+            print_data(
+                level=level + 2,
+                is_last=is_last,
+                lines=lines,
+                data=f"{k} ⇒  {v}",
+            )
+
     print_data(
         level=level + 1,
         is_last=True,
@@ -363,6 +386,40 @@ class DisplayConfig:
         )
         self._proxy.call_sync(
             method_name="ResetLuminance",
+            parameters=parameters,
+            flags=Gio.DBusCallFlags.NO_AUTO_START,
+            timeout_msec=-1,
+            cancellable=None,
+        )
+
+    def get_backlight(self, monitor) -> tuple[int, Any]:
+        variant = self._proxy.get_cached_property("Backlight")
+        [serial, backlights] = variant
+
+        try:
+            backlight_entry = next(
+                entry
+                for entry in backlights
+                if entry["connector"] == monitor.connector
+            )
+        except StopIteration:
+            return (serial, None)
+
+        return (serial, backlight_entry)
+
+    def set_backlight(self, monitor, value):
+        [serial, _] = self.get_backlight(monitor)
+
+        parameters = GLib.Variant(
+            "(usi)",
+            (
+                serial,
+                monitor.connector,
+                value,
+            ),
+        )
+        self._proxy.call_sync(
+            method_name="SetBacklight",
             parameters=parameters,
             flags=Gio.DBusCallFlags.NO_AUTO_START,
             timeout_msec=-1,
@@ -1640,6 +1697,13 @@ if __name__ == "__main__":
         const=True,
         nargs=0,
     )
+    monitor_prefs_parser.add_argument(
+        "-b",
+        "--backlight",
+        action=AppendToGroup,
+        type=float,
+        nargs=1,
+    )
 
     if argcomplete:
         for action in [
@@ -1759,3 +1823,6 @@ if __name__ == "__main__":
                     )
                 elif "reset_luminance" in monitor_prefs:
                     display_config.reset_luminance(monitor, monitor.color_mode)
+                elif "backlight" in monitor_prefs:
+                    (value,) = monitor_prefs["backlight"]
+                    display_config.set_backlight(monitor, value)
