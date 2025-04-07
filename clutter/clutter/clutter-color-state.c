@@ -92,11 +92,11 @@ clutter_color_transform_key_hash (gconstpointer data)
 {
   const ClutterColorTransformKey *key = data;
 
-  return key->source_eotf_bits << 0 &
-         key->target_eotf_bits << 4 &
-         key->luminance_bit    << 8 &
-         key->color_trans_bit  << 9 &
-         key->tone_mapping_bit << 10 &
+  return key->source_eotf_bits << 0 |
+         key->target_eotf_bits << 4 |
+         key->luminance_bit    << 8 |
+         key->color_trans_bit  << 9 |
+         key->tone_mapping_bit << 10 |
          key->lut_3d           << 11;
 }
 
