@@ -30,7 +30,7 @@ def get_subprocess_stdout():
     if os.getenv('META_DBUS_RUNNER_VERBOSE') == '1':
         return sys.stderr
     else:
-        return subprocess.DEVNULL;
+        return subprocess.DEVNULL
 
 def generate_file_name(args):
     args_string = '_'.join(args)
@@ -190,7 +190,7 @@ class MutterDBusRunner(DBusTestCase):
         if not should_spawn:
             return
 
-        print("Noticed activity on a PipeWire socket, launching services...", file=sys.stderr);
+        print("Noticed activity on a PipeWire socket, launching services...", file=sys.stderr)
 
         pipewire_env = os.environ
         pipewire_env['LISTEN_FDS'] = f'{len(sockets)}'
