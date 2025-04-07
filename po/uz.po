@@ -1,0 +1,826 @@
+# Uzbek (Latin) translation for mutter.
+# Copyright (C) 2025 mutter's COPYRIGHT HOLDER
+# This file is distributed under the same license as the mutter package.
+# Baxrom Raxmatov <magdiyevbahrom@gmail.com>,  2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mutter main\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2025-04-05 09:33+0000\n"
+"PO-Revision-Date: 2025-04-07 07:51+0500\n"
+"Last-Translator: \n"
+"Language-Team: Uzbek (Latin) <uz@li.org>\n"
+"Language: uz\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.6\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "Navigatsiya"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "Oynani ish maydoniga o'tkazing 1"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "Oynani ish maydoniga o'tkazing 2"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "Oynani ish maydoniga o'tkazing 3"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "Oynani ish maydoniga o'tkazing 4"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "Oynani oxirgi ish maydoniga o'tkazing"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "Oynani bitta ish joyini chapga siljiting"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "Oynani bitta ish joyini o'ngga o'tkazing"
+
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "Oynani bir ish joyiga yuqoriga siljiting"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "Oynani bir ish maydoni pastga siljiting"
+
+#: data/50-mutter-navigation.xml:38
+msgid "Move window one monitor to the left"
+msgstr "Oynani bitta monitorni chapga siljiting"
+
+#: data/50-mutter-navigation.xml:41
+msgid "Move window one monitor to the right"
+msgstr "Oynani bitta monitorni o'ngga siljiting"
+
+#: data/50-mutter-navigation.xml:44
+msgid "Move window one monitor up"
+msgstr "Oynani bitta monitorni yuqoriga siljiting"
+
+#: data/50-mutter-navigation.xml:47
+msgid "Move window one monitor down"
+msgstr "Oynani bitta monitorni pastga siljiting"
+
+#: data/50-mutter-navigation.xml:51
+msgid "Switch applications"
+msgstr "Ilovalarni almashtirish"
+
+#: data/50-mutter-navigation.xml:56
+msgid "Switch to previous application"
+msgstr "Oldingi ilovaga o'tish"
+
+#: data/50-mutter-navigation.xml:60
+msgid "Switch windows"
+msgstr "Derazalarni almashtirish"
+
+#: data/50-mutter-navigation.xml:65
+msgid "Switch to previous window"
+msgstr "Oldingi oynaga o'tish"
+
+#: data/50-mutter-navigation.xml:69
+msgid "Switch windows of an application"
+msgstr "Ilova oynalarini almashtirish"
+
+#: data/50-mutter-navigation.xml:74
+msgid "Switch to previous window of an application"
+msgstr "Ilovaning oldingi oynasiga o'tish"
+
+#: data/50-mutter-navigation.xml:78
+msgid "Switch system controls"
+msgstr "Tizim boshqaruvlarini almashtirish"
+
+#: data/50-mutter-navigation.xml:83
+msgid "Switch to previous system control"
+msgstr "Oldingi tizim boshqaruviga o'ting"
+
+#: data/50-mutter-navigation.xml:87
+msgid "Switch windows directly"
+msgstr "Derazalarni to'g'ridan-to'g'ri almashtiring"
+
+#: data/50-mutter-navigation.xml:92
+msgid "Switch directly to previous window"
+msgstr "To'g'ridan-to'g'ri oldingi oynaga o'tish"
+
+#: data/50-mutter-navigation.xml:96
+msgid "Switch windows of an app directly"
+msgstr "Ilova oynalarini to'g'ridan-to'g'ri almashtiring"
+
+#: data/50-mutter-navigation.xml:101
+msgid "Switch directly to previous window of an app"
+msgstr "To'g'ridan-to'g'ri ilovaning oldingi oynasiga o'tish"
+
+#: data/50-mutter-navigation.xml:105
+msgid "Switch system controls directly"
+msgstr "Tizim boshqaruvlarini to'g'ridan-to'g'ri almashtiring"
+
+#: data/50-mutter-navigation.xml:110
+msgid "Switch directly to previous system control"
+msgstr "To'g'ridan-to'g'ri oldingi tizim boshqaruviga o'ting"
+
+#: data/50-mutter-navigation.xml:113
+msgid "Hide all normal windows"
+msgstr "Barcha oddiy oynalarni yashiring"
+
+#: data/50-mutter-navigation.xml:116
+msgid "Switch to workspace 1"
+msgstr "Ish joyiga o'tish 1"
+
+#: data/50-mutter-navigation.xml:119
+msgid "Switch to workspace 2"
+msgstr "Ish joyiga o'tish 2"
+
+#: data/50-mutter-navigation.xml:122
+msgid "Switch to workspace 3"
+msgstr "Ish joyiga o'tish 3"
+
+#: data/50-mutter-navigation.xml:125
+msgid "Switch to workspace 4"
+msgstr "Ish joyiga o'tish 4"
+
+#: data/50-mutter-navigation.xml:128
+msgid "Switch to last workspace"
+msgstr "Oxirgi ish joyiga o'tish"
+
+#: data/50-mutter-navigation.xml:131
+msgid "Switch to workspace on the left"
+msgstr "Chapdagi ish maydoniga o'ting"
+
+#: data/50-mutter-navigation.xml:134
+msgid "Switch to workspace on the right"
+msgstr "O'ng tarafdagi ish maydoniga o'ting"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Switch to workspace above"
+msgstr "Yuqoridagi ish maydoniga o'ting"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Switch to workspace below"
+msgstr "Quyidagi ish maydoniga o'ting"
+
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
+msgid "System"
+msgstr "Sistema"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "Ishga tushirish buyruq satrini ko'rsating"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "Klaviatura yorliqlarini tiklang"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "Windows"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "Oyna menyusini faollashtiring"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "To'liq ekran"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "Maksimallashtirish holatini almashtirish"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "Oynani kattalashtirish"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "Qayta tiklash oynasi"
+
+#: data/50-mutter-windows.xml:18
+msgid "Close window"
+msgstr "Oynani yopish"
+
+#: data/50-mutter-windows.xml:20
+msgid "Hide window"
+msgstr "Oynani yashirish"
+
+#: data/50-mutter-windows.xml:22
+msgid "Move window"
+msgstr "Oynani siljitish"
+
+#: data/50-mutter-windows.xml:24
+msgid "Resize window"
+msgstr "Oyna hajmini o'zgartirish"
+
+#: data/50-mutter-windows.xml:27
+msgid "Toggle window on all workspaces or one"
+msgstr "Barcha ish joylarida yoki birida oynani almashtirish"
+
+#: data/50-mutter-windows.xml:29
+msgid "Raise window if covered, otherwise lower it"
+msgstr "Agar oyna yopiq bo'lsa, uni ko'taring, aks holda uni pastga tushiring"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window above other windows"
+msgstr "Oynani boshqa derazalar ustiga ko'taring"
+
+#: data/50-mutter-windows.xml:33
+msgid "Lower window below other windows"
+msgstr "Boshqa oynalar ostidagi oynani pastga tushiring"
+
+#: data/50-mutter-windows.xml:35
+msgid "Maximize window vertically"
+msgstr "Oynani vertikal ravishda kattalashtirish"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window horizontally"
+msgstr "Oynani gorizontal ravishda kattalashtirish"
+
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+msgid "View split on left"
+msgstr "Chapdagi bo'linishni ko'ring"
+
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+msgid "View split on right"
+msgstr "O'ngdagi bo'linishni ko'ring"
+
+#: data/org.gnome.mutter.gschema.xml.in:16
+msgid "Modifier to use for extended window management operations"
+msgstr ""
+"Kengaytirilgan oyna boshqaruvi operatsiyalari uchun mo'ljallangan modifikator"
+
+#: data/org.gnome.mutter.gschema.xml.in:17
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr ""
+"Ushbu kalit \"qoplamani\" ishga tushiradi, bu oynaning umumiy ko'rinishi va "
+"ilovalarni ishga tushirish tizimidir. Standart kompyuter uskunasida "
+"\"Windows kaliti\" bo'lishi uchun mo'ljallangan. Bu bog'lanish standart "
+"bo'lishi yoki bo'sh qatorga o'rnatilishi kutilmoqda."
+
+#: data/org.gnome.mutter.gschema.xml.in:29
+msgid "Attach modal dialogs"
+msgstr "Modal dialoglarni biriktiring"
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr ""
+"Qachon rost bo'lsa, mustaqil sarlavhalar o'rniga modal dialoglar asosiy "
+"oynaning sarlavha satriga biriktirilgan holda paydo bo'ladi va ota-oyna "
+"bilan birga ko'chiriladi."
+
+#: data/org.gnome.mutter.gschema.xml.in:39
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "Derazalarni ekran chekkalariga tushirishda chekka plitkalarni yoqing"
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr ""
+"Agar yoqilgan bo'lsa, oynalarni ekranning vertikal chetlariga tushirish "
+"ularni vertikal ravishda kattalashtiradi va mavjud maydonning yarmini "
+"qoplash uchun gorizontal o'lchamini o'zgartiradi. Derazalarni ekranning "
+"yuqori chetiga tushirish ularni butunlay kattalashtiradi."
+
+#: data/org.gnome.mutter.gschema.xml.in:49
+msgid "Workspaces are managed dynamically"
+msgstr "Ish joylari dinamik ravishda boshqariladi"
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
+msgstr ""
+"Ish joylari dinamik ravishda boshqariladimi yoki ish joylarining statik soni "
+"bor-yo'qligini aniqlaydi (org.gnome.desktop.wm.preferences-dagi ish joylari "
+"soni kaliti bilan aniqlanadi)."
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "Workspaces only on primary"
+msgstr "Ish joylari faqat birlamchida"
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr ""
+"Ish joyini almashtirish barcha monitorlardagi oynalar uchun yoki faqat "
+"asosiy monitordagi oynalar uchun amalga oshirilishi kerakligini aniqlaydi."
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "Ko'rsatkich harakatini to'xtatmaguncha fokusni kechiktirish o'zgaradi"
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr ""
+"Agar \"true\" ga o'rnatilgan bo'lsa va fokus rejimi \"beqaror\" yoki "
+"\"sichqoncha\" bo'lsa, fokus oynaga kirganda darhol o'zgartirilmaydi, faqat "
+"kursor harakatlanishni to'xtatgandan keyingina o'zgartiriladi."
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr "Chiqib olinadigan chegara kengligi"
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr ""
+"Jami tortiladigan chegaralar miqdori. Agar mavzuning ko'rinadigan "
+"chegaralari etarli bo'lmasa, bu qiymatni qondirish uchun ko'rinmas "
+"chegaralar qo'shiladi."
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "Deyarli monitor o'lchamidagi oynalarni avtomatik kattalashtirish"
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr ""
+"Agar yoqilgan bo'lsa, dastlab monitor o'lchamiga ega bo'lgan yangi oynalar "
+"avtomatik ravishda kattalashtiriladi."
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "Yangi oynalarni markazga joylashtiring"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr ""
+"To'g'ri bo'lsa, yangi oynalar har doim monitorning faol ekranining markaziga "
+"joylashtiriladi."
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid "Enable experimental features"
+msgstr "Eksperimental xususiyatlarni yoqing"
+
+#: data/org.gnome.mutter.gschema.xml.in:109
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
+"native-scaling” — lets Xwayland clients use their native scaling support. If "
+"scaling is not supported by client, the client will be unscaled. Setting "
+"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+msgstr ""
+"Tajribaviy funksiyalarni yoqish uchun roʻyxatga xususiyat kalit soʻzini "
+"qoʻshing. Xususiyat kompozitorni qayta ishga tushirishni talab qiladimi yoki "
+"yo'qmi, berilgan xususiyatga bog'liq. Har qanday eksperimental xususiyat "
+"mavjud bo'lishi yoki sozlanishi shart emas. Bu sozlamaga biror narsa "
+"qo'shish kelajakda isbot bo'lishini kutmang. Hozirda mumkin boʻlgan kalit "
+"soʻzlar: • “scale-monitor-framebuffer” — HiDPI monitorlarini boshqarish "
+"uchun oyna mazmuni oʻrniga monitor freymbuferlarini masshtablashtirganda "
+"mantiqiy piksellar koordinatali boʻshliqda mantiqiy monitorlar joylashishini "
+"sukut boʻyicha qiladi. Qayta ishga tushirishni talab qilmaydi. • “kms-"
+"modifiers” — agar haydovchi tomonidan qo'llab-quvvatlansa, har doim aniq "
+"modifikatorlar bilan skanerlash buferlarini ajratishga majbur qiladi. Qayta "
+"ishga tushirishni talab qiladi. • “autoclose-xwayland” — barcha tegishli X11 "
+"mijozlari yo‘qolgan bo‘lsa, Xwaylandni avtomatik ravishda tugatadi. Qayta "
+"ishga tushirishni talab qiladi. • “variable-refresh-rate” — agar monitor, "
+"GPU va DRM drayveri tomonidan qo'llab-quvvatlansa, agar kerak bo'lsa, "
+"monitorning yangilanish tezligini dinamik ravishda sozlash imkonini beradi. "
+"Sozlamalarda sozlanishi mumkin. Qayta ishga tushirishni talab qiladi. • "
+"“xwayland-native-scaling” — Xwayland mijozlariga mahalliy miqyoslash "
+"yordamidan foydalanish imkonini beradi. Agar miqyoslash mijoz tomonidan "
+"qo'llab-quvvatlanmasa, mijoz o'chiriladi. Sozlama faqat “miqyosi-monitor-"
+"framebufer” ham yoqilganda kuchga kiradi."
+
+#: data/org.gnome.mutter.gschema.xml.in:151
+msgid "Modifier to use to locate the pointer"
+msgstr "Ko'rsatkichni aniqlash uchun mo'ljallangan modifikator"
+
+#: data/org.gnome.mutter.gschema.xml.in:152
+msgid "This key will initiate the “locate pointer” action."
+msgstr "Ushbu kalit \"ko'rsatkichni aniqlash\" harakatini boshlaydi."
+
+#: data/org.gnome.mutter.gschema.xml.in:159
+msgid "Timeout for check-alive ping"
+msgstr "Pingni tekshirish uchun vaqt tugashi"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Muzlatilgan deb topilmasligi uchun mijoz ping so'roviga javob berishi kerak "
+"bo'lgan millisekundlar soni. 0 dan foydalanish tirik chekni butunlay "
+"o'chirib qo'yadi."
+
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Har bir chiqish yorqinligi sozlamalari"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Chiqish va rang rejimining yorug'lik sozlamalari bo'yicha. Har bir yozuv "
+"konnektor, sotuvchi, mahsulot, seriyali va rang rejimiga ega kortejdan, "
+"shuningdek, chiqish yorqinligini foizda (%) ifodalovchi tegishli suzuvchi "
+"nuqta qiymatidan iborat. Belgilanmagan bo'lsa, sukut bo'yicha 100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
+msgid "Switch monitor configurations"
+msgstr "Monitor konfiguratsiyasini almashtiring"
+
+#: data/org.gnome.mutter.gschema.xml.in:202
+msgid "Rotates the built-in monitor configuration"
+msgstr "O'rnatilgan monitor konfiguratsiyasini aylantiradi"
+
+#: data/org.gnome.mutter.gschema.xml.in:207
+msgid "Cancel any active input capture session"
+msgstr "Har qanday faol kiritish seansini bekor qiling"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
+msgid "Switch to VT 1"
+msgstr "VT 1 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
+msgid "Switch to VT 2"
+msgstr "VT 2 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
+msgid "Switch to VT 3"
+msgstr "VT 3 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
+msgid "Switch to VT 4"
+msgstr "VT 4 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
+msgid "Switch to VT 5"
+msgstr "VT 5 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
+msgid "Switch to VT 6"
+msgstr "VT 6 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
+msgid "Switch to VT 7"
+msgstr "VT 7 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
+msgid "Switch to VT 8"
+msgstr "VT 8 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
+msgid "Switch to VT 9"
+msgstr "VT 9 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
+msgid "Switch to VT 10"
+msgstr "VT 10 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
+msgid "Switch to VT 11"
+msgstr "VT 11 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
+msgid "Switch to VT 12"
+msgstr "VT 12 ga o'tish"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+msgid "Re-enable shortcuts"
+msgstr "Yorliqlarni qayta yoqing"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr ""
+"Xwayland bilan klaviatura fokusini bloklash uchun X11 tutqichlariga ruxsat "
+"bering"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+msgid ""
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
+msgstr ""
+"Xwaylandda ishlayotganda barcha klaviatura hodisalarini X11 “override "
+"redirect” oynalariga yo'naltirishga ruxsat bering. Bu parametr “qayta "
+"yoʻnaltirishni bekor qilish” oynasini xaritalashtirgan (klaviatura fokusini "
+"qabul qilmaydigan) va barcha klaviatura hodisalarini ushbu oynaga majburlash "
+"uchun klaviaturani ushlab turuvchi X11 mijozlarini qoʻllab-quvvatlashdir. "
+"Ushbu parametr kamdan-kam qo'llaniladi va oddiy holatlarda klaviatura "
+"fokusini oladigan oddiy X11 oynalariga ta'sir qilmaydi. Wayland bo'yicha X11 "
+"grabini hisobga olish uchun mijoz ildiz oynasiga ma'lum bir X11 "
+"ClientMessage yuborishi yoki \"xwayland-grab-access-rules\" kalitida ruxsat "
+"etilgan ilovalar qatoriga kirishi kerak."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr "Xwayland ilovalari klaviatura tutqichlarini chiqarishga ruxsat berdi"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr ""
+"Xwayland ostida X11 klaviatura tutqichlarini chiqarishga ruxsat berilgan "
+"yoki ruxsat etilmagan X11 oynalarining manba nomlari yoki resurs sinfini "
+"sanab o'ting. Berilgan X11 oynasining resurs nomi yoki resurs sinfini “xprop "
+"WM_CLASS” buyrug'i yordamida olish mumkin. Joker belgilar “*” va jokerlar "
+"“?” qiymatlarda qo'llab-quvvatlanadi. “!” bilan boshlanadigan qiymatlar "
+"ilovalarni standart tizim roʻyxatidan bekor qilish uchun ruxsat etilgan "
+"qiymatlar roʻyxatidan ustunlikka ega boʻlgan rad etiladi. Odatiy tizim "
+"roʻyxati quyidagi ilovalarni oʻz ichiga oladi: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Foydalanuvchilar “qayta tiklash-"
+"yorliqlar” tugmalar birikmasi tugmasi bilan belgilangan maxsus klaviatura "
+"yorliqlari yordamida mavjud tutqichni buzishi mumkin."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Xwayland-da tanlangan X kengaytmalarini o'chirib qo'ying"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Agar Xwayland oʻsha X kengaytmalarini qoʻllab-quvvatlagan holda qurilgan "
+"boʻlsa, ushbu parametr Xwaylandʼda tanlangan X kengaytmalarini oʻchirib "
+"qoʻyadi. Xwayland tanlangan kengaytmalarni qo'llab-quvvatlamasdan qurilgan "
+"bo'lsa, bu parametr ta'sir qilmaydi. Bu sozlama kuchga kirishi uchun "
+"Xwayland qayta ishga tushirilishi kerak."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "Xwayland-ga boshqa turdagi X11 mijozlariga ulanishga ruxsat bering"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"Xwaylandnikidan farqli bo'lgan mijozlardan ulanishga ruxsat bering. X server "
+"bayt almashish kodi katta hujum yuzasi bo'lib, Xwaylanddagi ushbu kodning "
+"aksariyati xavfsizlik muammolariga moyil. Bayt almashtirilgan mijozlardan "
+"foydalanish juda qulay va Xwaylandda sukut bo'yicha o'chirib qo'yilgan. "
+"Xwayland-ga X11 mijozlaridan ulanishlarni qabul qilishni ko'rsatish uchun "
+"ushbu parametrni yoqing. Xwayland ushbu sozlamani boshqarish uchun "
+"+byteswappedclients/-byteswappedclients buyruq qatori opsiyasini qo'llab-"
+"quvvatlamasa, bu parametr ta'sir qilmaydi. Bu sozlama kuchga kirishi uchun "
+"Xwayland qayta ishga tushirilishi kerak."
+
+#: src/backends/meta-monitor.c:266
+msgid "Built-in display"
+msgstr "O'rnatilgan displey"
+
+#: src/backends/meta-monitor.c:293
+msgid "Unknown"
+msgstr "Nomaʼlum"
+
+#: src/backends/meta-monitor.c:295
+msgid "Unknown Display"
+msgstr "Noma'lum displey"
+
+#: src/backends/meta-monitor.c:303
+#, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor.c:311
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/core/bell.c:193
+msgid "Bell event"
+msgstr "Qo'ng'iroq hodisasi"
+
+#: src/core/display.c:741
+msgid "Privacy Screen Enabled"
+msgstr "Maxfiylik ekrani yoqilgan"
+
+#: src/core/display.c:742
+msgid "Privacy Screen Disabled"
+msgstr "Maxfiylik ekrani oʻchirilgan"
+
+#: src/core/meta-context-main.c:621
+msgid "Replace the running window manager"
+msgstr "Ishlayotgan oyna boshqaruvchisini almashtiring"
+
+#: src/core/meta-context-main.c:627
+msgid "X Display to use"
+msgstr "Foydalanish uchun X displey"
+
+#: src/core/meta-context-main.c:633
+msgid "Disable connection to session manager"
+msgstr "Seans boshqaruvchisiga ulanishni o'chiring"
+
+#: src/core/meta-context-main.c:639
+msgid "Specify session management ID"
+msgstr "Seans boshqaruvi identifikatorini belgilang"
+
+#: src/core/meta-context-main.c:645
+msgid "Initialize session from savefile"
+msgstr "Saqlash faylidan sessiyani ishga tushiring"
+
+#: src/core/meta-context-main.c:651
+msgid "Make X calls synchronous"
+msgstr "X qo'ng'iroqlarini sinxronlashtiring"
+
+#: src/core/meta-context-main.c:659
+msgid "Run as a wayland compositor"
+msgstr "Wayland kompozitori sifatida ishga tushiring"
+
+#: src/core/meta-context-main.c:666
+msgid "Run as a nested compositor"
+msgstr "Ichki kompozitor sifatida ishga tushirish"
+
+#: src/core/meta-context-main.c:672
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "Xwaylandni ishga tushirmasdan wayland kompozitorini ishga tushiring"
+
+#: src/core/meta-context-main.c:679
+msgid "Specify Wayland display name to use"
+msgstr "Foydalanish uchun Wayland displey nomini belgilang"
+
+#: src/core/meta-context-main.c:687
+msgid "Run as a full display server, rather than nested"
+msgstr ""
+"O'rnatilgan emas, balki to'liq displey serveri sifatida ishga tushiring"
+
+#: src/core/meta-context-main.c:692
+msgid "Run as a headless display server"
+msgstr "Boshsiz displey serveri sifatida ishga tushirish"
+
+#: src/core/meta-context-main.c:697
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "Doimiy virtual monitor qo'shing (WxH yoki WxH@R)"
+
+#: src/core/meta-context-main.c:709
+msgid "Run with X11 backend"
+msgstr "X11 backend bilan ishga tushirish"
+
+#: src/core/meta-context-main.c:715
+msgid "Profile performance using trace instrumentation"
+msgstr "Izlanish asboblari yordamida profilning ishlashi"
+
+#: src/core/meta-context-main.c:721
+msgid "Enable debug control D-Bus interface"
+msgstr "Nosozliklarni tuzatish boshqaruvi D-Bus interfeysini yoqish"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes in that button group.
+#.
+#: src/core/meta-pad-action-mapper.c:552
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "Tartibni almashtirish (%d-guruh)"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:559
+#, c-format
+msgid "Mode Switch"
+msgstr "Rejimni almashtirish"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:582
+msgid "Switch monitor"
+msgstr "Monitorni almashtirish"
+
+#: src/core/meta-pad-action-mapper.c:584
+msgid "Show on-screen help"
+msgstr "Ekrandagi yordamni ko'rsatish"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+msgid "Compositor"
+msgstr "Kompozitor"
+
+#: src/core/mutter.c:74
+msgid "Print version"
+msgstr "Chop etish versiyasi"
+
+#: src/core/mutter.c:80
+msgid "Mutter plugin to use"
+msgstr "Foydalanish uchun Mutter plagini"
+
+#: src/core/prefs.c:1869
+#, c-format
+msgid "Workspace %d"
+msgstr "Ish maydoni %d"
+
+#: src/core/util.c:140
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter batafsil rejimni qo'llab-quvvatlamasdan tuzilgan"
+
+#: src/core/workspace.c:508
+msgid "Workspace switched"
+msgstr "Ish joyi almashtirildi"
+
+#: src/wayland/meta-wayland-tablet-pad.c:532
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Tartibni almashtirish: %d-rejim"
+
+#: src/x11/meta-x11-display.c:858
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr ""
+"Displey “%s” allaqachon oyna boshqaruvchisiga ega; joriy oyna "
+"boshqaruvchisini almashtirish uchun --replace opsiyasidan foydalaning."
+
+#: src/x11/meta-x11-display.c:1243
+#, c-format
+msgid "Failed to open X Window System display “%s”"
+msgstr "X Window System displeyi “%s” ochilmadi"
+
+#: src/x11/meta-x11-display.c:1476
+#, c-format
+msgid "Screen %d on display “%s” is invalid"
+msgstr ""
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2799
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr ""
+
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "%s formati qo‘llab-quvvatlanmaydi"
+
+#: src/x11/window-props.c:555
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (on %s)"
