@@ -51,6 +51,10 @@
 #include "wayland/meta-wayland-toplevel-drag.h"
 #include "wayland/meta-wayland-types.h"
 
+#ifdef HAVE_X11_CLIENT
+#include "wayland/meta-xwayland-dnd-private.h"
+#endif
+
 #define ROOTWINDOW_DROP_MIME "application/x-rootwindow-drop"
 
 static void unset_selection_source (MetaWaylandDataDevice *data_device,
@@ -272,7 +276,10 @@ static void
 on_data_source_action_changed (MetaWaylandDataSource *source,
                                MetaWaylandDragGrab   *drag_grab)
 {
-  meta_wayland_drag_grab_update_cursor (drag_grab);
+#ifdef HAVE_X11_CLIENT
+  if (!META_IS_WAYLAND_DATA_SOURCE_XWAYLAND (source))
+#endif
+    meta_wayland_drag_grab_update_cursor (drag_grab);
 }
 
 static void
