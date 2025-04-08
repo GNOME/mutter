@@ -250,7 +250,7 @@ meta_wayland_drag_grab_update_cursor (MetaWaylandDragGrab *drag_grab)
   switch (action)
     {
     case WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE:
-      cursor = META_CURSOR_NOT_ALLOWED;
+      cursor = META_CURSOR_NO_DROP;
       break;
     case WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE:
       cursor = META_CURSOR_MOVE;
