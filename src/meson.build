@@ -810,6 +810,7 @@ if have_native_backend
     'backends/native/meta-input-device-tool-native.h',
     'backends/native/meta-input-settings-native.c',
     'backends/native/meta-input-settings-native.h',
+    'backends/native/meta-keymap-native-private.h',
     'backends/native/meta-keymap-native.c',
     'backends/native/meta-keymap-native.h',
     'backends/native/meta-monitor-manager-native.c',

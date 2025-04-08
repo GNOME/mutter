@@ -24,7 +24,7 @@
 #include "src/backends/native/meta-input-device-native.h"
 #include "src/backends/native/meta-input-device-tool-native.h"
 #include "src/backends/native/meta-input-settings-native.h"
-#include "src/backends/native/meta-keymap-native.h"
+#include "src/backends/native/meta-keymap-native-private.h"
 #include "src/backends/native/meta-seat-impl.h"
 
 #undef META_INPUT_THREAD_H_INSIDE
