@@ -239,12 +239,121 @@ meta_test_native_keyboard_map_set_layout_index (void)
 }
 
 static void
+record_modifier_state (ClutterKeymap  *keymap,
+                       ModMaskTuple  **expected_mods)
+{
+  MetaKeymapNative *keymap_native = META_KEYMAP_NATIVE (keymap);
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+
+  meta_keymap_native_get_modifier_state (keymap_native,
+                                         &depressed_mods,
+                                         &latched_mods,
+                                         &locked_mods);
+
+  g_assert_cmpuint ((*expected_mods)->depressed_mods, ==, depressed_mods);
+  g_assert_cmpuint ((*expected_mods)->latched_mods, ==, latched_mods);
+  g_assert_cmpuint ((*expected_mods)->locked_mods, ==, locked_mods);
+
+  (*expected_mods)++;
+}
+
+static void
+meta_test_native_keyboard_map_modifiers (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  struct xkb_keymap *xkb_keymap =
+    meta_seat_native_get_keyboard_map (seat_native);
+  xkb_mod_mask_t shift_mask =
+    1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_SHIFT);
+  xkb_mod_mask_t alt_mask =
+    1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_ALT);
+  xkb_mod_mask_t num_mask =
+    1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_NUM);
+  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  ModMaskTuple expected_mods[] = {
+    { shift_mask, 0, 0, },
+    { shift_mask | alt_mask, 0, 0, },
+    { alt_mask, 0, 0, },
+    { 0, 0, 0, },
+    { num_mask, 0, num_mask, },
+    { 0, 0, num_mask, },
+    { alt_mask, 0, num_mask, },
+    { 0, 0, num_mask, },
+    { num_mask, 0, num_mask, },
+    { 0, 0, 0, },
+  };
+  ModMaskTuple *received_mods = expected_mods;
+  gulong keymap_state_changed_handler_id;
+
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
+  keymap_state_changed_handler_id =
+    g_signal_connect (keymap,
+                      "state-changed",
+                      G_CALLBACK (record_modifier_state),
+                      &received_mods);
+
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTSHIFT,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTALT,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTSHIFT,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTALT,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_NUMLOCK,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_NUMLOCK,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTALT,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTALT,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_NUMLOCK,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_NUMLOCK,
+                                           CLUTTER_KEY_STATE_RELEASED);
+
+  while (received_mods < expected_mods + G_N_ELEMENTS (expected_mods))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (keymap, keymap_state_changed_handler_id);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/keyboard-map/set-async",
                    meta_test_native_keyboard_map_set_async);
   g_test_add_func ("/backends/native/keyboard-map/set-layout-index",
                    meta_test_native_keyboard_map_set_layout_index);
+  g_test_add_func ("/backends/native/keyboard-map/modifiers",
+                   meta_test_native_keyboard_map_modifiers);
 }
 
 int
