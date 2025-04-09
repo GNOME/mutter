@@ -153,7 +153,7 @@ clutter_keymap_get_direction (ClutterKeymap *keymap)
   return CLUTTER_KEYMAP_GET_CLASS (keymap)->get_direction (keymap);
 }
 
-void
+gboolean
 clutter_keymap_set_lock_modifier_state (ClutterKeymap *keymap,
                                         gboolean       caps_lock_state,
                                         gboolean       num_lock_state)
@@ -162,7 +162,7 @@ clutter_keymap_set_lock_modifier_state (ClutterKeymap *keymap,
 
   if (priv->caps_lock_state == caps_lock_state &&
       priv->num_lock_state == num_lock_state)
-    return;
+    return FALSE;
 
   if (priv->caps_lock_state != caps_lock_state)
     {
@@ -182,5 +182,12 @@ clutter_keymap_set_lock_modifier_state (ClutterKeymap *keymap,
            priv->num_lock_state ? "set" : "unset",
            priv->caps_lock_state ? "set" : "unset");
 
+  clutter_keymap_emit_state_changed (keymap);
+  return TRUE;
+}
+
+void
+clutter_keymap_emit_state_changed (ClutterKeymap *keymap)
+{
   g_signal_emit (keymap, signals[STATE_CHANGED], 0);
 }

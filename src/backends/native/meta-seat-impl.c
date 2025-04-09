@@ -537,14 +537,18 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
   else
     clutter_event_free (event);
 
+  if (update_keys)
+    {
+      meta_keymap_native_update_in_impl (seat_impl->keymap,
+                                         seat_impl,
+                                         seat_impl->xkb);
+    }
+
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
       MetaInputDeviceNative *keyboard_native;
       gboolean numlock_active;
 
-      meta_keymap_native_update_in_impl (seat_impl->keymap,
-                                         seat_impl,
-                                         seat_impl->xkb);
       meta_seat_impl_sync_leds_in_impl (seat_impl);
 
       numlock_active =

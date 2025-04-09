@@ -18,8 +18,20 @@
 
 #include "config.h"
 
+#include <linux/input-event-codes.h>
+
 #include "backends/meta-backend-private.h"
+#include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-seat-native.h"
+#include "tests/meta-test-utils.h"
 #include "tests/meta-test/meta-context-test.h"
+
+typedef struct
+{
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+} ModMaskTuple;
 
 static MetaContext *test_context;
 
@@ -39,19 +51,110 @@ set_keymap_cb (GObject      *source_object,
 }
 
 static void
+await_mod_mask (MetaKeymapNative  *keymap_native,
+                ModMaskTuple     **awaited_mod_mask)
+{
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+
+  if (!*awaited_mod_mask)
+    return;
+
+  meta_keymap_native_get_modifier_state (keymap_native,
+                                         &depressed_mods,
+                                         &latched_mods,
+                                         &locked_mods);
+
+  if (depressed_mods == (*awaited_mod_mask)->depressed_mods &&
+      latched_mods == (*awaited_mod_mask)->latched_mods &&
+      locked_mods == (*awaited_mod_mask)->locked_mods)
+    *awaited_mod_mask = NULL;
+}
+
+static void
+on_keymap_state_changed (MetaKeymapNative *keymap_native,
+                         gpointer         *expected_next_handler)
+{
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+
+  meta_keymap_native_get_modifier_state (keymap_native,
+                                         &depressed_mods,
+                                         &latched_mods,
+                                         &locked_mods);
+  g_assert_true (*expected_next_handler == on_keymap_state_changed);
+
+  *expected_next_handler = NULL;
+}
+
+static void
+on_keymap_changed (MetaBackend *backend,
+                   gpointer    *expected_next_handler)
+{
+  g_assert_true (*expected_next_handler == on_keymap_changed);
+
+  *expected_next_handler = on_keymap_state_changed;
+}
+
+static void
 meta_test_native_keyboard_map_set_async (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  struct xkb_keymap *xkb_keymap;
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  struct xkb_keymap *xkb_keymap = meta_backend_get_keymap (backend);
+  xkb_mod_mask_t alt_mask =
+    1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_ALT);
+  ModMaskTuple expected_mods = { alt_mask, 0, 0 };
+  ModMaskTuple *expected_mods_ptr = &expected_mods;
   struct xkb_keymap *new_xkb_keymap;
   gboolean done = FALSE;
+  gpointer expected_next_handler;
+  gulong await_mod_mask_handler_id;
+  gulong keymap_changed_handler_id;
+  gulong keymap_state_changed_handler_id;
 
-  xkb_keymap = xkb_keymap_ref (meta_backend_get_keymap (backend));
+  await_mod_mask_handler_id =
+    g_signal_connect (keymap,
+                      "state-changed",
+                      G_CALLBACK (await_mod_mask),
+                      &expected_mods_ptr);
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
+
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTALT,
+                                           CLUTTER_KEY_STATE_PRESSED);
+  while (expected_mods_ptr)
+    g_main_context_iteration (NULL, TRUE);
+
+  meta_flush_input (test_context);
+  meta_wait_for_update (test_context);
+
+  g_signal_handler_disconnect (keymap, await_mod_mask_handler_id);
+
+  xkb_keymap_ref (xkb_keymap);
   g_assert_cmpuint (xkb_keymap_num_layouts (xkb_keymap), ==, 1);
   g_assert_cmpstr (xkb_keymap_layout_get_name (xkb_keymap, 0),
                    ==,
                    "English (US)");
 
+  keymap_changed_handler_id =
+    g_signal_connect (backend,
+                      "keymap-changed",
+                      G_CALLBACK (on_keymap_changed),
+                      &expected_next_handler);
+  keymap_state_changed_handler_id =
+    g_signal_connect (keymap,
+                      "state-changed",
+                      G_CALLBACK (on_keymap_state_changed),
+                      &expected_next_handler);
+
+  expected_next_handler = (gpointer) on_keymap_changed;
   meta_backend_set_keymap_async (backend,
                                  "us",
                                  "dvorak-alt-intl",
@@ -60,7 +163,7 @@ meta_test_native_keyboard_map_set_async (void)
 
   g_assert_true (xkb_keymap == meta_backend_get_keymap (backend));
 
-  while (!done)
+  while (!done || expected_next_handler)
     g_main_context_iteration (NULL, TRUE);
 
   new_xkb_keymap = meta_backend_get_keymap (backend);
@@ -71,6 +174,16 @@ meta_test_native_keyboard_map_set_async (void)
                    "English (Dvorak, alt. intl.)");
 
   xkb_keymap_unref (xkb_keymap);
+
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTALT,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  meta_flush_input (test_context);
+  meta_wait_for_update (test_context);
+
+  g_signal_handler_disconnect (backend, keymap_changed_handler_id);
+  g_signal_handler_disconnect (keymap, keymap_state_changed_handler_id);
 }
 
 static void

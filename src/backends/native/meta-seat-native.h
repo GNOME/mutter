@@ -113,6 +113,7 @@ gboolean meta_seat_native_set_keyboard_map_finish (MetaSeatNative  *seat_native,
                                                    GAsyncResult    *result,
                                                    GError         **error);
 
+META_EXPORT_TEST
 struct xkb_keymap * meta_seat_native_get_keyboard_map (MetaSeatNative *seat);
 
 gboolean meta_seat_native_set_keyboard_layout_index_finish (MetaSeatNative  *seat_native,

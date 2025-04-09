@@ -21,6 +21,9 @@
 #include "clutter/clutter-keymap.h"
 
 CLUTTER_EXPORT
-void clutter_keymap_set_lock_modifier_state (ClutterKeymap *keymap,
-                                             gboolean       caps_lock_state,
-                                             gboolean       num_lock_state);
+gboolean clutter_keymap_set_lock_modifier_state (ClutterKeymap *keymap,
+                                                 gboolean       caps_lock_state,
+                                                 gboolean       num_lock_state);
+
+CLUTTER_EXPORT
+void clutter_keymap_emit_state_changed (ClutterKeymap *keymap);

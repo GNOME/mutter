@@ -39,8 +39,11 @@ struct _MetaKeymapNative
     struct xkb_keymap *keymap;
   } impl;
 
-  gboolean num_lock;
-  gboolean caps_lock;
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+
+  xkb_layout_index_t locked_layout_group;
 };
 
 G_DEFINE_TYPE (MetaKeymapNative, meta_keymap_native,
@@ -110,18 +113,51 @@ meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap)
 typedef struct
 {
   MetaKeymapNative *keymap_native;
-  gboolean num_lock_state;
-  gboolean caps_lock_state;
+
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+
+  xkb_layout_index_t locked_layout_group;
 } UpdateLockedModifierStateData;
 
 static gboolean
-update_locked_modifier_state_in_main (gpointer user_data)
+update_state_in_main (gpointer user_data)
 {
   UpdateLockedModifierStateData *data = user_data;
+  MetaKeymapNative *keymap_native = data->keymap_native;
+  gboolean state_changed = FALSE;
+  gboolean caps_lock_state;
+  gboolean num_lock_state;
+  gboolean signal_emitted;
 
-  clutter_keymap_set_lock_modifier_state (CLUTTER_KEYMAP (data->keymap_native),
-                                          data->caps_lock_state,
-                                          data->num_lock_state);
+  if (keymap_native->depressed_mods != data->depressed_mods ||
+      keymap_native->latched_mods != data->latched_mods ||
+      keymap_native->locked_mods != data->locked_mods ||
+      keymap_native->locked_layout_group != data->locked_layout_group)
+    {
+      keymap_native->depressed_mods = data->depressed_mods;
+      keymap_native->latched_mods = data->latched_mods;
+      keymap_native->locked_mods = data->locked_mods;
+      keymap_native->locked_layout_group = data->locked_layout_group;
+      state_changed = TRUE;
+    }
+
+  num_lock_state =
+    !!((data->latched_mods | data->locked_mods) &
+       (1 << xkb_keymap_mod_get_index (keymap_native->impl.keymap,
+                                       XKB_MOD_NAME_NUM)));
+  caps_lock_state =
+    !!((data->latched_mods | data->locked_mods) &
+       (1 << xkb_keymap_mod_get_index (keymap_native->impl.keymap,
+                                       XKB_MOD_NAME_CAPS)));
+
+  signal_emitted =
+    clutter_keymap_set_lock_modifier_state (CLUTTER_KEYMAP (keymap_native),
+                                            caps_lock_state,
+                                            num_lock_state);
+  if (!signal_emitted && state_changed)
+    clutter_keymap_emit_state_changed (CLUTTER_KEYMAP (keymap_native));
 
   return G_SOURCE_REMOVE;
 }
@@ -135,18 +171,35 @@ meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
 
   data = g_new0 (UpdateLockedModifierStateData, 1);
   data->keymap_native = keymap_native;
-  data->num_lock_state =
-    xkb_state_mod_name_is_active (xkb_state,
-                                  XKB_MOD_NAME_NUM,
-                                  XKB_STATE_MODS_LATCHED |
-                                  XKB_STATE_MODS_LOCKED);
-  data->caps_lock_state =
-    xkb_state_mod_name_is_active (xkb_state,
-                                  XKB_MOD_NAME_CAPS,
-                                  XKB_STATE_MODS_LATCHED |
-                                  XKB_STATE_MODS_LOCKED);
+
+  data->depressed_mods =
+    xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
+  data->latched_mods =
+    xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
+  data->locked_mods =
+    xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
+
+  data->locked_layout_group =
+    xkb_state_serialize_layout (xkb_state, XKB_STATE_LAYOUT_LOCKED);
 
   meta_seat_impl_queue_main_thread_idle (seat_impl,
-                                         update_locked_modifier_state_in_main,
+                                         update_state_in_main,
                                          data, g_free);
+}
+
+void
+meta_keymap_native_get_modifier_state (MetaKeymapNative *keymap_native,
+                                       xkb_mod_mask_t   *depressed_mods,
+                                       xkb_mod_mask_t   *latched_mods,
+                                       xkb_mod_mask_t   *locked_mods)
+{
+  *depressed_mods = keymap_native->depressed_mods;
+  *latched_mods = keymap_native->latched_mods;
+  *locked_mods = keymap_native->locked_mods;
+}
+
+xkb_layout_index_t
+meta_keymap_native_get_layout_index (MetaKeymapNative *keymap_native)
+{
+  return keymap_native->locked_layout_group;
 }
