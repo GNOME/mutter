@@ -12433,8 +12433,6 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
             g_object_set_property (G_OBJECT (animatable), pspec->name, final);
         }
     }
-
-  clutter_actor_update_devices (actor);
 }
 
 static ClutterActor *
@@ -16482,6 +16480,7 @@ on_transition_stopped (ClutterTransition *transition,
                     _clutter_actor_get_debug_name (actor));
 
       g_signal_emit (actor, actor_signals[TRANSITIONS_COMPLETED], 0);
+      clutter_actor_update_devices (actor);
     }
 }
 
