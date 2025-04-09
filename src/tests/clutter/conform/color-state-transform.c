@@ -123,7 +123,6 @@ validate_transform (ClutterActor      *stage,
 {
   ClutterStageView *view = get_stage_view (stage);
   CoglFramebuffer *fb = clutter_stage_view_get_onscreen (view);
-  float in_color[3];
   float cpu_color[4];
   float shader_color[4];
   int x, y;
@@ -131,13 +130,12 @@ validate_transform (ClutterActor      *stage,
 
   for (int i = 0; i < G_N_ELEMENTS (test_colors); i++)
     {
-      in_color[0] = test_colors[i].r;
-      in_color[1] = test_colors[i].g;
-      in_color[2] = test_colors[i].b;
+      cpu_color[0] = test_colors[i].r;
+      cpu_color[1] = test_colors[i].g;
+      cpu_color[2] = test_colors[i].b;
 
       clutter_color_state_do_transform (src_color_state,
                                         target_color_state,
-                                        in_color,
                                         cpu_color,
                                         1);
 
@@ -165,7 +163,7 @@ validate_transform (ClutterActor      *stage,
                           "cpu    (%.5f, %.5f, %.5f)\n"
                           "shader (%.5f, %.5f, %.5f)\n"
                           "diff   (%.5f, %.5f, %.5f)\n",
-                          in_color[0], in_color[1], in_color[2],
+                          test_colors[i].r, test_colors[i].g, test_colors[i].b,
                           cpu_color[0], cpu_color[1], cpu_color[2],
                           shader_color[0], shader_color[1], shader_color[2],
                           ABS (cpu_color[0] - shader_color[0]),

@@ -274,8 +274,7 @@ clutter_color_state_update_uniforms (ClutterColorState *color_state,
 void
 clutter_color_state_do_transform (ClutterColorState *color_state,
                                   ClutterColorState *target_color_state,
-                                  const float       *input,
-                                  float             *output,
+                                  float             *data,
                                   int                n_samples)
 {
   ClutterColorStateClass *color_state_class =
@@ -286,8 +285,7 @@ clutter_color_state_do_transform (ClutterColorState *color_state,
 
   color_state_class->do_transform (color_state,
                                    target_color_state,
-                                   input,
-                                   output,
+                                   data,
                                    n_samples);
 }
 

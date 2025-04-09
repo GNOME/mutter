@@ -1764,22 +1764,18 @@ clutter_color_state_params_update_uniforms (ClutterColorState *color_state,
 static void
 clutter_color_state_params_apply_tone_mapping (ClutterColorStateParams *color_state_params,
                                                ClutterColorStateParams *target_color_state_params,
-                                               const float              input[4],
-                                               float                    output[4])
+                                               float                    data[4])
 {
   const ClutterLuminance *lum;
   const ClutterLuminance *target_lum;
-  float result[4];
   float tonemapping_ref_lum, luminance;
   graphene_matrix_t to_LMS, from_LMS;
   graphene_matrix_t to_ictcp, from_ictcp;
   graphene_vec4_t g_result;
+  float *result = data;
 
   if (!needs_tone_mapping (color_state_params, target_color_state_params))
-    {
-      memcpy (output, input, sizeof (float) * 4);
-      return;
-    }
+    return;
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
   target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
@@ -1791,7 +1787,6 @@ clutter_color_state_params_apply_tone_mapping (ClutterColorStateParams *color_st
 
   tonemapping_ref_lum = get_tonemapping_ref_lum (target_lum);
 
-  memcpy (result, input, sizeof (float) * 4);
   graphene_vec4_init_from_float (&g_result, result);
   graphene_matrix_transform_vec4 (&to_LMS, &g_result, &g_result);
   graphene_vec4_to_float (&g_result, result);
@@ -1830,15 +1825,12 @@ clutter_color_state_params_apply_tone_mapping (ClutterColorStateParams *color_st
   graphene_vec4_init_from_float (&g_result, result);
   graphene_matrix_transform_vec4 (&from_LMS, &g_result, &g_result);
   graphene_vec4_to_float (&g_result, result);
-
-  memcpy (output, result, sizeof (float) * 4);
 }
 
 static void
 clutter_color_state_params_do_transform (ClutterColorState *color_state,
                                          ClutterColorState *target_color_state,
-                                         const float       *input,
-                                         float             *output,
+                                         float             *data,
                                          int                n_samples)
 {
   ClutterColorStateParams *color_state_params =
@@ -1848,7 +1840,7 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
   ClutterEOTF eotf = color_state_params->eotf;
   ClutterEOTF target_eotf = target_color_state_params->eotf;
   int i;
-  float result[3];
+  float result[4];
   float lum_mapping;
   graphene_matrix_t color_trans_mat;
   graphene_vec4_t g_result;
@@ -1864,9 +1856,10 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
   for (i = 0; i < n_samples; i++)
     {
       /* EOTF */
-      result[0] = clutter_eotf_apply (eotf, input[0]);
-      result[1] = clutter_eotf_apply (eotf, input[1]);
-      result[2] = clutter_eotf_apply (eotf, input[2]);
+      result[0] = clutter_eotf_apply (eotf, data[0]);
+      result[1] = clutter_eotf_apply (eotf, data[1]);
+      result[2] = clutter_eotf_apply (eotf, data[2]);
+      result[3] = 1.0f;
 
       /* Luminance mapping */
       result[0] = result[0] * lum_mapping;
@@ -1881,7 +1874,6 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
       /* Tone mapping */
       clutter_color_state_params_apply_tone_mapping (color_state_params,
                                                      target_color_state_params,
-                                                     result,
                                                      result);
 
       /* Inverse EOTF */
@@ -1889,12 +1881,11 @@ clutter_color_state_params_do_transform (ClutterColorState *color_state,
       result[1] = clutter_eotf_apply_inv (target_eotf, result[1]);
       result[2] = clutter_eotf_apply_inv (target_eotf, result[2]);
 
-      output[0] = CLAMP (result[0], 0.0f, 1.0f);
-      output[1] = CLAMP (result[1], 0.0f, 1.0f);
-      output[2] = CLAMP (result[2], 0.0f, 1.0f);
+      data[0] = CLAMP (result[0], 0.0f, 1.0f);
+      data[1] = CLAMP (result[1], 0.0f, 1.0f);
+      data[2] = CLAMP (result[2], 0.0f, 1.0f);
 
-      input += 3;
-      output += 3;
+      data += 3;
     }
 }
 

@@ -56,8 +56,7 @@ struct _ClutterColorStateClass
 
   void (* do_transform) (ClutterColorState *color_state,
                          ClutterColorState *target_color_state,
-                         const float       *input,
-                         float             *output,
+                         float             *data,
                          int                n_samples);
 
   gboolean (* equals) (ClutterColorState *color_state,
@@ -90,8 +89,7 @@ void clutter_color_state_update_uniforms (ClutterColorState *color_state,
 CLUTTER_EXPORT
 void clutter_color_state_do_transform (ClutterColorState *color_state,
                                        ClutterColorState *target_color_state,
-                                       const float       *input,
-                                       float             *output,
+                                       float             *data,
                                        int                n_samples);
 
 CLUTTER_EXPORT
