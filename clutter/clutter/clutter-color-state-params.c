@@ -227,6 +227,7 @@ clutter_eotf_apply_pq (float input)
   c3 = 18.6875f;
   oo_m1 = 1.0f / 0.1593017f;
   oo_m2 = 1.0f / 78.84375f;
+  input = CLAMP (input, 0.0f, 1.0f);
   num = MAX (powf (input, oo_m2) - c1, 0.0f);
   den = c2 - c3 * powf (input, oo_m2);
   return powf (num / den, oo_m1);
@@ -242,6 +243,7 @@ clutter_eotf_apply_pq_inv (float input)
   c3 = 18.6875f;
   m1 = 0.1593017f;
   m2 = 78.84375f;
+  input = CLAMP (input, 0.0f, 1.0f);
   in_pow_m1 = powf (input, m1);
   num = c1 + c2 * in_pow_m1;
   den = 1.0f + c3 * in_pow_m1;
@@ -629,6 +631,8 @@ static const char pq_eotf_source[] =
   "  const float oo_m1 = 1.0 / 0.1593017578125;\n"
   "  const float oo_m2 = 1.0 / 78.84375;\n"
   "\n"
+  "  color = clamp (color, vec3 (0.0), vec3 (1.0));\n"
+  "\n"
   "  vec3 num = max (pow (color, vec3 (oo_m2)) - c1, vec3 (0.0));\n"
   "  vec3 den = c2 - c3 * pow (color, vec3 (oo_m2));\n"
   "\n"
@@ -651,6 +655,7 @@ static const char pq_inv_eotf_source[] =
   "  float c1 = 0.8359375;\n"
   "  float c2 = 18.8515625;\n"
   "  float c3 = 18.6875;\n"
+  "  color = clamp (color, vec3 (0.0), vec3 (1.0));\n"
   "  vec3 color_pow_m1 = pow (color, vec3 (m1));\n"
   "  vec3 num = vec3 (c1) + c2 * color_pow_m1;\n"
   "  vec3 denum = vec3 (1.0) + c3 * color_pow_m1;\n"
@@ -914,6 +919,7 @@ static const char tone_mapping_source[] =
   "  const float c3 = 18.6875;\n"
   "  const float oo_m1 = 1.0 / 0.1593017578125;\n"
   "  const float oo_m2 = 1.0 / 78.84375;\n"
+  "  color = clamp (color, 0.0, 1.0);\n"
   "  float num = max (pow (color, oo_m2) - c1, 0.0);\n"
   "  float den = c2 - c3 * pow (color, oo_m2);\n"
   "  return pow (num / den, oo_m1);\n"
@@ -925,6 +931,7 @@ static const char tone_mapping_source[] =
   "  const float c1 = 0.8359375;\n"
   "  const float c2 = 18.8515625;\n"
   "  const float c3 = 18.6875;\n"
+  "  color = clamp (color, 0.0, 1.0);\n"
   "  float color_pow_m1 = pow (color, m1);\n"
   "  float num = c1 + c2 * color_pow_m1;\n"
   "  float denum = 1.0 + c3 * color_pow_m1;\n"
@@ -943,12 +950,12 @@ static const char tone_mapping_source[] =
   "\n"
   "  if (luminance < " UNIFORM_NAME_SRC_REF_LUM ")\n"
   "    {\n"
-  "      luminance *= " UNIFORM_NAME_LINEAR_TONEMAPPING "\n;"
+  "      luminance *= " UNIFORM_NAME_LINEAR_TONEMAPPING ";\n"
   "    }\n"
   "  else\n"
   "    {\n"
   "      float x = (luminance - " UNIFORM_NAME_SRC_REF_LUM ") / "
-                   "(" UNIFORM_NAME_SRC_MAX_LUM " - " UNIFORM_NAME_SRC_REF_LUM ")\n;"
+                   "(" UNIFORM_NAME_SRC_MAX_LUM " - " UNIFORM_NAME_SRC_REF_LUM ");\n"
   "      luminance = " UNIFORM_NAME_TONEMAPPING_REF_LUM " + (" UNIFORM_NAME_DST_MAX_LUM " - "
                      "" UNIFORM_NAME_TONEMAPPING_REF_LUM ") * (5.0 * x) / (4.0 * x + 1.0);\n"
   "    }\n"
