@@ -75,3 +75,5 @@ void clutter_color_state_append_3d_lut_transform_snippet (ClutterColorState *col
 void clutter_color_state_update_3d_lut_uniforms (ClutterColorState *color_state,
                                                  ClutterColorState *target_color_state,
                                                  CoglPipeline      *pipeline);
+
+ClutterContext * clutter_color_state_get_context (ClutterColorState *color_state);

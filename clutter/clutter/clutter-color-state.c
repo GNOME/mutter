@@ -653,6 +653,15 @@ clutter_color_state_update_3d_lut_uniforms (ClutterColorState *color_state,
                                 lut_3d->size);
 }
 
+ClutterContext *
+clutter_color_state_get_context (ClutterColorState *color_state)
+{
+  ClutterColorStatePrivate *priv =
+    clutter_color_state_get_instance_private (color_state);
+
+  return priv->context;
+}
+
 void
 clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                      ClutterColorState *target_color_state,
