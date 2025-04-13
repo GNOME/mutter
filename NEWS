@@ -1,3 +1,21 @@
+48.2
+====
+* Fix animated cursors [Michel; !4382]
+* Announce workspace changes to screen reader [Florian; !4385]
+* Fix popups showing in some situations [Carlos; !4354]
+* Fix wrong cursor after window animations [Carlos; !4392]
+* Fixed crashes [Michel; !4362]
+* Misc. bug fixes and cleanups [Florian, Robert, Sebastian, Jonas; !4349,
+  !4383, !4393, !4386, !4269]
+
+Contributors:
+  Michel Dänzer, Carlos Garnacho, Robert Mader, Florian Müllner,
+  Baxrom Raxmatov, Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Quentin PAGÈS [oc], Christian Kirbach [de], Baxrom Raxmatov [uz],
+  Antonio Marin [ro]
+
 48.1
 ====
 * Fixed occasional screen freezes [Michel, Jonas; !4338, !4334, !4375]
