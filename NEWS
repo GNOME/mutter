@@ -1,3 +1,14 @@
+47.7
+====
+* Fix black screen with nvidia driver [Bilal, Daniel; !4323, !4324]
+* Fix broken overlay cursor damage tracking [Jonas; !4331]
+* Fixed crashes [Michel, Orko; !4326, !4351, !4372]
+* Misc. bug fixes and cleanups [Daniel, Carlos, Michel; !4340, !4369, !4377]
+
+Contributors:
+  Michel Dänzer, Bilal Elmoussaoui, Orko Garai, Carlos Garnacho,
+  Daniel van Vugt, Jonas Ådahl
+
 47.6
 ====
 * Support presentation-time version 2 [Dudemanguy; !4227]
