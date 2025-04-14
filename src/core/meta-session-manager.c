@@ -211,7 +211,9 @@ meta_session_manager_initable_init (GInitable     *initable,
                                        SESSION_FILE_NAME,
                                        NULL);
 
-      manager->fd = open (session_file, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+      manager->fd = open (session_file,
+                          O_CREAT | O_RDWR | O_CLOEXEC,
+                          S_IRUSR | S_IWUSR);
     }
 
   if (manager->fd < 0)
