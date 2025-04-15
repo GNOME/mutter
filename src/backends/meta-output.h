@@ -202,9 +202,6 @@ struct _MetaOutputClass
   GObjectClass parent_class;
 
   MetaPrivacyScreenState (* get_privacy_screen_state) (MetaOutput *output);
-  gboolean (* set_privacy_screen_enabled) (MetaOutput  *output,
-                                           gboolean     enabled,
-                                           GError     **error);
 };
 
 META_EXPORT_TEST
