@@ -37,6 +37,7 @@
 #include "core/window-private.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
+#include "wayland/meta-wayland-color-representation.h"
 #include "wayland/meta-wayland-fractional-scale.h"
 #include "wayland/meta-wayland-gtk-shell.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -1111,6 +1112,9 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
 
   if (pending->has_new_chroma_loc)
     surface->committed_state.chroma_loc = pending->chroma_loc;
+
+  if (!meta_wayland_color_representation_commit_check (surface))
+    return;
 
   if (meta_wayland_surface_is_synchronized (surface))
     {

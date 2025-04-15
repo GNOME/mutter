@@ -603,6 +603,8 @@ if have_wayland
     'wayland/meta-wayland-client-private.h',
     'wayland/meta-wayland-color-management.c',
     'wayland/meta-wayland-color-management.h',
+    'wayland/meta-wayland-color-representation.c',
+    'wayland/meta-wayland-color-representation.h',
     'wayland/meta-wayland-commit-timing.c',
     'wayland/meta-wayland-cursor-shape.c',
     'wayland/meta-wayland-cursor-shape.h',
@@ -1130,6 +1132,7 @@ if have_wayland
   #  - protocol version (optional for 'stable', 'staging' and 'unstable')
   wayland_protocols = [
     ['color-management', 'staging', 1, ],
+    ['color-representation', 'staging', 1, ],
     ['commit-timing', 'staging', 1, ],
     ['cursor-shape-v1', 'private', ],
     ['drm-lease', 'staging', 1, ],

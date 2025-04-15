@@ -40,6 +40,7 @@
 #include "wayland/meta-wayland-activation.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-color-management.h"
+#include "wayland/meta-wayland-color-representation.h"
 #include "wayland/meta-wayland-commit-timing.h"
 #include "wayland/meta-wayland-cursor-shape.h"
 #include "wayland/meta-wayland-fifo.h"
@@ -1000,6 +1001,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_commit_timing_init (compositor);
   meta_wayland_fifo_init (compositor);
   meta_wayland_init_cursor_shape (compositor);
+  meta_wayland_init_color_representation (compositor);
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
