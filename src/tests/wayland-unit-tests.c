@@ -354,6 +354,113 @@ registry_filter (void)
   g_assert_false (client3_saw_global);
 }
 
+static const MetaWaylandSurface *
+get_surface_from_window (const char *title)
+{
+  MetaWindow *window;
+  MetaWaylandSurface *surface;
+
+  window = find_client_window ("color-representation");
+  g_assert_nonnull (window);
+  surface = meta_window_get_wayland_surface (window);
+  g_assert_nonnull (surface);
+  return surface;
+}
+
+static void
+color_representation_state (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  const MetaWaylandSurface *surface;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "color-representation",
+                                            "state",
+                                            NULL);
+
+  wait_for_sync_point (0);
+  surface = get_surface_from_window ("color-representation");
+  g_assert_cmpint (surface->committed_state.premult, ==,
+                   META_MULTI_TEXTURE_ALPHA_MODE_NONE);
+  g_assert_cmpint (surface->committed_state.coeffs, ==,
+                   META_MULTI_TEXTURE_COEFFICIENTS_NONE);
+  emit_sync_event (0);
+
+  wait_for_sync_point (1);
+  g_assert_cmpint (surface->committed_state.premult, ==,
+                   META_MULTI_TEXTURE_ALPHA_MODE_STRAIGHT);
+  g_assert_cmpint (surface->committed_state.coeffs, ==,
+                   META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED);
+  emit_sync_event (1);
+
+  wait_for_sync_point (2);
+  g_assert_cmpint (surface->committed_state.premult, ==,
+                   META_MULTI_TEXTURE_ALPHA_MODE_STRAIGHT);
+  g_assert_cmpint (surface->committed_state.coeffs, ==,
+                   META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED);
+  emit_sync_event (2);
+
+  wait_for_sync_point (3);
+  g_assert_cmpint (surface->committed_state.premult, ==,
+                   META_MULTI_TEXTURE_ALPHA_MODE_NONE);
+  g_assert_cmpint (surface->committed_state.coeffs, ==,
+                   META_MULTI_TEXTURE_COEFFICIENTS_NONE);
+  emit_sync_event (3);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
+color_representation_bad_state (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "color-representation",
+                                            "bad-state",
+                                            NULL);
+  /* we wait for the window to flush out all the messages */
+  meta_wait_for_client_window (test_context, "color-representation");
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "WL: error in client communication*");
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
+color_representation_bad_state2 (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "color-representation",
+                                            "bad-state-2",
+                                            NULL);
+  /* we wait for the window to flush out all the messages */
+  meta_wait_for_client_window (test_context, "color-representation");
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "WL: error in client communication*");
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
+color_representation_premult_reftest (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "color-representation",
+                                            "premult-reftest",
+                                            NULL);
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
 static void
 subsurface_corner_cases (void)
 {
@@ -1534,6 +1641,14 @@ on_after_tests (void)
 static void
 init_tests (void)
 {
+  g_test_add_func ("/wayland/color-representation/state",
+                   color_representation_state);
+  g_test_add_func ("/wayland/color-representation/bad-state",
+                   color_representation_bad_state);
+  g_test_add_func ("/wayland/color-representation/bad-state2",
+                   color_representation_bad_state2);
+  g_test_add_func ("/wayland/color-representation/premult-reftest",
+                   color_representation_premult_reftest);
   g_test_add_func ("/wayland/buffer/transform",
                    buffer_transform);
   g_test_add_func ("/wayland/buffer/single-pixel-buffer",
@@ -1618,6 +1733,8 @@ main (int   argc,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
 #endif
   g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
+  meta_context_test_set_background_color (META_CONTEXT_TEST (context),
+                                          COGL_COLOR_INIT (255, 255, 255, 255));
 
   test_context = context;
 
