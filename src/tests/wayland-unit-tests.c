@@ -48,6 +48,18 @@ static MetaWaylandTestDriver *test_driver;
 static MetaVirtualMonitor *virtual_monitor;
 static ClutterVirtualInputDevice *virtual_pointer;
 
+static void
+wait_for_sync_point (unsigned int sync_point)
+{
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
+}
+
+static void
+emit_sync_event (unsigned int sync_point)
+{
+  meta_wayland_test_driver_emit_sync_event (test_driver, sync_point);
+}
+
 static MetaWindow *
 find_client_window (const char *title)
 {
@@ -571,12 +583,6 @@ subsurface_parent_unmapped (void)
   g_clear_object (&virtual_pointer);
   g_signal_handler_disconnect (test_driver, sync_point_id);
   g_signal_handler_disconnect (display->stack, window_added_id);
-}
-
-static void
-wait_for_sync_point (unsigned int sync_point)
-{
-  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
 }
 
 static void
