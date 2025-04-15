@@ -7,6 +7,7 @@
 #include <wayland-client.h>
 
 #include "color-management-v1-client-protocol.h"
+#include "color-representation-v1-client-protocol.h"
 #include "cursor-shape-v1-client-protocol.h"
 #include "fractional-scale-v1-client-protocol.h"
 #include "linux-dmabuf-v1-client-protocol.h"
@@ -46,6 +47,7 @@ typedef struct _WaylandDisplay
   struct wl_subcompositor *subcompositor;
   struct wl_shm *shm;
   struct zwp_linux_dmabuf_v1 *linux_dmabuf;
+  struct wp_color_representation_manager_v1 *color_representation;
   struct wp_fractional_scale_manager_v1 *fractional_scale_mgr;
   struct wp_single_pixel_buffer_manager_v1 *single_pixel_mgr;
   struct wp_color_manager_v1 *color_management_mgr;

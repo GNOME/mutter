@@ -480,6 +480,12 @@ handle_registry_global (void               *user_data,
       display->viewporter = wl_registry_bind (registry, id,
                                               &wp_viewporter_interface, 1);
     }
+  else if (strcmp (interface, wp_color_representation_manager_v1_interface.name) == 0)
+    {
+      display->color_representation =
+        wl_registry_bind (registry, id,
+                          &wp_color_representation_manager_v1_interface, 1);
+    }
   else if (strcmp (interface, xdg_wm_base_interface.name) == 0)
     {
       int xdg_wm_base_version = 1;
