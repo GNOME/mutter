@@ -39,7 +39,6 @@ enum
   FONT_DPI_CHANGED,
   EXPERIMENTAL_FEATURES_CHANGED,
   PRIVACY_SCREEN_CHANGED,
-  OUTPUT_LUMINANCE_CHANGED,
 
   N_SIGNALS
 };
@@ -84,8 +83,6 @@ struct _MetaSettings
 
   /* Whether Xwayland should allow X11 clients from different endianness */
   gboolean xwayland_allow_byte_swapped_clients;
-
-  GPtrArray *output_luminance;
 };
 
 G_DEFINE_TYPE (MetaSettings, meta_settings, G_TYPE_OBJECT)
@@ -344,210 +341,6 @@ update_experimental_features (MetaSettings *settings)
                                                  settings));
 }
 
-typedef struct _LuminanceEntry
-{
-  MetaMonitorSpec *monitor_spec;
-  MetaColorMode color_mode;
-  double luminance;
-} LuminanceEntry;
-
-static void
-luminance_entry_free (LuminanceEntry *entry)
-{
-  g_clear_pointer (&entry->monitor_spec, meta_monitor_spec_free);
-  g_free (entry);
-}
-
-static LuminanceEntry *
-luminance_entry_new (const MetaMonitorSpec *monitor_spec,
-                     MetaColorMode          color_mode,
-                     double                 luminance)
-{
-  LuminanceEntry *entry;
-
-  entry = g_new0 (LuminanceEntry, 1);
-  entry->monitor_spec = meta_monitor_spec_clone (monitor_spec);
-  entry->color_mode = color_mode;
-  entry->luminance = luminance;
-
-  return entry;
-}
-
-static gboolean
-luminance_entry_matches (LuminanceEntry        *entry,
-                         const MetaMonitorSpec *monitor_spec,
-                         MetaColorMode          color_mode)
-{
-  return (meta_monitor_spec_equals (entry->monitor_spec, monitor_spec) &&
-          entry->color_mode == color_mode);
-}
-
-static LuminanceEntry *
-find_luminance_entry (MetaSettings          *settings,
-                      const MetaMonitorSpec *monitor_spec,
-                      MetaColorMode          color_mode)
-{
-  size_t i;
-
-  for (i = 0; i < settings->output_luminance->len; i++)
-    {
-      LuminanceEntry *entry =
-        g_ptr_array_index (settings->output_luminance, i);
-
-      if (luminance_entry_matches (entry, monitor_spec, color_mode))
-        return entry;
-    }
-
-  return NULL;
-}
-
-gboolean
-meta_settings_has_output_luminance (MetaSettings          *settings,
-                                    const MetaMonitorSpec *monitor_spec,
-                                    MetaColorMode          color_mode)
-{
-  return !!find_luminance_entry (settings, monitor_spec, color_mode);
-}
-
-double
-meta_settings_get_output_luminance (MetaSettings          *settings,
-                                    const MetaMonitorSpec *monitor_spec,
-                                    MetaColorMode          color_mode)
-{
-  LuminanceEntry *entry;
-
-  entry = find_luminance_entry (settings, monitor_spec, color_mode);
-  if (entry)
-    return entry->luminance;
-
-  return meta_settings_get_default_output_luminance (settings,
-                                                     monitor_spec,
-                                                     color_mode);
-}
-
-double
-meta_settings_get_default_output_luminance (MetaSettings          *settings,
-                                            const MetaMonitorSpec *monitor_spec,
-                                            MetaColorMode          color_mode)
-{
-  return 100.0;
-}
-
-static void
-sync_luminance_settings (MetaSettings *settings)
-{
-  GVariantBuilder builder;
-  size_t i;
-
-  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a(ssssud)"));
-
-  for (i = 0; i < settings->output_luminance->len; i++)
-    {
-      LuminanceEntry *entry =
-        g_ptr_array_index (settings->output_luminance, i);
-
-      g_variant_builder_add (&builder, "(ssssud)",
-                             entry->monitor_spec->connector,
-                             entry->monitor_spec->vendor,
-                             entry->monitor_spec->product,
-                             entry->monitor_spec->serial,
-                             entry->color_mode,
-                             entry->luminance);
-    }
-
-  g_settings_set_value (settings->mutter_settings,
-                        "output-luminance",
-                        g_variant_builder_end (&builder));
-}
-
-void
-meta_settings_set_output_luminance (MetaSettings          *settings,
-                                    const MetaMonitorSpec *monitor_spec,
-                                    MetaColorMode          color_mode,
-                                    double                 luminance)
-{
-  LuminanceEntry *entry;
-
-  entry = find_luminance_entry (settings, monitor_spec, color_mode);
-  if (entry)
-    {
-      entry->luminance = luminance;
-    }
-  else
-    {
-      entry = luminance_entry_new (monitor_spec, color_mode, luminance);
-      g_ptr_array_add (settings->output_luminance, entry);
-    }
-
-  sync_luminance_settings (settings);
-}
-
-void
-meta_settings_reset_output_luminance (MetaSettings          *settings,
-                                      const MetaMonitorSpec *monitor_spec,
-                                      MetaColorMode          color_mode)
-{
-  size_t i;
-
-  for (i = 0; i < settings->output_luminance->len; i++)
-    {
-      LuminanceEntry *entry = g_ptr_array_index (settings->output_luminance, i);
-
-      if (luminance_entry_matches (entry, monitor_spec, color_mode))
-        {
-          g_ptr_array_remove_index (settings->output_luminance, i);
-          break;
-        }
-    }
-
-  sync_luminance_settings (settings);
-}
-
-static void
-update_output_luminance_settings (MetaSettings *settings)
-{
-  g_autoptr (GVariant) output_luminance_variant = NULL;
-  GVariantIter iter;
-  char *connector;
-  char *vendor;
-  char *product;
-  char *serial;
-  uint32_t color_mode_value;
-  double luminance;
-
-  output_luminance_variant = g_settings_get_value (settings->mutter_settings,
-                                                   "output-luminance");
-  g_variant_iter_init (&iter, output_luminance_variant);
-
-  g_ptr_array_remove_range (settings->output_luminance,
-                            0,
-                            settings->output_luminance->len);
-
-  while (g_variant_iter_next (&iter,
-                              "(ssssud)",
-                              &connector, &vendor, &product, &serial,
-                              &color_mode_value,
-                              &luminance))
-    {
-      g_autoptr (MetaMonitorSpec) monitor_spec = NULL;
-      MetaColorMode color_mode = color_mode_value;
-      LuminanceEntry *entry;
-
-      monitor_spec = g_new0 (MetaMonitorSpec, 1);
-      *monitor_spec = (MetaMonitorSpec) {
-        .connector = connector,
-        .vendor = vendor,
-        .product = product,
-        .serial = serial
-      };
-
-      entry = luminance_entry_new (monitor_spec, color_mode, luminance);
-      g_ptr_array_add (settings->output_luminance, entry);
-    }
-
-  g_signal_emit (settings, signals[OUTPUT_LUMINANCE_CHANGED], 0);
-}
-
 static void
 mutter_settings_changed (GSettings    *mutter_settings,
                          gchar        *key,
@@ -561,10 +354,6 @@ mutter_settings_changed (GSettings    *mutter_settings,
       if (update_experimental_features (settings))
         g_signal_emit (settings, signals[EXPERIMENTAL_FEATURES_CHANGED], 0,
                        (unsigned int) old_experimental_features);
-    }
-  else if (g_str_equal (key, "output-luminance"))
-    {
-      update_output_luminance_settings (settings);
     }
 }
 
@@ -756,8 +545,6 @@ meta_settings_dispose (GObject *object)
   g_clear_pointer (&settings->xwayland_grab_deny_list_patterns,
                    g_ptr_array_unref);
 
-  g_clear_pointer (&settings->output_luminance, g_ptr_array_unref);
-
   G_OBJECT_CLASS (meta_settings_parent_class)->dispose (object);
 }
 
@@ -765,9 +552,6 @@ static void
 meta_settings_init (MetaSettings *settings)
 {
   const char *experimental_features_env;
-
-  settings->output_luminance =
-    g_ptr_array_new_with_free_func ((GDestroyNotify) luminance_entry_free);
 
   settings->interface_settings = g_settings_new ("org.gnome.desktop.interface");
   g_signal_connect (settings->interface_settings, "changed",
@@ -814,7 +598,6 @@ meta_settings_init (MetaSettings *settings)
   update_xwayland_disable_extensions (settings);
   update_privacy_settings (settings);
   update_xwayland_allow_byte_swapped_clients (settings);
-  update_output_luminance_settings (settings);
 }
 
 static void
@@ -884,13 +667,4 @@ meta_settings_class_init (MetaSettingsClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
-
-  signals[OUTPUT_LUMINANCE_CHANGED] =
-    g_signal_new ("output-luminance-changed",
-                  G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
-
 }

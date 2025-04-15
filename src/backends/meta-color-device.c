@@ -701,7 +701,6 @@ meta_color_device_new (MetaColorManager *color_manager,
   MetaBackend *backend = meta_color_manager_get_backend (color_manager);
   MetaContext *context = meta_backend_get_context (backend);
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
-  MetaSettings *settings = meta_backend_get_settings (backend);
   MetaColorDevice *color_device;
 
   color_device = g_object_new (META_TYPE_COLOR_DEVICE, NULL);
@@ -728,11 +727,6 @@ meta_color_device_new (MetaColorManager *color_manager,
                           G_CALLBACK (on_manager_ready),
                           color_device);
     }
-
-  g_signal_connect_object (settings, "output-luminance-changed",
-                           G_CALLBACK (meta_color_device_update),
-                           color_device,
-                           G_CONNECT_SWAPPED | G_CONNECT_AFTER);
 
   g_signal_connect_object (debug_control, "notify::force-hdr",
                            G_CALLBACK (meta_color_device_update),
