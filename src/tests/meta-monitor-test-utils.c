@@ -826,7 +826,6 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                              "info", output_info,
                              NULL);
 
-
       if (!setup->outputs[i].dynamic_scale)
         {
           MetaOutputTest *output_test = META_OUTPUT_TEST (output);
