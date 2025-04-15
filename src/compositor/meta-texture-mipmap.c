@@ -38,6 +38,7 @@ struct _MetaTextureMipmap
   CoglFramebuffer *fb;
   CoglContext *cogl_context;
   gboolean invalid;
+  MetaMultiTextureCoefficients coeffs;
 };
 
 /**
@@ -55,6 +56,7 @@ meta_texture_mipmap_new (CoglContext *cogl_context)
 
   mipmap = g_new0 (MetaTextureMipmap, 1);
   mipmap->cogl_context = cogl_context;
+  mipmap->coeffs = META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_FULL;
 
   return mipmap;
 }
@@ -106,6 +108,19 @@ meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
       g_object_ref (mipmap->base_texture);
       mipmap->invalid = TRUE;
     }
+}
+
+void
+meta_texture_mipmap_set_coeffs (MetaTextureMipmap            *mipmap,
+                                MetaMultiTextureCoefficients  coeffs)
+{
+  g_return_if_fail (mipmap != NULL);
+
+  if (coeffs == mipmap->coeffs)
+    return;
+
+  mipmap->coeffs = coeffs;
+  mipmap->invalid = TRUE;
 }
 
 void
@@ -207,11 +222,6 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
 
       if (!mipmap->pipeline)
         {
-          MetaMultiTextureFormat format =
-            meta_multi_texture_get_format (mipmap->base_texture);
-          CoglSnippet *fragment_globals_snippet;
-          CoglSnippet *fragment_snippet;
-
           mipmap->pipeline = cogl_pipeline_new (mipmap->cogl_context);
           cogl_pipeline_set_blend (mipmap->pipeline,
                                    "RGBA = ADD (SRC_COLOR, 0)",
@@ -227,14 +237,10 @@ ensure_mipmap_texture (MetaTextureMipmap *mipmap)
                                                NULL);
             }
 
-          meta_multi_texture_format_get_snippets (format,
-                                                  &fragment_globals_snippet,
-                                                  &fragment_snippet);
-          cogl_pipeline_add_snippet (mipmap->pipeline, fragment_globals_snippet);
-          cogl_pipeline_add_snippet (mipmap->pipeline, fragment_snippet);
-
-          g_clear_object (&fragment_globals_snippet);
-          g_clear_object (&fragment_snippet);
+          meta_multi_texture_add_pipeline_sampling (mipmap->base_texture,
+                                                    mipmap->coeffs,
+                                                    META_MULTI_TEXTURE_ALPHA_MODE_PREMULT_ELECTRICAL,
+                                                    mipmap->pipeline);
         }
 
       for (i = 0; i < n_planes; i++)

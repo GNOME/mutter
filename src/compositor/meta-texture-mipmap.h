@@ -44,6 +44,9 @@ void meta_texture_mipmap_free (MetaTextureMipmap *mipmap);
 void meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
                                            MetaMultiTexture  *texture);
 
+void meta_texture_mipmap_set_coeffs (MetaTextureMipmap            *mipmap,
+                                     MetaMultiTextureCoefficients  coeffs);
+
 MetaMultiTexture *meta_texture_mipmap_get_paint_texture (MetaTextureMipmap *mipmap);
 
 void meta_texture_mipmap_invalidate (MetaTextureMipmap *mipmap);

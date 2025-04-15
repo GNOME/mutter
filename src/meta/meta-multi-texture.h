@@ -65,4 +65,10 @@ int meta_multi_texture_get_height (MetaMultiTexture *multi_texture);
 META_EXPORT
 char * meta_multi_texture_to_string (MetaMultiTexture *multi_texture);
 
+META_EXPORT
+void meta_multi_texture_add_pipeline_sampling (MetaMultiTexture             *multi_texture,
+                                               MetaMultiTextureCoefficients  coeffs,
+                                               MetaMultiTextureAlphaMode     premult,
+                                               CoglPipeline                 *pipeline);
+
 G_END_DECLS

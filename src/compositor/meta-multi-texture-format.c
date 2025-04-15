@@ -25,57 +25,219 @@
 
 #include "cogl/cogl.h"
 
-static const char *shader_global_conversions =
-  "vec4 yuv_to_rgb(vec4 yuva)                                               \n"
-  "{                                                                        \n"
-  "  vec4 res;                                                              \n"
-  "  float Y = 255.0/219.0 * (yuva.x - 16.0/255.0);                         \n"
-  "  float su = yuva.y - 128.0/255.0;                                       \n"
-  "  float sv = yuva.z - 128.0/255.0;                                       \n"
-  "  res.r = Y                   + 1.79274107 * sv;                         \n"
-  "  res.g = Y - 0.21324861 * su - 0.53290933 * sv;                         \n"
-  "  res.b = Y + 2.11240179 * su;                                           \n"
-  "  res.rgb *= yuva.w;                                                     \n"
-  "  res.a = yuva.w;                                                        \n"
-  "  return res;                                                            \n"
-  "}                                                                        \n";
+typedef struct _OpSnippet
+{
+  const char *source;
+  const char *name;
+} OpSnippet;
+
+static const char coeffs_identity_limited_shader[] =
+  "vec4 identity_limited_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  res.x = (255.0/219.0 * (yuva.x - 16.0/255.0);\n"
+  "  res.y = (255.0/219.0 * (yuva.y - 16.0/255.0);\n"
+  "  res.z = (255.0/219.0 * (yuva.z - 16.0/255.0);\n"
+  "  res.w = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+static const char coeffs_bt709_full_shader[] =
+  "vec4 bt709_full_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  float Y = yuva.x;\n"
+  "  float su = yuva.y - 128.0/255.0;\n"
+  "  float sv = yuva.z - 128.0/255.0;\n"
+  "  res.r = Y                   + 1.79274107 * sv;\n"
+  "  res.g = Y - 0.21324861 * su - 0.53290933 * sv;\n"
+  "  res.b = Y + 2.11240179 * su;\n"
+  "  res.rgb *= yuva.w;\n"
+  "  res.a = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+static const char coeffs_bt709_limited_shader[] =
+  "vec4 bt709_limited_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  float Y = 255.0/219.0 * (yuva.x - 16.0/255.0);\n"
+  "  float su = yuva.y - 128.0/255.0;\n"
+  "  float sv = yuva.z - 128.0/255.0;\n"
+  "  res.r = Y                   + 1.79274107 * sv;\n"
+  "  res.g = Y - 0.21324861 * su - 0.53290933 * sv;\n"
+  "  res.b = Y + 2.11240179 * su;\n"
+  "  res.rgb *= yuva.w;\n"
+  "  res.a = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+static const char coeffs_bt601_full_shader[] =
+  "vec4 bt601_full_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  float Y = yuva.x;\n"
+  "  float su = yuva.y - 128.0/255.0;\n"
+  "  float sv = yuva.z - 128.0/255.0;\n"
+  "  res.r = Y                   + 1.59602678 * sv;\n"
+  "  res.g = Y - 0.39176229 * su - 0.81296764 * sv;\n"
+  "  res.b = Y + 2.01723214 * su;\n"
+  "  res.rgb *= yuva.w;\n"
+  "  res.a = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+static const char coeffs_bt601_limited_shader[] =
+  "vec4 bt601_limited_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  float Y = 255.0/219.0 * (yuva.x - 16.0/255.0);\n"
+  "  float su = yuva.y - 128.0/255.0;\n"
+  "  float sv = yuva.z - 128.0/255.0;\n"
+  "  res.r = Y                   + 1.59602678 * sv;\n"
+  "  res.g = Y - 0.39176229 * su - 0.81296764 * sv;\n"
+  "  res.b = Y + 2.01723214 * su;\n"
+  "  res.rgb *= yuva.w;\n"
+  "  res.a = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+static const char coeffs_bt2020_full_shader[] =
+  "vec4 bt2020_full_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  float Y = yuva.x;\n"
+  "  float su = yuva.y - 128.0/255.0;\n"
+  "  float sv = yuva.z - 128.0/255.0;\n"
+  "  res.r = Y                   + 1.4747     * sv;\n"
+  "  res.g = Y - 0.16455313 * su - 0.57139187 * sv;\n"
+  "  res.b = Y + 1.8814     * su;\n"
+  "  res.rgb *= yuva.w;\n"
+  "  res.a = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+static const char coeffs_bt2020_limited_shader[] =
+  "vec4 bt2020_limited_to_rgb(vec4 yuva)\n"
+  "{\n"
+  "  vec4 res;\n"
+  "  float Y = 255.0/219.0 * (yuva.x - 16.0/255.0);\n"
+  "  float su = yuva.y - 128.0/255.0;\n"
+  "  float sv = yuva.z - 128.0/255.0;\n"
+  "  res.r = Y                   + 1.67878795 * sv;\n"
+  "  res.g = Y - 0.18732610 * su - 0.65046843 * sv;\n"
+  "  res.b = Y + 2.14177232 * su;\n"
+  "  res.rgb *= yuva.w;\n"
+  "  res.a = yuva.w;\n"
+  "  return res;\n"
+  "}\n";
+
+
+static OpSnippet coeffs_table[] = {
+  /* Invalid */
+  [META_MULTI_TEXTURE_COEFFICIENTS_NONE] = {},
+  /* Identity, full range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_FULL] = { 0 },
+  /* Identity, limited range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_LIMITED] = {
+    .name = "identity_limited_to_rgb",
+    .source = coeffs_identity_limited_shader,
+  },
+  /* BT.709, full range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_BT709_FULL] = {
+    .name = "bt709_full_to_rgb",
+    .source = coeffs_bt709_full_shader,
+  },
+  /* BT.709, limited range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED] = {
+    .name = "bt709_limited_to_rgb",
+    .source = coeffs_bt709_limited_shader,
+  },
+  /* BT.601, full range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_BT601_FULL] = {
+    .name = "bt601_full_to_rgb",
+    .source = coeffs_bt601_full_shader,
+  },
+  /* BT.601, limited range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_BT601_LIMITED] = {
+    .name = "bt601_limited_to_rgb",
+    .source = coeffs_bt601_limited_shader,
+  },
+  /* BT.2020, full range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_BT2020_FULL] = {
+    .name = "bt2020_full_to_rgb",
+    .source = coeffs_bt2020_full_shader,
+  },
+  /* BT.2020, limited range */
+  [META_MULTI_TEXTURE_COEFFICIENTS_BT2020_LIMITED] = {
+    .name = "bt2020_limited_to_rgb",
+    .source = coeffs_bt2020_limited_shader,
+  },
+};
+
+static const char premult_straight_shader[] =
+  "vec4 alpha_straight_to_premult_electrical(vec4 color)\n"
+  "{\n"
+  "  return vec4(color.rgb * color.a, color.a);\n"
+  "}\n";
+
+static OpSnippet premult_table[] = {
+  /* Invalid */
+  [META_MULTI_TEXTURE_ALPHA_MODE_NONE] = {},
+  /* The input is electrically premultiplied */
+  [META_MULTI_TEXTURE_ALPHA_MODE_PREMULT_ELECTRICAL] = { 0 },
+  /* The input has straight alpha */
+  [META_MULTI_TEXTURE_ALPHA_MODE_STRAIGHT] = {
+    .name = "alpha_straight_to_premult_electrical",
+    .source = premult_straight_shader,
+  },
+};
 
 static const char rgba_shader[] =
-  "cogl_color_out =                                                         \n"
-  "  texture2D(cogl_sampler0, cogl_tex_coord0_in.st) * cogl_color_in.a;     \n";
+  "vec4 sample_rgba(vec4 unused)\n"
+  "{\n"
+  "  return texture2D(cogl_sampler0, cogl_tex_coord0_in.st);\n"
+  "}\n";
 
 /* Shader for a single YUV plane */
 static const char y_xuxv_shader[] =
-  "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
-  "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).ga;            \n"
-  "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
+  "vec4 sample_y_xuxv(vec4 unused)\n"
+  "{\n"
+  "  vec4 yuva;\n"
+  "  yuva.a = 1.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).ga;\n"
+  "  return yuva;\n"
+  "}\n";
 
 /* Shader for 1 Y-plane and 1 UV-plane */
 static const char y_uv_shader[] =
-  "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
-  "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).rg;            \n"
-  "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
+  "vec4 sample_y_uv(vec4 unused)\n"
+  "{\n"
+  "  vec4 yuva;\n"
+  "  yuva.a = 1.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).rg;\n"
+  "  return yuva;\n"
+  "}\n";
 
 /* Shader for 1 Y-plane, 1 U-plane and 1 V-plane */
 static const char y_u_v_shader[] =
-  "vec4 yuva = vec4(0.0, 0.0, 0.0, cogl_color_in.a);                        \n"
-  "yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x;              \n"
-  "yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x;              \n"
-  "cogl_color_out = yuv_to_rgb(yuva);                                       \n";
+  "vec4 sample_y_u_v(vec4 unused)\n"
+  "{\n"
+  "  vec4 yuva;\n"
+  "  yuva.a = 1.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x;\n"
+  "  return yuva;\n"
+  "}\n";
 
 typedef struct _MetaMultiTextureFormatFullInfo
 {
   MetaMultiTextureFormatInfo info;
-
-  /* Name */
   const char *name;
-  /* Shader to convert to RGBA (or NULL) */
-  const char *rgb_shader;
-  /* Cached snippet */
-  GOnce snippet_once;
+  OpSnippet snippet;
 } MetaMultiTextureFormatFullInfo;
 
 /* NOTE: The actual enum values are used as the index, so you don't need to
@@ -86,8 +248,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   /* Simple */
   [META_MULTI_TEXTURE_FORMAT_SIMPLE] = {
     .name = "",
-    .rgb_shader = rgba_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = rgba_shader,
+      .name = "sample_rgba",
+    },
     .info = {
       .n_planes = 1,
       .subformats = { COGL_PIXEL_FORMAT_ANY },
@@ -99,8 +263,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   /* Packed YUV */
   [META_MULTI_TEXTURE_FORMAT_YUYV] = {
     .name = "YUYV",
-    .rgb_shader = y_xuxv_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = y_xuxv_shader,
+      .name = "sample_y_xuxv",
+    },
     .info = {
       .n_planes = 2,
       .subformats = { COGL_PIXEL_FORMAT_RG_88, COGL_PIXEL_FORMAT_BGRA_8888_PRE },
@@ -112,8 +278,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   /* 2 plane YUV */
   [META_MULTI_TEXTURE_FORMAT_NV12] = {
     .name = "NV12",
-    .rgb_shader = y_uv_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = y_uv_shader,
+      .name = "sample_y_uv",
+    },
     .info = {
       .n_planes = 2,
       .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 },
@@ -124,8 +292,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   },
   [META_MULTI_TEXTURE_FORMAT_P010] = {
     .name = "P010",
-    .rgb_shader = y_uv_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = y_uv_shader,
+      .name = "sample_y_uv",
+    },
     .info = {
       .n_planes = 2,
       .subformats = { COGL_PIXEL_FORMAT_R_16, COGL_PIXEL_FORMAT_RG_1616 },
@@ -137,8 +307,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   /* 3 plane YUV */
   [META_MULTI_TEXTURE_FORMAT_YUV420] = {
     .name = "YUV420",
-    .rgb_shader = y_u_v_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = y_u_v_shader,
+      .name = "sample_y_u_v",
+    },
     .info = {
       .n_planes = 3,
       .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
@@ -149,8 +321,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   },
   [META_MULTI_TEXTURE_FORMAT_YUV422] = {
     .name = "YUV422",
-    .rgb_shader = y_u_v_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = y_u_v_shader,
+      .name = "sample_y_u_v",
+    },
     .info = {
       .n_planes = 3,
       .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
@@ -161,8 +335,10 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   },
   [META_MULTI_TEXTURE_FORMAT_YUV444] = {
     .name = "YUV444",
-    .rgb_shader = y_u_v_shader,
-    .snippet_once = G_ONCE_INIT,
+    .snippet = {
+      .source = y_u_v_shader,
+      .name = "sample_y_u_v",
+    },
     .info = {
       .n_planes = 3,
       .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 },
@@ -189,53 +365,63 @@ meta_multi_texture_format_get_info (MetaMultiTextureFormat format)
   return &multi_format_table[format].info;
 }
 
-static gpointer
-create_globals_snippet (gpointer data)
+static void
+append_snippet (const OpSnippet *snippet,
+                GString         *snippet_globals,
+                GString         *snippet_source,
+                const char      *snippet_color_var)
 {
-  return cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS,
-                           shader_global_conversions,
-                           NULL);
+  if (!snippet->source)
+    return;
+
+  g_string_append_printf (snippet_globals, "%s\n", snippet->source);
+  g_string_append_printf (snippet_source,
+                          "  %s = %s (%s);\n",
+                          snippet_color_var,
+                          snippet->name,
+                          snippet_color_var);
 }
 
-static gpointer
-create_format_snippet (gpointer data)
+CoglSnippet *
+meta_multi_texture_format_get_snippet (MetaMultiTextureFormat       format,
+                                       MetaMultiTextureCoefficients coeffs,
+                                       MetaMultiTextureAlphaMode    premult)
 {
-  MetaMultiTextureFormat format =
-    (MetaMultiTextureFormat) GPOINTER_TO_INT (data);
+  g_autoptr (GString) snippet_globals = NULL;
+  g_autoptr (GString) snippet_source = NULL;
+  const char *snippet_color_var;
+
+  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), NULL);
+  g_return_val_if_fail (coeffs < G_N_ELEMENTS (coeffs_table), NULL);
+  g_return_val_if_fail (premult < G_N_ELEMENTS (premult_table), NULL);
+
+  snippet_globals = g_string_new (NULL);
+  snippet_source = g_string_new (NULL);
+  snippet_color_var = "cogl_color_out";
+
+  append_snippet (&multi_format_table[format].snippet,
+                  snippet_globals,
+                  snippet_source,
+                  snippet_color_var);
+
+  append_snippet (&coeffs_table[coeffs],
+                  snippet_globals,
+                  snippet_source,
+                  snippet_color_var);
+
+  append_snippet (&premult_table[premult],
+                  snippet_globals,
+                  snippet_source,
+                  snippet_color_var);
+
+  if (snippet_globals->len == 0 && snippet_source->len == 0)
+    return NULL;
+
+  g_string_append_printf (snippet_source,
+                          "  cogl_color_out = %s * cogl_color_in.a;\n",
+                          snippet_color_var);
 
   return cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                           NULL,
-                           multi_format_table[format].rgb_shader);
-}
-
-gboolean
-meta_multi_texture_format_get_snippets (MetaMultiTextureFormat   format,
-                                        CoglSnippet            **fragment_globals_snippet,
-                                        CoglSnippet            **fragment_snippet)
-{
-  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), FALSE);
-
-  if (multi_format_table[format].rgb_shader == NULL)
-    return FALSE;
-
-  if (fragment_globals_snippet)
-    {
-      static GOnce globals_once = G_ONCE_INIT;
-      CoglSnippet *globals_snippet;
-
-      globals_snippet = g_once (&globals_once, create_globals_snippet, NULL);
-      *fragment_globals_snippet = g_object_ref (globals_snippet);
-    }
-
-  if (fragment_snippet)
-    {
-      CoglSnippet *format_snippet;
-
-      format_snippet = g_once (&multi_format_table[format].snippet_once,
-                               create_format_snippet,
-                               GINT_TO_POINTER (format));
-      *fragment_snippet = g_object_ref (format_snippet);
-    }
-
-  return TRUE;
+                           snippet_globals->str,
+                           snippet_source->str);
 }

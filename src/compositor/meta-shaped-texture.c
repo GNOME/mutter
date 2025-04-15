@@ -127,6 +127,9 @@ struct _MetaShapedTexture
   int buffer_scale;
 
   guint create_mipmaps : 1;
+
+  MetaMultiTextureAlphaMode premult;
+  MetaMultiTextureCoefficients coeffs;
 };
 
 G_DEFINE_TYPE_WITH_CODE (MetaShapedTexture, meta_shaped_texture, G_TYPE_OBJECT,
@@ -236,6 +239,8 @@ meta_shaped_texture_init (MetaShapedTexture *stex)
   stex->create_mipmaps = TRUE;
   stex->is_y_inverted = TRUE;
   stex->transform = MTK_MONITOR_TRANSFORM_NORMAL;
+  stex->coeffs = META_MULTI_TEXTURE_COEFFICIENTS_NONE;
+  stex->premult = META_MULTI_TEXTURE_ALPHA_MODE_NONE;
 }
 
 static void
@@ -411,17 +416,15 @@ static CoglPipeline *
 get_combined_pipeline (MetaShapedTexture   *stex,
                        ClutterPaintContext *paint_context)
 {
-  MetaMultiTextureFormat format;
   CoglPipeline *pipeline;
-  CoglSnippet *fragment_globals_snippet;
-  CoglSnippet *fragment_snippet;
+  MetaMultiTextureCoefficients coeffs;
+  MetaMultiTextureAlphaMode premult;
   int i, n_planes;
 
   if (stex->combined_pipeline)
     return stex->combined_pipeline;
 
   pipeline = cogl_pipeline_copy (get_base_pipeline (stex, paint_context));
-  format = meta_multi_texture_get_format (stex->texture);
   n_planes = meta_multi_texture_get_n_planes (stex->texture);
 
   for (i = 0; i < n_planes; i++)
@@ -430,14 +433,27 @@ get_combined_pipeline (MetaShapedTexture   *stex,
                                        "RGBA = REPLACE(TEXTURE)", NULL);
     }
 
-  meta_multi_texture_format_get_snippets (format,
-                                          &fragment_globals_snippet,
-                                          &fragment_snippet);
-  cogl_pipeline_add_snippet (pipeline, fragment_globals_snippet);
-  cogl_pipeline_add_snippet (pipeline, fragment_snippet);
+  if (stex->coeffs != META_MULTI_TEXTURE_COEFFICIENTS_NONE)
+    {
+      coeffs = stex->coeffs;
+    }
+  else
+    {
+      if (meta_multi_texture_is_simple (stex->texture))
+        coeffs = META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_FULL;
+      else
+        coeffs = META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED;
+    }
 
-  g_clear_object (&fragment_globals_snippet);
-  g_clear_object (&fragment_snippet);
+  if (stex->premult != META_MULTI_TEXTURE_ALPHA_MODE_NONE)
+    premult = stex->premult;
+  else
+    premult = META_MULTI_TEXTURE_ALPHA_MODE_PREMULT_ELECTRICAL;
+
+  meta_multi_texture_add_pipeline_sampling (stex->texture,
+                                            coeffs,
+                                            premult,
+                                            pipeline);
 
   stex->combined_pipeline = pipeline;
 
@@ -784,7 +800,6 @@ set_multi_texture (MetaShapedTexture *stex,
     }
 
   meta_texture_mipmap_set_base_texture (stex->texture_mipmap, stex->texture);
-  meta_texture_mipmap_invalidate (stex->texture_mipmap);
 }
 
 static inline void
@@ -1825,4 +1840,25 @@ meta_shaped_texture_get_unscaled_height (MetaShapedTexture *stex)
   unscaled_size = get_unscaled_size (stex);
 
   return unscaled_size.height;
+}
+
+/**
+ * meta_shaped_texture_set_color_repr:
+ * @stex: The #MetaShapedTexture
+ */
+void
+meta_shaped_texture_set_color_repr (MetaShapedTexture            *stex,
+                                    MetaMultiTextureAlphaMode     premult,
+                                    MetaMultiTextureCoefficients  coeffs)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
+  if (stex->premult == premult && stex->coeffs == coeffs)
+    return;
+
+  stex->premult = premult;
+  stex->coeffs = coeffs;
+
+  meta_texture_mipmap_set_coeffs (stex->texture_mipmap, coeffs);
+  meta_shaped_texture_reset_pipelines (stex);
 }

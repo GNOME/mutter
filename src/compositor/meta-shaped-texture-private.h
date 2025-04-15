@@ -25,10 +25,13 @@
 #pragma once
 
 #include "backends/meta-monitor-manager-private.h"
+#include "meta/meta-multi-texture-format.h"
+
 #include "meta/meta-shaped-texture.h"
 
 MetaShapedTexture * meta_shaped_texture_new (ClutterContext    *clutter_context,
                                              ClutterColorState *color_state);
+
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       MetaMultiTexture  *multi_texture);
 void meta_shaped_texture_set_color_state (MetaShapedTexture *stex,
@@ -73,3 +76,7 @@ void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
 void meta_shaped_texture_ensure_size_valid (MetaShapedTexture *stex);
 
 gboolean meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex);
+
+void meta_shaped_texture_set_color_repr (MetaShapedTexture            *stex,
+                                         MetaMultiTextureAlphaMode     premult,
+                                         MetaMultiTextureCoefficients  coeffs);
