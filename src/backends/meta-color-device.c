@@ -83,6 +83,8 @@ struct _MetaColorDevice
 
   PendingState pending_state;
   gboolean is_ready;
+
+  float reference_luminance_factor;
 };
 
 G_DEFINE_TYPE (MetaColorDevice, meta_color_device,
@@ -657,15 +659,11 @@ update_color_state (MetaColorDevice *color_device)
     meta_color_manager_get_backend (color_device->color_manager);
   MetaContext *context = meta_backend_get_context (backend);
   MetaDebugControl *debug_control = meta_context_get_debug_control (context);
-  MetaSettings *settings = meta_backend_get_settings (backend);
   ClutterContext *clutter_context = meta_backend_get_clutter_context (backend);
   g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorimetry colorimetry;
   ClutterEOTF eotf;
-  MetaMonitorSpec *monitor_spec;
-  MetaColorMode color_mode;
   ClutterLuminance luminance;
-  float reference_luminance_factor;
   UpdateResult result = 0;
 
   get_color_metadata_from_monitor (monitor, &colorimetry, &eotf);
@@ -679,15 +677,7 @@ update_color_state (MetaColorDevice *color_device)
     }
 
   luminance = *clutter_eotf_get_default_luminance (eotf);
-
-  monitor_spec = meta_monitor_get_spec (color_device->monitor);
-  color_mode = meta_monitor_get_color_mode (color_device->monitor);
-  reference_luminance_factor =
-    (float) meta_settings_get_output_luminance (settings,
-                                                monitor_spec,
-                                                color_mode) /
-    100.0f;
-  luminance.ref = luminance.ref * reference_luminance_factor;
+  luminance.ref = luminance.ref * color_device->reference_luminance_factor;
 
   color_state = clutter_color_state_params_new_from_primitives (clutter_context,
                                                                 colorimetry,
@@ -719,6 +709,7 @@ meta_color_device_new (MetaColorManager *color_manager,
   color_device->monitor = g_object_ref (monitor);
   color_device->cancellable = g_cancellable_new ();
   color_device->color_manager = color_manager;
+  color_device->reference_luminance_factor = 1.0;
 
   update_color_state (color_device);
 
@@ -1297,6 +1288,20 @@ void
 meta_set_color_efivar_test_path (const char *path)
 {
   efivar_test_path = path;
+}
+
+void
+meta_color_device_set_reference_luminance_factor (MetaColorDevice *color_device,
+                                                  float            factor)
+{
+  color_device->reference_luminance_factor = factor;
+  meta_color_device_update (color_device);
+}
+
+float
+meta_color_device_get_reference_luminance_factor (MetaColorDevice *color_device)
+{
+  return color_device->reference_luminance_factor;
 }
 
 void

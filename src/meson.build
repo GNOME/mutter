@@ -185,6 +185,8 @@ mutter_sources = [
   'backends/meta-backend-private.h',
   'backends/meta-backlight.c',
   'backends/meta-backlight-private.h',
+  'backends/meta-backlight-ref-white.c',
+  'backends/meta-backlight-ref-white-private.h',
   'backends/meta-barrier.c',
   'backends/meta-barrier-private.h',
   'backends/meta-color-device.c',
