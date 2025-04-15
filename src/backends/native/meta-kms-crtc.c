@@ -690,17 +690,24 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       now_us = g_get_monotonic_time ();
       if (now_us > next_deadline_us)
         {
+          int64_t skip_us;
+
+          skip_us =
+            mtk_extrapolate_next_interval_boundary (next_deadline_us,
+                                                    refresh_interval_us) -
+            next_deadline_us;
+
           if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
             {
               meta_topic (META_DEBUG_KMS_DEADLINE,
                           "Missed deadline by %3"G_GINT64_FORMAT "µs, "
                           "skipping by %"G_GINT64_FORMAT "µs",
                           now_us - next_deadline_us,
-                          refresh_interval_us);
+                          skip_us);
             }
 
-          next_presentation_us += refresh_interval_us;
-          next_deadline_us += refresh_interval_us;
+          next_presentation_us += skip_us;
+          next_deadline_us += skip_us;
         }
     }
 
