@@ -100,7 +100,6 @@ typedef struct _WaylandSurface
   int height;
 
   uint32_t color;
-  gboolean is_opaque;
 
   int32_t preferred_buffer_scale;
 
@@ -136,8 +135,6 @@ WaylandSurface * wayland_surface_new_unassigned (WaylandDisplay *display);
 
 gboolean wayland_surface_has_state (WaylandSurface          *surface,
                                     enum xdg_toplevel_state  state);
-
-void wayland_surface_set_opaque (WaylandSurface *surface);
 
 void wayland_surface_commit_new_buffer (WaylandSurface *surface);
 

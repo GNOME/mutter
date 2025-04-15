@@ -1037,12 +1037,6 @@ wayland_surface_has_state (WaylandSurface          *surface,
   return FALSE;
 }
 
-void
-wayland_surface_set_opaque (WaylandSurface *surface)
-{
-  surface->is_opaque = TRUE;
-}
-
 const char *
 lookup_property_string (WaylandDisplay *display,
                         const char     *name)
