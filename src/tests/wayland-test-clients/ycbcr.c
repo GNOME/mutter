@@ -221,6 +221,7 @@ main (int    argc,
   g_autoptr (WaylandDisplay) display = NULL;
   struct xdg_surface *xdg_surface;
   struct xdg_toplevel *xdg_toplevel;
+  struct wp_color_representation_surface_v1 *color_repr;
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER);
 
   surface = wl_compositor_create_surface (display->compositor);
@@ -231,6 +232,10 @@ main (int    argc,
   xdg_toplevel_set_title (xdg_toplevel, "ycbcr");
   xdg_toplevel_set_fullscreen (xdg_toplevel, NULL);
   wl_surface_commit (surface);
+
+  color_repr = wp_color_representation_manager_v1_get_surface (
+    display->color_representation,
+    surface);
 
   wait_for_configure (display);
 
@@ -266,6 +271,58 @@ main (int    argc,
   draw (display, DRM_FORMAT_YUV444, shader_color_gradient);
   wl_surface_commit (surface);
   wait_for_view_verified (display, 4);
+
+  /* untagged should behave as bt709 limited range */
+  draw (display, DRM_FORMAT_YUYV, shader_luma_gradient);
+  wp_color_representation_surface_v1_set_coefficients_and_range (
+    color_repr,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_COEFFICIENTS_BT709,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_RANGE_LIMITED);
+  wl_surface_commit (surface);
+  wait_for_effects_completed (display, surface);
+  wait_for_view_verified (display, 0);
+
+  /* keep the buffer the same, change to full range */
+  wp_color_representation_surface_v1_set_coefficients_and_range (
+    color_repr,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_COEFFICIENTS_BT709,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_RANGE_FULL);
+  wl_surface_commit (surface);
+  wait_for_effects_completed (display, surface);
+  wait_for_view_verified (display, 5);
+
+  /* untagged should behave as bt709 limited range */
+  draw (display, DRM_FORMAT_YUYV, shader_color_gradient);
+  wp_color_representation_surface_v1_set_coefficients_and_range (
+    color_repr,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_COEFFICIENTS_BT709,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_RANGE_LIMITED);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 1);
+
+  /* keep the buffer the same, change to bt601 */
+  wp_color_representation_surface_v1_set_coefficients_and_range (
+    color_repr,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_COEFFICIENTS_BT601,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_RANGE_LIMITED);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 6);
+
+  /* keep the buffer the same, change to bt2020 */
+  wp_color_representation_surface_v1_set_coefficients_and_range (
+    color_repr,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_COEFFICIENTS_BT2020,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_RANGE_FULL);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 7);
+
+  /* keep the buffer the same, change to bt2020 limited */
+  wp_color_representation_surface_v1_set_coefficients_and_range (
+    color_repr,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_COEFFICIENTS_BT2020,
+    WP_COLOR_REPRESENTATION_SURFACE_V1_RANGE_LIMITED);
+  wl_surface_commit (surface);
+  wait_for_view_verified (display, 8);
 
   g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&xdg_surface, xdg_surface_destroy);
