@@ -448,6 +448,10 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
 
   state->subsurface_placement_ops = NULL;
 
+  state->has_new_premult = FALSE;
+  state->has_new_coeffs = FALSE;
+  state->has_new_chroma_loc = FALSE;
+
   wl_list_init (&state->presentation_feedback_list);
 
   state->xdg_popup_reposition_token = 0;
@@ -639,6 +643,24 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
   if (from->fifo_barrier)
     to->fifo_barrier = TRUE;
 
+  if (from->has_new_premult)
+    {
+      to->premult = from->premult;
+      to->has_new_premult = TRUE;
+    }
+
+  if (from->has_new_coeffs)
+    {
+      to->coeffs = from->coeffs;
+      to->has_new_coeffs = TRUE;
+    }
+
+  if (from->has_new_chroma_loc)
+    {
+      to->chroma_loc = from->chroma_loc;
+      to->has_new_chroma_loc = TRUE;
+    }
+
   /*
    * A new commit indicates a new content update, so any previous
    * content update did not go on screen and needs to be discarded.
@@ -818,6 +840,15 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
       meta_wayland_compositor_add_barrier_surface (surface->compositor,
                                                    surface);
     }
+
+  if (state->has_new_premult)
+    surface->applied_state.premult = state->premult;
+
+  if (state->has_new_coeffs)
+    surface->applied_state.coeffs = state->coeffs;
+
+  if (state->has_new_chroma_loc)
+    surface->applied_state.chroma_loc = state->chroma_loc;
 
   if (state->has_new_buffer_transform)
     surface->buffer_transform = state->buffer_transform;
@@ -1071,6 +1102,15 @@ meta_wayland_surface_commit (MetaWaylandSurface *surface)
             }
         }
     }
+
+  if (pending->has_new_premult)
+    surface->committed_state.premult = pending->premult;
+
+  if (pending->has_new_coeffs)
+    surface->committed_state.coeffs = pending->coeffs;
+
+  if (pending->has_new_chroma_loc)
+    surface->committed_state.chroma_loc = pending->chroma_loc;
 
   if (meta_wayland_surface_is_synchronized (surface))
     {
