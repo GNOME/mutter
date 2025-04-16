@@ -21,7 +21,10 @@
 
 #include "core/meta-service-channel.h"
 #include "core/util-private.h"
-#include "meta/meta-wayland-client.h"
+
+#define META_TYPE_WAYLAND_CLIENT (meta_wayland_client_get_type ())
+META_EXPORT
+G_DECLARE_FINAL_TYPE (MetaWaylandClient, meta_wayland_client, META, WAYLAND_CLIENT, GObject)
 
 META_EXPORT_TEST
 MetaWaylandClient * meta_wayland_client_new_indirect (MetaContext  *context,
