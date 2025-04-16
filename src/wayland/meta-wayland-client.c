@@ -34,6 +34,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <wayland-server.h>
+#include <glib/gstdio.h>
 
 #include "core/window-private.h"
 #include "meta/util.h"
@@ -56,25 +57,28 @@ struct _MetaWaylandClient
 
   MetaContext *context;
 
-  struct {
-    int fd;
-  } indirect;
-
   struct wl_client *wayland_client;
   struct wl_listener client_destroy_listener;
-  MetaServiceClientType service_client_type;
+
+  MetaWaylandClientCaps caps;
+
+  MetaWaylandClientKind kind;
+
+  struct {
+    int client_fd;
+  } created;
 };
 
 G_DEFINE_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
 
 static void
-meta_wayland_client_dispose (GObject *object)
+meta_wayland_client_finalize (GObject *object)
 {
   MetaWaylandClient *client = META_WAYLAND_CLIENT (object);
 
-  g_clear_pointer (&client->wayland_client, wl_client_destroy);
+  g_clear_fd (&client->created.client_fd, NULL);
 
-  G_OBJECT_CLASS (meta_wayland_client_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_wayland_client_parent_class)->finalize (object);
 }
 
 static void
@@ -82,73 +86,29 @@ meta_wayland_client_class_init (MetaWaylandClientClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose = meta_wayland_client_dispose;
+  object_class->finalize = meta_wayland_client_finalize;
 
-  signals[CLIENT_DESTROYED] = g_signal_new ("client-destroyed",
-                                            G_TYPE_FROM_CLASS (klass),
-                                            G_SIGNAL_RUN_LAST,
-                                            0, NULL, NULL,
-                                            NULL,
-                                            G_TYPE_NONE, 0);
+  signals[CLIENT_DESTROYED] =
+    g_signal_new ("client-destroyed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
 meta_wayland_client_init (MetaWaylandClient *client)
 {
-  client->service_client_type = META_SERVICE_CLIENT_TYPE_NONE;
-}
-
-/**
- * meta_wayland_client_new_indirect: (skip)
- */
-MetaWaylandClient *
-meta_wayland_client_new_indirect (MetaContext  *context,
-                                  GError      **error)
-{
-  MetaWaylandClient *client;
-
-  if (!meta_is_wayland_compositor ())
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "MetaWaylandClient can be used only with Wayland.");
-      return NULL;
-    }
-
-  client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
-  client->context = context;
-
-  return client;
-}
-
-static gboolean
-init_wayland_client (MetaWaylandClient  *client,
-                     struct wl_client  **wayland_client,
-                     int                *fd,
-                     GError            **error)
-{
-  MetaWaylandCompositor *compositor;
-  int client_fd[2];
-
-  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to create a socket pair for the wayland client.");
-      return FALSE;
-    }
-
-  compositor = meta_context_get_wayland_compositor (client->context);
-
-  *wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
-  *fd = client_fd[1];
-
-  return TRUE;
+  client->created.client_fd = -1;
 }
 
 static void
-client_destroyed_cb (struct wl_listener *listener,
+on_client_destroyed (struct wl_listener *listener,
                      void               *user_data)
 {
-  MetaWaylandClient *client = wl_container_of (listener, client,
+  MetaWaylandClient *client = wl_container_of (listener,
+                                               client,
                                                client_destroy_listener);
 
   client->wayland_client = NULL;
@@ -161,59 +121,122 @@ set_wayland_client (MetaWaylandClient *client,
 {
   client->wayland_client = wayland_client;
 
-  client->client_destroy_listener.notify = client_destroyed_cb;
+  client->client_destroy_listener.notify = on_client_destroyed;
   wl_client_add_destroy_listener (wayland_client,
                                   &client->client_destroy_listener);
+
+  wl_client_set_user_data (wayland_client,
+                           g_object_ref (client),
+                           g_object_unref);
 }
 
-/**
- * meta_wayland_client_setup_fd: (skip)
- * @client: a #MetaWaylandClient
- *
- * Initialize a wl_client that can be connected to via the returned file
- * descriptor. May only be used with a #MetaWaylandClient created with
- * meta_wayland_client_new_indirect().
- *
- * Returns: (transfer full): A new file descriptor
- */
-int
-meta_wayland_client_setup_fd (MetaWaylandClient  *client,
-                              GError            **error)
+MetaWaylandClient *
+meta_wayland_client_new_from_wl (MetaContext      *context,
+                                 struct wl_client *wayland_client)
 {
-  struct wl_client *wayland_client;
-  int fd;
+  MetaWaylandClient *client;
 
-  g_return_val_if_fail (!client->wayland_client, -1);
-
-  if (!init_wayland_client (client, &wayland_client, &fd, error))
-    return -1;
+  client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
+  client->context = context;
+  client->kind = META_WAYLAND_CLIENT_KIND_PUBLIC;
 
   set_wayland_client (client, wayland_client);
 
-  return fd;
+  return client;
+}
+
+MetaWaylandClient *
+meta_wayland_client_new_create (MetaContext  *context,
+                                GError      **error)
+{
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
+  struct wl_client *wayland_client;
+  int client_fd[2];
+  MetaWaylandClient *client;
+
+  g_return_val_if_fail (meta_is_wayland_compositor (), NULL);
+
+  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create a socket pair for the wayland client.");
+      return FALSE;
+    }
+
+  client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
+  client->context = context;
+  client->kind = META_WAYLAND_CLIENT_KIND_CREATED;
+  client->created.client_fd = client_fd[1];
+
+  wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
+  set_wayland_client (client, wayland_client);
+
+  return client;
+}
+
+void
+meta_wayland_client_destroy (MetaWaylandClient *client)
+{
+  g_clear_pointer (&client->wayland_client, wl_client_destroy);
+}
+
+
+MetaContext *
+meta_wayland_client_get_context (MetaWaylandClient *client)
+{
+  return client->context;
+}
+
+struct wl_client *
+meta_wayland_client_get_wl_client (MetaWaylandClient *client)
+{
+  return client->wayland_client;
 }
 
 gboolean
 meta_wayland_client_matches (MetaWaylandClient      *client,
-                             const struct wl_client *wayland_client)
+                             const struct wl_client *wl_client)
 {
-  g_return_val_if_fail (wayland_client, FALSE);
-  g_return_val_if_fail (client->wayland_client, FALSE);
+  return meta_wayland_client_get_wl_client (client) == wl_client;
+}
 
-  return client->wayland_client == wayland_client;
+MetaWaylandClientKind
+meta_wayland_client_get_kind (MetaWaylandClient *client)
+{
+  return client->kind;
 }
 
 void
-meta_wayland_client_assign_service_client_type (MetaWaylandClient     *client,
-                                                MetaServiceClientType  service_client_type)
+meta_wayland_client_set_caps (MetaWaylandClient     *client,
+                              MetaWaylandClientCaps  caps)
 {
-  g_return_if_fail (client->service_client_type ==
-                    META_SERVICE_CLIENT_TYPE_NONE);
-  client->service_client_type = service_client_type;
+  client->caps = caps;
 }
 
-MetaServiceClientType
-meta_wayland_client_get_service_client_type (MetaWaylandClient *client)
+MetaWaylandClientCaps
+meta_wayland_client_get_caps (MetaWaylandClient *client)
 {
-  return client->service_client_type;
+  return client->caps;
+}
+
+gboolean
+meta_wayland_client_has_caps (MetaWaylandClient     *client,
+                              MetaWaylandClientCaps  caps)
+{
+  return (client->caps & caps) == caps;
+}
+
+int
+meta_wayland_client_take_client_fd (MetaWaylandClient *client)
+{
+  g_return_val_if_fail (client->kind == META_WAYLAND_CLIENT_KIND_CREATED, -1);
+
+  return g_steal_fd (&client->created.client_fd);
+}
+
+MetaWaylandClient *
+meta_get_wayland_client (const struct wl_client *wl_client)
+{
+  return wl_client_get_user_data ((struct wl_client *) wl_client);
 }

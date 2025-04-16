@@ -56,16 +56,15 @@ meta_test_wayland_client_indirect_self_terminate (void)
   int fd;
   gboolean client_destroyed = FALSE;
 
-  client = meta_wayland_client_new_indirect (test_context, &error);
+  client = meta_wayland_client_new_create (test_context, &error);
   g_assert_nonnull (client);
   g_assert_null (error);
 
+  fd = meta_wayland_client_take_client_fd (client);
+  g_assert_cmpint (fd, >=, 0);
+
   g_signal_connect (client, "client-destroyed",
                     G_CALLBACK (on_client_destroyed), &client_destroyed);
-
-  fd = meta_wayland_client_setup_fd (client, &error);
-  g_assert_cmpint (fd, >=, 0);
-  g_assert_null (error);
 
   thread = g_thread_new ("test client thread (self-terminated)",
                          test_client_destroyed_thread_func,
@@ -120,16 +119,15 @@ meta_test_wayland_client_indirect_destroy (void)
   int fd;
   gboolean client_destroyed = FALSE;
 
-  client = meta_wayland_client_new_indirect (test_context, &error);
+  client = meta_wayland_client_new_create (test_context, &error);
   g_assert_nonnull (client);
   g_assert_null (error);
 
+  fd = meta_wayland_client_take_client_fd (client);
+  g_assert_cmpint (fd, >=, 0);
+
   g_signal_connect (client, "client-destroyed",
                     G_CALLBACK (on_client_destroyed), &client_destroyed);
-
-  fd = meta_wayland_client_setup_fd (client, &error);
-  g_assert_cmpint (fd, >=, 0);
-  g_assert_null (error);
 
   data = (DestroyTestData) {
     .fd = fd,
@@ -144,7 +142,7 @@ meta_test_wayland_client_indirect_destroy (void)
     g_main_context_iteration (NULL, FALSE);
 
   g_debug ("Destroying client");
-  g_clear_object (&client);
+  meta_wayland_client_destroy (client);
 
   g_debug ("Waiting for client to terminate");
   while (!client_destroyed)

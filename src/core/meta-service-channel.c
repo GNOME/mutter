@@ -136,8 +136,8 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  wayland_client = meta_wayland_client_new_indirect (service_channel->context,
-                                                     &error);
+  wayland_client = meta_wayland_client_new_create (service_channel->context,
+                                                   &error);
   if (!wayland_client)
     {
       g_dbus_method_invocation_return_error (invocation,
@@ -148,17 +148,7 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  fd = meta_wayland_client_setup_fd (wayland_client, &error);
-  if (fd < 0)
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             G_DBUS_ERROR,
-                                             G_DBUS_ERROR_NOT_SUPPORTED,
-                                             "Failed to setup Wayland client socket: %s",
-                                             error->message);
-      return G_DBUS_METHOD_INVOCATION_HANDLED;
-    }
-
+  fd = meta_wayland_client_take_client_fd (wayland_client);
   out_fd_list = g_unix_fd_list_new ();
   fd_id = g_unix_fd_list_append (out_fd_list, fd, &error);
   close (fd);

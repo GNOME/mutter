@@ -292,7 +292,9 @@ registry_filter (void)
   struct wl_display *wayland_display =
     meta_wayland_compositor_get_wayland_display (wayland_compositor);
   struct wl_global *dummy_global;
-  int fd;
+  int fd1;
+  int fd2;
+  int fd3;
   g_autoptr (MetaWaylandClient) client1 = NULL;
   g_autoptr (MetaWaylandClient) client2 = NULL;
   g_autoptr (MetaWaylandClient) client3 = NULL;
@@ -306,22 +308,21 @@ registry_filter (void)
   gboolean client2_saw_global;
   gboolean client3_saw_global;
 
-  client1 = meta_wayland_client_new_indirect (test_context, &error);
+  client1 = meta_wayland_client_new_create (test_context, &error);
   g_assert_nonnull (client1);
   g_assert_null (error);
-  client2 = meta_wayland_client_new_indirect (test_context, &error);
+  fd1 = meta_wayland_client_take_client_fd (client1);
+  g_assert_cmpint (fd1, >=, 0);
+  client2 = meta_wayland_client_new_create (test_context, &error);
   g_assert_nonnull (client2);
   g_assert_null (error);
-  client3 = meta_wayland_client_new_indirect (test_context, &error);
-  g_assert_nonnull (client3);
-  g_assert_null (error);
+  fd2 = meta_wayland_client_take_client_fd (client2);
+  g_assert_cmpint (fd2, >=, 0);
 
   g_signal_connect (client1, "client-destroyed",
                     G_CALLBACK (on_client_destroyed), &client1_destroyed);
   g_signal_connect (client2, "client-destroyed",
                     G_CALLBACK (on_client_destroyed), &client2_destroyed);
-  g_signal_connect (client3, "client-destroyed",
-                    G_CALLBACK (on_client_destroyed), &client3_destroyed);
 
   dummy_global = wl_global_create (wayland_display,
                                    &dummy_interface,
@@ -331,19 +332,13 @@ registry_filter (void)
                                           dummy_global_filter,
                                           client1);
 
-  fd = meta_wayland_client_setup_fd (client1, &error);
-  g_assert_cmpint (fd, >=, 0);
-  g_assert_null (error);
   thread1 = g_thread_new ("test client thread 1",
                           test_client_thread_func,
-                          GINT_TO_POINTER (fd));
+                          GINT_TO_POINTER (fd1));
 
-  fd = meta_wayland_client_setup_fd (client2, &error);
-  g_assert_cmpint (fd, >=, 0);
-  g_assert_null (error);
   thread2 = g_thread_new ("test client thread 2",
                           test_client_thread_func,
-                          GINT_TO_POINTER (fd));
+                          GINT_TO_POINTER (fd2));
 
   while (!client1_destroyed || !client2_destroyed)
     g_main_context_iteration (NULL, TRUE);
@@ -357,12 +352,19 @@ registry_filter (void)
   meta_wayland_filter_manager_remove_global (filter_manager, dummy_global);
   wl_global_destroy (dummy_global);
 
-  fd = meta_wayland_client_setup_fd (client3, &error);
-  g_assert_cmpint (fd, >=, 0);
+  client3 = meta_wayland_client_new_create (test_context, &error);
+  g_assert_nonnull (client3);
   g_assert_null (error);
+  fd3 = meta_wayland_client_take_client_fd (client3);
+  g_assert_cmpint (fd3, >=, 0);
+
+  g_signal_connect (client3, "client-destroyed",
+                    G_CALLBACK (on_client_destroyed), &client3_destroyed);
+
   thread3 = g_thread_new ("test client thread 3",
                           test_client_thread_func,
-                          GINT_TO_POINTER (fd));
+                          GINT_TO_POINTER (fd3));
+
   while (!client3_destroyed)
     g_main_context_iteration (NULL, TRUE);
 

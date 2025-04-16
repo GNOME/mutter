@@ -27,6 +27,7 @@
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-manager.h"
 #include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -834,7 +835,10 @@ color_management_output_get_image_description (struct wl_client   *client,
 {
   MetaWaylandColorManagementOutput *cm_output =
     wl_resource_get_user_data (resource);
-  MetaWaylandCompositor *compositor = wl_client_get_user_data (client);
+  MetaWaylandClient *wayland_client = meta_get_wayland_client (client);
+  MetaContext *context = meta_wayland_client_get_context (wayland_client);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
   MetaWaylandColorManager *color_manager =
     g_object_get_data (G_OBJECT (compositor), "-meta-wayland-color-manager");
   struct wl_resource *image_desc_resource;
