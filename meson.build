@@ -167,7 +167,6 @@ if have_x11_client
   xext_dep = dependency('xext')
   xfixes_dep = dependency('xfixes', version: xfixes_req)
   xi_dep = dependency('xi', version: xi_req)
-  xkbfile_dep = dependency('xkbfile')
   xkeyboard_config_dep = dependency('xkeyboard-config')
   x11_xcb_dep = dependency('x11-xcb')
   xrandr_dep = dependency('xrandr', version: xrandr_req)
@@ -179,6 +178,7 @@ if have_x11_client
     ice_dep = dependency('ice')
     xcb_randr_dep = dependency('xcb-randr')
     xkbcommon_x11_dep = dependency('xkbcommon-x11')
+    xkbfile_dep = dependency('xkbfile')
     xtst_dep = dependency('xtst')
   endif
 endif
