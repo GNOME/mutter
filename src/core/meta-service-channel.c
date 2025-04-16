@@ -41,6 +41,7 @@ typedef struct _MetaServiceClient
   MetaWaylandClient *wayland_client;
   gulong destroyed_handler_id;
   MetaServiceChannel *service_channel;
+  MetaServiceClientType service_client_type;
 } MetaServiceClient;
 
 static void meta_service_channel_init_iface (MetaDBusServiceChannelIface *iface);
@@ -63,25 +64,21 @@ static void
 on_service_client_destroyed (MetaWaylandClient *wayland_client,
                              MetaServiceClient *service_client)
 {
-  MetaServiceClientType service_client_type;
-
-  service_client_type =
-    meta_wayland_client_get_service_client_type (wayland_client);
-  g_return_if_fail (service_client_type != META_SERVICE_CLIENT_TYPE_NONE);
-
   g_hash_table_remove (service_client->service_channel->service_clients,
-                       GINT_TO_POINTER (service_client_type));
+                       GUINT_TO_POINTER (service_client->service_client_type));
 }
 
 static MetaServiceClient *
-meta_service_client_new (MetaServiceChannel *service_channel,
-                         MetaWaylandClient  *wayland_client)
+meta_service_client_new (MetaServiceChannel    *service_channel,
+                         MetaWaylandClient     *wayland_client,
+                         MetaServiceClientType  service_client_type)
 {
   MetaServiceClient *service_client;
 
   service_client = g_new0 (MetaServiceClient, 1);
   service_client->service_channel = service_channel;
   service_client->wayland_client = g_object_ref (wayland_client);
+  service_client->service_client_type = service_client_type;
   service_client->destroyed_handler_id =
     g_signal_connect (wayland_client, "client-destroyed",
                       G_CALLBACK (on_service_client_destroyed),
@@ -151,9 +148,6 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  meta_wayland_client_assign_service_client_type (wayland_client,
-                                                  service_client_type);
-
   fd = meta_wayland_client_setup_fd (wayland_client, &error);
   if (fd < 0)
     {
@@ -182,7 +176,8 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
   g_hash_table_replace (service_channel->service_clients,
                         GUINT_TO_POINTER (service_client_type),
                         meta_service_client_new (service_channel,
-                                                 wayland_client));
+                                                 wayland_client,
+                                                 service_client_type));
 
   meta_dbus_service_channel_complete_open_wayland_service_connection (
     object, invocation, out_fd_list, g_variant_new_handle (fd_id));
