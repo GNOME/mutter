@@ -211,3 +211,24 @@ meta_dbus_access_checker_is_allowed (MetaDbusAccessChecker *self,
 
   return FALSE;
 }
+
+const char *
+meta_dbus_access_checker_find_sender (MetaDbusAccessChecker *self,
+                                      GDBusMethodInvocation *invocation)
+{
+  const char *sender_name =
+    g_dbus_method_invocation_get_sender (invocation);
+
+  for (size_t i = 0; i < self->allowed_senders->len; i++)
+    {
+      AllowedSender *allowed_sender;
+
+      allowed_sender = g_ptr_array_index (self->allowed_senders, i);
+
+      if (sender_name &&
+          g_strcmp0 (allowed_sender->name_owner, sender_name) == 0)
+        return allowed_sender->name;
+    }
+
+  return NULL;
+}

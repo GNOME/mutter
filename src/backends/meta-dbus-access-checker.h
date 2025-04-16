@@ -37,3 +37,6 @@ void meta_dbus_access_checker_allow_sender (MetaDbusAccessChecker *self,
 
 gboolean meta_dbus_access_checker_is_allowed (MetaDbusAccessChecker *self,
                                               GDBusMethodInvocation *invocation);
+
+const char * meta_dbus_access_checker_find_sender (MetaDbusAccessChecker *self,
+                                                   GDBusMethodInvocation *invocation);
