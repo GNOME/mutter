@@ -162,6 +162,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   ClutterColorState *output_color_state;
   ClutterColorState *surface_color_state;
   MetaWaylandSurface *surface;
+  MetaMultiTextureCoefficients coeffs;
 
   if (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT)
     return FALSE;
@@ -315,6 +316,16 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: no surface");
+      return FALSE;
+    }
+
+  coeffs = surface->applied_state.coeffs;
+  if (coeffs != META_MULTI_TEXTURE_COEFFICIENTS_NONE &&
+      coeffs != META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_FULL &&
+      coeffs != META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED)
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No direct scanout candidate: unsupported color model");
       return FALSE;
     }
 
