@@ -189,15 +189,16 @@ meta_dbus_access_checker_allow_sender (MetaDbusAccessChecker *self,
 }
 
 gboolean
-meta_dbus_access_checker_is_sender_allowed (MetaDbusAccessChecker *self,
-                                            const char            *sender_name)
+meta_dbus_access_checker_is_allowed (MetaDbusAccessChecker *self,
+                                     GDBusMethodInvocation *invocation)
 {
-  int i;
+  const char *sender_name =
+    g_dbus_method_invocation_get_sender (invocation);
 
   if (meta_context_get_unsafe_mode (self->context))
     return TRUE;
 
-  for (i = 0; i < self->allowed_senders->len; i++)
+  for (size_t i = 0; i < self->allowed_senders->len; i++)
     {
       AllowedSender *allowed_sender;
 

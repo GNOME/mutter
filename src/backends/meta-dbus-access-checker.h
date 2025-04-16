@@ -35,5 +35,5 @@ MetaDbusAccessChecker * meta_dbus_access_checker_new (GDBusConnection *connectio
 void meta_dbus_access_checker_allow_sender (MetaDbusAccessChecker *self,
                                             const char            *name);
 
-gboolean meta_dbus_access_checker_is_sender_allowed (MetaDbusAccessChecker *self,
-                                                     const char            *sender_name);
+gboolean meta_dbus_access_checker_is_allowed (MetaDbusAccessChecker *self,
+                                              GDBusMethodInvocation *invocation);
