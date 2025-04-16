@@ -148,6 +148,9 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
+  meta_wayland_client_set_caps (wayland_client,
+                                META_WAYLAND_CLIENT_CAPS_X11_INTEROP);
+
   fd = meta_wayland_client_take_client_fd (wayland_client);
   out_fd_list = g_unix_fd_list_new ();
   fd_id = g_unix_fd_list_append (out_fd_list, fd, &error);

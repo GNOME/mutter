@@ -88,33 +88,20 @@ bind_x11_interop (struct wl_client *client,
 }
 
 static MetaWaylandAccess
-x11_interop_filter (const struct wl_client *client,
+x11_interop_filter (const struct wl_client *wayland_client,
                     const struct wl_global *global,
                     gpointer                user_data)
 {
-  MetaWaylandCompositor *compositor = user_data;
-  MetaContext *context = meta_wayland_compositor_get_context (compositor);
-  MetaServiceChannel *service_channel =
-    meta_context_get_service_channel (context);
-  MetaServiceClientType allowed_client_types[] = {
-    META_SERVICE_CLIENT_TYPE_PORTAL_BACKEND,
-    META_SERVICE_CLIENT_TYPE_FILECHOOSER_PORTAL_BACKEND,
-    META_SERVICE_CLIENT_TYPE_GLOBAL_SHORTCUTS_PORTAL_BACKEND,
-  };
-  size_t i;
+  MetaWaylandClient *client = meta_get_wayland_client (wayland_client);
 
-  for (i = 0; i < G_N_ELEMENTS (allowed_client_types); i++)
-    {
-      MetaWaylandClient *service_client;
+  if (!client)
+    return META_WAYLAND_ACCESS_DENIED;
 
-      service_client =
-        meta_service_channel_get_service_client (service_channel,
-                                                 allowed_client_types[i]);
-      if (service_client && meta_wayland_client_matches (service_client, client))
-        return META_WAYLAND_ACCESS_ALLOWED;
-    }
+  if (!meta_wayland_client_has_caps (client,
+                                     META_WAYLAND_CLIENT_CAPS_X11_INTEROP))
+    return META_WAYLAND_ACCESS_DENIED;
 
-  return META_WAYLAND_ACCESS_DENIED;
+  return META_WAYLAND_ACCESS_ALLOWED;
 }
 
 void
