@@ -107,6 +107,7 @@ gboolean meta_compositor_drag_window (MetaCompositor       *compositor,
                                       graphene_point_t     *pos_hint,
                                       ClutterActor         *grab_actor);
 
+META_EXPORT_TEST
 MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);
 
 void meta_compositor_grab_begin (MetaCompositor *compositor);

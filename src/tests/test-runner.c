@@ -25,7 +25,10 @@
 #include <string.h>
 
 #include "backends/meta-virtual-monitor.h"
+#include "clutter/clutter.h"
+#include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-drag.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
@@ -901,6 +904,23 @@ test_case_parse_signal (TestCase *test,
   return TRUE;
 }
 
+static MetaGrabOp
+grab_op_from_edge (const char *edge)
+{
+  MetaGrabOp op = META_GRAB_OP_WINDOW_BASE;
+
+  if (strcmp (edge, "top") == 0)
+    op |= META_GRAB_OP_WINDOW_DIR_NORTH;
+  else if (strcmp (edge, "bottom") == 0)
+    op |= META_GRAB_OP_WINDOW_DIR_SOUTH;
+  else if (strcmp (edge, "left") == 0)
+    op |= META_GRAB_OP_WINDOW_DIR_WEST;
+  else if (strcmp (edge, "right") == 0)
+    op |= META_GRAB_OP_WINDOW_DIR_EAST;
+
+  return op;
+}
+
 static gboolean
 test_case_do (TestCase    *test,
               const char  *filename,
@@ -1103,6 +1123,92 @@ test_case_do (TestCase    *test,
       if (!meta_test_client_do (client, error, argv[0], window_id,
                                 argv[2], argv[3], NULL))
         return FALSE;
+    }
+  else if (strcmp (argv[0], "begin_resize") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      ClutterSeat *seat = meta_backend_get_default_seat (backend);
+      ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaGrabOp grab_op;
+      MtkRectangle rect;
+      gboolean ret;
+      MetaWindowDrag *window_drag;
+
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> [top|bottom|left|right]", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+
+      grab_op = grab_op_from_edge (argv[2]);
+
+      meta_window_get_frame_rect (window, &rect);
+      graphene_point_t grab_origin;
+
+      grab_origin = GRAPHENE_POINT_INIT (rect.x + rect.width / 2.0f,
+                                         rect.y + rect.height / 2.0f);
+
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+      g_assert_null (window_drag);
+      ret = meta_window_begin_grab_op (window,
+                                       grab_op,
+                                       pointer, NULL,
+                                       meta_display_get_current_time_roundtrip (window->display),
+                                       &grab_origin);
+      g_assert_true (ret);
+    }
+  else if (strcmp (argv[0], "update_resize") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MtkRectangle rect;
+      int delta_x, delta_y;
+
+      if (argc != 4)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> <x> <y>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+
+      meta_window_get_frame_rect (window, &rect);
+      delta_x = atoi (argv[2]);
+      delta_y = atoi (argv[3]);
+
+      meta_window_resize_frame (window,
+				TRUE,
+				rect.width + delta_x,
+				rect.height + delta_y);
+    }
+  else if (strcmp (argv[0], "end_resize") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaWindowDrag *window_drag;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+      g_assert_nonnull (window_drag);
+      g_assert_true (meta_window_drag_get_window (window_drag) == window);
+
+      meta_window_drag_end (window_drag);
     }
   else if (strcmp (argv[0], "move") == 0)
     {
