@@ -2128,7 +2128,8 @@ handle_toggle_tiled (MetaDisplay           *display,
     {
       gboolean is_maximized_vertically;
 
-      window->tile_monitor_number = window->monitor->number;
+      meta_window_config_set_tile_monitor_number (window->config,
+                                                  window->monitor->number);
       /* Maximization constraints beat tiling constraints, so if the window
        * is maximized, tiling won't have any effect unless we unmaximize it
        * horizontally first; rather than calling meta_window_unmaximize(),

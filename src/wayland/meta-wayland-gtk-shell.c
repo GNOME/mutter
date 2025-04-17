@@ -395,13 +395,14 @@ fill_states (struct wl_array    *states,
              MetaWindow         *window,
              struct wl_resource *resource)
 {
+  MetaTileMode tile_mode = meta_window_config_get_tile_mode (window->config);
   int version;
 
   version = wl_resource_get_version (resource);
 
   if (version < GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION &&
-      (window->tile_mode == META_TILE_LEFT ||
-       window->tile_mode == META_TILE_RIGHT))
+      (tile_mode == META_TILE_LEFT ||
+       tile_mode == META_TILE_RIGHT))
     add_state_value (states, GTK_SURFACE1_STATE_TILED);
 
   if (version >= GTK_SURFACE1_STATE_TILED_TOP_SINCE_VERSION &&

@@ -33,6 +33,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "clutter/clutter.h"
+#include "core/meta-window-config-private.h"
 #include "core/stack.h"
 #include "meta/meta-window-config.h"
 #include "meta/compositor.h"
@@ -259,19 +260,12 @@ struct _MetaWindow
   /* Initial timestamp property */
   guint32 initial_timestamp;
 
-  /* The current tile mode */
-  MetaTileMode tile_mode;
-
-  int tile_monitor_number;
-
   struct {
     MetaEdgeConstraint top;
     MetaEdgeConstraint right;
     MetaEdgeConstraint bottom;
     MetaEdgeConstraint left;
   } edge_constraints;
-
-  double tile_hfraction;
 
   MetaLogicalMonitorId *preferred_logical_monitor;
 
@@ -359,9 +353,6 @@ struct _MetaWindow
 
   /* Focused window that is (directly or indirectly) attached to this one */
   MetaWindow *attached_focus_window;
-
-  /* The currently complementary tiled window, if any */
-  MetaWindow *tile_match;
 
   struct {
     MetaPlacementRule *rule;

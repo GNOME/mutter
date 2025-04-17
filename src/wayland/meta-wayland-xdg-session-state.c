@@ -321,6 +321,7 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
     META_WAYLAND_XDG_SESSION_STATE (state);
   MetaWaylandXdgToplevelState *toplevel_state;
   MtkRectangle rect;
+  MetaTileMode tile_mode;
 
   toplevel_state =
     meta_wayland_xdg_session_state_ensure_toplevel (xdg_session_state,
@@ -331,6 +332,8 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
                 "minimized", &toplevel_state->is_minimized,
                 NULL);
 
+  tile_mode = meta_window_config_get_tile_mode (window->config);
+
   if (meta_window_get_maximized (window) ==
       (META_MAXIMIZE_VERTICAL | META_MAXIMIZE_HORIZONTAL))
     {
@@ -338,12 +341,12 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
 
       toplevel_state->tiled.rect = rect;
     }
-  else if (window->tile_mode == META_TILE_LEFT ||
-           window->tile_mode == META_TILE_RIGHT)
+  else if (tile_mode == META_TILE_LEFT ||
+           tile_mode == META_TILE_RIGHT)
     {
-      if (window->tile_mode == META_TILE_LEFT)
+      if (tile_mode == META_TILE_LEFT)
         toplevel_state->window_state = WINDOW_STATE_TILED_LEFT;
-      else if (window->tile_mode == META_TILE_RIGHT)
+      else if (tile_mode == META_TILE_RIGHT)
         toplevel_state->window_state = WINDOW_STATE_TILED_RIGHT;
 
       toplevel_state->tiled.rect = rect;
@@ -413,7 +416,10 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
       rect = &toplevel_state->tiled.rect;
       target_monitor = determine_monitor_for_rect (window, rect);
       if (target_monitor)
-        window->tile_monitor_number = target_monitor->number;
+        {
+          meta_window_config_set_tile_monitor_number (window->config,
+                                                      target_monitor->number);
+        }
       break;
     }
 

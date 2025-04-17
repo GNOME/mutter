@@ -19,6 +19,15 @@
 #pragma once
 
 #include "meta/meta-window-config.h"
+#include "meta/types.h"
+
+typedef enum
+{
+  META_TILE_NONE,
+  META_TILE_LEFT,
+  META_TILE_RIGHT,
+  META_TILE_MAXIMIZED
+} MetaTileMode;
 
 MetaWindowConfig * meta_window_config_initial_new (void);
 
@@ -33,3 +42,23 @@ gboolean meta_window_config_is_maximized_vertically (MetaWindowConfig *config);
 void meta_window_config_set_maximized_directions (MetaWindowConfig *window_config,
                                                   gboolean          horizontally,
                                                   gboolean          vertically);
+
+MetaTileMode meta_window_config_get_tile_mode (MetaWindowConfig *config);
+
+int meta_window_config_get_tile_monitor_number (MetaWindowConfig *config);
+
+double meta_window_config_get_tile_hfraction (MetaWindowConfig *config);
+
+MetaWindow * meta_window_config_get_tile_match (MetaWindowConfig *config);
+
+void meta_window_config_set_tile_mode (MetaWindowConfig *config,
+                                       MetaTileMode      tile_mode);
+
+void meta_window_config_set_tile_monitor_number (MetaWindowConfig *config,
+                                                 int               tile_monitor_number);
+
+void meta_window_config_set_tile_hfraction (MetaWindowConfig *config,
+                                            double            hfraction);
+
+void meta_window_config_set_tile_match (MetaWindowConfig *config,
+                                        MetaWindow       *tile_match);

@@ -568,7 +568,8 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
 
       /* Restore the original tile mode */
       tile_mode = window_drag->tile_mode;
-      window->tile_monitor_number = window_drag->tile_monitor_number;
+      meta_window_config_set_tile_monitor_number (window->config,
+                                                  window_drag->tile_monitor_number);
 
       /* End move or resize and restore to original state.  If the
        * window was a maximized window that had been "shaken loose" we
@@ -1185,7 +1186,10 @@ update_move_maybe_tile (MetaWindowDrag *window_drag,
     window_drag->preview_tile_mode = META_TILE_NONE;
 
   if (window_drag->preview_tile_mode != META_TILE_NONE)
-    window->tile_monitor_number = logical_monitor->number;
+    {
+      meta_window_config_set_tile_monitor_number (window->config,
+                                                  logical_monitor->number);
+    }
 }
 
 static void
@@ -1245,7 +1249,7 @@ update_move (MetaWindowDrag          *window_drag,
       /* We don't want to tile while snapping. Also, clear any previous tile
          request. */
       window_drag->preview_tile_mode = META_TILE_NONE;
-      window->tile_monitor_number = -1;
+      meta_window_config_set_tile_monitor_number (window->config, -1);
     }
   else if (meta_prefs_get_edge_tiling () &&
            !meta_window_is_maximized (window) &&
@@ -1270,7 +1274,7 @@ update_move (MetaWindowDrag          *window_drag,
        * is enabled, as top edge tiling can be used in that case
        */
       window_drag->shaken_loose = !meta_prefs_get_edge_tiling ();
-      window->tile_mode = META_TILE_NONE;
+      meta_window_config_set_tile_mode (window->config, META_TILE_NONE);
 
       /* move the unmaximized window to the cursor */
       prop =
@@ -1297,7 +1301,8 @@ update_move (MetaWindowDrag          *window_drag,
    * loose or it is still maximized (then move straight)
    */
   else if ((window_drag->shaken_loose || meta_window_is_maximized (window)) &&
-           window->tile_mode != META_TILE_LEFT && window->tile_mode != META_TILE_RIGHT)
+           meta_window_config_get_tile_mode (window->config) != META_TILE_LEFT &&
+           meta_window_config_get_tile_mode (window->config) != META_TILE_RIGHT)
     {
       MetaDisplay *display = meta_window_get_display (window);
       MetaContext *context = meta_display_get_context (display);
@@ -1312,7 +1317,7 @@ update_move (MetaWindowDrag          *window_drag,
       MetaFrame *frame;
 #endif
 
-      window->tile_mode = META_TILE_NONE;
+      meta_window_config_set_tile_mode (window->config, META_TILE_NONE);
       wmonitor = window->monitor;
       n_logical_monitors =
         meta_monitor_manager_get_num_logical_monitors (monitor_manager);
@@ -1365,7 +1370,9 @@ update_move (MetaWindowDrag          *window_drag,
    * trigger it unwittingly, e.g. when shaking loose the window or moving
    * it to another monitor.
    */
-  update_tile_preview (window_drag, window->tile_mode != META_TILE_NONE);
+  update_tile_preview (window_drag,
+                       meta_window_config_get_tile_mode (window->config) !=
+                       META_TILE_NONE);
 
   meta_window_get_frame_rect (window, &old);
 
@@ -1600,6 +1607,7 @@ maybe_maximize_tiled_window (MetaWindow *window)
 {
   MtkRectangle work_area;
   gint shake_threshold;
+  int tile_monitor_number;
   int width;
 
   if (!meta_window_is_tiled_side_by_side (window))
@@ -1607,8 +1615,10 @@ maybe_maximize_tiled_window (MetaWindow *window)
 
   shake_threshold = meta_prefs_get_drag_threshold ();
 
+  tile_monitor_number =
+    meta_window_config_get_tile_monitor_number (window->config);
   meta_window_get_work_area_for_monitor (window,
-                                         window->tile_monitor_number,
+                                         tile_monitor_number,
                                          &work_area);
   meta_window_config_get_size (window->config, &width, NULL);
   if (width >= work_area.width - shake_threshold)
@@ -1673,7 +1683,7 @@ end_grab_op (MetaWindowDrag     *window_drag,
         }
       else if (meta_grab_op_is_resizing (window_drag->grab_op))
         {
-          if (window->tile_match != NULL)
+          if (meta_window_config_get_tile_match (window->config))
             flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
           update_resize (window_drag, flags, (int) x, (int) y);
@@ -1748,7 +1758,7 @@ process_pointer_event (MetaWindowDrag     *window_drag,
         }
       else if (meta_grab_op_is_resizing (window_drag->grab_op))
         {
-          if (window->tile_match != NULL)
+          if (meta_window_config_get_tile_match (window->config))
             flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
           queue_update_resize (window_drag, flags, (int) x, (int) y);
@@ -1891,8 +1901,10 @@ meta_window_drag_begin (MetaWindowDrag       *window_drag,
 
   window_drag->leading_device = device;
   window_drag->leading_touch_sequence = sequence;
-  window_drag->tile_mode = grab_window->tile_mode;
-  window_drag->tile_monitor_number = grab_window->tile_monitor_number;
+  window_drag->tile_mode =
+    meta_window_config_get_tile_mode (grab_window->config);
+  window_drag->tile_monitor_number =
+    meta_window_config_get_tile_monitor_number (grab_window->config);
   window_drag->anchor_root_x = root_x;
   window_drag->anchor_root_y = root_y;
   window_drag->latest_motion_x = root_x;

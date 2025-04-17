@@ -1217,6 +1217,7 @@ constrain_maximization (MetaWindow         *window,
   gboolean hminbad, vminbad;
   gboolean horiz_equal, vert_equal;
   gboolean constraint_already_satisfied;
+  MetaTileMode tile_mode;
 
   if (priority > PRIORITY_MAXIMIZATION)
     return TRUE;
@@ -1232,10 +1233,11 @@ constrain_maximization (MetaWindow         *window,
     meta_window_config_is_maximized_vertically (window->config);
 
   /* Calculate target_size = maximized size of (window + frame) */
+  tile_mode = meta_window_config_get_tile_mode (window->config);
   if (meta_window_is_maximized (window) &&
-      window->tile_mode == META_TILE_MAXIMIZED)
+      tile_mode == META_TILE_MAXIMIZED)
     {
-      meta_window_get_tile_area (window, window->tile_mode, &target_size);
+      meta_window_get_tile_area (window, tile_mode, &target_size);
     }
   else if (meta_window_is_maximized (window))
     {
@@ -1306,6 +1308,7 @@ constrain_tiling (MetaWindow         *window,
                   ConstraintPriority  priority,
                   gboolean            check_only)
 {
+  MetaTileMode tile_mode;
   MtkRectangle target_size;
   MtkRectangle min_size, max_size;
   gboolean hminbad, vminbad;
@@ -1322,7 +1325,8 @@ constrain_tiling (MetaWindow         *window,
   /* Calculate target_size - as the tile previews need this as well, we
    * use an external function for the actual calculation
    */
-  meta_window_get_tile_area (window, window->tile_mode, &target_size);
+  tile_mode = meta_window_config_get_tile_mode (window->config);
+  meta_window_get_tile_area (window, tile_mode, &target_size);
 
   /* Check min size constraints; max size constraints are ignored as for
    * maximized windows.

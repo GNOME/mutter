@@ -265,6 +265,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   gboolean can_move_now = FALSE;
   MtkRectangle configured_rect;
   MtkRectangle frame_rect;
+  MetaTileMode tile_mode;
   MetaGravity gravity;
   int geometry_scale;
   int new_x;
@@ -287,6 +288,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
    * to the Wayland surface. */
   geometry_scale = meta_window_wayland_get_geometry_scale (window);
   frame_rect = meta_window_config_get_rect (window->config);
+  tile_mode = meta_window_config_get_tile_mode (window->config);
 
   configured_rect.width = constrained_rect.width;
   configured_rect.height = constrained_rect.height;
@@ -405,7 +407,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
 
           if (!meta_wayland_surface_get_buffer (wl_window->surface) &&
               !meta_window_is_maximized (window) &&
-              window->tile_mode == META_TILE_NONE &&
+              tile_mode == META_TILE_NONE &&
               !meta_window_is_fullscreen (window))
             return;
 
