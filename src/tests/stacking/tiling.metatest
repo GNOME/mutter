@@ -1,0 +1,50 @@
+new_client w wayland
+
+create w/1 csd
+show w/1
+
+create w/2 csd
+show w/2
+
+tile w/1 left
+tile w/2 right
+
+wait_reconfigure w/1
+wait_reconfigure w/2
+
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+assert_position w/2 MONITOR_WIDTH/2 0
+assert_size w/2 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+# Resize both -40 pixels horizontally
+
+begin_resize w/1 right
+update_resize w/1 -35 0
+end_resize w/1
+wait_reconfigure w/1
+wait_reconfigure w/2
+
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH/2-35 MONITOR_HEIGHT
+
+assert_position w/2 MONITOR_WIDTH/2-35 0
+assert_size w/2 MONITOR_WIDTH/2+35 MONITOR_HEIGHT
+
+# Resize both +80 pixels horizontally
+
+begin_resize w/1 right
+update_resize w/1 5 0
+update_resize w/1 10 0
+update_resize w/1 15 0
+update_resize w/1 20 0
+end_resize w/1
+wait_reconfigure w/1
+wait_reconfigure w/2
+
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH/2-15 MONITOR_HEIGHT
+
+assert_position w/2 MONITOR_WIDTH/2-15 0
+assert_size w/2 MONITOR_WIDTH/2+15 MONITOR_HEIGHT
