@@ -392,10 +392,6 @@ struct _MetaWindow
   /* Whether this is an override redirect window or not */
   guint override_redirect : 1;
 
-  /* Whether we're maximized */
-  guint maximized_horizontally : 1;
-  guint maximized_vertically : 1;
-
   /* Whether we have to maximize/minimize after placement */
   guint maximize_horizontally_after_placement : 1;
   guint maximize_vertically_after_placement : 1;

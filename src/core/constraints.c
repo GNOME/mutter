@@ -33,6 +33,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
+#include "core/meta-window-config-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
 #include "core/workspace-private.h"
@@ -549,8 +550,7 @@ place_window_if_needed (MetaWindow     *window,
   did_placement = FALSE;
   if (!window->placed &&
       window->calc_placement &&
-      !(window->maximized_horizontally ||
-        window->maximized_vertically) &&
+      !meta_window_config_is_any_maximized (window->config) &&
       !window->minimized &&
       !meta_window_is_fullscreen (window))
     {
@@ -1211,6 +1211,7 @@ constrain_maximization (MetaWindow         *window,
                         gboolean            check_only)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+  gboolean is_maximized_horizontally, is_maximized_vertically;
   MtkRectangle target_size;
   MtkRectangle min_size, max_size;
   gboolean hminbad, vminbad;
@@ -1221,9 +1222,14 @@ constrain_maximization (MetaWindow         *window,
     return TRUE;
 
   /* Determine whether constraint applies; exit if it doesn't */
-  if ((!window->maximized_horizontally && !window->maximized_vertically) ||
+  if (!meta_window_config_is_any_maximized (window->config) ||
       meta_window_is_tiled_side_by_side (window))
     return TRUE;
+
+  is_maximized_horizontally =
+    meta_window_config_is_maximized_horizontally (window->config);
+  is_maximized_vertically =
+    meta_window_config_is_maximized_vertically (window->config);
 
   /* Calculate target_size = maximized size of (window + frame) */
   if (meta_window_is_maximized (window) &&
@@ -1247,7 +1253,7 @@ constrain_maximization (MetaWindow         *window,
       MetaDirection  direction;
       GSList        *active_workspace_struts;
 
-      if (window->maximized_horizontally)
+      if (is_maximized_horizontally)
         direction = META_DIRECTION_HORIZONTAL;
       else
         direction = META_DIRECTION_VERTICAL;
@@ -1264,8 +1270,8 @@ constrain_maximization (MetaWindow         *window,
    * windows, as per bug 327543.
    */
   get_size_limits (window, &min_size, &max_size);
-  hminbad = target_size.width < min_size.width && window->maximized_horizontally;
-  vminbad = target_size.height < min_size.height && window->maximized_vertically;
+  hminbad = target_size.width < min_size.width && is_maximized_horizontally;
+  vminbad = target_size.height < min_size.height && is_maximized_vertically;
   if (hminbad || vminbad)
     return TRUE;
 
@@ -1275,18 +1281,18 @@ constrain_maximization (MetaWindow         *window,
   vert_equal  = target_size.y      == info->current.y &&
                 target_size.height == info->current.height;
   constraint_already_satisfied =
-    (horiz_equal || !window->maximized_horizontally) &&
-    (vert_equal  || !window->maximized_vertically);
+    (horiz_equal || !is_maximized_horizontally) &&
+    (vert_equal  || !is_maximized_vertically);
   if (check_only || constraint_already_satisfied)
     return constraint_already_satisfied;
 
   /*** Enforce constraint ***/
-  if (window->maximized_horizontally)
+  if (is_maximized_horizontally)
     {
       info->current.x      = target_size.x;
       info->current.width  = target_size.width;
     }
-  if (window->maximized_vertically)
+  if (is_maximized_vertically)
     {
       info->current.y      = target_size.y;
       info->current.height = target_size.height;
@@ -1413,9 +1419,9 @@ constrain_size_increments (MetaWindow         *window,
   extra_height = (client_rect.height - bh) % hi;
   extra_width  = (client_rect.width  - bw) % wi;
   /* ignore size increments for maximized windows */
-  if (window->maximized_horizontally)
+  if (meta_window_config_is_maximized_horizontally (window->config))
     extra_width *= 0;
-  if (window->maximized_vertically)
+  if (meta_window_config_is_maximized_vertically (window->config))
     extra_height *= 0;
   /* constraint is satisfied iff there is no extra height or width */
   constraint_already_satisfied =
@@ -1481,9 +1487,9 @@ constrain_size_limits (MetaWindow         *window,
   /* Determine whether constraint is already satisfied; exit if it is */
   get_size_limits (window, &min_size, &max_size);
   /* We ignore max-size limits for maximized windows; see #327543 */
-  if (window->maximized_horizontally)
+  if (meta_window_config_is_maximized_horizontally (window->config))
     max_size.width = MAX (max_size.width, info->current.width);
-  if (window->maximized_vertically)
+  if (meta_window_config_is_maximized_vertically (window->config))
     max_size.height = MAX (max_size.height, info->current.height);
   too_small = !mtk_rectangle_could_fit_rect (&info->current, &min_size);
   too_big = !mtk_rectangle_could_fit_rect (&max_size, &info->current);

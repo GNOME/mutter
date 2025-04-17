@@ -23,6 +23,7 @@
 
 #include "compositor/compositor-private.h"
 #include "compositor/edge-resistance.h"
+#include "core/meta-window-config-private.h"
 #include "core/window-private.h"
 #include "meta/meta-enum-types.h"
 
@@ -1369,9 +1370,10 @@ update_move (MetaWindowDrag          *window_drag,
   meta_window_get_frame_rect (window, &old);
 
   /* Don't allow movement in the maximized directions or while tiled */
-  if (window->maximized_horizontally || meta_window_is_tiled_side_by_side (window))
+  if (meta_window_config_is_maximized_horizontally (window->config) ||
+      meta_window_is_tiled_side_by_side (window))
     new_x = old.x;
-  if (window->maximized_vertically)
+  if (meta_window_config_is_maximized_vertically (window->config))
     new_y = old.y;
 
   window_drag->last_edge_resistance_flags =

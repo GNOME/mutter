@@ -21,3 +21,15 @@
 #include "meta/meta-window-config.h"
 
 MetaWindowConfig * meta_window_config_initial_new (void);
+
+gboolean meta_window_config_is_maximized (MetaWindowConfig *config);
+
+gboolean meta_window_config_is_any_maximized (MetaWindowConfig *config);
+
+gboolean meta_window_config_is_maximized_horizontally (MetaWindowConfig *config);
+
+gboolean meta_window_config_is_maximized_vertically (MetaWindowConfig *config);
+
+void meta_window_config_set_maximized_directions (MetaWindowConfig *window_config,
+                                                  gboolean          horizontally,
+                                                  gboolean          vertically);

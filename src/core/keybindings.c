@@ -36,6 +36,7 @@
 #include "compositor/compositor-private.h"
 #include "core/keybindings-private.h"
 #include "core/meta-accel-parse.h"
+#include "core/meta-window-config-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
 #include "meta/compositor.h"
@@ -1790,7 +1791,7 @@ handle_maximize_vertically (MetaDisplay           *display,
 {
   if (window->has_resize_func)
     {
-      if (window->maximized_vertically)
+      if (meta_window_config_is_maximized_vertically (window->config))
         meta_window_unmaximize (window, META_MAXIMIZE_VERTICAL);
       else
         meta_window_maximize (window, META_MAXIMIZE_VERTICAL);
@@ -1806,7 +1807,7 @@ handle_maximize_horizontally (MetaDisplay           *display,
 {
   if (window->has_resize_func)
     {
-      if (window->maximized_horizontally)
+      if (meta_window_config_is_maximized_horizontally (window->config))
         meta_window_unmaximize (window, META_MAXIMIZE_HORIZONTAL);
       else
         meta_window_maximize (window, META_MAXIMIZE_HORIZONTAL);
@@ -2125,6 +2126,8 @@ handle_toggle_tiled (MetaDisplay           *display,
     }
   else if (meta_window_can_tile_side_by_side (window, window->monitor->number))
     {
+      gboolean is_maximized_vertically;
+
       window->tile_monitor_number = window->monitor->number;
       /* Maximization constraints beat tiling constraints, so if the window
        * is maximized, tiling won't have any effect unless we unmaximize it
@@ -2132,7 +2135,11 @@ handle_toggle_tiled (MetaDisplay           *display,
        * we just set the flag and rely on meta_window_tile() syncing it to
        * save an additional roundtrip.
        */
-      window->maximized_horizontally = FALSE;
+      is_maximized_vertically =
+        meta_window_config_is_maximized_vertically (window->config);
+      meta_window_config_set_maximized_directions (window->config,
+                                                   FALSE,
+                                                   is_maximized_vertically);
       meta_window_tile (window, mode);
     }
 }
@@ -2168,7 +2175,7 @@ handle_unmaximize (MetaDisplay           *display,
                    MetaKeyBinding        *binding,
                    gpointer               user_data)
 {
-  if (window->maximized_vertically || window->maximized_horizontally)
+  if (meta_window_config_is_any_maximized (window->config))
     meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
 }
 

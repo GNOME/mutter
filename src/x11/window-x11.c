@@ -2369,12 +2369,12 @@ meta_window_x11_set_net_wm_state (MetaWindow *window)
       data[i] = x11_display->atom__NET_WM_STATE_SKIP_TASKBAR;
       ++i;
     }
-  if (window->maximized_horizontally)
+  if (meta_window_config_is_maximized_horizontally (window->config))
     {
       data[i] = x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ;
       ++i;
     }
-  if (window->maximized_vertically)
+  if (meta_window_config_is_maximized_vertically (window->config))
     {
       data[i] = x11_display->atom__NET_WM_STATE_MAXIMIZED_VERT;
       ++i;
@@ -3461,9 +3461,10 @@ meta_window_x11_client_message (MetaWindow *window,
           gboolean max;
           MetaMaximizeFlags directions = 0;
 
-          max = (action == _NET_WM_STATE_ADD ||
-                 (action == _NET_WM_STATE_TOGGLE &&
-                  !window->maximized_horizontally));
+          max =
+            (action == _NET_WM_STATE_ADD ||
+             (action == _NET_WM_STATE_TOGGLE &&
+              !meta_window_config_is_maximized_horizontally (window->config)));
 
           if (first == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ ||
               second == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ)

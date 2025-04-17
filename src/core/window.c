@@ -389,6 +389,7 @@ meta_window_get_property(GObject         *object,
 {
   MetaWindow *win = META_WINDOW (object);
   MetaWindowPrivate *priv = meta_window_get_instance_private (win);
+  MetaWindowConfig *config = win->config;
 
   switch (prop_id)
     {
@@ -402,10 +403,12 @@ meta_window_get_property(GObject         *object,
       g_value_set_boolean (value, meta_window_is_fullscreen (win));
       break;
     case PROP_MAXIMIZED_HORIZONTALLY:
-      g_value_set_boolean (value, win->maximized_horizontally);
+      g_value_set_boolean (value,
+                           meta_window_config_is_maximized_horizontally (config));
       break;
     case PROP_MAXIMIZED_VERTICALLY:
-      g_value_set_boolean (value, win->maximized_vertically);
+      g_value_set_boolean (value,
+                           meta_window_config_is_maximized_vertically (config));
       break;
     case PROP_MINIMIZED:
       g_value_set_boolean (value, win->minimized);
@@ -1111,8 +1114,6 @@ meta_window_constructed (GObject *object)
   window->has_focus = FALSE;
   window->attached_focus_window = NULL;
 
-  window->maximized_horizontally = FALSE;
-  window->maximized_vertically = FALSE;
   window->maximize_horizontally_after_placement = FALSE;
   window->maximize_vertically_after_placement = FALSE;
   window->minimize_after_placement = FALSE;
@@ -1595,7 +1596,7 @@ meta_window_unmanage (MetaWindow  *window,
       invalidate_work_areas (window);
     }
 
-  if (window->maximized_horizontally || window->maximized_vertically)
+  if (meta_window_config_is_any_maximized (window->config))
     unmaximize_window_before_freeing (window);
 
   meta_window_unqueue (window,
@@ -2791,12 +2792,12 @@ meta_window_save_rect (MetaWindow *window)
 
       frame_rect = meta_window_config_get_rect (window->config);
       /* save size/pos as appropriate args for move_resize */
-      if (!window->maximized_horizontally)
+      if (!meta_window_config_is_maximized_horizontally (window->config))
         {
           window->saved_rect.x      = frame_rect.x;
           window->saved_rect.width  = frame_rect.width;
         }
-      if (!window->maximized_vertically)
+      if (!meta_window_config_is_maximized_vertically (window->config))
         {
           window->saved_rect.y      = frame_rect.y;
           window->saved_rect.height = frame_rect.height;
@@ -2811,8 +2812,11 @@ meta_window_maximize_internal (MetaWindow        *window,
 {
   /* At least one of the two directions ought to be set */
   gboolean maximize_horizontally, maximize_vertically;
+  gboolean was_maximized_horizontally, was_maximized_vertically;
+
   maximize_horizontally = directions & META_MAXIMIZE_HORIZONTAL;
-  maximize_vertically   = directions & META_MAXIMIZE_VERTICAL;
+  maximize_vertically = directions & META_MAXIMIZE_VERTICAL;
+
   g_assert (maximize_horizontally || maximize_vertically);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
@@ -2822,6 +2826,11 @@ meta_window_maximize_internal (MetaWindow        *window,
                 maximize_horizontally ? " horizontally" :
                   maximize_vertically ? " vertically" : "BUGGGGG");
 
+  was_maximized_horizontally =
+    meta_window_config_is_maximized_horizontally (window->config);
+  was_maximized_vertically =
+    meta_window_config_is_maximized_vertically (window->config);
+
   if (saved_rect != NULL)
     window->saved_rect = *saved_rect;
   else
@@ -2830,10 +2839,10 @@ meta_window_maximize_internal (MetaWindow        *window,
   if (maximize_horizontally && maximize_vertically)
     window->saved_maximize = TRUE;
 
-  window->maximized_horizontally =
-    window->maximized_horizontally || maximize_horizontally;
-  window->maximized_vertically =
-    window->maximized_vertically   || maximize_vertically;
+  meta_window_config_set_maximized_directions (
+    window->config,
+    was_maximized_horizontally || maximize_horizontally,
+    was_maximized_vertically || maximize_vertically);
 
   /* Update the edge constraints */
   update_edge_constraints (window);
@@ -2856,6 +2865,7 @@ meta_window_maximize (MetaWindow        *window,
 {
   MtkRectangle *saved_rect = NULL;
   gboolean maximize_horizontally, maximize_vertically;
+  gboolean was_maximized_horizontally, was_maximized_vertically;
 
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
@@ -2865,11 +2875,16 @@ meta_window_maximize (MetaWindow        *window,
   maximize_vertically   = directions & META_MAXIMIZE_VERTICAL;
   g_assert (maximize_horizontally || maximize_vertically);
 
+  was_maximized_horizontally =
+    meta_window_config_is_maximized_horizontally (window->config);
+  was_maximized_vertically =
+    meta_window_config_is_maximized_vertically (window->config);
+
   /* Only do something if the window isn't already maximized in the
    * given direction(s).
    */
-  if ((maximize_horizontally && !window->maximized_horizontally) ||
-      (maximize_vertically   && !window->maximized_vertically))
+  if ((maximize_horizontally && !was_maximized_horizontally) ||
+      (maximize_vertically   && !was_maximized_vertically))
     {
       /* if the window hasn't been placed yet, we'll maximize it then
        */
@@ -2888,7 +2903,9 @@ meta_window_maximize (MetaWindow        *window,
         {
           saved_rect = &window->saved_rect;
 
-          window->maximized_vertically = FALSE;
+          meta_window_config_set_maximized_directions (window->config,
+                                                       was_maximized_horizontally,
+                                                       FALSE);
           window->tile_mode = META_TILE_NONE;
         }
 
@@ -2926,8 +2943,14 @@ meta_window_maximize (MetaWindow        *window,
 MetaMaximizeFlags
 meta_window_get_maximized (MetaWindow *window)
 {
-  return ((window->maximized_horizontally ? META_MAXIMIZE_HORIZONTAL : 0) |
-          (window->maximized_vertically ? META_MAXIMIZE_VERTICAL : 0));
+  MetaMaximizeFlags flags = 0;
+
+  if (meta_window_config_is_maximized_horizontally (window->config))
+    flags |= META_MAXIMIZE_HORIZONTAL;
+  if (meta_window_config_is_maximized_vertically (window->config))
+    flags |= META_MAXIMIZE_VERTICAL;
+
+  return flags;
 }
 
 /**
@@ -2939,7 +2962,7 @@ meta_window_get_maximized (MetaWindow *window)
 gboolean
 meta_window_is_maximized (MetaWindow *window)
 {
-  return (window->maximized_horizontally && window->maximized_vertically);
+  return meta_window_config_is_maximized (window->config);
 }
 
 /**
@@ -3124,13 +3147,13 @@ update_edge_constraints (MetaWindow *window)
     }
 
   /* h/vmaximize also modify the edge constraints */
-  if (window->maximized_vertically)
+  if (meta_window_config_is_maximized_vertically (window->config))
     {
       window->edge_constraints.top = META_EDGE_CONSTRAINT_MONITOR;
       window->edge_constraints.bottom = META_EDGE_CONSTRAINT_MONITOR;
     }
 
-  if (window->maximized_horizontally)
+  if (meta_window_config_is_maximized_horizontally (window->config))
     {
       window->edge_constraints.right = META_EDGE_CONSTRAINT_MONITOR;
       window->edge_constraints.left = META_EDGE_CONSTRAINT_MONITOR;
@@ -3140,9 +3163,11 @@ update_edge_constraints (MetaWindow *window)
 gboolean
 meta_window_is_tiled_side_by_side (MetaWindow *window)
 {
-  return window->maximized_vertically &&
-         !window->maximized_horizontally &&
-         window->tile_mode != META_TILE_NONE;
+  MetaWindowConfig *config = window->config;
+
+  return (meta_window_config_is_maximized_vertically (config) &&
+          !meta_window_config_is_maximized_horizontally (config) &&
+          window->tile_mode != META_TILE_NONE);
 }
 
 gboolean
@@ -3279,8 +3304,7 @@ unmaximize_window_before_freeing (MetaWindow        *window)
               "Unmaximizing %s just before freeing",
               window->desc);
 
-  window->maximized_horizontally = FALSE;
-  window->maximized_vertically = FALSE;
+  meta_window_config_set_maximized_directions (window->config, FALSE, FALSE);
 
   if (window->withdrawn)                /* See bug #137185 */
     {
@@ -3320,6 +3344,7 @@ meta_window_unmaximize (MetaWindow        *window,
                         MetaMaximizeFlags  directions)
 {
   gboolean unmaximize_horizontally, unmaximize_vertically;
+  gboolean was_maximized_horizontally, was_maximized_vertically;
 
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
@@ -3332,11 +3357,16 @@ meta_window_unmaximize (MetaWindow        *window,
   if (unmaximize_horizontally && unmaximize_vertically)
     window->saved_maximize = FALSE;
 
+  was_maximized_horizontally =
+    meta_window_config_is_maximized_horizontally (window->config);
+  was_maximized_vertically =
+    meta_window_config_is_maximized_vertically (window->config);
+
   /* Only do something if the window isn't already maximized in the
    * given direction(s).
    */
-  if ((unmaximize_horizontally && window->maximized_horizontally) ||
-      (unmaximize_vertically   && window->maximized_vertically))
+  if ((unmaximize_horizontally && was_maximized_horizontally) ||
+      (unmaximize_vertically && was_maximized_vertically))
     {
       MtkRectangle *desired_rect;
       MtkRectangle target_rect;
@@ -3358,10 +3388,10 @@ meta_window_unmaximize (MetaWindow        *window,
                     unmaximize_horizontally ? " horizontally" :
                       unmaximize_vertically ? " vertically" : "BUGGGGG");
 
-      window->maximized_horizontally =
-        window->maximized_horizontally && !unmaximize_horizontally;
-      window->maximized_vertically =
-        window->maximized_vertically   && !unmaximize_vertically;
+      meta_window_config_set_maximized_directions (
+        window->config,
+        was_maximized_horizontally && !unmaximize_horizontally,
+        was_maximized_vertically && !unmaximize_vertically);
 
       /* Update the edge constraints */
       update_edge_constraints (window);
@@ -4207,7 +4237,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   if (flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE &&
       (result & META_MOVE_RESIZE_RESULT_MOVED ||
        result & META_MOVE_RESIZE_RESULT_RESIZED) &&
-      (window->maximized_horizontally || window->maximized_vertically))
+      meta_window_config_is_any_maximized (window->config))
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 

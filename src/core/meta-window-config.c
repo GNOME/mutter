@@ -37,6 +37,9 @@ struct _MetaWindowConfig
   MtkRectangle rect;
 
   gboolean is_fullscreen;
+
+  gboolean maximized_horizontally;
+  gboolean maximized_vertically;
 };
 
 G_DEFINE_FINAL_TYPE (MetaWindowConfig, meta_window_config, G_TYPE_OBJECT)
@@ -198,6 +201,39 @@ gboolean
 meta_window_config_get_is_fullscreen (MetaWindowConfig *window_config)
 {
   return window_config->is_fullscreen;
+}
+
+gboolean
+meta_window_config_is_maximized (MetaWindowConfig *config)
+{
+  return config->maximized_horizontally && config->maximized_vertically;
+}
+
+gboolean
+meta_window_config_is_any_maximized (MetaWindowConfig *config)
+{
+  return config->maximized_horizontally || config->maximized_vertically;
+}
+
+gboolean
+meta_window_config_is_maximized_horizontally (MetaWindowConfig *config)
+{
+  return config->maximized_horizontally;
+}
+
+gboolean
+meta_window_config_is_maximized_vertically (MetaWindowConfig *config)
+{
+  return config->maximized_vertically;
+}
+
+void
+meta_window_config_set_maximized_directions (MetaWindowConfig *config,
+                                             gboolean          horizontally,
+                                             gboolean          vertically)
+{
+  config->maximized_horizontally = horizontally;
+  config->maximized_vertically = vertically;
 }
 
 MetaWindowConfig *

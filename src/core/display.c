@@ -3101,8 +3101,7 @@ check_fullscreen_func (gpointer data)
           if (meta_window_is_monitor_sized (window))
             covers_monitors = TRUE;
         }
-      else if (window->maximized_horizontally &&
-               window->maximized_vertically)
+      else if (meta_window_is_maximized (window))
         {
           MetaLogicalMonitor *logical_monitor;
 

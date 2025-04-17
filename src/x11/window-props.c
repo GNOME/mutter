@@ -44,6 +44,7 @@
 #include <string.h>
 
 #include "compositor/compositor-private.h"
+#include "core/meta-window-config-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
 #include "meta/meta-x11-group.h"
@@ -804,8 +805,7 @@ reload_net_wm_state (MetaWindow    *window,
       return;
     }
 
-  window->maximized_horizontally = FALSE;
-  window->maximized_vertically = FALSE;
+  meta_window_config_set_maximized_directions (window->config, FALSE, FALSE);
   meta_window_config_set_is_fullscreen (window->config, FALSE);
   priv->wm_state_modal = FALSE;
   priv->wm_state_skip_taskbar = FALSE;
