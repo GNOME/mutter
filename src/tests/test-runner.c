@@ -511,6 +511,46 @@ maybe_divide (const char  *str,
 }
 
 static int
+maybe_add (const char  *str,
+           int          value,
+           const char **out_str)
+{
+  *out_str = str;
+
+  if (str[0] == '+')
+    {
+      double term;
+
+      str += 1;
+      term = g_strtod (str, (char **) out_str);
+
+      value = (int) round (value + term);
+    }
+
+  return value;
+}
+
+static int
+maybe_subtract (const char  *str,
+                int          value,
+                const char **out_str)
+{
+  *out_str = str;
+
+  if (str[0] == '-')
+    {
+      double term;
+
+      str += 1;
+      term = g_strtod (str, (char **) out_str);
+
+      value = (int) round (value - term);
+    }
+
+  return value;
+}
+
+static int
 maybe_do_math (const char  *str,
                int          value,
                const char **out_str)
@@ -522,6 +562,12 @@ maybe_do_math (const char  *str,
       break;
     case '/':
       value = maybe_divide (str, value, &str);
+      break;
+    case '+':
+      value = maybe_add (str, value, &str);
+      break;
+    case '-':
+      value = maybe_subtract (str, value, &str);
       break;
     default:
       *out_str = str;
