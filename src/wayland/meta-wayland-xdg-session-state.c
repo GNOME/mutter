@@ -393,6 +393,7 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     case WINDOW_STATE_TILED_LEFT:
     case WINDOW_STATE_TILED_RIGHT:
     case WINDOW_STATE_MAXIMIZED:
+      rect = &toplevel_state->tiled.rect;
       break;
     }
 
