@@ -238,6 +238,8 @@ struct _MetaWindow
   char *res_name;
   char *role;
 
+  char *tag;
+
   char *startup_id;
   char *mutter_hints;
   char *sandboxed_app_id;
@@ -895,3 +897,6 @@ gboolean meta_window_is_tiled_right (MetaWindow *window);
 MetaWindowConfig * meta_window_new_window_config (MetaWindow *window);
 
 MetaGravity meta_window_get_gravity (MetaWindow *window);
+
+void meta_window_set_tag (MetaWindow *window,
+                          const char *tag);

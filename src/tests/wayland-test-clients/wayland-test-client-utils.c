@@ -500,6 +500,12 @@ handle_registry_global (void               *user_data,
       wl_seat_add_listener (display->wl_seat, &wl_seat_listener, display);
       display->needs_roundtrip = TRUE;
     }
+  else if (strcmp (interface, xdg_toplevel_tag_manager_v1_interface.name) == 0)
+    {
+      display->toplevel_tag_manager =
+        wl_registry_bind (registry, id,
+                          &xdg_toplevel_tag_manager_v1_interface, 1);
+    }
 
   if (display->capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
     {
@@ -559,6 +565,7 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
   g_assert_nonnull (display->single_pixel_mgr);
   g_assert_nonnull (display->viewporter);
   g_assert_nonnull (display->xdg_wm_base);
+  g_assert_nonnull (display->toplevel_tag_manager);
 
   if (capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
     g_assert_nonnull (display->test_driver);

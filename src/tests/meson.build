@@ -818,6 +818,7 @@ wayland_test_cases = [
       test_client_executables.get('xdg-toplevel-bounds'),
       test_client_executables.get('xdg-session-management'),
       test_client_executables.get('xdg-session-management-replace'),
+      test_client_executables.get('xdg-toplevel-tag'),
       test_client_executables.get('ycbcr'),
     ],
   },

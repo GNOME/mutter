@@ -420,6 +420,14 @@ reload_struts (MetaWindow    *window,
 }
 
 static void
+reload_toplevel_tag (MetaWindow    *window,
+                     MetaPropValue *value,
+                     gboolean       initial)
+{
+  meta_window_set_tag (window, value->v.str);
+}
+
+static void
 reload_wm_window_role (MetaWindow    *window,
                        MetaPropValue *value,
                        gboolean       initial)
@@ -1709,6 +1717,7 @@ meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display)
     { x11_display->atom__NET_WM_STRUT_PARTIAL, META_PROP_VALUE_INVALID, reload_struts, NONE },
     { x11_display->atom__NET_WM_BYPASS_COMPOSITOR, META_PROP_VALUE_CARDINAL,  reload_bypass_compositor, LOAD_INIT | INCLUDE_OR },
     { x11_display->atom__NET_WM_WINDOW_OPACITY, META_PROP_VALUE_CARDINAL, reload_window_opacity, LOAD_INIT | INCLUDE_OR },
+    { x11_display->atom__NET_WM_WINDOW_TAG,    META_PROP_VALUE_STRING, reload_toplevel_tag, LOAD_INIT },
     { 0 },
   };
   MetaWindowPropHooks *table;

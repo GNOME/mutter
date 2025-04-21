@@ -229,6 +229,7 @@ enum
   PROP_SUSPEND_STATE,
   PROP_MAPPED,
   PROP_MAIN_MONITOR,
+  PROP_TAG,
 
   PROP_LAST,
 };
@@ -375,6 +376,7 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
   g_free (window->placement.rule);
+  g_free (window->tag);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
@@ -476,6 +478,9 @@ meta_window_get_property(GObject         *object,
       break;
     case PROP_MAIN_MONITOR:
       g_value_set_object (value, win->monitor);
+      break;
+    case PROP_TAG:
+      g_value_set_string (value, win->tag);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -652,6 +657,12 @@ meta_window_class_init (MetaWindowClass *klass)
     g_param_spec_object ("main-monitor", NULL, NULL,
                          META_TYPE_LOGICAL_MONITOR,
                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_TAG] =
+    g_param_spec_string ("tag", NULL, NULL,
+                         NULL,
+                         G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY |
+                         G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 
@@ -8312,4 +8323,30 @@ meta_window_get_gravity (MetaWindow *window)
     gravity = META_GRAVITY_NORTH_WEST;
 
   return gravity;
+}
+
+void
+meta_window_set_tag (MetaWindow *window,
+                     const char *tag)
+{
+  if (g_set_str (&window->tag, tag))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TAG]);
+}
+
+/**
+ * meta_window_get_tag:
+ * @window: A #MetaWindow
+ *
+ * Get a tag associated to the window.
+ * Under wayland the tag can be set using the toplevel tag protocol,
+ * and under x11 it falls back to using `NET_WM_WINDOW_TAG` atom.
+ *
+ * Returns: (nullable): An associated toplevel tag
+ */
+const char *
+meta_window_get_tag (MetaWindow *window)
+{
+  g_return_val_if_fail (META_IS_WINDOW (window), NULL);
+
+  return window->tag;
 }

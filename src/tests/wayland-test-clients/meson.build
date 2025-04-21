@@ -106,6 +106,9 @@ wayland_test_clients = [
     'name': 'xdg-toplevel-suspended',
   },
   {
+    'name': 'xdg-toplevel-tag',
+  },
+  {
     'name': 'ycbcr',
   },
   {
