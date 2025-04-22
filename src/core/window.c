@@ -4172,7 +4172,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   /* If we did placement, then we need to save the position that the window
-   * was placed at to make sure that meta_window_update_layout() places the
+   * was placed at to make sure that meta_window_idle_move_resize() places the
    * window correctly.
    */
   if (did_placement)
@@ -4523,7 +4523,7 @@ meta_window_resize_frame (MetaWindow *window,
 }
 
 void
-meta_window_update_layout (MetaWindow *window)
+meta_window_idle_move_resize (MetaWindow *window)
 {
   meta_window_move_resize_frame (window, FALSE,
                                  window->unconstrained_rect.x,
