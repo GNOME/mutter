@@ -197,14 +197,15 @@ meta_window_wayland_configure (MetaWindowWayland              *wl_window,
   meta_wayland_surface_configure_notify (wl_window->surface, configuration);
 
   wl_window->pending_configurations =
-    g_list_prepend (wl_window->pending_configurations, configuration);
+    g_list_prepend (wl_window->pending_configurations,
+                    meta_wayland_window_configuration_ref (configuration));
 }
 
 static void
 surface_state_changed (MetaWindow *window)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
-  MetaWaylandWindowConfiguration *configuration;
+  g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
   int bounds_width;
   int bounds_height;
 
@@ -365,7 +366,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                     constrained_rect.width != frame_rect.width ||
                     constrained_rect.height != frame_rect.height)
                   {
-                    MetaWaylandWindowConfiguration *configuration;
+                    g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
 
                     configuration =
                       meta_wayland_window_configuration_new_relative (window,
@@ -401,7 +402,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                constrained_rect.height != frame_rect.height ||
                flags & META_MOVE_RESIZE_STATE_CHANGED)
         {
-          MetaWaylandWindowConfiguration *configuration;
+          g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
           int bounds_width;
           int bounds_height;
 
@@ -926,9 +927,9 @@ meta_window_wayland_finalize (GObject *object)
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (object);
 
   g_clear_pointer (&wl_window->last_acked_configuration,
-                   meta_wayland_window_configuration_free);
+                   meta_wayland_window_configuration_unref);
   g_list_free_full (wl_window->pending_configurations,
-                    (GDestroyNotify) meta_wayland_window_configuration_free);
+                    (GDestroyNotify) meta_wayland_window_configuration_unref);
 
   G_OBJECT_CLASS (meta_window_wayland_parent_class)->finalize (object);
 }
@@ -1118,7 +1119,7 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
       if (is_matching_configuration)
         tail = g_list_delete_link (tail, l);
       g_list_free_full (tail,
-                        (GDestroyNotify) meta_wayland_window_configuration_free);
+                        (GDestroyNotify) meta_wayland_window_configuration_unref);
 
       if (is_matching_configuration)
         return configuration;
@@ -1334,7 +1335,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     }
 
   g_clear_pointer (&wl_window->last_acked_configuration,
-                   meta_wayland_window_configuration_free);
+                   meta_wayland_window_configuration_unref);
   wl_window->last_acked_configuration = g_steal_pointer (&acked_configuration);
 
   /* Force unconstrained move when running toplevel drags */

@@ -27,6 +27,8 @@
 
 struct _MetaWaylandWindowConfiguration
 {
+  grefcount ref_count;
+
   uint32_t serial;
 
   gboolean has_position;
@@ -72,7 +74,9 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (in
                                                                               int bounds_height,
                                                                               int scale);
 
-void meta_wayland_window_configuration_free (MetaWaylandWindowConfiguration *configuration);
+MetaWaylandWindowConfiguration * meta_wayland_window_configuration_ref (MetaWaylandWindowConfiguration *configuration);
+
+void meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *configuration);
 
 MetaWindowConfig * meta_window_config_new_from_wayland_window_configuration (MetaWindow                     *window,
                                                                              MetaWaylandWindowConfiguration *configuration);
@@ -80,3 +84,6 @@ MetaWindowConfig * meta_window_config_new_from_wayland_window_configuration (Met
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_apply_window_config (MetaWindow                     *window,
                                                                                         MetaWaylandWindowConfiguration *configuration,
                                                                                         MetaWindowConfig               *window_config);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaWaylandWindowConfiguration,
+                               meta_wayland_window_configuration_unref)

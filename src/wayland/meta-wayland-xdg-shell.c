@@ -887,7 +887,7 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   if (!xdg_surface_priv->configure_sent)
     {
-      MetaWaylandWindowConfiguration *configuration;
+      g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
       g_autoptr (MetaWindowConfig) window_config = NULL;
       int bounds_width, bounds_height, geometry_scale;
       MtkRectangle rect;
@@ -929,8 +929,6 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                                              window_config);
 
       meta_wayland_xdg_toplevel_send_configure (xdg_toplevel, configuration);
-      meta_wayland_window_configuration_free (configuration);
-      return;
     }
 }
 

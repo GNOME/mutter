@@ -40,6 +40,8 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
 
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
+    .ref_count = G_REF_COUNT_INIT,
+
     .serial = ++global_serial_counter,
 
     .bounds_width = bounds_width,
@@ -85,6 +87,8 @@ meta_wayland_window_configuration_new_relative (MetaWindow *window,
 
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
+    .ref_count = G_REF_COUNT_INIT,
+
     .serial = ++global_serial_counter,
 
     .has_relative_position = TRUE,
@@ -111,6 +115,7 @@ meta_wayland_window_configuration_new_empty (int bounds_width,
 
   configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
   *configuration = (MetaWaylandWindowConfiguration) {
+    .ref_count = G_REF_COUNT_INIT,
     .serial = ++global_serial_counter,
     .scale = scale,
     .bounds_width = bounds_width,
@@ -120,10 +125,18 @@ meta_wayland_window_configuration_new_empty (int bounds_width,
   return configuration;
 }
 
-void
-meta_wayland_window_configuration_free (MetaWaylandWindowConfiguration *configuration)
+MetaWaylandWindowConfiguration *
+meta_wayland_window_configuration_ref (MetaWaylandWindowConfiguration *configuration)
 {
-  g_free (configuration);
+  g_ref_count_inc (&configuration->ref_count);
+  return configuration;
+}
+
+void
+meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *configuration)
+{
+  if (g_ref_count_dec (&configuration->ref_count))
+    g_free (configuration);
 }
 
 MetaWindowConfig *
