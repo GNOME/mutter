@@ -549,7 +549,7 @@ place_window_if_needed (MetaWindow     *window,
    */
   did_placement = FALSE;
   if (!window->placed &&
-      window->calc_placement &&
+      place_flags & META_PLACE_FLAG_CALCULATE &&
       !meta_window_config_is_any_maximized (window->config) &&
       !window->minimized &&
       !meta_window_is_fullscreen (window))

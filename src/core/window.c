@@ -177,11 +177,6 @@ static void set_hidden_suspended_state (MetaWindow *window);
 
 static void initable_iface_init (GInitableIface *initable_iface);
 
-static void meta_window_move_resize_internal (MetaWindow          *window,
-                                              MetaMoveResizeFlags  flags,
-                                              MetaPlaceFlag        place_flags,
-                                              MtkRectangle         frame_rect);
-
 typedef struct _MetaWindowPrivate
 {
   MetaQueueType queued_types;
@@ -1139,7 +1134,6 @@ meta_window_constructed (GObject *object)
   window->initial_timestamp_set = FALSE;
   window->net_wm_user_time_set = FALSE;
   window->input = TRUE;
-  window->calc_placement = FALSE;
 
   window->unmaps_pending = 0;
   window->reparents_pending = 0;
@@ -2185,12 +2179,6 @@ meta_window_force_placement (MetaWindow    *window,
    * have been mapped/placed since we last did constrain_position
    */
 
-  /* calc_placement is an efficiency hack to avoid
-   * multiple placement calculations before we finally
-   * show the window.
-   */
-  window->calc_placement = TRUE;
-
   flags = (META_MOVE_RESIZE_MOVE_ACTION |
            META_MOVE_RESIZE_RESIZE_ACTION |
            META_MOVE_RESIZE_CONSTRAIN);
@@ -2199,9 +2187,8 @@ meta_window_force_placement (MetaWindow    *window,
 
   meta_window_move_resize_internal (window,
                                     flags,
-                                    place_flags,
+                                    place_flags | META_PLACE_FLAG_CALCULATE,
                                     window->unconstrained_rect);
-  window->calc_placement = FALSE;
 
   /* don't ever do the initial position constraint thing again.
    * This is toggled here so that initially-iconified windows
@@ -4055,7 +4042,7 @@ meta_window_update_monitor (MetaWindow                   *window,
     g_signal_emit (window, window_signals[HIGHEST_SCALE_MONITOR_CHANGED], 0);
 }
 
-static void
+void
 meta_window_move_resize_internal (MetaWindow          *window,
                                   MetaMoveResizeFlags  flags,
                                   MetaPlaceFlag        place_flags,
@@ -4102,7 +4089,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
                      META_MOVE_RESIZE_RESIZE_ACTION |
                      META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE));
 
-  did_placement = !window->placed && window->calc_placement;
+  did_placement = !window->placed && (place_flags & META_PLACE_FLAG_CALCULATE);
 
   gravity = meta_window_get_gravity (window);
 

@@ -80,6 +80,7 @@ typedef enum _MetaPlaceFlag
   META_PLACE_FLAG_NONE = 0,
   META_PLACE_FLAG_FORCE_MOVE = 1 << 0,
   META_PLACE_FLAG_DENIED_FOCUS_AND_NOT_TRANSIENT = 1 << 1,
+  META_PLACE_FLAG_CALCULATE = 1 << 2,
 } MetaPlaceFlag;
 
 typedef enum
@@ -524,11 +525,6 @@ struct _MetaWindow
    */
   guint withdrawn : 1;
 
-  /* TRUE if constrain_position should calc placement.
-   * only relevant if !window->placed
-   */
-  guint calc_placement : 1;
-
   /* if TRUE, window is attached to its parent */
   guint attached : 1;
 
@@ -784,6 +780,11 @@ void meta_window_set_urgent (MetaWindow *window,
 void meta_window_move_resize (MetaWindow          *window,
                               MetaMoveResizeFlags  flags,
                               MtkRectangle         frame_rect);
+
+void meta_window_move_resize_internal (MetaWindow          *window,
+                                       MetaMoveResizeFlags  flags,
+                                       MetaPlaceFlag        place_flags,
+                                       MtkRectangle         frame_rect);
 
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);

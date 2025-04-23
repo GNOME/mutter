@@ -1353,6 +1353,7 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
                                        MetaPlacementRule *placement_rule)
 {
   gboolean first_placement;
+  MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
 
   first_placement = !window->placement.rule;
 
@@ -1366,14 +1367,16 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
   window->unconstrained_rect.width = placement_rule->width;
   window->unconstrained_rect.height = placement_rule->height;
 
-  window->calc_placement = first_placement;
-  meta_window_move_resize (window,
-                           (META_MOVE_RESIZE_MOVE_ACTION |
-                            META_MOVE_RESIZE_RESIZE_ACTION |
-                            META_MOVE_RESIZE_PLACEMENT_CHANGED |
-                            META_MOVE_RESIZE_CONSTRAIN),
-                           window->unconstrained_rect);
-  window->calc_placement = FALSE;
+  if (first_placement)
+    place_flags |= META_PLACE_FLAG_CALCULATE;
+
+  meta_window_move_resize_internal (window,
+                                    (META_MOVE_RESIZE_MOVE_ACTION |
+                                     META_MOVE_RESIZE_RESIZE_ACTION |
+                                     META_MOVE_RESIZE_PLACEMENT_CHANGED |
+                                     META_MOVE_RESIZE_CONSTRAIN),
+                                    place_flags,
+                                    window->unconstrained_rect);
 }
 
 void
