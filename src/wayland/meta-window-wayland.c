@@ -190,7 +190,7 @@ meta_window_wayland_focus (MetaWindow *window,
     }
 }
 
-static void
+void
 meta_window_wayland_configure (MetaWindowWayland              *wl_window,
                                MetaWaylandWindowConfiguration *configuration)
 {
