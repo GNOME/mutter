@@ -295,6 +295,13 @@ meta_window_config_set_tile_match (MetaWindowConfig *config,
   config->tile_match = tile_match;
 }
 
+gboolean
+meta_window_config_is_floating (MetaWindowConfig *config)
+{
+  return (!config->is_fullscreen &&
+          !meta_window_config_is_any_maximized (config));
+}
+
 MetaWindowConfig *
 meta_window_config_new (void)
 {
