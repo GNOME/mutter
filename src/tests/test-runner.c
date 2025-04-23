@@ -1110,7 +1110,8 @@ test_case_do (TestCase    *test,
 
       meta_wait_for_window_shown (window);
     }
-  else if (strcmp (argv[0], "resize") == 0)
+  else if (strcmp (argv[0], "resize") == 0 ||
+           strcmp (argv[0], "resize_ignore_titlebar") == 0)
     {
       if (argc != 4)
         BAD_COMMAND("usage: %s <client-id>/<window-id> width height", argv[0]);

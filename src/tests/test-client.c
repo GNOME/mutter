@@ -593,11 +593,14 @@ process_line (const char *line)
 
       gtk_window_present (GTK_WINDOW (window));
     }
-  else if (strcmp (argv[0], "resize") == 0)
+  else if (strcmp (argv[0], "resize") == 0 ||
+           strcmp (argv[0], "resize_ignore_titlebar") == 0)
     {
+      int titlebar_height;
+
       if (argc != 4)
         {
-          g_print ("usage: resize <id> <width> <height>\n");
+          g_print ("usage: %s <id> <width> <height>\n", argv[0]);
           goto out;
         }
 
@@ -607,7 +610,12 @@ process_line (const char *line)
 
       int width = atoi (argv[2]);
       int height = atoi (argv[3]);
-      int titlebar_height = calculate_titlebar_height (GTK_WINDOW (window));
+
+      if (strcmp (argv[0], "resize_ignore_titlebar") == 0)
+        titlebar_height = 0;
+      else
+        titlebar_height = calculate_titlebar_height (GTK_WINDOW (window));
+
       gtk_window_resize (GTK_WINDOW (window),
                          width,
                          height - titlebar_height);
