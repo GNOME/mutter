@@ -162,7 +162,8 @@ MTK_EXPORT
 gboolean mtk_rectangle_is_adjacent_to (const MtkRectangle *rect,
                                        const MtkRectangle *other);
 
-
+MTK_EXPORT
+gboolean mtk_rectangle_is_empty (const MtkRectangle *rect);
 
 MTK_EXPORT
 void mtk_rectangle_transform (const MtkRectangle  *rect,

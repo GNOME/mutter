@@ -445,6 +445,12 @@ mtk_rectangle_is_adjacent_to (const MtkRectangle *rect,
     return FALSE;
 }
 
+gboolean
+mtk_rectangle_is_empty (const MtkRectangle *rect)
+{
+  return rect->width == 0 || rect->height == 0;
+}
+
 /**
  * mtk_rectangle_transform:
  * @rect: the #MtkRectangle to be transformed
