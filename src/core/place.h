@@ -32,5 +32,7 @@ void meta_window_place (MetaWindow    *window,
                         MetaPlaceFlag  place_flags,
                         int            x,
                         int            y,
+                        int            new_width,
+                        int            new_height,
                         int           *new_x,
                         int           *new_y);

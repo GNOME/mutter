@@ -584,6 +584,7 @@ place_window_if_needed (MetaWindow     *window,
         {
           meta_window_place (window, place_flags,
                              orig_rect.x, orig_rect.y,
+                             info->current.width, info->current.height,
                              &placed_rect.x, &placed_rect.y);
 
           /* placing the window may have changed the monitor.  Find the
