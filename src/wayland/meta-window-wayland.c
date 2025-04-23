@@ -1224,6 +1224,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   MtkRectangle frame_rect;
   MetaWindowActor *window_actor;
   MetaWaylandToplevelDrag *toplevel_drag;
+  MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
 
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
@@ -1295,8 +1296,16 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
             }
           else
             {
-              if (acked_configuration->is_fullscreen)
-                flags |= META_MOVE_RESIZE_CONSTRAIN;
+              if (!acked_configuration->is_floating)
+                {
+                  flags |= META_MOVE_RESIZE_CONSTRAIN;
+                }
+              else if (!window->placed)
+                {
+                  place_flags |= META_PLACE_FLAG_CALCULATE;
+                  flags |= META_MOVE_RESIZE_CONSTRAIN;
+                }
+
               if (acked_configuration->has_position)
                 {
                   has_position = TRUE;
@@ -1306,6 +1315,13 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
         }
       else
         {
+          if (!window->placed &&
+              meta_window_config_is_floating (window->config))
+            {
+              place_flags |= META_PLACE_FLAG_CALCULATE;
+              flags |= META_MOVE_RESIZE_CONSTRAIN;
+            }
+
           if (window->placed)
             has_position = TRUE;
         }
@@ -1361,7 +1377,10 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
       meta_window_actor_set_tied_to_drag (window_actor, TRUE);
     }
 
-  meta_window_move_resize (window, flags, rect);
+  meta_window_move_resize_internal (window, flags, place_flags, rect);
+
+  if (place_flags & META_PLACE_FLAG_CALCULATE)
+    window->placed = TRUE;
 }
 
 void

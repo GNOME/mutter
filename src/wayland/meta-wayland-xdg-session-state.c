@@ -445,6 +445,7 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     {
     case WINDOW_STATE_NONE:
     case WINDOW_STATE_FLOATING:
+      window->placed = TRUE;
       break;
     case WINDOW_STATE_TILED_LEFT:
       meta_window_tile (window, META_TILE_LEFT);
@@ -461,7 +462,6 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
   if (toplevel_state->is_minimized)
     meta_window_minimize (window);
 
-  window->placed = TRUE;
 
   if (meta_is_topic_enabled (META_DEBUG_SESSION_MANAGEMENT))
     {

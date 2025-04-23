@@ -1098,10 +1098,7 @@ meta_window_constructed (GObject *object)
   /* initialize the remaining size_hints as if size_hints.flags were zero */
   meta_window_set_normal_hints (window, NULL);
 
-  /* And this is our unmaximized size */
   frame_rect = meta_window_config_get_rect (window->config);
-  window->saved_rect = frame_rect;
-  window->saved_rect_fullscreen = frame_rect;
   window->unconstrained_rect = frame_rect;
 
   window->title = NULL;
@@ -2389,7 +2386,8 @@ meta_window_show (MetaWindow *window)
         place_flags |= META_PLACE_FLAG_DENIED_FOCUS_AND_NOT_TRANSIENT;
     }
 
-  if (!window->placed)
+  if (!window->placed &&
+      meta_window_config_is_floating (window->config))
     {
       if (window->monitor &&
           meta_prefs_get_auto_maximize () &&
@@ -2870,19 +2868,6 @@ meta_window_maximize (MetaWindow        *window,
       (maximize_vertically   && !was_maximized_vertically))
     {
       MetaMoveResizeFlags flags;
-
-      /* if the window hasn't been placed yet, we'll maximize it then
-       */
-      if (!window->placed)
-        {
-          window->maximize_horizontally_after_placement =
-            window->maximize_horizontally_after_placement ||
-            maximize_horizontally;
-          window->maximize_vertically_after_placement =
-            window->maximize_vertically_after_placement ||
-            maximize_vertically;
-          return;
-        }
 
       if (meta_window_config_get_tile_mode (window->config) != META_TILE_NONE)
         {
@@ -3378,10 +3363,16 @@ meta_window_unmaximize (MetaWindow        *window,
       (unmaximize_vertically && was_maximized_vertically))
     {
       MtkRectangle desired_rect;
+      gboolean has_desired_rect = FALSE;
       MtkRectangle target_rect;
       MtkRectangle work_area;
       MtkRectangle old_frame_rect, old_buffer_rect;
       gboolean has_target_size;
+      MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
+      MetaMoveResizeFlags flags = (META_MOVE_RESIZE_MOVE_ACTION |
+                                   META_MOVE_RESIZE_RESIZE_ACTION |
+                                   META_MOVE_RESIZE_STATE_CHANGED |
+                                   META_MOVE_RESIZE_UNMAXIMIZE);
 
       meta_window_get_work_area_current_monitor (window, &work_area);
       meta_window_get_frame_rect (window, &old_frame_rect);
@@ -3411,18 +3402,34 @@ meta_window_unmaximize (MetaWindow        *window,
        */
       meta_window_frame_size_changed (window);
 
-      desired_rect = window->saved_rect;
+      if (!window->placed &&
+          !mtk_rectangle_is_empty (&window->unconstrained_rect))
+        {
+          place_flags |= META_PLACE_FLAG_CALCULATE;
+          flags |= META_MOVE_RESIZE_CONSTRAIN;
 
-      /* Unmaximize to the saved_rect position in the direction(s)
-       * being unmaximized.
-       */
-      target_rect = old_frame_rect;
+          if (!window->unconstrained_rect_valid)
+            flags |= META_MOVE_RESIZE_RECT_INVALID;
+
+          target_rect = window->unconstrained_rect;
+        }
+      else
+        {
+          desired_rect = window->saved_rect;
+          has_desired_rect = TRUE;
+
+          /* Unmaximize to the saved_rect position in the direction(s)
+           * being unmaximized.
+           */
+          target_rect = old_frame_rect;
+        }
 
       /* Avoid unmaximizing to "almost maximized" size when the previous size
        * is greater then 80% of the work area use MAX_UNMAXIMIZED_WINDOW_AREA of
        * the work area as upper limit while maintaining the aspect ratio.
        */
       if (unmaximize_horizontally && unmaximize_vertically &&
+          has_desired_rect &&
           desired_rect.width * desired_rect.height >
           work_area.width * work_area.height * MAX_UNMAXIMIZED_WINDOW_AREA)
         {
@@ -3452,15 +3459,18 @@ meta_window_unmaximize (MetaWindow        *window,
             }
         }
 
-      if (unmaximize_horizontally)
+      if (has_desired_rect)
         {
-          target_rect.x = desired_rect.x;
-          target_rect.width = desired_rect.width;
-        }
-      if (unmaximize_vertically)
-        {
-          target_rect.y = desired_rect.y;
-          target_rect.height = desired_rect.height;
+          if (unmaximize_horizontally)
+            {
+              target_rect.x = desired_rect.x;
+              target_rect.width = desired_rect.width;
+            }
+          if (unmaximize_vertically)
+            {
+              target_rect.y = desired_rect.y;
+              target_rect.height = desired_rect.height;
+            }
         }
 
       /* Window's size hints may have changed while maximized, making
@@ -3475,12 +3485,8 @@ meta_window_unmaximize (MetaWindow        *window,
                                           META_SIZE_CHANGE_UNMAXIMIZE,
                                           &old_frame_rect, &old_buffer_rect);
 
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_STATE_CHANGED |
-                                META_MOVE_RESIZE_UNMAXIMIZE),
-                               target_rect);
+      meta_window_move_resize_internal (window, flags, place_flags,
+                                        target_rect);
 
       meta_window_recalc_features (window);
       set_net_wm_state (window);
@@ -3594,12 +3600,32 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
     {
       MtkRectangle old_frame_rect, old_buffer_rect, target_rect;
       gboolean has_target_size;
+      MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
+      MetaMoveResizeFlags flags = (META_MOVE_RESIZE_MOVE_ACTION |
+                                   META_MOVE_RESIZE_RESIZE_ACTION |
+                                   META_MOVE_RESIZE_STATE_CHANGED |
+                                   META_MOVE_RESIZE_UNFULLSCREEN);
 
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Unfullscreening %s", window->desc);
 
       meta_window_config_set_is_fullscreen (window->config, FALSE);
-      target_rect = window->saved_rect_fullscreen;
+
+
+      if (!window->placed &&
+          !mtk_rectangle_is_empty (&window->unconstrained_rect))
+        {
+          place_flags |= META_PLACE_FLAG_CALCULATE;
+          flags |= META_MOVE_RESIZE_CONSTRAIN;
+          if (!window->unconstrained_rect_valid)
+            flags |= META_MOVE_RESIZE_RECT_INVALID;
+
+          target_rect = window->unconstrained_rect;
+        }
+      else
+        {
+          target_rect = window->saved_rect_fullscreen;
+        }
 
       meta_window_frame_size_changed (window);
       meta_window_get_frame_rect (window, &old_frame_rect);
@@ -3622,12 +3648,8 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
                                           window, META_SIZE_CHANGE_UNFULLSCREEN,
                                           &old_frame_rect, &old_buffer_rect);
 
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_STATE_CHANGED |
-                                META_MOVE_RESIZE_UNFULLSCREEN),
-                               target_rect);
+      meta_window_move_resize_internal (window, flags, place_flags,
+                                        target_rect);
 
       meta_display_queue_check_fullscreen (window->display);
 

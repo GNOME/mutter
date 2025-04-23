@@ -470,7 +470,6 @@ xdg_toplevel_set_maximized (struct wl_client   *client,
   if (!window)
     return;
 
-  meta_window_force_placement (window, META_PLACE_FLAG_FORCE_MOVE);
   meta_window_maximize (window, META_MAXIMIZE_BOTH);
 }
 

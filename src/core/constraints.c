@@ -363,7 +363,7 @@ setup_constraint_info (MetaBackend         *backend,
 {
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *logical_monitor;
+  MetaLogicalMonitor *logical_monitor = NULL;
   MetaWorkspace *cur_workspace;
   MetaPlacementRule *placement_rule;
 
@@ -446,9 +446,20 @@ setup_constraint_info (MetaBackend         *backend,
     }
   else
     {
-      logical_monitor =
-        meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
-                                                            &info->current);
+      if (!(flags & META_MOVE_RESIZE_RECT_INVALID))
+        {
+          meta_topic (META_DEBUG_GEOMETRY,
+                      "Constraining using monitor from new rectangle");
+          logical_monitor =
+            meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                                &info->current);
+        }
+
+      if (!logical_monitor)
+        {
+          meta_topic (META_DEBUG_GEOMETRY, "Constraining using window monitor");
+          logical_monitor = window->monitor;
+        }
     }
 
   if (!logical_monitor)

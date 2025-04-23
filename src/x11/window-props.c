@@ -795,6 +795,8 @@ reload_net_wm_state (MetaWindow    *window,
   MetaX11Display *x11_display = window->display->x11_display;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
+  gboolean maximize_horizontally = FALSE;
+  gboolean maximize_vertically = FALSE;
   int i;
 
   if (!initial)
@@ -821,9 +823,9 @@ reload_net_wm_state (MetaWindow    *window,
   while (i < value->v.atom_list.n_atoms)
     {
       if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ)
-        window->maximize_horizontally_after_placement = TRUE;
+        maximize_horizontally = TRUE;
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MAXIMIZED_VERT)
-        window->maximize_vertically_after_placement = TRUE;
+        maximize_vertically = TRUE;
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_HIDDEN)
         window->minimize_after_placement = TRUE;
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_MODAL)
@@ -848,6 +850,10 @@ reload_net_wm_state (MetaWindow    *window,
 
       ++i;
     }
+
+  meta_window_config_set_maximized_directions (window->config,
+                                               maximize_horizontally,
+                                               maximize_vertically);
 
   meta_topic (META_DEBUG_X11,
               "Reloaded _NET_WM_STATE for %s",

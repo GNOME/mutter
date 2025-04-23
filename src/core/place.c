@@ -164,18 +164,16 @@ northeast_cmp (gconstpointer a,
 }
 
 static void
-find_next_cascade (MetaWindow *window,
+find_next_cascade (MetaWindow   *window,
+                   MtkRectangle  work_area,
                    /* visible windows on relevant workspaces */
-                   GList      *windows,
-                   int         width,
-                   int         height,
-                   int        *new_x,
-                   int        *new_y,
-                   gboolean    place_centered)
+                   GList        *windows,
+                   int           width,
+                   int           height,
+                   int          *new_x,
+                   int          *new_y,
+                   gboolean      place_centered)
 {
-  MetaDisplay *display = meta_window_get_display (window);
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
   GList *tmp;
   GList *sorted;
   int adjusted_center_x, adjusted_center_y;
@@ -184,8 +182,6 @@ find_next_cascade (MetaWindow *window,
   MtkRectangle frame_rect;
   int window_width, window_height;
   int cascade_stage;
-  MtkRectangle work_area;
-  MetaLogicalMonitor *current;
   gboolean ltr = clutter_get_text_direction () == CLUTTER_TEXT_DIRECTION_LTR;
 
   /* This is a "fuzzy" cascade algorithm.
@@ -201,9 +197,6 @@ find_next_cascade (MetaWindow *window,
    * cascade_x, cascade_y are the target position
    * of NW corner of window frame.
    */
-
-  current = meta_backend_get_current_logical_monitor (backend);
-  meta_window_get_work_area_for_logical_monitor (window, current, &work_area);
 
   meta_window_get_frame_rect (window, &frame_rect);
   window_width = width;
@@ -858,6 +851,7 @@ meta_window_place (MetaWindow        *window,
   g_autoptr (GList) windows = NULL;
   MetaLogicalMonitor *logical_monitor = NULL;
   gboolean place_centered = FALSE;
+  MtkRectangle work_area;
 
   meta_topic (META_DEBUG_PLACEMENT, "Placing window %s", window->desc);
 
@@ -993,25 +987,27 @@ meta_window_place (MetaWindow        *window,
    */
 
   windows = find_windows_relevant_for_placement (window);
-  logical_monitor = meta_backend_get_current_logical_monitor (backend);
+
+  if (!window->showing_for_first_time)
+    logical_monitor = meta_window_get_main_logical_monitor (window);
+  else
+    logical_monitor = meta_backend_get_current_logical_monitor (backend);
+
+  meta_window_get_work_area_for_logical_monitor (window,
+                                                 logical_monitor,
+                                                 &work_area);
+
   place_centered = window_place_centered (window);
 
   if (place_centered)
     {
-      /* Center on current monitor */
-      MtkRectangle work_area;
-
-      meta_window_get_work_area_for_logical_monitor (window,
-                                                     logical_monitor,
-                                                     &work_area);
-
       x = work_area.x + (work_area.width - new_width) / 2;
       y = work_area.y + (work_area.height - new_height) / 2;
 
       meta_topic (META_DEBUG_PLACEMENT, "Centered window %s on monitor %d",
                   window->desc, logical_monitor->number);
 
-      find_next_cascade (window, windows, new_width, new_height,
+      find_next_cascade (window, work_area, windows, new_width, new_height,
                          &x, &y, place_centered);
     }
   else
@@ -1025,7 +1021,7 @@ meta_window_place (MetaWindow        *window,
                            logical_monitor, new_width, new_height,
                            &x, &y))
         {
-          find_next_cascade (window, windows, new_width, new_height,
+          find_next_cascade (window, work_area, windows, new_width, new_height,
                              &x, &y, place_centered);
         }
     }
