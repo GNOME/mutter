@@ -369,6 +369,20 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
     }
 }
 
+
+static MetaLogicalMonitor *
+determine_monitor_for_rect (MetaWindow   *window,
+                            MtkRectangle *target_rect)
+{
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+
+  return meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                             target_rect);
+}
+
 static gboolean
 meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
                                                const char       *name,
@@ -378,6 +392,7 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     META_WAYLAND_XDG_SESSION_STATE (state);
   MetaWaylandXdgToplevelState *toplevel_state;
   MtkRectangle *rect = NULL;
+  MetaLogicalMonitor *target_monitor = NULL;
 
   toplevel_state = g_hash_table_lookup (xdg_session_state->toplevels, name);
   if (!toplevel_state)
@@ -390,10 +405,15 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     case WINDOW_STATE_FLOATING:
       rect = &toplevel_state->floating.rect;
       break;
-    case WINDOW_STATE_TILED_LEFT:
-    case WINDOW_STATE_TILED_RIGHT:
     case WINDOW_STATE_MAXIMIZED:
       rect = &toplevel_state->tiled.rect;
+      break;
+    case WINDOW_STATE_TILED_LEFT:
+    case WINDOW_STATE_TILED_RIGHT:
+      rect = &toplevel_state->tiled.rect;
+      target_monitor = determine_monitor_for_rect (window, rect);
+      if (target_monitor)
+        window->tile_monitor_number = target_monitor->number;
       break;
     }
 
