@@ -1270,7 +1270,9 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   is_window_being_resized =
     (window_drag &&
      meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
-     meta_window_drag_get_window (window_drag) == window);
+     (meta_window_drag_get_window (window_drag) == window ||
+      meta_window_drag_get_window (window_drag) ==
+      meta_window_config_get_tile_match (window->config)));
 
   frame_rect = meta_window_config_get_rect (window->config);
   rect = (MtkRectangle) {
