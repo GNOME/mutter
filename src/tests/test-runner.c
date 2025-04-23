@@ -2371,14 +2371,16 @@ run_test (MetaContext *context,
   int line_no = 0;
   while (error == NULL)
     {
-      char *line = g_data_input_stream_read_line_utf8 (in, NULL, NULL, &error);
+      g_autofree char *line = NULL;
+      int argc;
+      g_auto (GStrv) argv = NULL;
+
+      line = g_data_input_stream_read_line_utf8 (in, NULL, NULL, &error);
       if (line == NULL)
         break;
 
       line_no++;
 
-      int argc;
-      char **argv = NULL;
       if (!g_shell_parse_argv (line, &argc, &argv, &error))
         {
           if (g_error_matches (error, G_SHELL_ERROR, G_SHELL_ERROR_EMPTY_STRING))
@@ -2395,9 +2397,6 @@ run_test (MetaContext *context,
     next:
       if (error)
         g_prefix_error (&error, "%d: ", line_no);
-
-      g_free (line);
-      g_strfreev (argv);
     }
 
   {
