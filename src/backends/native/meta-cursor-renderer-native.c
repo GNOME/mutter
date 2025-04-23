@@ -853,16 +853,20 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
   cogl_pipeline_set_layer_texture (pipeline, 0, src_texture);
   cogl_pipeline_set_layer_matrix (pipeline, 0, matrix);
 
-  if (cogl_texture_get_premultiplied (src_texture))
-    add_pipeline_unpremultiply (cursor_renderer_native, pipeline);
+  if (!cogl_texture_get_premultiplied (src_texture))
+    g_warning_once ("Src texture format doesn't have premultiplied alpha");
+
+  add_pipeline_unpremultiply (cursor_renderer_native, pipeline);
 
   color_state = meta_cursor_sprite_get_color_state (cursor_sprite);
   clutter_color_state_add_pipeline_transform (color_state,
                                               target_color_state,
                                               pipeline);
 
-  if (cogl_texture_get_premultiplied (dst_texture))
-    add_pipeline_premultiply (cursor_renderer_native, pipeline);
+  if (!cogl_texture_get_premultiplied (dst_texture))
+    g_warning_once ("Dst texture format doesn't have premultiplied alpha");
+
+  add_pipeline_premultiply (cursor_renderer_native, pipeline);
 
   cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
                             COGL_BUFFER_BIT_COLOR,
