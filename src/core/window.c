@@ -4543,6 +4543,9 @@ meta_window_idle_move_resize (MetaWindow *window)
 {
   MetaMoveResizeFlags flags;
 
+  if (!meta_window_is_showable (window))
+    return;
+
   flags = (META_MOVE_RESIZE_MOVE_ACTION |
            META_MOVE_RESIZE_RESIZE_ACTION |
            META_MOVE_RESIZE_CONSTRAIN);
