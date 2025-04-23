@@ -967,6 +967,7 @@ stacking_tests = [
   'strut-monitor-changes',
   'window-placement',
   'x11-move',
+  'map-maximized',
 ]
 
 foreach stacking_test: stacking_tests

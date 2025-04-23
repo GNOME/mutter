@@ -1,0 +1,24 @@
+set_pref center-new-windows false
+resize_monitor default 200 200
+new_client w wayland
+new_client x x11
+
+# Map a Wayland window maximized
+
+create w/1 csd
+resize w/1 90 90
+maximize w/1
+show w/1
+wait_reconfigure w/1
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+assert_position w/1 0 0
+
+# Map a X11 window maximized
+
+create x/1 csd
+resize x/1 90 90
+maximize x/1
+show x/1
+wait_reconfigure x/1
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+assert_position x/1 0 0
