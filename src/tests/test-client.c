@@ -33,6 +33,7 @@
 
 const char *client_id = "0";
 static gboolean wayland;
+static gboolean dont_exit_on_eof;
 GHashTable *windows;
 GQuark event_source_quark;
 GQuark event_handlers_quark;
@@ -1031,7 +1032,8 @@ on_line_received (GObject      *source,
     {
       if (error != NULL)
         g_printerr ("Error reading from stdin: %s\n", error->message);
-      gtk_main_quit ();
+      if (!dont_exit_on_eof)
+        gtk_main_quit ();
       return;
     }
 
@@ -1057,7 +1059,8 @@ read_next_line (GDataInputStream *in)
         {
           if (error)
             g_printerr ("Error reading from stdin: %s\n", error->message);
-          gtk_main_quit ();
+          if (!dont_exit_on_eof)
+            gtk_main_quit ();
           return;
         }
 
@@ -1076,6 +1079,12 @@ const GOptionEntry options[] = {
     "wayland", 0, 0, G_OPTION_ARG_NONE,
     &wayland,
     "Create a wayland client, not an X11 one",
+    NULL
+  },
+  {
+    "dont-exit-on-eof", 0, 0, G_OPTION_ARG_NONE,
+    &dont_exit_on_eof,
+    "Don't terminate client when reaching end of file",
     NULL
   },
   {
