@@ -4268,14 +4268,6 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   meta_stack_update_window_tile_matches (window->display->stack,
                                          workspace_manager->active_workspace);
-
-  /* This is a workaround for #1627. We still don't have any tests that can
-   * reproduce this issue reliably and this is not a proper fix! */
-  if (flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE &&
-      (result & META_MOVE_RESIZE_RESULT_MOVED ||
-       result & META_MOVE_RESIZE_RESULT_RESIZED) &&
-      meta_window_config_is_any_maximized (window->config))
-    meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 
 void

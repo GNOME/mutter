@@ -59,7 +59,8 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
   meta_window_config_get_position (window->config, &x, &y);
   if (flags & META_MOVE_RESIZE_MOVE_ACTION ||
       x != rect.x ||
-      y != rect.y)
+      y != rect.y ||
+      !configuration->is_floating)
     {
       configuration->has_position = TRUE;
       configuration->x = rect.x;
