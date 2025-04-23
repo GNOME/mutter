@@ -243,3 +243,32 @@ meta_wayland_window_configuration_apply_window_config (MetaWindow               
 
   return configuration;
 }
+
+gboolean
+meta_wayland_window_configuration_is_equivalent (MetaWaylandWindowConfiguration *configuration,
+                                                 MetaWaylandWindowConfiguration *other)
+{
+  g_return_val_if_fail (configuration, FALSE);
+
+  if (!other)
+    return FALSE;
+
+  return (configuration->has_position == other->has_position &&
+          configuration->x == other->x &&
+          configuration->y == other->y &&
+          configuration->has_relative_position == other->has_relative_position &&
+          configuration->rel_x == other->rel_x &&
+          configuration->rel_y == other->rel_y &&
+          configuration->has_size == other->has_size &&
+          configuration->is_resizing == other->is_resizing &&
+          configuration->width == other->width &&
+          configuration->height == other->height &&
+          configuration->scale == other->scale &&
+          configuration->gravity == other->gravity &&
+          configuration->flags == other->flags &&
+          configuration->bounds_width == other->bounds_width &&
+          configuration->bounds_height == other->bounds_height &&
+          configuration->is_fullscreen == other->is_fullscreen &&
+          configuration->is_floating == other->is_floating &&
+          configuration->is_suspended == other->is_suspended);
+}

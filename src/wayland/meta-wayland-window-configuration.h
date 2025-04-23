@@ -81,6 +81,9 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_ref (MetaWayl
 
 void meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *configuration);
 
+gboolean meta_wayland_window_configuration_is_equivalent (MetaWaylandWindowConfiguration *configuration,
+                                                          MetaWaylandWindowConfiguration *other);
+
 MetaWindowConfig * meta_window_config_new_from_wayland_window_configuration (MetaWindow                     *window,
                                                                              MetaWaylandWindowConfiguration *configuration);
 
