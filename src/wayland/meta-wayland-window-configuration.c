@@ -127,6 +127,39 @@ meta_wayland_window_configuration_new_empty (int bounds_width,
 }
 
 MetaWaylandWindowConfiguration *
+meta_wayland_window_configuration_new_from_other (MetaWaylandWindowConfiguration *other)
+{
+  MetaWaylandWindowConfiguration *configuration;
+
+  configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
+  *configuration = (MetaWaylandWindowConfiguration) {
+    .ref_count = G_REF_COUNT_INIT,
+    .serial = ++global_serial_counter,
+
+    .has_position = other->has_position,
+    .x = other->x,
+    .y = other->y,
+    .has_relative_position = other->has_relative_position,
+    .rel_x = other->rel_x,
+    .rel_y = other->rel_y,
+    .has_size = other->has_size,
+    .is_resizing = other->is_resizing,
+    .width = other->width,
+    .height = other->height,
+    .scale = other->scale,
+    .gravity = other->gravity,
+    .flags = other->flags,
+    .bounds_width = other->bounds_width,
+    .bounds_height = other->bounds_height,
+    .is_fullscreen = other->is_fullscreen,
+    .is_floating = other->is_floating,
+    .is_suspended = other->is_suspended,
+  };
+
+  return configuration;
+}
+
+MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_ref (MetaWaylandWindowConfiguration *configuration)
 {
   g_ref_count_inc (&configuration->ref_count);

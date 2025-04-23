@@ -75,6 +75,8 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (in
                                                                               int bounds_height,
                                                                               int scale);
 
+MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_from_other (MetaWaylandWindowConfiguration *other);
+
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_ref (MetaWaylandWindowConfiguration *configuration);
 
 void meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *configuration);
