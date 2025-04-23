@@ -52,6 +52,7 @@ struct _MetaWaylandWindowConfiguration
   int bounds_height;
 
   gboolean is_fullscreen;
+  gboolean is_floating;
   gboolean is_suspended;
 };
 

@@ -52,6 +52,7 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
     .flags = flags,
 
     .is_fullscreen = meta_window_is_fullscreen (window),
+    .is_floating = meta_window_config_is_floating (window->config),
     .is_suspended = meta_window_is_suspended (window),
   };
 
@@ -188,6 +189,10 @@ meta_wayland_window_configuration_apply_window_config (MetaWindow               
   is_fullscreen = meta_window_config_get_is_fullscreen (window_config);
   meta_window_config_set_is_fullscreen (window->config, is_fullscreen);
   configuration->is_fullscreen = is_fullscreen;
+
+  configuration->is_floating =
+    (!meta_window_config_get_is_fullscreen (window_config) &&
+     !meta_window_config_is_any_maximized (window_config));
 
   if (prev_x != configuration->x || prev_y != configuration->y)
     {
