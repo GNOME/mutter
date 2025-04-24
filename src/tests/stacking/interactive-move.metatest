@@ -1,0 +1,26 @@
+new_client w wayland
+
+#
+# This test case ensures that window state configuration changes after an
+# interactive move doesn't cause unexpected window movement.
+#
+
+create w/1
+show w/1
+wait
+move w/1 0 10
+maximize w/1
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 0 10
+
+move w/1 20 20
+assert_position w/1 20 20
+
+create w/2
+show w/2
+wait
+
+assert_focused w/2
+
+assert_position w/1 20 20

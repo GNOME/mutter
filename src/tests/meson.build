@@ -970,6 +970,7 @@ stacking_tests = [
   'map-maximized',
   'map-fullscreen',
   'tiling',
+  'interactive-move',
 ]
 
 foreach stacking_test: stacking_tests
