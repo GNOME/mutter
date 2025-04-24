@@ -1,0 +1,109 @@
+resize_monitor default 640 480
+add_monitor secondary 800 600
+
+move_cursor_to 700 200
+
+new_client w wayland
+new_client x x11
+
+#
+# Wayland
+#
+
+# Map floating on secondary monitor
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+assert_position w/1 990 250
+assert_size w/1 100 100
+destroy w/1
+
+# Map maximized on secondary monitor, move cursor, then unmaximize
+
+create w/2 csd
+resize w/2 100 100
+maximize w/2
+show w/2
+assert_position w/2 640 0
+assert_size w/2 800 600
+
+move_cursor_to 10 10
+
+unmaximize w/2
+wait_reconfigure w/2
+assert_position w/2 990 250
+assert_size w/2 100 100
+destroy w/2
+
+# Map fullscreen on secondary monitor, then unfullscreen
+
+move_cursor_to 700 200
+
+create w/3 csd
+resize_ignore_titlebar w/3 100 100
+fullscreen w/3
+show w/3
+assert_position w/3 640 0
+assert_size w/3 800 600
+
+move_cursor_to 10 10
+
+unfullscreen w/3
+wait_reconfigure w/3
+assert_position w/3 990 250
+assert_size w/3 100 100
+destroy w/3
+
+#
+# X11
+#
+
+# Map floating on secondary monitor
+
+move_cursor_to 700 200
+
+create x/1 csd
+resize x/1 100 100
+show x/1
+assert_position x/1 990 250
+assert_size x/1 100 100
+destroy x/1
+
+# Map maximized on secondary monitor, then unmaximize
+
+move_cursor_to 700 200
+
+create x/2 csd
+resize x/2 100 100
+maximize x/2
+show x/2
+assert_position x/2 640 0
+assert_size x/2 800 600
+
+move_cursor_to 10 10
+
+unmaximize x/2
+wait_reconfigure x/2
+assert_position x/2 990 250
+assert_size x/2 100 100
+destroy x/2
+
+# Map fullscreen on secondary monitor, then unfullscreen
+
+move_cursor_to 700 200
+
+create x/3 csd
+resize_ignore_titlebar x/3 100 100
+fullscreen x/3
+show x/3
+assert_position x/3 640 0
+assert_size x/3 800 600
+
+move_cursor_to 10 10
+
+unfullscreen x/3
+wait_reconfigure x/3
+assert_position x/3 990 250
+assert_size x/3 100 100
+destroy x/3
