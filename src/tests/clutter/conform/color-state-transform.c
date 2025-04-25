@@ -70,6 +70,17 @@ create_actors (ClutterActor *stage)
 {
   GList *actors = NULL;
 
+  const CoglColor black = { 0, 0, 0, UINT8_MAX };
+  ClutterActor *background = clutter_actor_new ();
+  clutter_actor_set_background_color (background, &black);
+  clutter_actor_set_size (background,
+                          G_N_ELEMENTS (test_colors) * ACTOR_SIZE,
+                          ACTOR_SIZE);
+  clutter_actor_set_position (background, 0.0f, 0.0f);
+  clutter_actor_add_child (stage, background);
+
+  actors = g_list_prepend (actors, background);
+
   for (int i = 0; i < G_N_ELEMENTS (test_colors); i++)
     {
       const CoglColor color = {
@@ -83,7 +94,7 @@ create_actors (ClutterActor *stage)
       clutter_actor_set_background_color (actor, &color);
       clutter_actor_set_size (actor, ACTOR_SIZE, ACTOR_SIZE);
       clutter_actor_set_position (actor, i * ACTOR_SIZE, 0.0f);
-      clutter_actor_add_child (stage, actor);
+      clutter_actor_add_child (background, actor);
 
       actors = g_list_prepend (actors, actor);
     }
