@@ -266,6 +266,9 @@ META_EXPORT
 MetaMaximizeFlags meta_window_get_maximized (MetaWindow *window);
 
 META_EXPORT
+gboolean          meta_window_is_maximized (MetaWindow *window);
+
+META_EXPORT
 gboolean          meta_window_is_fullscreen (MetaWindow *window);
 
 META_EXPORT
