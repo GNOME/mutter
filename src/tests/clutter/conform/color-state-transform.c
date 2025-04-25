@@ -172,9 +172,9 @@ validate_transform (ClutterActor      *stage,
 
   for (int i = 0; i < G_N_ELEMENTS (test_colors); i++)
     {
-      cpu_color[0] = test_colors[i].r;
-      cpu_color[1] = test_colors[i].g;
-      cpu_color[2] = test_colors[i].b;
+      cpu_color[0] = test_colors[i].r * test_colors[i].a;
+      cpu_color[1] = test_colors[i].g * test_colors[i].a;
+      cpu_color[2] = test_colors[i].b * test_colors[i].a;
 
       clutter_color_state_do_transform (src_color_state,
                                         blend_color_state,
