@@ -85,9 +85,9 @@ typedef enum _MetaPlaceFlag
 
 typedef enum
 {
-  META_MOVE_RESIZE_RESULT_MOVED               = 1 << 0,
-  META_MOVE_RESIZE_RESULT_RESIZED             = 1 << 1,
-  META_MOVE_RESIZE_RESULT_STATE_CHANGED       = 1 << 3,
+  META_MOVE_RESIZE_RESULT_MOVED = 1 << 0,
+  META_MOVE_RESIZE_RESULT_RESIZED = 1 << 1,
+  META_MOVE_RESIZE_RESULT_STATE_CHANGED = 1 << 3,
 } MetaMoveResizeResultFlags;
 
 typedef enum
