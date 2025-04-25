@@ -627,7 +627,7 @@ toplevel_reuse_surface (void)
 }
 
 static void
-toplevel_sessions (void)
+toplevel_sessions_basic (void)
 {
   MetaWaylandTestClient *wayland_test_client;
 
@@ -1554,11 +1554,11 @@ init_tests (void)
                    toplevel_apply_limits);
   g_test_add_func ("/wayland/toplevel/activation",
                    toplevel_activation);
-  g_test_add_func ("/wayland/toplevel/sessions",
-                   toplevel_sessions);
-  g_test_add_func ("/wayland/toplevel/sessions-replace",
+  g_test_add_func ("/wayland/toplevel/sessions/basic",
+                   toplevel_sessions_basic);
+  g_test_add_func ("/wayland/toplevel/sessions/replace",
                    toplevel_sessions_replace);
-  g_test_add_func ("/wayland/toplevel/sessions-restore",
+  g_test_add_func ("/wayland/toplevel/sessions/restore",
                    toplevel_sessions_restore);
 #ifdef MUTTER_PRIVILEGED_TEST
   (void)(toplevel_sessions_restore_maximized);
@@ -1568,13 +1568,13 @@ init_tests (void)
   (void)(toplevel_bounds_struts);
   (void)(toplevel_bounds_monitors);
 #else
-  g_test_add_func ("/wayland/toplevel/sessions-restore-maximized",
+  g_test_add_func ("/wayland/toplevel/sessions/restore-maximized",
                    toplevel_sessions_restore_maximized);
-  g_test_add_func ("/wayland/toplevel/sessions-restore-tiled",
+  g_test_add_func ("/wayland/toplevel/sessions/restore-tiled",
                    toplevel_sessions_restore_tiled);
-  g_test_add_func ("/wayland/toplevel/sessions-restore-fullscreen",
+  g_test_add_func ("/wayland/toplevel/sessions/restore-fullscreen",
                    toplevel_sessions_restore_fullscreen);
-  g_test_add_func ("/wayland/toplevel/sessions-restore-fullscreen-monitor-removed",
+  g_test_add_func ("/wayland/toplevel/sessions/restore-fullscreen-monitor-removed",
                    toplevel_sessions_restore_fullscreen_monitor_removed);
   g_test_add_func ("/wayland/toplevel/bounds/struts",
                    toplevel_bounds_struts);
