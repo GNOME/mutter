@@ -2904,7 +2904,7 @@ meta_window_maximize (MetaWindow        *window,
 }
 
 /**
- * meta_window_get_maximized:
+ * meta_window_get_maximize_flags:
  * @window: a #MetaWindow
  *
  * Gets the current maximization state of the window, as combination
@@ -2913,7 +2913,7 @@ meta_window_maximize (MetaWindow        *window,
  * Return value: current maximization state
  */
 MetaMaximizeFlags
-meta_window_get_maximized (MetaWindow *window)
+meta_window_get_maximize_flags (MetaWindow *window)
 {
   MetaMaximizeFlags flags = 0;
 

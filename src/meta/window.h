@@ -263,9 +263,6 @@ void     meta_window_foreach_ancestor         (MetaWindow            *window,
                                                void                  *user_data);
 
 META_EXPORT
-MetaMaximizeFlags meta_window_get_maximized (MetaWindow *window);
-
-META_EXPORT
 gboolean          meta_window_is_maximized (MetaWindow *window);
 
 META_EXPORT
