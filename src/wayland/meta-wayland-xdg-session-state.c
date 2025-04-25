@@ -334,8 +334,7 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
 
   tile_mode = meta_window_config_get_tile_mode (window->config);
 
-  if (meta_window_get_maximized (window) ==
-      (META_MAXIMIZE_VERTICAL | META_MAXIMIZE_HORIZONTAL))
+  if (meta_window_is_maximized (window))
     {
       toplevel_state->window_state = WINDOW_STATE_MAXIMIZED;
 
