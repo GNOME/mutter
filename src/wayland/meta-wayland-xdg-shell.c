@@ -470,7 +470,7 @@ xdg_toplevel_set_maximized (struct wl_client   *client,
   if (!window)
     return;
 
-  meta_window_maximize (window, META_MAXIMIZE_BOTH);
+  meta_window_maximize (window);
 }
 
 static void
@@ -484,7 +484,7 @@ xdg_toplevel_unset_maximized (struct wl_client   *client,
   if (!window)
     return;
 
-  meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+  meta_window_unmaximize (window);
 }
 
 static void

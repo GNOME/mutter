@@ -286,12 +286,10 @@ void meta_window_set_icon_geometry (MetaWindow   *window,
                                     MtkRectangle *rect);
 
 META_EXPORT
-void meta_window_maximize   (MetaWindow        *window,
-                             MetaMaximizeFlags  directions);
+void meta_window_maximize   (MetaWindow        *window);
 
 META_EXPORT
-void meta_window_unmaximize (MetaWindow        *window,
-                             MetaMaximizeFlags  directions);
+void meta_window_unmaximize (MetaWindow        *window);
 
 META_EXPORT
 void        meta_window_minimize           (MetaWindow  *window);

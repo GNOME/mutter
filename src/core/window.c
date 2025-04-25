@@ -2841,8 +2841,8 @@ meta_window_maximize_internal (MetaWindow        *window,
 }
 
 void
-meta_window_maximize (MetaWindow        *window,
-                      MetaMaximizeFlags  directions)
+meta_window_set_maximize_flags (MetaWindow        *window,
+                                MetaMaximizeFlags  directions)
 {
   MtkRectangle *saved_rect = NULL;
   gboolean maximize_horizontally, maximize_vertically;
@@ -2901,6 +2901,15 @@ meta_window_maximize (MetaWindow        *window,
 
       meta_window_move_resize (window, flags, window->unconstrained_rect);
     }
+}
+
+void
+meta_window_maximize (MetaWindow *window)
+{
+  g_return_if_fail (META_IS_WINDOW (window));
+  g_return_if_fail (!window->override_redirect);
+
+  meta_window_set_maximize_flags (window, META_MAXIMIZE_BOTH);
 }
 
 /**
@@ -3186,9 +3195,9 @@ meta_window_untile (MetaWindow *window)
   meta_window_config_set_tile_mode (window->config, tile_mode);
 
   if (window->saved_maximize)
-    meta_window_maximize (window, META_MAXIMIZE_BOTH);
+    meta_window_maximize (window);
   else
-    meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+    meta_window_unmaximize (window);
 }
 
 void
@@ -3334,8 +3343,8 @@ meta_window_maybe_apply_size_hints (MetaWindow   *window,
 }
 
 void
-meta_window_unmaximize (MetaWindow        *window,
-                        MetaMaximizeFlags  directions)
+meta_window_set_unmaximize_flags (MetaWindow        *window,
+                                  MetaMaximizeFlags  directions)
 {
   gboolean unmaximize_horizontally, unmaximize_vertically;
   gboolean was_maximized_horizontally, was_maximized_vertically;
@@ -3498,6 +3507,15 @@ meta_window_unmaximize (MetaWindow        *window,
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_MAXIMIZED_HORIZONTALLY]);
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_MAXIMIZED_VERTICALLY]);
   g_object_thaw_notify (G_OBJECT (window));
+}
+
+void
+meta_window_unmaximize (MetaWindow *window)
+{
+  g_return_if_fail (META_IS_WINDOW (window));
+  g_return_if_fail (!window->override_redirect);
+
+  meta_window_set_unmaximize_flags (window, META_MAXIMIZE_BOTH);
 }
 
 void

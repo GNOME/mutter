@@ -524,7 +524,7 @@ meta_window_apply_session_info (MetaWindow *window,
 
       if (window->has_maximize_func && info->maximized)
         {
-          meta_window_maximize (window, META_MAXIMIZE_BOTH);
+          meta_window_maximize (window);
 
           if (info->saved_rect_set)
             {
@@ -3484,13 +3484,13 @@ meta_window_x11_client_message (MetaWindow *window,
             {
               if (meta_prefs_get_raise_on_click ())
                 meta_window_raise (window);
-              meta_window_maximize (window, directions);
+              meta_window_set_maximize_flags (window, directions);
             }
           else
             {
               if (meta_prefs_get_raise_on_click ())
                 meta_window_raise (window);
-              meta_window_unmaximize (window, directions);
+              meta_window_set_unmaximize_flags (window, directions);
             }
         }
 

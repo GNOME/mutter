@@ -943,7 +943,7 @@ toplevel_sessions_restore_maximized (void)
   g_assert_cmpint (frame_rect.width, ==, 100);
   g_assert_cmpint (frame_rect.height, ==, 100);
 
-  meta_window_maximize (window, META_MAXIMIZE_BOTH);
+  meta_window_maximize (window);
 
   wl_window = META_WINDOW_WAYLAND (window);
   meta_window_wayland_get_pending_serial (wl_window, &state_change_serial);

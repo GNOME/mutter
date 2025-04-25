@@ -577,7 +577,7 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
        * moveresize now to get the position back to the original.
        */
       if (window_drag->shaken_loose || tile_mode == META_TILE_MAXIMIZED)
-        meta_window_maximize (window, META_MAXIMIZE_BOTH);
+        meta_window_maximize (window);
       else if (tile_mode != META_TILE_NONE)
         meta_window_restore_tile (window,
                                   tile_mode,
@@ -651,7 +651,7 @@ process_keyboard_move_grab (MetaWindowDrag  *window_drag,
        * now to get the position back to the original.
        */
       if (window_drag->shaken_loose)
-        meta_window_maximize (window, META_MAXIMIZE_BOTH);
+        meta_window_maximize (window);
       else
         meta_window_move_resize_frame (window_drag->effective_grab_window,
                                        TRUE,
@@ -1293,7 +1293,7 @@ update_move (MetaWindowDrag          *window_drag,
       window->saved_rect.x = window_drag->initial_window_pos.x;
       window->saved_rect.y = window_drag->initial_window_pos.y;
 
-      meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+      meta_window_unmaximize (window);
       return;
     }
 
@@ -1351,14 +1351,14 @@ update_move (MetaWindowDrag          *window_drag,
                   window->unconstrained_rect.x = window->saved_rect.x;
                   window->unconstrained_rect.y = window->saved_rect.y;
 
-                  meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+                  meta_window_unmaximize (window);
 
                   window_drag->initial_window_pos = work_area;
                   window_drag->anchor_root_x = x;
                   window_drag->anchor_root_y = y;
                   window_drag->shaken_loose = FALSE;
 
-                  meta_window_maximize (window, META_MAXIMIZE_BOTH);
+                  meta_window_maximize (window);
                 }
 
               return;
@@ -1622,7 +1622,7 @@ maybe_maximize_tiled_window (MetaWindow *window)
                                          &work_area);
   meta_window_config_get_size (window->config, &width, NULL);
   if (width >= work_area.width - shake_threshold)
-    meta_window_maximize (window, META_MAXIMIZE_BOTH);
+    meta_window_maximize (window);
 }
 
 static void

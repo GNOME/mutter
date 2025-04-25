@@ -1792,9 +1792,9 @@ handle_maximize_vertically (MetaDisplay           *display,
   if (window->has_resize_func)
     {
       if (meta_window_config_is_maximized_vertically (window->config))
-        meta_window_unmaximize (window, META_MAXIMIZE_VERTICAL);
+        meta_window_set_unmaximize_flags (window, META_MAXIMIZE_VERTICAL);
       else
-        meta_window_maximize (window, META_MAXIMIZE_VERTICAL);
+        meta_window_set_maximize_flags (window, META_MAXIMIZE_VERTICAL);
     }
 }
 
@@ -1808,9 +1808,9 @@ handle_maximize_horizontally (MetaDisplay           *display,
   if (window->has_resize_func)
     {
       if (meta_window_config_is_maximized_horizontally (window->config))
-        meta_window_unmaximize (window, META_MAXIMIZE_HORIZONTAL);
+        meta_window_set_unmaximize_flags (window, META_MAXIMIZE_HORIZONTAL);
       else
-        meta_window_maximize (window, META_MAXIMIZE_HORIZONTAL);
+        meta_window_set_maximize_flags (window, META_MAXIMIZE_HORIZONTAL);
     }
 }
 
@@ -2153,9 +2153,9 @@ handle_toggle_maximized (MetaDisplay           *display,
                          gpointer               user_data)
 {
   if (meta_window_is_maximized (window))
-    meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+    meta_window_unmaximize (window);
   else if (window->has_maximize_func)
-    meta_window_maximize (window, META_MAXIMIZE_BOTH);
+    meta_window_maximize (window);
 }
 
 static void
@@ -2166,7 +2166,7 @@ handle_maximize (MetaDisplay           *display,
                  gpointer               user_data)
 {
   if (window->has_maximize_func)
-    meta_window_maximize (window, META_MAXIMIZE_BOTH);
+    meta_window_maximize (window);
 }
 
 static void
@@ -2177,7 +2177,7 @@ handle_unmaximize (MetaDisplay           *display,
                    gpointer               user_data)
 {
   if (meta_window_config_is_any_maximized (window->config))
-    meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+    meta_window_unmaximize (window);
 }
 
 static void

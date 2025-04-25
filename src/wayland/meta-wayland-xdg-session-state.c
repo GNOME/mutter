@@ -453,8 +453,7 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
       meta_window_tile (window, META_TILE_RIGHT);
       break;
     case WINDOW_STATE_MAXIMIZED:
-      meta_window_maximize (window, META_MAXIMIZE_VERTICAL |
-                                    META_MAXIMIZE_HORIZONTAL);
+      meta_window_maximize (window);
       break;
     }
 
