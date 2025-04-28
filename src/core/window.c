@@ -1185,7 +1185,8 @@ meta_window_constructed (GObject *object)
 
   window->compositor_private = NULL;
 
-  if (frame_rect.width > 0 && frame_rect.height > 0)
+  if (frame_rect.width > 0 && frame_rect.height > 0 &&
+      (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION))
     {
       window->monitor = meta_window_find_monitor_from_frame_rect (window);
       window->highest_scale_monitor =
