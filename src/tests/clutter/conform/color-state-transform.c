@@ -159,11 +159,13 @@ wait_for_paint (ClutterActor *stage)
 static void
 validate_transform (ClutterActor      *stage,
                     ClutterColorState *src_color_state,
-                    ClutterColorState *target_color_state)
+                    ClutterColorState *blend_color_state,
+                    ClutterColorState *output_color_state)
 {
   ClutterStageView *view = get_stage_view (stage);
-  CoglFramebuffer *fb = clutter_stage_view_get_onscreen (view);
-  float cpu_color[4];
+  CoglFramebuffer *output_fb = clutter_stage_view_get_onscreen (view);
+  CoglFramebuffer *blend_fb = clutter_stage_view_get_framebuffer (view);
+  float cpu_color[3];
   float shader_color[4];
   int x, y;
   gboolean transform_passed;
@@ -175,13 +177,13 @@ validate_transform (ClutterActor      *stage,
       cpu_color[2] = test_colors[i].b;
 
       clutter_color_state_do_transform (src_color_state,
-                                        target_color_state,
+                                        blend_color_state,
                                         cpu_color,
                                         1);
 
       x = (int) (i * ACTOR_SIZE);
       y = 0;
-      cogl_framebuffer_read_pixels (fb,
+      cogl_framebuffer_read_pixels (blend_fb,
                                     x, y, 1, 1,
                                     COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE,
                                     (uint8_t *) shader_color);
@@ -198,7 +200,44 @@ validate_transform (ClutterActor      *stage,
 
       if (!transform_passed)
         {
-          g_test_message ("Failed color transform:\n"
+          g_test_message ("Failed blend color transform:\n"
+                          "input  (%.5f, %.5f, %.5f)\n"
+                          "cpu    (%.5f, %.5f, %.5f)\n"
+                          "shader (%.5f, %.5f, %.5f)\n"
+                          "diff   (%.5f, %.5f, %.5f)\n",
+                          test_colors[i].r, test_colors[i].g, test_colors[i].b,
+                          cpu_color[0], cpu_color[1], cpu_color[2],
+                          shader_color[0], shader_color[1], shader_color[2],
+                          ABS (cpu_color[0] - shader_color[0]),
+                          ABS (cpu_color[1] - shader_color[1]),
+                          ABS (cpu_color[2] - shader_color[2]));
+        }
+
+      g_assert_true (transform_passed);
+
+      clutter_color_state_do_transform (blend_color_state,
+                                        output_color_state,
+                                        cpu_color,
+                                        1);
+
+      cogl_framebuffer_read_pixels (output_fb,
+                                    x, y, 1, 1,
+                                    COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE,
+                                    (uint8_t *) shader_color);
+
+      transform_passed = G_APPROX_VALUE (cpu_color[0],
+                                         shader_color[0],
+                                         COLOR_TRANSFORM_EPSILON) &&
+                         G_APPROX_VALUE (cpu_color[1],
+                                         shader_color[1],
+                                         COLOR_TRANSFORM_EPSILON) &&
+                         G_APPROX_VALUE (cpu_color[2],
+                                         shader_color[2],
+                                         COLOR_TRANSFORM_EPSILON);
+
+      if (!transform_passed)
+        {
+          g_test_message ("Failed output color transform:\n"
                           "input  (%.5f, %.5f, %.5f)\n"
                           "cpu    (%.5f, %.5f, %.5f)\n"
                           "shader (%.5f, %.5f, %.5f)\n"
@@ -220,6 +259,7 @@ color_state_transform_icc_to_params (void)
 {
   ClutterContext *context = clutter_test_get_context ();
   g_autoptr (ClutterColorState) src_color_state = NULL;
+  ClutterColorState *blend_color_state = NULL;
   g_autoptr (ClutterColorState) target_color_state = NULL;
   ClutterStageView *stage_view;
   ClutterActor *stage;
@@ -237,10 +277,13 @@ color_state_transform_icc_to_params (void)
                                     CLUTTER_TRANSFER_FUNCTION_PQ);
   stage_view = get_stage_view (stage);
   stage_view_set_color_state (stage_view, target_color_state);
+  blend_color_state =
+    clutter_stage_view_get_color_state (stage_view);
 
   wait_for_paint (stage);
 
-  validate_transform (stage, src_color_state, target_color_state);
+  validate_transform (stage, src_color_state, blend_color_state,
+                      target_color_state);
 
   g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
 }
@@ -250,6 +293,7 @@ color_state_transform_params_to_icc (void)
 {
   ClutterContext *context = clutter_test_get_context ();
   g_autoptr (ClutterColorState) src_color_state = NULL;
+  ClutterColorState *blend_color_state = NULL;
   g_autoptr (ClutterColorState) target_color_state = NULL;
   ClutterStageView *stage_view;
   ClutterActor *stage;
@@ -267,10 +311,13 @@ color_state_transform_params_to_icc (void)
   target_color_state = create_icc_color_state ("sRGB.icc");
   stage_view = get_stage_view (stage);
   stage_view_set_color_state (stage_view, target_color_state);
+  blend_color_state =
+    clutter_stage_view_get_color_state (stage_view);
 
   wait_for_paint (stage);
 
-  validate_transform (stage, src_color_state, target_color_state);
+  validate_transform (stage, src_color_state, blend_color_state,
+                      target_color_state);
 
   g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
 }
@@ -279,6 +326,7 @@ static void
 color_state_transform_icc_to_icc (void)
 {
   g_autoptr (ClutterColorState) src_color_state = NULL;
+  ClutterColorState *blend_color_state = NULL;
   g_autoptr (ClutterColorState) target_color_state = NULL;
   ClutterStageView *stage_view;
   ClutterActor *stage;
@@ -293,10 +341,13 @@ color_state_transform_icc_to_icc (void)
   target_color_state = create_icc_color_state ("sRGB.icc");
   stage_view = get_stage_view (stage);
   stage_view_set_color_state (stage_view, target_color_state);
+  blend_color_state =
+    clutter_stage_view_get_color_state (stage_view);
 
   wait_for_paint (stage);
 
-  validate_transform (stage, src_color_state, target_color_state);
+  validate_transform (stage, src_color_state, blend_color_state,
+                      target_color_state);
 
   g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
 }
@@ -306,7 +357,8 @@ color_state_transform_params_to_params (void)
 {
   ClutterContext *context = clutter_test_get_context ();
   g_autoptr (ClutterColorState) src_color_state = NULL;
-  g_autoptr (ClutterColorState) target_color_state = NULL;
+  ClutterColorState *blend_color_state = NULL;
+  g_autoptr (ClutterColorState) output_color_state = NULL;
   ClutterStageView *stage_view;
   ClutterActor *stage;
   GList *actors;
@@ -320,16 +372,19 @@ color_state_transform_params_to_params (void)
   actors = create_actors (stage);
   actors_set_color_state (actors, src_color_state);
 
-  target_color_state =
+  output_color_state =
     clutter_color_state_params_new (context,
                                     CLUTTER_COLORSPACE_BT2020,
                                     CLUTTER_TRANSFER_FUNCTION_PQ);
   stage_view = get_stage_view (stage);
-  stage_view_set_color_state (stage_view, target_color_state);
+  stage_view_set_color_state (stage_view, output_color_state);
+  blend_color_state =
+    clutter_stage_view_get_color_state (stage_view);
 
   wait_for_paint (stage);
 
-  validate_transform (stage, src_color_state, target_color_state);
+  validate_transform (stage, src_color_state, blend_color_state,
+                      output_color_state);
 
   g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
 }
