@@ -3377,7 +3377,7 @@ meta_window_unmaximize (MetaWindow        *window,
   if ((unmaximize_horizontally && was_maximized_horizontally) ||
       (unmaximize_vertically && was_maximized_vertically))
     {
-      MtkRectangle *desired_rect;
+      MtkRectangle desired_rect;
       MtkRectangle target_rect;
       MtkRectangle work_area;
       MtkRectangle old_frame_rect, old_buffer_rect;
@@ -3411,7 +3411,7 @@ meta_window_unmaximize (MetaWindow        *window,
        */
       meta_window_frame_size_changed (window);
 
-      desired_rect = &window->saved_rect;
+      desired_rect = window->saved_rect;
 
       /* Unmaximize to the saved_rect position in the direction(s)
        * being unmaximized.
@@ -3423,44 +3423,44 @@ meta_window_unmaximize (MetaWindow        *window,
        * the work area as upper limit while maintaining the aspect ratio.
        */
       if (unmaximize_horizontally && unmaximize_vertically &&
-          desired_rect->width * desired_rect->height >
+          desired_rect.width * desired_rect.height >
           work_area.width * work_area.height * MAX_UNMAXIMIZED_WINDOW_AREA)
         {
-          if (desired_rect->width > desired_rect->height)
+          if (desired_rect.width > desired_rect.height)
             {
               float aspect;
 
-              aspect = (float) desired_rect->height / (float) desired_rect->width;
-              desired_rect->width =
+              aspect = (float) desired_rect.height / (float) desired_rect.width;
+              desired_rect.width =
                 (int) MAX (work_area.width * sqrt (MAX_UNMAXIMIZED_WINDOW_AREA),
                            window->size_hints.min_width);
-              desired_rect->height =
-                (int) MAX (desired_rect->width * aspect,
+              desired_rect.height =
+                (int) MAX (desired_rect.width * aspect,
                            window->size_hints.min_height);
             }
           else
             {
               float aspect;
 
-              aspect = (float) desired_rect->width / (float) desired_rect->height;
-              desired_rect->height =
+              aspect = (float) desired_rect.width / (float) desired_rect.height;
+              desired_rect.height =
                 (int) MAX (work_area.height * sqrt (MAX_UNMAXIMIZED_WINDOW_AREA),
                            window->size_hints.min_height);
-              desired_rect->width =
-                (int) MAX (desired_rect->height * aspect,
+              desired_rect.width =
+                (int) MAX (desired_rect.height * aspect,
                            window->size_hints.min_width);
             }
         }
 
       if (unmaximize_horizontally)
         {
-          target_rect.x     = desired_rect->x;
-          target_rect.width = desired_rect->width;
+          target_rect.x = desired_rect.x;
+          target_rect.width = desired_rect.width;
         }
       if (unmaximize_vertically)
         {
-          target_rect.y      = desired_rect->y;
-          target_rect.height = desired_rect->height;
+          target_rect.y = desired_rect.y;
+          target_rect.height = desired_rect.height;
         }
 
       /* Window's size hints may have changed while maximized, making
