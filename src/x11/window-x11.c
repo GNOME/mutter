@@ -1632,6 +1632,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
     *result |= META_MOVE_RESIZE_RESULT_RESIZED;
   if (flags & META_MOVE_RESIZE_STATE_CHANGED)
     *result |= META_MOVE_RESIZE_RESULT_STATE_CHANGED;
+  *result |= META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED;
 
   update_gtk_edge_constraints (window);
 }
