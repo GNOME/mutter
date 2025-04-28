@@ -377,25 +377,25 @@ meta_window_finalize (GObject *object)
 }
 
 static void
-meta_window_get_property(GObject         *object,
-                         guint            prop_id,
-                         GValue          *value,
-                         GParamSpec      *pspec)
+meta_window_get_property (GObject         *object,
+                          guint            prop_id,
+                          GValue          *value,
+                          GParamSpec      *pspec)
 {
-  MetaWindow *win = META_WINDOW (object);
-  MetaWindowPrivate *priv = meta_window_get_instance_private (win);
-  MetaWindowConfig *config = win->config;
+  MetaWindow *window = META_WINDOW (object);
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+  MetaWindowConfig *config = window->config;
 
   switch (prop_id)
     {
     case PROP_TITLE:
-      g_value_set_string (value, win->title);
+      g_value_set_string (value, window->title);
       break;
     case PROP_DECORATED:
-      g_value_set_boolean (value, win->decorated);
+      g_value_set_boolean (value, window->decorated);
       break;
     case PROP_FULLSCREEN:
-      g_value_set_boolean (value, meta_window_is_fullscreen (win));
+      g_value_set_boolean (value, meta_window_is_fullscreen (window));
       break;
     case PROP_MAXIMIZED_HORIZONTALLY:
       g_value_set_boolean (value,
@@ -406,79 +406,79 @@ meta_window_get_property(GObject         *object,
                            meta_window_config_is_maximized_vertically (config));
       break;
     case PROP_MINIMIZED:
-      g_value_set_boolean (value, win->minimized);
+      g_value_set_boolean (value, window->minimized);
       break;
     case PROP_WINDOW_TYPE:
-      g_value_set_enum (value, win->type);
+      g_value_set_enum (value, window->type);
       break;
     case PROP_USER_TIME:
-      g_value_set_uint (value, win->net_wm_user_time);
+      g_value_set_uint (value, window->net_wm_user_time);
       break;
     case PROP_DEMANDS_ATTENTION:
-      g_value_set_boolean (value, win->wm_state_demands_attention);
+      g_value_set_boolean (value, window->wm_state_demands_attention);
       break;
     case PROP_URGENT:
-      g_value_set_boolean (value, win->urgent);
+      g_value_set_boolean (value, window->urgent);
       break;
     case PROP_SKIP_TASKBAR:
-      g_value_set_boolean (value, win->skip_taskbar);
+      g_value_set_boolean (value, window->skip_taskbar);
       break;
     case PROP_MUTTER_HINTS:
-      g_value_set_string (value, win->mutter_hints);
+      g_value_set_string (value, window->mutter_hints);
       break;
     case PROP_APPEARS_FOCUSED:
-      g_value_set_boolean (value, win->appears_focused);
+      g_value_set_boolean (value, window->appears_focused);
       break;
     case PROP_WM_CLASS:
-      g_value_set_string (value, win->res_class);
+      g_value_set_string (value, window->res_class);
       break;
     case PROP_RESIZEABLE:
-      g_value_set_boolean (value, win->has_resize_func);
+      g_value_set_boolean (value, window->has_resize_func);
       break;
     case PROP_ABOVE:
-      g_value_set_boolean (value, win->wm_state_above);
+      g_value_set_boolean (value, window->wm_state_above);
       break;
     case PROP_GTK_APPLICATION_ID:
-      g_value_set_string (value, win->gtk_application_id);
+      g_value_set_string (value, window->gtk_application_id);
       break;
     case PROP_GTK_UNIQUE_BUS_NAME:
-      g_value_set_string (value, win->gtk_unique_bus_name);
+      g_value_set_string (value, window->gtk_unique_bus_name);
       break;
     case PROP_GTK_APPLICATION_OBJECT_PATH:
-      g_value_set_string (value, win->gtk_application_object_path);
+      g_value_set_string (value, window->gtk_application_object_path);
       break;
     case PROP_GTK_WINDOW_OBJECT_PATH:
-      g_value_set_string (value, win->gtk_window_object_path);
+      g_value_set_string (value, window->gtk_window_object_path);
       break;
     case PROP_GTK_APP_MENU_OBJECT_PATH:
-      g_value_set_string (value, win->gtk_app_menu_object_path);
+      g_value_set_string (value, window->gtk_app_menu_object_path);
       break;
     case PROP_GTK_MENUBAR_OBJECT_PATH:
-      g_value_set_string (value, win->gtk_menubar_object_path);
+      g_value_set_string (value, window->gtk_menubar_object_path);
       break;
     case PROP_ON_ALL_WORKSPACES:
-      g_value_set_boolean (value, win->on_all_workspaces);
+      g_value_set_boolean (value, window->on_all_workspaces);
       break;
     case PROP_IS_ALIVE:
-      g_value_set_boolean (value, win->is_alive);
+      g_value_set_boolean (value, window->is_alive);
       break;
     case PROP_DISPLAY:
-      g_value_set_object (value, win->display);
+      g_value_set_object (value, window->display);
       break;
     case PROP_EFFECT:
-      g_value_set_int (value, win->pending_compositor_effect);
+      g_value_set_int (value, window->pending_compositor_effect);
       break;
     case PROP_SUSPEND_STATE:
       g_value_set_enum (value, priv->suspend_state);
       break;
     case PROP_MAPPED:
-      g_value_set_boolean (value, win->mapped);
+      g_value_set_boolean (value, window->mapped);
       break;
     case PROP_MAIN_MONITOR:
-      g_value_set_object (value, win->monitor);
+      g_value_set_object (value, window->monitor);
       break;
     case PROP_TAG:
-      g_value_set_string (value, win->tag);
+      g_value_set_string (value, window->tag);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -487,20 +487,20 @@ meta_window_get_property(GObject         *object,
 }
 
 static void
-meta_window_set_property(GObject         *object,
-                         guint            prop_id,
-                         const GValue    *value,
-                         GParamSpec      *pspec)
+meta_window_set_property (GObject         *object,
+                          guint            prop_id,
+                          const GValue    *value,
+                          GParamSpec      *pspec)
 {
-  MetaWindow *win = META_WINDOW (object);
+  MetaWindow *window = META_WINDOW (object);
 
   switch (prop_id)
     {
     case PROP_DISPLAY:
-      win->display = g_value_get_object (value);
+      window->display = g_value_get_object (value);
       break;
     case PROP_EFFECT:
-      win->pending_compositor_effect = g_value_get_int (value);
+      window->pending_compositor_effect = g_value_get_int (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
