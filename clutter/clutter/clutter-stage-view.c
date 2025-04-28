@@ -256,6 +256,8 @@ ensure_stage_view_offscreen (ClutterStageView *view)
     }
   else
     {
+      formats[n_formats++] = COGL_PIXEL_FORMAT_RGBX_FP_16161616;
+      formats[n_formats++] = COGL_PIXEL_FORMAT_BGRX_FP_16161616;
       formats[n_formats++] = COGL_PIXEL_FORMAT_XRGB_FP_16161616;
       formats[n_formats++] = COGL_PIXEL_FORMAT_XBGR_FP_16161616;
       formats[n_formats++] = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
