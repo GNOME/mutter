@@ -1124,6 +1124,21 @@ test_case_do (TestCase    *test,
                                 argv[2], argv[3], NULL))
         return FALSE;
     }
+  else if (strcmp (argv[0], "x11_geometry") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+
+      if (argc != 3)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> <x11-geometry>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      if (!meta_test_client_do (client, error, argv[0], window_id,
+                                argv[2], NULL))
+        return FALSE;
+    }
   else if (strcmp (argv[0], "begin_resize") == 0)
     {
       MetaBackend *backend = meta_context_get_backend (test->context);

@@ -611,6 +611,18 @@ process_line (const char *line)
                          width,
                          height - titlebar_height);
     }
+  else if (strcmp (argv[0], "x11_geometry") == 0)
+    {
+      GtkWidget *window;
+
+      window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+      gtk_window_parse_geometry (GTK_WINDOW (window), argv[2]);
+      G_GNUC_END_IGNORE_DEPRECATIONS
+    }
   else if (strcmp (argv[0], "raise") == 0)
     {
       if (argc != 2)
