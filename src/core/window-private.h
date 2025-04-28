@@ -509,7 +509,8 @@ struct _MetaWindow
   /* TRUE if window appears focused at the moment */
   guint appears_focused : 1;
 
-  /* Have we placed this window? */
+  /* Have we placed this window according to the floating window placement
+   * algorithm? */
   guint placed : 1;
 
   /* Has this window not ever been shown yet? */
