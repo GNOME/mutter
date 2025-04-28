@@ -2869,6 +2869,8 @@ meta_window_maximize (MetaWindow        *window,
   if ((maximize_horizontally && !was_maximized_horizontally) ||
       (maximize_vertically   && !was_maximized_vertically))
     {
+      MetaMoveResizeFlags flags;
+
       /* if the window hasn't been placed yet, we'll maximize it then
        */
       if (!window->placed)
@@ -2905,12 +2907,14 @@ meta_window_maximize (MetaWindow        *window,
                                           META_SIZE_CHANGE_MAXIMIZE,
                                           &old_frame_rect, &old_buffer_rect);
 
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_STATE_CHANGED |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               window->unconstrained_rect);
+      flags = (META_MOVE_RESIZE_MOVE_ACTION |
+               META_MOVE_RESIZE_RESIZE_ACTION |
+               META_MOVE_RESIZE_STATE_CHANGED |
+               META_MOVE_RESIZE_CONSTRAIN);
+      if (!window->unconstrained_rect_valid)
+        flags |= META_MOVE_RESIZE_RECT_INVALID;
+
+      meta_window_move_resize (window, flags, window->unconstrained_rect);
     }
 }
 
@@ -3559,6 +3563,7 @@ meta_window_make_fullscreen (MetaWindow  *window)
   if (!meta_window_is_fullscreen (window))
     {
       MtkRectangle old_frame_rect, old_buffer_rect;
+      MetaMoveResizeFlags flags;
 
       meta_window_get_frame_rect (window, &old_frame_rect);
       meta_window_get_buffer_rect (window, &old_buffer_rect);
@@ -3568,12 +3573,14 @@ meta_window_make_fullscreen (MetaWindow  *window)
                                           &old_frame_rect, &old_buffer_rect);
 
       meta_window_make_fullscreen_internal (window);
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_STATE_CHANGED |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               window->unconstrained_rect);
+
+      flags = (META_MOVE_RESIZE_MOVE_ACTION |
+               META_MOVE_RESIZE_RESIZE_ACTION |
+               META_MOVE_RESIZE_STATE_CHANGED |
+               META_MOVE_RESIZE_CONSTRAIN);
+      if (!window->unconstrained_rect_valid)
+        flags |= META_MOVE_RESIZE_RECT_INVALID;
+      meta_window_move_resize (window, flags, window->unconstrained_rect);
     }
 }
 
@@ -4512,11 +4519,19 @@ meta_window_resize_frame (MetaWindow *window,
 void
 meta_window_idle_move_resize (MetaWindow *window)
 {
-  meta_window_move_resize_frame (window, FALSE,
-                                 window->unconstrained_rect.x,
-                                 window->unconstrained_rect.y,
-                                 window->unconstrained_rect.width,
-                                 window->unconstrained_rect.height);
+  MetaMoveResizeFlags flags;
+
+  flags = (META_MOVE_RESIZE_MOVE_ACTION |
+           META_MOVE_RESIZE_RESIZE_ACTION |
+           META_MOVE_RESIZE_CONSTRAIN);
+  if (!window->unconstrained_rect_valid)
+    flags |= META_MOVE_RESIZE_RECT_INVALID;
+  meta_window_move_resize (window,
+                           META_MOVE_RESIZE_MOVE_ACTION |
+                           META_MOVE_RESIZE_RESIZE_ACTION |
+                           META_MOVE_RESIZE_CONSTRAIN |
+                           META_MOVE_RESIZE_RECT_INVALID,
+                           window->unconstrained_rect);
 }
 
 gboolean

@@ -688,6 +688,7 @@ meta_window_x11_initialize_state (MetaWindow *window)
       MtkRectangle rect;
       MetaMoveResizeFlags flags;
       MetaGravity gravity = window->size_hints.win_gravity;
+      MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
 
       rect.x = window->size_hints.x;
       rect.y = window->size_hints.y;
@@ -699,9 +700,13 @@ meta_window_x11_initialize_state (MetaWindow *window)
                META_MOVE_RESIZE_RESIZE_ACTION |
                META_MOVE_RESIZE_CONSTRAIN);
 
+      if (!(window->size_hints.flags & META_SIZE_HINTS_USER_POSITION))
+        flags |= META_MOVE_RESIZE_RECT_INVALID;
+
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
-      meta_window_move_resize (window, flags, rect);
+
+      meta_window_move_resize_internal (window, flags, place_flags, rect);
     }
 
   meta_window_x11_update_shape_region (window);

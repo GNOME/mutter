@@ -1210,6 +1210,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
                                         MetaWaylandSurfaceState *pending)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  gboolean has_position = FALSE;
   MetaDisplay *display = window->display;
   MetaWaylandSurface *surface = wl_window->surface;
   int dx, dy;
@@ -1297,8 +1298,16 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
               if (acked_configuration->is_fullscreen)
                 flags |= META_MOVE_RESIZE_CONSTRAIN;
               if (acked_configuration->has_position)
-                calculate_position (acked_configuration, &new_geom, &rect);
+                {
+                  has_position = TRUE;
+                  calculate_position (acked_configuration, &new_geom, &rect);
+                }
             }
+        }
+      else
+        {
+          if (window->placed)
+            has_position = TRUE;
         }
     }
   else
@@ -1306,6 +1315,9 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
       if (acked_configuration && acked_configuration->has_position)
         calculate_position (acked_configuration, &new_geom, &rect);
     }
+
+  if (!has_position)
+    flags |= META_MOVE_RESIZE_RECT_INVALID;
 
   toplevel_drag = get_toplevel_drag (window);
   if (toplevel_drag && !is_window_being_resized && !window->mapped &&

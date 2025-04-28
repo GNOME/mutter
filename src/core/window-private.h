@@ -73,6 +73,7 @@ typedef enum
   META_MOVE_RESIZE_PLACEMENT_CHANGED = 1 << 11,
   META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE = 1 << 12,
   META_MOVE_RESIZE_CONSTRAIN = 1 << 13,
+  META_MOVE_RESIZE_RECT_INVALID = 1 << 14,
 } MetaMoveResizeFlags;
 
 typedef enum _MetaPlaceFlag
