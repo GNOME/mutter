@@ -1,0 +1,9 @@
+resize_monitor default 640 480
+add_monitor secondary 800 600
+
+new_client x x11
+create x/1
+x11_geometry x/1 100x100+700+10
+show x/1
+
+assert_position x/1 700 10

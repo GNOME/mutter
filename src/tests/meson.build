@@ -966,6 +966,7 @@ stacking_tests = [
   'sticky-transients',
   'strut-monitor-changes',
   'window-placement',
+  'x11-move',
 ]
 
 foreach stacking_test: stacking_tests
