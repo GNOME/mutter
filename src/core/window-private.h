@@ -513,6 +513,9 @@ struct _MetaWindow
    * algorithm? */
   guint placed : 1;
 
+  /* Have this window been positioned? */
+  uint unconstrained_rect_valid : 1;
+
   /* Has this window not ever been shown yet? */
   guint showing_for_first_time : 1;
 

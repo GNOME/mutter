@@ -637,6 +637,7 @@ place_window_if_needed (MetaWindow     *window,
            * uses the placed coordinates (bug #556696).
            */
           window->unconstrained_rect = info->current;
+          window->unconstrained_rect_valid = TRUE;
 
           meta_window_maximize_internal (window,
             (window->maximize_horizontally_after_placement ?

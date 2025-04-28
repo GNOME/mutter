@@ -4191,7 +4191,10 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   if (result & META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED)
-    window->unconstrained_rect = unconstrained_rect;
+    {
+      window->unconstrained_rect = unconstrained_rect;
+      window->unconstrained_rect_valid = TRUE;
+    }
 
   if ((moved_or_resized ||
        did_placement ||
@@ -4338,6 +4341,7 @@ meta_window_move_between_rects (MetaWindow          *window,
 
   window->unconstrained_rect.x = new_x;
   window->unconstrained_rect.y = new_y;
+  window->unconstrained_rect_valid = TRUE;
 
   meta_window_move_resize (window,
                            (move_resize_flags |
