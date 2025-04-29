@@ -928,10 +928,12 @@ meta_wayland_pointer_handle_event (MetaWaylandPointer *pointer,
       return CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_TOUCHPAD_PINCH:
-      return meta_wayland_pointer_gesture_pinch_handle_event (pointer, event);
+      meta_wayland_pointer_gesture_pinch_handle_event (pointer, event);
+      return CLUTTER_EVENT_PROPAGATE;
 
     case CLUTTER_TOUCHPAD_HOLD:
-      return meta_wayland_pointer_gesture_hold_handle_event (pointer, event);
+      meta_wayland_pointer_gesture_hold_handle_event (pointer, event);
+      return CLUTTER_EVENT_PROPAGATE;
 
     default:
       return CLUTTER_EVENT_PROPAGATE;
