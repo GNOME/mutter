@@ -514,12 +514,6 @@ meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
 
   crtc_kms->kms_crtc = kms_crtc;
 
-  if (!kms_crtc_crtc_kms_quark)
-    {
-      kms_crtc_crtc_kms_quark =
-        g_quark_from_static_string ("meta-kms-crtc-crtc-kms-quark");
-    }
-
   g_object_set_qdata (G_OBJECT (kms_crtc), kms_crtc_crtc_kms_quark, crtc_kms);
 
   return crtc_kms;
@@ -555,4 +549,7 @@ meta_crtc_kms_class_init (MetaCrtcKmsClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  kms_crtc_crtc_kms_quark =
+    g_quark_from_static_string ("meta-kms-crtc-crtc-kms-quark");
 }
