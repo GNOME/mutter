@@ -90,6 +90,8 @@ typedef struct _WaylandSurface
   GHashTable *pending_state;
   GHashTable *current_state;
 
+  uint32_t last_serial;
+
   int default_width;
   int default_height;
   int width;
@@ -99,6 +101,8 @@ typedef struct _WaylandSurface
   gboolean is_opaque;
 
   int32_t preferred_buffer_scale;
+
+  gboolean manual_paint;
 } WaylandSurface;
 
 #define WAYLAND_TYPE_SURFACE (wayland_surface_get_type ())
@@ -132,6 +136,8 @@ gboolean wayland_surface_has_state (WaylandSurface          *surface,
                                     enum xdg_toplevel_state  state);
 
 void wayland_surface_set_opaque (WaylandSurface *surface);
+
+void wayland_surface_commit_new_buffer (WaylandSurface *surface);
 
 void draw_surface (WaylandDisplay    *display,
                    struct wl_surface *surface,

@@ -842,15 +842,10 @@ static const struct xdg_toplevel_listener xdg_toplevel_listener = {
   handle_xdg_toplevel_wm_capabilities,
 };
 
-static void
-handle_xdg_surface_configure (void               *data,
-                              struct xdg_surface *xdg_surface,
-                              uint32_t            serial)
+void
+wayland_surface_commit_new_buffer (WaylandSurface *surface)
 {
-  WaylandSurface *surface = data;
   struct wl_region *opaque_region;
-
-  g_signal_emit (surface, surface_signals[SURFACE_CONFIGURE], 0);
 
   draw_surface (surface->display,
                 surface->wl_surface,
@@ -861,13 +856,30 @@ handle_xdg_surface_configure (void               *data,
   wl_surface_set_opaque_region (surface->wl_surface, opaque_region);
   wl_region_destroy (opaque_region);
 
-  xdg_surface_ack_configure (xdg_surface, serial);
+  xdg_surface_ack_configure (surface->xdg_surface, surface->last_serial);
   wl_surface_commit (surface->wl_surface);
 
   g_clear_pointer (&surface->current_state, g_hash_table_unref);
   surface->current_state = g_steal_pointer (&surface->pending_state);
 
   g_signal_emit (surface->display, signals[SURFACE_PAINTED], 0, surface);
+}
+
+static void
+handle_xdg_surface_configure (void               *data,
+                              struct xdg_surface *xdg_surface,
+                              uint32_t            serial)
+{
+  WaylandSurface *surface = data;
+
+  g_signal_emit (surface, surface_signals[SURFACE_CONFIGURE], 0);
+
+  surface->last_serial = serial;
+
+  if (surface->manual_paint)
+    return;
+
+  wayland_surface_commit_new_buffer (surface);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {
