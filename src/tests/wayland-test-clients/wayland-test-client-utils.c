@@ -137,6 +137,15 @@ G_DEFINE_TYPE (WaylandBufferDmabuf,
                wayland_buffer_dmabuf,
                WAYLAND_TYPE_BUFFER)
 
+typedef struct _WaylandSource
+{
+  GSource source;
+  GPollFD pfd;
+  gboolean reading;
+
+  WaylandDisplay *display;
+} WaylandSource;
+
 static int
 create_tmpfile_cloexec (char *tmpname)
 {
@@ -531,6 +540,114 @@ static const struct wl_registry_listener registry_listener = {
   handle_registry_global_remove
 };
 
+static gboolean
+wayland_source_prepare (GSource *base,
+                        int     *timeout)
+{
+  WaylandSource *source = (WaylandSource *) base;
+
+  *timeout = -1;
+
+  if (source->reading)
+    return FALSE;
+
+  if (wl_display_prepare_read (source->display->display) != 0)
+    return TRUE;
+  source->reading = TRUE;
+
+  if (wl_display_flush (source->display->display) < 0)
+    g_error ("Error flushing display: %s", g_strerror (errno));
+
+  return FALSE;
+}
+
+static gboolean
+wayland_source_check (GSource *base)
+{
+  WaylandSource *source = (WaylandSource *) base;
+
+  if (source->reading)
+    {
+      if (source->pfd.revents & G_IO_IN)
+        {
+          if (wl_display_read_events (source->display->display) < 0)
+            {
+              g_error ("Error reading events from display: %s",
+                       g_strerror (errno));
+            }
+        }
+      else
+        {
+          wl_display_cancel_read (source->display->display);
+        }
+      source->reading = FALSE;
+    }
+
+  return source->pfd.revents;
+}
+
+static gboolean
+wayland_source_dispatch (GSource     *base,
+                         GSourceFunc  callback,
+                         gpointer     data)
+{
+  WaylandSource *source = (WaylandSource *) base;
+
+  while (TRUE)
+    {
+      int ret;
+
+      ret = wl_display_dispatch_pending (source->display->display);
+      if (ret < 0)
+        g_error ("Failed to dispatch pending: %s", g_strerror (errno));
+      else if (ret == 0)
+        break;
+    }
+
+  return TRUE;
+}
+
+static void
+wayland_source_finalize (GSource *base)
+{
+  WaylandSource *source = (WaylandSource *) base;
+
+  if (source->reading)
+    wl_display_cancel_read (source->display->display);
+  source->reading = FALSE;
+}
+
+static GSourceFuncs wayland_source_funcs = {
+  .prepare = wayland_source_prepare,
+  .check = wayland_source_check,
+  .dispatch = wayland_source_dispatch,
+  .finalize = wayland_source_finalize,
+};
+
+static GSource *
+wayland_source_new (WaylandDisplay *display)
+{
+  GSource *source;
+  WaylandSource *wayland_source;
+  g_autofree char *name = NULL;
+
+  source = g_source_new (&wayland_source_funcs,
+			 sizeof (WaylandSource));
+  name = g_strdup_printf ("Wayland GSource");
+  g_source_set_name (source, name);
+  wayland_source = (WaylandSource *) source;
+
+  wayland_source->display = display;
+  wayland_source->pfd.fd = wl_display_get_fd (display->display);
+  wayland_source->pfd.events = G_IO_IN | G_IO_ERR | G_IO_HUP;
+  g_source_add_poll (source, &wayland_source->pfd);
+
+  g_source_set_priority (source, G_PRIORITY_DEFAULT);
+  g_source_set_can_recurse (source, TRUE);
+
+  return source;
+}
+
 WaylandDisplay *
 wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
                           struct wl_display          *wayland_display)
@@ -574,6 +691,10 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
 
   display->gbm_device = create_gbm_device (display);
 
+  display->source = wayland_source_new (display);
+  g_source_attach (display->source, g_main_context_get_thread_default ());
+  g_source_unref (display->source);
+
   return display;
 }
 
@@ -596,6 +717,7 @@ wayland_display_finalize (GObject *object)
 {
   WaylandDisplay *display = WAYLAND_DISPLAY (object);
 
+  g_clear_pointer (&display->source, g_source_destroy);
   g_clear_pointer (&display->test_state, display->destroy_test_state);
   wl_display_disconnect (display->display);
   g_clear_pointer (&display->properties, g_hash_table_unref);
@@ -680,7 +802,7 @@ handle_xdg_toplevel_configure (void                *data,
   else
     surface->height = height;
 
-  g_assert_null (surface->pending_state);
+  g_clear_pointer (&surface->pending_state, g_hash_table_unref);
   surface->pending_state = g_hash_table_new (NULL, NULL);
 
   wl_array_for_each (p, states)
@@ -886,7 +1008,15 @@ gboolean
 wayland_surface_has_state (WaylandSurface          *surface,
                            enum xdg_toplevel_state  state)
 {
-  return g_hash_table_contains (surface->current_state, GUINT_TO_POINTER (state));
+  if (surface->pending_state &&
+      g_hash_table_contains (surface->pending_state, GUINT_TO_POINTER (state)))
+    return TRUE;
+
+  if (surface->current_state &&
+      g_hash_table_contains (surface->current_state, GUINT_TO_POINTER (state)))
+    return TRUE;
+
+  return FALSE;
 }
 
 void

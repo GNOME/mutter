@@ -38,6 +38,8 @@ typedef struct _WaylandDisplay
 
   WaylandDisplayCapabilities capabilities;
 
+  GSource *source;
+
   struct wl_display *display;
   struct wl_registry *registry;
   struct wl_compositor *compositor;

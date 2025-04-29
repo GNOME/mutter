@@ -89,6 +89,10 @@ regular_client_thread_func (gpointer user_data)
   gboolean *client_terminated = user_data;
   WaylandDisplay *display;
   struct mutter_x11_interop *x11_interop = NULL;
+  g_autoptr (GMainContext) thread_main_context = NULL;
+
+  thread_main_context = g_main_context_new ();
+  g_main_context_push_thread_default (thread_main_context);
 
   display = wayland_display_new (WAYLAND_DISPLAY_CAPABILITY_NONE);
 
@@ -130,6 +134,7 @@ static gpointer
 service_client_thread_func (gpointer user_data)
 {
   X11ParentTestdata *data = user_data;
+  g_autoptr (GMainContext) thread_main_context = NULL;
   g_autoptr (GError) error = NULL;
   g_autoptr (GDBusProxy) service_channel = NULL;
   GVariant *service_client_type_variant;
@@ -141,6 +146,9 @@ service_client_thread_func (gpointer user_data)
   WaylandDisplay *display;
   WaylandSurface *surface;
   struct mutter_x11_interop *x11_interop;
+
+  thread_main_context = g_main_context_new ();
+  g_main_context_push_thread_default (thread_main_context);
 
   service_channel = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
                                                    G_DBUS_PROXY_FLAGS_NONE,
