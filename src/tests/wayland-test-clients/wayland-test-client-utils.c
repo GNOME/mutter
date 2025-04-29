@@ -1119,6 +1119,28 @@ wait_for_window_shown (WaylandDisplay    *display,
 }
 
 static void
+on_configure (WaylandSurface *surface,
+              gboolean       *configured)
+{
+  *configured = TRUE;
+}
+
+void
+wait_for_window_configured (WaylandDisplay *display,
+                            WaylandSurface *surface)
+{
+  gboolean configured = FALSE;
+  gulong configure_handler_id;
+
+  configure_handler_id = g_signal_connect (surface, "configure",
+                                           G_CALLBACK (on_configure),
+                                           &configured);
+  while (!configured)
+    g_main_context_iteration (NULL, TRUE);
+  g_signal_handler_disconnect (surface, configure_handler_id);
+}
+
+static void
 view_verified (void               *data,
                struct wl_callback *callback,
                uint32_t            serial)

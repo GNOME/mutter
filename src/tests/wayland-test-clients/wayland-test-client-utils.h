@@ -157,6 +157,9 @@ void wait_for_effects_completed (WaylandDisplay    *display,
 void wait_for_window_shown (WaylandDisplay    *display,
                             struct wl_surface *surface);
 
+void wait_for_window_configured (WaylandDisplay *display,
+                                 WaylandSurface *surface);
+
 void wait_for_view_verified (WaylandDisplay *display,
                              int             sequence);
 
