@@ -2237,7 +2237,8 @@ update_suspend_state (MetaWindow *window)
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
       g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
     }
-  else if (priv->suspend_state == META_WINDOW_SUSPEND_STATE_ACTIVE)
+  else if (priv->suspend_state == META_WINDOW_SUSPEND_STATE_ACTIVE &&
+           meta_window_is_showable (window))
     {
       set_hidden_suspended_state (window);
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);
