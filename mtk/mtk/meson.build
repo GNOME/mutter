@@ -5,6 +5,7 @@ mtk_headers = [
   'mtk-monitor-transform.h',
   'mtk-rectangle.h',
   'mtk-region.h',
+  'mtk-time-utils.h',
   'mtk-utils.h',
   'mtk.h',
 ]
