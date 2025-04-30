@@ -36,74 +36,10 @@
 #include "tests/monitor-tests-common.h"
 #include "x11/meta-x11-display-private.h"
 
-#define WAYLAND_TEST_CLIENT_WINDOW "window1"
-#define X11_TEST_CLIENT_WINDOW "window1"
-
 static void
 on_monitors_changed (gboolean *monitors_changed)
 {
   *monitors_changed = TRUE;
-}
-
-static void
-check_test_client_state (MetaTestClient *test_client)
-{
-  GError *error = NULL;
-
-  if (!meta_test_client_wait (test_client, &error))
-    {
-      g_error ("Failed to sync test client '%s': %s",
-               meta_test_client_get_id (test_client), error->message);
-    }
-}
-
-static void
-check_test_client_x11_state (MetaTestClient *test_client)
-{
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *primary_logical_monitor;
-  MetaMonitor *primary_monitor = NULL;
-  GError *error = NULL;
-
-  primary_logical_monitor =
-    meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
-
-  if (primary_logical_monitor)
-    {
-      GList *monitors;
-
-      monitors = meta_logical_monitor_get_monitors (primary_logical_monitor);
-      primary_monitor = g_list_first (monitors)->data;
-    }
-
-  if (!meta_test_client_do (test_client, &error,
-                            "sync",
-                            NULL))
-    {
-      g_error ("Failed to sync test client '%s': %s",
-               meta_test_client_get_id (test_client), error->message);
-    }
-
-  if (!meta_test_client_do (test_client, &error,
-                            "assert_primary_monitor",
-                            primary_monitor
-                              ? meta_monitor_get_connector (primary_monitor)
-                              : "(none)",
-                              NULL))
-    {
-      g_error ("Failed to assert primary monitor in X11 test client '%s': %s",
-               meta_test_client_get_id (test_client), error->message);
-    }
-}
-
-static void
-check_monitor_test_clients_state (void)
-{
-  check_test_client_state (wayland_monitor_test_client);
-  check_test_client_state (x11_monitor_test_client);
-  check_test_client_x11_state (x11_monitor_test_client);
 }
 
 static void
@@ -112,7 +48,7 @@ meta_test_monitor_initial_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &initial_test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -193,7 +129,7 @@ meta_test_monitor_one_disconnected_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -316,7 +252,7 @@ meta_test_monitor_one_off_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -441,7 +377,7 @@ meta_test_monitor_preferred_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -575,7 +511,7 @@ meta_test_monitor_tiled_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -753,7 +689,7 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -907,7 +843,7 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -1052,7 +988,7 @@ meta_test_monitor_hidpi_linear_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -1207,7 +1143,7 @@ meta_test_monitor_suggested_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -1818,7 +1754,7 @@ meta_test_monitor_limited_crtcs (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -1961,7 +1897,7 @@ meta_test_monitor_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -1981,7 +1917,7 @@ meta_test_monitor_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2004,7 +1940,7 @@ meta_test_monitor_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2148,7 +2084,7 @@ meta_test_monitor_lid_opened_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2164,7 +2100,7 @@ meta_test_monitor_lid_opened_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2261,7 +2197,7 @@ meta_test_monitor_lid_closed_no_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2408,7 +2344,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_test_message ("External monitor connected");
   test_case.setup.n_outputs = 2;
@@ -2426,7 +2362,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_test_message ("Lid closed");
   test_case.expect.monitors[0].current_mode = -1;
@@ -2444,7 +2380,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /*
    * The second part of this test emulate the following:
@@ -2471,7 +2407,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_test_message ("External monitor disconnected");
   test_case.setup.n_outputs = 1;
@@ -2488,7 +2424,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_test_message ("Lid closed");
   test_case.expect.logical_monitors[0].monitors[0] = 0,
@@ -2503,7 +2439,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_test_message ("Lid opened");
   test_setup = meta_create_monitor_test_setup (backend,
@@ -2514,7 +2450,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2613,7 +2549,7 @@ meta_test_monitor_lid_scaled_closed_opened (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2621,7 +2557,7 @@ meta_test_monitor_lid_scaled_closed_opened (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2629,7 +2565,7 @@ meta_test_monitor_lid_scaled_closed_opened (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2665,7 +2601,7 @@ meta_test_monitor_no_outputs (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   if (!meta_test_client_do (x11_monitor_test_client, &error,
                             "resize", X11_TEST_CLIENT_WINDOW,
@@ -2679,7 +2615,7 @@ meta_test_monitor_no_outputs (void)
                             NULL))
     g_error ("Failed to resize Wayland window: %s", error->message);
 
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /* Also check that we handle going headless -> headless */
   test_setup = meta_create_monitor_test_setup (backend,
@@ -2690,7 +2626,7 @@ meta_test_monitor_no_outputs (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2785,7 +2721,7 @@ meta_test_monitor_underscanning_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2880,7 +2816,7 @@ meta_test_monitor_refresh_rate_mode_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -2975,7 +2911,7 @@ meta_test_monitor_max_bpc_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -3070,7 +3006,7 @@ meta_test_monitor_rgb_range_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -3170,7 +3106,7 @@ meta_test_monitor_preferred_non_first_mode (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -3208,7 +3144,7 @@ meta_test_monitor_non_upright_panel (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -3358,7 +3294,7 @@ meta_test_monitor_switch_external_without_external (void)
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
 
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -3505,7 +3441,7 @@ meta_test_monitor_switch_config_remember_scale (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /*
    * Reconfigure to both monitors having scale 2.
@@ -3533,7 +3469,7 @@ meta_test_monitor_switch_config_remember_scale (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /*
    * Check that switch to 'builtin' uses scale 2.
@@ -3550,7 +3486,7 @@ meta_test_monitor_switch_config_remember_scale (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /*
    * Check that switch to 'external' uses scale 2.
@@ -3571,7 +3507,7 @@ meta_test_monitor_switch_config_remember_scale (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /*
    * Check that switch to 'linear' uses scale 2 for both.
@@ -3591,7 +3527,7 @@ meta_test_monitor_switch_config_remember_scale (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /*
    * Check that switch to 'mirror' uses scale 2 for both.
@@ -3610,7 +3546,7 @@ meta_test_monitor_switch_config_remember_scale (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -3853,7 +3789,7 @@ check_monitor_configuration_per_orientation (MonitorTestCase *test_case,
 
   meta_check_monitor_configuration (test_context,
                                     &expect);
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 typedef MetaSensorsProxyMock MetaSensorsProxyAutoResetMock;
@@ -4126,7 +4062,7 @@ meta_test_monitor_orientation_is_managed (void)
   emulate_hotplug (test_setup);
   meta_check_monitor_configuration (test_context,
                                     &test_case.expect);
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_assert_false (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
@@ -5644,7 +5580,7 @@ meta_test_monitor_custom_vertical_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -5791,7 +5727,7 @@ meta_test_monitor_custom_primary_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -5889,7 +5825,7 @@ meta_test_monitor_custom_underscanning_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -5988,7 +5924,7 @@ meta_test_monitor_custom_refresh_rate_mode_fixed_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 
@@ -6088,7 +6024,7 @@ meta_test_monitor_custom_refresh_rate_mode_variable_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6185,7 +6121,7 @@ meta_test_monitor_custom_scale_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6282,7 +6218,7 @@ meta_test_monitor_custom_fractional_scale_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6380,7 +6316,7 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6518,7 +6454,7 @@ meta_test_monitor_custom_tiled_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6676,7 +6612,7 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6858,7 +6794,7 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -6993,7 +6929,7 @@ meta_test_monitor_custom_mirrored_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -7135,7 +7071,7 @@ meta_test_monitor_custom_first_rotated_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -7278,7 +7214,7 @@ meta_test_monitor_custom_second_rotated_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -7477,7 +7413,7 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -7676,7 +7612,7 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -7826,7 +7762,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -7942,7 +7878,7 @@ meta_test_monitor_custom_interlaced_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -8077,7 +8013,7 @@ meta_test_monitor_custom_oneoff (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -8219,7 +8155,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /* External monitor connected */
 
@@ -8244,7 +8180,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /* Lid was closed */
 
@@ -8267,7 +8203,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   /* Lid was opened */
 
@@ -8293,7 +8229,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 }
 
 static void
@@ -8511,7 +8447,7 @@ meta_test_monitor_migrated_rotated (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
                                        "migration",
@@ -8789,7 +8725,7 @@ meta_test_monitor_migrated_horizontal_strip (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
                                        "migration",
@@ -8966,7 +8902,7 @@ meta_test_monitor_custom_for_lease_config (void)
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
@@ -9091,7 +9027,7 @@ meta_test_monitor_custom_for_lease_config_dbus (void)
                                                MONITOR_TEST_FLAG_NONE);
   meta_set_custom_monitor_config (test_context, "forlease.xml");
   emulate_hotplug (test_setup);
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   g_dbus_proxy_new_for_bus (G_BUS_TYPE_SESSION,
                             G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
@@ -9244,7 +9180,7 @@ meta_test_monitor_color_modes (void)
                                                &test_case_setup,
                                                MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
-  check_monitor_test_clients_state ();
+  meta_check_monitor_test_clients_state ();
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
@@ -9355,7 +9291,7 @@ meta_test_monitor_wm_tiling (void)
 
   meta_window_tile (test_window, META_TILE_MAXIMIZED);
   meta_window_move_to_monitor (test_window, 1);
-  check_test_client_state (test_client);
+  meta_check_test_client_state (test_client);
 
   test_case.setup.n_outputs = 0;
   test_setup = meta_create_monitor_test_setup (backend,

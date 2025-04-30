@@ -19,6 +19,7 @@
 
 #include "tests/monitor-tests-common.h"
 
+#include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-config-store.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-manager-test.h"
@@ -152,10 +153,68 @@ MetaTestClient *wayland_monitor_test_client = NULL;
 MetaTestClient *x11_monitor_test_client = NULL;
 
 #define WAYLAND_TEST_CLIENT_NAME "wayland_monitor_test_client"
-#define WAYLAND_TEST_CLIENT_WINDOW "window1"
 #define X11_TEST_CLIENT_NAME "x11_monitor_test_client"
-#define X11_TEST_CLIENT_WINDOW "window1"
 
+void
+meta_check_test_client_state (MetaTestClient *test_client)
+{
+  GError *error = NULL;
+
+  if (!meta_test_client_wait (test_client, &error))
+    {
+      g_error ("Failed to sync test client '%s': %s",
+               meta_test_client_get_id (test_client), error->message);
+    }
+}
+
+static void
+check_test_client_x11_state (MetaTestClient *test_client)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *primary_logical_monitor;
+  MetaMonitor *primary_monitor = NULL;
+  GError *error = NULL;
+
+  primary_logical_monitor =
+    meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+
+  if (primary_logical_monitor)
+    {
+      GList *monitors;
+
+      monitors = meta_logical_monitor_get_monitors (primary_logical_monitor);
+      primary_monitor = g_list_first (monitors)->data;
+    }
+
+  if (!meta_test_client_do (test_client, &error,
+                            "sync",
+                            NULL))
+    {
+      g_error ("Failed to sync test client '%s': %s",
+               meta_test_client_get_id (test_client), error->message);
+    }
+
+  if (!meta_test_client_do (test_client, &error,
+                            "assert_primary_monitor",
+                            primary_monitor
+                              ? meta_monitor_get_connector (primary_monitor)
+                              : "(none)",
+                              NULL))
+    {
+      g_error ("Failed to assert primary monitor in X11 test client '%s': %s",
+               meta_test_client_get_id (test_client), error->message);
+    }
+}
+
+void
+meta_check_monitor_test_clients_state (void)
+{
+  meta_check_test_client_state (wayland_monitor_test_client);
+  meta_check_test_client_state (x11_monitor_test_client);
+  check_test_client_x11_state (x11_monitor_test_client);
+}
 
 static MetaMonitorTestSetup *
 create_initial_test_setup (MetaBackend *backend)
