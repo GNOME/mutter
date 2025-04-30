@@ -373,6 +373,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-dbus-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-dbus-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'tiling-hotplug-test',
     'suite': 'backend',
     'sources': [
