@@ -242,6 +242,16 @@ wayland_test_utils = [
   test_driver_protocol_code,
 ]
 
+monitor_tests_common = [
+  'monitor-tests-common.c',
+  'monitor-tests-common.h',
+]
+
+monitor_tests_common_deps = [
+  test_client,
+  x11_frames,
+]
+
 # The test_cases is a list of dictionaries each one representing one test case.
 # It consists of the following keys:
 #  - 'name' - the test name
@@ -277,10 +287,12 @@ test_cases += [
     'name': 'monitor-unit',
     'suite': 'backend',
     'timeout': 300,
-    'sources': [ 'monitor-unit-tests.c', ],
+    'sources': [
+      'monitor-unit-tests.c',
+      monitor_tests_common,
+    ],
     'depends': [
-      test_client,
-      x11_frames,
+      monitor_tests_common_deps,
     ],
   },
   {
