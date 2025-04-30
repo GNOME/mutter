@@ -156,6 +156,19 @@ MetaTestClient *x11_monitor_test_client = NULL;
 #define X11_TEST_CLIENT_NAME "x11_monitor_test_client"
 
 void
+meta_emulate_hotplug (MetaMonitorTestSetup *test_setup)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  g_usleep (G_USEC_PER_SEC / 100);
+}
+
+void
 meta_check_test_client_state (MetaTestClient *test_client)
 {
   GError *error = NULL;

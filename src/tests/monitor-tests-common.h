@@ -28,6 +28,8 @@ extern MonitorTestCase initial_test_case;
 #define WAYLAND_TEST_CLIENT_WINDOW "window1"
 #define X11_TEST_CLIENT_WINDOW "window1"
 
+void meta_emulate_hotplug (MetaMonitorTestSetup *test_setup);
+
 void meta_check_test_client_state (MetaTestClient *test_client);
 
 void meta_check_monitor_test_clients_state (void);
