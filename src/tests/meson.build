@@ -394,9 +394,9 @@ test_cases += [
     'sources': [ 'monitor-backlight-tests.c', ]
   },
   {
-    'name': 'monitor-dbus',
+    'name': 'monitor-gdctl',
     'suite': 'backend',
-    'sources': [ 'monitor-dbus-tests.c', ],
+    'sources': [ 'monitor-gdctl-tests.c', ],
     'args': gdctl.full_path(),
     'installed_args': bindir / 'gdctl',
   },
