@@ -296,6 +296,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-storage-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-storage-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-utils',
     'suite': 'unit',
     'sources': [ 'monitor-util-tests.c', ],
