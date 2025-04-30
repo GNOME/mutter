@@ -2819,6 +2819,10 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
   g_clear_object (&config_store->custom_write_file);
   g_hash_table_remove_all (config_store->configs);
 
+  config_store->has_stores_policy = FALSE;
+  config_store->policy.enable_dbus = TRUE;
+  config_store->has_dbus_policy = FALSE;
+
   for (system_dirs = g_get_system_config_dirs ();
        system_dirs && *system_dirs;
        system_dirs++)
