@@ -340,6 +340,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-scale-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-scale-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-utils',
     'suite': 'unit',
     'sources': [ 'monitor-util-tests.c', ],
