@@ -329,6 +329,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-custom-config-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-custom-config-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-utils',
     'suite': 'unit',
     'sources': [ 'monitor-util-tests.c', ],
