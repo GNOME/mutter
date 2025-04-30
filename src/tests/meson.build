@@ -362,6 +362,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'tiling-hotplug-test',
+    'suite': 'backend',
+    'sources': [
+      'tiling-hotplug-test.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-utils',
     'suite': 'unit',
     'sources': [ 'monitor-util-tests.c', ],
