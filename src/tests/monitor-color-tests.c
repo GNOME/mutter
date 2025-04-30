@@ -1,5 +1,3 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
  * Copyright (C) 2016 Red Hat, Inc.
  *
@@ -19,21 +17,7 @@
 
 #include "config.h"
 
-#include "backends/meta-backend-private.h"
-#include "backends/meta-crtc.h"
-#include "backends/meta-logical-monitor.h"
-#include "backends/meta-monitor.h"
-#include "backends/meta-monitor-config-store.h"
-#include "backends/meta-output.h"
-#include "core/window-private.h"
-#include "meta-backend-test.h"
-#include "meta/meta-orientation-manager.h"
-#include "meta-test/meta-context-test.h"
-#include "tests/meta-monitor-manager-test.h"
-#include "tests/meta-monitor-test-utils.h"
-#include "tests/meta-test-utils.h"
 #include "tests/monitor-tests-common.h"
-#include "x11/meta-x11-display-private.h"
 
 static void
 meta_test_monitor_color_modes (void)
@@ -125,7 +109,7 @@ meta_test_monitor_color_modes (void)
 }
 
 static void
-init_monitor_tests (void)
+init_color_tests (void)
 {
   meta_add_monitor_test ("/backends/monitor/color-modes",
                          meta_test_monitor_color_modes);
@@ -135,5 +119,5 @@ int
 main (int   argc,
       char *argv[])
 {
-  return meta_monitor_test_main (argc, argv, init_monitor_tests);
+  return meta_monitor_test_main (argc, argv, init_color_tests);
 }

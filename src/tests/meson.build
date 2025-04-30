@@ -284,11 +284,10 @@ test_cases += [
     ],
   },
   {
-    'name': 'monitor-unit',
+    'name': 'monitor-color-tests',
     'suite': 'backend',
-    'timeout': 300,
     'sources': [
-      'monitor-unit-tests.c',
+      'monitor-color-tests.c',
       monitor_tests_common,
     ],
     'depends': [
