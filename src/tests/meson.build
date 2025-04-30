@@ -351,6 +351,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-config-migration-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-config-migration-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'monitor-utils',
     'suite': 'unit',
     'sources': [ 'monitor-util-tests.c', ],
