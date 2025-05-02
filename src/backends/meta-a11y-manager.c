@@ -22,7 +22,9 @@
 
 #include "backends/meta-a11y-manager.h"
 #include "backends/meta-dbus-access-checker.h"
+#include "compositor/compositor-private.h"
 #include "core/meta-debug-control-private.h"
+#include "meta/display.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-context.h"
 #include "meta/util.h"
@@ -34,6 +36,13 @@
                             CLUTTER_BUTTON3_MASK | \
                             CLUTTER_BUTTON4_MASK | \
                             CLUTTER_BUTTON5_MASK)
+
+#define META_A11Y_ERROR (meta_a11y_error_quark ())
+
+typedef enum
+{
+  META_A11Y_ERROR_UNKNOWN_TOPLEVEL,
+} MetaA11yError;
 
 enum
 {
@@ -75,7 +84,10 @@ typedef struct _MetaA11yManager
   GObject parent;
   MetaBackend *backend;
   guint dbus_name_id;
+  GHashTable *query_pointer_requesters;
   MetaDBusKeyboardMonitor *keyboard_monitor_skeleton;
+  MetaDBusPointerLocator *pointer_locator_skeleton;
+  GDBusConnection *connection;
 
   GList *key_grabbers;
   GHashTable *grabbed_keypresses;
@@ -85,6 +97,20 @@ typedef struct _MetaA11yManager
 } MetaA11yManager;
 
 G_DEFINE_TYPE (MetaA11yManager, meta_a11y_manager, G_TYPE_OBJECT)
+
+static GQuark
+meta_a11y_error_quark (void)
+{
+  GDBusErrorEntry entries[] = {
+    { META_A11Y_ERROR_UNKNOWN_TOPLEVEL, "org.freedesktop.a11y.UnknownToplevel" },
+  };
+  size_t quark;
+
+  g_dbus_error_register_error_domain ("-meta-a11y-error-quark", &quark,
+                                      entries, G_N_ELEMENTS (entries));
+
+  return (GQuark) quark;
+}
 
 static void
 key_grabber_free (MetaA11yKeyGrabber *grabber)
@@ -306,6 +332,38 @@ handle_set_key_grabs (MetaDBusKeyboardMonitor *skeleton,
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
+static gboolean
+handle_query_pointer (MetaDBusPointerLocator *skeleton,
+                      GDBusMethodInvocation  *invocation,
+                      MetaA11yManager        *a11y_manager)
+{
+  MetaContext *context =
+    meta_backend_get_context (a11y_manager->backend);
+  MetaDisplay *display = meta_context_get_display (context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  GVariant *app_data;
+  graphene_point_t rel_coords;
+  const char *sender;
+
+  sender = g_dbus_method_invocation_get_sender (invocation);
+
+  g_hash_table_add (a11y_manager->query_pointer_requesters, g_strdup (sender));
+
+  if (!meta_compositor_query_pointer_a11y (compositor, &app_data, &rel_coords))
+    {
+      g_dbus_method_invocation_return_error_literal (invocation,
+                                                     META_A11Y_ERROR,
+                                                     META_A11Y_ERROR_UNKNOWN_TOPLEVEL,
+                                                     "Cannot get client a11y information");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  meta_dbus_pointer_locator_complete_query_pointer (skeleton, invocation,
+                                                    app_data,
+                                                    rel_coords.x, rel_coords.y);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
 static void
 on_bus_acquired (GDBusConnection *connection,
                  const char      *name,
@@ -313,6 +371,8 @@ on_bus_acquired (GDBusConnection *connection,
 {
   MetaA11yManager *manager = user_data;
   MetaContext *context = meta_backend_get_context (manager->backend);
+
+  manager->connection = connection;
 
   manager->keyboard_monitor_skeleton = meta_dbus_keyboard_monitor_skeleton_new ();
 
@@ -334,6 +394,18 @@ on_bus_acquired (GDBusConnection *connection,
                                     "/org/freedesktop/a11y/Manager",
                                     NULL);
 
+  manager->pointer_locator_skeleton = meta_dbus_pointer_locator_skeleton_new ();
+
+  g_signal_connect (manager->pointer_locator_skeleton, "g-authorize-method",
+                    G_CALLBACK (check_access), manager);
+  g_signal_connect (manager->pointer_locator_skeleton, "handle-query-pointer",
+                    G_CALLBACK (handle_query_pointer), manager);
+
+  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager->pointer_locator_skeleton),
+                                    connection,
+                                    "/org/freedesktop/a11y/Manager",
+                                    NULL);
+
   manager->access_checker = meta_dbus_access_checker_new (connection, context);
   meta_dbus_access_checker_allow_sender (manager->access_checker,
                                          "org.gnome.Orca.KeyboardMonitor");
@@ -345,6 +417,7 @@ on_name_acquired (GDBusConnection *connection,
                   gpointer         user_data)
 {
   meta_topic (META_DEBUG_DBUS, "Acquired name %s", name);
+
 }
 
 static void
@@ -366,6 +439,7 @@ meta_a11y_manager_finalize (GObject *object)
   g_clear_object (&a11y_manager->access_checker);
   g_clear_pointer (&a11y_manager->grabbed_keypresses, g_hash_table_destroy);
   g_clear_pointer (&a11y_manager->all_grabbed_modifiers, g_hash_table_destroy);
+  g_clear_pointer (&a11y_manager->query_pointer_requesters, g_hash_table_destroy);
   g_bus_unown_name (a11y_manager->dbus_name_id);
 
   G_OBJECT_CLASS (meta_a11y_manager_parent_class)->finalize (object);
@@ -397,6 +471,8 @@ meta_a11y_manager_constructed (GObject *object)
 
   a11y_manager->grabbed_keypresses = g_hash_table_new (NULL, NULL);
   a11y_manager->all_grabbed_modifiers = g_hash_table_new (NULL, NULL);
+  a11y_manager->query_pointer_requesters =
+    g_hash_table_new_full (g_str_hash, g_str_equal, NULL, g_free);
 
   a11y_manager->dbus_name_id =
     g_bus_own_name (G_BUS_TYPE_SESSION,
@@ -601,6 +677,35 @@ meta_a11y_manager_notify_clients (MetaA11yManager    *a11y_manager,
     }
 
   return a11y_grabbed;
+}
+
+void
+meta_a11y_manager_maybe_notify_motion (MetaA11yManager *a11y_manager)
+{
+  g_autoptr (GDBusConnection) connection = NULL;
+  GHashTableIter iter;
+  const char *dest;
+
+  if (!a11y_manager->connection)
+    return;
+
+  g_hash_table_iter_init (&iter, a11y_manager->query_pointer_requesters);
+
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &dest))
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (!g_dbus_connection_emit_signal (a11y_manager->connection,
+                                          dest,
+                                          "/org/freedesktop/a11y/Manager",
+                                          "org.freedesktop.a11y.PointerLocator",
+                                          "PointerPositionChanged",
+                                          NULL,
+                                          &error))
+        g_warning ("Could not emit a11y PointerPositionChanged: %s", error->message);
+
+      g_hash_table_iter_remove (&iter);
+    }
 }
 
 uint32_t *

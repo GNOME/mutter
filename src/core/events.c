@@ -155,6 +155,11 @@ meta_display_handle_event (MetaDisplay        *display,
       if (a11y_grabbed)
         return CLUTTER_EVENT_STOP;
     }
+  else if (event_type == CLUTTER_MOTION &&
+           !clutter_event_get_device_tool (event))
+    {
+      meta_a11y_manager_maybe_notify_motion (a11y_manager);
+    }
 
   source_device = clutter_event_get_source_device (event);
   seat = clutter_input_device_get_seat (clutter_event_get_source_device (event));
