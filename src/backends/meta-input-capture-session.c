@@ -113,6 +113,7 @@ static void meta_input_capture_session_init_iface (MetaDBusInputCaptureSessionIf
 static void meta_dbus_session_init_iface (MetaDbusSessionInterface *iface);
 
 static MetaInputCaptureSessionHandle * meta_input_capture_session_handle_new (MetaInputCaptureSession *session);
+static void meta_input_capture_session_disable (MetaInputCaptureSession *session);
 
 G_DEFINE_TYPE_WITH_CODE (MetaInputCaptureSession,
                          meta_input_capture_session,
@@ -421,7 +422,10 @@ process_eis_event (MetaInputCaptureSession *session,
       session->want_eis_keyboard =
         eis_event_seat_has_capability (eis_event, EIS_DEVICE_CAP_KEYBOARD);
 
-      ensure_eis_devices (session);
+      if (!session->want_eis_pointer && !session->want_eis_keyboard)
+        meta_input_capture_session_disable (session);
+      else
+        ensure_eis_devices (session);
       break;
     case EIS_EVENT_DEVICE_CLOSED:
       eis_device = eis_event_get_device (eis_event);

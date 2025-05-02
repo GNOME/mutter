@@ -569,6 +569,38 @@ meta_test_input_capture_a11y (void)
 }
 
 static void
+meta_test_input_capture_disconnect (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  InputCaptureTestClient *test_client;
+
+  virtual_monitor = meta_create_test_monitor (test_context, 800, 600, 20.0);
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0, 10.0);
+  meta_flush_input (test_context);
+  meta_wait_for_paint (test_context);
+
+  test_client = input_capture_test_client_new ("disconnect");
+
+  input_capture_test_client_wait_for_state (test_client, "1");
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       -20.0, -20.0);
+
+  input_capture_test_client_write_state (test_client, "1");
+  input_capture_test_client_wait_for_state (test_client, "2");
+
+  input_capture_test_client_finish (test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/backends/native/input-capture/sanity",
@@ -585,6 +617,8 @@ init_tests (void)
                    meta_test_input_capture_events);
   g_test_add_func ("/backends/native/input-capture/a11y",
                    meta_test_input_capture_a11y);
+  g_test_add_func ("/backends/native/input-capture/disconnect",
+                   meta_test_input_capture_disconnect);
 }
 
 int
