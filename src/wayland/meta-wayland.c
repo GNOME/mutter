@@ -1327,3 +1327,29 @@ meta_wayland_compositor_get_cursor (MetaWaylandCompositor *compositor,
 {
   return meta_wayland_seat_get_cursor (compositor->seat, sprite);
 }
+
+MetaWindow *
+meta_wayland_compositor_get_current_window (MetaWaylandCompositor *compositor,
+                                            ClutterSprite         *sprite,
+                                            graphene_point_t      *rel_coords)
+{
+  MetaWaylandSurface *surface;
+
+  surface = meta_wayland_seat_get_current_surface (compositor->seat,
+                                                   CLUTTER_FOCUS (sprite));
+  if (!surface)
+    return NULL;
+
+  if (rel_coords)
+    {
+      graphene_point_t pos;
+      float x, y;
+
+      clutter_sprite_get_coords (sprite, &pos);
+      meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y,
+                                                     &x, &y);
+      *rel_coords = GRAPHENE_POINT_INIT (x, y);
+    }
+
+  return meta_wayland_surface_get_toplevel_window (surface);
+}

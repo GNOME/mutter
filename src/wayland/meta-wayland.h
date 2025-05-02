@@ -118,6 +118,10 @@ void meta_wayland_compositor_sync_focus (MetaWaylandCompositor *compositor);
 ClutterCursor * meta_wayland_compositor_get_cursor (MetaWaylandCompositor *compositor,
                                                     ClutterSprite         *sprite);
 
+MetaWindow * meta_wayland_compositor_get_current_window (MetaWaylandCompositor *compositor,
+                                                         ClutterSprite         *sprite,
+                                                         graphene_point_t      *rel_coords);
+
 static inline gboolean
 meta_wayland_compositor_serial_is_later (uint32_t serial1,
                                          uint32_t serial2)

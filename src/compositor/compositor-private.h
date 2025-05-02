@@ -203,3 +203,7 @@ meta_translate_to_high_res_xserver_time (int64_t time_us)
 
   return ms2us (ms & 0xffffffff) + us;
 }
+
+gboolean meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
+                                             GVariant         **data_out,
+                                             graphene_point_t  *rel_coords);
