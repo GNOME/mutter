@@ -268,6 +268,8 @@ struct _MetaWindow
   char *gtk_window_object_path;
   char *gtk_app_menu_object_path;
   char *gtk_menubar_object_path;
+  char *a11y_dbus_name;
+  char *a11y_object_path;
 
   MetaWindow *transient_for;
 
@@ -942,3 +944,11 @@ gboolean meta_window_apply_external_constraints (MetaWindow                  *wi
                                                  MetaGravity                  resize_gravity,
                                                  MtkRectangle                *constrained_rect,
                                                  MetaExternalConstraintFlags  constraint_flags);
+
+void meta_window_set_a11y_properties (MetaWindow *window,
+                                      const char *a11y_dbus_name,
+                                      const char *toplevel_object_path);
+
+gboolean meta_window_get_a11y_properties (MetaWindow  *window,
+                                          const char **a11y_dbus_name,
+                                          const char **toplevel_object_path);

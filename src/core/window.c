@@ -228,6 +228,8 @@ enum
   PROP_MAPPED,
   PROP_MAIN_MONITOR,
   PROP_TAG,
+  PROP_A11Y_DBUS_NAME,
+  PROP_A11Y_OBJECT_PATH,
 
   PROP_LAST,
 };
@@ -406,6 +408,8 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_window_object_path);
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
+  g_free (window->a11y_dbus_name);
+  g_free (window->a11y_object_path);
   g_free (window->placement.rule);
   g_free (window->tag);
 
@@ -517,6 +521,12 @@ meta_window_get_property (GObject         *object,
       break;
     case PROP_TAG:
       g_value_set_string (value, window->tag);
+      break;
+    case PROP_A11Y_DBUS_NAME:
+      g_value_set_string (value, window->a11y_dbus_name);
+      break;
+    case PROP_A11Y_OBJECT_PATH:
+      g_value_set_string (value, window->a11y_object_path);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -696,6 +706,18 @@ meta_window_class_init (MetaWindowClass *klass)
 
   obj_props[PROP_TAG] =
     g_param_spec_string ("tag", NULL, NULL,
+                         NULL,
+                         G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY |
+                         G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_A11Y_DBUS_NAME] =
+    g_param_spec_string ("a11y-dbus-name", NULL, NULL,
+                         NULL,
+                         G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY |
+                         G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_A11Y_OBJECT_PATH] =
+    g_param_spec_string ("a11y-object-path", NULL, NULL,
                          NULL,
                          G_PARAM_READABLE | G_PARAM_EXPLICIT_NOTIFY |
                          G_PARAM_STATIC_STRINGS);
@@ -8805,4 +8827,35 @@ meta_window_apply_external_constraints (MetaWindow                  *window,
     }
 
   return constraint_satisfied;
+}
+
+void
+meta_window_set_a11y_properties (MetaWindow *window,
+                                 const char *a11y_dbus_name,
+                                 const char *toplevel_object_path)
+{
+  if (g_set_str (&window->a11y_dbus_name, a11y_dbus_name))
+    {
+      g_object_notify_by_pspec (G_OBJECT (window),
+                                obj_props[PROP_A11Y_DBUS_NAME]);
+    }
+
+  if (g_set_str (&window->a11y_object_path, toplevel_object_path))
+    {
+      g_object_notify_by_pspec (G_OBJECT (window),
+                                obj_props[PROP_A11Y_OBJECT_PATH]);
+    }
+}
+
+gboolean
+meta_window_get_a11y_properties (MetaWindow  *window,
+                                 const char **a11y_dbus_name,
+                                 const char **toplevel_object_path)
+{
+  if (a11y_dbus_name)
+    *a11y_dbus_name = window->a11y_dbus_name;
+  if (toplevel_object_path)
+    *toplevel_object_path = window->a11y_object_path;
+
+  return window->a11y_dbus_name && window->a11y_object_path;
 }
