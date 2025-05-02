@@ -313,6 +313,28 @@ gtk_surface_titlebar_gesture (struct wl_client   *client,
 }
 
 static void
+gtk_surface_set_a11y_properties (struct wl_client   *client,
+                                 struct wl_resource *resource,
+                                 const char         *a11y_dbus_name,
+                                 const char         *toplevel_object_path)
+{
+  MetaWaylandGtkSurface *gtk_surface = wl_resource_get_user_data (resource);
+  MetaWaylandSurface *surface = gtk_surface->surface;
+  MetaWindow *window;
+
+  if (!surface)
+    return;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (!window)
+    return;
+
+  meta_window_set_a11y_properties (window,
+                                   a11y_dbus_name,
+                                   toplevel_object_path);
+}
+
+static void
 gtk_surface_release (struct wl_client   *client,
                      struct wl_resource *resource)
 {
@@ -326,7 +348,8 @@ static const struct gtk_surface1_interface meta_wayland_gtk_surface_interface = 
   gtk_surface_present,
   gtk_surface_request_focus,
   gtk_surface_release,
-  gtk_surface_titlebar_gesture
+  gtk_surface_titlebar_gesture,
+  gtk_surface_set_a11y_properties,
 };
 
 static void
