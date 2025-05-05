@@ -188,6 +188,9 @@ update_inhibited_watch (gpointer key,
   if (!watch->timeout_source)
     return;
 
+  if (!watch->inhibitable)
+    return;
+
   if (monitor->inhibited)
     {
       g_source_set_ready_time (watch->timeout_source, -1);
@@ -316,7 +319,8 @@ make_watch (MetaIdleMonitor           *monitor,
             guint64                    timeout_msec,
             MetaIdleMonitorWatchFunc   callback,
             gpointer                   user_data,
-            GDestroyNotify             notify)
+            GDestroyNotify             notify,
+            MetaIdleMonitorWatchFlags  flags)
 {
   MetaIdleMonitorWatch *watch;
 
@@ -328,6 +332,7 @@ make_watch (MetaIdleMonitor           *monitor,
   watch->user_data = user_data;
   watch->notify = notify;
   watch->timeout_msec = timeout_msec;
+  watch->inhibitable = !(flags & META_IDLE_MONITOR_WATCH_FLAGS_UNINHIBITABLE);
 
   if (timeout_msec != 0)
     {
@@ -336,7 +341,7 @@ make_watch (MetaIdleMonitor           *monitor,
       g_source_set_name (source, "[mutter] Idle monitor");
 
       g_source_set_callback (source, NULL, watch, NULL);
-      if (!monitor->inhibited)
+      if (!watch->inhibitable || !monitor->inhibited)
         {
           g_source_set_ready_time (source,
                                    monitor->last_event_time +
@@ -383,6 +388,38 @@ meta_idle_monitor_add_idle_watch (MetaIdleMonitor	       *monitor,
                                   gpointer			user_data,
                                   GDestroyNotify		notify)
 {
+  return meta_idle_monitor_add_idle_watch_full (monitor,
+                                                interval_msec,
+                                                callback,
+                                                user_data,
+                                                notify,
+                                                META_IDLE_MONITOR_WATCH_FLAGS_NONE);
+}
+
+/**
+ * meta_idle_monitor_add_idle_watch_full:
+ * @monitor: A #MetaIdleMonitor
+ * @interval_msec: The idletime interval, in milliseconds
+ * @callback: (nullable): The callback to call when the user has
+ *     accumulated @interval_msec milliseconds of idle time.
+ * @user_data: (nullable): The user data to pass to the callback
+ * @notify: A #GDestroyNotify
+ * @flags: Flags for the idle watch
+ *
+ * Returns: a watch id
+ *
+ * This function is identical to meta_idle_monitor_add_idle_watch(),
+ * with the addition of a flags parameter to modify the behavior
+ * of the idle watch.
+ */
+guint
+meta_idle_monitor_add_idle_watch_full (MetaIdleMonitor           *monitor,
+                                       guint64                    interval_msec,
+                                       MetaIdleMonitorWatchFunc   callback,
+                                       gpointer                   user_data,
+                                       GDestroyNotify             notify,
+                                       MetaIdleMonitorWatchFlags  flags)
+{
   MetaIdleMonitorWatch *watch;
 
   g_return_val_if_fail (META_IS_IDLE_MONITOR (monitor), 0);
@@ -392,7 +429,8 @@ meta_idle_monitor_add_idle_watch (MetaIdleMonitor	       *monitor,
                       interval_msec,
                       callback,
                       user_data,
-                      notify);
+                      notify,
+                      flags);
 
   return watch->id;
 }
@@ -427,7 +465,8 @@ meta_idle_monitor_add_user_active_watch (MetaIdleMonitor          *monitor,
                       0,
                       callback,
                       user_data,
-                      notify);
+                      notify,
+                      META_IDLE_MONITOR_WATCH_FLAGS_NONE);
 
   return watch->id;
 }
@@ -490,7 +529,7 @@ meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor)
         }
       else
         {
-          if (monitor->inhibited)
+          if (watch->inhibitable && monitor->inhibited)
             {
               g_source_set_ready_time (watch->timeout_source, -1);
             }

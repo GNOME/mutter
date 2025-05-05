@@ -23,6 +23,20 @@
 
 #include "meta/types.h"
 
+/**
+ * MetaIdleMonitorWatchFlags:
+ * @META_IDLE_MONITOR_WATCH_FLAGS_NONE: No flag set
+ * @META_IDLE_MONITOR_WATCH_FLAGS_UNINHIBITABLE: Ignore inhibitors
+ *
+ * Flags affecting the behavior of the idle watch created by
+ * meta_idle_monitor_add_idle_watch_full().
+ */
+typedef enum
+{
+  META_IDLE_MONITOR_WATCH_FLAGS_NONE = 0,
+  META_IDLE_MONITOR_WATCH_FLAGS_UNINHIBITABLE = 1 << 0,
+} MetaIdleMonitorWatchFlags;
+
 #define META_TYPE_IDLE_MONITOR (meta_idle_monitor_get_type ())
 META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaIdleMonitor, meta_idle_monitor,
@@ -32,6 +46,14 @@ G_DECLARE_FINAL_TYPE (MetaIdleMonitor, meta_idle_monitor,
 typedef void (*MetaIdleMonitorWatchFunc) (MetaIdleMonitor *monitor,
                                           guint            watch_id,
                                           gpointer         user_data);
+
+META_EXPORT
+guint         meta_idle_monitor_add_idle_watch_full   (MetaIdleMonitor           *monitor,
+                                                       guint64                    interval_msec,
+                                                       MetaIdleMonitorWatchFunc   callback,
+                                                       gpointer                   user_data,
+                                                       GDestroyNotify             notify,
+                                                       MetaIdleMonitorWatchFlags  flags);
 
 META_EXPORT
 guint         meta_idle_monitor_add_idle_watch        (MetaIdleMonitor          *monitor,

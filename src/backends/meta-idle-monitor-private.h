@@ -35,6 +35,7 @@ typedef struct
   guint64                   timeout_msec;
   int                       idle_source_id;
   GSource                  *timeout_source;
+  gboolean                  inhibitable;
 } MetaIdleMonitorWatch;
 
 struct _MetaIdleMonitorClass
