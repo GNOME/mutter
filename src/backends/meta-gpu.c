@@ -68,24 +68,7 @@ gboolean
 meta_gpu_read_current (MetaGpu  *gpu,
                        GError  **error)
 {
-  MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
-  gboolean ret;
-  GList *old_outputs;
-  GList *old_crtcs;
-  GList *old_modes;
-
-  /* TODO: Get rid of this when objects incref:s what they need instead */
-  old_outputs = priv->outputs;
-  old_crtcs = priv->crtcs;
-  old_modes = priv->modes;
-
-  ret = META_GPU_GET_CLASS (gpu)->read_current (gpu, error);
-
-  g_list_free_full (old_outputs, g_object_unref);
-  g_list_free_full (old_modes, g_object_unref);
-  g_list_free_full (old_crtcs, g_object_unref);
-
-  return ret;
+  return META_GPU_GET_CLASS (gpu)->read_current (gpu, error);
 }
 
 MetaBackend *
@@ -122,19 +105,21 @@ meta_gpu_get_modes (MetaGpu *gpu)
 
 void
 meta_gpu_take_outputs (MetaGpu *gpu,
-                       GList   *outputs)
+                          GList   *outputs)
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
 
+  g_clear_list (&priv->outputs, g_object_unref);
   priv->outputs = outputs;
 }
 
 void
 meta_gpu_take_crtcs (MetaGpu *gpu,
-                    GList   *crtcs)
+                     GList   *crtcs)
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
 
+  g_clear_list (&priv->crtcs, g_object_unref);
   priv->crtcs = crtcs;
 }
 
@@ -144,6 +129,7 @@ meta_gpu_take_modes (MetaGpu *gpu,
 {
   MetaGpuPrivate *priv = meta_gpu_get_instance_private (gpu);
 
+  g_clear_list (&priv->modes, g_object_unref);
   priv->modes = modes;
 }
 

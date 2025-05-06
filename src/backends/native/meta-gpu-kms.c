@@ -236,7 +236,7 @@ setup_output_clones (MetaGpu *gpu)
 }
 
 static void
-init_modes (MetaGpuKms *gpu_kms)
+update_modes (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaKmsDevice *kms_device = gpu_kms->kms_device;
@@ -333,7 +333,7 @@ init_crtcs (MetaGpuKms *gpu_kms)
 }
 
 static void
-init_outputs (MetaGpuKms *gpu_kms)
+update_outputs (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   GList *old_outputs;
@@ -389,14 +389,8 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
 
-  /* Note: we must not free the public structures (output, crtc, monitor
-     mode and monitor info) here, they must be kept alive until the API
-     users are done with them after we emit monitors-changed, and thus
-     are freed by the platform-independent layer. */
-
-  init_modes (gpu_kms);
-  init_crtcs (gpu_kms);
-  init_outputs (gpu_kms);
+  update_modes (gpu_kms);
+  update_outputs (gpu_kms);
 
   return TRUE;
 }
@@ -419,6 +413,8 @@ meta_gpu_kms_new (MetaBackendNative  *backend_native,
                           NULL);
 
   gpu_kms->kms_device = kms_device;
+
+  init_crtcs (gpu_kms);
 
   meta_gpu_kms_read_current (META_GPU (gpu_kms), NULL);
 

@@ -448,6 +448,8 @@ meta_output_dispose (GObject *object)
   MetaOutput *output = META_OUTPUT (object);
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
+  meta_output_unassign_crtc (output);
+  priv->monitor = NULL;
   g_clear_object (&priv->crtc);
 
   G_OBJECT_CLASS (meta_output_parent_class)->dispose (object);
