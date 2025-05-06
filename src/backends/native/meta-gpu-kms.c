@@ -375,7 +375,6 @@ update_outputs (MetaGpuKms *gpu_kms)
         }
     }
 
-
   /* Sort the outputs for easier handling in MetaMonitorConfig */
   outputs = g_list_sort (outputs, compare_outputs);
   meta_gpu_take_outputs (gpu, outputs);
