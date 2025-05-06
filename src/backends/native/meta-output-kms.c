@@ -547,12 +547,6 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
       meta_output_unassign_crtc (output);
     }
 
-  if (!kms_connector_output_kms_quark)
-    {
-      kms_connector_output_kms_quark =
-        g_quark_from_static_string ("kms-connector-output-kms-quark");
-    }
-
   g_object_set_qdata (G_OBJECT (kms_connector),
                       kms_connector_output_kms_quark,
                       output_kms);
@@ -575,4 +569,7 @@ meta_output_kms_class_init (MetaOutputKmsClass *klass)
     meta_output_kms_get_privacy_screen_state;
 
   output_native_class->read_edid = meta_output_kms_read_edid;
+
+  kms_connector_output_kms_quark =
+    g_quark_from_static_string ("kms-connector-output-kms-quark");
 }
