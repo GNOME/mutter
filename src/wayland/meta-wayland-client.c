@@ -67,6 +67,10 @@ struct _MetaWaylandClient
   struct {
     int client_fd;
   } created;
+
+  struct {
+    GSubprocess *subprocess;
+  } subprocess;
 };
 
 G_DEFINE_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
@@ -77,6 +81,7 @@ meta_wayland_client_finalize (GObject *object)
   MetaWaylandClient *client = META_WAYLAND_CLIENT (object);
 
   g_clear_fd (&client->created.client_fd, NULL);
+  g_clear_object (&client->subprocess.subprocess);
 
   G_OBJECT_CLASS (meta_wayland_client_parent_class)->finalize (object);
 }
@@ -175,6 +180,79 @@ meta_wayland_client_new_create (MetaContext  *context,
   return client;
 }
 
+static void
+child_setup (gpointer user_data)
+{
+  MetaContext *context = META_CONTEXT (user_data);
+
+  meta_context_restore_rlimit_nofile (context, NULL);
+}
+
+/**
+ * meta_wayland_client_new_subprocess:
+ * @context: (not nullable): a #MetaContext
+ * @launcher: (not nullable): a GSubprocessLauncher to use to launch the subprocess
+ * @argv: (array zero-terminated=1) (element-type filename): Command line arguments
+ * @error: (nullable): Error
+ *
+ * Creates a new #MetaWaylandClient. The #GSubprocesslauncher and array of
+ * arguments are used to launch a new process with the binary specified in the
+ * first element of argv, and with the rest of elements as parameters.
+ * It also sets up a new Wayland socket and sets the environment variable
+ * WAYLAND_SOCKET to make the new process to use it.
+ *
+ * Returns: A #MetaWaylandClient or %NULL if %error is set. Free with
+ * g_object_unref().
+ */
+MetaWaylandClient *
+meta_wayland_client_new_subprocess (MetaContext          *context,
+                                    GSubprocessLauncher  *launcher,
+                                    const char * const   *argv,
+                                    GError              **error)
+{
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
+  struct wl_client *wayland_client;
+  int client_fd[2];
+  MetaWaylandClient *client;
+  g_autoptr (GSubprocess) subprocess = NULL;
+
+  g_return_val_if_fail (META_IS_CONTEXT (context), NULL);
+  g_return_val_if_fail (G_IS_SUBPROCESS_LAUNCHER (launcher), NULL);
+  g_return_val_if_fail (argv != NULL &&
+                        argv[0] != NULL &&
+                        argv[0][0] != '\0',
+                        NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (meta_is_wayland_compositor (), NULL);
+
+  if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create a socket pair for the wayland client.");
+      return NULL;
+    }
+
+  g_subprocess_launcher_take_fd (launcher, client_fd[1], 3);
+  g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
+  g_subprocess_launcher_set_child_setup (launcher, child_setup, context, NULL);
+
+  subprocess = g_subprocess_launcher_spawnv (launcher, argv, error);
+  if (!subprocess)
+    return NULL;
+
+  client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
+  client->context = context;
+  client->kind = META_WAYLAND_CLIENT_KIND_SUBPROCESS;
+  client->subprocess.subprocess = g_steal_pointer (&subprocess);
+
+  wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
+  set_wayland_client (client, wayland_client);
+
+  return client;
+
+}
+
 void
 meta_wayland_client_destroy (MetaWaylandClient *client)
 {
@@ -233,6 +311,49 @@ meta_wayland_client_take_client_fd (MetaWaylandClient *client)
   g_return_val_if_fail (client->kind == META_WAYLAND_CLIENT_KIND_CREATED, -1);
 
   return g_steal_fd (&client->created.client_fd);
+}
+
+/**
+ * meta_wayland_client_get_subprocess:
+ * @client: a #MetaWaylandClient
+ *
+ * Get the #GSubprocess which was created by meta_wayland_client_new_subprocess.
+ *
+ * Returns: (transfer none): The #GSubprocess
+ **/
+GSubprocess *
+meta_wayland_client_get_subprocess (MetaWaylandClient *client)
+{
+  g_return_val_if_fail (client->kind == META_WAYLAND_CLIENT_KIND_SUBPROCESS,
+                        NULL);
+
+  return client->subprocess.subprocess;
+}
+
+/**
+ * meta_wayland_client_owns_wayland_window
+ * @client: a #MetaWaylandClient
+ * @window: (not nullable): a MetaWindow
+ *
+ * Checks whether @window belongs to the process launched from @client or not.
+ * This only works under Wayland. If the window is an X11 window, an exception
+ * will be triggered.
+ *
+ * Returns: TRUE if the window was created by this process; FALSE if not.
+ */
+gboolean
+meta_wayland_client_owns_window (MetaWaylandClient *client,
+                                 MetaWindow        *window)
+{
+  MetaWaylandSurface *surface;
+
+  g_return_val_if_fail (meta_is_wayland_compositor (), FALSE);
+
+  surface = meta_window_get_wayland_surface (window);
+  if (surface == NULL || surface->resource == NULL)
+    return FALSE;
+
+  return wl_resource_get_client (surface->resource) == client->wayland_client;
 }
 
 MetaWaylandClient *

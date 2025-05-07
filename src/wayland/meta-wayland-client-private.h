@@ -22,20 +22,19 @@
 #include "core/meta-service-channel.h"
 #include "core/util-private.h"
 
+#include "meta/meta-wayland-client.h"
+
 typedef enum _MetaWaylandClientKind
 {
   META_WAYLAND_CLIENT_KIND_PUBLIC,
   META_WAYLAND_CLIENT_KIND_CREATED,
+  META_WAYLAND_CLIENT_KIND_SUBPROCESS,
 } MetaWaylandClientKind;
 
 typedef enum _MetaWaylandClientCaps
 {
   META_WAYLAND_CLIENT_CAPS_X11_INTEROP = (1 << 0),
 } MetaWaylandClientCaps;
-
-#define META_TYPE_WAYLAND_CLIENT (meta_wayland_client_get_type ())
-META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaWaylandClient, meta_wayland_client, META, WAYLAND_CLIENT, GObject)
 
 META_EXPORT_TEST
 MetaWaylandClient * meta_wayland_client_new_from_wl (MetaContext      *context,
