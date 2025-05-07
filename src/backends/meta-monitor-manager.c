@@ -4303,6 +4303,7 @@ meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
 
   manager->layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 
+  update_output_luminance (manager);
   meta_monitor_manager_rebuild_logical_monitors_derived (manager, config);
 }
 
