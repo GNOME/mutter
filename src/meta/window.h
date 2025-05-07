@@ -440,3 +440,13 @@ void meta_window_protocol_to_stage_rect (MetaWindow *window,
 
 META_EXPORT
 const char * meta_window_get_tag (MetaWindow *window);
+
+META_EXPORT
+void meta_window_set_type (MetaWindow     *window,
+                           MetaWindowType  type);
+
+META_EXPORT
+void meta_window_hide_from_window_list (MetaWindow *window);
+
+META_EXPORT
+void meta_window_show_in_window_list (MetaWindow *window);

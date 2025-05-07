@@ -5796,10 +5796,19 @@ meta_window_type_changed (MetaWindow *window)
   g_object_thaw_notify (object);
 }
 
+/**
+ * meta_window_set_type:
+ * @window: A #MetaWindow
+ * @type: The #MetaWindowType
+ *
+ * Set the window type
+ */
 void
 meta_window_set_type (MetaWindow     *window,
                       MetaWindowType  type)
 {
+  g_return_if_fail (META_IS_WINDOW (window));
+
   if (window->type == type)
     return;
 
@@ -8575,4 +8584,40 @@ meta_window_get_tag (MetaWindow *window)
   g_return_val_if_fail (META_IS_WINDOW (window), NULL);
 
   return window->tag;
+}
+
+/**
+ * meta_window_hide_from_window_list
+ * @window: A #MetaWindow
+ *
+ * Hides this window from any window list, like taskbars, pagers...
+ */
+void
+meta_window_hide_from_window_list (MetaWindow *window)
+{
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  if (window->skip_from_window_list)
+    return;
+
+  window->skip_from_window_list = TRUE;
+  meta_window_recalc_features (window);
+}
+
+/**
+ * meta_window_show_in_window_list
+ * @window: A #MetaWindow
+ *
+ * Shows again this window in window lists, like taskbars, pagers...
+ */
+void
+meta_window_show_in_window_list (MetaWindow *window)
+{
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  if (!window->skip_from_window_list)
+    return;
+
+  window->skip_from_window_list = FALSE;
+  meta_window_recalc_features (window);
 }
