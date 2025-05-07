@@ -215,11 +215,11 @@ main (int    argc,
 
   draw (display, DRM_FORMAT_YUV420, shader_luma_gradient);
   wl_surface_commit (surface);
-  wait_for_view_verified (display, 2);
+  wait_for_view_verified (display, 0);
 
   draw (display, DRM_FORMAT_YUV420, shader_color_gradient);
   wl_surface_commit (surface);
-  wait_for_view_verified (display, 3);
+  wait_for_view_verified (display, 2);
 
   g_clear_pointer (&xdg_toplevel, xdg_toplevel_destroy);
   g_clear_pointer (&xdg_surface, xdg_surface_destroy);
