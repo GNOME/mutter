@@ -1,0 +1,24 @@
+new_client w wayland
+create w/1 csd
+resize w/1 100 100
+show w/1
+wait
+
+move w/1 100 100
+
+popup_at w/p1 1 right 100 100
+assert_position w/p1 200 100
+
+popup_at w/p2 p1 bottom 100 100
+assert_position w/p2 200 200
+
+popup_at w/p3 p2 left 100 100
+assert_position w/p3 100 200
+
+dismiss w/p3
+dismiss w/p2
+dismiss w/p1
+
+popup_at w/p4 1 top 100 100
+assert_position w/p4 100 0
+dismiss w/p4

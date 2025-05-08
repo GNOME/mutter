@@ -1120,6 +1120,7 @@ stacking_tests = [
   'interactive-move',
   'map-on-monitor',
   'popups',
+  'popup-positions',
 ]
 
 foreach stacking_test: stacking_tests
