@@ -42,7 +42,7 @@
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/window-x11.h"
+#include "x11/window-x11-private.h"
 
 typedef enum _StackFilter
 {
@@ -1915,6 +1915,8 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
       int width;
       int height;
+      int client_window_width;
+      int client_window_height;
       g_autofree char *width_str = NULL;
       g_autofree char *height_str = NULL;
 
@@ -1933,19 +1935,26 @@ test_case_do (TestCase    *test,
       if (!window)
         return FALSE;
 
-      if (META_IS_WINDOW_X11 (window) && meta_window_x11_get_frame (window))
-        {
-          g_set_error (error,
-                       META_TEST_CLIENT_ERROR,
-                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
-                       "Can only assert size of CSD window");
-          return FALSE;
-        }
-
       width = parse_window_size (window, argv[2]);
       height = parse_window_size (window, argv[3]);
-      width_str = g_strdup_printf ("%d", width);
-      height_str = g_strdup_printf ("%d", height);
+      client_window_width = width;
+      client_window_height = height;
+
+      if (META_IS_WINDOW_X11 (window) && meta_window_x11_get_frame (window))
+        {
+          MetaFrameBorders frame_borders;
+
+          g_assert_true (meta_window_x11_get_frame_borders (window,
+                                                            &frame_borders));
+
+          client_window_width -=
+            frame_borders.visible.left + frame_borders.visible.right;
+          client_window_height -=
+            frame_borders.visible.top + frame_borders.visible.bottom;
+        }
+
+      width_str = g_strdup_printf ("%d", client_window_width);
+      height_str = g_strdup_printf ("%d", client_window_height);
 
       if (!meta_test_client_do (client, error, argv[0],
                                 window_id,

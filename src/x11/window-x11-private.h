@@ -140,8 +140,8 @@ void meta_window_x11_get_session_geometry (MetaWindow  *window,
                                            int         *width,
                                            int         *height);
 
-gboolean
-meta_window_x11_get_frame_borders (MetaWindow       *window,
-                                   MetaFrameBorders *borders);
+META_EXPORT_TEST
+gboolean meta_window_x11_get_frame_borders (MetaWindow       *window,
+                                            MetaFrameBorders *borders);
 
 G_END_DECLS
