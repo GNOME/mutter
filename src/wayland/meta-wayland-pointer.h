@@ -94,6 +94,7 @@ void meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer);
 
 MetaWaylandSurface * meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer);
 
+META_EXPORT_TEST
 MetaWaylandSurface * meta_wayland_pointer_get_focus_surface (MetaWaylandPointer *pointer);
 
 void meta_wayland_pointer_focus_surface (MetaWaylandPointer *pointer,

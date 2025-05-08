@@ -37,7 +37,9 @@
 #include "meta/util.h"
 #include "meta/window.h"
 #include "tests/meta-test-utils.h"
-#include "wayland/meta-wayland.h"
+#include "wayland/meta-wayland-keyboard.h"
+#include "wayland/meta-wayland-pointer.h"
+#include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
@@ -58,6 +60,7 @@ typedef struct {
   gulong x11_display_opened_handler_id;
   GHashTable *virtual_monitors;
   ClutterVirtualInputDevice *pointer;
+  ClutterVirtualInputDevice *keyboard;
   GHashTable *cloned_windows;
   GHashTable *popups;
 } TestCase;
@@ -143,6 +146,8 @@ test_case_new (MetaContext *context)
   test->loop = g_main_loop_new (NULL, FALSE);
   test->pointer = clutter_seat_create_virtual_device (seat,
                                                       CLUTTER_POINTER_DEVICE);
+  test->keyboard = clutter_seat_create_virtual_device (seat,
+                                                       CLUTTER_KEYBOARD_DEVICE);
 
   test->virtual_monitors = g_hash_table_new_full (g_str_hash,
                                                   g_str_equal,
@@ -1743,6 +1748,161 @@ test_case_do (TestCase    *test,
             }
         }
     }
+  else if (strcmp (argv[0], "assert_keyboard_focus") == 0)
+    {
+      MetaWaylandCompositor *wayland_compositor;
+      MetaWaylandKeyboard *wayland_keyboard;
+      MetaWaylandSurface *focus_surface;
+      struct wl_resource *focus_surface_resource = NULL;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>|none", argv[0]);
+
+      wayland_compositor = meta_context_get_wayland_compositor (test->context);
+      wayland_keyboard = wayland_compositor->seat->keyboard;
+      focus_surface =
+        meta_wayland_keyboard_get_focus_surface (wayland_keyboard);
+      if (focus_surface)
+        {
+          focus_surface_resource =
+            meta_wayland_surface_get_resource (focus_surface);
+        }
+
+      if (g_strcmp0 (argv[1], "none") == 0)
+        {
+          if (focus_surface)
+            {
+              g_set_error (error,
+                           META_TEST_CLIENT_ERROR,
+                           META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                           "Expected no keyboard focus, but found wl_surface#%d",
+                           wl_resource_get_id (focus_surface_resource));
+              return FALSE;
+            }
+        }
+      else
+        {
+          MetaTestClient *client;
+          const char *window_id;
+          MetaWindow *window;
+          MetaWaylandSurface *surface;
+          struct wl_resource *surface_resource;
+
+          if (!test_case_parse_window_id (test, argv[1],
+                                          &client, &window_id, error))
+            return FALSE;
+
+          if (meta_test_client_get_client_type (client) !=
+              META_WINDOW_CLIENT_TYPE_WAYLAND)
+            BAD_COMMAND ("%s only works with Wayland clients", argv[0]);
+
+          window = meta_test_client_find_window (client, window_id, error);
+          if (!window)
+            return FALSE;
+
+          surface = meta_window_get_wayland_surface (window);
+          surface_resource = meta_wayland_surface_get_resource (surface);
+
+          if (focus_surface &&
+              focus_surface != surface)
+            {
+              g_set_error (error,
+                           META_TEST_CLIENT_ERROR,
+                           META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                           "Expected keyboard focus wl_surface#%d, "
+                           "but found wl_surface#%d",
+                           wl_resource_get_id (surface_resource),
+                           wl_resource_get_id (focus_surface_resource));
+              return FALSE;
+            }
+          else if (!focus_surface)
+            {
+              g_set_error (error,
+                           META_TEST_CLIENT_ERROR,
+                           META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                           "Expected keyboard focus wl_surface#%d, but found none",
+                           wl_resource_get_id (surface_resource));
+              return FALSE;
+            }
+        }
+    }
+  else if (strcmp (argv[0], "assert_pointer_focus") == 0)
+    {
+      MetaWaylandCompositor *wayland_compositor;
+      MetaWaylandPointer *wayland_pointer;
+      MetaWaylandSurface *focus_surface;
+      struct wl_resource *focus_surface_resource = NULL;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>|none", argv[0]);
+
+      wayland_compositor = meta_context_get_wayland_compositor (test->context);
+      wayland_pointer = wayland_compositor->seat->pointer;
+      focus_surface = meta_wayland_pointer_get_focus_surface (wayland_pointer);
+      if (focus_surface)
+        {
+          focus_surface_resource =
+            meta_wayland_surface_get_resource (focus_surface);
+        }
+
+      if (g_strcmp0 (argv[1], "none") == 0)
+        {
+          if (focus_surface)
+            {
+              g_set_error (error,
+                           META_TEST_CLIENT_ERROR,
+                           META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                           "Expected no pointer focus, but found wl_surface#%d",
+                           wl_resource_get_id (focus_surface_resource));
+              return FALSE;
+            }
+        }
+      else
+        {
+          MetaTestClient *client;
+          const char *window_id;
+          MetaWindow *window;
+          MetaWaylandSurface *surface;
+          struct wl_resource *surface_resource;
+
+          if (!test_case_parse_window_id (test, argv[1],
+                                          &client, &window_id, error))
+            return FALSE;
+
+          if (meta_test_client_get_client_type (client) !=
+              META_WINDOW_CLIENT_TYPE_WAYLAND)
+            BAD_COMMAND ("%s only works with Wayland clients", argv[0]);
+
+          window = meta_test_client_find_window (client, window_id, error);
+          if (!window)
+            return FALSE;
+
+          surface = meta_window_get_wayland_surface (window);
+          surface_resource = meta_wayland_surface_get_resource (surface);
+
+          if (focus_surface &&
+              focus_surface != surface)
+            {
+              g_set_error (error,
+                           META_TEST_CLIENT_ERROR,
+                           META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                           "Expected pointer focus wl_surface#%d, "
+                           "but found wl_surface#%d",
+                           wl_resource_get_id (surface_resource),
+                           wl_resource_get_id (focus_surface_resource));
+              return FALSE;
+            }
+          else if (!focus_surface)
+            {
+              g_set_error (error,
+                           META_TEST_CLIENT_ERROR,
+                           META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                           "Expected pointer focus wl_surface#%d, but found none",
+                           wl_resource_get_id (surface_resource));
+              return FALSE;
+            }
+        }
+    }
   else if (strcmp (argv[0], "assert_size") == 0)
     {
       MetaWindow *window;
@@ -2506,6 +2666,7 @@ test_case_destroy (TestCase *test,
   g_hash_table_destroy (test->clients);
   g_hash_table_unref (test->virtual_monitors);
   g_object_unref (test->pointer);
+  g_object_unref (test->keyboard);
   g_clear_pointer (&test->popups, g_hash_table_unref);
   g_free (test);
 

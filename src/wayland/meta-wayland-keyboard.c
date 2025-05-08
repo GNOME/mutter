@@ -951,3 +951,9 @@ meta_wayland_keyboard_class_init (MetaWaylandKeyboardClass *klass)
 
   object_class->finalize = meta_wayland_keyboard_finalize;
 }
+
+MetaWaylandSurface *
+meta_wayland_keyboard_get_focus_surface (MetaWaylandKeyboard *keyboard)
+{
+  return keyboard->focus_surface;
+}

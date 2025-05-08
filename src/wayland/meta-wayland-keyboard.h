@@ -82,3 +82,6 @@ gboolean meta_wayland_keyboard_can_grab_surface (MetaWaylandKeyboard *keyboard,
                                                  uint32_t             serial);
 gboolean meta_wayland_keyboard_can_popup (MetaWaylandKeyboard *keyboard,
                                           uint32_t             serial);
+
+META_EXPORT_TEST
+MetaWaylandSurface * meta_wayland_keyboard_get_focus_surface (MetaWaylandKeyboard *keyboard);
