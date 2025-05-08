@@ -47,6 +47,7 @@
 
 #include "clutter/clutter.h"
 #include "core/meta-anonymous-file.h"
+#include "wayland/meta-wayland-input-device.h"
 #include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_KEYBOARD (meta_wayland_keyboard_get_type ())
