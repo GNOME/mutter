@@ -2319,6 +2319,32 @@ test_case_do (TestCase    *test,
                                                   CLUTTER_BUTTON_STATE_RELEASED);
       meta_flush_input (test->context);
     }
+  else if (strcmp (argv[0], "click_and_hold") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      clutter_virtual_input_device_notify_button (test->pointer,
+                                                  CLUTTER_CURRENT_TIME,
+                                                  CLUTTER_BUTTON_PRIMARY,
+                                                  CLUTTER_BUTTON_STATE_PRESSED);
+      meta_flush_input (test->context);
+      if (!test_case_dispatch (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "release_click") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      clutter_virtual_input_device_notify_button (test->pointer,
+                                                  CLUTTER_CURRENT_TIME,
+                                                  CLUTTER_BUTTON_PRIMARY,
+                                                  CLUTTER_BUTTON_STATE_RELEASED);
+      meta_flush_input (test->context);
+      if (!test_case_dispatch (test, error))
+        return FALSE;
+    }
   else if (strcmp (argv[0], "set_pref") == 0)
     {
       GSettings *wm;
