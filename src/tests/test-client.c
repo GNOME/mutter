@@ -283,6 +283,82 @@ text_clear_func (GtkClipboard *clipboard,
 }
 
 static void
+calculate_anchors (const char *position,
+                   GdkGravity *rect_anchor,
+                   GdkGravity *window_anchor)
+{
+  if (g_strcmp0 (position, "center") == 0)
+    {
+      *rect_anchor = GDK_GRAVITY_CENTER;
+      *window_anchor = GDK_GRAVITY_CENTER;
+    }
+  else if (g_strcmp0 (position, "top") == 0)
+    {
+      *rect_anchor = GDK_GRAVITY_NORTH;
+      *window_anchor = GDK_GRAVITY_SOUTH;
+    }
+  else if (g_strcmp0 (position, "bottom") == 0)
+    {
+      *rect_anchor = GDK_GRAVITY_SOUTH;
+      *window_anchor = GDK_GRAVITY_NORTH;
+    }
+  else if (g_strcmp0 (position, "left") == 0)
+    {
+      *rect_anchor = GDK_GRAVITY_WEST;
+      *window_anchor = GDK_GRAVITY_EAST;
+    }
+  else if (g_strcmp0 (position, "right") == 0)
+    {
+      *rect_anchor = GDK_GRAVITY_EAST;
+      *window_anchor = GDK_GRAVITY_WEST;
+    }
+  else
+    {
+      g_assert_not_reached ();
+    }
+}
+
+static void
+popup_at (GtkWidget  *parent,
+          const char *popup_id,
+          const char *position,
+          int         width,
+          int         height)
+{
+  GtkWidget *popup;
+  g_autofree char *title;
+  GdkWindow *gdk_window;
+  GdkRectangle window_rect;
+  GdkGravity rect_anchor, window_anchor;
+
+  popup = g_object_new (GTK_TYPE_WINDOW,
+                        "type", GTK_WINDOW_POPUP,
+                        "type-hint", GDK_WINDOW_TYPE_HINT_POPUP_MENU,
+                        NULL);
+
+  title = g_strdup_printf ("test/%s/%s", client_id, popup_id);
+  gtk_window_set_transient_for (GTK_WINDOW (popup), GTK_WINDOW (parent));
+  gtk_window_set_title (GTK_WINDOW (popup), title);
+  g_hash_table_insert (windows, g_strdup (popup_id), popup);
+
+  gtk_window_resize (GTK_WINDOW (popup), width, height);
+
+  gtk_widget_realize (popup);
+  gdk_window = gtk_widget_get_window (popup);
+
+  gtk_widget_get_allocation (popup, &window_rect);
+
+  calculate_anchors (position, &rect_anchor, &window_anchor);
+  gdk_window_move_to_rect (gdk_window,
+                           &window_rect,
+                           rect_anchor,
+                           window_anchor,
+                           0, 0, 0);
+
+  gtk_widget_show (popup);
+}
+
+static void
 process_line (const char *line)
 {
   GdkDisplay *display = gdk_display_get_default ();
@@ -1016,11 +1092,32 @@ process_line (const char *line)
                                    g_strdup (argv[2]));
       gtk_target_table_free (targets, n_targets);
     }
+  else if (strcmp (argv[0], "popup_at") == 0)
+    {
+      GtkWidget *parent;
+      int width, height;
+
+      if (argc != 6)
+        {
+          g_print ("usage: popup <popup-id> <parent-id> <top|bottom|left|right|center> <width> <height>\n");
+          goto out;
+        }
+
+      parent = lookup_window (argv[2]);
+      if (!parent)
+        {
+          g_print ("Parent not found\n");
+          goto out;
+        }
+
+      width = atoi (argv[4]);
+      height = atoi (argv[5]);
+
+      popup_at (parent, argv[1], argv[3], width, height);
+    }
   else if (strcmp (argv[0], "popup") == 0)
     {
       GtkWidget *parent;
-      GtkWidget *popup;
-      g_autofree char *title;
 
       if (argc != 3)
         {
@@ -1035,17 +1132,7 @@ process_line (const char *line)
           goto out;
         }
 
-      popup = g_object_new (GTK_TYPE_WINDOW,
-                            "type", GTK_WINDOW_POPUP,
-                            "type-hint", GDK_WINDOW_TYPE_HINT_POPUP_MENU,
-                            NULL);
-
-      title = g_strdup_printf ("test/%s/%s", client_id, argv[1]);
-      gtk_window_set_transient_for (GTK_WINDOW (popup), GTK_WINDOW (parent));
-      gtk_window_set_title (GTK_WINDOW (popup), title);
-      g_hash_table_insert (windows, g_strdup (argv[1]), popup);
-
-      gtk_widget_show (popup);
+      popup_at (parent, argv[1], "center", 100, 100);
     }
   else if (strcmp (argv[0], "dismiss") == 0)
     {

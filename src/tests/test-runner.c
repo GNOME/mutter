@@ -957,6 +957,66 @@ find_popup (MetaWindow *window)
 }
 
 static gboolean
+track_popup (TestCase        *test,
+             MetaTestClient  *client,
+             const char      *window_id,
+             const char      *parent_id,
+             GError         **error)
+{
+  MetaWindow *parent;
+  MetaWindow *popup;
+
+  if (!test->popups)
+    {
+      test->popups = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                            g_free, g_free);
+    }
+
+  g_hash_table_insert (test->popups,
+                       g_strdup (window_id), g_strdup (parent_id));
+
+  parent = meta_test_client_find_window (client, parent_id, error);
+  if (!parent)
+    return FALSE;
+
+  if (meta_test_client_get_client_type (client) ==
+      META_WINDOW_CLIENT_TYPE_WAYLAND)
+    {
+      g_autofree char *popup_title = NULL;
+
+      while (TRUE)
+        {
+          popup = find_popup (parent);
+          if (popup)
+            break;
+
+          g_main_context_iteration (NULL, TRUE);
+        }
+
+      popup_title = g_strdup_printf ("test/%s/%s",
+                                     meta_test_client_get_id (client),
+                                     window_id);
+      meta_window_set_title (popup, popup_title);
+    }
+  else
+    {
+      if (!test_case_wait (test, error))
+        return FALSE;
+
+      popup = meta_test_client_find_window (client, window_id, error);
+      if (!popup)
+        return FALSE;
+    }
+
+  meta_wait_for_window_shown (popup);
+
+  if (!test_case_wait (test, error))
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
 test_case_do (TestCase    *test,
               const char  *filename,
               int          line_no,
@@ -2322,8 +2382,6 @@ test_case_do (TestCase    *test,
       MetaTestClient *client;
       const char *window_id;
       const char *parent_id;
-      MetaWindow *parent;
-      MetaWindow *popup;
 
       if (argc != 3)
         BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id>", argv[0]);
@@ -2340,51 +2398,35 @@ test_case_do (TestCase    *test,
                                 NULL))
         return FALSE;
 
-      if (!test->popups)
-        {
-          test->popups = g_hash_table_new_full (g_str_hash, g_str_equal,
-                                                g_free, g_free);
-        }
+      if (!track_popup (test, client, window_id, parent_id, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "popup_at") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      const char *parent_id;
 
-      g_hash_table_insert (test->popups,
-                           g_strdup (window_id), g_strdup (parent_id));
+      if (argc != 6)
+        BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id> <top|bottom|left|right|center> <width> <height>", argv[0]);
 
-      parent = meta_test_client_find_window (client, parent_id, error);
-      if (!parent)
+      if (!test_case_parse_window_id (test, argv[1],
+                                      &client, &window_id, error))
         return FALSE;
 
-      if (meta_test_client_get_client_type (client) ==
-          META_WINDOW_CLIENT_TYPE_WAYLAND)
-        {
-          g_autofree char *popup_title = NULL;
+      parent_id = argv[2];
 
-          while (TRUE)
-            {
-              popup = find_popup (parent);
-              if (popup)
-                break;
+      if (!meta_test_client_do (client, error,
+                                argv[0],
+                                window_id,
+                                parent_id,
+                                argv[3],
+                                argv[4],
+                                argv[5],
+                                NULL))
+        return FALSE;
 
-              g_main_context_iteration (NULL, TRUE);
-            }
-
-          popup_title = g_strdup_printf ("test/%s/%s",
-                                         meta_test_client_get_id (client),
-                                         window_id);
-          meta_window_set_title (popup, popup_title);
-        }
-      else
-        {
-          if (!test_case_wait (test, error))
-            return FALSE;
-
-          popup = meta_test_client_find_window (client, window_id, error);
-          if (!popup)
-            return FALSE;
-        }
-
-      meta_wait_for_window_shown (popup);
-
-      if (!test_case_wait (test, error))
+      if (!track_popup (test, client, window_id, parent_id, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "dismiss") == 0)
