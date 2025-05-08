@@ -1,0 +1,35 @@
+assert_pointer_focus none
+assert_keyboard_focus none
+
+new_client w wayland
+create w/1 csd
+resize w/1 100 100
+show w/1
+wait
+
+move w/1 100 100
+move_cursor_to 150 150
+assert_pointer_focus w/1
+assert_keyboard_focus w/1
+
+# Check implicit pointer grabs on main window
+click_and_hold
+move_cursor_to 250 150
+assert_pointer_focus w/1
+release_click
+assert_pointer_focus none
+
+popup_at w/p1 1 right 100 100 grab
+assert_position w/p1 200 100
+assert_size w/p1 100 100
+assert_keyboard_focus w/p1
+assert_pointer_focus w/p1
+
+click_and_hold
+move_cursor_to 250 250
+# This currently fails
+# assert_pointer_focus w/p1
+release_click
+assert_pointer_focus none
+
+dismiss w/p1

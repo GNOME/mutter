@@ -1121,6 +1121,7 @@ stacking_tests = [
   'map-on-monitor',
   'popups',
   'popup-positions',
+  'popup-focus',
 ]
 
 foreach stacking_test: stacking_tests
