@@ -1,0 +1,49 @@
+resize_monitor default 500 500
+set_pref auto-maximize true
+
+new_client w wayland
+create w/1 csd
+# Resize the window so that it covers more than 80%
+resize w/1 450 450
+show w/1
+
+wait_reconfigure w/1
+assert_size w/1 500 500
+assert_position w/1 0 0
+
+unmaximize w/1
+wait_reconfigure w/1
+# The max size after unmaximizing is 80% of the work area
+assert_size w/1 447 447
+assert_position w/1 25 25
+
+
+new_client x x11
+create x/1 csd
+# Resize the window so that it covers more than 80%
+resize x/1 450 450
+show x/1
+
+wait_reconfigure x/1
+assert_size x/1 500 500
+assert_position x/1 0 0
+
+unmaximize x/1
+wait_reconfigure x/1
+# The max size after unmaximizing is 80% of the work area
+assert_size w/1 447 447
+assert_position x/1 25 25
+
+create x/2
+# Resize the window so that it covers more than 80%
+resize x/2 450 450
+show x/2
+
+dispatch
+wait_reconfigure x/2
+assert_size x/2 500 500
+assert_position x/2 0 0
+
+# Unmaximizing decorated X11 windosw isn't tested because the uncertainty about
+# the server side decoration height makes it difficult to predict the final
+# size.

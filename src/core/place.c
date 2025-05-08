@@ -32,6 +32,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "core/boxes-private.h"
+#include "core/window-private.h"
 #include "meta/meta-backend.h"
 #include "meta/prefs.h"
 #include "meta/workspace.h"
@@ -947,6 +948,15 @@ meta_window_place (MetaWindow        *window,
         }
     }
 
+  if (!window->showing_for_first_time)
+    logical_monitor = meta_window_get_main_logical_monitor (window);
+  else
+    logical_monitor = meta_backend_get_current_logical_monitor (backend);
+
+  meta_window_get_work_area_for_logical_monitor (window,
+                                                 logical_monitor,
+                                                 &work_area);
+
   if (window->type == META_WINDOW_DIALOG ||
       window->type == META_WINDOW_MODAL_DIALOG ||
       (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
@@ -978,7 +988,7 @@ meta_window_place (MetaWindow        *window,
 
           avoid_being_obscured_as_second_modal_dialog (window, flags, &x, &y);
 
-          goto done;
+          goto maybe_automaximize;
         }
     }
 
@@ -987,15 +997,6 @@ meta_window_place (MetaWindow        *window,
    */
 
   windows = find_windows_relevant_for_placement (window);
-
-  if (!window->showing_for_first_time)
-    logical_monitor = meta_window_get_main_logical_monitor (window);
-  else
-    logical_monitor = meta_backend_get_current_logical_monitor (backend);
-
-  meta_window_get_work_area_for_logical_monitor (window,
-                                                 logical_monitor,
-                                                 &work_area);
 
   place_centered = window_place_centered (window);
 
@@ -1065,6 +1066,21 @@ meta_window_place (MetaWindow        *window,
        */
       if (!found_fit)
         find_most_freespace (window, focus_window, x, y, &x, &y);
+    }
+
+maybe_automaximize:
+  if (meta_prefs_get_auto_maximize () &&
+      window->showing_for_first_time &&
+      window->has_maximize_func)
+    {
+      int window_area;
+      int work_area_area;
+
+      window_area = new_width * new_height;
+      work_area_area = work_area.width * work_area.height;
+
+      if (window_area > work_area_area * MAX_UNMAXIMIZED_WINDOW_AREA)
+        meta_window_queue_auto_maximize (window);
     }
 
 done:

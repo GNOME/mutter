@@ -1127,6 +1127,8 @@ stacking_tests = [
   'popups',
   'popup-positions',
   'popup-focus',
+  'auto-maximize',
+  'auto-maximize-dialog',
 ]
 
 foreach stacking_test: stacking_tests

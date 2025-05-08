@@ -199,6 +199,13 @@ typedef enum
   META_SIZE_HINTS_PROGRAM_WIN_GRAVITY = (1L << 9),
 } MetaSizeHintsFlags;
 
+/* Windows that unmaximize to a size bigger than that fraction of the workarea
+ * will be scaled down to that size (while maintaining aspect ratio).
+ * Windows that cover an area greater then this size are automatically
+ * maximized when initially placed.
+ */
+#define MAX_UNMAXIMIZED_WINDOW_AREA .8
+
 /**
  * A copy of XSizeHints that is meant to stay ABI compatible
  * with XSizeHints for x11 code paths usages
@@ -386,9 +393,7 @@ struct _MetaWindow
   /* Whether this is an override redirect window or not */
   guint override_redirect : 1;
 
-  /* Whether we have to maximize/minimize after placement */
-  guint maximize_horizontally_after_placement : 1;
-  guint maximize_vertically_after_placement : 1;
+  /* Whether we have to minimize after placement */
   guint minimize_after_placement : 1;
 
   /* The last "full" maximized/unmaximized state. We need to keep track of
@@ -635,6 +640,8 @@ void        meta_window_restore_tile       (MetaWindow        *window,
 void        meta_window_maximize_internal  (MetaWindow        *window,
                                             MetaMaximizeFlags  directions,
                                             MtkRectangle      *saved_rect);
+
+void        meta_window_queue_auto_maximize (MetaWindow       *window);
 
 void        meta_window_make_fullscreen_internal (MetaWindow    *window);
 void        meta_window_update_fullscreen_monitors (MetaWindow         *window,

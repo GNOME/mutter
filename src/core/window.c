@@ -114,12 +114,6 @@
 
 #include "meta-private-enum-types.h"
 
-/* Windows that unmaximize to a size bigger than that fraction of the workarea
- * will be scaled down to that size (while maintaining aspect ratio).
- * Windows that cover an area greater then this size are automaximized on map.
- */
-#define MAX_UNMAXIMIZED_WINDOW_AREA .8
-
 #define SNAP_SECURITY_LABEL_PREFIX "snap."
 
 #define SUSPEND_HIDDEN_TIMEOUT_S 3
@@ -163,6 +157,8 @@ static void meta_window_move_between_rects (MetaWindow          *window,
 static void unmaximize_window_before_freeing (MetaWindow        *window);
 static void unminimize_window_and_all_transient_parents (MetaWindow *window);
 
+static void reset_pending_auto_maximize (MetaWindow *window);
+
 static void meta_window_propagate_focus_appearance (MetaWindow *window,
                                                     gboolean    focused);
 static void set_workspace_state (MetaWindow    *window,
@@ -186,6 +182,11 @@ typedef struct _MetaWindowPrivate
   guint suspend_timoeut_id;
 
   GPtrArray *transient_children;
+
+  struct {
+    gboolean is_queued;
+    guint idle_handle_id;
+  } auto_maximize;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
@@ -1145,8 +1146,6 @@ meta_window_constructed (GObject *object)
   window->has_focus = FALSE;
   window->attached_focus_window = NULL;
 
-  window->maximize_horizontally_after_placement = FALSE;
-  window->maximize_vertically_after_placement = FALSE;
   window->minimize_after_placement = FALSE;
   meta_window_config_set_is_fullscreen (window->config, FALSE);
   window->require_fully_onscreen = TRUE;
@@ -1519,6 +1518,7 @@ meta_window_unmanage (MetaWindow  *window,
   meta_topic (META_DEBUG_WINDOW_STATE, "Unmanaging %s", window->desc);
   window->unmanaging = TRUE;
 
+  reset_pending_auto_maximize (window);
   g_clear_handle_id (&priv->suspend_timoeut_id, g_source_remove);
   g_clear_handle_id (&window->close_dialog_timeout_id, g_source_remove);
 
@@ -1821,8 +1821,26 @@ window_has_buffer (MetaWindow *window)
 }
 
 static gboolean
+should_show_be_postponed (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  if (priv->auto_maximize.idle_handle_id)
+    return TRUE;
+
+  if (priv->auto_maximize.is_queued &&
+      window->reparents_pending > 0)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
 meta_window_is_showable (MetaWindow *window)
 {
+  if (should_show_be_postponed (window))
+    return FALSE;
+
 #ifdef HAVE_WAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
       !window_has_buffer (window))
@@ -2436,30 +2454,7 @@ meta_window_show (MetaWindow *window)
 
   if (!window->placed &&
       meta_window_config_is_floating (window->config))
-    {
-      if (window->monitor &&
-          meta_prefs_get_auto_maximize () &&
-          window->showing_for_first_time &&
-          window->has_maximize_func)
-        {
-          MtkRectangle work_area;
-          MtkRectangle frame_rect;
-          int window_area;
-          int work_area_area;
-
-          frame_rect = meta_window_config_get_rect (window->config);
-          window_area = frame_rect.width * frame_rect.height;
-          meta_window_get_work_area_current_monitor (window, &work_area);
-          work_area_area = work_area.width * work_area.height;
-
-          if (window_area > work_area_area * MAX_UNMAXIMIZED_WINDOW_AREA)
-            {
-              window->maximize_horizontally_after_placement = TRUE;
-              window->maximize_vertically_after_placement = TRUE;
-            }
-        }
-      meta_window_force_placement (window, place_flags);
-    }
+    meta_window_force_placement (window, place_flags);
 
   if (focus_window &&
       window->showing_for_first_time &&
@@ -2843,6 +2838,8 @@ meta_window_maximize_internal (MetaWindow        *window,
   gboolean maximize_horizontally, maximize_vertically;
   gboolean was_maximized_horizontally, was_maximized_vertically;
 
+  reset_pending_auto_maximize (window);
+
   maximize_horizontally = directions & META_MAXIMIZE_HORIZONTAL;
   maximize_vertically = directions & META_MAXIMIZE_VERTICAL;
 
@@ -2959,6 +2956,47 @@ meta_window_maximize (MetaWindow *window)
   g_return_if_fail (!window->unmanaging);
 
   meta_window_set_maximize_flags (window, META_MAXIMIZE_BOTH);
+}
+
+static void
+reset_pending_auto_maximize (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->auto_maximize.is_queued = FALSE;
+  g_clear_handle_id (&priv->auto_maximize.idle_handle_id, g_source_remove);
+}
+
+static void
+idle_auto_maximize_cb (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->auto_maximize.idle_handle_id = 0;
+
+  meta_window_maximize (window);
+  meta_window_queue (window, META_QUEUE_CALC_SHOWING);
+}
+
+void
+meta_window_queue_auto_maximize (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  g_return_if_fail (window->showing_for_first_time);
+
+  if (priv->auto_maximize.is_queued ||
+      priv->auto_maximize.idle_handle_id)
+    return;
+
+  if (window->reparents_pending > 0)
+    {
+      priv->auto_maximize.is_queued = TRUE;
+      return;
+    }
+
+  priv->auto_maximize.idle_handle_id =
+    g_idle_add_once ((GSourceOnceFunc) idle_auto_maximize_cb, window);
 }
 
 /**
@@ -3431,6 +3469,8 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
                                    META_MOVE_RESIZE_RESIZE_ACTION |
                                    META_MOVE_RESIZE_STATE_CHANGED |
                                    META_MOVE_RESIZE_UNMAXIMIZE);
+
+      reset_pending_auto_maximize (window);
 
       meta_window_get_work_area_current_monitor (window, &work_area);
       meta_window_get_frame_rect (window, &old_frame_rect);
@@ -4600,10 +4640,17 @@ meta_window_resize_frame (MetaWindow *window,
 void
 meta_window_idle_move_resize (MetaWindow *window)
 {
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaMoveResizeFlags flags;
 
   if (!meta_window_is_showable (window))
     return;
+
+  if (priv->auto_maximize.is_queued)
+    {
+      meta_window_maximize (window);
+      return;
+    }
 
   flags = (META_MOVE_RESIZE_MOVE_ACTION |
            META_MOVE_RESIZE_RESIZE_ACTION |

@@ -1,0 +1,18 @@
+resize_monitor default 500 500
+set_pref auto-maximize true
+
+new_client w wayland
+create w/1 csd
+resize w/1 100 100
+show w/1
+
+create w/2 csd
+resize w/2 450 450
+set_parent w/2 1
+show w/2
+
+wait_reconfigure w/2
+assert_size w/2 500 500
+assert_position w/2 0 0
+
+destroy w/2
