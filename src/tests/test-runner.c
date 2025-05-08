@@ -2407,8 +2407,8 @@ test_case_do (TestCase    *test,
       const char *window_id;
       const char *parent_id;
 
-      if (argc != 6)
-        BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id> <top|bottom|left|right|center> <width> <height>", argv[0]);
+      if (argc != 6 && argc != 7)
+        BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id> <top|bottom|left|right|center> <width> <height> [grab]", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1],
                                       &client, &window_id, error))
@@ -2423,6 +2423,7 @@ test_case_do (TestCase    *test,
                                 argv[3],
                                 argv[4],
                                 argv[5],
+                                argc == 7 ? argv[6] : NULL,
                                 NULL))
         return FALSE;
 

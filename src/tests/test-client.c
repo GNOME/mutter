@@ -319,11 +319,22 @@ calculate_anchors (const char *position,
 }
 
 static void
+prepare_popup_window (GdkSeat   *seat,
+                      GdkWindow *window,
+                      gpointer   user_data)
+{
+  GtkWidget *popup = user_data;
+
+  gtk_widget_show (popup);
+}
+
+static void
 popup_at (GtkWidget  *parent,
           const char *popup_id,
           const char *position,
           int         width,
-          int         height)
+          int         height,
+          gboolean    grab)
 {
   GtkWidget *popup;
   g_autofree char *title;
@@ -355,7 +366,25 @@ popup_at (GtkWidget  *parent,
                            window_anchor,
                            0, 0, 0);
 
-  gtk_widget_show (popup);
+  if (grab)
+    {
+      GdkSeat *seat =
+        gdk_display_get_default_seat (gtk_widget_get_display (popup));
+      GdkGrabStatus grab_status;
+
+      grab_status = gdk_seat_grab (seat, gdk_window,
+                                   (GDK_SEAT_CAPABILITY_POINTER |
+                                    GDK_SEAT_CAPABILITY_TABLET_STYLUS |
+                                    GDK_SEAT_CAPABILITY_KEYBOARD),
+                                   TRUE,
+                                   NULL, NULL,
+                                   prepare_popup_window, popup);
+      g_assert_cmpint (grab_status, ==, GDK_GRAB_SUCCESS);
+    }
+  else
+    {
+      gtk_widget_show (popup);
+    }
 }
 
 static void
@@ -1096,10 +1125,12 @@ process_line (const char *line)
     {
       GtkWidget *parent;
       int width, height;
+      gboolean grab;
 
-      if (argc != 6)
+      if (argc != 6 &&
+          argc != 7)
         {
-          g_print ("usage: popup <popup-id> <parent-id> <top|bottom|left|right|center> <width> <height>\n");
+          g_print ("usage: popup <popup-id> <parent-id> <top|bottom|left|right|center> <width> <height> [grab]\n");
           goto out;
         }
 
@@ -1113,7 +1144,24 @@ process_line (const char *line)
       width = atoi (argv[4]);
       height = atoi (argv[5]);
 
-      popup_at (parent, argv[1], argv[3], width, height);
+      if (argc == 7)
+        {
+          if (g_strcmp0 (argv[6], "grab") == 0)
+            {
+              grab = TRUE;
+            }
+          else
+            {
+              g_print ("Unknown argument '%s'", argv[6]);
+              goto out;
+            }
+        }
+      else
+        {
+          grab = FALSE;
+        }
+
+      popup_at (parent, argv[1], argv[3], width, height, grab);
     }
   else if (strcmp (argv[0], "popup") == 0)
     {
@@ -1132,7 +1180,7 @@ process_line (const char *line)
           goto out;
         }
 
-      popup_at (parent, argv[1], "center", 100, 100);
+      popup_at (parent, argv[1], "center", 100, 100, FALSE);
     }
   else if (strcmp (argv[0], "dismiss") == 0)
     {
