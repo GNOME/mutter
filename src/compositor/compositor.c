@@ -1574,11 +1574,11 @@ gboolean
 meta_compositor_drag_window (MetaCompositor       *compositor,
                              MetaWindow           *window,
                              MetaGrabOp            grab_op,
+                             MetaDragWindowFlags   flags,
                              ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
                              uint32_t              timestamp,
-                             graphene_point_t     *pos_hint,
-                             ClutterActor         *grab_actor)
+                             graphene_point_t     *pos_hint)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -1595,7 +1595,7 @@ meta_compositor_drag_window (MetaCompositor       *compositor,
   priv->current_drag = g_steal_pointer (&window_drag);
 
   if (!meta_window_drag_begin (priv->current_drag, device,
-                               sequence, timestamp, grab_actor))
+                               sequence, timestamp, flags))
     {
       g_clear_object (&priv->current_drag);
       return FALSE;

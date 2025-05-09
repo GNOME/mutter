@@ -23,6 +23,14 @@
 #include "meta/common.h"
 #include "meta/window.h"
 
+typedef enum _MetaDragWindowFlags MetaDragWindowFlags;
+
+enum _MetaDragWindowFlags
+{
+  META_DRAG_WINDOW_FLAG_NONE = 0,
+  META_DRAG_WINDOW_FLAG_FOREIGN_GRAB = 1 << 0,
+};
+
 #define META_TYPE_WINDOW_DRAG (meta_window_drag_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWindowDrag, meta_window_drag,
                       META, WINDOW_DRAG, GObject)
@@ -34,7 +42,7 @@ gboolean meta_window_drag_begin (MetaWindowDrag       *drag,
                                  ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
                                  uint32_t              timestamp,
-                                 ClutterActor         *grab_actor);
+                                 MetaDragWindowFlags   flags);
 
 META_EXPORT_TEST
 void meta_window_drag_end (MetaWindowDrag *drag);
@@ -50,3 +58,6 @@ void meta_window_drag_update_edges (MetaWindowDrag *window_drag);
 
 void meta_window_drag_set_position_hint (MetaWindowDrag   *window_drag,
                                          graphene_point_t *pos_hint);
+
+gboolean meta_window_drag_process_event (MetaWindowDrag     *window_drag,
+                                         const ClutterEvent *event);
