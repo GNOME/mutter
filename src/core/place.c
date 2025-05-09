@@ -1026,29 +1026,6 @@ meta_window_place (MetaWindow        *window,
         }
     }
 
-  /* Maximize windows if they are too big for their work area (bit of
-   * a hack here). Assume undecorated windows probably don't intend to
-   * be maximized.
-   */
-  if (window->has_maximize_func && window->decorated &&
-      !meta_window_is_fullscreen (window))
-    {
-      MtkRectangle workarea;
-
-      meta_window_get_work_area_for_logical_monitor (window,
-                                                     logical_monitor,
-                                                     &workarea);
-
-      /* If the window is bigger than the screen, then automaximize.  Do NOT
-       * auto-maximize the directions independently.  See #419810.
-       */
-      if (new_width >= workarea.width && new_height >= workarea.height)
-        {
-          window->maximize_horizontally_after_placement = TRUE;
-          window->maximize_vertically_after_placement = TRUE;
-        }
-    }
-
   /* If the window is being denied focus and isn't a transient of the
    * focus window, we do NOT want it to overlap with the focus window
    * if at all possible.  This is guaranteed to only be called if the
