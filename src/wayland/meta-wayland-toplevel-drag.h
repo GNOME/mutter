@@ -27,6 +27,7 @@
 #include "mtk/mtk.h"
 #include "wayland/meta-wayland-types.h"
 #include "wayland/meta-wayland-data-source.h"
+#include "wayland/meta-wayland-input.h"
 
 struct _MetaWaylandToplevelDrag
 {
@@ -37,6 +38,7 @@ struct _MetaWaylandToplevelDrag
   int32_t x_offset, y_offset;
 
   MetaWindowDrag *window_drag;
+  MetaWaylandEventHandler *handler;
   gulong window_unmanaging_handler_id;
   gulong window_shown_handler_id;
   gulong drag_ended_handler_id;

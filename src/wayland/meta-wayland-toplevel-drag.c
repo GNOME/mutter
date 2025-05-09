@@ -70,9 +70,26 @@ static void
 on_window_drag_ended (MetaWindowDrag          *window_drag,
                       MetaWaylandToplevelDrag *toplevel_drag)
 {
+  MetaWaylandSeat *seat = NULL;
+  MetaWaylandInput *input;
+  MetaWindowActor *window_actor;
+  MetaWindow *window;
+
   meta_topic (META_DEBUG_WAYLAND, "Window drag ended.");
+  window = meta_window_drag_get_window (toplevel_drag->window_drag);
+
+  window_actor = meta_window_actor_from_window (window);
+  if (window_actor)
+    meta_window_actor_set_tied_to_drag (window_actor, FALSE);
+
   g_clear_signal_handler (&toplevel_drag->drag_ended_handler_id, window_drag);
   toplevel_drag->window_drag = NULL;
+
+  seat = meta_wayland_data_source_get_seat (toplevel_drag->data_source);
+  input = meta_wayland_seat_get_input (seat);
+
+  meta_wayland_input_detach_event_handler (input, toplevel_drag->handler);
+  toplevel_drag->handler = NULL;
 }
 
 static void
@@ -121,6 +138,47 @@ surface_from_xdg_toplevel_resource (struct wl_resource *resource)
   return meta_wayland_surface_role_get_surface (surface_role);
 }
 
+static MetaWaylandSurface *
+toplevel_drag_get_focus_surface (MetaWaylandEventHandler *handler,
+                                 ClutterInputDevice      *device,
+                                 ClutterEventSequence    *sequence,
+                                 gpointer                 user_data)
+{
+  return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
+                                                                device,
+                                                                sequence);
+}
+
+static void
+toplevel_drag_focus (MetaWaylandEventHandler *handler,
+                     ClutterInputDevice      *device,
+                     ClutterEventSequence    *sequence,
+                     MetaWaylandSurface      *surface,
+                     gpointer                 user_data)
+{
+  meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
+}
+
+static gboolean
+toplevel_drag_propagate_event (MetaWaylandEventHandler *handler,
+                               const ClutterEvent      *event,
+                               gpointer                 user_data)
+{
+  MetaWaylandToplevelDrag *toplevel_drag = user_data;
+
+  return meta_window_drag_process_event (toplevel_drag->window_drag, event);
+}
+
+static MetaWaylandEventInterface event_interface = {
+  toplevel_drag_get_focus_surface,
+  toplevel_drag_focus,
+  toplevel_drag_propagate_event, /* motion */
+  toplevel_drag_propagate_event, /* press */
+  toplevel_drag_propagate_event, /* release */
+  toplevel_drag_propagate_event, /* key */
+  toplevel_drag_propagate_event, /* other */
+};
+
 static void
 start_window_drag (MetaWindow              *dragged_window,
                    MetaWaylandToplevelDrag *toplevel_drag,
@@ -129,11 +187,9 @@ start_window_drag (MetaWindow              *dragged_window,
   MetaWaylandSeat *seat;
   MetaWaylandDragGrab *drag_grab;
   MetaSurfaceActor *surface_actor;
-  MetaContext *context;
-  MetaBackend *backend;
+  MetaWaylandInput *input;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
-  ClutterActor *stage, *grab_actor;
   MetaCompositor *compositor;
   uint32_t timestamp;
   gboolean started;
@@ -167,17 +223,12 @@ start_window_drag (MetaWindow              *dragged_window,
   device = meta_wayland_drag_grab_get_device (drag_grab, &sequence);
   timestamp = meta_display_get_current_time_roundtrip (dragged_window->display);
 
-  /* Re-use the current wayland input's grab actor for the newly started
-   * window drag session. */
-  context = meta_display_get_context (dragged_window->display);
-  backend = meta_context_get_backend (context);
-  stage = meta_backend_get_stage (backend);
-  grab_actor = clutter_stage_get_grab_actor (CLUTTER_STAGE (stage));
-
   compositor = dragged_window->display->compositor;
   started = meta_compositor_drag_window (compositor, dragged_window,
-                                         META_GRAB_OP_MOVING_UNCONSTRAINED, device,
-                                         sequence, timestamp, offset_hint, grab_actor);
+                                         META_GRAB_OP_MOVING_UNCONSTRAINED,
+                                         META_DRAG_WINDOW_FLAG_FOREIGN_GRAB,
+                                         device, sequence,
+                                         timestamp, offset_hint);
   if (!started)
     return;
 
@@ -187,6 +238,13 @@ start_window_drag (MetaWindow              *dragged_window,
                       "ended",
                       G_CALLBACK (on_window_drag_ended),
                       toplevel_drag);
+
+  input = meta_wayland_seat_get_input (seat);
+  toplevel_drag->handler =
+    meta_wayland_input_attach_event_handler (input,
+                                             &event_interface,
+                                             TRUE,
+                                             toplevel_drag);
 }
 
 static void
@@ -391,7 +449,6 @@ void
 meta_wayland_toplevel_drag_end (MetaWaylandToplevelDrag *toplevel_drag)
 {
   MetaWindow *window;
-  MetaWindowActor *window_actor;
   MetaSurfaceActor *surface_actor;
 
   g_return_if_fail (toplevel_drag != NULL);
@@ -399,14 +456,7 @@ meta_wayland_toplevel_drag_end (MetaWaylandToplevelDrag *toplevel_drag)
 
   if (toplevel_drag->window_drag)
     {
-      window = meta_window_drag_get_window (toplevel_drag->window_drag);
-      g_clear_signal_handler (&toplevel_drag->drag_ended_handler_id,
-                              toplevel_drag->window_drag);
       meta_window_drag_end (toplevel_drag->window_drag);
-
-      window_actor = meta_window_actor_from_window (window);
-      if (window_actor)
-        meta_window_actor_set_tied_to_drag (window_actor, FALSE);
       toplevel_drag->window_drag = NULL;
     }
 
