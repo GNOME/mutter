@@ -104,6 +104,9 @@ wayland_test_clients = [
   },
   {
     'name': 'xdg-toplevel-suspended',
+    'extra_deps': [
+      libmutter_mtk_dep,
+    ],
   },
   {
     'name': 'xdg-toplevel-tag',

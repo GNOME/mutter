@@ -25,6 +25,12 @@
 
 #include <stdint.h>
 
+#include "mtk/mtk-macros.h"
+
+MTK_EXPORT
+int64_t mtk_extrapolate_next_interval_boundary (int64_t base_us,
+                                                int64_t interval_us);
+
 static inline uint64_t
 ns (uint64_t ns)
 {

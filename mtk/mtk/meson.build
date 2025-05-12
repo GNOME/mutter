@@ -14,6 +14,7 @@ mtk_sources = [
   'mtk-monitor-transform.c',
   'mtk-rectangle.c',
   'mtk-region.c',
+  'mtk-time-utils.c',
   'mtk-utils.c',
 ]
 

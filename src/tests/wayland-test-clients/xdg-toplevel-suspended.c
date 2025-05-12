@@ -20,7 +20,7 @@
 #include <glib.h>
 #include <wayland-client.h>
 
-#include "mtk/mtk-time-utils.h"
+#include "mtk/mtk.h"
 #include "wayland-test-client-utils.h"
 
 enum

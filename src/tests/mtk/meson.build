@@ -12,5 +12,12 @@ test_cases += [
     'sources': [
       'mtk/region-tests.c',
     ]
+  },
+  {
+    'name': 'mtk-time-utils',
+    'suite': 'unit',
+    'sources': [
+      'mtk/time-utils-tests.c',
+    ]
   }
 ]
