@@ -1745,7 +1745,7 @@ meta_test_monitor_lid_switch_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .serial = "0x123456a",
         },
         {
@@ -1931,7 +1931,7 @@ meta_test_monitor_lid_opened_config (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .serial = "0x123456a",
         },
         {
@@ -2091,7 +2091,7 @@ meta_test_monitor_lid_closed_no_external (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         }
       },
       .n_outputs = 1,
@@ -2188,7 +2188,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         },
         {
           .crtc = -1,
@@ -2441,7 +2441,7 @@ meta_test_monitor_lid_scaled_closed_opened (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
 	  .serial = "0x123456",
         },
       },
@@ -3135,7 +3135,7 @@ meta_test_monitor_switch_external_without_external (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         },
         {
           .crtc = 1,
@@ -3146,7 +3146,7 @@ meta_test_monitor_switch_external_without_external (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         }
       },
       .n_outputs = 2,
@@ -3285,7 +3285,7 @@ meta_test_monitor_switch_config_remember_scale (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .serial = "0x1000",
         },
         {

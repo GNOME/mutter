@@ -139,7 +139,7 @@ meta_test_monitor_orientation_initial_portrait_mode_workaround (void)
           .n_possible_crtcs = 1,
           .width_mm = 125,
           .height_mm = 222,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .serial = "0x123456",
         },
       },
@@ -276,7 +276,7 @@ meta_test_monitor_orientation_is_managed (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = FALSE,
+          .connector_type = META_CONNECTOR_TYPE_DisplayPort,
         }
       },
       .n_outputs = 1,
@@ -362,7 +362,7 @@ meta_test_monitor_orientation_is_managed (void)
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
   g_assert_null (meta_monitor_manager_get_laptop_panel (monitor_manager));
-  test_case.setup.outputs[0].is_laptop_panel = TRUE;
+  test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_eDP;
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
@@ -395,7 +395,7 @@ meta_test_monitor_orientation_is_managed (void)
   g_assert_true (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
-  test_case.setup.outputs[0].is_laptop_panel = FALSE;
+  test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_DisplayPort;
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
@@ -404,7 +404,7 @@ meta_test_monitor_orientation_is_managed (void)
   g_assert_false (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
-  test_case.setup.outputs[0].is_laptop_panel = TRUE;
+  test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_eDP;
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
@@ -471,7 +471,7 @@ meta_test_monitor_orientation_initial_rotated (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         },
       },
       .n_outputs = 1,
@@ -583,7 +583,7 @@ meta_test_monitor_orientation_initial_rotated_no_touch_mode (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         },
       },
       .n_outputs = 1,
@@ -691,7 +691,7 @@ meta_test_monitor_orientation_initial_stored_rotated (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .serial = "0x123456",
         },
       },
@@ -849,7 +849,7 @@ meta_test_monitor_orientation_initial_stored_rotated_no_touch (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .serial = "0x123456",
         },
       },
@@ -972,7 +972,7 @@ meta_test_monitor_orientation_changes (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         },
       },
       .n_outputs = 1,
@@ -1172,7 +1172,7 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE,
+          .connector_type = META_CONNECTOR_TYPE_eDP,
           .panel_orientation_transform = MTK_MONITOR_TRANSFORM_90,
         },
       },
@@ -1394,7 +1394,7 @@ meta_test_monitor_orientation_changes_with_hotplugging (void)
           .n_possible_crtcs = 1,
           .width_mm = 222,
           .height_mm = 125,
-          .is_laptop_panel = TRUE
+          .connector_type = META_CONNECTOR_TYPE_eDP,
         },
         {
           .crtc = -1,

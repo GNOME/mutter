@@ -81,7 +81,7 @@ meta_test_monitor_has_external_monitor (void)
         .n_possible_crtcs = 1,
         .width_mm = 222,
         .height_mm = 125,
-        .is_laptop_panel = TRUE,
+        .connector_type = META_CONNECTOR_TYPE_eDP,
       },
       {
         .crtc = -1,
@@ -92,7 +92,7 @@ meta_test_monitor_has_external_monitor (void)
         .n_possible_crtcs = 1,
         .width_mm = 222,
         .height_mm = 125,
-        .is_laptop_panel = FALSE,
+        .connector_type = META_CONNECTOR_TYPE_DisplayPort,
       }
     },
     .n_outputs = 2,

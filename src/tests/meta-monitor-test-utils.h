@@ -105,7 +105,7 @@ typedef struct _MonitorTestCaseOutput
   MetaTileInfo tile_info;
   gboolean dynamic_scale;
   float scale;
-  gboolean is_laptop_panel;
+  MetaConnectorType connector_type;
   gboolean is_underscanning;
   unsigned int max_bpc;
   MetaOutputRGBRange rgb_range;

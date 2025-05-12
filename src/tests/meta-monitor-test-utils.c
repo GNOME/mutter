@@ -652,8 +652,8 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 {
   MetaMonitorTestSetup *test_setup;
   int i;
-  int n_laptop_panels = 0;
-  int n_normal_panels = 0;
+#define META_N_CONNECTOR_TYPES 21
+  int connector_counter[META_N_CONNECTOR_TYPES] = {};
 
   test_setup = g_new0 (MetaMonitorTestSetup, 1);
 
@@ -707,7 +707,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       int j;
       MetaCrtc **possible_crtcs;
       int n_possible_crtcs;
-      gboolean is_laptop_panel;
+      MetaConnectorType connector_type;
       char *serial;
       g_autoptr (MetaOutputInfo) output_info = NULL;
 
@@ -745,7 +745,9 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
                                                possible_crtc_index);
         }
 
-      is_laptop_panel = setup->outputs[i].is_laptop_panel;
+      connector_type = setup->outputs[i].connector_type;
+      if (connector_type == META_CONNECTOR_TYPE_Unknown)
+        connector_type = META_CONNECTOR_TYPE_DisplayPort;
 
       serial = g_strdup (setup->outputs[i].serial);
       if (!serial)
@@ -753,9 +755,13 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 
       output_info = meta_output_info_new ();
 
-      output_info->name = (is_laptop_panel
-                           ? g_strdup_printf ("eDP-%d", ++n_laptop_panels)
-                           : g_strdup_printf ("DP-%d", ++n_normal_panels));
+      g_assert_cmpuint (connector_type, <, G_N_ELEMENTS (connector_counter));
+      connector_counter[connector_type]++;
+
+      output_info->name =
+        g_strdup_printf ("%s-%d",
+                         meta_connector_type_get_name (connector_type),
+                         connector_counter[connector_type]);
       output_info->vendor = g_strdup ("MetaProduct's Inc.");
       output_info->product = g_strdup ("MetaMonitor");
       output_info->serial = serial;
@@ -783,8 +789,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       output_info->possible_crtcs = possible_crtcs;
       output_info->n_possible_clones = 0;
       output_info->possible_clones = NULL;
-      output_info->connector_type = (is_laptop_panel ? META_CONNECTOR_TYPE_eDP
-                                     : META_CONNECTOR_TYPE_DisplayPort);
+      output_info->connector_type = connector_type;
       output_info->tile_info = setup->outputs[i].tile_info;
       output_info->panel_orientation_transform =
         setup->outputs[i].panel_orientation_transform;

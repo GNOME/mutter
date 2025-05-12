@@ -43,7 +43,7 @@ static MonitorTestCaseSetup initial_test_case_setup = {
       .n_possible_crtcs = 1,
       .width_mm = 222,
       .height_mm = 125,
-      .is_laptop_panel = TRUE,
+      .connector_type = META_CONNECTOR_TYPE_eDP,
       .backlight_min = 0,
       .backlight_max = 300,
     },
