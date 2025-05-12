@@ -869,43 +869,18 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       break;
     }
 
-  next_presentation_time_us = next_smooth_presentation_time_us;
-
   /*
-   * However, the last presentation could have happened more than a frame ago.
+   * The last presentation could have happened more than a frame ago.
    * For example, due to idling (nothing on screen changed, so no need to
    * redraw) or due to frames missing deadlines (GPU busy with heavy rendering).
    * The following code adjusts next_presentation_time_us to be in the future,
    * but still aligned to display presentation times. Instead of
-   * next presentation = last presentation + 1 * refresh interval, it will be
+   * next presentation = last presentation + 1/2/3 * refresh interval, it will be
    * next presentation = last presentation + N * refresh interval.
    */
-  if (next_presentation_time_us < now_us)
-    {
-      int64_t current_phase_us;
-
-      /*
-       * Let's say we're just past next_presentation_time_us.
-       *
-       * First, we calculate current_phase_us, corresponding to the time since
-       * the last integer multiple of the refresh interval passed after the last
-       * presentation time. Subtracting this phase from now_us and adding a
-       * refresh interval gets us the next possible presentation time after
-       * now_us.
-       *
-       *     last_presentation_time_us
-       *    /       next_presentation_time_us
-       *   /       /   now_us
-       *  /       /   /    new next_presentation_time_us
-       * |-------|---o---|-------|--> possible presentation times
-       *          \_/     \_____/
-       *          /           \
-       * current_phase_us      refresh_interval_us
-       */
-
-      current_phase_us = (now_us - last_presentation_time_us) % refresh_interval_us;
-      next_presentation_time_us = now_us - current_phase_us + refresh_interval_us;
-    }
+  next_presentation_time_us =
+    mtk_extrapolate_next_interval_boundary (next_smooth_presentation_time_us,
+                                            refresh_interval_us);
 
   if (last_presentation->target_presentation_time_us > 0)
     {
