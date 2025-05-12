@@ -1716,37 +1716,6 @@ meta_monitor_has_aspect_as_size (MetaMonitor *monitor)
      (width_mm == 16 && height_mm == 10);
 }
 
-static const char *
-get_connector_type_name (MetaConnectorType connector_type)
-{
-  switch (connector_type)
-    {
-    case META_CONNECTOR_TYPE_Unknown: return "Unknown";
-    case META_CONNECTOR_TYPE_VGA: return "VGA";
-    case META_CONNECTOR_TYPE_DVII: return "DVII";
-    case META_CONNECTOR_TYPE_DVID: return "DVID";
-    case META_CONNECTOR_TYPE_DVIA: return "DVIA";
-    case META_CONNECTOR_TYPE_Composite: return "Composite";
-    case META_CONNECTOR_TYPE_SVIDEO: return "SVIDEO";
-    case META_CONNECTOR_TYPE_LVDS: return "LVDS";
-    case META_CONNECTOR_TYPE_Component: return "Component";
-    case META_CONNECTOR_TYPE_9PinDIN: return "9PinDIN";
-    case META_CONNECTOR_TYPE_DisplayPort: return "DisplayPort";
-    case META_CONNECTOR_TYPE_HDMIA: return "HDMIA";
-    case META_CONNECTOR_TYPE_HDMIB: return "HDMIB";
-    case META_CONNECTOR_TYPE_TV: return "TV";
-    case META_CONNECTOR_TYPE_eDP: return "eDP";
-    case META_CONNECTOR_TYPE_VIRTUAL: return "VIRTUAL";
-    case META_CONNECTOR_TYPE_DSI: return "DSI";
-    case META_CONNECTOR_TYPE_DPI: return "DPI";
-    case META_CONNECTOR_TYPE_WRITEBACK: return "WRITEBACK";
-    case META_CONNECTOR_TYPE_SPI: return "SPI";
-    case META_CONNECTOR_TYPE_USB: return "USB";
-    default: g_assert_not_reached ();
-    }
-  return NULL;
-}
-
 static GList *
 combine_gpu_lists (MetaMonitorManager    *manager,
                    GList              * (*list_getter) (MetaGpu *gpu))
@@ -1965,7 +1934,8 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       is_primary = meta_output_is_primary (output);
       is_presentation = meta_output_is_presentation (output);
       is_underscanning = meta_output_is_underscanning (output);
-      connector_type_name = get_connector_type_name (output_info->connector_type);
+      connector_type_name =
+        meta_connector_type_get_name (output_info->connector_type);
       supports_underscanning = output_info->supports_underscanning;
       supports_color_transform = output_info->supports_color_transform;
       vendor = output_info->vendor;

@@ -22,6 +22,7 @@
 
 #include <errno.h>
 
+#include "backends/meta-connector.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
@@ -1645,35 +1646,21 @@ init_properties (MetaKmsConnector  *connector,
 static char *
 make_connector_name (drmModeConnector *drm_connector)
 {
-  static const char * const connector_type_names[] = {
-    "None",
-    "VGA",
-    "DVI-I",
-    "DVI-D",
-    "DVI-A",
-    "Composite",
-    "SVIDEO",
-    "LVDS",
-    "Component",
-    "DIN",
-    "DP",
-    "HDMI",
-    "HDMI-B",
-    "TV",
-    "eDP",
-    "Virtual",
-    "DSI",
-    "DPI",
-  };
+  const char *connector_name;
 
-  if (drm_connector->connector_type < G_N_ELEMENTS (connector_type_names))
-    return g_strdup_printf ("%s-%d",
-                            connector_type_names[drm_connector->connector_type],
-                            drm_connector->connector_type_id);
+  connector_name = meta_connector_type_get_name (drm_connector->connector_type);
+  if (connector_name)
+    {
+      return g_strdup_printf ("%s-%d",
+                              connector_name,
+                              drm_connector->connector_type_id);
+    }
   else
-    return g_strdup_printf ("Unknown%d-%d",
-                            drm_connector->connector_type,
-                            drm_connector->connector_type_id);
+    {
+      return g_strdup_printf ("Unknown%d-%d",
+                              drm_connector->connector_type,
+                              drm_connector->connector_type_id);
+    }
 }
 
 gboolean

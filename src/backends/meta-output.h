@@ -22,6 +22,7 @@
 
 #include "backends/edid.h"
 #include "backends/meta-backend-types.h"
+#include "backends/meta-connector.h"
 #include "backends/meta-gpu.h"
 #include "core/util-private.h"
 
@@ -93,35 +94,6 @@ struct _MetaTileInfo
   uint32_t tile_w;
   uint32_t tile_h;
 };
-
-/* The first 17 matches the values in drm_mode.h, the ones starting with
- * 1000 do not. */
-typedef enum
-{
-  META_CONNECTOR_TYPE_Unknown = 0,
-  META_CONNECTOR_TYPE_VGA = 1,
-  META_CONNECTOR_TYPE_DVII = 2,
-  META_CONNECTOR_TYPE_DVID = 3,
-  META_CONNECTOR_TYPE_DVIA = 4,
-  META_CONNECTOR_TYPE_Composite = 5,
-  META_CONNECTOR_TYPE_SVIDEO = 6,
-  META_CONNECTOR_TYPE_LVDS = 7,
-  META_CONNECTOR_TYPE_Component = 8,
-  META_CONNECTOR_TYPE_9PinDIN = 9,
-  META_CONNECTOR_TYPE_DisplayPort = 10,
-  META_CONNECTOR_TYPE_HDMIA = 11,
-  META_CONNECTOR_TYPE_HDMIB = 12,
-  META_CONNECTOR_TYPE_TV = 13,
-  META_CONNECTOR_TYPE_eDP = 14,
-  META_CONNECTOR_TYPE_VIRTUAL = 15,
-  META_CONNECTOR_TYPE_DSI = 16,
-  META_CONNECTOR_TYPE_DPI = 17,
-  META_CONNECTOR_TYPE_WRITEBACK = 18,
-  META_CONNECTOR_TYPE_SPI = 19,
-  META_CONNECTOR_TYPE_USB = 20,
-
-  META_CONNECTOR_TYPE_META = 1000,
-} MetaConnectorType;
 
 typedef enum
 {

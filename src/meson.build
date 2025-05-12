@@ -201,6 +201,8 @@ mutter_sources = [
   'backends/meta-color-profile.h',
   'backends/meta-color-store.c',
   'backends/meta-color-store.h',
+  'backends/meta-connector.c',
+  'backends/meta-connector.h',
   'backends/meta-crtc-mode.c',
   'backends/meta-crtc-mode.h',
   'backends/meta-crtc.c',
