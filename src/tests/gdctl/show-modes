@@ -2,7 +2,7 @@ Monitors:
 ├──Monitor DP-1 (MetaProduct's Inc. 14")
 │  ├──Vendor: MetaProduct's Inc.
 │  ├──Product: MetaMonitor
-│  ├──Serial: 0x1234560
+│  ├──Serial: 0x1012000
 │  └──Modes (4)
 │      ├──3840x2160@60.000
 │      ├──3840x2160@30.000
@@ -14,7 +14,7 @@ Monitors:
 └──Monitor DP-2 (MetaProduct's Inc. 13")
    ├──Vendor: MetaProduct's Inc.
    ├──Product: MetaMonitor
-   ├──Serial: 0x1234561
+   ├──Serial: 0x1012001
    └──Modes (4)
        ├──2560x1440@60.000
        ├──1440x900@60.000

@@ -655,6 +655,13 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 #define META_N_CONNECTOR_TYPES 21
   int connector_counter[META_N_CONNECTOR_TYPES] = {};
 
+  static char *last_test_path = NULL;
+  static int test_serial_count_base = 0x1010000;
+
+  if (g_strcmp0 (last_test_path, g_test_get_path ()) != 0)
+    test_serial_count_base += 0x1000;
+  g_set_str (&last_test_path, g_test_get_path ());
+
   test_setup = g_new0 (MetaMonitorTestSetup, 1);
 
   test_setup->modes = NULL;
@@ -751,7 +758,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 
       serial = g_strdup (setup->outputs[i].serial);
       if (!serial)
-        serial = g_strdup_printf ("0x123456%d", i);
+        serial = g_strdup_printf ("0x%x", test_serial_count_base + i);
 
       output_info = meta_output_info_new ();
 
