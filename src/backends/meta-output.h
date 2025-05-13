@@ -289,3 +289,6 @@ void meta_output_update_modes (MetaOutput    *output,
                                MetaCrtcMode  *preferred_mode,
                                MetaCrtcMode **modes,
                                int            n_modes);
+
+gboolean meta_output_matches (MetaOutput *output,
+                              MetaOutput *other_output);

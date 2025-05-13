@@ -4604,3 +4604,33 @@ meta_monitor_manager_get_layout_mode (MetaMonitorManager *manager)
 {
   return manager->layout_mode;
 }
+
+MetaOutput *
+meta_monitor_manager_find_output (MetaMonitorManager *monitor_manager,
+                                  MetaOutput         *old_output)
+{
+  GList *l;
+  GList *virtual_monitors;
+
+  for (l = meta_backend_get_gpus (monitor_manager->backend); l; l = l->next)
+    {
+      MetaGpu *gpu = META_GPU (l->data);
+      MetaOutput *output;
+
+      output = meta_gpu_find_output (gpu, old_output);
+      if (output)
+        return output;
+    }
+
+  virtual_monitors = meta_monitor_manager_get_virtual_monitors (monitor_manager);
+  for (l = virtual_monitors; l; l = l->next)
+    {
+      MetaVirtualMonitor *virtual_monitor = META_VIRTUAL_MONITOR (l->data);
+      MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
+
+      if (meta_output_matches (output, old_output))
+        return output;
+    }
+
+  return NULL;
+}

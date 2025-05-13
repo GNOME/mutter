@@ -774,3 +774,22 @@ meta_output_update_modes (MetaOutput    *output,
   priv->info->modes = modes;
   priv->info->n_modes = n_modes;
 }
+
+gboolean
+meta_output_matches (MetaOutput *output,
+                     MetaOutput *other_output)
+{
+  MetaOutputPrivate *priv =
+    meta_output_get_instance_private (output);
+  MetaOutputPrivate *other_priv =
+    meta_output_get_instance_private (other_output);
+
+  if (output == other_output)
+    return TRUE;
+
+  return (priv->gpu == other_priv->gpu &&
+          g_strcmp0 (priv->info->name, other_priv->info->name) == 0 &&
+          g_strcmp0 (priv->info->vendor, other_priv->info->vendor) == 0 &&
+          g_strcmp0 (priv->info->product, other_priv->info->product) == 0 &&
+          g_strcmp0 (priv->info->serial, other_priv->info->serial) == 0);
+}
