@@ -929,6 +929,8 @@ process_line (const char *line)
 
       expected_name = argv[1];
 
+      gdk_display_sync (gdk_display_get_default ());
+
       resources = XRRGetScreenResourcesCurrent (xdisplay, root_xwindow);
       if (!resources)
         {
