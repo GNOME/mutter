@@ -138,12 +138,14 @@ meta_monitor_manager_test_read_current (MetaMonitorManager *manager)
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendTest *backend_test = META_BACKEND_TEST (backend);
   MetaGpu *gpu = meta_backend_test_get_gpu (backend_test);
+  MetaMonitorTestSetup *test_setup;
 
-  g_assert_true (manager_test->test_setup);
+  test_setup = manager_test->test_setup;
+  g_assert_nonnull (test_setup);
 
-  meta_gpu_take_modes (gpu, manager_test->test_setup->modes);
-  meta_gpu_take_crtcs (gpu, manager_test->test_setup->crtcs);
-  meta_gpu_take_outputs (gpu, manager_test->test_setup->outputs);
+  meta_gpu_take_modes (gpu, g_steal_pointer (&test_setup->modes));
+  meta_gpu_take_crtcs (gpu, g_steal_pointer (&test_setup->crtcs));
+  meta_gpu_take_outputs (gpu, g_steal_pointer (&test_setup->outputs));
 }
 
 static void
