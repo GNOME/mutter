@@ -92,6 +92,7 @@ struct _MetaMonitorClass
   gboolean (* get_suggested_position) (MetaMonitor *monitor,
                                        int         *width,
                                        int         *height);
+  gboolean (* update_outputs) (MetaMonitor *monitor);
 };
 
 #define META_TYPE_MONITOR_NORMAL (meta_monitor_normal_get_type ())
@@ -293,6 +294,9 @@ META_EXPORT_TEST
 gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
+MetaMonitor * meta_monitor_mode_get_monitor (MetaMonitorMode *monitor_mode);
+
+META_EXPORT_TEST
 MetaMonitorSpec * meta_monitor_spec_clone (const MetaMonitorSpec *monitor_id);
 
 guint meta_monitor_spec_hash (gconstpointer key);
@@ -360,5 +364,7 @@ void meta_monitor_set_for_lease (MetaMonitor *monitor,
 
 META_EXPORT_TEST
 gboolean meta_monitor_is_for_lease (MetaMonitor *monitor);
+
+gboolean meta_monitor_update_outputs (MetaMonitor *monitor);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorSpec, meta_monitor_spec_free)

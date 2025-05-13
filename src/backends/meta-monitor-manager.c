@@ -3949,14 +3949,27 @@ destroy_monitor (MetaMonitor *monitor)
 static void
 rebuild_monitors (MetaMonitorManager *manager)
 {
+  GList *old_monitors = NULL;
   GList *gpus;
   GList *l;
 
-  if (manager->monitors)
+  old_monitors = g_steal_pointer (&manager->monitors);
+  l = old_monitors;
+  while (l)
     {
-      g_list_free_full (manager->monitors, (GDestroyNotify) destroy_monitor);
-      manager->monitors = NULL;
+      GList *l_next = l->next;
+      MetaMonitor *monitor = META_MONITOR (l->data);
+
+      if (meta_monitor_update_outputs (monitor))
+        {
+          old_monitors = g_list_remove_link (old_monitors, l);
+          manager->monitors = g_list_concat (manager->monitors, l);
+        }
+
+      l = l_next;
     }
+
+  g_list_free_full (old_monitors, (GDestroyNotify) destroy_monitor);
 
   gpus = meta_backend_get_gpus (manager->backend);
   for (l = gpus; l; l = l->next)
@@ -3966,8 +3979,11 @@ rebuild_monitors (MetaMonitorManager *manager)
 
       for (k = meta_gpu_get_outputs (gpu); k; k = k->next)
         {
-          MetaOutput *output = k->data;
+          MetaOutput *output = META_OUTPUT (k->data);
           const MetaOutputInfo *output_info = meta_output_get_info (output);
+
+          if (meta_output_get_monitor (output))
+            continue;
 
           if (output_info->tile_info.group_id)
             {
@@ -3996,6 +4012,9 @@ rebuild_monitors (MetaMonitorManager *manager)
       MetaVirtualMonitor *virtual_monitor = l->data;
       MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
       MetaMonitorNormal *monitor_normal;
+
+      if (meta_output_get_monitor (output))
+        continue;
 
       monitor_normal = meta_monitor_normal_new (manager, output);
       manager->monitors = g_list_append (manager->monitors,

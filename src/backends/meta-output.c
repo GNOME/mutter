@@ -141,8 +141,6 @@ meta_output_get_monitor (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  g_warn_if_fail (priv->monitor);
-
   return priv->monitor;
 }
 
@@ -152,7 +150,7 @@ meta_output_set_monitor (MetaOutput  *output,
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  g_warn_if_fail (!priv->monitor);
+  g_warn_if_fail (!priv->monitor || monitor == priv->monitor);
 
   priv->monitor = monitor;
 }

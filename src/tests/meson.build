@@ -383,6 +383,17 @@ test_cases += [
     ],
   },
   {
+    'name': 'monitor-abstraction-tests',
+    'suite': 'backend',
+    'sources': [
+      'monitor-abstraction-tests.c',
+      monitor_tests_common,
+    ],
+    'depends': [
+      monitor_tests_common_deps,
+    ],
+  },
+  {
     'name': 'tiling-hotplug-test',
     'suite': 'backend',
     'sources': [
