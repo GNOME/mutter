@@ -17,7 +17,6 @@
 
 #include "config.h"
 
-#include "backends/meta-output.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-connector-private.h"
 
