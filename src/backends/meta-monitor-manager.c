@@ -657,6 +657,10 @@ meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
   if (!manager_class->apply_monitors_config (manager, config, method, error))
     return FALSE;
 
+  g_list_foreach (manager->monitors,
+                  (GFunc) meta_monitor_update_current_mode,
+                  NULL);
+
   switch (method)
     {
     case META_MONITORS_CONFIG_METHOD_TEMPORARY:
@@ -4257,7 +4261,7 @@ meta_monitor_manager_update_monitor_modes_derived (MetaMonitorManager *manager)
     {
       MetaMonitor *monitor = l->data;
 
-      meta_monitor_derive_current_mode (monitor);
+      meta_monitor_update_current_mode (monitor);
     }
 }
 

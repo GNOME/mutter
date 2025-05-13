@@ -212,7 +212,7 @@ META_EXPORT_TEST
 MetaMonitorMode * meta_monitor_get_current_mode (MetaMonitor *monitor);
 
 META_EXPORT_TEST
-void meta_monitor_derive_current_mode (MetaMonitor *monitor);
+void meta_monitor_update_current_mode (MetaMonitor *monitor);
 
 META_EXPORT_TEST
 void meta_monitor_set_current_mode (MetaMonitor     *monitor,

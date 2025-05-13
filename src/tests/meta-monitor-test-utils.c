@@ -514,7 +514,6 @@ meta_check_monitor_configuration (MetaContext           *context,
                                             NULL);
         }
 
-      meta_monitor_derive_current_mode (monitor);
       g_assert_true (current_mode == meta_monitor_get_current_mode (monitor));
     }
 

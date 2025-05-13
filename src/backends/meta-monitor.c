@@ -1820,7 +1820,7 @@ is_current_mode_known (MetaMonitor *monitor)
 }
 
 void
-meta_monitor_derive_current_mode (MetaMonitor *monitor)
+meta_monitor_update_current_mode (MetaMonitor *monitor)
 {
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
   MetaMonitorMode *current_mode = NULL;
