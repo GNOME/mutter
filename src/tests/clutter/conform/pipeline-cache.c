@@ -73,16 +73,20 @@ pipeline_cache_group_pipelines (void)
 
   clutter_color_state_add_pipeline_transform (srgb_srgb,
                                               bt2020_linear,
-                                              srgb_srgb_to_bt2020_linear);
+                                              srgb_srgb_to_bt2020_linear,
+                                              0);
   clutter_color_state_add_pipeline_transform (bt2020_linear,
                                               bt2020_pq,
-                                              bt2020_linear_to_bt2020_pq);
+                                              bt2020_linear_to_bt2020_pq,
+                                              0);
   clutter_color_state_add_pipeline_transform (bt2020_pq,
                                               bt2020_linear,
-                                              bt2020_pq_to_bt2020_linear);
+                                              bt2020_pq_to_bt2020_linear,
+                                              0);
   clutter_color_state_add_pipeline_transform (srgb_linear,
                                               srgb_srgb,
-                                              srgb_linear_to_srgb_srgb);
+                                              srgb_linear_to_srgb_srgb,
+                                              0);
 
   /* Check that it's all empty. */
   g_assert_null (clutter_pipeline_cache_get_pipeline (pipeline_cache, group1, 0,
@@ -165,7 +169,8 @@ pipeline_cache_replace_pipeline (void)
 
   clutter_color_state_add_pipeline_transform (srgb_srgb,
                                               bt2020_linear,
-                                              srgb_srgb_to_bt2020_linear);
+                                              srgb_srgb_to_bt2020_linear,
+                                              0);
 
   clutter_pipeline_cache_set_pipeline (pipeline_cache, group, 0,
                                        srgb_srgb, bt2020_linear,
@@ -176,7 +181,8 @@ pipeline_cache_replace_pipeline (void)
 
   clutter_color_state_add_pipeline_transform (srgb_srgb,
                                               bt2020_linear,
-                                              srgb_srgb_to_bt2020_linear_2);
+                                              srgb_srgb_to_bt2020_linear_2,
+                                              0);
   clutter_pipeline_cache_set_pipeline (pipeline_cache, group, 0,
                                        srgb_srgb, bt2020_linear,
                                        srgb_srgb_to_bt2020_linear_2);

@@ -415,7 +415,8 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
 
       clutter_color_state_add_pipeline_transform (color_state,
                                                   target_color_state,
-                                                  pnode->pipeline);
+                                                  pnode->pipeline,
+                                                  0);
     }
 
   if (!cogl_pipeline_get_name (pnode->pipeline))
@@ -1074,7 +1075,8 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
         clutter_paint_context_get_target_color_state (paint_context);
       clutter_color_state_add_pipeline_transform (color_state,
                                                   target_color_state,
-                                                  lnode->pipeline);
+                                                  lnode->pipeline,
+                                                  0);
     }
 
   for (i = 0; i < node->operations->len; i++)

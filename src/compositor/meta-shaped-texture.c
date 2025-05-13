@@ -469,10 +469,15 @@ attach_and_save_color_snippet (MetaShapedTexture *stex,
 {
   ClutterPipelineCache *pipeline_cache =
     clutter_context_get_pipeline_cache (stex->clutter_context);
+  ClutterColorStateTransformFlags flags = 0;
+
+  if (cache_slot == PIPELINE_CACHE_SLOT_UNBLENDED)
+    flags = CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE;
 
   clutter_color_state_add_pipeline_transform (color_state,
                                               target_color_state,
-                                              pipeline);
+                                              pipeline,
+                                              flags);
 
   clutter_pipeline_cache_set_pipeline (pipeline_cache,
                                        stex,

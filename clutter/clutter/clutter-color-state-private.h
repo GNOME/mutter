@@ -38,6 +38,8 @@ typedef struct _ClutterColorTransformKey
   guint tone_mapping_bit  : 1;
   /* When there is a 3D LUT snippet */
   guint lut_3d           : 1;
+  /* Alpha channel is always 1.0 */
+  guint opaque_bit       : 1;
 } ClutterColorTransformKey;
 
 typedef struct _ClutterColorOpSnippet
@@ -46,9 +48,10 @@ typedef struct _ClutterColorOpSnippet
   const char *name;
 } ClutterColorOpSnippet;
 
-void clutter_color_transform_key_init (ClutterColorTransformKey *key,
-                                       ClutterColorState        *color_state,
-                                       ClutterColorState        *target_color_state);
+void clutter_color_transform_key_init (ClutterColorTransformKey        *key,
+                                       ClutterColorState               *color_state,
+                                       ClutterColorState               *target_color_state,
+                                       ClutterColorStateTransformFlags  flags);
 
 guint clutter_color_transform_key_hash (gconstpointer data);
 
@@ -62,9 +65,10 @@ void clutter_color_op_snippet_append_source (const ClutterColorOpSnippet *color_
                                              GString                     *snippet_source,
                                              const char                  *snippet_color_var);
 
-void clutter_color_state_init_3d_lut_transform_key (ClutterColorState        *color_state,
-                                                    ClutterColorState        *target_color_state,
-                                                    ClutterColorTransformKey *key);
+void clutter_color_state_init_3d_lut_transform_key (ClutterColorState               *color_state,
+                                                    ClutterColorState               *target_color_state,
+                                                    ClutterColorStateTransformFlags  flags,
+                                                    ClutterColorTransformKey        *key);
 
 void clutter_color_state_append_3d_lut_transform_snippet (ClutterColorState *color_state,
                                                           ClutterColorState *target_color_state,

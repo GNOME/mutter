@@ -433,10 +433,10 @@ clutter_pango_display_list_render (CoglFramebuffer          *fb,
 
       cogl_pipeline_set_color (pipeline, &draw_color);
 
-
       clutter_color_state_add_pipeline_transform (color_state,
                                                   target_color_state,
-                                                  pipeline);
+                                                  pipeline,
+                                                  0);
 
       switch (node->type)
         {

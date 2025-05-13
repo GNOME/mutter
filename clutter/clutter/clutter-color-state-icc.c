@@ -92,12 +92,14 @@ clutter_color_state_icc_finalize (GObject *object)
 }
 
 static void
-clutter_color_state_icc_init_color_transform_key (ClutterColorState        *color_state,
-                                                  ClutterColorState        *target_color_state,
-                                                  ClutterColorTransformKey *key)
+clutter_color_state_icc_init_color_transform_key (ClutterColorState               *color_state,
+                                                  ClutterColorState               *target_color_state,
+                                                  ClutterColorStateTransformFlags  flags,
+                                                  ClutterColorTransformKey        *key)
 {
   clutter_color_state_init_3d_lut_transform_key (color_state,
                                                  target_color_state,
+                                                 flags,
                                                  key);
 }
 

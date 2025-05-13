@@ -587,9 +587,10 @@ needs_lum_mapping (const ClutterLuminance *lum,
 }
 
 static void
-clutter_color_state_params_init_color_transform_key (ClutterColorState        *color_state,
-                                                     ClutterColorState        *target_color_state,
-                                                     ClutterColorTransformKey *key)
+clutter_color_state_params_init_color_transform_key (ClutterColorState               *color_state,
+                                                     ClutterColorState               *target_color_state,
+                                                     ClutterColorStateTransformFlags  flags,
+                                                     ClutterColorTransformKey        *key)
 {
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
@@ -608,6 +609,7 @@ clutter_color_state_params_init_color_transform_key (ClutterColorState        *c
                                             target_color_state_params) ? 0 : 1;
   key->tone_mapping_bit = needs_tone_mapping (lum, target_lum) ? 1 : 0;
   key->lut_3d = 0;
+  key->opaque_bit = !!(flags & CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 }
 
 static const char srgb_eotf_source[] =

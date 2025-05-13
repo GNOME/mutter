@@ -97,7 +97,8 @@ clutter_color_transform_key_hash (gconstpointer data)
          key->luminance_bit    << 8 |
          key->color_trans_bit  << 9 |
          key->tone_mapping_bit << 10 |
-         key->lut_3d           << 11;
+         key->lut_3d           << 11 |
+         key->opaque_bit       << 12;
 }
 
 gboolean
@@ -112,13 +113,15 @@ clutter_color_transform_key_equal (gconstpointer data1,
           key1->luminance_bit == key2->luminance_bit &&
           key1->color_trans_bit == key2->color_trans_bit &&
           key1->tone_mapping_bit == key2->tone_mapping_bit &&
-          key1->lut_3d == key2->lut_3d);
+          key1->lut_3d == key2->lut_3d &&
+          key1->opaque_bit == key2->opaque_bit);
 }
 
 void
-clutter_color_state_init_3d_lut_transform_key (ClutterColorState        *color_state,
-                                               ClutterColorState        *target_color_state,
-                                               ClutterColorTransformKey *key)
+clutter_color_state_init_3d_lut_transform_key (ClutterColorState               *color_state,
+                                               ClutterColorState               *target_color_state,
+                                               ClutterColorStateTransformFlags  flags,
+                                               ClutterColorTransformKey        *key)
 {
   key->source_eotf_bits = 0;
   key->target_eotf_bits = 0;
@@ -126,12 +129,14 @@ clutter_color_state_init_3d_lut_transform_key (ClutterColorState        *color_s
   key->color_trans_bit = 0;
   key->tone_mapping_bit = 0;
   key->lut_3d = 1;
+  key->opaque_bit = !!(flags & CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
 }
 
 void
-clutter_color_transform_key_init (ClutterColorTransformKey *key,
-                                  ClutterColorState        *color_state,
-                                  ClutterColorState        *target_color_state)
+clutter_color_transform_key_init (ClutterColorTransformKey        *key,
+                                  ClutterColorState               *color_state,
+                                  ClutterColorState               *target_color_state,
+                                  ClutterColorStateTransformFlags  flags)
 {
   ClutterColorStateClass *color_state_class =
     CLUTTER_COLOR_STATE_GET_CLASS (color_state);
@@ -143,12 +148,14 @@ clutter_color_transform_key_init (ClutterColorTransformKey *key,
     {
       clutter_color_state_init_3d_lut_transform_key (color_state,
                                                      target_color_state,
+                                                     flags,
                                                      key);
       return;
     }
 
   color_state_class->init_color_transform_key (color_state,
                                                target_color_state,
+                                               flags,
                                                key);
 }
 
@@ -389,11 +396,11 @@ clutter_color_state_append_3d_lut_transform_snippet (ClutterColorState *color_st
 }
 
 static void
-clutter_color_state_append_transform_snippet (ClutterColorState *color_state,
-                                              ClutterColorState *target_color_state,
-                                              GString           *snippet_globals,
-                                              GString           *snippet_source,
-                                              const char        *snippet_color_var)
+clutter_color_state_append_transform_snippet (ClutterColorState               *color_state,
+                                              ClutterColorState               *target_color_state,
+                                              GString                         *snippet_globals,
+                                              GString                         *snippet_source,
+                                              const char                      *snippet_color_var)
 {
   ClutterColorStateClass *color_state_class =
     CLUTTER_COLOR_STATE_GET_CLASS (color_state);
@@ -416,8 +423,9 @@ clutter_color_state_append_transform_snippet (ClutterColorState *color_state,
 }
 
 static CoglSnippet *
-clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
-                                              ClutterColorState *target_color_state)
+clutter_color_state_create_transform_snippet (ClutterColorState               *color_state,
+                                              ClutterColorState               *target_color_state,
+                                              ClutterColorStateTransformFlags  flags)
 {
   CoglSnippet *snippet;
   const char *snippet_color_var;
@@ -434,15 +442,23 @@ clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
                                                 snippet_source,
                                                 snippet_color_var);
 
-  g_string_append_printf (snippet_source,
-                          "\n"
-                          "  if (cogl_color_out.a > 0.0)\n"
-                          "    {\n"
-                          "      cogl_color_out.rgb =\n"
-                          "        transform_color_state (cogl_color_out.rgb / cogl_color_out.a);\n"
-                          "    }\n"
-                          "\n"
-                          "  cogl_color_out.rgb *= cogl_color_out.a;\n");
+  if (flags & CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE)
+    {
+      g_string_append_printf (snippet_source,
+                              "  cogl_color_out.rgb = transform_color_state (cogl_color_out.rgb);\n");
+    }
+  else
+    {
+      g_string_append_printf (snippet_source,
+                              "\n"
+                              "  if (cogl_color_out.a > 0.0)\n"
+                              "    {\n"
+                              "      cogl_color_out.rgb =\n"
+                              "        transform_color_state (cogl_color_out.rgb / cogl_color_out.a);\n"
+                              "    }\n"
+                              "\n"
+                              "  cogl_color_out.rgb *= cogl_color_out.a;\n");
+    }
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
                               snippet_globals->str,
@@ -454,8 +470,9 @@ clutter_color_state_create_transform_snippet (ClutterColorState *color_state,
 }
 
 static CoglSnippet *
-clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
-                                           ClutterColorState *target_color_state)
+clutter_color_state_get_transform_snippet (ClutterColorState               *color_state,
+                                           ClutterColorState               *target_color_state,
+                                           ClutterColorStateTransformFlags  flags)
 {
   ClutterColorStatePrivate *priv;
   ClutterColorManager *color_manager;
@@ -467,14 +484,16 @@ clutter_color_state_get_transform_snippet (ClutterColorState *color_state,
 
   clutter_color_transform_key_init (&transform_key,
                                     color_state,
-                                    target_color_state);
+                                    target_color_state,
+                                    flags);
   snippet = clutter_color_manager_lookup_snippet (color_manager,
                                                   &transform_key);
   if (snippet)
     return g_object_ref (snippet);
 
   snippet = clutter_color_state_create_transform_snippet (color_state,
-                                                          target_color_state);
+                                                          target_color_state,
+                                                          flags);
 
   clutter_color_manager_add_snippet (color_manager,
                                      &transform_key,
@@ -742,9 +761,10 @@ clutter_color_state_do_transform (ClutterColorState *color_state,
 }
 
 void
-clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
-                                            ClutterColorState *target_color_state,
-                                            CoglPipeline      *pipeline)
+clutter_color_state_add_pipeline_transform (ClutterColorState               *color_state,
+                                            ClutterColorState               *target_color_state,
+                                            CoglPipeline                    *pipeline,
+                                            ClutterColorStateTransformFlags  flags)
 {
   g_autoptr (CoglSnippet) snippet = NULL;
 
@@ -755,7 +775,8 @@ clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
     return;
 
   snippet = clutter_color_state_get_transform_snippet (color_state,
-                                                       target_color_state);
+                                                       target_color_state,
+                                                       flags);
   cogl_pipeline_add_snippet (pipeline, snippet);
 
   clutter_color_state_update_uniforms (color_state,

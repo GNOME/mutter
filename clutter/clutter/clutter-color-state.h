@@ -32,6 +32,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum
+{
+  CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE = 1 << 0,
+} ClutterColorStateTransformFlags;
+
 #define CLUTTER_TYPE_COLOR_STATE (clutter_color_state_get_type ())
 CLUTTER_EXPORT
 G_DECLARE_DERIVABLE_TYPE (ClutterColorState,
@@ -43,9 +48,10 @@ struct _ClutterColorStateClass
 {
   GObjectClass parent_class;
 
-  void (* init_color_transform_key) (ClutterColorState        *color_state,
-                                     ClutterColorState        *target_color_state,
-                                     ClutterColorTransformKey *key);
+  void (* init_color_transform_key) (ClutterColorState               *color_state,
+                                     ClutterColorState               *target_color_state,
+                                     ClutterColorStateTransformFlags  flags,
+                                     ClutterColorTransformKey        *key);
 
   void (* append_transform_snippet) (ClutterColorState *color_state,
                                      ClutterColorState *target_color_state,
@@ -98,9 +104,10 @@ CLUTTER_EXPORT
 unsigned int clutter_color_state_get_id (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
-void clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
-                                                 ClutterColorState *target_color_state,
-                                                 CoglPipeline      *pipeline);
+void clutter_color_state_add_pipeline_transform (ClutterColorState               *color_state,
+                                                 ClutterColorState               *target_color_state,
+                                                 CoglPipeline                    *pipeline,
+                                                 ClutterColorStateTransformFlags  flags);
 
 CLUTTER_EXPORT
 void clutter_color_state_update_uniforms (ClutterColorState *color_state,

@@ -2000,6 +2000,7 @@ paint_selection_rectangle (ClutterText           *self,
     clutter_paint_context_get_target_color_state (paint_context);
   CoglColor cogl_color = { 0, };
   const CoglColor *color;
+  ClutterColorStateTransformFlags flags = 0;
 
   /* Paint selection background */
   if (priv->selection_color_set)
@@ -2017,9 +2018,13 @@ paint_selection_rectangle (ClutterText           *self,
   cogl_color_premultiply (&cogl_color);
   cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
+  if (cogl_color.alpha == 0xff)
+    flags = CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE;
+
   clutter_color_state_add_pipeline_transform (color_state,
                                               target_color_state,
-                                              color_pipeline);
+                                              color_pipeline,
+                                              flags);
 
   cogl_framebuffer_push_rectangle_clip (fb,
                                         box->x1, box->y1,
@@ -2071,6 +2076,7 @@ selection_paint (ClutterText         *self,
       CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
       CoglPipeline *color_pipeline = create_color_pipeline (cogl_context);
       CoglColor cogl_color;
+      ClutterColorStateTransformFlags flags = 0;
 
       /* No selection, just draw the cursor */
       if (priv->cursor_color_set)
@@ -2087,9 +2093,13 @@ selection_paint (ClutterText         *self,
       cogl_color_premultiply (&cogl_color);
       cogl_pipeline_set_color (color_pipeline, &cogl_color);
 
+      if (cogl_color.alpha == 0xff)
+        flags = CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE;
+
       clutter_color_state_add_pipeline_transform (color_state,
                                                   target_color_state,
-                                                  color_pipeline);
+                                                  color_pipeline,
+                                                  flags);
 
       cogl_framebuffer_draw_rectangle (fb,
                                        color_pipeline,

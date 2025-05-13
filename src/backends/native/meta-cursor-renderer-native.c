@@ -822,7 +822,8 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
   color_state = meta_cursor_sprite_get_color_state (cursor_sprite);
   clutter_color_state_add_pipeline_transform (color_state,
                                               target_color_state,
-                                              pipeline);
+                                              pipeline,
+                                              0);
 
   cogl_framebuffer_clear4f (COGL_FRAMEBUFFER (offscreen),
                             COGL_BUFFER_BIT_COLOR,

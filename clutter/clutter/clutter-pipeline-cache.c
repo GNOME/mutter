@@ -112,7 +112,8 @@ clutter_pipeline_cache_get_pipeline (ClutterPipelineCache *pipeline_cache,
 
   clutter_color_transform_key_init (&key,
                                     source_color_state,
-                                    target_color_state);
+                                    target_color_state,
+                                    0);
   pipeline = g_hash_table_lookup (group_entry->slots[slot], &key);
 
   if (pipeline)
@@ -178,7 +179,8 @@ clutter_pipeline_cache_set_pipeline (ClutterPipelineCache *pipeline_cache,
 
   clutter_color_transform_key_init (&key,
                                     source_color_state,
-                                    target_color_state);
+                                    target_color_state,
+                                    0);
   g_hash_table_replace (group_entry->slots[slot],
                         g_memdup2 (&key, sizeof (key)),
                         g_object_ref (pipeline));
@@ -211,7 +213,8 @@ clutter_pipeline_cache_unset_pipeline (ClutterPipelineCache *pipeline_cache,
 
   clutter_color_transform_key_init (&key,
                                     source_color_state,
-                                    target_color_state);
+                                    target_color_state,
+                                    0);
   g_hash_table_remove (group_entry->slots[slot], &key);
 }
 
