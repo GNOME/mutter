@@ -714,6 +714,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       MetaCrtc **possible_crtcs;
       int n_possible_crtcs;
       MetaConnectorType connector_type;
+      int connector_number;
       char *serial;
       g_autoptr (MetaOutputInfo) output_info = NULL;
 
@@ -761,13 +762,19 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
 
       output_info = meta_output_info_new ();
 
-      g_assert_cmpuint (connector_type, <, G_N_ELEMENTS (connector_counter));
-      connector_counter[connector_type]++;
+      connector_number = setup->outputs[i].connector_number;
+
+      if (connector_number == 0)
+        {
+          g_assert_cmpuint (connector_type, <, G_N_ELEMENTS (connector_counter));
+          connector_counter[connector_type]++;
+          connector_number = connector_counter[connector_type];
+        }
 
       output_info->name =
         g_strdup_printf ("%s-%d",
                          meta_connector_type_get_name (connector_type),
-                         connector_counter[connector_type]);
+                         connector_number);
       output_info->vendor = g_strdup ("MetaProduct's Inc.");
       output_info->product = g_strdup ("MetaMonitor");
       output_info->serial = serial;

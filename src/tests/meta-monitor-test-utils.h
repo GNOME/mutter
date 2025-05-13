@@ -106,6 +106,7 @@ typedef struct _MonitorTestCaseOutput
   gboolean dynamic_scale;
   float scale;
   MetaConnectorType connector_type;
+  int connector_number;
   gboolean is_underscanning;
   unsigned int max_bpc;
   MetaOutputRGBRange rgb_range;
