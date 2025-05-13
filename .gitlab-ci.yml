@@ -783,7 +783,7 @@ installed-tests-mutter@x86_64:
     - meson install -C build --no-rebuild
     - mkdir -m 1777 /tmp/.X11-unix
     - mkdir installed-tests-logs
-    - gnome-desktop-testing-runner -L installed-tests-logs mutter
+    - catch gnome-desktop-testing-runner -L installed-tests-logs mutter
   artifacts:
     expire_in: 7 day
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
