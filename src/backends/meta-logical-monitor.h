@@ -105,3 +105,5 @@ gboolean meta_logical_monitor_id_equal (const MetaLogicalMonitorId *id,
 const MetaLogicalMonitorId * meta_logical_monitor_get_id (MetaLogicalMonitor *logical_monitor);
 
 MetaLogicalMonitorId * meta_logical_monitor_dup_id (MetaLogicalMonitor *logical_monitor);
+
+MetaMonitorManager * meta_logical_monitor_get_monitor_manager (MetaLogicalMonitor *logical_monitor);

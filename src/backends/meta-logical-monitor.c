@@ -46,6 +46,8 @@
 
 typedef struct _MetaLogicalMonitorPrivate
 {
+  MetaMonitorManager *monitor_manager;
+
   MetaLogicalMonitorId *id;
 } MetaLogicalMonitorPrivate;
 
@@ -79,9 +81,13 @@ meta_logical_monitor_new (MetaMonitorManager       *monitor_manager,
                           int                       monitor_number)
 {
   MetaLogicalMonitor *logical_monitor;
+  MetaLogicalMonitorPrivate *priv;
   GList *monitor_configs;
 
   logical_monitor = g_object_new (META_TYPE_LOGICAL_MONITOR, NULL);
+  priv = meta_logical_monitor_get_instance_private (logical_monitor);
+
+  priv->monitor_manager = monitor_manager;
 
   monitor_configs = logical_monitor_config->monitor_configs;
 
@@ -125,9 +131,13 @@ meta_logical_monitor_new_derived (MetaMonitorManager *monitor_manager,
                                   int                 monitor_number)
 {
   MetaLogicalMonitor *logical_monitor;
+  MetaLogicalMonitorPrivate *priv;
   MtkMonitorTransform transform;
 
   logical_monitor = g_object_new (META_TYPE_LOGICAL_MONITOR, NULL);
+  priv = meta_logical_monitor_get_instance_private (logical_monitor);
+
+  priv->monitor_manager = monitor_manager;
 
   transform = derive_monitor_transform (monitor);
 
@@ -391,4 +401,13 @@ meta_logical_monitor_dup_id (MetaLogicalMonitor *logical_monitor)
     meta_logical_monitor_get_instance_private (logical_monitor);
 
   return meta_logical_monitor_id_dup (priv->id);
+}
+
+MetaMonitorManager *
+meta_logical_monitor_get_monitor_manager (MetaLogicalMonitor *logical_monitor)
+{
+  MetaLogicalMonitorPrivate *priv =
+    meta_logical_monitor_get_instance_private (logical_monitor);
+
+  return priv->monitor_manager;
 }
