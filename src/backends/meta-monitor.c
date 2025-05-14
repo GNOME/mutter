@@ -150,8 +150,8 @@ meta_monitor_spec_equals (const MetaMonitorSpec *monitor_spec,
 }
 
 int
-meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
-                           MetaMonitorSpec *monitor_spec_b)
+meta_monitor_spec_compare (const MetaMonitorSpec *monitor_spec_a,
+                           const MetaMonitorSpec *monitor_spec_b)
 {
   int ret;
 

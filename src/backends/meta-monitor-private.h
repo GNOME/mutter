@@ -281,8 +281,8 @@ gboolean meta_monitor_spec_equals (const MetaMonitorSpec *monitor_id,
                                    const MetaMonitorSpec *other_monitor_id);
 
 META_EXPORT_TEST
-int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
-                               MetaMonitorSpec *monitor_spec_b);
+int meta_monitor_spec_compare (const MetaMonitorSpec *monitor_spec_a,
+                               const MetaMonitorSpec *monitor_spec_b);
 
 META_EXPORT_TEST
 void meta_monitor_spec_free (MetaMonitorSpec *monitor_id);
