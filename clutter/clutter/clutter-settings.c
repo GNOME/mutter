@@ -474,7 +474,7 @@ load_initial_settings (ClutterSettings *self)
   static const gchar *mouse_settings_path = "org.gnome.desktop.peripherals.mouse";
   static const char *mouse_a11y_settings_path = "org.gnome.desktop.a11y.mouse";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
-  GSettingsSchema *schema;
+  g_autoptr (GSettingsSchema) schema = NULL;
 
   schema = g_settings_schema_source_lookup (source, font_settings_path, TRUE);
   if (!schema)
@@ -491,6 +491,8 @@ load_initial_settings (ClutterSettings *self)
                             G_CALLBACK (on_font_settings_change_event),
                             self);
         }
+
+      g_clear_pointer (&schema, g_settings_schema_unref);
     }
 
   schema = g_settings_schema_source_lookup (source, mouse_settings_path, TRUE);
@@ -508,6 +510,8 @@ load_initial_settings (ClutterSettings *self)
                             G_CALLBACK (on_mouse_settings_change_event),
                             self);
         }
+
+      g_clear_pointer (&schema, g_settings_schema_unref);
     }
 
   schema = g_settings_schema_source_lookup (source, mouse_a11y_settings_path, TRUE);
