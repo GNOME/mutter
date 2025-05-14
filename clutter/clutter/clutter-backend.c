@@ -82,6 +82,8 @@ clutter_backend_dispose (GObject *gobject)
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
 
+  g_clear_object (&backend->cogl_display);
+  g_clear_object (&backend->cogl_context);
   g_clear_object (&backend->dummy_onscreen);
   if (backend->stage_window)
     {
