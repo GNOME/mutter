@@ -304,18 +304,22 @@ static void
 meta_logical_monitor_dispose (GObject *object)
 {
   MetaLogicalMonitor *logical_monitor = META_LOGICAL_MONITOR (object);
+
+  g_clear_list (&logical_monitor->monitors, g_object_unref);
+
+  G_OBJECT_CLASS (meta_logical_monitor_parent_class)->dispose (object);
+}
+
+static void
+meta_logical_monitor_finalize (GObject *object)
+{
+  MetaLogicalMonitor *logical_monitor = META_LOGICAL_MONITOR (object);
   MetaLogicalMonitorPrivate *priv =
     meta_logical_monitor_get_instance_private (logical_monitor);
 
-  if (logical_monitor->monitors)
-    {
-      g_list_free_full (logical_monitor->monitors, g_object_unref);
-      logical_monitor->monitors = NULL;
-    }
-
   g_clear_pointer (&priv->id, meta_logical_monitor_id_free);
 
-  G_OBJECT_CLASS (meta_logical_monitor_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_logical_monitor_parent_class)->finalize (object);
 }
 
 static void
@@ -324,6 +328,7 @@ meta_logical_monitor_class_init (MetaLogicalMonitorClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_logical_monitor_dispose;
+  object_class->finalize = meta_logical_monitor_finalize;
 }
 
 gboolean
