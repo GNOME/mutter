@@ -126,7 +126,7 @@ derive_monitor_transform (MetaMonitor *monitor)
 MetaLogicalMonitor *
 meta_logical_monitor_new_derived (MetaMonitorManager *monitor_manager,
                                   MetaMonitor        *monitor,
-                                  MtkRectangle       *layout,
+                                  MtkRectangle        layout,
                                   float               scale,
                                   int                 monitor_number)
 {
@@ -145,7 +145,7 @@ meta_logical_monitor_new_derived (MetaMonitorManager *monitor_manager,
   logical_monitor->scale = scale;
   logical_monitor->transform = transform;
   logical_monitor->in_fullscreen = -1;
-  logical_monitor->rect = *layout;
+  logical_monitor->rect = layout;
 
   logical_monitor->is_presentation = TRUE;
   meta_logical_monitor_add_monitor (logical_monitor, monitor);

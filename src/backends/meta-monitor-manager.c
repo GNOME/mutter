@@ -403,7 +403,7 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
 
           logical_monitor = meta_logical_monitor_new_derived (manager,
                                                               monitor,
-                                                              &layout,
+                                                              layout,
                                                               scale,
                                                               monitor_number);
           logical_monitors = g_list_append (logical_monitors, logical_monitor);
