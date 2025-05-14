@@ -136,6 +136,17 @@ cogl_context_dispose (GObject *object)
 }
 
 static void
+cogl_context_finalize (GObject *object)
+{
+  CoglContext *context = COGL_CONTEXT (object);
+
+  g_string_free (context->codegen_header_buffer, TRUE);
+  g_string_free (context->codegen_source_buffer, TRUE);
+
+  G_OBJECT_CLASS (cogl_context_parent_class)->finalize (object);
+}
+
+static void
 cogl_context_init (CoglContext *info)
 {
 }
@@ -146,6 +157,7 @@ cogl_context_class_init (CoglContextClass *class)
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
   object_class->dispose = cogl_context_dispose;
+  object_class->finalize = cogl_context_finalize;
 }
 
 extern void
