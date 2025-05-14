@@ -233,6 +233,12 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
   g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
   MetaCursorRenderer *cursor_renderer;
 
+#ifdef HAVE_X11_CLIENT
+  /* X11 DnD lets the drag source client drive pointer cursor updates */
+  if (META_IS_WAYLAND_DATA_SOURCE_XWAYLAND (drag_grab->drag_data_source))
+    return;
+#endif
+
   cursor_sprite =
     META_CURSOR_SPRITE (meta_cursor_sprite_xcursor_new (cursor, cursor_tracker));
   cursor_renderer =
@@ -274,10 +280,7 @@ static void
 on_data_source_action_changed (MetaWaylandDataSource *source,
                                MetaWaylandDragGrab   *drag_grab)
 {
-#ifdef HAVE_X11_CLIENT
-  if (!META_IS_WAYLAND_DATA_SOURCE_XWAYLAND (source))
-#endif
-    meta_wayland_drag_grab_update_cursor (drag_grab);
+  meta_wayland_drag_grab_update_cursor (drag_grab);
 }
 
 static void
@@ -451,6 +454,8 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
   MetaDisplay *display = display_from_data_device (data_device);
   MetaCompositor *compositor = meta_display_get_compositor (display);
 
+  meta_wayland_drag_grab_set_cursor (drag_grab, META_CURSOR_DEFAULT);
+
   meta_wayland_drag_grab_set_source (drag_grab, NULL);
   meta_wayland_drag_grab_set_focus (drag_grab, NULL);
 
@@ -483,7 +488,6 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
       drag_grab->handler = NULL;
     }
 
-  meta_wayland_drag_grab_set_cursor (drag_grab, META_CURSOR_DEFAULT);
   meta_dnd_wayland_handle_end_modal (compositor);
 
   g_free (drag_grab);
