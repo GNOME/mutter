@@ -89,8 +89,6 @@ cogl_onscreen_egl_dispose (GObject *object)
   CoglRenderer *renderer = context->display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
 
-  G_OBJECT_CLASS (cogl_onscreen_egl_parent_class)->dispose (object);
-
   if (priv->egl_surface != EGL_NO_SURFACE)
     {
       /* Cogl always needs a valid context bound to something so if we
@@ -113,6 +111,8 @@ cogl_onscreen_egl_dispose (GObject *object)
         g_warning ("Failed to destroy EGL surface");
       priv->egl_surface = EGL_NO_SURFACE;
     }
+
+  G_OBJECT_CLASS (cogl_onscreen_egl_parent_class)->dispose (object);
 }
 
 static void
