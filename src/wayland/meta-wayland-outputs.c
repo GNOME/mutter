@@ -575,8 +575,8 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
 }
 
 static void
-on_monitors_changed (MetaMonitorManager    *monitors,
-                     MetaWaylandCompositor *compositor)
+on_monitors_changing (MetaMonitorManager    *monitors,
+                      MetaWaylandCompositor *compositor)
 {
   compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
 }
@@ -787,7 +787,7 @@ meta_wayland_outputs_finalize (MetaWaylandCompositor *compositor)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
-  g_signal_handlers_disconnect_by_func (monitor_manager, on_monitors_changed,
+  g_signal_handlers_disconnect_by_func (monitor_manager, on_monitors_changing,
                                         compositor);
 
   g_hash_table_destroy (compositor->outputs);
@@ -801,8 +801,8 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
-  g_signal_connect (monitor_manager, "monitors-changed",
-                    G_CALLBACK (on_monitors_changed), compositor);
+  g_signal_connect (monitor_manager, "monitors-changing",
+                    G_CALLBACK (on_monitors_changing), compositor);
 
   compositor->outputs =
     meta_wayland_compositor_update_outputs (compositor, monitor_manager);

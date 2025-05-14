@@ -88,6 +88,7 @@ enum
 {
   MONITORS_CHANGED,
   MONITORS_CHANGED_INTERNAL,
+  MONITORS_CHANGING,
   POWER_SAVE_MODE_CHANGED,
   CONFIRM_DISPLAY_CHANGE,
   MONITOR_PRIVACY_SCREEN_CHANGED,
@@ -1360,6 +1361,7 @@ meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
   update_has_external_monitor (manager);
   update_backlight (manager, TRUE);
 
+  g_signal_emit (manager, signals[MONITORS_CHANGING], 0);
   meta_backend_monitors_changed (manager->backend);
 
   g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
@@ -1589,6 +1591,14 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
 
   signals[MONITORS_CHANGED_INTERNAL] =
     g_signal_new ("monitors-changed-internal",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  signals[MONITORS_CHANGING] =
+    g_signal_new ("monitors-changing",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
