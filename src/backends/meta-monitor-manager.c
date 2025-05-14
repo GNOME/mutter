@@ -327,25 +327,6 @@ derive_calculated_global_scale (MetaMonitorManager *manager)
   return scale;
 }
 
-static float
-derive_scale_from_config (MetaMonitorManager *manager,
-                          MetaMonitorsConfig *config,
-                          MtkRectangle       *layout)
-{
-  GList *l;
-
-  for (l = config->logical_monitor_configs; l; l = l->next)
-    {
-      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
-
-      if (mtk_rectangle_equal (layout, &logical_monitor_config->layout))
-        return logical_monitor_config->scale;
-    }
-
-  g_warning ("Missing logical monitor, using scale 1");
-  return 1.0;
-}
-
 static void
 meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manager,
                                                        MetaMonitorsConfig *config)
@@ -354,23 +335,18 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
   GList *l;
   int monitor_number;
   MetaLogicalMonitor *primary_logical_monitor = NULL;
-  gboolean use_global_scale;
-  float global_scale = 0.0;
+  float global_scale;
   MetaMonitorManagerCapability capabilities;
 
   monitor_number = 0;
 
   capabilities = meta_monitor_manager_get_capabilities (manager);
-  use_global_scale =
-    !!(capabilities & META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED);
+  g_assert (capabilities & META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED);
 
-  if (use_global_scale)
-    {
-      if (config)
-        global_scale = derive_configured_global_scale (manager, config);
-      else
-        global_scale = derive_calculated_global_scale (manager);
-    }
+  if (config)
+    global_scale = derive_configured_global_scale (manager, config);
+  else
+    global_scale = derive_calculated_global_scale (manager);
 
   for (l = manager->monitors; l; l = l->next)
     {
@@ -390,21 +366,10 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
         }
       else
         {
-          float scale;
-
-          if (use_global_scale)
-            scale = global_scale;
-          else if (config)
-            scale = derive_scale_from_config (manager, config, &layout);
-          else
-            scale = calculate_monitor_scale (manager, monitor);
-
-          g_assert (scale > 0);
-
           logical_monitor = meta_logical_monitor_new_derived (manager,
                                                               monitor,
                                                               layout,
-                                                              scale,
+                                                              global_scale,
                                                               monitor_number);
           logical_monitors = g_list_append (logical_monitors, logical_monitor);
           monitor_number++;
