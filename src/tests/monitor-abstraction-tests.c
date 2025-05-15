@@ -625,16 +625,6 @@ meta_test_monitor_rebuild_disable (void)
                                meta_monitor_get_current_mode (monitor_2));
 
   meta_monitor_manager_switch_config (monitor_manager,
-                                      META_MONITOR_SWITCH_CONFIG_EXTERNAL);
-  while (g_main_context_iteration (NULL, FALSE));
-  g_assert_nonnull (monitor_1);
-  g_assert_nonnull (monitor_2);
-
-  g_assert_null (meta_monitor_get_current_mode (monitor_1));
-  verify_monitor_monitor_mode (monitor_2,
-                               meta_monitor_get_current_mode (monitor_2));
-
-  meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_BUILTIN);
   while (g_main_context_iteration (NULL, FALSE));
   g_assert_nonnull (monitor_1);
@@ -643,6 +633,16 @@ meta_test_monitor_rebuild_disable (void)
   verify_monitor_monitor_mode (monitor_1,
                                meta_monitor_get_current_mode (monitor_1));
   g_assert_null (meta_monitor_get_current_mode (monitor_2));
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_EXTERNAL);
+  while (g_main_context_iteration (NULL, FALSE));
+  g_assert_nonnull (monitor_1);
+  g_assert_nonnull (monitor_2);
+
+  g_assert_null (meta_monitor_get_current_mode (monitor_1));
+  verify_monitor_monitor_mode (monitor_2,
+                               meta_monitor_get_current_mode (monitor_2));
 
   g_object_remove_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_remove_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
