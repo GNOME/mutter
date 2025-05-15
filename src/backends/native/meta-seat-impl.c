@@ -1275,14 +1275,53 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
     }
 }
 
+static gboolean
+update_touch_state (MetaSeatImpl     *seat_impl,
+                    ClutterEventType  evtype,
+                    int               slot,
+                    float            *x,
+                    float            *y)
+{
+  MetaTouchState *touch_state;
+  gboolean retval = FALSE;
+
+  g_rw_lock_writer_lock (&seat_impl->state_lock);
+
+  if (evtype == CLUTTER_TOUCH_BEGIN)
+    touch_state = meta_seat_impl_acquire_touch_state_in_impl (seat_impl, slot);
+  else
+    touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, slot);
+
+  retval = touch_state != NULL;
+
+  if (touch_state)
+    {
+      if (evtype == CLUTTER_TOUCH_BEGIN || evtype == CLUTTER_TOUCH_UPDATE)
+        {
+          touch_state->coords.x = (float) *x;
+          touch_state->coords.y = (float) *y;
+        }
+      else if (evtype == CLUTTER_TOUCH_END || evtype == CLUTTER_TOUCH_CANCEL)
+        {
+          *x = touch_state->coords.x;
+          *y = touch_state->coords.y;
+          meta_seat_impl_release_touch_state_in_impl (seat_impl, slot);
+        }
+    }
+
+  g_rw_lock_writer_unlock (&seat_impl->state_lock);
+
+  return retval;
+}
+
 void
 meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
                                            ClutterInputDevice *input_device,
                                            ClutterEventType    evtype,
                                            uint64_t            time_us,
                                            int                 slot,
-                                           double              x,
-                                           double              y)
+                                           float               x,
+                                           float               y)
 {
   ClutterEvent *event = NULL;
   ClutterEventSequence *sequence;
@@ -1292,6 +1331,9 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
   sequence = GINT_TO_POINTER (MAX (1, slot + 1));
 
   modifiers = xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
+
+  if (!update_touch_state (seat_impl, evtype, slot, &x, &y))
+    return;
 
   if (evtype == CLUTTER_TOUCH_BEGIN ||
       evtype == CLUTTER_TOUCH_UPDATE)
@@ -2254,7 +2296,6 @@ process_device_event (MetaSeatImpl          *seat_impl,
   gboolean handled = TRUE;
   struct libinput_device *libinput_device = libinput_event_get_device(event);
   ClutterInputDevice *device;
-  MetaInputDeviceNative *device_native;
 
   switch (libinput_event_get_type (event))
     {
@@ -2407,43 +2448,29 @@ process_device_event (MetaSeatImpl          *seat_impl,
       {
         int seat_slot;
         uint64_t time_us;
-        double x, y;
+        float x, y;
         float stage_width, stage_height;
-        MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_native = META_INPUT_DEVICE_NATIVE (device);
 
         meta_viewport_info_get_extents (seat_impl->viewports,
                                         &stage_width, &stage_height);
 
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
-        x = libinput_event_touch_get_x_transformed (touch_event,
-                                                    (int) stage_width);
-        y = libinput_event_touch_get_y_transformed (touch_event,
-                                                    (int) stage_height);
-
-        g_rw_lock_writer_lock (&seat_impl->state_lock);
-
-        touch_state = meta_seat_impl_acquire_touch_state_in_impl (seat_impl, seat_slot);
-        touch_state->coords.x = (float) x;
-        touch_state->coords.y = (float) y;
+        x = (float) libinput_event_touch_get_x_transformed (touch_event,
+                                                            (int) stage_width);
+        y = (float) libinput_event_touch_get_y_transformed (touch_event,
+                                                            (int) stage_height);
         meta_input_device_native_translate_coordinates_in_impl (device,
                                                                 seat_impl->viewports,
-                                                                &touch_state->coords.x,
-                                                                &touch_state->coords.y);
-
-        g_rw_lock_writer_unlock (&seat_impl->state_lock);
+                                                                &x, &y);
 
         meta_seat_impl_notify_touch_event_in_impl (seat_impl, device,
                                                    CLUTTER_TOUCH_BEGIN,
-                                                   time_us,
-                                                   touch_state->seat_slot,
-                                                   touch_state->coords.x,
-                                                   touch_state->coords.y);
+                                                   time_us, seat_slot, x, y);
         break;
       }
 
@@ -2451,28 +2478,17 @@ process_device_event (MetaSeatImpl          *seat_impl,
       {
         int seat_slot;
         uint64_t time_us;
-        MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_native = META_INPUT_DEVICE_NATIVE (device);
 
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
-        touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, seat_slot);
-        if (!touch_state)
-          break;
 
         meta_seat_impl_notify_touch_event_in_impl (seat_impl, device,
                                                    CLUTTER_TOUCH_END, time_us,
-                                                   touch_state->seat_slot,
-                                                   touch_state->coords.x,
-                                                   touch_state->coords.y);
-
-        g_rw_lock_writer_lock (&seat_impl->state_lock);
-        meta_seat_impl_release_touch_state_in_impl (seat_impl, seat_slot);
-        g_rw_lock_writer_unlock (&seat_impl->state_lock);
+                                                   seat_slot, -1, -1);
         break;
       }
 
@@ -2480,75 +2496,46 @@ process_device_event (MetaSeatImpl          *seat_impl,
       {
         int seat_slot;
         uint64_t time_us;
-        double x, y;
+        float x, y;
         float stage_width, stage_height;
-        MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_native = META_INPUT_DEVICE_NATIVE (device);
 
         meta_viewport_info_get_extents (seat_impl->viewports,
                                         &stage_width, &stage_height);
 
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
-        x = libinput_event_touch_get_x_transformed (touch_event,
-                                                    (int) stage_width);
-        y = libinput_event_touch_get_y_transformed (touch_event,
-                                                    (int) stage_height);
-
-        g_rw_lock_writer_lock (&seat_impl->state_lock);
-        touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, seat_slot);
-        if (touch_state)
-          {
-            touch_state->coords.x = (float) x;
-            touch_state->coords.y = (float) y;
-            meta_input_device_native_translate_coordinates_in_impl (device,
-                                                                    seat_impl->viewports,
-                                                                    &touch_state->coords.x,
-                                                                    &touch_state->coords.y);
-          }
-        g_rw_lock_writer_unlock (&seat_impl->state_lock);
-
-        if (!touch_state)
-          break;
+        x = (float) libinput_event_touch_get_x_transformed (touch_event,
+                                                            (int) stage_width);
+        y = (float) libinput_event_touch_get_y_transformed (touch_event,
+                                                            (int) stage_height);
+        meta_input_device_native_translate_coordinates_in_impl (device,
+                                                                seat_impl->viewports,
+                                                                &x, &y);
 
         meta_seat_impl_notify_touch_event_in_impl (seat_impl, device,
                                                    CLUTTER_TOUCH_UPDATE,
-                                                   time_us,
-                                                   touch_state->seat_slot,
-                                                   touch_state->coords.x,
-                                                   touch_state->coords.y);
+                                                   time_us, seat_slot, x, y);
         break;
       }
     case LIBINPUT_EVENT_TOUCH_CANCEL:
       {
         int seat_slot;
-        MetaTouchState *touch_state;
         uint64_t time_us;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_native = META_INPUT_DEVICE_NATIVE (device);
         time_us = libinput_event_touch_get_time_usec (touch_event);
 
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
-        touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, seat_slot);
-        if (!touch_state)
-          break;
 
-        meta_seat_impl_notify_touch_event_in_impl (touch_state->seat_impl,
-                                                   CLUTTER_INPUT_DEVICE (device_native),
+        meta_seat_impl_notify_touch_event_in_impl (seat_impl, device,
                                                    CLUTTER_TOUCH_CANCEL,
-                                                   time_us,
-                                                   touch_state->seat_slot,
-                                                   touch_state->coords.x,
-                                                   touch_state->coords.y);
-
-        meta_seat_impl_release_touch_state_in_impl (seat_impl, seat_slot);
+                                                   time_us, seat_slot, -1, -1);
         break;
       }
     case LIBINPUT_EVENT_GESTURE_PINCH_BEGIN:

@@ -187,8 +187,8 @@ void meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
                                                 ClutterEventType    evtype,
                                                 uint64_t            time_us,
                                                 int                 slot,
-                                                double              x,
-                                                double              y);
+                                                float               x,
+                                                float               y);
 
 void meta_seat_impl_sync_leds_in_impl (MetaSeatImpl *seat_impl);
 

@@ -821,28 +821,18 @@ notify_touch_down_in_impl (GTask *task)
     meta_virtual_input_device_native_get_seat_native (virtual_native);
   MetaSeatImpl *seat = seat_native->impl;
   MetaVirtualEventTouch *event = g_task_get_task_data (task);
-  MetaTouchState *touch_state;
 
   if (event->time_us == CLUTTER_CURRENT_TIME)
     event->time_us = g_get_monotonic_time ();
-
-  touch_state = meta_seat_impl_acquire_touch_state_in_impl (seat,
-                                                            event->device_slot);
-  if (!touch_state)
-    goto out;
-
-  touch_state->coords.x = (float) event->x;
-  touch_state->coords.y = (float) event->y;
 
   meta_seat_impl_notify_touch_event_in_impl (seat,
                                              virtual_native->impl_state->device,
                                              CLUTTER_TOUCH_BEGIN,
                                              event->time_us,
-                                             touch_state->seat_slot,
-                                             touch_state->coords.x,
-                                             touch_state->coords.y);
+                                             event->device_slot,
+                                             (float) event->x,
+                                             (float) event->y);
 
- out:
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }
@@ -885,28 +875,18 @@ notify_touch_motion_in_impl (GTask *task)
     meta_virtual_input_device_native_get_seat_native (virtual_native);
   MetaSeatImpl *seat = seat_native->impl;
   MetaVirtualEventTouch *event = g_task_get_task_data (task);
-  MetaTouchState *touch_state;
 
   if (event->time_us == CLUTTER_CURRENT_TIME)
     event->time_us = g_get_monotonic_time ();
-
-  touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat,
-                                                           event->device_slot);
-  if (!touch_state)
-    goto out;
-
-  touch_state->coords.x = (float) event->x;
-  touch_state->coords.y = (float) event->y;
 
   meta_seat_impl_notify_touch_event_in_impl (seat,
                                              virtual_native->impl_state->device,
                                              CLUTTER_TOUCH_UPDATE,
                                              event->time_us,
-                                             touch_state->seat_slot,
-                                             touch_state->coords.x,
-                                             touch_state->coords.y);
+                                             event->device_slot,
+                                             (float) event->x,
+                                             (float) event->y);
 
- out:
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }
@@ -949,28 +929,18 @@ notify_touch_up_in_impl (GTask *task)
     meta_virtual_input_device_native_get_seat_native (virtual_native);
   MetaSeatImpl *seat = seat_native->impl;
   MetaVirtualEventTouch *event = g_task_get_task_data (task);
-  MetaTouchState *touch_state;
 
   if (event->time_us == CLUTTER_CURRENT_TIME)
     event->time_us = g_get_monotonic_time ();
-
-  touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat,
-                                                           event->device_slot);
-  if (!touch_state)
-    goto out;
 
   meta_seat_impl_notify_touch_event_in_impl (seat,
                                              virtual_native->impl_state->device,
                                              CLUTTER_TOUCH_END,
                                              event->time_us,
-                                             touch_state->seat_slot,
-                                             touch_state->coords.x,
-                                             touch_state->coords.y);
+                                             event->device_slot,
+                                             (float) event->x,
+                                             (float) event->y);
 
-  meta_seat_impl_release_touch_state_in_impl (seat_native->impl,
-                                              touch_state->seat_slot);
-
- out:
   g_task_return_boolean (task, TRUE);
   return G_SOURCE_REMOVE;
 }
