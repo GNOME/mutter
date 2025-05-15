@@ -488,7 +488,7 @@ meta_monitor_manager_dummy_ensure_initial_config (MetaMonitorManager *manager)
 
   config = meta_monitor_manager_ensure_configured (manager);
 
-  meta_monitor_manager_update_logical_state (manager, config);
+  meta_monitor_manager_update_logical_state (manager, config, NULL);
 }
 
 static void

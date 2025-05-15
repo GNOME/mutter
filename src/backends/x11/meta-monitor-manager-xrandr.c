@@ -600,7 +600,7 @@ meta_monitor_manager_xrandr_ensure_initial_config (MetaMonitorManager *manager)
   meta_monitor_manager_read_current_state (manager);
 
   config = meta_monitor_config_manager_get_current (config_manager);
-  meta_monitor_manager_update_logical_state_derived (manager, config);
+  meta_monitor_manager_update_logical_state_derived (manager, config, NULL);
 }
 
 static gboolean

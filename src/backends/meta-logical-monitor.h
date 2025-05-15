@@ -108,4 +108,12 @@ MetaLogicalMonitorId * meta_logical_monitor_dup_id (MetaLogicalMonitor *logical_
 
 MetaMonitorManager * meta_logical_monitor_get_monitor_manager (MetaLogicalMonitor *logical_monitor);
 
+gboolean meta_logical_monitor_update (MetaLogicalMonitor       *logical_monitor,
+                                      MetaLogicalMonitorConfig *logical_monitor_config,
+                                      int                       number);
+
+gboolean meta_logical_monitor_update_derived (MetaLogicalMonitor *logical_monitor,
+                                              int                 number,
+                                              float               global_scale);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaLogicalMonitorId, meta_logical_monitor_id_free)

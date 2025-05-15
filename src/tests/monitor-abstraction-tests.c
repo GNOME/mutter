@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+#include "backends/meta-logical-monitor.h"
 #include "tests/meta-backend-test.h"
 #include "tests/monitor-tests-common.h"
 
@@ -59,6 +60,9 @@ meta_test_monitor_rebuild_normal (void)
   };
   GList *monitors;
   MetaMonitor *monitor;
+  MetaMonitor *new_monitor;
+  GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -69,9 +73,17 @@ meta_test_monitor_rebuild_normal (void)
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
   monitor = META_MONITOR (monitors->data);
 
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  g_assert_nonnull (logical_monitor);
+  g_assert_true (logical_monitors->data == logical_monitor);
+
   /* Keep a reference and make sure another hotplug doesn't replace the monitor
    * when nothing changed. */
   g_object_ref (monitor);
+  g_object_ref (logical_monitor);
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -80,13 +92,19 @@ meta_test_monitor_rebuild_normal (void)
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
-  g_assert_true (META_MONITOR (monitors->data) == monitor);
+  new_monitor = META_MONITOR (monitors->data);
+  g_assert_true (new_monitor == monitor);
+  g_assert_true (meta_monitor_get_logical_monitor (new_monitor) ==
+                 logical_monitor);
 
   g_object_unref (monitor);
+  g_object_unref (logical_monitor);
 
   /* Make sure the monitor is disposed if it's disconnected and replaced with
    * something else. */
   g_object_add_weak_pointer (G_OBJECT (monitor), (gpointer *) &monitor);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor),
+                             (gpointer *) &logical_monitor);
 
   test_case_setup.outputs[0].serial = "0x10001";
   test_setup = meta_create_monitor_test_setup (backend,
@@ -95,6 +113,7 @@ meta_test_monitor_rebuild_normal (void)
   meta_emulate_hotplug (test_setup);
 
   g_assert_null (monitor);
+  g_assert_null (logical_monitor);
 }
 
 static void
@@ -159,6 +178,9 @@ meta_test_monitor_rebuild_tiled (void)
   };
   GList *monitors;
   MetaMonitor *monitor;
+  MetaMonitor *new_monitor;
+  GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -169,9 +191,17 @@ meta_test_monitor_rebuild_tiled (void)
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
   monitor = META_MONITOR (monitors->data);
 
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  g_assert_nonnull (logical_monitor);
+  g_assert_true (logical_monitors->data == logical_monitor);
+
   /* Keep a reference and make sure another hotplug doesn't replace the monitor
    * when nothing changed. */
   g_object_ref (monitor);
+  g_object_ref (logical_monitor);
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -180,13 +210,17 @@ meta_test_monitor_rebuild_tiled (void)
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
-  g_assert_true (META_MONITOR (monitors->data) == monitor);
+  new_monitor = META_MONITOR (monitors->data);
+  g_assert_true (new_monitor == monitor);
 
   g_object_unref (monitor);
+  g_object_unref (logical_monitor);
 
   /* Make sure the monitor is disposed if it's disconnected and replaced with
    * something else. */
   g_object_add_weak_pointer (G_OBJECT (monitor), (gpointer *) &monitor);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor),
+                             (gpointer *) &logical_monitor);
 
   test_case_setup.outputs[0].serial = "0x10001";
   test_setup = meta_create_monitor_test_setup (backend,
@@ -195,6 +229,7 @@ meta_test_monitor_rebuild_tiled (void)
   meta_emulate_hotplug (test_setup);
 
   g_assert_null (monitor);
+  g_assert_null (logical_monitor);
 }
 
 static void
@@ -259,6 +294,8 @@ meta_test_monitor_rebuild_detiled (void)
   };
   GList *monitors;
   MetaMonitor *monitor;
+  GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -269,7 +306,16 @@ meta_test_monitor_rebuild_detiled (void)
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
   monitor = META_MONITOR (monitors->data);
 
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  g_assert_nonnull (logical_monitor);
+  g_assert_true (logical_monitors->data == logical_monitor);
+
   g_object_add_weak_pointer (G_OBJECT (monitor), (gpointer *) &monitor);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor),
+                             (gpointer *) &logical_monitor);
 
   test_case_setup.outputs[0].tile_info = (MetaTileInfo) {};
   test_case_setup.outputs[1].tile_info = (MetaTileInfo) {};
@@ -280,9 +326,13 @@ meta_test_monitor_rebuild_detiled (void)
   meta_emulate_hotplug (test_setup);
 
   g_assert_null (monitor);
+  g_assert_null (logical_monitor);
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
 }
 
 static void
@@ -323,7 +373,9 @@ meta_test_monitor_rebuild_moved (void)
     .n_crtcs = 1
   };
   GList *monitors;
+  GList *logical_monitors;
   MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -332,9 +384,16 @@ meta_test_monitor_rebuild_moved (void)
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+
   monitor = META_MONITOR (monitors->data);
+  logical_monitor = META_LOGICAL_MONITOR (logical_monitors->data);
 
   g_object_add_weak_pointer (G_OBJECT (monitor), (gpointer *) &monitor);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor),
+                             (gpointer *) &logical_monitor);
 
   test_case_setup.outputs[0].connector_type = META_CONNECTOR_TYPE_HDMIA;
 
@@ -344,9 +403,13 @@ meta_test_monitor_rebuild_moved (void)
   meta_emulate_hotplug (test_setup);
 
   g_assert_null (monitor);
+  g_assert_null (logical_monitor);
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
 }
 
 static void
@@ -392,8 +455,11 @@ meta_test_monitor_rebuild_disconnect_one (void)
     .n_crtcs = 2
   };
   GList *monitors;
+  GList *logical_monitors;
   MetaMonitor *monitor_1;
   MetaMonitor *monitor_2;
+  MetaLogicalMonitor *logical_monitor_1;
+  MetaLogicalMonitor *logical_monitor_2;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -405,8 +471,18 @@ meta_test_monitor_rebuild_disconnect_one (void)
   monitor_1 = META_MONITOR (monitors->data);
   monitor_2 = META_MONITOR (monitors->next->data);
 
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
+  logical_monitor_1 = META_LOGICAL_MONITOR (logical_monitors->data);
+  logical_monitor_2 = META_LOGICAL_MONITOR (logical_monitors->next->data);
+
   g_object_add_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_add_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_1),
+                             (gpointer *) &logical_monitor_1);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_2),
+                             (gpointer *) &logical_monitor_2);
 
   test_case_setup.n_outputs = 1;
   test_setup = meta_create_monitor_test_setup (backend,
@@ -416,10 +492,17 @@ meta_test_monitor_rebuild_disconnect_one (void)
 
   g_assert_nonnull (monitor_1);
   g_assert_null (monitor_2);
+  g_assert_nonnull (logical_monitor_1);
+  g_assert_null (logical_monitor_2);
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
   g_assert_true (monitors->data == monitor_1);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  g_assert_true (logical_monitors->data == logical_monitor_1);
 
   test_case_setup.n_outputs = 2;
   test_setup = meta_create_monitor_test_setup (backend,
@@ -428,10 +511,16 @@ meta_test_monitor_rebuild_disconnect_one (void)
   meta_emulate_hotplug (test_setup);
 
   g_assert_nonnull (monitor_1);
+  g_assert_nonnull (logical_monitor_1);
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
   g_assert_true (monitors->data == monitor_1);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
+  g_assert_true (logical_monitors->data == logical_monitor_1);
 
   g_object_remove_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
 }

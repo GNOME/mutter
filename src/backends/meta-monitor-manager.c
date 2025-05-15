@@ -197,19 +197,71 @@ logical_monitor_from_layout (MetaMonitorManager *manager,
 }
 
 static void
-meta_monitor_manager_rebuild_logical_monitors (MetaMonitorManager *manager,
-                                               MetaMonitorsConfig *config)
+destroy_logical_monitors (gpointer user_data)
 {
-  GList *logical_monitor_configs;
+  GList *logical_monitors = user_data;
+
+  /* Manually dispose to explicitly allows users, e.g. gjs, of the objects to
+   * be notified that it is now defunct. */
+  g_list_foreach (logical_monitors, (GFunc) g_object_run_dispose, NULL);
+  g_list_free_full (logical_monitors, g_object_unref);
+}
+
+static void
+meta_monitor_manager_update_logical_monitors (MetaMonitorManager *manager,
+                                              MetaMonitorsConfig *config,
+                                              MtkDisposeBin      *bin)
+{
+  g_autoptr (GList) logical_monitor_configs = NULL;
+  GList *old_logical_monitors = NULL;
   GList *logical_monitors = NULL;
-  GList *l;
+  GList *l_logical;
+  GList *l_config;
   int monitor_number = 0;
   MetaLogicalMonitor *primary_logical_monitor = NULL;
 
-  logical_monitor_configs = config ? config->logical_monitor_configs : NULL;
-  for (l = logical_monitor_configs; l; l = l->next)
+  logical_monitor_configs =
+    config ? g_list_copy (config->logical_monitor_configs) : NULL;
+
+  old_logical_monitors = g_steal_pointer (&manager->logical_monitors);
+
+  l_logical = old_logical_monitors;
+  l_config = logical_monitor_configs;
+
+  while (l_logical && l_config)
     {
-      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+      MetaLogicalMonitor *logical_monitor =
+        META_LOGICAL_MONITOR (l_logical->data);
+      MetaLogicalMonitorConfig *logical_monitor_config = l_config->data;
+      GList *l_logical_next = l_logical->next;
+      GList *l_config_next = l_config->next;
+
+      if (meta_logical_monitor_update (logical_monitor,
+                                       logical_monitor_config,
+                                       monitor_number))
+        {
+          logical_monitor_configs = g_list_delete_link (logical_monitor_configs,
+                                                        l_config);
+          old_logical_monitors = g_list_remove_link (old_logical_monitors,
+                                                     l_logical);
+          logical_monitors = g_list_concat (logical_monitors, l_logical);
+
+          if (logical_monitor_config->is_primary)
+            primary_logical_monitor = logical_monitor;
+
+          monitor_number++;
+        }
+
+      l_logical = l_logical_next;
+      l_config = l_config_next;
+    }
+
+  if (old_logical_monitors)
+    mtk_dispose_bin_add (bin, old_logical_monitors, destroy_logical_monitors);
+
+  for (l_config = logical_monitor_configs; l_config; l_config = l_config->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l_config->data;
       MetaLogicalMonitor *logical_monitor;
 
       logical_monitor = meta_logical_monitor_new (manager,
@@ -328,9 +380,11 @@ derive_calculated_global_scale (MetaMonitorManager *manager)
 }
 
 static void
-meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manager,
-                                                       MetaMonitorsConfig *config)
+meta_monitor_manager_update_logical_monitors_derived (MetaMonitorManager *manager,
+                                                      MetaMonitorsConfig *config,
+                                                      MtkDisposeBin      *bin)
 {
+  GList *old_logical_monitors = NULL;
   GList *logical_monitors = NULL;
   GList *l;
   int monitor_number;
@@ -348,6 +402,29 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
   else
     global_scale = derive_calculated_global_scale (manager);
 
+  old_logical_monitors = g_steal_pointer (&manager->logical_monitors);
+  l = old_logical_monitors;
+  while (l)
+    {
+      MetaLogicalMonitor *logical_monitor =
+        META_LOGICAL_MONITOR (l->data);
+      GList *l_next = l->next;
+
+      if (meta_logical_monitor_update_derived (logical_monitor,
+                                               monitor_number,
+                                               global_scale))
+        {
+          old_logical_monitors = g_list_remove_link (old_logical_monitors, l);
+          logical_monitors = g_list_concat (logical_monitors, l);
+          monitor_number++;
+        }
+
+      l = l_next;
+    }
+
+  if (old_logical_monitors)
+    mtk_dispose_bin_add (bin, old_logical_monitors, destroy_logical_monitors);
+
   for (l = manager->monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
@@ -355,6 +432,9 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
       MtkRectangle layout;
 
       if (!meta_monitor_is_active (monitor))
+        continue;
+
+      if (meta_monitor_get_logical_monitor (monitor))
         continue;
 
       meta_monitor_derive_layout (monitor, &layout);
@@ -4055,7 +4135,8 @@ meta_monitor_manager_update_monitor_modes (MetaMonitorManager *manager,
 
 void
 meta_monitor_manager_update_logical_state (MetaMonitorManager *manager,
-                                           MetaMonitorsConfig *config)
+                                           MetaMonitorsConfig *config,
+                                           MtkDisposeBin      *bin)
 {
   if (config)
     {
@@ -4070,7 +4151,7 @@ meta_monitor_manager_update_logical_state (MetaMonitorManager *manager,
       manager->current_switch_config = META_MONITOR_SWITCH_CONFIG_UNKNOWN;
     }
 
-  meta_monitor_manager_rebuild_logical_monitors (manager, config);
+  meta_monitor_manager_update_logical_monitors (manager, config, bin);
 }
 
 static gboolean
@@ -4113,11 +4194,12 @@ meta_monitor_manager_update_for_lease_state (MetaMonitorManager *manager,
     }
 }
 
+
 void
 meta_monitor_manager_rebuild (MetaMonitorManager *manager,
                               MetaMonitorsConfig *config)
 {
-  GList *old_logical_monitors;
+  g_autoptr (MtkDisposeBin) bin = NULL;
 
   meta_monitor_manager_update_monitor_modes (manager, config);
 
@@ -4126,14 +4208,12 @@ meta_monitor_manager_rebuild (MetaMonitorManager *manager,
   if (manager->in_init)
     return;
 
-  old_logical_monitors = manager->logical_monitors;
+  bin = mtk_dispose_bin_new ();
 
-  meta_monitor_manager_update_logical_state (manager, config);
+  meta_monitor_manager_update_logical_state (manager, config, bin);
   meta_monitor_manager_update_for_lease_state (manager, config);
 
   meta_monitor_manager_notify_monitors_changed (manager);
-
-  g_list_free_full (old_logical_monitors, g_object_unref);
 }
 
 static void
@@ -4151,7 +4231,8 @@ meta_monitor_manager_update_monitor_modes_derived (MetaMonitorManager *manager)
 
 void
 meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
-                                                   MetaMonitorsConfig *config)
+                                                   MetaMonitorsConfig *config,
+                                                   MtkDisposeBin      *bin)
 {
   if (config)
     manager->current_switch_config =
@@ -4161,27 +4242,25 @@ meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
 
   manager->layout_mode = META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
 
-  meta_monitor_manager_rebuild_logical_monitors_derived (manager, config);
+  meta_monitor_manager_update_logical_monitors_derived (manager, config, bin);
 }
 
 void
 meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
                                       MetaMonitorsConfig *config)
 {
-  GList *old_logical_monitors;
+  g_autoptr (MtkDisposeBin) bin = NULL;
 
   meta_monitor_manager_update_monitor_modes_derived (manager);
 
   if (manager->in_init)
     return;
 
-  old_logical_monitors = manager->logical_monitors;
+  bin = mtk_dispose_bin_new ();
 
-  meta_monitor_manager_update_logical_state_derived (manager, config);
+  meta_monitor_manager_update_logical_state_derived (manager, config, bin);
 
   meta_monitor_manager_notify_monitors_changed (manager);
-
-  g_list_free_full (old_logical_monitors, g_object_unref);
 }
 
 void
