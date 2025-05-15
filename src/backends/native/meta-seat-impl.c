@@ -114,9 +114,18 @@ enum _MetaKeyboardLed
   N_KEYBOARD_LEDS,
 };
 
+typedef struct
+{
+  MetaSeatImpl *seat_impl;
+
+  int seat_slot;
+  graphene_point_t coords;
+} MetaTouchState;
+
 typedef struct _MetaSeatImplPrivate
 {
   GHashTable *device_files;
+  GHashTable *touch_states;
 
   xkb_led_index_t keyboard_leds[N_KEYBOARD_LEDS];
 
@@ -202,10 +211,12 @@ static MetaTouchState *
 meta_seat_impl_lookup_touch_state (MetaSeatImpl *seat_impl,
                                    int           seat_slot)
 {
-  if (!seat_impl->touch_states)
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+
+  if (!priv->touch_states)
     return NULL;
 
-  return g_hash_table_lookup (seat_impl->touch_states,
+  return g_hash_table_lookup (priv->touch_states,
                               GINT_TO_POINTER (seat_slot));
 }
 
@@ -219,16 +230,17 @@ static MetaTouchState *
 meta_seat_impl_acquire_touch_state (MetaSeatImpl *seat_impl,
                                     int           seat_slot)
 {
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaTouchState *touch_state;
 
-  if (!seat_impl->touch_states)
+  if (!priv->touch_states)
     {
-      seat_impl->touch_states =
+      priv->touch_states =
         g_hash_table_new_full (NULL, NULL, NULL,
                                (GDestroyNotify) meta_touch_state_free);
     }
 
-  g_assert (!g_hash_table_contains (seat_impl->touch_states,
+  g_assert (!g_hash_table_contains (priv->touch_states,
                                     GINT_TO_POINTER (seat_slot)));
 
   touch_state = g_new0 (MetaTouchState, 1);
@@ -237,7 +249,7 @@ meta_seat_impl_acquire_touch_state (MetaSeatImpl *seat_impl,
     .seat_slot = seat_slot,
   };
 
-  g_hash_table_insert (seat_impl->touch_states, GINT_TO_POINTER (seat_slot),
+  g_hash_table_insert (priv->touch_states, GINT_TO_POINTER (seat_slot),
                        touch_state);
 
   return touch_state;
@@ -247,9 +259,12 @@ static void
 meta_seat_impl_release_touch_state (MetaSeatImpl *seat_impl,
                                     int           seat_slot)
 {
-  if (!seat_impl->touch_states)
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+
+  if (!priv->touch_states)
     return;
-  g_hash_table_remove (seat_impl->touch_states, GINT_TO_POINTER (seat_slot));
+
+  g_hash_table_remove (priv->touch_states, GINT_TO_POINTER (seat_slot));
 }
 
 void
@@ -3263,7 +3278,7 @@ destroy_in_impl (GTask *task)
 
   g_clear_pointer (&seat_impl->libinput, libinput_unref);
   g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
-  g_clear_pointer (&seat_impl->touch_states, g_hash_table_destroy);
+  g_clear_pointer (&priv->touch_states, g_hash_table_destroy);
   g_clear_pointer (&seat_impl->libinput_source, g_source_destroy);
 
   numlock_active =

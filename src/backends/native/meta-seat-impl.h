@@ -40,18 +40,8 @@
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 
-typedef struct _MetaTouchState MetaTouchState;
 typedef struct _MetaSeatImpl MetaSeatImpl;
 typedef struct _MetaEventSource  MetaEventSource;
-
-struct _MetaTouchState
-{
-  MetaSeatImpl *seat_impl;
-
-  int device_slot;
-  int seat_slot;
-  graphene_point_t coords;
-};
 
 struct _MetaSeatImpl
 {
@@ -77,7 +67,6 @@ struct _MetaSeatImpl
   ClutterInputDevice *core_pointer;
   ClutterInputDevice *core_keyboard;
 
-  GHashTable *touch_states;
   GHashTable *cursor_renderers;
 
   struct xkb_state *xkb;
