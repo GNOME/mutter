@@ -943,6 +943,99 @@ meta_test_monitor_rebuild_changed_connector (void)
 }
 
 static void
+meta_test_monitor_rebuild_mirror (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  MetaMonitorTestSetup *test_setup;
+  MonitorTestCaseSetup test_case_setup = {
+    .modes = {
+      {
+        .width = 1920,
+        .height = 1080,
+        .refresh_rate = 60.0
+      },
+    },
+    .n_modes = 1,
+    .outputs = {
+      {
+        .crtc = -1,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0, 1 },
+        .n_possible_crtcs = 2,
+        .width_mm = 150,
+        .height_mm = 85,
+        .serial = "0x10000",
+      },
+      {
+        .crtc = -1,
+        .modes = { 0 },
+        .n_modes = 1,
+        .preferred_mode = 0,
+        .possible_crtcs = { 0, 1 },
+        .n_possible_crtcs = 2,
+        .width_mm = 150,
+        .height_mm = 85,
+        .serial = "0x10001",
+      },
+    },
+    .n_outputs = 2,
+    .crtcs = {
+      {
+        .current_mode = -1
+      },
+    },
+    .n_crtcs = 2
+  };
+  GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor_1;
+  MetaLogicalMonitor *logical_monitor_2;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
+  logical_monitor_1 = META_LOGICAL_MONITOR (logical_monitors->data);
+  logical_monitor_2 = META_LOGICAL_MONITOR (logical_monitors->next->data);
+
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_1),
+                             (gpointer *) &logical_monitor_1);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_2),
+                             (gpointer *) &logical_monitor_2);
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_ALL_MIRROR);
+  while (g_main_context_iteration (NULL, FALSE));
+
+  g_assert_null (logical_monitor_1);
+  g_assert_null (logical_monitor_2);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor_1 = META_LOGICAL_MONITOR (logical_monitors->data);
+
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_1),
+                             (gpointer *) &logical_monitor_1);
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
+  while (g_main_context_iteration (NULL, FALSE));
+
+  g_assert_null (logical_monitor_1);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
+}
+
+static void
 init_abstraction_tests (void)
 {
   meta_add_monitor_test ("/backends/monitor/rebuild/normal",
@@ -961,6 +1054,8 @@ init_abstraction_tests (void)
                          meta_test_monitor_rebuild_preferred_mode);
   meta_add_monitor_test ("/backends/monitor/rebuild/changed-connector",
                          meta_test_monitor_rebuild_changed_connector);
+  meta_add_monitor_test ("/backends/monitor/rebuild/mirror",
+                         meta_test_monitor_rebuild_mirror);
 }
 
 int
