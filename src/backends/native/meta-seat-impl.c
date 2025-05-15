@@ -198,9 +198,9 @@ meta_seat_impl_sync_leds_in_impl (MetaSeatImpl *seat_impl)
     }
 }
 
-MetaTouchState *
-meta_seat_impl_lookup_touch_state_in_impl (MetaSeatImpl *seat_impl,
-                                           int           seat_slot)
+static MetaTouchState *
+meta_seat_impl_lookup_touch_state (MetaSeatImpl *seat_impl,
+                                   int           seat_slot)
 {
   if (!seat_impl->touch_states)
     return NULL;
@@ -215,9 +215,9 @@ meta_touch_state_free (MetaTouchState *state)
   g_free (state);
 }
 
-MetaTouchState *
-meta_seat_impl_acquire_touch_state_in_impl (MetaSeatImpl *seat_impl,
-                                            int           seat_slot)
+static MetaTouchState *
+meta_seat_impl_acquire_touch_state (MetaSeatImpl *seat_impl,
+                                    int           seat_slot)
 {
   MetaTouchState *touch_state;
 
@@ -243,9 +243,9 @@ meta_seat_impl_acquire_touch_state_in_impl (MetaSeatImpl *seat_impl,
   return touch_state;
 }
 
-void
-meta_seat_impl_release_touch_state_in_impl (MetaSeatImpl *seat_impl,
-                                            int           seat_slot)
+static void
+meta_seat_impl_release_touch_state (MetaSeatImpl *seat_impl,
+                                    int           seat_slot)
 {
   if (!seat_impl->touch_states)
     return;
@@ -1288,9 +1288,9 @@ update_touch_state (MetaSeatImpl     *seat_impl,
   g_rw_lock_writer_lock (&seat_impl->state_lock);
 
   if (evtype == CLUTTER_TOUCH_BEGIN)
-    touch_state = meta_seat_impl_acquire_touch_state_in_impl (seat_impl, slot);
+    touch_state = meta_seat_impl_acquire_touch_state (seat_impl, slot);
   else
-    touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, slot);
+    touch_state = meta_seat_impl_lookup_touch_state (seat_impl, slot);
 
   retval = touch_state != NULL;
 
@@ -1305,7 +1305,7 @@ update_touch_state (MetaSeatImpl     *seat_impl,
         {
           *x = touch_state->coords.x;
           *y = touch_state->coords.y;
-          meta_seat_impl_release_touch_state_in_impl (seat_impl, slot);
+          meta_seat_impl_release_touch_state (seat_impl, slot);
         }
     }
 
@@ -3451,7 +3451,7 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
       int slot;
 
       slot = clutter_event_sequence_get_slot (sequence);
-      touch_state = meta_seat_impl_lookup_touch_state_in_impl (seat_impl, slot);
+      touch_state = meta_seat_impl_lookup_touch_state (seat_impl, slot);
       if (!touch_state)
         goto out;
 

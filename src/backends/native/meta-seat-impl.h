@@ -192,13 +192,6 @@ void meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
 
 void meta_seat_impl_sync_leds_in_impl (MetaSeatImpl *seat_impl);
 
-MetaTouchState * meta_seat_impl_acquire_touch_state_in_impl (MetaSeatImpl *seat_impl,
-                                                             int           seat_slot);
-MetaTouchState * meta_seat_impl_lookup_touch_state_in_impl (MetaSeatImpl *seat_impl,
-                                                            int           seat_slot);
-void meta_seat_impl_release_touch_state_in_impl (MetaSeatImpl   *seat_impl,
-                                                 int             seat_slot);
-
 void meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl);
 
 void  meta_seat_impl_release_devices (MetaSeatImpl *seat_impl);
