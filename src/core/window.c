@@ -382,6 +382,8 @@ meta_window_finalize (GObject *object)
 
   g_clear_pointer (&window->preferred_logical_monitor,
                    meta_logical_monitor_id_free);
+  g_clear_object (&window->monitor);
+  g_clear_object (&window->highest_scale_monitor);
 
   g_clear_object (&window->config);
 
@@ -1114,6 +1116,8 @@ meta_window_constructed (GObject *object)
   MetaBackend *backend = meta_context_get_backend (context);
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
   MtkRectangle frame_rect;
+  MetaLogicalMonitor *main_monitor;
+  MetaLogicalMonitor *highest_scale_monitor;
 
   COGL_TRACE_BEGIN_SCOPED (MetaWindowSharedInit,
                            "Meta::Window::constructed()");
@@ -1220,15 +1224,17 @@ meta_window_constructed (GObject *object)
   if (frame_rect.width > 0 && frame_rect.height > 0 &&
       (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION))
     {
-      window->monitor = meta_window_find_monitor_from_frame_rect (window);
-      window->highest_scale_monitor =
+      main_monitor = meta_window_find_monitor_from_frame_rect (window);
+      highest_scale_monitor =
         meta_window_find_highest_scale_monitor_from_frame_rect (window);
     }
   else
     {
-      window->monitor = meta_backend_get_current_logical_monitor (backend);
-      window->highest_scale_monitor = window->monitor;
+      main_monitor = meta_backend_get_current_logical_monitor (backend);
+      highest_scale_monitor = main_monitor;
     }
+  g_set_object (&window->monitor, main_monitor);
+  g_set_object (&window->highest_scale_monitor, highest_scale_monitor);
 
   if (window->monitor)
     {
@@ -1646,7 +1652,7 @@ meta_window_unmanage (MetaWindow  *window,
     {
       const MetaLogicalMonitor *old = window->monitor;
 
-      window->monitor = NULL;
+      g_clear_object (&window->monitor);
       meta_window_main_monitor_changed (window, old);
     }
 
@@ -4088,10 +4094,11 @@ meta_window_update_monitor (MetaWindow                   *window,
                             MetaWindowUpdateMonitorFlags  flags)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
-  const MetaLogicalMonitor *old, *old_highest_scale;
+  g_autoptr (MetaLogicalMonitor) old = NULL;
+  MetaLogicalMonitor *new_highest_scale_monitor;
   int frame_width, frame_height;
 
-  old = window->monitor;
+  g_set_object (&old, window->monitor);
   META_WINDOW_GET_CLASS (window)->update_main_monitor (window, flags);
   if (old != window->monitor)
     {
@@ -4121,14 +4128,13 @@ meta_window_update_monitor (MetaWindow                   *window,
       meta_display_queue_check_fullscreen (window->display);
     }
 
-  old_highest_scale = window->highest_scale_monitor;
   meta_window_config_get_size (window->config, &frame_width, &frame_height);
 
-  window->highest_scale_monitor = frame_width > 0 && frame_height > 0
+  new_highest_scale_monitor = frame_width > 0 && frame_height > 0
     ? meta_window_find_highest_scale_monitor_from_frame_rect (window)
     : window->monitor;
 
-  if (old_highest_scale != window->highest_scale_monitor)
+  if (g_set_object (&window->highest_scale_monitor, new_highest_scale_monitor))
     g_signal_emit (window, window_signals[HIGHEST_SCALE_MONITOR_CHANGED], 0);
 }
 
@@ -4303,10 +4309,10 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (window->monitor)
     {
-      const MetaLogicalMonitorId *old_id;
+      g_autoptr (MetaLogicalMonitorId) old_id = NULL;
       const MetaLogicalMonitorId *new_id;
 
-      old_id = meta_logical_monitor_get_id (window->monitor);
+      old_id = meta_logical_monitor_dup_id (window->monitor);
       meta_window_update_monitor (window, update_monitor_flags);
       new_id = meta_logical_monitor_get_id (window->monitor);
 

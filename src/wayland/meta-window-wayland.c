@@ -584,14 +584,14 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
   if (toplevel_window != window)
     {
       meta_window_update_monitor (toplevel_window, flags);
-      window->monitor = toplevel_window->monitor;
+      g_set_object (&window->monitor, toplevel_window->monitor);
       return;
     }
 
   frame_rect = meta_window_config_get_rect (window->config);
   if (frame_rect.width == 0 || frame_rect.height == 0 || !window->placed)
     {
-      window->monitor = meta_window_find_monitor_from_id (window);
+      g_set_object (&window->monitor, meta_window_find_monitor_from_id (window));
       return;
     }
 
@@ -607,13 +607,13 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
 
   if (from == NULL || to == NULL)
     {
-      window->monitor = to;
+      g_set_object (&window->monitor, to);
       return;
     }
 
   if (flags & META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE)
     {
-      window->monitor = to;
+      g_set_object (&window->monitor, to);
       return;
     }
 
@@ -622,13 +622,13 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
 
   if (from_scale == to_scale)
     {
-      window->monitor = to;
+      g_set_object (&window->monitor, to);
       return;
     }
 
   if (meta_backend_is_stage_views_scaled (backend))
     {
-      window->monitor = to;
+      g_set_object (&window->monitor, to);
       return;
     }
 
@@ -642,7 +642,7 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
   if (to != scaled_new)
     return;
 
-  window->monitor = to;
+  g_set_object (&window->monitor, to);
 }
 
 static void
