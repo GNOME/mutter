@@ -87,10 +87,6 @@ struct _MetaInputDeviceNative
 
   ClutterModifierType button_state;
 
-  /* Pointer position */
-  float pointer_x;
-  float pointer_y;
-
   /* When the client doesn't support high-resolution scroll, accumulate deltas
    * until we can notify a discrete event.
    * Some mice have a free spinning wheel, making possible to lock the wheel
@@ -163,12 +159,6 @@ void                      meta_input_device_native_a11y_maybe_notify_toggle_keys
 
 struct libinput_device * meta_input_device_native_get_libinput_device (ClutterInputDevice *device);
 
-void                     meta_input_device_native_set_coords_in_impl (MetaInputDeviceNative *device_native,
-                                                                      float                  x,
-                                                                      float                  y);
-void                     meta_input_device_native_get_coords_in_impl (MetaInputDeviceNative *device_native,
-                                                                      float                 *x,
-                                                                      float                 *y);
 gboolean                 meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *device,
                                                                                   ClutterEvent       *event);
 void                     meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_native);

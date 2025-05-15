@@ -1753,26 +1753,6 @@ meta_input_device_native_set_mapping_mode_in_impl (ClutterInputDevice     *devic
 }
 
 void
-meta_input_device_native_set_coords_in_impl (MetaInputDeviceNative *device_native,
-                                             float                  x,
-                                             float                  y)
-{
-  device_native->pointer_x = x;
-  device_native->pointer_y = y;
-}
-
-void
-meta_input_device_native_get_coords_in_impl (MetaInputDeviceNative *device_native,
-                                             float                 *x,
-                                             float                 *y)
-{
-  if (x)
-    *x = device_native->pointer_x;
-  if (y)
-    *y = device_native->pointer_y;
-}
-
-void
 meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_native)
 {
   g_clear_pointer (&device_native->libinput_device, libinput_device_unref);
