@@ -55,11 +55,6 @@
  */
 #define INITIAL_DEVICE_ID 2
 
-/* Try to keep the pointer inside the stage. Hopefully no one is using
- * this backend with stages smaller than this. */
-#define INITIAL_POINTER_X 16
-#define INITIAL_POINTER_Y 16
-
 #define AUTOREPEAT_VALUE 2
 
 #define DISCRETE_SCROLL_STEP 10.0
@@ -789,6 +784,7 @@ constrain_coordinates (MetaSeatImpl       *seat_impl,
                        float              *x_out,
                        float              *y_out)
 {
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
@@ -820,8 +816,8 @@ constrain_coordinates (MetaSeatImpl       *seat_impl,
       meta_seat_impl_constrain_pointer (seat_impl,
                                         seat_impl->core_pointer,
                                         time_us,
-                                        seat_impl->pointer_x,
-                                        seat_impl->pointer_y,
+                                        priv->pointer_state.x,
+                                        priv->pointer_state.y,
                                         &x, &y);
     }
 
@@ -841,15 +837,9 @@ update_device_coords_in_impl (MetaSeatImpl       *seat_impl,
   g_rw_lock_writer_lock (&seat_impl->state_lock);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-    {
-      meta_seat_impl_update_stylus_state (seat_impl, input_device, coords);
-    }
+    meta_seat_impl_update_stylus_state (seat_impl, input_device, coords);
   else
-    {
-      priv->pointer_state = coords;
-      seat_impl->pointer_x = coords.x;
-      seat_impl->pointer_y = coords.y;
-    }
+    priv->pointer_state = coords;
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
 }
@@ -933,6 +923,7 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
                                                float               y,
                                                double             *axes)
 {
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaInputDeviceNative *device_native =
     META_INPUT_DEVICE_NATIVE (input_device);
   ClutterModifierType modifiers;
@@ -950,8 +941,7 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
   modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
-                 &GRAPHENE_POINT_INIT (seat_impl->pointer_x,
-                                       seat_impl->pointer_y));
+                 &priv->pointer_state);
 
   event =
     clutter_event_motion_new (CLUTTER_EVENT_NONE,
@@ -1109,28 +1099,26 @@ notify_scroll (ClutterInputDevice       *input_device,
   MetaInputDeviceNative *device_native =
     META_INPUT_DEVICE_NATIVE (input_device);
   MetaSeatImpl *seat_impl;
+  MetaSeatImplPrivate *priv;
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
   ClutterScrollFlags scroll_flags;
   double scroll_factor;
-  float x, y;
 
   seat_impl = seat_impl_from_device (input_device);
+  priv = meta_seat_impl_get_instance_private (seat_impl);
 
   /* libinput pointer axis events are in pointer motion coordinate space.
    * To convert to Xi2 discrete step coordinate space, multiply the factor
    * 1/10. */
   scroll_factor = 1.0 / DISCRETE_SCROLL_STEP;
 
-  x = seat_impl->pointer_x;
-  y = seat_impl->pointer_y;
+  modifiers = xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-    modifiers = device_native->button_state;
+    modifiers |= device_native->button_state;
   else
-    modifiers = seat_impl->button_state;
-
-  modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
+    modifiers |= seat_impl->button_state;
 
   scroll_flags = meta_input_device_native_has_scroll_inverted (device_native) ?
     CLUTTER_SCROLL_INVERTED : CLUTTER_SCROLL_NONE;
@@ -1143,7 +1131,7 @@ notify_scroll (ClutterInputDevice       *input_device,
                                      input_device,
                                      NULL,
                                      modifiers,
-                                     GRAPHENE_POINT_INIT (x, y),
+                                     priv->pointer_state,
                                      GRAPHENE_POINT_INIT ((float) (scroll_factor * dx),
                                                           (float) (scroll_factor * dy)),
                                      scroll_flags,
@@ -1163,17 +1151,16 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
   MetaInputDeviceNative *device_native =
     META_INPUT_DEVICE_NATIVE (input_device);
   MetaSeatImpl *seat_impl;
+  MetaSeatImplPrivate *priv;
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
   ClutterScrollFlags scroll_flags;
-  float x, y;
 
   if (direction == CLUTTER_SCROLL_SMOOTH)
     return;
 
   seat_impl = seat_impl_from_device (input_device);
-  x = seat_impl->pointer_x;
-  y = seat_impl->pointer_y;
+  priv = meta_seat_impl_get_instance_private (seat_impl);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     modifiers = device_native->button_state;
@@ -1193,7 +1180,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
                                        input_device,
                                        NULL,
                                        modifiers,
-                                       GRAPHENE_POINT_INIT (x, y),
+                                       priv->pointer_state,
                                        scroll_flags,
                                        scroll_source,
                                        direction);
@@ -3131,8 +3118,6 @@ init_core_devices (MetaSeatImpl *seat_impl)
     meta_input_device_native_new_virtual_in_impl (seat_impl,
                                                   CLUTTER_POINTER_DEVICE,
                                                   CLUTTER_INPUT_MODE_LOGICAL);
-  seat_impl->pointer_x = INITIAL_POINTER_X;
-  seat_impl->pointer_y = INITIAL_POINTER_Y;
   seat_impl->core_pointer = device;
 
   device =
@@ -3465,8 +3450,6 @@ init_pointer_position_in_impl (GTask *task)
   MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   InitPointerPositionData *data = g_task_get_task_data (task);
 
-  seat_impl->pointer_x = data->position.x;
-  seat_impl->pointer_y = data->position.y;
   priv->pointer_state = data->position;
   g_task_return_boolean (task, TRUE);
 

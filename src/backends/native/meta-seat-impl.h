@@ -98,9 +98,6 @@ struct _MetaSeatImpl
   ClutterInputDevice *repeat_device;
   GSource *repeat_source;
 
-  float pointer_x;
-  float pointer_y;
-
   /* Emulation of discrete scroll events out of smooth ones */
   float accum_scroll_dx;
   float accum_scroll_dy;
