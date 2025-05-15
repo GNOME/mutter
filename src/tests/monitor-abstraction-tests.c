@@ -605,6 +605,9 @@ meta_test_monitor_rebuild_disable (void)
   GList *monitors;
   MetaMonitor *monitor_1;
   MetaMonitor *monitor_2;
+  GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor_1;
+  MetaLogicalMonitor *logical_monitor_2;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -616,8 +619,18 @@ meta_test_monitor_rebuild_disable (void)
   monitor_1 = META_MONITOR (monitors->data);
   monitor_2 = META_MONITOR (monitors->next->data);
 
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
+  logical_monitor_1 = META_LOGICAL_MONITOR (logical_monitors->data);
+  logical_monitor_2 = META_LOGICAL_MONITOR (logical_monitors->next->data);
+
   g_object_add_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_add_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_1),
+                             (gpointer *) &logical_monitor_1);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_2),
+                             (gpointer *) &logical_monitor_2);
 
   verify_monitor_monitor_mode (monitor_1,
                                meta_monitor_get_current_mode (monitor_1));
@@ -630,9 +643,17 @@ meta_test_monitor_rebuild_disable (void)
   g_assert_nonnull (monitor_1);
   g_assert_nonnull (monitor_2);
 
+  g_assert_nonnull (logical_monitor_1);
+  g_assert_null (logical_monitor_2);
+
   verify_monitor_monitor_mode (monitor_1,
                                meta_monitor_get_current_mode (monitor_1));
   g_assert_null (meta_monitor_get_current_mode (monitor_2));
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  g_assert_true (logical_monitors->data == logical_monitor_1);
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_EXTERNAL);
@@ -640,9 +661,15 @@ meta_test_monitor_rebuild_disable (void)
   g_assert_nonnull (monitor_1);
   g_assert_nonnull (monitor_2);
 
+  g_assert_null (logical_monitor_1);
+
   g_assert_null (meta_monitor_get_current_mode (monitor_1));
   verify_monitor_monitor_mode (monitor_2,
                                meta_monitor_get_current_mode (monitor_2));
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
 
   g_object_remove_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_remove_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
@@ -870,6 +897,9 @@ meta_test_monitor_rebuild_changed_connector (void)
   GList *monitors;
   MetaMonitor *monitor_1;
   MetaMonitor *monitor_2;
+  GList *logical_monitors;
+  MetaLogicalMonitor *logical_monitor_1;
+  MetaLogicalMonitor *logical_monitor_2;
 
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case_setup,
@@ -881,8 +911,18 @@ meta_test_monitor_rebuild_changed_connector (void)
   monitor_1 = META_MONITOR (monitors->data);
   monitor_2 = META_MONITOR (monitors->next->data);
 
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 2);
+  logical_monitor_1 = META_LOGICAL_MONITOR (logical_monitors->data);
+  logical_monitor_2 = META_LOGICAL_MONITOR (logical_monitors->next->data);
+
   g_object_add_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
   g_object_add_weak_pointer (G_OBJECT (monitor_2), (gpointer *) &monitor_2);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_1),
+                             (gpointer *) &logical_monitor_1);
+  g_object_add_weak_pointer (G_OBJECT (logical_monitor_2),
+                             (gpointer *) &logical_monitor_2);
 
   test_case_setup.outputs[0].connector_number = 2;
   test_case_setup.outputs[1].connector_number = 3;
@@ -895,6 +935,8 @@ meta_test_monitor_rebuild_changed_connector (void)
 
   g_assert_null (monitor_1);
   g_assert_null (monitor_2);
+  g_assert_null (logical_monitor_1);
+  g_assert_null (logical_monitor_2);
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
