@@ -32,6 +32,7 @@
 #include "clutter/clutter-keysyms.h"
 #include "clutter/clutter-input-device-tool.h"
 #include "clutter/clutter-private.h"
+#include "clutter/clutter-seat-private.h"
 
 #include <math.h>
 

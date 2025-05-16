@@ -34,6 +34,7 @@
 #include "clutter/clutter-input-pointer-a11y-private.h"
 #include "clutter/clutter-macros.h"
 #include "clutter/clutter-private.h"
+#include "clutter/clutter-seat-private.h"
 #include "clutter/clutter-sprite-private.h"
 #include "clutter/clutter-stage-private.h"
 #include "clutter/clutter-stage-view.h"

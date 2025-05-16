@@ -114,10 +114,6 @@ struct _ClutterSeatClass
 CLUTTER_EXPORT
 ClutterContext * clutter_seat_get_context (ClutterSeat *seat);
 CLUTTER_EXPORT
-ClutterInputDevice * clutter_seat_get_pointer  (ClutterSeat *seat);
-CLUTTER_EXPORT
-ClutterInputDevice * clutter_seat_get_keyboard (ClutterSeat *seat);
-CLUTTER_EXPORT
 GList * clutter_seat_list_devices (ClutterSeat *seat);
 const GList * clutter_seat_peek_devices (ClutterSeat *seat);
 CLUTTER_EXPORT

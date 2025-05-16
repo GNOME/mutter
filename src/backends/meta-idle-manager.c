@@ -25,6 +25,7 @@
 #include "backends/meta-idle-manager.h"
 
 #include "backends/meta-idle-monitor-private.h"
+#include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
 #include "meta/meta-context.h"

@@ -26,6 +26,7 @@
 #include "clutter/clutter-input-method.h"
 #include "clutter/clutter-input-method-private.h"
 #include "clutter/clutter-input-focus-private.h"
+#include "clutter/clutter-seat-private.h"
 
 typedef struct _ClutterInputMethodPrivate ClutterInputMethodPrivate;
 

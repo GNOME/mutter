@@ -31,6 +31,7 @@
 #include "clutter/clutter-input-pointer-a11y-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-private.h"
+#include "clutter/clutter-seat-private.h"
 #include "clutter/clutter-virtual-input-device.h"
 
 static gboolean

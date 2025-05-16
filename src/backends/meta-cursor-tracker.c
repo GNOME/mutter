@@ -35,6 +35,7 @@
 #include "backends/meta-backend-private.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
+#include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "meta/main.h"
 #include "meta/util.h"

@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include <clutter/clutter.h>
+#include <clutter/clutter-mutter.h>
 
 #include "tests/clutter-test-utils.h"
 

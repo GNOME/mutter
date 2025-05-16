@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <clutter/clutter-mutter.h>
 #include <clutter/clutter.h>
 
 #include "tests/clutter-test-utils.h"

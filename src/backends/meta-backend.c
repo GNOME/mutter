@@ -70,7 +70,6 @@
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter-mutter.h"
-#include "clutter/clutter-seat-private.h"
 #include "compositor/meta-dnd-private.h"
 #include "core/meta-context-private.h"
 #include "core/meta-debug-control-private.h"

@@ -341,12 +341,7 @@ clutter_seat_init (ClutterSeat *seat)
 }
 
 /**
- * clutter_seat_get_pointer:
- * @seat: a #ClutterSeat
- *
- * Returns the logical pointer
- *
- * Returns: (transfer none): the logical pointer
+ * clutter_seat_get_pointer: (skip)
  **/
 ClutterInputDevice *
 clutter_seat_get_pointer (ClutterSeat *seat)
@@ -357,12 +352,7 @@ clutter_seat_get_pointer (ClutterSeat *seat)
 }
 
 /**
- * clutter_seat_get_keyboard:
- * @seat: a #ClutterSeat
- *
- * Returns the logical keyboard
- *
- * Returns: (transfer none): the logical keyboard
+ * clutter_seat_get_keyboard: (skip)
  **/
 ClutterInputDevice *
 clutter_seat_get_keyboard (ClutterSeat *seat)
