@@ -2217,14 +2217,15 @@ handle_begin_move (MetaDisplay           *display,
       MetaContext *context = meta_display_get_context (display);
       MetaBackend *backend = meta_context_get_backend (context);
       ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-      ClutterInputDevice *device;
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterSprite *sprite;
 
-      device = clutter_seat_get_pointer (seat);
+      sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
+
       meta_window_begin_grab_op (window,
                                  META_GRAB_OP_KEYBOARD_MOVING |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
-                                 device, NULL,
+                                 sprite,
                                  clutter_event_get_time (event),
                                  NULL);
     }
@@ -2242,14 +2243,14 @@ handle_begin_resize (MetaDisplay           *display,
       MetaContext *context = meta_display_get_context (display);
       MetaBackend *backend = meta_context_get_backend (context);
       ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-      ClutterInputDevice *device;
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterSprite *sprite;
 
-      device = clutter_seat_get_pointer (seat);
+      sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
       meta_window_begin_grab_op (window,
                                  META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN |
                                  META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
-                                 device, NULL,
+                                 sprite,
                                  clutter_event_get_time (event),
                                  NULL);
     }

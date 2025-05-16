@@ -101,14 +101,13 @@ MetaDisplay * meta_compositor_get_display (MetaCompositor *compositor);
 MetaWindowActor * meta_compositor_get_top_window_actor (MetaCompositor *compositor);
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
-gboolean meta_compositor_drag_window (MetaCompositor       *compositor,
-                                      MetaWindow           *window,
-                                      MetaGrabOp            grab_op,
-                                      MetaDragWindowFlags   flags,
-                                      ClutterInputDevice   *device,
-                                      ClutterEventSequence *sequence,
-                                      uint32_t              timestamp,
-                                      graphene_point_t     *pos_hint);
+gboolean meta_compositor_drag_window (MetaCompositor      *compositor,
+                                      MetaWindow          *window,
+                                      MetaGrabOp           grab_op,
+                                      MetaDragWindowFlags  flags,
+                                      ClutterSprite       *sprite,
+                                      uint32_t             timestamp,
+                                      graphene_point_t    *pos_hint);
 
 META_EXPORT_TEST
 MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);

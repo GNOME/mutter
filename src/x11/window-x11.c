@@ -3108,8 +3108,7 @@ handle_net_restack_window (MetaDisplay *display,
 
 #ifdef HAVE_XWAYLAND
 typedef struct {
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterSprite *sprite;
   graphene_point_t device_point;
   graphene_point_t coords;
   int button;
@@ -3156,12 +3155,10 @@ nearest_device_func (ClutterStage  *stage,
 
   if (ABS (point.x - data->coords.x) < nearest_threshold &&
       ABS (point.y - data->coords.y) < nearest_threshold &&
-      (!data->device ||
-       (ABS (point.x - data->coords.x) < ABS (data->device_point.x - data->coords.x) &&
-        ABS (point.y - data->coords.y) < ABS (data->device_point.y - data->coords.y))))
+      ABS (point.x - data->coords.x) < ABS (data->device_point.x - data->coords.x) &&
+      ABS (point.y - data->coords.y) < ABS (data->device_point.y - data->coords.y))
     {
-      data->device = device;
-      data->sequence = sequence;
+      data->sprite = sprite;
       data->device_point = point;
     }
 
@@ -3173,8 +3170,7 @@ guess_nearest_device (MetaWindow            *window,
                       int                    root_x,
                       int                    root_y,
                       int                    button,
-                      ClutterInputDevice   **device,
-                      ClutterEventSequence **sequence)
+                      ClutterSprite        **sprite)
 {
   MetaDisplay *display = meta_window_get_display (window);
   MetaContext *context = meta_display_get_context (display);
@@ -3188,15 +3184,10 @@ guess_nearest_device (MetaWindow            *window,
                                         nearest_device_func,
                                         &data);
 
-  if (!data.device)
-    return FALSE;
+  if (sprite && data.sprite)
+    *sprite = data.sprite;
 
-  if (device && data.device)
-    *device = data.device;
-  if (sequence && data.sequence)
-    *sequence = data.sequence;
-
-  return TRUE;
+  return data.sprite != NULL;
 }
 #endif /* HAVE_XWAYLAND */
 
@@ -3523,11 +3514,12 @@ meta_window_x11_client_message (MetaWindow *window,
           MetaContext *context = meta_display_get_context (display);
           MetaBackend *backend = meta_context_get_backend (context);
           ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-          ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+          ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+          ClutterSprite *sprite;
 
+          sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
           meta_window_begin_grab_op (window, op,
-                                     clutter_seat_get_pointer (seat),
-                                     NULL,
+                                     sprite,
                                      timestamp,
                                      NULL);
         }
@@ -3539,31 +3531,29 @@ meta_window_x11_client_message (MetaWindow *window,
         {
           MetaContext *context = meta_display_get_context (display);
           MetaBackend *backend = meta_context_get_backend (context);
+          ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
           ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-          ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-          ClutterInputDevice *device = NULL;
-          ClutterEventSequence *sequence = NULL;
+          ClutterSprite *sprite = NULL;
           int button_mask;
 
 #ifdef HAVE_XWAYLAND
           if (meta_is_wayland_compositor ())
             {
-              if (!guess_nearest_device (window, x_root, y_root, button,
-                                         &device, &sequence))
+              if (!guess_nearest_device (window, x_root, y_root, button, &sprite))
                 return FALSE;
             }
           else
 #endif
             {
-              device = clutter_seat_get_pointer (seat);
-              sequence = NULL;
+              sprite = clutter_backend_get_pointer_sprite (clutter_backend,
+                                                           stage);
             }
 
+          g_assert (sprite);
           meta_topic (META_DEBUG_WINDOW_OPS,
                       "Beginning move/resize with button = %d", button);
           meta_window_begin_grab_op (window, op,
-                                     device,
-                                     sequence,
+                                     sprite,
                                      timestamp,
                                      &GRAPHENE_POINT_INIT (x_root, y_root));
 

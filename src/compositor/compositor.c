@@ -1573,14 +1573,13 @@ on_window_drag_ended (MetaWindowDrag *window_drag,
 }
 
 gboolean
-meta_compositor_drag_window (MetaCompositor       *compositor,
-                             MetaWindow           *window,
-                             MetaGrabOp            grab_op,
-                             MetaDragWindowFlags   flags,
-                             ClutterInputDevice   *device,
-                             ClutterEventSequence *sequence,
-                             uint32_t              timestamp,
-                             graphene_point_t     *pos_hint)
+meta_compositor_drag_window (MetaCompositor      *compositor,
+                             MetaWindow          *window,
+                             MetaGrabOp           grab_op,
+                             MetaDragWindowFlags  flags,
+                             ClutterSprite       *sprite,
+                             uint32_t             timestamp,
+                             graphene_point_t    *pos_hint)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -1596,8 +1595,8 @@ meta_compositor_drag_window (MetaCompositor       *compositor,
 
   priv->current_drag = g_steal_pointer (&window_drag);
 
-  if (!meta_window_drag_begin (priv->current_drag, device,
-                               sequence, timestamp, flags))
+  if (!meta_window_drag_begin (priv->current_drag, sprite,
+                               timestamp, flags))
     {
       g_clear_object (&priv->current_drag);
       return FALSE;

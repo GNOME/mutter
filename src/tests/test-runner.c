@@ -1285,8 +1285,10 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "begin_resize") == 0)
     {
       MetaBackend *backend = meta_context_get_backend (test->context);
-      ClutterSeat *seat = meta_backend_get_default_seat (backend);
-      ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterSprite *sprite;
       MetaTestClient *client;
       const char *window_id;
       MetaWindow *window;
@@ -1314,9 +1316,11 @@ test_case_do (TestCase    *test,
       window_drag =
         meta_compositor_get_current_window_drag (window->display->compositor);
       g_assert_null (window_drag);
+
+      sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
       ret = meta_window_begin_grab_op (window,
                                        grab_op,
-                                       pointer, NULL,
+                                       sprite,
                                        meta_display_get_current_time_roundtrip (window->display),
                                        &grab_origin);
       g_assert_true (ret);

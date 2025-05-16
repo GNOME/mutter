@@ -6356,23 +6356,21 @@ meta_window_is_ancestor_of_transient (MetaWindow *window,
  * meta_window_begin_grab_op:
  * @window:
  * @op:
- * @device: (nullable):
- * @sequence: (nullable):
+ * @sprite: (nullable):
  * @timestamp:
  * @pos_hint: (nullable):
  **/
 gboolean
-meta_window_begin_grab_op (MetaWindow           *window,
-                           MetaGrabOp            op,
-                           ClutterInputDevice   *device,
-                           ClutterEventSequence *sequence,
-                           guint32               timestamp,
-                           graphene_point_t     *pos_hint)
+meta_window_begin_grab_op (MetaWindow       *window,
+                           MetaGrabOp        op,
+                           ClutterSprite    *sprite,
+                           guint32           timestamp,
+                           graphene_point_t *pos_hint)
 {
   return meta_compositor_drag_window (window->display->compositor,
                                       window, op,
                                       META_DRAG_WINDOW_FLAG_NONE,
-                                      device, sequence,
+                                      sprite,
                                       timestamp,
                                       pos_hint);
 }
@@ -7656,6 +7654,11 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                     const ClutterEvent *event)
 {
   MetaDisplay *display = window->display;
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSprite *sprite;
   gboolean unmodified;
   gboolean is_window_grab;
   gboolean is_window_button_grab_allowed;
@@ -7738,6 +7741,8 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
 
   clutter_event_get_coords (event, &x, &y);
 
+  sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+
   if (unmodified)
     {
       if (meta_prefs_get_raise_on_click ())
@@ -7776,8 +7781,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
               op |= META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED;
               if (meta_window_begin_grab_op (window,
                                              op,
-                                             clutter_event_get_device (event),
-                                             clutter_event_get_event_sequence (event),
+                                             sprite,
                                              time_ms,
                                              NULL))
                 return CLUTTER_EVENT_STOP;
@@ -7802,8 +7806,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
           if (meta_window_begin_grab_op (window,
                                          META_GRAB_OP_MOVING |
                                          META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED,
-                                         clutter_event_get_device (event),
-                                         clutter_event_get_event_sequence (event),
+                                         sprite,
                                          time_ms,
                                          NULL))
             return CLUTTER_EVENT_STOP;

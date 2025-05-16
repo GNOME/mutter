@@ -391,12 +391,11 @@ void meta_window_get_work_area_all_monitors    (MetaWindow   *window,
                                                 MtkRectangle *area);
 
 META_EXPORT
-gboolean meta_window_begin_grab_op (MetaWindow           *window,
-                                    MetaGrabOp            op,
-                                    ClutterInputDevice   *device,
-                                    ClutterEventSequence *sequence,
-                                    guint32               timestamp,
-                                    graphene_point_t     *pos_hint);
+gboolean meta_window_begin_grab_op (MetaWindow       *window,
+                                    MetaGrabOp        op,
+                                    ClutterSprite    *sprite,
+                                    guint32           timestamp,
+                                    graphene_point_t *pos_hint);
 
 META_EXPORT
 gboolean meta_window_can_maximize (MetaWindow *window);

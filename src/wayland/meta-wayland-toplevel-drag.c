@@ -186,6 +186,11 @@ start_window_drag (MetaWindow              *dragged_window,
   MetaWaylandInput *input;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
+  MetaContext *context;
+  MetaBackend *backend;
+  ClutterBackend *clutter_backend;
+  ClutterSprite *sprite;
+  ClutterStage *stage;
   MetaCompositor *compositor;
   uint32_t timestamp;
   gboolean started;
@@ -219,11 +224,19 @@ start_window_drag (MetaWindow              *dragged_window,
   device = meta_wayland_drag_grab_get_device (drag_grab, &sequence);
   timestamp = meta_display_get_current_time_roundtrip (dragged_window->display);
 
+  context = meta_wayland_compositor_get_context (seat->compositor);
+  backend = meta_context_get_backend (context);
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  sprite = clutter_backend_lookup_sprite (clutter_backend,
+                                          CLUTTER_STAGE (stage),
+                                          device, sequence);
+
   compositor = dragged_window->display->compositor;
   started = meta_compositor_drag_window (compositor, dragged_window,
                                          META_GRAB_OP_MOVING_UNCONSTRAINED,
                                          META_DRAG_WINDOW_FLAG_FOREIGN_GRAB,
-                                         device, sequence,
+                                         sprite,
                                          timestamp, offset_hint);
   if (!started)
     return;

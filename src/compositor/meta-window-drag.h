@@ -38,11 +38,10 @@ G_DECLARE_FINAL_TYPE (MetaWindowDrag, meta_window_drag,
 MetaWindowDrag * meta_window_drag_new (MetaWindow *window,
                                        MetaGrabOp  grab_op);
 
-gboolean meta_window_drag_begin (MetaWindowDrag       *drag,
-                                 ClutterInputDevice   *device,
-                                 ClutterEventSequence *sequence,
-                                 uint32_t              timestamp,
-                                 MetaDragWindowFlags   flags);
+gboolean meta_window_drag_begin (MetaWindowDrag      *drag,
+                                 ClutterSprite       *sprite,
+                                 uint32_t             timestamp,
+                                 MetaDragWindowFlags  flags);
 
 META_EXPORT_TEST
 void meta_window_drag_end (MetaWindowDrag *drag);

@@ -1772,16 +1772,26 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
                                     gfloat                y)
 {
   MetaWindow *window = meta_wayland_surface_get_window (surface);
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSprite *sprite;
 
   if (grab_op == META_GRAB_OP_NONE)
     return FALSE;
+
+  sprite = clutter_backend_lookup_sprite (clutter_backend,
+                                          stage,
+                                          device, sequence);
 
   /* This is an input driven operation so we set frame_action to
      constrain it in the same way as it would be if the window was
      being moved/resized via a SSD event. */
   return meta_window_begin_grab_op (window,
                                     grab_op,
-                                    device, sequence,
+                                    sprite,
                                     meta_display_get_current_time_roundtrip (window->display),
                                     &GRAPHENE_POINT_INIT (x, y));
 }
