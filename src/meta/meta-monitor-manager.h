@@ -64,3 +64,6 @@ int meta_monitor_manager_get_display_configuration_timeout (MetaMonitorManager *
 
 META_EXPORT
 gboolean meta_monitor_manager_get_panel_orientation_managed (MetaMonitorManager *manager);
+
+META_EXPORT
+GList * meta_monitor_manager_get_monitors (MetaMonitorManager *manager);

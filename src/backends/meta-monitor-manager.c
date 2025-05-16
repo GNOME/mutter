@@ -3916,11 +3916,14 @@ meta_monitor_manager_get_logical_monitor_neighbor (MetaMonitorManager  *manager,
  * meta_monitor_manager_get_logical_monitors() for a list of
  * `MetaLogicalMonitor`s.
  *
- * Returns: (transfer none) (nullable): the list of [class@Meta.Monitor]s.
+ * Returns: (transfer none) (nullable) (element-type Meta.Monitor):
+ * The list of [class@Meta.Monitor]s.
  */
 GList *
 meta_monitor_manager_get_monitors (MetaMonitorManager *manager)
 {
+  g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager), NULL);
+
   return manager->monitors;
 }
 

@@ -305,9 +305,6 @@ MetaMonitor *       meta_monitor_manager_get_monitor_from_spec (MetaMonitorManag
 MetaMonitor *       meta_monitor_manager_get_monitor_from_connector (MetaMonitorManager *manager,
                                                                      const char         *connector);
 
-META_EXPORT_TEST
-GList *             meta_monitor_manager_get_monitors      (MetaMonitorManager *manager);
-
 void                meta_monitor_manager_get_screen_size   (MetaMonitorManager *manager,
                                                             int                *width,
                                                             int                *height);
