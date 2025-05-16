@@ -21,7 +21,7 @@
 
 #include <glib-object.h>
 
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "core/util-private.h"

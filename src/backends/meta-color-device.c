@@ -29,7 +29,7 @@
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-color-profile.h"
 #include "backends/meta-color-store.h"
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "core/meta-debug-control-private.h"
 
 #define EFI_PANEL_COLOR_INFO_PATH \

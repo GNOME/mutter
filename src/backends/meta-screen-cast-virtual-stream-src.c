@@ -30,7 +30,7 @@
 #include "backends/meta-crtc-mode.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-eis-viewport.h"
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/meta-output.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-stage-private.h"

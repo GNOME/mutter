@@ -25,6 +25,8 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-output.h"
 
+#include "meta/meta-monitor.h"
+
 typedef struct _MetaMonitorSpec
 {
   char *connector;
@@ -71,10 +73,6 @@ struct _MetaMonitorModeClass
 {
   GObjectClass parent_class;
 };
-
-#define META_TYPE_MONITOR (meta_monitor_get_type ())
-META_EXPORT_TEST
-G_DECLARE_DERIVABLE_TYPE (MetaMonitor, meta_monitor, META, MONITOR, GObject)
 
 struct _MetaMonitorClass
 {

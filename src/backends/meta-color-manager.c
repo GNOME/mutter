@@ -51,7 +51,7 @@
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-store.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 
 #include "meta-dbus-gsd-color.h"
 #include "meta-dbus-gsd-power-screen.h"

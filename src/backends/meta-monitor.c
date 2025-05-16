@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"

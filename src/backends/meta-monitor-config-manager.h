@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 
 #define META_TYPE_MONITOR_CONFIG_MANAGER (meta_monitor_config_manager_get_type ())

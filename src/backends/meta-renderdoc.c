@@ -20,7 +20,7 @@
 #include "config.h"
 
 #include "backends/meta-renderdoc.h"
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/meta-output.h"
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-stage-native.h"

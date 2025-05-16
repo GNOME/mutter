@@ -22,7 +22,7 @@
 
 #include <gio/gio.h>
 
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "core/meta-context-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland.h"

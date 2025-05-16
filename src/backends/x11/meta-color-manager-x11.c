@@ -27,7 +27,7 @@
 
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-profile.h"
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-output-xrandr.h"
 

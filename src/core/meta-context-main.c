@@ -29,7 +29,7 @@
 #include <systemd/sd-login.h>
 #endif
 
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
 #include "core/meta-session-manager.h"

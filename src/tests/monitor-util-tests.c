@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "backends/meta-monitor.h"
+#include "backends/meta-monitor-private.h"
 
 static void
 assert_matches_none (MetaMonitorModeSpec *mode_spec,
