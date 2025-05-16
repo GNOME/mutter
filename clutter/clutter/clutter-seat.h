@@ -168,11 +168,4 @@ CLUTTER_EXPORT
 gboolean clutter_seat_has_touchscreen (ClutterSeat *seat);
 
 CLUTTER_EXPORT
-gboolean clutter_seat_query_state (ClutterSeat          *seat,
-                                   ClutterInputDevice   *device,
-                                   ClutterEventSequence *sequence,
-                                   graphene_point_t     *coords,
-                                   ClutterModifierType  *modifiers);
-
-CLUTTER_EXPORT
 const char * clutter_seat_get_name (ClutterSeat *seat);

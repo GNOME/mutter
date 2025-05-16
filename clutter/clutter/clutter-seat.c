@@ -747,15 +747,7 @@ clutter_seat_has_touchscreen (ClutterSeat *seat)
 }
 
 /**
- * clutter_seat_query_state:
- * @seat: a #ClutterSeat
- * @device: a #ClutterInputDevice
- * @sequence: (nullable): a #ClutterEventSequence
- * @coords: (out caller-allocates) (optional): the coordinates of the pointer
- * @modifiers: (out) (optional): the current #ClutterModifierType of the pointer
- *
- * Returns: %TRUE if @device (or the specific @sequence) is on the stage, %FALSE
- *   otherwise.
+ * clutter_seat_query_state: (skip)
  **/
 gboolean
 clutter_seat_query_state (ClutterSeat          *seat,

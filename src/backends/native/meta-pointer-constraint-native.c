@@ -25,6 +25,7 @@
 #include <glib-object.h>
 #include <wayland-server.h>
 
+#include "clutter/clutter-mutter.h"
 #include "core/meta-border.h"
 #include "backends/native/meta-pointer-constraint-native.h"
 
