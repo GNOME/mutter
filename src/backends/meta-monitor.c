@@ -1276,7 +1276,7 @@ generate_tiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
     {
       MetaMonitorMode *mode = l->data;
 
-      tiled_modes = g_list_remove_link (tiled_modes, l);
+      tiled_modes = g_list_delete_link (tiled_modes, l);
 
       if (!meta_monitor_add_mode (monitor, mode, FALSE))
         {
