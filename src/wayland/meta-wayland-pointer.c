@@ -333,11 +333,10 @@ sync_focus_surface (MetaWaylandPointer *pointer)
 {
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
   MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
-  ClutterInputDevice *device = clutter_sprite_get_device (pointer->sprite);
   MetaWaylandInput *input;
 
   input = meta_wayland_seat_get_input (seat);
-  meta_wayland_input_invalidate_focus (input, device, NULL);
+  meta_wayland_input_invalidate_focus (input, CLUTTER_FOCUS (pointer->sprite));
 }
 
 static void

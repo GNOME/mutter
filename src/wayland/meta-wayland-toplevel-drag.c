@@ -140,23 +140,19 @@ surface_from_xdg_toplevel_resource (struct wl_resource *resource)
 
 static MetaWaylandSurface *
 toplevel_drag_get_focus_surface (MetaWaylandEventHandler *handler,
-                                 ClutterInputDevice      *device,
-                                 ClutterEventSequence    *sequence,
+                                 ClutterFocus            *focus,
                                  gpointer                 user_data)
 {
-  return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                device,
-                                                                sequence);
+  return meta_wayland_event_handler_chain_up_get_focus_surface (handler, focus);
 }
 
 static void
 toplevel_drag_focus (MetaWaylandEventHandler *handler,
-                     ClutterInputDevice      *device,
-                     ClutterEventSequence    *sequence,
+                     ClutterFocus            *focus,
                      MetaWaylandSurface      *surface,
                      gpointer                 user_data)
 {
-  meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
+  meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
 }
 
 static gboolean

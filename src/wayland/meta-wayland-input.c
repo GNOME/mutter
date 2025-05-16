@@ -110,13 +110,12 @@ meta_wayland_input_new (MetaWaylandSeat *seat)
 
 static void
 meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
-                                             ClutterInputDevice      *device,
-                                             ClutterEventSequence    *sequence)
+                                             ClutterFocus            *focus)
 {
   MetaWaylandInput *input = handler->input;
   MetaWaylandSurface *surface = NULL;
 
-  if (!handler->iface->focus)
+  if (!focus || !handler->iface->focus)
     return;
 
   if (handler->iface->get_focus_surface &&
@@ -126,13 +125,12 @@ meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
       (!clutter_stage_get_grab_actor (input->stage) ||
        (input->grab && !clutter_grab_is_revoked (input->grab))))
     {
-      surface = handler->iface->get_focus_surface (handler,
-                                                   device, sequence,
+      surface = handler->iface->get_focus_surface (handler, focus,
                                                    handler->user_data);
     }
 
   handler->iface->focus (handler,
-                         device, sequence, surface,
+                         focus, surface,
                          handler->user_data);
 }
 
@@ -145,23 +143,24 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
   MetaContext *context =
     meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
-  ClutterSeat *clutter_seat =
-    clutter_backend_get_default_seat (clutter_backend);
   ClutterInputDevice *device;
+  ClutterFocus *focus;
   GHashTableIter iter;
 
   handler = wl_container_of (input->event_handler_list.next, handler, link);
 
-  device = clutter_seat_get_keyboard (clutter_seat);
-  meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+  focus = CLUTTER_FOCUS (clutter_backend_get_key_focus (clutter_backend, stage));
+  meta_wayland_event_handler_invalidate_focus (handler, focus);
 
   /* Trigger sync of all known devices */
   if (meta_wayland_seat_has_pointer (seat))
     {
-      device = clutter_seat_get_pointer (clutter_seat);
-      meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+      focus = CLUTTER_FOCUS (clutter_backend_get_pointer_sprite (clutter_backend,
+                                                                 stage));
+      meta_wayland_event_handler_invalidate_focus (handler, focus);
     }
 
   if (meta_wayland_seat_has_touch (seat))
@@ -169,16 +168,25 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
       g_autoptr (GList) touches = NULL;
       GList *l;
 
-      device = clutter_seat_get_pointer (clutter_seat);
-
       touches = g_hash_table_get_keys (seat->touch->touches);
       for (l = touches; l; l = l->next)
-        meta_wayland_event_handler_invalidate_focus (handler, device, l->data);
+        {
+          focus = CLUTTER_FOCUS (clutter_backend_lookup_sprite (clutter_backend,
+                                                                stage,
+                                                                NULL,
+                                                                l->data));
+          meta_wayland_event_handler_invalidate_focus (handler, focus);
+        }
     }
 
   g_hash_table_iter_init (&iter, seat->tablet_seat->tablets);
   while (g_hash_table_iter_next (&iter, (gpointer*) &device, NULL))
-    meta_wayland_event_handler_invalidate_focus (handler, device, NULL);
+    {
+      focus = CLUTTER_FOCUS (clutter_backend_lookup_sprite (clutter_backend,
+                                                            stage,
+                                                            device, NULL));
+      meta_wayland_event_handler_invalidate_focus (handler, focus);
+    }
 }
 
 static gboolean
@@ -192,13 +200,26 @@ meta_wayland_event_handler_handle_event (MetaWaylandEventHandler *handler,
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
       {
+        MetaWaylandInput *input = handler->input;
+        MetaWaylandSeat *seat = input->seat;
+        MetaWaylandCompositor *compositor = seat->compositor;
+        MetaContext *context =
+          meta_wayland_compositor_get_context (compositor);
+        MetaBackend *backend = meta_context_get_backend (context);
+        ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+        ClutterBackend *clutter_backend =
+          meta_backend_get_clutter_backend (backend);
+        ClutterFocus *focus;
         ClutterInputDevice *device;
         ClutterEventSequence *sequence;
 
         device = clutter_event_get_device (event);
         sequence = clutter_event_get_event_sequence (event);
-        meta_wayland_event_handler_invalidate_focus (handler,
-                                                     device, sequence);
+        focus = CLUTTER_FOCUS (clutter_backend_lookup_sprite (clutter_backend,
+                                                              stage,
+                                                              device,
+                                                              sequence));
+        meta_wayland_event_handler_invalidate_focus (handler, focus);
       }
 
       return CLUTTER_EVENT_PROPAGATE;
@@ -385,9 +406,8 @@ meta_wayland_input_handle_event (MetaWaylandInput   *input,
 }
 
 void
-meta_wayland_input_invalidate_focus (MetaWaylandInput     *input,
-                                     ClutterInputDevice   *device,
-                                     ClutterEventSequence *sequence)
+meta_wayland_input_invalidate_focus (MetaWaylandInput *input,
+                                     ClutterFocus     *focus)
 {
   if (!wl_list_empty (&input->event_handler_list))
     {
@@ -395,14 +415,13 @@ meta_wayland_input_invalidate_focus (MetaWaylandInput     *input,
         wl_container_of (input->event_handler_list.next,
                          head, link);
 
-      meta_wayland_event_handler_invalidate_focus (head, device, sequence);
+      meta_wayland_event_handler_invalidate_focus (head, focus);
     }
 }
 
 MetaWaylandSurface *
 meta_wayland_event_handler_chain_up_get_focus_surface (MetaWaylandEventHandler *handler,
-                                                       ClutterInputDevice      *device,
-                                                       ClutterEventSequence    *sequence)
+                                                       ClutterFocus            *focus)
 {
   MetaWaylandEventHandler *next;
 
@@ -410,13 +429,12 @@ meta_wayland_event_handler_chain_up_get_focus_surface (MetaWaylandEventHandler *
 
   next = wl_container_of (handler->link.next, next, link);
 
-  return next->iface->get_focus_surface (next, device, sequence, next->user_data);
+  return next->iface->get_focus_surface (next, focus, next->user_data);
 }
 
 void
 meta_wayland_event_handler_chain_up_focus (MetaWaylandEventHandler *handler,
-                                           ClutterInputDevice      *device,
-                                           ClutterEventSequence    *sequence,
+                                           ClutterFocus            *focus,
                                            MetaWaylandSurface      *surface)
 {
   MetaWaylandEventHandler *next;
@@ -425,5 +443,5 @@ meta_wayland_event_handler_chain_up_focus (MetaWaylandEventHandler *handler,
 
   next = wl_container_of (handler->link.next, next, link);
 
-  return next->iface->focus (next, device, sequence, surface, next->user_data);
+  return next->iface->focus (next, focus, surface, next->user_data);
 }

@@ -853,8 +853,7 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
 
 static MetaWaylandSurface *
 drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
-                              ClutterInputDevice      *device,
-                              ClutterEventSequence    *sequence,
+                              ClutterFocus            *focus,
                               gpointer                 user_data)
 {
   MetaWaylandDragGrab *drag_grab = user_data;
@@ -863,8 +862,9 @@ drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
 
   drag_device = meta_wayland_drag_grab_get_device (drag_grab, &drag_sequence);
 
-  if (drag_sequence != sequence ||
-      drag_device != device)
+  if (!CLUTTER_IS_SPRITE (focus) ||
+      drag_sequence != clutter_sprite_get_sequence (CLUTTER_SPRITE (focus)) ||
+      drag_device != clutter_sprite_get_device (CLUTTER_SPRITE (focus)))
     return NULL;
 
   return meta_wayland_drag_grab_get_origin (drag_grab);
@@ -872,13 +872,11 @@ drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
 
 static void
 drag_xgrab_focus (MetaWaylandEventHandler *handler,
-                  ClutterInputDevice      *device,
-                  ClutterEventSequence    *sequence,
+                  ClutterFocus            *focus,
                   MetaWaylandSurface      *surface,
                   gpointer                 user_data)
 {
-  meta_wayland_event_handler_chain_up_focus (handler, device,
-                                             sequence, surface);
+  meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
 
   /* Do not update the DnD focus here. First, the surface may perfectly
    * be the X11 source DnD icon window's, so we can only be fooled
@@ -1142,7 +1140,7 @@ find_dnd_candidate_device (ClutterStage  *stage,
     return TRUE;
 
   focus = meta_wayland_seat_get_current_surface (candidate->seat,
-                                                 device, sequence);
+                                                 CLUTTER_FOCUS (sprite));
   if (!focus || !meta_wayland_surface_is_xwayland (focus))
     return TRUE;
 

@@ -1000,23 +1000,24 @@ static const struct zwp_locked_pointer_v1_interface locked_pointer_interface = {
 
 static MetaWaylandSurface *
 pointer_constraints_get_focus_surface (MetaWaylandEventHandler *handler,
-                                       ClutterInputDevice      *device,
-                                       ClutterEventSequence    *sequence,
+                                       ClutterFocus            *focus,
                                        gpointer                 user_data)
 {
   return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                device,
-                                                                sequence);
+                                                                focus);
 }
 
 static void
 pointer_constraints_focus (MetaWaylandEventHandler *handler,
-                           ClutterInputDevice      *device,
-                           ClutterEventSequence    *sequence,
+                           ClutterFocus            *focus,
                            MetaWaylandSurface      *surface,
                            gpointer                 user_data)
 {
   MetaWaylandPointerConstraint *constraint = user_data;
+  ClutterInputDevice *device =
+    clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+  ClutterEventSequence *sequence =
+    clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
 
   if (!sequence &&
       (clutter_input_device_get_capabilities (device) &
@@ -1024,7 +1025,7 @@ pointer_constraints_focus (MetaWaylandEventHandler *handler,
       surface != constraint->surface)
     meta_wayland_pointer_constraint_deactivate (constraint);
   else
-    meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
+    meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
 }
 
 static const MetaWaylandEventInterface pointer_constraints_event_interface = {

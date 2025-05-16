@@ -194,51 +194,45 @@ meta_wayland_seat_devices_updated (ClutterSeat        *clutter_seat,
 
 static MetaWaylandSurface *
 default_get_focus_surface (MetaWaylandEventHandler *handler,
-                           ClutterInputDevice      *device,
-                           ClutterEventSequence    *sequence,
+                           ClutterFocus            *focus,
                            gpointer                 user_data)
 {
   MetaWaylandSeat *seat = user_data;
   MetaWaylandSurface *surface = NULL;
   ClutterInputCapabilities caps;
+  ClutterInputDevice *device;
 
-  caps = clutter_input_device_get_capabilities (device);
+  if (CLUTTER_IS_SPRITE (focus))
+    {
+      device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+      caps = clutter_input_device_get_capabilities (device);
 
-  if (caps &
-      (CLUTTER_INPUT_CAPABILITY_POINTER |
-       CLUTTER_INPUT_CAPABILITY_TOUCHPAD |
-       CLUTTER_INPUT_CAPABILITY_TRACKBALL |
-       CLUTTER_INPUT_CAPABILITY_TRACKPOINT))
-    surface = meta_wayland_pointer_get_implicit_grab_surface (seat->pointer);
+      if (caps &
+          (CLUTTER_INPUT_CAPABILITY_POINTER |
+           CLUTTER_INPUT_CAPABILITY_TOUCHPAD |
+           CLUTTER_INPUT_CAPABILITY_TRACKBALL |
+           CLUTTER_INPUT_CAPABILITY_TRACKPOINT))
+        surface = meta_wayland_pointer_get_implicit_grab_surface (seat->pointer);
+    }
 
   if (!surface)
-    surface = meta_wayland_seat_get_current_surface (seat, device, sequence);
+    surface = meta_wayland_seat_get_current_surface (seat, focus);
 
   return surface;
 }
 
 static void
 default_focus (MetaWaylandEventHandler *handler,
-               ClutterInputDevice      *device,
-               ClutterEventSequence    *sequence,
+               ClutterFocus            *focus,
                MetaWaylandSurface      *surface,
                gpointer                 user_data)
 {
   MetaWaylandSeat *seat = user_data;
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
   ClutterInputCapabilities caps;
 
-  if (sequence)
-    {
-      if (surface != meta_wayland_touch_get_surface (seat->touch, sequence))
-        meta_wayland_touch_cancel (seat->touch);
-      return;
-    }
-
-  caps = clutter_input_device_get_capabilities (device);
-
-  if (caps &
-      (CLUTTER_INPUT_CAPABILITY_KEYBOARD |
-       CLUTTER_INPUT_CAPABILITY_TABLET_PAD))
+  if (CLUTTER_IS_KEY_FOCUS (focus))
     {
       if (meta_wayland_seat_has_keyboard (seat))
         meta_wayland_keyboard_set_focus (seat->keyboard, surface);
@@ -248,7 +242,21 @@ default_focus (MetaWaylandEventHandler *handler,
                                                   surface);
       meta_wayland_tablet_seat_set_pad_focus (seat->tablet_seat, surface);
       meta_wayland_text_input_set_focus (seat->text_input, surface);
+      return;
     }
+
+  g_assert (CLUTTER_IS_SPRITE (focus));
+  device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+  sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
+
+  if (sequence)
+    {
+      if (surface != meta_wayland_touch_get_surface (seat->touch, sequence))
+        meta_wayland_touch_cancel (seat->touch);
+      return;
+    }
+
+  caps = clutter_input_device_get_capabilities (device);
 
   if (caps & CLUTTER_INPUT_CAPABILITY_TABLET_TOOL)
     {
@@ -566,6 +574,14 @@ void
 meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                                    MetaWaylandSurface *surface)
 {
+  MetaContext *context =
+    meta_wayland_compositor_get_context (seat->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterKeyFocus *key_focus;
+
   if (seat->input_focus == surface)
     return;
 
@@ -586,9 +602,10 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
                           seat);
     }
 
+  key_focus = clutter_backend_get_key_focus (clutter_backend, stage);
+
   meta_wayland_input_invalidate_focus (seat->input_handler,
-                                       clutter_seat_get_keyboard (seat->clutter_seat),
-                                       NULL);
+                                       CLUTTER_FOCUS (key_focus));
 }
 
 MetaWaylandSurface *
@@ -689,10 +706,19 @@ meta_wayland_seat_get_input (MetaWaylandSeat *seat)
 }
 
 MetaWaylandSurface *
-meta_wayland_seat_get_current_surface (MetaWaylandSeat      *seat,
-                                       ClutterInputDevice   *device,
-                                       ClutterEventSequence *sequence)
+meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
+                                       ClutterFocus    *focus)
 {
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
+
+  if (CLUTTER_IS_KEY_FOCUS (focus))
+    return seat->input_focus;
+
+  g_assert (CLUTTER_IS_SPRITE (focus));
+  device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+  sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
+
   if (sequence)
     {
       return meta_wayland_touch_get_surface (seat->touch, sequence);
@@ -702,11 +728,6 @@ meta_wayland_seat_get_current_surface (MetaWaylandSeat      *seat,
       ClutterInputCapabilities caps;
 
       caps = clutter_input_device_get_capabilities (device);
-
-      if (caps &
-          (CLUTTER_INPUT_CAPABILITY_KEYBOARD |
-           CLUTTER_INPUT_CAPABILITY_TABLET_PAD))
-        return seat->input_focus;
 
       if (caps & CLUTTER_INPUT_CAPABILITY_TABLET_TOOL)
         {

@@ -100,15 +100,13 @@ meta_wayland_popup_surface_get_surface (MetaWaylandPopupSurface *popup_surface)
 
 static MetaWaylandSurface *
 popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
-                              ClutterInputDevice      *device,
-                              ClutterEventSequence    *sequence,
+                              ClutterFocus            *focus,
                               gpointer                 user_data)
 {
   MetaWaylandPopupGrab *popup_grab = user_data;
-  ClutterSeat *clutter_seat = clutter_input_device_get_seat (device);
   MetaWaylandSurface *surface;
 
-  if (device == clutter_seat_get_keyboard (clutter_seat) &&
+  if (CLUTTER_IS_KEY_FOCUS (focus) &&
       !wl_list_empty (&popup_grab->all_popups))
     {
       /* Keyboard focus must always go to the topmost surface */
@@ -119,8 +117,7 @@ popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
       MetaWaylandInput *input = meta_wayland_seat_get_input (popup_grab->seat);
 
       surface = meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                       device,
-                                                                       sequence);
+                                                                       focus);
 
       if (!meta_wayland_input_is_current_handler (input, handler) ||
           (surface && surface->resource &&
@@ -133,12 +130,11 @@ popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
 
 static void
 popup_grab_focus (MetaWaylandEventHandler *handler,
-                  ClutterInputDevice      *device,
-                  ClutterEventSequence    *sequence,
+                  ClutterFocus            *focus,
                   MetaWaylandSurface      *surface,
                   gpointer                 user_data)
 {
-  meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
+  meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
 }
 
 static gboolean
@@ -147,8 +143,6 @@ popup_grab_release (MetaWaylandEventHandler *handler,
                     gpointer                 user_data)
 {
   MetaWaylandPopupGrab *popup_grab = user_data;
-  ClutterInputDevice *device = clutter_event_get_source_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   gboolean close_popup;
 
   close_popup = __builtin_popcount (clutter_event_get_state (event) &
@@ -160,9 +154,20 @@ popup_grab_release (MetaWaylandEventHandler *handler,
 
   if (close_popup)
     {
+      MetaWaylandSeat *seat = popup_grab->seat;
+      MetaContext *context =
+        meta_wayland_compositor_get_context (seat->compositor);
+      MetaBackend *backend = meta_context_get_backend (context);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterFocus *focus;
       MetaWaylandSurface *surface;
 
-      surface = meta_wayland_seat_get_current_surface (popup_grab->seat, device, sequence);
+      focus = CLUTTER_FOCUS (clutter_backend_get_sprite (clutter_backend,
+                                                         stage, event));
+      surface = meta_wayland_seat_get_current_surface (popup_grab->seat, focus);
+
       if (!surface ||
           wl_resource_get_client (surface->resource) != popup_grab->grab_client)
         {
@@ -268,16 +273,15 @@ meta_wayland_popup_grab_repick_keyboard_focus (MetaWaylandPopupGrab *popup_grab)
   MetaContext *context =
     meta_wayland_compositor_get_context (seat->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
-  ClutterSeat *clutter_seat =
-    clutter_backend_get_default_seat (clutter_backend);
+  ClutterKeyFocus *key_focus;
   MetaWaylandInput *input;
 
   input = meta_wayland_seat_get_input (seat);
-  meta_wayland_input_invalidate_focus (input,
-                                       clutter_seat_get_keyboard (clutter_seat),
-                                       NULL);
+  key_focus = clutter_backend_get_key_focus (clutter_backend, stage);
+  meta_wayland_input_invalidate_focus (input, CLUTTER_FOCUS (key_focus));
 }
 
 void

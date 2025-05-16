@@ -74,37 +74,31 @@ meta_xwayland_keyboard_grab_end (MetaXwaylandKeyboardActiveGrab *active_grab)
 
 static MetaWaylandSurface *
 meta_xwayland_keyboard_grab_get_focus_surface (MetaWaylandEventHandler *handler,
-                                               ClutterInputDevice      *device,
-                                               ClutterEventSequence    *sequence,
+                                               ClutterFocus            *focus,
                                                gpointer                 user_data)
 {
   MetaXwaylandKeyboardActiveGrab *active_grab = user_data;
 
   /* Force focus onto the surface who has the active grab on the keyboard */
-  if (clutter_input_device_get_capabilities (device) &
-      CLUTTER_INPUT_CAPABILITY_KEYBOARD)
+  if (CLUTTER_IS_KEY_FOCUS (focus))
     return active_grab->surface;
 
   return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                device,
-                                                                sequence);
+                                                                focus);
 }
 
 static void
 meta_xwayland_keyboard_grab_focus (MetaWaylandEventHandler *handler,
-                                   ClutterInputDevice      *device,
-                                   ClutterEventSequence    *sequence,
+                                   ClutterFocus            *focus,
                                    MetaWaylandSurface      *surface,
                                    gpointer                 user_data)
 {
   MetaXwaylandKeyboardActiveGrab *active_grab = user_data;
 
-  if (clutter_input_device_get_capabilities (device) &
-      CLUTTER_INPUT_CAPABILITY_KEYBOARD &&
-      surface != active_grab->surface)
+  if (CLUTTER_IS_KEY_FOCUS (focus) && surface != active_grab->surface)
     meta_xwayland_keyboard_grab_end (active_grab);
   else
-    meta_wayland_event_handler_chain_up_focus (handler, device, sequence, surface);
+    meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
 }
 
 static const MetaWaylandEventInterface grab_event_interface = {

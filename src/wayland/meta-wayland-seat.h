@@ -98,6 +98,5 @@ MetaWaylandCompositor * meta_wayland_seat_get_compositor (MetaWaylandSeat *seat)
 
 MetaWaylandInput * meta_wayland_seat_get_input (MetaWaylandSeat *seat);
 
-MetaWaylandSurface * meta_wayland_seat_get_current_surface (MetaWaylandSeat      *seat,
-                                                            ClutterInputDevice   *device,
-                                                            ClutterEventSequence *sequence);
+MetaWaylandSurface * meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
+                                                            ClutterFocus    *focus);

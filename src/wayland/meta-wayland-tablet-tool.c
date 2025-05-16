@@ -630,8 +630,11 @@ meta_wayland_tablet_tool_set_current_surface (MetaWaylandTabletTool *tool,
 
   tablet_seat = tool->seat;
   input = meta_wayland_seat_get_input (tablet_seat->seat);
-  if (tool->current_tablet)
-    meta_wayland_input_invalidate_focus (input, tool->current_tablet->device, NULL);
+  if (tool->current_tablet && tool->current_tablet->sprite)
+    {
+      meta_wayland_input_invalidate_focus (input,
+                                           CLUTTER_FOCUS (tool->current_tablet->sprite));
+    }
 }
 
 static void

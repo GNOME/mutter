@@ -501,32 +501,32 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
 
 static MetaWaylandSurface *
 drag_grab_get_focus_surface (MetaWaylandEventHandler *handler,
-                             ClutterInputDevice      *device,
-                             ClutterEventSequence    *sequence,
+                             ClutterFocus            *focus,
                              gpointer                 user_data)
 {
   MetaWaylandDragGrab *drag_grab = user_data;
 
-  if (device != drag_grab->device ||
-      sequence != drag_grab->sequence)
+  if (!CLUTTER_IS_SPRITE (focus) ||
+      drag_grab->device != clutter_sprite_get_device (CLUTTER_SPRITE (focus)) ||
+      drag_grab->sequence != clutter_sprite_get_sequence (CLUTTER_SPRITE (focus)))
     return NULL;
 
-  return meta_wayland_seat_get_current_surface (drag_grab->seat, device, sequence);
+  return meta_wayland_seat_get_current_surface (drag_grab->seat, focus);
 }
 
 static void
 drag_grab_focus (MetaWaylandEventHandler *handler,
-                 ClutterInputDevice      *device,
-                 ClutterEventSequence    *sequence,
+                 ClutterFocus            *focus,
                  MetaWaylandSurface      *surface,
                  gpointer                 user_data)
 {
   MetaWaylandDragGrab *drag_grab = user_data;
 
-  meta_wayland_event_handler_chain_up_focus (handler, device, sequence, NULL);
+  meta_wayland_event_handler_chain_up_focus (handler, focus, NULL);
 
-  if (device == drag_grab->device &&
-      sequence == drag_grab->sequence)
+  if (CLUTTER_IS_SPRITE (focus) &&
+      drag_grab->device == clutter_sprite_get_device (CLUTTER_SPRITE (focus)) &&
+      drag_grab->sequence == clutter_sprite_get_sequence (CLUTTER_SPRITE (focus)))
     meta_wayland_drag_grab_set_focus (drag_grab, surface);
 }
 
