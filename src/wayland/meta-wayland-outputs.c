@@ -412,8 +412,9 @@ meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
   wayland_output->subpixel_order = meta_monitor_get_subpixel_order (monitor);
   wayland_output->transform =
     meta_logical_monitor_get_transform (logical_monitor);
-  wayland_output->mode = meta_monitor_get_current_mode (monitor);
-  wayland_output->preferred_mode = meta_monitor_get_preferred_mode (monitor);
+  g_set_object (&wayland_output->mode, meta_monitor_get_current_mode (monitor));
+  g_set_object (&wayland_output->preferred_mode,
+                meta_monitor_get_preferred_mode (monitor));
   wayland_output->scale = meta_logical_monitor_get_scale (logical_monitor);
 }
 
@@ -593,6 +594,9 @@ meta_wayland_output_finalize (GObject *object)
 
   g_warn_if_fail (!wayland_output->resources);
   g_warn_if_fail (!wayland_output->xdg_output_resources);
+
+  g_clear_object (&wayland_output->mode);
+  g_clear_object (&wayland_output->preferred_mode);
 
   wl_global_destroy (wayland_output->global);
 
