@@ -102,11 +102,6 @@ void clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
                                                        graphene_matrix_t *matrix);
 
 CLUTTER_EXPORT
-ClutterSprite * clutter_backend_get_sprite (ClutterBackend     *backend,
-                                            ClutterStage       *stage,
-                                            const ClutterEvent *for_event);
-
-CLUTTER_EXPORT
 void clutter_backend_destroy_sprite (ClutterBackend *backend,
                                      ClutterSprite  *sprite);
 

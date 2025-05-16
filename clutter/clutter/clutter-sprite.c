@@ -29,6 +29,7 @@
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-event-private.h"
+#include "clutter/clutter-focus-private.h"
 #include "clutter/clutter-grab.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-stage.h"

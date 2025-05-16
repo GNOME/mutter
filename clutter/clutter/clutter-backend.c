@@ -573,8 +573,15 @@ clutter_backend_is_display_server (ClutterBackend *backend)
 }
 
 /**
- * clutter_backend_get_sprite: (skip)
- */
+ * clutter_backend_get_sprite:
+ * @backend: A #ClutterBackend
+ * @stage: A #ClutterStage
+ * @for_event: Event to get sprite for
+ *
+ * Retrieves the #ClutterSprite affected by @for_event
+ *
+ * Returns: (transfer none)(nullable): a #ClutterSprite, or %NULL if event does not drive one
+ **/
 ClutterSprite *
 clutter_backend_get_sprite (ClutterBackend     *backend,
                             ClutterStage       *stage,

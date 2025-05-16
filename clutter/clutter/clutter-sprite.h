@@ -3,7 +3,7 @@
  *
  * An OpenGL based 'interactive canvas' library.
  *
- * Copyright (C) 2024 Red Hat Inc.
+ * Copyright (C) 2025 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,23 +28,17 @@
 #endif
 
 #include "clutter/clutter-focus.h"
+#include "clutter/clutter-types.h"
 
-ClutterStage * clutter_focus_get_stage (ClutterFocus *focus);
+#define CLUTTER_TYPE_SPRITE (clutter_sprite_get_type ())
 
-gboolean clutter_focus_set_current_actor (ClutterFocus       *focus,
-                                          ClutterActor       *actor,
-                                          ClutterInputDevice *source_device,
-                                          uint32_t            time_ms);
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterSprite,
+                          clutter_sprite,
+                          CLUTTER, SPRITE,
+                          ClutterFocus)
 
-ClutterActor * clutter_focus_get_current_actor (ClutterFocus *focus);
-
-void clutter_focus_propagate_event (ClutterFocus       *focus,
-                                    const ClutterEvent *event);
-
-void clutter_focus_update_from_event (ClutterFocus       *focus,
-                                      const ClutterEvent *event);
-
-void clutter_focus_notify_grab (ClutterFocus *focus,
-                                ClutterGrab  *grab,
-                                ClutterActor *grab_actor,
-                                ClutterActor *old_grab_actor);
+struct _ClutterSpriteClass
+{
+  ClutterFocusClass parent_class;
+};

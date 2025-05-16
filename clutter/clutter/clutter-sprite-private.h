@@ -27,22 +27,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
-#include "clutter/clutter-grab.h"
-#include "clutter/clutter-focus-private.h"
-#include "clutter/clutter-types.h"
-
-#define CLUTTER_TYPE_SPRITE (clutter_sprite_get_type ())
-
-CLUTTER_EXPORT
-G_DECLARE_DERIVABLE_TYPE (ClutterSprite,
-                          clutter_sprite,
-                          CLUTTER, SPRITE,
-                          ClutterFocus)
-
-struct _ClutterSpriteClass
-{
-  ClutterFocusClass parent_class;
-};
+#include "clutter/clutter-sprite.h"
 
 CLUTTER_EXPORT
 ClutterInputDevice * clutter_sprite_get_device (ClutterSprite *sprite);
