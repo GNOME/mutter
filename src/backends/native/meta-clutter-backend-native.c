@@ -193,6 +193,30 @@ meta_clutter_backend_native_get_sprite (ClutterBackend     *clutter_backend,
   return NULL;
 }
 
+static ClutterSprite *
+meta_clutter_backend_native_lookup_sprite (ClutterBackend       *clutter_backend,
+                                           ClutterStage         *stage,
+                                           ClutterInputDevice   *device,
+                                           ClutterEventSequence *sequence)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  ClutterInputDeviceType device_type;
+
+  if (sequence)
+    return g_hash_table_lookup (clutter_backend_native->touch_sprites, sequence);
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_TABLET_DEVICE)
+    return g_hash_table_lookup (clutter_backend_native->stylus_sprites, device);
+  else if (device_type != CLUTTER_KEYBOARD_DEVICE &&
+           device_type != CLUTTER_PAD_DEVICE)
+    return clutter_backend_native->pointer_sprite;
+
+  return NULL;
+}
+
 static void
 meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
                                             ClutterSprite  *sprite)
@@ -254,6 +278,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
   clutter_backend_class->get_sprite = meta_clutter_backend_native_get_sprite;
+  clutter_backend_class->lookup_sprite = meta_clutter_backend_native_lookup_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_native_destroy_sprite;
 }
 

@@ -124,25 +124,19 @@ meta_clutter_backend_x11_is_display_server (ClutterBackend *clutter_backend)
 }
 
 static ClutterSprite *
-meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
-                                     ClutterStage       *stage,
-                                     const ClutterEvent *for_event)
+lookup_sprite (ClutterBackend       *clutter_backend,
+               ClutterStage         *stage,
+               ClutterInputDevice   *device,
+               ClutterEventSequence *sequence,
+               gboolean              create)
 {
   MetaClutterBackendX11 *clutter_backend_x11 =
     META_CLUTTER_BACKEND_X11 (clutter_backend);
   MetaClutterBackendX11Private *priv =
     meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
-  ClutterInputDevice *source_device;
-  ClutterEventSequence *sequence;
   ClutterInputDeviceType device_type;
 
-  sequence = clutter_event_get_event_sequence (for_event);
-  if (sequence &&
-      (clutter_event_get_flags (for_event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED) == 0)
-    return NULL;
-
-  source_device = clutter_event_get_source_device (for_event);
-  device_type = clutter_input_device_get_device_type (source_device);
+  device_type = clutter_input_device_get_device_type (device);
 
   if (device_type == CLUTTER_POINTER_DEVICE ||
       device_type == CLUTTER_TOUCHPAD_DEVICE ||
@@ -151,7 +145,7 @@ meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
       device_type == CLUTTER_PEN_DEVICE ||
       device_type == CLUTTER_ERASER_DEVICE)
     {
-      if (!priv->virtual_core_pointer)
+      if (!priv->virtual_core_pointer && create)
         {
           GType sprite_type;
 
@@ -164,7 +158,7 @@ meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
             g_object_new (sprite_type,
                           "backend", priv->backend,
                           "stage", stage,
-                          "device", clutter_event_get_device (for_event),
+                          "device", device,
                           "sequence", sequence,
                           NULL);
         }
@@ -172,6 +166,34 @@ meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
     }
 
   return NULL;
+}
+
+static ClutterSprite *
+meta_clutter_backend_x11_get_sprite (ClutterBackend     *clutter_backend,
+                                     ClutterStage       *stage,
+                                     const ClutterEvent *for_event)
+{
+  ClutterInputDevice *source_device;
+  ClutterEventSequence *sequence;
+
+  sequence = clutter_event_get_event_sequence (for_event);
+  if (sequence &&
+      (clutter_event_get_flags (for_event) & CLUTTER_EVENT_FLAG_POINTER_EMULATED) == 0)
+    return NULL;
+
+  source_device = clutter_event_get_source_device (for_event);
+
+  return lookup_sprite (clutter_backend, stage,
+                        source_device, sequence, TRUE);
+}
+
+static ClutterSprite *
+meta_clutter_backend_x11_lookup_sprite (ClutterBackend       *clutter_backend,
+                                        ClutterStage         *stage,
+                                        ClutterInputDevice   *device,
+                                        ClutterEventSequence *sequence)
+{
+  return lookup_sprite (clutter_backend, stage, device, sequence, FALSE);
 }
 
 static void
@@ -202,6 +224,7 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_x11_is_display_server;
   clutter_backend_class->get_sprite = meta_clutter_backend_x11_get_sprite;
+  clutter_backend_class->lookup_sprite = meta_clutter_backend_x11_lookup_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_x11_destroy_sprite;
 }
 

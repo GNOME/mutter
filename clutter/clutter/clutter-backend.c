@@ -593,6 +593,21 @@ clutter_backend_get_sprite (ClutterBackend     *backend,
 }
 
 /**
+ * clutter_backend_lookup_sprite: (skip)
+ */
+ClutterSprite *
+clutter_backend_lookup_sprite (ClutterBackend       *backend,
+                               ClutterStage         *stage,
+                               ClutterInputDevice   *device,
+                               ClutterEventSequence *sequence)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->lookup_sprite (backend,
+                                                             stage,
+                                                             device,
+                                                             sequence);
+}
+
+/**
  * clutter_backend_destroy_sprite: (skip)
  */
 void
