@@ -2995,35 +2995,6 @@ clutter_stage_get_device_actor (ClutterStage         *stage,
   return NULL;
 }
 
-/**
- * clutter_stage_get_device_coords: (skip):
- */
-gboolean
-clutter_stage_get_device_coords (ClutterStage         *stage,
-                                 ClutterInputDevice   *device,
-                                 ClutterEventSequence *sequence,
-                                 graphene_point_t     *coords)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterSprite *sprite = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-  g_return_val_if_fail (device != NULL, FALSE);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  if (!sprite)
-    return FALSE;
-
-  if (coords)
-    *coords = clutter_sprite_get_coords (sprite);
-
-  return TRUE;
-}
-
 static void
 clutter_stage_pick_and_update_sprite (ClutterStage             *stage,
                                       ClutterSprite            *sprite,

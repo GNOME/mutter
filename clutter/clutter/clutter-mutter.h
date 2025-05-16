@@ -88,12 +88,6 @@ gboolean clutter_seat_handle_event_post (ClutterSeat        *seat,
                                          const ClutterEvent *event);
 
 CLUTTER_EXPORT
-gboolean clutter_stage_get_device_coords (ClutterStage         *stage,
-                                          ClutterInputDevice   *device,
-                                          ClutterEventSequence *sequence,
-                                          graphene_point_t     *coords);
-
-CLUTTER_EXPORT
 void clutter_actor_notify_transform_invalid (ClutterActor *self);
 
 CLUTTER_EXPORT
