@@ -230,20 +230,18 @@ ClutterActor * clutter_stage_get_grab_actor (ClutterStage *stage);
 /**
  * ClutterStageInputForeachFunc:
  * @stage: the stage
- * @device: Active input device
- * @sequence: Active sequence in @device, or %NULL
+ * @sprite: Active pointing focus
  * @user_data: Data passed to clutter_stage_active_input_foreach()
  *
  * Iterator function for active input. Active input counts as any pointing
- * device currently known to have some form of activity on the stage: Pointers
+ * pointing focus having some form of activity on the stage: Pointers
  * leaning on a widget, tablet styli in proximity, active touchpoints...
  *
  * Returns: %TRUE to keep iterating. %FALSE to stop.
  */
-typedef gboolean (*ClutterStageInputForeachFunc) (ClutterStage         *stage,
-                                                  ClutterInputDevice   *device,
-                                                  ClutterEventSequence *sequence,
-                                                  gpointer              user_data);
+typedef gboolean (*ClutterStageInputForeachFunc) (ClutterStage  *stage,
+                                                  ClutterSprite *sprite,
+                                                  gpointer       user_data);
 
 CLUTTER_EXPORT
 gboolean clutter_stage_pointing_input_foreach (ClutterStage                 *self,

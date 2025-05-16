@@ -3543,20 +3543,14 @@ clutter_stage_pointing_input_foreach (ClutterStage                 *self,
   g_hash_table_iter_init (&iter, priv->pointer_devices);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &sprite))
     {
-      if (!func (self,
-                 clutter_sprite_get_device (sprite),
-                 clutter_sprite_get_sequence (sprite),
-                 user_data))
+      if (!func (self, sprite, user_data))
         return FALSE;
     }
 
   g_hash_table_iter_init (&iter, priv->touch_sequences);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &sprite))
     {
-      if (!func (self,
-                 clutter_sprite_get_device (sprite),
-                 clutter_sprite_get_sequence (sprite),
-                 user_data))
+      if (!func (self, sprite, user_data))
         return FALSE;
     }
 

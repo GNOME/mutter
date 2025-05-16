@@ -1115,15 +1115,19 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
 }
 
 static gboolean
-find_dnd_candidate_device (ClutterStage         *stage,
-                           ClutterInputDevice   *device,
-                           ClutterEventSequence *sequence,
-                           gpointer              user_data)
+find_dnd_candidate_device (ClutterStage  *stage,
+                           ClutterSprite *sprite,
+                           gpointer       user_data)
 {
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
   DndCandidateDevice *candidate = user_data;
   graphene_point_t pos;
   ClutterModifierType modifiers;
   MetaWaylandSurface *focus;
+
+  device = clutter_sprite_get_device (sprite);
+  sequence = clutter_sprite_get_sequence (sprite);
 
   clutter_seat_query_state (clutter_input_device_get_seat (device),
                             device, sequence, &pos, &modifiers);

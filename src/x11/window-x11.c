@@ -3116,15 +3116,19 @@ typedef struct {
 } NearestDeviceData;
 
 static gboolean
-nearest_device_func (ClutterStage         *stage,
-                     ClutterInputDevice   *device,
-                     ClutterEventSequence *sequence,
-                     gpointer              user_data)
+nearest_device_func (ClutterStage  *stage,
+                     ClutterSprite *sprite,
+                     gpointer       user_data)
 {
+  ClutterInputDevice *device;
+  ClutterEventSequence *sequence;
   NearestDeviceData *data = user_data;
   graphene_point_t point;
   ClutterModifierType mods;
   const int nearest_threshold = 64;
+
+  device = clutter_sprite_get_device (sprite);
+  sequence = clutter_sprite_get_sequence (sprite);
 
   clutter_seat_query_state (clutter_input_device_get_seat (device),
                             device,
