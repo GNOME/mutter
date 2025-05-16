@@ -73,6 +73,7 @@
 #include "clutter/clutter-input-focus.h"
 #include "clutter/clutter-interval.h"
 #include "clutter/clutter-keyframe-transition.h"
+#include "clutter/clutter-key-focus.h"
 #include "clutter/clutter-keymap.h"
 #include "clutter/clutter-keysyms.h"
 #include "clutter/clutter-keyval.h"

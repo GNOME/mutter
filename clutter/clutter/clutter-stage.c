@@ -53,12 +53,12 @@
 #include "clutter/clutter-debug.h"
 #include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-event-private.h"
+#include "clutter/clutter-focus-private.h"
 #include "clutter/clutter-frame-clock.h"
 #include "clutter/clutter-frame.h"
 #include "clutter/clutter-grab-private.h"
 #include "clutter/clutter-input-device-private.h"
 #include "clutter/clutter-input-only-actor.h"
-#include "clutter/clutter-key-focus-private.h"
 #include "clutter/clutter-main.h"
 #include "clutter/clutter-marshal.h"
 #include "clutter/clutter-mutter.h"
@@ -1199,12 +1199,14 @@ clutter_stage_constructed (GObject *gobject)
   ClutterStage *self = CLUTTER_STAGE (gobject);
   ClutterContext *context =
     clutter_actor_get_context (CLUTTER_ACTOR (self));
+  ClutterBackend *backend =
+    clutter_context_get_backend (context);
   ClutterStageManager *stage_manager =
     clutter_context_get_stage_manager (context);
   MtkRectangle geom = { 0, };
   ClutterStagePrivate *priv;
   ClutterStageWindow *impl;
-  ClutterBackend *backend;
+  ClutterBackend *clutter_backend;
   ClutterSeat *seat;
   GError *error;
 
@@ -1214,7 +1216,7 @@ clutter_stage_constructed (GObject *gobject)
   priv = clutter_stage_get_instance_private (self);
 
   CLUTTER_NOTE (BACKEND, "Creating stage from the default backend");
-  backend = clutter_context_get_backend (context);
+  clutter_backend = clutter_context_get_backend (context);
 
   error = NULL;
   impl = _clutter_backend_create_stage (backend, self, &error);
@@ -1241,9 +1243,7 @@ clutter_stage_constructed (GObject *gobject)
   priv->pointer_devices = g_hash_table_new (NULL, NULL);
   priv->touch_sequences = g_hash_table_new (NULL, NULL);
 
-  priv->key_focus = g_object_new (CLUTTER_TYPE_KEY_FOCUS,
-                                  "stage", self,
-                                  NULL);
+  priv->key_focus = clutter_backend_get_key_focus (clutter_backend, self);
 
   priv->all_active_gestures = g_ptr_array_sized_new (64);
 

@@ -28,10 +28,12 @@
 #endif
 
 #include "clutter/clutter-grab.h"
-#include "clutter/clutter-focus-private.h"
+#include "clutter/clutter-focus.h"
 #include "clutter/clutter-types.h"
 
 #define CLUTTER_TYPE_KEY_FOCUS (clutter_key_focus_get_type ())
+
+CLUTTER_EXPORT
 G_DECLARE_DERIVABLE_TYPE (ClutterKeyFocus,
                           clutter_key_focus,
                           CLUTTER, KEY_FOCUS,

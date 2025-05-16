@@ -633,6 +633,22 @@ clutter_backend_destroy_sprite (ClutterBackend *backend,
   CLUTTER_BACKEND_GET_CLASS (backend)->destroy_sprite (backend, sprite);
 }
 
+/**
+ * clutter_backend_get_key_focus:
+ * @backend: a #ClutterBackend
+ * @stage: a #ClutterStage
+ *
+ * Returns the key focus for stage
+ *
+ * Returns: (transfer none): the #ClutterKeyFocus representing key focus
+ **/
+ClutterKeyFocus *
+clutter_backend_get_key_focus (ClutterBackend *backend,
+                               ClutterStage   *stage)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_key_focus (backend, stage);
+}
+
 void
 clutter_backend_destroy (ClutterBackend *backend)
 {

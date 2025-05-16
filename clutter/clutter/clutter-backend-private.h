@@ -95,6 +95,9 @@ struct _ClutterBackendClass
   void (* destroy_sprite) (ClutterBackend *backend,
                            ClutterSprite  *sprite);
 
+  ClutterKeyFocus * (* get_key_focus) (ClutterBackend *backend,
+                                       ClutterStage   *stage);
+
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
 };

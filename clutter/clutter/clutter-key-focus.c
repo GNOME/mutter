@@ -23,10 +23,11 @@
 
 #include "config.h"
 
-#include "clutter/clutter-key-focus-private.h"
+#include "clutter/clutter-key-focus.h"
 
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
+#include "clutter/clutter-focus-private.h"
 #include "clutter/clutter-stage.h"
 
 typedef struct _EventReceiver

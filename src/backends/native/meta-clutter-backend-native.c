@@ -59,6 +59,7 @@ struct _MetaClutterBackendNative
   GHashTable *touch_sprites;
   GHashTable *stylus_sprites;
   ClutterSprite *pointer_sprite;
+  ClutterKeyFocus *key_focus;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
@@ -243,6 +244,24 @@ meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
     g_clear_object (&clutter_backend_native->pointer_sprite);
 }
 
+static ClutterKeyFocus *
+meta_clutter_backend_native_get_key_focus (ClutterBackend *clutter_backend,
+                                           ClutterStage   *stage)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
+  if (!clutter_backend_native->key_focus)
+    {
+      clutter_backend_native->key_focus =
+        g_object_new (CLUTTER_TYPE_KEY_FOCUS,
+                      "stage", stage,
+                      NULL);
+    }
+
+  return clutter_backend_native->key_focus;
+}
+
 static void
 meta_clutter_backend_native_constructed (GObject *object)
 {
@@ -291,6 +310,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->lookup_sprite = meta_clutter_backend_native_lookup_sprite;
   clutter_backend_class->get_pointer_sprite = meta_clutter_backend_native_get_pointer_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_native_destroy_sprite;
+  clutter_backend_class->get_key_focus = meta_clutter_backend_native_get_key_focus;
 }
 
 MetaClutterBackendNative *

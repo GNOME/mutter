@@ -72,6 +72,10 @@ CLUTTER_EXPORT
 ClutterSprite * clutter_backend_get_pointer_sprite (ClutterBackend *backend,
                                                     ClutterStage   *stage);
 
+CLUTTER_EXPORT
+ClutterKeyFocus * clutter_backend_get_key_focus (ClutterBackend *backend,
+                                                 ClutterStage   *stage);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackend, g_object_unref)
 
 G_END_DECLS
