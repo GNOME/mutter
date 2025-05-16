@@ -602,8 +602,7 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                  MetaWaylandSurface    *surface,
                                  uint32_t               serial,
                                  gboolean               require_pressed,
-                                 ClutterInputDevice   **device_out,
-                                 ClutterEventSequence **sequence_out,
+                                 ClutterSprite        **sprite_out,
                                  float                 *x,
                                  float                 *y)
 {
@@ -613,14 +612,10 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
 
       sequence = meta_wayland_touch_find_grab_sequence (seat->touch,
                                                         surface,
-                                                        serial);
+                                                        serial,
+                                                        sprite_out);
       if (sequence)
         {
-          if (device_out)
-            *device_out = clutter_seat_get_pointer (seat->clutter_seat);
-          if (sequence_out)
-            *sequence_out = sequence;
-
           meta_wayland_touch_get_press_coords (seat->touch, sequence, x, y);
           return TRUE;
         }
@@ -631,25 +626,17 @@ meta_wayland_seat_get_grab_info (MetaWaylandSeat       *seat,
                                           surface,
                                           serial,
                                           require_pressed,
-                                          device_out,
+                                          sprite_out,
                                           x, y))
-    {
-      if (sequence_out)
-        *sequence_out = NULL;
-      return TRUE;
-    }
+    return TRUE;
 
   if (meta_wayland_tablet_seat_get_grab_info (seat->tablet_seat,
                                               surface,
                                               serial,
                                               require_pressed,
-                                              device_out,
+                                              sprite_out,
                                               x, y))
-    {
-      if (sequence_out)
-        *sequence_out = NULL;
-      return TRUE;
-    }
+    return TRUE;
 
   return FALSE;
 }

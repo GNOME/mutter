@@ -81,7 +81,7 @@ gboolean meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat *tablet_s
                                                  MetaWaylandSurface    *surface,
                                                  uint32_t               serial,
                                                  gboolean               require_pressed,
-                                                 ClutterInputDevice   **device_out,
+                                                 ClutterSprite        **sprite_out,
                                                  float                 *x,
                                                  float                 *y);
 

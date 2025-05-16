@@ -234,7 +234,7 @@ gtk_surface_titlebar_gesture (struct wl_client   *client,
     return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE,
-                                        NULL, NULL, &x, &y))
+                                        NULL, &x, &y))
     return;
 
   switch (gesture)

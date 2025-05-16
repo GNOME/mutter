@@ -27,6 +27,7 @@
 #include <wayland-server.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-private.h"
 
 #include "tablet-v2-server-protocol.h"
@@ -130,4 +131,29 @@ meta_wayland_tablet_lookup_resource (MetaWaylandTablet *tablet,
                                      struct wl_client  *client)
 {
   return wl_resource_find_for_client (&tablet->resource_list, client);
+}
+
+void
+meta_wayland_tablet_update_sprite (MetaWaylandTablet  *tablet,
+                                   const ClutterEvent *event)
+{
+  ClutterSprite *sprite = NULL;
+
+  if (event)
+    {
+      MetaWaylandTabletSeat *tablet_seat = tablet->tablet_seat;
+      MetaWaylandSeat *seat = tablet_seat->seat;
+      MetaContext *context =
+        meta_wayland_compositor_get_context (seat->compositor);
+      MetaBackend *backend = meta_context_get_backend (context);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+      sprite = clutter_backend_get_sprite (clutter_backend,
+                                           stage,
+                                           event);
+    }
+
+  tablet->sprite = sprite;
 }

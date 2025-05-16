@@ -308,7 +308,7 @@ token_can_activate (MetaXdgActivationToken *token)
                                           token->surface,
                                           token->serial,
                                           FALSE,
-                                          NULL, NULL, NULL, NULL);
+                                          NULL, NULL, NULL);
 }
 
 static gboolean

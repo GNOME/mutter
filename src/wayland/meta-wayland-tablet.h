@@ -32,6 +32,7 @@ struct _MetaWaylandTablet
 {
   MetaWaylandTabletSeat *tablet_seat;
   ClutterInputDevice *device;
+  ClutterSprite *sprite;
 
   struct wl_list resource_list;
 
@@ -53,3 +54,6 @@ struct wl_resource *
 
 void         meta_wayland_tablet_notify              (MetaWaylandTablet  *tablet,
                                                       struct wl_resource *resource);
+
+void meta_wayland_tablet_update_sprite (MetaWaylandTablet  *tablet,
+                                        const ClutterEvent *event);

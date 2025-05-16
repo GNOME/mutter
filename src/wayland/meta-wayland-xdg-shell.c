@@ -306,7 +306,7 @@ xdg_toplevel_show_window_menu (struct wl_client   *client,
     return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE,
-                                        NULL, NULL, NULL, NULL))
+                                        NULL, NULL, NULL))
     return;
 
   monitor_scale = meta_window_wayland_get_geometry_scale (window);
@@ -324,6 +324,7 @@ xdg_toplevel_move (struct wl_client   *client,
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
   MetaWindow *window;
+  ClutterSprite *sprite;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
   float x, y;
@@ -333,8 +334,11 @@ xdg_toplevel_move (struct wl_client   *client,
     return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE,
-                                        &device, &sequence, &x, &y))
+                                        &sprite, &x, &y))
     return;
+
+  device = clutter_sprite_get_device (sprite);
+  sequence = clutter_sprite_get_sequence (sprite);
 
   meta_wayland_surface_begin_grab_op (surface, seat, META_GRAB_OP_MOVING,
                                       device, sequence, x, y);
@@ -375,6 +379,7 @@ xdg_toplevel_resize (struct wl_client   *client,
   MetaWindow *window;
   gfloat x, y;
   MetaGrabOp grab_op;
+  ClutterSprite *sprite;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
 
@@ -386,8 +391,11 @@ xdg_toplevel_resize (struct wl_client   *client,
     return;
 
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE,
-                                        &device, &sequence, &x, &y))
+                                        &sprite, &x, &y))
     return;
+
+  device = clutter_sprite_get_device (sprite);
+  sequence = clutter_sprite_get_sequence (sprite);
 
   grab_op = grab_op_for_xdg_toplevel_resize_edge (edges);
   meta_wayland_surface_begin_grab_op (surface, seat, grab_op,

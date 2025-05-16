@@ -878,6 +878,7 @@ data_device_start_drag (struct wl_client  *client,
   MetaWaylandSurface *surface = NULL, *icon_surface = NULL;
   MetaWaylandDataSource *drag_source = NULL;
   MetaSelectionSource *selection_source;
+  ClutterSprite *sprite;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
   float x, y;
@@ -892,10 +893,12 @@ data_device_start_drag (struct wl_client  *client,
                                         surface,
                                         serial,
                                         TRUE,
-                                        &device,
-                                        &sequence,
+                                        &sprite,
                                         &x, &y))
     return;
+
+  device = clutter_sprite_get_device (sprite);
+  sequence = clutter_sprite_get_sequence (sprite);
 
   /* FIXME: Check that the data source type array isn't empty. */
 

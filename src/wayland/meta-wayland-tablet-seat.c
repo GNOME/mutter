@@ -579,13 +579,13 @@ meta_wayland_tablet_seat_can_popup (MetaWaylandTabletSeat *tablet_seat,
 }
 
 gboolean
-meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat *tablet_seat,
-                                        MetaWaylandSurface    *surface,
-                                        uint32_t               serial,
-                                        gboolean               require_pressed,
-                                        ClutterInputDevice   **device_out,
-                                        float                 *x,
-                                        float                 *y)
+meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat  *tablet_seat,
+                                        MetaWaylandSurface     *surface,
+                                        uint32_t                serial,
+                                        gboolean                require_pressed,
+                                        ClutterSprite         **sprite_out,
+                                        float                  *x,
+                                        float                  *y)
 {
   g_autoptr (GList) tools = NULL;
   GList *l;
@@ -600,7 +600,7 @@ meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat *tablet_seat,
                                                   surface,
                                                   serial,
                                                   require_pressed,
-                                                  device_out,
+                                                  sprite_out,
                                                   x, y))
         return TRUE;
     }

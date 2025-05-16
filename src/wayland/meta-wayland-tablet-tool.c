@@ -913,8 +913,10 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
       tool->current_tablet =
         meta_wayland_tablet_seat_lookup_tablet (tool->seat,
                                                 clutter_event_get_source_device (event));
+      meta_wayland_tablet_update_sprite (tool->current_tablet, event);
       break;
     case CLUTTER_PROXIMITY_OUT:
+      meta_wayland_tablet_update_sprite (tool->current_tablet, NULL);
       tool->current_tablet = NULL;
       meta_wayland_tablet_tool_set_current_surface (tool, NULL);
       meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
@@ -982,7 +984,7 @@ meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                                            MetaWaylandSurface    *surface,
                                            uint32_t               serial)
 {
-  if (!tool->current_tablet || !tool->current_tablet->device)
+  if (!tool->current_tablet || !tool->current_tablet->sprite)
     return FALSE;
 
   return ((tool->down_serial == serial || tool->button_serial == serial) &&
@@ -994,15 +996,15 @@ meta_wayland_tablet_tool_get_grab_info (MetaWaylandTabletTool *tool,
                                         MetaWaylandSurface    *surface,
                                         uint32_t               serial,
                                         gboolean               require_pressed,
-                                        ClutterInputDevice   **device_out,
+                                        ClutterSprite        **sprite_out,
                                         float                 *x,
                                         float                 *y)
 {
   if ((!require_pressed || tool->button_count > 0) &&
       meta_wayland_tablet_tool_can_grab_surface (tool, surface, serial))
     {
-      if (device_out)
-        *device_out = tool->current_tablet->device;
+      if (sprite_out)
+        *sprite_out = tool->current_tablet->sprite;
 
       if (x)
         *x = tool->grab_x;
