@@ -3,7 +3,7 @@
  *
  * A low-level base library.
  *
- * Copyright (C) 2023 Red Hat
+ * Copyright (C) 2025 Red Hat
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,14 +21,24 @@
 
 #pragma once
 
-#define __MTK_H_INSIDE__
+#include <glib.h>
 
-#include "mtk/mtk-dispose-bin.h"
-#include "mtk/mtk-rectangle.h"
-#include "mtk/mtk-region.h"
 #include "mtk/mtk-macros.h"
-#include "mtk/mtk-monitor-transform.h"
-#include "mtk/mtk-time-utils.h"
-#include "mtk/mtk-utils.h"
 
-#undef __MTK_H_INSIDE__
+/**
+ * MtkDisposeBin: (skip)
+ */
+typedef struct _MtkDisposeBin MtkDisposeBin;
+
+MTK_EXPORT
+void mtk_dispose_bin_add (MtkDisposeBin  *bin,
+                          gpointer        user_data,
+                          GDestroyNotify  notify);
+
+MTK_EXPORT
+MtkDisposeBin * mtk_dispose_bin_new (void);
+
+MTK_EXPORT
+void mtk_dispose_bin_dispose (MtkDisposeBin *bin);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MtkDisposeBin, mtk_dispose_bin_dispose)
