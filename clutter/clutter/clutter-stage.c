@@ -1182,13 +1182,11 @@ on_seat_unfocus_inhibited_changed (ClutterStage *stage,
 
   device = clutter_seat_get_pointer (seat);
 
-  if (!clutter_stage_get_device_coords (stage, device, NULL, &point))
-    return;
-
   sprite = g_hash_table_lookup (priv->pointer_devices, device);
   if (!sprite)
     return;
 
+  point = clutter_sprite_get_coords (sprite);
   clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
                                         CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
                                         point,
