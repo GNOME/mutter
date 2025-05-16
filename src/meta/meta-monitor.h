@@ -22,3 +22,30 @@
 #define META_TYPE_MONITOR (meta_monitor_get_type ())
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaMonitor, meta_monitor, META, MONITOR, GObject)
+
+META_EXPORT
+gboolean meta_monitor_is_active (MetaMonitor *monitor);
+
+META_EXPORT
+const char * meta_monitor_get_display_name (MetaMonitor *monitor);
+
+META_EXPORT
+const char * meta_monitor_get_connector (MetaMonitor *monitor);
+
+META_EXPORT
+const char * meta_monitor_get_vendor (MetaMonitor *monitor);
+
+META_EXPORT
+const char * meta_monitor_get_product (MetaMonitor *monitor);
+
+META_EXPORT
+const char * meta_monitor_get_serial (MetaMonitor *monitor);
+
+META_EXPORT
+gboolean meta_monitor_is_primary (MetaMonitor *monitor);
+
+META_EXPORT
+gboolean meta_monitor_is_builtin (MetaMonitor *monitor);
+
+META_EXPORT
+gboolean meta_monitor_is_virtual (MetaMonitor *monitor);

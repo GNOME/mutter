@@ -114,13 +114,7 @@ MetaMonitorSpec * meta_monitor_get_spec (MetaMonitor *monitor);
 MetaBackend * meta_monitor_get_backend (MetaMonitor *monitor);
 
 META_EXPORT_TEST
-gboolean meta_monitor_is_active (MetaMonitor *monitor);
-
-META_EXPORT_TEST
 MetaOutput * meta_monitor_get_main_output (MetaMonitor *monitor);
-
-META_EXPORT_TEST
-gboolean meta_monitor_is_primary (MetaMonitor *monitor);
 
 gboolean meta_monitor_supports_underscanning (MetaMonitor *monitor);
 
@@ -132,11 +126,6 @@ gboolean meta_monitor_get_max_bpc (MetaMonitor  *monitor,
                                    unsigned int *max_bpc);
 
 MetaOutputRGBRange meta_monitor_get_rgb_range (MetaMonitor *monitor);
-
-META_EXPORT_TEST
-gboolean meta_monitor_is_builtin (MetaMonitor *monitor);
-
-gboolean meta_monitor_is_virtual (MetaMonitor *monitor);
 
 gboolean meta_monitor_is_same_as (MetaMonitor *monitor,
                                   MetaMonitor *other_monitor);
@@ -157,18 +146,6 @@ void meta_monitor_get_physical_dimensions (MetaMonitor *monitor,
                                            int         *height_mm);
 
 MetaSubpixelOrder meta_monitor_get_subpixel_order (MetaMonitor *monitor);
-
-META_EXPORT_TEST
-const char * meta_monitor_get_connector (MetaMonitor *monitor);
-
-META_EXPORT_TEST
-const char * meta_monitor_get_vendor (MetaMonitor *monitor);
-
-META_EXPORT_TEST
-const char * meta_monitor_get_product (MetaMonitor *monitor);
-
-META_EXPORT_TEST
-const char * meta_monitor_get_serial (MetaMonitor *monitor);
 
 META_EXPORT_TEST
 const MetaEdidInfo * meta_monitor_get_edid_info (MetaMonitor *monitor);
@@ -309,8 +286,6 @@ int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
 
 META_EXPORT_TEST
 void meta_monitor_spec_free (MetaMonitorSpec *monitor_id);
-
-const char * meta_monitor_get_display_name (MetaMonitor *monitor);
 
 void meta_monitor_set_logical_monitor (MetaMonitor        *monitor,
                                        MetaLogicalMonitor *logical_monitor);

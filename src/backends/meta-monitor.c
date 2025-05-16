@@ -345,6 +345,14 @@ meta_monitor_get_main_output (MetaMonitor *monitor)
   return META_MONITOR_GET_CLASS (monitor)->get_main_output (monitor);
 }
 
+/**
+ * meta_monitor_is_active:
+ * @monitor: A #MetaMonitor object
+ *
+ * Returns whether the monitor is active.
+ *
+ * Returns: %TRUE if the monitor is active, %FALSE otherwise.
+ */
 gboolean
 meta_monitor_is_active (MetaMonitor *monitor)
 {
@@ -353,10 +361,20 @@ meta_monitor_is_active (MetaMonitor *monitor)
   return !!priv->current_mode;
 }
 
+/**
+ * meta_monitor_is_primary:
+ * @monitor: A #MetaMonitor object
+ *
+ * Returns whether the monitor is the primary monitor.
+ *
+ * Returns: %TRUE if no monitors is the primary monitor, %FALSE otherwise.
+ */
 gboolean
 meta_monitor_is_primary (MetaMonitor *monitor)
 {
   MetaOutput *output;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), FALSE);
 
   output = meta_monitor_get_main_output (monitor);
 
@@ -412,11 +430,22 @@ meta_monitor_get_rgb_range (MetaMonitor *monitor)
   return meta_output_peek_rgb_range (output);
 }
 
+/**
+ * meta_monitor_is_builtin:
+ * @monitor: A #MetaMonitor object
+ *
+ * Returns whether the monitor is a builtin monitor.
+ *
+ * Returns: %TRUE if no monitors is a builtin monitor, %FALSE otherwise.
+ */
 gboolean
 meta_monitor_is_builtin (MetaMonitor *monitor)
 {
-  const MetaOutputInfo *output_info =
-    meta_monitor_get_main_output_info (monitor);
+  const MetaOutputInfo *output_info;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), FALSE);
+
+  output_info = meta_monitor_get_main_output_info (monitor);
 
   switch (output_info->connector_type)
     {
@@ -430,6 +459,14 @@ meta_monitor_is_builtin (MetaMonitor *monitor)
     }
 }
 
+/**
+ * meta_monitor_is_virtual:
+ * @monitor: A #MetaMonitor object
+ *
+ * Returns whether the monitor is virtual.
+ *
+ * Returns: %TRUE if no monitors is virtual, %FALSE otherwise.
+ */
 gboolean
 meta_monitor_is_virtual (MetaMonitor *monitor)
 {
@@ -516,38 +553,82 @@ meta_monitor_get_subpixel_order (MetaMonitor *monitor)
   return output_info->subpixel_order;
 }
 
+/**
+ * meta_monitor_get_connector:
+ * @monitor: A #MetaMonitor object
+ *
+ * Get the connector name of the monitor.
+ *
+ * Returns: The connector name of the monitor.
+ */
 const char *
 meta_monitor_get_connector (MetaMonitor *monitor)
 {
-  const MetaOutputInfo *output_info =
-    meta_monitor_get_main_output_info (monitor);
+  const MetaOutputInfo *output_info;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), NULL);
+
+  output_info = meta_monitor_get_main_output_info (monitor);
 
   return output_info->name;
 }
 
+/**
+ * meta_monitor_get_vendor:
+ * @monitor: A #MetaMonitor object
+ *
+ * Get the vendor name of the monitor.
+ *
+ * Returns: The vendor name of the monitor.
+ */
 const char *
 meta_monitor_get_vendor (MetaMonitor *monitor)
 {
-  const MetaOutputInfo *output_info =
-    meta_monitor_get_main_output_info (monitor);
+  const MetaOutputInfo *output_info;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), NULL);
+
+  output_info = meta_monitor_get_main_output_info (monitor);
 
   return output_info->vendor;
 }
 
+/**
+ * meta_monitor_get_product:
+ * @monitor: A #MetaMonitor object
+ *
+ * Get the product name of the monitor.
+ *
+ * Returns: The product name of the monitor.
+ */
 const char *
 meta_monitor_get_product (MetaMonitor *monitor)
 {
-  const MetaOutputInfo *output_info =
-    meta_monitor_get_main_output_info (monitor);
+  const MetaOutputInfo *output_info;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), NULL);
+
+  output_info = meta_monitor_get_main_output_info (monitor);
 
   return output_info->product;
 }
 
+/**
+ * meta_monitor_get_serial:
+ * @monitor: A #MetaMonitor object
+ *
+ * Get the serial id of the monitor.
+ *
+ * Returns: The serial id of the monitor.
+ */
 const char *
 meta_monitor_get_serial (MetaMonitor *monitor)
 {
-  const MetaOutputInfo *output_info =
-    meta_monitor_get_main_output_info (monitor);
+  const MetaOutputInfo *output_info;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), NULL);
+
+  output_info = meta_monitor_get_main_output_info (monitor);
 
   return output_info->serial;
 }
@@ -2474,11 +2555,22 @@ meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
   return TRUE;
 }
 
+/**
+ * meta_monitor_get_display_name:
+ * @monitor: A #MetaMonitor object
+ *
+ * Get the displayable name of the monitor.
+ *
+ * Returns: The displayable name of the monitor.
+ */
 const char *
 meta_monitor_get_display_name (MetaMonitor *monitor)
 {
-  MetaMonitorPrivate *monitor_priv =
-    meta_monitor_get_instance_private (monitor);
+  MetaMonitorPrivate *monitor_priv;
+
+  g_return_val_if_fail (META_IS_MONITOR (monitor), NULL);
+
+  monitor_priv = meta_monitor_get_instance_private (monitor);
 
   return monitor_priv->display_name;
 }
