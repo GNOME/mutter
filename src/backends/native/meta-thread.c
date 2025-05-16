@@ -981,7 +981,7 @@ meta_thread_flush_callbacks (MetaThread *thread)
   while (TRUE)
     {
       g_autoptr (GList) pending_callbacks = NULL;
-      g_autoptr (GList) callback_sources = NULL;
+      g_autolist (GSource) callback_sources = NULL;
       gboolean needs_reflush = FALSE;
       int i;
 
@@ -1018,7 +1018,6 @@ meta_thread_flush_callbacks (MetaThread *thread)
             }
           g_mutex_unlock (&callback_source->mutex);
         }
-      g_list_foreach (callback_sources, (GFunc) g_source_unref, NULL);
 
       if (!needs_reflush)
         break;
