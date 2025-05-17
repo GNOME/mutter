@@ -21,7 +21,7 @@
 
 #include "mdk-stream.h"
 
-#include <drm/drm_fourcc.h>
+#include <drm_fourcc.h>
 #include <epoxy/egl.h>
 #include <gio/gio.h>
 #include <gdk/gdk.h>
