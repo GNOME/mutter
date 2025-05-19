@@ -25,6 +25,8 @@ mdk_sources = [
   'mdk-touch.c',
   'mdk-touch.h',
   'mdk-types.h',
+  'mdk-window.c',
+  'mdk-window.h',
 ]
 
 mdk_c_args = mutter_c_args

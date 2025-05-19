@@ -17,7 +17,7 @@
       </item>
     </section>
   </menu>
-  <template class="MdkMainWindow" parent="GtkApplicationWindow">
+  <template class="MdkMainWindow" parent="MdkWindow">
     <property name="title" translatable="yes">Mutter Development Kit</property>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="headerbar">

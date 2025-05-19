@@ -17,39 +17,32 @@
 
 #include "config.h"
 
-#include "mdk-main-window.h"
-
 #include "mdk-window.h"
 
-struct _MdkMainWindow
-{
-  MdkWindow parent;
-};
-
-G_DEFINE_TYPE (MdkMainWindow, mdk_main_window, MDK_TYPE_WINDOW)
+G_DEFINE_TYPE (MdkWindow, mdk_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static void
-mdk_main_window_dispose (GObject *object)
+mdk_window_dispose (GObject *object)
 {
-  gtk_widget_dispose_template (GTK_WIDGET (object), MDK_TYPE_MAIN_WINDOW);
+  gtk_widget_dispose_template (GTK_WIDGET (object), MDK_TYPE_WINDOW);
 
-  G_OBJECT_CLASS (mdk_main_window_parent_class)->dispose (object);
+  G_OBJECT_CLASS (mdk_window_parent_class)->dispose (object);
 }
 
 static void
-mdk_main_window_class_init (MdkMainWindowClass *klass)
+mdk_window_class_init (MdkWindowClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
-  object_class->dispose = mdk_main_window_dispose;
+  object_class->dispose = mdk_window_dispose;
 
   gtk_widget_class_set_template_from_resource (widget_class,
-                                               "/ui/mdk-main-window.ui");
+                                               "/ui/mdk-window.ui");
 }
 
 static void
-mdk_main_window_init (MdkMainWindow *main_window)
+mdk_window_init (MdkWindow *window)
 {
-  gtk_widget_init_template (GTK_WIDGET (main_window));
+  gtk_widget_init_template (GTK_WIDGET (window));
 }

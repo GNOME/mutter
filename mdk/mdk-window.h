@@ -17,8 +17,14 @@
 
 #pragma once
 
-#include "mdk-window.h"
+#include <gtk/gtk.h>
 
-#define MDK_TYPE_MAIN_WINDOW (mdk_main_window_get_type ())
-G_DECLARE_FINAL_TYPE (MdkMainWindow, mdk_main_window,
-                      MDK, MAIN_WINDOW, MdkWindow)
+#define MDK_TYPE_WINDOW (mdk_window_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MdkWindow, mdk_window,
+                          MDK, WINDOW,
+                          GtkApplicationWindow)
+
+struct _MdkWindowClass
+{
+  GtkApplicationWindowClass parent_class;
+};

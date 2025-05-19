@@ -3,6 +3,7 @@
   <gresource prefix="/ui">
     <file preprocess="xml-stripblanks">mdk-devkit.ui</file>
     <file preprocess="xml-stripblanks">mdk-main-window.ui</file>
+    <file preprocess="xml-stripblanks">mdk-window.ui</file>
     <file>mdk-devkit.css</file>
   </gresource>
 </gresources>
