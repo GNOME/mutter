@@ -33,6 +33,7 @@
 #include <unistd.h>
 
 #include "backends/meta-dnd-private.h"
+#include "backends/meta-cursor-tracker-private.h"
 #include "compositor/meta-dnd-actor-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-drag.h"
@@ -245,7 +246,12 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
     meta_backend_get_cursor_renderer_for_device (backend, drag_grab->device);
 
   if (cursor_renderer && cursor_sprite)
-    meta_cursor_renderer_set_cursor (cursor_renderer, cursor_sprite);
+    {
+      if (cursor_renderer == meta_backend_get_cursor_renderer (backend))
+        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
+      else
+        meta_cursor_renderer_set_cursor (cursor_renderer, cursor_sprite);
+    }
 }
 
 static void
