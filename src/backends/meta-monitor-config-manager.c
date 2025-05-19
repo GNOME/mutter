@@ -469,7 +469,7 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
 
-      if (meta_monitor_is_laptop_panel (monitor))
+      if (meta_monitor_is_builtin (monitor))
         {
           laptop_monitor_spec = meta_monitor_get_spec (monitor);
 
@@ -542,18 +542,18 @@ monitor_matches_rule (MetaMonitor        *monitor,
 
   if (match_rule & MONITOR_MATCH_BUILTIN)
     {
-      if (!meta_monitor_is_laptop_panel (monitor))
+      if (!meta_monitor_is_builtin (monitor))
         return FALSE;
     }
   else if (match_rule & MONITOR_MATCH_EXTERNAL)
     {
-      if (meta_monitor_is_laptop_panel (monitor))
+      if (meta_monitor_is_builtin (monitor))
         return FALSE;
     }
 
   if (match_rule & MONITOR_MATCH_VISIBLE)
     {
-      if (meta_monitor_is_laptop_panel (monitor) &&
+      if (meta_monitor_is_builtin (monitor) &&
           is_lid_closed (monitor_manager))
         return FALSE;
     }
@@ -641,7 +641,7 @@ find_primary_monitor (MetaMonitorManager *monitor_manager,
   if (monitor_matches_rule (monitor, monitor_manager, match_rule))
     return monitor;
 
-  monitor = meta_monitor_manager_get_laptop_panel (monitor_manager);
+  monitor = meta_monitor_manager_get_builtin_monitor (monitor_manager);
   if (monitor_matches_rule (monitor, monitor_manager, match_rule))
     return monitor;
 
@@ -692,7 +692,7 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
   MetaOrientation orientation;
   MetaBackend *backend;
 
-  if (!meta_monitor_is_laptop_panel (monitor) ||
+  if (!meta_monitor_is_builtin (monitor) ||
       !meta_monitor_manager_get_panel_orientation_managed (monitor_manager))
     return MTK_MONITOR_TRANSFORM_NORMAL;
 
@@ -1093,33 +1093,35 @@ find_logical_config_for_builtin_monitor (MetaMonitorConfigManager *config_manage
 {
   MetaLogicalMonitorConfig *logical_monitor_config;
   MetaMonitorConfig *monitor_config;
-  MetaMonitor *panel;
+  MetaMonitor *monitor;
   GList *l;
 
-  panel = meta_monitor_manager_get_laptop_panel (config_manager->monitor_manager);
-  if (panel)
+  monitor =
+    meta_monitor_manager_get_builtin_monitor (config_manager->monitor_manager);
+
+  if (!monitor)
+    return NULL;
+
+  for (l = logical_monitor_configs; l; l = l->next)
     {
-      for (l = logical_monitor_configs; l; l = l->next)
+      logical_monitor_config = l->data;
+      /*
+       * We only want to return the config for the monitor if it is
+       * configured on its own, so we skip configs which contain clones.
+       */
+      if (g_list_length (logical_monitor_config->monitor_configs) != 1)
+        continue;
+
+      monitor_config = logical_monitor_config->monitor_configs->data;
+      if (meta_monitor_spec_equals (meta_monitor_get_spec (monitor),
+                                    monitor_config->monitor_spec))
         {
-          logical_monitor_config = l->data;
-          /*
-           * We only want to return the config for the panel if it is
-           * configured on its own, so we skip configs which contain clones.
-           */
-          if (g_list_length (logical_monitor_config->monitor_configs) != 1)
-            continue;
+          MetaMonitorMode *mode;
 
-          monitor_config = logical_monitor_config->monitor_configs->data;
-          if (meta_monitor_spec_equals (meta_monitor_get_spec (panel),
-                                        monitor_config->monitor_spec))
-            {
-              MetaMonitorMode *mode;
-
-              mode = meta_monitor_get_mode_from_spec (panel,
-                                                      monitor_config->mode_spec);
-              if (mode)
-                return logical_monitor_config;
-            }
+          mode = meta_monitor_get_mode_from_spec (monitor,
+                                                  monitor_config->mode_spec);
+          if (mode)
+            return logical_monitor_config;
         }
     }
 
@@ -1158,10 +1160,10 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
        * right thing. Mutter corrects for panel-orientation when applying the
        * transform from a logical-monitor-config, so we must convert here.
        */
-      MetaMonitor *panel =
-        meta_monitor_manager_get_laptop_panel (config_manager->monitor_manager);
+      MetaMonitor *monitor =
+        meta_monitor_manager_get_builtin_monitor (config_manager->monitor_manager);
 
-      transform = meta_monitor_crtc_to_logical_transform (panel, transform);
+      transform = meta_monitor_crtc_to_logical_transform (monitor, transform);
     }
 
   if (current_logical_monitor_config->transform == transform)
@@ -1207,13 +1209,13 @@ meta_monitor_config_manager_create_for_builtin_orientation (MetaMonitorConfigMan
 {
   MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
   MtkMonitorTransform current_transform;
-  MetaMonitor *laptop_panel;
+  MetaMonitor *monitor;
 
   g_return_val_if_fail (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager), NULL);
 
-  laptop_panel = meta_monitor_manager_get_laptop_panel (monitor_manager);
-  current_transform = get_monitor_transform (monitor_manager, laptop_panel);
+  monitor = meta_monitor_manager_get_builtin_monitor (monitor_manager);
+  current_transform = get_monitor_transform (monitor_manager, monitor);
 
   return create_for_builtin_display_rotation (config_manager, base_config,
                                               FALSE, current_transform);

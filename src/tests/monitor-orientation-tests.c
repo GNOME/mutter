@@ -361,13 +361,13 @@ meta_test_monitor_orientation_is_managed (void)
   g_assert_false (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
-  g_assert_null (meta_monitor_manager_get_laptop_panel (monitor_manager));
+  g_assert_null (meta_monitor_manager_get_builtin_monitor (monitor_manager));
   test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_eDP;
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
   meta_emulate_hotplug (test_setup);
-  g_assert_nonnull (meta_monitor_manager_get_laptop_panel (monitor_manager));
+  g_assert_nonnull (meta_monitor_manager_get_builtin_monitor (monitor_manager));
 
   g_assert_false (clutter_seat_get_touch_mode (seat));
   touch_device =
@@ -400,7 +400,7 @@ meta_test_monitor_orientation_is_managed (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
   meta_emulate_hotplug (test_setup);
-  g_assert_null (meta_monitor_manager_get_laptop_panel (monitor_manager));
+  g_assert_null (meta_monitor_manager_get_builtin_monitor (monitor_manager));
   g_assert_false (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
@@ -409,7 +409,7 @@ meta_test_monitor_orientation_is_managed (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
   meta_emulate_hotplug (test_setup);
-  g_assert_nonnull (meta_monitor_manager_get_laptop_panel (monitor_manager));
+  g_assert_nonnull (meta_monitor_manager_get_builtin_monitor (monitor_manager));
   g_assert_true (
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 

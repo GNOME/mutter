@@ -268,7 +268,7 @@ meta_monitor_make_display_name (MetaMonitor *monitor)
 
   meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
 
-  if (meta_monitor_is_laptop_panel (monitor))
+  if (meta_monitor_is_builtin (monitor))
       return g_strdup (_("Built-in display"));
 
   if (width_mm > 0 && height_mm > 0)
@@ -413,7 +413,7 @@ meta_monitor_get_rgb_range (MetaMonitor *monitor)
 }
 
 gboolean
-meta_monitor_is_laptop_panel (MetaMonitor *monitor)
+meta_monitor_is_builtin (MetaMonitor *monitor)
 {
   const MetaOutputInfo *output_info =
     meta_monitor_get_main_output_info (monitor);

@@ -136,9 +136,9 @@ meta_test_monitor_has_external_monitor (void)
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
   first_monitor = g_list_nth_data (monitors, 0);
   second_monitor = g_list_nth_data (monitors, 1);
-  g_assert_true (meta_monitor_is_laptop_panel (first_monitor));
+  g_assert_true (meta_monitor_is_builtin (first_monitor));
   g_assert_true (meta_monitor_is_active (first_monitor));
-  g_assert_false (meta_monitor_is_laptop_panel (second_monitor));
+  g_assert_false (meta_monitor_is_builtin (second_monitor));
   g_assert_true (meta_monitor_is_active (second_monitor));
 
   wait_for_boolean_property (G_DBUS_PROXY (display_config_proxy),
@@ -156,7 +156,7 @@ meta_test_monitor_has_external_monitor (void)
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (monitors), ==, 1);
   first_monitor = g_list_nth_data (monitors, 0);
-  g_assert_true (meta_monitor_is_laptop_panel (first_monitor));
+  g_assert_true (meta_monitor_is_builtin (first_monitor));
   g_assert_true (meta_monitor_is_active (first_monitor));
 
   wait_for_boolean_property (G_DBUS_PROXY (display_config_proxy),
@@ -175,9 +175,9 @@ meta_test_monitor_has_external_monitor (void)
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
   first_monitor = g_list_nth_data (monitors, 0);
   second_monitor = g_list_nth_data (monitors, 1);
-  g_assert_true (meta_monitor_is_laptop_panel (first_monitor));
+  g_assert_true (meta_monitor_is_builtin (first_monitor));
   g_assert_true (meta_monitor_is_active (first_monitor));
-  g_assert_false (meta_monitor_is_laptop_panel (second_monitor));
+  g_assert_false (meta_monitor_is_builtin (second_monitor));
   g_assert_true (meta_monitor_is_active (second_monitor));
 
   wait_for_boolean_property (G_DBUS_PROXY (display_config_proxy),
@@ -194,9 +194,9 @@ meta_test_monitor_has_external_monitor (void)
   g_assert_cmpuint (g_list_length (monitors), ==, 2);
   first_monitor = g_list_nth_data (monitors, 0);
   second_monitor = g_list_nth_data (monitors, 1);
-  g_assert_true (meta_monitor_is_laptop_panel (first_monitor));
+  g_assert_true (meta_monitor_is_builtin (first_monitor));
   g_assert_true (meta_monitor_is_active (first_monitor));
-  g_assert_false (meta_monitor_is_laptop_panel (second_monitor));
+  g_assert_false (meta_monitor_is_builtin (second_monitor));
   g_assert_false (meta_monitor_is_active (second_monitor));
 
   wait_for_boolean_property (G_DBUS_PROXY (display_config_proxy),

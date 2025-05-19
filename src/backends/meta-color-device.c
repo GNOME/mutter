@@ -591,7 +591,7 @@ generate_color_device_props (MetaMonitor *monitor)
                            edid_checksum_md5);
     }
 
-  if (meta_monitor_is_laptop_panel (monitor))
+  if (meta_monitor_is_builtin (monitor))
     {
       add_device_property (device_props,
                            CD_DEVICE_PROPERTY_EMBEDDED,
@@ -1318,7 +1318,7 @@ meta_color_device_generate_profile (MetaColorDevice     *color_device,
   g_task_set_task_data (task, data,
                         (GDestroyNotify) generate_profile_data_free);
 
-  if ((meta_monitor_is_laptop_panel (color_device->monitor) &&
+  if ((meta_monitor_is_builtin (color_device->monitor) &&
        meta_monitor_supports_color_transform (color_device->monitor)) ||
       efivar_test_path)
     {
@@ -1406,7 +1406,7 @@ update_white_point (MetaColorDevice *color_device)
               meta_color_profile_get_id (color_profile),
               temperature);
 
-  if (meta_monitor_is_laptop_panel (monitor))
+  if (meta_monitor_is_builtin (monitor))
     {
       const char *brightness_profile;
 

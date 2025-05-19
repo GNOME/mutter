@@ -994,23 +994,23 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   MtkMonitorTransform panel_transform;
   GError *error = NULL;
   MetaMonitorsConfig *config;
-  MetaMonitor *laptop_panel;
-  MetaLogicalMonitor *laptop_logical_monitor;
+  MetaMonitor *builtin_monitor;
+  MetaLogicalMonitor *builtin_logical_monitor;
   MetaMonitorsConfig *current_config;
 
-  laptop_panel = meta_monitor_manager_get_laptop_panel (manager);
-  g_return_if_fail (laptop_panel);
+  builtin_monitor = meta_monitor_manager_get_builtin_monitor (manager);
+  g_return_if_fail (builtin_monitor);
 
-  if (!meta_monitor_is_active (laptop_panel))
+  if (!meta_monitor_is_active (builtin_monitor))
     return;
 
   orientation = meta_orientation_manager_get_orientation (orientation_manager);
   transform = meta_orientation_to_transform (orientation);
 
-  laptop_logical_monitor = meta_monitor_get_logical_monitor (laptop_panel);
+  builtin_logical_monitor = meta_monitor_get_logical_monitor (builtin_monitor);
   panel_transform =
-    meta_monitor_crtc_to_logical_transform (laptop_panel, transform);
-  if (meta_logical_monitor_get_transform (laptop_logical_monitor) ==
+    meta_monitor_crtc_to_logical_transform (builtin_monitor, transform);
+  if (meta_logical_monitor_get_transform (builtin_logical_monitor) ==
       panel_transform)
     return;
 
@@ -1069,7 +1069,7 @@ handle_initial_orientation_change (MetaOrientationManager *orientation_manager,
     return FALSE;
 
   /* Check for a portrait mode panel */
-  monitor = meta_monitor_manager_get_laptop_panel (manager);
+  monitor = meta_monitor_manager_get_builtin_monitor (manager);
   if (!monitor)
     return FALSE;
 
@@ -1291,7 +1291,7 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
   panel_orientation_managed =
     (clutter_seat_get_touch_mode (seat) &&
      meta_orientation_manager_has_accelerometer (orientation_manager) &&
-     meta_monitor_manager_get_laptop_panel (manager));
+     meta_monitor_manager_get_builtin_monitor (manager));
 
   if (manager->panel_orientation_managed == panel_orientation_managed)
     return;
@@ -1320,7 +1320,7 @@ update_has_builtin_panel (MetaMonitorManager *manager)
     {
       MetaMonitor *monitor = META_MONITOR (l->data);
 
-      if (meta_monitor_is_laptop_panel (monitor))
+      if (meta_monitor_is_builtin (monitor))
         {
           has_builtin_panel = TRUE;
           break;
@@ -1381,7 +1381,7 @@ update_has_external_monitor (MetaMonitorManager *monitor_manager)
     {
       MetaMonitor *monitor = l->data;
 
-      if (meta_monitor_is_laptop_panel (monitor))
+      if (meta_monitor_is_builtin (monitor))
         continue;
 
       if (!meta_monitor_is_active (monitor))
@@ -2285,7 +2285,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
                                  g_variant_new_boolean (is_underscanning));
         }
 
-      is_builtin = meta_monitor_is_laptop_panel (monitor);
+      is_builtin = meta_monitor_is_builtin (monitor);
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "is-builtin",
                              g_variant_new_boolean (is_builtin));
@@ -2542,7 +2542,7 @@ meta_monitor_manager_is_config_applicable (MetaMonitorManager *manager,
               return FALSE;
             }
 
-          if (meta_monitor_is_laptop_panel (monitor) &&
+          if (meta_monitor_is_builtin (monitor) &&
               meta_backend_is_lid_closed (manager->backend))
             {
               g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -3715,7 +3715,7 @@ meta_monitor_manager_get_primary_monitor (MetaMonitorManager *manager)
 }
 
 /**
- * meta_monitor_manager_get_laptop_panel:
+ * meta_monitor_manager_get_builtin_monitor:
  * @manager: A #MetaMonitorManager object
  *
  * Returns the #MetaMonitor that represents the built-in laptop panel (if
@@ -3724,9 +3724,9 @@ meta_monitor_manager_get_primary_monitor (MetaMonitorManager *manager)
  * Returns: (transfer none) (nullable): The laptop panel, or %NULL if none.
  */
 MetaMonitor *
-meta_monitor_manager_get_laptop_panel (MetaMonitorManager *manager)
+meta_monitor_manager_get_builtin_monitor (MetaMonitorManager *manager)
 {
-  return find_monitor (manager, meta_monitor_is_laptop_panel);
+  return find_monitor (manager, meta_monitor_is_builtin);
 }
 
 MetaMonitor *
@@ -4111,7 +4111,7 @@ update_backlight (MetaMonitorManager *manager,
       gboolean active;
       int value;
 
-      if (!meta_monitor_is_laptop_panel (monitor))
+      if (!meta_monitor_is_builtin (monitor))
         continue;
 
       g_variant_builder_open (&backlight_builder,
@@ -4441,7 +4441,7 @@ meta_monitor_manager_get_is_builtin_display_on (MetaMonitorManager *manager)
 
   g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager), FALSE);
 
-  laptop_panel = meta_monitor_manager_get_laptop_panel (manager);
+  laptop_panel = meta_monitor_manager_get_builtin_monitor (manager);
   if (!laptop_panel)
     return FALSE;
 

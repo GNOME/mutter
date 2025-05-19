@@ -389,7 +389,7 @@ static gboolean
 match_builtin (MetaInputMapper *mapper,
                MetaMonitor     *monitor)
 {
-  return monitor == meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
+  return monitor == meta_monitor_manager_get_builtin_monitor (mapper->monitor_manager);
 }
 
 static gboolean
@@ -533,7 +533,7 @@ guess_candidates (MetaInputMapper     *mapper,
           DeviceMatch match = { 0 };
 
           match.monitor =
-            meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
+            meta_monitor_manager_get_builtin_monitor (mapper->monitor_manager);
 
           if (match.monitor != NULL)
             g_array_append_val (info->matches, match);
@@ -706,7 +706,7 @@ input_mapper_power_save_mode_changed_cb (MetaMonitorManager        *monitor_mana
     meta_monitor_manager_get_power_save_mode (mapper->monitor_manager);
   on = power_save_mode == META_POWER_SAVE_ON;
 
-  builtin = meta_monitor_manager_get_laptop_panel (monitor_manager);
+  builtin = meta_monitor_manager_get_builtin_monitor (monitor_manager);
   if (!builtin)
     return;
 
