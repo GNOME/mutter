@@ -56,7 +56,6 @@
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-group-private.h"
-#include "x11/session.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 
@@ -494,138 +493,6 @@ adjust_for_gravity (MetaWindow   *window,
 }
 
 static void
-meta_window_apply_session_info (MetaWindow *window,
-                                const MetaWindowSessionInfo *info)
-{
-  if (info->stack_position_set)
-    {
-      meta_topic (META_DEBUG_SM,
-                  "Restoring stack position %d for window %s",
-                  info->stack_position, window->desc);
-
-      /* FIXME well, I'm not sure how to do this. */
-    }
-
-  if (info->minimized_set)
-    {
-      meta_topic (META_DEBUG_SM,
-                  "Restoring minimized state %d for window %s",
-                  info->minimized, window->desc);
-
-      if (info->minimized)
-        meta_window_minimize (window);
-    }
-
-  if (info->maximized_set)
-    {
-      meta_topic (META_DEBUG_SM,
-                  "Restoring maximized state %d for window %s",
-                  info->maximized, window->desc);
-
-      if (window->has_maximize_func && info->maximized)
-        {
-          meta_window_maximize (window);
-
-          if (info->saved_rect_set)
-            {
-              meta_topic (META_DEBUG_SM,
-                          "Restoring saved rect %d,%d %dx%d for window %s",
-                          info->saved_rect.x,
-                          info->saved_rect.y,
-                          info->saved_rect.width,
-                          info->saved_rect.height,
-                          window->desc);
-
-              window->saved_rect.x = info->saved_rect.x;
-              window->saved_rect.y = info->saved_rect.y;
-              window->saved_rect.width = info->saved_rect.width;
-              window->saved_rect.height = info->saved_rect.height;
-            }
-	}
-    }
-
-  if (info->on_all_workspaces_set)
-    {
-      window->on_all_workspaces_requested = info->on_all_workspaces;
-      meta_window_on_all_workspaces_changed (window);
-      meta_topic (META_DEBUG_SM,
-                  "Restoring sticky state %d for window %s",
-                  window->on_all_workspaces_requested, window->desc);
-    }
-
-  if (info->workspace_indices)
-    {
-      GSList *tmp;
-      GSList *spaces;
-
-      spaces = NULL;
-
-      tmp = info->workspace_indices;
-      while (tmp != NULL)
-        {
-          MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
-          MetaWorkspace *space;
-
-          space =
-            meta_workspace_manager_get_workspace_by_index (workspace_manager,
-                                                           GPOINTER_TO_INT (tmp->data));
-
-          if (space)
-            spaces = g_slist_prepend (spaces, space);
-
-          tmp = tmp->next;
-        }
-
-      if (spaces)
-        {
-          /* XXX: What should we do if there's more than one workspace
-           * listed? We only support one workspace for each window.
-           *
-           * For now, just choose the first one.
-           */
-          MetaWorkspace *workspace = spaces->data;
-
-          meta_window_change_workspace (window, workspace);
-          window->initial_workspace_set = TRUE;
-
-          meta_topic (META_DEBUG_SM,
-                      "Restoring saved window %s to workspace %d",
-                      window->desc,
-                      meta_workspace_index (workspace));
-
-          g_slist_free (spaces);
-        }
-    }
-
-  if (info->geometry_set)
-    {
-      MtkRectangle rect;
-      MetaMoveResizeFlags flags;
-      MetaGravity gravity;
-
-      window->placed = TRUE; /* don't do placement algorithms later */
-
-      rect.x = info->rect.x;
-      rect.y = info->rect.y;
-
-      rect.width = window->size_hints.base_width + info->rect.width * window->size_hints.width_inc;
-      rect.height = window->size_hints.base_height + info->rect.height * window->size_hints.height_inc;
-
-      /* Force old gravity, ignoring anything now set */
-      window->size_hints.win_gravity = info->gravity;
-      gravity = window->size_hints.win_gravity;
-
-      flags = (META_MOVE_RESIZE_MOVE_ACTION |
-               META_MOVE_RESIZE_RESIZE_ACTION |
-               META_MOVE_RESIZE_CONSTRAIN);
-
-      adjust_for_gravity (window, FALSE, gravity, &rect);
-      meta_window_client_rect_to_frame_rect (window, &rect, &rect);
-      meta_window_move_resize (window, flags, rect);
-    }
-}
-
-static void
 meta_window_x11_manage (MetaWindow *window)
 {
   MetaDisplay *display = window->display;
@@ -659,19 +526,6 @@ meta_window_x11_initialize_state (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-
-  /* Now try applying saved stuff from the session */
-  {
-    const MetaWindowSessionInfo *info;
-
-    info = meta_window_lookup_saved_state (window);
-
-    if (info)
-      {
-        meta_window_apply_session_info (window, info);
-        meta_window_release_saved_state (info);
-      }
-  }
 
   /* For override-redirect windows, save the client rect
    * directly. window->config->rect was assigned from the XWindowAttributes

@@ -114,19 +114,12 @@ endif
 
 if have_x11
   mutter_pkg_private_deps += [
-    ice_dep,
     fribidi_dep,
     xcb_randr_dep,
     xkbfile_dep,
     xkbcommon_x11_dep,
     xtst_dep,
   ]
-
-  if have_sm
-    mutter_pkg_private_deps += [
-      sm_dep,
-    ]
-  endif
 endif
 
 if have_wayland
@@ -508,8 +501,6 @@ if have_x11_client
     'x11/meta-x11-stack.c',
     'x11/meta-x11-stack-private.h',
     'x11/mutter-Xatomtype.h',
-    'x11/session.c',
-    'x11/session.h',
     'x11/window-props.c',
     'x11/window-props.h',
     'x11/window-x11.c',

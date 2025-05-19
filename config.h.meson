@@ -81,9 +81,6 @@
 /* Defined if sound player is enabled */
 #mesondefine HAVE_SOUND_PLAYER
 
-/* Building with SM support */
-#mesondefine HAVE_SM
-
 /* Building with startup notification support */
 #mesondefine HAVE_STARTUP_NOTIFICATION
 

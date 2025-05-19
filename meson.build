@@ -183,7 +183,6 @@ if have_x11_client
   xau_dep = dependency('xau')
 
   if have_x11
-    ice_dep = dependency('ice')
     xcb_randr_dep = dependency('xcb-randr')
     xkbcommon_x11_dep = dependency('xkbcommon-x11')
     xkbfile_dep = dependency('xkbfile')
@@ -326,10 +325,6 @@ if have_wayland_eglstream
   endif
 endif
 
-have_sm = get_option('sm') and have_x11
-if have_sm
-  sm_dep = dependency('sm')
-endif
 
 have_libwacom = get_option('libwacom')
 if have_libwacom
@@ -616,7 +611,6 @@ cdata.set('HAVE_WAYLAND_EGLSTREAM', have_wayland_eglstream)
 cdata.set('HAVE_LIBGUDEV', have_libgudev)
 cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_LIBWACOM_GET_NUM_RINGS', have_libwacom_get_num_rings)
-cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
@@ -804,7 +798,6 @@ summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
 summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')
-summary('SM', have_sm, section: 'Options')
 summary('Fonts', have_fonts, section: 'Options')
 summary('Startup notification', have_startup_notification, section: 'Options')
 summary('Introspection', have_introspection, section: 'Options')

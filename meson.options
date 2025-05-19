@@ -117,12 +117,6 @@ option('startup_notification',
   description: 'Enable startup notification support'
 )
 
-option('sm',
-  type: 'boolean',
-  value: true,
-  description: 'Enable X11 session management support'
-)
-
 option('introspection',
   type: 'boolean',
   value: true,
