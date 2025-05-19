@@ -9,6 +9,7 @@ mdk_sources = [
   'mdk-keyboard.h',
   'mdk-main-window.c',
   'mdk-main-window.h',
+  'mdk-main.c',
   'mdk-monitor.c',
   'mdk-monitor.h',
   'mdk-pipewire.c',
@@ -24,7 +25,6 @@ mdk_sources = [
   'mdk-touch.c',
   'mdk-touch.h',
   'mdk-types.h',
-  'mdk-main.c',
 ]
 
 mdk_c_args = mutter_c_args
