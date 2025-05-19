@@ -2103,6 +2103,9 @@ restore_previous_config (MetaMonitorManager *manager)
 int
 meta_monitor_manager_get_display_configuration_timeout (MetaMonitorManager *manager)
 {
+  g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager),
+                        DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT);
+
   return DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT;
 }
 
@@ -4407,12 +4410,15 @@ meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
 {
   GList *l;
 
+  g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager), -1);
+  g_return_val_if_fail (connector != NULL, -1);
+
   for (l = manager->monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
 
       if (meta_monitor_is_active (monitor) &&
-          g_str_equal (connector, meta_monitor_get_connector (monitor)))
+          g_strcmp0 (connector, meta_monitor_get_connector (monitor)))
         return meta_monitor_get_logical_monitor (monitor)->number;
     }
 
@@ -4510,6 +4516,7 @@ meta_monitor_manager_switch_config (MetaMonitorManager          *manager,
     meta_monitor_manager_get_instance_private (manager);
   SwitchConfigData *data;
 
+  g_return_if_fail (META_IS_MONITOR_MANAGER (manager));
   g_return_if_fail (config_type != META_MONITOR_SWITCH_CONFIG_UNKNOWN);
 
   data = g_new0 (SwitchConfigData, 1);
@@ -4526,6 +4533,8 @@ meta_monitor_manager_switch_config (MetaMonitorManager          *manager,
 gboolean
 meta_monitor_manager_can_switch_config (MetaMonitorManager *manager)
 {
+  g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager), FALSE);
+
   return (!meta_backend_is_lid_closed (manager->backend) &&
           g_list_length (manager->monitors) > 1);
 }
@@ -4533,6 +4542,9 @@ meta_monitor_manager_can_switch_config (MetaMonitorManager *manager)
 MetaMonitorSwitchConfigType
 meta_monitor_manager_get_switch_config (MetaMonitorManager *manager)
 {
+  g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager),
+                        META_MONITOR_SWITCH_CONFIG_UNKNOWN);
+
   return manager->current_switch_config;
 }
 
