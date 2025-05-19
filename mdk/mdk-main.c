@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 
 #include "mdk-context.h"
+#include "mdk-main-window.h"
 #include "mdk-monitor.h"
 
 typedef void (* AdwaitaInitFunc) (void);
@@ -157,6 +158,8 @@ activate (GApplication *app,
 {
   g_autoptr (GtkBuilder) builder = NULL;
   GtkWidget *window;
+
+  g_type_ensure (MDK_TYPE_MAIN_WINDOW);
 
   builder = gtk_builder_new_from_resource ("/ui/mdk-devkit.ui");
 

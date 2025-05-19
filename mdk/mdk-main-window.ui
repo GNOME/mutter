@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="header_menu">
+    <section>
+      <section>
+        <submenu>
+          <attribute name="label" translatable="yes">_Input</attribute>
+          <item>
+            <attribute name="label" translatable="yes">_Emulate touch</attribute>
+            <attribute name="action">app.toggle_emulate_touch</attribute>
+          </item>
+        </submenu>
+      </section>
+      <item>
+        <attribute name="label" translatable="yes">_About Mutter Development Kit</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+    </section>
+  </menu>
+  <template class="MdkMainWindow" parent="GtkApplicationWindow">
+    <property name="title" translatable="yes">Mutter Development Kit</property>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="headerbar">
+        <child type="end">
+          <object class="GtkMenuButton" id="gear_menu_button">
+            <property name="valign">center</property>
+            <property name="menu-model">header_menu</property>
+            <property name="primary">True</property>
+            <property name="icon-name">open-menu-symbolic</property>
+            <accessibility>
+              <property name="label" translatable="yes">Main Menu</property>
+            </accessibility>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

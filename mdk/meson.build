@@ -7,6 +7,8 @@ mdk_sources = [
   'mdk-ei.h',
   'mdk-keyboard.c',
   'mdk-keyboard.h',
+  'mdk-main-window.c',
+  'mdk-main-window.h',
   'mdk-monitor.c',
   'mdk-monitor.h',
   'mdk-pipewire.c',
