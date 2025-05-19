@@ -2550,6 +2550,16 @@ initable_iface_init (GInitableIface *initable_iface)
 }
 
 static void
+meta_renderer_native_dispose (GObject *object)
+{
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
+
+  clear_detached_onscreens (renderer_native);
+
+  G_OBJECT_CLASS (meta_renderer_native_parent_class)->dispose (object);
+}
+
+static void
 meta_renderer_native_finalize (GObject *object)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
@@ -2564,7 +2574,6 @@ meta_renderer_native_finalize (GObject *object)
 
   g_clear_handle_id (&renderer_native->release_unused_gpus_idle_id,
                      g_source_remove);
-  clear_detached_onscreens (renderer_native);
 
   g_hash_table_destroy (renderer_native->gpu_datas);
   g_clear_object (&renderer_native->gles3);
@@ -2613,6 +2622,7 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaRendererClass *renderer_class = META_RENDERER_CLASS (klass);
 
+  object_class->dispose = meta_renderer_native_dispose;
   object_class->finalize = meta_renderer_native_finalize;
   object_class->constructed = meta_renderer_native_constructed;
 
