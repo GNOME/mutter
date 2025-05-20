@@ -1113,6 +1113,7 @@ static void
 translate_raw_event (MetaSeatX11 *seat_x11,
                      XEvent      *xevent)
 {
+  ClutterSeat *seat = CLUTTER_SEAT (seat_x11);
   ClutterInputDevice *device;
   XGenericEventCookie *cookie;
   XIEvent *xi_event;
@@ -1142,8 +1143,8 @@ translate_raw_event (MetaSeatX11 *seat_x11,
        */
       if (meta_input_device_x11_get_pointer_location (device, &x, &y))
         {
-          if (_clutter_is_input_pointer_a11y_enabled (device))
-            _clutter_input_pointer_a11y_on_motion_event (device, x, y);
+          if (_clutter_seat_is_pointer_a11y_enabled (seat))
+            _clutter_seat_a11y_on_motion_event (seat, x, y);
           if (!seat_x11->has_pointer_focus)
             emulate_motion (seat_x11, x, y);
         }
@@ -1157,11 +1158,11 @@ translate_raw_event (MetaSeatX11 *seat_x11,
                meta_input_device_x11_get_device_id (device),
                clutter_input_device_get_device_name (device),
                xev->detail);
-      if (_clutter_is_input_pointer_a11y_enabled (device))
+      if (_clutter_seat_is_pointer_a11y_enabled (seat))
         {
-          _clutter_input_pointer_a11y_on_button_event (device,
-                                                       xev->detail,
-                                                       (cookie->evtype == XI_RawButtonPress));
+          _clutter_seat_a11y_on_button_event (seat,
+                                              xev->detail,
+                                              (cookie->evtype == XI_RawButtonPress));
         }
       break;
     }

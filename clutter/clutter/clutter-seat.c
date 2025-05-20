@@ -251,8 +251,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
                   _clutter_marshal_VOID__OBJECT_FLAGS_UINT,
-                  G_TYPE_NONE, 3,
-                  CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_NONE, 2,
                   CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
                   G_TYPE_UINT);
   g_signal_set_va_marshaller (signals[PTR_A11Y_TIMEOUT_STARTED],
@@ -277,8 +276,7 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
                   _clutter_marshal_VOID__OBJECT_FLAGS_BOOLEAN,
-                  G_TYPE_NONE, 3,
-                  CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_NONE, 2,
                   CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
                   G_TYPE_BOOLEAN);
   g_signal_set_va_marshaller (signals[PTR_A11Y_TIMEOUT_STOPPED],
@@ -415,15 +413,8 @@ clutter_seat_get_keymap (ClutterSeat *seat)
 void
 clutter_seat_ensure_a11y_state (ClutterSeat *seat)
 {
-  ClutterInputDevice *core_pointer;
-
-  core_pointer = clutter_seat_get_pointer (seat);
-
-  if (core_pointer)
-    {
-      if (_clutter_is_input_pointer_a11y_enabled (core_pointer))
-        _clutter_input_pointer_a11y_add_device (core_pointer);
-    }
+  if (_clutter_seat_is_pointer_a11y_enabled (seat))
+    _clutter_seat_init_a11y (seat);
 }
 
 static gboolean
@@ -436,21 +427,13 @@ are_pointer_a11y_settings_equal (ClutterPointerA11ySettings *a,
 static void
 clutter_seat_enable_pointer_a11y (ClutterSeat *seat)
 {
-  ClutterInputDevice *core_pointer;
-
-  core_pointer = clutter_seat_get_pointer (seat);
-
-  _clutter_input_pointer_a11y_add_device (core_pointer);
+  _clutter_seat_init_a11y (seat);
 }
 
 static void
 clutter_seat_disable_pointer_a11y (ClutterSeat *seat)
 {
-  ClutterInputDevice *core_pointer;
-
-  core_pointer = clutter_seat_get_pointer (seat);
-
-  _clutter_input_pointer_a11y_remove_device (core_pointer);
+  _clutter_seat_shutdown_a11y (seat);
 }
 
 /**

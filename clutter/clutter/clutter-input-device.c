@@ -162,9 +162,6 @@ clutter_input_device_dispose (GObject *gobject)
   g_clear_pointer (&priv->device_name, g_free);
   g_clear_pointer (&priv->node_path, g_free);
 
-  if (device->accessibility_virtual_device)
-    g_clear_object (&device->accessibility_virtual_device);
-
   G_OBJECT_CLASS (clutter_input_device_parent_class)->dispose (gobject);
 }
 

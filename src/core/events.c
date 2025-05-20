@@ -174,6 +174,7 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
   ClutterEventType event_type;
+  ClutterSeat *seat;
   gboolean has_grab;
   gboolean a11y_grabbed;
   MetaTabletActionMapper *mapper;
@@ -213,7 +214,8 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 
   device = clutter_event_get_device (event);
-  clutter_input_pointer_a11y_update (device, event);
+  seat = clutter_input_device_get_seat (clutter_event_get_source_device (event));
+  clutter_seat_a11y_update (seat, event);
 
   /* Set the pointer emulating sequence on touch begin, if eligible */
   if (event_type == CLUTTER_TOUCH_BEGIN)
