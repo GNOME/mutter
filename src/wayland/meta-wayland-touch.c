@@ -239,13 +239,15 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
       ClutterBackend *clutter_backend;
       ClutterStage *stage;
       ClutterActor *actor;
+      ClutterSprite *sprite;
 
       backend = backend_from_touch (touch);
+      context = meta_backend_get_clutter_context (backend);
+      clutter_backend = clutter_context_get_backend (context);
       stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-      actor = clutter_stage_get_device_actor (stage,
-                                              clutter_event_get_device (event),
-                                              clutter_event_get_event_sequence (event));
+      sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+      actor = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
 
       if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
         surface = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));
@@ -253,13 +255,9 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
       if (!surface || !surface->resource)
         return;
 
-      context = meta_backend_get_clutter_context (backend);
-      clutter_backend = clutter_context_get_backend (context);
-
       touch_info = touch_get_info (touch, sequence, TRUE);
       touch_info->touch_surface = touch_surface_get (touch, surface);
-      touch_info->sprite =
-        clutter_backend_get_sprite (clutter_backend, stage, event);
+      touch_info->sprite = sprite;
       clutter_event_get_coords (event, &touch_info->start_x, &touch_info->start_y);
     }
 

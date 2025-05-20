@@ -593,10 +593,11 @@ repick_for_event (MetaWaylandPointer *pointer,
   MetaWaylandSurface *surface;
   MetaBackend *backend = backend_from_pointer (pointer);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSprite *sprite;
 
-  actor = clutter_stage_get_device_actor (stage,
-                                          clutter_event_get_device (for_event),
-                                          clutter_event_get_event_sequence (for_event));
+  sprite = clutter_backend_get_sprite (clutter_backend, stage, for_event);
+  actor = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
     {

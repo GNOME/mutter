@@ -940,15 +940,19 @@ meta_wayland_text_input_handle_event (MetaWaylandTextInput *text_input,
     {
       MetaWaylandSurface *surface = NULL;
       MetaBackend *backend;
+      ClutterContext *context;
+      ClutterBackend *clutter_backend;
       ClutterStage *stage;
       ClutterActor *actor;
+      ClutterSprite *sprite;
 
       backend = backend_from_text_input (text_input);
       stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      context = meta_backend_get_clutter_context (backend);
+      clutter_backend = clutter_context_get_backend (context);
 
-      actor = clutter_stage_get_device_actor (stage,
-                                              clutter_event_get_device (event),
-                                              clutter_event_get_event_sequence (event));
+      sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+      actor = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
 
       if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
         {
