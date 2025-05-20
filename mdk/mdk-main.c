@@ -155,14 +155,9 @@ static void
 activate (GApplication *app,
           MdkContext   *context)
 {
-  g_autoptr (GtkBuilder) builder = NULL;
   GtkWidget *window;
 
-  g_type_ensure (MDK_TYPE_MAIN_WINDOW);
-
-  builder = gtk_builder_new_from_resource ("/ui/mdk-devkit.ui");
-
-  window = GTK_WIDGET (gtk_builder_get_object (builder, "window"));
+  window = g_object_new (MDK_TYPE_MAIN_WINDOW, NULL);
   gtk_application_add_window (GTK_APPLICATION (app), GTK_WINDOW (window));
 
   g_signal_connect (context, "ready", G_CALLBACK (on_context_ready), app);
