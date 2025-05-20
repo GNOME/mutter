@@ -37,9 +37,8 @@
 typedef struct _MetaIdleManager
 {
   MetaBackend *backend;
+  MetaIdleMonitor *core_monitor;
   guint dbus_name_id;
-
-  GHashTable *device_monitors;
 } MetaIdleManager;
 
 static gboolean
@@ -258,21 +257,12 @@ on_name_lost (GDBusConnection *connection,
 }
 
 MetaIdleMonitor *
-meta_idle_manager_get_monitor (MetaIdleManager    *idle_manager,
-                               ClutterInputDevice *device)
-{
-  return g_hash_table_lookup (idle_manager->device_monitors, device);
-}
-
-MetaIdleMonitor *
 meta_idle_manager_get_core_monitor (MetaIdleManager *idle_manager)
 {
-  MetaBackend *backend = idle_manager->backend;
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  if (!idle_manager->core_monitor)
+    idle_manager->core_monitor = meta_idle_monitor_new (idle_manager);
 
-  return meta_backend_get_idle_monitor (backend,
-                                        clutter_seat_get_pointer (seat));
+  return idle_manager->core_monitor;
 }
 
 void
@@ -284,64 +274,10 @@ meta_idle_manager_reset_idle_time (MetaIdleManager *idle_manager)
   meta_idle_monitor_reset_idletime (core_monitor);
 }
 
-static void
-create_device_monitor (MetaIdleManager    *idle_manager,
-                       ClutterInputDevice *device)
-{
-  MetaIdleMonitor *idle_monitor;
-
-  if (g_hash_table_contains (idle_manager->device_monitors, device))
-    return;
-
-  idle_monitor = meta_idle_monitor_new (idle_manager, device);
-  g_hash_table_insert (idle_manager->device_monitors, device, idle_monitor);
-}
-
-static void
-on_device_added (ClutterSeat        *seat,
-                 ClutterInputDevice *device,
-                 gpointer            user_data)
-{
-  MetaIdleManager *idle_manager = user_data;
-
-  create_device_monitor (idle_manager, device);
-}
-
-static void
-on_device_removed (ClutterSeat        *seat,
-                   ClutterInputDevice *device,
-                   gpointer            user_data)
-{
-  MetaIdleManager *idle_manager = user_data;
-
-  g_hash_table_remove (idle_manager->device_monitors, device);
-}
-
-static void
-create_device_monitors (MetaIdleManager *idle_manager,
-                        ClutterSeat     *seat)
-{
-  GList *l, *devices;
-
-  create_device_monitor (idle_manager, clutter_seat_get_pointer (seat));
-  create_device_monitor (idle_manager, clutter_seat_get_keyboard (seat));
-
-  devices = clutter_seat_list_devices (seat);
-  for (l = devices; l; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-
-      create_device_monitor (idle_manager, device);
-    }
-
-  g_list_free (devices);
-}
-
 MetaIdleManager *
 meta_idle_manager_new (MetaBackend *backend)
 {
   MetaContext *context = meta_backend_get_context (backend);
-  ClutterSeat *seat = meta_backend_get_default_seat (backend);
   MetaIdleManager *idle_manager;
 
   idle_manager = g_new0 (MetaIdleManager, 1);
@@ -360,21 +296,12 @@ meta_idle_manager_new (MetaBackend *backend)
                     idle_manager,
                     NULL);
 
-  idle_manager->device_monitors =
-    g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
-  g_signal_connect (seat, "device-added",
-                    G_CALLBACK (on_device_added), idle_manager);
-  g_signal_connect_after (seat, "device-removed",
-                          G_CALLBACK (on_device_removed), idle_manager);
-  create_device_monitors (idle_manager, seat);
-
   return idle_manager;
 }
 
 void
 meta_idle_manager_free (MetaIdleManager *idle_manager)
 {
-  g_clear_pointer (&idle_manager->device_monitors, g_hash_table_destroy);
   g_bus_unown_name (idle_manager->dbus_name_id);
   g_free (idle_manager);
 }

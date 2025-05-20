@@ -1486,15 +1486,6 @@ meta_backend_init (MetaBackend *backend)
   priv->cursor_visible = TRUE;
 }
 
-MetaIdleMonitor *
-meta_backend_get_idle_monitor (MetaBackend        *backend,
-                               ClutterInputDevice *device)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  return meta_idle_manager_get_monitor (priv->idle_manager, device);
-}
-
 /**
  * meta_backend_get_core_idle_monitor:
  *

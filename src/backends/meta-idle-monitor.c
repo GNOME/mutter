@@ -40,15 +40,6 @@
 
 G_STATIC_ASSERT(sizeof(unsigned long) == sizeof(gpointer));
 
-enum
-{
-  PROP_0,
-  PROP_DEVICE,
-  PROP_LAST,
-};
-
-static GParamSpec *obj_props[PROP_LAST];
-
 struct _MetaIdleMonitor
 {
   GObject parent;
@@ -57,7 +48,6 @@ struct _MetaIdleMonitor
   GDBusProxy *session_proxy;
   gboolean inhibited;
   GHashTable *watches;
-  ClutterInputDevice *device;
   int64_t last_event_time;
 };
 
@@ -99,62 +89,11 @@ meta_idle_monitor_dispose (GObject *object)
 }
 
 static void
-meta_idle_monitor_get_property (GObject    *object,
-                                guint       prop_id,
-                                GValue     *value,
-                                GParamSpec *pspec)
-{
-  MetaIdleMonitor *monitor = META_IDLE_MONITOR (object);
-
-  switch (prop_id)
-    {
-    case PROP_DEVICE:
-      g_value_set_object (value, monitor->device);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_idle_monitor_set_property (GObject      *object,
-                                guint         prop_id,
-                                const GValue *value,
-                                GParamSpec   *pspec)
-{
-  MetaIdleMonitor *monitor = META_IDLE_MONITOR (object);
-  switch (prop_id)
-    {
-    case PROP_DEVICE:
-      monitor->device = g_value_get_object (value);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
 meta_idle_monitor_class_init (MetaIdleMonitorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->dispose = meta_idle_monitor_dispose;
-  object_class->get_property = meta_idle_monitor_get_property;
-  object_class->set_property = meta_idle_monitor_set_property;
-
-  /**
-   * MetaIdleMonitor:device:
-   *
-   * The device to listen to idletime on.
-   */
-  obj_props[PROP_DEVICE] =
-    g_param_spec_object ("device", NULL, NULL,
-                         CLUTTER_TYPE_INPUT_DEVICE,
-                         G_PARAM_STATIC_STRINGS | G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-
-  g_object_class_install_property (object_class, PROP_DEVICE, obj_props[PROP_DEVICE]);
 }
 
 static void
@@ -513,14 +452,11 @@ meta_idle_monitor_get_manager (MetaIdleMonitor *monitor)
 }
 
 MetaIdleMonitor *
-meta_idle_monitor_new (MetaIdleManager    *idle_manager,
-                       ClutterInputDevice *device)
+meta_idle_monitor_new (MetaIdleManager *idle_manager)
 {
   MetaIdleMonitor *monitor;
 
-  monitor = g_object_new (META_TYPE_IDLE_MONITOR,
-                          "device", device,
-                          NULL);
+  monitor = g_object_new (META_TYPE_IDLE_MONITOR, NULL);
   monitor->idle_manager = idle_manager;
 
   return monitor;

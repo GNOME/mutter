@@ -46,5 +46,4 @@ void meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor);
 
 MetaIdleManager * meta_idle_monitor_get_manager (MetaIdleMonitor *monitor);
 
-MetaIdleMonitor * meta_idle_monitor_new (MetaIdleManager    *idle_manager,
-                                         ClutterInputDevice *device);
+MetaIdleMonitor * meta_idle_monitor_new (MetaIdleManager *idle_manager);

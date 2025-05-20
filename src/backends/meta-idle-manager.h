@@ -24,9 +24,6 @@
 typedef struct _MetaIdleMonitor MetaIdleMonitor;
 typedef struct _MetaIdleManager MetaIdleManager;
 
-MetaIdleMonitor * meta_idle_manager_get_monitor (MetaIdleManager    *idle_manager,
-                                                 ClutterInputDevice *device);
-
 MetaIdleMonitor * meta_idle_manager_get_core_monitor (MetaIdleManager *idle_manager);
 
 void meta_idle_manager_reset_idle_time (MetaIdleManager *idle_manager);

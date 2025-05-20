@@ -164,9 +164,6 @@ ClutterContext * meta_backend_get_clutter_context (MetaBackend *backend);
 META_EXPORT_TEST
 ClutterSeat * meta_backend_get_default_seat (MetaBackend *backend);
 
-MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
-                                                 ClutterInputDevice *device);
-
 MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
