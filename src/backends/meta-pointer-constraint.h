@@ -55,7 +55,6 @@ struct _MetaPointerConstraintImplClass
   GObjectClass parent_class;
 
   void (* constrain) (MetaPointerConstraintImpl *constraint_impl,
-                      ClutterInputDevice        *device,
                       uint32_t                   time,
                       float                      prev_x,
                       float                      prev_y,
@@ -66,7 +65,6 @@ struct _MetaPointerConstraintImplClass
 };
 
 void meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constraint_impl,
-                                             ClutterInputDevice        *device,
                                              uint32_t                   time,
                                              float                      prev_x,
                                              float                      prev_y,

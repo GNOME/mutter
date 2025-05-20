@@ -125,7 +125,6 @@ meta_pointer_constraint_impl_class_init (MetaPointerConstraintImplClass *klass)
 /**
  * meta_pointer_constraint_impl_constrain:
  * @constraint_impl: a #MetaPointerConstraintImpl.
- * @device; the device of the pointer.
  * @time: the timestamp (in ms) of the event.
  * @prev_x: X-coordinate of the previous pointer position.
  * @prev_y: Y-coordinate of the previous pointer position.
@@ -137,7 +136,6 @@ meta_pointer_constraint_impl_class_init (MetaPointerConstraintImplClass *klass)
  */
 void
 meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constraint_impl,
-                                        ClutterInputDevice        *device,
                                         uint32_t                   time,
                                         float                      prev_x,
                                         float                      prev_y,
@@ -145,7 +143,6 @@ meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constraint_im
                                         float                     *y)
 {
   META_POINTER_CONSTRAINT_IMPL_GET_CLASS (constraint_impl)->constrain (constraint_impl,
-                                                                       device,
                                                                        time,
                                                                        prev_x, prev_y,
                                                                        x, y);

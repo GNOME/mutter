@@ -445,7 +445,6 @@ get_motion_directions (MetaLine2 *motion)
 
 static void
 meta_pointer_constraint_impl_native_constrain (MetaPointerConstraintImpl *constraint_impl,
-                                               ClutterInputDevice        *device,
                                                uint32_t                   time,
                                                float                      prev_x,
                                                float                      prev_y,

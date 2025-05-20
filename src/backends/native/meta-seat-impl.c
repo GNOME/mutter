@@ -1448,7 +1448,6 @@ meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
   if (seat_impl->pointer_constraint)
     {
       meta_pointer_constraint_impl_constrain (seat_impl->pointer_constraint,
-                                              core_pointer,
                                               us2ms (time_us),
                                               x, y,
                                               new_x, new_y);
