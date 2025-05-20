@@ -102,6 +102,7 @@ struct _MetaInputDeviceNative
 
   /* Keyboard a11y */
   MetaKeyboardA11yFlags a11y_flags;
+  ClutterVirtualInputDevice *mousekeys_pointer;
   GList *slow_keys_list;
   GSource *debounce_timer;
   uint16_t debounce_key;
