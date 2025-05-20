@@ -157,7 +157,9 @@ activate (GApplication *app,
 {
   GtkWidget *window;
 
-  window = g_object_new (MDK_TYPE_MAIN_WINDOW, NULL);
+  window = g_object_new (MDK_TYPE_MAIN_WINDOW,
+                         "context", context,
+                         NULL);
   gtk_application_add_window (GTK_APPLICATION (app), GTK_WINDOW (window));
 
   g_signal_connect (context, "ready", G_CALLBACK (on_context_ready), app);
