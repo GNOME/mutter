@@ -3376,8 +3376,6 @@ ClutterActor *
 clutter_stage_get_event_actor (ClutterStage       *stage,
                                const ClutterEvent *event)
 {
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
   ClutterStagePrivate *priv;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
@@ -3420,10 +3418,16 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
     case CLUTTER_TOUCHPAD_HOLD:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
-      device = clutter_event_get_device (event);
-      sequence = clutter_event_get_event_sequence (event);
+      {
+        ClutterContext *context =
+          clutter_actor_get_context (CLUTTER_ACTOR (stage));
+        ClutterBackend *backend = clutter_context_get_backend (context);
+        ClutterSprite *sprite;
 
-      return clutter_stage_get_device_actor (stage, device, sequence);
+        sprite = clutter_backend_get_sprite (backend, stage, event);
+
+        return clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
+      }
     case CLUTTER_DEVICE_ADDED:
     case CLUTTER_DEVICE_REMOVED:
     case CLUTTER_NOTHING:
