@@ -36,6 +36,7 @@ gboolean clutter_focus_set_current_actor (ClutterFocus       *focus,
                                           ClutterInputDevice *source_device,
                                           uint32_t            time_ms);
 
+CLUTTER_EXPORT
 ClutterActor * clutter_focus_get_current_actor (ClutterFocus *focus);
 
 void clutter_focus_propagate_event (ClutterFocus       *focus,
