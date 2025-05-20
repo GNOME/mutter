@@ -69,3 +69,7 @@ void meta_xwayland_protocol_to_stage (MetaXWaylandManager *manager,
                                       MtkRoundingStrategy  rounding_strategy);
 
 int meta_xwayland_get_x11_ui_scaling_factor (MetaXWaylandManager *manager);
+
+const char * meta_xwayland_get_public_display_name (MetaXWaylandManager *manager);
+
+const char * meta_xwayland_get_xauthority (MetaXWaylandManager *manager);

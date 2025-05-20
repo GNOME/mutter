@@ -1463,3 +1463,15 @@ meta_xwayland_get_x11_ui_scaling_factor (MetaXWaylandManager *manager)
 
   g_assert_not_reached ();
 }
+
+const char *
+meta_xwayland_get_public_display_name (MetaXWaylandManager *manager)
+{
+  return manager->public_connection.name;
+}
+
+const char *
+meta_xwayland_get_xauthority (MetaXWaylandManager *manager)
+{
+  return manager->auth_file;
+}
