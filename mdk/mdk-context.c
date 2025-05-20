@@ -119,9 +119,9 @@ mdk_context_set_property (GObject      *object,
 
 static void
 mdk_context_get_property (GObject    *object,
-                           guint       prop_id,
-                           GValue     *value,
-                           GParamSpec *pspec)
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
 {
   MdkContext *context = MDK_CONTEXT (object);
 
