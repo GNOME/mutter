@@ -142,8 +142,8 @@ MetaBackend * meta_seat_native_get_backend (MetaSeatNative *seat);
 
 void meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
                                               MetaPointerConstraintImpl *constraint_impl);
-MetaCursorRenderer * meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat,
-                                                                    ClutterInputDevice *device);
+MetaCursorRenderer * meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative *seat,
+                                                                    ClutterSprite  *sprite);
 
 void meta_seat_native_set_viewports (MetaSeatNative   *seat,
                                      MetaViewportInfo *viewports);

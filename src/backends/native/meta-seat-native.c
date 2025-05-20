@@ -765,9 +765,13 @@ meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
 }
 
 MetaCursorRenderer *
-meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
-                                               ClutterInputDevice *device)
+meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative *seat_native,
+                                               ClutterSprite  *sprite)
 {
+  ClutterInputDevice *device;
+
+  device = clutter_sprite_get_device (sprite);
+
   if (device == seat_native->core_pointer)
     {
       if (!seat_native->cursor_renderer)
@@ -776,7 +780,7 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
 
           cursor_renderer_native =
             meta_cursor_renderer_native_new (seat_native->backend,
-                                             seat_native->core_pointer);
+                                             sprite);
           seat_native->cursor_renderer =
             META_CURSOR_RENDERER (cursor_renderer_native);
         }
@@ -803,7 +807,7 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
       if (!cursor_renderer)
         {
           cursor_renderer = meta_cursor_renderer_new (seat_native->backend,
-                                                      device);
+                                                      sprite);
           g_hash_table_insert (seat_native->tablet_cursors,
                                device, cursor_renderer);
         }

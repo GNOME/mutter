@@ -40,12 +40,11 @@ meta_sprite_x11_nested_update_from_event (ClutterFocus       *focus,
                                           const ClutterEvent *event)
 {
   ClutterSprite *sprite = CLUTTER_SPRITE (focus);
-  ClutterInputDevice *device = clutter_sprite_get_device (sprite);
   MetaBackend *backend = meta_sprite_get_backend (META_SPRITE (focus));
   MetaCursorRenderer *cursor_renderer;
 
   cursor_renderer =
-    meta_backend_get_cursor_renderer_for_device (backend, device);
+    meta_backend_get_cursor_renderer_for_sprite (backend, sprite);
   if (cursor_renderer)
     meta_cursor_renderer_update_position (cursor_renderer);
 }

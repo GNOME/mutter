@@ -231,6 +231,9 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
+  ClutterBackend *clutter_backend;
+  ClutterSprite *clutter_sprite;
+  ClutterStage *stage;
   g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
   MetaCursorRenderer *cursor_renderer;
 
@@ -242,8 +245,15 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
 
   cursor_sprite =
     META_CURSOR_SPRITE (meta_cursor_sprite_xcursor_new (cursor, cursor_tracker));
+
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  clutter_sprite = clutter_backend_lookup_sprite (clutter_backend,
+                                                  stage,
+                                                  drag_grab->device,
+                                                  drag_grab->sequence);
   cursor_renderer =
-    meta_backend_get_cursor_renderer_for_device (backend, drag_grab->device);
+    meta_backend_get_cursor_renderer_for_sprite (backend, clutter_sprite);
 
   if (cursor_renderer && cursor_sprite)
     {

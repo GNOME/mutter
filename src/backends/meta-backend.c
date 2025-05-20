@@ -343,50 +343,29 @@ init_pointer_position (MetaBackend *backend)
 }
 
 static gboolean
-should_have_cursor_renderer (ClutterInputDevice *device)
+update_cursor_foreach_cb (ClutterStage  *stage,
+                          ClutterSprite *sprite,
+                          gpointer       user_data)
 {
-  switch (clutter_input_device_get_device_type (device))
-    {
-    case CLUTTER_POINTER_DEVICE:
-      if (clutter_input_device_get_device_mode (device) ==
-          CLUTTER_INPUT_MODE_LOGICAL)
-        return TRUE;
+  MetaBackend *backend = user_data;
+  MetaCursorRenderer *cursor_renderer;
 
-      return FALSE;
-    case CLUTTER_TABLET_DEVICE:
-      return TRUE;
-    default:
-      return FALSE;
-    }
+  cursor_renderer = meta_backend_get_cursor_renderer_for_sprite (backend,
+                                                                 sprite);
+  if (cursor_renderer)
+    meta_cursor_renderer_force_update (cursor_renderer);
+
+  return TRUE;
 }
 
 static void
 update_cursors (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterSeat *seat = priv->default_seat;
-  MetaCursorRenderer *cursor_renderer;
-  ClutterInputDevice *pointer, *device;
-  GList *devices, *l;
 
-  pointer = clutter_seat_get_pointer (seat);
-  devices = clutter_seat_list_devices (seat);
-  devices = g_list_prepend (devices, pointer);
-
-  for (l = devices; l; l = l->next)
-    {
-      device = l->data;
-
-      if (!should_have_cursor_renderer (device))
-        continue;
-
-      cursor_renderer = meta_backend_get_cursor_renderer_for_device (backend,
-                                                                     device);
-      if (cursor_renderer)
-        meta_cursor_renderer_force_update (cursor_renderer);
-    }
-
-  g_list_free (devices);
+  clutter_stage_pointing_input_foreach (CLUTTER_STAGE (priv->stage),
+                                        update_cursor_foreach_cb,
+                                        backend);
 }
 
 void
@@ -1610,27 +1589,25 @@ MetaCursorRenderer *
 meta_backend_get_cursor_renderer (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterInputDevice *pointer;
+  ClutterBackend *clutter_backend;
+  ClutterSprite *sprite;
 
-  if (!priv->default_seat)
-    return NULL;
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  sprite = clutter_backend_get_pointer_sprite (clutter_backend,
+                                               CLUTTER_STAGE (priv->stage));
 
-  pointer = clutter_seat_get_pointer (priv->default_seat);
-
-  return meta_backend_get_cursor_renderer_for_device (backend, pointer);
+  return meta_backend_get_cursor_renderer_for_sprite (backend, sprite);
 }
 
 MetaCursorRenderer *
-meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
-                                             ClutterInputDevice *device)
+meta_backend_get_cursor_renderer_for_sprite (MetaBackend   *backend,
+                                             ClutterSprite *sprite)
 {
   g_return_val_if_fail (META_IS_BACKEND (backend), NULL);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_type (device) !=
-                        CLUTTER_KEYBOARD_DEVICE, NULL);
+  g_return_val_if_fail (CLUTTER_IS_SPRITE (sprite), NULL);
 
   return META_BACKEND_GET_CLASS (backend)->get_cursor_renderer (backend,
-                                                                device);
+                                                                sprite);
 }
 
 MetaRenderer *

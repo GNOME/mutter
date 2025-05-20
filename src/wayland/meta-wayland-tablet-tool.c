@@ -906,11 +906,18 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
     case CLUTTER_PROXIMITY_IN:
       if (!tool->cursor_renderer)
         {
+          MetaBackend *backend = backend_from_tool (tool);
+          ClutterBackend *clutter_backend =
+            meta_backend_get_clutter_backend (backend);
+          ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
           MetaCursorRenderer *renderer;
+          ClutterSprite *sprite;
 
+          sprite = clutter_backend_get_sprite (clutter_backend,
+                                               stage,
+                                               event);
           renderer =
-            meta_backend_get_cursor_renderer_for_device (backend_from_tool (tool),
-                                                         clutter_event_get_source_device (event));
+            meta_backend_get_cursor_renderer_for_sprite (backend, sprite);
           g_set_object (&tool->cursor_renderer, renderer);
         }
       tool->current_tablet =

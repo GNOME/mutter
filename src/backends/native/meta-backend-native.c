@@ -264,14 +264,14 @@ meta_backend_native_create_color_manager (MetaBackend *backend)
 }
 
 static MetaCursorRenderer *
-meta_backend_native_get_cursor_renderer (MetaBackend        *backend,
-                                         ClutterInputDevice *device)
+meta_backend_native_get_cursor_renderer (MetaBackend   *backend,
+                                         ClutterSprite *sprite)
 {
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat_native =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
-  return meta_seat_native_maybe_ensure_cursor_renderer (seat_native, device);
+  return meta_seat_native_maybe_ensure_cursor_renderer (seat_native, sprite);
 }
 
 static MetaRenderer *

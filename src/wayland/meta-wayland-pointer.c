@@ -1297,13 +1297,14 @@ pointer_set_cursor (struct wl_client *client,
   if (surface)
     {
       MetaBackend *backend = backend_from_pointer (pointer);
-      ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-      ClutterSeat *clutter_seat =
-        clutter_backend_get_default_seat (clutter_backend);
-      ClutterInputDevice *device = clutter_seat_get_pointer (clutter_seat);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterSprite *clutter_sprite =
+        clutter_backend_get_pointer_sprite (clutter_backend, stage);
       MetaCursorRenderer *cursor_renderer =
-        meta_backend_get_cursor_renderer_for_device (backend_from_pointer (pointer),
-                                                     device);
+        meta_backend_get_cursor_renderer_for_sprite (backend,
+                                                     clutter_sprite);
       MetaWaylandCursorSurface *cursor_surface;
       MetaCursorSprite *cursor_sprite;
 

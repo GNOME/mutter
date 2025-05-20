@@ -148,6 +148,27 @@ ensure_sprite (ClutterBackend     *clutter_backend,
   return sprite;
 }
 
+static void
+ensure_pointer_sprite (ClutterBackend *clutter_backend)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
+  if (!clutter_backend_native->pointer_sprite)
+    {
+      MetaBackend *backend = clutter_backend_native->backend;
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+      clutter_backend_native->pointer_sprite =
+        g_object_new (META_TYPE_SPRITE_NATIVE,
+                      "backend", backend,
+                      "stage", stage,
+                      "device", clutter_seat_get_pointer (seat),
+                      NULL);
+    }
+}
+
 static ClutterSprite *
 meta_clutter_backend_native_get_sprite (ClutterBackend     *clutter_backend,
                                         ClutterStage       *stage,
@@ -224,6 +245,8 @@ meta_clutter_backend_native_get_pointer_sprite (ClutterBackend *clutter_backend,
 {
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
+  ensure_pointer_sprite (clutter_backend);
 
   return clutter_backend_native->pointer_sprite;
 }

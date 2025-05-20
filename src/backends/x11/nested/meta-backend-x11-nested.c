@@ -62,8 +62,8 @@ meta_backend_x11_nested_create_monitor_manager (MetaBackend *backend,
 }
 
 static MetaCursorRenderer *
-meta_backend_x11_nested_get_cursor_renderer (MetaBackend        *backend,
-                                             ClutterInputDevice *device)
+meta_backend_x11_nested_get_cursor_renderer (MetaBackend   *backend,
+                                             ClutterSprite *sprite)
 {
   MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (backend);
 
@@ -72,7 +72,7 @@ meta_backend_x11_nested_get_cursor_renderer (MetaBackend        *backend,
       backend_x11_nested->cursor_renderer =
         g_object_new (META_TYPE_CURSOR_RENDERER_X11_NESTED,
                       "backend", backend,
-                      "device", device,
+                      "sprite", sprite,
                       NULL);
     }
 

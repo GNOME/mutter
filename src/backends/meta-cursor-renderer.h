@@ -53,8 +53,8 @@ struct _MetaCursorRendererClass
                               MetaCursorSprite   *cursor_sprite);
 };
 
-MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend        *backend,
-                                               ClutterInputDevice *device);
+MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend   *backend,
+                                               ClutterSprite *sprite);
 
 void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
                                       MetaCursorSprite   *cursor_sprite);
@@ -72,7 +72,8 @@ void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite,
                                         ClutterStageView   *stage_view,
                                         int64_t             view_frame_counter);
-ClutterInputDevice * meta_cursor_renderer_get_input_device (MetaCursorRenderer *renderer);
+
+ClutterSprite * meta_cursor_renderer_get_sprite (MetaCursorRenderer *renderer);
 
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 MetaCursorSprite   *cursor_sprite);

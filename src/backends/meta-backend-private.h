@@ -94,8 +94,8 @@ struct _MetaBackendClass
 
   MetaBackendCapabilities (* get_capabilities) (MetaBackend *backend);
 
-  MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend        *backend,
-                                                ClutterInputDevice *device);
+  MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend   *backend,
+                                                ClutterSprite *sprite);
 
   MetaInputSettings * (* get_input_settings) (MetaBackend *backend);
 
@@ -182,8 +182,8 @@ META_EXPORT_TEST
 MetaUdev * meta_backend_get_udev (MetaBackend *backend);
 #endif
 
-MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
-                                                                  ClutterInputDevice *device);
+MetaCursorRenderer * meta_backend_get_cursor_renderer_for_sprite (MetaBackend   *backend,
+                                                                  ClutterSprite *sprite);
 META_EXPORT_TEST
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
 META_EXPORT_TEST

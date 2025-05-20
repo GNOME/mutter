@@ -1601,8 +1601,8 @@ on_prepare_shutdown (MetaContext              *context,
 }
 
 MetaCursorRendererNative *
-meta_cursor_renderer_native_new (MetaBackend        *backend,
-                                 ClutterInputDevice *device)
+meta_cursor_renderer_native_new (MetaBackend   *backend,
+                                 ClutterSprite *sprite)
 {
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -1615,7 +1615,7 @@ meta_cursor_renderer_native_new (MetaBackend        *backend,
 
   cursor_renderer_native = g_object_new (META_TYPE_CURSOR_RENDERER_NATIVE,
                                          "backend", backend,
-                                         "device", device,
+                                         "sprite", sprite,
                                          NULL);
   priv =
     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);

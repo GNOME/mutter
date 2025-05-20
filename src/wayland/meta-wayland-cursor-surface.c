@@ -208,6 +208,7 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   ClutterInputDevice *device;
+  ClutterSprite *sprite;
   graphene_point_t point;
   graphene_rect_t logical_monitor_rect;
 
@@ -217,7 +218,8 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
   logical_monitor_rect =
     mtk_rectangle_to_graphene_rect (&logical_monitor->rect);
 
-  device = meta_cursor_renderer_get_input_device (priv->cursor_renderer);
+  sprite = meta_cursor_renderer_get_sprite (priv->cursor_renderer);
+  device = clutter_sprite_get_device (sprite);
   clutter_seat_query_state (clutter_input_device_get_seat (device),
                             device, NULL, &point, NULL);
 
@@ -238,12 +240,14 @@ meta_wayland_cursor_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole 
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   ClutterInputDevice *device;
+  ClutterSprite *sprite;
   graphene_point_t point;
 
   if (!priv->cursor_renderer)
     return FALSE;
 
-  device = meta_cursor_renderer_get_input_device (priv->cursor_renderer);
+  sprite = meta_cursor_renderer_get_sprite (priv->cursor_renderer);
+  device = clutter_sprite_get_device (sprite);
   clutter_seat_query_state (clutter_input_device_get_seat (device),
                             device, NULL, &point, NULL);
 
