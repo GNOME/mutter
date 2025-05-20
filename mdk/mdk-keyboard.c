@@ -23,8 +23,6 @@
 
 #include "mdk-stream.h"
 
-#include "mdk-dbus-remote-desktop.h"
-
 struct _MdkKeyboard
 {
   MdkDevice parent;

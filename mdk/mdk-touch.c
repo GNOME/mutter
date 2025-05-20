@@ -24,8 +24,6 @@
 #include "mdk-monitor.h"
 #include "mdk-stream.h"
 
-#include "mdk-dbus-remote-desktop.h"
-
 struct _MdkTouch
 {
   MdkDevice parent;
