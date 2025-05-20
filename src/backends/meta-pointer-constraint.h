@@ -60,8 +60,7 @@ struct _MetaPointerConstraintImplClass
                       float                      prev_y,
                       float                     *x,
                       float                     *y);
-  void (* ensure_constrained) (MetaPointerConstraintImpl *constraint_impl,
-                               ClutterInputDevice        *device);
+  void (* ensure_constrained) (MetaPointerConstraintImpl *constraint_impl);
 };
 
 void meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constraint_impl,
@@ -70,7 +69,6 @@ void meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constrai
                                              float                      prev_y,
                                              float                     *x,
                                              float                     *y);
-void meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl *constraint_impl,
-                                                      ClutterInputDevice        *device);
+void meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl *constraint_impl);
 
 G_END_DECLS

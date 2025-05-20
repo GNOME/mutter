@@ -450,6 +450,7 @@ meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
       min_edge_distance =
         meta_pointer_constraint_get_min_edge_distance (constraint);
       constraint_impl = meta_pointer_constraint_impl_native_new (constraint,
+                                                                 seat,
                                                                  region,
                                                                  origin,
                                                                  min_edge_distance);

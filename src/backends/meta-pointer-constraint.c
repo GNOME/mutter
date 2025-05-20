@@ -149,9 +149,7 @@ meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constraint_im
 }
 
 void
-meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl *constraint_impl,
-                                                 ClutterInputDevice        *device)
+meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl *constraint_impl)
 {
-  META_POINTER_CONSTRAINT_IMPL_GET_CLASS (constraint_impl)->ensure_constrained (constraint_impl,
-                                                                                device);
+  META_POINTER_CONSTRAINT_IMPL_GET_CLASS (constraint_impl)->ensure_constrained (constraint_impl);
 }

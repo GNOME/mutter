@@ -33,6 +33,7 @@ struct _MetaPointerConstraintImplNative
 {
   MetaPointerConstraintImpl parent;
   MetaPointerConstraint *constraint;
+  ClutterSeat *seat;
   MtkRegion *region;
   graphene_point_t origin;
   double min_edge_distance;
@@ -593,12 +594,11 @@ closest_point_behind_border (MetaBorder *border,
 }
 
 static void
-meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImpl *constraint_impl,
-                                                        ClutterInputDevice        *device)
+meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImpl *constraint_impl)
 {
   MetaPointerConstraintImplNative *constraint_impl_native;
-  graphene_point_t point;
   ClutterSeat *seat;
+  graphene_point_t point;
   g_autoptr (MtkRegion) region = NULL;
   float x;
   float y;
@@ -606,10 +606,12 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
   float rel_y;
 
   constraint_impl_native = META_POINTER_CONSTRAINT_IMPL_NATIVE (constraint_impl);
+  seat = constraint_impl_native->seat;
   region = mtk_region_ref (constraint_impl_native->region);
 
-  seat = clutter_input_device_get_seat (device);
-  clutter_seat_query_state (seat, device, NULL, &point, NULL);
+  clutter_seat_query_state (seat,
+                            clutter_seat_get_pointer (seat),
+                            NULL, &point, NULL);
   x = point.x;
   y = point.y;
   rel_x = x - constraint_impl_native->origin.x;
@@ -690,6 +692,7 @@ meta_pointer_constraint_impl_native_class_init (MetaPointerConstraintImplNativeC
 
 MetaPointerConstraintImpl *
 meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint,
+                                         ClutterSeat           *seat,
                                          const MtkRegion       *region,
                                          graphene_point_t       origin,
                                          double                 min_edge_distance)
@@ -699,6 +702,7 @@ meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint,
   constraint_impl = g_object_new (META_TYPE_POINTER_CONSTRAINT_IMPL_NATIVE,
                                   NULL);
   constraint_impl->constraint = constraint;
+  constraint_impl->seat = seat;
   constraint_impl->region = mtk_region_copy (region);
   constraint_impl->min_edge_distance = min_edge_distance;
   constraint_impl->origin = origin;

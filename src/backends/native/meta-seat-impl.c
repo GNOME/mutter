@@ -3968,10 +3968,7 @@ set_pointer_constraint (GTask *task)
     return G_SOURCE_REMOVE;
 
   if (constraint_impl)
-    {
-      meta_pointer_constraint_impl_ensure_constrained (constraint_impl,
-                                                       seat_impl->core_pointer);
-    }
+    meta_pointer_constraint_impl_ensure_constrained (constraint_impl);
 
   g_task_return_boolean (task, TRUE);
 

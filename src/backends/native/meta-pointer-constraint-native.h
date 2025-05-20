@@ -36,6 +36,7 @@ G_DECLARE_FINAL_TYPE (MetaPointerConstraintImplNative,
                       MetaPointerConstraintImpl)
 
 MetaPointerConstraintImpl * meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint_impl,
+                                                                     ClutterSeat           *seat,
                                                                      const MtkRegion       *region,
                                                                      graphene_point_t       origin,
                                                                      double                 min_edge_distance);
