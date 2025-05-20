@@ -226,16 +226,14 @@ on_bus_acquired (GDBusConnection *connection,
   MetaIdleManager *manager = user_data;
   GDBusObjectManagerServer *object_manager;
   MetaIdleMonitor *monitor;
-  char *path;
 
   object_manager = g_dbus_object_manager_server_new ("/org/gnome/Mutter/IdleMonitor");
 
   /* We never clear the core monitor, as that's supposed to cumulate idle times from
      all devices */
   monitor = meta_idle_manager_get_core_monitor (manager);
-  path = g_strdup ("/org/gnome/Mutter/IdleMonitor/Core");
-  create_monitor_skeleton (object_manager, monitor, path);
-  g_free (path);
+  create_monitor_skeleton (object_manager, monitor,
+                           "/org/gnome/Mutter/IdleMonitor/Core");
 
   g_dbus_object_manager_server_set_connection (object_manager, connection);
 }
