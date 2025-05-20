@@ -35,6 +35,8 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MdkWindowPrivate
 {
   MdkContext *context;
+
+  gboolean is_system_shortcuts_inhibited;
 } MdkWindowPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MdkWindow, mdk_window, GTK_TYPE_APPLICATION_WINDOW)
@@ -88,6 +90,60 @@ mdk_window_get_property (GObject    *object,
 }
 
 static void
+sync_system_shortcut_inhibitation (MdkWindow *window)
+{
+  MdkWindowPrivate *priv = mdk_window_get_instance_private (window);
+  gboolean should_inhibit_system_shortcuts;
+  GtkNative *native;
+  GdkSurface *surface;
+
+  should_inhibit_system_shortcuts =
+    mdk_context_get_inhibit_system_shortcuts (priv->context) &&
+    gtk_widget_is_visible (GTK_WIDGET (window));
+
+  if (priv->is_system_shortcuts_inhibited == should_inhibit_system_shortcuts)
+    return;
+
+  priv->is_system_shortcuts_inhibited = should_inhibit_system_shortcuts;
+
+  native = gtk_widget_get_native (GTK_WIDGET (window));
+  surface = gtk_native_get_surface (native);
+
+  if (should_inhibit_system_shortcuts)
+    gdk_toplevel_inhibit_system_shortcuts (GDK_TOPLEVEL (surface), NULL);
+  else
+    gdk_toplevel_restore_system_shortcuts (GDK_TOPLEVEL (surface));
+}
+
+static void
+on_inhibit_system_shortcuts_changed (MdkContext *context,
+                                     GParamSpec *pspec,
+                                     MdkWindow  *window)
+{
+  sync_system_shortcut_inhibitation (window);
+}
+
+static void
+on_show (MdkWindow *window)
+{
+  sync_system_shortcut_inhibitation (window);
+}
+
+static void
+mdk_window_constructed (GObject *object)
+{
+  MdkWindow *window = MDK_WINDOW (object);
+  MdkWindowPrivate *priv = mdk_window_get_instance_private (window);
+
+  g_signal_connect (window, "show", G_CALLBACK (on_show), NULL);
+  g_signal_connect (priv->context, "notify::inhibit-system-shortcuts",
+                    G_CALLBACK (on_inhibit_system_shortcuts_changed),
+                    window);
+
+  G_OBJECT_CLASS (mdk_window_parent_class)->constructed (object);
+}
+
+static void
 mdk_window_class_init (MdkWindowClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -96,6 +152,7 @@ mdk_window_class_init (MdkWindowClass *klass)
   object_class->dispose = mdk_window_dispose;
   object_class->set_property = mdk_window_set_property;
   object_class->get_property = mdk_window_get_property;
+  object_class->constructed = mdk_window_constructed;
 
   gtk_widget_class_set_template_from_resource (widget_class,
                                                "/ui/mdk-window.ui");

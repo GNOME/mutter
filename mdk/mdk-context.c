@@ -20,6 +20,7 @@
 #include "mdk-context.h"
 
 #include <gio/gio.h>
+#include <gtk/gtk.h>
 #include <stdio.h>
 
 #include "mdk-pipewire.h"
@@ -31,6 +32,7 @@ enum
   PROP_0,
 
   PROP_EMULATE_TOUCH,
+  PROP_INHIBIT_SYSTEM_SHORTCUTS,
 
   N_PROPS
 };
@@ -56,6 +58,7 @@ struct _MdkContext
   MdkSession *session;
 
   gboolean emulate_touch;
+  gboolean inhibit_system_shortcuts;
 };
 
 G_DEFINE_FINAL_TYPE (MdkContext, mdk_context, G_TYPE_OBJECT)
@@ -111,6 +114,9 @@ mdk_context_set_property (GObject      *object,
     case PROP_EMULATE_TOUCH:
       mdk_context_set_emulate_touch (context, g_value_get_boolean (value));
       break;
+    case PROP_INHIBIT_SYSTEM_SHORTCUTS:
+      context->inhibit_system_shortcuts = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -129,6 +135,9 @@ mdk_context_get_property (GObject    *object,
     {
     case PROP_EMULATE_TOUCH:
       g_value_set_boolean (value, context->emulate_touch);
+      break;
+    case PROP_INHIBIT_SYSTEM_SHORTCUTS:
+      g_value_set_boolean (value, context->inhibit_system_shortcuts);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -157,6 +166,11 @@ mdk_context_class_init (MdkContextClass *klass)
 
   obj_props[PROP_EMULATE_TOUCH] =
     g_param_spec_boolean ("emulate-touch", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_INHIBIT_SYSTEM_SHORTCUTS] =
+    g_param_spec_boolean ("inhibit-system-shortcuts", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);
@@ -275,4 +289,10 @@ gboolean
 mdk_context_get_emulate_touch (MdkContext *context)
 {
   return context->emulate_touch;
+}
+
+gboolean
+mdk_context_get_inhibit_system_shortcuts (MdkContext *context)
+{
+  return context->inhibit_system_shortcuts;
 }

@@ -9,6 +9,10 @@
             <attribute name="label" translatable="yes">_Emulate touch</attribute>
             <attribute name="action">app.toggle_emulate_touch</attribute>
           </item>
+          <item>
+            <attribute name="label" translatable="yes">_Inhibit system shortcuts</attribute>
+            <attribute name="action">app.toggle_inhibit_system_shortcuts</attribute>
+          </item>
         </submenu>
       </section>
       <item>

@@ -225,6 +225,7 @@ main (int    argc,
   static GActionEntry app_entries[] = {
     { "about", activate_about, NULL, NULL, NULL },
     { "toggle_emulate_touch", .state = "false", },
+    { "toggle_inhibit_system_shortcuts", .state = "false", },
   };
 
   if (should_load_libadwaita ())
@@ -243,6 +244,8 @@ main (int    argc,
 
   bind_action_to_property (app, "toggle_emulate_touch",
                            context, "emulate-touch");
+  bind_action_to_property (app, "toggle_inhibit_system_shortcuts",
+                           context, "inhibit-system-shortcuts");
 
   g_signal_connect (app, "startup", G_CALLBACK (startup), NULL);
   g_signal_connect (app, "activate", G_CALLBACK (activate), context);
