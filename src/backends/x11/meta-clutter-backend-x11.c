@@ -196,6 +196,17 @@ meta_clutter_backend_x11_lookup_sprite (ClutterBackend       *clutter_backend,
   return lookup_sprite (clutter_backend, stage, device, sequence, FALSE);
 }
 
+static ClutterSprite *
+meta_clutter_backend_x11_get_pointer_sprite (ClutterBackend *clutter_backend,
+                                             ClutterStage   *stage)
+{
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+  return lookup_sprite (clutter_backend, stage,
+                        clutter_seat_get_pointer (seat),
+                        NULL, TRUE);
+}
+
 static void
 meta_clutter_backend_x11_destroy_sprite (ClutterBackend *clutter_backend,
                                          ClutterSprite  *sprite)
@@ -225,6 +236,7 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->is_display_server = meta_clutter_backend_x11_is_display_server;
   clutter_backend_class->get_sprite = meta_clutter_backend_x11_get_sprite;
   clutter_backend_class->lookup_sprite = meta_clutter_backend_x11_lookup_sprite;
+  clutter_backend_class->get_pointer_sprite = meta_clutter_backend_x11_get_pointer_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_x11_destroy_sprite;
 }
 

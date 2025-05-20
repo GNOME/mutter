@@ -608,6 +608,22 @@ clutter_backend_lookup_sprite (ClutterBackend       *backend,
 }
 
 /**
+ * clutter_backend_get_pointer_sprite:
+ * @backend: a #ClutterBackend
+ * @stage: a #ClutterStage
+ *
+ * Gets the on-screen sprite typically considered "the pointer"
+ *
+ * Returns: (transfer none): The "pointer" sprite
+ */
+ClutterSprite *
+clutter_backend_get_pointer_sprite (ClutterBackend *backend,
+                                    ClutterStage   *stage)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_pointer_sprite (backend, stage);
+}
+
+/**
  * clutter_backend_destroy_sprite: (skip)
  */
 void

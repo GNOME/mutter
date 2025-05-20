@@ -89,6 +89,9 @@ struct _ClutterBackendClass
                                      ClutterInputDevice   *device,
                                      ClutterEventSequence *sequence);
 
+  ClutterSprite * (* get_pointer_sprite) (ClutterBackend *backend,
+                                          ClutterStage   *stage);
+
   void (* destroy_sprite) (ClutterBackend *backend,
                            ClutterSprite  *sprite);
 

@@ -217,6 +217,16 @@ meta_clutter_backend_native_lookup_sprite (ClutterBackend       *clutter_backend
   return NULL;
 }
 
+static ClutterSprite *
+meta_clutter_backend_native_get_pointer_sprite (ClutterBackend *clutter_backend,
+                                                ClutterStage   *stage)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
+  return clutter_backend_native->pointer_sprite;
+}
+
 static void
 meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
                                             ClutterSprite  *sprite)
@@ -279,6 +289,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
   clutter_backend_class->get_sprite = meta_clutter_backend_native_get_sprite;
   clutter_backend_class->lookup_sprite = meta_clutter_backend_native_lookup_sprite;
+  clutter_backend_class->get_pointer_sprite = meta_clutter_backend_native_get_pointer_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_native_destroy_sprite;
 }
 
