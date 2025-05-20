@@ -1085,6 +1085,16 @@ if have_remote_desktop
   ]
 endif
 
+if have_devkit
+  dbus_interfaces += [
+    {
+      'name': 'meta-dbus-devkit',
+      'interface': 'org.gnome.Mutter.Devkit.xml',
+      'prefix': 'org.gnome.Mutter.',
+    },
+  ]
+endif
+
 dbus_interfaces += [
   {
     'name': 'meta-dbus-rtkit1',
