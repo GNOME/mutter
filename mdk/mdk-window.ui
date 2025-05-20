@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <template class="MdkWindow" parent="GtkApplicationWindow"/>
+  <template class="MdkWindow" parent="GtkApplicationWindow">
+    <property name="resizable">no</property>
+  </template>
 </interface>
