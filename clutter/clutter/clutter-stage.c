@@ -1175,17 +1175,13 @@ static void
 on_seat_unfocus_inhibited_changed (ClutterStage *stage,
                                    ClutterSeat  *seat)
 {
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterInputDevice *device;
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterSprite *sprite;
   graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
-  device = clutter_seat_get_pointer (seat);
-
-  sprite = g_hash_table_lookup (priv->pointer_devices, device);
-  if (!sprite)
-    return;
-
+  sprite = clutter_backend_get_pointer_sprite (backend, stage);
   point = clutter_sprite_get_coords (sprite);
   clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
                                         CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
@@ -3012,8 +3008,7 @@ clutter_stage_pick_and_update_sprite (ClutterStage             *stage,
   ClutterActor *new_actor = NULL;
   MtkRegion *clear_area = NULL;
 
-  if (clutter_sprite_get_sequence (sprite) ||
-      clutter_sprite_get_device (sprite) != clutter_seat_get_pointer (seat) ||
+  if (sprite != clutter_backend_get_pointer_sprite (backend, stage) ||
       clutter_seat_is_unfocus_inhibited (seat))
     {
       if ((flags & CLUTTER_DEVICE_UPDATE_IGNORE_CACHE) == 0)
