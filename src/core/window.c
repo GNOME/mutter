@@ -7620,17 +7620,17 @@ meta_window_set_opacity (MetaWindow *window,
 static gboolean
 window_has_pointer_wayland (MetaWindow *window)
 {
-  ClutterSeat *seat;
-  ClutterInputDevice *dev;
+  ClutterBackend *clutter_backend;
   ClutterStage *stage;
   ClutterActor *pointer_actor, *window_actor;
   ClutterContext *context;
+  ClutterSprite *sprite;
 
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend_from_window (window)));
   context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
-  seat = clutter_backend_get_default_seat (clutter_context_get_backend (context));
-  dev = clutter_seat_get_pointer (seat);
-  pointer_actor = clutter_stage_get_device_actor (stage, dev, NULL);
+  clutter_backend = clutter_context_get_backend (context);
+  sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
+  pointer_actor = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
   window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
 
   return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);
