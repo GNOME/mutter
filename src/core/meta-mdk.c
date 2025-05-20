@@ -163,10 +163,10 @@ meta_mdk_new (MetaContext  *context,
 
   g_signal_connect_object (remote_desktop, "enabled",
                            G_CALLBACK (maybe_launch_devkit),
-                           mdk, 0);
+                           mdk, G_CONNECT_DEFAULT);
   g_signal_connect_object (screen_cast, "enabled",
                            G_CALLBACK (maybe_launch_devkit),
-                           mdk, 0);
+                           mdk, G_CONNECT_DEFAULT);
 
   return g_steal_pointer (&mdk);
 }
