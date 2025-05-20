@@ -142,7 +142,6 @@ static void
 startup (GApplication *app)
 {
   GdkDisplay *display = gdk_display_get_default ();
-  g_autoptr (GtkBuilder) builder = NULL;
   g_autoptr (GtkCssProvider) provider = NULL;
 
   provider = gtk_css_provider_new ();
