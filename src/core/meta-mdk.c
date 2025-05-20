@@ -20,9 +20,10 @@
 
 #include "config.h"
 
+#include "core/meta-mdk.h"
+
 #include "backends/meta-remote-desktop.h"
 #include "backends/meta-screen-cast.h"
-#include "core/meta-mdk.h"
 
 static const char * const devkit_path =
   MUTTER_LIBEXECDIR "/mutter-devkit";
