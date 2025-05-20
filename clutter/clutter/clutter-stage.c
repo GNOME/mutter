@@ -2958,39 +2958,6 @@ clutter_stage_remove_device_entry (ClutterStage         *self,
   g_assert (removed);
 }
 
-/**
- * clutter_stage_get_device_actor:
- * @stage: a #ClutterStage
- * @device: a #ClutterInputDevice
- * @sequence: (allow-none): an optional #ClutterEventSequence
- *
- * Retrieves the [class@Clutter.Actor] underneath the pointer or touch point
- * of @device and @sequence.
- *
- * Returns: (transfer none) (nullable): a pointer to the #ClutterActor or %NULL
- */
-ClutterActor *
-clutter_stage_get_device_actor (ClutterStage         *stage,
-                                ClutterInputDevice   *device,
-                                ClutterEventSequence *sequence)
-{
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
-  ClutterSprite *sprite = NULL;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
-  g_return_val_if_fail (device != NULL, NULL);
-
-  if (sequence != NULL)
-    sprite = g_hash_table_lookup (priv->touch_sequences, sequence);
-  else
-    sprite = g_hash_table_lookup (priv->pointer_devices, device);
-
-  if (sprite)
-    return clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
-
-  return NULL;
-}
-
 static void
 clutter_stage_pick_and_update_sprite (ClutterStage             *stage,
                                       ClutterSprite            *sprite,

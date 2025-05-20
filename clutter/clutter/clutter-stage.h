@@ -209,10 +209,6 @@ ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
                                               float         y);
 
 CLUTTER_EXPORT
-ClutterActor * clutter_stage_get_device_actor (ClutterStage         *stage,
-                                               ClutterInputDevice   *device,
-                                               ClutterEventSequence *sequence);
-CLUTTER_EXPORT
 ClutterActor * clutter_stage_get_event_actor (ClutterStage       *stage,
                                               const ClutterEvent *event);
 
