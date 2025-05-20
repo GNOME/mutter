@@ -1,5 +1,6 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
+#include <clutter/clutter-mutter.h>
 #include <string.h>
 
 #include "tests/clutter-test-utils.h"
@@ -190,6 +191,8 @@ input_cb (ClutterActor *actor,
           gpointer      data)
 {
   ClutterActor *stage = clutter_actor_get_stage (actor);
+  ClutterContext *context = clutter_actor_get_context (actor);
+  ClutterBackend *backend = clutter_context_get_backend (context);
   ClutterActor *source_actor;
   graphene_point_t position;
   gchar *state;
@@ -197,6 +200,7 @@ input_cb (ClutterActor *actor,
   ClutterInputDevice *device, *source;
   const gchar *device_name, *source_name = NULL;
   ClutterEventType event_type;
+  ClutterSprite *sprite;
 
   device = clutter_event_get_device (event);
   device_name = clutter_input_device_get_device_name (device);
@@ -211,9 +215,8 @@ input_cb (ClutterActor *actor,
     }
   else
     {
-      source_actor = clutter_stage_get_device_actor (CLUTTER_STAGE (stage),
-                                                     device,
-                                                     clutter_event_get_event_sequence (event));
+      sprite = clutter_backend_get_sprite (backend, CLUTTER_STAGE (stage), event);
+      source_actor = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
     }
 
   source = clutter_event_get_source_device (event);

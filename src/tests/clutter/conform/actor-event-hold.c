@@ -65,10 +65,12 @@ static void
 actor_event_hold (void)
 {
   ClutterActor *stage;
+  ClutterContext *context;
+  ClutterBackend *backend;
   ClutterSeat *seat;
+  ClutterSprite *sprite;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
-  ClutterInputDevice *device;
   ClutterEvent *event;
   ClutterEvent *captured_event;
   size_t n_test_case;
@@ -90,8 +92,12 @@ actor_event_hold (void)
                                                        now_us,
                                                        1.0, 1.0);
 
-  device = clutter_seat_get_pointer (seat);
-  while (clutter_stage_get_device_actor (CLUTTER_STAGE (stage), device, NULL) == NULL)
+  context = clutter_actor_get_context (stage);
+  backend = clutter_context_get_backend (context);
+
+  sprite = clutter_backend_get_pointer_sprite (backend, CLUTTER_STAGE (stage));
+
+  while (clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)) == NULL)
     g_main_context_iteration (NULL, FALSE);
 
   for (n_test_case = 0; n_test_case < G_N_ELEMENTS (test_cases); n_test_case++)
@@ -107,7 +113,7 @@ actor_event_hold (void)
       /* Create a synthetic hold event */
       event = clutter_event_touchpad_hold_new (CLUTTER_EVENT_NONE,
                                                EVENT_TIME,
-                                               device,
+                                               clutter_seat_get_pointer (seat),
                                                test_case->phase,
                                                test_case->n_fingers,
                                                GRAPHENE_POINT_INIT (test_case->x,
