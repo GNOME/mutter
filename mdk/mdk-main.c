@@ -24,6 +24,9 @@
 #include "mdk-monitor.h"
 
 typedef void (* AdwaitaInitFunc) (void);
+typedef void (* AdwaitaShowAboutFunc) (GtkWindow *parent_window, const char *first_property, ...);
+
+static GModule *libadwaita = NULL;
 
 static gboolean
 should_load_libadwaita (void)
@@ -41,7 +44,6 @@ should_load_libadwaita (void)
 static void
 load_libadwaita (void)
 {
-  GModule *libadwaita;
   AdwaitaInitFunc adw_init;
 
   libadwaita = g_module_open ("libadwaita-1.so.0", G_MODULE_BIND_LAZY);
@@ -60,22 +62,51 @@ activate_about (GSimpleAction *action,
                 gpointer       user_data)
 {
   GtkApplication *app = user_data;
+  static AdwaitaShowAboutFunc adw_show_about_dialog = NULL;
+  GtkWindow *parent_window;
   const char *authors[] = {
     _("The Mutter Team"),
     NULL
   };
 
-  gtk_show_about_dialog (GTK_WINDOW (gtk_application_get_active_window (app)),
-                         "program-name", _("Mutter Development Kit"),
-                         "version", VERSION,
-                         "copyright", "© 2001—2025 The Mutter Team",
-                         "license-type", GTK_LICENSE_GPL_2_0,
-                         "website", "http://mutter.gnome.org",
-                         "comments", _("Mutter software development kit"),
-                         "authors", authors,
-                         "logo-icon-name", "org.gnome.Mutter.Mdk",
-                         "title", _("About Mutter Development Kit"),
-                         NULL);
+  parent_window = GTK_WINDOW (gtk_application_get_active_window (app));
+
+  if (libadwaita != NULL && adw_show_about_dialog == NULL)
+    {
+      g_module_symbol (libadwaita,
+                       "adw_show_about_dialog",
+                       (gpointer *) &adw_show_about_dialog);
+    }
+
+  if (adw_show_about_dialog)
+    {
+      adw_show_about_dialog (parent_window,
+                             "application-name", _("Mutter Development Kit"),
+                             "version", VERSION,
+                             "copyright", "© 2001—2025 The Mutter Team",
+                             "license-type", GTK_LICENSE_GPL_2_0,
+                             "website", "http://mutter.gnome.org",
+                             "issue-url", "http://gitlab.gnome.org/GNOME/mutter/-/issues",
+                             "comments", _("Mutter software development kit"),
+                             "developers", authors,
+                             "application-icon", "org.gnome.Mutter.Mdk",
+                             "title", _("About Mutter Development Kit"),
+                             NULL);
+    }
+  else
+    {
+      gtk_show_about_dialog (GTK_WINDOW (gtk_application_get_active_window (app)),
+                             "program-name", _("Mutter Development Kit"),
+                             "version", VERSION,
+                             "copyright", "© 2001—2025 The Mutter Team",
+                             "license-type", GTK_LICENSE_GPL_2_0,
+                             "website", "http://mutter.gnome.org",
+                             "comments", _("Mutter software development kit"),
+                             "authors", authors,
+                             "logo-icon-name", "org.gnome.Mutter.Mdk",
+                             "title", _("About Mutter Development Kit"),
+                             NULL);
+    }
 }
 
 static void
