@@ -72,8 +72,7 @@ typedef struct _DndCandidateDevice DndCandidateDevice;
 struct _DndCandidateDevice
 {
   MetaWaylandSeat *seat;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterSprite *sprite;
   MetaWaylandSurface *focus;
   graphene_point_t pos;
 };
@@ -687,14 +686,15 @@ meta_x11_drag_dest_update (MetaWaylandDataDevice *data_device,
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
   MetaWaylandDragGrab *drag_grab = compositor->seat->data_device.current_grab;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterSprite *sprite;
   graphene_point_t pos;
 
-  device = meta_wayland_drag_grab_get_device (drag_grab, &sequence);
+  sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device, sequence, &pos, NULL);
+  clutter_seat_query_state (seat->clutter_seat,
+                            clutter_sprite_get_device (sprite),
+                            clutter_sprite_get_sequence (sprite),
+                            &pos, NULL);
   xdnd_send_position (dnd, dnd->dnd_dest,
                       clutter_get_current_event_time (),
                       (int) pos.x, (int) pos.y);
@@ -857,14 +857,11 @@ drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
                               gpointer                 user_data)
 {
   MetaWaylandDragGrab *drag_grab = user_data;
-  ClutterInputDevice *drag_device;
-  ClutterEventSequence *drag_sequence;
+  ClutterSprite *drag_sprite;
 
-  drag_device = meta_wayland_drag_grab_get_device (drag_grab, &drag_sequence);
+  drag_sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
-  if (!CLUTTER_IS_SPRITE (focus) ||
-      drag_sequence != clutter_sprite_get_sequence (CLUTTER_SPRITE (focus)) ||
-      drag_device != clutter_sprite_get_device (CLUTTER_SPRITE (focus)))
+  if (!CLUTTER_IS_SPRITE (focus) || drag_sprite != CLUTTER_SPRITE (focus))
     return NULL;
 
   return meta_wayland_drag_grab_get_origin (drag_grab);
@@ -894,12 +891,16 @@ drag_xgrab_motion (MetaWaylandEventHandler *handler,
   MetaWaylandSeat *seat = meta_wayland_drag_grab_get_seat (drag_grab);
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
-  ClutterInputDevice *device;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSprite *sprite;
 
-  device = meta_wayland_drag_grab_get_device (drag_grab, NULL);
+  sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
   if (clutter_event_type (event) != CLUTTER_MOTION ||
-      device != clutter_event_get_device (event))
+      sprite != clutter_backend_get_sprite (clutter_backend, stage, event))
     return CLUTTER_EVENT_STOP;
 
   repick_drop_surface (compositor, drag_grab, event);
@@ -918,12 +919,16 @@ drag_xgrab_release (MetaWaylandEventHandler *handler,
   MetaWaylandSeat *seat = meta_wayland_drag_grab_get_seat (drag_grab);
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaWaylandDataSource *data_source;
-  ClutterInputDevice *device;
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSprite *sprite;
 
-  device = meta_wayland_drag_grab_get_device (drag_grab, NULL);
+  sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
   if (clutter_event_type (event) != CLUTTER_BUTTON_RELEASE ||
-      device != clutter_event_get_device (event))
+      sprite != clutter_backend_get_sprite (clutter_backend, stage, event))
     return CLUTTER_EVENT_STOP;
 
   data_source = compositor->seat->data_device.dnd_data_source;
@@ -1073,17 +1078,18 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
         }
       else if (event->message_type == xdnd_atoms[ATOM_DND_POSITION])
         {
-          ClutterInputDevice *device;
-          ClutterEventSequence *sequence;
+          ClutterSprite *sprite;
           graphene_point_t pos;
           uint32_t action = 0;
 
           dnd->client_message_timestamp = event->data.l[3];
 
-          device = meta_wayland_drag_grab_get_device (drag_grab, &sequence);
+          sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
-          clutter_seat_query_state (clutter_input_device_get_seat (device),
-                                    device, sequence, &pos, NULL);
+          clutter_seat_query_state (seat->clutter_seat,
+                                    clutter_sprite_get_device (sprite),
+                                    clutter_sprite_get_sequence (sprite),
+                                    &pos, NULL);
 
           action = atom_to_action ((Atom) event->data.l[4]);
           meta_wayland_data_source_set_user_action (dnd->source, action);
@@ -1144,8 +1150,7 @@ find_dnd_candidate_device (ClutterStage  *stage,
   if (!focus || !meta_wayland_surface_is_xwayland (focus))
     return TRUE;
 
-  candidate->device = device;
-  candidate->sequence = sequence;
+  candidate->sprite = sprite;
   candidate->pos = pos;
   candidate->focus = focus;
 
@@ -1185,8 +1190,7 @@ meta_xwayland_dnd_handle_xfixes_selection_notify (MetaWaylandCompositor *composi
                                            &xdnd_event_interface,
                                            candidate.focus, dnd->source,
                                            NULL,
-                                           candidate.device,
-                                           candidate.sequence,
+                                           candidate.sprite,
                                            candidate.pos);
     }
   else if (event->owner == None)

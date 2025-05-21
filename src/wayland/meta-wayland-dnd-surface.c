@@ -26,8 +26,7 @@
 struct _MetaWaylandSurfaceRoleDND
 {
   MetaWaylandActorSurface parent;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterSprite *sprite;
   int32_t pending_offset_x;
   int32_t pending_offset_y;
 };
@@ -35,8 +34,7 @@ struct _MetaWaylandSurfaceRoleDND
 enum
 {
   PROP_0,
-  PROP_DEVICE,
-  PROP_EVENT_SEQUENCE,
+  PROP_SPRITE,
   N_PROPS,
 };
 
@@ -57,11 +55,8 @@ dnd_surface_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_DEVICE:
-      surface_role_dnd->device = g_value_get_object (value);
-      break;
-    case PROP_EVENT_SEQUENCE:
-      surface_role_dnd->sequence = g_value_get_boxed (value);
+    case PROP_SPRITE:
+      surface_role_dnd->sprite = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -80,11 +75,8 @@ dnd_surface_get_property (GObject    *object,
 
   switch (prop_id)
     {
-    case PROP_DEVICE:
-      g_value_set_object (value, surface_role_dnd->device);
-      break;
-    case PROP_EVENT_SEQUENCE:
-      g_value_set_boxed (value, surface_role_dnd->sequence);
+    case PROP_SPRITE:
+      g_value_set_object (value, surface_role_dnd->sprite);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -169,12 +161,15 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
      meta_backend_get_monitor_manager (backend);
-  ClutterSeat *seat =
-    clutter_input_device_get_seat (surface_role_dnd->device);
+  ClutterSprite *sprite = surface_role_dnd->sprite;
+  ClutterInputDevice *device = clutter_sprite_get_device (sprite);
+  ClutterSeat *seat = clutter_input_device_get_seat (device);
   graphene_point_t point;
 
-  if (!clutter_seat_query_state (seat, surface_role_dnd->device,
-                                 surface_role_dnd->sequence, &point, NULL))
+  if (!clutter_seat_query_state (seat,
+                                 clutter_sprite_get_device (sprite),
+                                 clutter_sprite_get_sequence (sprite),
+                                 &point, NULL))
     return NULL;
 
   return meta_monitor_manager_get_logical_monitor_at (monitor_manager,
@@ -258,18 +253,12 @@ meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
   actor_surface_class->get_geometry_scale = dnd_subsurface_get_geometry_scale;
   actor_surface_class->sync_actor_state = dnd_subsurface_sync_actor_state;
 
-  props[PROP_DEVICE] =
-    g_param_spec_object ("device", NULL, NULL,
-                         CLUTTER_TYPE_INPUT_DEVICE,
+  props[PROP_SPRITE] =
+    g_param_spec_object ("sprite", NULL, NULL,
+                         CLUTTER_TYPE_SPRITE,
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
-  props[PROP_EVENT_SEQUENCE] =
-    g_param_spec_boxed ("event-sequence", NULL, NULL,
-                        CLUTTER_TYPE_EVENT_SEQUENCE,
-                        G_PARAM_CONSTRUCT_ONLY |
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }

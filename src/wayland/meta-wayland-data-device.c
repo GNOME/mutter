@@ -144,8 +144,7 @@ create_and_send_dnd_offer (MetaWaylandDataSource *source,
 struct _MetaWaylandDragGrab {
   MetaWaylandEventHandler *handler;
 
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterSprite *sprite;
 
   MetaWaylandSeat        *seat;
   struct wl_client       *drag_client;
@@ -231,9 +230,6 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
-  ClutterBackend *clutter_backend;
-  ClutterSprite *clutter_sprite;
-  ClutterStage *stage;
   g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
   MetaCursorRenderer *cursor_renderer;
 
@@ -246,14 +242,8 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
   cursor_sprite =
     META_CURSOR_SPRITE (meta_cursor_sprite_xcursor_new (cursor, cursor_tracker));
 
-  clutter_backend = meta_backend_get_clutter_backend (backend);
-  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-  clutter_sprite = clutter_backend_lookup_sprite (clutter_backend,
-                                                  stage,
-                                                  drag_grab->device,
-                                                  drag_grab->sequence);
   cursor_renderer =
-    meta_backend_get_cursor_renderer_for_sprite (backend, clutter_sprite);
+    meta_backend_get_cursor_renderer_for_sprite (backend, drag_grab->sprite);
 
   if (cursor_renderer && cursor_sprite)
     {
@@ -425,14 +415,10 @@ meta_wayland_drag_grab_get_seat (MetaWaylandDragGrab *drag_grab)
   return drag_grab->seat;
 }
 
-ClutterInputDevice *
-meta_wayland_drag_grab_get_device (MetaWaylandDragGrab    *drag_grab,
-                                   ClutterEventSequence  **sequence)
+ClutterSprite *
+meta_wayland_drag_grab_get_sprite (MetaWaylandDragGrab *drag_grab)
 {
-  if (sequence)
-    *sequence = drag_grab->sequence;
-
-  return drag_grab->device;
+  return drag_grab->sprite;
 }
 
 MetaWaylandSurface *
@@ -516,9 +502,7 @@ drag_grab_get_focus_surface (MetaWaylandEventHandler *handler,
 {
   MetaWaylandDragGrab *drag_grab = user_data;
 
-  if (!CLUTTER_IS_SPRITE (focus) ||
-      drag_grab->device != clutter_sprite_get_device (CLUTTER_SPRITE (focus)) ||
-      drag_grab->sequence != clutter_sprite_get_sequence (CLUTTER_SPRITE (focus)))
+  if (!CLUTTER_IS_SPRITE (focus) || drag_grab->sprite != CLUTTER_SPRITE (focus))
     return NULL;
 
   return meta_wayland_seat_get_current_surface (drag_grab->seat, focus);
@@ -534,9 +518,7 @@ drag_grab_focus (MetaWaylandEventHandler *handler,
 
   meta_wayland_event_handler_chain_up_focus (handler, focus, NULL);
 
-  if (CLUTTER_IS_SPRITE (focus) &&
-      drag_grab->device == clutter_sprite_get_device (CLUTTER_SPRITE (focus)) &&
-      drag_grab->sequence == clutter_sprite_get_sequence (CLUTTER_SPRITE (focus)))
+  if (CLUTTER_IS_SPRITE (focus) && drag_grab->sprite == CLUTTER_SPRITE (focus))
     meta_wayland_drag_grab_set_focus (drag_grab, surface);
 }
 
@@ -580,11 +562,15 @@ drag_grab_motion (MetaWaylandEventHandler *handler,
     meta_wayland_seat_get_compositor (drag_grab->seat);
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterSprite *clutter_sprite;
   graphene_point_t point;
   uint32_t time_ms;
 
-  if (drag_grab->device != clutter_event_get_device (event) ||
-      drag_grab->sequence != clutter_event_get_event_sequence (event))
+  clutter_sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+
+  if (drag_grab->sprite != clutter_sprite)
     return CLUTTER_EVENT_STOP;
 
   clutter_event_get_position (event, &point);
@@ -611,11 +597,19 @@ drag_grab_release (MetaWaylandEventHandler *handler,
   MetaWaylandDragGrab *drag_grab = user_data;
   MetaWaylandSeat *seat = drag_grab->seat;
   MetaWaylandDataSource *source = drag_grab->drag_data_source;
+  MetaWaylandCompositor *compositor =
+    meta_wayland_seat_get_compositor (drag_grab->seat);
+  MetaContext *context = meta_wayland_compositor_get_context (compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterSprite *clutter_sprite;
   MetaWaylandToplevelDrag *toplevel_drag;
   gboolean success;
 
-  if (drag_grab->device != clutter_event_get_device (event) ||
-      drag_grab->sequence != clutter_event_get_event_sequence (event))
+  clutter_sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+
+  if (drag_grab->sprite != clutter_sprite)
     return CLUTTER_EVENT_STOP;
 
   if (__builtin_popcount (clutter_event_get_state (event) &
@@ -704,9 +698,9 @@ drag_grab_key (MetaWaylandEventHandler *handler,
       drag_grab->feedback_actor = NULL;
       data_device_end_drag_grab (drag_grab);
     }
-  else if (clutter_seat_query_state (clutter_input_device_get_seat (drag_grab->device),
-                                     drag_grab->device,
-                                     drag_grab->sequence,
+  else if (clutter_seat_query_state (drag_grab->seat->clutter_seat,
+                                     clutter_sprite_get_device (drag_grab->sprite),
+                                     clutter_sprite_get_sequence (drag_grab->sprite),
                                      NULL,
                                      &modifiers) &&
            drag_grab->drag_data_source &&
@@ -784,8 +778,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
                                      MetaWaylandSurface              *surface,
                                      MetaWaylandDataSource           *source,
                                      MetaWaylandSurface              *icon_surface,
-                                     ClutterInputDevice              *device,
-                                     ClutterEventSequence            *sequence,
+                                     ClutterSprite                   *sprite,
                                      graphene_point_t                 drag_start)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
@@ -802,8 +795,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
   drag_grab->drag_client = client;
   drag_grab->seat = seat;
 
-  drag_grab->device = device;
-  drag_grab->sequence = sequence;
+  drag_grab->sprite = sprite;
 
   drag_grab->drag_origin = surface;
   drag_grab->drag_origin_listener.notify = destroy_data_device_origin;
@@ -821,8 +813,10 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
 
   drag_grab->need_initial_focus = TRUE;
 
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device, sequence, &pos, &modifiers);
+  clutter_seat_query_state (seat->clutter_seat,
+                            clutter_sprite_get_device (sprite),
+                            clutter_sprite_get_sequence (sprite),
+                            &pos, &modifiers);
   drag_grab->buttons = modifiers &
     (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK | CLUTTER_BUTTON3_MASK |
      CLUTTER_BUTTON4_MASK | CLUTTER_BUTTON5_MASK);
@@ -889,8 +883,6 @@ data_device_start_drag (struct wl_client  *client,
   MetaWaylandDataSource *drag_source = NULL;
   MetaSelectionSource *selection_source;
   ClutterSprite *sprite;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
   float x, y;
 
   if (origin_resource)
@@ -907,9 +899,6 @@ data_device_start_drag (struct wl_client  *client,
                                         &x, &y))
     return;
 
-  device = clutter_sprite_get_device (sprite);
-  sequence = clutter_sprite_get_sequence (sprite);
-
   /* FIXME: Check that the data source type array isn't empty. */
 
   if (data_device->current_grab)
@@ -923,8 +912,7 @@ data_device_start_drag (struct wl_client  *client,
   if (icon_resource &&
       !meta_wayland_surface_assign_role (icon_surface,
                                          META_TYPE_WAYLAND_SURFACE_ROLE_DND,
-                                         "device", device,
-                                         "event-sequence", sequence,
+                                         "sprite", sprite,
                                          NULL))
     {
       wl_resource_post_error (resource, WL_DATA_DEVICE_ERROR_ROLE,
@@ -941,7 +929,7 @@ data_device_start_drag (struct wl_client  *client,
   meta_wayland_data_device_start_drag (data_device, client,
                                        &dnd_event_interface,
                                        surface, drag_source, icon_surface,
-                                       device, sequence,
+                                       sprite,
                                        GRAPHENE_POINT_INIT (x, y));
 }
 
@@ -987,9 +975,9 @@ meta_wayland_drag_dest_focus_in (MetaWaylandDataDevice *data_device,
       wl_data_offer_send_source_actions (resource, source_actions);
     }
 
-  clutter_seat_query_state (clutter_input_device_get_seat (grab->device),
-                            grab->device,
-                            grab->sequence,
+  clutter_seat_query_state (data_device->seat->clutter_seat,
+                            clutter_sprite_get_device (grab->sprite),
+                            clutter_sprite_get_sequence (grab->sprite),
                             &pos, NULL);
   meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y,
                                                  &pos.x, &pos.y);

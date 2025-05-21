@@ -81,8 +81,7 @@ void meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_
                                           MetaWaylandSurface              *surface,
                                           MetaWaylandDataSource           *source,
                                           MetaWaylandSurface              *icon_surface,
-                                          ClutterInputDevice              *device,
-                                          ClutterEventSequence            *sequence,
+                                          ClutterSprite                   *sprite,
                                           graphene_point_t                 drag_start);
 
 void     meta_wayland_data_device_end_drag       (MetaWaylandDataDevice                 *data_device);
@@ -97,8 +96,7 @@ MetaWaylandSurface *
 
 MetaWaylandSeat * meta_wayland_drag_grab_get_seat (MetaWaylandDragGrab *drag_grab);
 
-ClutterInputDevice * meta_wayland_drag_grab_get_device (MetaWaylandDragGrab    *drag_grab,
-                                                        ClutterEventSequence  **sequence);
+ClutterSprite * meta_wayland_drag_grab_get_sprite (MetaWaylandDragGrab *drag_grab);
 
 MetaWaylandSurface * meta_wayland_drag_grab_get_origin (MetaWaylandDragGrab *drag_grab);
 
