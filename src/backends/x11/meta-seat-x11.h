@@ -40,4 +40,6 @@ void meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
 void meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
                                    ClutterStage *stage);
 
+ClutterInputDevice * meta_seat_x11_get_core_pointer (MetaSeatX11 *seat_x11);
+
 G_END_DECLS

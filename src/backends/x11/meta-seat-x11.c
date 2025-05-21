@@ -1090,14 +1090,11 @@ emulate_motion (MetaSeatX11 *seat_x11,
                 double       x,
                 double       y)
 {
-  ClutterInputDevice *pointer;
   ClutterEvent *event;
-
-  pointer = clutter_seat_get_pointer (CLUTTER_SEAT (seat_x11));
 
   event = clutter_event_motion_new (CLUTTER_EVENT_FLAG_SYNTHETIC,
                                     CLUTTER_CURRENT_TIME,
-                                    pointer,
+                                    seat_x11->core_pointer,
                                     NULL, 0,
                                     GRAPHENE_POINT_INIT ((float) x, (float) y),
                                     GRAPHENE_POINT_INIT (0, 0),
@@ -2719,4 +2716,10 @@ meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
   XISelectEvents (xdisplay, stage_x11->xwin, &xi_event_mask, 1);
 
   g_free (mask);
+}
+
+ClutterInputDevice *
+meta_seat_x11_get_core_pointer (MetaSeatX11 *seat_x11)
+{
+  return seat_x11->core_pointer;
 }

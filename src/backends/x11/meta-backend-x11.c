@@ -1155,7 +1155,8 @@ meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11)
   MetaBackend *backend = META_BACKEND (backend_x11);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
+  ClutterInputDevice *pointer =
+    meta_seat_x11_get_core_pointer (META_SEAT_X11 (seat));
   ClutterModifierType modifiers;
   ClutterEvent *event;
   graphene_point_t pos;
