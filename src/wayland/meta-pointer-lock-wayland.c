@@ -58,14 +58,13 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  ClutterInputDevice *pointer = clutter_seat_get_pointer (seat);
   MetaPointerConstraint *constraint;
   graphene_point_t point;
   MtkRectangle rect;
   g_autoptr (MtkRegion) region = NULL;
   float sx, sy, x, y;
 
-  clutter_seat_query_state (seat, pointer, NULL, &point, NULL);
+  clutter_seat_query_state (seat, NULL, &point, NULL);
   wayland_constraint =
     meta_pointer_confinement_wayland_get_wayland_pointer_constraint (confinement);
   surface = meta_wayland_pointer_constraint_get_surface (wayland_constraint);

@@ -3507,7 +3507,7 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
     {
       if (coords)
         {
-          if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
+          if (device && clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
             meta_seat_impl_lookup_stylus_state (seat_impl, device, coords);
           else
             *coords = priv->pointer_state;

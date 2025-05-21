@@ -609,9 +609,7 @@ meta_pointer_constraint_impl_native_ensure_constrained (MetaPointerConstraintImp
   seat = constraint_impl_native->seat;
   region = mtk_region_ref (constraint_impl_native->region);
 
-  clutter_seat_query_state (seat,
-                            clutter_seat_get_pointer (seat),
-                            NULL, &point, NULL);
+  clutter_seat_query_state (seat, NULL, &point, NULL);
   x = point.x;
   y = point.y;
   rel_x = x - constraint_impl_native->origin.x;

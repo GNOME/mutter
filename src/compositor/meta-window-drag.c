@@ -1818,10 +1818,7 @@ meta_window_drag_begin (MetaWindowDrag      *window_drag,
       ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
       graphene_point_t pos;
 
-      clutter_seat_query_state (seat,
-                                clutter_sprite_get_device (sprite),
-                                clutter_sprite_get_sequence (sprite),
-                                &pos, NULL);
+      clutter_seat_query_state (seat, sprite, &pos, NULL);
       root_x = (int) pos.x;
       root_y = (int) pos.y;
     }

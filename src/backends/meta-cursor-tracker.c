@@ -526,9 +526,8 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  ClutterInputDevice *cdevice = clutter_seat_get_pointer (seat);
 
-  clutter_seat_query_state (seat, cdevice, NULL, coords, mods);
+  clutter_seat_query_state (seat, NULL, coords, mods);
 }
 
 void

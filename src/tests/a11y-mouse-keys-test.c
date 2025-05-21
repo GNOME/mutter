@@ -34,16 +34,13 @@ meta_test_a11y_mouse_keys (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
-  ClutterInputDevice *core_pointer;
   graphene_point_t initial_coords;
   graphene_point_t moved_coords;
 
   virtual_keyboard = clutter_seat_create_virtual_device (seat,
                                                          CLUTTER_KEYBOARD_DEVICE);
 
-  core_pointer = clutter_seat_get_pointer (seat);
-  g_assert_true (clutter_seat_query_state (seat, core_pointer,
-                                           NULL, &initial_coords, NULL));
+  g_assert_true (clutter_seat_query_state (seat, NULL, &initial_coords, NULL));
   clutter_virtual_input_device_notify_key (virtual_keyboard,
                                            g_get_monotonic_time (),
                                            KEY_KP6,
@@ -55,8 +52,7 @@ meta_test_a11y_mouse_keys (void)
   meta_flush_input (test_context);
   meta_wait_for_update (test_context);
 
-  g_assert_true (clutter_seat_query_state (seat, core_pointer,
-                                           NULL, &moved_coords, NULL));
+  g_assert_true (clutter_seat_query_state (seat, NULL, &moved_coords, NULL));
 
   g_assert_cmpfloat (initial_coords.x, !=, moved_coords.x);
   g_assert_cmpfloat (initial_coords.y, ==, moved_coords.y);

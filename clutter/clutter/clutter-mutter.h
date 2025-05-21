@@ -108,10 +108,9 @@ void clutter_backend_destroy_sprite (ClutterBackend *backend,
                                      ClutterSprite  *sprite);
 
 CLUTTER_EXPORT
-gboolean clutter_seat_query_state (ClutterSeat          *seat,
-                                   ClutterInputDevice   *device,
-                                   ClutterEventSequence *sequence,
-                                   graphene_point_t     *coords,
-                                   ClutterModifierType  *modifiers);
+gboolean clutter_seat_query_state (ClutterSeat         *seat,
+                                   ClutterSprite       *sprite,
+                                   graphene_point_t    *coords,
+                                   ClutterModifierType *modifiers);
 
 #undef __CLUTTER_H_INSIDE__

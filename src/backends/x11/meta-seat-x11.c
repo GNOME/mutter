@@ -1817,15 +1817,15 @@ translate_state (XIButtonState   *button_state,
 }
 
 static gboolean
-meta_seat_x11_query_state (ClutterSeat          *seat,
-                           ClutterInputDevice   *device,
-                           ClutterEventSequence *sequence,
-                           graphene_point_t     *coords,
-                           ClutterModifierType  *modifiers)
+meta_seat_x11_query_state (ClutterSeat         *seat,
+                           ClutterSprite       *sprite,
+                           graphene_point_t    *coords,
+                           ClutterModifierType *modifiers)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
   MetaBackendX11 *backend_x11 = META_BACKEND_X11 (seat_x11->backend);
   Display *xdisplay = xdisplay_from_seat (seat_x11);
+  ClutterEventSequence *sequence = NULL;
   Window root_ret, child_ret;
   double root_x, root_y, win_x, win_y;
   XIButtonState button_state = { 0 };
@@ -1844,6 +1844,9 @@ meta_seat_x11_query_state (ClutterSeat          *seat,
       g_free (button_state.mask);
       return FALSE;
     }
+
+  if (sprite)
+    sequence = clutter_sprite_get_sequence (sprite);
 
   if (sequence)
     {

@@ -207,7 +207,12 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
     META_WAYLAND_CURSOR_SURFACE (surface->role);
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
-  ClutterInputDevice *device;
+  MetaContext *context =
+    meta_wayland_compositor_get_context (surface->compositor);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   ClutterSprite *sprite;
   graphene_point_t point;
   graphene_rect_t logical_monitor_rect;
@@ -219,9 +224,7 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
     mtk_rectangle_to_graphene_rect (&logical_monitor->rect);
 
   sprite = meta_cursor_renderer_get_sprite (priv->cursor_renderer);
-  device = clutter_sprite_get_device (sprite);
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device, NULL, &point, NULL);
+  clutter_seat_query_state (seat, sprite, &point, NULL);
 
   return graphene_rect_contains_point (&logical_monitor_rect, &point);
 }
@@ -239,7 +242,9 @@ meta_wayland_cursor_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole 
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  ClutterInputDevice *device;
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   ClutterSprite *sprite;
   graphene_point_t point;
 
@@ -247,9 +252,7 @@ meta_wayland_cursor_surface_get_preferred_scale_monitor (MetaWaylandSurfaceRole 
     return FALSE;
 
   sprite = meta_cursor_renderer_get_sprite (priv->cursor_renderer);
-  device = clutter_sprite_get_device (sprite);
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device, NULL, &point, NULL);
+  clutter_seat_query_state (seat, sprite, &point, NULL);
 
   return meta_monitor_manager_get_logical_monitor_at (monitor_manager,
                                                       point.x,

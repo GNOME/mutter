@@ -234,15 +234,15 @@ meta_test_input_capture_zones (void)
 }
 
 static void
-assert_pointer_position (ClutterSeat *seat,
-                         double       x,
-                         double       y)
+assert_pointer_position (MetaBackend *backend,
+                         double          x,
+                         double          y)
 {
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   graphene_point_t pos;
 
-  clutter_seat_query_state (seat,
-                            clutter_seat_get_pointer (seat),
-                            NULL, &pos, NULL);
+  clutter_seat_query_state (seat, NULL, &pos, NULL);
 
   g_assert_cmpfloat_with_epsilon (pos.x, x, DBL_EPSILON);
   g_assert_cmpfloat_with_epsilon (pos.y, y, DBL_EPSILON);
@@ -283,7 +283,7 @@ meta_test_input_capture_barriers (void)
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
 
-  assert_pointer_position (seat, 0.0, 15.0);
+  assert_pointer_position (backend, 0.0, 15.0);
 
   input_capture_test_client_write_state (test_client, "1");
   input_capture_test_client_wait_for_state (test_client, "2");
@@ -291,14 +291,14 @@ meta_test_input_capture_barriers (void)
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
 
-  assert_pointer_position (seat, 200.0, 150.0);
+  assert_pointer_position (backend, 200.0, 150.0);
 
   clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        800.0, 300.0);
   meta_flush_input (test_context);
 
-  assert_pointer_position (seat, 1000.0, 450.0);
+  assert_pointer_position (backend, 1000.0, 450.0);
 
   clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
@@ -306,7 +306,7 @@ meta_test_input_capture_barriers (void)
 
   input_capture_test_client_wait_for_state (test_client, "3");
   meta_flush_input (test_context);
-  assert_pointer_position (seat, 1200.0, 700.0);
+  assert_pointer_position (backend, 1200.0, 700.0);
 
   input_capture_test_client_finish (test_client);
 }
@@ -336,7 +336,7 @@ meta_test_input_capture_clear_barriers (void)
                                                        -20.0, 0.0);
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
-  assert_pointer_position (seat, 0.0, 10.0);
+  assert_pointer_position (backend, 0.0, 10.0);
 
   input_capture_test_client_wait_for_state (test_client, "2");
 
@@ -345,7 +345,7 @@ meta_test_input_capture_clear_barriers (void)
                                                        10.0, 10.0);
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
-  assert_pointer_position (seat, 10.0, 20.0);
+  assert_pointer_position (backend, 10.0, 20.0);
 
   input_capture_test_client_write_state (test_client, "1");
   input_capture_test_client_finish (test_client);
@@ -378,14 +378,14 @@ meta_test_input_capture_cancel_keybinding (void)
                                                        -20.0, 0.0);
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
-  assert_pointer_position (seat, 0.0, 10.0);
+  assert_pointer_position (backend, 0.0, 10.0);
 
   clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        10.0, 10.0);
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
-  assert_pointer_position (seat, 0.0, 10.0);
+  assert_pointer_position (backend, 0.0, 10.0);
 
   clutter_virtual_input_device_notify_key (virtual_keyboard,
                                            g_get_monotonic_time (),
@@ -421,7 +421,7 @@ meta_test_input_capture_cancel_keybinding (void)
 
   meta_flush_input (test_context);
   meta_wait_for_paint (test_context);
-  assert_pointer_position (seat, 10.0, 20.0);
+  assert_pointer_position (backend, 10.0, 20.0);
 
   input_capture_test_client_write_state (test_client, "1");
 

@@ -153,9 +153,7 @@ meta_test_remote_desktop_change_viewport (void)
 
   meta_flush_input (test_context);
 
-  clutter_seat_query_state (seat,
-                            clutter_seat_get_pointer (seat),
-                            NULL, &pos, NULL);
+  clutter_seat_query_state (seat, NULL, &pos, NULL);
 
   g_assert_cmpfloat_with_epsilon (pos.x, 1.0f, DBL_EPSILON);
   g_assert_cmpfloat_with_epsilon (pos.y, 1.0f, DBL_EPSILON);

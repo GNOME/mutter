@@ -3119,23 +3119,17 @@ nearest_device_func (ClutterStage  *stage,
                      ClutterSprite *sprite,
                      gpointer       user_data)
 {
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *clutter_backend = clutter_context_get_backend (context);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   NearestDeviceData *data = user_data;
   graphene_point_t point;
   ClutterModifierType mods;
   const int nearest_threshold = 64;
 
-  device = clutter_sprite_get_device (sprite);
-  sequence = clutter_sprite_get_sequence (sprite);
+  clutter_seat_query_state (seat, sprite, &point, &mods);
 
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device,
-                            sequence,
-                            &point,
-                            &mods);
-
-  if (!sequence)
+  if (!clutter_sprite_get_sequence (sprite))
     {
       ClutterModifierType accepted_buttons = 0;
       ClutterModifierType mask =

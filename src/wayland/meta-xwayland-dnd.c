@@ -691,10 +691,7 @@ meta_x11_drag_dest_update (MetaWaylandDataDevice *data_device,
 
   sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
-  clutter_seat_query_state (seat->clutter_seat,
-                            clutter_sprite_get_device (sprite),
-                            clutter_sprite_get_sequence (sprite),
-                            &pos, NULL);
+  clutter_seat_query_state (seat->clutter_seat, sprite, &pos, NULL);
   xdnd_send_position (dnd, dnd->dnd_dest,
                       clutter_get_current_event_time (),
                       (int) pos.x, (int) pos.y);
@@ -1086,10 +1083,7 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
 
           sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
-          clutter_seat_query_state (seat->clutter_seat,
-                                    clutter_sprite_get_device (sprite),
-                                    clutter_sprite_get_sequence (sprite),
-                                    &pos, NULL);
+          clutter_seat_query_state (seat->clutter_seat, sprite, &pos, NULL);
 
           action = atom_to_action ((Atom) event->data.l[4]);
           meta_wayland_data_source_set_user_action (dnd->source, action);
@@ -1123,20 +1117,15 @@ find_dnd_candidate_device (ClutterStage  *stage,
                            ClutterSprite *sprite,
                            gpointer       user_data)
 {
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
   DndCandidateDevice *candidate = user_data;
   graphene_point_t pos;
   ClutterModifierType modifiers;
   MetaWaylandSurface *focus;
 
-  device = clutter_sprite_get_device (sprite);
-  sequence = clutter_sprite_get_sequence (sprite);
+  clutter_seat_query_state (candidate->seat->clutter_seat,
+                            sprite, &pos, &modifiers);
 
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device, sequence, &pos, &modifiers);
-
-  if (sequence)
+  if (clutter_sprite_get_sequence (sprite))
     return TRUE;
 
   if ((modifiers &

@@ -1517,11 +1517,9 @@ query_cursor_position_in_kms_impl (float    *x,
                                    gpointer  user_data)
 {
   ClutterSeat *seat = user_data;
-  ClutterInputDevice *device;
   graphene_point_t position;
 
-  device = clutter_seat_get_pointer (seat);
-  clutter_seat_query_state (seat, device, NULL, &position, NULL);
+  clutter_seat_query_state (seat, NULL, &position, NULL);
   *x = position.x;
   *y = position.y;
 }

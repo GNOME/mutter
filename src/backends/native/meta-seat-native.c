@@ -366,15 +366,23 @@ meta_seat_native_init_pointer_position (ClutterSeat *seat,
 }
 
 static gboolean
-meta_seat_native_query_state (ClutterSeat          *seat,
-                              ClutterInputDevice   *device,
-                              ClutterEventSequence *sequence,
-                              graphene_point_t     *coords,
-                              ClutterModifierType  *modifiers)
+meta_seat_native_query_state (ClutterSeat         *seat,
+                              ClutterSprite       *sprite,
+                              graphene_point_t    *coords,
+                              ClutterModifierType *modifiers)
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  ClutterStage *stage =
+    CLUTTER_STAGE (meta_backend_get_stage (seat_native->backend));
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (seat_native->backend);
 
-  return meta_seat_impl_query_state (seat_native->impl, device, sequence,
+  if (sprite == clutter_backend_get_pointer_sprite (clutter_backend, stage))
+    sprite = NULL;
+
+  return meta_seat_impl_query_state (seat_native->impl,
+                                     sprite ? clutter_sprite_get_device (sprite) : NULL,
+                                     sprite ? clutter_sprite_get_sequence (sprite) : NULL,
                                      coords, modifiers);
 }
 

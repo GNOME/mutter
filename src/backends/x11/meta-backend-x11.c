@@ -1160,7 +1160,7 @@ meta_backend_x11_sync_pointer (MetaBackendX11 *backend_x11)
   ClutterEvent *event;
   graphene_point_t pos;
 
-  clutter_seat_query_state (seat, pointer, NULL, &pos, &modifiers);
+  clutter_seat_query_state (seat, NULL, &pos, &modifiers);
 
   event = clutter_event_motion_new (CLUTTER_EVENT_FLAG_SYNTHETIC,
                                     CLUTTER_CURRENT_TIME,

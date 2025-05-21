@@ -542,12 +542,14 @@ meta_cursor_renderer_force_update (MetaCursorRenderer *renderer)
 void
 meta_cursor_renderer_update_position (MetaCursorRenderer *renderer)
 {
-  MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
-  ClutterInputDevice *device = clutter_sprite_get_device (priv->sprite);
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (priv->backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   graphene_point_t pos;
 
-  clutter_seat_query_state (clutter_input_device_get_seat (device),
-                            device, NULL, &pos, NULL);
+  clutter_seat_query_state (seat, priv->sprite, &pos, NULL);
   priv->current_x = pos.x;
   priv->current_y = pos.y;
 

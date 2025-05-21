@@ -723,18 +723,16 @@ clutter_seat_has_touchscreen (ClutterSeat *seat)
  * clutter_seat_query_state: (skip)
  **/
 gboolean
-clutter_seat_query_state (ClutterSeat          *seat,
-                          ClutterInputDevice   *device,
-                          ClutterEventSequence *sequence,
-                          graphene_point_t     *coords,
-                          ClutterModifierType  *modifiers)
+clutter_seat_query_state (ClutterSeat         *seat,
+                          ClutterSprite       *sprite,
+                          graphene_point_t    *coords,
+                          ClutterModifierType *modifiers)
 {
   g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
+  g_return_val_if_fail (!sprite || CLUTTER_IS_SPRITE (sprite), FALSE);
 
   return CLUTTER_SEAT_GET_CLASS (seat)->query_state (seat,
-                                                     device,
-                                                     sequence,
+                                                     sprite,
                                                      coords,
                                                      modifiers);
 }

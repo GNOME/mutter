@@ -161,15 +161,12 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
      meta_backend_get_monitor_manager (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSprite *sprite = surface_role_dnd->sprite;
-  ClutterInputDevice *device = clutter_sprite_get_device (sprite);
-  ClutterSeat *seat = clutter_input_device_get_seat (device);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   graphene_point_t point;
 
-  if (!clutter_seat_query_state (seat,
-                                 clutter_sprite_get_device (sprite),
-                                 clutter_sprite_get_sequence (sprite),
-                                 &point, NULL))
+  if (!clutter_seat_query_state (seat, sprite, &point, NULL))
     return NULL;
 
   return meta_monitor_manager_get_logical_monitor_at (monitor_manager,

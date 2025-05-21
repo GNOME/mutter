@@ -94,11 +94,10 @@ struct _ClutterSeatClass
                                   float        x,
                                   float        y);
 
-  gboolean (* query_state) (ClutterSeat          *seat,
-                            ClutterInputDevice   *device,
-                            ClutterEventSequence *sequence,
-                            graphene_point_t     *coords,
-                            ClutterModifierType  *modifiers);
+  gboolean (* query_state) (ClutterSeat         *seat,
+                            ClutterSprite       *sprite,
+                            graphene_point_t    *coords,
+                            ClutterModifierType *modifiers);
 
   ClutterGrabState (* grab) (ClutterSeat *seat,
                              uint32_t     time);

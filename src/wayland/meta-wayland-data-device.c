@@ -699,8 +699,7 @@ drag_grab_key (MetaWaylandEventHandler *handler,
       data_device_end_drag_grab (drag_grab);
     }
   else if (clutter_seat_query_state (drag_grab->seat->clutter_seat,
-                                     clutter_sprite_get_device (drag_grab->sprite),
-                                     clutter_sprite_get_sequence (drag_grab->sprite),
+                                     drag_grab->sprite,
                                      NULL,
                                      &modifiers) &&
            drag_grab->drag_data_source &&
@@ -813,9 +812,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
 
   drag_grab->need_initial_focus = TRUE;
 
-  clutter_seat_query_state (seat->clutter_seat,
-                            clutter_sprite_get_device (sprite),
-                            clutter_sprite_get_sequence (sprite),
+  clutter_seat_query_state (seat->clutter_seat, sprite,
                             &pos, &modifiers);
   drag_grab->buttons = modifiers &
     (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK | CLUTTER_BUTTON3_MASK |
@@ -976,8 +973,7 @@ meta_wayland_drag_dest_focus_in (MetaWaylandDataDevice *data_device,
     }
 
   clutter_seat_query_state (data_device->seat->clutter_seat,
-                            clutter_sprite_get_device (grab->sprite),
-                            clutter_sprite_get_sequence (grab->sprite),
+                            grab->sprite,
                             &pos, NULL);
   meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y,
                                                  &pos.x, &pos.y);

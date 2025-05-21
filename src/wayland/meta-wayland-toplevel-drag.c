@@ -427,10 +427,7 @@ meta_wayland_toplevel_drag_calc_origin_for_dragged_window (MetaWaylandToplevelDr
     return FALSE;
 
   sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
-  clutter_seat_query_state (seat->clutter_seat,
-                            clutter_sprite_get_device (sprite),
-                            clutter_sprite_get_sequence (sprite),
-                            &coords, NULL);
+  clutter_seat_query_state (seat->clutter_seat, sprite, &coords, NULL);
 
   meta_topic (META_DEBUG_WAYLAND,
               "Calculated position for the dragged window. "
