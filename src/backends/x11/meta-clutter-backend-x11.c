@@ -221,6 +221,24 @@ meta_clutter_backend_x11_destroy_sprite (ClutterBackend *clutter_backend,
     g_clear_object (&priv->virtual_core_pointer);
 }
 
+static gboolean
+meta_clutter_backend_x11_foreach_sprite (ClutterBackend               *clutter_backend,
+                                         ClutterStage                 *stage,
+                                         ClutterStageInputForeachFunc  func,
+                                         gpointer                      user_data)
+{
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (clutter_backend);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+
+  if (priv->virtual_core_pointer &&
+      !func (stage, priv->virtual_core_pointer, user_data))
+    return FALSE;
+
+  return TRUE;
+}
+
 static ClutterKeyFocus *
 meta_clutter_backend_x11_get_key_focus (ClutterBackend *clutter_backend,
                                         ClutterStage   *stage)
@@ -259,6 +277,7 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->lookup_sprite = meta_clutter_backend_x11_lookup_sprite;
   clutter_backend_class->get_pointer_sprite = meta_clutter_backend_x11_get_pointer_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_x11_destroy_sprite;
+  clutter_backend_class->foreach_sprite = meta_clutter_backend_x11_foreach_sprite;
   clutter_backend_class->get_key_focus = meta_clutter_backend_x11_get_key_focus;
 }
 

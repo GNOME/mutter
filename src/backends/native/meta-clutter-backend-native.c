@@ -267,6 +267,40 @@ meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
     g_clear_object (&clutter_backend_native->pointer_sprite);
 }
 
+static gboolean
+meta_clutter_backend_native_foreach_sprite (ClutterBackend               *clutter_backend,
+                                            ClutterStage                 *stage,
+                                            ClutterStageInputForeachFunc  func,
+                                            gpointer                      user_data)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  GHashTableIter iter;
+  ClutterSprite *sprite;
+
+  if (clutter_backend_native->pointer_sprite)
+    {
+      if (!func (stage, clutter_backend_native->pointer_sprite, user_data))
+        return FALSE;
+    }
+
+  g_hash_table_iter_init (&iter, clutter_backend_native->stylus_sprites);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &sprite))
+    {
+      if (!func (stage, sprite, user_data))
+        return FALSE;
+    }
+
+  g_hash_table_iter_init (&iter, clutter_backend_native->touch_sprites);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &sprite))
+    {
+      if (!func (stage, sprite, user_data))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static ClutterKeyFocus *
 meta_clutter_backend_native_get_key_focus (ClutterBackend *clutter_backend,
                                            ClutterStage   *stage)
@@ -333,6 +367,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->lookup_sprite = meta_clutter_backend_native_lookup_sprite;
   clutter_backend_class->get_pointer_sprite = meta_clutter_backend_native_get_pointer_sprite;
   clutter_backend_class->destroy_sprite = meta_clutter_backend_native_destroy_sprite;
+  clutter_backend_class->foreach_sprite = meta_clutter_backend_native_foreach_sprite;
   clutter_backend_class->get_key_focus = meta_clutter_backend_native_get_key_focus;
 }
 

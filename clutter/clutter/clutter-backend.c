@@ -634,6 +634,21 @@ clutter_backend_destroy_sprite (ClutterBackend *backend,
 }
 
 /**
+ * clutter_backend_foreach_sprite: (skip)
+ */
+gboolean
+clutter_backend_foreach_sprite (ClutterBackend               *backend,
+                                ClutterStage                 *stage,
+                                ClutterStageInputForeachFunc  func,
+                                gpointer                      user_data)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->foreach_sprite (backend,
+                                                              stage,
+                                                              func,
+                                                              user_data);
+}
+
+/**
  * clutter_backend_get_key_focus:
  * @backend: a #ClutterBackend
  * @stage: a #ClutterStage

@@ -3499,28 +3499,16 @@ clutter_stage_pointing_input_foreach (ClutterStage                 *self,
                                       ClutterStageInputForeachFunc  func,
                                       gpointer                      user_data)
 {
-  ClutterStagePrivate *priv = clutter_stage_get_instance_private (self);
-  GHashTableIter iter;
-  ClutterSprite *sprite;
+  ClutterContext *context;
+  ClutterBackend *backend;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (self), FALSE);
   g_return_val_if_fail (func != NULL, FALSE);
 
-  g_hash_table_iter_init (&iter, priv->pointer_devices);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &sprite))
-    {
-      if (!func (self, sprite, user_data))
-        return FALSE;
-    }
+  context = clutter_actor_get_context (CLUTTER_ACTOR (self));
+  backend = clutter_context_get_backend (context);
 
-  g_hash_table_iter_init (&iter, priv->touch_sequences);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &sprite))
-    {
-      if (!func (self, sprite, user_data))
-        return FALSE;
-    }
-
-  return TRUE;
+  return clutter_backend_foreach_sprite (backend, self, func, user_data);
 }
 
 GPtrArray *

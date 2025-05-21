@@ -28,6 +28,7 @@
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-seat.h"
 #include "clutter/clutter-stage-window.h"
+#include "clutter/clutter-stage.h"
 
 #define CLUTTER_BACKEND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BACKEND, ClutterBackendClass))
 #define CLUTTER_IS_BACKEND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BACKEND))
@@ -95,6 +96,11 @@ struct _ClutterBackendClass
   void (* destroy_sprite) (ClutterBackend *backend,
                            ClutterSprite  *sprite);
 
+  gboolean (* foreach_sprite) (ClutterBackend               *backend,
+                               ClutterStage                 *stage,
+                               ClutterStageInputForeachFunc  func,
+                               gpointer                      user_data);
+
   ClutterKeyFocus * (* get_key_focus) (ClutterBackend *backend,
                                        ClutterStage   *stage);
 
@@ -118,6 +124,11 @@ void clutter_backend_set_fallback_resource_scale (ClutterBackend *backend,
 float clutter_backend_get_fallback_resource_scale (ClutterBackend *backend);
 
 gboolean clutter_backend_is_display_server (ClutterBackend *backend);
+
+gboolean clutter_backend_foreach_sprite (ClutterBackend               *backend,
+                                         ClutterStage                 *stage,
+                                         ClutterStageInputForeachFunc  func,
+                                         gpointer                      user_data);
 
 CLUTTER_EXPORT
 void clutter_backend_destroy (ClutterBackend *backend);
