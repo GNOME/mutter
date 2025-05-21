@@ -143,20 +143,20 @@ G_DEFINE_TYPE_WITH_CODE (MetaSeatImpl, meta_seat_impl, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (MetaSeatImpl))
 
 static void process_events (MetaSeatImpl *seat_impl);
-void meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
-                                       ClutterInputDevice *core_pointer,
-                                       uint64_t            time_us,
-                                       float               x,
-                                       float               y,
-                                       float              *new_x,
-                                       float              *new_y);
-void meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat_impl,
-                                            ClutterInputDevice *device,
-                                            float               x,
-                                            float               y,
-                                            float              *dx,
-                                            float              *dy);
-void meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl);
+static void meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
+                                              ClutterInputDevice *core_pointer,
+                                              uint64_t            time_us,
+                                              float               x,
+                                              float               y,
+                                              float              *new_x,
+                                              float              *new_y);
+static void meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat_impl,
+                                                   ClutterInputDevice *device,
+                                                   float               x,
+                                                   float               y,
+                                                   float              *dx,
+                                                   float              *dy);
+static void meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl);
 
 void
 meta_seat_impl_run_input_task (MetaSeatImpl *seat_impl,
@@ -332,7 +332,7 @@ meta_seat_impl_release_stylus_state (MetaSeatImpl       *seat_impl,
   g_hash_table_remove (priv->stylus_states, input_device);
 }
 
-void
+static void
 meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl)
 {
   if (seat_impl->repeat_source)
@@ -1430,7 +1430,7 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
   queue_event (seat_impl, event);
 }
 
-void
+static void
 meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
                                   ClutterInputDevice *core_pointer,
                                   uint64_t            time_us,
@@ -1542,7 +1542,7 @@ relative_motion_across_outputs (MetaViewportInfo   *viewports,
   *dy_inout = target_y - cur_y;
 }
 
-void
+static void
 meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat_impl,
                                        ClutterInputDevice *device,
                                        float               x,
