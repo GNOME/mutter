@@ -143,13 +143,10 @@ G_DEFINE_TYPE_WITH_CODE (MetaSeatImpl, meta_seat_impl, G_TYPE_OBJECT,
                          G_ADD_PRIVATE (MetaSeatImpl))
 
 static void process_events (MetaSeatImpl *seat_impl);
-static void meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
-                                              ClutterInputDevice *core_pointer,
-                                              uint64_t            time_us,
-                                              float               x,
-                                              float               y,
-                                              float              *new_x,
-                                              float              *new_y);
+static void meta_seat_impl_constrain_pointer (MetaSeatImpl     *seat_impl,
+                                              uint64_t          time_us,
+                                              graphene_point_t  prev,
+                                              graphene_point_t *cur);
 static void meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat_impl,
                                                    ClutterInputDevice *device,
                                                    float               x,
@@ -687,15 +684,14 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
 
 static void
 constrain_to_barriers (MetaSeatImpl       *seat_impl,
-                       ClutterInputDevice *device,
                        uint32_t            time,
-                       float              *new_x,
-                       float              *new_y)
+                       graphene_point_t    cur,
+                       graphene_point_t   *new)
 {
   meta_barrier_manager_native_process_in_impl (seat_impl->barrier_manager,
-                                               device,
                                                time,
-                                               new_x, new_y);
+                                               cur,
+                                               new);
 }
 
 /*
@@ -709,19 +705,11 @@ constrain_to_barriers (MetaSeatImpl       *seat_impl,
 
 static void
 constrain_all_screen_monitors (MetaSeatImpl       *seat_impl,
-                               ClutterInputDevice *device,
                                MetaViewportInfo   *viewports,
-                               float              *x,
-                               float              *y)
+                               graphene_point_t    prev,
+                               graphene_point_t   *coords)
 {
-  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
-  graphene_point_t cur;
   int i, n_views;
-
-  if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
-    meta_seat_impl_lookup_stylus_state (seat_impl, device, &cur);
-  else
-    cur = priv->pointer_state;
 
   /* if we're trying to escape, clamp to the CRTC we're coming from */
 
@@ -739,16 +727,16 @@ constrain_all_screen_monitors (MetaSeatImpl       *seat_impl,
       top = rect.y;
       bottom = top + rect.height;
 
-      if ((cur.x >= left) && (cur.x < right) && (cur.y >= top) && (cur.y < bottom))
+      if ((prev.x >= left) && (prev.x < right) && (prev.y >= top) && (prev.y < bottom))
         {
-          if (*x < left)
-            *x = left;
-          if (*x >= right)
-            *x = right - 1;
-          if (*y < top)
-            *y = top;
-          if (*y >= bottom)
-            *y = bottom - 1;
+          if (coords->x < left)
+            coords->x = left;
+          if (coords->x >= right)
+            coords->x = right - 1;
+          if (coords->y < top)
+            coords->y = top;
+          if (coords->y >= bottom)
+            coords->y = bottom - 1;
 
           return;
         }
@@ -756,22 +744,21 @@ constrain_all_screen_monitors (MetaSeatImpl       *seat_impl,
 }
 
 static void
-constrain_to_viewports (MetaSeatImpl       *seat_impl,
-                        ClutterInputDevice *device,
-                        uint64_t            time_us,
-                        float              *x_inout,
-                        float              *y_inout)
+constrain_to_viewports (MetaSeatImpl     *seat_impl,
+                        uint64_t          time_us,
+                        graphene_point_t  prev,
+                        graphene_point_t *coords)
 {
   if (seat_impl->viewports)
     {
       /* if we're moving inside a monitor, we're fine */
       if (meta_viewport_info_get_view_at (seat_impl->viewports,
-                                          *x_inout, *y_inout) >= 0)
+                                          coords->x, coords->y) >= 0)
         return;
 
       /* if we're trying to escape, clamp to the CRTC we're coming from */
-      constrain_all_screen_monitors (seat_impl, device, seat_impl->viewports,
-                                     x_inout, y_inout);
+      constrain_all_screen_monitors (seat_impl, seat_impl->viewports,
+                                     prev, coords);
     }
 }
 
@@ -779,52 +766,44 @@ static void
 constrain_coordinates (MetaSeatImpl       *seat_impl,
                        ClutterInputDevice *input_device,
                        uint64_t            time_us,
-                       float               x,
-                       float               y,
-                       float              *x_out,
-                       float              *y_out)
+                       graphene_point_t    prev,
+                       graphene_point_t   *coords)
 {
-  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     {
-        if (device_evdev->mapping_mode == META_INPUT_DEVICE_MAPPING_RELATIVE)
-          {
-            constrain_to_barriers (seat_impl, input_device,
-                                   us2ms (time_us),
-                                   &x, &y);
-            constrain_to_viewports (seat_impl,
-                                    input_device,
-                                    time_us,
-                                    &x, &y);
-          }
-        else
-          {
-            /* Viewport may be unset during startup */
-            if (seat_impl->viewports)
-              {
-                meta_input_device_native_translate_coordinates_in_impl (input_device,
-                                                                        seat_impl->viewports,
-                                                                        &x,
-                                                                        &y);
-              }
-          }
+      if (device_evdev->mapping_mode == META_INPUT_DEVICE_MAPPING_RELATIVE)
+        {
+          constrain_to_barriers (seat_impl,
+                                 us2ms (time_us),
+                                 prev,
+                                 coords);
+
+          constrain_to_viewports (seat_impl,
+                                  time_us,
+                                  prev,
+                                  coords);
+        }
+      else
+        {
+          /* Viewport may be unset during startup */
+          if (seat_impl->viewports)
+            {
+              meta_input_device_native_translate_coordinates_in_impl (input_device,
+                                                                      seat_impl->viewports,
+                                                                      &coords->x,
+                                                                      &coords->y);
+            }
+        }
     }
   else
     {
       meta_seat_impl_constrain_pointer (seat_impl,
-                                        seat_impl->core_pointer,
                                         time_us,
-                                        priv->pointer_state.x,
-                                        priv->pointer_state.y,
-                                        &x, &y);
+                                        prev,
+                                        coords);
     }
-
-  if (x_out)
-    *x_out = x;
-  if (y_out)
-    *y_out = y;
 }
 
 static void
@@ -859,8 +838,7 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
     META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event;
   ClutterModifierType modifiers;
-  graphene_point_t cur;
-  float x, y;
+  graphene_point_t cur, new_coords;
   float dx_constrained, dy_constrained;
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
@@ -881,22 +859,21 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                                          &dx,
                                          &dy);
 
+  new_coords = GRAPHENE_POINT_INIT (cur.x + dx, cur.y + dy);
   constrain_coordinates (seat_impl, input_device,
                          time_us,
-                         cur.x + dx,
-                         cur.y + dy,
-                         &x, &y);
+                         cur,
+                         &new_coords);
 
   modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
-  dx_constrained = x - cur.x;
-  dy_constrained = y - cur.y;
+  dx_constrained = new_coords.x - cur.x;
+  dy_constrained = new_coords.y - cur.y;
 
-  update_device_coords_in_impl (seat_impl, input_device,
-                                GRAPHENE_POINT_INIT (x, y));
+  update_device_coords_in_impl (seat_impl, input_device, new_coords);
 
   g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
-                 &GRAPHENE_POINT_INIT (x, y));
+                 &new_coords);
 
   event =
     clutter_event_motion_new (CLUTTER_EVENT_FLAG_RELATIVE_MOTION,
@@ -904,7 +881,7 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                               input_device,
                               device_native->last_tool,
                               modifiers,
-                              GRAPHENE_POINT_INIT (x, y),
+                              new_coords,
                               GRAPHENE_POINT_INIT (dx, dy),
                               GRAPHENE_POINT_INIT (dx_unaccel,
                                                    dy_unaccel),
@@ -928,10 +905,16 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
     META_INPUT_DEVICE_NATIVE (input_device);
   ClutterModifierType modifiers;
   ClutterEvent *event;
+  graphene_point_t cur, new_coords;
 
-  constrain_coordinates (seat_impl, input_device, time_us, x, y, &x, &y);
-  update_device_coords_in_impl (seat_impl, input_device,
-                                GRAPHENE_POINT_INIT (x, y));
+  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
+    meta_seat_impl_lookup_stylus_state (seat_impl, input_device, &cur);
+  else
+    cur = priv->pointer_state;
+
+  new_coords = GRAPHENE_POINT_INIT (x, y);
+  constrain_coordinates (seat_impl, input_device, time_us, cur, &new_coords);
+  update_device_coords_in_impl (seat_impl, input_device, new_coords);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     modifiers = device_native->button_state;
@@ -949,7 +932,7 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
                               input_device,
                               device_native->last_tool,
                               modifiers,
-                              GRAPHENE_POINT_INIT (x, y),
+                              new_coords,
                               GRAPHENE_POINT_INIT (0, 0),
                               GRAPHENE_POINT_INIT (0, 0),
                               GRAPHENE_POINT_INIT (0, 0),
@@ -1431,29 +1414,27 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
 }
 
 static void
-meta_seat_impl_constrain_pointer (MetaSeatImpl       *seat_impl,
-                                  ClutterInputDevice *core_pointer,
-                                  uint64_t            time_us,
-                                  float               x,
-                                  float               y,
-                                  float              *new_x,
-                                  float              *new_y)
+meta_seat_impl_constrain_pointer (MetaSeatImpl     *seat_impl,
+                                  uint64_t          time_us,
+                                  graphene_point_t  prev,
+                                  graphene_point_t *cur)
 {
   /* Constrain to barriers */
-  constrain_to_barriers (seat_impl, core_pointer,
+  constrain_to_barriers (seat_impl,
                          us2ms (time_us),
-                         new_x, new_y);
+                         prev,
+                         cur);
 
   /* Bar to constraints */
   if (seat_impl->pointer_constraint)
     {
       meta_pointer_constraint_impl_constrain (seat_impl->pointer_constraint,
                                               us2ms (time_us),
-                                              x, y,
-                                              new_x, new_y);
+                                              prev.x, prev.y,
+                                              &cur->x, &cur->y);
     }
 
-  constrain_to_viewports (seat_impl, core_pointer, time_us, new_x, new_y);
+  constrain_to_viewports (seat_impl, time_us, prev, cur);
 }
 
 static void
