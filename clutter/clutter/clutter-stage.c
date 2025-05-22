@@ -3481,7 +3481,6 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
                                        ClutterEvent *event)
 {
   ClutterEventType event_type = clutter_event_type (event);
-  ClutterInputDevice *device = clutter_event_get_device (event);
   ClutterInputDevice *source_device = clutter_event_get_source_device (event);
   ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   ClutterBackend *clutter_backend = clutter_context_get_backend (context);
@@ -3508,9 +3507,8 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
       clutter_event_get_coords (event, &point.x, &point.y);
       time_ms = clutter_event_get_time (event);
 
-      g_assert (device != NULL);
-
       sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+      g_assert (sprite != NULL);
       clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), NULL,
                                        source_device, time_ms);
       clutter_sprite_update (sprite, point, NULL);
