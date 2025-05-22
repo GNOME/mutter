@@ -98,10 +98,10 @@ bind_seat (struct wl_client *client,
   wl_resource_set_implementation (resource, &seat_interface, seat, unbind_resource);
   wl_list_insert (&seat->base_resource_list, wl_resource_get_link (resource));
 
-  wl_seat_send_capabilities (resource, seat->capabilities);
-
   if (version >= WL_SEAT_NAME_SINCE_VERSION)
     wl_seat_send_name (resource, "seat0");
+
+  wl_seat_send_capabilities (resource, seat->capabilities);
 }
 
 static uint32_t
