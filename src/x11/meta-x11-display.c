@@ -2261,6 +2261,14 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
 
   if (focus_window)
     data[0] = meta_window_x11_get_xwindow (focus_window);
+#ifdef HAVE_XWAYLAND
+  else if (x11_display->focus_xwindow && meta_is_wayland_compositor ())
+    /* On Wayland, when a Wayland window is focused, indicate that an
+     * actual window is focused rather than None, as None is otherwise
+     * also used during transient focus changes.
+     */
+    data[0] = x11_display->no_focus_window;
+#endif
   else
     data[0] = None;
 
