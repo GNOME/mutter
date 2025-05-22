@@ -325,8 +325,6 @@ xdg_toplevel_move (struct wl_client   *client,
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
   MetaWindow *window;
   ClutterSprite *sprite;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
   float x, y;
 
   window = meta_wayland_surface_get_window (surface);
@@ -337,11 +335,8 @@ xdg_toplevel_move (struct wl_client   *client,
                                         &sprite, &x, &y))
     return;
 
-  device = clutter_sprite_get_device (sprite);
-  sequence = clutter_sprite_get_sequence (sprite);
-
   meta_wayland_surface_begin_grab_op (surface, seat, META_GRAB_OP_MOVING,
-                                      device, sequence, x, y);
+                                      sprite, x, y);
 }
 
 static MetaGrabOp
@@ -380,8 +375,6 @@ xdg_toplevel_resize (struct wl_client   *client,
   gfloat x, y;
   MetaGrabOp grab_op;
   ClutterSprite *sprite;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
 
   window = meta_wayland_surface_get_window (surface);
   if (!window)
@@ -394,12 +387,8 @@ xdg_toplevel_resize (struct wl_client   *client,
                                         &sprite, &x, &y))
     return;
 
-  device = clutter_sprite_get_device (sprite);
-  sequence = clutter_sprite_get_sequence (sprite);
-
   grab_op = grab_op_for_xdg_toplevel_resize_edge (edges);
-  meta_wayland_surface_begin_grab_op (surface, seat, grab_op,
-                                      device, sequence, x, y);
+  meta_wayland_surface_begin_grab_op (surface, seat, grab_op, sprite, x, y);
 }
 
 static void

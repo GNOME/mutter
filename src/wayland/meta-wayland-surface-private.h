@@ -381,8 +381,7 @@ MtkRegion * meta_wayland_surface_calculate_input_region (MetaWaylandSurface *sur
 gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
                                                         MetaWaylandSeat      *seat,
                                                         MetaGrabOp            grab_op,
-                                                        ClutterInputDevice   *device,
-                                                        ClutterEventSequence *sequence,
+                                                        ClutterSprite        *sprite,
                                                         gfloat                x,
                                                         gfloat                y);
 

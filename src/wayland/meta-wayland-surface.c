@@ -1766,25 +1766,15 @@ gboolean
 meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
                                     MetaWaylandSeat      *seat,
                                     MetaGrabOp            grab_op,
-                                    ClutterInputDevice   *device,
-                                    ClutterEventSequence *sequence,
+                                    ClutterSprite        *sprite,
                                     gfloat                x,
                                     gfloat                y)
 {
   MetaWindow *window = meta_wayland_surface_get_window (surface);
   MetaDisplay *display = meta_window_get_display (window);
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSprite *sprite;
 
   if (grab_op == META_GRAB_OP_NONE)
     return FALSE;
-
-  sprite = clutter_backend_lookup_sprite (clutter_backend,
-                                          stage,
-                                          device, sequence);
 
   /* This is an input driven operation so we set frame_action to
      constrain it in the same way as it would be if the window was
@@ -1792,7 +1782,7 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface   *surface,
   return meta_window_begin_grab_op (window,
                                     grab_op,
                                     sprite,
-                                    meta_display_get_current_time_roundtrip (window->display),
+                                    meta_display_get_current_time_roundtrip (display),
                                     &GRAPHENE_POINT_INIT (x, y));
 }
 
