@@ -1165,6 +1165,7 @@ if have_kvm_tests or have_tty_tests
 
     foreach variant: variants
       variant_env = environment()
+      variant_env.set('META_DBUS_RUNNER_DISABLE_LOGIND_PASSTHROUGH', '1')
       foreach name, value: variant[1]
         variant_env.set(name, value)
       endforeach

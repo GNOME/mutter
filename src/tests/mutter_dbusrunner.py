@@ -52,6 +52,10 @@ class MutterDBusRunner(DBusTestCase):
         if host_system_bus_address is None:
             host_system_bus_address = 'unix:path=/run/dbus/system_bus_socket'
 
+        disable_passthrough = os.getenv('META_DBUS_RUNNER_DISABLE_LOGIND_PASSTHROUGH')
+        if disable_passthrough:
+            host_system_bus_address = ''
+
         print('Starting D-Bus daemons (session & system)...', file=sys.stderr)
         DBusTestCase.setUpClass()
         klass.start_session_bus()
