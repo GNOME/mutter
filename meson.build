@@ -693,7 +693,8 @@ if have_xwayland
 
   # For Xwayland -listenfd usage
   if xwayland_dep.found()
-    have_xwayland_terminate_delay = xwayland_dep.get_variable('have_terminate_delay') == 'true'
+    have_xwayland_terminate_delay = xwayland_dep.get_variable('have_terminate_delay',
+                                                              default_value: 'false') == 'true'
   endif
 
   if (have_xwayland_terminate_delay)
