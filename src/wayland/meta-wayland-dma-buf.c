@@ -620,6 +620,7 @@ has_modifier (GArray   *modifiers,
   return FALSE;
 }
 
+#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 crtc_supports_modifier (MetaCrtcKms *crtc_kms,
                         uint32_t     drm_format,
@@ -639,6 +640,7 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
 
   return has_modifier (crtc_modifiers, drm_modifier);
 }
+#endif
 
 CoglScanout *
 meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
