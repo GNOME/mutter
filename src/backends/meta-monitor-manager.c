@@ -47,6 +47,7 @@
 #include <stdlib.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-color-manager-private.h"
 #include "backends/meta-crtc.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-private.h"
@@ -1396,12 +1397,23 @@ update_has_external_monitor (MetaMonitorManager *monitor_manager)
 }
 
 static void
+ensure_monitor_color_devices (MetaMonitorManager *manager)
+{
+  MetaColorManager *color_manager =
+    meta_backend_get_color_manager (manager->backend);
+
+  meta_color_manager_monitors_changed (color_manager);
+}
+
+static void
 meta_monitor_manager_notify_monitors_changed (MetaMonitorManager *manager)
 {
-  meta_backend_monitors_changed (manager->backend);
+  ensure_monitor_color_devices (manager);
 
   update_has_external_monitor (manager);
   update_backlight (manager, TRUE);
+
+  meta_backend_monitors_changed (manager->backend);
 
   g_signal_emit (manager, signals[MONITORS_CHANGED_INTERNAL], 0);
   g_signal_emit (manager, signals[MONITORS_CHANGED], 0);

@@ -391,9 +391,6 @@ update_cursors (MetaBackend *backend)
 void
 meta_backend_monitors_changed (MetaBackend *backend)
 {
-  MetaColorManager *color_manager = meta_backend_get_color_manager (backend);
-
-  meta_color_manager_monitors_changed (color_manager);
   meta_backend_update_stage (backend);
   update_cursors (backend);
 }
