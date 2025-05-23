@@ -752,6 +752,10 @@ dist-mutter:
     paths:
       - build/meson-private/dist-build/meson-logs
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH =~ /^gnome-[0-9-]+$/'
+      when: on_success
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: manual
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -785,6 +789,10 @@ installed-tests-mutter@x86_64:
     paths:
       - installed-tests-logs
   rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH =~ /^gnome-[0-9-]+$/'
+      when: on_success
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: manual
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
