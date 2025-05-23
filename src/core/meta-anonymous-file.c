@@ -184,12 +184,6 @@ meta_anonymous_file_new (size_t         size,
   MetaAnonymousFile *file;
 
   file = g_malloc0 (sizeof *file);
-  if (!file)
-    {
-      errno = ENOMEM;
-      return NULL;
-    }
-
   file->size = size;
   file->fd = create_anonymous_file (size);
   if (file->fd == -1)
