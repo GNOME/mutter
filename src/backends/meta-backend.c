@@ -209,6 +209,8 @@ struct _MetaBackendPrivate
   uint32_t last_pointer_motion;
 
   MetaRenderdoc *renderdoc;
+
+  gboolean cursor_visible;
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
@@ -465,6 +467,24 @@ determine_hotplug_pointer_visibility (ClutterSeat *seat)
 }
 
 static void
+set_cursor_visible (MetaBackend *backend,
+                    gboolean     visible)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
+
+  if (priv->cursor_visible == visible)
+    return;
+
+  priv->cursor_visible = visible;
+
+  if (priv->cursor_visible)
+    meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
+  else
+    meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+}
+
+static void
 on_device_added (ClutterSeat        *seat,
                  ClutterInputDevice *device,
                  gpointer            user_data)
@@ -483,8 +503,8 @@ on_device_added (ClutterSeat        *seat,
       (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
        device_type == CLUTTER_POINTER_DEVICE))
     {
-      meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
-                                               determine_hotplug_pointer_visibility (seat));
+      set_cursor_visible (backend,
+                          determine_hotplug_pointer_visibility (seat));
     }
 
   if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
@@ -517,13 +537,11 @@ on_device_removed (ClutterSeat        *seat,
    */
   if (priv->current_device == device)
     {
-      MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
-
       g_clear_object (&priv->current_device);
       g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
-      meta_cursor_tracker_set_pointer_visible (cursor_tracker,
-                                               determine_hotplug_pointer_visibility (seat));
+      set_cursor_visible (backend,
+                          determine_hotplug_pointer_visibility (seat));
     }
 
   if (priv->current_device == device)
@@ -595,8 +613,8 @@ on_started (MetaContext *context,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterSeat *seat = priv->default_seat;
 
-  meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
-                                           determine_hotplug_pointer_visibility (seat));
+  set_cursor_visible (backend,
+                      determine_hotplug_pointer_visibility (seat));
 }
 
 static gboolean
@@ -1124,7 +1142,6 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
                                       ClutterEvent *event)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
   ClutterInputDevice *device;
   ClutterInputDeviceType device_type;
   uint32_t time_ms;
@@ -1141,12 +1158,12 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
   switch (device_type)
     {
     case CLUTTER_TOUCHSCREEN_DEVICE:
-      meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+      set_cursor_visible (backend, FALSE);
       break;
     case CLUTTER_POINTER_DEVICE:
     case CLUTTER_TOUCHPAD_DEVICE:
       priv->last_pointer_motion = time_ms;
-      meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
+      set_cursor_visible (backend, TRUE);
       break;
     case CLUTTER_TABLET_DEVICE:
     case CLUTTER_PEN_DEVICE:
@@ -1154,7 +1171,7 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
     case CLUTTER_CURSOR_DEVICE:
       if (meta_is_wayland_compositor () &&
           time_ms > priv->last_pointer_motion + HIDDEN_POINTER_TIMEOUT)
-        meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+        set_cursor_visible (backend, FALSE);
       break;
     case CLUTTER_KEYBOARD_DEVICE:
     case CLUTTER_PAD_DEVICE:
@@ -1480,6 +1497,9 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_init (MetaBackend *backend)
 {
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->cursor_visible = TRUE;
 }
 
 MetaIdleMonitor *
