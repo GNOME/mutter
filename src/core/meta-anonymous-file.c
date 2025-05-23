@@ -112,7 +112,7 @@ create_anonymous_file (off_t size)
     {
       static const char template[] = "/mutter-shared-XXXXXX";
       const char *path;
-      char *name;
+      g_autofree char *filename = NULL;
 
       path = g_get_user_runtime_dir ();
       if (!path)
@@ -121,16 +121,8 @@ create_anonymous_file (off_t size)
           return -1;
         }
 
-      name = g_malloc (strlen (path) + sizeof (template));
-      if (!name)
-        return -1;
-
-      strcpy (name, path);
-      strcat (name, template);
-
-      fd = create_tmpfile_cloexec (name);
-
-      g_free (name);
+      filename = g_strconcat (path, template, NULL);
+      fd = create_tmpfile_cloexec (filename);
 
       if (fd < 0)
         return -1;
