@@ -1729,11 +1729,14 @@ ensure_crtc_frame (MetaKmsImplDevice *impl_device,
   crtc_frame = get_crtc_frame (impl_device, latch_crtc);
   if (!crtc_frame)
     {
+      const MetaKmsCrtcState *crtc_state =
+        meta_kms_crtc_get_current_state (latch_crtc);
+
       crtc_frame = g_new0 (CrtcFrame, 1);
       crtc_frame->impl_device = impl_device;
       crtc_frame->crtc = latch_crtc;
       crtc_frame->deadline.timer_fd = -1;
-      crtc_frame->await_flush = TRUE;
+      crtc_frame->await_flush = !crtc_state->is_active;
       g_hash_table_insert (priv->crtc_frames, latch_crtc, crtc_frame);
     }
 
