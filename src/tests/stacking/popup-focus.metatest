@@ -51,3 +51,39 @@ release_click
 assert_pointer_focus w/1
 
 dismiss w/p2
+
+# Check non-grabbing popup
+move_cursor_to 150 150
+assert_pointer_focus w/1
+
+click_and_hold
+popup_at w/p3 1 right 100 100
+assert_position w/p3 200 100
+assert_size w/p3 100 100
+assert_keyboard_focus w/1
+assert_pointer_focus w/1
+
+move_cursor_to 250 150
+assert_keyboard_focus w/1
+assert_pointer_focus w/1
+
+release_click
+dismiss w/p3
+
+# Check non-grabbing popup after implicit grab ends
+move_cursor_to 150 150
+assert_pointer_focus w/1
+
+click_and_hold
+release_click
+popup_at w/p4 1 right 100 100
+assert_position w/p4 200 100
+assert_size w/p4 100 100
+assert_keyboard_focus w/1
+assert_pointer_focus w/1
+
+move_cursor_to 250 150
+assert_keyboard_focus w/1
+assert_pointer_focus w/p4
+
+dismiss w/p4
