@@ -249,7 +249,7 @@ configure_keyboard (MetaEisClient     *client,
     return;
 
   len = strlen (data);
-  f = meta_anonymous_file_new (len, (uint8_t*)data);
+  f = meta_anonymous_file_new ("eis-keymap", len, (uint8_t*)data);
   if (f)
     fd = meta_anonymous_file_open_fd (f, META_ANONYMOUS_FILE_MAPMODE_SHARED);
 

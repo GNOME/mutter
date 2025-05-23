@@ -1785,7 +1785,8 @@ init_format_table (MetaWaylandDmaBufManager *dma_buf_manager)
     }
 
   dma_buf_manager->format_table_file =
-    meta_anonymous_file_new (size, (uint8_t *) format_table);
+    meta_anonymous_file_new ("dmabuf-format-table",
+                             size, (uint8_t *) format_table);
 }
 
 static gboolean

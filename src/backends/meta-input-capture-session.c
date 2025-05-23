@@ -253,7 +253,9 @@ ensure_xkb_keymap_file (MetaInputCaptureSession  *session,
   keymap_size = strlen (keymap_string) + 1;
 
   session->keymap_file =
-    meta_anonymous_file_new (keymap_size, (const uint8_t *) keymap_string);
+    meta_anonymous_file_new ("input-capture-keymap",
+                             keymap_size,
+                             (const uint8_t *) keymap_string);
 
   return session->keymap_file;
 }

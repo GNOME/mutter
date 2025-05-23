@@ -126,7 +126,8 @@ main (int    argc,
   int fd = -1, other_fd = -1;
   g_autofree char *fd_path = NULL;
 
-  file = meta_anonymous_file_new (strlen (teststring) + 1,
+  file = meta_anonymous_file_new ("test",
+                                  strlen (teststring) + 1,
                                   (const uint8_t *) teststring);
   if (!file)
     {

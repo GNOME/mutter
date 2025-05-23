@@ -181,7 +181,8 @@ meta_wayland_keyboard_take_keymap (MetaWaylandKeyboard *keyboard,
 
   g_clear_pointer (&xkb_info->keymap_rofile, meta_anonymous_file_free);
   xkb_info->keymap_rofile =
-    meta_anonymous_file_new (keymap_size, (const uint8_t *) keymap_string);
+    meta_anonymous_file_new ("wayland-keymap",
+                             keymap_size, (const uint8_t *) keymap_string);
 
   free (keymap_string);
 

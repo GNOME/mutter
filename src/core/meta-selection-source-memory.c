@@ -195,7 +195,7 @@ meta_selection_source_memory_new (const char  *mimetype,
   g_return_val_if_fail (content != NULL, NULL);
 
   data = g_bytes_get_data (content, &size);
-  anon_file = meta_anonymous_file_new (size, data);
+  anon_file = meta_anonymous_file_new ("selection-source", size, data);
 
   if (anon_file == NULL)
     {
