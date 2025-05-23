@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <errno.h>
+#include <glib/gstdio.h>
 #include <fcntl.h>
 #include <sys/mman.h>
 
@@ -181,13 +182,13 @@ MetaAnonymousFile *
 meta_anonymous_file_new (size_t         size,
                          const uint8_t *data)
 {
-  MetaAnonymousFile *file;
+  g_autoptr (MetaAnonymousFile) file = NULL;
 
   file = g_malloc0 (sizeof *file);
   file->size = size;
   file->fd = create_anonymous_file (size);
   if (file->fd == -1)
-    goto err_free;
+    return NULL;
 
   if (size > 0)
     {
@@ -195,7 +196,7 @@ meta_anonymous_file_new (size_t         size,
 
       map = mmap (NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, file->fd, 0);
       if (map == MAP_FAILED)
-        goto err_close;
+        return NULL;
 
       memcpy (map, data, size);
       munmap (map, size);
@@ -211,13 +212,7 @@ meta_anonymous_file_new (size_t         size,
   fcntl (file->fd, F_ADD_SEALS, READONLY_SEALS);
 #endif
 
-  return file;
-
-err_close:
-  close (file->fd);
-err_free:
-  g_free (file);
-  return NULL;
+  return g_steal_pointer (&file);
 }
 
 
@@ -230,7 +225,7 @@ err_free:
 void
 meta_anonymous_file_free (MetaAnonymousFile *file)
 {
-  close (file->fd);
+  g_clear_fd (&file->fd, NULL);
   g_free (file);
 }
 

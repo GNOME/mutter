@@ -46,3 +46,5 @@ int meta_anonymous_file_open_fd (MetaAnonymousFile        *file,
 
 META_EXPORT_TEST
 void meta_anonymous_file_close_fd (int fd);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaAnonymousFile, meta_anonymous_file_free)
