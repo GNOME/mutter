@@ -392,10 +392,17 @@ check-python-code-style:
 
 .build-mutter-base:
   variables:
+    # Add x11 here to keep the existing test matrix
+    # We already have wayland-only build tests
+    # so adding x11 true is simpler than swapping
+    # all the existing jobs for x11-only
+    # This is temporary anyway as x11 should be going
+    # to live in a farm soon anyway
     BASE_MESON_OPTIONS:
       -Degl_device=true
       -Dwayland_eglstream=true
       -Dcatch=true
+      -Dx11=true
 
 .build-mutter:
   extends:
@@ -481,6 +488,7 @@ build-without-native-backend-and-wayland@x86_64:
         --werror
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
+        -Dx11=true
         -Dnative_backend=false
         -Dudev=false
         -Dwayland=false
