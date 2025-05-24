@@ -15,7 +15,4 @@ G_DECLARE_FINAL_TYPE (ClutterSettings, clutter_settings,
                       CLUTTER, SETTINGS,
                       GObject)
 
-CLUTTER_DEPRECATED_FOR (clutter_context_get_settings)
-ClutterSettings *clutter_settings_get_default (void);
-
 G_END_DECLS

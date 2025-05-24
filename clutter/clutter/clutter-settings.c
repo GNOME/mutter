@@ -669,25 +669,6 @@ clutter_settings_init (ClutterSettings *self)
   self->long_press_duration = 500;
 }
 
-/**
- * clutter_settings_get_default:
- *
- * Retrieves the singleton instance of #ClutterSettings
- *
- * Return value: (transfer none): the instance of #ClutterSettings. The
- *   returned object is owned by Clutter and it should not be unreferenced
- *   directly
- *
- * Deprecated: Use [method@Clutter.Context.get_settings] instead
- */
-ClutterSettings *
-clutter_settings_get_default (void)
-{
-  ClutterContext *context = _clutter_context_get_default ();
-
-  return clutter_context_get_settings (context);
-}
-
 void
 _clutter_settings_set_backend (ClutterSettings *settings,
                                ClutterBackend  *backend)
