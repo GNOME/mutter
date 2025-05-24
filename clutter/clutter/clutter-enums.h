@@ -222,7 +222,7 @@ typedef enum
 /**
  * ClutterTextDirection:
  * @CLUTTER_TEXT_DIRECTION_DEFAULT: Use the default setting, as returned
- *   by clutter_get_default_text_direction()
+ *   by [method@Clutter.Context.get_text_direction]
  * @CLUTTER_TEXT_DIRECTION_LTR: Use left-to-right text direction
  * @CLUTTER_TEXT_DIRECTION_RTL: Use right-to-left text direction
  *

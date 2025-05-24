@@ -13062,7 +13062,7 @@ update_pango_context (ClutterBackend *backend,
   settings = clutter_context_get_settings (backend->context);
 
   /* update the text direction */
-  dir = clutter_get_default_text_direction ();
+  dir = clutter_context_get_text_direction (backend->context);
   pango_dir = clutter_text_direction_to_pango_direction (dir);
 
   pango_context_set_base_dir (context, pango_dir);
@@ -13599,7 +13599,7 @@ _clutter_actor_set_has_key_focus (ClutterActor *self,
  * Retrieves the value set using clutter_actor_set_text_direction()
  *
  * If no text direction has been previously set, the default text
- * direction, as returned by clutter_get_default_text_direction(), will
+ * direction, as returned by [method@Clutter.Context.get_text_direction], will
  * be returned instead
  *
  * Return value: the #ClutterTextDirection for the actor
@@ -13616,7 +13616,11 @@ clutter_actor_get_text_direction (ClutterActor *self)
 
   /* if no direction has been set yet use the default */
   if (priv->text_direction == CLUTTER_TEXT_DIRECTION_DEFAULT)
-    priv->text_direction = clutter_get_default_text_direction ();
+    {
+      ClutterContext *context = clutter_actor_get_context (self);
+
+      priv->text_direction = clutter_context_get_text_direction (context);
+    }
 
   return priv->text_direction;
 }

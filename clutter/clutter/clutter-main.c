@@ -480,24 +480,6 @@ _clutter_run_repaint_functions (ClutterRepaintFlags flags)
     context->repaint_funcs = g_list_reverse (reinvoke_list);
 }
 
-/**
- * clutter_get_default_text_direction:
- *
- * Retrieves the default direction for the text. The text direction is
- * determined by the locale and/or by the `CLUTTER_TEXT_DIRECTION`
- * environment variable.
- *
- * The default text direction can be overridden on a per-actor basis by using
- * [method@Actor.set_text_direction].
- *
- * Return value: the default text direction
- */
-ClutterTextDirection
-clutter_get_default_text_direction (void)
-{
-  return clutter_context_get_text_direction (ClutterCntx);
-}
-
 /*< private >
  * clutter_clear_events_queue:
  *
