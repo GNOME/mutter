@@ -69,6 +69,7 @@ executable('mutter-devkit',
   dependencies: [
     gmodule_no_export_dep,
     gtk4_dep,
+    libadwaita_dep,
     libpipewire_dep,
     libdrm_dep,
     libei_dep,

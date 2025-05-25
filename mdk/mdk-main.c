@@ -17,6 +17,7 @@
 
 #include "config.h"
 
+#include <adwaita.h>
 #include <glib/gi18n-lib.h>
 #include <gtk/gtk.h>
 
@@ -24,38 +25,17 @@
 #include "mdk-main-window.h"
 #include "mdk-monitor.h"
 
-typedef void (* AdwaitaInitFunc) (void);
-typedef void (* AdwaitaShowAboutFunc) (GtkWindow *parent_window, const char *first_property, ...);
-
-static GModule *libadwaita = NULL;
-
-static gboolean
-should_load_libadwaita (void)
+struct _MdkApplication
 {
-  g_auto(GStrv) desktops = NULL;
-  const char *current_desktop;
+  AdwApplication parent;
 
-  current_desktop = g_getenv ("XDG_CURRENT_DESKTOP");
-  if (current_desktop != NULL)
-    desktops = g_strsplit (current_desktop, ":", -1);
+  MdkContext *context;
+};
 
-  return desktops && g_strv_contains ((const char * const *) desktops, "GNOME");
-}
-
-static void
-load_libadwaita (void)
-{
-  AdwaitaInitFunc adw_init;
-
-  libadwaita = g_module_open ("libadwaita-1.so.0", G_MODULE_BIND_LAZY);
-  if (!libadwaita)
-    return;
-
-  if (!g_module_symbol (libadwaita, "adw_init", (gpointer *) &adw_init))
-    return;
-
-  adw_init ();
-}
+#define MDK_TYPE_APPLICATION (mdk_application_get_type ())
+G_DECLARE_FINAL_TYPE (MdkApplication, mdk_application,
+                      MDK, APPLICATION, AdwApplication)
+G_DEFINE_FINAL_TYPE (MdkApplication, mdk_application, ADW_TYPE_APPLICATION)
 
 static void
 activate_about (GSimpleAction *action,
@@ -63,7 +43,6 @@ activate_about (GSimpleAction *action,
                 gpointer       user_data)
 {
   GtkApplication *app = user_data;
-  static AdwaitaShowAboutFunc adw_show_about_dialog = NULL;
   GtkWindow *parent_window;
   const char *authors[] = {
     _("The Mutter Team"),
@@ -72,42 +51,18 @@ activate_about (GSimpleAction *action,
 
   parent_window = GTK_WINDOW (gtk_application_get_active_window (app));
 
-  if (libadwaita != NULL && adw_show_about_dialog == NULL)
-    {
-      g_module_symbol (libadwaita,
-                       "adw_show_about_dialog",
-                       (gpointer *) &adw_show_about_dialog);
-    }
-
-  if (adw_show_about_dialog)
-    {
-      adw_show_about_dialog (parent_window,
-                             "application-name", _("Mutter Development Kit"),
-                             "version", VERSION,
-                             "copyright", "© 2001—2025 The Mutter Team",
-                             "license-type", GTK_LICENSE_GPL_2_0,
-                             "website", "http://mutter.gnome.org",
-                             "issue-url", "http://gitlab.gnome.org/GNOME/mutter/-/issues",
-                             "comments", _("Mutter software development kit"),
-                             "developers", authors,
-                             "application-icon", "org.gnome.Mutter.Mdk",
-                             "title", _("About Mutter Development Kit"),
-                             NULL);
-    }
-  else
-    {
-      gtk_show_about_dialog (GTK_WINDOW (gtk_application_get_active_window (app)),
-                             "program-name", _("Mutter Development Kit"),
-                             "version", VERSION,
-                             "copyright", "© 2001—2025 The Mutter Team",
-                             "license-type", GTK_LICENSE_GPL_2_0,
-                             "website", "http://mutter.gnome.org",
-                             "comments", _("Mutter software development kit"),
-                             "authors", authors,
-                             "logo-icon-name", "org.gnome.Mutter.Mdk",
-                             "title", _("About Mutter Development Kit"),
-                             NULL);
-    }
+  adw_show_about_dialog (GTK_WIDGET (parent_window),
+                         "application-name", _("Mutter Development Kit"),
+                         "version", VERSION,
+                         "copyright", "© 2001—2025 The Mutter Team",
+                         "license-type", GTK_LICENSE_GPL_2_0,
+                         "website", "http://mutter.gnome.org",
+                         "issue-url", "http://gitlab.gnome.org/GNOME/mutter/-/issues",
+                         "comments", _("Mutter software development kit"),
+                         "developers", authors,
+                         "application-icon", "org.gnome.Mutter.Mdk",
+                         "title", _("About Mutter Development Kit"),
+                         NULL);
 }
 
 static void
@@ -216,25 +171,32 @@ on_context_closed (MdkContext     *context,
   g_application_quit (G_APPLICATION (app));
 }
 
+static void
+mdk_application_class_init (MdkApplicationClass *klass)
+{
+}
+
+static void
+mdk_application_init (MdkApplication *app)
+{
+}
+
 int
 main (int    argc,
       char **argv)
 {
   g_autoptr (MdkContext) context = NULL;
-  g_autoptr (GtkApplication) app = NULL;
+  g_autoptr (MdkApplication) app = NULL;
   static GActionEntry app_entries[] = {
     { "about", activate_about, NULL, NULL, NULL },
     { "toggle_emulate_touch", .state = "false", },
     { "toggle_inhibit_system_shortcuts", .state = "false", },
   };
 
-  if (should_load_libadwaita ())
-    load_libadwaita ();
-
-  context = mdk_context_new ();
-
-  app = gtk_application_new ("org.gnome.Mutter.Mdk",
-                             G_APPLICATION_NON_UNIQUE);
+  app = g_object_new (MDK_TYPE_APPLICATION,
+                      "application-id", "org.gnome.Mutter.Mdk",
+                      "flags", G_APPLICATION_NON_UNIQUE,
+                      NULL);
 
   g_action_map_add_action_entries (G_ACTION_MAP (app),
                                    app_entries, G_N_ELEMENTS (app_entries),

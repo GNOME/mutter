@@ -128,6 +128,7 @@ gio_unix_dep = dependency('gio-unix-2.0', version: glib_req)
 gobject_dep = dependency('gobject-2.0', version: glib_req)
 gthread_dep = dependency('gobject-2.0', version: glib_req)
 gtk4_dep = dependency('gtk4', version: gtk4_req, required: false)
+libadwaita_dep = dependency('libadwaita-1', required: false)
 gmodule_no_export_dep = dependency('gmodule-no-export-2.0', version: glib_req)
 gnome_settings_daemon_dep = dependency('gnome-settings-daemon', required: false)
 xkbcommon_dep = dependency('xkbcommon', version: xkbcommon_req)
@@ -349,11 +350,12 @@ endif
 
 have_devkit = get_option('devkit').enable_auto_if(
   gtk4_dep.found() and
+  libadwaita_dep.found() and
   have_native_backend and
   have_remote_desktop
 ).enabled()
-if have_devkit and (not gtk4_dep.found() or not have_native_backend or not have_remote_desktop)
-  error('MDK requires gtk4 @0@, the native backend, and remote desktop'.format(gtk4_req))
+if have_devkit and (not gtk4_dep.found() or not libadwaita_dep.found() or not have_native_backend or not have_remote_desktop)
+  error('MDK requires gtk4 @0@, libadwaita, the native backend, and remote desktop'.format(gtk4_req))
 endif
 
 have_introspection = get_option('introspection')
