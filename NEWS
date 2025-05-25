@@ -1,3 +1,30 @@
+48.3
+====
+* Use opaque dma-buf formats substitutes for scanout [Robert; !4320]
+* Restore tiled/maximized windows to the correct monitor [Nick; !4411]
+* Do not leak session manager file to launched processes [Sebastian K.; !4405]
+* Use frame-sync candidate that likely matches scanout candidate [Robert; !4412]
+* Propagate all touchpad gesture events to apps [Carlos; !4417]
+* Update window decorations on override-redirect attribute [Rémi; !4287]
+* Load initial _NET_WM_FULLSCREEN_MONITORS value [Zhiyi; !4389]
+* Fix race when registering implicit grab [Alessandro; !4399]
+* Skip multiple refresh intervals if necessary [Michel; !4406]
+* box-layout: Update actor-request-mode on orientation changes [Jonas D.; !4339]
+* Do not take control of logind session on Xorg [Madhu; !4391]
+* Fixed crashes [Sebastian W., Jonas Å.; !4423, !4431]
+* Plugged leaks [Michel; !4432]
+* Misc. bug fixes and cleanups [Chris, Maxim, Michel, Carlos, Florian, Rémi;
+  !4409, !4388, !4039, !4390, !4439, !4446]
+
+Contributors:
+  Alessandro Astone, Rémi Bernon, Maxim Cournoyer, Nick Diego Yamane,
+  Jonas Dreßler, Michel Dänzer, Carlos Garnacho, Sebastian Keller,
+  Robert Mader, Madhu, Chris Mayo, Florian Müllner, Sebastian Wick,
+  Zhiyi Zhang, Jonas Ådahl
+
+Translators:
+  Vasil Pupkin [be], Peter Mráz [sk]
+
 48.2
 ====
 * Fix animated cursors [Michel; !4382]
