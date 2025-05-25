@@ -225,6 +225,7 @@ init_api (MetaMdk *mdk)
 
 MetaMdk *
 meta_mdk_new (MetaContext  *context,
+              MetaMdkFlag   flags,
               GError      **error)
 {
   g_autoptr (MetaMdk) mdk = NULL;
@@ -241,12 +242,15 @@ meta_mdk_new (MetaContext  *context,
                            G_CALLBACK (init_api),
                            mdk, G_CONNECT_SWAPPED);
 
-  g_signal_connect_object (remote_desktop, "enabled",
-                           G_CALLBACK (maybe_launch_devkit),
-                           mdk, G_CONNECT_DEFAULT);
-  g_signal_connect_object (screen_cast, "enabled",
-                           G_CALLBACK (maybe_launch_devkit),
-                           mdk, G_CONNECT_DEFAULT);
+  if (flags & META_MDK_FLAG_LAUNCH_VIEWER)
+    {
+      g_signal_connect_object (remote_desktop, "enabled",
+                               G_CALLBACK (maybe_launch_devkit),
+                               mdk, G_CONNECT_DEFAULT);
+      g_signal_connect_object (screen_cast, "enabled",
+                               G_CALLBACK (maybe_launch_devkit),
+                               mdk, G_CONNECT_DEFAULT);
+    }
 
   return g_steal_pointer (&mdk);
 }

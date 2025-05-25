@@ -24,10 +24,17 @@
 
 #include "meta/meta-context.h"
 
+typedef enum _MetaMdkFlag
+{
+  META_MDK_FLAG_NONE = 0,
+  META_MDK_FLAG_LAUNCH_VIEWER = 1 << 0,
+} MetaMdkFlag;
+
 #define META_TYPE_MDK (meta_mdk_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMdk, meta_mdk, META, MDK, GObject)
 
 MetaMdk * meta_mdk_new (MetaContext  *context,
+                        MetaMdkFlag   flags,
                         GError      **error);
 
 MetaContext * meta_mdk_get_context (MetaMdk *mdk);

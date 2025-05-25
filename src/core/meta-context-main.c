@@ -135,13 +135,6 @@ check_configuration (MetaContextMain  *context_main,
       return FALSE;
     }
 
-  if (context_main->options.headless && context_main->options.devkit)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in both MDK and headless mode");
-      return FALSE;
-    }
-
   if (context_main->options.x11.force &&
       (context_main->options.headless || context_main->options.devkit))
     {
@@ -418,8 +411,13 @@ initialize_mdk (MetaContext  *context,
                 GError      **error)
 {
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+  MetaMdkFlag flags;
 
-  context_main->mdk = meta_mdk_new (context, error);
+  if (context_main->options.headless)
+    flags = META_MDK_FLAG_NONE;
+  else
+    flags = META_MDK_FLAG_LAUNCH_VIEWER;
+  context_main->mdk = meta_mdk_new (context, flags, error);
   if (!context_main->mdk)
     return FALSE;
 
