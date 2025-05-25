@@ -1,3 +1,22 @@
+47.8
+====
+* Do not leak session manager file to launched processes [Sebastian; !4405]
+* Use frame-sync candidate that likely matches scanout candidate [Robert; !4412]
+* Propagate all touchpad gesture events to apps [Carlos; !4417]
+* Update window decorations on override-redirect attribute [Rémi; !4287]
+* Load initial _NET_WM_FULLSCREEN_MONITORS value [Zhiyi; !4389]
+* Fix race when registering implicit grab [Alessandro; !4399]
+* Skip multiple refresh intervals if necessary [Michel; !4406]
+* box-layout: Update actor-request-mode on orientation changes [Jonas D.; !4339]
+* Fixed crash [Jonas Å.; !4431]
+* Plugged leaks [Michel; !4432]
+* Misc. bug fixes and cleanups [Maxim, Michel, Florian; !4388, !4039, !4439]
+
+Contributors:
+  Alessandro Astone, Rémi Bernon, Maxim Cournoyer, Jonas Dreßler,
+  Michel Dänzer, Carlos Garnacho, Sebastian Keller, Robert Mader,
+  Florian Müllner, Zhiyi Zhang, Jonas Ådahl
+
 47.7
 ====
 * Fix black screen with nvidia driver [Bilal, Daniel; !4323, !4324]
