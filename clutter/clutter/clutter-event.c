@@ -796,19 +796,7 @@ clutter_event_get_device_type (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_get_device:
- * @event: a #ClutterEvent
- *
- * Retrieves the #ClutterInputDevice for the event.
- * If you want the physical device the event originated from, use
- * [method@Clutter.Event.get_source_device].
- *
- * The #ClutterInputDevice structure is completely opaque and should
- * be cast to the platform-specific implementation.
- *
- * Return value: (transfer none): the #ClutterInputDevice or %NULL. The
- *   returned device is owned by the #ClutterEvent and it should not
- *   be unreferenced
+ * clutter_event_get_device: (skip)
  */
 ClutterInputDevice *
 clutter_event_get_device (const ClutterEvent *event)
@@ -1105,11 +1093,6 @@ clutter_get_current_event (void)
  * @event: a #ClutterEvent
  *
  * Retrieves the hardware device that originated the event.
- *
- * If you need the virtual device, use [method@Clutter.Event.get_device].
- *
- * If no hardware device originated this event, this function will
- * return the same device as [method@Clutter.Event.get_device].
  *
  * Return value: (transfer none): a pointer to a #ClutterInputDevice
  *   or %NULL

@@ -14,6 +14,9 @@ struct _ClutterModifierSet
 };
 
 CLUTTER_EXPORT
+ClutterInputDevice * clutter_event_get_device (const ClutterEvent *event);
+
+CLUTTER_EXPORT
 ClutterEvent * clutter_event_key_new (ClutterEventType     type,
                                       ClutterEventFlags    flags,
                                       int64_t              timestamp_us,

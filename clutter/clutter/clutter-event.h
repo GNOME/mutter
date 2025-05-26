@@ -162,8 +162,6 @@ CLUTTER_EXPORT
 guint32                 clutter_event_get_time                  (const ClutterEvent     *event);
 CLUTTER_EXPORT
 ClutterModifierType     clutter_event_get_state                 (const ClutterEvent     *event);
-CLUTTER_EXPORT
-ClutterInputDevice *    clutter_event_get_device                (const ClutterEvent     *event);
 
 CLUTTER_EXPORT
 ClutterInputDevice *    clutter_event_get_source_device         (const ClutterEvent     *event);
