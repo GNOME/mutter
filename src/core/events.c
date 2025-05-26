@@ -166,7 +166,7 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaA11yManager *a11y_manager = meta_backend_get_a11y_manager (backend);
   MetaCompositor *compositor = meta_display_get_compositor (display);
-  ClutterInputDevice *device;
+  ClutterInputDevice *source_device;
   MetaWindow *window = NULL;
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
@@ -210,7 +210,7 @@ meta_display_handle_event (MetaDisplay        *display,
         return CLUTTER_EVENT_STOP;
     }
 
-  device = clutter_event_get_device (event);
+  source_device = clutter_event_get_source_device (event);
   seat = clutter_input_device_get_seat (clutter_event_get_source_device (event));
   clutter_seat_a11y_update (seat, event);
 
@@ -278,7 +278,8 @@ meta_display_handle_event (MetaDisplay        *display,
            event_type == CLUTTER_BUTTON_RELEASE)
     {
       mapper = META_TABLET_ACTION_MAPPER (display->tool_action_mapper);
-      if (((clutter_input_device_get_capabilities (device) & CLUTTER_INPUT_CAPABILITY_TABLET_TOOL) &&
+      if ((!!(clutter_input_device_get_capabilities (source_device) &
+              CLUTTER_INPUT_CAPABILITY_TABLET_TOOL) &&
            meta_tablet_action_mapper_handle_event (mapper, event)) ||
           clutter_event_get_button (event) == 0)
         return CLUTTER_EVENT_STOP;
@@ -296,7 +297,7 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 
   if (event_type == CLUTTER_MOTION &&
-      !(clutter_input_device_get_capabilities (device) &
+      !(clutter_input_device_get_capabilities (source_device) &
         CLUTTER_INPUT_CAPABILITY_TABLET_TOOL))
     {
       MetaCursorTracker *cursor_tracker =
