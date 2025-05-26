@@ -364,7 +364,7 @@ meta_display_handle_event (MetaDisplay        *display,
       ClutterModifierType grab_mods;
 
       grab_mods = meta_display_get_compositor_modifiers (display);
-      if ((clutter_event_get_state (event) & grab_mods) != 0)
+      if ((clutter_event_get_state (event) & grab_mods) == grab_mods)
         return CLUTTER_EVENT_PROPAGATE;
     }
 
