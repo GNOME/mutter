@@ -51,17 +51,15 @@ struct _ClutterActionClass
   gboolean (* handle_event) (ClutterAction      *action,
                              const ClutterEvent *event);
 
-  void (* sequence_cancelled) (ClutterAction        *action,
-                               ClutterInputDevice   *device,
-                               ClutterEventSequence *sequence);
+  void (* sequence_cancelled) (ClutterAction *action,
+                               ClutterSprite *sprite);
 
   gboolean (* register_sequence) (ClutterAction      *self,
                                   const ClutterEvent *event);
 
-  int (* setup_sequence_relationship) (ClutterAction        *action_1,
-                                       ClutterAction        *action_2,
-                                       ClutterInputDevice   *device,
-                                       ClutterEventSequence *sequence);
+  int (* setup_sequence_relationship) (ClutterAction *action_1,
+                                       ClutterAction *action_2,
+                                       ClutterSprite *sprite);
 };
 
 /* ClutterActor API */

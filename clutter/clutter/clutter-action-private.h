@@ -38,16 +38,14 @@ void clutter_action_set_phase (ClutterAction     *action,
 gboolean clutter_action_handle_event (ClutterAction      *action,
                                       const ClutterEvent *event);
 
-void clutter_action_sequence_cancelled (ClutterAction        *action,
-                                        ClutterInputDevice   *device,
-                                        ClutterEventSequence *sequence);
+void clutter_action_sequence_cancelled (ClutterAction *action,
+                                        ClutterSprite *sprite);
 
 gboolean clutter_action_register_sequence (ClutterAction      *self,
                                            const ClutterEvent *event);
 
-int clutter_action_setup_sequence_relationship (ClutterAction        *action_1,
-                                                ClutterAction        *action_2,
-                                                ClutterInputDevice   *device,
-                                                ClutterEventSequence *sequence);
+int clutter_action_setup_sequence_relationship (ClutterAction *action_1,
+                                                ClutterAction *action_2,
+                                                ClutterSprite *sprite);
 
 G_END_DECLS

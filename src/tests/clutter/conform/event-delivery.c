@@ -121,11 +121,18 @@ test_action_handle_event (ClutterAction      *action,
       if (action_claim_sequence)
         {
           ClutterActor *actor;
+          ClutterContext *context;
+          ClutterBackend *backend;
+          ClutterStage *stage;
+          ClutterSprite *sprite;
 
           actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
+          context = clutter_actor_get_context (actor);
+          backend = clutter_context_get_backend (context);
+          stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+          sprite = clutter_backend_get_sprite (backend, stage, event);
           clutter_stage_notify_action_implicit_grab (CLUTTER_STAGE (clutter_actor_get_stage (actor)),
-                                                     clutter_event_get_device (event),
-                                                     clutter_event_get_event_sequence (event));
+                                                     sprite);
         }
     }
 
@@ -133,9 +140,8 @@ test_action_handle_event (ClutterAction      *action,
 }
 
 static void
-test_action_sequence_cancelled (ClutterAction        *action,
-                                ClutterInputDevice   *device,
-                                ClutterEventSequence *sequence)
+test_action_sequence_cancelled (ClutterAction *action,
+                                ClutterSprite *sprite)
 {
   n_action_sequences_cancelled++;
 }

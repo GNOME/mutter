@@ -104,8 +104,7 @@ G_STATIC_ASSERT (sizeof (state_to_string) / sizeof (state_to_string[0]) == CLUTT
 
 typedef struct
 {
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterSprite *sprite;
 
   ClutterEvent *begin_event;
   ClutterEvent *previous_event;
@@ -200,10 +199,9 @@ debug_message (ClutterGesture *self,
 }
 
 static GestureSequenceData *
-get_sequence_data (ClutterGesture       *self,
-                   ClutterInputDevice   *device,
-                   ClutterEventSequence *sequence,
-                   unsigned int         *index)
+get_sequence_data (ClutterGesture *self,
+                   ClutterSprite  *sprite,
+                   unsigned int   *index)
 {
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
   unsigned int i;
@@ -212,7 +210,7 @@ get_sequence_data (ClutterGesture       *self,
     {
       GestureSequenceData *iter = &g_array_index (priv->sequences, GestureSequenceData, i);
 
-      if (!iter->ended && iter->device == device && iter->sequence == sequence)
+      if (!iter->ended && iter->sprite == sprite)
         {
           if (index != NULL)
             *index = i;
@@ -228,23 +226,26 @@ register_sequence (ClutterGesture     *self,
                    const ClutterEvent *event)
 {
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
+  ClutterActor *actor =
+    clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
+  ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+  ClutterContext *context = clutter_actor_get_context (actor);
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  ClutterSprite *sprite = clutter_backend_get_sprite (backend, stage, event);
   GestureSequenceData *seq_data;
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
 
   g_array_set_size (priv->sequences, priv->sequences->len + 1);
   seq_data = &g_array_index (priv->sequences, GestureSequenceData, priv->sequences->len - 1);
 
-  seq_data->device = device;
-  seq_data->sequence = sequence;
+  seq_data->sprite = sprite;
   seq_data->n_buttons_pressed = 0;
   seq_data->seen = FALSE;
   seq_data->ended = FALSE;
   seq_data->begin_event = clutter_event_copy (event);
 
   debug_message (self,
-                 "[d=%p s=%p] Registered new sequence, n total sequences now: %u",
-                 device, sequence, priv->sequences->len);
+                 "[s=%p] Registered new sequence, n total sequences now: %u",
+                 sprite, priv->sequences->len);
 }
 
 static void
@@ -310,16 +311,15 @@ out:
 }
 
 static void
-cancel_point (ClutterGesture       *self,
-              ClutterInputDevice   *device,
-              ClutterEventSequence *sequence)
+cancel_point (ClutterGesture *self,
+              ClutterSprite  *sprite)
 {
   unsigned int seq_index;
 
-  if (!get_sequence_data (self, device, sequence, &seq_index))
+  if (!get_sequence_data (self, sprite, &seq_index))
     return;
 
-  debug_message (self, "[d=%p s=%p] Cancelling point", device, sequence);
+  debug_message (self, "[s=%p] Cancelling point", sprite);
 
   cancel_sequence (self, seq_index);
 }
@@ -585,9 +585,7 @@ set_state (ClutterGesture      *self,
           if (seq_data->ended)
             continue;
 
-          clutter_stage_notify_action_implicit_grab (stage,
-                                                     seq_data->device,
-                                                     seq_data->sequence);
+          clutter_stage_notify_action_implicit_grab (stage, seq_data->sprite);
         }
 
       /* Cancel gestures that are independent of ours and still in POSSIBLE:
@@ -826,8 +824,12 @@ clutter_gesture_handle_event (ClutterAction      *action,
   ClutterGesture *self = CLUTTER_GESTURE (action);
   ClutterGesturePrivate *priv = clutter_gesture_get_instance_private (self);
   ClutterGestureClass *gesture_class = CLUTTER_GESTURE_GET_CLASS (self);
-  ClutterInputDevice *device = clutter_event_get_device (event);
-  ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+  ClutterActor *actor =
+    clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
+  ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+  ClutterContext *context = clutter_actor_get_context (actor);
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  ClutterSprite *sprite = clutter_backend_get_sprite (backend, stage, event);
   ClutterEventType event_type = clutter_event_type (event);
   GestureSequenceData *seq_data;
   unsigned int seq_index;
@@ -845,7 +847,7 @@ clutter_gesture_handle_event (ClutterAction      *action,
   if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_SYNTHETIC)
     return CLUTTER_EVENT_PROPAGATE;
 
-  if ((seq_data = get_sequence_data (self, device, sequence, &seq_index)) == NULL)
+  if ((seq_data = get_sequence_data (self, sprite, &seq_index)) == NULL)
     return CLUTTER_EVENT_PROPAGATE;
 
   if (event_type == CLUTTER_ENTER || event_type == CLUTTER_LEAVE)
@@ -961,16 +963,8 @@ clutter_gesture_handle_event (ClutterAction      *action,
       old_state == CLUTTER_GESTURE_STATE_RECOGNIZING &&
       priv->state == CLUTTER_GESTURE_STATE_RECOGNIZING)
     {
-      ClutterActor *actor;
-
-      actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
-      if (actor)
-        {
-          ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
-
-          if (stage)
-            clutter_stage_notify_action_implicit_grab (stage, device, sequence);
-        }
+      if (actor && stage)
+        clutter_stage_notify_action_implicit_grab (stage, sprite);
 
       debug_message (self,
                      "Cancelling other gestures on newly added point automatically");
@@ -982,11 +976,10 @@ clutter_gesture_handle_event (ClutterAction      *action,
 }
 
 static void
-clutter_gesture_sequence_cancelled (ClutterAction        *action,
-                                    ClutterInputDevice   *device,
-                                    ClutterEventSequence *sequence)
+clutter_gesture_sequence_cancelled (ClutterAction *action,
+                                    ClutterSprite *sprite)
 {
-  cancel_point (CLUTTER_GESTURE (action), device, sequence);
+  cancel_point (CLUTTER_GESTURE (action), sprite);
 }
 
 static gboolean
@@ -1067,10 +1060,9 @@ setup_influence_on_other_gesture (ClutterGesture *self,
 }
 
 static int
-clutter_gesture_setup_sequence_relationship (ClutterAction        *action_1,
-                                             ClutterAction        *action_2,
-                                             ClutterInputDevice   *device,
-                                             ClutterEventSequence *sequence)
+clutter_gesture_setup_sequence_relationship (ClutterAction *action_1,
+                                             ClutterAction *action_2,
+                                             ClutterSprite *sprite)
 {
   if (!CLUTTER_IS_GESTURE (action_1) || !CLUTTER_IS_GESTURE (action_2))
     return 0;
@@ -1091,8 +1083,8 @@ clutter_gesture_setup_sequence_relationship (ClutterAction        *action_1,
   g_assert (priv_2->state == CLUTTER_GESTURE_STATE_POSSIBLE ||
             priv_2->state == CLUTTER_GESTURE_STATE_RECOGNIZING);
 
-  g_assert (get_sequence_data (gesture_1, device, sequence, NULL) != NULL &&
-            get_sequence_data (gesture_2, device, sequence, NULL) != NULL);
+  g_assert (get_sequence_data (gesture_1, sprite, NULL) != NULL &&
+            get_sequence_data (gesture_2, sprite, NULL) != NULL);
 
   /* If gesture 1 knows gesture 2 (this implies vice-versa), everything's
    * figured out already, we won't negotiate again for any new shared sequences!

@@ -216,10 +216,11 @@ clutter_stage_handle_event (ClutterStage *stage,
           event_type == CLUTTER_TOUCH_END ||
           event_type == CLUTTER_TOUCH_CANCEL)
         {
-          ClutterInputDevice *device = clutter_event_get_device (event);
-          ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
+          ClutterBackend *backend = clutter_context_get_backend (context);
+          ClutterSprite *sprite =
+            clutter_backend_get_sprite (backend, stage, event);
 
-          clutter_stage_maybe_lost_implicit_grab (stage, device, sequence);
+          clutter_stage_maybe_lost_implicit_grab (stage, sprite);
         }
     }
   else

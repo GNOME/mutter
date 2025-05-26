@@ -3374,18 +3374,11 @@ clutter_stage_get_event_actor (ClutterStage       *stage,
 }
 
 void
-clutter_stage_maybe_lost_implicit_grab (ClutterStage         *self,
-                                        ClutterInputDevice   *device,
-                                        ClutterEventSequence *sequence)
+clutter_stage_maybe_lost_implicit_grab (ClutterStage  *self,
+                                        ClutterSprite *sprite)
 {
-  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
-  ClutterBackend *backend = clutter_context_get_backend (context);
-  ClutterSprite *sprite;
-
-  sprite = clutter_backend_lookup_sprite (backend, self, device, sequence);
-  clutter_sprite_maybe_lost_implicit_grab (sprite, device, sequence);
+  clutter_sprite_maybe_lost_implicit_grab (sprite);
 }
-
 
 void
 clutter_stage_emit_event (ClutterStage       *self,
@@ -3429,15 +3422,9 @@ clutter_stage_implicit_grab_actor_unmapped (ClutterStage *self,
 }
 
 void
-clutter_stage_notify_action_implicit_grab (ClutterStage         *self,
-                                           ClutterInputDevice   *device,
-                                           ClutterEventSequence *sequence)
+clutter_stage_notify_action_implicit_grab (ClutterStage  *self,
+                                           ClutterSprite *sprite)
 {
-  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
-  ClutterBackend *backend = clutter_context_get_backend (context);
-  ClutterSprite *sprite;
-
-  sprite = clutter_backend_lookup_sprite (backend, self, device, sequence);
   clutter_sprite_remove_all_actors_from_chain (sprite);
 }
 

@@ -110,14 +110,13 @@ clutter_action_handle_event (ClutterAction      *action,
 }
 
 void
-clutter_action_sequence_cancelled (ClutterAction        *action,
-                                   ClutterInputDevice   *device,
-                                   ClutterEventSequence *sequence)
+clutter_action_sequence_cancelled (ClutterAction *action,
+                                   ClutterSprite *sprite)
 {
   ClutterActionClass *action_class = CLUTTER_ACTION_GET_CLASS (action);
 
   if (action_class->sequence_cancelled)
-    action_class->sequence_cancelled (action, device, sequence);
+    action_class->sequence_cancelled (action, sprite);
 }
 
 gboolean
@@ -133,15 +132,14 @@ clutter_action_register_sequence (ClutterAction      *self,
 }
 
 int
-clutter_action_setup_sequence_relationship (ClutterAction        *action_1,
-                                            ClutterAction        *action_2,
-                                            ClutterInputDevice   *device,
-                                            ClutterEventSequence *sequence)
+clutter_action_setup_sequence_relationship (ClutterAction *action_1,
+                                            ClutterAction *action_2,
+                                            ClutterSprite *sprite)
 {
   ClutterActionClass *action_class = CLUTTER_ACTION_GET_CLASS (action_1);
 
   if (action_class->setup_sequence_relationship)
-    return action_class->setup_sequence_relationship (action_1, action_2, device, sequence);
+    return action_class->setup_sequence_relationship (action_1, action_2, sprite);
 
   return 0;
 }
