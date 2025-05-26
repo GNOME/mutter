@@ -104,9 +104,6 @@ handle_idletime_for_event (MetaDisplay        *display,
   ClutterEventType event_type;
   ClutterEventFlags flags;
 
-  if (clutter_event_get_device (event) == NULL)
-    return;
-
   flags = clutter_event_get_flags (event);
   event_type = clutter_event_type (event);
 
