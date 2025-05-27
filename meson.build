@@ -770,6 +770,7 @@ endif
 
 gnome.post_install(
   glib_compile_schemas: true,
+  gtk_update_icon_cache: have_devkit,
 )
 
 meson.add_dist_script('meson/check-version.py', meson.project_version(), 'NEWS')
