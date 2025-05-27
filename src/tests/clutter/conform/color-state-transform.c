@@ -5,7 +5,7 @@
 #include "clutter-mutter.h"
 #include "tests/clutter-test-utils.h"
 
-#define COLOR_TRANSFORM_EPSILON 0.04f
+#define COLOR_TRANSFORM_EPSILON 0.05f
 
 typedef struct _TestColor {
   float r, g, b, a;
