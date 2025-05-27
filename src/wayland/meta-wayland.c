@@ -704,7 +704,7 @@ set_gnome_env (const char *name,
 	       const char *value)
 {
   GDBusConnection *session_bus;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   g_autoptr (GVariant) result = NULL;
 
   setenv (name, value, TRUE);
@@ -723,7 +723,7 @@ set_gnome_env (const char *name,
 			       -1, NULL, &error);
   if (error)
     {
-      char *remote_error;
+      g_autofree char *remote_error = NULL;
       const char *ignored_remote_errors[] = {
         "org.gnome.SessionManager.NotInInitialization",
         "org.freedesktop.DBus.Error.NameHasNoOwner",
@@ -736,9 +736,6 @@ set_gnome_env (const char *name,
           g_warning ("Failed to set environment variable %s for gnome-session: %s",
                      name, error->message);
         }
-
-      g_free (remote_error);
-      g_error_free (error);
 
       return FALSE;
     }
