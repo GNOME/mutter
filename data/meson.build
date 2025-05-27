@@ -84,4 +84,7 @@ if have_libgudev
 endif
 
 subdir('dbus-interfaces')
-subdir('icons')
+
+if have_devkit
+  subdir('icons')
+endif
