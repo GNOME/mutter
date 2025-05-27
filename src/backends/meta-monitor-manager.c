@@ -3227,7 +3227,7 @@ static gboolean
 meta_monitor_manager_handle_set_backlight (MetaDBusDisplayConfig *skeleton,
                                            GDBusMethodInvocation *invocation,
                                            uint32_t               serial,
-                                           const char *           connector,
+                                           const char            *connector,
                                            int                    value,
                                            MetaMonitorManager    *monitor_manager)
 {
