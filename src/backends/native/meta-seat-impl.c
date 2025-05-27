@@ -1218,7 +1218,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
   evdev_device->value120.acc_dx += (int32_t) dx_value120;
   evdev_device->value120.acc_dy += (int32_t) dy_value120;
 
-  if (abs (evdev_device->value120.acc_dx) >= 60)
+  if (dx_value120 != 0 && abs (evdev_device->value120.acc_dx) >= 60)
     {
       low_res_value = (evdev_device->value120.acc_dx / 120);
       if (low_res_value == 0)
@@ -1230,7 +1230,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
       evdev_device->value120.acc_dx -= (low_res_value * 120);
     }
 
-  if (abs (evdev_device->value120.acc_dy) >= 60)
+  if (dy_value120 != 0 && abs (evdev_device->value120.acc_dy) >= 60)
     {
       low_res_value = (evdev_device->value120.acc_dy / 120);
       if (low_res_value == 0)
