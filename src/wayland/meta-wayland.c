@@ -700,6 +700,39 @@ meta_wayland_compositor_get_committed_transactions (MetaWaylandCompositor *compo
 }
 
 static gboolean
+update_activation_environment (GDBusConnection *session_bus,
+                               const char      *name,
+                               const char      *value)
+{
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) result = NULL;
+  GVariantBuilder builder;
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{ss}"));
+  g_variant_builder_add (&builder, "{ss}", name, value);
+
+  result = g_dbus_connection_call_sync (session_bus,
+                                        "org.freedesktop.DBus",
+                                        "/org/freedesktop/DBus",
+                                        "org.freedesktop.DBus",
+                                        "UpdateActivationEnvironment",
+                                        g_variant_new ("(@a{ss})",
+                                                       g_variant_builder_end (&builder)),
+                                        NULL,
+                                        G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                        -1, NULL, &error);
+
+  if (error)
+    {
+      g_warning ("Failed to update activation environment with variable %s: %s",
+                 name, error->message);
+
+      return FALSE;
+    }
+  return TRUE;
+}
+
+static gboolean
 set_gnome_env (const char *name,
 	       const char *value)
 {
@@ -724,14 +757,13 @@ set_gnome_env (const char *name,
   if (error)
     {
       g_autofree char *remote_error = NULL;
-      const char *ignored_remote_errors[] = {
-        "org.gnome.SessionManager.NotInInitialization",
-        "org.freedesktop.DBus.Error.NameHasNoOwner",
-        NULL,
-      };
 
       remote_error = g_dbus_error_get_remote_error (error);
-      if (!g_strv_contains (ignored_remote_errors, remote_error))
+      if (g_strcmp0 (remote_error, "org.freedesktop.DBus.Error.NameHasNoOwner") == 0)
+        {
+          return update_activation_environment (session_bus, name, value);
+        }
+      else if (g_strcmp0 (remote_error, "org.gnome.SessionManager.NotInInitialization") != 0)
         {
           g_warning ("Failed to set environment variable %s for gnome-session: %s",
                      name, error->message);
