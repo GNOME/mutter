@@ -132,7 +132,10 @@ then
       1.43
 fi
 
-./$SCRIPTS_DIR/install-meson-project.sh \
-  "${OPTIONS[@]}" \
-  https://gitlab.gnome.org/GNOME/glib.git \
-  main c22642589b5f999d6b89379c852c199919da6ae5
+if ! pkgconf --atleast-version 2.85.0 glib-2.0
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.gnome.org/GNOME/glib.git \
+      main
+fi
