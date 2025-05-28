@@ -447,15 +447,13 @@ on_active_changed (MetaDBusLogin1Session *session,
 }
 
 MetaLauncher *
-meta_launcher_new (MetaBackend        *backend,
-                   MetaLauncherFlags   flags,
-                   GError            **error)
+meta_launcher_new (MetaBackend  *backend,
+                   GError      **error)
 {
   g_autoptr (MetaLauncher) launcher = NULL;
   g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
   g_autoptr (MetaDBusLogin1Seat) seat_proxy = NULL;
   g_autoptr (GError) local_error = NULL;
-  gboolean have_control = FALSE;
 
   session_proxy = get_session_proxy (NULL, error);
   if (!session_proxy)
@@ -472,29 +470,10 @@ meta_launcher_new (MetaBackend        *backend,
       g_clear_error (&local_error);
     }
 
-  if (flags & META_LAUNCHER_FLAG_TAKE_CONTROL)
-    {
-      if (!meta_dbus_login1_session_call_take_control_sync (session_proxy,
-                                                            FALSE,
-                                                            NULL,
-                                                            &local_error))
-        {
-          meta_topic (META_DEBUG_BACKEND,
-                      "Failed to take control of the session: %s",
-                      local_error->message);
-          g_clear_error (&local_error);
-        }
-      else
-        {
-          have_control = TRUE;
-        }
-    }
-
   launcher = g_object_new (META_TYPE_LAUNCHER, NULL);
   launcher->backend = backend;
   launcher->session_proxy = g_steal_pointer (&session_proxy);
   launcher->session_active = TRUE;
-  launcher->have_control = have_control;
   launcher->seat_proxy = g_steal_pointer (&seat_proxy);
 
   g_signal_connect (launcher->session_proxy,
@@ -526,9 +505,17 @@ meta_launcher_is_session_active (MetaLauncher *launcher)
 }
 
 gboolean
-meta_launcher_is_session_controller (MetaLauncher *launcher)
+meta_launcher_take_control (MetaLauncher  *launcher,
+                            GError       **error)
 {
-  return launcher->have_control;
+  if (!meta_dbus_login1_session_call_take_control_sync (launcher->session_proxy,
+                                                        FALSE,
+                                                        NULL,
+                                                        error))
+    return FALSE;
+
+  launcher->have_control = TRUE;
+  return TRUE;
 }
 
 const char *

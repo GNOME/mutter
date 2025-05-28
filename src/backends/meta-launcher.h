@@ -21,12 +21,6 @@
 
 #include "backends/meta-backend-types.h"
 
-typedef enum
-{
-  META_LAUNCHER_FLAG_NONE = 0,
-  META_LAUNCHER_FLAG_TAKE_CONTROL = 1 << 0,
-} MetaLauncherFlags;
-
 #define META_TYPE_LAUNCHER (meta_launcher_get_type ())
 G_DECLARE_FINAL_TYPE (MetaLauncher,
                       meta_launcher,
@@ -35,9 +29,8 @@ G_DECLARE_FINAL_TYPE (MetaLauncher,
 
 typedef struct _MetaDBusLogin1Session MetaDBusLogin1Session;
 
-MetaLauncher *meta_launcher_new (MetaBackend        *backend,
-                                 MetaLauncherFlags   flags,
-                                 GError            **error);
+MetaLauncher *meta_launcher_new (MetaBackend  *backend,
+                                 GError      **error);
 
 gboolean meta_launcher_activate_vt (MetaLauncher  *self,
                                     signed char    vt,
@@ -45,7 +38,8 @@ gboolean meta_launcher_activate_vt (MetaLauncher  *self,
 
 gboolean meta_launcher_is_session_active (MetaLauncher *launcher);
 
-gboolean meta_launcher_is_session_controller (MetaLauncher *launcher);
+gboolean meta_launcher_take_control (MetaLauncher  *launcher,
+                                     GError       **error);
 
 const char * meta_launcher_get_seat_id (MetaLauncher *launcher);
 

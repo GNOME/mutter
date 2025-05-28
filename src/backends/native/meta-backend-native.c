@@ -816,19 +816,19 @@ meta_backend_native_create_launcher (MetaBackend   *backend,
       priv->mode == META_BACKEND_NATIVE_MODE_TEST_HEADLESS)
     return TRUE;
 
-  launcher = meta_launcher_new (backend, META_LAUNCHER_FLAG_TAKE_CONTROL, error);
+  launcher = meta_launcher_new (backend, error);
   if (!launcher)
     return FALSE;
+
 
   if (!meta_launcher_get_seat_id (launcher))
     {
       priv->mode = META_BACKEND_NATIVE_MODE_HEADLESS;
       g_message ("No seat assigned, running headlessly");
     }
-  else if (!meta_launcher_is_session_controller (launcher))
+  else if (!meta_launcher_take_control (launcher, error))
     {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Native backend mode needs to be session controller");
+      g_prefix_error_literal (error, "Failed to take control of the session: ");
       return FALSE;
     }
 
