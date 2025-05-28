@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: mutter main\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
 "POT-Creation-Date: 2025-05-20 21:59+0000\n"
-"PO-Revision-Date: 2025-05-28 08:18-0400\n"
+"PO-Revision-Date: 2025-05-28 09:29-0400\n"
 "Last-Translator: Emilio Sepúlveda <emism.translations@gmail.com>\n"
 "Language-Team: Interlingua <softinterlingua@gmail.com>\n"
 "Language: ia\n"
@@ -198,39 +198,39 @@ msgstr "Activar le menu de fenestra"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
-msgstr ""
+msgstr "Commutar modo de schermo plen"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr ""
+msgstr "Commutar stato de maximisation"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
-msgstr ""
+msgstr "Maximisar fenestra"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr ""
+msgstr "Restaurar fenestra"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
-msgstr ""
+msgstr "Clauder fenestra"
 
 #: data/50-mutter-windows.xml:20
 msgid "Hide window"
-msgstr ""
+msgstr "Celar fenestra"
 
 #: data/50-mutter-windows.xml:22
 msgid "Move window"
-msgstr ""
+msgstr "Displaciar fenestra"
 
 #: data/50-mutter-windows.xml:24
 msgid "Resize window"
-msgstr ""
+msgstr "Redimensionar fenestra"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr ""
+msgstr "Commuta fenestra sur un o tote le spatios de travalio"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
@@ -358,7 +358,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:108
 msgid "Enable experimental features"
-msgstr ""
+msgstr "Activar functionalitates experimental"
 
 #: data/org.gnome.mutter.gschema.xml.in:109
 msgid ""
