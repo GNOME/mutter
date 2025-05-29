@@ -268,9 +268,7 @@ on_xevent (GdkDisplay *display,
           !g_hash_table_contains (window_tracker->client_windows,
                                   GUINT_TO_POINTER (xwindow)))
         set_up_frame (window_tracker, xwindow);
-      else if (xevent->xproperty.state == PropertyDelete &&
-               g_hash_table_contains (window_tracker->client_windows,
-                                      GUINT_TO_POINTER (xwindow)))
+      else if (xevent->xproperty.state == PropertyDelete)
         remove_frame (window_tracker, xwindow);
     }
   else if (xevent->type == PropertyNotify)
