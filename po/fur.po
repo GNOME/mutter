@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2024-03-02 12:22+0000\n"
-"PO-Revision-Date: 2024-04-18 10:09+0200\n"
+"POT-Creation-Date: 2025-05-20 21:59+0000\n"
+"PO-Revision-Date: 2025-05-30 08:34+0200\n"
 "Last-Translator: Fabio T. <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Editor: HaiPO 1.4 beta\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Poedit 3.6\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -246,19 +246,19 @@ msgstr "Slargje il barcon par verticâl"
 msgid "Maximize window horizontally"
 msgstr "Slargje il barcon par orizontâl"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:167
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "Slargje dividint ae çampe"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:172
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "Slargje dividint ae drete"
 
-#: data/org.gnome.mutter.gschema.xml.in:15
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid "Modifier to use for extended window management operations"
 msgstr "Modificadôr di doprâ pes operazions estesis di gjestion barcons"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:17
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -270,11 +270,11 @@ msgstr ""
 "predefinît al è pensât par jessi il “tast Windows” su hardware PC. Si spiete "
 "che cheste scurte e sedi il valôr predefinît o une stringhe vueide."
 
-#: data/org.gnome.mutter.gschema.xml.in:28
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid "Attach modal dialogs"
 msgstr "Dialics modâi tacâts"
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:30
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -283,12 +283,12 @@ msgstr ""
 "Se metût a VÊR, invezit di vê sbaris di titul indipendentis, i dialics modâi "
 "a semein tacâts ae sbare dal titul dal barcon gjenitôr e si spostin cun lui."
 
-#: data/org.gnome.mutter.gschema.xml.in:38
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
 "Abilite il piastrelâ tal ôr cuant che si strissine i barcons tal ôr dal visôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -299,25 +299,25 @@ msgstr ""
 "cuvierzi metât dal spazi disponibil. Strissinant sul ôr superiôr dal schermi "
 "al slargje i barcons dal dut."
 
-#: data/org.gnome.mutter.gschema.xml.in:48
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid "Workspaces are managed dynamically"
 msgstr "I spazis di vore a son ministrât in maniere dinamiche"
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Al determine se i spazis di lavôr a son gjestîts in maniere dinamiche o se "
-"il lôr numar al è fis (determinât de clâf num-workspaces in org.gnome."
-"desktop.wm.preferences)."
+"il lôr numar al è fis (determinât de clâf num-workspaces in "
+"org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:58
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
 msgstr "Spazis di vore nome tal visôr primari"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -325,11 +325,11 @@ msgstr ""
 "Determine se il cambi di spazi di lavôr al à di vignî pai barcons su ducj i "
 "visôrs o nome pai barcons sul visôr primari."
 
-#: data/org.gnome.mutter.gschema.xml.in:67
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Tarde il cambiament dal focus fintremai che il puntadôr si ferme"
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -339,11 +339,11 @@ msgstr ""
 "alore il focus nol ven spostât subite cuant che si passe suntun barcon, ma "
 "nome cuant che il puntadôr si ferme."
 
-#: data/org.gnome.mutter.gschema.xml.in:78
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid "Draggable border width"
 msgstr "Largjece dal ôr che si pues strissinâ"
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:80
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -351,11 +351,11 @@ msgstr ""
 "Il spessôr totâl pai ôrs che si puedin strissinâ. Se i ôrs visibii dal teme "
 "no bastin, a vegnin zontâts dai ôrs invisibii par rivâ a chest valôr."
 
-#: data/org.gnome.mutter.gschema.xml.in:88
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Slargje in automatic i barcons grancj su par ju come il visôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:90
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -363,11 +363,11 @@ msgstr ""
 "Se abilitât, i gnûfs barcons che a an al inizi la stesse dimension dal visôr "
 "a vegnin slargjâts in automatic."
 
-#: data/org.gnome.mutter.gschema.xml.in:97
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
 msgstr "Place i gnûfs barcons tal mieç"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -375,11 +375,11 @@ msgstr ""
 "Se metût a VÊR, i gnûfs barcons a vegnaran plaçâts simpri tal mieç dal "
 "schermi atîf dal visôr."
 
-#: data/org.gnome.mutter.gschema.xml.in:107
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid "Enable experimental features"
 msgstr "Abilite funzionalitâts sperimentâls"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:109
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -394,14 +394,17 @@ msgid ""
 "terminates Xwayland if all relevant X11 clients are gone. Requires a "
 "restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
 "refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart."
+"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
+"native-scaling” — lets Xwayland clients use their native scaling support. If "
+"scaling is not supported by client, the client will be unscaled. Setting "
+"only takes effect when “scale-monitor-framebuffer” is enabled as well."
 msgstr ""
 "Par abilitâ lis funzionalitâts sperimentâls, zonte la peraule clâf de "
 "funzionalitât ae liste. Il fat che la funzionalitât e vedi bisugne di tornâ "
-"a inviâ il compositôr al dipent de funzionalitât dade. Nol covente che une "
-"funzionalitât sperimentâl e sedi disponibile o configurabile. No sta "
+"a inviâ il compositôr al dipent de funzionalitât indicade. Nol covente che "
+"une funzionalitât sperimentâl e sedi disponibile o configurabile. No sta "
 "spietâti di zontâ alc in cheste impostazion e pensâ che e duredi tal timp. "
-"Atualmentri lis peraulis clâf pussibilis a son: • “scale-monitor-"
+"In chest moment lis peraulis clâf pussibilis a son: • “scale-monitor-"
 "framebuffer” — al rint come predefinît par mutter, la disposizion logjiche "
 "dai visôrs intun spazi logjic di coordenadis di pixel, in plui a vegnin "
 "scjalâts i framebuffers dai visôrs invezit che il contignût dal barcon; dut "
@@ -412,21 +415,25 @@ msgstr ""
 "X11 a son lâts. Al covente tornâ a inviâ. • “variable-refresh-rate” — al fâs "
 "in mût che mutter al justi in maniere dinamiche la frecuence di inzornament "
 "dal visôr là che al pues se il visôr, la GPU e il driver DRM lu supuartin. "
-"Al è configurabil tes Impostazions. Al covente tornâ a inviâ."
+"Al è configurabil tes Impostazions. Al covente tornâ a inviâ. • “xwayland-"
+"native-scaling” — al permet ai clients Xwayland di doprâ il lôr supuart par "
+"scjalâ in mût natîf. Se il client nol supuarte il scjalâ, il client nol "
+"vignarà scjalât. La impostazion e deventarà efetive nome se ancje “scale-"
+"monitor-framebuffer” al è abilitât."
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificadôr di doprâ par localizâ il pontadôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Cheste clâf e inizializerâ la azion “localize pontadôr”."
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:159
 msgid "Timeout for check-alive ping"
 msgstr "Timp scjadût pal control di sorevivence dal ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -435,15 +442,34 @@ msgstr ""
 "richieste di ping, par fâ in mût che nol vegni identificât tant che "
 "inglaçât. Doprant 0 si disabilitarà dal dut il control di sorevivence."
 
-#: data/org.gnome.mutter.gschema.xml.in:177
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "Impostazions di luminance par jessude"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"Impostazion di luminance par jessude e modalitât di colôr. Ogni vôs e je "
+"fate di une tuple cun conetôr, produtôr, prodot, seriâl e une modalitât di "
+"colôr e ancje un valôr in virgule mobile associât che al rapresente la "
+"luminance in percentuâl (%). Se nol ven specificât il valôr predefinît al è "
+"100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
 msgstr "Cambie configurazions visôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:182
+#: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
 msgstr "Al volte la configurazion dal visôr integrât"
 
-#: data/org.gnome.mutter.gschema.xml.in:187
+#: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
 msgstr "Anule cualsisei session di acuisizion di input ative"
 
@@ -601,26 +627,62 @@ msgstr ""
 "modifiche di cheste impostazion e necessite il tornâ a inviâ Xwayland par fâ "
 "in mût che e sedi efetive."
 
-#: src/backends/meta-monitor.c:251
+#: mdk/mdk-devkit.ui:7
+msgid "_Input"
+msgstr "_Input"
+
+#: mdk/mdk-devkit.ui:9
+msgid "_Emulate touch"
+msgstr "_Emule tocjade"
+
+#: mdk/mdk-devkit.ui:15
+msgid "_About Mutter Development Kit"
+msgstr "_Informazions su Mutter Development Kit"
+
+#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:84 mdk/mdk-main.c:99
+msgid "Mutter Development Kit"
+msgstr "Mutter Development Kit"
+
+#: mdk/mdk-devkit.ui:31
+msgid "Main Menu"
+msgstr "Menù principâl"
+
+#: mdk/mdk-main.c:68
+msgid "The Mutter Team"
+msgstr "Il grup Mutter"
+
+#: mdk/mdk-main.c:90 mdk/mdk-main.c:104
+msgid "Mutter software development kit"
+msgstr "Kit di disvilup software di Mutter"
+
+#: mdk/mdk-main.c:93 mdk/mdk-main.c:107
+msgid "About Mutter Development Kit"
+msgstr "Informazions su Mutter Development Kit"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Impussibil creâ il monitor"
+
+#: src/backends/meta-monitor.c:272
 msgid "Built-in display"
 msgstr "Display integrât"
 
-#: src/backends/meta-monitor.c:278
+#: src/backends/meta-monitor.c:299
 msgid "Unknown"
 msgstr "No cognossût"
 
-#: src/backends/meta-monitor.c:280
+#: src/backends/meta-monitor.c:301
 msgid "Unknown Display"
 msgstr "Display no cognossût"
 
-#: src/backends/meta-monitor.c:288
+#: src/backends/meta-monitor.c:309
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:296
+#: src/backends/meta-monitor.c:317
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -632,94 +694,94 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Event cjampane"
 
-#: src/core/display.c:734
+#: src/core/display.c:741
 msgid "Privacy Screen Enabled"
 msgstr "Schermade di riservatece abilitât"
 
-#: src/core/display.c:735
+#: src/core/display.c:742
 msgid "Privacy Screen Disabled"
 msgstr "Schermade di riservatece disabilitât"
 
-#: src/core/meta-context-main.c:601
+#: src/core/meta-context-main.c:632
 msgid "Replace the running window manager"
 msgstr "Rimplace il window manager in vore"
 
-#: src/core/meta-context-main.c:607
+#: src/core/meta-context-main.c:638
 msgid "X Display to use"
 msgstr "Display X di doprâ"
 
-#: src/core/meta-context-main.c:613
-msgid "Disable connection to session manager"
-msgstr "Disabilite la conession al gjestôr de session"
-
-#: src/core/meta-context-main.c:619
-msgid "Specify session management ID"
-msgstr "Specifiche il ID di gjestion session"
-
-#: src/core/meta-context-main.c:625
-msgid "Initialize session from savefile"
-msgstr "Inizialize session da file salvât"
-
-#: src/core/meta-context-main.c:631
+#: src/core/meta-context-main.c:644
 msgid "Make X calls synchronous"
 msgstr "Fâs lis clamadis X sincronis"
 
-#: src/core/meta-context-main.c:639
+#: src/core/meta-context-main.c:652
 msgid "Run as a wayland compositor"
 msgstr "Eseguìs come compositor wayland"
 
-#: src/core/meta-context-main.c:645
+#: src/core/meta-context-main.c:659
 msgid "Run as a nested compositor"
 msgstr "Eseguìs come compositor nidiât"
 
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Eseguìs il compositôr di wayland cence inviâ Xwayland"
 
-#: src/core/meta-context-main.c:657
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Specifiche il non dal display Wayland di doprâ"
 
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Eseguìs come servidôr display complet, invezit che nidiât"
 
-#: src/core/meta-context-main.c:670
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Eseguìs come servidôr di visualizazion cence visôr"
 
-#: src/core/meta-context-main.c:675
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Zonte monitor virtuâl persistent (LxA o LxA@I)"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Eseguìs kit di disvilup"
+
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "Eseguìs cul backend X11"
 
-#: src/core/meta-context-main.c:693
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "Profile lis prestazions doprant une strumentazion par tignî di voli"
 
-#: src/core/meta-context-main.c:699
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "Abilite la interface D-Bus pal control dal debug"
 
 #. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
+#. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:826
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambie mût (Grup %d)"
 
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:622
+#, c-format
+msgid "Mode Switch"
+msgstr "Cambi modalitât"
+
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:848
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Cambie visôr"
 
-#: src/core/meta-pad-action-mapper.c:850
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Mostre jutori a schermi"
 
@@ -736,25 +798,25 @@ msgstr "Stampe version"
 msgid "Mutter plugin to use"
 msgstr "Plugin Mutter di doprâ"
 
-#: src/core/prefs.c:1842
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "Spazi di lavôr %d"
 
-#: src/core/util.c:139
+#: src/core/util.c:140
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter al è stât compilât cence supuart pal mût prolìs"
 
-#: src/core/workspace.c:510
+#: src/core/workspace.c:508
 msgid "Workspace switched"
 msgstr "Spazi di lavôr cambiât"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Cambie mût: mût %d"
 
-#: src/x11/meta-x11-display.c:723
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -763,19 +825,19 @@ msgstr ""
 "Il display “%s” al à za un window manager; prove dopre la opzion --replace "
 "par rimplaçâ chel atuâl."
 
-#: src/x11/meta-x11-display.c:1088
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impussibil vierzi il display “%s” di X Window System"
 
-#: src/x11/meta-x11-display.c:1268
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Schermi %d su display “%s” no valit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2538
+#: src/x11/meta-x11-display.c:2793
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -788,10 +850,19 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Il formât %s nol è supuartât"
 
-#: src/x11/window-props.c:528
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (su %s)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "Disabilite la conession al gjestôr de session"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "Specifiche il ID di gjestion session"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "Inizialize session da file salvât"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "Sposte il spazi di lavôr parsore"
