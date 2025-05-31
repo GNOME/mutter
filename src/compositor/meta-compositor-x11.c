@@ -752,7 +752,8 @@ on_window_decorated_changed (MetaWindow        *window,
       MetaFrame *frame;
 
       frame = meta_window_x11_get_frame (window);
-      old_effective_toplevel = meta_frame_get_xwindow (frame);
+      if (frame)
+        old_effective_toplevel = meta_frame_get_xwindow (frame);
     }
 
   if (old_effective_toplevel != None)
