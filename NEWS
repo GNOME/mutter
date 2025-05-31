@@ -1,3 +1,10 @@
+47.8.1
+======
+* Fix Xwayland windows becoming unresponsive to events [Jonas; !4476]
+
+Contributors:
+  Jonas Ådahl
+
 47.8
 ====
 * Do not leak session manager file to launched processes [Sebastian; !4405]
