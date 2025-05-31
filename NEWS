@@ -1,3 +1,11 @@
+48.3.1
+======
+* Fix Xwayland windows becoming unresponsive to events [Jonas; !4475]
+* Fix drag and drop of tabs into tiled/maximized state [Carlos; !4468]
+
+Contributors:
+  Carlos Garnacho, Jonas Ådahl
+
 48.3
 ====
 * Use opaque dma-buf formats substitutes for scanout [Robert; !4320]
