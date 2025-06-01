@@ -270,7 +270,9 @@ on_xevent (GdkDisplay *display,
     }
   else if (xevent->type == ConfigureNotify &&
            xevent->xconfigure.event == xroot &&
-           xevent->xconfigure.window != xroot)
+           xevent->xconfigure.window != xroot &&
+           !g_hash_table_contains (window_tracker->frames,
+                                   GUINT_TO_POINTER (xevent->xconfigure.window)))
     {
       gboolean has_frame;
 
