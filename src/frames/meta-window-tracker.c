@@ -275,7 +275,7 @@ on_xevent (GdkDisplay *display,
 
       xwindow = xevent->xconfigure.window;
       has_frame =
-        g_hash_table_contains (window_tracker->frames,
+        g_hash_table_contains (window_tracker->client_windows,
                                GUINT_TO_POINTER (xwindow));
 
       if (!xevent->xconfigure.override_redirect && !has_frame)
