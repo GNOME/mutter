@@ -133,13 +133,16 @@ _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error)
 char **
 _cogl_context_get_gl_extensions (CoglContext *context)
 {
+#ifdef HAVE_GL
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+#endif
   const char *env_disabled_extensions;
   char **ret;
 
   /* In GL 3, querying GL_EXTENSIONS is deprecated so we have to build
    * the array using glGetStringi instead */
 #ifdef HAVE_GL
-  if (context->driver_id == COGL_DRIVER_ID_GL3)
+  if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3)
     {
       int num_extensions, i;
 
