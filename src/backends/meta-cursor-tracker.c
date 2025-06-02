@@ -54,8 +54,9 @@ typedef struct _MetaCursorTrackerPrivate
 {
   MetaBackend *backend;
 
-  gboolean is_showing;
   gboolean pointer_focus;
+
+  int cursor_visibility_inhibitors;
 
   int track_position_count;
 
@@ -146,7 +147,7 @@ update_effective_cursor (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorSprite *cursor = NULL;
 
-  if (priv->is_showing)
+  if (meta_cursor_tracker_get_pointer_visible (tracker))
     cursor = priv->displayed_cursor;
 
   return g_set_object (&priv->effective_cursor, cursor);
@@ -177,24 +178,18 @@ sync_cursor (MetaCursorTracker *tracker)
     g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
 }
 
-void
-meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
-                                         gboolean           visible)
+static void
+set_pointer_visible (MetaCursorTracker *tracker,
+                     gboolean           visible)
 {
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
   MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
 
-  if (visible == priv->is_showing)
-    return;
-  priv->is_showing = visible;
-
   sync_cursor (tracker);
 
-  if (priv->is_showing)
+  if (visible)
     clutter_seat_inhibit_unfocus (seat);
   else
     clutter_seat_uninhibit_unfocus (seat);
@@ -314,11 +309,12 @@ meta_cursor_tracker_constructed (GObject *object)
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  priv->is_showing = FALSE;
   priv->x = -1.0;
   priv->y = -1.0;
 
   meta_prefs_add_listener (on_prefs_changed, tracker);
+
+  set_pointer_visible (tracker, TRUE);
 
   G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->constructed (object);
 }
@@ -574,7 +570,33 @@ meta_cursor_tracker_get_pointer_visible (MetaCursorTracker *tracker)
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  return priv->is_showing;
+  return priv->cursor_visibility_inhibitors <= 0;
+}
+
+void
+meta_cursor_tracker_inhibit_cursor_visibility (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  priv->cursor_visibility_inhibitors++;
+
+  if (priv->cursor_visibility_inhibitors == 1)
+    set_pointer_visible (tracker, FALSE);
+}
+
+void
+meta_cursor_tracker_uninhibit_cursor_visibility (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  g_return_if_fail (priv->cursor_visibility_inhibitors > 0);
+
+  priv->cursor_visibility_inhibitors--;
+
+  if (priv->cursor_visibility_inhibitors == 0)
+    set_pointer_visible (tracker, TRUE);
 }
 
 MetaBackend *

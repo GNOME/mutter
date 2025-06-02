@@ -479,9 +479,9 @@ set_cursor_visible (MetaBackend *backend,
   priv->cursor_visible = visible;
 
   if (priv->cursor_visible)
-    meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
+    meta_cursor_tracker_uninhibit_cursor_visibility (cursor_tracker);
   else
-    meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+    meta_cursor_tracker_inhibit_cursor_visibility (cursor_tracker);
 }
 
 static void
