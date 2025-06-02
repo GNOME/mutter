@@ -195,7 +195,8 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
                               unsigned int *map_width,
                               unsigned int *map_height)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   unsigned int size;
   GLenum gl_intformat;
@@ -245,7 +246,8 @@ _cogl_atlas_create_map (CoglContext             *ctx,
                         unsigned int             n_textures,
                         CoglAtlasRepositionData *textures)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   GLenum gl_intformat;
   GLenum gl_format;

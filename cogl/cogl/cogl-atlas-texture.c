@@ -831,14 +831,14 @@ _cogl_atlas_texture_create_base (CoglContext *ctx,
                                  CoglTextureLoader *loader)
 {
   CoglAtlasTexture *atlas_tex;
-
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   COGL_NOTE (ATLAS, "Adding texture of size %ix%i", width, height);
 
   /* We need to allocate the texture now because we need the pointer
      to set as the data for the rectangle in the atlas */
   atlas_tex = g_object_new (COGL_TYPE_ATLAS_TEXTURE,
                             "context", ctx,
-                            "texture-driver", cogl_driver_create_texture_driver (ctx->driver),
+                            "texture-driver", cogl_driver_create_texture_driver (driver),
                             "width", width,
                             "height", height,
                             "loader", loader,

@@ -66,11 +66,12 @@ cogl_pixel_buffer_new (CoglContext *context,
                        size_t       size,
                        const void  *data)
 {
+  CoglDriver *driver = cogl_context_get_driver (context);
   CoglPixelBuffer *pixel_buffer;
 
   pixel_buffer = g_object_new (COGL_TYPE_PIXEL_BUFFER,
                                "context", context,
-                               "impl", cogl_driver_create_buffer_impl (context->driver),
+                               "impl", cogl_driver_create_buffer_impl (driver),
                                "size", (uint64_t) size,
                                "default-target", COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
                                "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,

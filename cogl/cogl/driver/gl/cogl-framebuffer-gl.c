@@ -388,7 +388,7 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
 }
 
 static gboolean
-cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
+cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
                                              int                     x,
                                              int                     y,
                                              CoglReadPixelsFlags     source,
@@ -396,15 +396,16 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
                                              GError                **error)
 {
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   int framebuffer_height = cogl_framebuffer_get_height (framebuffer);
   int width = cogl_bitmap_get_width (bitmap);
   int height = cogl_bitmap_get_height (bitmap);
   CoglPixelFormat format = cogl_bitmap_get_format (bitmap);
   CoglPixelFormat internal_format =
     cogl_framebuffer_get_internal_format (framebuffer);
-  CoglDriverGLClass *driver_gl_klass = COGL_DRIVER_GL_GET_CLASS (ctx->driver);
+  CoglDriverGLClass *driver_gl_klass = COGL_DRIVER_GL_GET_CLASS (driver);
   CoglPixelFormat read_format;
   GLenum gl_format;
   GLenum gl_type;
@@ -445,7 +446,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   else
     pack_invert_set = FALSE;
 
-  read_format = driver_gl_klass->get_read_pixels_format (COGL_DRIVER_GL (ctx->driver),
+  read_format = driver_gl_klass->get_read_pixels_format (COGL_DRIVER_GL (driver),
                                                          ctx,
                                                          internal_format,
                                                          format,
@@ -484,7 +485,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       bpp = cogl_pixel_format_get_bytes_per_pixel (read_format, 0);
       rowstride = cogl_bitmap_get_rowstride (tmp_bmp);
 
-      driver_gl_klass->prep_gl_for_pixels_download (COGL_DRIVER_GL (ctx->driver),
+      driver_gl_klass->prep_gl_for_pixels_download (COGL_DRIVER_GL (driver),
                                                     ctx,
                                                     rowstride,
                                                     width,
@@ -549,7 +550,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
 
       bpp = cogl_pixel_format_get_bytes_per_pixel (bmp_format, 0);
 
-      driver_gl_klass->prep_gl_for_pixels_download (COGL_DRIVER_GL (ctx->driver),
+      driver_gl_klass->prep_gl_for_pixels_download (COGL_DRIVER_GL (driver),
                                                     ctx,
                                                     rowstride,
                                                     width,

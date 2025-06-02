@@ -650,3 +650,9 @@ cogl_renderer_bind_api (CoglRenderer *renderer)
 
   winsys->renderer_bind_api (renderer);
 }
+
+CoglDriver *
+cogl_renderer_get_driver (CoglRenderer *renderer)
+{
+  return renderer->driver;
+}

@@ -356,8 +356,9 @@ _cogl_clip_stack_flush (CoglClipStack *stack,
                         CoglFramebuffer *framebuffer)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
 
   if (driver_klass->clip_stack_flush)
-    driver_klass->clip_stack_flush (ctx->driver, stack, framebuffer);
+    driver_klass->clip_stack_flush (driver, stack, framebuffer);
 }

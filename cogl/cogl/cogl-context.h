@@ -149,7 +149,6 @@ cogl_context_get_display (CoglContext *context);
 COGL_EXPORT CoglRenderer *
 cogl_context_get_renderer (CoglContext *context);
 
-
 /* XXX: not guarded by the EXPERIMENTAL_API defines to avoid
  * upsetting glib-mkenums, but this can still be considered implicitly
  * experimental since it's only useable with experimental API... */
