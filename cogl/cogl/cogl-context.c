@@ -219,11 +219,6 @@ cogl_context_new (CoglDisplay *display,
   /* Keep a backpointer to the context */
   display->context = context;
 
-  /* This is duplicated data, but it's much more convenient to have
-     the driver attached to the context and the value is accessed a
-     lot throughout Cogl */
-  context->driver_id = display->renderer->driver_id;
-
   /* Again this is duplicated data, but it convenient to be able
    * access these from the context. */
   context->driver = display->renderer->driver;

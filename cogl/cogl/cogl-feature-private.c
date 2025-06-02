@@ -208,12 +208,14 @@ _cogl_feature_check_ext_functions (CoglContext *context,
                                    int gl_minor,
                                    char * const *gl_extensions)
 {
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   int i;
 
   for (i = 0; i < G_N_ELEMENTS (cogl_feature_ext_functions_data); i++)
-    _cogl_feature_check (context->display->renderer,
+    _cogl_feature_check (renderer,
                          "GL", cogl_feature_ext_functions_data + i,
-                         gl_major, gl_minor, context->driver_id,
+                         gl_major, gl_minor,
+                         cogl_renderer_get_driver_id (renderer),
                          gl_extensions,
                          context);
 }

@@ -69,8 +69,6 @@ struct _CoglContext
 
   CoglDisplay *display;
 
-  CoglDriverId driver_id;
-
   CoglDriver *driver;
 
   int glsl_major;

@@ -432,7 +432,9 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
       !cogl_framebuffer_is_y_flipped (framebuffer))
     {
-      if (ctx->driver_id == COGL_DRIVER_ID_GLES2)
+      CoglRenderer *renderer = cogl_context_get_renderer (ctx);
+
+      if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
         gl_pack_enum = GL_PACK_REVERSE_ROW_ORDER_ANGLE;
       else
         gl_pack_enum = GL_PACK_INVERT_MESA;
