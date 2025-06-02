@@ -290,6 +290,9 @@ meta_test_native_keyboard_map_modifiers (void)
   ModMaskTuple *received_mods = expected_mods;
   gulong keymap_state_changed_handler_id;
 
+  meta_flush_input (test_context);
+  meta_wait_for_update (test_context);
+
   virtual_keyboard = clutter_seat_create_virtual_device (seat,
                                                          CLUTTER_KEYBOARD_DEVICE);
   keymap_state_changed_handler_id =
