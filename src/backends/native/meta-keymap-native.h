@@ -27,11 +27,3 @@ META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaKeymapNative, meta_keymap_native,
                       META, KEYMAP_NATIVE,
                       ClutterKeymap)
-
-META_EXPORT_TEST
-void meta_keymap_native_get_modifier_state (MetaKeymapNative *keymap_native,
-                                            xkb_mod_mask_t   *depressed_mods,
-                                            xkb_mod_mask_t   *latched_mods,
-                                            xkb_mod_mask_t   *locked_mods);
-
-xkb_layout_index_t meta_keymap_native_get_layout_index (MetaKeymapNative *keymap_native);

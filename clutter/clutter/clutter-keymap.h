@@ -24,6 +24,7 @@
 #endif
 
 #include <glib-object.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include "clutter/clutter-enums.h"
 #include "clutter/clutter-macros.h"
@@ -52,3 +53,18 @@ CLUTTER_EXPORT
 gboolean clutter_keymap_get_caps_lock_state (ClutterKeymap *keymap);
 
 ClutterTextDirection clutter_keymap_get_direction (ClutterKeymap *keymap);
+
+/**
+ * clutter_keymap_get_modifier_state: (skip)
+ */
+CLUTTER_EXPORT
+void clutter_keymap_get_modifier_state (ClutterKeymap  *keymap,
+                                        xkb_mod_mask_t *depressed_mods,
+                                        xkb_mod_mask_t *latched_mods,
+                                        xkb_mod_mask_t *locked_mods);
+
+/**
+ * clutter_keymap_get_layout_index: (skip)
+ */
+CLUTTER_EXPORT
+xkb_layout_index_t clutter_keymap_get_layout_index (ClutterKeymap *keymap);

@@ -209,21 +209,25 @@ get_xkb (MetaKeymapX11 *keymap_x11)
 }
 
 static void
-update_locked_mods (MetaKeymapX11 *keymap_x11,
-                    int            locked_mods)
+update_modifiers (MetaKeymapX11 *keymap_x11,
+                  XkbEvent      *xkb_event)
 {
   ClutterKeymap *keymap = CLUTTER_KEYMAP (keymap_x11);
   gboolean caps_lock_state;
   gboolean num_lock_state;
   gboolean old_num_lock_state;
 
-  caps_lock_state = !!(locked_mods & CLUTTER_LOCK_MASK);
-  num_lock_state  = !!(locked_mods & keymap_x11->num_lock_mask);
+  caps_lock_state = !!(xkb_event->state.locked_mods & CLUTTER_LOCK_MASK);
+  num_lock_state = !!(xkb_event->state.locked_mods & keymap_x11->num_lock_mask);
 
   old_num_lock_state = clutter_keymap_get_num_lock_state (keymap);
-  clutter_keymap_set_lock_modifier_state (CLUTTER_KEYMAP (keymap_x11),
-                                          caps_lock_state,
-                                          num_lock_state);
+  clutter_keymap_update_state (CLUTTER_KEYMAP (keymap_x11),
+                               caps_lock_state,
+                               num_lock_state,
+                               keymap_x11->current_group,
+                               xkb_event->state.base_mods,
+                               xkb_event->state.latched_mods,
+                               xkb_event->state.locked_mods);
 
   if (num_lock_state != old_num_lock_state)
     {
@@ -399,7 +403,10 @@ meta_keymap_x11_constructed (GObject *object)
           XkbSelectEventDetails (xdisplay,
                                  XkbUseCoreKbd, XkbStateNotify,
                                  XkbAllStateComponentsMask,
-                                 XkbGroupLockMask | XkbModifierLockMask);
+                                 (XkbGroupLockMask |
+                                  XkbModifierBaseMask |
+                                  XkbModifierLatchMask |
+                                  XkbModifierLockMask));
 
           /* enable XKB autorepeat */
           XkbSetDetectableAutoRepeat (xdisplay,
@@ -599,7 +606,7 @@ meta_keymap_x11_handle_event (MetaKeymapX11 *keymap_x11,
           g_debug ("Updating keyboard state");
           keymap_x11->current_group = XkbStateGroup (&xkb_event->state);
           update_direction (keymap_x11, keymap_x11->current_group);
-          update_locked_mods (keymap_x11, xkb_event->state.locked_mods);
+          update_modifiers (keymap_x11, xkb_event);
           retval = TRUE;
           break;
 

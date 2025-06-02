@@ -61,10 +61,10 @@ await_mod_mask (MetaKeymapNative  *keymap_native,
   if (!*awaited_mod_mask)
     return;
 
-  meta_keymap_native_get_modifier_state (keymap_native,
-                                         &depressed_mods,
-                                         &latched_mods,
-                                         &locked_mods);
+  clutter_keymap_get_modifier_state (CLUTTER_KEYMAP (keymap_native),
+                                     &depressed_mods,
+                                     &latched_mods,
+                                     &locked_mods);
 
   if (depressed_mods == (*awaited_mod_mask)->depressed_mods &&
       latched_mods == (*awaited_mod_mask)->latched_mods &&
@@ -80,10 +80,10 @@ on_keymap_state_changed (MetaKeymapNative *keymap_native,
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
 
-  meta_keymap_native_get_modifier_state (keymap_native,
-                                         &depressed_mods,
-                                         &latched_mods,
-                                         &locked_mods);
+  clutter_keymap_get_modifier_state (CLUTTER_KEYMAP (keymap_native),
+                                     &depressed_mods,
+                                     &latched_mods,
+                                     &locked_mods);
   g_assert_true (*expected_next_handler == on_keymap_state_changed);
 
   *expected_next_handler = NULL;
@@ -247,10 +247,10 @@ record_modifier_state (ClutterKeymap  *keymap,
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
 
-  meta_keymap_native_get_modifier_state (keymap_native,
-                                         &depressed_mods,
-                                         &latched_mods,
-                                         &locked_mods);
+  clutter_keymap_get_modifier_state (CLUTTER_KEYMAP (keymap_native),
+                                     &depressed_mods,
+                                     &latched_mods,
+                                     &locked_mods);
 
   g_assert_cmpuint ((*expected_mods)->depressed_mods, ==, depressed_mods);
   g_assert_cmpuint ((*expected_mods)->latched_mods, ==, latched_mods);
