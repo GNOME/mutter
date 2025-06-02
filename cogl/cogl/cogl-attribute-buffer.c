@@ -53,11 +53,12 @@ CoglAttributeBuffer *
 cogl_attribute_buffer_new_with_size (CoglContext *context,
                                      size_t       bytes)
 {
+  CoglDriver *driver = cogl_context_get_driver (context);
   CoglAttributeBuffer *buffer;
 
   buffer = g_object_new (COGL_TYPE_ATTRIBUTE_BUFFER,
                          "context", context,
-                         "impl", cogl_driver_create_buffer_impl (context->driver),
+                         "impl", cogl_driver_create_buffer_impl (driver),
                          "size", (uint64_t) bytes,
                          "default-target", COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
                          "update-hint", COGL_BUFFER_UPDATE_HINT_STATIC,

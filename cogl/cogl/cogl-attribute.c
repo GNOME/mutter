@@ -329,7 +329,8 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglFlushLayerState layers_state;
   CoglPipeline *copy = NULL;
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
 
   if (!(flags & COGL_DRAW_SKIP_JOURNAL_FLUSH))
     _cogl_framebuffer_flush_journal (framebuffer);
@@ -365,7 +366,7 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
 
   if (driver_klass->flush_attributes_state)
     {
-      driver_klass->flush_attributes_state (ctx->driver,
+      driver_klass->flush_attributes_state (driver,
                                             framebuffer,
                                             pipeline,
                                             &layers_state,

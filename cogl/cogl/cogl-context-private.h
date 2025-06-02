@@ -69,8 +69,6 @@ struct _CoglContext
 
   CoglDisplay *display;
 
-  CoglDriver *driver;
-
   int glsl_major;
   int glsl_minor;
   gboolean glsl_es;
@@ -283,3 +281,5 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
 
 void
 _cogl_context_update_sync (CoglContext *context);
+
+CoglDriver * cogl_context_get_driver (CoglContext *context);

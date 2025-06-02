@@ -80,9 +80,10 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                               CoglPixelFormat internal_format,
                               CoglTextureLoader *loader)
 {
-  CoglTextureDriver *tex_driver = cogl_driver_create_texture_driver (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglTextureDriver *tex_driver = cogl_driver_create_texture_driver (driver);
 
- CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D,
+  CoglTexture2D *tex_2d = g_object_new (COGL_TYPE_TEXTURE_2D,
                                         "context", ctx,
                                         "texture-driver", tex_driver,
                                         "width", width,

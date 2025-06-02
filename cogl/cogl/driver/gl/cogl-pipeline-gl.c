@@ -85,7 +85,8 @@ CoglTextureUnit *
 _cogl_get_texture_unit (CoglContext *ctx,
                         int          index_)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
 
   if (priv->texture_units->len < (index_ + 1))
@@ -110,7 +111,8 @@ void
 _cogl_set_active_texture_unit (CoglContext *ctx,
                                int          unit_index)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
 
   if (priv->active_texture_unit != unit_index)
@@ -199,7 +201,8 @@ void
 _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
 {
   CoglContext *ctx = cogl_texture_get_context (texture);
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
   int i;
 
@@ -628,7 +631,8 @@ _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
 static void
 foreach_texture_unit_update_filter_and_wrap_modes (CoglContext *ctx)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
   int i;
 

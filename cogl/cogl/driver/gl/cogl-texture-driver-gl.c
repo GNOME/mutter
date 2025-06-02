@@ -69,7 +69,8 @@ cogl_texture_driver_gl_texture_2d_can_create (CoglTextureDriver *tex_driver,
                                               int                height,
                                               CoglPixelFormat    internal_format)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   GLenum gl_intformat;
   GLenum gl_format;
@@ -110,7 +111,8 @@ allocate_with_size (CoglTexture2D     *tex_2d,
   int width = loader->src.sized.width;
   int height = loader->src.sized.height;
   CoglContext *ctx = cogl_texture_get_context (tex);
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
   CoglTextureDriverGL *tex_driver_gl =
@@ -186,7 +188,8 @@ allocate_from_bitmap (CoglTexture2D     *tex_2d,
   CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
   CoglBitmap *bmp = loader->src.bitmap.bitmap;
   CoglContext *ctx = _cogl_bitmap_get_context (bmp);
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   CoglTextureDriverGL *tex_driver_gl =
     COGL_TEXTURE_DRIVER_GL (tex_driver);
@@ -474,7 +477,7 @@ cogl_texture_driver_gl_texture_2d_generate_mipmap (CoglTextureDriver *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *driver,
+cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *tex_driver,
                                                     CoglTexture2D     *tex_2d,
                                                     int                src_x,
                                                     int                src_y,
@@ -488,10 +491,11 @@ cogl_texture_driver_gl_texture_2d_copy_from_bitmap (CoglTextureDriver *driver,
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
   CoglContext *ctx = cogl_texture_get_context (tex);
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   CoglTextureDriverGL *tex_driver_gl =
-    COGL_TEXTURE_DRIVER_GL (driver);
+    COGL_TEXTURE_DRIVER_GL (tex_driver);
   CoglTextureDriverGLClass *tex_driver_klass =
     COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
   CoglBitmap *upload_bmp;

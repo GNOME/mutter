@@ -338,13 +338,14 @@ cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriverGL *driver,
 }
 
 static CoglPixelFormat
-cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *driver,
+cogl_texture_driver_gl3_find_best_gl_get_data_format (CoglTextureDriverGL *tex_driver,
                                                       CoglContext         *context,
                                                       CoglPixelFormat      format,
                                                       GLenum              *closest_gl_format,
                                                       GLenum              *closest_gl_type)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (context->driver);
+  CoglDriver *driver = cogl_context_get_driver (context);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
 
   return driver_klass->pixel_format_to_gl (driver_gl,
@@ -363,7 +364,7 @@ cogl_texture_driver_gl3_is_get_data_supported (CoglTextureDriver *driver,
 }
 
 static void
-cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
+cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *tex_driver,
                                                 CoglTexture2D     *tex_2d,
                                                 CoglPixelFormat    format,
                                                 int                rowstride,
@@ -371,10 +372,11 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *driver,
 {
   CoglContext *ctx = cogl_texture_get_context (COGL_TEXTURE (tex_2d));
   CoglTextureDriverGL *tex_driver_gl =
-    COGL_TEXTURE_DRIVER_GL (driver);
+    COGL_TEXTURE_DRIVER_GL (tex_driver);
   CoglTextureDriverGLClass *tex_driver_klass =
     COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver_gl);
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLClass *driver_klass = COGL_DRIVER_GL_GET_CLASS (driver_gl);
   uint8_t bpp;
   int width = cogl_texture_get_width (COGL_TEXTURE (tex_2d));

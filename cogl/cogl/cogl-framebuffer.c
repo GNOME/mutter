@@ -871,10 +871,11 @@ cogl_framebuffer_init_driver (CoglFramebuffer  *framebuffer,
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (priv->context->driver);
+  CoglDriver *driver = cogl_context_get_driver (priv->context);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
   CoglFramebufferDriver *fb_driver;
 
-  fb_driver = driver_klass->create_framebuffer_driver (priv->context->driver,
+  fb_driver = driver_klass->create_framebuffer_driver (driver,
                                                        priv->context,
                                                        framebuffer,
                                                        &priv->driver_config,
@@ -1055,11 +1056,12 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                       CoglFramebuffer      *read_buffer,
                                       CoglFramebufferState  state)
 {
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (ctx->driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
 
   if (driver_klass->flush_framebuffer_state)
     {
-      driver_klass->flush_framebuffer_state (ctx->driver,
+      driver_klass->flush_framebuffer_state (driver,
                                              ctx,
                                              draw_buffer,
                                              read_buffer,
@@ -2361,7 +2363,8 @@ cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (priv->context->driver);
+  CoglDriver *driver = cogl_context_get_driver (priv->context);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
 
   g_return_val_if_fail (cogl_context_has_feature (priv->context,
                                                   COGL_FEATURE_ID_TIMESTAMP_QUERY),
@@ -2378,5 +2381,5 @@ cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer)
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  return driver_klass->create_timestamp_query (priv->context->driver, priv->context);
+  return driver_klass->create_timestamp_query (driver, priv->context);
 }
