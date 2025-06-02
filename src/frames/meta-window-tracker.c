@@ -240,21 +240,6 @@ on_xevent (GdkDisplay *display,
       xwindow = xevent->xcreatewindow.window;
       listen_set_up_frame (window_tracker, xwindow);
     }
-  else if (xevent->type == ConfigureNotify &&
-           xevent->xconfigure.event == xroot)
-    {
-      gboolean has_frame;
-
-      xwindow = xevent->xconfigure.window;
-      has_frame =
-        g_hash_table_contains (window_tracker->frames,
-                               GUINT_TO_POINTER (xwindow));
-
-      if (!xevent->xconfigure.override_redirect && !has_frame)
-        listen_set_up_frame (window_tracker, xwindow);
-      else if (xevent->xconfigure.override_redirect && has_frame)
-        remove_frame (window_tracker, xwindow);
-    }
   else if (xevent->type == DestroyNotify)
     {
       xwindow = xevent->xdestroywindow.window;
