@@ -167,7 +167,7 @@ create_anonymous_file (off_t size)
   int fd;
   int ret;
 
-  path = getenv ("XDG_RUNTIME_DIR");
+  path = g_get_user_runtime_dir ();
   if (!path)
     {
       errno = ENOENT;
