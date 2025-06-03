@@ -117,8 +117,10 @@ cogl_renderer_dispose (GObject *object)
 
   _cogl_closure_list_disconnect_all (&renderer->idle_closures);
 
-  if (winsys)
+  if (winsys && winsys->renderer_disconnect)
     winsys->renderer_disconnect (renderer);
+
+  g_clear_pointer (&renderer->winsys, g_free);
 
   if (renderer->libgl_module)
     g_module_close (renderer->libgl_module);
@@ -398,6 +400,8 @@ connect_custom_winsys (CoglRenderer *renderer,
       g_string_append_c (error_message, '\n');
       g_string_append (error_message, tmp_error->message);
       g_error_free (tmp_error);
+      /* Free any leftover state, for now */
+      g_clear_pointer (&renderer->winsys, g_free);
     }
   else
     {
@@ -447,6 +451,8 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
           g_string_append_c (error_message, '\n');
           g_string_append (error_message, tmp_error->message);
           g_error_free (tmp_error);
+          /* Free any leftover state, for now */
+          g_clear_pointer (&renderer->winsys, g_free);
         }
       else
         {

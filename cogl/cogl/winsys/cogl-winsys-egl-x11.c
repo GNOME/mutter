@@ -193,8 +193,6 @@ _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
   _cogl_xlib_renderer_disconnect (renderer);
 
   eglTerminate (egl_renderer->edpy);
-
-  g_free (egl_renderer);
 }
 
 static EGLDisplay

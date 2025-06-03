@@ -241,14 +241,6 @@ glx_event_filter_cb (XEvent *xevent, void *data)
   return COGL_FILTER_CONTINUE;
 }
 
-static void
-_cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
-{
-  _cogl_xlib_renderer_disconnect (renderer);
-
-  g_free (renderer->winsys);
-}
-
 static gboolean
 update_all_outputs (CoglRenderer *renderer)
 {
@@ -426,7 +418,7 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   return TRUE;
 
 error:
-  _cogl_winsys_renderer_disconnect (renderer);
+  _cogl_xlib_renderer_disconnect (renderer);
   return FALSE;
 }
 
@@ -1366,7 +1358,7 @@ static CoglWinsysVtable _cogl_winsys_vtable =
 
     .renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address,
     .renderer_connect = _cogl_winsys_renderer_connect,
-    .renderer_disconnect = _cogl_winsys_renderer_disconnect,
+    .renderer_disconnect = _cogl_xlib_renderer_disconnect,
     .renderer_outputs_changed = _cogl_winsys_renderer_outputs_changed,
     .renderer_bind_api = _cogl_winsys_renderer_bind_api,
     .display_setup = _cogl_winsys_display_setup,

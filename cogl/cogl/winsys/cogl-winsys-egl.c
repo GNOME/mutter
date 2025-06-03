@@ -119,13 +119,6 @@ _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
 }
 
 static void
-_cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
-{
-  /* This function must be overridden by a platform winsys */
-  g_assert_not_reached ();
-}
-
-static void
 _cogl_winsys_renderer_bind_api (CoglRenderer *renderer)
 {
   if (renderer->driver_id == COGL_DRIVER_ID_GL3)
@@ -576,7 +569,6 @@ static CoglWinsysVtable _cogl_winsys_vtable =
 
     .renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address,
     .renderer_connect = _cogl_winsys_renderer_connect,
-    .renderer_disconnect = _cogl_winsys_renderer_disconnect,
     .renderer_bind_api = _cogl_winsys_renderer_bind_api,
     .display_setup = _cogl_winsys_display_setup,
     .display_destroy = _cogl_winsys_display_destroy,

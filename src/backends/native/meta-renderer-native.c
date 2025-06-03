@@ -278,14 +278,6 @@ meta_renderer_native_get_mode (MetaRendererNative *renderer_native)
   return primary_gpu_data->mode;
 }
 
-static void
-meta_renderer_native_disconnect (CoglRenderer *cogl_renderer)
-{
-  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
-
-  g_free (cogl_renderer_egl);
-}
-
 static MetaKmsUpdate *
 ensure_mode_set_update (MetaRendererNative *renderer_native,
                         MetaKmsDevice      *kms_device)
@@ -327,14 +319,9 @@ meta_renderer_native_connect (CoglRenderer *cogl_renderer,
   cogl_renderer_egl->edpy = meta_render_device_get_egl_display (render_device);
 
   if (!_cogl_winsys_egl_renderer_connect_common (cogl_renderer, error))
-    goto fail;
+    return FALSE;
 
   return TRUE;
-
-fail:
-  meta_renderer_native_disconnect (cogl_renderer);
-
-  return FALSE;
 }
 
 static int
@@ -1351,7 +1338,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
       vtable.name = "EGL_KMS";
 
       vtable.renderer_connect = meta_renderer_native_connect;
-      vtable.renderer_disconnect = meta_renderer_native_disconnect;
       vtable.renderer_query_drm_modifiers = meta_renderer_native_query_drm_modifiers;
       vtable.renderer_get_implicit_drm_modifier =
         meta_renderer_native_get_implicit_drm_modifier;
