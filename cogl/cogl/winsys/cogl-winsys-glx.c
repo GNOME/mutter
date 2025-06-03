@@ -137,7 +137,7 @@ static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char   *name)
 {
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   return glx_renderer->glXGetProcAddress ((const GLubyte *) name);
 }
@@ -205,7 +205,7 @@ glx_event_filter_cb (XEvent *xevent, void *data)
     }
 
 #ifdef GLX_INTEL_swap_event
-  glx_renderer = context->display->renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
 
   if (xevent->type == (glx_renderer->glx_event_base + GLX_BufferSwapComplete))
     {
@@ -245,7 +245,7 @@ static gboolean
 update_all_outputs (CoglRenderer *renderer)
 {
   GList *l;
-  CoglContext *context = renderer->display->context;
+  CoglContext *context = cogl_renderer_get_display (renderer)->context;
 
   if (context->display == NULL) /* during connection */
     return FALSE;
@@ -281,19 +281,19 @@ static gboolean
 resolve_core_glx_functions (CoglRenderer *renderer,
                             GError **error)
 {
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
-  if (!g_module_symbol (renderer->libgl_module, "glXQueryExtension",
+  if (!g_module_symbol (cogl_renderer_get_gl_module (renderer), "glXQueryExtension",
                         (void **) &glx_renderer->glXQueryExtension) ||
-      !g_module_symbol (renderer->libgl_module, "glXQueryVersion",
+      !g_module_symbol (cogl_renderer_get_gl_module (renderer), "glXQueryVersion",
                         (void **) &glx_renderer->glXQueryVersion) ||
-      !g_module_symbol (renderer->libgl_module, "glXQueryExtensionsString",
+      !g_module_symbol (cogl_renderer_get_gl_module (renderer), "glXQueryExtensionsString",
                         (void **) &glx_renderer->glXQueryExtensionsString) ||
-      (!g_module_symbol (renderer->libgl_module, "glXGetProcAddress",
+      (!g_module_symbol (cogl_renderer_get_gl_module (renderer), "glXGetProcAddress",
                          (void **) &glx_renderer->glXGetProcAddress) &&
-       !g_module_symbol (renderer->libgl_module, "glXGetProcAddressARB",
+      !g_module_symbol (cogl_renderer_get_gl_module (renderer), "glXGetProcAddressARB",
                          (void **) &glx_renderer->glXGetProcAddress)) ||
-       !g_module_symbol (renderer->libgl_module, "glXQueryDrawable",
+      !g_module_symbol (cogl_renderer_get_gl_module (renderer), "glXQueryDrawable",
                          (void **) &glx_renderer->glXQueryDrawable))
     {
       g_set_error_literal (error, COGL_WINSYS_ERROR,
@@ -308,7 +308,7 @@ resolve_core_glx_functions (CoglRenderer *renderer,
 static void
 update_base_winsys_features (CoglRenderer *renderer)
 {
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   const char *glx_extensions;
@@ -368,15 +368,15 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   CoglGLXRenderer *glx_renderer;
   CoglXlibRenderer *xlib_renderer;
 
-  renderer->winsys = g_new0 (CoglGLXRenderer, 1);
+  cogl_renderer_set_winsys (renderer, g_new0 (CoglGLXRenderer, 1));
 
-  glx_renderer = renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (renderer);
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
 
   if (!_cogl_xlib_renderer_connect (renderer, error))
     goto error;
 
-  if (renderer->driver_id != COGL_DRIVER_ID_GL3)
+  if (cogl_renderer_get_driver_id (renderer) != COGL_DRIVER_ID_GL3)
     {
       g_set_error_literal (error, COGL_WINSYS_ERROR,
                            COGL_WINSYS_ERROR_INIT,
@@ -426,7 +426,7 @@ static gboolean
 update_winsys_features (CoglContext *context, GError **error)
 {
   CoglGLXDisplay *glx_display = context->display->winsys;
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
 
   g_return_val_if_fail (glx_display->glx_context, FALSE);
 
@@ -509,7 +509,7 @@ cogl_display_glx_find_fbconfig (CoglDisplay  *display,
 {
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (display->renderer);
   GLXFBConfig *configs = NULL;
   int n_configs;
   static int attributes[MAX_GLX_CONFIG_ATTRIBS];
@@ -546,7 +546,7 @@ create_gl3_context (CoglDisplay *display,
 {
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (display->renderer);
 
   /* We want a core profile 3.1 context with no deprecated features */
   static const int attrib_list[] =
@@ -612,7 +612,7 @@ create_context (CoglDisplay *display, GError **error)
   CoglGLXDisplay *glx_display = display->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (display->renderer);
   GLXFBConfig config;
   GError *fbconfig_error = NULL;
   XSetWindowAttributes attrs;
@@ -642,7 +642,7 @@ create_context (CoglDisplay *display, GError **error)
 
   mtk_x11_error_trap_push (xlib_renderer->xdpy);
 
-  if (display->renderer->driver_id == COGL_DRIVER_ID_GL3)
+  if (cogl_renderer_get_driver_id (display->renderer) == COGL_DRIVER_ID_GL3)
     glx_display->glx_context = create_gl3_context (display, config);
   else
     glx_display->glx_context =
@@ -748,7 +748,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
   CoglGLXDisplay *glx_display = display->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (display->renderer);
 
   g_return_if_fail (glx_display != NULL);
 
@@ -841,7 +841,7 @@ get_fbconfig_for_depth (CoglContext *context,
   gboolean found = FALSE;
 
   xlib_renderer = _cogl_xlib_renderer_get_data (context->display->renderer);
-  glx_renderer = context->display->renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
   glx_display = context->display->winsys;
 
   /* Check if we've already got a cached config for this depth and stereo */
@@ -1000,7 +1000,7 @@ try_create_glx_pixmap (CoglContext *context,
 
   renderer = context->display->renderer;
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-  glx_renderer = renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (renderer);
   dpy = xlib_renderer->xdpy;
 
   if (!get_fbconfig_for_depth (context, depth,
@@ -1116,7 +1116,7 @@ free_glx_pixmap (CoglContext *context,
 
   renderer = context->display->renderer;
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-  glx_renderer = renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (renderer);
 
   if (glx_tex_pixmap->left.pixmap_bound)
     glx_renderer->glXReleaseTexImage (xlib_renderer->xdpy,
@@ -1204,7 +1204,7 @@ _cogl_winsys_texture_pixmap_x11_update (CoglTexturePixmapX11 *tex_pixmap,
   if (glx_tex_pixmap->glx_pixmap == None)
     return FALSE;
 
-  glx_renderer = ctx->display->renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (ctx->display->renderer);
 
   /* Lazily create a texture to hold the pixmap */
   if (texture_info->glx_tex == NULL)

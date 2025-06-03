@@ -141,7 +141,7 @@ cogl_display_xlib_get_visual_info (CoglDisplay *display,
 {
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
-  CoglRendererEGL *egl_renderer = display->renderer->winsys;
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (display->renderer);
   XVisualInfo visinfo_template;
   int template_mask = 0;
   XVisualInfo *visinfo = NULL;
@@ -188,7 +188,7 @@ cogl_display_xlib_get_visual_info (CoglDisplay *display,
 static void
 _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
 {
-  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
 
   _cogl_xlib_renderer_disconnect (renderer);
 
@@ -235,8 +235,8 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   CoglRendererEGL *egl_renderer;
   CoglXlibRenderer *xlib_renderer;
 
-  renderer->winsys = g_new0 (CoglRendererEGL, 1);
-  egl_renderer = renderer->winsys;
+  cogl_renderer_set_winsys (renderer, g_new0 (CoglRendererEGL, 1));
+  egl_renderer = cogl_renderer_get_winsys (renderer);
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
 
   egl_renderer->platform_vtable = &_cogl_winsys_egl_vtable;
@@ -277,7 +277,7 @@ _cogl_winsys_egl_choose_config (CoglDisplay *display,
                                 GError **error)
 {
   CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
   EGLint config_count = 0;
   EGLBoolean status;
 
@@ -348,7 +348,7 @@ _cogl_winsys_egl_context_created (CoglDisplay *display,
 {
   CoglRenderer *renderer = display->renderer;
   CoglDisplayEGL *egl_display = display->winsys;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
   CoglDisplayXlib *xlib_display = egl_display->platform;
@@ -432,7 +432,7 @@ _cogl_winsys_egl_cleanup_context (CoglDisplay *display)
   CoglRenderer *renderer = display->renderer;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (renderer);
-  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
 
   if (egl_display->dummy_surface != EGL_NO_SURFACE)
     {
@@ -459,7 +459,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
   CoglPixelFormat texture_format;
   CoglRendererEGL *egl_renderer;
 
-  egl_renderer = ctx->display->renderer->winsys;
+  egl_renderer = cogl_renderer_get_winsys (ctx->display->renderer);
 
   if (!(egl_renderer->private_features &
         COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_X11_PIXMAP) ||

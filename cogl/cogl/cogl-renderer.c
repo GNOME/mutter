@@ -88,17 +88,35 @@ static CoglWinsysVtableGetter _cogl_winsys_vtable_getters[] =
 #endif
 };
 
-static const CoglWinsysVtable *
-_cogl_renderer_get_winsys (CoglRenderer *renderer)
-{
-  return renderer->winsys_vtable;
-}
-
 typedef struct _CoglNativeFilterClosure
 {
   CoglNativeFilterFunc func;
   void *data;
 } CoglNativeFilterClosure;
+
+typedef struct _CoglRenderer
+{
+  GObject parent_instance;
+
+  CoglDisplay *display;
+
+  gboolean connected;
+  CoglDriverId driver_override;
+  CoglDriver *driver;
+  const CoglWinsysVtable *winsys_vtable;
+  void *custom_winsys_user_data;
+  gboolean should_free_custom_winsys_user_data;
+  CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
+
+  CoglList idle_closures;
+
+  CoglDriverId driver_id;
+  GModule *libgl_module;
+
+  /* List of callback functions that will be given every native event */
+  GSList *event_filters;
+  void *winsys;
+} CoglRenderer;
 
 static void
 native_filter_closure_free (CoglNativeFilterClosure *closure)
@@ -113,7 +131,7 @@ cogl_renderer_dispose (GObject *object)
 {
   CoglRenderer *renderer = COGL_RENDERER (object);
 
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   _cogl_closure_list_disconnect_all (&renderer->idle_closures);
 
@@ -551,7 +569,7 @@ void *
 cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                  const char   *name)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   return winsys->renderer_get_proc_address (renderer, name);
 }
@@ -576,7 +594,7 @@ cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
                                    CoglDrmModifierFilter   filter,
                                    GError                **error)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   if (winsys->renderer_query_drm_modifiers)
     {
@@ -595,7 +613,7 @@ cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
 uint64_t
 cogl_renderer_get_implicit_drm_modifier (CoglRenderer *renderer)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   g_return_val_if_fail (winsys->renderer_get_implicit_drm_modifier, 0);
 
@@ -606,7 +624,7 @@ gboolean
 cogl_renderer_is_implicit_drm_modifier (CoglRenderer *renderer,
                                         uint64_t      modifier)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
   uint64_t implicit_modifier;
 
   g_return_val_if_fail (winsys->renderer_get_implicit_drm_modifier, FALSE);
@@ -624,7 +642,7 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               int               height,
                               GError          **error)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   if (winsys->renderer_create_dma_buf)
     return winsys->renderer_create_dma_buf (renderer,
@@ -642,7 +660,7 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
 gboolean
 cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   if (winsys->renderer_is_dma_buf_supported)
     return winsys->renderer_is_dma_buf_supported (renderer);
@@ -653,7 +671,7 @@ cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer)
 void
 cogl_renderer_bind_api (CoglRenderer *renderer)
 {
-  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+  const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
   winsys->renderer_bind_api (renderer);
 }
@@ -662,4 +680,73 @@ CoglDriver *
 cogl_renderer_get_driver (CoglRenderer *renderer)
 {
   return renderer->driver;
+}
+
+const CoglWinsysVtable *
+cogl_renderer_get_winsys_vtable (CoglRenderer *renderer)
+{
+  return renderer->winsys_vtable;
+}
+
+void *
+cogl_renderer_get_winsys (CoglRenderer *renderer)
+{
+  return renderer->winsys;
+}
+
+void
+cogl_renderer_set_winsys (CoglRenderer *renderer,
+                          void         *winsys)
+{
+  renderer->winsys = winsys;
+}
+
+CoglClosure *
+cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
+                                void (*closure)(void *),
+                                gpointer       data)
+{
+  return _cogl_closure_list_add (&renderer->idle_closures,
+                                 closure,
+                                 data,
+                                 NULL);
+}
+
+CoglList *
+cogl_renderer_get_idle_closures (CoglRenderer *renderer)
+{
+  return &renderer->idle_closures;
+}
+
+GModule *
+cogl_renderer_get_gl_module (CoglRenderer *renderer)
+{
+  return renderer->libgl_module;
+}
+
+CoglDisplay *
+cogl_renderer_get_display (CoglRenderer *renderer)
+{
+  return renderer->display;
+}
+
+void
+cogl_renderer_set_display (CoglRenderer *renderer,
+                           CoglDisplay   *display)
+{
+  renderer->display = display;
+}
+
+void *
+cogl_renderer_get_custom_winsys_data (CoglRenderer *renderer)
+{
+  return renderer->custom_winsys_user_data;
+}
+
+void
+cogl_renderer_set_custom_winsys_data (CoglRenderer *renderer,
+                                      void         *winsys_data)
+{
+  renderer->custom_winsys_user_data = winsys_data;
+  renderer->should_free_custom_winsys_user_data = TRUE;
 }

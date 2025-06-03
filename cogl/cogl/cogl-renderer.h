@@ -327,4 +327,14 @@ COGL_EXPORT CoglFilterReturn
 cogl_renderer_handle_event (CoglRenderer *renderer,
                             void         *event);
 
+COGL_EXPORT
+void cogl_renderer_set_winsys (CoglRenderer *renderer,
+                               void         *winsys);
+
+COGL_EXPORT
+void * cogl_renderer_get_winsys (CoglRenderer *renderer);
+
+COGL_EXPORT
+void * cogl_renderer_get_custom_winsys_data (CoglRenderer *renderer);
+
 G_END_DECLS

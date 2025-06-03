@@ -74,7 +74,7 @@ cogl_onscreen_glx_allocate (CoglFramebuffer  *framebuffer,
   CoglGLXDisplay *glx_display = display->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
-  CoglGLXRenderer *glx_renderer = display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (display->renderer);
   Window xwin;
   GLXFBConfig fbconfig;
   GError *fbconfig_error = NULL;
@@ -204,7 +204,7 @@ cogl_onscreen_glx_dispose (GObject *object)
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
   GLXDrawable drawable;
 
   G_OBJECT_CLASS (cogl_onscreen_glx_parent_class)->dispose (object);
@@ -268,7 +268,7 @@ cogl_onscreen_glx_bind (CoglOnscreen *onscreen)
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
   GLXDrawable drawable;
 
   drawable =
@@ -330,7 +330,7 @@ static void
 ensure_ust_type (CoglRenderer *renderer,
                  GLXDrawable   drawable)
 {
-  CoglGLXRenderer *glx_renderer =  renderer->winsys;
+  CoglGLXRenderer *glx_renderer =  cogl_renderer_get_winsys (renderer);
   CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
   int64_t ust;
   int64_t msc;
@@ -387,7 +387,7 @@ ust_to_microseconds (CoglRenderer *renderer,
                      GLXDrawable   drawable,
                      int64_t       ust)
 {
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   ensure_ust_type (renderer, drawable);
 
@@ -420,7 +420,7 @@ static gboolean
 is_ust_monotonic (CoglRenderer *renderer,
                   GLXDrawable   drawable)
 {
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   ensure_ust_type (renderer, drawable);
 
@@ -436,7 +436,7 @@ _cogl_winsys_wait_for_vblank (CoglOnscreen *onscreen)
   CoglXlibRenderer *xlib_renderer;
   CoglGLXDisplay *glx_display;
 
-  glx_renderer = ctx->display->renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (ctx->display->renderer);
   xlib_renderer = _cogl_xlib_renderer_get_data (ctx->display->renderer);
   glx_display = ctx->display->winsys;
 
@@ -493,7 +493,7 @@ _cogl_winsys_get_vsync_counter (CoglContext *ctx)
   uint32_t video_sync_count;
   CoglGLXRenderer *glx_renderer;
 
-  glx_renderer = ctx->display->renderer->winsys;
+  glx_renderer = cogl_renderer_get_winsys (ctx->display->renderer);
 
   glx_renderer->glXGetVideoSync (&video_sync_count);
 
@@ -511,7 +511,7 @@ cogl_onscreen_glx_get_buffer_age (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
   GLXDrawable drawable;
   unsigned int age = 0;
 
@@ -596,7 +596,7 @@ flush_pending_notifications_idle (void *user_data)
 {
   CoglContext *context = user_data;
   CoglRenderer *renderer = context->display->renderer;
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   /* This needs to be disconnected before invoking the callbacks in
    * case the callbacks cause it to be queued again */
@@ -615,7 +615,7 @@ set_sync_pending (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   /* We only want to dispatch sync events when the application calls
    * cogl_context_dispatch so instead of immediately notifying we
@@ -623,10 +623,9 @@ set_sync_pending (CoglOnscreen *onscreen)
   if (!glx_renderer->flush_notifications_idle)
     {
       glx_renderer->flush_notifications_idle =
-        _cogl_closure_list_add (&renderer->idle_closures,
-                                flush_pending_notifications_idle,
-                                context,
-                                NULL);
+        cogl_renderer_add_idle_closure (renderer,
+                                        flush_pending_notifications_idle,
+                                        context);
     }
 
   onscreen_glx->pending_sync_notify++;
@@ -639,7 +638,7 @@ set_complete_pending (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   /* We only want to notify swap completion when the application calls
    * cogl_context_dispatch so instead of immediately notifying we
@@ -647,10 +646,9 @@ set_complete_pending (CoglOnscreen *onscreen)
   if (!glx_renderer->flush_notifications_idle)
     {
       glx_renderer->flush_notifications_idle =
-        _cogl_closure_list_add (&renderer->idle_closures,
-                                flush_pending_notifications_idle,
-                                context,
-                                NULL);
+        cogl_renderer_add_idle_closure (renderer,
+                                        flush_pending_notifications_idle,
+                                        context);
     }
 
   onscreen_glx->pending_complete_notify++;
@@ -667,7 +665,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen    *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
   CoglGLXDisplay *glx_display = context->display->winsys;
   uint32_t end_frame_vsync_counter = 0;
   gboolean have_counter;
@@ -854,7 +852,7 @@ cogl_onscreen_glx_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
-  CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
   CoglGLXDisplay *glx_display = context->display->winsys;
   gboolean have_counter;
   GLXDrawable drawable;
@@ -993,7 +991,7 @@ cogl_onscreen_glx_resize (CoglOnscreen    *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglRenderer *renderer = context->display->renderer;
-  CoglGLXRenderer *glx_renderer = renderer->winsys;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
   int x, y;
 
 
@@ -1007,10 +1005,9 @@ cogl_onscreen_glx_resize (CoglOnscreen    *onscreen,
   if (!glx_renderer->flush_notifications_idle)
     {
       glx_renderer->flush_notifications_idle =
-        _cogl_closure_list_add (&renderer->idle_closures,
-                                flush_pending_notifications_idle,
-                                context,
-                                NULL);
+        cogl_renderer_add_idle_closure (renderer,
+                                        flush_pending_notifications_idle,
+                                        context);
     }
 
   if (configure_event->send_event)

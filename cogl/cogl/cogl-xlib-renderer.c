@@ -55,13 +55,10 @@ _cogl_xlib_renderer_get_data (CoglRenderer *renderer)
      need the EGL winsys data but only one of them wants the Xlib
      data. */
 
-  if (!renderer->custom_winsys_user_data)
-    {
-      renderer->custom_winsys_user_data = g_new0 (CoglXlibRenderer, 1);
-      renderer->should_free_custom_winsys_user_data = TRUE;
-    }
+  if (!cogl_renderer_get_custom_winsys_data (renderer))
+    cogl_renderer_set_custom_winsys_data (renderer,  g_new0 (CoglXlibRenderer, 1));
 
-  return renderer->custom_winsys_user_data;
+  return cogl_renderer_get_custom_winsys_data (renderer);
 }
 
 static void
@@ -270,7 +267,7 @@ update_outputs (CoglRenderer *renderer,
 
   if (changed)
     {
-      const CoglWinsysVtable *winsys = renderer->winsys_vtable;
+      const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
 
       if (notify)
         COGL_NOTE (WINSYS, "Outputs changed:");
