@@ -46,12 +46,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void
-_xlib_renderer_data_free (CoglXlibRenderer *data)
-{
-  g_free (data);
-}
-
 CoglXlibRenderer *
 _cogl_xlib_renderer_get_data (CoglRenderer *renderer)
 {
@@ -62,7 +56,10 @@ _cogl_xlib_renderer_get_data (CoglRenderer *renderer)
      data. */
 
   if (!renderer->custom_winsys_user_data)
-    renderer->custom_winsys_user_data = g_new0 (CoglXlibRenderer, 1);
+    {
+      renderer->custom_winsys_user_data = g_new0 (CoglXlibRenderer, 1);
+      renderer->should_free_custom_winsys_user_data = TRUE;
+    }
 
   return renderer->custom_winsys_user_data;
 }
@@ -386,8 +383,6 @@ _cogl_xlib_renderer_disconnect (CoglRenderer *renderer)
 
   g_list_free_full (xlib_renderer->outputs, (GDestroyNotify) free_xlib_output);
   xlib_renderer->outputs = NULL;
-
-  g_clear_pointer (&renderer->custom_winsys_user_data, _xlib_renderer_data_free);
 }
 
 Display *
