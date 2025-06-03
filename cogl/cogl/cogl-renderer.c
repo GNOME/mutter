@@ -558,8 +558,6 @@ cogl_renderer_set_driver (CoglRenderer *renderer,
 CoglDriverId
 cogl_renderer_get_driver_id (CoglRenderer *renderer)
 {
-  g_return_val_if_fail (renderer->connected, 0);
-
   return renderer->driver_id;
 }
 
