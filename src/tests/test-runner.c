@@ -865,18 +865,25 @@ test_case_parse_signal (TestCase *test,
 
   if (signal_start != argv[0])
     {
+      g_autoptr (GError) local_error = NULL;
       g_autofree char *instance = g_strndup (argv[0], signal_start - argv[0]);
       MetaTestClient *client;
       const char *window_id;
       MetaWindow *window;
 
       if (!test_case_parse_window_id (test, instance, &client,
-                                      &window_id, error))
-        BAD_COMMAND ("Cannot find window for instance %s", instance);
+                                      &window_id, &local_error))
+        {
+          BAD_COMMAND ("Cannot find window for instance %s: %s",
+                       instance, local_error->message);
+        }
 
-      window = meta_test_client_find_window (client, window_id, error);
+      window = meta_test_client_find_window (client, window_id, &local_error);
       if (!window)
-        BAD_COMMAND ("Cannot find window for window id %s", window_id);
+        {
+          BAD_COMMAND ("Cannot find window for window id %s: %s",
+                       window_id, local_error->message);
+        }
 
       instance_obj = G_OBJECT (window);
     }
