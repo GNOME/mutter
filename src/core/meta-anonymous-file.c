@@ -100,7 +100,7 @@ create_anonymous_file (const char *name,
   int fd, ret;
 
 #if defined(HAVE_MEMFD_CREATE)
-  memfd_name = g_strdup_printf ("mutter-%s", name);
+  memfd_name = g_strdup_printf ("mutter-anonymous-file-%s", name);
   fd = memfd_create (memfd_name, MFD_CLOEXEC | MFD_ALLOW_SEALING);
   if (fd >= 0)
     {
@@ -126,7 +126,7 @@ create_anonymous_file (const char *name,
           return -1;
         }
 
-      template = g_strdup_printf ("mutter-%s-XXXXXX", name);
+      template = g_strdup_printf ("mutter-anonymous-file-%s-XXXXXX", name);
       filename = g_strconcat (path, template, NULL);
       fd = create_tmpfile_cloexec (filename);
 
