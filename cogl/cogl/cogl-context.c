@@ -221,9 +221,6 @@ cogl_context_new (CoglDisplay *display,
   /* Keep a backpointer to the context */
   display->context = context;
 
-  for (i = 0; i < G_N_ELEMENTS (context->private_features); i++)
-    context->private_features[i] |= display->renderer->private_features[i];
-
   winsys = _cogl_context_get_winsys (context);
   if (!winsys->context_init (context, error))
     {
