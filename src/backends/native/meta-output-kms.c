@@ -99,6 +99,17 @@ meta_output_kms_from_kms_connector (MetaKmsConnector *connector)
                              kms_connector_output_kms_quark);
 }
 
+void
+meta_unlink_kms_connector (MetaKmsConnector *connector)
+{
+  if (!kms_connector_output_kms_quark)
+    return;
+
+  g_object_set_qdata (G_OBJECT (connector),
+                      kms_connector_output_kms_quark,
+                      NULL);
+}
+
 static GBytes *
 meta_output_kms_read_edid (MetaOutputNative *output_native)
 {

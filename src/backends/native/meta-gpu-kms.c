@@ -351,6 +351,8 @@ init_outputs (MetaGpuKms *gpu_kms)
       MetaOutput *old_output;
       GError *error = NULL;
 
+      meta_unlink_kms_connector (kms_connector);
+
       if (!meta_kms_connector_get_current_state (kms_connector))
         continue;
 
