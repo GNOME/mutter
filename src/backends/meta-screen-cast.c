@@ -74,7 +74,7 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
   CoglRendererEGL *cogl_renderer_egl =
-    cogl_renderer->winsys;
+    cogl_renderer_get_winsys (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data =
     cogl_renderer_egl->platform;
   MetaRenderDevice *render_device =

@@ -1732,7 +1732,7 @@ maybe_create_syncobj (MetaScreenCastStreamSrc *src,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+  CoglRendererEGL *cogl_renderer_egl = cogl_renderer_get_winsys (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   MetaDeviceFile *device_file =

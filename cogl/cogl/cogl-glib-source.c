@@ -47,7 +47,7 @@ cogl_glib_source_prepare (GSource *source, int *timeout)
 {
   CoglGLibSource *cogl_source = (CoglGLibSource *) source;
 
-  if (_cogl_list_empty (&cogl_source->renderer->idle_closures))
+  if (_cogl_list_empty (cogl_renderer_get_idle_closures (cogl_source->renderer)))
     {
       *timeout = -1;
       cogl_source->expiration_time = -1;
@@ -81,7 +81,7 @@ cogl_glib_source_dispatch (GSource *source,
 {
   CoglGLibSource *cogl_source = (CoglGLibSource *) source;
 
-  _cogl_closure_list_invoke_no_args (&cogl_source->renderer->idle_closures);
+  _cogl_closure_list_invoke_no_args (cogl_renderer_get_idle_closures (cogl_source->renderer));
 
   return TRUE;
 }

@@ -155,7 +155,7 @@ check_gl_extensions (CoglContext *cogl_context)
   cogl_display = cogl_context_get_display (cogl_context);
   cogl_renderer = cogl_display_get_renderer (cogl_display);
 
-  switch (cogl_renderer->driver_id)
+  switch (cogl_renderer_get_driver_id (cogl_renderer))
     {
     case COGL_DRIVER_ID_GL3:
       {

@@ -57,7 +57,7 @@ G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
 const CoglWinsysVtable *
 _cogl_context_get_winsys (CoglContext *context)
 {
-  return context->display->renderer->winsys_vtable;
+  return cogl_renderer_get_winsys_vtable (context->display->renderer);
 }
 
 static void
@@ -229,7 +229,7 @@ cogl_context_new (CoglDisplay *display,
       return NULL;
     }
 
-  driver = display->renderer->driver;
+  driver = cogl_renderer_get_driver (display->renderer);
   if (COGL_DRIVER_GET_CLASS (driver)->context_init &&
       !COGL_DRIVER_GET_CLASS (driver)->context_init (driver, context))
     {

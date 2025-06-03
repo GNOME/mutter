@@ -71,7 +71,7 @@ _cogl_texture_pixmap_x11_get_winsys (CoglTexturePixmapX11 *tex_pixmap)
   CoglContext *ctx;
 
   ctx = cogl_texture_get_context (COGL_TEXTURE (tex_pixmap));
-  return ctx->display->renderer->winsys_vtable;
+  return cogl_renderer_get_winsys_vtable (ctx->display->renderer) ;
 }
 
 static int

@@ -143,7 +143,7 @@ cogl_onscreen_xlib_allocate (CoglFramebuffer  *framebuffer,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *display = context->display;
   CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = renderer->winsys;
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
   EGLConfig egl_config;
   Window xwin;
   EGLSurface egl_surface;

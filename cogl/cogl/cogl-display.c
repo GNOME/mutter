@@ -45,7 +45,7 @@ G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 static const CoglWinsysVtable *
 _cogl_display_get_winsys (CoglDisplay *display)
 {
-  return display->renderer->winsys_vtable;
+  return cogl_renderer_get_winsys_vtable (display->renderer);
 }
 
 static void
@@ -88,7 +88,7 @@ cogl_display_new (CoglRenderer *renderer)
   CoglDisplay *display = g_object_new (COGL_TYPE_DISPLAY, NULL);
 
   display->renderer = g_object_ref (renderer);
-  renderer->display = display;
+  cogl_renderer_set_display (renderer, display);
   display->setup = FALSE;
 
   return display;
