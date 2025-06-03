@@ -121,6 +121,8 @@ cogl_renderer_dispose (GObject *object)
     winsys->renderer_disconnect (renderer);
 
   g_clear_pointer (&renderer->winsys, g_free);
+  if (renderer->should_free_custom_winsys_user_data)
+    g_clear_pointer (&renderer->custom_winsys_user_data, g_free);
 
   if (renderer->libgl_module)
     g_module_close (renderer->libgl_module);
@@ -381,6 +383,7 @@ cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
 {
   renderer->custom_winsys_user_data = user_data;
   renderer->custom_winsys_vtable_getter = winsys_vtable_getter;
+  renderer->should_free_custom_winsys_user_data = FALSE;
 }
 
 static gboolean

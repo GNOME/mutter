@@ -50,6 +50,7 @@ struct _CoglRenderer
   CoglDriverId driver_override;
   CoglDriver *driver;
   const CoglWinsysVtable *winsys_vtable;
+  gboolean should_free_custom_winsys_user_data;
   void *custom_winsys_user_data;
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
 
