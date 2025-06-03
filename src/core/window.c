@@ -2956,6 +2956,7 @@ meta_window_maximize (MetaWindow *window)
 {
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
+  g_return_if_fail (!window->unmanaging);
 
   meta_window_set_maximize_flags (window, META_MAXIMIZE_BOTH);
 }
