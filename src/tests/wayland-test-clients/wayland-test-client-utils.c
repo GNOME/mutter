@@ -849,14 +849,20 @@ static const struct xdg_toplevel_listener xdg_toplevel_listener = {
 };
 
 void
-wayland_surface_commit_new_buffer (WaylandSurface *surface)
+wayland_surface_commit (WaylandSurface *surface)
 {
-  struct wl_region *opaque_region;
+  if (!surface->has_alpha)
+    {
+      struct wl_region *opaque_region;
 
-  opaque_region = wl_compositor_create_region (surface->display->compositor);
-  wl_region_add (opaque_region, 0, 0, surface->width, surface->height);
-  wl_surface_set_opaque_region (surface->wl_surface, opaque_region);
-  wl_region_destroy (opaque_region);
+      opaque_region = wl_compositor_create_region (surface->display->compositor);
+      wl_region_add (opaque_region, 0, 0, surface->width, surface->height);
+      wl_surface_set_opaque_region (surface->wl_surface, opaque_region);
+      wl_region_destroy (opaque_region);
+    }
+
+  wl_surface_damage_buffer (surface->wl_surface,
+                            0, 0, surface->width, surface->height);
 
   xdg_surface_ack_configure (surface->xdg_surface, surface->last_serial);
   wl_surface_commit (surface->wl_surface);
@@ -885,7 +891,7 @@ handle_xdg_surface_configure (void               *data,
                 surface->wl_surface,
                 surface->width, surface->height,
                 surface->color);
-  wayland_surface_commit_new_buffer (surface);
+  wayland_surface_commit (surface);
 }
 
 static const struct xdg_surface_listener xdg_surface_listener = {

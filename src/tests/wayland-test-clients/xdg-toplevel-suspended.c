@@ -242,7 +242,7 @@ test_delayed_map (WaylandDisplay *display)
                 surface->wl_surface,
                 surface->width, surface->height,
                 surface->color);
-  wayland_surface_commit_new_buffer (surface);
+  wayland_surface_commit (surface);
   xdg_toplevel_set_minimized (surface->xdg_toplevel);
 
   g_debug ("Waiting for becoming suspended.");
