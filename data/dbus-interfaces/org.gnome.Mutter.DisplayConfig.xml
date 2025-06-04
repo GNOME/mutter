@@ -239,7 +239,9 @@
 	control it via this D-Bus interface.
 
 	  * 'connector' (s) - An associated monitor connector
-	  * 'active' (s) - True if the monitor is active
+	  * 'active' (b) - True if the monitor is active
+	  * 'min' (i) - Minimum value (optional)
+	  * 'max' (i) - Maximum value (optional)
 	  * 'value' (i) - Current value (optional)
 
 	The initial 'u' is a serial number used when setting the backlight.
