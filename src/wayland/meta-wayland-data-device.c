@@ -26,8 +26,6 @@
 
 #include "wayland/meta-wayland-data-device.h"
 
-#include <gio/gunixoutputstream.h>
-#include <glib-unix.h>
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -489,49 +487,6 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
   meta_dnd_wayland_handle_end_modal (compositor);
 
   g_free (drag_grab);
-}
-
-static gboolean
-on_fake_read_hup (GIOChannel   *channel,
-                  GIOCondition  condition,
-                  gpointer      data)
-{
-  MetaWaylandDataSource *source = data;
-
-  meta_wayland_data_source_notify_finish (source);
-  g_io_channel_shutdown (channel, FALSE, NULL);
-  g_io_channel_unref (channel);
-
-  return G_SOURCE_REMOVE;
-}
-
-static void
-meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
-                                    const gchar           *mimetype)
-{
-  GIOChannel *channel;
-  int p[2];
-
-  if (!g_unix_open_pipe (p, FD_CLOEXEC, NULL))
-    {
-      meta_wayland_data_source_notify_finish (source);
-      return;
-    }
-
-  if (!g_unix_set_fd_nonblocking (p[0], TRUE, NULL) ||
-      !g_unix_set_fd_nonblocking (p[1], TRUE, NULL))
-    {
-      meta_wayland_data_source_notify_finish (source);
-      close (p[0]);
-      close (p[1]);
-      return;
-    }
-
-  meta_wayland_data_source_send (source, mimetype, p[1]);
-  close (p[1]);
-  channel = g_io_channel_unix_new (p[0]);
-  g_io_channel_set_close_on_unref (channel, TRUE);
-  g_io_add_watch (channel, G_IO_HUP, on_fake_read_hup, source);
 }
 
 static MetaWaylandSurface *

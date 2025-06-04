@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <gio/gunixoutputstream.h>
+#include <glib-unix.h>
 #include <unistd.h>
 
 #include "wayland/meta-wayland-data-source.h"
@@ -46,6 +48,10 @@ typedef struct _MetaWaylandDataSourcePrivate
   enum wl_data_device_manager_dnd_action current_dnd_action;
   MetaWaylandSeat *seat;
   MetaWaylandToplevelDrag *toplevel_drag;
+
+  GIOChannel *fake_read_channel;
+  guint fake_read_watch_id;
+
   guint actions_set : 1;
   guint in_ask : 1;
   guint drop_performed : 1;
@@ -159,6 +165,9 @@ meta_wayland_data_source_finalize (GObject *object)
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
   char **pos;
+
+  g_clear_handle_id (&priv->fake_read_watch_id, g_source_remove);
+  g_clear_pointer (&priv->fake_read_channel, g_io_channel_unref);
 
   wl_array_for_each (pos, &priv->mime_types)
     g_free (*pos);
@@ -580,6 +589,56 @@ void
 meta_wayland_data_source_notify_finish (MetaWaylandDataSource *source)
 {
   META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->drag_finished (source);
+}
+
+static gboolean
+on_fake_read_hup (GIOChannel   *channel,
+                  GIOCondition  condition,
+                  gpointer      user_data)
+{
+  MetaWaylandDataSource *source = META_WAYLAND_DATA_SOURCE (user_data);
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+
+  priv->fake_read_watch_id = 0;
+  meta_wayland_data_source_notify_finish (source);
+  g_io_channel_shutdown (channel, FALSE, NULL);
+  g_clear_pointer (&priv->fake_read_channel, g_io_channel_unref);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
+                                    const char            *mimetype)
+{
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+  GIOChannel *channel;
+  int p[2];
+
+  if (!g_unix_open_pipe (p, FD_CLOEXEC, NULL))
+    {
+      meta_wayland_data_source_notify_finish (source);
+      return;
+    }
+
+  if (!g_unix_set_fd_nonblocking (p[0], TRUE, NULL) ||
+      !g_unix_set_fd_nonblocking (p[1], TRUE, NULL))
+    {
+      meta_wayland_data_source_notify_finish (source);
+      close (p[0]);
+      close (p[1]);
+      return;
+    }
+
+  meta_wayland_data_source_send (source, mimetype, p[1]);
+  close (p[1]);
+  channel = g_io_channel_unix_new (p[0]);
+  g_io_channel_set_close_on_unref (channel, TRUE);
+  priv->fake_read_channel = channel;
+  priv->fake_read_watch_id =
+    g_io_add_watch (channel, G_IO_HUP, on_fake_read_hup, source);
 }
 
 gboolean
