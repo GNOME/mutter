@@ -121,11 +121,14 @@ cogl_pipeline_foreach_child (CoglPipeline              *pipeline,
 {
 
   for (CoglPipeline *child = pipeline->first_child;
-       child != NULL;
-       child = child->next_sibling)
+       child != NULL;)
     {
+      CoglPipeline *next = child->next_sibling;
+
       if (!callback (child, user_data))
         break;
+
+      child = next;
     }
 }
 
