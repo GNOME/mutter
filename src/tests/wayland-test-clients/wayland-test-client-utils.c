@@ -878,9 +878,9 @@ handle_xdg_surface_configure (void               *data,
 {
   WaylandSurface *surface = data;
 
-  g_signal_emit (surface, surface_signals[SURFACE_CONFIGURE], 0);
-
   surface->last_serial = serial;
+
+  g_signal_emit (surface, surface_signals[SURFACE_CONFIGURE], 0);
 
   if (surface->manual_paint)
     return;
