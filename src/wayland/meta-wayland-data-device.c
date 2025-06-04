@@ -501,6 +501,7 @@ on_fake_read_hup (GIOChannel   *channel,
   meta_wayland_data_source_notify_finish (source);
   g_io_channel_shutdown (channel, FALSE, NULL);
   g_io_channel_unref (channel);
+  g_object_unref (source);
 
   return G_SOURCE_REMOVE;
 }
@@ -531,7 +532,7 @@ meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
   close (p[1]);
   channel = g_io_channel_unix_new (p[0]);
   g_io_channel_set_close_on_unref (channel, TRUE);
-  g_io_add_watch (channel, G_IO_HUP, on_fake_read_hup, source);
+  g_io_add_watch (channel, G_IO_HUP, on_fake_read_hup, g_object_ref (source));
 }
 
 static MetaWaylandSurface *
