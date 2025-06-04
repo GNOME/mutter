@@ -42,11 +42,6 @@ draw_main (WaylandDisplay *display,
   wl_surface_attach (surface->wl_surface,
                      wayland_buffer_get_wl_buffer (buffer),
                      0, 0);
-
-  wl_surface_damage_buffer (surface->wl_surface,
-                            0, 0, surface->width, surface->height);
-
-  xdg_surface_ack_configure (surface->xdg_surface, surface->last_serial);
 }
 
 int
@@ -62,6 +57,7 @@ main (int          argc,
                                  "color-representation",
                                  100, 100, 0xffffffff);
   surface->manual_paint = TRUE;
+  surface->has_alpha = TRUE;
 
   wl_surface_commit (surface->wl_surface);
 
@@ -74,7 +70,7 @@ main (int          argc,
   if (g_strcmp0 (argv[1], "state") == 0)
     {
       draw_main (display, surface, DRM_FORMAT_YUV420);
-      wl_surface_commit (surface->wl_surface);
+      wayland_surface_commit (surface);
       wl_display_flush (display->display);
 
       test_driver_sync_point (display->test_driver, 0, NULL);
@@ -113,7 +109,7 @@ main (int          argc,
     {
       /* use an YUV non-4:2:0 subsampled buffer */
       draw_main (display, surface, DRM_FORMAT_YUYV);
-      wl_surface_commit (surface->wl_surface);
+      wayland_surface_commit (surface);
       wl_display_flush (display->display);
 
       wp_color_representation_surface_v1_set_alpha_mode (
@@ -134,7 +130,7 @@ main (int          argc,
     {
       /* use an RGB buffer */
       draw_main (display, surface, DRM_FORMAT_ARGB8888);
-      wl_surface_commit (surface->wl_surface);
+      wayland_surface_commit (surface);
       wl_display_flush (display->display);
 
       wp_color_representation_surface_v1_set_alpha_mode (
@@ -155,9 +151,7 @@ main (int          argc,
   else if (g_strcmp0 (argv[1], "premult-reftest") == 0)
     {
       draw_surface (display, surface->wl_surface, 100, 100, 0x7F003F00);
-      wl_surface_damage_buffer (surface->wl_surface,
-                                0, 0, surface->width, surface->height);
-      wl_surface_commit (surface->wl_surface);
+      wayland_surface_commit (surface);
       wait_for_effects_completed (display, surface->wl_surface);
       wait_for_view_verified (display, 0);
 
