@@ -238,6 +238,10 @@ test_delayed_map (WaylandDisplay *display)
                                              XDG_TOPLEVEL_STATE_SUSPENDED));
 
   int64_t commit_time_us = g_get_monotonic_time ();
+  draw_surface (surface->display,
+                surface->wl_surface,
+                surface->width, surface->height,
+                surface->color);
   wayland_surface_commit_new_buffer (surface);
   xdg_toplevel_set_minimized (surface->xdg_toplevel);
 
