@@ -1,3 +1,67 @@
+49.alpha.0
+==========
+* Make passive grabs a MetaBackendX11/MetaCompositorX11 detail [Carlos; !4191]
+* Add support for xdg_toplevel edge constraints [Jonas Å.; !3266]
+* Use opaque dma-buf formats substitutes for scanout [Robert; !4320]
+* Restore tiled/maximized windows to the correct monitor [Nick; !4411]
+* Do not leak session manager file to launched processes [Sebastian K.; !4405]
+* Add support for tablet pad relative dials [Peter; !3724]
+* Implement toplevel tag protocol [Bilal; !4043]
+* Use frame-sync candidate that likely matches scanout candidate [Robert; !4412]
+* Make MetaDrmLeaseManager backend owned [Jonas Å.; !4379]
+* Propagate all touchpad gesture events to apps [Carlos; !4417]
+* Update window decorations on override-redirect attribute [Rémi; !4287]
+* Load initial _NET_WM_FULLSCREEN_MONITORS value [Zhiyi; !4389]
+* Add support for YUV422 and YUV444 [Robert; !4347]
+* Window move/resize shuffling and placement fixes [Jonas Å.; !4413]
+* Simplify scale selection [Daniel; !3616]
+* Split up monitor-unit test cases into smaller ones [Jonas Å.; !4418]
+* Simplify API for full maximization [Florian; !4415]
+* Fix race when registering implicit grab [Alessandro; !4399]
+* Add Passive screen casts [Jonas Å.; !4398]
+* Do not suspend windows before they are mapped [Jonas Å.; !4416]
+* Make keyboard map setting async  [Jonas Å.; !4394]
+* Use per-view frame counter for MetaSyncCounter [Jonas Å., Michel; !4341]
+* Introduce ClutterSprite for pointing focus management [Carlos; !4193]
+* Introduce Mutter SDK [Jonas Å.; !1949]
+* Skip multiple refresh intervals if necessary [Michel; !4406]
+* box-layout: Update actor-request-mode on orientation changes [Jonas D.; !4339]
+* Make MetaMonitor more persistent  [Jonas Å.; !4430]
+* Drop x11 session restore [Bilal; !4438]
+* Allow devkit window inhibit system keyboard shortcuts [Jonas Å.; !4441]
+* Expose MetaMonitor as public API [Sebastian W.; !4437]
+* Do not take control of logind session on Xorg [Madhu; !4391]
+* Add popup support to the test runner and popup tests [Jonas Å.; !4424]
+* Switch to using logind for lid closed property [Bilal; !3481]
+* Require all compositor modifiers to pass scroll events [Florian; !4457]
+* Do not create launcher for headless sessions, require for others  [Sebastian W.;
+  !4448]
+* Fix duplicate frame creation on ConfigureNotify [Rémi; !4465]
+* Fix dropping of browser tabs into tiled/maximized state [Carlos;
+  !4427]
+* Make anonymous files identifiable [Jonas Å.; !4449]
+* Unlink outputs from unused connectors in update_outputs [Michel; !4474]
+* Implement the color-representation protocol [Sebastian W.; !4408]
+* Implement backlight support [Sebastian W.; !4014]
+* Disable X11 backend by default [Jordan; !4454]
+* Fixed crashes [Sebastian W., Jonas Å., Michael; !4423, !4431, !4480, #4157]
+* Misc. bug fixes and cleanups [Chris, Maxim, Michel, Carlos, Florian, Rémi,
+  Bilal, Jonas Å., Pascal, Jakub, Sebastian K, Jordan, Alessandro; !4409,
+  !4388, !4039, !4390, !4439, !4446, !4261, !4397, !4429, !4436, !4443, !4453,
+  !4440, !4463, !4478, !4335, !2503, !4432, !4481, !4482, !4395, !4485, !4488]
+
+Contributors:
+  Jonas Ådahl, Alessandro Astone, Rémi Bernon, Michael Catanzaro,
+  Maxim Cournoyer, Michel Dänzer, Jonas Dreßler, Bilal Elmoussaoui,
+  Carlos Garnacho, Peter Hutterer, Sebastian Keller, Robert Mader, Madhu,
+  Chris Mayo, Florian Müllner, Pascal Nowack, Jordan Petridis, Emilio Sepúlveda,
+  Jakub Steiner, Daniel van Vugt, Sebastian Wick, Nick Diego Yamane, Zhiyi Zhang,
+  Olivier Fourdan,
+
+Translators:
+  Vasil Pupkin [be], Martin [sl], Peter Mráz [sk], Emilio Sepúlveda [ia],
+  Fabio Tomat [fur]
+
 48.2
 ====
 * Fix animated cursors [Michel; !4382]
