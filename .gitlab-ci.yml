@@ -795,6 +795,8 @@ installed-tests-mutter@x86_64:
       when: on_success
     - if: '$CI_COMMIT_BRANCH =~ /^gnome-[0-9-]+$/'
       when: on_success
+    - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /.*installed-tests.*/'
+      when: on_success
     - if: '$CI_PIPELINE_SOURCE != "merge_request_event"'
       when: manual
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
