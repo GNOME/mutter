@@ -53,6 +53,8 @@ guint clutter_debug_flags       = 0;
 guint clutter_paint_debug_flags = 0;
 guint clutter_pick_debug_flags  = 0;
 
+static GLogLevelFlags clutter_log_level = G_LOG_LEVEL_MESSAGE;
+
 /* A constant added to heuristic max render time to account for variations
  * in the estimates.
  */
@@ -84,6 +86,10 @@ clutter_create_context (ClutterBackendConstructor   backend_constructor,
     return NULL;
 
   g_object_add_weak_pointer (G_OBJECT (ClutterCntx), (gpointer *) &ClutterCntx);
+
+  if (g_test_initialized ())
+    clutter_log_level = G_LOG_LEVEL_DEBUG;
+
   return ClutterCntx;
 }
 
@@ -611,7 +617,7 @@ _clutter_debug_messagev (const char *format,
   fmt = g_strconcat (stamp, ":", format, NULL);
   g_free (stamp);
 
-  g_logv (G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, fmt, var_args);
+  g_logv (G_LOG_DOMAIN, clutter_log_level, fmt, var_args);
 
   g_free (fmt);
 }
