@@ -345,8 +345,12 @@
       <arg name="serial" type="u" direction="in" />
     </signal>
 
-    <property name="CapsLockState" type="b" access="read" />
-    <property name="NumLockState" type="b" access="read" />
+    <property name="CapsLockState" type="b" access="read">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+    </property>
+    <property name="NumLockState" type="b" access="read">
+      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
+    </property>
 
     <!--
         ConnectToEIS:
