@@ -475,6 +475,108 @@ meta_test_kms_render_client_scanout_fallback (void)
 }
 
 static void
+mark_as_signalled (gboolean *did_signal)
+{
+  *did_signal = TRUE;
+}
+
+static void
+meta_test_kms_render_client_scanout_hotplug (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (test_context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  MetaKmsDevice *kms_device = meta_kms_get_devices (kms)->data;
+  KmsRenderingTest test;
+  MetaWaylandTestClient *wayland_test_client;
+  g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
+  gulong before_update_handler_id;
+  gulong before_paint_handler_id;
+  gulong paint_view_handler_id;
+  gulong presented_handler_id;
+  MtkRectangle view_rect;
+  gulong monitors_changed_handler_id;
+  gboolean did_signal;
+
+  if (g_strcmp0 (getenv ("MUTTER_DEBUG_KMS_THREAD_TYPE"),
+                 "user") == 0)
+    {
+      g_test_skip ("The issue the test tests only reproduces with kernel "
+                   "threads");
+      return;
+    }
+
+  test_driver = meta_wayland_test_driver_new (wayland_compositor);
+  meta_wayland_test_driver_set_property (test_driver,
+                                         "gpu-path",
+                                         meta_kms_device_get_path (kms_device));
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "dma-buf-scanout");
+  g_assert_nonnull (wayland_test_client);
+
+  test = (KmsRenderingTest) {
+    .loop = g_main_loop_new (NULL, FALSE),
+    .wait_for_scanout = TRUE,
+  };
+
+  g_assert_cmpuint (g_list_length (clutter_stage_peek_stage_views (stage)),
+                    ==,
+                    1);
+  clutter_stage_view_get_layout (clutter_stage_peek_stage_views (stage)->data,
+                                 &view_rect);
+
+  paint_view_handler_id =
+    g_signal_connect (stage, "paint-view",
+                      G_CALLBACK (on_scanout_paint_view), &test);
+  before_update_handler_id =
+    g_signal_connect (stage, "before-update",
+                      G_CALLBACK (on_scanout_before_update), &test);
+  before_paint_handler_id =
+    g_signal_connect (stage, "before-paint",
+                      G_CALLBACK (on_scanout_before_paint), &test);
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "*Direct scanout page flip failed*");
+
+  g_assert_cmpuint (test.scanout.fb_id, ==, 0);
+  while (!test.scanout.fb_id)
+    g_main_context_iteration (NULL, TRUE);
+
+  did_signal = FALSE;
+  monitors_changed_handler_id =
+    g_signal_connect_swapped (monitor_manager, "monitors-changed",
+                              G_CALLBACK (mark_as_signalled), &did_signal);
+  meta_monitor_manager_reload (monitor_manager);
+  g_assert_true (did_signal);
+  g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
+
+  did_signal = FALSE;
+  presented_handler_id =
+    g_signal_connect_swapped (stage, "presented",
+                              G_CALLBACK (mark_as_signalled), &did_signal);
+  while (!did_signal)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_test_assert_expected_messages ();
+
+  g_signal_handler_disconnect (stage, before_update_handler_id);
+  g_signal_handler_disconnect (stage, before_paint_handler_id);
+  g_signal_handler_disconnect (stage, paint_view_handler_id);
+  g_signal_handler_disconnect (stage, presented_handler_id);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_main_loop_unref (test.loop);
+}
+
+static void
 meta_test_kms_render_empty_config (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -511,6 +613,8 @@ init_tests (void)
                    meta_test_kms_render_client_scanout);
   g_test_add_func ("/backends/native/kms/render/client-scanout-fallback",
                    meta_test_kms_render_client_scanout_fallback);
+  g_test_add_func ("/backends/native/kms/render/client-scanout-hotplug",
+                   meta_test_kms_render_client_scanout_hotplug);
   g_test_add_func ("/backends/native/kms/render/empty-config",
                    meta_test_kms_render_empty_config);
 }
