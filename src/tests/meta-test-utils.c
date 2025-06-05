@@ -496,7 +496,7 @@ wait_for_showing_before_redraw (gpointer user_data)
       g_main_loop_quit (data->loop);
     }
 
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 void
