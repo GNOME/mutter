@@ -511,9 +511,7 @@ drag_grab_get_focus_surface (MetaWaylandEventHandler *handler,
       sequence != drag_grab->sequence)
     return NULL;
 
-  return meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                device,
-                                                                sequence);
+  return meta_wayland_seat_get_current_surface (drag_grab->seat, device, sequence);
 }
 
 static void

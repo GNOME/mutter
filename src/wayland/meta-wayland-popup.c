@@ -118,9 +118,7 @@ popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
     {
       MetaWaylandInput *input = meta_wayland_seat_get_input (popup_grab->seat);
 
-      surface = meta_wayland_event_handler_chain_up_get_focus_surface (handler,
-                                                                       device,
-                                                                       sequence);
+      surface = meta_wayland_seat_get_current_surface (popup_grab->seat, device, sequence);
 
       if (!meta_wayland_input_is_current_handler (input, handler) ||
           (surface && surface->resource &&
@@ -162,9 +160,7 @@ popup_grab_release (MetaWaylandEventHandler *handler,
     {
       MetaWaylandSurface *surface;
 
-      surface = meta_wayland_event_handler_chain_up_get_focus_surface (popup_grab->handler,
-                                                                       device,
-                                                                       sequence);
+      surface = meta_wayland_seat_get_current_surface (popup_grab->seat, device, sequence);
       if (!surface ||
           wl_resource_get_client (surface->resource) != popup_grab->grab_client)
         {
