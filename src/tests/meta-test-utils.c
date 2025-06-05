@@ -474,9 +474,19 @@ typedef struct _WaitForShownData
 } WaitForShownData;
 
 static void
+window_weak_notify_cb (gpointer  user_data,
+                       GObject  *where_the_object_was)
+{
+  g_error ("Window was destroyed when waiting to be shown");
+}
+
+static void
 on_window_shown (MetaWindow       *window,
                  WaitForShownData *data)
 {
+  g_object_weak_unref (G_OBJECT (window),
+                       window_weak_notify_cb,
+                       NULL);
   g_main_loop_quit (data->loop);
 }
 
@@ -493,6 +503,9 @@ wait_for_showing_before_redraw (gpointer user_data)
     }
   else
     {
+      g_object_weak_unref (G_OBJECT (data->window),
+                           window_weak_notify_cb,
+                           NULL);
       g_main_loop_quit (data->loop);
     }
 
@@ -505,6 +518,10 @@ meta_wait_for_window_shown (MetaWindow *window)
   MetaDisplay *display = meta_window_get_display (window);
   MetaCompositor *compositor = meta_display_get_compositor (display);
   MetaLaters *laters = meta_compositor_get_laters (compositor);
+
+  g_object_weak_ref (G_OBJECT (window),
+                     window_weak_notify_cb,
+                     NULL);
 
   WaitForShownData data = {
     .loop = g_main_loop_new (NULL, FALSE),
