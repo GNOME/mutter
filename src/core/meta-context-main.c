@@ -663,6 +663,8 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run as a nested compositor"),
       NULL
     },
+#endif
+#ifdef HAVE_XWAYLAND
     {
       "no-x11", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.no_x11,
