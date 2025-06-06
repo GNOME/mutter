@@ -1327,7 +1327,8 @@ flash_out_completed (ClutterTimeline *timeline,
 
 void
 meta_compositor_flash_display (MetaCompositor *compositor,
-                               MetaDisplay    *display)
+                               MetaDisplay    *display,
+                               int             n_flashes)
 {
   ClutterActor *stage;
   ClutterActor *flash;
@@ -1351,7 +1352,7 @@ meta_compositor_flash_display (MetaCompositor *compositor,
 
   transition = clutter_actor_get_transition (flash, "opacity");
   clutter_timeline_set_auto_reverse (CLUTTER_TIMELINE (transition), TRUE);
-  clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), 2);
+  clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), n_flashes);
 
   g_signal_connect (transition, "stopped",
                     G_CALLBACK (flash_out_completed), flash);
@@ -1370,7 +1371,8 @@ window_flash_out_completed (ClutterTimeline *timeline,
 
 void
 meta_compositor_flash_window (MetaCompositor *compositor,
-                              MetaWindow     *window)
+                              MetaWindow     *window,
+                              int             n_flashes)
 {
   ClutterActor *window_actor =
     CLUTTER_ACTOR (meta_window_actor_from_window (window));
@@ -1397,7 +1399,7 @@ meta_compositor_flash_window (MetaCompositor *compositor,
   if (transition)
     {
       clutter_timeline_set_auto_reverse (CLUTTER_TIMELINE (transition), TRUE);
-      clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), 2);
+      clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), n_flashes);
 
       g_signal_connect (transition, "stopped",
                         G_CALLBACK (window_flash_out_completed), flash);

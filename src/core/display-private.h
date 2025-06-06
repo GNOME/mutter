@@ -120,11 +120,11 @@ struct _MetaDisplay
   GSList     *pending_pings;
 
   /* Pending focus change */
-  guint       focus_timeout_id;
+  guint focus_timeout_id;
 
   /* Pending autoraise */
-  guint       autoraise_timeout_id;
-  MetaWindow* autoraise_window;
+  guint autoraise_timeout_id;
+  MetaWindow *autoraise_window;
 
   MetaKeyBindingManager key_binding_manager;
 
@@ -157,6 +157,7 @@ struct _MetaDisplay
   guint check_fullscreen_later;
 
   MetaBell *bell;
+  int64_t last_visual_bell_time_us;
   MetaWorkspaceManager *workspace_manager;
 
   MetaSoundPlayer *sound_player;

@@ -54,6 +54,11 @@
 #include "core/util-private.h"
 #include "core/window-private.h"
 #include "meta/compositor.h"
+#include "mtk/mtk.h"
+
+/* Time limits to prevent Photosensitive Seizures */
+#define MIN_TIME_BETWEEN_VISUAL_ALERTS_MS 500
+#define MIN_TIME_BETWEEN_DOUBLE_VISUAL_ALERT_MS 3000
 
 G_DEFINE_TYPE (MetaBell, meta_bell, G_TYPE_OBJECT)
 
@@ -120,7 +125,7 @@ meta_bell_new (MetaDisplay *display)
 /**
  * bell_flash_fullscreen:
  * @display: The display the event came in on
- * @xkb_ev: The bell event
+ * @n_flashes: The number of times to flash the screen
  *
  * Flashes one screen, or all screens, in response to a bell event.
  * If the event is on a particular window, flash the screen that
@@ -129,15 +134,17 @@ meta_bell_new (MetaDisplay *display)
  * If the configure script found we had no XKB, this does not exist.
  */
 static void
-bell_flash_fullscreen (MetaDisplay *display)
+bell_flash_fullscreen (MetaDisplay *display,
+                       int          n_flashes)
 {
-  meta_compositor_flash_display (display->compositor, display);
+  meta_compositor_flash_display (display->compositor, display, n_flashes);
 }
 
 static void
-bell_flash_window (MetaWindow *window)
+bell_flash_window (MetaWindow *window,
+                   int         n_flashes)
 {
-  meta_compositor_flash_window (window->display->compositor, window);
+  meta_compositor_flash_window (window->display->compositor, window, n_flashes);
 }
 
 /**
@@ -150,12 +157,13 @@ bell_flash_window (MetaWindow *window)
  */
 static void
 bell_flash_frame (MetaDisplay *display,
-                  MetaWindow  *window)
+                  MetaWindow  *window,
+                  int          n_flashes)
 {
   if (window)
-    bell_flash_window (window);
+    bell_flash_window (window, n_flashes);
   else
-    bell_flash_fullscreen (display);
+    bell_flash_fullscreen (display, n_flashes);
 }
 
 /**
@@ -170,13 +178,49 @@ static void
 bell_visual_notify (MetaDisplay *display,
                     MetaWindow  *window)
 {
+  /*
+   * The European Accessibility Act (EAA), in the Annex I, Section I, 2.J,
+   * specifies that products "shall avoid triggering photosensitive seizures".
+   *
+   * According to the Web Content Accessibility Guidelines (WCAG), any
+   * element that flashes in the screen must have a maximum period of
+   * 3Hz to avoid the risk of Photosensitivity Seizures.
+   *
+   * If several alarm bells are sent fast enough, the Visual alerts could
+   * flash the screen or the window at speeds about 8-9Hz (tested with a
+   * simple BASH script), which is greater than the currently accepted
+   * limit of 3Hz.
+   *
+   * To avoid this, a timeout is added to ensure that no visual alerts are
+   * sent with less than 500ms of difference, to set a maximum flash speed
+   * of 2Hz.
+   *
+   * A property in display is used to keep the last time a visual alert has been
+   * sent because not only a "single flash zone" can trigger a seizure, but also
+   * slower patterns combined. So a global timeout for all the desktop is the
+   * safest approach.
+   */
+  int64_t now_us;
+  int64_t time_difference_ms;
+  int n_flashes;
+
+  now_us = g_get_monotonic_time ();
+  time_difference_ms = us2ms (now_us - display->last_visual_bell_time_us);
+
+  if (time_difference_ms < MIN_TIME_BETWEEN_VISUAL_ALERTS_MS)
+    return;
+
+  display->last_visual_bell_time_us = now_us;
+
+  n_flashes = (time_difference_ms < MIN_TIME_BETWEEN_DOUBLE_VISUAL_ALERT_MS) ? 1 : 2;
+
   switch (meta_prefs_get_visual_bell_type ())
     {
     case G_DESKTOP_VISUAL_BELL_FULLSCREEN_FLASH:
-      bell_flash_fullscreen (display);
+      bell_flash_fullscreen (display, n_flashes);
       break;
     case G_DESKTOP_VISUAL_BELL_FRAME_FLASH:
-      bell_flash_frame (display, window);
+      bell_flash_frame (display, window, n_flashes);
       break;
     }
 }
