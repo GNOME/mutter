@@ -4304,7 +4304,7 @@ meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
       MetaMonitor *monitor = l->data;
 
       if (meta_monitor_is_active (monitor) &&
-          g_strcmp0 (connector, meta_monitor_get_connector (monitor)))
+          g_strcmp0 (connector, meta_monitor_get_connector (monitor)) == 0)
         return meta_monitor_get_logical_monitor (monitor)->number;
     }
 
