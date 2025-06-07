@@ -397,15 +397,20 @@
 	    - "is-for-lease" (b): whether the monitor is for lease or not
 	    - "color-mode" (u): current color mode
 	    - "supported-color-modes" (au): list of supported color modes
+	    - "rgb-range" (u): current RGB quantization range
 
         Possible mode flags:
-	  1 : preferred mode
-	  2 : current mode
+          1 : preferred mode
+          2 : current mode
 
         Available color modes:
           0 : default
           1 : BT.2100
 
+        Available RGB quantization ranges:
+          1: auto
+          2: full
+          3: limited
 
 	@logical_monitors represent current logical monitor configuration
 
