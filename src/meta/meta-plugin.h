@@ -36,7 +36,7 @@ META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaPlugin, meta_plugin, META, PLUGIN, GObject)
 
 /* Allows us to keep the xevent_filter vfunc even when building Mutter without X11 */
-typedef union _XEvent XEvent;
+typedef union _XEvent MetaXEvent;
 
 /**
  * MetaPluginClass:
@@ -165,7 +165,7 @@ struct _MetaPluginClass
 
   /**
    * MetaPluginClass::xevent_filter:
-   * @event: (type xlib.XEvent):
+   * @event: a xlib.XEvent
    *
    * Virtual function called when handling each event.
    *
@@ -174,8 +174,8 @@ struct _MetaPluginClass
    * completed() callback, and the compositor must ensure that any appropriate
    * post-effect cleanup is carried out.
    */
-  gboolean (*xevent_filter) (MetaPlugin       *plugin,
-                             XEvent           *event);
+  gboolean (*xevent_filter) (MetaPlugin *plugin,
+                             MetaXEvent *event);
 
   /**
    * MetaPluginClass::keybinding_filter:
