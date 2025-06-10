@@ -107,3 +107,5 @@ const MetaLogicalMonitorId * meta_logical_monitor_get_id (MetaLogicalMonitor *lo
 MetaLogicalMonitorId * meta_logical_monitor_dup_id (MetaLogicalMonitor *logical_monitor);
 
 MetaMonitorManager * meta_logical_monitor_get_monitor_manager (MetaLogicalMonitor *logical_monitor);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaLogicalMonitorId, meta_logical_monitor_id_free)
