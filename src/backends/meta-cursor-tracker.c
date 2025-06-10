@@ -177,6 +177,31 @@ sync_cursor (MetaCursorTracker *tracker)
     g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
 }
 
+void
+meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
+                                         gboolean           visible)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+  if (visible == priv->is_showing)
+    return;
+  priv->is_showing = visible;
+
+  sync_cursor (tracker);
+
+  if (priv->is_showing)
+    clutter_seat_inhibit_unfocus (seat);
+  else
+    clutter_seat_uninhibit_unfocus (seat);
+
+  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
+}
+
 static void
 meta_cursor_tracker_real_set_force_track_position (MetaCursorTracker *tracker,
                                                    gboolean           is_enabled)
@@ -550,31 +575,6 @@ meta_cursor_tracker_get_pointer_visible (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
 
   return priv->is_showing;
-}
-
-void
-meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
-                                         gboolean           visible)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
-  ClutterBackend *clutter_backend =
-    meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-
-  if (visible == priv->is_showing)
-    return;
-  priv->is_showing = visible;
-
-  sync_cursor (tracker);
-
-  if (priv->is_showing)
-    clutter_seat_inhibit_unfocus (seat);
-  else
-    clutter_seat_uninhibit_unfocus (seat);
-
-  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
 }
 
 MetaBackend *
