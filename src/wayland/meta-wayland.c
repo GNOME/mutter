@@ -1134,12 +1134,6 @@ meta_wayland_compositor_is_shortcuts_inhibited (MetaWaylandCompositor *composito
   return meta_wayland_surface_is_shortcuts_inhibited (focus, compositor->seat);
 }
 
-void
-meta_wayland_compositor_flush_clients (MetaWaylandCompositor *compositor)
-{
-  wl_display_flush_clients (compositor->wayland_display);
-}
-
 static void on_scheduled_association_unmanaged (MetaWindow *window,
                                                 gpointer    user_data);
 

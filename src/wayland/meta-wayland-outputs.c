@@ -477,7 +477,6 @@ meta_wayland_output_new (MetaWaylandCompositor *compositor,
                                              &wl_output_interface,
                                              META_WL_OUTPUT_VERSION,
                                              wayland_output, bind_output);
-  meta_wayland_compositor_flush_clients (compositor);
   meta_wayland_output_set_monitor (wayland_output, monitor);
 
   return wayland_output;
