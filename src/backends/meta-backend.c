@@ -1366,8 +1366,6 @@ meta_backend_initable_init (GInitable     *initable,
 
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
-  priv->cursor_tracker = meta_backend_create_cursor_tracker (backend);
-
   debug_control = meta_context_get_debug_control (priv->context);
   g_signal_connect (debug_control, "notify::inhibit-hw-cursor",
                     G_CALLBACK (on_debug_control_inhibit_hw_cursor_changed),
@@ -1414,6 +1412,8 @@ meta_backend_initable_init (GInitable     *initable,
 
   if (!init_clutter (backend, error))
     return FALSE;
+
+  priv->cursor_tracker = meta_backend_create_cursor_tracker (backend);
 
   g_signal_connect_object (priv->default_seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
