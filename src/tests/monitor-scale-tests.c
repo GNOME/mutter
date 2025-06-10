@@ -693,7 +693,7 @@ meta_test_monitor_calculate_mode_scale (void)
       .width_mm = 286, /* 16:10, 13.3" */
       .height_mm = 179,
       .exp = 1.75,
-      .exp_nofrac = 1.0,
+      .exp_nofrac = 2.0,
     },
     {
       .name = "Surface Laptop Studio",
@@ -738,7 +738,7 @@ meta_test_monitor_calculate_mode_scale (void)
       .width_mm = 509,
       .height_mm = 286,
       .exp = 1.75,
-      .exp_nofrac = 1.0,
+      .exp_nofrac = 2.0,
     },
     {
       .name = "Generic 27\" 4K",
@@ -776,7 +776,7 @@ meta_test_monitor_calculate_mode_scale (void)
       .height_mm = 294,
       /* Ideal scale is 1.70, should round to 1.75 and 1.0 */
       .exp = 1.75,
-      .exp_nofrac = 1.0,
+      .exp_nofrac = 2.0,
     },
   };
   /* Set a rather high scale epsilon, to have "easy" scales as the

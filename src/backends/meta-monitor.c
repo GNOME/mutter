@@ -2267,7 +2267,7 @@ calculate_scale (MetaMonitor                *monitor,
   perfect_scale = physical_dpi / target_dpi;
 
   if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
-    perfect_scale -= 0.25f;
+    perfect_scale -= 0.125f;
 
   /* We'll only be considering the supported scale factors */
   scales = meta_monitor_calculate_supported_scales (monitor, monitor_mode,
