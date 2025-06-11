@@ -22,7 +22,7 @@
 #include "wayland/meta-wayland-cursor-surface.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
 #include "wayland/meta-cursor-sprite-wayland.h"

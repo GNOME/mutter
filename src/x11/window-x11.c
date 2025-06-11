@@ -33,7 +33,7 @@
 #include <X11/extensions/Xcomposite.h>
 #include <xcb/res.h>
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"

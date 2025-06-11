@@ -29,7 +29,7 @@
 
 #include "core/meta-tablet-action-mapper.h"
 #include "backends/meta-input-device-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "core/display-private.h"
 

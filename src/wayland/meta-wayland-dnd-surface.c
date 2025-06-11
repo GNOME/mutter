@@ -19,7 +19,7 @@
 
 #include "wayland/meta-wayland-dnd-surface.h"
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "compositor/meta-feedback-actor-private.h"
 #include "wayland/meta-wayland.h"
 

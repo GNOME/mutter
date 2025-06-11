@@ -44,7 +44,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-manager.h"
 #include "backends/meta-keymap-utils.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-pointer-constraint.h"
 #include "backends/meta-settings-private.h"

@@ -23,7 +23,7 @@
 #include "backends/meta-screen-cast-monitor-stream.h"
 
 #include "backends/meta-eis.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-screen-cast-monitor-stream-src.h"
 
 enum

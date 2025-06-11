@@ -29,7 +29,7 @@
 #include "backends/meta-fd-source.h"
 #include "backends/meta-input-capture-private.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "core/meta-anonymous-file.h"
 #include "meta/barrier.h"

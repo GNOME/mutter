@@ -19,7 +19,7 @@
 #include "config.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-renderer-native.h"

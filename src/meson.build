@@ -244,7 +244,7 @@ mutter_sources = [
   'backends/meta-keymap-utils.c',
   'backends/meta-keymap-utils.h',
   'backends/meta-logical-monitor.c',
-  'backends/meta-logical-monitor.h',
+  'backends/meta-logical-monitor-private.h',
   'backends/meta-monitor.c',
   'backends/meta-monitor-config-manager.c',
   'backends/meta-monitor-config-manager.h',

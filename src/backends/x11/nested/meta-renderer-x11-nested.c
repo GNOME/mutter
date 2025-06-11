@@ -26,7 +26,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-color-manager.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-output.h"
 #include "backends/meta-renderer.h"
 #include "backends/meta-renderer-view.h"

@@ -23,7 +23,7 @@
 #include "backends/native/meta-crtc-kms.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-output-kms.h"

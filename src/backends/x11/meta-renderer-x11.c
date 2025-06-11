@@ -25,7 +25,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-renderer-view.h"
 #include "backends/meta-renderer.h"
 #include "backends/x11/meta-backend-x11.h"

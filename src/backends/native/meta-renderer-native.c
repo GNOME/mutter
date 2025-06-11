@@ -50,7 +50,7 @@
 #include "backends/meta-color-manager.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-gles3.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-crtc-kms.h"

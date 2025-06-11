@@ -30,7 +30,7 @@
 #include <stdlib.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "core/boxes-private.h"
 #include "meta/meta-backend.h"
 #include "meta/prefs.h"

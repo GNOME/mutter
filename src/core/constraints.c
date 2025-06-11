@@ -29,7 +29,7 @@
 #include <math.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"

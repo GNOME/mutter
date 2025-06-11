@@ -17,7 +17,7 @@
 
 #include "config.h"
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "tests/monitor-tests-common.h"
 
 static void

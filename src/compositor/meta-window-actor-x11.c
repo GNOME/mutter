@@ -22,7 +22,7 @@
 
 #include "compositor/meta-window-actor-x11.h"
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "clutter/clutter-frame-clock.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-cullable.h"

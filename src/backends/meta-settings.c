@@ -24,7 +24,7 @@
 #include <gio/gio.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 
 #ifndef XWAYLAND_GRAB_DEFAULT_ACCESS_RULES

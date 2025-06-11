@@ -27,6 +27,8 @@
 #include "core/util-private.h"
 #include "meta/boxes.h"
 
+#include "meta/meta-logical-monitor.h"
+
 #define META_MAX_OUTPUTS_PER_MONITOR 4
 
 struct _MetaLogicalMonitor
@@ -45,12 +47,6 @@ struct _MetaLogicalMonitor
 };
 
 typedef struct _MetaLogicalMonitorId MetaLogicalMonitorId;
-
-#define META_TYPE_LOGICAL_MONITOR (meta_logical_monitor_get_type ())
-META_EXPORT_TEST
-G_DECLARE_FINAL_TYPE (MetaLogicalMonitor, meta_logical_monitor,
-                      META, LOGICAL_MONITOR,
-                      GObject)
 
 typedef void (* MetaLogicalMonitorCrtcFunc) (MetaLogicalMonitor *logical_monitor,
                                              MetaMonitor        *monitor,

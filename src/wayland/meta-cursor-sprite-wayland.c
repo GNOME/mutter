@@ -21,7 +21,7 @@
 #include "wayland/meta-cursor-sprite-wayland.h"
 
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_XWAYLAND

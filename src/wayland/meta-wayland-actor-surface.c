@@ -22,7 +22,7 @@
 #include "wayland/meta-wayland-actor-surface.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "wayland/meta-wayland-buffer.h"

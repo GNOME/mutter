@@ -49,7 +49,7 @@
 #include <xcb/randr.h>
 
 #include "backends/meta-crtc.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-output.h"
 #include "backends/x11/meta-backend-x11.h"

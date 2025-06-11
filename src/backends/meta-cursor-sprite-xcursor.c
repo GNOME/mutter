@@ -24,7 +24,7 @@
 #include "backends/meta-cursor.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "meta/prefs.h"

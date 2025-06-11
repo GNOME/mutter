@@ -27,7 +27,7 @@
 #include <math.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"

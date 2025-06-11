@@ -23,7 +23,7 @@
 #include "backends/meta-input-device-private.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-monitor-manager-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-backend-private.h"
 
 #include "meta-dbus-input-mapping.h"

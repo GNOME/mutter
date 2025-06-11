@@ -23,7 +23,7 @@
 
 #include "wayland/meta-wayland-xdg-shell.h"
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
 #include "core/window-private.h"

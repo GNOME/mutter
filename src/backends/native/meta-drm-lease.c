@@ -21,7 +21,7 @@
 
 #include <glib.h>
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-connector.h"

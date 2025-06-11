@@ -48,7 +48,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-stage-x11.h"

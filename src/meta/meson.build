@@ -25,6 +25,7 @@ mutter_public_headers = [
   'meta-inhibit-shortcuts-dialog.h',
   'meta-launch-context.h',
   'meta-later.h',
+  'meta-logical-monitor.h',
   'meta-monitor.h',
   'meta-monitor-manager.h',
   'meta-multi-texture.h',

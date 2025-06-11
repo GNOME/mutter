@@ -21,7 +21,7 @@
 #include "backends/meta-screen-cast-window-stream.h"
 
 #include "backends/meta-eis.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-window.h"

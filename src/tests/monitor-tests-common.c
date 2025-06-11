@@ -19,7 +19,7 @@
 
 #include "tests/monitor-tests-common.h"
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-config-store.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-manager-test.h"

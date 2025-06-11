@@ -32,7 +32,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"

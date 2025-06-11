@@ -66,7 +66,7 @@
 #include <string.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "cogl/cogl.h"
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"

@@ -49,7 +49,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-crtc.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-config-store.h"

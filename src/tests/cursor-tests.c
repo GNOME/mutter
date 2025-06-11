@@ -19,7 +19,7 @@
 #include "config.h"
 
 #include "backends/meta-cursor-sprite-xcursor.h"
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-screen-cast.h"
 #include "clutter/clutter.h"
 #include "compositor/meta-window-actor-private.h"

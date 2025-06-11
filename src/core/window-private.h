@@ -31,7 +31,7 @@
 
 #pragma once
 
-#include "backends/meta-logical-monitor.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "clutter/clutter.h"
 #include "core/meta-window-config-private.h"
 #include "core/stack.h"
