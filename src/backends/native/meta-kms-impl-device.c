@@ -1131,11 +1131,13 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
   drmModeRes *drm_resources;
   MetaKmsResourceChanges changes;
   GList *l;
+  gboolean had_fd_open;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
   meta_topic (META_DEBUG_KMS, "Updating device state for %s", priv->path);
 
+  had_fd_open = !!priv->device_file;
   if (!ensure_device_file (impl_device, &error))
     {
       g_warning ("Failed to reopen '%s': %s", priv->path, error->message);
@@ -1171,6 +1173,9 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
   meta_thread_uninhibit_realtime_in_impl (thread);
 
   drmModeFreeResources (drm_resources);
+
+  if (changes == META_KMS_RESOURCE_CHANGE_NONE && !had_fd_open)
+    clear_latched_fd_hold (impl_device);
 
   return changes;
 
