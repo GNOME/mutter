@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Mutter Development Kit
 Comment=Mutter Development Kit
-Exec=mutter-devkit
+Exec=@libexecdir@/mutter-devkit
 Icon=org.gnome.Mutter.Mdk
 Type=Application
 Categories=GNOME;

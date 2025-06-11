@@ -2,6 +2,7 @@ msgfmt = find_program('msgfmt')
 
 desktop_conf = configuration_data()
 desktop_conf.set('bindir', bindir)
+desktop_conf.set('libexecdir', libexecdir)
 
 if have_devkit
   i18n.merge_file(
