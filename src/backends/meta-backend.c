@@ -1754,6 +1754,14 @@ meta_backend_finish_touch_sequence (MetaBackend          *backend,
                                                              state);
 }
 
+/**
+ * meta_backend_get_current_logical_monitor:
+ * @backend: A #MetaBackend
+ *
+ * Returns the [class@Meta.LogicalMonitor] that currently has the mouse pointer.
+ *
+ * Returns: (transfer none) (nullable): The current [class@Meta.LogicalMonitor].
+ */
 MetaLogicalMonitor *
 meta_backend_get_current_logical_monitor (MetaBackend *backend)
 {

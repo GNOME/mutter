@@ -28,6 +28,7 @@
 #include "meta/meta-dnd.h"
 #include "meta/meta-idle-monitor.h"
 #include "meta/meta-monitor-manager.h"
+#include "meta/meta-logical-monitor.h"
 #include "meta/meta-orientation-manager.h"
 #include "meta/meta-remote-access-controller.h"
 
@@ -118,3 +119,6 @@ void meta_backend_renderdoc_capture (MetaBackend *backend);
 
 META_EXPORT
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
+
+META_EXPORT
+MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *backend);

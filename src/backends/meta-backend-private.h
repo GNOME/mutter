@@ -215,9 +215,6 @@ void meta_backend_finish_touch_sequence (MetaBackend          *backend,
                                          MetaSequenceState     state);
 
 META_EXPORT_TEST
-MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *backend);
-
-META_EXPORT_TEST
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
 
 META_EXPORT_TEST
