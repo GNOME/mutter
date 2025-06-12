@@ -964,6 +964,7 @@ wayland_test_cases = [
       test_client_executables.get('subsurface-remap-toplevel'),
       test_client_executables.get('subsurface-reparenting'),
       test_client_executables.get('xdg-activation'),
+      test_client_executables.get('xdg-activation-before-mapped'),
       test_client_executables.get('xdg-apply-limits'),
       test_client_executables.get('xdg-foreign'),
       test_client_executables.get('xdg-toplevel-bounds'),

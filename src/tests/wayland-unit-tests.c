@@ -19,6 +19,7 @@
 
 #include <gio/gio.h>
 #include <wayland-client.h>
+#include <gdesktop-enums.h>
 
 #include "backends/meta-virtual-monitor.h"
 #include "backends/native/meta-backend-native.h"
@@ -1602,6 +1603,37 @@ toplevel_tag (void)
 }
 
 static void
+toplevel_activation_before_mapped (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  g_autoptr (GSettings) wm_prefs = NULL;
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+
+  wm_prefs = g_settings_new ("org.gnome.desktop.wm.preferences");
+  virtual_keyboard =
+    clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "xdg-activation-before-mapped");
+
+  wait_for_sync_point (0);
+  g_settings_set_enum (wm_prefs, "focus-new-windows",
+                       G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT);
+  emit_sync_event (0);
+
+  wait_for_sync_point (1);
+  window = find_client_window ("activated-window");
+  g_assert_true (meta_window_has_focus (window));
+  g_assert_true (window == meta_stack_get_top (window->display->stack));
+  g_assert_true (window->stack_position == 1);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_settings_reset (wm_prefs, "focus-new-windows");
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -1714,6 +1746,8 @@ init_tests (void)
                    cursor_shape);
   g_test_add_func ("/wayland/toplevel/tag",
                    toplevel_tag);
+  g_test_add_func ("/wayland/toplevel/activation-before-mapped",
+                   toplevel_activation_before_mapped);
 }
 
 int

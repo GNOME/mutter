@@ -48,10 +48,11 @@ enum
 {
   SURFACE_CONFIGURE,
   SURFACE_POINTER_ENTER,
+  SURFACE_KEYBOARD_ENTER,
   N_SURFACE_SIGNALS
 };
 
-static guint surface_signals[N_SIGNALS];
+static guint surface_signals[N_SURFACE_SIGNALS];
 
 static struct wl_callback *effects_complete_callback;
 static struct wl_callback *window_shown_callback;
@@ -293,6 +294,74 @@ static const struct wl_pointer_listener wl_pointer_listener = {
 };
 
 static void
+wl_keyboard_keymap (void               *user_data,
+                    struct wl_keyboard *wl_keyboard,
+                    uint32_t            format,
+                    int32_t             fd,
+                    uint32_t            size)
+{
+}
+
+static void
+wl_keyboard_enter (void               *user_data,
+                   struct wl_keyboard *keyboard,
+                   uint32_t            serial,
+                   struct wl_surface  *surface_resource,
+                   struct wl_array    *keys)
+{
+  WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  g_signal_emit (surface, surface_signals[SURFACE_KEYBOARD_ENTER],
+                 0, keyboard, serial);
+}
+
+static void
+wl_keyboard_leave (void               *user_data,
+                   struct wl_keyboard *wl_keyboard,
+                   uint32_t            serial,
+                   struct wl_surface  *surface)
+{
+}
+
+static void
+wl_keyboard_key (void               *user_data,
+                 struct wl_keyboard *wl_keyboard,
+                 uint32_t            serial,
+                 uint32_t            time,
+                 uint32_t            key,
+                 uint32_t            state)
+{
+}
+
+static void
+wl_keyboard_modifiers (void               *user_data,
+                       struct wl_keyboard *wl_keyboard,
+                       uint32_t            serial,
+                       uint32_t            mods_depressed,
+                       uint32_t            mods_latched,
+                       uint32_t            mods_locked,
+                       uint32_t            group)
+{
+}
+
+static void
+wl_keyboard_repeat_info (void               *data,
+                         struct wl_keyboard *wl_keyboard,
+                         int32_t             rate,
+                         int32_t             delay)
+{
+}
+
+static const struct wl_keyboard_listener wl_keyboard_listener = {
+  wl_keyboard_keymap,
+  wl_keyboard_enter,
+  wl_keyboard_leave,
+  wl_keyboard_key,
+  wl_keyboard_modifiers,
+  wl_keyboard_repeat_info,
+};
+
+static void
 handle_wl_seat_capabilities (void           *user_data,
                              struct wl_seat *wl_seat,
                              uint32_t        capabilities)
@@ -308,6 +377,17 @@ handle_wl_seat_capabilities (void           *user_data,
   else if (!(capabilities & WL_SEAT_CAPABILITY_POINTER) && display->wl_pointer)
     {
       g_clear_pointer (&display->wl_pointer, wl_pointer_release);
+    }
+
+  if ((capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && !display->wl_keyboard)
+    {
+      display->wl_keyboard = wl_seat_get_keyboard (wl_seat);
+      wl_keyboard_add_listener (display->wl_keyboard,
+                                &wl_keyboard_listener, display);
+    }
+  else if (!(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) && display->wl_keyboard)
+    {
+      g_clear_pointer (&display->wl_keyboard, wl_keyboard_release);
     }
 }
 
@@ -521,6 +601,12 @@ handle_registry_global (void               *user_data,
         wl_registry_bind (registry, id,
                           &xdg_toplevel_tag_manager_v1_interface, 1);
     }
+  else if (strcmp (interface, xdg_activation_v1_interface.name) == 0)
+    {
+      display->xdg_activation =
+        wl_registry_bind (registry, id,
+                          &xdg_activation_v1_interface, 1);
+    }
 
   if (display->capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
     {
@@ -689,6 +775,7 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
   g_assert_nonnull (display->viewporter);
   g_assert_nonnull (display->xdg_wm_base);
   g_assert_nonnull (display->toplevel_tag_manager);
+  g_assert_nonnull (display->xdg_activation);
 
   if (capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
     g_assert_nonnull (display->test_driver);
@@ -929,6 +1016,16 @@ wayland_surface_class_init (WaylandSurfaceClass *klass)
 
   surface_signals[SURFACE_POINTER_ENTER] =
     g_signal_new ("pointer-enter",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_POINTER,
+                  G_TYPE_UINT);
+
+  surface_signals[SURFACE_KEYBOARD_ENTER] =
+    g_signal_new ("keyboard-enter",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,

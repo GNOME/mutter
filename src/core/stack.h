@@ -203,6 +203,7 @@ void        meta_stack_thaw (MetaStack *stack);
  * Returns: The top window on the stack, or %NULL in the vanishingly unlikely
  *          event that you have no windows on your screen whatsoever.
  */
+META_EXPORT_TEST
 MetaWindow * meta_stack_get_top (MetaStack  *stack);
 
 /**

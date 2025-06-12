@@ -130,6 +130,9 @@ wayland_test_clients = [
       wayland_cursor_dep,
     ],
   },
+  {
+    'name': 'xdg-activation-before-mapped',
+  },
 ]
 
 test_client_executables = {}

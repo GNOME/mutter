@@ -16,6 +16,7 @@
 #include "viewporter-client-protocol.h"
 #include "xdg-shell-client-protocol.h"
 #include "xdg-toplevel-tag-v1-client-protocol.h"
+#include "xdg-activation-v1-client-protocol.h"
 
 typedef enum _WaylandDisplayCapabilities
 {
@@ -55,8 +56,10 @@ typedef struct _WaylandDisplay
   struct wp_viewporter *viewporter;
   struct xdg_wm_base *xdg_wm_base;
   struct xdg_toplevel_tag_manager_v1 *toplevel_tag_manager;
+  struct xdg_activation_v1 *xdg_activation;
   struct wl_seat *wl_seat;
   struct wl_pointer *wl_pointer;
+  struct wl_keyboard *wl_keyboard;
   struct test_driver *test_driver;
 
   gboolean needs_roundtrip;
