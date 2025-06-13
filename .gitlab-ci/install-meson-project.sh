@@ -4,7 +4,7 @@ set -e
 
 usage() {
   cat <<-EOF
-	Usage: $(basename $0) [OPTION…] REPO_URL COMMIT
+	Usage: $(basename $0) [OPTION…] REPO_URL BRANCH_OR_TAG
 
 	Check out and install a meson project
 
@@ -15,6 +15,7 @@ usage() {
 	  --libdir=DIR       Setup the project with a different libdir
 	  --destdir=DIR      Install the project to DIR, can be used
 	                     several times to install to multiple destdirs
+	  --commit=HASH      Checkout a specific commit hash
 
 	  -h, --help         Display this help
 
@@ -28,6 +29,7 @@ TEMP=$(getopt \
   --longoptions='prepare:' \
   --longoptions='libdir:' \
   --longoptions='destdir:' \
+  --longoptions='commit:' \
   --longoptions='help' \
   -- "$@")
 
@@ -37,6 +39,7 @@ unset TEMP
 MESON_OPTIONS=()
 SUBDIR=.
 PREPARE=:
+COMMIT=
 DESTDIRS=()
 
 while true; do
@@ -66,6 +69,11 @@ while true; do
       shift 2
     ;;
 
+    --commit)
+      COMMIT=$2
+      shift 2
+    ;;
+
     -h|--help)
       usage
       exit 0
@@ -84,16 +92,21 @@ if [[ $# -lt 2 ]]; then
 fi
 
 REPO_URL="$1"
-COMMIT="$2"
+BRANCH_OR_TAG="$2"
 
 [[ ${#DESTDIRS[@]} == 0 ]] && DESTDIRS+=( / )
 
 CHECKOUT_DIR=$(mktemp --directory)
 trap "rm -rf $CHECKOUT_DIR" EXIT
 
-git clone --depth 1 "$REPO_URL" -b "$COMMIT" "$CHECKOUT_DIR"
+git clone --depth 1 "$REPO_URL" -b "$BRANCH_OR_TAG" "$CHECKOUT_DIR"
 
-pushd "$CHECKOUT_DIR/$SUBDIR"
+pushd "$CHECKOUT_DIR"
+if [ ! -z "$COMMIT" ]; then
+    git fetch "$COMMIT"
+    git checkout "$COMMIT"
+fi
+pushd "$SUBDIR"
 sh -c "$PREPARE"
 meson setup --prefix=/usr _build "${MESON_OPTIONS[@]}"
 
@@ -104,4 +117,5 @@ for destdir in "${DESTDIRS[@]}"; do
     [[ $destdir == / ]] && destdir=
     sudo meson install -C _build ${destdir:+--destdir=$destdir}
 done
+popd
 popd
