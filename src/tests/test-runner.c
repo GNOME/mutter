@@ -296,7 +296,7 @@ test_case_assert_stacking (TestCase       *test,
       if ((filter & STACK_FILTER_SHOWING) && window && window->hidden)
         continue;
 
-      if (workspace && !meta_window_located_on_workspace (window, workspace))
+      if (window && workspace && !meta_window_located_on_workspace (window, workspace))
         continue;
 
       if (window != NULL && window->title)
