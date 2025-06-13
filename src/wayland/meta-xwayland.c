@@ -553,7 +553,7 @@ ensure_x11_unix_perms (GError **error)
     }
 
   /* ... be writable ... */
-  if ((x11_tmp.st_mode & 0022) != 0022)
+  if (access (X11_TMP_UNIX_DIR, W_OK) != 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED,
                    "Directory \"%s\" is not writable",
