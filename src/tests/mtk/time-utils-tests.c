@@ -24,7 +24,7 @@
 static void
 test_extrapolate_interval_boundary (void)
 {
-  int64_t interval_us = 1000;
+  int64_t interval_us = s2us (10);
   int64_t now_us;
   int64_t next_interval_boundary_us;
 
