@@ -305,6 +305,7 @@ meta_test_input_capture_barriers (void)
                                                        0.0, 400.0);
 
   input_capture_test_client_wait_for_state (test_client, "3");
+  meta_flush_input (test_context);
   assert_pointer_position (seat, 1200.0, 700.0);
 
   input_capture_test_client_finish (test_client);
