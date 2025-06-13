@@ -19,8 +19,8 @@ else
       'https://gitlab.freedesktop.org/drm/kernel.git',
       '@INPUT@',
       '@OUTPUT@',
-      '--enable', 'CONFIG_DRM_VKMS',
-      '--enable', 'CONFIG_INPUT_UINPUT',
+      '--configitem', 'CONFIG_DRM_VKMS=y',
+      '--configitem', 'CONFIG_INPUT_UINPUT=y',
     ]
   )
   kernel_image_path = kernel_image_target.full_path()

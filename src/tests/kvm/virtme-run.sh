@@ -57,14 +57,14 @@ if [ -v "$MUTTER_TEST_ROOT" ]; then
 fi
 
 echo Running tests in virtual machine ...
-virtme-run \
+vng \
+  --run "$IMAGE" \
   --memory=1024M \
   --rw \
-  --pwd \
-  --kimg "$IMAGE" \
-  --script-sh "sh -c \"$SCRIPT\"" \
+  --exec "sh -c \"$SCRIPT\"" \
+  --cpus 2 \
   $ISOLATE_DIRS_ARGS \
-  --qemu-opts -cpu host,pdcm=off -smp 2
+  --qemu-opts="-cpu host,pdcm=off"
 VM_RESULT=$?
 if [ $VM_RESULT != 0 ]; then
   echo Virtual machine exited with a failure: $VM_RESULT

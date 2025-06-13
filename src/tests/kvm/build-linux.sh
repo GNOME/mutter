@@ -172,10 +172,8 @@ make defconfig
 sync
 make kvm_guest.config
 
-echo Enabling ${CONFIGS[@]}...
-./scripts/config ${CONFIGS[@]/#/--enable }
-
-make oldconfig
+echo Configuring kernel with ${CONFIGS[@]}...
+vng --kconfig --config .config ${CONFIGS[@]}
 make -j8 KCFLAGS="-Wno-error"
 
 popd
