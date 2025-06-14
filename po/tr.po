@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-03-05 02:13+0000\n"
-"PO-Revision-Date: 2025-03-10 08:00+0300\n"
+"POT-Creation-Date: 2025-05-20 21:59+0000\n"
+"PO-Revision-Date: 2025-06-14 08:00+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -466,9 +466,10 @@ msgid ""
 "associated floating point value representing the output luminance in percent "
 "(%). The default when not specified is 100%."
 msgstr ""
-"Çıktı başı ve renk kipi ışıltı ayarı. Her girdi bir bağlayıcı, sağlayıcı, ürün, "
-"seri, renk kipi ve çıktı parıltısını yüzde olarak yansıtan bir ilişik kayar nokta "
-"değeri demetinden oluşur. Belirtilmezse, öntanımlı değer %100’dür."
+"Çıktı başı ve renk kipi ışıltı ayarı. Her girdi bir bağlayıcı, sağlayıcı, "
+"ürün, seri, renk kipi ve çıktı parıltısını yüzde olarak yansıtan bir ilişik "
+"kayar nokta değeri demetinden oluşur. Belirtilmezse, öntanımlı değer "
+"%100’dür."
 
 #: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
@@ -631,26 +632,62 @@ msgstr ""
 "desteklemiyorsa bu seçenek işlevsizdir. Bu ayarın etkinleşmesi için Xwayland "
 "yeniden başlatılmalıdır."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-devkit.ui:7
+msgid "_Input"
+msgstr "_Girdi"
+
+#: mdk/mdk-devkit.ui:9
+msgid "_Emulate touch"
+msgstr "Dokunmayı _öykün"
+
+#: mdk/mdk-devkit.ui:15
+msgid "_About Mutter Development Kit"
+msgstr "Mutter Geliştirme Takımı _Hakkında"
+
+#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:84 mdk/mdk-main.c:99
+msgid "Mutter Development Kit"
+msgstr "Mutter Geliştirme Takımı"
+
+#: mdk/mdk-devkit.ui:31
+msgid "Main Menu"
+msgstr "Ana Menü"
+
+#: mdk/mdk-main.c:68
+msgid "The Mutter Team"
+msgstr "Mutter Takımı"
+
+#: mdk/mdk-main.c:90 mdk/mdk-main.c:104
+msgid "Mutter software development kit"
+msgstr "Mutter yazılım geliştirme takımı"
+
+#: mdk/mdk-main.c:93 mdk/mdk-main.c:107
+msgid "About Mutter Development Kit"
+msgstr "Mutter Geliştirme Takımı Hakkında"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Monitör oluşturulamadı"
+
+#: src/backends/meta-monitor.c:272
 msgid "Built-in display"
 msgstr "Yerleşik monitör"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:299
 msgid "Unknown"
 msgstr "Bilinmeyen"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:301
 msgid "Unknown Display"
 msgstr "Bilinmeyen Monitör"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:309
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:317
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -670,57 +707,49 @@ msgstr "Gizlilik Ekranı Etkin"
 msgid "Privacy Screen Disabled"
 msgstr "Gizlilik Ekranı Devre Dışı"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:632
 msgid "Replace the running window manager"
 msgstr "Çalışan pencere yöneticisinin yerini al"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:638
 msgid "X Display to use"
 msgstr "Kullanılacak X Ekranı"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Ortam yöneticisine olan bağlantıyı kapat"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Ortam yönetim ID’sini belirt"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Ortamı kayıtlı dosyadan başlat"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:644
 msgid "Make X calls synchronous"
 msgstr "X çağrılarını eşzamanlı yap"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:652
 msgid "Run as a wayland compositor"
 msgstr "Wayland dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:659
 msgid "Run as a nested compositor"
 msgstr "Yuvalanmış dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Kullanılacak Wayland monitör adını belirt"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Başsız monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Geliştirme takımını çalıştır"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -737,7 +766,7 @@ msgstr "D-Bus arayüzü için hata ayıklama denetimini etkinleştir"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Kip Anahtarı (Küme %d)"
@@ -745,7 +774,7 @@ msgstr "Kip Anahtarı (Küme %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Kip Değiştir"
@@ -753,11 +782,11 @@ msgstr "Kip Değiştir"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Monitör değiştir"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Ekranda yardımı göster"
 
@@ -787,12 +816,12 @@ msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 msgid "Workspace switched"
 msgstr "Çalışma alanı değiştirildi"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Kip Anahtarı: Kip %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -802,19 +831,19 @@ msgstr ""
 "yöneticisinin yerine başkasını koymak için --replace seçeneğini kullanmayı "
 "deneyin."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Pencere Sistemi monitörü “%s” açılamadı"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2793
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -827,7 +856,8 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "%s biçimi desteklenmiyor"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
+
