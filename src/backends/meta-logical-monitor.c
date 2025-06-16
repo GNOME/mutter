@@ -242,6 +242,15 @@ meta_logical_monitor_get_layout (MetaLogicalMonitor *logical_monitor)
   return logical_monitor->rect;
 }
 
+/**
+ * meta_logical_monitor_get_monitors:
+ * @logical_monitor: A #MetaLogicalMonitor
+ *
+ * Returns the list of [class@Meta.Monitor]s.
+ *
+ * Returns: (transfer none) (element-type Meta.Monitor):
+ * The list of [class@Meta.Monitor]s.
+ */
 GList *
 meta_logical_monitor_get_monitors (MetaLogicalMonitor *logical_monitor)
 {

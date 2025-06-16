@@ -80,9 +80,6 @@ MtkMonitorTransform meta_logical_monitor_get_transform (MetaLogicalMonitor *logi
 META_EXPORT_TEST
 MtkRectangle meta_logical_monitor_get_layout (MetaLogicalMonitor *logical_monitor);
 
-META_EXPORT_TEST
-GList * meta_logical_monitor_get_monitors (MetaLogicalMonitor *logical_monitor);
-
 gboolean meta_logical_monitor_has_neighbor (MetaLogicalMonitor   *logical_monitor,
                                             MetaLogicalMonitor   *neighbor,
                                             MetaDisplayDirection  neighbor_dir);

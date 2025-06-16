@@ -27,3 +27,6 @@ G_DECLARE_FINAL_TYPE (MetaLogicalMonitor,
                       meta_logical_monitor,
                       META, LOGICAL_MONITOR,
                       GObject)
+
+META_EXPORT
+GList * meta_logical_monitor_get_monitors (MetaLogicalMonitor *logical_monitor);
