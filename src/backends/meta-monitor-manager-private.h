@@ -271,9 +271,6 @@ void                meta_monitor_manager_rebuild_derived (MetaMonitorManager *ma
 META_EXPORT_TEST
 int                 meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager);
 
-META_EXPORT_TEST
-GList *             meta_monitor_manager_get_logical_monitors (MetaMonitorManager *manager);
-
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_from_number (MetaMonitorManager *manager,
                                                                           int                 number);
 

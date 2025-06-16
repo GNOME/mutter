@@ -67,3 +67,6 @@ gboolean meta_monitor_manager_get_panel_orientation_managed (MetaMonitorManager 
 
 META_EXPORT
 GList * meta_monitor_manager_get_monitors (MetaMonitorManager *manager);
+
+META_EXPORT
+GList * meta_monitor_manager_get_logical_monitors (MetaMonitorManager *manager);

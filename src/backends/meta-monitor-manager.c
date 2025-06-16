@@ -3594,11 +3594,12 @@ meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager)
  * meta_monitor_manager_get_logical_monitors:
  * @manager: A #MetaMonitorManager object
  *
- * Returns the list of `MetaLogicalMonitor`s that is handled. See also
+ * Returns the list of [class@Meta.LogicalMonitor]s. See also
  * meta_monitor_manager_get_num_logical_monitors() if you only need the size of
  * the list.
  *
- * Returns: (transfer none) (nullable): the list of logical monitors.
+ * Returns: (transfer none) (nullable) (element-type Meta.LogicalMonitor):
+ * The list of [class@Meta.LogicalMonitor]s.
  */
 GList *
 meta_monitor_manager_get_logical_monitors (MetaMonitorManager *manager)
