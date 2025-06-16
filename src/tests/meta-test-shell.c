@@ -499,7 +499,6 @@ restore_scale_idle (gpointer user_data)
   ActorPrivate *actor_priv;
 
   actor_priv = get_actor_private (META_WINDOW_ACTOR (data->actor));
-  actor_priv->minimize_timeline = NULL;
   actor_priv->minimize_stopped_id = 0;
 
   clutter_actor_hide (data->actor);
@@ -527,6 +526,7 @@ on_minimize_effect_stopped (ClutterTimeline    *timeline,
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (data->actor);
   ActorPrivate *actor_priv = get_actor_private (window_actor);
 
+  actor_priv->minimize_timeline = NULL;
   actor_priv->minimize_stopped_id =
     g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
                      restore_scale_idle,
