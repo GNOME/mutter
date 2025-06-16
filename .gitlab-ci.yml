@@ -183,7 +183,7 @@ variables:
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
         # deprecated header no longer included in openssl-devel
-        dnf install -y openssl-devel-engine
+        dnf install -y virtme-ng openssl-devel-engine
 
         if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
           git clone --depth $MUTTER_CLONE_DEPTH \
@@ -199,15 +199,6 @@ variables:
         ninja -C build src/tests/kvm/bzImage
         mkdir -p /opt/mutter
         cp build/src/tests/kvm/bzImage /opt/mutter/bzImage
-
-        git clone https://github.com/arighi/virtme-ng.git
-        cd virtme-ng
-        git fetch --tags
-        git checkout v1.8
-        ./setup.py install --prefix=/usr
-        cd ..
-        rm -rf virtme-ng
-        rm -rf build mutter-src
       fi
   retry:
     max: 2
