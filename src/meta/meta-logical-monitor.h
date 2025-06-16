@@ -30,3 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaLogicalMonitor,
 
 META_EXPORT
 GList * meta_logical_monitor_get_monitors (MetaLogicalMonitor *logical_monitor);
+
+META_EXPORT
+int meta_logical_monitor_get_number (MetaLogicalMonitor *logical_monitor);

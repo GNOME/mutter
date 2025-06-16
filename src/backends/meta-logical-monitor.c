@@ -243,6 +243,21 @@ meta_logical_monitor_get_layout (MetaLogicalMonitor *logical_monitor)
 }
 
 /**
+ * meta_logical_monitor_get_number:
+ * @logical_monitor: A #MetaLogicalMonitor
+ *
+ * Returns the [class@Meta.Monitor]s number which is compatible with the monitor
+ * API on [class@Meta.Display] until the next monitors-changed.
+ *
+ * Returns: The [class@Meta.Monitor]s number
+ */
+int
+meta_logical_monitor_get_number (MetaLogicalMonitor *logical_monitor)
+{
+  return logical_monitor->number;
+}
+
+/**
  * meta_logical_monitor_get_monitors:
  * @logical_monitor: A #MetaLogicalMonitor
  *
