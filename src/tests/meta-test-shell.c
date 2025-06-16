@@ -489,7 +489,7 @@ meta_test_shell_switch_workspace (MetaPlugin          *plugin,
                    NULL);
 }
 
-static void
+static gboolean
 restore_scale_idle (gpointer user_data)
 {
   EffectCompleteData *data = user_data;
@@ -508,6 +508,13 @@ restore_scale_idle (gpointer user_data)
 
   meta_plugin_minimize_completed (plugin, window_actor);
 
+  return G_SOURCE_REMOVE;
+}
+
+
+static void
+effect_complete_data_free (EffectCompleteData *data)
+{
   g_free (data->effect_data);
   g_free (data);
 }
@@ -521,7 +528,9 @@ on_minimize_effect_stopped (ClutterTimeline    *timeline,
   ActorPrivate *actor_priv = get_actor_private (window_actor);
 
   actor_priv->minimize_stopped_id =
-    g_idle_add_once (restore_scale_idle, data);
+    g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+                     restore_scale_idle,
+                     data, (GDestroyNotify) effect_complete_data_free);
 }
 
 static void
