@@ -26,4 +26,7 @@ META_EXPORT
 struct libevdev_uinput * meta_create_test_keyboard (void);
 
 META_EXPORT
+struct libevdev_uinput * meta_create_test_mouse (void);
+
+META_EXPORT
 void meta_wait_for_uinput_device (struct libevdev_uinput *evdev_uinput);

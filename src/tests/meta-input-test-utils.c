@@ -65,6 +65,40 @@ meta_create_test_keyboard (void)
   return evdev_uinput;
 }
 
+struct libevdev_uinput *
+meta_create_test_mouse (void)
+{
+  struct libevdev *evdev = NULL;
+  struct libevdev_uinput *evdev_uinput = NULL;
+  const int mouse_buttons[] = {
+    BTN_MOUSE, BTN_LEFT, BTN_RIGHT, BTN_MIDDLE, BTN_SIDE, BTN_EXTRA,
+    BTN_FORWARD, BTN_BACK,
+  };
+  int i;
+  int ret;
+
+  evdev = libevdev_new ();
+  g_assert_nonnull (evdev);
+  libevdev_set_name (evdev, "Test mouse");
+
+  libevdev_enable_event_type (evdev, EV_KEY);
+  for (i = 0; i < G_N_ELEMENTS (mouse_buttons); i++)
+    libevdev_enable_event_code (evdev, EV_KEY, mouse_buttons[i], NULL);
+  libevdev_enable_event_type (evdev, EV_REL);
+  libevdev_enable_event_code (evdev, EV_REL, REL_X, NULL);
+  libevdev_enable_event_code (evdev, EV_REL, REL_Y, NULL);
+  libevdev_enable_event_type (evdev, EV_SYN);
+
+  ret = libevdev_uinput_create_from_device (evdev,
+                                            LIBEVDEV_UINPUT_OPEN_MANAGED,
+                                            &evdev_uinput);
+  g_assert_cmpint (ret, ==, 0);
+  g_assert_nonnull (evdev_uinput);
+  libevdev_free (evdev);
+
+  return evdev_uinput;
+}
+
 void
 meta_wait_for_uinput_device (struct libevdev_uinput *evdev_uinput)
 {
