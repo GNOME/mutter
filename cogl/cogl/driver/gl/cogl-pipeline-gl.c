@@ -167,9 +167,10 @@ _cogl_bind_gl_texture_transient (CoglContext *ctx,
 
 void
 _cogl_delete_gl_texture (CoglContext *ctx,
+                         CoglDriver  *driver,
                          GLuint       gl_texture)
 {
-  CoglDriverGL *driver_gl = COGL_DRIVER_GL (ctx->driver);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   CoglDriverGLPrivate *priv = cogl_driver_gl_get_private (driver_gl);
   int i;
 

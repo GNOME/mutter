@@ -53,6 +53,7 @@ cogl_texture_driver_gl_texture_2d_free (CoglTextureDriver *driver,
 {
   if (tex_2d->gl_texture)
     _cogl_delete_gl_texture (cogl_texture_get_context (COGL_TEXTURE (tex_2d)),
+                             cogl_texture_driver_get_driver (driver),
                              tex_2d->gl_texture);
 
 #if defined (HAVE_EGL)
