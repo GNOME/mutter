@@ -12,24 +12,30 @@ VM_ENV="$5"
 TEST_RESULT_FILE=$(mktemp -p "$TEST_BUILD_DIR" test-result-XXXXXX)
 echo 1 > "$TEST_RESULT_FILE"
 
-VIRTME_ENV="\
-HOME=$HOME \
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH \
-XDG_DATA_DIRS=$XDG_DATA_DIRS \
-MUTTER_DEBUG=$MUTTER_DEBUG \
-CLUTTER_DEBUG=$CLUTTER_DEBUG \
-COGL_DEBUG=$COGL_DEBUG \
-$VM_ENV \
-"
+SCRIPT_FILE=$(mktemp -p "$TEST_BUILD_DIR" test-script-XXXXXX)
+
+cat > "$SCRIPT_FILE" <<__EOF__
+export HOME=$HOME \
+       LD_LIBRARY_PATH=$LD_LIBRARY_PATH \
+       XDG_DATA_DIRS=$XDG_DATA_DIRS \
+       MUTTER_DEBUG=$MUTTER_DEBUG \
+       CLUTTER_DEBUG=$CLUTTER_DEBUG \
+       COGL_DEBUG=$COGL_DEBUG \
+       $VM_ENV
+__EOF__
 
 cleanup_paths=""
 trap '{ rm -rf $cleanup_paths; }' EXIT
 
 if [ ! -v $MUTTER_DEBUG_FORCE_KMS_MODE ]; then
-  VIRTME_ENV="$VIRTME_ENV MUTTER_DEBUG_FORCE_KMS_MODE=$MUTTER_DEBUG_FORCE_KMS_MODE"
+  cat >> "$SCRIPT_FILE" <<__EOF__
+export MUTTER_DEBUG_FORCE_KMS_MODE=$MUTTER_DEBUG_FORCE_KMS_MODE
+__EOF__
 fi
 if [ ! -v $MUTTER_DEBUG_KMS_THREAD_TYPE ]; then
-  VIRTME_ENV="$VIRTME_ENV MUTTER_DEBUG_KMS_THREAD_TYPE=$MUTTER_DEBUG_KMS_THREAD_TYPE"
+  cat >> "$SCRIPT_FILE" <<__EOF__
+export MUTTER_DEBUG_KMS_THREAD_TYPE=$MUTTER_DEBUG_KMS_THREAD_TYPE
+__EOF__
 fi
 
 if [ ! -v "$XDG_RUNTIME_DIR" ]; then
@@ -45,12 +51,14 @@ if [[ "$(stat -c '%t:%T' -L /proc/$$/fd/0)" == "0:0" ]]; then
   rm -f $XDG_RUNTIME_DIR/fake-stdin.$$
 fi
 
-SCRIPT="\
-  env $VIRTME_ENV $DIRNAME/run-kvm-test.sh \
-  \\\"$WRAPPER\\\" \\\"$WRAPPER_ARGS\\\" \
-  \\\"$TEST_RESULT_FILE\\\" \
-  $(printf "\"%s\" " "${@:6}")\
-"
+cat >> "$SCRIPT_FILE" <<__EOF__
+$DIRNAME/run-kvm-test.sh \
+    "$WRAPPER" "$WRAPPER_ARGS" \
+    "$TEST_RESULT_FILE" \
+    $(printf "\"%s\" " "${@:6}")
+__EOF__
+
+chmod +x "$SCRIPT_FILE"
 
 if [ -v "$MUTTER_TEST_ROOT" ]; then
   ISOLATE_DIRS_ARGS="--rwdir=$MUTTER_TEST_ROOT"
@@ -61,7 +69,7 @@ vng \
   --run "$IMAGE" \
   --memory=1024M \
   --rw \
-  --exec "sh -c \"$SCRIPT\"" \
+  --exec "$SCRIPT_FILE" \
   --cpus 2 \
   $ISOLATE_DIRS_ARGS \
   --qemu-opts="-cpu host,pdcm=off"
@@ -74,6 +82,7 @@ fi
 
 TEST_RESULT="$(cat "$TEST_RESULT_FILE")"
 rm "$TEST_RESULT_FILE"
+rm "$SCRIPT_FILE"
 
 echo Test result exit status: $TEST_RESULT
 
