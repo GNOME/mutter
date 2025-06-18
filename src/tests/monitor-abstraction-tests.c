@@ -523,6 +523,8 @@ meta_test_monitor_rebuild_disconnect_one (void)
   g_assert_true (logical_monitors->data == logical_monitor_1);
 
   g_object_remove_weak_pointer (G_OBJECT (monitor_1), (gpointer *) &monitor_1);
+  g_object_remove_weak_pointer (G_OBJECT (logical_monitor_1),
+                                (gpointer *) &logical_monitor_1);
 }
 
 static gboolean
