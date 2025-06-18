@@ -20,10 +20,11 @@
 
 #include "compositor/meta-background-image-private.h"
 
-#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <glycin.h>
 #include <gio/gio.h>
 
 #include "clutter/clutter.h"
+#include "clutter/clutter-backend-private.h"
 #include "compositor/cogl-utils.h"
 
 enum
@@ -62,6 +63,7 @@ struct _MetaBackgroundImage
   gboolean in_cache;
   gboolean loaded;
   CoglTexture *texture;
+  ClutterColorState *color_state;
 };
 
 G_DEFINE_TYPE (MetaBackgroundImageCache, meta_background_image_cache, G_TYPE_OBJECT);
@@ -115,33 +117,111 @@ meta_background_image_cache_get_default (void)
   return cache;
 }
 
+static CoglPixelFormat
+gly_memory_format_to_cogl (GlyMemoryFormat format)
+{
+  switch ((guint) format)
+    {
+    case GLY_MEMORY_B8G8R8A8_PREMULTIPLIED:
+      return COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+    case GLY_MEMORY_A8R8G8B8_PREMULTIPLIED:
+      return COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+    case GLY_MEMORY_R8G8B8A8_PREMULTIPLIED:
+      return COGL_PIXEL_FORMAT_RGBA_8888_PRE;
+    case GLY_MEMORY_B8G8R8A8:
+      return COGL_PIXEL_FORMAT_BGRA_8888;
+    case GLY_MEMORY_A8R8G8B8:
+      return COGL_PIXEL_FORMAT_ARGB_8888;
+    case GLY_MEMORY_R8G8B8A8:
+      return COGL_PIXEL_FORMAT_RGBA_8888;
+    case GLY_MEMORY_A8B8G8R8:
+      return COGL_PIXEL_FORMAT_ABGR_8888;
+    case GLY_MEMORY_R8G8B8:
+      return COGL_PIXEL_FORMAT_RGB_888;
+    case GLY_MEMORY_B8G8R8:
+      return COGL_PIXEL_FORMAT_BGR_888;
+    case GLY_MEMORY_R16G16B16A16_PREMULTIPLIED:
+      return COGL_PIXEL_FORMAT_RGBA_16161616_PRE;
+    case GLY_MEMORY_R16G16B16A16:
+      return COGL_PIXEL_FORMAT_RGBA_16161616;
+    case GLY_MEMORY_R16G16B16A16_FLOAT:
+      return COGL_PIXEL_FORMAT_RGBA_FP_16161616;
+    case GLY_MEMORY_R32G32B32A32_FLOAT_PREMULTIPLIED:
+      return COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE;
+    case GLY_MEMORY_R32G32B32A32_FLOAT:
+      return COGL_PIXEL_FORMAT_RGBA_FP_32323232;
+    default:
+      g_assert_not_reached ();
+    }
+}
+
+static GlyMemoryFormatSelection
+glycin_supported_memory_formats (void)
+{
+  return GLY_MEMORY_SELECTION_B8G8R8A8_PREMULTIPLIED |
+         GLY_MEMORY_SELECTION_A8R8G8B8_PREMULTIPLIED |
+         GLY_MEMORY_SELECTION_R8G8B8A8_PREMULTIPLIED |
+         GLY_MEMORY_SELECTION_B8G8R8A8 |
+         GLY_MEMORY_SELECTION_A8R8G8B8 |
+         GLY_MEMORY_SELECTION_R8G8B8A8 |
+         GLY_MEMORY_SELECTION_A8B8G8R8 |
+         GLY_MEMORY_SELECTION_R8G8B8 |
+         GLY_MEMORY_SELECTION_B8G8R8 |
+         GLY_MEMORY_SELECTION_R16G16B16A16_PREMULTIPLIED |
+         GLY_MEMORY_SELECTION_R16G16B16A16 |
+         GLY_MEMORY_SELECTION_R16G16B16A16_FLOAT |
+         GLY_MEMORY_SELECTION_R32G32B32A32_FLOAT_PREMULTIPLIED |
+         GLY_MEMORY_SELECTION_R32G32B32A32_FLOAT;
+}
+
+static void
+gly_cicp_to_clutter (const GlyCicp *gly_cicp,
+                     ClutterCicp   *clutter_cicp)
+{
+  clutter_cicp->primaries = (ClutterCicpPrimaries) gly_cicp->color_primaries;
+  clutter_cicp->transfer = (ClutterCicpTransfer) gly_cicp->transfer_characteristics;
+  clutter_cicp->matrix_coefficients = gly_cicp->matrix_coefficients;
+  clutter_cicp->video_full_range_flag = gly_cicp->video_full_range_flag;
+}
+
 static void
 load_file (GTask               *task,
-           MetaBackgroundImage *image,
+           MetaBackgroundImage *source,
            gpointer             task_data,
            GCancellable        *cancellable)
 {
+  g_autoptr (GFileInputStream) stream = NULL;
+  g_autoptr (GlyLoader) loader = NULL;
+  g_autoptr (GlyImage) image = NULL;
+  GlyFrame *frame;
   GError *error = NULL;
-  GdkPixbuf *pixbuf;
-  GFileInputStream *stream;
 
-  stream = g_file_read (image->file, NULL, &error);
+  stream = g_file_read (source->file, NULL, &error);
   if (stream == NULL)
     {
       g_task_return_error (task, error);
       return;
     }
 
-  pixbuf = gdk_pixbuf_new_from_stream (G_INPUT_STREAM (stream), NULL, &error);
-  g_object_unref (stream);
+  loader = gly_loader_new_for_stream (G_INPUT_STREAM (stream));
 
-  if (pixbuf == NULL)
+  gly_loader_set_accepted_memory_formats (loader, glycin_supported_memory_formats ());
+
+  image = gly_loader_load (loader, &error);
+  if (!image)
     {
       g_task_return_error (task, error);
       return;
     }
 
-  g_task_return_pointer (task, pixbuf, (GDestroyNotify) g_object_unref);
+  frame = gly_image_next_frame (image, &error);
+  if (!frame)
+    {
+      g_task_return_error (task, error);
+      return;
+    }
+
+  g_task_return_pointer (task, frame, (GDestroyNotify) g_object_unref);
 }
 
 static void
@@ -156,15 +236,16 @@ file_loaded (GObject      *source_object,
   g_autoptr (GError) local_error = NULL;
   GTask *task;
   CoglTexture *texture;
-  GdkPixbuf *pixbuf, *rotated;
+  g_autoptr (GlyFrame) frame = NULL;
   int width, height, row_stride;
-  guchar *pixels;
-  gboolean has_alpha;
+  GlyMemoryFormat format;
+  g_autoptr (GlyCicp) cicp = NULL;
+  GBytes *bytes;
 
   task = G_TASK (result);
-  pixbuf = g_task_propagate_pointer (task, &error);
+  frame = g_task_propagate_pointer (task, &error);
 
-  if (pixbuf == NULL)
+  if (frame == NULL)
     {
       char *uri = g_file_get_uri (image->file);
       g_warning ("Failed to load background '%s': %s",
@@ -173,27 +254,23 @@ file_loaded (GObject      *source_object,
       goto out;
     }
 
-  rotated = gdk_pixbuf_apply_embedded_orientation (pixbuf);
-  if (rotated != NULL)
-    {
-      g_object_unref (pixbuf);
-      pixbuf = rotated;
-    }
-
-  width = gdk_pixbuf_get_width (pixbuf);
-  height = gdk_pixbuf_get_height (pixbuf);
-  row_stride = gdk_pixbuf_get_rowstride (pixbuf);
-  pixels = gdk_pixbuf_get_pixels (pixbuf);
-  has_alpha = gdk_pixbuf_get_has_alpha (pixbuf);
+  width = gly_frame_get_width (frame);
+  height = gly_frame_get_height (frame);
+  row_stride = gly_frame_get_stride (frame);
+  bytes = gly_frame_get_buf_bytes (frame);
+  format = gly_frame_get_memory_format (frame);
+  cicp = gly_frame_get_color_cicp (frame);
 
   texture = meta_create_texture (width, height, ctx,
-                                 has_alpha ? COGL_TEXTURE_COMPONENTS_RGBA : COGL_TEXTURE_COMPONENTS_RGB,
+                                 gly_memory_format_has_alpha (format)
+                                   ? COGL_TEXTURE_COMPONENTS_RGBA
+                                   : COGL_TEXTURE_COMPONENTS_RGB,
                                  META_TEXTURE_ALLOW_SLICING);
 
   if (!cogl_texture_set_data (texture,
-                              has_alpha ? COGL_PIXEL_FORMAT_RGBA_8888 : COGL_PIXEL_FORMAT_RGB_888,
+                              gly_memory_format_to_cogl (format),
                               row_stride,
-                              pixels, 0,
+                              g_bytes_get_data (bytes, NULL), 0,
                               &local_error))
     {
       g_warning ("Failed to create texture for background: %s",
@@ -203,10 +280,28 @@ file_loaded (GObject      *source_object,
 
   image->texture = texture;
 
-out:
-  if (pixbuf != NULL)
-    g_object_unref (pixbuf);
+  if (cicp)
+    {
+      ClutterCicp clutter_cicp;
+      ClutterBackend *clutter_backend = clutter_get_default_backend ();
+      ClutterContext *clutter_context = clutter_backend->context;
+      g_autoptr (GError) local_error2 = NULL;
 
+      gly_cicp_to_clutter (cicp, &clutter_cicp);
+
+      image->color_state =
+        clutter_color_state_params_new_from_cicp (clutter_context,
+                                                  &clutter_cicp,
+                                                  &local_error2);
+      if (local_error2)
+        g_warning ("%s", local_error2->message);
+    }
+  else
+    {
+      image->color_state = NULL;
+    }
+
+out:
   image->loaded = TRUE;
   g_signal_emit (image, signals[LOADED], 0);
 }
@@ -300,6 +395,8 @@ meta_background_image_finalize (GObject *object)
   if (image->file)
     g_object_unref (image->file);
 
+  g_clear_object (&image->color_state);
+
   G_OBJECT_CLASS (meta_background_image_parent_class)->finalize (object);
 }
 
@@ -367,10 +464,9 @@ meta_background_image_get_texture (MetaBackgroundImage *image)
 }
 
 ClutterColorState *
-meta_background_image_get_color_state (MetaBackgroundImage *image,
-                                       ClutterContext      *ctx)
+meta_background_image_get_color_state (MetaBackgroundImage *image)
 {
   g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), NULL);
 
-  return NULL;
+  return image->color_state;
 }

@@ -21,7 +21,7 @@ gi_req = '>= 0.9.5'
 graphene_req = '>= 1.10.2'
 gtk3_req = '>= 3.19.8'
 gtk4_req = '>= 4.14.0'
-gdk_pixbuf_req = '>= 2.0'
+glycin_req = '>= 2.0.beta.2'
 pango_req = '>= 1.46.0'
 cairo_req = '>= 1.10.0'
 pangocairo_req = '>= 1.20'
@@ -117,7 +117,7 @@ subproject('gvdb')
 
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
-gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0', version: gdk_pixbuf_req)
+glycin_dep = dependency('glycin-2', version: glycin_req)
 cairo_dep = dependency('cairo', version: cairo_req)
 pixman_dep = dependency('pixman-1', version: pixman_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',

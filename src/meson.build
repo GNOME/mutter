@@ -25,7 +25,7 @@ mutter_pkg_private_deps = [
   gmodule_no_export_dep,
   gnome_settings_daemon_dep,
   xkbcommon_dep,
-  gdk_pixbuf_dep,
+  glycin_dep,
   libeis_dep,
   libdisplay_info_dep,
 ]
