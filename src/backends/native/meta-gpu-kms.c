@@ -377,6 +377,8 @@ update_outputs (MetaGpuKms *gpu_kms)
         }
     }
 
+  g_list_foreach (old_outputs, (GFunc) g_object_run_dispose, NULL);
+
   /* Sort the outputs for easier handling in MetaMonitorConfig */
   outputs = g_list_sort (outputs, compare_outputs);
   meta_gpu_take_outputs (gpu, outputs);

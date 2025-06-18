@@ -149,8 +149,6 @@ meta_output_unset_monitor (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  g_warn_if_fail (priv->monitor);
-
   priv->monitor = NULL;
 }
 
