@@ -17,6 +17,7 @@
 
 #include "config.h"
 
+#include <libevdev/libevdev-uinput.h>
 #include <linux/input-event-codes.h>
 
 #include "backends/meta-logical-monitor-private.h"
@@ -26,6 +27,7 @@
 #include "backends/native/meta-backend-native.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
+#include "tests/meta-input-test-utils.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-kms-test-utils.h"
 
@@ -444,6 +446,11 @@ int
 main (int argc, char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
+  struct libevdev_uinput *mouse_device;
+  int ret;
+
+  mouse_device = meta_create_test_mouse ();
+  meta_wait_for_uinput_device (mouse_device);
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
@@ -453,6 +460,10 @@ main (int argc, char *argv[])
 
   test_context = context;
 
-  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
-                                      META_TEST_RUN_FLAG_CAN_SKIP);
+  ret = meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                     META_TEST_RUN_FLAG_CAN_SKIP);
+
+  libevdev_uinput_destroy (mouse_device);
+
+  return ret;
 }
