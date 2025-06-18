@@ -443,7 +443,8 @@ init_tests (void)
 }
 
 int
-main (int argc, char *argv[])
+main (int   argc,
+      char *argv[])
 {
   g_autoptr (MetaContext) context = NULL;
   struct libevdev_uinput *mouse_device;
