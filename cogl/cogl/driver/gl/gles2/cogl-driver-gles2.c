@@ -988,7 +988,9 @@ cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
 static CoglTextureDriver *
 cogl_driver_gles2_create_texture_driver (CoglDriver *driver)
 {
-  return g_object_new (COGL_TYPE_TEXTURE_DRIVER_GLES2, NULL);
+  return g_object_new (COGL_TYPE_TEXTURE_DRIVER_GLES2,
+                       "driver", driver,
+                       NULL);
 }
 
 static void

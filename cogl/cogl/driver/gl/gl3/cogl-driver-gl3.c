@@ -739,7 +739,9 @@ cogl_driver_gl3_format_supports_upload (CoglDriver      *driver,
 static CoglTextureDriver *
 cogl_driver_gl3_create_texture_driver (CoglDriver *driver)
 {
-  return g_object_new (COGL_TYPE_TEXTURE_DRIVER_GL3, NULL);
+  return g_object_new (COGL_TYPE_TEXTURE_DRIVER_GL3,
+                       "driver", driver,
+                       NULL);
 }
 
 static void

@@ -29,17 +29,78 @@
 
 #include "config.h"
 
+#include "cogl/cogl-driver-private.h"
 #include "cogl/cogl-texture-driver.h"
 
-G_DEFINE_ABSTRACT_TYPE (CoglTextureDriver, cogl_texture_driver, G_TYPE_OBJECT)
+typedef struct _CoglTextureDriverPrivate
+{
+  CoglDriver *driver;
+} CoglTextureDriverPrivate;
 
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglTextureDriver, cogl_texture_driver, G_TYPE_OBJECT)
+
+enum
+{
+  PROP_0,
+
+  PROP_DRIVER,
+
+  PROP_LAST
+};
+
+static GParamSpec *obj_props[PROP_LAST];
+
+static void
+cogl_texture_driver_set_property (GObject *gobject,
+                                  unsigned int prop_id,
+                                  const GValue *value,
+                                  GParamSpec *pspec)
+{
+  CoglTextureDriver *tex_driver = COGL_TEXTURE_DRIVER (gobject);
+  CoglTextureDriverPrivate *priv =
+    cogl_texture_driver_get_instance_private (tex_driver);
+
+  switch (prop_id)
+    {
+
+    case PROP_DRIVER:
+      priv->driver = g_value_get_object (value);
+      break;
+
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (tex_driver, prop_id, pspec);
+      break;
+    }
+}
 
 static void
 cogl_texture_driver_class_init (CoglTextureDriverClass *klass)
 {
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+
+  gobject_class->set_property = cogl_texture_driver_set_property;
+
+  obj_props[PROP_DRIVER] =
+    g_param_spec_object ("driver", NULL, NULL,
+                         COGL_TYPE_DRIVER,
+                         G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (gobject_class,
+                                     PROP_LAST,
+                                     obj_props);
 }
 
 static void
 cogl_texture_driver_init (CoglTextureDriver *driver)
 {
+}
+
+CoglDriver *
+cogl_texture_driver_get_driver (CoglTextureDriver *tex_driver)
+{
+  CoglTextureDriverPrivate *priv =
+    cogl_texture_driver_get_instance_private (tex_driver);
+
+   return priv->driver;
 }

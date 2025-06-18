@@ -35,6 +35,8 @@
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/cogl-types.h"
 
+typedef struct _CoglDriver CoglDriver;
+
 G_DECLARE_DERIVABLE_TYPE (CoglTextureDriver,
                           cogl_texture_driver,
                           COGL,
@@ -117,3 +119,5 @@ struct _CoglTextureDriverClass
                                 int                rowstride,
                                 uint8_t           *data);
 };
+
+CoglDriver * cogl_texture_driver_get_driver (CoglTextureDriver *tex_driver);
