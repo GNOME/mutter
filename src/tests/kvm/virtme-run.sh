@@ -27,17 +27,6 @@ __EOF__
 cleanup_paths=""
 trap '{ rm -rf $cleanup_paths; }' EXIT
 
-if [ ! -v $MUTTER_DEBUG_FORCE_KMS_MODE ]; then
-  cat >> "$SCRIPT_FILE" <<__EOF__
-export MUTTER_DEBUG_FORCE_KMS_MODE=$MUTTER_DEBUG_FORCE_KMS_MODE
-__EOF__
-fi
-if [ ! -v $MUTTER_DEBUG_KMS_THREAD_TYPE ]; then
-  cat >> "$SCRIPT_FILE" <<__EOF__
-export MUTTER_DEBUG_KMS_THREAD_TYPE=$MUTTER_DEBUG_KMS_THREAD_TYPE
-__EOF__
-fi
-
 if [ ! -v "$XDG_RUNTIME_DIR" ]; then
   tmpdir=$(mktemp -d --tmpdir mutter-runtime-XXXXXX)
   chmod 700 "$tmpdir"
