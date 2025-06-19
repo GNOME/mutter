@@ -147,6 +147,12 @@ MONITOR OPTIONS
   Set the color mode of the monitor. Available color modes are ``default`` and
   ``bt2100``.
 
+
+``--rgb-range RGB-RANGE``, ``-r RGB-RANGE``
+
+  Set the RGB quantization range of the monitor. Available ranges are ``auto``,
+  ``full`` and ``limited`` (16:235).
+
 PREFS OPTIONS
 -------------
 

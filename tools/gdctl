@@ -112,6 +112,20 @@ class ColorMode(NamedEnum):
         ]
 
 
+class RgbRange(NamedEnum):
+    AUTO = 1
+    FULL = 2
+    LIMITED = 3
+
+    @classmethod
+    def enum_names(cls):
+        return [
+            (RgbRange.AUTO, "auto"),
+            (RgbRange.FULL, "full"),
+            (RgbRange.LIMITED, "limited"),
+        ]
+
+
 class ConfigMethod(Enum):
     VERIFY = 0
     TEMPORARY = 1
@@ -123,6 +137,7 @@ def translate_property(name, value):
         "layout-mode": LayoutMode,
         "color-mode": ColorMode,
         "supported-color-modes": ColorMode,
+        "rgb-range": RgbRange,
     }
 
     if name in enum_properties:
@@ -400,6 +415,7 @@ class Monitor:
     preferred_mode: MonitorMode | None
     color_mode: ColorMode | None
     supported_color_modes: list[ColorMode]
+    rgb_range: RgbRange | None
 
     @classmethod
     def from_variant(cls, variant):
@@ -426,6 +442,7 @@ class Monitor:
         display_name = properties.get("display-name", None)
         color_mode = properties.get("color-mode", None)
         supported_color_modes = properties.get("supported-color-modes")
+        rgb_range = properties.get("rgb-range", None)
 
         return cls(
             connector=connector,
@@ -439,6 +456,7 @@ class Monitor:
             display_name=display_name,
             color_mode=color_mode,
             supported_color_modes=supported_color_modes,
+            rgb_range=rgb_range,
         )
 
 
@@ -831,6 +849,9 @@ def create_logical_monitor(monitors_state, layout_mode, logical_monitor_args):
         monitor.color_mode = ColorMode.maybe_from_string(
             monitor_args.get("color_mode", None)
         )
+        monitor.rgb_range = RgbRange.maybe_from_string(
+            monitor_args.get("rgb_range", None)
+        )
 
         monitors.append(monitor)
 
@@ -958,16 +979,23 @@ def print_config(config):
             )
             print_data(
                 level=4,
-                is_last=not monitor.color_mode,
+                is_last=not monitor.color_mode and not monitor.rgb_range,
                 lines=lines,
                 data=f"Mode: {monitor.mode.name}",
             )
             if monitor.color_mode:
                 print_data(
                     level=4,
-                    is_last=True,
+                    is_last=not monitor.rgb_range,
                     lines=lines,
                     data=f"Color mode: {monitor.color_mode}",
+                )
+            if monitor.rgb_range:
+                print_data(
+                    level=4,
+                    is_last=True,
+                    lines=lines,
+                    data=f"RGB mode: {monitor.rgb_range}",
                 )
 
         index += 1
@@ -1237,6 +1265,10 @@ class Config:
                 options["color-mode"] = GLib.Variant(
                     "u", monitor.color_mode.value
                 )
+            if monitor.rgb_range:
+                options["rgb-range"] = GLib.Variant(
+                    "u", monitor.rgb_range.value
+                )
 
             # Variant type: (ssa{sv})
             tuples.append(
@@ -1419,6 +1451,11 @@ class ColorModeCompleter(NamedEnumCompleter):
         super().__init__(ColorMode)
 
 
+class RgbRangeCompleter(NamedEnumCompleter):
+    def __init__(self):
+        super().__init__(RgbRange)
+
+
 if __name__ == "__main__":
     parser = GdctlParser(
         description="Display control utility",
@@ -1536,6 +1573,14 @@ if __name__ == "__main__":
         choices=[str(color_mode) for color_mode in list(ColorMode)],
         type=str,
     ).completer = ColorModeCompleter()  # type: ignore[attr-defined]
+    monitor_parser.add_argument(
+        "--rgb-range",
+        "-r",
+        action=AppendToSubGroup,
+        help="RGB range",
+        choices=[str(rgb_range) for rgb_range in list(RgbRange)],
+        type=str,
+    ).completer = RgbRangeCompleter()  # type: ignore[attr-defined]
     logical_monitor_parser.add_argument(
         "--primary",
         "-p",

@@ -32,12 +32,13 @@ Monitors:
 │  │       └──Properties: (0)
 │  ├──Preferences
 │  │   └──Backlight: None
-│  └──Properties: (5)
+│  └──Properties: (6)
 │      ├──is-builtin ⇒  no
 │      ├──display-name ⇒  MetaProduct's Inc. 14"
 │      ├──is-for-lease ⇒  no
 │      ├──color-mode ⇒  default
-│      └──supported-color-modes ⇒  [default]
+│      ├──supported-color-modes ⇒  [default]
+│      └──rgb-range ⇒  auto
 └──Monitor DP-2 (MetaProduct's Inc. 13")
    ├──Vendor: MetaProduct's Inc.
    ├──Product: MetaMonitor
@@ -71,12 +72,13 @@ Monitors:
    │       └──Properties: (0)
    ├──Preferences
    │   └──Backlight: None
-   └──Properties: (5)
+   └──Properties: (6)
        ├──is-builtin ⇒  no
        ├──display-name ⇒  MetaProduct's Inc. 13"
        ├──is-for-lease ⇒  no
        ├──color-mode ⇒  default
-       └──supported-color-modes ⇒  [default]
+       ├──supported-color-modes ⇒  [default]
+       └──rgb-range ⇒  auto
 
 Logical monitors:
 ├──Logical monitor #1
