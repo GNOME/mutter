@@ -2807,6 +2807,14 @@ run_test (MetaContext *context,
               goto next;
             }
 
+          /* Prior to glib 2.85.0, empty comment lines "#" emitted this */
+          if (g_error_matches (error, G_SHELL_ERROR, G_SHELL_ERROR_BAD_QUOTING) &&
+              line[0] == '#')
+            {
+              g_clear_error (&error);
+              goto next;
+            }
+
           goto next;
         }
 
