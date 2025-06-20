@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-05-15 13:13+0000\n"
-"PO-Revision-Date: 2025-05-18 11:03+0200\n"
+"POT-Creation-Date: 2025-06-20 13:57+0000\n"
+"PO-Revision-Date: 2025-06-20 21:57+0200\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -621,35 +621,39 @@ msgstr ""
 "byteswappedclients za nadzor te nastavitve. Xwayland je treba ponovno "
 "zagnati, da ta nastavitev začne veljati."
 
-#: mdk/mdk-devkit.ui:7
+#: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Vhod"
 
-#: mdk/mdk-devkit.ui:9
+#: mdk/mdk-main-window.ui:9
 msgid "_Emulate touch"
 msgstr "_Posnemaj dotik"
 
-#: mdk/mdk-devkit.ui:15
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Onemogoči sistemske bližnjice"
+
+#: mdk/mdk-main-window.ui:19
 msgid "_About Mutter Development Kit"
 msgstr "_O Razvojnem kompletu Mutter"
 
-#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:69
+#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
 msgid "Mutter Development Kit"
 msgstr "Razvojni komplet Mutter"
 
-#: mdk/mdk-devkit.ui:31
+#: mdk/mdk-main-window.ui:35
 msgid "Main Menu"
 msgstr "Glavni meni"
 
-#: mdk/mdk-main.c:64
+#: mdk/mdk-main.c:69
 msgid "The Mutter Team"
 msgstr "Ekipa Mutter"
 
-#: mdk/mdk-main.c:74
+#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
 msgid "Mutter software development kit"
 msgstr "Komplet za razvoj programske opreme Mutter"
 
-#: mdk/mdk-main.c:77
+#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
 msgid "About Mutter Development Kit"
 msgstr "O razvojnem kompletu Mutter"
 
@@ -657,26 +661,26 @@ msgstr "O razvojnem kompletu Mutter"
 msgid "Failed to create monitor"
 msgstr "Ustvarjanje zaslona ni uspelo"
 
-#: src/backends/meta-monitor.c:266
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Vgrajen zaslon"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Neznano"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Neznan zaslon"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -684,7 +688,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
 
@@ -696,71 +700,59 @@ msgstr "Zasebni zaslon je omogočen"
 msgid "Privacy Screen Disabled"
 msgstr "Zasebni zaslon je onemogočen"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:632
 msgid "Replace the running window manager"
 msgstr "Zamenjaj trenutni upravljalnik oken"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:638
 msgid "X Display to use"
 msgstr "Zaslon X za uporabo"
 
-#: src/core/meta-context-main.c:678
-msgid "Disable connection to session manager"
-msgstr "Onemogoči povezavo z upravljalnikom sej"
-
-#: src/core/meta-context-main.c:684
-msgid "Specify session management ID"
-msgstr "Navedite ID upravljanja seje"
-
-#: src/core/meta-context-main.c:690
-msgid "Initialize session from savefile"
-msgstr "Začni sejo iz shranjene datoteke"
-
-#: src/core/meta-context-main.c:696
+#: src/core/meta-context-main.c:644
 msgid "Make X calls synchronous"
 msgstr "Uskladi klice X"
 
-#: src/core/meta-context-main.c:704
+#: src/core/meta-context-main.c:652
 msgid "Run as a wayland compositor"
 msgstr "Zaženi izbirnik wayland"
 
-#: src/core/meta-context-main.c:711
+#: src/core/meta-context-main.c:659
 msgid "Run as a nested compositor"
 msgstr "Zaženi kot gnezden vpisovalnik"
 
-#: src/core/meta-context-main.c:717
+#: src/core/meta-context-main.c:667
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
 
-#: src/core/meta-context-main.c:724
+#: src/core/meta-context-main.c:674
 msgid "Specify Wayland display name to use"
 msgstr "Določilo prikazno ime Wayland za uporabo"
 
-#: src/core/meta-context-main.c:732
+#: src/core/meta-context-main.c:682
 msgid "Run as a full display server, rather than nested"
 msgstr "Zaženi kot polni zaslonski strežnik in ne vstavljeno"
 
-#: src/core/meta-context-main.c:737
+#: src/core/meta-context-main.c:687
 msgid "Run as a headless display server"
 msgstr "Zaženi kot zaslonski strežni"
 
-#: src/core/meta-context-main.c:742
+#: src/core/meta-context-main.c:692
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Dodaj navidezni monitor (WxH ali WxH@R)"
 
-#: src/core/meta-context-main.c:749
+#: src/core/meta-context-main.c:699
 msgid "Run development kit"
 msgstr "Zaženi razvojni komplet"
 
-#: src/core/meta-context-main.c:761
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
 msgstr "Zaženi z zaledjem X11"
 
-#: src/core/meta-context-main.c:767
+#: src/core/meta-context-main.c:717
 msgid "Profile performance using trace instrumentation"
 msgstr "Preglej delovanje z uporabo sledilnika"
 
-#: src/core/meta-context-main.c:773
+#: src/core/meta-context-main.c:723
 msgid "Enable debug control D-Bus interface"
 msgstr "Omogoči vmesnik razhroščevalnika vodila D-Bus"
 
@@ -846,7 +838,7 @@ msgstr "Zaslon %d na prikazu »%s« ni veljaven"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2793
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
