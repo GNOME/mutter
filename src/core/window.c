@@ -378,14 +378,12 @@ meta_window_finalize (GObject *object)
   MetaWindow *window = META_WINDOW (object);
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
-  if (window->cgroup_path)
-    g_object_unref (window->cgroup_path);
-
+  g_clear_object (&window->transient_for);
+  g_clear_object (&window->cgroup_path);
   g_clear_pointer (&window->preferred_logical_monitor,
                    meta_logical_monitor_id_free);
   g_clear_object (&window->monitor);
   g_clear_object (&window->highest_scale_monitor);
-
   g_clear_object (&window->config);
 
   if (priv->transient_children)
