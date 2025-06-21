@@ -126,27 +126,6 @@ cogl_renderer_new (void);
 /* optional configuration APIs */
 
 /**
- * CoglWinsysID:
- * @COGL_WINSYS_ID_ANY: Implies no preference for which backend is used
- * @COGL_WINSYS_ID_STUB: Use the no-op stub backend
- * @COGL_WINSYS_ID_GLX: Use the GLX window system binding API
- * @COGL_WINSYS_ID_EGL_XLIB: Use EGL with the X window system via XLib
- *
- * Identifies specific window system backends that Cogl supports.
- *
- * These can be used to query what backend Cogl is using or to try and
- * explicitly select a backend to use.
- */
-typedef enum
-{
-  COGL_WINSYS_ID_ANY,
-  COGL_WINSYS_ID_STUB,
-  COGL_WINSYS_ID_GLX,
-  COGL_WINSYS_ID_EGL_XLIB,
-  COGL_WINSYS_ID_CUSTOM,
-} CoglWinsysID;
-
-/**
  * cogl_renderer_get_winsys_id:
  * @renderer: A #CoglRenderer
  *
