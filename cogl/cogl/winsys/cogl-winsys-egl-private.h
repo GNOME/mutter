@@ -35,7 +35,7 @@
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 /* XXX: depending on what version of Mesa you have then
  * eglQueryWaylandBuffer may take a wl_buffer or wl_resource argument

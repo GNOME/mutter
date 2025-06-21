@@ -277,7 +277,7 @@ cogl_sources = [
   'deprecated/cogl-shader-private.h',
   'deprecated/cogl-shader.c',
   'gl-prototypes/cogl-all-functions.h',
-  'winsys/cogl-winsys-private.h',
+  'winsys/cogl-winsys.h',
   'winsys/cogl-winsys.c',
 ]
 

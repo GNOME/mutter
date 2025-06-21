@@ -45,7 +45,7 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-attribute-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 #include <gio/gio.h>
 #include <string.h>

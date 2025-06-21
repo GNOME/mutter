@@ -36,7 +36,7 @@
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-closure-list-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *renderer);
 

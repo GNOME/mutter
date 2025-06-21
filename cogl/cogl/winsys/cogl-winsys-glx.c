@@ -48,7 +48,7 @@
 #include "cogl/winsys/cogl-glx-renderer-private.h"
 #include "cogl/winsys/cogl-glx-display-private.h"
 #include "cogl/winsys/cogl-onscreen-glx.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 #include "cogl/winsys/cogl-winsys-glx-private.h"
 #include "mtk/mtk-x11.h"
 

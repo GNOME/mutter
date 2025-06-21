@@ -36,7 +36,7 @@
 
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-xlib-renderer-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 #include "mtk/mtk-x11.h"
 
 #include <X11/Xlib.h>

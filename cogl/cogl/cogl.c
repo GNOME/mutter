@@ -49,7 +49,7 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-offscreen.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 #include "cogl/cogl-mutter.h"
 
 gboolean

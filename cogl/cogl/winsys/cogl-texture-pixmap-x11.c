@@ -51,7 +51,7 @@
 #include "cogl/cogl-xlib-renderer-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>

@@ -37,7 +37,7 @@
 
 #include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 
 G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);

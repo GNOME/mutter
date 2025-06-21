@@ -44,7 +44,7 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-display-private.h"
 
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 #ifdef HAVE_EGL_PLATFORM_XLIB
 #include "cogl/winsys/cogl-winsys-egl-x11-private.h"

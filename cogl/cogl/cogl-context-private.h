@@ -49,7 +49,7 @@
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 typedef struct
 {

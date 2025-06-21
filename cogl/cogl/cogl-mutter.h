@@ -45,7 +45,7 @@
 #include "cogl/winsys/cogl-onscreen-xlib.h"
 #include "cogl/cogl-x11-onscreen.h"
 #endif
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 COGL_EXPORT
 void cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,

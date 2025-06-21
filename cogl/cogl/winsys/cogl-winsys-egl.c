@@ -42,7 +42,7 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-trace.h"
 #include "cogl/winsys/cogl-winsys-egl-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 #include "cogl/winsys/cogl-onscreen-egl.h"
 
 #include <stdlib.h>
