@@ -115,7 +115,7 @@ typedef struct _CoglRenderer
 
   /* List of callback functions that will be given every native event */
   GSList *event_filters;
-  void *winsys;
+  void *winsys_user_data;
 } CoglRenderer;
 
 static void
@@ -138,7 +138,7 @@ cogl_renderer_dispose (GObject *object)
   if (winsys && winsys->renderer_disconnect)
     winsys->renderer_disconnect (renderer);
 
-  g_clear_pointer (&renderer->winsys, g_free);
+  g_clear_pointer (&renderer->winsys_user_data, g_free);
   if (renderer->should_free_custom_winsys_user_data)
     g_clear_pointer (&renderer->custom_winsys_user_data, g_free);
 
@@ -422,7 +422,7 @@ connect_custom_winsys (CoglRenderer *renderer,
       g_string_append (error_message, tmp_error->message);
       g_error_free (tmp_error);
       /* Free any leftover state, for now */
-      g_clear_pointer (&renderer->winsys, g_free);
+      g_clear_pointer (&renderer->winsys_user_data, g_free);
     }
   else
     {
@@ -473,7 +473,7 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
           g_string_append (error_message, tmp_error->message);
           g_error_free (tmp_error);
           /* Free any leftover state, for now */
-          g_clear_pointer (&renderer->winsys, g_free);
+          g_clear_pointer (&renderer->winsys_user_data, g_free);
         }
       else
         {
@@ -691,14 +691,14 @@ cogl_renderer_get_winsys_vtable (CoglRenderer *renderer)
 void *
 cogl_renderer_get_winsys (CoglRenderer *renderer)
 {
-  return renderer->winsys;
+  return renderer->winsys_user_data;
 }
 
 void
 cogl_renderer_set_winsys (CoglRenderer *renderer,
                           void         *winsys)
 {
-  renderer->winsys = winsys;
+  renderer->winsys_user_data = winsys;
 }
 
 CoglClosure *
