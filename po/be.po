@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-05-19 18:25+0000\n"
-"PO-Revision-Date: 2025-05-19 22:38+0300\n"
+"POT-Creation-Date: 2025-06-20 13:57+0000\n"
+"PO-Revision-Date: 2025-06-22 13:21+0300\n"
 "Last-Translator: Yuras Shumovich <shumovichy@gmail.com>\n"
 "Language-Team: Belarusian <i18n-bel-gnome@googlegroups.com>\n"
 "Language: be\n"
@@ -616,35 +616,39 @@ msgstr ""
 "каманднага радка +byteswappedclients/-byteswappedclients для кіравання гэтай "
 "наладай. Каб змены налад уступілі ў сілу, трэба перазапусціць Xwayland."
 
-#: mdk/mdk-devkit.ui:7
+#: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Увод"
 
-#: mdk/mdk-devkit.ui:9
+#: mdk/mdk-main-window.ui:9
 msgid "_Emulate touch"
 msgstr "_Эмуляцыя сэнсарнага ўводу"
 
-#: mdk/mdk-devkit.ui:15
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Блакіраваць сістэмныя спалучэнні клавіш"
+
+#: mdk/mdk-main-window.ui:19
 msgid "_About Mutter Development Kit"
 msgstr "Пр_а камплект распрацоўкі Mutter"
 
-#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:69
+#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
 msgid "Mutter Development Kit"
 msgstr "Камплект распрацоўкі Mutter"
 
-#: mdk/mdk-devkit.ui:31
+#: mdk/mdk-main-window.ui:35
 msgid "Main Menu"
 msgstr "Галоўнае меню"
 
-#: mdk/mdk-main.c:64
+#: mdk/mdk-main.c:69
 msgid "The Mutter Team"
 msgstr "Каманда Mutter"
 
-#: mdk/mdk-main.c:74
+#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
 msgid "Mutter software development kit"
 msgstr "Камплект распрацоўкі ПЗ Mutter"
 
-#: mdk/mdk-main.c:77
+#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
 msgid "About Mutter Development Kit"
 msgstr "Пра камплект распрацоўкі Mutter"
 
@@ -652,26 +656,26 @@ msgstr "Пра камплект распрацоўкі Mutter"
 msgid "Failed to create monitor"
 msgstr "Не ўдалося стварыць манітор"
 
-#: src/backends/meta-monitor.c:272
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Убудаваны дысплэй"
 
-#: src/backends/meta-monitor.c:299
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Невядомы"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Невядомы дысплэй"
 
-#: src/backends/meta-monitor.c:309
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:317
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -679,7 +683,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Падзея з сігналам"
 
@@ -711,39 +715,39 @@ msgstr "Запусціць у якасці кампазітара wayland"
 msgid "Run as a nested compositor"
 msgstr "Запусціць у якасці ўложанага кампазітара"
 
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:667
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запусціць кампазітар wayland без запуску Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:674
 msgid "Specify Wayland display name to use"
 msgstr "Вызначыць назву патрэбнага дысплэя Wayland"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:682
 msgid "Run as a full display server, rather than nested"
 msgstr "Запусціць у якасці паўнавартаснага сервера дысплэя, я не ўложанага"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:687
 msgid "Run as a headless display server"
 msgstr "Запусціць у якасці сервера без дысплэя"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:692
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Дадаць сталы віртуальны манітор (ШxВ або ШxВ@Ч)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:699
 msgid "Run development kit"
 msgstr "Запусціць камплект распрацоўкі (SDK)"
 
-#: src/core/meta-context-main.c:709
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
 msgstr "Запусціць праз X11 backend"
 
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:717
 msgid "Profile performance using trace instrumentation"
 msgstr "Прадукцыйнасць профілю з выкарыстаннем сродкаў трасіравання"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:723
 msgid "Enable debug control D-Bus interface"
 msgstr "Уключыць кіраванне адладкай інтэрфейсу D-Bus"
 
@@ -826,7 +830,7 @@ msgstr "Экран %d на дысплэі «%s» няправільны"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2793
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
