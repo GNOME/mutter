@@ -1530,6 +1530,9 @@ apply_device_settings (MetaInputSettings  *input_settings,
   update_touchpad_two_finger_scroll (input_settings, device);
   update_touchpad_edge_scroll (input_settings, device);
   update_touchpad_click_method (input_settings, device);
+  update_pointer_accel_profile (input_settings,
+                                priv->touchpad_settings,
+                                device);
 
   update_trackball_scroll_button (input_settings, device);
   update_pointer_accel_profile (input_settings,
