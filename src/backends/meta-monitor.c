@@ -30,10 +30,9 @@
 #include "backends/meta-backlight-private.h"
 #include "core/boxes-private.h"
 
-#define SCALE_FACTORS_PER_INTEGER 4
-#define SCALE_FACTORS_STEPS (1.0f / (float) SCALE_FACTORS_PER_INTEGER)
-#define MINIMUM_SCALE_FACTOR 1.0f
-#define MAXIMUM_SCALE_FACTOR 4.0f
+#define MAX_DENOMINATOR 4
+#define MIN_INTEGER_SCALE 1
+#define MAX_INTEGER_SCALE 4
 #define MINIMUM_LOGICAL_AREA (800 * 480)
 #define MAXIMUM_REFRESH_RATE_DIFF 0.001f
 
@@ -2316,7 +2315,7 @@ is_scale_valid_for_size (float width,
                          float height,
                          float scale)
 {
-  if (scale < MINIMUM_SCALE_FACTOR || scale > MAXIMUM_SCALE_FACTOR)
+  if (scale < MIN_INTEGER_SCALE || scale > MAX_INTEGER_SCALE)
     return FALSE;
 
   return is_logical_size_large_enough ((int) floorf (width / scale),
@@ -2352,61 +2351,115 @@ meta_monitor_mode_get_monitor (MetaMonitorMode *monitor_mode)
   return priv->monitor;
 }
 
-float
-meta_get_closest_monitor_scale_factor_for_resolution (float width,
-                                                      float height,
-                                                      float scale,
-                                                      float threshold)
+static unsigned int
+highest_common_factor (unsigned int x,
+                       unsigned int y)
 {
-  unsigned int i, j;
-  float scaled_h;
-  float scaled_w;
-  float best_scale;
-  int base_scaled_w;
-  gboolean found_one;
+  unsigned int a = x;
+  unsigned int b = y;
 
-  best_scale = 0;
+  while (a > 0 && b > 0)
+    {
+      if (b > a)
+        b %= a;
+      else
+        a %= b;
+    }
+
+  return MAX (a, b);
+}
+
+typedef void (* ForEachScaleFunc) (float  scale,
+                                   void  *arg1,
+                                   void  *arg2);
+
+static void
+for_each_scale (unsigned int      width,
+                unsigned int      height,
+                unsigned int      max_denominator,
+                ForEachScaleFunc  func,
+                void             *arg1,
+                void             *arg2)
+{
+  unsigned int denominator;
+
+  for (denominator = 1; denominator <= max_denominator; denominator++)
+    {
+      unsigned int numerator;
+
+      for (numerator = MIN_INTEGER_SCALE * denominator;
+           numerator <= MAX_INTEGER_SCALE * denominator;
+           numerator++)
+        {
+          float scale;
+
+          /* Accept only scales that divide perfectly into the screen */
+          if (((width * denominator) % numerator) != 0 ||
+              ((height * denominator) % numerator) != 0)
+            continue;
+
+          /* Eliminate equivalent fractions (duplicate scales) */
+          if (highest_common_factor (numerator, denominator) > 1)
+            continue;
+
+          scale = (float) numerator / denominator;
+
+          if (!is_scale_valid_for_size (width, height, scale))
+            continue;
+
+          func (scale, arg1, arg2);
+        }
+    }
+}
+
+static void
+replace_best_scale (float  scale,
+                    void  *arg1,
+                    void  *arg2)
+{
+  float *old_scale = arg1;
+  float *best_scale = arg2;
+
+  if (fabs (scale - *old_scale) < fabs (*best_scale - *old_scale))
+    *best_scale = scale;
+}
+
+float
+meta_get_closest_monitor_scale_factor_for_resolution (unsigned int width,
+                                                      unsigned int height,
+                                                      float        scale)
+{
+  float best_scale = 0.0;
 
   if (fmodf (width, scale) == 0.0 && fmodf (height, scale) == 0.0)
     return scale;
 
-  i = 0;
-  found_one = FALSE;
-  base_scaled_w = (int) floorf (width / scale);
-
-  do
-    {
-      for (j = 0; j < 2; j++)
-        {
-          float current_scale;
-          int offset = i * (j ? 1 : -1);
-
-          scaled_w = base_scaled_w + offset;
-          current_scale = width / scaled_w;
-          scaled_h = height / current_scale;
-
-          if (current_scale >= scale + threshold ||
-              current_scale <= scale - threshold ||
-              current_scale < MINIMUM_SCALE_FACTOR ||
-              current_scale > MAXIMUM_SCALE_FACTOR)
-            {
-              return best_scale;
-            }
-
-          if (floorf (scaled_h) == scaled_h)
-            {
-              found_one = TRUE;
-
-              if (fabsf (current_scale - scale) < fabsf (best_scale - scale))
-                best_scale = current_scale;
-            }
-        }
-
-      i++;
-    }
-  while (!found_one);
+  for_each_scale (width, height, MAX_DENOMINATOR,
+                  replace_best_scale, &scale, &best_scale);
 
   return best_scale;
+}
+
+static void
+append_scale (float  scale,
+              void  *arg1,
+              void  *arg2)
+{
+  GArray *array = arg1;
+
+  g_array_append_val (array, scale);
+}
+
+static gint
+compare_floats (gconstpointer a,
+                gconstpointer b)
+{
+  float x = *(float *) a;
+  float y = *(float *) b;
+
+  return (x > y) ? 1 :
+         (x < y) ? -1 :
+         0;
 }
 
 float *
@@ -2415,7 +2468,7 @@ meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
                                          MetaMonitorScalesConstraint  constraints,
                                          int                         *n_supported_scales)
 {
-  unsigned int i, j;
+  int max_denominator;
   int width, height;
   GArray *supported_scales;
 
@@ -2423,45 +2476,17 @@ meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
 
   meta_monitor_mode_get_resolution (monitor_mode, &width, &height);
 
-  for (i = floorf (MINIMUM_SCALE_FACTOR);
-       i <= ceilf (MAXIMUM_SCALE_FACTOR);
-       i++)
-    {
-      if (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC)
-        {
-          if (is_scale_valid_for_size (width, height, i))
-            {
-              float scale = i;
-              g_array_append_val (supported_scales, scale);
-            }
-        }
-      else
-        {
-          float max_bound;
+  max_denominator =
+    (constraints & META_MONITOR_SCALES_CONSTRAINT_NO_FRAC) ? 1 :
+    MAX_DENOMINATOR;
 
-          if (i == floorf (MINIMUM_SCALE_FACTOR) ||
-              i == ceilf (MAXIMUM_SCALE_FACTOR))
-            max_bound = SCALE_FACTORS_STEPS;
-          else
-            max_bound = SCALE_FACTORS_STEPS / 2.0;
+  for_each_scale (width, height,
+                  max_denominator,
+                  append_scale,
+                  supported_scales,
+                  NULL);
 
-          for (j = 0; j < SCALE_FACTORS_PER_INTEGER; j++)
-            {
-              float scale;
-              float scale_value = i + j * SCALE_FACTORS_STEPS;
-
-              if (!is_scale_valid_for_size (width, height, scale_value))
-                continue;
-
-              scale = meta_get_closest_monitor_scale_factor_for_resolution (width,
-                                                                            height,
-                                                                            scale_value,
-                                                                            max_bound);
-              if (scale > 0.0)
-                g_array_append_val (supported_scales, scale);
-            }
-        }
-    }
+  g_array_sort (supported_scales, compare_floats);
 
   if (supported_scales->len == 0)
     {

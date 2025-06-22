@@ -25,14 +25,14 @@ Monitors:
 Logical monitors:
 ├──Logical monitor #1
 │  ├──Position: (0, 0)
-│  ├──Scale: 2.2018349170684814
+│  ├──Scale: 2.5
 │  ├──Transform: normal
 │  ├──Primary: yes
 │  └──Monitors: (1)
 │      └──DP-1 (MetaProduct's Inc. 14")
 └──Logical monitor #2
-   ├──Position: (1744, 0)
-   ├──Scale: 1.495327115058899
+   ├──Position: (1536, 0)
+   ├──Scale: 1.6666666269302368
    ├──Transform: normal
    ├──Primary: no
    └──Monitors: (1)

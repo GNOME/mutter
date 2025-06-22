@@ -205,14 +205,14 @@ static MonitorTestCaseExpect test_case_expect = {
     {
       .monitors = { 0 },
       .n_monitors = 1,
-      .layout = { .x = 0, .y = 0, .width = 1744, .height = 981 },
-      .scale = 2.2018349170684814,
+      .layout = { .x = 0, .y = 0, .width = 1536, .height = 864 },
+      .scale = 2.5,
     },
     {
       .monitors = { 1 },
       .n_monitors = 1,
-      .layout = { .x = 1744, .y = 0, .width = 1712, .height = 963 },
-      .scale = 1.495327115058899,
+      .layout = { .x = 1536, .y = 0, .width = 1536, .height = 864},
+      .scale = 1.6666666269302368,
     },
   },
   .n_logical_monitors = 2,
@@ -224,12 +224,12 @@ static MonitorTestCaseExpect test_case_expect = {
     },
     {
       .current_mode = 2,
-      .x = 1744,
+      .x = 1536,
     }
   },
   .n_crtcs = 2,
-  .screen_width = 3456,
-  .screen_height = 981,
+  .screen_width = 3072,
+  .screen_height = 864,
 };
 
 static void
@@ -524,9 +524,9 @@ meta_test_monitor_dbus_apply_left_of (void)
                       NULL);
 
   expect = test_case_expect;
-  expect.logical_monitors[0].layout.x = 1712;
+  expect.logical_monitors[0].layout.x = 1536;
   expect.logical_monitors[1].layout.x = 0;
-  expect.crtcs[0].x = 1712;
+  expect.crtcs[0].x = 1536;
   expect.crtcs[1].x = 0;
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
@@ -556,26 +556,26 @@ meta_test_monitor_dbus_apply_right_of_transform (void)
   expect = test_case_expect;
   expect.logical_monitors[0].layout.x = 0;
   expect.logical_monitors[0].layout.y = 0;
-  expect.logical_monitors[0].layout.width = 963;
-  expect.logical_monitors[0].layout.height = 1712;
-  expect.logical_monitors[0].scale = 1.495327115058899;
+  expect.logical_monitors[0].layout.width = 864;
+  expect.logical_monitors[0].layout.height = 1536;
+  expect.logical_monitors[0].scale = 1.6666666269302368;
   expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_270;
   expect.logical_monitors[0].monitors[0] = 1;
 
-  expect.logical_monitors[1].layout.x = 963;
+  expect.logical_monitors[1].layout.x = 864;
   expect.logical_monitors[1].layout.y = 400;
-  expect.logical_monitors[1].layout.width = 1744;
-  expect.logical_monitors[1].layout.height = 981;
-  expect.logical_monitors[1].scale = 2.2018349170684814;
+  expect.logical_monitors[1].layout.width = 1536;
+  expect.logical_monitors[1].layout.height = 864;
+  expect.logical_monitors[1].scale = 2.5;
   expect.logical_monitors[1].monitors[0] = 0;
 
   expect.crtcs[1].x = 0;
   expect.crtcs[1].y = 0;
   expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_270;
-  expect.crtcs[0].x = 963;
+  expect.crtcs[0].x = 864;
   expect.crtcs[0].y = 400;
-  expect.screen_width = 2707;
-  expect.screen_height = 1712;
+  expect.screen_width = 2400;
+  expect.screen_height = 1536;
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &expect));
@@ -608,27 +608,27 @@ meta_test_monitor_dbus_apply_mode_scale_below_transform (void)
   expect.monitors[0].current_mode = 3;
   expect.logical_monitors[0].layout.x = 0;
   expect.logical_monitors[0].layout.y = 0;
-  expect.logical_monitors[0].layout.width = 963;
-  expect.logical_monitors[0].layout.height = 1712;
-  expect.logical_monitors[0].scale = 1.495327115058899;
+  expect.logical_monitors[0].layout.width = 864;
+  expect.logical_monitors[0].layout.height = 1536;
+  expect.logical_monitors[0].scale = 1.6666666269302368;
   expect.logical_monitors[0].transform = MTK_MONITOR_TRANSFORM_270;
   expect.logical_monitors[0].monitors[0] = 1;
   expect.logical_monitors[1].layout.x = 100;
-  expect.logical_monitors[1].layout.y = 1712;
+  expect.logical_monitors[1].layout.y = 1536;
   expect.logical_monitors[1].layout.width = 600;
   expect.logical_monitors[1].layout.height = 960;
   expect.logical_monitors[1].scale = 1.5;
   expect.logical_monitors[1].transform = MTK_MONITOR_TRANSFORM_90;
   expect.logical_monitors[1].monitors[0] = 0;
   expect.crtcs[0].x = 100;
-  expect.crtcs[0].y = 1712;
+  expect.crtcs[0].y = 1536;
   expect.crtcs[0].current_mode = 3;
   expect.crtcs[0].transform = MTK_MONITOR_TRANSFORM_90;
   expect.crtcs[1].x = 0;
   expect.crtcs[1].y = 0;
   expect.crtcs[1].transform = MTK_MONITOR_TRANSFORM_270;
-  expect.screen_width = 963;
-  expect.screen_height = 2672;
+  expect.screen_width = 864;
+  expect.screen_height = 2496;
 
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
@@ -650,20 +650,20 @@ meta_test_monitor_dbus_apply_mirror (void)
                       "--monitor", "DP-1",
                       "--mode", "2560x1440@60.000",
                       "--monitor", "DP-2",
-                      "--scale", "1.495327115058899",
+                      "--scale", "1.6666666269302368",
                       NULL);
 
   expect = test_case_expect;
   expect.monitors[0].current_mode = 2;
-  expect.logical_monitors[0].layout.width = 1712;
-  expect.logical_monitors[0].layout.height = 963;
-  expect.logical_monitors[0].scale = 1.495327115058899;
+  expect.logical_monitors[0].layout.width = 1536;
+  expect.logical_monitors[0].layout.height = 864;
+  expect.logical_monitors[0].scale = 1.6666666269302368;
   expect.logical_monitors[0].monitors[0] = 0;
   expect.logical_monitors[0].monitors[1] = 1;
   expect.logical_monitors[0].n_monitors = 2;
   expect.n_logical_monitors = 1;
-  expect.screen_width = 1712;
-  expect.screen_height = 963;
+  expect.screen_width = 1536;
+  expect.screen_height = 864;
   expect.crtcs[0].x = 0;
   expect.crtcs[0].y = 0;
   expect.crtcs[0].current_mode = 2;
@@ -693,7 +693,7 @@ meta_test_monitor_dbus_apply_for_lease (void)
 
   expect = test_case_expect;
   expect.n_logical_monitors = 1;
-  expect.screen_width = 1744;
+  expect.screen_width = 1536;
   expect.monitors[1].current_mode = -1;
   expect.crtcs[1].current_mode = -1;
   META_TEST_LOG_CALL ("Checking monitor configuration",

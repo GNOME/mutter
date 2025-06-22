@@ -865,8 +865,8 @@ maybe_convert_scales (GList *logical_monitor_configs)
       new_scale =
         meta_get_closest_monitor_scale_factor_for_resolution (width,
                                                               height,
-                                                              existing_scale,
-                                                              0.1f);
+                                                              existing_scale);
+
       if (new_scale == 0.0f)
         new_scale = 1.0f;
 
