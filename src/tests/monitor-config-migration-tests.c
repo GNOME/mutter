@@ -435,13 +435,13 @@ meta_test_monitor_migrated_horizontal_strip (void)
         {
           .monitors = { 2 },
           .n_monitors = 1,
-          .layout = { .x = 1200, .y = 199, .width = 268, .height = 201 },
-          .scale = 2.985074520111084
+          .layout = { .x = 1200, .y = 150, .width = 400, .height = 300 },
+          .scale = 2
         },
         {
           .monitors = { 3 },
           .n_monitors = 1,
-          .layout = { .x = 1468, .y = 0, .width = 800, .height = 600 },
+          .layout = { .x = 1600, .y = 0, .width = 800, .height = 600 },
           .scale = 1
         }
       },
@@ -460,15 +460,15 @@ meta_test_monitor_migrated_horizontal_strip (void)
         {
           .current_mode = 0,
           .x = 1200,
-          .y = 199
+          .y = 150
         },
         {
           .current_mode = 0,
-          .x = 1468
+          .x = 1600
         }
       },
       .n_crtcs = 4,
-      .screen_width = 2268,
+      .screen_width = 2400,
       .screen_height = 600,
     }
   };

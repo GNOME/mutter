@@ -39,7 +39,7 @@
     <logicalmonitor>
       <x>1600</x>
       <y>550</y>
-      <scale>3</scale>
+      <scale>2</scale>
       <primary>yes</primary>
       <monitor>
         <monitorspec>
