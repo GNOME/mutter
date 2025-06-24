@@ -112,16 +112,6 @@ if have_x11_client
   ]
 endif
 
-if have_x11
-  mutter_pkg_private_deps += [
-    fribidi_dep,
-    xcb_randr_dep,
-    xkbfile_dep,
-    xkbcommon_x11_dep,
-    xtst_dep,
-  ]
-endif
-
 if have_wayland
   mutter_pkg_deps += [
     wayland_server_dep,
@@ -386,7 +376,6 @@ mutter_sources = [
   'core/place.h',
   'core/prefs-private.h',
   'core/prefs.c',
-  'core/restart.c',
   'core/stack.c',
   'core/stack.h',
   'core/stack-tracker.c',
@@ -400,77 +389,6 @@ mutter_sources = [
   'core/workspace.c',
   'core/workspace-private.h',
 ]
-
-if have_x11
-  mutter_sources += [
-    'backends/x11/cm/meta-backend-x11-cm.c',
-    'backends/x11/cm/meta-backend-x11-cm.h',
-    'backends/x11/cm/meta-cursor-sprite-xfixes.c',
-    'backends/x11/cm/meta-cursor-sprite-xfixes.h',
-    'backends/x11/cm/meta-renderer-x11-cm.c',
-    'backends/x11/cm/meta-renderer-x11-cm.h',
-    'backends/x11/meta-backend-x11.c',
-    'backends/x11/meta-backend-x11.h',
-    'backends/x11/meta-backlight-x11.c',
-    'backends/x11/meta-backlight-x11.h',
-    'backends/x11/meta-barrier-x11.c',
-    'backends/x11/meta-barrier-x11.h',
-    'backends/x11/meta-clutter-backend-x11.c',
-    'backends/x11/meta-clutter-backend-x11.h',
-    'backends/x11/meta-color-manager-x11.c',
-    'backends/x11/meta-color-manager-x11.h',
-    'backends/x11/meta-crtc-xrandr.c',
-    'backends/x11/meta-crtc-xrandr.h',
-    'backends/x11/meta-cursor-renderer-x11.c',
-    'backends/x11/meta-cursor-renderer-x11.h',
-    'backends/x11/meta-cursor-tracker-x11.c',
-    'backends/x11/meta-cursor-tracker-x11.h',
-    'backends/x11/meta-event-x11.c',
-    'backends/x11/meta-event-x11.h',
-    'backends/x11/meta-gpu-xrandr.c',
-    'backends/x11/meta-gpu-xrandr.h',
-    'backends/x11/meta-input-device-x11.c',
-    'backends/x11/meta-input-device-x11.h',
-    'backends/x11/meta-input-device-tool-x11.c',
-    'backends/x11/meta-input-device-tool-x11.h',
-    'backends/x11/meta-input-settings-x11.c',
-    'backends/x11/meta-input-settings-x11.h',
-    'backends/x11/meta-seat-x11.c',
-    'backends/x11/meta-seat-x11.h',
-    'backends/x11/meta-keymap-x11.c',
-    'backends/x11/meta-keymap-x11.h',
-    'backends/x11/meta-monitor-manager-xrandr.c',
-    'backends/x11/meta-monitor-manager-xrandr.h',
-    'backends/x11/meta-output-xrandr.c',
-    'backends/x11/meta-output-xrandr.h',
-    'backends/x11/meta-renderer-x11.c',
-    'backends/x11/meta-renderer-x11.h',
-    'backends/x11/meta-sprite-x11.c',
-    'backends/x11/meta-sprite-x11.h',
-    'backends/x11/meta-stage-x11.c',
-    'backends/x11/meta-stage-x11.h',
-    'backends/x11/meta-virtual-input-device-x11.c',
-    'backends/x11/meta-virtual-input-device-x11.h',
-    'backends/x11/meta-xkb-a11y-x11.c',
-    'backends/x11/meta-xkb-a11y-x11.h',
-    'backends/x11/nested/meta-backend-x11-nested.c',
-    'backends/x11/nested/meta-backend-x11-nested.h',
-    'backends/x11/nested/meta-cursor-renderer-x11-nested.c',
-    'backends/x11/nested/meta-cursor-renderer-x11-nested.h',
-    'backends/x11/nested/meta-sprite-x11-nested.c',
-    'backends/x11/nested/meta-sprite-x11-nested.h',
-    'backends/x11/nested/meta-stage-x11-nested.c',
-    'backends/x11/nested/meta-stage-x11-nested.h',
-    'backends/x11/nested/meta-renderer-x11-nested.c',
-    'backends/x11/nested/meta-renderer-x11-nested.h',
-    'compositor/meta-compositor-x11.c',
-    'compositor/meta-compositor-x11.h',
-    'compositor/meta-surface-actor-x11.c',
-    'compositor/meta-surface-actor-x11.h',
-    'compositor/meta-sync-ring.c',
-    'compositor/meta-sync-ring.h',
-  ]
-endif
 
 if have_x11_client
   mutter_sources += [
@@ -1363,7 +1281,6 @@ pkg.generate(libmutter,
     'apiversion=' + libmutter_api_version,
     'girdir=${libdir}/mutter-' + libmutter_api_version,
     'typelibdir=${libdir}/mutter-' + libmutter_api_version,
-    'have_x11=@0@'.format(have_x11),
     'have_x11_client=@0@'.format(have_x11_client),
     'have_wayland=@0@'.format(have_wayland),
     'have_fonts=@0@'.format(have_fonts),

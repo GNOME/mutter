@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include "backends/x11/meta-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "core/bell.h"
 #include "mtk/mtk-x11.h"

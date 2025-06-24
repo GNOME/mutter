@@ -46,13 +46,6 @@
 
 #include "cogl/winsys/cogl-winsys-private.h"
 
-#ifdef HAVE_EGL_PLATFORM_XLIB
-#include "cogl/winsys/cogl-winsys-egl-x11-private.h"
-#endif
-#ifdef HAVE_GLX
-#include "cogl/winsys/cogl-winsys-glx-private.h"
-#endif
-
 #ifdef HAVE_GL
 #include "cogl/driver/gl/gl3/cogl-driver-gl3-private.h"
 #endif
@@ -60,12 +53,6 @@
 #include "cogl/driver/gl/gles2/cogl-driver-gles2-private.h"
 #endif
 #include "cogl/driver/nop/cogl-driver-nop-private.h"
-
-#ifdef HAVE_X11
-#include "cogl/cogl-xlib-renderer.h"
-#include "cogl/cogl-xlib-renderer-private.h"
-#endif
-
 
 static CoglDriverId _cogl_drivers[] =
 {
@@ -78,22 +65,6 @@ static CoglDriverId _cogl_drivers[] =
   COGL_DRIVER_ID_NOP,
 };
 
-static CoglWinsysVtableGetter _cogl_winsys_vtable_getters[] =
-{
-#ifdef HAVE_GLX
-  _cogl_winsys_glx_get_vtable,
-#endif
-#ifdef HAVE_EGL_PLATFORM_XLIB
-  _cogl_winsys_egl_xlib_get_vtable,
-#endif
-};
-
-typedef struct _CoglNativeFilterClosure
-{
-  CoglNativeFilterFunc func;
-  void *data;
-} CoglNativeFilterClosure;
-
 typedef struct _CoglRenderer
 {
   GObject parent_instance;
@@ -105,7 +76,6 @@ typedef struct _CoglRenderer
   CoglDriver *driver;
   const CoglWinsysVtable *winsys_vtable;
   void *custom_winsys_user_data;
-  gboolean should_free_custom_winsys_user_data;
   CoglCustomWinsysVtableGetter custom_winsys_vtable_getter;
 
   CoglList idle_closures;
@@ -113,16 +83,8 @@ typedef struct _CoglRenderer
   CoglDriverId driver_id;
   GModule *libgl_module;
 
-  /* List of callback functions that will be given every native event */
-  GSList *event_filters;
   void *winsys;
 } CoglRenderer;
-
-static void
-native_filter_closure_free (CoglNativeFilterClosure *closure)
-{
-  g_free (closure);
-}
 
 G_DEFINE_FINAL_TYPE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
 
@@ -139,14 +101,9 @@ cogl_renderer_dispose (GObject *object)
     winsys->renderer_disconnect (renderer);
 
   g_clear_pointer (&renderer->winsys, g_free);
-  if (renderer->should_free_custom_winsys_user_data)
-    g_clear_pointer (&renderer->custom_winsys_user_data, g_free);
 
   if (renderer->libgl_module)
     g_module_close (renderer->libgl_module);
-
-  g_slist_free_full (renderer->event_filters,
-                     (GDestroyNotify) native_filter_closure_free);
 
   g_clear_object (&renderer->driver);
 
@@ -178,28 +135,11 @@ cogl_renderer_new (void)
   CoglRenderer *renderer = g_object_new (COGL_TYPE_RENDERER, NULL);
 
   renderer->connected = FALSE;
-  renderer->event_filters = NULL;
 
   _cogl_list_init (&renderer->idle_closures);
 
   return renderer;
 }
-
-#ifdef HAVE_X11
-void
-cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
-                                        Display *xdisplay)
-{
-  CoglXlibRenderer *xlib_renderer;
-  g_return_if_fail (COGL_IS_RENDERER (renderer));
-
-  /* NB: Renderers are considered immutable once connected */
-  g_return_if_fail (!renderer->connected);
-
-  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-  xlib_renderer->xdpy = xdisplay;
-}
-#endif /* HAVE_X11 */
 
 typedef gboolean (*CoglDriverCallback) (CoglDriverId  driver_id,
                                         void         *user_data);
@@ -401,7 +341,6 @@ cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
 {
   renderer->custom_winsys_user_data = user_data;
   renderer->custom_winsys_vtable_getter = winsys_vtable_getter;
-  renderer->should_free_custom_winsys_user_data = FALSE;
 }
 
 static gboolean
@@ -441,9 +380,6 @@ connect_custom_winsys (CoglRenderer *renderer,
 gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
-  int i;
-  g_autoptr (GString) error_message = NULL;
-
   if (renderer->connected)
     return TRUE;
 
@@ -456,105 +392,15 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
   if (renderer->custom_winsys_vtable_getter)
     return connect_custom_winsys (renderer, error);
 
-  error_message = g_string_new ("");
-  for (i = 0; i < G_N_ELEMENTS (_cogl_winsys_vtable_getters); i++)
-    {
-      const CoglWinsysVtable *winsys = _cogl_winsys_vtable_getters[i]();
-      GError *tmp_error = NULL;
-
-      /* At least temporarily we will associate this winsys with
-       * the renderer in-case ->renderer_connect calls API that
-       * wants to query the current winsys... */
-      renderer->winsys_vtable = winsys;
-
-      if (!winsys->renderer_connect (renderer, &tmp_error))
-        {
-          g_string_append_c (error_message, '\n');
-          g_string_append (error_message, tmp_error->message);
-          g_error_free (tmp_error);
-          /* Free any leftover state, for now */
-          g_clear_pointer (&renderer->winsys, g_free);
-        }
-      else
-        {
-          renderer->connected = TRUE;
-          return TRUE;
-        }
-    }
-
   if (!renderer->connected)
     {
       renderer->winsys_vtable = NULL;
       g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
-                   "Failed to connected to any renderer: %s",
-                   error_message->str);
+                   "Failed to connected to any renderer");
       return FALSE;
     }
 
   return TRUE;
-}
-
-CoglFilterReturn
-cogl_renderer_handle_event (CoglRenderer *renderer,
-                            void         *event)
-{
-  GSList *l, *next;
-
-  /* Pass the event on to all of the registered filters in turn */
-  for (l = renderer->event_filters; l; l = next)
-    {
-      CoglNativeFilterClosure *closure = l->data;
-
-      /* The next pointer is taken now so that we can handle the
-         closure being removed during emission */
-      next = l->next;
-
-      if (closure->func (event, closure->data) == COGL_FILTER_REMOVE)
-        return COGL_FILTER_REMOVE;
-    }
-
-  /* If the backend for the renderer also wants to see the events, it
-     should just register its own filter */
-
-  return COGL_FILTER_CONTINUE;
-}
-
-void
-_cogl_renderer_add_native_filter (CoglRenderer *renderer,
-                                  CoglNativeFilterFunc func,
-                                  void *data)
-{
-  CoglNativeFilterClosure *closure;
-
-  closure = g_new0 (CoglNativeFilterClosure, 1);
-  closure->func = func;
-  closure->data = data;
-
-  renderer->event_filters = g_slist_prepend (renderer->event_filters, closure);
-}
-
-void
-_cogl_renderer_remove_native_filter (CoglRenderer *renderer,
-                                     CoglNativeFilterFunc func,
-                                     void *data)
-{
-  GSList *l, *prev = NULL;
-
-  for (l = renderer->event_filters; l; prev = l, l = l->next)
-    {
-      CoglNativeFilterClosure *closure = l->data;
-
-      if (closure->func == func && closure->data == data)
-        {
-          native_filter_closure_free (closure);
-          if (prev)
-            prev->next = g_slist_delete_link (prev->next, l);
-          else
-            renderer->event_filters =
-              g_slist_delete_link (renderer->event_filters, l);
-          break;
-        }
-    }
 }
 
 CoglWinsysID
@@ -741,12 +587,4 @@ void *
 cogl_renderer_get_custom_winsys_data (CoglRenderer *renderer)
 {
   return renderer->custom_winsys_user_data;
-}
-
-void
-cogl_renderer_set_custom_winsys_data (CoglRenderer *renderer,
-                                      void         *winsys_data)
-{
-  renderer->custom_winsys_user_data = winsys_data;
-  renderer->should_free_custom_winsys_user_data = TRUE;
 }

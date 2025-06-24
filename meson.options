@@ -27,11 +27,6 @@ option('egl',
   value: true,
   description: 'Enable EGL support'
 )
-option('glx',
-  type: 'boolean',
-  value: true,
-  description: 'Enable GLX support'
-)
 
 option('wayland',
   type: 'boolean',
@@ -43,12 +38,6 @@ option('xwayland',
   type: 'boolean',
   value: true,
   description: 'Enable Xwayland support'
-)
-
-option('x11',
-  type: 'boolean',
-  value: false,
-  description: 'Enable X11 support'
 )
 
 option('logind',

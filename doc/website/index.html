@@ -46,13 +46,12 @@
       <img src="assets/splash.png" />
     </picture>
 
-    <p>Mutter is a Wayland display server and X11 window manager and compositor library.</p>
+    <p>Mutter is a Wayland display server compositor library.</p>
 
     <p>When used as a Wayland display server, it runs on top of KMS and libinput. It implements the compositor side of
       the Wayland core protocol as well as various protocol extensions. It also has functionality related to running X11
       applications using Xwayland.
-      When used on top of Xorg it acts as a X11 window manager and compositing manager. It contains functionality
-      related to, among other things, window management, window compositing, focus tracking, workspace management,
+      It contains functionality related to, among other things, window management, window compositing, focus tracking, workspace management,
       keybindings and monitor configuration.</p>
 
     <p>Mutter is used by, for example, <a href="https://gitlab.gnome.org/GNOME/gnome-shell/">GNOME Shell</a>, the GNOME
@@ -94,15 +93,14 @@
 
       <li><a href="./meta/">
           <h3>Meta</h3>
-          <p>The display server and window manager library. Contains a X11 window manager and compositing manager
-            implementation, as well as a Wayland display server implementation.</p>
+          <p>The display server and window manager library. Contains a Wayland display server implementation.</p>
         </a></li>
 
       <li><a href="./clutter/">
           <h3>Clutter</h3>
           <p>
             Compositing toolkit, containing an actor and render node based scene graph, and has features such as input
-            event routing, transformation and animation. Handles compositing, both Wayland surfaces, X11 windows, and is
+            event routing, transformation and animation. Handles compositing, and is
             the basis of the UI toolkit implemented by GNOME Shell.
           </p>
         </a></li>

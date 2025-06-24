@@ -261,17 +261,11 @@ void meta_display_remove_pending_pings_for_window (MetaDisplay *display,
 
 MetaGestureTracker * meta_display_get_gesture_tracker (MetaDisplay *display);
 
-gboolean meta_display_show_restart_message (MetaDisplay *display,
-                                            const char  *message);
-gboolean meta_display_request_restart      (MetaDisplay *display);
-
 gboolean meta_display_show_resize_popup (MetaDisplay  *display,
                                          gboolean      show,
                                          MtkRectangle *rect,
                                          int           display_w,
                                          int           display_h);
-
-void meta_set_is_restart (gboolean whether);
 
 void meta_display_cancel_touch (MetaDisplay *display);
 

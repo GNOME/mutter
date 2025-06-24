@@ -76,11 +76,7 @@ COGL_WINSYS_FEATURE_FUNCTION (EGLBoolean, eglDestroyImage,
                                EGLImageKHR image))
 COGL_WINSYS_FEATURE_END ()
 #endif
-COGL_WINSYS_FEATURE_BEGIN (image_pixmap,
-                           "KHR\0",
-                           "image_pixmap\0",
-                           COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_X11_PIXMAP)
-COGL_WINSYS_FEATURE_END ()
+
 #ifdef EGL_WL_bind_wayland_display
 COGL_WINSYS_FEATURE_BEGIN (bind_wayland_display,
                            "WL\0",

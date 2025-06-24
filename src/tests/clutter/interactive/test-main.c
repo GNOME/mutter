@@ -5,7 +5,6 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/clutter-test-utils.h"
 
@@ -224,4 +223,3 @@ out:
 
   return ret;
 }
-
