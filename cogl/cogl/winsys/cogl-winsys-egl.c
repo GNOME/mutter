@@ -562,8 +562,6 @@ _cogl_winsys_update_sync (CoglContext *context)
 
 static CoglWinsysVtable _cogl_winsys_vtable =
   {
-    .constraints = COGL_RENDERER_CONSTRAINT_USES_EGL,
-
     /* This winsys is only used as a base for the EGL-platform
        winsys's so it does not have an ID or a name */
 

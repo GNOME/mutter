@@ -83,10 +83,6 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
   CoglTexture2D *tex_2d;
   CoglPixelFormat internal_format = COGL_PIXEL_FORMAT_ANY;
 
-  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
-                        COGL_RENDERER_CONSTRAINT_USES_EGL,
-                        NULL);
-
   g_return_val_if_fail (cogl_context_has_feature (ctx,
                                                   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
                         NULL);
