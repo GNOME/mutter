@@ -33,10 +33,6 @@
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-scanout.h"
 
-#ifdef HAVE_X11
-#include <X11/Xutil.h>
-#include "cogl/winsys/cogl-texture-pixmap-x11-private.h"
-#endif
 
 COGL_EXPORT uint32_t
 _cogl_winsys_error_quark (void);
@@ -137,27 +133,6 @@ typedef struct _CoglWinsysVtable
 
   void
   (*context_deinit) (CoglContext *context);
-
-  /* Optional functions */
-
-#ifdef HAVE_X11
-  gboolean
-  (*texture_pixmap_x11_create) (CoglTexturePixmapX11 *tex_pixmap);
-  void
-  (*texture_pixmap_x11_free) (CoglTexturePixmapX11 *tex_pixmap);
-
-  gboolean
-  (*texture_pixmap_x11_update) (CoglTexturePixmapX11       *tex_pixmap,
-                                CoglTexturePixmapStereoMode stereo_mode,
-                                gboolean                    needs_mipmap);
-
-  void
-  (*texture_pixmap_x11_damage_notify) (CoglTexturePixmapX11 *tex_pixmap);
-
-  CoglTexture *
-  (*texture_pixmap_x11_get_texture) (CoglTexturePixmapX11       *tex_pixmap,
-                                     CoglTexturePixmapStereoMode stereo_mode);
-#endif
 
   void
   (*update_sync) (CoglContext *ctx);

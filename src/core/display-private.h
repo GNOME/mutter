@@ -271,8 +271,6 @@ gboolean meta_display_show_resize_popup (MetaDisplay  *display,
                                          int           display_w,
                                          int           display_h);
 
-void meta_set_is_restart (gboolean whether);
-
 void meta_display_cancel_touch (MetaDisplay *display);
 
 gboolean meta_display_windows_are_interactable (MetaDisplay *display);

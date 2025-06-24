@@ -339,7 +339,6 @@ create_device_monitors (MetaIdleManager *idle_manager,
 MetaIdleManager *
 meta_idle_manager_new (MetaBackend *backend)
 {
-  MetaContext *context = meta_backend_get_context (backend);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   MetaIdleManager *idle_manager;
 
@@ -350,9 +349,7 @@ meta_idle_manager_new (MetaBackend *backend)
     g_bus_own_name (G_BUS_TYPE_SESSION,
                     "org.gnome.Mutter.IdleMonitor",
                     G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
-                    (meta_context_is_replacing (context) ?
-                     G_BUS_NAME_OWNER_FLAGS_REPLACE :
-                     G_BUS_NAME_OWNER_FLAGS_NONE),
+                     G_BUS_NAME_OWNER_FLAGS_NONE,
                     on_bus_acquired,
                     on_name_acquired,
                     on_name_lost,
