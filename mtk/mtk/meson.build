@@ -24,7 +24,7 @@ mtk_sources = [
   'mtk-utils.c',
 ]
 
-if have_x11_client
+if have_xwayland
   mtk_sources += 'mtk-x11-errors.c'
   mtk_headers += [
     'mtk-x11-errors.h',

@@ -39,7 +39,7 @@
 #include "core/workspace-private.h"
 #include "meta/prefs.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "x11/meta-x11-frame.h"
 #include "x11/window-x11-private.h"
 #endif
@@ -725,7 +725,7 @@ update_onscreen_requirements (MetaWindow     *window,
   /* Update whether we want future constraint runs to require the
    * titlebar to be visible.
    */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 && window->decorated)
     {
       MtkRectangle frame_rect;
@@ -1802,7 +1802,7 @@ constrain_to_single_monitor (MetaWindow         *window,
   if (priority > PRIORITY_ENTIRELY_VISIBLE_ON_SINGLE_MONITOR)
     return TRUE;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     client_driven_interactive_move = meta_window_x11_get_frame (window) == NULL;
 #endif
@@ -1871,7 +1871,7 @@ constrain_titlebar_visible (MetaWindow         *window,
   int horiz_amount_offscreen, vert_amount_offscreen;
   int horiz_amount_onscreen,  vert_amount_onscreen;
   MetaWindowDrag *window_drag;
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrameBorders borders;
 #endif
 
@@ -1935,7 +1935,7 @@ constrain_titlebar_visible (MetaWindow         *window,
   /* Allow the titlebar to touch the bottom panel;  If there is no titlebar,
    * require vert_amount to remain on the screen.
    */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_get_frame_borders (window, &borders))
     {
@@ -1980,7 +1980,7 @@ constrain_partially_onscreen (MetaWindow         *window,
   int top_amount, bottom_amount;
   int horiz_amount_offscreen, vert_amount_offscreen;
   int horiz_amount_onscreen,  vert_amount_onscreen;
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrameBorders borders;
 #endif
 
@@ -2017,7 +2017,7 @@ constrain_partially_onscreen (MetaWindow         *window,
   /* Allow the titlebar to touch the bottom panel;  If there is no titlebar,
    * require vert_amount to remain on the screen.
    */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_get_frame_borders (window, &borders))
     {

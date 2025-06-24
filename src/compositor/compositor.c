@@ -59,6 +59,7 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-group-private.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
@@ -69,13 +70,9 @@
 #include "meta/meta-context.h"
 #include "meta/prefs.h"
 #include "meta/window.h"
-
-#ifdef HAVE_WAYLAND
-#include "compositor/meta-window-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
-#endif
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include <X11/extensions/Xcomposite.h>
 
 
@@ -343,19 +340,17 @@ meta_compositor_real_add_window (MetaCompositor    *compositor,
 
   switch (window->client_type)
     {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
     case META_WINDOW_CLIENT_TYPE_X11:
       window_actor_type = META_TYPE_WINDOW_ACTOR_X11;
       accessible_name = "X11 window";
       break;
 #endif
 
-#ifdef HAVE_WAYLAND
     case META_WINDOW_CLIENT_TYPE_WAYLAND:
       window_actor_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
       accessible_name = "Wayland window";
       break;
-#endif
 
     default:
       g_return_if_reached ();
@@ -443,7 +438,7 @@ meta_compositor_window_shape_changed (MetaCompositor *compositor,
   if (!window_actor)
     return;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   meta_window_actor_x11_update_shape (META_WINDOW_ACTOR_X11 (window_actor));
 #endif
 }

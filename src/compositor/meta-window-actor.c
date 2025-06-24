@@ -28,15 +28,11 @@
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-actor-private.h"
+#include "compositor/meta-surface-actor-wayland.h"
 #include "core/boxes-private.h"
 #include "core/window-private.h"
 #include "meta/window.h"
-
-
-#ifdef HAVE_WAYLAND
-#include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-surface-private.h"
-#endif
 
 typedef enum
 {
@@ -588,14 +584,8 @@ init_surface_actor (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
-  MetaSurfaceActor *surface_actor = NULL;
-
-#ifdef HAVE_WAYLAND
-    {
-      MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
-      surface_actor = surface ? meta_wayland_surface_get_actor (surface) : NULL;
-    }
-#endif
+  MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
+  MetaSurfaceActor *surface_actor = surface ? meta_wayland_surface_get_actor (surface) : NULL;
 
   if (surface_actor)
     meta_window_actor_assign_surface_actor (self, surface_actor);

@@ -25,16 +25,13 @@
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "backends/meta-dnd-private.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-data-device.h"
 
 struct _MetaDndClass
 {
   GObjectClass parent_class;
 };
-
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-data-device.h"
-#endif
 
 typedef struct _MetaDndPrivate MetaDndPrivate;
 
@@ -42,9 +39,7 @@ struct _MetaDndPrivate
 {
   MetaBackend *backend;
 
-#ifdef HAVE_WAYLAND
   gboolean dnd_during_modal;
-#endif
 };
 
 struct _MetaDnd
@@ -133,7 +128,6 @@ meta_dnd_notify_dnd_leave (MetaDnd *dnd)
   g_signal_emit (dnd, signals[LEAVE], 0);
 }
 
-#ifdef HAVE_WAYLAND
 void
 meta_dnd_wayland_on_motion_event (MetaDnd            *dnd,
                                   const ClutterEvent *event)
@@ -183,4 +177,3 @@ meta_dnd_wayland_handle_end_modal (MetaCompositor *compositor)
 
   meta_dnd_notify_dnd_leave (dnd);
 }
-#endif

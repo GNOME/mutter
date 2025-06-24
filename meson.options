@@ -28,12 +28,6 @@ option('egl',
   description: 'Enable EGL support'
 )
 
-option('wayland',
-  type: 'boolean',
-  value: true,
-  description: 'Enable Wayland support'
-)
-
 option('xwayland',
   type: 'boolean',
   value: true,

@@ -33,7 +33,7 @@
 
 #pragma once
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include <X11/Xlib.h>
 #endif
 
@@ -71,7 +71,7 @@ void meta_stack_tracker_restack_at_bottom (MetaStackTracker *tracker,
 
 /* These functions are used to update the stack when we get events
  * reflecting changes to the stacking order */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 void meta_stack_tracker_create_event    (MetaStackTracker    *tracker,
 					 XCreateWindowEvent  *event);
 void meta_stack_tracker_destroy_event   (MetaStackTracker    *tracker,
