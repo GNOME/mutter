@@ -21,7 +21,7 @@ mtk_pkg_deps = [
   pixman_dep,
 ]
 
-if have_x11_client
+if have_xwayland
   mtk_pkg_deps += x11_dep
 endif
 
