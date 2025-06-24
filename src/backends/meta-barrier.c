@@ -16,10 +16,6 @@
 #include "meta/meta-enum-types.h"
 #include "meta/util.h"
 
-#ifdef HAVE_X11
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-barrier-x11.h"
-#endif
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -248,11 +244,6 @@ init_barrier_impl (MetaBarrier *barrier)
 #if defined(HAVE_NATIVE_BACKEND)
   if (META_IS_BACKEND_NATIVE (priv->backend))
     priv->impl = meta_barrier_impl_native_new (barrier);
-#endif
-#ifdef HAVE_X11
-  if (META_IS_BACKEND_X11 (priv->backend) &&
-      !meta_is_wayland_compositor ())
-    priv->impl = meta_barrier_impl_x11_new (barrier);
 #endif
 
   g_warn_if_fail (priv->impl);

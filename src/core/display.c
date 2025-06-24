@@ -61,12 +61,6 @@
 #include "meta/prefs.h"
 
 #ifdef HAVE_X11_CLIENT
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-clutter-backend-x11.h"
-#include "backends/x11/meta-event-x11.h"
-#include "backends/x11/cm/meta-backend-x11-cm.h"
-#include "backends/x11/nested/meta-backend-x11-nested.h"
-#include "compositor/meta-compositor-x11.h"
 #include "meta/meta-x11-group.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
@@ -163,7 +157,6 @@ enum
   WINDOW_MARKED_URGENT,
   GRAB_OP_BEGIN,
   GRAB_OP_END,
-  SHOW_RESTART_MESSAGE,
   RESTART,
   SHOW_RESIZE_POPUP,
   GL_VIDEO_MEMORY_PURGED,
@@ -410,61 +403,6 @@ meta_display_class_init (MetaDisplayClass *klass)
                   META_TYPE_WINDOW,
                   META_TYPE_GRAB_OP);
 
-  /**
-   * MetaDisplay::show-restart-message:
-   * @display: the #MetaDisplay instance
-   * @message: (allow-none): The message to display, or %NULL
-   *  to clear a previous restart message.
-   *
-   * The signal will be emitted to indicate that the compositor
-   * should show a message during restart.
-   *
-   * This is emitted when [func@Meta.restart] is called, either by Mutter
-   * internally or by the embedding compositor. The message should be
-   * immediately added to the Clutter stage in its final form -
-   * [signal@Meta.Display::restart] will be emitted to exit the application and leave the
-   * stage contents frozen as soon as the the stage is painted again.
-   *
-   * On case of failure to restart, this signal will be emitted again
-   * with %NULL for @message.
-   *
-   * Returns: %TRUE means the message was added to the stage; %FALSE
-   *   indicates that the compositor did not show the message.
-   */
-  display_signals[SHOW_RESTART_MESSAGE] =
-    g_signal_new ("show-restart-message",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  g_signal_accumulator_true_handled,
-                  NULL, NULL,
-                  G_TYPE_BOOLEAN, 1,
-                  G_TYPE_STRING);
-
-  /**
-   * MetaDisplay::restart:
-   * @display: the #MetaDisplay instance
-   *
-   * The signal is emitted to indicate that compositor
-   * should reexec the process.
-   *
-   * This is emitted when [func@Meta.restart] is called,
-   * either by Mutter internally or by the embedding compositor.
-   *
-   * See also [signal@Meta.Display::show-restart-message].
-   *
-   * Returns: %FALSE to indicate that the compositor could not
-   *  be restarted. When the compositor is restarted, the signal
-   *  should not return.
-   */
-  display_signals[RESTART] =
-    g_signal_new ("restart",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  g_signal_accumulator_true_handled,
-                  NULL, NULL,
-                  G_TYPE_BOOLEAN, 0);
 
   display_signals[SHOW_RESIZE_POPUP] =
     g_signal_new ("show-resize-popup",
@@ -663,16 +601,8 @@ create_compositor (MetaDisplay *display)
   if (META_IS_BACKEND_NATIVE (backend))
     return META_COMPOSITOR (meta_compositor_native_new (display, backend));
 #endif
-#if defined(HAVE_XWAYLAND) && defined(HAVE_X11)
-  if (META_IS_BACKEND_X11_NESTED (backend))
-    return META_COMPOSITOR (meta_compositor_server_new (display, backend));
-#endif
 #endif/* HAVE_WAYLAND */
-#ifdef HAVE_X11
-  return META_COMPOSITOR (meta_compositor_x11_new (display, backend));
-#else
   g_assert_not_reached ();
-#endif
 }
 
 static void
@@ -800,29 +730,6 @@ disable_input_capture (MetaInputCapture *input_capture,
   priv->enable_input_capture = FALSE;
 }
 
-#ifdef HAVE_X11
-static gboolean
-meta_display_init_x11_display (MetaDisplay  *display,
-                               GError      **error)
-{
-  MetaX11Display *x11_display;
-
-  x11_display = meta_x11_display_new (display, error);
-  if (!x11_display)
-    return FALSE;
-
-  display->x11_display = x11_display;
-  g_signal_emit (display, display_signals[X11_DISPLAY_SETUP], 0);
-
-  meta_x11_display_create_guard_window (x11_display);
-
-  if (!display->display_opening)
-    g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
-
-  return TRUE;
-}
-#endif
-
 #ifdef HAVE_XWAYLAND
 gboolean
 meta_display_init_x11_finish (MetaDisplay   *display,
@@ -944,7 +851,7 @@ meta_display_new (MetaContext  *context,
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaDisplay *display;
   MetaDisplayPrivate *priv;
-  guint32 timestamp;
+  guint32 timestamp = 0;
   MetaMonitorManager *monitor_manager;
   MetaSettings *settings;
   MetaInputCapture *input_capture;
@@ -1044,21 +951,6 @@ meta_display_new (MetaContext  *context,
     }
   else
 #endif /* HAVE_WAYLAND */
-#ifdef HAVE_X11
-    {
-      if (!meta_display_init_x11_display (display, error))
-        {
-          g_object_unref (display);
-          return NULL;
-        }
-
-      timestamp = display->x11_display->timestamp;
-    }
-#else
-    {
-      g_assert_not_reached ();
-    }
-#endif
 
   display->last_focus_time = timestamp;
   display->last_user_time = timestamp;
@@ -2554,31 +2446,6 @@ MetaGestureTracker *
 meta_display_get_gesture_tracker (MetaDisplay *display)
 {
   return display->gesture_tracker;
-}
-
-gboolean
-meta_display_show_restart_message (MetaDisplay *display,
-                                   const char  *message)
-{
-  gboolean result = FALSE;
-
-  g_signal_emit (display,
-                 display_signals[SHOW_RESTART_MESSAGE], 0,
-                 message, &result);
-
-  return result;
-}
-
-gboolean
-meta_display_request_restart (MetaDisplay *display)
-{
-  gboolean result = FALSE;
-
-  g_signal_emit (display,
-                 display_signals[RESTART], 0,
-                 &result);
-
-  return result;
 }
 
 gboolean

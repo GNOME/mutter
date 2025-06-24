@@ -218,19 +218,6 @@ typedef enum /*< prefix=COGL_RENDERER_ERROR >*/
   COGL_RENDERER_ERROR_BAD_CONSTRAINT
 } CoglRendererError;
 
-/**
- * CoglFilterReturn:
- * @COGL_FILTER_CONTINUE: The event was not handled, continues the
- *                        processing
- * @COGL_FILTER_REMOVE: Remove the event, stops the processing
- *
- * Return values for the #CoglXlibFilterFunc and #CoglWin32FilterFunc functions.
- */
-typedef enum _CoglFilterReturn { /*< prefix=COGL_FILTER >*/
-  COGL_FILTER_CONTINUE,
-  COGL_FILTER_REMOVE
-} CoglFilterReturn;
-
 typedef enum _CoglWinsysFeature
 {
   /* Available if its possible to query a counter that

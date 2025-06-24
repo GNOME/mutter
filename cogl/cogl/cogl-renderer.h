@@ -310,23 +310,6 @@ COGL_EXPORT void *
 cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                 const char   *name);
 
-/**
- * cogl_renderer_handle_event: (skip)
- * @renderer: a #CoglRenderer
- * @event: pointer to an event structure
- *
- * Processes a single event.
- *
- * Return value: #CoglFilterReturn. %COGL_FILTER_REMOVE indicates that
- * Cogl has internally handled the event and the caller should do no
- * further processing. %COGL_FILTER_CONTINUE indicates that Cogl is
- * either not interested in the event, or has used the event to update
- * internal state without taking any exclusive action.
- */
-COGL_EXPORT CoglFilterReturn
-cogl_renderer_handle_event (CoglRenderer *renderer,
-                            void         *event);
-
 COGL_EXPORT
 void cogl_renderer_set_winsys (CoglRenderer *renderer,
                                void         *winsys);

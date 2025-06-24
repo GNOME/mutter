@@ -26,12 +26,6 @@
 #include "core/display-private.h"
 #include "backends/meta-dnd-private.h"
 
-#ifdef HAVE_X11
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-stage-x11.h"
-#include "x11/meta-x11-display-private.h"
-#endif
-
 struct _MetaDndClass
 {
   GObjectClass parent_class;
@@ -119,39 +113,6 @@ meta_dnd_new (MetaBackend *backend)
   return dnd;
 }
 
-#ifdef HAVE_X11
-void
-meta_dnd_init_xdnd (MetaX11Display *x11_display)
-{
-  MetaDisplay *display = meta_x11_display_get_display (x11_display);
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-  Display *xdisplay = x11_display->xdisplay;
-  Window xwindow, overlay_xwindow;
-  long xdnd_version = 5;
-
-  overlay_xwindow = x11_display->composite_overlay_window;
-  xwindow = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
-
-  XChangeProperty (xdisplay, xwindow,
-                   XInternAtom (xdisplay, "XdndAware", False), XA_ATOM,
-                   32, PropModeReplace,
-                   (const unsigned char *) &xdnd_version, 1);
-
-  XChangeProperty (xdisplay, overlay_xwindow,
-                   XInternAtom (xdisplay, "XdndProxy", False), XA_WINDOW,
-                   32, PropModeReplace, (const unsigned char *) &xwindow, 1);
-
-  /*
-   * XdndProxy is additionally set on the proxy window as verification that the
-   * XdndProxy property on the target window isn't a left-over
-   */
-  XChangeProperty (xdisplay, xwindow,
-                   XInternAtom (xdisplay, "XdndProxy", False), XA_WINDOW,
-                   32, PropModeReplace, (const unsigned char *) &xwindow, 1);
-}
-#endif
-
 static void
 meta_dnd_notify_dnd_enter (MetaDnd *dnd)
 {
@@ -171,76 +132,6 @@ meta_dnd_notify_dnd_leave (MetaDnd *dnd)
 {
   g_signal_emit (dnd, signals[LEAVE], 0);
 }
-
-/*
- * Process Xdnd events
- *
- * We pass the position and leave events to the plugin via a signal
- * where the actual drag & drop handling happens.
- *
- * http://www.freedesktop.org/wiki/Specifications/XDND
- */
-#ifdef HAVE_X11
-gboolean
-meta_dnd_handle_xdnd_event (MetaBackend       *backend,
-                            MetaCompositorX11 *compositor_x11,
-                            Display           *xdisplay,
-                            XEvent            *xev)
-{
-  MetaDnd *dnd = meta_backend_get_dnd (backend);
-  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
-  Window output_window;
-  ClutterStage *stage;
-
-  if (xev->xany.type != ClientMessage)
-    return FALSE;
-
-  output_window = meta_compositor_x11_get_output_xwindow (compositor_x11);
-  stage = meta_compositor_get_stage (compositor);
-  if (xev->xany.window != output_window &&
-      xev->xany.window != meta_x11_get_stage_window (stage))
-    return FALSE;
-
-  if (xev->xclient.message_type == XInternAtom (xdisplay, "XdndPosition", TRUE))
-    {
-      XEvent xevent;
-      Window src = xev->xclient.data.l[0];
-
-      memset (&xevent, 0, sizeof(xevent));
-      xevent.xany.type = ClientMessage;
-      xevent.xany.display = xdisplay;
-      xevent.xclient.window = src;
-      xevent.xclient.message_type = XInternAtom (xdisplay, "XdndStatus", TRUE);
-      xevent.xclient.format = 32;
-      xevent.xclient.data.l[0] = output_window;
-      /* flags: bit 0: will we accept the drop? bit 1: do we want more position messages */
-      xevent.xclient.data.l[1] = 2;
-      xevent.xclient.data.l[4] = None;
-
-      XSendEvent (xdisplay, src, False, 0, &xevent);
-
-      meta_dnd_notify_dnd_position_change (dnd,
-                                            (int)(xev->xclient.data.l[2] >> 16),
-                                            (int)(xev->xclient.data.l[2] & 0xFFFF));
-
-      return TRUE;
-    }
-  else if (xev->xclient.message_type == XInternAtom (xdisplay, "XdndLeave", TRUE))
-    {
-      meta_dnd_notify_dnd_leave (dnd);
-
-      return TRUE;
-    }
-  else if (xev->xclient.message_type == XInternAtom (xdisplay, "XdndEnter", TRUE))
-    {
-      meta_dnd_notify_dnd_enter (dnd);
-
-      return TRUE;
-    }
-
-  return FALSE;
-}
-#endif
 
 #ifdef HAVE_WAYLAND
 void
