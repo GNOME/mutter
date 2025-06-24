@@ -27,7 +27,7 @@
 #include "core/window-private.h"
 #include "meta/meta-enum-types.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "x11/meta-x11-frame.h"
 #include "x11/window-x11.h"
 #endif
@@ -1461,7 +1461,7 @@ update_move (MetaWindowDrag          *window_drag,
                   window->saved_rect.x = work_area.x;
                   window->saved_rect.y = work_area.y;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XXWAYLAND
                   if (META_IS_WINDOW_X11 (window))
                     {
                       MetaFrame *frame;
@@ -1689,7 +1689,7 @@ update_resize (MetaWindowDrag          *window_drag,
    * resize the window when the window responds, or when we time
    * the response out.
    */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_is_awaiting_sync_response (window))
     return;

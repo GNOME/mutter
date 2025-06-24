@@ -9,6 +9,7 @@ cogl_pkg_deps = [
   gio_dep,
   gobject_dep,
   graphene_dep,
+  wayland_server_dep,
 ]
 
 cogl_pkg_private_deps = [
@@ -19,12 +20,6 @@ cogl_pkg_private_deps = [
 if have_profiler
   cogl_pkg_private_deps += [
     libsysprof_capture_dep,
-  ]
-endif
-
-if have_wayland
-  cogl_pkg_deps += [
-    wayland_server_dep,
   ]
 endif
 

@@ -82,8 +82,11 @@
 #include "meta/meta-enum-types.h"
 #include "meta/prefs.h"
 #include "meta/meta-window-config.h"
+#include "wayland/meta-wayland-private.h"
+#include "wayland/meta-wayland-surface-private.h"
+#include "wayland/meta-window-wayland.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
@@ -92,19 +95,7 @@
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
-#endif
-
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland-private.h"
-#include "wayland/meta-wayland-surface-private.h"
-#include "wayland/meta-window-wayland.h"
-#endif
-
-#ifdef HAVE_X11_CLIENT
 #include "x11/window-x11-private.h"
-#endif
-
-#ifdef HAVE_XWAYLAND
 #include "wayland/meta-window-xwayland.h"
 #endif
 
@@ -913,16 +904,14 @@ meta_window_should_attach_to_parent (MetaWindow *window)
 static gboolean
 client_window_should_be_mapped (MetaWindow *window)
 {
-#ifdef HAVE_WAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
     {
       MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
       if (!meta_wayland_surface_get_buffer (surface))
         return FALSE;
     }
-#endif
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       window->decorated && !meta_window_x11_is_ssd (window))
     return FALSE;
@@ -1042,7 +1031,7 @@ meta_window_update_desc (MetaWindow *window)
 {
   g_clear_pointer (&window->desc, g_free);
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       window->desc = g_strdup_printf ("0x%lx (%s)",
@@ -1553,7 +1542,7 @@ meta_window_unmanage (MetaWindow  *window,
   if (meta_prefs_get_workspaces_only_on_primary ())
     meta_window_on_all_workspaces_changed (window);
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (meta_window_is_fullscreen (window))
     {
       MetaGroup *group = NULL;
@@ -1576,7 +1565,7 @@ meta_window_unmanage (MetaWindow  *window,
 
   /* safe to do this early as group.c won't re-add to the
    * group if window->unmanaging */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_shutdown_group (window);
 #endif
@@ -1681,7 +1670,7 @@ meta_window_unmanage (MetaWindow  *window,
 static void
 set_wm_state (MetaWindow *window)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_wm_state (window);
 #endif
@@ -1690,7 +1679,7 @@ set_wm_state (MetaWindow *window)
 static void
 set_net_wm_state (MetaWindow *window)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_net_wm_state (window);
 #endif
@@ -1699,7 +1688,7 @@ set_net_wm_state (MetaWindow *window)
 static void
 set_allowed_actions_hint (MetaWindow *window)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_set_allowed_actions_hint (window);
 #endif
@@ -1802,14 +1791,9 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
 static gboolean
 window_has_buffer (MetaWindow *window)
 {
-#ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    {
-      MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
-      if (!surface || !meta_wayland_surface_get_buffer (surface))
-        return FALSE;
-    }
-#endif
+  MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
+  if (!surface || !meta_wayland_surface_get_buffer (surface))
+    return FALSE;
 
   return TRUE;
 }
@@ -1835,13 +1819,11 @@ meta_window_is_showable (MetaWindow *window)
   if (should_show_be_postponed (window))
     return FALSE;
 
-#ifdef HAVE_WAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
       !window_has_buffer (window))
     return FALSE;
-#endif
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       window->decorated && !meta_window_x11_is_ssd (window))
     return FALSE;
@@ -3382,23 +3364,6 @@ unmaximize_window_before_freeing (MetaWindow        *window)
       meta_window_config_set_rect (window->config, window->saved_rect);
       set_net_wm_state (window);
     }
-#ifdef HAVE_WAYLAND
-  else if (!meta_is_wayland_compositor ())
-    {
-      /* Do NOT update net_wm_state: this screen is closing,
-       * it likely will be managed by another window manager
-       * that will need the current _NET_WM_STATE atoms.
-       * Moreover, it will need to know the unmaximized geometry,
-       * therefore move_resize the window to saved_rect here
-       * before closing it. */
-      meta_window_move_resize_frame (window,
-                                     FALSE,
-                                     window->saved_rect.x,
-                                     window->saved_rect.y,
-                                     window->saved_rect.width,
-                                     window->saved_rect.height);
-    }
-#endif
 }
 
 void
@@ -4691,7 +4656,7 @@ meta_window_client_rect_to_frame_rect (MetaWindow   *window,
                                        MtkRectangle *client_rect,
                                        MtkRectangle *frame_rect)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrameBorders borders;
 #endif
 
@@ -4704,7 +4669,7 @@ meta_window_client_rect_to_frame_rect (MetaWindow   *window,
    * constraints.c:get_size_limits() and not something that we provide
    * in other locations or document.
    */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_get_frame_borders (window, &borders))
     {
@@ -4743,7 +4708,7 @@ meta_window_frame_rect_to_client_rect (MetaWindow   *window,
                                        MtkRectangle *frame_rect,
                                        MtkRectangle *client_rect)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrameBorders borders;
 #endif
 
@@ -4752,7 +4717,7 @@ meta_window_frame_rect_to_client_rect (MetaWindow   *window,
 
   *client_rect = *frame_rect;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_get_frame_borders (window, &borders))
     {
@@ -4804,7 +4769,7 @@ meta_window_get_client_area_rect (MetaWindow   *window,
                                   MtkRectangle *rect)
 {
   MetaFrameBorders borders = { 0, };
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     meta_window_x11_get_frame_borders (window, &borders);
 #endif
@@ -4827,7 +4792,7 @@ meta_window_get_client_area_rect (MetaWindow   *window,
 const char*
 meta_window_get_startup_id (MetaWindow *window)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->startup_id == NULL && window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       MetaGroup *group;
@@ -4883,13 +4848,11 @@ get_modal_transient (MetaWindow *window)
 static gboolean
 meta_window_transient_can_focus (MetaWindow *window)
 {
-#ifdef HAVE_WAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
     {
       MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
       return meta_wayland_surface_get_buffer (surface) != NULL;
     }
-#endif
 
   return TRUE;
 }
@@ -5757,7 +5720,7 @@ meta_window_type_changed (MetaWindow *window)
   if (!window->override_redirect)
     set_net_wm_state (window);
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       /* Update frame */
@@ -5804,7 +5767,7 @@ meta_window_set_type (MetaWindow     *window,
 void
 meta_window_frame_size_changed (MetaWindow *window)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrame *frame;
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
@@ -6378,7 +6341,7 @@ meta_window_get_default_layer (MetaWindow *window)
 void
 meta_window_update_layer (MetaWindow *window)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaGroup *group = NULL;
 
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
@@ -7621,7 +7584,7 @@ meta_window_has_pointer (MetaWindow *window)
 {
   if (meta_is_wayland_compositor ())
     return window_has_pointer_wayland (window);
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   else
     return meta_window_x11_has_pointer (window);
 #else
@@ -7942,7 +7905,6 @@ meta_window_calculate_layer (MetaWindow *window)
   return META_WINDOW_GET_CLASS (window)->calculate_layer (window);
 }
 
-#ifdef HAVE_WAYLAND
 MetaWaylandSurface *
 meta_window_get_wayland_surface (MetaWindow *window)
 {
@@ -7951,7 +7913,6 @@ meta_window_get_wayland_surface (MetaWindow *window)
 
   return klass->get_wayland_surface (window);
 }
-#endif
 
 /**
  * meta_window_get_id:
@@ -8522,7 +8483,7 @@ meta_window_get_client_content_rect (MetaWindow   *window,
 {
   meta_window_get_frame_rect (window, rect);
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
       meta_window_x11_is_ssd (window))
     meta_window_frame_rect_to_client_rect (window, rect, rect);

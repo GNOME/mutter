@@ -31,12 +31,9 @@
 #include "clutter/clutter.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
-#include "core/window-private.h"
-
-#ifdef HAVE_WAYLAND
 #include "compositor/meta-surface-actor-wayland.h"
+#include "core/window-private.h"
 #include "wayland/meta-wayland-surface-private.h"
-#endif /* HAVE_WAYLAND */
 
 static void update_frame_sync_surface (MetaCompositorViewNative *view_native,
                                        MetaSurfaceActor         *surface_actor);
@@ -45,9 +42,7 @@ struct _MetaCompositorViewNative
 {
   MetaCompositorView parent;
 
-#ifdef HAVE_WAYLAND
   MetaWaylandSurface *scanout_candidate;
-#endif /* HAVE_WAYLAND */
 
   MetaSurfaceActor *frame_sync_surface;
 
@@ -117,7 +112,6 @@ on_frame_sync_surface_destroyed (MetaSurfaceActor         *surface_actor,
   update_frame_sync_surface (view_native, NULL);
 }
 
-#ifdef HAVE_WAYLAND
 static void
 update_scanout_candidate (MetaCompositorViewNative *view_native,
                           MetaWaylandSurface       *surface,
@@ -397,7 +391,6 @@ meta_compositor_view_native_maybe_assign_scanout (MetaCompositorViewNative *view
 
   update_scanout_candidate (view_native, surface, crtc);
 }
-#endif /* HAVE_WAYLAND */
 
 static MetaSurfaceActor *
 find_frame_sync_candidate (MetaCompositorView *compositor_view,
@@ -599,11 +592,9 @@ meta_compositor_view_native_dispose (GObject *object)
 static void
 meta_compositor_view_native_finalize (GObject *object)
 {
-#ifdef HAVE_WAYLAND
   MetaCompositorViewNative *view_native = META_COMPOSITOR_VIEW_NATIVE (object);
 
   g_clear_weak_pointer (&view_native->scanout_candidate);
-#endif /* HAVE_WAYLAND */
 
   G_OBJECT_CLASS (meta_compositor_view_native_parent_class)->finalize (object);
 }

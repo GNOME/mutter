@@ -38,7 +38,7 @@
 #include "meta/prefs.h"
 #include "meta/workspace.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "meta/meta-x11-group.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/window-x11.h"
@@ -489,7 +489,7 @@ create_constraints (Constraint **constraints,
           continue;
         }
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
       if (WINDOW_TRANSIENT_FOR_WHOLE_GROUP (w))
         {
           GSList *group_windows;

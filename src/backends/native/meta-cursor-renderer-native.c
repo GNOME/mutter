@@ -56,11 +56,8 @@
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
-
-#ifdef HAVE_WAYLAND
 #include "wayland/meta-cursor-sprite-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
-#endif
 
 static GQuark quark_cursor_sprite = 0;
 
@@ -1042,7 +1039,6 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   return retval;
 }
 
-#ifdef HAVE_WAYLAND
 static gboolean
 realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer,
                                                MetaCrtcKms             *crtc_kms,
@@ -1190,7 +1186,6 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
       return TRUE;
     }
 }
-#endif /* HAVE_WAYLAND */
 
 static gboolean
 realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer      *renderer,
@@ -1241,7 +1236,6 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
                                                           target_color_state,
                                                           sprite_xcursor);
     }
-#ifdef HAVE_WAYLAND
   else if (META_IS_CURSOR_SPRITE_WAYLAND (cursor_sprite))
     {
       MetaCursorSpriteWayland *sprite_wayland =
@@ -1252,7 +1246,6 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
                                                             target_color_state,
                                                             sprite_wayland);
     }
-#endif
   else
     {
       return FALSE;

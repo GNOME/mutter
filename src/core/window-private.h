@@ -608,9 +608,7 @@ struct _MetaWindowClass
 
   MetaStackLayer (*calculate_layer) (MetaWindow *window);
 
-#ifdef HAVE_WAYLAND
   MetaWaylandSurface * (*get_wayland_surface) (MetaWindow *window);
-#endif
 
   gboolean (*set_transient_for) (MetaWindow *window,
                                  MetaWindow *parent);
@@ -693,10 +691,8 @@ gboolean meta_window_can_ping (MetaWindow *window);
 
 MetaStackLayer meta_window_calculate_layer (MetaWindow *window);
 
-#ifdef HAVE_WAYLAND
 META_EXPORT_TEST
 MetaWaylandSurface * meta_window_get_wayland_surface (MetaWindow *window);
-#endif
 
 void     meta_window_current_workspace_changed (MetaWindow *window);
 

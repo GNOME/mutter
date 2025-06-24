@@ -78,6 +78,7 @@
 #include "meta/meta-context.h"
 #include "meta/meta-enum-types.h"
 #include "meta/util.h"
+#include "wayland/meta-wayland.h"
 
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
@@ -90,9 +91,6 @@
 #include "backends/native/meta-backend-native.h"
 #endif
 
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland.h"
-#endif
 
 #ifdef HAVE_LOGIND
 #include "backends/meta-launcher.h"

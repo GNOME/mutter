@@ -25,15 +25,14 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-#ifdef HAVE_WAYLAND
 #include <systemd/sd-login.h>
-#endif
 
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-virtual-monitor.h"
 #include "core/meta-session-manager.h"
 #include "meta/meta-backend.h"
+#include "wayland/meta-wayland.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
@@ -44,17 +43,11 @@
 #include "core/meta-mdk.h"
 #endif
 
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland.h"
-#endif
-
 typedef struct _MetaContextMainOptions
 {
-#ifdef HAVE_WAYLAND
   gboolean wayland;
   gboolean no_x11;
   char *wayland_display;
-#endif
 #ifdef HAVE_NATIVE_BACKEND
   gboolean display_server;
   gboolean headless;
@@ -125,10 +118,8 @@ meta_context_main_configure (MetaContext   *context,
   if (!check_configuration (context_main, error))
     return FALSE;
 
-#ifdef HAVE_WAYLAND
   if (context_main->options.wayland_display)
     meta_wayland_override_display_name (context_main->options.wayland_display);
-#endif
 
 #ifdef HAVE_PROFILER
   meta_context_set_trace_file (context, context_main->options.trace_file);
@@ -256,7 +247,6 @@ meta_context_main_setup (MetaContext  *context,
   return TRUE;
 }
 
-#ifdef HAVE_WAYLAND
 #ifdef HAVE_NATIVE_BACKEND
 static MetaBackend *
 create_headless_backend (MetaContext  *context,
@@ -279,17 +269,13 @@ create_native_backend (MetaContext  *context,
                          NULL);
 }
 #endif /* HAVE_NATIVE_BACKEND */
-#endif /* HAVE_WAYLAND */
 
 static MetaBackend *
 meta_context_main_create_backend (MetaContext  *context,
                                   GError      **error)
 {
-#ifdef HAVE_WAYLAND
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
-#endif
 
-#ifdef HAVE_WAYLAND
 #ifdef HAVE_NATIVE_BACKEND
   if (context_main->options.headless ||
       context_main->options.devkit)
@@ -297,9 +283,6 @@ meta_context_main_create_backend (MetaContext  *context,
 
   return create_native_backend (context, error);
 #endif /* HAVE_NATIVE_BACKEND */
-#else /* HAVE_WAYLAND */
-  g_assert_not_reached ();
-#endif /* HAVE_WAYLAND */
 
   g_assert_not_reached ();
 }
@@ -370,7 +353,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
 {
   MetaContext *context = META_CONTEXT (context_main);
   GOptionEntry options[] = {
-#ifdef HAVE_WAYLAND
     {
       "wayland", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.wayland,
@@ -391,7 +373,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Specify Wayland display name to use"),
       NULL
     },
-#endif
 #ifdef HAVE_NATIVE_BACKEND
     {
       "display-server", 0, 0, G_OPTION_ARG_NONE,

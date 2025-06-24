@@ -492,7 +492,6 @@ build-wayland-only@x86_64:
         --werror
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
-        -Dwayland=true
         -Dxwayland=false
         -Dtests=disabled
         -Dintrospection=false

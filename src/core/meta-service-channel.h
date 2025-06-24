@@ -17,8 +17,6 @@
 
 #pragma once
 
-#ifdef HAVE_WAYLAND
-
 #include "meta/meta-context.h"
 
 #include "core/util-private.h"
@@ -44,5 +42,3 @@ MetaServiceChannel * meta_service_channel_new (MetaContext *context);
 META_EXPORT_TEST
 MetaWaylandClient * meta_service_channel_get_service_client (MetaServiceChannel    *service_channel,
                                                              MetaServiceClientType  service_client_type);
-
-#endif /* HAVE_WAYLAND */

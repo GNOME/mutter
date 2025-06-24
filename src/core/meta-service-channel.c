@@ -213,7 +213,6 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
                                         GUnixFDList            *in_fd_list,
                                         uint32_t                service_client_type)
 {
-#ifdef HAVE_WAYLAND
   MetaServiceChannel *service_channel = META_SERVICE_CHANNEL (object);
   GDBusConnection *connection;
   const char *sender;
@@ -243,13 +242,6 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
                                            g_steal_pointer (&data));
 
   return G_DBUS_METHOD_INVOCATION_HANDLED;
-#else /* HAVE_WAYLAND */
-  g_dbus_method_invocation_return_error (invocation,
-                                         G_DBUS_ERROR,
-                                         G_DBUS_ERROR_NOT_SUPPORTED,
-                                         "Wayland not supported");
-  return G_DBUS_METHOD_INVOCATION_HANDLED;
-#endif /* HAVE_WAYLAND */
 }
 
 static void

@@ -33,13 +33,10 @@
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
+#include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#endif
-
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland-private.h"
 #endif
 
 #define IS_KEY_EVENT(et) ((et) == CLUTTER_KEY_PRESS || \
@@ -176,19 +173,12 @@ meta_display_handle_event (MetaDisplay        *display,
   gboolean a11y_grabbed;
   MetaTabletActionMapper *mapper;
   MetaEventMode mode_hint;
-#ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
   MetaWaylandTextInput *wayland_text_input = NULL;
-#endif
 
-#ifdef HAVE_WAYLAND
   wayland_compositor = meta_context_get_wayland_compositor (context);
-  if (wayland_compositor)
-    {
-      wayland_text_input =
-        meta_wayland_compositor_get_text_input (wayland_compositor);
-    }
-#endif
+  wayland_text_input =
+    meta_wayland_compositor_get_text_input (wayland_compositor);
 
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayHandleEvent,
                            "Meta::Display::handle_event()");
@@ -235,15 +225,12 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
-#ifdef HAVE_WAYLAND
   if (wayland_text_input &&
       !meta_compositor_get_current_window_drag (compositor) &&
       meta_wayland_text_input_update (wayland_text_input, event))
     return CLUTTER_EVENT_STOP;
 
-  if (wayland_compositor)
-    meta_wayland_compositor_update (wayland_compositor, event);
-#endif
+  meta_wayland_compositor_update (wayland_compositor, event);
 
   if (event_type == CLUTTER_PAD_BUTTON_PRESS ||
       event_type == CLUTTER_PAD_BUTTON_RELEASE ||
@@ -397,20 +384,15 @@ meta_display_handle_event (MetaDisplay        *display,
       mode_hint = META_EVENT_MODE_KEEP_FROZEN;
     }
 
-#ifdef HAVE_WAYLAND
-  if (wayland_compositor)
-    {
-      uint32_t time_ms;
+    uint32_t time_ms;
 
-      time_ms = clutter_event_get_time (event);
-      if (window && event_type == CLUTTER_MOTION &&
-          time_ms != CLUTTER_CURRENT_TIME)
-        meta_window_check_alive_on_event (window, time_ms);
+    time_ms = clutter_event_get_time (event);
+    if (window && event_type == CLUTTER_MOTION &&
+        time_ms != CLUTTER_CURRENT_TIME)
+      meta_window_check_alive_on_event (window, time_ms);
 
-      if (meta_wayland_compositor_handle_event (wayland_compositor, event))
-        return CLUTTER_EVENT_STOP;
-    }
-#endif
+    if (meta_wayland_compositor_handle_event (wayland_compositor, event))
+      return CLUTTER_EVENT_STOP;
 
   return meta_compositor_handle_event (compositor, event, window, mode_hint);
 }

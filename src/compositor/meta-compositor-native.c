@@ -39,10 +39,8 @@ meta_compositor_native_before_paint (MetaCompositor     *compositor,
     META_COMPOSITOR_VIEW_NATIVE (compositor_view);
   MetaCompositorClass *parent_class;
 
-#ifdef HAVE_WAYLAND
   meta_compositor_view_native_maybe_assign_scanout (compositor_view_native,
                                                     compositor);
-#endif
 
   meta_compositor_view_native_maybe_update_frame_sync_surface (compositor_view_native,
                                                                compositor);

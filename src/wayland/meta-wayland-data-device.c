@@ -50,7 +50,7 @@
 #include "wayland/meta-wayland-toplevel-drag.h"
 #include "wayland/meta-wayland-types.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland-dnd-private.h"
 #endif
 
@@ -233,7 +233,7 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
   g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
   MetaCursorRenderer *cursor_renderer;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   /* X11 DnD lets the drag source client drive pointer cursor updates */
   if (META_IS_WAYLAND_DATA_SOURCE_XWAYLAND (drag_grab->drag_data_source))
     return;
