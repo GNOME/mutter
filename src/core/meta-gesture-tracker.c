@@ -220,23 +220,12 @@ static gboolean
 state_is_applicable (MetaSequenceState prev_state,
                      MetaSequenceState state)
 {
-
-  if (meta_is_wayland_compositor ())
-    {
-      /* Never reject sequences on Wayland, on Wayland we deliver touch events
-       * to clients right away and can cancel them later when accepting a
-       * sequence.
-       */
-      if (state == META_SEQUENCE_REJECTED)
-        return FALSE;
-    }
-  else
-    {
-      /* Sequences must be accepted/denied before PENDING_END */
-      if (prev_state == META_SEQUENCE_NONE &&
-          state == META_SEQUENCE_PENDING_END)
-        return FALSE;
-    }
+  /* Never reject sequences on Wayland, on Wayland we deliver touch events
+    * to clients right away and can cancel them later when accepting a
+    * sequence.
+    */
+  if (state == META_SEQUENCE_REJECTED)
+    return FALSE;
 
   /* PENDING_END state is final */
   if (prev_state == META_SEQUENCE_PENDING_END)

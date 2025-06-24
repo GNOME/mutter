@@ -364,12 +364,9 @@ meta_stage_init (MetaStage *stage)
   for (i = 0; i < META_N_WATCH_MODES; i++)
     stage->watchers[i] = g_ptr_array_new_with_free_func (g_free);
 
-  if (meta_is_wayland_compositor ())
-    {
-      g_signal_connect (stage,
-                        "notify::key-focus",
-                        G_CALLBACK (key_focus_actor_changed), NULL);
-    }
+  g_signal_connect (stage,
+                    "notify::key-focus",
+                    G_CALLBACK (key_focus_actor_changed), NULL);
 }
 
 ClutterActor *

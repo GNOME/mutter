@@ -453,8 +453,7 @@ start (MetaPlugin *plugin)
                     G_CALLBACK (prepare_shutdown),
                     self);
 
-  if (meta_is_wayland_compositor ())
-    init_keymap (self, backend);
+  init_keymap (self, backend);
 
   clutter_actor_show (meta_backend_get_stage (backend));
 }

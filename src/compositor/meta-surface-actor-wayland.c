@@ -317,8 +317,6 @@ meta_surface_actor_wayland_new (MetaWaylandSurface *surface)
                                                 "accessible-name", "Wayland surface",
                                                 NULL);
 
-  g_assert (meta_is_wayland_compositor ());
-
   self->surface = surface;
   g_object_weak_ref (G_OBJECT (self->surface),
                      on_surface_disposed,

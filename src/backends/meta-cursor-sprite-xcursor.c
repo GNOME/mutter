@@ -382,20 +382,13 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
       g_error_free (error);
     }
 
-  if (meta_is_wayland_compositor ())
-    {
-      hotspot_x = ((int) roundf ((float) xc_image->xhot /
-                                 sprite_xcursor->theme_scale) *
-                   sprite_xcursor->theme_scale);
-      hotspot_y = ((int) roundf ((float) xc_image->yhot /
-                                 sprite_xcursor->theme_scale) *
-                   sprite_xcursor->theme_scale);
-    }
-  else
-    {
-      hotspot_x = xc_image->xhot;
-      hotspot_y = xc_image->yhot;
-    }
+  hotspot_x = ((int) roundf ((float) xc_image->xhot /
+                              sprite_xcursor->theme_scale) *
+                sprite_xcursor->theme_scale);
+  hotspot_y = ((int) roundf ((float) xc_image->yhot /
+                              sprite_xcursor->theme_scale) *
+                sprite_xcursor->theme_scale);
+
   meta_cursor_sprite_set_texture (sprite,
                                   texture,
                                   hotspot_x, hotspot_y);
@@ -542,9 +535,6 @@ meta_cursor_sprite_xcursor_prepare_at (MetaCursorSprite *sprite,
     meta_cursor_sprite_get_cursor_tracker (sprite);
   MetaBackend *backend =
     meta_cursor_tracker_get_backend (cursor_tracker);
-
-  if (!meta_is_wayland_compositor ())
-    return;
 
   if (meta_backend_is_stage_views_scaled (backend))
     {

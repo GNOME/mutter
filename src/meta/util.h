@@ -33,9 +33,6 @@ META_EXPORT
 gboolean meta_is_verbose  (void);
 
 META_EXPORT
-gboolean meta_is_wayland_compositor (void);
-
-META_EXPORT
 void meta_bug        (const char *format,
                       ...) G_GNUC_PRINTF (1, 2);
 
