@@ -267,7 +267,8 @@ update_outputs (CoglRenderer *renderer,
 
   if (changed)
     {
-      const CoglWinsysVtable *winsys = cogl_renderer_get_winsys_vtable (renderer);
+      CoglWinsys *winsys = cogl_renderer_get_winsys_vtable (renderer);
+      CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
       if (notify)
         COGL_NOTE (WINSYS, "Outputs changed:");
@@ -314,8 +315,8 @@ update_outputs (CoglRenderer *renderer,
                      output->refresh_rate);
         }
 
-      if (notify && winsys->renderer_outputs_changed != NULL)
-        winsys->renderer_outputs_changed (renderer);
+      if (notify && winsys_class->renderer_outputs_changed != NULL)
+        winsys_class->renderer_outputs_changed (renderer);
     }
 }
 

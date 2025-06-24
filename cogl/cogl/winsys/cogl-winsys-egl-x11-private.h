@@ -30,10 +30,15 @@
 
 #pragma once
 
-#include "cogl/winsys/cogl-winsys.h"
+#include "cogl/winsys/cogl-winsys-egl-private.h"
 
-COGL_EXPORT const CoglWinsysVtable *
-_cogl_winsys_egl_xlib_get_vtable (void);
+G_DECLARE_FINAL_TYPE (CoglWinsysEGLXLib,
+                      cogl_winsys_egl_xlib,
+                      COGL,
+                      WINSYS_EGL_XLIB,
+                      CoglWinsysEGL)
+
+#define COGL_TYPE_WINSYS_EGL_XLIB (cogl_winsys_egl_xlib_get_type ())
 
 XVisualInfo *
 cogl_display_xlib_get_visual_info (CoglDisplay *display,

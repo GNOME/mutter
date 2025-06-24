@@ -30,12 +30,10 @@
 
 #pragma once
 
-#include <EGL/eglext.h>
-
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"
-#include "cogl/winsys/cogl-winsys.h"
+#include "cogl/winsys/cogl-winsys-egl.h"
 
 /* XXX: depending on what version of Mesa you have then
  * eglQueryWaylandBuffer may take a wl_buffer or wl_resource argument
@@ -58,88 +56,7 @@
 struct wl_resource;
 #endif
 
-typedef struct _CoglWinsysEGLVtable
-{
-  gboolean
-  (* display_setup) (CoglDisplay *display,
-                     GError **error);
-  void
-  (* display_destroy) (CoglDisplay *display);
-
-  gboolean
-  (* context_created) (CoglDisplay *display,
-                       GError **error);
-
-  void
-  (* cleanup_context) (CoglDisplay *display);
-
-  gboolean
-  (* context_init) (CoglContext *context, GError **error);
-
-  void
-  (* context_deinit) (CoglContext *context);
-
-  int
-  (* add_config_attributes) (CoglDisplay *display,
-                             EGLint      *attributes);
-  gboolean
-  (* choose_config) (CoglDisplay *display,
-                     EGLint *attributes,
-                     EGLConfig *out_config,
-                     GError **error);
-} CoglWinsysEGLVtable;
-
 #define MAX_EGL_CONFIG_ATTRIBS 30
-
-typedef enum _CoglEGLWinsysFeature
-{
-  COGL_EGL_WINSYS_FEATURE_SWAP_REGION                   = 1L << 0,
-  COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_X11_PIXMAP     = 1L << 1,
-  COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_WAYLAND_BUFFER = 1L << 2,
-  COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT                = 1L << 3,
-  COGL_EGL_WINSYS_FEATURE_BUFFER_AGE                    = 1L << 4,
-  COGL_EGL_WINSYS_FEATURE_FENCE_SYNC                    = 1L << 5,
-  COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           = 1L << 6,
-  COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY              = 1L << 7,
-  COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT             = 1L << 8,
-  COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC             = 1L << 9,
-} CoglEGLWinsysFeature;
-
-typedef struct _CoglRendererEGL
-{
-  CoglEGLWinsysFeature private_features;
-
-  EGLDisplay edpy;
-
-  EGLint egl_version_major;
-  EGLint egl_version_minor;
-
-  CoglClosure *resize_notify_idle;
-
-  /* Data specific to the EGL platform */
-  void *platform;
-  /* vtable for platform specific parts */
-  const CoglWinsysEGLVtable *platform_vtable;
-
-  gboolean needs_config;
-
-  /* Sync for latest submitted work */
-  EGLSyncKHR sync;
-
-  /* Function pointers for EGL specific extensions */
-#define COGL_WINSYS_FEATURE_BEGIN(a, b, c, d)
-
-#define COGL_WINSYS_FEATURE_FUNCTION(ret, name, args) \
-  ret (APIENTRY * pf_ ## name) args;
-
-#define COGL_WINSYS_FEATURE_END()
-
-#include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
-
-#undef COGL_WINSYS_FEATURE_BEGIN
-#undef COGL_WINSYS_FEATURE_FUNCTION
-#undef COGL_WINSYS_FEATURE_END
-} CoglRendererEGL;
 
 typedef struct _CoglDisplayEGL
 {
@@ -162,9 +79,6 @@ typedef struct _CoglContextEGL
   EGLSurface saved_draw_surface;
   EGLSurface saved_read_surface;
 } CoglContextEGL;
-
-COGL_EXPORT const CoglWinsysVtable *
-_cogl_winsys_egl_get_vtable (void);
 
 COGL_EXPORT EGLBoolean
 _cogl_winsys_egl_make_current (CoglDisplay *display,

@@ -50,8 +50,6 @@
 #include "cogl/winsys/cogl-winsys-egl-x11-private.h"
 #include "cogl/winsys/cogl-winsys-egl-private.h"
 
-static const CoglWinsysEGLVtable _cogl_winsys_egl_vtable;
-
 typedef struct _CoglDisplayXlib
 {
   Window dummy_xwin;
@@ -65,6 +63,8 @@ typedef struct _CoglTexturePixmapEGL
   gboolean bind_tex_image_queued;
 } CoglTexturePixmapEGL;
 #endif
+
+G_DEFINE_FINAL_TYPE (CoglWinsysEGLXLib, cogl_winsys_egl_xlib, COGL_TYPE_WINSYS_EGL);
 
 static CoglOnscreen *
 find_onscreen_for_xid (CoglContext *context, uint32_t xid)
@@ -239,7 +239,6 @@ _cogl_winsys_renderer_connect (CoglRenderer *renderer,
   egl_renderer = cogl_renderer_get_winsys (renderer);
   xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
 
-  egl_renderer->platform_vtable = &_cogl_winsys_egl_vtable;
   egl_renderer->sync = EGL_NO_SYNC_KHR;
   egl_renderer->needs_config = TRUE;
 
@@ -581,58 +580,53 @@ _cogl_winsys_texture_pixmap_x11_get_texture (CoglTexturePixmapX11 *tex_pixmap,
 
 #endif /* EGL_KHR_image_pixmap */
 
-static const CoglWinsysEGLVtable
-_cogl_winsys_egl_vtable =
-  {
-    .add_config_attributes = _cogl_winsys_egl_add_config_attributes,
-    .choose_config = _cogl_winsys_egl_choose_config,
-    .display_setup = _cogl_winsys_egl_display_setup,
-    .display_destroy = _cogl_winsys_egl_display_destroy,
-    .context_created = _cogl_winsys_egl_context_created,
-    .cleanup_context = _cogl_winsys_egl_cleanup_context,
-    .context_init = _cogl_winsys_egl_context_init,
-    .context_deinit = _cogl_winsys_egl_context_deinit,
-  };
-
-COGL_EXPORT const CoglWinsysVtable *
-_cogl_winsys_egl_xlib_get_vtable (void)
+static void
+cogl_winsys_egl_xlib_init (CoglWinsysEGLXLib *winsys)
 {
-  static gboolean vtable_inited = FALSE;
-  static CoglWinsysVtable vtable;
+}
 
-  if (!vtable_inited)
-    {
-      /* The EGL_X11 winsys is a subclass of the EGL winsys so we
-         start by copying its vtable */
+static void
+cogl_winsys_egl_xlib_class_init (CoglWinsysEGLXLibClass *klass)
+{
+  CoglWinsysClass *winsys_class = COGL_WINSYS_CLASS (klass);
+  CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_CLASS (klass);
 
-      vtable = *_cogl_winsys_egl_get_vtable ();
+  egl_class->add_config_attributes = _cogl_winsys_egl_add_config_attributes;
+  egl_class->choose_config = _cogl_winsys_egl_choose_config;
+  winsys_class->display_setup = _cogl_winsys_egl_display_setup;
+  winsys_class->display_destroy = _cogl_winsys_egl_display_destroy;
+  egl_class->context_created = _cogl_winsys_egl_context_created;
+  egl_class->cleanup_context = _cogl_winsys_egl_cleanup_context;
+  winsys_class->context_init = _cogl_winsys_egl_context_init;
+  winsys_class->context_deinit = _cogl_winsys_egl_context_deinit;
 
-      vtable.id = COGL_WINSYS_ID_EGL_XLIB;
-      vtable.name = "EGL_XLIB";
-      vtable.constraints |= (COGL_RENDERER_CONSTRAINT_USES_X11 |
-                             COGL_RENDERER_CONSTRAINT_USES_XLIB);
-
-      vtable.renderer_connect = _cogl_winsys_renderer_connect;
-      vtable.renderer_disconnect = _cogl_winsys_renderer_disconnect;
+  winsys_class->renderer_connect = _cogl_winsys_renderer_connect;
+  winsys_class->renderer_disconnect = _cogl_winsys_renderer_disconnect;
 
 #ifdef EGL_KHR_image_pixmap
-      /* X11 tfp support... */
-      /* XXX: instead of having a rather monolithic winsys vtable we could
-       * perhaps look for a way to separate these... */
-      vtable.texture_pixmap_x11_create =
-        _cogl_winsys_texture_pixmap_x11_create;
-      vtable.texture_pixmap_x11_free =
-        _cogl_winsys_texture_pixmap_x11_free;
-      vtable.texture_pixmap_x11_update =
-        _cogl_winsys_texture_pixmap_x11_update;
-      vtable.texture_pixmap_x11_damage_notify =
-        _cogl_winsys_texture_pixmap_x11_damage_notify;
-      vtable.texture_pixmap_x11_get_texture =
-        _cogl_winsys_texture_pixmap_x11_get_texture;
+        /* X11 tfp support... */
+        /* XXX: instead of having a rather monolithic winsys vtable we could
+          * perhaps look for a way to separate these... */
+  winsys_class->texture_pixmap_x11_create =
+    _cogl_winsys_texture_pixmap_x11_create;
+  winsys_class->texture_pixmap_x11_free =
+    _cogl_winsys_texture_pixmap_x11_free;
+  winsys_class->texture_pixmap_x11_update =
+    _cogl_winsys_texture_pixmap_x11_update;
+  winsys_class->texture_pixmap_x11_damage_notify =
+    _cogl_winsys_texture_pixmap_x11_damage_notify;
+  winsys_class->texture_pixmap_x11_get_texture =
+    _cogl_winsys_texture_pixmap_x11_get_texture;
 #endif /* EGL_KHR_image_pixmap) */
+}
 
-      vtable_inited = TRUE;
-    }
-
-  return &vtable;
+CoglWinsysEGLXLib *
+cogl_winsys_egl_xlib_new (void)
+{
+  return g_object_new (COGL_WINSYS_TYPE_EGL_XLIB,
+                       "id", COGL_WINSYS_ID_EGL_XLIB,
+                       "name", "EGL_XLIB",
+                       "constraints", (COGL_RENDERER_CONSTRAINT_USES_X11 |
+                                       COGL_RENDERER_CONSTRAINT_USES_XLIB),
+                       NULL);
 }

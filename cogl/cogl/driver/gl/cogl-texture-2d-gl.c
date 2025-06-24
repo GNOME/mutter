@@ -79,11 +79,12 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              GDestroyNotify destroy,
                                              GError **error)
 {
+  CoglWinsys *winsys = _cogl_context_get_winsys (ctx);
   CoglTextureLoader *loader;
   CoglTexture2D *tex_2d;
   CoglPixelFormat internal_format = COGL_PIXEL_FORMAT_ANY;
 
-  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
+  g_return_val_if_fail (cogl_winsys_get_constraints (winsys) &
                         COGL_RENDERER_CONSTRAINT_USES_EGL,
                         NULL);
 

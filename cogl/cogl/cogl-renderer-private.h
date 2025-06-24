@@ -38,8 +38,6 @@
 #include "cogl/cogl-closure-list-private.h"
 #include "cogl/winsys/cogl-winsys.h"
 
-typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *renderer);
-
 typedef CoglFilterReturn (* CoglNativeFilterFunc) (void *native_event,
                                                    void *data);
 
@@ -55,7 +53,7 @@ _cogl_renderer_remove_native_filter (CoglRenderer *renderer,
 
 CoglDriver * cogl_renderer_get_driver (CoglRenderer *renderer);
 
-const CoglWinsysVtable * cogl_renderer_get_winsys_vtable (CoglRenderer *renderer);
+CoglWinsys * cogl_renderer_get_winsys_vtable (CoglRenderer *renderer);
 
 void cogl_renderer_set_custom_winsys_data (CoglRenderer *renderer,
                                            void         *winsys_data);

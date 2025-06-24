@@ -28,7 +28,7 @@
 #include <EGL/egl.h>
 
 #include "cogl/cogl-onscreen.h"
-#include "cogl/winsys/cogl-winsys-egl-private.h"
+#include "cogl/winsys/cogl-winsys-egl.h"
 
 #define COGL_TYPE_ONSCREEN_EGL (cogl_onscreen_egl_get_type ())
 COGL_EXPORT

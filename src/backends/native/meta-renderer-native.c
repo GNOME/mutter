@@ -117,8 +117,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaRendererNative,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
-static const CoglWinsysEGLVtable _cogl_winsys_egl_vtable;
-
 static gboolean
 meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
                                       MetaGpuKms          *gpu_kms,
@@ -314,7 +312,6 @@ meta_renderer_native_connect (CoglRenderer *cogl_renderer,
                                                          gpu_kms);
   render_device = renderer_gpu_data->render_device;
 
-  cogl_renderer_egl->platform_vtable = &_cogl_winsys_egl_vtable;
   cogl_renderer_egl->platform = renderer_gpu_data;
   cogl_renderer_egl->edpy = meta_render_device_get_egl_display (render_device);
 

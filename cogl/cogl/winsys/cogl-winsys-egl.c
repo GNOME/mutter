@@ -106,6 +106,8 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
   };
 
+G_DEFINE_ABSTRACT_TYPE (CoglWinsysEGL, cogl_winsys_egl, COGL_TYPE_WINSYS)
+
 static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char   *name)
@@ -191,13 +193,13 @@ cogl_display_egl_determine_attributes (CoglDisplay *display,
                                        EGLint      *attributes)
 {
   CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglWinsys *winsys = cogl_renderer_get_winsys_vtable (renderer);
   int i = 0;
 
   /* Let the platform add attributes first, including setting the
    * EGL_SURFACE_TYPE */
-  i = egl_renderer->platform_vtable->add_config_attributes (display,
-                                                            attributes);
+  i = COGL_WINSYS_EGL_GET_CLASS (winsys)->add_config_attributes (display,
+                                                                 attributes);
 
   attributes[i++] = EGL_STENCIL_SIZE;
   attributes[i++] = 2;
@@ -271,6 +273,8 @@ static void
 cleanup_context (CoglDisplay *display)
 {
   CoglRenderer *renderer = display->renderer;
+  CoglWinsys *winsys = cogl_renderer_get_winsys_vtable (renderer);
+  CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
   CoglDisplayEGL *egl_display = display->winsys;
   CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
 
@@ -283,8 +287,8 @@ cleanup_context (CoglDisplay *display)
       egl_display->egl_context = EGL_NO_CONTEXT;
     }
 
-  if (egl_renderer->platform_vtable->cleanup_context)
-    egl_renderer->platform_vtable->cleanup_context (display);
+  if (egl_class->cleanup_context)
+    egl_class->cleanup_context (display);
 }
 
 static gboolean
@@ -292,6 +296,8 @@ try_create_context (CoglDisplay *display,
                     GError **error)
 {
   CoglRenderer *renderer = display->renderer;
+  CoglWinsys *winsys = cogl_renderer_get_winsys_vtable (renderer);
+  CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
   CoglDisplayEGL *egl_display = display->winsys;
   CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
   EGLDisplay edpy;
@@ -315,10 +321,10 @@ try_create_context (CoglDisplay *display,
         COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
       egl_renderer->needs_config)
     {
-      if (!egl_renderer->platform_vtable->choose_config (display,
-                                                         cfg_attribs,
-                                                         &config,
-                                                         &config_error))
+      if (!egl_class->choose_config (display,
+                                     cfg_attribs,
+                                     &config,
+                                     &config_error))
         {
           g_set_error (error, COGL_WINSYS_ERROR,
                        COGL_WINSYS_ERROR_CREATE_CONTEXT,
@@ -402,8 +408,8 @@ try_create_context (CoglDisplay *display,
         g_message ("Obtained a high priority EGL context");
     }
 
-  if (egl_renderer->platform_vtable->context_created &&
-      !egl_renderer->platform_vtable->context_created (display, error))
+  if (egl_class->context_created &&
+      !egl_class->context_created (display, error))
     return FALSE;
 
   return TRUE;
@@ -432,9 +438,6 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
 
   cleanup_context (display);
 
-  if (egl_renderer->platform_vtable->display_destroy)
-    egl_renderer->platform_vtable->display_destroy (display);
-
   g_free (display->winsys);
   display->winsys = NULL;
 }
@@ -444,17 +447,11 @@ _cogl_winsys_display_setup (CoglDisplay *display,
                             GError **error)
 {
   CoglDisplayEGL *egl_display;
-  CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
 
   g_return_val_if_fail (display->winsys == NULL, FALSE);
 
   egl_display = g_new0 (CoglDisplayEGL, 1);
   display->winsys = egl_display;
-
-  if (egl_renderer->platform_vtable->display_setup &&
-      !egl_renderer->platform_vtable->display_setup (display, error))
-    goto error;
 
   if (!try_create_context (display, error))
     goto error;
@@ -507,22 +504,12 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
       COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_BUFFER_AGE, TRUE);
     }
 
-  if (egl_renderer->platform_vtable->context_init &&
-      !egl_renderer->platform_vtable->context_init (context, error))
-    return FALSE;
-
   return TRUE;
 }
 
 static void
 _cogl_winsys_context_deinit (CoglContext *context)
 {
-  CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
-
-  if (egl_renderer->platform_vtable->context_deinit)
-    egl_renderer->platform_vtable->context_deinit (context);
-
   g_free (context->winsys);
 }
 
@@ -560,40 +547,28 @@ _cogl_winsys_update_sync (CoglContext *context)
 }
 #endif
 
-static CoglWinsysVtable _cogl_winsys_vtable =
-  {
-    .constraints = COGL_RENDERER_CONSTRAINT_USES_EGL,
+static void
+cogl_winsys_egl_class_init (CoglWinsysEGLClass *klass)
+{
+  CoglWinsysClass *winsys_class = COGL_WINSYS_CLASS (klass);
 
-    /* This winsys is only used as a base for the EGL-platform
-       winsys's so it does not have an ID or a name */
-
-    .renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address,
-    .renderer_connect = _cogl_winsys_renderer_connect,
-    .renderer_bind_api = _cogl_winsys_renderer_bind_api,
-    .display_setup = _cogl_winsys_display_setup,
-    .display_destroy = _cogl_winsys_display_destroy,
-    .context_init = _cogl_winsys_context_init,
-    .context_deinit = _cogl_winsys_context_deinit,
+  winsys_class->renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address;
+  winsys_class->renderer_connect = _cogl_winsys_renderer_connect;
+  winsys_class->renderer_bind_api = _cogl_winsys_renderer_bind_api;
+  winsys_class->display_setup = _cogl_winsys_display_setup;
+  winsys_class->display_destroy = _cogl_winsys_display_destroy;
+  winsys_class->context_init = _cogl_winsys_context_init;
+  winsys_class->context_deinit = _cogl_winsys_context_deinit;
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
-    .get_sync_fd = _cogl_winsys_get_sync_fd,
-    .update_sync = _cogl_winsys_update_sync,
+  winsys_class->get_sync_fd = _cogl_winsys_get_sync_fd;
+  winsys_class->update_sync = _cogl_winsys_update_sync;
 #endif
-  };
+}
 
-/* XXX: we use a function because no doubt someone will complain
- * about using c99 member initializers because they aren't portable
- * to windows. We want to avoid having to rigidly follow the real
- * order of members since some members are #ifdefd and we'd have
- * to mirror the #ifdefing to add padding etc. For any winsys that
- * can assume the platform has a sane compiler then we can just use
- * c99 initializers for insane platforms they can initialize
- * the members by name in a function.
- */
-const CoglWinsysVtable *
-_cogl_winsys_egl_get_vtable (void)
+static void
+cogl_winsys_egl_init (CoglWinsysEGL *winsys)
 {
-  return &_cogl_winsys_vtable;
 }
 
 #ifdef EGL_KHR_image_base

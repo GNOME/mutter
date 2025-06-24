@@ -133,6 +133,8 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "cogl/winsys/cogl-winsys-glx-feature-functions.h"
   };
 
+G_DEFINE_FINAL_TYPE (CoglWinsysGlx, cogl_winsys_glx, COGL_TYPE_WINSYS);
+
 static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char   *name)
@@ -1349,49 +1351,38 @@ cogl_context_glx_get_current_drawable (CoglContext *context)
   return glx_context->current_drawable;
 }
 
-static CoglWinsysVtable _cogl_winsys_vtable =
-  {
-    .id = COGL_WINSYS_ID_GLX,
-    .name = "GLX",
-    .constraints = (COGL_RENDERER_CONSTRAINT_USES_X11 |
-                    COGL_RENDERER_CONSTRAINT_USES_XLIB),
-
-    .renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address,
-    .renderer_connect = _cogl_winsys_renderer_connect,
-    .renderer_disconnect = _cogl_xlib_renderer_disconnect,
-    .renderer_outputs_changed = _cogl_winsys_renderer_outputs_changed,
-    .renderer_bind_api = _cogl_winsys_renderer_bind_api,
-    .display_setup = _cogl_winsys_display_setup,
-    .display_destroy = _cogl_winsys_display_destroy,
-    .context_init = _cogl_winsys_context_init,
-    .context_deinit = _cogl_winsys_context_deinit,
-
-    /* X11 tfp support... */
-    /* XXX: instead of having a rather monolithic winsys vtable we could
-     * perhaps look for a way to separate these... */
-    .texture_pixmap_x11_create =
-      _cogl_winsys_texture_pixmap_x11_create,
-    .texture_pixmap_x11_free =
-      _cogl_winsys_texture_pixmap_x11_free,
-    .texture_pixmap_x11_update =
-      _cogl_winsys_texture_pixmap_x11_update,
-    .texture_pixmap_x11_damage_notify =
-      _cogl_winsys_texture_pixmap_x11_damage_notify,
-    .texture_pixmap_x11_get_texture =
-      _cogl_winsys_texture_pixmap_x11_get_texture,
-  };
-
-/* XXX: we use a function because no doubt someone will complain
- * about using c99 member initializers because they aren't portable
- * to windows. We want to avoid having to rigidly follow the real
- * order of members since some members are #ifdefd and we'd have
- * to mirror the #ifdefing to add padding etc. For any winsys that
- * can assume the platform has a sane compiler then we can just use
- * c99 initializers for insane platforms they can initialize
- * the members by name in a function.
- */
-COGL_EXPORT const CoglWinsysVtable *
-_cogl_winsys_glx_get_vtable (void)
+static void
+cogl_winsys_glx_class_init (CoglWinsysGlxClass *klass)
 {
-  return &_cogl_winsys_vtable;
+  CoglWinsysClass *winsys_class = COGL_WINSYS_CLASS (klass);
+
+  winsys_class->renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address;
+  winsys_class->renderer_connect = _cogl_winsys_renderer_connect;
+  winsys_class->renderer_disconnect = _cogl_xlib_renderer_disconnect;
+  winsys_class->renderer_outputs_changed = _cogl_winsys_renderer_outputs_changed;
+  winsys_class->renderer_bind_api = _cogl_winsys_renderer_bind_api;
+  winsys_class->display_setup = _cogl_winsys_display_setup;
+  winsys_class->display_destroy = _cogl_winsys_display_destroy;
+  winsys_class->context_init = _cogl_winsys_context_init;
+  winsys_class->context_deinit = _cogl_winsys_context_deinit;
+
+  /* X11 tfp support... */
+  /* XXX: instead of having a rather monolithic winsys vtable we could
+     * perhaps look for a way to separate these... */
+  winsys_class->texture_pixmap_x11_create = _cogl_winsys_texture_pixmap_x11_create;
+  winsys_class->texture_pixmap_x11_free = _cogl_winsys_texture_pixmap_x11_free;
+  winsys_class->texture_pixmap_x11_update = _cogl_winsys_texture_pixmap_x11_update;
+  winsys_class->texture_pixmap_x11_damage_notify = _cogl_winsys_texture_pixmap_x11_damage_notify;
+  winsys_class->texture_pixmap_x11_get_texture = _cogl_winsys_texture_pixmap_x11_get_texture;
+}
+
+CoglWinsysGLX *
+cogl_winsys_glx_new (void)
+{
+  return g_object_new (COGL_WINSYS_TYPE_GLX,
+                      "id", COGL_WINSYS_ID_GLX,
+                      "name", "GLX",
+                      "constraints", (COGL_RENDERER_CONSTRAINT_USES_X11 |
+                                      COGL_RENDERER_CONSTRAINT_USES_XLIB),
+                      NULL);
 }

@@ -258,7 +258,7 @@ struct _CoglContext
 #undef COGL_EXT_END
 };
 
-const CoglWinsysVtable *
+CoglWinsys *
 _cogl_context_get_winsys (CoglContext *context);
 
 /* Query the GL extensions and lookup the corresponding function

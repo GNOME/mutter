@@ -42,23 +42,16 @@
 
 G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
-static const CoglWinsysVtable *
-_cogl_display_get_winsys (CoglDisplay *display)
-{
-  return cogl_renderer_get_winsys_vtable (display->renderer);
-}
-
 static void
 cogl_display_dispose (GObject *object)
 {
   CoglDisplay *display = COGL_DISPLAY (object);
 
-  const CoglWinsysVtable *winsys;
-
   if (display->setup)
     {
-      winsys = _cogl_display_get_winsys (display);
-      winsys->display_destroy (display);
+      CoglWinsys *winsys = cogl_renderer_get_winsys_vtable (display->renderer);
+
+      COGL_WINSYS_GET_CLASS (winsys)->display_destroy (display);
       display->setup = FALSE;
     }
 
@@ -104,13 +97,13 @@ gboolean
 cogl_display_setup (CoglDisplay *display,
                     GError **error)
 {
-  const CoglWinsysVtable *winsys;
+  CoglWinsys *winsys;
 
   if (display->setup)
     return TRUE;
 
-  winsys = _cogl_display_get_winsys (display);
-  if (!winsys->display_setup (display, error))
+  winsys = cogl_renderer_get_winsys_vtable (display->renderer);
+  if (!COGL_WINSYS_GET_CLASS (winsys)->display_setup (display, error))
     return FALSE;
 
   display->setup = TRUE;

@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
+#include "cogl/cogl.h"
 #include "backends/native/meta-device-pool.h"
 
 struct _MetaDrmBufferDumb

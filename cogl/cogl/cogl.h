@@ -91,6 +91,9 @@
 #include "cogl/cogl-scanout.h"
 #include "cogl/cogl-graphene.h"
 
+#include "cogl/winsys/cogl-winsys.h"
+#include "cogl/winsys/cogl-onscreen-egl.h"
+
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we
  * define and undefine __COGL_H_INSIDE__ used to detect when internal

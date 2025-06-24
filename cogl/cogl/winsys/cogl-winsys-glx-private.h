@@ -30,8 +30,15 @@
 
 #pragma once
 
-COGL_EXPORT const CoglWinsysVtable *
-_cogl_winsys_glx_get_vtable (void);
+#include "cogl/winsys/cogl-winsys.h"
+
+G_DECLARE_FINAL_TYPE (CoglWinsysGlx,
+                      cogl_winsys_glx,
+                      COGL,
+                      WINSYS_GLX,
+                      CoglWinsys)
+
+#define COGL_TYPE_WINSYS_GLX (cogl_winsys_glx_get_type ())
 
 gboolean
 cogl_display_glx_find_fbconfig (CoglDisplay  *display,

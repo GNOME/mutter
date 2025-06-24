@@ -51,14 +51,18 @@ typedef enum /*< prefix=COGL_WINSYS_ERROR >*/
   COGL_WINSYS_ERROR_MAKE_CURRENT,
 } CoglWinsysError;
 
-typedef struct _CoglWinsysVtable
+COGL_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CoglWinsys,
+                          cogl_winsys,
+                          COGL,
+                          WINSYS,
+                          GObject)
+
+#define COGL_TYPE_WINSYS (cogl_winsys_get_type ())
+
+typedef struct _CoglWinsysClass
 {
-  CoglWinsysID id;
-  CoglRendererConstraint constraints;
-
-  const char *name;
-
-  /* Required functions */
+  GObjectClass parent_class;
 
   GCallback
   (*renderer_get_proc_address) (CoglRenderer *renderer,
@@ -139,6 +143,10 @@ typedef struct _CoglWinsysVtable
   int
   (*get_sync_fd) (CoglContext *ctx);
 
-} CoglWinsysVtable;
+} CoglWinsysClass;
 
-typedef const CoglWinsysVtable *(*CoglWinsysVtableGetter) (void);
+CoglWinsysID cogl_winsys_get_id (CoglWinsys *winsys);
+
+CoglRendererConstraint cogl_winsys_get_constraints (CoglWinsys *winsys);
+
+const char * cogl_winsys_get_name (CoglWinsys *winsys);
