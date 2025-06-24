@@ -968,7 +968,6 @@ handle_input_xevent (MetaX11Display *x11_display,
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
-          !meta_is_wayland_compositor () &&
           enter_event->sourceid != enter_event->deviceid)
         {
           meta_display_handle_window_enter (display,
@@ -1652,10 +1651,9 @@ handle_other_xevent (MetaX11Display *x11_display,
           else if (event->xclient.message_type ==
                    x11_display->atom__XWAYLAND_MAY_GRAB_KEYBOARD)
             {
-              if (meta_is_wayland_compositor ())
-                g_object_set (G_OBJECT (window),
-                              "xwayland-may-grab-keyboard", (event->xclient.data.l[0] != 0),
-                              NULL);
+              g_object_set (G_OBJECT (window),
+                            "xwayland-may-grab-keyboard", (event->xclient.data.l[0] != 0),
+                            NULL);
             }
           else
 #endif
@@ -1892,8 +1890,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 #ifdef HAVE_XWAYLAND
   wayland_compositor = meta_context_get_wayland_compositor (context);
 
-  if (meta_is_wayland_compositor () &&
-      meta_xwayland_manager_handle_xevent (&wayland_compositor->xwayland_manager,
+  if (meta_xwayland_manager_handle_xevent (&wayland_compositor->xwayland_manager,
                                            event))
     {
       bypass_compositor = TRUE;
