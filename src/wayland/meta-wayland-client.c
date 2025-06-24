@@ -20,7 +20,7 @@
 
 /**
  * MetaWaylandClient:
- * 
+ *
  * A class that allows to launch a trusted client and detect if an specific
  * Wayland window belongs to it.
  */
@@ -138,13 +138,6 @@ meta_wayland_client_new_indirect (MetaContext  *context,
 {
   MetaWaylandClient *client;
 
-  if (!meta_is_wayland_compositor ())
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
-                   "MetaWaylandClient can be used only with Wayland.");
-      return NULL;
-    }
-
   client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
   client->context = context;
 
@@ -171,15 +164,6 @@ meta_wayland_client_new (MetaContext          *context,
   MetaWaylandClient *client;
 
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-  if (!meta_is_wayland_compositor ())
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_NOT_SUPPORTED,
-                   "MetaWaylandClient can be used only with Wayland.");
-      return NULL;
-    }
 
   if (launcher == NULL)
     {
@@ -420,7 +404,6 @@ meta_wayland_client_owns_window (MetaWaylandClient *client,
 {
   MetaWaylandSurface *surface;
 
-  g_return_val_if_fail (meta_is_wayland_compositor (), FALSE);
   g_return_val_if_fail (client->subprocess.subprocess != NULL, FALSE);
   g_return_val_if_fail (client->subprocess.process_running, FALSE);
 

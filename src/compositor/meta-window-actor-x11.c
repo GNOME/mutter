@@ -289,8 +289,6 @@ meta_window_actor_x11_assign_surface_actor (MetaWindowActor  *actor,
   prev_surface_actor = meta_window_actor_get_surface (actor);
   if (prev_surface_actor)
     {
-      g_warn_if_fail (meta_is_wayland_compositor ());
-
       g_clear_signal_handler (&actor_x11->size_changed_id, prev_surface_actor);
       clutter_actor_remove_child (CLUTTER_ACTOR (actor),
                                   CLUTTER_ACTOR (prev_surface_actor));
