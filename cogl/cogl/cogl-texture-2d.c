@@ -473,10 +473,6 @@ cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
   CoglTextureLoader *loader;
   CoglTexture *tex;
 
-  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
-                        COGL_RENDERER_CONSTRAINT_USES_EGL,
-                        NULL);
-
   g_return_val_if_fail (_cogl_has_private_feature
                         (ctx,
                         COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE),
