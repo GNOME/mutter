@@ -45,7 +45,7 @@
 #include "core/window-private.h"
 #include "meta/util.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
@@ -511,7 +511,7 @@ copy_stack (GArray *stack)
   return copy;
 }
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 static void
 query_xserver_stack (MetaDisplay      *display,
                      MetaStackTracker *tracker)
@@ -573,7 +573,7 @@ drop_x11_windows (MetaDisplay      *display,
       l = next;
     }
 }
-#endif /* HAVE_X11_CLIENT */
+#endif /* HAVE_XWAYLAND */
 
 static void
 on_stack_changed (MetaStack        *stack,
@@ -583,7 +583,7 @@ on_stack_changed (MetaStack        *stack,
   GList *l;
   GArray *hidden_stack_ids;
   GList *sorted;
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrame *frame;
 #endif
 
@@ -609,7 +609,7 @@ on_stack_changed (MetaStack        *stack,
       meta_topic (META_DEBUG_STACK, "  %u:%d - %s ",
                   w->layer, w->stack_position, w->desc);
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
         {
           frame = meta_window_x11_get_frame (w);
@@ -632,7 +632,7 @@ on_stack_changed (MetaStack        *stack,
       g_array_append_val (all_root_children_stacked, stack_id);
     }
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   if (tracker->display->x11_display)
     {
       uint64_t guard_window_id;
@@ -673,7 +673,7 @@ meta_stack_tracker_new (MetaStack *stack)
   tracker->verified_stack = g_array_new (FALSE, FALSE, sizeof (guint64));
   tracker->unverified_predictions = g_queue_new ();
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   g_signal_connect (tracker->display,
                     "x11-display-setup",
                     G_CALLBACK (query_xserver_stack),
@@ -712,7 +712,7 @@ meta_stack_tracker_free (MetaStackTracker *tracker)
   g_queue_free (tracker->unverified_predictions);
   tracker->unverified_predictions = NULL;
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   g_signal_handlers_disconnect_by_func (tracker->display,
                                         (gpointer)query_xserver_stack,
                                         tracker);
@@ -821,7 +821,7 @@ meta_stack_tracker_record_lower_below (MetaStackTracker *tracker,
   stack_tracker_apply_prediction (tracker, op);
 }
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 static void
 stack_tracker_event_received (MetaStackTracker *tracker,
 			      MetaStackOp      *op)
@@ -962,13 +962,13 @@ meta_stack_tracker_configure_event (MetaStackTracker    *tracker,
 
   stack_tracker_event_received (tracker, &op);
 }
-#endif /* HAVE_X11_CLIENT */
+#endif /* HAVE_XWAYLAND */
 
 static gboolean
 meta_stack_tracker_is_guard_window (MetaStackTracker *tracker,
                                     uint64_t          stack_id)
 {
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaX11Display *x11_display = tracker->display->x11_display;
 
   if (!x11_display)
@@ -1045,7 +1045,7 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
   GList *meta_windows;
   int n_windows;
   int i;
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaFrame *frame;
 #endif
 
@@ -1067,7 +1067,7 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
     {
       guint64 window = windows[i];
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
       if (META_STACK_ID_IS_X11 (window))
         {
           MetaX11Display *x11_display = tracker->display->x11_display;
@@ -1150,7 +1150,7 @@ meta_stack_tracker_queue_sync_stack (MetaStackTracker *tracker)
  * otherwise it searches downwards looking for the nearest X window.
  *
  * If no X based sibling could be found return NULL. */
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 static Window
 find_x11_sibling_downwards (MetaStackTracker *tracker,
                             guint64           sibling)
@@ -1216,7 +1216,7 @@ meta_stack_tracker_lower_below (MetaStackTracker *tracker,
                                 guint64           sibling)
 {
   gulong serial = 0;
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaX11Display *x11_display = tracker->display->x11_display;
 
   if (META_STACK_ID_IS_X11 (window))
@@ -1253,7 +1253,7 @@ meta_stack_tracker_raise_above (MetaStackTracker *tracker,
                                 guint64           sibling)
 {
   gulong serial = 0;
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
   MetaX11Display *x11_display = tracker->display->x11_display;
 
   if (META_STACK_ID_IS_X11 (window))

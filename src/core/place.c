@@ -37,7 +37,7 @@
 #include "meta/prefs.h"
 #include "meta/workspace.h"
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "x11/window-x11-private.h"
 #endif
 
@@ -486,7 +486,7 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow    *window,
 
   if (flags & META_PLACE_FLAG_DENIED_FOCUS_AND_NOT_TRANSIENT &&
       window->type == META_WINDOW_MODAL_DIALOG &&
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
       meta_window_x11_same_application (window, focus_window) &&
 #endif
       window_overlaps_focus_window (window, *x, *y))

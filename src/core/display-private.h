@@ -40,7 +40,7 @@
 #include "meta/common.h"
 #include "meta/meta-selection.h"
 #include "meta/prefs.h"
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include "meta/meta-x11-types.h"
 #endif
 
@@ -63,7 +63,7 @@ typedef void (* MetaDisplayWindowFunc) (MetaWindow *window,
 
 
 /* To avoid ifdefing MetaX11Display usage when built without X11 support */
-#ifndef HAVE_X11_CLIENT
+#ifndef HAVE_XWAYLAND
 typedef struct _MetaX11Display MetaX11Display;
 #endif
 
@@ -185,7 +185,7 @@ MetaDisplay * meta_display_new (MetaContext  *context,
                                 GVariant     *plugin_options,
                                 GError      **error);
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 void meta_display_manage_all_xwindows (MetaDisplay *display);
 #endif
 

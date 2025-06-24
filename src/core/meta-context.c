@@ -30,13 +30,10 @@
 #include "core/prefs-private.h"
 #include "core/util-private.h"
 #include "meta/meta-enums.h"
+#include "wayland/meta-wayland.h"
 
 #ifdef HAVE_PROFILER
 #include "core/meta-profiler.h"
-#endif
-
-#ifdef HAVE_WAYLAND
-#include "wayland/meta-wayland.h"
 #endif
 
 enum
@@ -89,9 +86,7 @@ typedef struct _MetaContextPrivate
 
   MetaBackend *backend;
   MetaDisplay *display;
-#ifdef HAVE_WAYLAND
   MetaWaylandCompositor *wayland_compositor;
-#endif
 
   GMainLoop *main_loop;
   GError *termination_error;
@@ -104,9 +99,7 @@ typedef struct _MetaContextPrivate
   MetaProfiler *profiler;
 #endif
 
-#ifdef HAVE_WAYLAND
   MetaServiceChannel *service_channel;
-#endif
 
   MetaDebugControl *debug_control;
 } MetaContextPrivate;
@@ -281,7 +274,6 @@ meta_context_get_display (MetaContext *context)
   return priv->display;
 }
 
-#ifdef HAVE_WAYLAND
 /**
  * meta_context_get_wayland_compositor:
  * @context: The #MetaContext
@@ -305,7 +297,6 @@ meta_context_get_service_channel (MetaContext *context)
 
   return priv->service_channel;
 }
-#endif
 
 MetaX11DisplayPolicy
 meta_context_get_x11_display_policy (MetaContext *context)
@@ -475,9 +466,7 @@ meta_context_start (MetaContext  *context,
 
   meta_prefs_init ();
 
-#ifdef HAVE_WAYLAND
   priv->wayland_compositor = meta_wayland_compositor_new (context);
-#endif
 
   plugin_options = g_steal_pointer (&priv->plugin_options),
   priv->display = meta_display_new (context, plugin_options, error);
@@ -487,9 +476,7 @@ meta_context_start (MetaContext  *context,
       return FALSE;
     }
 
-#ifdef HAVE_WAYLAND
   priv->service_channel = meta_service_channel_new (context);
-#endif
 
   priv->main_loop = g_main_loop_new (NULL, FALSE);
 
@@ -811,20 +798,16 @@ meta_context_dispose (GObject *object)
 
   g_signal_emit (context, signals[PREPARE_SHUTDOWN], 0);
 
-#ifdef HAVE_WAYLAND
   g_clear_object (&priv->service_channel);
 
   if (priv->wayland_compositor)
     meta_wayland_compositor_prepare_shutdown (priv->wayland_compositor);
-#endif
 
   if (priv->display)
     meta_display_close (priv->display, META_CURRENT_TIME);
   g_clear_object (&priv->display);
 
-#ifdef HAVE_WAYLAND
   g_clear_object (&priv->wayland_compositor);
-#endif
 
   g_clear_pointer (&priv->backend, meta_backend_destroy);
 

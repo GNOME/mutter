@@ -65,10 +65,8 @@ void meta_context_set_unsafe_mode (MetaContext *context,
 
 gboolean meta_context_get_unsafe_mode (MetaContext *context);
 
-#ifdef HAVE_WAYLAND
 META_EXPORT_TEST
 MetaServiceChannel * meta_context_get_service_channel (MetaContext *context);
-#endif
 
 MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
 

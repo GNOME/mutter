@@ -23,11 +23,9 @@
 
 #include "backends/meta-backend-private.h"
 
-#ifdef HAVE_WAYLAND
 void meta_dnd_wayland_handle_begin_modal (MetaCompositor *compositor);
 
 void meta_dnd_wayland_handle_end_modal (MetaCompositor *compositor);
 
 void meta_dnd_wayland_on_motion_event (MetaDnd            *dnd,
                                        const ClutterEvent *event);
-#endif

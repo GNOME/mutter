@@ -26,13 +26,8 @@ keybinding_xml_files = [
   '50-mutter-navigation.xml',
   '50-mutter-system.xml',
   '50-mutter-windows.xml',
+  '50-mutter-wayland.xml',
 ]
-
-if have_wayland
-  keybinding_xml_files += [
-    '50-mutter-wayland.xml',
-  ]
-endif
 
 install_data(keybinding_xml_files,
   install_dir: gnome_keybindings_keysdir,
