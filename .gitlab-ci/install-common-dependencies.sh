@@ -164,3 +164,11 @@ then
       https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
       49.beta
 fi
+
+if ! pkgconf --atleast-version 1.5.0 libei-1.0
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.freedesktop.org/libinput/libei.git \
+      1.5.0
+fi

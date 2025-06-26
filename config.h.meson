@@ -141,3 +141,6 @@
 
 /* Building with font rendering integration support */
 #mesondefine HAVE_FONTS
+
+/* Whether libei has eis_event_ref() */
+#mesondefine HAVE_EIS_EVENT_REF

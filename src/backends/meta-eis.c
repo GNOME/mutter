@@ -27,6 +27,12 @@
 #include "clutter/clutter-mutter.h"
 #include "meta/util.h"
 
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-input-thread.h"
+#include "backends/native/meta-seat-native.h"
+#endif
+
 enum
 {
   VIEWPORTS_CHANGED,
@@ -59,6 +65,8 @@ struct _MetaEis
   GList *viewports;
 
   GHashTable *eis_clients; /* eis_client => MetaEisClient */
+
+  GCancellable *cancellable;
 };
 
 G_DEFINE_TYPE (MetaEis, meta_eis, G_TYPE_OBJECT)
@@ -89,6 +97,41 @@ meta_eis_add_client (MetaEis           *eis,
                        client);
 }
 
+#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF)
+static gboolean
+sync_callback_in_main (gpointer user_data)
+{
+  GTask *task = G_TASK (user_data);
+
+  if (g_task_return_error_if_cancelled (task))
+    return G_SOURCE_REMOVE;
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+sync_callback_in_impl (GTask *task)
+{
+  MetaEis *eis;
+  ClutterSeat *seat;
+  MetaSeatNative *seat_native;
+
+  if (g_task_return_error_if_cancelled (task))
+    return G_SOURCE_REMOVE;
+
+  eis = g_task_get_source_object (task);
+  seat = meta_backend_get_default_seat (eis->backend);
+  seat_native = META_SEAT_NATIVE (seat);
+
+  meta_seat_impl_queue_main_thread_idle (seat_native->impl,
+                                         sync_callback_in_main,
+                                         g_object_ref (task), g_object_unref);
+
+  return G_SOURCE_REMOVE;
+}
+#endif /* defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF) */
+
 static void
 process_event (MetaEis          *eis,
                struct eis_event *event)
@@ -104,6 +147,28 @@ process_event (MetaEis          *eis,
       break;
     case EIS_EVENT_CLIENT_DISCONNECT:
       meta_eis_remove_client (eis, eis_client);
+      break;
+    case EIS_EVENT_SYNC:
+#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF)
+      if (META_IS_BACKEND_NATIVE (eis->backend))
+        {
+          ClutterSeat *seat = meta_backend_get_default_seat (eis->backend);
+          MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+          g_autoptr (GTask) task = NULL;
+
+          /*
+           * The sync is considered done when the last reference of the sync
+           * event is released, so pass it via the input thread via a GTask to
+           * make sure queued input events are processed before releasing it.
+           */
+          task = g_task_new (eis, eis->cancellable, NULL, NULL);
+          g_task_set_task_data (task,
+                                eis_event_ref (event),
+                                (GDestroyNotify) eis_event_unref);
+          meta_seat_impl_run_input_task (seat_native->impl, task,
+                                         (GSourceFunc) sync_callback_in_impl);
+        }
+#endif /* defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF) */
       break;
     default:
       client = g_hash_table_lookup (eis->eis_clients, eis_client);
@@ -279,6 +344,7 @@ meta_eis_init (MetaEis *eis)
   eis->eis_clients = g_hash_table_new_full (g_direct_hash, g_direct_equal,
                                             (GDestroyNotify) eis_client_unref,
                                             (GDestroyNotify) g_object_unref);
+  eis->cancellable = g_cancellable_new ();
 }
 
 static void
@@ -286,6 +352,8 @@ meta_eis_dispose (GObject *object)
 {
   MetaEis *eis = META_EIS (object);
 
+  g_cancellable_cancel (eis->cancellable);
+  g_clear_object (&eis->cancellable);
   g_clear_pointer (&eis->viewports, g_list_free);
   g_clear_pointer (&eis->event_source, meta_event_source_free);
   g_clear_pointer (&eis->eis, eis_unref);
