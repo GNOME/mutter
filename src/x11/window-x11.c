@@ -47,17 +47,13 @@
 #include "meta/meta-later.h"
 #include "meta/prefs.h"
 #include "mtk/mtk-x11.h"
-
-#ifdef HAVE_XWAYLAND
-#include "wayland/meta-window-xwayland.h"
-#endif
-
 #include "x11/meta-sync-counter.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
 #include "x11/meta-x11-group-private.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
+#include "wayland/meta-window-xwayland.h"
 
 #define TAKE_FOCUS_FALLBACK_DELAY_MS 150
 
@@ -3119,7 +3115,6 @@ handle_net_restack_window (MetaDisplay *display,
     }
 }
 
-#ifdef HAVE_XWAYLAND
 typedef struct {
   ClutterSprite *sprite;
   graphene_point_t device_point;
@@ -3194,7 +3189,6 @@ guess_nearest_device (MetaWindow            *window,
 
   return data.sprite != NULL;
 }
-#endif /* HAVE_XWAYLAND */
 
 gboolean
 meta_window_x11_client_message (MetaWindow *window,

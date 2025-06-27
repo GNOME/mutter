@@ -64,10 +64,7 @@
 #include "x11/window-props.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
-
-#ifdef HAVE_XWAYLAND
 #include "wayland/meta-xwayland-private.h"
-#endif
 
 #include "meta-dbus-x11.h"
 
@@ -140,14 +137,12 @@ stage_to_protocol (MetaX11Display *x11_display,
   MetaContext *context = meta_display_get_context (display);
   int scale = 1;
 
-#ifdef HAVE_XWAYLAND
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager =
     &wayland_compositor->xwayland_manager;
 
   scale = meta_xwayland_get_effective_scale (xwayland_manager);
-#endif
 
   if (protocol_x)
     *protocol_x = stage_x * scale;
@@ -206,17 +201,12 @@ update_ui_scaling_factor (MetaX11Display *x11_display)
     meta_x11_display_get_instance_private (x11_display);
   MetaBackend *backend = backend_from_x11_display (x11_display);
   MetaContext *context = meta_backend_get_context (backend);
-  int ui_scaling_factor = 1;
-
-
-#ifdef HAVE_XWAYLAND
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager =
     &wayland_compositor->xwayland_manager;
-
-  ui_scaling_factor = meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
-#endif
+  int ui_scaling_factor =
+    meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
 
   meta_dbus_x11_set_ui_scaling_factor (priv->dbus_api, ui_scaling_factor);
 }
@@ -1122,7 +1112,6 @@ set_work_area_hint (MetaDisplay    *display,
 static const char *
 get_display_name (MetaDisplay *display)
 {
-#ifdef HAVE_XWAYLAND
   MetaContext *context = meta_display_get_context (display);
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (context);
@@ -1130,7 +1119,6 @@ get_display_name (MetaDisplay *display)
   if (compositor)
     return meta_wayland_get_private_xwayland_display_name (compositor);
   else
-#endif
     return g_getenv ("DISPLAY");
 }
 
@@ -1291,6 +1279,8 @@ meta_x11_display_new (MetaDisplay  *display,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
   g_autoptr (MetaX11Display) x11_display = NULL;
   Display *xdisplay;
   Screen *xscreen;
@@ -1314,12 +1304,7 @@ meta_x11_display_new (MetaDisplay  *display,
   if (!xdisplay)
     return NULL;
 
-#ifdef HAVE_XWAYLAND
-  MetaWaylandCompositor *compositor =
-    meta_context_get_wayland_compositor (context);
-
   meta_xwayland_setup_xdisplay (&compositor->xwayland_manager, xdisplay);
-#endif
 
   number = DefaultScreen (xdisplay);
 
@@ -1774,18 +1759,14 @@ update_cursor_theme (MetaX11Display *x11_display)
 {
   MetaBackend *backend = backend_from_x11_display (x11_display);
   MetaContext *context = meta_backend_get_context (backend);
-  int scale = 1;
-  int size;
-  const char *theme;
-
-#ifdef HAVE_XWAYLAND
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager =
     &wayland_compositor->xwayland_manager;
-
-  scale = meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
-#endif
+  int scale =
+    meta_xwayland_get_x11_ui_scaling_factor (xwayland_manager);
+  int size;
+  const char *theme;
 
   size = meta_prefs_get_cursor_size () * scale;
 
@@ -2032,14 +2013,12 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
 
   if (focus_window)
     data[0] = meta_window_x11_get_xwindow (focus_window);
-#ifdef HAVE_XWAYLAND
   else if (x11_display->focus_xwindow)
     /* On Wayland, when a Wayland window is focused, indicate that an
      * actual window is focused rather than None, as None is otherwise
      * also used during transient focus changes.
      */
     data[0] = x11_display->no_focus_window;
-#endif
   else
     data[0] = None;
 

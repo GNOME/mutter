@@ -51,12 +51,9 @@
 #include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
 #include "x11/xprops.h"
-
-#ifdef HAVE_XWAYLAND
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland.h"
-#endif
 
 static XIEvent *
 get_input_event (MetaX11Display *x11_display,
@@ -1608,7 +1605,6 @@ handle_other_xevent (MetaX11Display *x11_display,
     case ClientMessage:
       if (window)
         {
-#ifdef HAVE_XWAYLAND
           if (event->xclient.message_type == x11_display->atom_WL_SURFACE_ID)
             {
               guint32 surface_id = event->xclient.data.l[0];
@@ -1622,7 +1618,6 @@ handle_other_xevent (MetaX11Display *x11_display,
                             NULL);
             }
           else
-#endif
             meta_window_x11_client_message (window, event);
         }
       else
@@ -1831,9 +1826,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   MetaContext *context = meta_display_get_context (display);
   gboolean bypass_compositor G_GNUC_UNUSED = FALSE;
   XIEvent *input_event;
-#ifdef HAVE_XWAYLAND
   MetaWaylandCompositor *wayland_compositor;
-#endif
 
   COGL_TRACE_BEGIN_SCOPED (MetaX11DisplayHandleXevent,
                            "Meta::X11Display::handle_xevent()");
@@ -1853,7 +1846,6 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
       goto out;
     }
 
-#ifdef HAVE_XWAYLAND
   wayland_compositor = meta_context_get_wayland_compositor (context);
 
   if (meta_xwayland_manager_handle_xevent (&wayland_compositor->xwayland_manager,
@@ -1862,7 +1854,6 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
       bypass_compositor = TRUE;
       goto out;
     }
-#endif
 
   if (process_selection_event (x11_display, event))
     {
