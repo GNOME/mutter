@@ -1,3 +1,37 @@
+49.alpha.1
+==========
+* Add speed limit to Visual alerts [Sergio; !4487]
+* Make logical monitors more persistent [Jonas; !4434]
+* Bias less strongly towards smaller scaling factors [Sebastian W.; !4490]
+* Add support for 10/12/16 bit SW decoder YUV formats [Robert; !4348]
+* Fix behavior of windows that get activated before mapped [Alessandro; !4462]
+* Expose LogicalMonitors in public API [Sebastian W.; !4493]
+* Fix incorrect cursor over Xwayland clients [Carlos; !4433]
+* Separate trackpoint speed settings from mouse [Carlos; !3875]
+* Fix auto-maximized wayland windows [Jonas, Sebastian W.; !4426]
+* Fix hi-res scroll events getting converted to flip-flopping discrete events
+  [Peter; !4459]
+* Avoid creating a frame for the root window [Rémi; !4472]
+* Apply touchpad acceleration profile on startup [Sebastian K.; !4504]
+* Add (un)inhibit API to control cursor visibility
+  [Carlos, Jérôme, Sebastian; !4428]
+* Fall back to updating activation environment ourselves [Florian; !4460]
+* Fixed crashes [Daniel, Jonas; !4303, !4500]
+* Misc. bug fixes and cleanups [Alessandro, Sebastian W., Florian, Corentin,
+  Daniel, Jonas, Bilal, Lukáš, Rémi, Michel, Nathan; !4492, !4479, !4494,
+  !4496, !4495, !4356] !4498, !4501, !4502, !4477, !4444, !4445, !4447, !4442,
+  !4452, !4461, !4486, !3984]
+
+Contributors:
+  Alessandro Astone, Rémi Bernon, Jérôme Brenier, Sergio Costas Rodriguez,
+  Michel Dänzer, Bilal Elmoussaoui, Carlos Garnacho, Peter Hutterer,
+  Sebastian Keller, Robert Mader, Florian Müllner, Corentin Noël,
+  Nathan Pratta Teodosio, Lukáš Tyrychtr, Daniel van Vugt, Sebastian Wick,
+  Jonas Ådahl
+
+Translators:
+  Emin Tufan Çetin [tr], Martin [sl], Vasil Pupkin [be]
+
 49.alpha.0
 ==========
 * Make passive grabs a MetaBackendX11/MetaCompositorX11 detail [Carlos; !4191]
