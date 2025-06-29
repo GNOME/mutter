@@ -1,3 +1,21 @@
+48.4
+====
+* Unlink outputs from unused connectors in update_outputs [Michel; !4474]
+* Add speed limit to Visual alerts [Sergio; !4487]
+* Fix behavior of windows that get activated before mapped [Alessandro; !4462]
+* Fix incorrect cursor over Xwayland clients [Carlos; !4433]
+* Fix hi-res scroll events getting converted to flip-flopping discrete events
+  [Peter; !4459]
+* Fixed crash [Daniel; !4303]
+* Misc. bug fixes and cleanups [Alessandro, Jonas, Jordan, Alessandro, Corentin,
+  Daniel, Lukáš, Rémi, Michel; !4481, !4482, !4485, !4492, !4496, !4495, !4444,
+  !4447, !4442, !4452]
+
+Contributors:
+  Alessandro Astone, Rémi Bernon, Sergio Costas Rodriguez, Michel Dänzer,
+  Carlos Garnacho, Peter Hutterer, Corentin Noël, Jordan Petridis,
+  Lukáš Tyrychtr, Daniel van Vugt, Jonas Ådahl
+
 48.3.1
 ======
 * Fix Xwayland windows becoming unresponsive to events [Jonas; !4475]
