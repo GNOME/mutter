@@ -4,6 +4,6 @@ Comment=Mutter Development Kit
 Exec=@libexecdir@/mutter-devkit
 Icon=org.gnome.Mutter.Mdk
 Type=Application
-Categories=GNOME;
+Categories=GNOME;Development
 Keywords=mutter;emulator;debug
 NoDisplay=true
