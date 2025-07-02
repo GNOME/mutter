@@ -181,8 +181,8 @@ meta_window_drag_finalize (GObject *object)
   MetaWindowDrag *window_drag = META_WINDOW_DRAG (object);
 
   hide_tile_preview (window_drag);
-  g_clear_pointer (&window_drag->handler, clutter_actor_destroy);
   g_clear_object (&window_drag->grab);
+  g_clear_pointer (&window_drag->handler, clutter_actor_destroy);
   g_clear_object (&window_drag->effective_grab_window);
 
   G_OBJECT_CLASS (meta_window_drag_parent_class)->finalize (object);
