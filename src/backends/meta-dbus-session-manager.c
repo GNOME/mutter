@@ -52,8 +52,6 @@ static GParamSpec *obj_props[N_PROPS];
 
 typedef struct _MetaDbusSessionManagerPrivate
 {
-  GObject parent;
-
   MetaBackend *backend;
   char *service_name;
   char *service_path;
