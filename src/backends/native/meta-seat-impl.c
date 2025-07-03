@@ -330,6 +330,32 @@ meta_seat_impl_release_stylus_state (MetaSeatImpl       *seat_impl,
 }
 
 static void
+meta_seat_impl_get_onscreen_coords_for_source_device (MetaSeatImpl       *seat_impl,
+                                                      ClutterInputDevice *device,
+                                                      graphene_point_t   *coords)
+{
+  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+
+  if (device)
+    {
+      ClutterInputDeviceType device_type =
+        clutter_input_device_get_device_type (device);
+
+      g_assert (device_type != CLUTTER_TOUCHSCREEN_DEVICE &&
+                device_type != CLUTTER_KEYBOARD_DEVICE &&
+                device_type != CLUTTER_PAD_DEVICE);
+
+      if (device_type == CLUTTER_TABLET_DEVICE)
+        {
+          meta_seat_impl_lookup_stylus_state (seat_impl, device, coords);
+          return;
+        }
+    }
+
+  *coords = priv->pointer_state;
+}
+
+static void
 meta_seat_impl_clear_repeat_source (MetaSeatImpl *seat_impl)
 {
   if (seat_impl->repeat_source)
@@ -833,42 +859,39 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                                                float               dy_unaccel,
                                                double             *axes)
 {
-  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaInputDeviceNative *device_native =
     META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event;
   ClutterModifierType modifiers;
-  graphene_point_t cur, new_coords;
+  graphene_point_t coords, new_coords;
   float dx_constrained, dy_constrained;
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-    {
-      meta_seat_impl_lookup_stylus_state (seat_impl, input_device, &cur);
-      modifiers = device_native->button_state;
-    }
+    modifiers = device_native->button_state;
   else
-    {
-      cur = priv->pointer_state;
-      modifiers = seat_impl->button_state;
-    }
+    modifiers = seat_impl->button_state;
+
+  meta_seat_impl_get_onscreen_coords_for_source_device (seat_impl,
+                                                        input_device,
+                                                        &coords);
 
   meta_seat_impl_filter_relative_motion (seat_impl,
                                          input_device,
-                                         cur.x,
-                                         cur.y,
+                                         coords.x,
+                                         coords.y,
                                          &dx,
                                          &dy);
 
-  new_coords = GRAPHENE_POINT_INIT (cur.x + dx, cur.y + dy);
+  new_coords = GRAPHENE_POINT_INIT (coords.x + dx, coords.y + dy);
   constrain_coordinates (seat_impl, input_device,
                          time_us,
-                         cur,
+                         coords,
                          &new_coords);
 
   modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
-  dx_constrained = new_coords.x - cur.x;
-  dy_constrained = new_coords.y - cur.y;
+  dx_constrained = new_coords.x - coords.x;
+  dy_constrained = new_coords.y - coords.y;
 
   update_device_coords_in_impl (seat_impl, input_device, new_coords);
 
@@ -905,15 +928,14 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
     META_INPUT_DEVICE_NATIVE (input_device);
   ClutterModifierType modifiers;
   ClutterEvent *event;
-  graphene_point_t cur, new_coords;
+  graphene_point_t coords, new_coords;
 
-  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-    meta_seat_impl_lookup_stylus_state (seat_impl, input_device, &cur);
-  else
-    cur = priv->pointer_state;
+  meta_seat_impl_get_onscreen_coords_for_source_device (seat_impl,
+                                                        input_device,
+                                                        &coords);
 
   new_coords = GRAPHENE_POINT_INIT (x, y);
-  constrain_coordinates (seat_impl, input_device, time_us, cur, &new_coords);
+  constrain_coordinates (seat_impl, input_device, time_us, coords, &new_coords);
   update_device_coords_in_impl (seat_impl, input_device, new_coords);
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
@@ -948,7 +970,6 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
                                       uint32_t            button,
                                       uint32_t            state)
 {
-  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers, *button_state;
@@ -1034,10 +1055,9 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
         *button_state &= ~maskmap[button_nr - 1];
     }
 
-  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
-    meta_seat_impl_lookup_stylus_state (seat_impl, input_device, &coords);
-  else
-    coords = priv->pointer_state;
+  meta_seat_impl_get_onscreen_coords_for_source_device (seat_impl,
+                                                        input_device,
+                                                        &coords);
 
   modifiers =
     xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
@@ -3475,7 +3495,6 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                             graphene_point_t     *coords,
                             ClutterModifierType  *modifiers)
 {
-  MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   gboolean retval = FALSE;
   ClutterModifierType mods = 0;
@@ -3507,13 +3526,13 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
     {
       if (coords)
         {
-          if (device && clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
-            meta_seat_impl_lookup_stylus_state (seat_impl, device, coords);
-          else
-            *coords = priv->pointer_state;
+          meta_seat_impl_get_onscreen_coords_for_source_device (seat_impl,
+                                                                device,
+                                                                coords);
         }
 
-      if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
+      if (device &&
+          clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
         mods = device_native->button_state;
       else
         mods = seat_impl->button_state;
