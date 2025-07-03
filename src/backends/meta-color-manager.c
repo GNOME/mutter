@@ -48,11 +48,14 @@
 #include "backends/meta-color-manager-private.h"
 
 #include "backends/meta-backend-types.h"
+#include "backends/meta-color-calibration-session.h"
 #include "backends/meta-color-device.h"
 #include "backends/meta-color-store.h"
+#include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-monitor-private.h"
 
+#include "meta-dbus-color-manager.h"
 #include "meta-dbus-gsd-color.h"
 #include "meta-dbus-gsd-power-screen.h"
 
@@ -102,6 +105,9 @@ typedef struct _MetaColorManagerPrivate
    * used to shift the screen towards red for Night Light.
    */
   unsigned int temperature;
+
+  MetaDBusColorManager *api;
+  MetaDbusSessionManager *session_manager;
 } MetaColorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaColorManager, meta_color_manager, G_TYPE_OBJECT)
@@ -391,6 +397,58 @@ on_gsd_power_screen_ready (GObject      *source_object,
   update_device_properties (color_manager);
 }
 
+static gboolean
+handle_calibrate_monitor (MetaDBusColorManager  *api,
+                          GDBusMethodInvocation *invocation,
+                          const char            *arg_connector,
+                          MetaColorManager      *color_manager)
+{
+  MetaColorManagerPrivate *priv =
+    meta_color_manager_get_instance_private (color_manager);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (priv->backend);
+  MetaDbusSessionManager *session_manager = priv->session_manager;
+  MetaMonitor *monitor;
+  MetaDbusSession *dbus_session;
+  MetaColorCalibrationSession *session;
+  g_autoptr (GError) error = NULL;
+  const char *session_path;
+
+  monitor = meta_monitor_manager_get_monitor_from_connector (monitor_manager,
+                                                             arg_connector);
+  if (!monitor)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Unknown monitor connector '%s'",
+                                             arg_connector);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  dbus_session =
+    meta_dbus_session_manager_create_session (session_manager,
+                                              invocation,
+                                              &error,
+                                              "color-manager", color_manager,
+                                              "monitor", monitor,
+                                              NULL);
+  if (!dbus_session)
+    {
+      g_dbus_method_invocation_return_error_literal (invocation, G_DBUS_ERROR,
+                                                     G_DBUS_ERROR_FAILED,
+                                                     error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  session = META_COLOR_CALIBRATION_SESSION (dbus_session);
+  session_path = meta_color_calibration_session_get_object_path (session);
+  meta_dbus_color_manager_complete_calibrate_monitor (priv->api,
+                                                      invocation,
+                                                      session_path);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
 static void
 meta_color_manager_constructed (GObject *object)
 {
@@ -427,6 +485,17 @@ meta_color_manager_constructed (GObject *object)
 
   update_devices (color_manager);
   update_device_properties (color_manager);
+
+  priv->api = meta_dbus_color_manager_skeleton_new ();
+  priv->session_manager =
+    meta_dbus_session_manager_new (priv->backend,
+                                   "org.gnome.Mutter.ColorManager",
+                                   "/org/gnome/Mutter/ColorManager",
+                                   META_TYPE_COLOR_CALIBRATION_SESSION,
+                                   G_DBUS_INTERFACE_SKELETON (priv->api));
+  g_signal_connect_object (priv->api, "handle-calibrate-monitor",
+                           G_CALLBACK (handle_calibrate_monitor),
+                           color_manager, G_CONNECT_DEFAULT);
 }
 
 static void
@@ -443,6 +512,8 @@ meta_color_manager_dispose (GObject *object)
   g_clear_object (&priv->gsd_color);
   g_clear_object (&priv->color_store);
   g_clear_pointer (&priv->lcms_context, cmsDeleteContext);
+  g_clear_object (&priv->session_manager);
+  g_clear_object (&priv->api);
 
   G_OBJECT_CLASS (meta_color_manager_parent_class)->dispose (object);
 }

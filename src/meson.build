@@ -189,6 +189,8 @@ mutter_sources = [
   'backends/meta-backlight-ref-white-private.h',
   'backends/meta-barrier.c',
   'backends/meta-barrier-private.h',
+  'backends/meta-color-calibration-session.c',
+  'backends/meta-color-calibration-session.h',
   'backends/meta-color-device.c',
   'backends/meta-color-device.h',
   'backends/meta-color-manager.c',
@@ -1027,6 +1029,11 @@ dbus_interfaces = [
   {
     'name': 'meta-dbus-x11',
     'interface': 'org.gnome.Mutter.X11.xml',
+    'prefix': 'org.gnome.Mutter',
+  },
+  {
+    'name': 'meta-dbus-color-manager',
+    'interface': 'org.gnome.Mutter.ColorManager.xml',
     'prefix': 'org.gnome.Mutter',
   },
   {
