@@ -1048,7 +1048,7 @@ process_line (const char *line)
         {
           if (g_strcmp0 (expected_name, "(none)") != 0)
             {
-              g_print ("Failed to primary XRANDR output\n");
+              g_print ("Failed to retrieve primary XRANDR output (expected %s)\n", expected_name);
               goto out;
             }
         }
@@ -1057,7 +1057,7 @@ process_line (const char *line)
           output_info = XRRGetOutputInfo (xdisplay, resources, primary_output);
           if (!output_info)
             {
-              g_print ("Failed to primary XRANDR output info\n");
+              g_print ("Failed to retrieve primary XRANDR output info\n");
               goto out;
             }
 
