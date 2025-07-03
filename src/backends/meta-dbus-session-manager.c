@@ -565,3 +565,19 @@ meta_dbus_session_manager_is_enabled (MetaDbusSessionManager *session_manager)
 
   return priv->is_enabled;
 }
+
+MetaDbusSessionManager *
+meta_dbus_session_manager_new (MetaBackend            *backend,
+                               const char             *service_name,
+                               const char             *service_path,
+                               GType                   session_gtype,
+                               GDBusInterfaceSkeleton *skeleton)
+{
+  return g_object_new (META_TYPE_DBUS_SESSION_MANAGER,
+                       "backend", backend,
+                       "service-name", service_name,
+                       "service-path", service_path,
+                       "session-gtype", session_gtype,
+                       "interface-skeleton", skeleton,
+                       NULL);
+}

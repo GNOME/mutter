@@ -59,3 +59,9 @@ META_EXPORT_TEST
 size_t meta_dbus_session_manager_get_num_sessions (MetaDbusSessionManager *session_manager);
 
 gboolean meta_dbus_session_manager_is_enabled (MetaDbusSessionManager *session_manager);
+
+MetaDbusSessionManager * meta_dbus_session_manager_new (MetaBackend            *backend,
+                                                        const char             *service_name,
+                                                        const char             *service_path,
+                                                        GType                   session_gtype,
+                                                        GDBusInterfaceSkeleton *skeleton);
