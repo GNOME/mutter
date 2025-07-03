@@ -1276,7 +1276,7 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                            int64_t            target_us)
 {
   int64_t next_update_time_us = -1;
-  int64_t next_presentation_time_us;
+  int64_t next_presentation_time_us = 0;
   int64_t next_frame_deadline_us;
   int64_t ready_time_us = 0, extrapolated_presentation_time_us;
   int64_t max_update_time_estimate_us;
