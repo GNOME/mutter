@@ -48,7 +48,7 @@ umockdev_req = '>= 0.3.0'
 
 # wayland version requirements
 wayland_server_req = '>= 1.24'
-wayland_protocols_req = '>= 1.44'
+wayland_protocols_req = '>= 1.45'
 
 # native backend version requirements
 libinput_req = '>= 1.27.0'
