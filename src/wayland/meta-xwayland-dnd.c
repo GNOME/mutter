@@ -1128,14 +1128,14 @@ find_dnd_candidate_device (ClutterStage         *stage,
   clutter_seat_query_state (clutter_input_device_get_seat (device),
                             device, sequence, &pos, &modifiers);
 
-  if (!sequence)
-    {
-      if ((modifiers &
-           (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK |
-            CLUTTER_BUTTON3_MASK | CLUTTER_BUTTON4_MASK |
-            CLUTTER_BUTTON5_MASK)) == 0)
-        return TRUE;
-    }
+  if (sequence)
+    return TRUE;
+
+  if ((modifiers &
+       (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK |
+        CLUTTER_BUTTON3_MASK | CLUTTER_BUTTON4_MASK |
+        CLUTTER_BUTTON5_MASK)) == 0)
+    return TRUE;
 
   focus = meta_wayland_seat_get_current_surface (candidate->seat,
                                                  device, sequence);
