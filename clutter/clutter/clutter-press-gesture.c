@@ -610,27 +610,6 @@ clutter_press_gesture_set_long_press_duration_ms (ClutterPressGesture *self,
 }
 
 /**
- * clutter_press_gesture_triggers_context_menu:
- * @self: a #ClutterPressGesture
- *
- * Retrieves whether the press should trigger a context menu, usually this
- * means that the secondary mouse button has been pressed.
- *
- * Returns: %TRUE if the press should trigger a context menu
- */
-gboolean
-clutter_press_gesture_triggers_context_menu (ClutterPressGesture *self)
-{
-  ClutterPressGesturePrivate *priv;
-
-  g_return_val_if_fail (CLUTTER_IS_PRESS_GESTURE (self), FALSE);
-
-  priv = clutter_press_gesture_get_instance_private (self);
-
-  return priv->press_button == CLUTTER_BUTTON_SECONDARY;
-}
-
-/**
  * clutter_press_gesture_get_button:
  * @self: a #ClutterPressGesture
  *

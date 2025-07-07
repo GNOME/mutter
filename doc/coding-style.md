@@ -346,9 +346,8 @@ then passive voice is used. For example:
 
 ```c
 static void
-click_action_clicked_cb (ClutterClickAction *click_action,
-                         ClutterActor       *actor,
-                         gpointer            user_data)
+click_gesture_clicked_cb (ClutterClickGesture *gesture,
+                          gpointer             user_data)
 {
   /* ... */
 }

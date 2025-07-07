@@ -16,7 +16,7 @@ actor_meta_clear (void)
   g_object_ref_sink (actor);
   g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
 
-  clutter_actor_add_action (actor, clutter_click_action_new ());
+  clutter_actor_add_action (actor, clutter_click_gesture_new ());
   clutter_actor_add_constraint (actor, clutter_bind_constraint_new (stage, CLUTTER_BIND_ALL, 0));
   clutter_actor_add_effect (actor, clutter_blur_effect_new ());
 

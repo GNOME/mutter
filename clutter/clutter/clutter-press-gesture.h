@@ -58,9 +58,6 @@ void clutter_press_gesture_set_long_press_duration_ms (ClutterPressGesture *self
                                                        int                  long_press_duration_ms);
 
 CLUTTER_EXPORT
-gboolean clutter_press_gesture_triggers_context_menu (ClutterPressGesture *self);
-
-CLUTTER_EXPORT
 unsigned int clutter_press_gesture_get_button (ClutterPressGesture *self);
 
 CLUTTER_EXPORT
