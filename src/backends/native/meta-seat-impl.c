@@ -785,11 +785,13 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
     {
       meta_input_device_native_get_coords_in_impl (device_native,
                                                    &cur_x, &cur_y);
+      modifiers = device_native->button_state;
     }
   else
     {
       meta_input_device_native_get_coords_in_impl (META_INPUT_DEVICE_NATIVE (seat_impl->core_pointer),
                                                    &cur_x, &cur_y);
+      modifiers = seat_impl->button_state;
     }
 
   meta_seat_impl_filter_relative_motion (seat_impl,
@@ -805,9 +807,7 @@ meta_seat_impl_notify_relative_motion_in_impl (MetaSeatImpl       *seat_impl,
                          cur_y + dy,
                          &x, &y);
 
-  modifiers =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
-    seat_impl->button_state;
+  modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   dx_constrained = x - cur_x;
   dy_constrained = y - cur_y;
@@ -852,9 +852,12 @@ meta_seat_impl_notify_absolute_motion_in_impl (MetaSeatImpl       *seat_impl,
   update_device_coords_in_impl (seat_impl, input_device,
                                 GRAPHENE_POINT_INIT (x, y));
 
-  modifiers =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
-    seat_impl->button_state;
+  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
+    modifiers = device_native->button_state;
+  else
+    modifiers = seat_impl->button_state;
+
+  modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   g_signal_emit (seat_impl, signals[POINTER_POSITION_CHANGED_IN_IMPL], 0,
                  &GRAPHENE_POINT_INIT (seat_impl->pointer_x,
@@ -884,7 +887,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event = NULL;
-  ClutterModifierType modifiers;
+  ClutterModifierType modifiers, *button_state;
   int button_nr = 0;
   float x, y;
   static int maskmap[8] =
@@ -953,13 +956,18 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
         }
     }
 
+  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
+    button_state = &device_native->button_state;
+  else
+    button_state = &seat_impl->button_state;
+
   if (button_nr > 0 && button_nr < G_N_ELEMENTS (maskmap))
     {
       /* Update the modifiers */
       if (state)
-        seat_impl->button_state |= maskmap[button_nr - 1];
+        *button_state |= maskmap[button_nr - 1];
       else
-        seat_impl->button_state &= ~maskmap[button_nr - 1];
+        *button_state &= ~maskmap[button_nr - 1];
     }
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
@@ -974,7 +982,7 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
 
   modifiers =
     xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
-    seat_impl->button_state;
+    *button_state;
 
   event =
     clutter_event_button_new (state ?
@@ -1012,6 +1020,8 @@ notify_scroll (ClutterInputDevice       *input_device,
                ClutterScrollFinishFlags  flags,
                gboolean                  emulated)
 {
+  MetaInputDeviceNative *device_native =
+    META_INPUT_DEVICE_NATIVE (input_device);
   MetaSeatImpl *seat_impl;
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
@@ -1028,9 +1038,12 @@ notify_scroll (ClutterInputDevice       *input_device,
   x = seat_impl->pointer_x;
   y = seat_impl->pointer_y;
 
-  modifiers =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
-    seat_impl->button_state;
+  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
+    modifiers = device_native->button_state;
+  else
+    modifiers = seat_impl->button_state;
+
+  modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   event =
     clutter_event_scroll_smooth_new (emulated ?
@@ -1056,6 +1069,8 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
                         ClutterScrollSource     scroll_source,
                         gboolean                emulated)
 {
+  MetaInputDeviceNative *device_native =
+    META_INPUT_DEVICE_NATIVE (input_device);
   MetaSeatImpl *seat_impl;
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
@@ -1068,9 +1083,12 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
   x = seat_impl->pointer_x;
   y = seat_impl->pointer_y;
 
-  modifiers =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
-    seat_impl->button_state;
+  if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
+    modifiers = device_native->button_state;
+  else
+    modifiers = seat_impl->button_state;
+
+  modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   event =
     clutter_event_scroll_discrete_new (emulated ?
@@ -1259,9 +1277,7 @@ meta_seat_impl_notify_touch_event_in_impl (MetaSeatImpl       *seat_impl,
   /* "NULL" sequences are special cased in clutter */
   sequence = GINT_TO_POINTER (MAX (1, slot + 1));
 
-  modifiers =
-    xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE) |
-    seat_impl->button_state;
+  modifiers = xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
   if (evtype == CLUTTER_TOUCH_BEGIN ||
       evtype == CLUTTER_TOUCH_UPDATE)
@@ -3412,11 +3428,13 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
           coords->y = device_native->pointer_y;
         }
 
+      if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
+        mods = device_native->button_state;
+      else
+        mods = seat_impl->button_state;
+
       if (seat_impl->xkb)
-        {
-          mods = meta_xkb_translate_modifiers (seat_impl->xkb,
-                                               seat_impl->button_state);
-        }
+        mods = meta_xkb_translate_modifiers (seat_impl->xkb, mods);
 
       retval = TRUE;
     }
