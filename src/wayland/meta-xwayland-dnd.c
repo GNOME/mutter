@@ -896,9 +896,12 @@ drag_xgrab_motion (MetaWaylandEventHandler *handler,
   MetaWaylandSeat *seat = meta_wayland_drag_grab_get_seat (drag_grab);
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
+  ClutterInputDevice *device;
+
+  device = meta_wayland_drag_grab_get_device (drag_grab, NULL);
 
   if (clutter_event_type (event) != CLUTTER_MOTION ||
-      clutter_event_get_device_tool (event))
+      device != clutter_event_get_device (event))
     return CLUTTER_EVENT_STOP;
 
   repick_drop_surface (compositor, drag_grab, event);
@@ -917,9 +920,12 @@ drag_xgrab_release (MetaWaylandEventHandler *handler,
   MetaWaylandSeat *seat = meta_wayland_drag_grab_get_seat (drag_grab);
   MetaWaylandCompositor *compositor = meta_wayland_seat_get_compositor (seat);
   MetaWaylandDataSource *data_source;
+  ClutterInputDevice *device;
+
+  device = meta_wayland_drag_grab_get_device (drag_grab, NULL);
 
   if (clutter_event_type (event) != CLUTTER_BUTTON_RELEASE ||
-      clutter_event_get_device_tool (event))
+      device != clutter_event_get_device (event))
     return CLUTTER_EVENT_STOP;
 
   data_source = compositor->seat->data_device.dnd_data_source;
