@@ -85,6 +85,8 @@ struct _MetaInputDeviceNative
   double output_ratio;        /* w:h */
   MetaInputDeviceMapping mapping_mode;
 
+  ClutterModifierType button_state;
+
   /* Pointer position */
   float pointer_x;
   float pointer_y;
