@@ -1,0 +1,29 @@
+resize_monitor default 1000 1000
+new_client w wayland
+create w/1 csd
+resize w/1 500 500
+show w/1
+wait_reconfigure w/1
+
+assert_size w/1 500 500
+
+maximize w/1
+wait_reconfigure w/1
+assert_size w/1 1000 1000
+wait_for_effects w/1
+
+freeze w/1
+
+move_cursor_to 10 2
+click_and_hold
+move_cursor_to 10 20
+move_cursor_to 10 30
+move_cursor_to 10 40
+move_cursor_to 10 50
+move_cursor_to 10 60
+move_cursor_to 10 70
+release_click
+thaw w/1
+
+wait_reconfigure w/1
+assert_size w/1 500 500

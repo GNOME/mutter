@@ -1130,6 +1130,7 @@ stacking_tests = [
   'popup-focus',
   'auto-maximize',
   'auto-maximize-dialog',
+  'drag-restore-maximized',
 ]
 
 foreach stacking_test: stacking_tests

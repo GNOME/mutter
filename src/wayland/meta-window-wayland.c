@@ -272,6 +272,7 @@ should_configure (MetaWindow          *window,
   /* The constrained size changed from last time, also explicit, thus need to
    * configure the new size. */
   if (last_sent_configuration->has_size &&
+      flags & META_MOVE_RESIZE_RESIZE_ACTION &&
       (constrained_rect.width != last_sent_configuration->width ||
        constrained_rect.height != last_sent_configuration->height))
     return TRUE;
