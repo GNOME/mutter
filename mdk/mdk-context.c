@@ -27,6 +27,8 @@
 #include "mdk-seat.h"
 #include "mdk-session.h"
 
+#include "mdk-dbus-devkit.h"
+
 enum
 {
   PROP_0,
@@ -57,8 +59,12 @@ struct _MdkContext
   MdkPipewire *pipewire;
   MdkSession *session;
 
+  MdkDBusDevkit *devkit_proxy;
+
   gboolean emulate_touch;
   gboolean inhibit_system_shortcuts;
+
+  GStrv launch_env;
 };
 
 G_DEFINE_FINAL_TYPE (MdkContext, mdk_context, G_TYPE_OBJECT)
@@ -150,6 +156,8 @@ mdk_context_finalize (GObject *object)
 {
   MdkContext *context = MDK_CONTEXT (object);
 
+  g_clear_pointer (&context->launch_env, g_strfreev);
+  g_clear_object (&context->devkit_proxy);
   g_clear_object (&context->session);
 
   G_OBJECT_CLASS (mdk_context_parent_class)->finalize (object);
@@ -198,8 +206,61 @@ mdk_context_class_init (MdkContextClass *klass)
 }
 
 static void
+set_launch_env (MdkContext *context,
+                GVariant   *env)
+{
+  g_auto (GStrv) launch_env = NULL;
+  GVariantIter iter;
+  g_autoptr (GStrvBuilder) strv_builder = NULL;
+  char *name;
+  char *value;
+
+  launch_env = g_strdupv (environ);
+
+  g_variant_iter_init (&iter, env);
+  while (g_variant_iter_next (&iter, "{&s&s}", &name, &value))
+    launch_env = g_environ_setenv (launch_env, name, value, TRUE);
+
+  context->launch_env = g_steal_pointer (&launch_env);
+}
+
+static gboolean
+init_launch_environment (MdkContext  *context,
+                         GError     **error)
+{
+  GVariant *env;
+
+  context->devkit_proxy =
+    mdk_dbus_devkit_proxy_new_for_bus_sync (G_BUS_TYPE_SESSION,
+                                            G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+                                            "org.gnome.Mutter.Devkit",
+                                            "/org/gnome/Mutter/Devkit",
+                                            NULL,
+                                            error);
+
+  if (!context->devkit_proxy)
+    return FALSE;
+
+  env = mdk_dbus_devkit_get_env (context->devkit_proxy);
+  if (!env)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No launch environment available");
+      return FALSE;
+    }
+
+  set_launch_env (context, env);
+
+  return TRUE;
+}
+
+static void
 mdk_context_init (MdkContext *context)
 {
+  g_autoptr (GError) error = NULL;
+
+  if (!init_launch_environment (context, &error))
+    g_warning ("Failed to initialize launch environment: %s", error->message);
 }
 
 static void
@@ -283,4 +344,10 @@ gboolean
 mdk_context_get_inhibit_system_shortcuts (MdkContext *context)
 {
   return context->inhibit_system_shortcuts;
+}
+
+GStrv
+mdk_context_get_launch_env (MdkContext *context)
+{
+  return context->launch_env;
 }

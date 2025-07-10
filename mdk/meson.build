@@ -56,6 +56,13 @@ dbus_screen_cast_built_sources = gnome.gdbus_codegen('mdk-dbus-screen-cast',
   )
 mdk_built_sources += dbus_screen_cast_built_sources
 
+dbus_devkit_built_sources = gnome.gdbus_codegen('mdk-dbus-devkit',
+    join_paths(dbus_interfaces_dir, 'org.gnome.Mutter.Devkit.xml'),
+    interface_prefix: 'org.gnome.Mutter.',
+    namespace: 'MdkDBus',
+  )
+mdk_built_sources += dbus_devkit_built_sources
+
 executable('mutter-devkit',
   sources: [
     'mdk-main.c',

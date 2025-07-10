@@ -37,3 +37,5 @@ MdkPipewire * mdk_context_get_pipewire (MdkContext *context);
 gboolean mdk_context_get_emulate_touch (MdkContext *context);
 
 gboolean mdk_context_get_inhibit_system_shortcuts (MdkContext *context);
+
+GStrv mdk_context_get_launch_env (MdkContext *context);
