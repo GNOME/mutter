@@ -107,19 +107,18 @@ startup (GApplication *app)
 }
 
 static void
-activate (GApplication *app,
-          MdkContext   *context)
+activate (MdkApplication *app)
 {
   GtkWidget *window;
 
   window = g_object_new (MDK_TYPE_MAIN_WINDOW,
-                         "context", context,
+                         "context", app->context,
                          NULL);
   gtk_application_add_window (GTK_APPLICATION (app), GTK_WINDOW (window));
 
-  g_signal_connect (context, "ready", G_CALLBACK (on_context_ready), app);
-  g_signal_connect (context, "error", G_CALLBACK (on_context_error), app);
-  mdk_context_activate (context);
+  g_signal_connect (app->context, "ready", G_CALLBACK (on_context_ready), app);
+  g_signal_connect (app->context, "error", G_CALLBACK (on_context_error), app);
+  mdk_context_activate (app->context);
 }
 
 static gboolean
@@ -143,7 +142,7 @@ transform_action_state_to (GBinding     *binding,
 }
 
 static void
-bind_action_to_property (GtkApplication *app,
+bind_action_to_property (MdkApplication *app,
                          const char     *action_name,
                          gpointer        object,
                          const char     *property)
@@ -172,8 +171,21 @@ on_context_closed (MdkContext     *context,
 }
 
 static void
+mdk_application_dispose (GObject *object)
+{
+  MdkApplication *app = MDK_APPLICATION (object);
+
+  g_clear_object (&app->context);
+
+  G_OBJECT_CLASS (mdk_application_parent_class)->dispose (object);
+}
+
+static void
 mdk_application_class_init (MdkApplicationClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = mdk_application_dispose;
 }
 
 static void
@@ -185,7 +197,6 @@ int
 main (int    argc,
       char **argv)
 {
-  g_autoptr (MdkContext) context = NULL;
   g_autoptr (MdkApplication) app = NULL;
   static GActionEntry app_entries[] = {
     { "about", activate_about, NULL, NULL, NULL },
@@ -197,6 +208,7 @@ main (int    argc,
                       "application-id", "org.gnome.Mutter.Mdk",
                       "flags", G_APPLICATION_NON_UNIQUE,
                       NULL);
+  app->context = mdk_context_new ();
 
   g_action_map_add_action_entries (G_ACTION_MAP (app),
                                    app_entries, G_N_ELEMENTS (app_entries),
@@ -205,13 +217,13 @@ main (int    argc,
   g_application_set_version (G_APPLICATION (app), VERSION);
 
   bind_action_to_property (app, "toggle_emulate_touch",
-                           context, "emulate-touch");
+                           app->context, "emulate-touch");
   bind_action_to_property (app, "toggle_inhibit_system_shortcuts",
-                           context, "inhibit-system-shortcuts");
+                           app->context, "inhibit-system-shortcuts");
 
   g_signal_connect (app, "startup", G_CALLBACK (startup), NULL);
-  g_signal_connect (app, "activate", G_CALLBACK (activate), context);
-  g_signal_connect (context, "closed", G_CALLBACK (on_context_closed), app);
+  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+  g_signal_connect (app->context, "closed", G_CALLBACK (on_context_closed), app);
 
   return g_application_run (G_APPLICATION (app), argc, argv);
 }
