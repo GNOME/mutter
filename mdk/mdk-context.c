@@ -112,6 +112,127 @@ mdk_context_set_emulate_touch (MdkContext *context,
   update_active_input_devices (context);
 }
 
+static const char *
+launcher_type_to_string (MdkLauncherType launcher_type)
+{
+  switch (launcher_type)
+    {
+    case MDK_LAUNCHER_TYPE_DESKTOP:
+      return "desktop";
+    case MDK_LAUNCHER_TYPE_EXEC:
+      return "exec";
+    }
+  g_assert_not_reached ();
+}
+
+void
+mdk_context_add_launcher (MdkContext      *context,
+                          MdkLauncherType  launcher_type,
+                          const char      *value,
+                          const char      *option)
+{
+  g_autoptr (GVariant) launchers_variant = NULL;
+  GVariantIter iter;
+  GVariantBuilder launchers_builder;
+  const char *existing_type;
+  const char *existing_value;
+  const char *existing_option;
+
+  launchers_variant = g_settings_get_value (context->settings, "launchers");
+  g_variant_iter_init (&iter, launchers_variant);
+
+  g_variant_builder_init (&launchers_builder, G_VARIANT_TYPE ("a(sss)"));
+
+  while (g_variant_iter_next (&iter, "(&s&s&s)",
+                              &existing_type,
+                              &existing_value,
+                              &existing_option))
+    {
+      g_variant_builder_add (&launchers_builder, "(sss)",
+                             existing_type, existing_value, existing_option);
+    }
+  g_variant_builder_add (&launchers_builder, "(sss)",
+                         launcher_type_to_string (launcher_type),
+                         value,
+                         option);
+
+  g_settings_set_value (context->settings, "launchers",
+                        g_variant_builder_end (&launchers_builder));
+}
+
+void
+mdk_context_remove_launcher (MdkContext      *context,
+                             MdkLauncherType  launcher_type,
+                             const char      *value,
+                             const char      *option)
+{
+  g_autoptr (GVariant) launchers_variant = NULL;
+  GVariantIter iter;
+  GVariantBuilder launchers_builder;
+  const char *existing_type;
+  const char *existing_value;
+  const char *existing_option;
+
+  launchers_variant = g_settings_get_value (context->settings, "launchers");
+  g_variant_iter_init (&iter, launchers_variant);
+
+  g_variant_builder_init (&launchers_builder, G_VARIANT_TYPE ("a(sss)"));
+
+  while (g_variant_iter_next (&iter, "(&s&s&s)",
+                              &existing_type,
+                              &existing_value,
+                              &existing_option))
+    {
+      if (g_strcmp0 (existing_type,
+                     launcher_type_to_string (launcher_type)) == 0 &&
+          g_strcmp0 (existing_value, value) == 0 &&
+          g_strcmp0 (existing_option, option) == 0)
+        continue;
+
+      g_variant_builder_add (&launchers_builder, "(sss)",
+                             existing_type, existing_value, existing_option);
+    }
+
+  g_settings_set_value (context->settings, "launchers",
+                        g_variant_builder_end (&launchers_builder));
+}
+
+void
+mdk_context_set_launcher_action (MdkContext *context,
+                                 const char *app_id,
+                                 const char *action_id)
+{
+  g_autoptr (GVariant) launchers_variant = NULL;
+  GVariantIter iter;
+  GVariantBuilder launchers_builder;
+  const char *type;
+  const char *value;
+  const char *option;
+
+  launchers_variant = g_settings_get_value (context->settings, "launchers");
+  g_variant_iter_init (&iter, launchers_variant);
+
+  g_variant_builder_init (&launchers_builder, G_VARIANT_TYPE ("a(sss)"));
+
+  while (g_variant_iter_next (&iter, "(&s&s&s)", &type, &value, &option))
+    {
+      if (g_strcmp0 (type, "desktop") == 0 &&
+          g_strcmp0 (value, app_id) == 0)
+        {
+          g_variant_builder_add (&launchers_builder, "(sss)",
+                                 type, value, action_id);
+        }
+      else
+        {
+          g_variant_builder_add (&launchers_builder, "(sss)",
+                                 type, value, option);
+        }
+    }
+
+  g_settings_set_value (context->settings, "launchers",
+                        g_variant_builder_end (&launchers_builder));
+}
+
 static void
 update_launchers (MdkContext *context)
 {

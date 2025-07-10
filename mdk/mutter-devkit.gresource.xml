@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/ui">
+    <file preprocess="xml-stripblanks">mdk-launcher-adder.ui</file>
+    <file preprocess="xml-stripblanks">mdk-launcher-entry.ui</file>
+    <file preprocess="xml-stripblanks">mdk-launchers-editor.ui</file>
     <file preprocess="xml-stripblanks">mdk-main-window.ui</file>
     <file preprocess="xml-stripblanks">mdk-window.ui</file>
     <file>mdk-devkit.css</file>

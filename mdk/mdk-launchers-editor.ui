@@ -1,0 +1,37 @@
+<interface>
+  <template class="MdkLaunchersEditor" parent="AdwDialog">
+    <property name="title" translatable="yes">Edit Launchers</property>
+    <property name="content-width">480</property>
+    <property name="content-height">480</property>
+    <property name="child">
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child type="titlebar">
+          <object class="GtkHeaderBar" id="headerbar"/>
+        </child>
+        <child>
+          <object class="AdwPreferencesPage" id="media_sharing_page">
+            <child>
+              <object class="AdwPreferencesGroup" id="launchers_group">
+                <property name="title" translatable="yes">Launchers</property>
+                <property name="header-suffix">
+                  <object class="GtkButton" id="add_launcher">
+                    <property name="child">
+                      <object class="AdwButtonContent">
+                        <property name="icon-name">list-add-symbolic</property>
+                        <property name="label" translatable="yes">Add</property>
+                      </object>
+                    </property>
+                    <style>
+                      <class name="flat"/>
+                    </style>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>

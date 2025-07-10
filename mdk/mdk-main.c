@@ -22,6 +22,7 @@
 #include <gtk/gtk.h>
 
 #include "mdk-context.h"
+#include "mdk-launchers-editor.h"
 #include "mdk-main-window.h"
 #include "mdk-monitor.h"
 
@@ -63,6 +64,23 @@ activate_about (GSimpleAction *action,
                          "application-icon", "org.gnome.Mutter.Mdk",
                          "title", _("About Mutter Development Kit"),
                          NULL);
+}
+
+static void
+activate_edit_launchers (GSimpleAction *action,
+                         GVariant      *parameter,
+                         gpointer       user_data)
+{
+  MdkApplication *app = MDK_APPLICATION (user_data);
+  GtkWindow *parent_window;
+  AdwDialog *dialog;
+
+  parent_window = gtk_application_get_active_window (GTK_APPLICATION (app));
+
+  dialog = g_object_new (MDK_TYPE_LAUNCHERS_EDITOR,
+                         "context", app->context,
+                         NULL);
+  adw_dialog_present (dialog, GTK_WIDGET (parent_window));
 }
 
 static void
@@ -215,6 +233,7 @@ main (int    argc,
     { "toggle_emulate_touch", .state = "false", },
     { "toggle_inhibit_system_shortcuts", .state = "false", },
     { "launch", activate_launch, .parameter_type = "i", },
+    { "edit_launchers", activate_edit_launchers, },
   };
 
   app = g_object_new (MDK_TYPE_APPLICATION,

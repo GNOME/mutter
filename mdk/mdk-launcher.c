@@ -250,3 +250,90 @@ mdk_launcher_activate (MdkLauncher *launcher)
       break;
     }
 }
+
+GPtrArray *
+mdk_launcher_get_actions (MdkLauncher *launcher)
+{
+  switch (launcher->type)
+    {
+    case MDK_LAUNCHER_TYPE_DESKTOP:
+      return launcher->desktop.actions;
+    case MDK_LAUNCHER_TYPE_EXEC:
+      return NULL;
+    }
+  g_assert_not_reached ();
+}
+
+MdkLauncherAction *
+mdk_launcher_get_configured_action (MdkLauncher *launcher)
+{
+  switch (launcher->type)
+    {
+    case MDK_LAUNCHER_TYPE_DESKTOP:
+      return launcher->desktop.action;
+    case MDK_LAUNCHER_TYPE_EXEC:
+      return NULL;
+    }
+  g_assert_not_reached ();
+}
+
+char *
+mdk_get_app_id_from_app_info (GAppInfo *app_info)
+{
+  const char *desktop_file_name;
+  size_t new_len;
+
+  desktop_file_name = g_app_info_get_id (app_info);
+
+  g_return_val_if_fail (g_str_has_suffix (desktop_file_name, ".desktop"), NULL);
+
+  new_len = strlen (desktop_file_name) - strlen (".desktop");
+  return g_strndup (desktop_file_name, new_len);
+}
+
+char *
+mdk_launcher_get_desktop_app_id (MdkLauncher *launcher)
+{
+  g_return_val_if_fail (launcher->type == MDK_LAUNCHER_TYPE_DESKTOP, NULL);
+
+  return mdk_get_app_id_from_app_info (G_APP_INFO (launcher->desktop.app_info));
+}
+
+MdkLauncherType
+mdk_launcher_get_type (MdkLauncher *launcher)
+{
+  return launcher->type;
+}
+
+GIcon *
+mdk_launcher_get_icon (MdkLauncher *launcher)
+{
+  switch (launcher->type)
+    {
+    case MDK_LAUNCHER_TYPE_DESKTOP:
+      return g_app_info_get_icon (G_APP_INFO (launcher->desktop.app_info));
+    case MDK_LAUNCHER_TYPE_EXEC:
+      return NULL;
+    }
+  g_assert_not_reached ();
+}
+
+GAppInfo *
+mdk_launcher_get_app_info (MdkLauncher *launcher)
+{
+  g_return_val_if_fail (launcher->type == MDK_LAUNCHER_TYPE_DESKTOP, NULL);
+
+  return G_APP_INFO (launcher->desktop.app_info);
+}
+
+GStrv
+mdk_launcher_get_argv (MdkLauncher *launcher)
+{
+  return launcher->exec.argv;
+}
+
+const char *
+mdk_launcher_get_command_line (MdkLauncher *launcher)
+{
+  return launcher->exec.value;
+}

@@ -1,0 +1,30 @@
+<interface>
+  <template class="MdkLauncherEntry" parent="AdwExpanderRow">
+    <child type="prefix">
+      <object class="GtkImage" id="icon">
+        <property name="valign">center</property>
+      </object>
+    </child>
+    <child type="suffix">
+      <object class="GtkButton" id="delete_button">
+        <property name="valign">center</property>
+        <property name="icon_name">edit-delete-symbolic</property>
+        <property name="tooltip-text" translatable="yes">Delete</property>
+        <style>
+          <class name="flat"/>
+        </style>
+      </object>
+    </child>
+    <child>
+      <object class="AdwComboRow" id="actions">
+        <property name="title" translatable="yes">Action</property>
+        <property name="model">
+          <object class="GListStore" id="actions_list"/>
+        </property>
+        <property name="expression">
+          <lookup type="MdkLauncherActionItem" name="name">actions_list</lookup>
+        </property>
+      </object>
+    </child>
+  </template>
+</interface>

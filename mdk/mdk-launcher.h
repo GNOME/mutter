@@ -49,3 +49,25 @@ const char * mdk_launcher_get_name (MdkLauncher *launcher);
 char * mdk_launcher_get_action (MdkLauncher *launcher);
 
 void mdk_launcher_activate (MdkLauncher *launcher);
+
+const char * mdk_launcher_action_get_name (MdkLauncherAction *action);
+
+const char * mdk_launcher_action_get_id (MdkLauncherAction *action);
+
+GPtrArray * mdk_launcher_get_actions (MdkLauncher *launcher);
+
+MdkLauncherAction * mdk_launcher_get_configured_action (MdkLauncher *launcher);
+
+char * mdk_launcher_get_desktop_app_id (MdkLauncher *launcher);
+
+MdkLauncherType mdk_launcher_get_type (MdkLauncher *launcher);
+
+GIcon * mdk_launcher_get_icon (MdkLauncher *launcher);
+
+GAppInfo * mdk_launcher_get_app_info (MdkLauncher *launcher);
+
+GStrv mdk_launcher_get_argv (MdkLauncher *launcher);
+
+const char * mdk_launcher_get_command_line (MdkLauncher *launcher);
+
+char * mdk_get_app_id_from_app_info (GAppInfo *app_info);

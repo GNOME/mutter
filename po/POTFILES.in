@@ -6,6 +6,11 @@ data/50-mutter-wayland.xml
 data/50-mutter-windows.xml
 data/org.gnome.mutter.gschema.xml.in
 data/org.gnome.mutter.wayland.gschema.xml.in
+mdk/mdk-launcher-adder.c
+mdk/mdk-launcher-adder.ui
+mdk/mdk-launcher-entry.c
+mdk/mdk-launcher-entry.ui
+mdk/mdk-launchers-editor.ui
 mdk/mdk-main-window.ui
 mdk/mdk-main.c
 mdk/mdk-monitor.c
