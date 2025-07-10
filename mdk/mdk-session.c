@@ -384,7 +384,7 @@ mdk_session_create_monitor_async (MdkSession          *session,
     task);
 }
 
-const char *
+char *
 mdk_session_create_monitor_finish (MdkSession    *session,
                                    GAsyncResult  *res,
                                    GError       **error)

@@ -1016,7 +1016,7 @@ create_monitor_cb (GObject      *source_object,
 {
   MdkStream *stream = MDK_STREAM (user_data);
   g_autoptr (GError) error = NULL;
-  const char *stream_path;
+  g_autofree char *stream_path = NULL;
 
   stream_path = mdk_session_create_monitor_finish (stream->session,
                                                    res,

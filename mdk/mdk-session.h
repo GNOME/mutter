@@ -32,9 +32,9 @@ void mdk_session_create_monitor_async (MdkSession          *session,
                                        GAsyncReadyCallback  callback,
                                        gpointer             user_data);
 
-const char * mdk_session_create_monitor_finish (MdkSession    *session,
-                                                GAsyncResult  *res,
-                                                GError       **error);
+char * mdk_session_create_monitor_finish (MdkSession    *session,
+                                          GAsyncResult  *res,
+                                          GError       **error);
 
 MdkContext * mdk_session_get_context (MdkSession *session);
 
