@@ -55,13 +55,9 @@ process_events (MdkEi *ei)
   while ((ei_event = ei_get_event (ei->ei)))
     {
       enum ei_event_type ei_event_type = ei_event_get_type (ei_event);
-      gboolean handled = TRUE;
 
-      if (handled)
-        {
-          g_debug ("Received event type %s",
-                   ei_event_type_to_string (ei_event_type));
-        }
+      g_debug ("Received event type %s",
+               ei_event_type_to_string (ei_event_type));
 
       switch (ei_event_type)
         {
@@ -123,7 +119,6 @@ process_events (MdkEi *ei)
             break;
           }
         default:
-          handled = FALSE;
           break;
         }
 
