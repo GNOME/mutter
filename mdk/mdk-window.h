@@ -19,6 +19,8 @@
 
 #include <gtk/gtk.h>
 
+#include "mdk-types.h"
+
 #define MDK_TYPE_WINDOW (mdk_window_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MdkWindow, mdk_window,
                           MDK, WINDOW,
@@ -28,3 +30,5 @@ struct _MdkWindowClass
 {
   GtkApplicationWindowClass parent_class;
 };
+
+MdkContext * mdk_window_get_context (MdkWindow *window);

@@ -170,3 +170,11 @@ mdk_window_init (MdkWindow *window)
 {
   gtk_widget_init_template (GTK_WIDGET (window));
 }
+
+MdkContext *
+mdk_window_get_context (MdkWindow *window)
+{
+  MdkWindowPrivate *priv = mdk_window_get_instance_private (window);
+
+  return priv->context;
+}
