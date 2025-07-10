@@ -1,0 +1,12 @@
+<schemalist>
+  <schema id="org.gnome.mutter.devkit" path="/org/gnome/mutter/"
+          gettext-domain="@GETTEXT_DOMAIN@">
+    <key name="launchers" type="a(sss)">
+      <default>[('desktop', 'org.gnome.Ptyxis', 'new-window')]</default>
+      <summary>List of launchers</summary>
+      <description>
+        Launchers that will appear in the devkit application.
+      </description>
+    </key>
+  </schema>
+</schemalist>

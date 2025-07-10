@@ -15,6 +15,18 @@
           </item>
         </submenu>
       </section>
+      <section>
+        <submenu>
+          <attribute name="label" translatable="yes">_Launchers</attribute>
+          <section id="launchers"/>
+          <section>
+            <item>
+              <attribute name="label" translatable="yes">_Edit launchers</attribute>
+              <attribute name="action">app.edit_launchers</attribute>
+            </item>
+          </section>
+        </submenu>
+      </section>
       <item>
         <attribute name="label" translatable="yes">_About Mutter Development Kit</attribute>
         <attribute name="action">app.about</attribute>

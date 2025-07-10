@@ -66,6 +66,18 @@ activate_about (GSimpleAction *action,
 }
 
 static void
+activate_launch (GSimpleAction *action,
+                 GVariant      *parameter,
+                 gpointer       user_data)
+{
+  MdkApplication *app = MDK_APPLICATION (user_data);
+  int id;
+
+  id = g_variant_get_int32 (parameter);
+  mdk_context_activate_launcher (app->context, id);
+}
+
+static void
 on_context_ready (MdkContext   *context,
                   GApplication *app)
 {
@@ -202,6 +214,7 @@ main (int    argc,
     { "about", activate_about, NULL, NULL, NULL },
     { "toggle_emulate_touch", .state = "false", },
     { "toggle_inhibit_system_shortcuts", .state = "false", },
+    { "launch", activate_launch, .parameter_type = "i", },
   };
 
   app = g_object_new (MDK_TYPE_APPLICATION,

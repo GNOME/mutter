@@ -38,4 +38,9 @@ gboolean mdk_context_get_emulate_touch (MdkContext *context);
 
 gboolean mdk_context_get_inhibit_system_shortcuts (MdkContext *context);
 
+GPtrArray * mdk_context_get_launchers (MdkContext *context);
+
+void mdk_context_activate_launcher (MdkContext *context,
+                                    int         id);
+
 GStrv mdk_context_get_launch_env (MdkContext *context);

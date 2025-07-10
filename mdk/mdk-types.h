@@ -19,6 +19,7 @@
 
 typedef struct _MdkContext MdkContext;
 typedef struct _MdkKeyboard MdkKeyboard;
+typedef struct _MdkLauncherAction MdkLauncherAction;
 typedef struct _MdkMonitor MdkMonitor;
 typedef struct _MdkPipewire MdkPipewire;
 typedef struct _MdkEi MdkEi;
@@ -27,3 +28,5 @@ typedef struct _MdkPointer MdkPointer;
 typedef struct _MdkSession MdkSession;
 typedef struct _MdkStream MdkStream;
 typedef struct _MdkTouch MdkTouch;
+
+typedef enum _MdkLauncherType MdkLauncherType;

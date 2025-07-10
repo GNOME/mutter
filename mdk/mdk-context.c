@@ -23,6 +23,7 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 
+#include "mdk-launcher.h"
 #include "mdk-pipewire.h"
 #include "mdk-seat.h"
 #include "mdk-session.h"
@@ -46,6 +47,7 @@ enum
   READY,
   ERROR,
   CLOSED,
+  LAUNCHERS_CHANGED,
 
   N_SIGNALS
 };
@@ -64,7 +66,10 @@ struct _MdkContext
   gboolean emulate_touch;
   gboolean inhibit_system_shortcuts;
 
+  GSettings *settings;
+
   GStrv launch_env;
+  GPtrArray *launchers;
 };
 
 G_DEFINE_FINAL_TYPE (MdkContext, mdk_context, G_TYPE_OBJECT)
@@ -105,6 +110,79 @@ mdk_context_set_emulate_touch (MdkContext *context,
   context->emulate_touch = emulate_touch;
 
   update_active_input_devices (context);
+}
+
+static void
+update_launchers (MdkContext *context)
+{
+  g_autoptr (GVariant) launchers_variant = NULL;
+  GVariantIter iter;
+  const char *type;
+  const char *value;
+  const char *option;
+  int id_counter = 0;
+
+  launchers_variant = g_settings_get_value (context->settings, "launchers");
+  g_variant_iter_init (&iter, launchers_variant);
+
+  g_ptr_array_remove_range (context->launchers, 0, context->launchers->len);
+
+  while (g_variant_iter_next (&iter, "(&s&s&s)", &type, &value, &option))
+    {
+      MdkLauncher *launcher = NULL;
+
+      if (g_strcmp0 (type, "desktop") == 0)
+        {
+          g_autofree char *desktop_id = NULL;
+          g_autoptr (GDesktopAppInfo) app_info = NULL;
+
+          desktop_id = g_strconcat (value, ".desktop", NULL);
+
+          app_info = g_desktop_app_info_new (desktop_id);
+          if (!app_info)
+            {
+              g_warning ("Invalid application ID '%s'", value);
+              continue;
+            }
+
+          launcher =
+            mdk_launcher_new_desktop (context,
+                                      id_counter++,
+                                      g_steal_pointer (&app_info),
+                                      option);
+        }
+      else if (g_strcmp0 (type, "exec") == 0)
+        {
+          g_autoptr (GError) error = NULL;
+          g_auto (GStrv) argv = NULL;
+
+          if (!g_shell_parse_argv (value, NULL, &argv, &error))
+            {
+              g_warning ("Invalid command line '%s': %s",
+                         value, error->message);
+              continue;
+            }
+
+          launcher = mdk_launcher_new_exec (context,
+                                            id_counter++,
+                                            value,
+                                            g_steal_pointer (&argv));
+        }
+
+      if (launcher)
+        g_ptr_array_add (context->launchers, launcher);
+    }
+
+  g_signal_emit (context, signals[LAUNCHERS_CHANGED], 0);
+}
+
+static void
+on_settings_changed (GSettings  *settings,
+                     const char *key,
+                     MdkContext *context)
+{
+  if (g_strcmp0 (key, "launchers") == 0)
+    update_launchers (context);
 }
 
 static void
@@ -156,9 +234,11 @@ mdk_context_finalize (GObject *object)
 {
   MdkContext *context = MDK_CONTEXT (object);
 
+  g_clear_pointer (&context->launchers, g_ptr_array_unref);
   g_clear_pointer (&context->launch_env, g_strfreev);
   g_clear_object (&context->devkit_proxy);
   g_clear_object (&context->session);
+  g_clear_object (&context->settings);
 
   G_OBJECT_CLASS (mdk_context_parent_class)->finalize (object);
 }
@@ -203,6 +283,13 @@ mdk_context_class_init (MdkContextClass *klass)
                                   0,
                                   NULL, NULL, NULL,
                                   G_TYPE_NONE, 0);
+  signals[LAUNCHERS_CHANGED] =
+    g_signal_new ("launchers-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__VOID,
+                  G_TYPE_NONE, 0);
 }
 
 static void
@@ -261,6 +348,14 @@ mdk_context_init (MdkContext *context)
 
   if (!init_launch_environment (context, &error))
     g_warning ("Failed to initialize launch environment: %s", error->message);
+
+  context->launchers =
+    g_ptr_array_new_with_free_func ((GDestroyNotify) mdk_launcher_free);
+
+  context->settings = g_settings_new ("org.gnome.mutter.devkit");
+  g_signal_connect (context->settings, "changed",
+                    G_CALLBACK (on_settings_changed), context);
+  update_launchers (context);
 }
 
 static void
@@ -344,6 +439,25 @@ gboolean
 mdk_context_get_inhibit_system_shortcuts (MdkContext *context)
 {
   return context->inhibit_system_shortcuts;
+}
+
+GPtrArray *
+mdk_context_get_launchers (MdkContext *context)
+{
+  return context->launchers;
+}
+
+void
+mdk_context_activate_launcher (MdkContext *context,
+                               int         id)
+{
+  MdkLauncher *launcher;
+
+  g_return_if_fail (id >= 0);
+  g_return_if_fail (id < context->launchers->len);
+
+  launcher = g_ptr_array_index (context->launchers, id);
+  mdk_launcher_activate (launcher);
 }
 
 GStrv
