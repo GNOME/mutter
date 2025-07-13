@@ -69,9 +69,6 @@ struct _MdkSession
 
   MdkEi *ei;
 
-  GCancellable *init_cancellable;
-  GTask *init_task;
-
   MdkDBusRemoteDesktop *remote_desktop_proxy;
   MdkDBusScreenCast *screen_cast_proxy;
   MdkDBusRemoteDesktopSession *remote_desktop_session_proxy;
@@ -79,22 +76,11 @@ struct _MdkSession
 };
 
 static void
-async_initable_iface_init (GAsyncInitableIface *iface);
+initable_iface_init (GInitableIface *iface);
 
 G_DEFINE_FINAL_TYPE_WITH_CODE (MdkSession, mdk_session, G_TYPE_OBJECT,
-                               G_IMPLEMENT_INTERFACE (G_TYPE_ASYNC_INITABLE,
-                                                      async_initable_iface_init))
-
-static void
-notify_init_failed (MdkSession   *session,
-                    const GError *error)
-{
-  g_task_return_new_error (g_steal_pointer (&session->init_task),
-                           error->domain,
-                           error->code,
-                           "Failed to initialize MDK session: %s",
-                           error->message);
-}
+                               G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                      initable_iface_init))
 
 static void
 on_session_closed (MdkDBusRemoteDesktopSession *remote_desktop_session_proxy,
@@ -104,9 +90,9 @@ on_session_closed (MdkDBusRemoteDesktopSession *remote_desktop_session_proxy,
 }
 
 static gboolean
-init_session_in_thread (MdkSession    *session,
-                        GCancellable  *cancellable,
-                        GError       **error)
+init_session (MdkSession    *session,
+              GCancellable  *cancellable,
+              GError       **error)
 {
   g_autofree char *session_path = NULL;
   GVariantBuilder builder;
@@ -204,18 +190,14 @@ init_session_in_thread (MdkSession    *session,
   return TRUE;
 }
 
-static void
-init_in_thread (GTask        *task,
-                gpointer      source_object,
-                gpointer      task_data,
-                GCancellable *cancellable)
+static gboolean
+mdk_session_initable_init (GInitable      *initable,
+                           GCancellable   *cancellable,
+                           GError        **error)
 {
-  MdkSession *session = g_task_get_task_data (task);
-  g_autoptr (GError) error = NULL;
+  MdkSession *session = MDK_SESSION (initable);
 
   g_debug ("Initializing session");
-
-  g_assert (session->init_task == task);
 
   session->remote_desktop_proxy =
     mdk_dbus_remote_desktop_proxy_new_for_bus_sync (
@@ -224,12 +206,9 @@ init_in_thread (GTask        *task,
       "org.gnome.Mutter.RemoteDesktop",
       "/org/gnome/Mutter/RemoteDesktop",
       cancellable,
-      &error);
+      error);
   if (!session->remote_desktop_proxy)
-    {
-      notify_init_failed (session, error);
-      return;
-    }
+    return FALSE;
 
   session->screen_cast_proxy =
     mdk_dbus_screen_cast_proxy_new_for_bus_sync (
@@ -238,64 +217,26 @@ init_in_thread (GTask        *task,
       "org.gnome.Mutter.ScreenCast",
       "/org/gnome/Mutter/ScreenCast",
       cancellable,
-      &error);
+      error);
   if (!session->screen_cast_proxy)
-    {
-      notify_init_failed (session, error);
-      return;
-    }
+    return FALSE;
 
-  if (!init_session_in_thread (session, cancellable, &error))
-    {
-      notify_init_failed (session, error);
-      return;
-    }
+  if (!init_session (session, cancellable, error))
+    return FALSE;
 
   if (!mdk_dbus_remote_desktop_session_call_start_sync (
         session->remote_desktop_session_proxy,
         cancellable,
-        &error))
-    {
-      notify_init_failed (session, error);
-      return;
-    }
+        error))
+    return FALSE;
 
-  g_task_return_boolean (g_steal_pointer (&session->init_task), TRUE);
+  return TRUE;
 }
 
 static void
-mdk_session_init_async (GAsyncInitable      *initable,
-                        int                  io_priority,
-                        GCancellable        *cancellable,
-                        GAsyncReadyCallback  callback,
-                        gpointer             user_data)
+initable_iface_init (GInitableIface *iface)
 {
-  MdkSession *session = MDK_SESSION (initable);
-  GTask *task;
-
-  task = g_task_new (initable, cancellable, callback, user_data);
-  g_task_set_name (task, G_STRFUNC);
-  g_task_set_task_data (task, session, NULL);
-
-  session->init_task = task;
-  session->init_cancellable = g_cancellable_new ();
-
-  g_task_run_in_thread (task, init_in_thread);
-}
-
-static gboolean
-mdk_session_init_finish (GAsyncInitable  *initable,
-                         GAsyncResult    *result,
-                         GError         **error)
-{
-  return g_task_propagate_boolean (G_TASK (result), error);
-}
-
-static void
-async_initable_iface_init (GAsyncInitableIface *iface)
-{
-  iface->init_async = mdk_session_init_async;
-  iface->init_finish = mdk_session_init_finish;
+  iface->init = mdk_session_initable_init;
 }
 
 static void

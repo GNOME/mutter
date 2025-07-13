@@ -210,16 +210,16 @@ on_session_closed (MdkSession *session,
 }
 
 static void
-session_ready_cb (GObject      *source_object,
-                  GAsyncResult *res,
-                  gpointer      user_data)
+init_session (MdkContext *context)
 {
-  MdkContext *context = user_data;
   g_autoptr (GError) error = NULL;
+  MdkSession *session;
 
-  if (!g_async_initable_init_finish (G_ASYNC_INITABLE (source_object),
-                                     res,
-                                     &error))
+  session = g_initable_new (MDK_TYPE_SESSION,
+                            NULL, &error,
+                            "context", context,
+                            NULL);
+  if (!session)
     {
       g_signal_emit (context, signals[ERROR], 0, error);
       return;
@@ -227,25 +227,13 @@ session_ready_cb (GObject      *source_object,
 
   g_debug ("Session is ready");
 
-  context->session = MDK_SESSION (source_object);
+  context->session = session;
   update_active_input_devices (context);
 
   g_signal_connect (context->session, "closed",
                     G_CALLBACK (on_session_closed), context);
 
   g_signal_emit (context, signals[READY], 0);
-}
-
-static void
-init_session (MdkContext *context)
-{
-  g_async_initable_new_async (MDK_TYPE_SESSION,
-                              G_PRIORITY_DEFAULT,
-                              NULL,
-                              session_ready_cb,
-                              context,
-                              "context", context,
-                              NULL);
 }
 
 MdkContext *
