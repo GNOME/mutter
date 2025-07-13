@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-05-20 21:59+0000\n"
-"PO-Revision-Date: 2025-06-14 08:00+0300\n"
+"POT-Creation-Date: 2025-07-13 10:23+0000\n"
+"PO-Revision-Date: 2025-07-13 08:00+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -632,35 +632,39 @@ msgstr ""
 "desteklemiyorsa bu seçenek işlevsizdir. Bu ayarın etkinleşmesi için Xwayland "
 "yeniden başlatılmalıdır."
 
-#: mdk/mdk-devkit.ui:7
+#: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Girdi"
 
-#: mdk/mdk-devkit.ui:9
+#: mdk/mdk-main-window.ui:9
 msgid "_Emulate touch"
 msgstr "Dokunmayı _öykün"
 
-#: mdk/mdk-devkit.ui:15
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "Sistem kısayollarını _engelle"
+
+#: mdk/mdk-main-window.ui:19
 msgid "_About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı _Hakkında"
 
-#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:84 mdk/mdk-main.c:99
+#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
 msgid "Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı"
 
-#: mdk/mdk-devkit.ui:31
+#: mdk/mdk-main-window.ui:35
 msgid "Main Menu"
 msgstr "Ana Menü"
 
-#: mdk/mdk-main.c:68
+#: mdk/mdk-main.c:69
 msgid "The Mutter Team"
 msgstr "Mutter Takımı"
 
-#: mdk/mdk-main.c:90 mdk/mdk-main.c:104
+#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
 msgid "Mutter software development kit"
 msgstr "Mutter yazılım geliştirme takımı"
 
-#: mdk/mdk-main.c:93 mdk/mdk-main.c:107
+#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
 msgid "About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı Hakkında"
 
@@ -668,26 +672,26 @@ msgstr "Mutter Geliştirme Takımı Hakkında"
 msgid "Failed to create monitor"
 msgstr "Monitör oluşturulamadı"
 
-#: src/backends/meta-monitor.c:272
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Yerleşik monitör"
 
-#: src/backends/meta-monitor.c:299
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Bilinmeyen"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Bilinmeyen Monitör"
 
-#: src/backends/meta-monitor.c:309
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:317
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -695,7 +699,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Etkinlik zili"
 
@@ -727,39 +731,39 @@ msgstr "Wayland dizgici olarak çalıştır"
 msgid "Run as a nested compositor"
 msgstr "Yuvalanmış dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:667
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:674
 msgid "Specify Wayland display name to use"
 msgstr "Kullanılacak Wayland monitör adını belirt"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:682
 msgid "Run as a full display server, rather than nested"
 msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:687
 msgid "Run as a headless display server"
 msgstr "Başsız monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:692
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:699
 msgid "Run development kit"
 msgstr "Geliştirme takımını çalıştır"
 
-#: src/core/meta-context-main.c:709
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
 msgstr "X11 arkayüzüyle çalıştır"
 
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:717
 msgid "Profile performance using trace instrumentation"
 msgstr "İzleme araçları kullanarak başarımı profille"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:723
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus arayüzü için hata ayıklama denetimini etkinleştir"
 
@@ -843,7 +847,7 @@ msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2793
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -860,4 +864,3 @@ msgstr "%s biçimi desteklenmiyor"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
-
