@@ -297,9 +297,6 @@ meta_wayland_pointer_constraint_new (MetaWaylandSurface                       *s
   MetaWaylandPointerConstraint *constraint;
 
   constraint = g_object_new (META_TYPE_WAYLAND_POINTER_CONSTRAINT, NULL);
-  if (!constraint)
-    return NULL;
-
   constraint->surface = surface;
   constraint->seat = seat;
   constraint->lifetime = lifetime;
@@ -917,11 +914,6 @@ init_pointer_constraint (struct wl_resource                       *resource,
                                                     region,
                                                     lifetime,
                                                     cr);
-  if (constraint == NULL)
-    {
-      wl_client_post_no_memory (client);
-      return;
-    }
 
   surface_add_pointer_constraint (surface, constraint);
 
