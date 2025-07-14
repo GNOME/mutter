@@ -103,7 +103,7 @@ git clone --depth 1 "$REPO_URL" -b "$BRANCH_OR_TAG" "$CHECKOUT_DIR"
 
 pushd "$CHECKOUT_DIR"
 if [ ! -z "$COMMIT" ]; then
-    git fetch "$COMMIT"
+    git fetch origin "$COMMIT"
     git checkout "$COMMIT"
 fi
 pushd "$SUBDIR"
