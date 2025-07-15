@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-04-09 15:43+0000\n"
-"PO-Revision-Date: 2025-04-11 15:52+0200\n"
+"POT-Creation-Date: 2025-07-13 10:23+0000\n"
+"PO-Revision-Date: 2025-07-15 12:02+0200\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -640,26 +640,66 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients pentru a controla această reglare. "
 "Xwayland trebuie repornit pentru ca această reglare să aibă efect."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_Intrare"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "Simul_ează atingerea"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "Dezact_ivează scurtăturile de sistem"
+
+#: mdk/mdk-main-window.ui:19
+msgid "_About Mutter Development Kit"
+msgstr "_Despre Mutter Development Kit"
+
+#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+msgid "Mutter Development Kit"
+msgstr "Mutter Development Kit"
+
+#: mdk/mdk-main-window.ui:35
+msgid "Main Menu"
+msgstr "Opțiuni"
+
+#: mdk/mdk-main.c:69
+msgid "The Mutter Team"
+msgstr "Echipa Mutter"
+
+#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+msgid "Mutter software development kit"
+msgstr "Set de dezvoltare a programelor pentru Mutter"
+
+#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+msgid "About Mutter Development Kit"
+msgstr "Despre Mutter Development Kit"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Nu s-a putut crea monitorul"
+
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Ecranul integrat"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Ecran necunoscut"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -667,7 +707,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
@@ -679,74 +719,66 @@ msgstr "Ecran de confidențialitate activat"
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:632
 msgid "Replace the running window manager"
 msgstr "Înlocuiește administratorul de ferestre actual"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:638
 msgid "X Display to use"
 msgstr "Afișajul X ce va fi folosit"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Dezactivează conexiunea la administratorul de sesiune"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Specifică ID-ul administrării sesiunii"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Inițializează sesiunea din fișierul salvat"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:644
 msgid "Make X calls synchronous"
 msgstr "Fă sincrone apelurile către X"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:652
 msgid "Run as a wayland compositor"
 msgstr "Execută ca un compozitor Wayland"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:659
 msgid "Run as a nested compositor"
-msgstr "Execută ca un compozitor încorporat"
+msgstr "Execută ca un compozitor integrat"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:667
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Pornește compozitorul Wayland fără a porni Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:674
 msgid "Specify Wayland display name to use"
 msgstr "Numele afișajului Wayland de utilizat"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:682
 msgid "Run as a full display server, rather than nested"
-msgstr "Funcționează ca server de afișare, iar nu ca server încorporat"
+msgstr "Funcționează ca server de afișare, iar nu ca server integrat"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:687
 msgid "Run as a headless display server"
 msgstr "Funcționează ca server fără ecran"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:692
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitorul virtual persistent (WxH sau WxH@R)"
 
-#: src/core/meta-context-main.c:709
+#: src/core/meta-context-main.c:699
+msgid "Run development kit"
+msgstr "Pornește setul de dezvoltare"
+
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
 msgstr "Funcționează cu backend X11"
 
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:717
 msgid "Profile performance using trace instrumentation"
 msgstr "Înregistrează performanța folosind un instrument de urmărire"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:723
 msgid "Enable debug control D-Bus interface"
 msgstr "Activează interfața D-Bus a controlului depanării"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Comutator de mod (grupul %d)"
@@ -754,7 +786,7 @@ msgstr "Comutator de mod (grupul %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Comutator de mod"
@@ -762,11 +794,11 @@ msgstr "Comutator de mod"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Schimbă monitorul"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Arată ajutorul virtual"
 
@@ -796,12 +828,12 @@ msgstr "Mutter a fost compilat fără opțiunea de a afișa informații detaliat
 msgid "Workspace switched"
 msgstr "Spațiu de lucru schimbat"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Comutator de mod: modul %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -811,19 +843,19 @@ msgstr ""
 "opțiunea --replace (înlocuiește) pentru a înlocui administratorul de "
 "ferestre actual."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window\""
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecranul %d cu afișajul „%s” este greșit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -836,7 +868,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Formatul %s nu este acceptat"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
