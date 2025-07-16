@@ -181,6 +181,9 @@ meta_wayland_color_representation_commit_check (MetaWaylandSurface *surface)
           return FALSE;
         }
       break;
+    case N_META_MULTI_TEXTURE_COEFFICIENTS:
+      g_assert_not_reached ();
+      break;
     }
 
   return TRUE;

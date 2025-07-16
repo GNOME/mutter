@@ -59,6 +59,7 @@ typedef enum _MetaMultiTextureFormat
   META_MULTI_TEXTURE_FORMAT_S016,
   META_MULTI_TEXTURE_FORMAT_S216,
   META_MULTI_TEXTURE_FORMAT_S416,
+  N_META_MULTI_TEXTURE_FORMATS
 } MetaMultiTextureFormat;
 
 typedef enum _MetaMultiTextureAlphaMode
@@ -66,6 +67,7 @@ typedef enum _MetaMultiTextureAlphaMode
   META_MULTI_TEXTURE_ALPHA_MODE_NONE = 0,
   META_MULTI_TEXTURE_ALPHA_MODE_PREMULT_ELECTRICAL,
   META_MULTI_TEXTURE_ALPHA_MODE_STRAIGHT,
+  N_META_MULTI_TEXTURE_ALPHA_MODES
 } MetaMultiTextureAlphaMode;
 
 typedef enum _MetaMultiTextureCoefficients
@@ -79,6 +81,7 @@ typedef enum _MetaMultiTextureCoefficients
   META_MULTI_TEXTURE_COEFFICIENTS_BT601_LIMITED,
   META_MULTI_TEXTURE_COEFFICIENTS_BT2020_FULL,
   META_MULTI_TEXTURE_COEFFICIENTS_BT2020_LIMITED,
+  N_META_MULTI_TEXTURE_COEFFICIENTS
 } MetaMultiTextureCoefficients;
 
 typedef enum _MetaMultiTextureChromaLoc
