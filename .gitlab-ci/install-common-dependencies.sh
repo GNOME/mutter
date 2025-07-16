@@ -121,7 +121,7 @@ then
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
       https://gitlab.gnome.org/GNOME/gjs.git \
-      master
+      1.85.1
 fi
 
 if ! pkgconf --atleast-version 1.24 wayland-server
