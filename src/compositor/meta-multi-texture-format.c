@@ -532,6 +532,28 @@ append_snippet (const OpSnippet *snippet,
                           snippet_color_var);
 }
 
+static guint
+perfect_hash (MetaMultiTextureFormat       format,
+              MetaMultiTextureCoefficients coeffs,
+              MetaMultiTextureAlphaMode    alpha_mode)
+{
+  guint hash;
+
+  g_assert ((N_META_MULTI_TEXTURE_FORMATS *
+             N_META_MULTI_TEXTURE_COEFFICIENTS *
+             N_META_MULTI_TEXTURE_ALPHA_MODES) <= G_MAXUINT);
+
+  hash = format;
+
+  hash *= N_META_MULTI_TEXTURE_COEFFICIENTS;
+  hash += coeffs;
+
+  hash *= N_META_MULTI_TEXTURE_ALPHA_MODES;
+  hash += alpha_mode;
+
+  return hash;
+}
+
 CoglSnippet *
 meta_multi_texture_format_get_snippet (MetaMultiTextureFormat       format,
                                        MetaMultiTextureCoefficients coeffs,
@@ -540,10 +562,28 @@ meta_multi_texture_format_get_snippet (MetaMultiTextureFormat       format,
   g_autoptr (GString) snippet_globals = NULL;
   g_autoptr (GString) snippet_source = NULL;
   const char *snippet_color_var;
+  static GHashTable *hash_table = NULL;
+  guint hash;
+  gpointer key;
+  CoglSnippet *snippet;
 
   g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), NULL);
   g_return_val_if_fail (coeffs < G_N_ELEMENTS (coeffs_table), NULL);
   g_return_val_if_fail (premult < G_N_ELEMENTS (premult_table), NULL);
+
+  if (hash_table == NULL)
+    {
+      hash_table = g_hash_table_new_full (g_direct_hash,
+                                          g_direct_equal,
+                                          NULL,
+                                          g_object_unref);
+    }
+
+  hash = perfect_hash (format, coeffs, premult);
+  key = GUINT_TO_POINTER (hash);
+  snippet = g_hash_table_lookup (hash_table, key);
+  if (snippet)
+    return g_object_ref (snippet);
 
   snippet_globals = g_string_new (NULL);
   snippet_source = g_string_new (NULL);
@@ -571,7 +611,11 @@ meta_multi_texture_format_get_snippet (MetaMultiTextureFormat       format,
                           "  cogl_color_out = %s * cogl_color_in.a;\n",
                           snippet_color_var);
 
-  return cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                           snippet_globals->str,
-                           snippet_source->str);
+  snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                              snippet_globals->str,
+                              snippet_source->str);
+
+  g_hash_table_insert (hash_table, key, snippet);
+
+  return g_object_ref (snippet);
 }
