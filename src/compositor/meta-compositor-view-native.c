@@ -299,7 +299,9 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
     {
       meta_topic (META_DEBUG_RENDER,
                   "No direct scanout candidate: "
-                  "surface color state doesn't match the outputs");
+                  "surface color state (%s) doesn't match the outputs (%s)",
+                  clutter_color_state_to_string (surface_color_state),
+                  clutter_color_state_to_string (output_color_state));
       return FALSE;
     }
 
