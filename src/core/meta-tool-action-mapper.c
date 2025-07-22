@@ -31,7 +31,7 @@
 
 struct _MetaToolActionMapper
 {
-  GObject parent_class;
+  MetaTabletActionMapper parent_instance;
   MetaInputSettings *input_settings;
 };
 
