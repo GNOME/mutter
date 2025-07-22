@@ -43,7 +43,7 @@ struct _PadMappingInfo
 
 struct _MetaPadActionMapper
 {
-  GObject parent_class;
+  MetaTabletActionMapper parent_instance;
 
   GHashTable *pads;
 

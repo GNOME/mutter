@@ -251,7 +251,8 @@ device_added (MetaTabletActionMapper *mapper,
   TabletMappingInfo *info;
 
   if ((clutter_input_device_get_capabilities (device) &
-       CLUTTER_INPUT_CAPABILITY_TABLET_TOOL) != 0)
+       (CLUTTER_INPUT_CAPABILITY_TABLET_TOOL |
+        CLUTTER_INPUT_CAPABILITY_TABLET_PAD)) != 0)
     {
       info = tablet_mapping_info_new (device);
       g_hash_table_insert (priv->tablets, device, info);
