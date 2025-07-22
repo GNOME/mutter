@@ -17,6 +17,28 @@
       <arg name="fd" type="h" direction="out" />
     </method>
 
+    <!--
+        OpenWaylandConnection:
+        @options: Dictionary of options for the Wayland connection
+        @fd: File descriptor for the new Wayland connection
+
+        Creates a new Wayland client connection and returns a file descriptor
+        that can be used to communicate with the Wayland compositor.
+
+        The options vardict supports the following keys:
+        - "window-tag" (s): Optional string tag to associate with windows
+                           created by this Wayland client. This tag can be
+                           used for identification and management purposes.
+
+        If the compositor is not running in Wayland mode, this method will
+        fail with a NOT_SUPPORTED error.
+    -->
+    <method name="OpenWaylandConnection">
+      <arg name="options" type="a{sv}" direction="in" />
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="fd" type="h" direction="out" />
+    </method>
+
   </interface>
 
 </node>

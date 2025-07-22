@@ -195,11 +195,73 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
 #endif /* HAVE_WAYLAND */
 }
 
+static gboolean
+handle_open_wayland_connection (MetaDBusServiceChannel *object,
+                                GDBusMethodInvocation  *invocation,
+                                GUnixFDList            *in_fd_list,
+                                GVariant               *arg_options)
+{
+#ifdef HAVE_WAYLAND
+  MetaServiceChannel *service_channel = META_SERVICE_CHANNEL (object);
+  g_autoptr (GError) error = NULL;
+  g_autoptr (MetaWaylandClient) wayland_client = NULL;
+  g_autoptr (GUnixFDList) out_fd_list = NULL;
+  g_autoptr (GVariant) window_tag_variant = NULL;
+  int fd_id;
+
+  if (meta_context_get_compositor_type (service_channel->context) !=
+      META_COMPOSITOR_TYPE_WAYLAND)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_NOT_SUPPORTED,
+                                             "Not a Wayland compositor");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  out_fd_list = g_unix_fd_list_new ();
+  wayland_client = setup_wayland_client_with_fd (service_channel->context,
+                                                 out_fd_list,
+                                                 &fd_id,
+                                                 &error);
+  if (!wayland_client)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_NOT_SUPPORTED,
+                                             "Failed to create Wayland client: %s",
+                                             error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  window_tag_variant = g_variant_lookup_value (arg_options,
+                                               "window-tag",
+                                               G_VARIANT_TYPE_STRING);
+  if (window_tag_variant)
+    {
+      const char *window_tag = g_variant_get_string (window_tag_variant, NULL);
+      meta_wayland_client_set_window_tag (wayland_client, window_tag);
+    }
+
+  meta_dbus_service_channel_complete_open_wayland_connection (
+    object, invocation, out_fd_list, g_variant_new_handle (fd_id));
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+#else /* HAVE_WAYLAND */
+  g_dbus_method_invocation_return_error (invocation,
+                                         G_DBUS_ERROR,
+                                         G_DBUS_ERROR_NOT_SUPPORTED,
+                                         "Wayland not supported");
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+#endif /* HAVE_WAYLAND */
+}
+
 static void
 meta_service_channel_init_iface (MetaDBusServiceChannelIface *iface)
 {
   iface->handle_open_wayland_service_connection =
     handle_open_wayland_service_connection;
+  iface->handle_open_wayland_connection =
+    handle_open_wayland_connection;
 }
 
 static void
