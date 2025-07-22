@@ -331,7 +331,7 @@ meta_wayland_client_get_subprocess (MetaWaylandClient *client)
 }
 
 /**
- * meta_wayland_client_owns_wayland_window
+ * meta_wayland_client_owns_window
  * @client: a #MetaWaylandClient
  * @window: (not nullable): a MetaWindow
  *
