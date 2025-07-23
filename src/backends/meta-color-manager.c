@@ -628,3 +628,9 @@ meta_color_manager_set_brightness (MetaColorManager *color_manager,
   meta_dbus_settings_daemon_power_screen_set_brightness (priv->gsd_power_screen,
                                                          brightness);
 }
+
+unsigned int
+meta_color_manager_get_default_temperature (MetaColorManager *color_manager)
+{
+  return DEFAULT_TEMPERATURE;
+}

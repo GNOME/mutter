@@ -37,3 +37,5 @@ MetaColorDevice * meta_color_manager_get_color_device (MetaColorManager *color_m
 
 void meta_color_manager_set_brightness (MetaColorManager *color_manager,
                                         int               brightness);
+
+unsigned int meta_color_manager_get_default_temperature (MetaColorManager *color_manager);
