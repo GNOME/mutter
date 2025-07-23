@@ -18,6 +18,9 @@
 
 #include "config.h"
 
+#include <glib.h>
+#include <glib/gstdio.h>
+
 #include "core/meta-service-channel.h"
 
 #include "wayland/meta-wayland-client-private.h"
@@ -103,6 +106,27 @@ verify_service_client_type (uint32_t service_client_type)
   return FALSE;
 }
 
+static MetaWaylandClient *
+setup_wayland_client_with_fd (MetaContext  *context,
+                              GUnixFDList  *fd_list,
+                              int          *fd_id,
+                              GError      **error)
+{
+  g_autoptr (MetaWaylandClient) wayland_client = NULL;
+  g_autofd int fd = -1;
+
+  wayland_client = meta_wayland_client_new_create (context, error);
+  if (!wayland_client)
+      return NULL;
+
+  fd = meta_wayland_client_take_client_fd (wayland_client);
+  *fd_id = g_unix_fd_list_append (fd_list, fd, error);
+  if (*fd_id == -1)
+    return NULL;
+
+  return g_steal_pointer (&wayland_client);
+}
+
 static gboolean
 handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
                                         GDBusMethodInvocation  *invocation,
@@ -114,7 +138,6 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
   g_autoptr (GError) error = NULL;
   g_autoptr (MetaWaylandClient) wayland_client = NULL;
   g_autoptr (GUnixFDList) out_fd_list = NULL;
-  int fd;
   int fd_id;
 
   if (meta_context_get_compositor_type (service_channel->context) !=
@@ -136,8 +159,11 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  wayland_client = meta_wayland_client_new_create (service_channel->context,
-                                                   &error);
+  out_fd_list = g_unix_fd_list_new ();
+  wayland_client = setup_wayland_client_with_fd (service_channel->context,
+                                                 out_fd_list,
+                                                 &fd_id,
+                                                 &error);
   if (!wayland_client)
     {
       g_dbus_method_invocation_return_error (invocation,
@@ -150,21 +176,6 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
 
   meta_wayland_client_set_caps (wayland_client,
                                 META_WAYLAND_CLIENT_CAPS_X11_INTEROP);
-
-  fd = meta_wayland_client_take_client_fd (wayland_client);
-  out_fd_list = g_unix_fd_list_new ();
-  fd_id = g_unix_fd_list_append (out_fd_list, fd, &error);
-  close (fd);
-
-  if (fd_id == -1)
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             G_DBUS_ERROR,
-                                             G_DBUS_ERROR_ACCESS_DENIED,
-                                             "Failed to append fd: %s",
-                                             error->message);
-      return G_DBUS_METHOD_INVOCATION_HANDLED;
-    }
 
   g_hash_table_replace (service_channel->service_clients,
                         GUINT_TO_POINTER (service_client_type),
