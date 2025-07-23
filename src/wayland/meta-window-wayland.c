@@ -37,6 +37,7 @@
 #include "core/stack-tracker.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-actor-surface.h"
+#include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-surface-private.h"
 #include "wayland/meta-wayland-toplevel-drag.h"
@@ -1059,6 +1060,23 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
+static void
+meta_window_wayland_maybe_apply_custom_tag (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaWaylandSurface *surface = wl_window->surface;
+  MetaWaylandClient *wayland_client;
+  struct wl_client *wl_client;
+  const char *window_tag;
+
+  wl_client = wl_resource_get_client (surface->resource);
+  wayland_client = meta_get_wayland_client (wl_client);
+
+  window_tag = meta_wayland_client_get_window_tag (wayland_client);
+  if (window_tag)
+    meta_window_set_tag (window, window_tag);
+}
+
 MetaWindow *
 meta_window_wayland_new (MetaDisplay        *display,
                          MetaWaylandSurface *surface)
@@ -1074,6 +1092,7 @@ meta_window_wayland_new (MetaDisplay        *display,
                            NULL);
   wl_window = META_WINDOW_WAYLAND (window);
   set_geometry_scale_for_window (wl_window, wl_window->geometry_scale);
+  meta_window_wayland_maybe_apply_custom_tag (window);
 
   return window;
 }
