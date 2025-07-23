@@ -179,8 +179,7 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
   g_dbus_method_invocation_return_error (invocation,
                                          G_DBUS_ERROR,
                                          G_DBUS_ERROR_NOT_SUPPORTED,
-                                         "Wayland not supported",
-                                         error->message);
+                                         "Wayland not supported");
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 #endif /* HAVE_WAYLAND */
 }
