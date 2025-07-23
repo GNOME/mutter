@@ -85,6 +85,8 @@ struct _MetaColorDevice
   gboolean is_ready;
 
   float reference_luminance_factor;
+
+  gboolean is_calibrating;
 };
 
 G_DEFINE_TYPE (MetaColorDevice, meta_color_device,
@@ -1395,7 +1397,10 @@ update_white_point (MetaColorDevice *color_device)
   if (!color_profile)
     return 0;
 
-  temperature = meta_color_manager_get_temperature (color_manager);
+  if (color_device->is_calibrating)
+    temperature = meta_color_manager_get_default_temperature (color_manager);
+  else
+    temperature = meta_color_manager_get_temperature (color_manager);
 
   meta_topic (META_DEBUG_COLOR,
               "Updating white point of device '%s' (%s) "
@@ -1436,8 +1441,8 @@ update_white_point (MetaColorDevice *color_device)
   return UPDATE_RESULT_CALIBRATION;
 }
 
-void
-meta_color_device_update (MetaColorDevice *color_device)
+static void
+do_update (MetaColorDevice *color_device)
 {
   MetaMonitor *monitor = color_device->monitor;
   UpdateResult result = 0;
@@ -1453,4 +1458,52 @@ meta_color_device_update (MetaColorDevice *color_device)
 
   if (result & UPDATE_RESULT_COLOR_STATE)
     g_signal_emit (color_device, signals[COLOR_STATE_CHANGED], 0);
+}
+
+void
+meta_color_device_update (MetaColorDevice *color_device)
+{
+  if (color_device->is_calibrating)
+    return;
+
+  do_update (color_device);
+}
+
+gboolean
+meta_color_device_start_calibration (MetaColorDevice  *color_device,
+                                     GError          **error)
+{
+  if (!color_device->is_ready)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Device is not ready");
+      return FALSE;
+    }
+
+  if (meta_monitor_get_gamma_lut_size (color_device->monitor) == 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Device cannot be calibrated");
+      return FALSE;
+    }
+
+  if (color_device->is_calibrating)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Device is already being calibrated");
+      return FALSE;
+    }
+
+  color_device->is_calibrating = TRUE;
+  do_update (color_device);
+  return TRUE;
+}
+
+void
+meta_color_device_stop_calibration (MetaColorDevice *color_device)
+{
+  g_return_if_fail (color_device->is_ready);
+
+  color_device->is_calibrating = FALSE;
+  do_update (color_device);
 }
