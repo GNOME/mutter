@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+
+"""
+Launch a Wayland client with an optional tag using Mutter's ServiceChannel.
+
+This script connects to the Mutter ServiceChannel D-Bus service to create
+a Wayland connection and runs the specified command on it.
+"""
+
+import argparse
+import sys
+import re
+import subprocess
+from contextlib import contextmanager
+from os import environ
+from typing import List, Iterator, Optional
+
+import dbus
+import dbus.exceptions
+
+# Service channel constants
+SERVICE_NAME = "org.gnome.Mutter.ServiceChannel"
+SERVICE_INTERFACE = "org.gnome.Mutter.ServiceChannel"
+SERVICE_OBJECT_PATH = "/org/gnome/Mutter/ServiceChannel"
+
+# Exit codes
+EXIT_SUCCESS = 0
+EXIT_FAILURE = 1
+EXIT_DBUS_ERROR = 2
+EXIT_MISSING_ARGS = 3
+
+
+def get_service_channel() -> tuple[dbus.Interface, dbus.Bus]:
+    """
+    Get the Mutter ServiceChannel D-Bus interface and own the sender name.
+
+    Returns:
+        Tuple of (D-Bus interface for the service channel, D-Bus bus)
+
+    Raises:
+        SystemExit: If the service is not available
+    """
+    try:
+        bus = dbus.SessionBus()
+        service_channel = bus.get_object(SERVICE_NAME, SERVICE_OBJECT_PATH)
+        return dbus.Interface(service_channel, dbus_interface=SERVICE_INTERFACE), bus
+    except dbus.exceptions.DBusException as error:
+        print(f"Error: Unable to connect to Mutter ServiceChannel: {error}",
+              file=sys.stderr)
+        print("Make sure you're running under a compatible Wayland compositor "
+              "(GNOME Shell, GNOME Kiosk, etc.)", file=sys.stderr)
+        sys.exit(EXIT_DBUS_ERROR)
+
+
+def get_wayland_connection_fd(service_channel: dbus.Interface, tag: Optional[str]) -> dbus.types.UnixFd:
+    """
+    Request a new Wayland connection file descriptor with an optional window tag.
+
+    Args:
+        service_channel: The D-Bus service channel interface
+        tag: The optional tag to associate with the Wayland client
+
+    Returns:
+        File descriptor for the Wayland connection
+
+    Raises:
+        SystemExit: If the service call fails
+    """
+
+    try:
+        options = {}
+        if tag:
+            options['window-tag'] = tag
+        fd = service_channel.OpenWaylandConnection(options)
+        return fd
+    except dbus.exceptions.DBusException as error:
+        print(f"Error: Failed to create Wayland connection: {error}", file=sys.stderr)
+        sys.exit(EXIT_DBUS_ERROR)
+
+
+@contextmanager
+def wayland_socket_fd(fd: dbus.types.UnixFd) -> Iterator[int]:
+    """
+    Context manager for handling the Wayland socket file descriptor.
+
+    Args:
+        fd: The Unix file descriptor from D-Bus
+
+    Yields:
+        The file descriptor number as an integer
+    """
+    fd_num = fd.take()
+    try:
+        yield fd_num
+    finally:
+        try:
+            import os
+            os.close(fd_num)
+        except OSError:
+            # fd might already be closed by subprocess
+            pass
+
+
+def run_command_with_wayland_socket(command: List[str], fd_num: int) -> int:
+    """
+    Run the specified command with the Wayland socket.
+
+    Args:
+        command: Command and arguments to execute
+        fd_num: File descriptor number for the Wayland socket
+
+    Returns:
+        The exit code from the executed command
+    """
+    # Set up environment for the subprocess
+    env = environ.copy()
+    env["WAYLAND_SOCKET"] = str(fd_num)
+
+    try:
+        with subprocess.Popen(command, env=env, pass_fds=[fd_num]) as proc:
+            return proc.wait()
+    except FileNotFoundError:
+        print(f"Error: Command not found: {command[0]}", file=sys.stderr)
+        return EXIT_FAILURE
+    except PermissionError:
+        print(f"Error: Permission denied executing: {command[0]}", file=sys.stderr)
+        return EXIT_FAILURE
+    except KeyboardInterrupt:
+        # Handle Ctrl+C gracefully
+        print("\nInterrupted by user", file=sys.stderr)
+        return EXIT_SUCCESS
+    except Exception as error:
+        print(f"Error: Failed to execute command: {error}", file=sys.stderr)
+        return EXIT_FAILURE
+
+
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Returns:
+        Parsed arguments namespace
+    """
+    parser = argparse.ArgumentParser(
+        description='Launch a Wayland client with an optional tag',
+        epilog='Example: %(prog)s -t demo -- gnome-tour\n'
+               '         %(prog)s -- gnome-calculator'
+    )
+
+    parser.add_argument(
+        '-t', '--tag',
+        required=False,
+        help='Optional tag to associate with the Wayland client'
+    )
+
+    parser.add_argument(
+        'command',
+        nargs='+',
+        help='Command to run and its arguments'
+    )
+
+    return parser.parse_args()
+
+
+def main() -> None:
+    """Main entry point."""
+    try:
+        args = parse_arguments()
+    except SystemExit as e:
+        # argparse handles --help and invalid args
+        sys.exit(e.code)
+
+    # Validate arguments
+    if args.tag is not None and not args.tag.strip():
+        print("Error: Tag cannot be empty", file=sys.stderr)
+        sys.exit(EXIT_MISSING_ARGS)
+
+    if not args.command:
+        print("Error: No command specified", file=sys.stderr)
+        sys.exit(EXIT_MISSING_ARGS)
+
+    # Connect to service and run command
+    service_channel, bus = get_service_channel()
+
+    try:
+        wayland_fd = get_wayland_connection_fd(service_channel, args.tag)
+
+        with wayland_socket_fd(wayland_fd) as fd_num:
+            exit_code = run_command_with_wayland_socket(args.command, fd_num)
+
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(EXIT_DBUS_ERROR)
+
+    sys.exit(exit_code)
+
+
+if __name__ == '__main__':
+    main()

@@ -3,6 +3,11 @@ install_data(
   install_dir: bindir,
 )
 
+install_data(
+  'gnome-service-client',
+  install_dir: bindir,
+)
+
 if have_bash_completion
   bash_completion = dependency('bash-completion', required: false)
   if bash_completion.found()
