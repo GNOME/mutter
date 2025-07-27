@@ -18566,6 +18566,7 @@ clutter_actor_set_accessible (ClutterActor *self,
         {
           g_object_remove_weak_pointer (G_OBJECT (self),
                                         (gpointer *)&priv->accessible);
+          g_object_run_dispose (G_OBJECT (priv->accessible));
           g_clear_object (&priv->accessible);
         }
 
