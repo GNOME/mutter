@@ -191,8 +191,12 @@ enum
   PROP_0,
 
   PROP_COMPOSITOR_MODIFIERS,
-  PROP_FOCUS_WINDOW
+  PROP_FOCUS_WINDOW,
+
+  N_PROPS
 };
+
+static GParamSpec *obj_props[N_PROPS];
 
 static guint display_signals [LAST_SIGNAL] = { 0 };
 
@@ -591,19 +595,16 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_TYPE_POINTER,
                   G_TYPE_POINTER);
 
-  g_object_class_install_property (object_class,
-                                   PROP_COMPOSITOR_MODIFIERS,
-                                   g_param_spec_flags ("compositor-modifiers", NULL, NULL,
-                                                       CLUTTER_TYPE_MODIFIER_TYPE,
-                                                       0,
-                                                       G_PARAM_READABLE));
-
-  g_object_class_install_property (object_class,
-                                   PROP_FOCUS_WINDOW,
-                                   g_param_spec_object ("focus-window", NULL, NULL,
-                                                        META_TYPE_WINDOW,
-                                                        G_PARAM_READABLE));
-
+  obj_props[PROP_COMPOSITOR_MODIFIERS] =
+    g_param_spec_flags ("compositor-modifiers", NULL, NULL,
+                        CLUTTER_TYPE_MODIFIER_TYPE,
+                        0,
+                        G_PARAM_READABLE);
+  obj_props[PROP_FOCUS_WINDOW] =
+    g_param_spec_object ("focus-window", NULL, NULL,
+                         META_TYPE_WINDOW,
+                         G_PARAM_READABLE);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 
