@@ -1008,7 +1008,11 @@ calculate_next_variable_update_timeout_us (ClutterFrameClock *frame_clock,
 
   now_us = g_get_monotonic_time ();
 
-  timeout_interval_us = frame_clock->maximum_refresh_interval_us;
+  if (now_us - frame_clock->frame_sync_update_time_us >=
+      frame_clock->maximum_refresh_interval_us)
+    timeout_interval_us = frame_clock->refresh_interval_us;
+  else
+    timeout_interval_us = frame_clock->maximum_refresh_interval_us;
 
   if (!last_presentation || last_presentation->presentation_time_us == 0)
     {
