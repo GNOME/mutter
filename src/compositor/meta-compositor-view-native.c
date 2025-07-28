@@ -81,6 +81,8 @@ maybe_schedule_update_now (MetaCompositorViewNative *view_native)
       if (!frame_clock)
         return;
 
+      clutter_frame_clock_set_frame_sync_update_time (frame_clock,
+                                                      g_get_monotonic_time ());
       clutter_frame_clock_schedule_update_now (frame_clock);
     }
 }

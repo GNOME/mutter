@@ -159,6 +159,7 @@ struct _ClutterFrameClock
   int64_t missed_frame_report_time_us;
 
   int64_t deadline_evasion_us;
+  int64_t frame_sync_update_time_us;
 
   char *output_name;
 
@@ -1383,6 +1384,13 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
   g_source_set_ready_time (frame_clock->source, ready_time_us);
   frame_clock->pending_reschedule = TRUE;
   clutter_frame_clock_set_state (frame_clock, next_state);
+}
+
+void
+clutter_frame_clock_set_frame_sync_update_time (ClutterFrameClock *frame_clock,
+                                                int64_t            update_time_us)
+{
+  frame_clock->frame_sync_update_time_us = update_time_us;
 }
 
 static int
