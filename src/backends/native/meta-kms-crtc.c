@@ -55,6 +55,7 @@ struct _MetaKmsCrtc
   int64_t shortterm_max_dispatch_duration_us;
   int64_t deadline_evasion_us;
   int64_t deadline_evasion_update_time_us;
+  int64_t vrr_update_time_us;
 };
 
 G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
@@ -715,6 +716,13 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   *out_next_deadline_us = next_deadline_us;
 
   return TRUE;
+}
+
+void
+meta_kms_crtc_set_vrr_update_time (MetaKmsCrtc *crtc,
+                                   int64_t      vrr_update_time_us)
+{
+  crtc->vrr_update_time_us = vrr_update_time_us;
 }
 
 void
