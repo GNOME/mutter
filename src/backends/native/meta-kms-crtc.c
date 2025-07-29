@@ -622,6 +622,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   int ret;
   int64_t next_presentation_us;
   int64_t next_deadline_us;
+  gboolean vrr_enabled;
   int64_t now_us;
 
   if (!crtc->current_state.is_drm_mode_valid)
@@ -648,8 +649,10 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       return FALSE;
     }
 
+  vrr_enabled = crtc->current_state.vrr.enabled;
   now_us = g_get_monotonic_time ();
-  if (crtc->current_state.vrr.enabled &&
+
+  if (vrr_enabled &&
       now_us - crtc->vrr_update_time_us < MAXIMUM_REFRESH_INTERVAL_US)
     {
       next_presentation_us = 0;
@@ -692,24 +695,38 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 
       if (now_us > next_deadline_us)
         {
-          int64_t skip_us;
-
-          skip_us =
-            mtk_extrapolate_next_interval_boundary (next_deadline_us,
-                                                    refresh_interval_us) -
-            next_deadline_us;
-
-          if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
+          if (vrr_enabled)
             {
               meta_topic (META_DEBUG_KMS_DEADLINE,
                           "Missed deadline by %3"G_GINT64_FORMAT "µs, "
-                          "skipping by %"G_GINT64_FORMAT "µs",
-                          now_us - next_deadline_us,
-                          skip_us);
-            }
+                          "starting ASAP for VRR",
+                          now_us - next_deadline_us);
 
-          next_presentation_us += skip_us;
-          next_deadline_us += skip_us;
+              /* Extrapolate assuming dispatch starts now */
+              next_presentation_us += now_us - next_deadline_us;
+              next_deadline_us = now_us;
+            }
+          else
+            {
+              int64_t skip_us;
+
+              skip_us =
+                mtk_extrapolate_next_interval_boundary (next_deadline_us,
+                                                        refresh_interval_us) -
+                next_deadline_us;
+
+              if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
+                {
+                  meta_topic (META_DEBUG_KMS_DEADLINE,
+                              "Missed deadline by %3"G_GINT64_FORMAT "µs, "
+                              "skipping by %"G_GINT64_FORMAT "µs",
+                              now_us - next_deadline_us,
+                              skip_us);
+                }
+
+              next_presentation_us += skip_us;
+              next_deadline_us += skip_us;
+            }
         }
     }
 
