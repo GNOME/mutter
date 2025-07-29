@@ -953,6 +953,23 @@ meta_window_place (MetaWindow        *window,
   else
     logical_monitor = meta_backend_get_current_logical_monitor (backend);
 
+  g_warn_if_fail (logical_monitor);
+
+  /* Avoid crashing on the above warning, but we would like to fix the root
+   * causes too some day.
+   */
+  if (!logical_monitor)
+    {
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+
+      logical_monitor =
+        meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
+
+      if (!logical_monitor)
+        goto done;
+    }
+
   meta_window_get_work_area_for_logical_monitor (window,
                                                  logical_monitor,
                                                  &work_area);
