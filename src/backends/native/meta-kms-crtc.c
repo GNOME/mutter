@@ -30,7 +30,7 @@
 
 #define DEADLINE_EVASION_CONSTANT_US 800
 
-#define MINIMUM_REFRESH_RATE 30.f
+#define MAXIMUM_REFRESH_INTERVAL_US (G_USEC_PER_SEC / 30.f)
 
 typedef struct _MetaKmsCrtcPropTable
 {
@@ -622,6 +622,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   int ret;
   int64_t next_presentation_us;
   int64_t next_deadline_us;
+  int64_t now_us;
 
   if (!crtc->current_state.is_drm_mode_valid)
     {
@@ -647,12 +648,14 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       return FALSE;
     }
 
-  if (crtc->current_state.vrr.enabled)
+  now_us = g_get_monotonic_time ();
+  if (crtc->current_state.vrr.enabled &&
+      now_us - crtc->vrr_update_time_us < MAXIMUM_REFRESH_INTERVAL_US)
     {
       next_presentation_us = 0;
       next_deadline_us =
         (int64_t) (s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec + 0.5 +
-                   G_USEC_PER_SEC / MINIMUM_REFRESH_RATE);
+                   MAXIMUM_REFRESH_INTERVAL_US);
     }
   else
     {
@@ -660,7 +663,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       int64_t refresh_interval_us;
       int64_t vblank_duration_us;
       int64_t deadline_evasion_us;
-      int64_t now_us;
 
       drm_mode = &crtc->current_state.drm_mode;
 
@@ -688,7 +690,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
       next_deadline_us = next_presentation_us - (vblank_duration_us +
                                                  deadline_evasion_us);
 
-      now_us = g_get_monotonic_time ();
       if (now_us > next_deadline_us)
         {
           int64_t skip_us;
