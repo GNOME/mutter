@@ -71,6 +71,8 @@ struct _MetaWaylandClient
   struct {
     GSubprocess *subprocess;
   } subprocess;
+
+  char *window_tag;
 };
 
 G_DEFINE_TYPE (MetaWaylandClient, meta_wayland_client, G_TYPE_OBJECT)
@@ -82,6 +84,7 @@ meta_wayland_client_finalize (GObject *object)
 
   g_clear_fd (&client->created.client_fd, NULL);
   g_clear_object (&client->subprocess.subprocess);
+  g_clear_pointer (&client->window_tag, g_free);
 
   G_OBJECT_CLASS (meta_wayland_client_parent_class)->finalize (object);
 }
@@ -360,4 +363,17 @@ MetaWaylandClient *
 meta_get_wayland_client (const struct wl_client *wl_client)
 {
   return wl_client_get_user_data ((struct wl_client *) wl_client);
+}
+
+void
+meta_wayland_client_set_window_tag (MetaWaylandClient *client,
+                                    const char *window_tag)
+{
+  g_set_str (&client->window_tag, window_tag);
+}
+
+const char *
+meta_wayland_client_get_window_tag (MetaWaylandClient *client)
+{
+  return client->window_tag;
 }
