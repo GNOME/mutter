@@ -35,7 +35,7 @@
 #define META_WL_COMPOSITOR_VERSION          6
 #define META_WL_DATA_DEVICE_MANAGER_VERSION 3
 #define META_XDG_WM_BASE_VERSION            7
-#define META_WL_SEAT_VERSION                8
+#define META_WL_SEAT_VERSION                10
 #define META_WL_OUTPUT_VERSION              4
 #define META_XSERVER_VERSION                1
 #define META_GTK_SHELL1_VERSION             6
