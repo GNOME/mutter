@@ -754,6 +754,7 @@ handle_scroll_event (MetaWaylandPointer *pointer,
   int x_discrete = 0, y_discrete = 0;
   int32_t x_value120 = 0, y_value120 = 0;
   enum wl_pointer_axis_source source = -1;
+  enum wl_pointer_axis_relative_direction relative_direction;
   MetaWaylandPointerClient *client;
   ClutterScrollFinishFlags finish_flags;
 
@@ -826,6 +827,11 @@ handle_scroll_event (MetaWaylandPointer *pointer,
       return;
     }
 
+  if (!(clutter_event_get_scroll_flags (event) & CLUTTER_SCROLL_INVERTED))
+    relative_direction = WL_POINTER_AXIS_RELATIVE_DIRECTION_IDENTICAL;
+  else
+    relative_direction = WL_POINTER_AXIS_RELATIVE_DIRECTION_INVERTED;
+
   finish_flags = clutter_event_get_scroll_finish_flags (event);
 
   wl_resource_for_each (resource, &client->pointer_resources)
@@ -858,6 +864,13 @@ handle_scroll_event (MetaWaylandPointer *pointer,
             }
         }
 
+      if (client_version >= WL_POINTER_AXIS_RELATIVE_DIRECTION_SINCE_VERSION)
+        {
+          wl_pointer_send_axis_relative_direction (resource,
+                                                   WL_POINTER_AXIS_HORIZONTAL_SCROLL,
+                                                   relative_direction);
+        }
+
       if (x_value)
         wl_pointer_send_axis (resource, clutter_event_get_time (event),
                               WL_POINTER_AXIS_HORIZONTAL_SCROLL, x_value);
@@ -885,6 +898,13 @@ handle_scroll_event (MetaWaylandPointer *pointer,
                                              WL_POINTER_AXIS_VERTICAL_SCROLL,
                                              y_discrete);
             }
+        }
+
+      if (client_version >= WL_POINTER_AXIS_RELATIVE_DIRECTION_SINCE_VERSION)
+        {
+          wl_pointer_send_axis_relative_direction (resource,
+                                                   WL_POINTER_AXIS_VERTICAL_SCROLL,
+                                                   relative_direction);
         }
 
       if (y_value)
