@@ -107,7 +107,7 @@ struct _ClutterFrameClock
 
   float refresh_rate;
   int64_t refresh_interval_us;
-  int64_t minimum_refresh_interval_us;
+  int64_t maximum_refresh_interval_us;
 
   ClutterFrameListener listener;
 
@@ -1007,7 +1007,7 @@ calculate_next_variable_update_timeout_us (ClutterFrameClock *frame_clock,
 
   now_us = g_get_monotonic_time ();
 
-  timeout_interval_us = frame_clock->minimum_refresh_interval_us;
+  timeout_interval_us = frame_clock->maximum_refresh_interval_us;
 
   if (!last_presentation || last_presentation->presentation_time_us == 0)
     {
@@ -1817,7 +1817,7 @@ clutter_frame_clock_new (float                            refresh_rate,
 
   clutter_frame_clock_set_refresh_rate (frame_clock, refresh_rate);
 
-  frame_clock->minimum_refresh_interval_us =
+  frame_clock->maximum_refresh_interval_us =
     (int64_t) (0.5 + G_USEC_PER_SEC / MINIMUM_REFRESH_RATE);
 
   frame_clock->vblank_duration_us = vblank_duration_us;
