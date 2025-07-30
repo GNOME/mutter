@@ -1052,7 +1052,7 @@ typedef enum
  * The scroll source determines the source of the scroll event.
  *
  * Keep in mind that the source device #ClutterInputDeviceType is not enough
- * to infer the scroll source.6
+ * to infer the scroll source.
  */
 typedef enum
 {
@@ -1070,7 +1070,7 @@ typedef enum
  *
  * Flags used to notify the axes that were stopped in a #ClutterScrollEvent.
  *
- * These can be used to trigger post-scroll effects like kinetic scrolling.6
+ * These can be used to trigger post-scroll effects like kinetic scrolling.
  */
 typedef enum
 {

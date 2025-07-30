@@ -1578,7 +1578,7 @@ clutter_event_get_gesture_motion_delta_unaccelerated (const ClutterEvent *event,
  *
  * Returns the #ClutterScrollSource that applies to an scroll event.
  *
- * Returns: The source of scroll events6
+ * Returns: The source of scroll events
  **/
 ClutterScrollSource
 clutter_event_get_scroll_source (const ClutterEvent *event)
@@ -1598,7 +1598,7 @@ clutter_event_get_scroll_source (const ClutterEvent *event)
  * can be used to determine whether post-scroll effects like kinetic
  * scrolling should be applied.
  *
- * Returns: The scroll finish flags6
+ * Returns: The scroll finish flags
  **/
 ClutterScrollFinishFlags
 clutter_event_get_scroll_finish_flags (const ClutterEvent *event)
