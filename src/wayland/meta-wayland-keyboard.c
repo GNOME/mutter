@@ -267,11 +267,14 @@ keyboard_handle_focus_surface_destroy (struct wl_listener *listener, void *data)
 
 static gboolean
 meta_wayland_keyboard_broadcast_key (MetaWaylandKeyboard *keyboard,
-                                     uint32_t             time,
-                                     uint32_t             key,
-                                     uint32_t             state)
+                                     const ClutterEvent  *event)
 {
   struct wl_resource *resource;
+  enum wl_keyboard_key_state key_state;
+  uint32_t key, time;
+
+  key = clutter_event_get_event_code (event);
+  time = clutter_event_get_time (event);
 
   if (!wl_list_empty (&keyboard->focus_resource_list))
     {
@@ -288,44 +291,43 @@ meta_wayland_keyboard_broadcast_key (MetaWaylandKeyboard *keyboard,
           keyboard->last_key_up = 0;
         }
 
-      if (state)
+      if (clutter_event_type (event) == CLUTTER_KEY_PRESS &&
+          !(clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_REPEATED))
         {
           g_hash_table_insert (keyboard->key_down_serials,
                                GUINT_TO_POINTER (key),
                                GUINT_TO_POINTER (serial));
           keyboard->last_key_up_serial = 0;
         }
-      else
+      else if (clutter_event_type (event) == CLUTTER_KEY_RELEASE)
         {
           keyboard->last_key_up_serial = serial;
           keyboard->last_key_up = key;
         }
 
       wl_resource_for_each (resource, &keyboard->focus_resource_list)
-        wl_keyboard_send_key (resource, serial, time, key, state);
+        {
+          if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_REPEATED)
+            {
+              if (wl_resource_get_version (resource) >= WL_KEYBOARD_KEY_STATE_REPEATED_SINCE_VERSION)
+                key_state = WL_KEYBOARD_KEY_STATE_REPEATED;
+              else
+                continue;
+            }
+          else
+            {
+              if (clutter_event_type (event) == CLUTTER_KEY_PRESS)
+                key_state = WL_KEYBOARD_KEY_STATE_PRESSED;
+              else
+                key_state = WL_KEYBOARD_KEY_STATE_RELEASED;
+            }
+
+          wl_keyboard_send_key (resource, serial, time, key, key_state);
+        }
     }
 
   /* Eat the key events if we have a focused surface. */
   return (keyboard->focus_surface != NULL);
-}
-
-static gboolean
-notify_key (MetaWaylandKeyboard *keyboard,
-            const ClutterEvent  *event)
-{
-  gboolean is_press = clutter_event_type (event) == CLUTTER_KEY_PRESS;
-  guint32 code = 0;
-
-  /* Ignore autorepeat events, as autorepeat in Wayland is done on the client
-   * side. */
-  if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_REPEATED)
-    return FALSE;
-
-  code = clutter_event_get_event_code (event);
-
-  return meta_wayland_keyboard_broadcast_key (keyboard,
-                                              clutter_event_get_time (event),
-                                              code, is_press);
 }
 
 static xkb_mod_mask_t
@@ -697,7 +699,8 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard   *keyboard,
               is_press ? "press" : "release",
               hardware_keycode);
 
-  handled = notify_key (keyboard, (const ClutterEvent *) event);
+  handled = meta_wayland_keyboard_broadcast_key (keyboard,
+                                                 (const ClutterEvent *) event);
 
   if (handled)
     {
