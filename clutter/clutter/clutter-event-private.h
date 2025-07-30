@@ -55,6 +55,7 @@ ClutterEvent * clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
                                                 ClutterModifierType       modifiers,
                                                 graphene_point_t          coords,
                                                 graphene_point_t          delta,
+                                                ClutterScrollFlags        scroll_flags,
                                                 ClutterScrollSource       scroll_source,
                                                 ClutterScrollFinishFlags  finish_flags);
 CLUTTER_EXPORT
@@ -64,6 +65,7 @@ ClutterEvent * clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
                                                   ClutterInputDeviceTool *tool,
                                                   ClutterModifierType     modifiers,
                                                   graphene_point_t        coords,
+                                                  ClutterScrollFlags      scroll_flags,
                                                   ClutterScrollSource     scroll_source,
                                                   ClutterScrollDirection  direction);
 CLUTTER_EXPORT

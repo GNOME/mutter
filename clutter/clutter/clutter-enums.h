@@ -1063,6 +1063,20 @@ typedef enum
 } ClutterScrollSource;
 
 /**
+ * ClutterScrollFlags:
+ * @CLUTTER_SCROLL_NONE: No additional information.
+ * @CLUTTER_SCROLL_INVERTED: Scroll direction is inverted, relative to the
+ *   physical motion on the device.
+ *
+ * Flags used to notify modification on scrolling behavior.
+ */
+typedef enum
+{
+  CLUTTER_SCROLL_NONE = 0,
+  CLUTTER_SCROLL_INVERTED = 1 << 0,
+} ClutterScrollFlags;
+
+/**
  * ClutterScrollFinishFlags:
  * @CLUTTER_SCROLL_FINISHED_NONE: no axis was stopped.
  * @CLUTTER_SCROLL_FINISHED_HORIZONTAL: The horizontal axis stopped.

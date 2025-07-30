@@ -140,6 +140,7 @@ struct _ClutterScrollEvent
   ClutterModifierType modifier_state;
   double *axes;
   ClutterInputDeviceTool *tool;
+  ClutterScrollFlags scroll_flags;
   ClutterScrollSource scroll_source;
   ClutterScrollFinishFlags finish_flags;
 };
@@ -2023,6 +2024,7 @@ clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
                                  ClutterModifierType       modifiers,
                                  graphene_point_t          coords,
                                  graphene_point_t          delta,
+                                 ClutterScrollFlags        scroll_flags,
                                  ClutterScrollSource       scroll_source,
                                  ClutterScrollFinishFlags  finish_flags)
 {
@@ -2041,6 +2043,7 @@ clutter_event_scroll_smooth_new (ClutterEventFlags         flags,
   event->scroll.delta_y = delta.y;
   event->scroll.direction = CLUTTER_SCROLL_SMOOTH;
   event->scroll.modifier_state = modifiers;
+  event->scroll.scroll_flags = scroll_flags;
   event->scroll.scroll_source = scroll_source;
   event->scroll.finish_flags = finish_flags;
   event->scroll.tool = tool;
@@ -2070,6 +2073,7 @@ clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
                                    ClutterInputDeviceTool *tool,
                                    ClutterModifierType     modifiers,
                                    graphene_point_t        coords,
+                                   ClutterScrollFlags      scroll_flags,
                                    ClutterScrollSource     scroll_source,
                                    ClutterScrollDirection  direction)
 {
@@ -2085,6 +2089,7 @@ clutter_event_scroll_discrete_new (ClutterEventFlags       flags,
   event->scroll.x = coords.x;
   event->scroll.y = coords.y;
   event->scroll.direction = direction;
+  event->scroll.scroll_flags = scroll_flags;
   event->scroll.scroll_source = scroll_source;
   event->scroll.modifier_state = modifiers;
   event->scroll.tool = tool;

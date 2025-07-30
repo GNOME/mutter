@@ -1060,6 +1060,7 @@ notify_scroll (ClutterInputDevice       *input_device,
                                      GRAPHENE_POINT_INIT (x, y),
                                      GRAPHENE_POINT_INIT ((float) (scroll_factor * dx),
                                                           (float) (scroll_factor * dy)),
+                                     CLUTTER_SCROLL_NONE,
                                      scroll_source,
                                      flags);
 
@@ -1103,6 +1104,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
                                        NULL,
                                        modifiers,
                                        GRAPHENE_POINT_INIT (x, y),
+                                       CLUTTER_SCROLL_NONE,
                                        scroll_source,
                                        direction);
 

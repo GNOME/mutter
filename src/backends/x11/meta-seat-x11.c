@@ -2380,6 +2380,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                                        tool,
                                                        state,
                                                        GRAPHENE_POINT_INIT (x, y),
+                                                       CLUTTER_SCROLL_NONE,
                                                        CLUTTER_SCROLL_SOURCE_UNKNOWN,
                                                        scroll_direction);
 
@@ -2502,6 +2503,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                                      GRAPHENE_POINT_INIT (x, y),
                                                      GRAPHENE_POINT_INIT ((float) delta_x,
                                                                           (float) delta_y),
+                                                     CLUTTER_SCROLL_NONE,
                                                      CLUTTER_SCROLL_SOURCE_UNKNOWN,
                                                      CLUTTER_SCROLL_FINISHED_NONE);
 
