@@ -1777,3 +1777,14 @@ meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_
 {
   g_clear_pointer (&device_native->libinput_device, libinput_device_unref);
 }
+
+gboolean
+meta_input_device_native_has_scroll_inverted (MetaInputDeviceNative *device_native)
+{
+  struct libinput_device *libinput_device = device_native->libinput_device;
+
+  if (!libinput_device_config_scroll_has_natural_scroll (libinput_device))
+    return FALSE;
+
+  return !!libinput_device_config_scroll_get_natural_scroll_enabled (libinput_device);
+}

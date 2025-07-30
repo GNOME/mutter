@@ -1029,6 +1029,7 @@ notify_scroll (ClutterInputDevice       *input_device,
   MetaSeatImpl *seat_impl;
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
+  ClutterScrollFlags scroll_flags;
   double scroll_factor;
   float x, y;
 
@@ -1049,6 +1050,9 @@ notify_scroll (ClutterInputDevice       *input_device,
 
   modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
+  scroll_flags = meta_input_device_native_has_scroll_inverted (device_native) ?
+    CLUTTER_SCROLL_INVERTED : CLUTTER_SCROLL_NONE;
+
   event =
     clutter_event_scroll_smooth_new (emulated ?
                                      CLUTTER_EVENT_FLAG_POINTER_EMULATED :
@@ -1060,7 +1064,7 @@ notify_scroll (ClutterInputDevice       *input_device,
                                      GRAPHENE_POINT_INIT (x, y),
                                      GRAPHENE_POINT_INIT ((float) (scroll_factor * dx),
                                                           (float) (scroll_factor * dy)),
-                                     CLUTTER_SCROLL_NONE,
+                                     scroll_flags,
                                      scroll_source,
                                      flags);
 
@@ -1079,6 +1083,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
   MetaSeatImpl *seat_impl;
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers;
+  ClutterScrollFlags scroll_flags;
   float x, y;
 
   if (direction == CLUTTER_SCROLL_SMOOTH)
@@ -1095,6 +1100,9 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
 
   modifiers |= xkb_state_serialize_mods (seat_impl->xkb, XKB_STATE_MODS_EFFECTIVE);
 
+  scroll_flags = meta_input_device_native_has_scroll_inverted (device_native) ?
+    CLUTTER_SCROLL_INVERTED : CLUTTER_SCROLL_NONE;
+
   event =
     clutter_event_scroll_discrete_new (emulated ?
                                        CLUTTER_EVENT_FLAG_POINTER_EMULATED :
@@ -1104,7 +1112,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
                                        NULL,
                                        modifiers,
                                        GRAPHENE_POINT_INIT (x, y),
-                                       CLUTTER_SCROLL_NONE,
+                                       scroll_flags,
                                        scroll_source,
                                        direction);
 

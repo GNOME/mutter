@@ -172,3 +172,5 @@ void                     meta_input_device_native_get_coords_in_impl (MetaInputD
 gboolean                 meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *device,
                                                                                   ClutterEvent       *event);
 void                     meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_native);
+
+gboolean                 meta_input_device_native_has_scroll_inverted (MetaInputDeviceNative *device_native);
