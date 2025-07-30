@@ -1611,6 +1611,24 @@ clutter_event_get_scroll_finish_flags (const ClutterEvent *event)
   return event->scroll.finish_flags;
 }
 
+/**
+ * clutter_event_get_scroll_flags:
+ * @event: an scroll event
+ *
+ * Returns the #ClutterScrollFlags of an scroll event.
+ *
+ * Returns: The scroll flags
+ **/
+ClutterScrollFlags
+clutter_event_get_scroll_flags (const ClutterEvent *event)
+{
+  g_return_val_if_fail (event != NULL, CLUTTER_SCROLL_NONE);
+  g_return_val_if_fail (event->type == CLUTTER_SCROLL,
+                        CLUTTER_SCROLL_NONE);
+
+  return event->scroll.scroll_flags;
+}
+
 guint
 clutter_event_get_mode_group (const ClutterEvent *event)
 {
