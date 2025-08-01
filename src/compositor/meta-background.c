@@ -26,10 +26,12 @@
 #include "backends/meta-backend-private.h"
 #include "compositor/cogl-utils.h"
 #include "meta/display.h"
-#include "meta/meta-background-image.h"
+#include "meta/compositor.h"
+#include "meta-background-image-private.h"
 #include "meta/meta-background.h"
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
+#include "clutter/clutter-color-state.h"
 
 enum
 {
@@ -78,6 +80,7 @@ enum
 {
   PROP_META_DISPLAY = 1,
   PROP_MONITOR,
+  PROP_COLOR_STATE,
 };
 
 G_DEFINE_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
@@ -178,6 +181,9 @@ meta_background_get_property (GObject      *object,
     case PROP_META_DISPLAY:
       g_value_set_object (value, self->display);
       break;
+    case PROP_COLOR_STATE:
+      g_value_take_object (value, meta_background_get_color_state (self));
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -218,6 +224,7 @@ on_background_loaded (MetaBackgroundImage *image,
                       MetaBackground      *self)
 {
   mark_changed (self);
+  g_object_notify (G_OBJECT (self), "color-state");
 }
 
 static gboolean
@@ -359,6 +366,11 @@ meta_background_class_init (MetaBackgroundClass *klass)
   g_object_class_install_property (object_class,
                                    PROP_META_DISPLAY,
                                    param_spec);
+
+  param_spec = g_param_spec_object ("color-state", NULL, NULL,
+                                    CLUTTER_TYPE_COLOR_STATE,
+                                    G_PARAM_READABLE);
+  g_object_class_install_property (object_class, PROP_COLOR_STATE, param_spec);
 
 }
 
@@ -1032,4 +1044,21 @@ meta_background_refresh_all (void)
 
   for (l = all_backgrounds; l; l = l->next)
     mark_changed (l->data);
+}
+
+ClutterColorState *
+meta_background_get_color_state (MetaBackground *self)
+{
+  ClutterContext *ctx;
+
+  g_return_val_if_fail (META_IS_BACKGROUND (self), NULL);
+
+  ctx = meta_backend_get_clutter_context (meta_compositor_get_backend (meta_display_get_compositor (self->display)));
+
+  if (self->background_image1)
+    return meta_background_image_get_color_state (self->background_image1, ctx);
+  else if (self->background_image2)
+    return meta_background_image_get_color_state (self->background_image2, ctx);
+  else
+    return NULL;
 }

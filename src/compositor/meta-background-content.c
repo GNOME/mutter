@@ -1229,3 +1229,9 @@ meta_background_content_cull_redraw_clip (MetaBackgroundContent *self,
 {
   set_clip_region (self, clip_region);
 }
+
+MetaBackground *
+meta_background_content_get_background (MetaBackgroundContent *self)
+{
+  return self->background;
+}

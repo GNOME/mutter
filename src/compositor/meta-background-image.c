@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "meta/meta-background-image.h"
+#include "meta-background-image-private.h"
 
 #include <glycin.h>
 #include <gio/gio.h>
@@ -66,6 +66,11 @@ struct _MetaBackgroundImage
   gboolean in_cache;
   gboolean loaded;
   CoglTexture *texture;
+  gboolean has_cicp;
+  guint8 color_primaries;
+  guint8 transfer_characteristics;
+  guint8 matrix_coefficients;
+  guint8 video_full_range_flag;
 };
 
 G_DEFINE_TYPE (MetaBackgroundImageCache, meta_background_image_cache, G_TYPE_OBJECT);
@@ -214,9 +219,10 @@ file_loaded (GObject      *source_object,
   g_autoptr (GError) local_error = NULL;
   GTask *task;
   CoglTexture *texture;
-  GlyFrame *frame;
+  g_autoptr (GlyFrame) frame = NULL;
   int width, height, row_stride;
   GlyMemoryFormat format;
+  g_autoptr (GlyCicp) cicp = NULL;
   GBytes *bytes;
 
   task = G_TASK (result);
@@ -236,6 +242,7 @@ file_loaded (GObject      *source_object,
   row_stride = gly_frame_get_stride (frame);
   bytes = gly_frame_get_buf_bytes (frame);
   format = gly_frame_get_memory_format (frame);
+  cicp = gly_frame_get_color_cicp (frame);
 
   texture = meta_create_texture (width, height, ctx,
                                  gly_memory_format_has_alpha (format)
@@ -256,9 +263,20 @@ file_loaded (GObject      *source_object,
 
   image->texture = texture;
 
-out:
-  g_clear_object (&frame);
+  if (cicp)
+    {
+      image->has_cicp = TRUE;
+      image->color_primaries = cicp->color_primaries;
+      image->transfer_characteristics = cicp->transfer_characteristics;
+      image->matrix_coefficients = cicp->matrix_coefficients;
+      image->video_full_range_flag = cicp->video_full_range_flag;
+    }
+  else
+    {
+      image->has_cicp = FALSE;
+    }
 
+out:
   image->loaded = TRUE;
   g_signal_emit (image, signals[LOADED], 0);
 }
@@ -416,4 +434,138 @@ meta_background_image_get_texture (MetaBackgroundImage *image)
   g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), NULL);
 
   return image->texture;
+}
+
+static gboolean
+cicp_primaries_to_clutter (guint8              color_primaries,
+                           ClutterColorimetry *colorimetry)
+{
+  static ClutterPrimaries p3_primaries = {
+    .r_x = 0.68f,   .r_y = 0.32f,
+    .g_x = 0.265f,  .g_y = 0.69f,
+    .b_x = 0.15f,   .b_y = 0.06f,
+    .w_x = 0.3127f, .w_y = 0.329f,
+  };
+  static ClutterPrimaries pal_primaries = {
+    .r_x = 0.64f,   .r_y = 0.33f,
+    .g_x = 0.29f,   .g_y = 0.60f,
+    .b_x = 0.15f,   .b_y = 0.06f,
+    .w_x = 0.3127f, .w_y = 0.329f,
+  };
+
+  switch (color_primaries)
+    {
+    case 1:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_SRGB;
+      return TRUE;
+    case 5:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_PRIMARIES;
+      colorimetry->primaries = &pal_primaries;
+      return TRUE;
+    case 6:
+    case 7:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_NTSC;
+      return TRUE;
+    case 9:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_BT2020;
+      return TRUE;
+    case 12:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_PRIMARIES;
+      colorimetry->primaries = &p3_primaries;
+      return TRUE;
+    default:
+      g_warning ("Unhandled cicp color primaries: %u", color_primaries);
+      return FALSE;
+    }
+}
+
+static gboolean
+cicp_tf_to_clutter (guint8       transfer_characteristics,
+                    ClutterEOTF *eotf)
+{
+  switch (transfer_characteristics)
+    {
+    case 1:
+    case 6:
+    case 14:
+    case 15:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT709;
+      return TRUE;
+    case 4:
+      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+      eotf->gamma_exp = 2.2f;
+      return TRUE;
+    case 5:
+      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+      eotf->gamma_exp = 2.8f;
+      return TRUE;
+    case 8:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+      return TRUE;
+    case 13:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      return TRUE;
+    case 16:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
+      return TRUE;
+    case 18: /* hlg */
+      break;
+    default:
+      g_warning ("Unhandled cicp transfer characteristics: %u", transfer_characteristics);
+      return FALSE;
+    }
+}
+
+static ClutterColorState *
+clutter_color_state_new_from_cicp (ClutterContext *ctx,
+                                   guint8          color_primaries,
+                                   guint8          transfer_characteristics,
+                                   guint8          matrix_coefficients,
+                                   guint8          video_full_range_flag)
+{
+  ClutterColorimetry colorimetry;
+  ClutterEOTF eotf;
+  ClutterLuminance lum;
+
+  if (!cicp_primaries_to_clutter (color_primaries, &colorimetry))
+    return NULL;
+
+  if (!cicp_tf_to_clutter (transfer_characteristics, &eotf))
+    return NULL;
+
+  if (matrix_coefficients != 0)
+    {
+      g_warning ("Unhandled cicp matrix coefficients: %u", matrix_coefficients);
+      return NULL;
+    }
+
+  lum.type = CLUTTER_LUMINANCE_TYPE_DERIVED;
+
+  return clutter_color_state_params_new_from_primitives (NULL,
+                                                         colorimetry,
+                                                         eotf,
+                                                         lum);
+}
+
+ClutterColorState *
+meta_background_image_get_color_state (MetaBackgroundImage *image,
+                                       ClutterContext      *ctx)
+{
+  g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), NULL);
+
+  if (image->has_cicp)
+    return clutter_color_state_new_from_cicp (ctx,
+                                              image->color_primaries,
+                                              image->transfer_characteristics,
+                                              image->matrix_coefficients,
+                                              image->video_full_range_flag);
+
+  return NULL;
 }
