@@ -303,6 +303,7 @@ on_background_changed (MetaBackground        *background,
 {
   invalidate_pipeline (self, CHANGED_BACKGROUND);
   clutter_content_invalidate (CLUTTER_CONTENT (self));
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_BACKGROUND]);
 }
 
 static CoglPipeline *
@@ -969,7 +970,9 @@ meta_background_content_class_init (MetaBackgroundContentClass *klass)
   properties[PROP_BACKGROUND] =
     g_param_spec_object ("background", NULL, NULL,
                          META_TYPE_BACKGROUND,
-                         G_PARAM_READWRITE);
+                         G_PARAM_READWRITE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_EXPLICIT_NOTIFY);
 
   properties[PROP_GRADIENT] =
     g_param_spec_boolean ("gradient", NULL, NULL,
@@ -1072,6 +1075,7 @@ meta_background_content_set_background (MetaBackgroundContent *self,
 
   invalidate_pipeline (self, CHANGED_BACKGROUND);
   clutter_content_invalidate (CLUTTER_CONTENT (self));
+  g_object_notify_by_pspec (G_OBJECT (self), properties[PROP_BACKGROUND]);
 }
 
 void
@@ -1228,4 +1232,10 @@ meta_background_content_cull_redraw_clip (MetaBackgroundContent *self,
                                           MtkRegion             *clip_region)
 {
   set_clip_region (self, clip_region);
+}
+
+MetaBackground *
+meta_background_content_get_background (MetaBackgroundContent *self)
+{
+  return self->background;
 }

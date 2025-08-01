@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "meta/meta-background-image.h"
+#include "compositor/meta-background-image-private.h"
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gio/gio.h>
@@ -372,4 +372,13 @@ meta_background_image_get_texture (MetaBackgroundImage *image)
   g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), NULL);
 
   return image->texture;
+}
+
+ClutterColorState *
+meta_background_image_get_color_state (MetaBackgroundImage *image,
+                                       ClutterContext      *ctx)
+{
+  g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), NULL);
+
+  return NULL;
 }

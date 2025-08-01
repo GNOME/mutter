@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "compositor/meta-background-content-private.h"
+#include "compositor/meta-background-private.h"
 #include "compositor/meta-cullable.h"
 #include "meta/meta-background-actor.h"
 
@@ -47,6 +48,26 @@ G_DEFINE_TYPE_WITH_CODE (MetaBackgroundActor, meta_background_actor, CLUTTER_TYP
                          G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
 
 static void
+on_background_changed (MetaBackgroundContent *content,
+                       GParamSpec            *pspec,
+                       gpointer               data)
+{
+  MetaBackgroundActor *self = META_BACKGROUND_ACTOR (data);
+  MetaBackground *background;
+  ClutterColorState *color_state;
+
+  background = meta_background_content_get_background (content);
+  if (!background)
+    return;
+
+  color_state = meta_background_get_color_state (background);
+  if (!color_state)
+    return;
+
+  clutter_actor_set_color_state (CLUTTER_ACTOR (self), color_state);
+}
+
+static void
 maybe_create_content (MetaBackgroundActor *self)
 {
   g_autoptr (ClutterContent) content = NULL;
@@ -57,6 +78,10 @@ maybe_create_content (MetaBackgroundActor *self)
   content = meta_background_content_new (self->display, self->monitor);
   self->content = META_BACKGROUND_CONTENT (content);
   clutter_actor_set_content (CLUTTER_ACTOR (self), content);
+  g_signal_connect_object (content, "notify::background",
+                           G_CALLBACK (on_background_changed), self,
+                           G_CONNECT_DEFAULT);
+  on_background_changed (self->content, NULL, self);
 }
 
 static void

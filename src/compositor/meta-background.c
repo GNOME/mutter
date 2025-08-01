@@ -24,9 +24,11 @@
 #include <string.h>
 
 #include "backends/meta-backend-private.h"
+#include "clutter/clutter-color-state.h"
 #include "compositor/cogl-utils.h"
+#include "compositor/meta-background-image-private.h"
+#include "meta/compositor.h"
 #include "meta/display.h"
-#include "meta/meta-background-image.h"
 #include "meta/meta-background.h"
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
@@ -1032,4 +1034,17 @@ meta_background_refresh_all (void)
 
   for (l = all_backgrounds; l; l = l->next)
     mark_changed (l->data);
+}
+
+ClutterColorState *
+meta_background_get_color_state (MetaBackground *self)
+{
+  g_return_val_if_fail (META_IS_BACKGROUND (self), NULL);
+
+  if (self->background_image1)
+    return meta_background_image_get_color_state (self->background_image1);
+  else if (self->background_image2)
+    return meta_background_image_get_color_state (self->background_image2);
+  else
+    return NULL;
 }
