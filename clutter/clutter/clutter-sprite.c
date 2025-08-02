@@ -211,12 +211,14 @@ sync_crossings_on_implicit_grab_end (ClutterSprite *sprite)
   ClutterActor *parent;
   ClutterEvent *crossing;
 
-  deepmost = priv->current_actor;
-
+  if (!priv->current_actor)
+    return;
   if (clutter_actor_contains (priv->current_actor, priv->implicit_grab_actor))
     return;
 
+  deepmost = priv->current_actor;
   topmost = priv->current_actor;
+
   while ((parent = clutter_actor_get_parent (topmost)))
     {
       if (clutter_actor_contains (parent, priv->implicit_grab_actor))
