@@ -1,3 +1,26 @@
+49.beta
+=======
+* Reintroduce snippet caching [Daniel; !4534]
+* Implement the wl_fixes interface [Sebastian W.; !3865]
+* Create MetaWaylandClient for every wl_client [Sebastian W.; !4491]
+* Fix DND from X11 clients using tablet stylus [Carlos; !4526]
+* Respect implicit grab for popup surfaces [Alessandro; !4404]
+* Fix handling of pad button actions of tablets [Carlos; !4538]
+* Implement the pointer warp protocol [Carlos; !4525]
+* Fixed crash [Rémi; !4473]
+* Misc. bug fixes and cleanups [Daniel, Sebastian K., Jonas, Florian, Robert,
+  Sebastian W., Marco, Carlos; !4518, !4521, !4522, !4531, !4529, !4532, !4536,
+  !4159, !4535, !2047, !4414]
+
+Contributors:
+  Alessandro Astone, Rémi Bernon, Carlos Garnacho, Sebastian Keller,
+  Robert Mader, Florian Müllner, Marco Trevisan (Treviño), Daniel van Vugt,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Emin Tufan Çetin [tr], Makoto Sakaguchi [ja], Antonio Marin [ro],
+  Fran Diéguez [gl]
+
 49.alpha.1
 ==========
 * Add speed limit to Visual alerts [Sergio; !4487]
