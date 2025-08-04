@@ -275,6 +275,14 @@ wayland_primaries_to_clutter (enum wp_color_manager_v1_primaries  primaries,
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       colorimetry->colorspace = CLUTTER_COLORSPACE_NTSC;
       return TRUE;
+    case WP_COLOR_MANAGER_V1_PRIMARIES_PAL:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_PAL;
+      return TRUE;
+    case WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_P3;
+      return TRUE;
     default:
       return FALSE;
     }
@@ -291,6 +299,10 @@ clutter_colorspace_to_wayland (ClutterColorspace colorspace)
       return WP_COLOR_MANAGER_V1_PRIMARIES_BT2020;
     case CLUTTER_COLORSPACE_NTSC:
       return WP_COLOR_MANAGER_V1_PRIMARIES_NTSC;
+    case CLUTTER_COLORSPACE_PAL:
+      return WP_COLOR_MANAGER_V1_PRIMARIES_PAL;
+    case CLUTTER_COLORSPACE_P3:
+      return WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3;
     }
   g_assert_not_reached ();
 }
@@ -1751,6 +1763,10 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                                       WP_COLOR_MANAGER_V1_PRIMARIES_BT2020);
   wp_color_manager_v1_send_supported_primaries_named (resource,
                                                       WP_COLOR_MANAGER_V1_PRIMARIES_NTSC);
+  wp_color_manager_v1_send_supported_primaries_named (resource,
+                                                      WP_COLOR_MANAGER_V1_PRIMARIES_PAL);
+  wp_color_manager_v1_send_supported_primaries_named (resource,
+                                                      WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3);
   wp_color_manager_v1_send_done (resource);
 }
 

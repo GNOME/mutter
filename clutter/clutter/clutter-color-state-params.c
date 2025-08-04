@@ -72,6 +72,10 @@ clutter_colorspace_to_string (ClutterColorspace colorspace)
       return "BT.2020";
     case CLUTTER_COLORSPACE_NTSC:
       return "NTSC";
+    case CLUTTER_COLORSPACE_PAL:
+      return "PAL";
+    case CLUTTER_COLORSPACE_P3:
+      return "P3";
     }
 
   g_assert_not_reached ();
@@ -357,6 +361,20 @@ static const ClutterPrimaries bt2020_primaries = {
   .w_x = 0.3127f, .w_y = 0.3290f,
 };
 
+static ClutterPrimaries p3_primaries = {
+  .r_x = 0.68f, .r_y = 0.32f,
+  .g_x = 0.265f, .g_y = 0.69f,
+  .b_x = 0.15f, .b_y = 0.06f,
+  .w_x = 0.3127f, .w_y = 0.329f,
+};
+
+static ClutterPrimaries pal_primaries = {
+  .r_x = 0.64f, .r_y = 0.33f,
+  .g_x = 0.29f, .g_y = 0.60f,
+  .b_x = 0.15f, .b_y = 0.06f,
+  .w_x = 0.3127f, .w_y = 0.329f,
+};
+
 const ClutterPrimaries *
 clutter_colorspace_to_primaries (ClutterColorspace colorspace)
 {
@@ -368,6 +386,10 @@ clutter_colorspace_to_primaries (ClutterColorspace colorspace)
       return &ntsc_primaries;
     case CLUTTER_COLORSPACE_BT2020:
       return &bt2020_primaries;
+    case CLUTTER_COLORSPACE_PAL:
+      return &pal_primaries;
+    case CLUTTER_COLORSPACE_P3:
+      return &p3_primaries;
     }
 
   g_warning ("Unhandled colorspace %s",
