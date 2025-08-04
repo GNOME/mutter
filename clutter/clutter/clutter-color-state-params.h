@@ -98,6 +98,38 @@ typedef struct _ClutterLuminance
   float ref;
 } ClutterLuminance;
 
+typedef enum
+{
+  CLUTTER_CICP_PRIMARIES_SRGB = 1,
+  CLUTTER_CICP_PRIMARIES_PAL = 5,
+  CLUTTER_CICP_PRIMARIES_NTSC = 6,
+  CLUTTER_CICP_PRIMARIES_NTSC_2 = 7,
+  CLUTTER_CICP_PRIMARIES_BT2020 = 9,
+  CLUTTER_CICP_PRIMARIES_P3 = 12,
+} ClutterCicpPrimaries;
+
+typedef enum
+{
+  CLUTTER_CICP_TRANSFER_BT709 = 1,
+  CLUTTER_CICP_TRANSFER_GAMMA22 = 4,
+  CLUTTER_CICP_TRANSFER_GAMMA28 = 5,
+  CLUTTER_CICP_TRANSFER_BT601 = 6,
+  CLUTTER_CICP_TRANSFER_LINEAR = 8,
+  CLUTTER_CICP_TRANSFER_SRGB = 13,
+  CLUTTER_CICP_TRANSFER_BT2020 = 14,
+  CLUTTER_CICP_TRANSFER_BT2020_2 = 15,
+  CLUTTER_CICP_TRANSFER_PQ = 16,
+  CLUTTER_CICP_TRANSFER_HLG = 18,
+} ClutterCicpTransfer;
+
+typedef struct
+{
+  ClutterCicpPrimaries primaries;
+  ClutterCicpTransfer transfer;
+  uint8_t matrix_coefficients;
+  uint8_t video_full_range_flag;
+} ClutterCicp;
+
 #define CLUTTER_TYPE_COLOR_STATE_PARAMS (clutter_color_state_params_get_type ())
 CLUTTER_EXPORT
 G_DECLARE_FINAL_TYPE (ClutterColorStateParams, clutter_color_state_params,
@@ -124,6 +156,11 @@ ClutterColorState * clutter_color_state_params_new_from_primitives (ClutterConte
                                                                     ClutterColorimetry  colorimetry,
                                                                     ClutterEOTF         eotf,
                                                                     ClutterLuminance    luminance);
+
+CLUTTER_EXPORT
+ClutterColorState * clutter_color_state_params_new_from_cicp (ClutterContext     *context,
+                                                              const ClutterCicp  *cicp,
+                                                              GError            **error);
 
 CLUTTER_EXPORT
 const ClutterColorimetry * clutter_color_state_params_get_colorimetry (ClutterColorStateParams *color_state_params);

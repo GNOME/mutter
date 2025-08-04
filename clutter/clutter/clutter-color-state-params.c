@@ -2268,3 +2268,134 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
                                               luminance.max,
                                               luminance.ref);
 }
+
+static gboolean
+cicp_primaries_to_clutter (ClutterCicpPrimaries   primaries,
+                           ClutterColorimetry    *colorimetry,
+                           GError               **error)
+{
+  switch (primaries)
+    {
+    case CLUTTER_CICP_PRIMARIES_SRGB:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_SRGB;
+      return TRUE;
+    case CLUTTER_CICP_PRIMARIES_PAL:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_PAL;
+      return TRUE;
+    case CLUTTER_CICP_PRIMARIES_NTSC:
+    case CLUTTER_CICP_PRIMARIES_NTSC_2:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_NTSC;
+      return TRUE;
+    case CLUTTER_CICP_PRIMARIES_BT2020:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_BT2020;
+      return TRUE;
+    case CLUTTER_CICP_PRIMARIES_P3:
+      colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
+      colorimetry->colorspace = CLUTTER_COLORSPACE_P3;
+      return TRUE;
+    default:
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unhandled cicp color primaries: %u",
+                   primaries);
+      return FALSE;
+    }
+}
+
+static gboolean
+cicp_transfer_to_clutter (ClutterCicpTransfer   transfer,
+                          ClutterEOTF          *eotf,
+                          GError              **error)
+{
+  switch (transfer)
+    {
+    case CLUTTER_CICP_TRANSFER_BT709:
+    case CLUTTER_CICP_TRANSFER_BT601:
+    case CLUTTER_CICP_TRANSFER_BT2020:
+    case CLUTTER_CICP_TRANSFER_BT2020_2:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT709;
+      return TRUE;
+    case CLUTTER_CICP_TRANSFER_GAMMA22:
+      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+      eotf->gamma_exp = 2.2f;
+      return TRUE;
+    case CLUTTER_CICP_TRANSFER_GAMMA28:
+      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+      eotf->gamma_exp = 2.8f;
+      return TRUE;
+    case CLUTTER_CICP_TRANSFER_LINEAR:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
+      return TRUE;
+    case CLUTTER_CICP_TRANSFER_SRGB:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      return TRUE;
+    case CLUTTER_CICP_TRANSFER_PQ:
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_PQ;
+      return TRUE;
+    case CLUTTER_CICP_TRANSFER_HLG:
+    default:
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unhandled cicp transfer characteristics: %u",
+                   transfer);
+      return FALSE;
+    }
+}
+
+/**
+ * clutter_color_state_params_new_from_cicp:
+ * @context: a  clutter context
+ * @cicp: the cicp tuple
+ * @error: return location for an error
+ *
+ * Create a new ClutterColorState object from a cicp tuple.
+ *
+ * See ITU-T H.273 for the specifications of the numbers in
+ * the ClutterCicp struct.
+ *
+ * Return value: A new ClutterColorState object.
+ **/
+ClutterColorState *
+clutter_color_state_params_new_from_cicp (ClutterContext     *context,
+                                          const ClutterCicp  *cicp,
+                                          GError            **error)
+{
+  ClutterColorimetry colorimetry;
+  ClutterEOTF eotf;
+  ClutterLuminance lum;
+
+  if (!cicp_primaries_to_clutter (cicp->primaries, &colorimetry, error))
+    return NULL;
+
+  if (!cicp_transfer_to_clutter (cicp->transfer, &eotf, error))
+    return NULL;
+
+  if (cicp->matrix_coefficients != 0)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unhandled cicp matrix coefficients: %u",
+                   cicp->matrix_coefficients);
+      return NULL;
+    }
+
+  if (cicp->video_full_range_flag != 1)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unhandled cicp full-range flag: %u",
+                   cicp->video_full_range_flag);
+      return NULL;
+    }
+
+  lum.type = CLUTTER_LUMINANCE_TYPE_DERIVED;
+
+  return clutter_color_state_params_new_from_primitives (context,
+                                                         colorimetry,
+                                                         eotf,
+                                                         lum);
+}
