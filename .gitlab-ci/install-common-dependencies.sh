@@ -116,12 +116,13 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
-if ! pkgconf --atleast-version 1.83.4 gjs-1.0
+if ! pkgconf --atleast-version 1.85.1 gjs-1.0
 then
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
       https://gitlab.gnome.org/GNOME/gjs.git \
-      1.85.1
+      --commit b46026efc15d5348a47bf1aa47f1ea9bf3821ee0 \
+      master
 fi
 
 if ! pkgconf --atleast-version 1.24 wayland-server
