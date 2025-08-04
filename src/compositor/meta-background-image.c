@@ -23,10 +23,6 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gio/gio.h>
 
-#ifdef HAVE_MALLOC_TRIM
-#include <malloc.h>
-#endif
-
 #include "clutter/clutter.h"
 #include "compositor/cogl-utils.h"
 
@@ -138,10 +134,6 @@ load_file (GTask               *task,
 
   pixbuf = gdk_pixbuf_new_from_stream (G_INPUT_STREAM (stream), NULL, &error);
   g_object_unref (stream);
-
-#ifdef HAVE_MALLOC_TRIM
-  malloc_trim (0);
-#endif
 
   if (pixbuf == NULL)
     {

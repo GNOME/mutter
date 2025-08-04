@@ -392,8 +392,6 @@ int main (int argc, char ** argv) {
 }
 ''', name : 'timerfd_create(2) system call')
 
-have_malloc_trim = cc.has_function('malloc_trim')
-
 have_documentation = get_option('docs')
 have_tests = get_option('tests').enable_auto_if(have_native_backend).enabled()
 have_mutter_tests = false
@@ -617,7 +615,6 @@ cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 cdata.set('HAVE_PROFILER', have_profiler)
 cdata.set('HAVE_TIMERFD', have_timerfd)
-cdata.set('HAVE_MALLOC_TRIM', have_malloc_trim)
 cdata.set('HAVE_EVENTFD', have_eventfd)
 cdata.set('HAVE_FONTS', have_fonts)
 cdata.set('HAVE_DRM_PLANE_SIZE_HINT', have_drm_plane_size_hint)

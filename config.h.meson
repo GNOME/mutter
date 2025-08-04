@@ -130,9 +130,6 @@
 /* Supports timerfd_create/timerfd_settime */
 #mesondefine HAVE_TIMERFD
 
-/* Supports malloc_trim */
-#mesondefine HAVE_MALLOC_TRIM
-
 /* Supports eventfd */
 #mesondefine HAVE_EVENTFD
 
