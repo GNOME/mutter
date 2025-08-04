@@ -149,6 +149,14 @@ then
       2.85.2
 fi
 
+if ! pkgconf --atleast-version 2.0i.beta.2 glycin-2
+then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.gnome.org/GNOME/glycin.git \
+      2.0.beta.2
+fi
+
 if ! check_gsettings_key org.gnome.desktop.screensaver restart-enabled
 then
     ./$SCRIPTS_DIR/install-meson-project.sh \

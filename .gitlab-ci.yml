@@ -111,7 +111,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 42
-    BASE_TAG: '2025-08-08.0.fixate-versions'
+    BASE_TAG: '2025-08-08.1'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -134,6 +134,10 @@ variables:
       ruff
       mypy
       umockdev-devel
+      libheif-devel
+      libjxl-devel
+      lcms2-devel
+      libseccomp-devel
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
