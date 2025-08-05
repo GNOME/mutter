@@ -494,6 +494,15 @@ luminance_value_approx_equal (float lum,
 }
 
 static gboolean
+clutter_luminances_equal (const ClutterLuminance *lum,
+                          const ClutterLuminance *other_lum)
+{
+  return luminance_value_approx_equal (lum->min, other_lum->min, 0.1f) &&
+         luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
+         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f);
+}
+
+static gboolean
 luminances_equal (ClutterColorStateParams *color_state_params,
                   ClutterColorStateParams *other_color_state_params)
 {
@@ -503,9 +512,7 @@ luminances_equal (ClutterColorStateParams *color_state_params,
   lum = clutter_color_state_params_get_luminance (color_state_params);
   other_lum = clutter_color_state_params_get_luminance (other_color_state_params);
 
-  return luminance_value_approx_equal (lum->min, other_lum->min, 0.1f) &&
-         luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
-         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f);
+  return clutter_luminances_equal (lum, other_lum);
 }
 
 static guint
@@ -535,6 +542,13 @@ needs_lum_mapping (ClutterColorStateParams *color_state_params,
 }
 
 static gboolean
+clutter_luminance_needs_tone_mapping (const ClutterLuminance *lum,
+                                      const ClutterLuminance *target_lum)
+{
+  return lum->max > target_lum->max;
+}
+
+static gboolean
 needs_tone_mapping (ClutterColorStateParams *color_state_params,
                     ClutterColorStateParams *target_color_state_params)
 {
@@ -544,7 +558,7 @@ needs_tone_mapping (ClutterColorStateParams *color_state_params,
   lum = clutter_color_state_params_get_luminance (color_state_params);
   target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
 
-  return lum->max > target_lum->max;
+  return clutter_luminance_needs_tone_mapping (lum, target_lum);
 }
 
 static void
