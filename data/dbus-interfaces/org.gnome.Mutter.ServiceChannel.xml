@@ -27,8 +27,11 @@
 
         The options vardict supports the following keys:
         - "window-tag" (s): Optional string tag to associate with windows
-                           created by this Wayland client. This tag can be
-                           used for identification and management purposes.
+                            created by this Wayland client. This tag can be
+                            used for identification and management purposes.
+        - "capabilities" (t): Bitmask of capabilities that should be acquired.
+                              Throws an error if unable to acquire the caps.
+            1: X11 interop wayland protocol
 
         If the compositor is not running in Wayland mode, this method will
         fail with a NOT_SUPPORTED error.

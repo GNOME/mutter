@@ -23,11 +23,31 @@
 
 #include "core/meta-service-channel.h"
 
+#include "backends/meta-dbus-access-checker.h"
 #include "mtk/mtk.h"
 #include "wayland/meta-wayland-client-private.h"
 
 #define META_SERVICE_CHANNEL_DBUS_SERVICE "org.gnome.Mutter.ServiceChannel"
 #define META_SERVICE_CHANNEL_DBUS_PATH "/org/gnome/Mutter/ServiceChannel"
+
+static const struct
+{
+  const char *name;
+  MetaWaylandClientCaps caps;
+} sender_caps[] = {
+  {
+    "org.freedesktop.impl.portal.desktop.gnome",
+    META_WAYLAND_CLIENT_CAPS_X11_INTEROP
+  },
+  {
+    "org.freedesktop.FileManager1",
+    META_WAYLAND_CLIENT_CAPS_X11_INTEROP
+  },
+  {
+    "org.gnome.Settings.GlobalShortcutsProvider",
+    META_WAYLAND_CLIENT_CAPS_X11_INTEROP
+  },
+};
 
 typedef struct _MetaServiceChannelData
 {
@@ -55,6 +75,8 @@ struct _MetaServiceChannel
   MetaContext *context;
 
   GHashTable *service_clients;
+
+  MetaDbusAccessChecker *access_checker;
 };
 
 static void meta_service_channel_init_iface (MetaDBusServiceChannelIface *iface);
@@ -258,6 +280,7 @@ on_dbus_pidfd_new_with_options (GObject      *source_object,
   g_autoptr (MtkDbusPidfd) pidfd = NULL;
   g_autoptr (MetaWaylandClient) wayland_client = NULL;
   g_autoptr (GVariant) window_tag_variant = NULL;
+  g_autoptr (GVariant) capabilities_variant = NULL;
   g_autoptr (GUnixFDList) out_fd_list = NULL;
   g_autoptr (GError) error = NULL;
   int fd_id;
@@ -295,6 +318,38 @@ on_dbus_pidfd_new_with_options (GObject      *source_object,
     {
       const char *window_tag = g_variant_get_string (window_tag_variant, NULL);
       meta_wayland_client_set_window_tag (wayland_client, window_tag);
+    }
+
+  capabilities_variant = g_variant_lookup_value (options,
+                                                 "capabilities",
+                                                 G_VARIANT_TYPE_UINT64);
+  if (capabilities_variant)
+    {
+      MetaDbusAccessChecker *access_checker = service_channel->access_checker;
+      const char *sender =
+        meta_dbus_access_checker_find_sender (access_checker, invocation);
+      uint64_t requested_caps = g_variant_get_uint64 (capabilities_variant);
+      uint64_t caps = 0;
+
+      for (size_t i = 0; i < G_N_ELEMENTS (sender_caps); i++)
+        {
+          if (g_strcmp0 (sender, sender_caps[i].name) == 0)
+            {
+              caps = sender_caps[i].caps;
+              break;
+            }
+        }
+
+      if ((requested_caps & caps) != requested_caps)
+        {
+          g_dbus_method_invocation_return_error (invocation,
+                                                 G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_ACCESS_DENIED,
+                                                 "Capabilities denied");
+          return;
+        }
+
+      meta_wayland_client_set_caps (wayland_client, requested_caps);
     }
 
   meta_dbus_service_channel_complete_open_wayland_connection (
@@ -356,6 +411,15 @@ on_bus_acquired (GDBusConnection *connection,
                                          META_SERVICE_CHANNEL_DBUS_PATH,
                                          &error))
     g_warning ("Failed to export service channel object: %s", error->message);
+
+  service_channel->access_checker =
+    meta_dbus_access_checker_new (connection, service_channel->context);
+
+  for (size_t i = 0; i < G_N_ELEMENTS (sender_caps); i++)
+    {
+      meta_dbus_access_checker_allow_sender (service_channel->access_checker,
+                                             sender_caps[i].name);
+    }
 }
 
 static void
@@ -408,6 +472,7 @@ meta_service_channel_finalize (GObject *object)
 
   g_clear_pointer (&service_channel->service_clients, g_hash_table_unref);
   g_clear_handle_id (&service_channel->dbus_name_id, g_bus_unown_name);
+  g_clear_object (&service_channel->access_checker);
 
   G_OBJECT_CLASS (meta_service_channel_parent_class)->finalize (object);
 }
