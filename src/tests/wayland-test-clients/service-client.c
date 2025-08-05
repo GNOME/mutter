@@ -41,9 +41,8 @@ on_sync_event (WaylandDisplay *display,
   *last_sync_event = serial;
 }
 
-int
-main (int    argc,
-      char **argv)
+static void
+test_open_wayland_service_connection (void)
 {
   g_autoptr (GError) error = NULL;
   g_autoptr (MetaDBusServiceChannel) service_channel = NULL;
@@ -90,4 +89,93 @@ main (int    argc,
 
   while (last_sync_event != 1)
     wayland_display_dispatch (display);
+}
+
+static gboolean
+open_wayland_connection (GVariantBuilder  *options_builder,
+                         int              *fd_out,
+                         GError          **error)
+{
+  g_autoptr (MetaDBusServiceChannel) service_channel = NULL;
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  g_autofd int fd = -1;
+
+  service_channel = meta_dbus_service_channel_proxy_new_for_bus_sync (
+      G_BUS_TYPE_SESSION,
+      G_DBUS_PROXY_FLAGS_NONE,
+      "org.gnome.Mutter.ServiceChannel",
+      "/org/gnome/Mutter/ServiceChannel",
+      NULL,
+      error);
+
+  g_assert_no_error (*error);
+  g_assert_nonnull (service_channel);
+
+  if (!meta_dbus_service_channel_call_open_wayland_connection_sync (
+         service_channel,
+         g_variant_builder_end (options_builder),
+         NULL,
+         &fd_variant,
+         &fd_list,
+         NULL, error))
+    return FALSE;
+
+  fd = g_unix_fd_list_get (fd_list,
+                           g_variant_get_handle (fd_variant),
+                           error);
+  g_assert_no_error (*error);
+  g_assert_cmpint (fd, >=, 0);
+
+  if (fd_out)
+    *fd_out = g_steal_fd (&fd);
+
+  return TRUE;
+}
+
+static void
+test_window_tag (void)
+{
+  g_autoptr (GError) error = NULL;
+  g_auto (GVariantBuilder) options_builder =
+    G_VARIANT_BUILDER_INIT (G_VARIANT_TYPE_VARDICT);
+  g_autoptr (WaylandDisplay) display = NULL;
+  g_autoptr (WaylandSurface) surface = NULL;
+  struct wl_display *wayland_display;
+  uint32_t last_sync_event = UINT32_MAX;
+  g_autofd int fd = -1;
+
+  g_variant_builder_add (&options_builder, "{sv}",
+                         "window-tag",
+                         g_variant_new_string ("test-window-tag"));
+
+  g_assert_true (open_wayland_connection (&options_builder, &fd, &error));
+
+  wayland_display = wl_display_connect_to_fd (g_steal_fd (&fd));
+
+  display = wayland_display_new_full (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER,
+                                      wayland_display);
+  g_signal_connect (display, "sync-event",
+                    G_CALLBACK (on_sync_event), &last_sync_event);
+
+  surface = wayland_surface_new (display, "test service client",
+                                 100, 100, 0xffabcdff);
+  wl_surface_commit (surface->wl_surface);
+
+  while (last_sync_event != 1)
+    wayland_display_dispatch (display);
+}
+
+int
+main (int    argc,
+      char **argv)
+{
+  if (g_strcmp0 (argv[1], "OpenWaylandServiceConnection") == 0)
+    test_open_wayland_service_connection ();
+  else if (g_strcmp0 (argv[1], "WindowTag") == 0)
+    test_window_tag ();
+  else
+    g_assert_not_reached ();
+
+  return 0;
 }
