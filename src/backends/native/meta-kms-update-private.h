@@ -34,6 +34,11 @@ typedef struct _MetaKmsCrtcColorUpdate
   struct {
     gboolean has_update;
     MetaGammaLut *state;
+  } degamma;
+
+  struct {
+    gboolean has_update;
+    MetaGammaLut *state;
   } gamma;
 } MetaKmsCrtcColorUpdate;
 

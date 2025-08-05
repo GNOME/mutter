@@ -348,7 +348,7 @@ on_kms_resources_changed (MetaKms                *kms,
 
   g_assert (changes != META_KMS_RESOURCE_CHANGE_NONE);
 
-  if (changes == META_KMS_RESOURCE_CHANGE_GAMMA)
+  if (changes == META_KMS_RESOURCE_CHANGE_CRTC_COLOR_PIPELINE)
     {
       meta_dbus_display_config_emit_monitors_changed (manager->display_config);
       return;

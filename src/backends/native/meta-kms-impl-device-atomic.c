@@ -794,6 +794,54 @@ process_plane_assignment (MetaKmsImplDevice  *impl_device,
 }
 
 static gboolean
+update_lut_blob (MetaKmsImplDevice  *impl_device,
+                 GArray             *blob_ids,
+                 MetaGammaLut       *lut,
+                 const char         *name,
+                 MetaKmsCrtc        *crtc,
+                 uint32_t           *out_blob_id,
+                 GError            **error)
+{
+  int i;
+  size_t color_lut_size;
+  g_autofree struct drm_color_lut *drm_color_lut = NULL;
+
+  if (!lut || lut->size == 0)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting CRTC (%u, %s) %s to bypass",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device),
+                  name);
+      *out_blob_id = 0;
+      return TRUE;
+    }
+
+  color_lut_size = sizeof(struct drm_color_lut) * lut->size;
+  drm_color_lut = g_malloc (color_lut_size);
+
+  for (i = 0; i < lut->size; i++)
+    {
+      drm_color_lut[i].red = lut->red[i];
+      drm_color_lut[i].green = lut->green[i];
+      drm_color_lut[i].blue = lut->blue[i];
+    }
+
+  *out_blob_id = store_new_blob (impl_device, blob_ids,
+                                 drm_color_lut, color_lut_size, error);
+  if (*out_blob_id == 0)
+    return FALSE;
+
+  meta_topic (META_DEBUG_KMS,
+              "[atomic] Setting CRTC (%u, %s) %s, size: %zu",
+              meta_kms_crtc_get_id (crtc),
+              meta_kms_impl_device_get_path (impl_device),
+              name, lut->size);
+
+  return TRUE;
+}
+
+static gboolean
 process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
                             MetaKmsUpdate      *update,
                             drmModeAtomicReq   *req,
@@ -805,52 +853,33 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
   MetaKmsCrtcColorUpdate *color_update = update_entry;
   MetaKmsCrtc *crtc = color_update->crtc;
 
+  if (color_update->degamma.has_update)
+    {
+      uint32_t degamma_blob_id;
+
+      if (!update_lut_blob (impl_device, blob_ids,
+                            color_update->degamma.state,
+                            "degamma", crtc, &degamma_blob_id, error))
+        return FALSE;
+
+      if (!add_crtc_property (impl_device, crtc, req,
+                              META_KMS_CRTC_PROP_DEGAMMA_LUT,
+                              degamma_blob_id, error))
+        return FALSE;
+    }
+
   if (color_update->gamma.has_update)
     {
-      MetaGammaLut *gamma = color_update->gamma.state;
-      uint32_t color_lut_blob_id = 0;
+      uint32_t gamma_blob_id;
 
-      if (gamma && gamma->size > 0)
-        {
-          g_autofree struct drm_color_lut *drm_color_lut = NULL;
-          size_t color_lut_size;
-          int i;
+      if (!update_lut_blob (impl_device, blob_ids,
+                            color_update->gamma.state,
+                            "gamma", crtc, &gamma_blob_id, error))
+        return FALSE;
 
-          color_lut_size = sizeof(struct drm_color_lut) * gamma->size;
-          drm_color_lut = g_malloc (color_lut_size);
-
-          for (i = 0; i < gamma->size; i++)
-            {
-              drm_color_lut[i].red = gamma->red[i];
-              drm_color_lut[i].green = gamma->green[i];
-              drm_color_lut[i].blue = gamma->blue[i];
-            }
-
-          color_lut_blob_id = store_new_blob (impl_device,
-                                              blob_ids,
-                                              drm_color_lut,
-                                              color_lut_size,
-                                              error);
-
-          meta_topic (META_DEBUG_KMS,
-                      "[atomic] Setting CRTC (%u, %s) gamma, size: %zu",
-                      meta_kms_crtc_get_id (crtc),
-                      meta_kms_impl_device_get_path (impl_device),
-                      gamma->size);
-        }
-      else
-        {
-          meta_topic (META_DEBUG_KMS,
-                      "[atomic] Setting CRTC (%u, %s) gamma to bypass",
-                      meta_kms_crtc_get_id (crtc),
-                      meta_kms_impl_device_get_path (impl_device));
-        }
-
-      if (!add_crtc_property (impl_device,
-                              crtc, req,
+      if (!add_crtc_property (impl_device, crtc, req,
                               META_KMS_CRTC_PROP_GAMMA_LUT,
-                              color_lut_blob_id,
-                              error))
+                              gamma_blob_id, error))
         return FALSE;
     }
 

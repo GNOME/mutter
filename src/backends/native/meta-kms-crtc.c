@@ -127,10 +127,14 @@ meta_kms_crtc_set_is_leased (MetaKmsCrtc *crtc,
 }
 
 static void
-read_crtc_gamma (MetaKmsCrtc       *crtc,
-                 MetaKmsCrtcState  *crtc_state,
-                 MetaKmsImplDevice *impl_device,
-                 drmModeCrtc       *drm_crtc)
+read_crtc_lut (MetaKmsCrtc        *crtc,
+               MetaKmsImplDevice  *impl_device,
+               drmModeCrtc        *drm_crtc,
+               MetaKmsCrtcProp     prop_lut_id,
+               MetaKmsCrtcProp     prop_size_id,
+               gboolean           *supported,
+               int                *size,
+               MetaGammaLut      **value)
 {
   MetaKmsProp *prop_lut;
   MetaKmsProp *prop_size;
@@ -142,8 +146,8 @@ read_crtc_gamma (MetaKmsCrtc       *crtc,
   struct drm_color_lut *drm_lut;
   int i;
 
-  prop_lut = &crtc->prop_table.props[META_KMS_CRTC_PROP_GAMMA_LUT];
-  prop_size = &crtc->prop_table.props[META_KMS_CRTC_PROP_GAMMA_LUT_SIZE];
+  prop_lut = &crtc->prop_table.props[prop_lut_id];
+  prop_size = &crtc->prop_table.props[prop_size_id];
 
   if (!prop_lut->prop_id || !prop_size->prop_id)
     return;
@@ -152,8 +156,8 @@ read_crtc_gamma (MetaKmsCrtc       *crtc,
   if (lut_size <= 0)
     return;
 
-  crtc_state->gamma.size = lut_size;
-  crtc_state->gamma.supported = TRUE;
+  *size = lut_size;
+  *supported = TRUE;
 
   blob_id = prop_lut->value;
   if (blob_id == 0)
@@ -173,16 +177,35 @@ read_crtc_gamma (MetaKmsCrtc       *crtc,
 
   drm_lut = blob->data;
 
-  crtc_state->gamma.value = meta_gamma_lut_new_sized (drm_lut_size);
+  *value = meta_gamma_lut_new_sized (drm_lut_size);
 
   for (i = 0; i < drm_lut_size; i++)
     {
-      crtc_state->gamma.value->red[i] = drm_lut[i].red;
-      crtc_state->gamma.value->green[i] = drm_lut[i].green;
-      crtc_state->gamma.value->blue[i] = drm_lut[i].blue;
+      (*value)->red[i] = drm_lut[i].red;
+      (*value)->green[i] = drm_lut[i].green;
+      (*value)->blue[i] = drm_lut[i].blue;
     }
 
   drmModeFreePropertyBlob (blob);
+}
+
+static void
+read_degamma_state (MetaKmsCrtc       *crtc,
+                    MetaKmsCrtcState  *crtc_state,
+                    MetaKmsImplDevice *impl_device,
+                    drmModeCrtc       *drm_crtc)
+{
+  g_assert_null (crtc_state->degamma.value);
+
+  crtc_state->degamma.size = 0;
+  crtc_state->degamma.supported = FALSE;
+
+  read_crtc_lut (crtc, impl_device, drm_crtc,
+                 META_KMS_CRTC_PROP_DEGAMMA_LUT,
+                 META_KMS_CRTC_PROP_DEGAMMA_LUT_SIZE,
+                 &crtc_state->degamma.supported,
+                 &crtc_state->degamma.size,
+                 &crtc_state->degamma.value);
 }
 
 static void
@@ -218,9 +241,23 @@ read_gamma_state (MetaKmsCrtc       *crtc,
   crtc_state->gamma.supported = FALSE;
 
   if (META_IS_KMS_IMPL_DEVICE_ATOMIC (impl_device))
-    read_crtc_gamma (crtc, crtc_state, impl_device, drm_crtc);
+    read_crtc_lut (crtc, impl_device, drm_crtc,
+                   META_KMS_CRTC_PROP_GAMMA_LUT,
+                   META_KMS_CRTC_PROP_GAMMA_LUT_SIZE,
+                   &crtc_state->gamma.supported,
+                   &crtc_state->gamma.size,
+                   &crtc_state->gamma.value);
   else if (META_IS_KMS_IMPL_DEVICE_SIMPLE (impl_device))
     read_crtc_legacy_gamma (crtc, crtc_state, impl_device, drm_crtc);
+}
+
+static gboolean
+degamma_equal (MetaKmsCrtcState *state,
+               MetaKmsCrtcState *other_state)
+{
+  return state->degamma.size == other_state->degamma.size &&
+         state->degamma.supported == other_state->degamma.supported &&
+         meta_gamma_lut_equal (state->degamma.value, other_state->degamma.value);
 }
 
 static gboolean
@@ -251,8 +288,9 @@ meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
   if (state->vrr.enabled != other_state->vrr.enabled)
     return META_KMS_RESOURCE_CHANGE_FULL;
 
-  if (!gamma_equal (state, other_state))
-    return META_KMS_RESOURCE_CHANGE_GAMMA;
+  if (!degamma_equal (state, other_state) ||
+      !gamma_equal (state, other_state))
+    return META_KMS_RESOURCE_CHANGE_CRTC_COLOR_PIPELINE;
 
   return META_KMS_RESOURCE_CHANGE_NONE;
 }
@@ -298,6 +336,7 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
       crtc_state.vrr.enabled = !!prop->value;
     }
 
+  read_degamma_state (crtc, &crtc_state, impl_device, drm_crtc);
   read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
 
   if (!crtc_state.is_active)
@@ -323,6 +362,8 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
         }
     }
 
+  g_clear_pointer (&crtc->current_state.degamma.value,
+                   meta_gamma_lut_free);
   g_clear_pointer (&crtc->current_state.gamma.value,
                    meta_gamma_lut_free);
   crtc->current_state = crtc_state;
@@ -446,10 +487,20 @@ meta_kms_crtc_predict_state_in_impl (MetaKmsCrtc   *crtc,
   for (l = crtc_color_updates; l; l = l->next)
     {
       MetaKmsCrtcColorUpdate *color_update = l->data;
+      MetaGammaLut *degamma = color_update->gamma.state;
       MetaGammaLut *gamma = color_update->gamma.state;
 
       if (color_update->crtc != crtc)
         continue;
+
+      if (color_update->degamma.has_update)
+        {
+          if (degamma)
+            degamma = meta_gamma_lut_copy (degamma);
+
+          g_clear_pointer (&crtc->current_state.degamma.value, meta_gamma_lut_free);
+          crtc->current_state.degamma.value = degamma;
+        }
 
       if (color_update->gamma.has_update)
         {
@@ -480,6 +531,16 @@ init_properties (MetaKmsCrtc       *crtc,
       [META_KMS_CRTC_PROP_ACTIVE] =
         {
           .name = "ACTIVE",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CRTC_PROP_DEGAMMA_LUT] =
+        {
+          .name = "DEGAMMA_LUT",
+          .type = DRM_MODE_PROP_BLOB,
+        },
+      [META_KMS_CRTC_PROP_DEGAMMA_LUT_SIZE] =
+        {
+          .name = "DEGAMMA_LUT_SIZE",
           .type = DRM_MODE_PROP_RANGE,
         },
       [META_KMS_CRTC_PROP_GAMMA_LUT] =
@@ -545,6 +606,7 @@ meta_kms_crtc_finalize (GObject *object)
 {
   MetaKmsCrtc *crtc = META_KMS_CRTC (object);
 
+  g_clear_pointer (&crtc->current_state.degamma.value, meta_gamma_lut_free);
   g_clear_pointer (&crtc->current_state.gamma.value, meta_gamma_lut_free);
 
   G_OBJECT_CLASS (meta_kms_crtc_parent_class)->finalize (object);
@@ -553,6 +615,8 @@ meta_kms_crtc_finalize (GObject *object)
 static void
 meta_kms_crtc_init (MetaKmsCrtc *crtc)
 {
+  crtc->current_state.degamma.size = 0;
+  crtc->current_state.degamma.value = NULL;
   crtc->current_state.gamma.size = 0;
   crtc->current_state.gamma.value = NULL;
 }
