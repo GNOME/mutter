@@ -1032,6 +1032,7 @@ test_cases += [
     'suite': 'wayland',
     'sources': [
       'service-channel-tests.c',
+      wayland_test_client_utils,
       wayland_test_utils,
     ],
     'depends': [

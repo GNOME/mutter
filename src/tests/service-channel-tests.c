@@ -27,6 +27,12 @@
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-surface-private.h"
+#include "tests/wayland-test-clients/wayland-test-client-utils.h"
+
+#include <gio/gunixfdlist.h>
+#include <glib.h>
+#include <glib/gstdio.h>
+#include <wayland-client.h>
 
 static MetaContext *test_context;
 static MetaWaylandTestDriver *test_driver;
@@ -63,6 +69,135 @@ meta_test_service_channel_wayland (void)
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
+typedef struct
+{
+  const char *test_tag;
+  gboolean client_terminated;
+  GDBusConnection *connection;
+} ServiceClientTestdata;
+
+static gpointer
+service_client_thread_func (gpointer user_data)
+{
+  ServiceClientTestdata *testdata = user_data;
+  g_autoptr (GMainContext) thread_main_context = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GDBusProxy) service_channel_proxy = NULL;
+  g_autoptr (GVariant) result = NULL;
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  g_autoptr (WaylandDisplay) display = NULL;
+  g_autoptr (WaylandSurface) surface = NULL;
+  g_auto(GVariantBuilder) options_builder =
+    G_VARIANT_BUILDER_INIT (G_VARIANT_TYPE_VARDICT);
+  g_autofd int fd = -1;
+  struct wl_display *wayland_display;
+
+  thread_main_context = g_main_context_new ();
+  g_main_context_push_thread_default (thread_main_context);
+
+  service_channel_proxy =
+    g_dbus_proxy_new_sync (testdata->connection,
+                           G_DBUS_PROXY_FLAGS_NONE,
+                           NULL,
+                           "org.gnome.Mutter.ServiceChannel",
+                           "/org/gnome/Mutter/ServiceChannel",
+                           "org.gnome.Mutter.ServiceChannel",
+                           NULL,
+                           &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (service_channel_proxy);
+
+  g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
+  g_variant_builder_add (&options_builder, "{sv}",
+                         "window-tag", g_variant_new_string (testdata->test_tag));
+
+  result =
+    g_dbus_proxy_call_with_unix_fd_list_sync (service_channel_proxy,
+                                              "OpenWaylandConnection",
+                                              g_variant_new ("(a{sv})",
+                                                             &options_builder),
+                                              G_DBUS_CALL_FLAGS_NO_AUTO_START,
+                                              -1,
+                                              NULL,
+                                              &fd_list,
+                                              NULL,
+                                              &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (result);
+  g_assert_nonnull (fd_list);
+
+  /* Extract the file descriptor */
+  g_variant_get (result, "(@h)", &fd_variant);
+  fd = g_unix_fd_list_get (fd_list, g_variant_get_handle (fd_variant), &error);
+  g_assert_no_error (error);
+  g_assert_cmpint (fd, >=, 0);
+
+  /* Test that we can connect to the Wayland display */
+  wayland_display = wl_display_connect_to_fd (fd);
+  g_assert_nonnull (wayland_display);
+
+  display = wayland_display_new_full (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER,
+                                      wayland_display);
+  g_assert_nonnull (display);
+
+  surface = wayland_surface_new (display, "test-tagged-window",
+                  100, 100, 0xffabcdff);
+  g_assert_nonnull (surface);
+
+  wl_surface_commit (surface->wl_surface);
+  wait_for_sync_event (display, 0);
+  g_object_unref (display);
+
+  g_atomic_int_set (&testdata->client_terminated, TRUE);
+
+  return NULL;
+}
+
+static void
+meta_test_service_channel_open_wayland_connection (void)
+{
+  ServiceClientTestdata testdata = {};
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GDBusConnection) connection = NULL;
+  g_autoptr (GThread) thread = NULL;
+  MetaWindow *window;
+  const char *applied_tag;
+
+  /* Connect to the session bus to call the service channel */
+  connection = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (connection);
+
+  testdata = (ServiceClientTestdata) {
+    .test_tag = "test-window-tag",
+    .client_terminated = FALSE,
+    .connection = connection,
+  };
+
+  thread = g_thread_new ("service-client-thread",
+                         service_client_thread_func,
+                         &testdata);
+
+  /* Wait for the window to be created by mutter */
+  window = meta_wait_for_client_window (test_context, "test-tagged-window");
+  g_assert_nonnull (window);
+
+  /* Check that the window tag was correctly applied */
+  applied_tag = meta_window_get_tag (window);
+  g_assert_nonnull (applied_tag);
+  g_assert_cmpstr (applied_tag, ==, testdata.test_tag);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+
+  g_debug ("Waiting for client to disconnect");
+  while (!g_atomic_int_get (&testdata.client_terminated))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_debug ("Waiting for thread to terminate");
+  g_thread_join (thread);
+}
+
 static void
 on_before_tests (void)
 {
@@ -86,6 +221,8 @@ init_tests (void)
 {
   g_test_add_func ("/service-channel/wayland",
                    meta_test_service_channel_wayland);
+  g_test_add_func ("/service-channel/open-wayland-connection",
+                   meta_test_service_channel_open_wayland_connection);
 }
 
 int
