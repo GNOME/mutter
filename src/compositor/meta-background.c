@@ -79,8 +79,10 @@ struct _MetaBackground
 enum
 {
   PROP_META_DISPLAY = 1,
-  PROP_MONITOR,
+  N_PROPS,
 };
+
+static GParamSpec *props[N_PROPS] = { 0, };
 
 G_DEFINE_TYPE (MetaBackground, meta_background, G_TYPE_OBJECT)
 
@@ -338,7 +340,6 @@ static void
 meta_background_class_init (MetaBackgroundClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  GParamSpec *param_spec;
 
   object_class->dispose = meta_background_dispose;
   object_class->finalize = meta_background_finalize;
@@ -354,14 +355,12 @@ meta_background_class_init (MetaBackgroundClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
-  param_spec = g_param_spec_object ("meta-display", NULL, NULL,
-                                    META_TYPE_DISPLAY,
-                                    G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_META_DISPLAY] =
+    g_param_spec_object ("meta-display", NULL, NULL,
+                         META_TYPE_DISPLAY,
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
-  g_object_class_install_property (object_class,
-                                   PROP_META_DISPLAY,
-                                   param_spec);
-
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
