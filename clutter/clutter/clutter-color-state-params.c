@@ -112,8 +112,8 @@ clutter_eotf_to_string (ClutterEOTF eotf)
           return "sRGB";
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return "PQ";
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
-          return "BT.709";
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
+          return "BT.1886";
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return "linear";
         }
@@ -165,7 +165,7 @@ static const ClutterLuminance sdr_default_luminance = {
   .ref = 80.0f,
 };
 
-static const ClutterLuminance bt709_default_luminance = {
+static const ClutterLuminance bt1886_default_luminance = {
   .type = CLUTTER_LUMINANCE_TYPE_DERIVED,
   .min = 0.01f,
   .max = 100.0f,
@@ -190,8 +190,8 @@ clutter_eotf_get_default_luminance (ClutterEOTF eotf)
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return &sdr_default_luminance;
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
-          return &bt709_default_luminance;
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
+          return &bt1886_default_luminance;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_default_luminance;
         }
@@ -273,21 +273,17 @@ clutter_eotf_apply_pq_inv (float input)
 }
 
 static float
-clutter_eotf_apply_bt709 (float input)
+clutter_eotf_apply_bt1886 (float input)
 {
-  if (input < 0.08124f)
-    return input / 4.5f;
-  else
-    return powf ((input + 0.099f) / 1.099f, 1.0f / 0.45f);
+  /* assumes an unadjusted display with L_B=0, L_W=1 */
+  return powf (input, 2.4f);
 }
 
 static float
-clutter_eotf_apply_bt709_inv (float input)
+clutter_eotf_apply_bt1886_inv (float input)
 {
-  if (input < 0.018f)
-    return input * 4.5f;
-  else
-    return 1.099f * powf (input, 0.45f) - 0.099f;
+  /* assumes an unadjusted display with L_B=0, L_W=1 */
+  return powf (input, 1.0f / 2.4f);
 }
 
 static float
@@ -313,8 +309,8 @@ clutter_eotf_apply (ClutterEOTF eotf,
           return clutter_eotf_apply_srgb (input);
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return clutter_eotf_apply_pq (input);
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
-          return clutter_eotf_apply_bt709 (input);
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
+          return clutter_eotf_apply_bt1886 (input);
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return input;
         }
@@ -341,8 +337,8 @@ clutter_eotf_apply_inv (ClutterEOTF eotf,
           return clutter_eotf_apply_srgb_inv (input);
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return clutter_eotf_apply_pq_inv (input);
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
-          return clutter_eotf_apply_bt709_inv (input);
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
+          return clutter_eotf_apply_bt1886_inv (input);
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return input;
         }
@@ -713,38 +709,32 @@ static const char pq_inv_eotf_source[] =
   "  return vec4 (pq_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
-static const char bt709_eotf_source[] =
-  "// bt709_eotf:\n"
+static const char bt1886_eotf_source[] =
+  "// bt1886_eotf:\n"
   "// @color: Normalized ([0,1]) electrical signal value\n"
   "// Returns: tristimulus values ([0,1])\n"
-  "vec3 bt709_eotf (vec3 color)\n"
+  "vec3 bt1886_eotf (vec3 color)\n"
   "{\n"
-  "  vec3 is_low = vec3 (lessThan (color, vec3 (0.08124)));\n"
-  "  vec3 lo_part = color / 4.5;\n"
-  "  vec3 hi_part = pow ((color + 0.099) / 1.099, vec3 (1.0 / 0.45));\n"
-  "  return mix (hi_part, lo_part, is_low);\n"
+  "  return pow (color, vec3 (2.4));\n"
   "}\n"
   "\n"
-  "vec4 bt709_eotf (vec4 color)\n"
+  "vec4 bt1886_eotf (vec4 color)\n"
   "{\n"
-  "  return vec4 (bt709_eotf (color.rgb), color.a);\n"
+  "  return vec4 (bt1886_eotf (color.rgb), color.a);\n"
   "}\n";
 
-static const char bt709_inv_eotf_source[] =
-  "// bt709_inv_eotf:\n"
+static const char bt1886_inv_eotf_source[] =
+  "// bt1886_inv_eotf:\n"
   "// @color: Normalized tristimulus values ([0,1])"
   "// Returns: Normalized ([0,1]) electrical signal value\n"
-  "vec3 bt709_inv_eotf (vec3 color)\n"
+  "vec3 bt1886_inv_eotf (vec3 color)\n"
   "{\n"
-  "  vec3 is_low = vec3 (lessThan (color, vec3 (0.018)));\n"
-  "  vec3 lo_part = 4.5 * color;\n"
-  "  vec3 hi_part = 1.099 * pow (color, vec3 (0.45)) - 0.099;\n"
-  "  return mix (hi_part, lo_part, is_low);\n"
+  "  return pow (color, vec3 (1.0 / 2.4));\n"
   "}\n"
   "\n"
-  "vec4 bt709_inv_eotf (vec4 color)\n"
+  "vec4 bt1886_inv_eotf (vec4 color)\n"
   "{\n"
-  "  return vec4 (bt709_inv_eotf (color.rgb), color.a);\n"
+  "  return vec4 (bt1886_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
 static const char gamma_eotf_source[] =
@@ -803,14 +793,14 @@ static const ClutterColorOpSnippet pq_inv_eotf = {
   .name = "pq_inv_eotf",
 };
 
-static const ClutterColorOpSnippet bt709_eotf = {
-  .source = bt709_eotf_source,
-  .name = "bt709_eotf",
+static const ClutterColorOpSnippet bt1886_eotf = {
+  .source = bt1886_eotf_source,
+  .name = "bt1886_eotf",
 };
 
-static const ClutterColorOpSnippet bt709_inv_eotf = {
-  .source = bt709_inv_eotf_source,
-  .name = "bt709_inv_eotf",
+static const ClutterColorOpSnippet bt1886_inv_eotf = {
+  .source = bt1886_inv_eotf_source,
+  .name = "bt1886_inv_eotf",
 };
 
 static const ClutterColorOpSnippet gamma_eotf = {
@@ -835,8 +825,8 @@ get_eotf_snippet (ClutterColorStateParams *color_state_params)
           return &srgb_eotf;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_eotf;
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
-          return &bt709_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
+          return &bt1886_eotf;
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return NULL;
         }
@@ -862,8 +852,8 @@ get_inv_eotf_snippet (ClutterColorStateParams *color_state_params)
           return &srgb_inv_eotf;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_inv_eotf;
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
-          return &bt709_inv_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
+          return &bt1886_inv_eotf;
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
           return NULL;
         }
@@ -2116,7 +2106,7 @@ clutter_color_state_params_required_format (ClutterColorState *color_state)
       switch (color_state_params->eotf.tf_name)
         {
         case CLUTTER_TRANSFER_FUNCTION_SRGB:
-        case CLUTTER_TRANSFER_FUNCTION_BT709:
+        case CLUTTER_TRANSFER_FUNCTION_BT1886:
           return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT10;
@@ -2387,7 +2377,7 @@ cicp_transfer_to_clutter (ClutterCicpTransfer   transfer,
     case CLUTTER_CICP_TRANSFER_BT2020:
     case CLUTTER_CICP_TRANSFER_BT2020_2:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
-      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT709;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_BT1886;
       return TRUE;
     case CLUTTER_CICP_TRANSFER_GAMMA22:
       eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
