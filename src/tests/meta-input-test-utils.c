@@ -58,6 +58,13 @@ meta_create_test_keyboard (void)
   ret = libevdev_uinput_create_from_device (evdev,
                                             LIBEVDEV_UINPUT_OPEN_MANAGED,
                                             &evdev_uinput);
+
+  if (ret == -EACCES)
+    {
+      g_printerr ("Test skipped: uinput permission denied\n");
+      exit (77);
+    }
+
   g_assert_cmpint (ret, ==, 0);
   g_assert_nonnull (evdev_uinput);
   libevdev_free (evdev);
