@@ -29,7 +29,7 @@
 static MetaContext *test_context;
 
 static void
-run_mouse_keys_tests (MetaContext *context)
+meta_test_a11y_mouse_keys (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
@@ -60,31 +60,6 @@ run_mouse_keys_tests (MetaContext *context)
 
   g_assert_cmpfloat (initial_coords.x, !=, moved_coords.x);
   g_assert_cmpfloat (initial_coords.y, ==, moved_coords.y);
-
-  meta_context_terminate (test_context);
-}
-
-static void
-meta_test_a11y_mouse_keys (void)
-{
-  g_autoptr (GSettings) a11y_keyboard_settings = NULL;
-  g_autoptr (GError) error = NULL;
-  struct libevdev_uinput *keyboard_device;
-
-  a11y_keyboard_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
-  g_settings_set_boolean (a11y_keyboard_settings, "mousekeys-enable", TRUE);
-
-  keyboard_device = meta_create_test_keyboard ();
-  meta_wait_for_uinput_device (keyboard_device);
-
-  g_assert_true (meta_context_setup (test_context, &error));
-  g_assert_true (meta_context_start (test_context, &error));
-
-  meta_context_notify_ready (test_context);
-  g_idle_add_once ((GSourceOnceFunc) run_mouse_keys_tests, test_context);
-  g_assert_true (meta_context_run_main_loop (test_context, &error));
-
-  libevdev_uinput_destroy (keyboard_device);
 }
 
 int
@@ -93,6 +68,15 @@ main (int    argc,
 {
   g_autoptr (MetaContext) context = NULL;
   g_autoptr (GError) error = NULL;
+  struct libevdev_uinput *keyboard_device;
+  g_autoptr (GSettings) a11y_keyboard_settings = NULL;
+  int ret;
+
+  a11y_keyboard_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
+  g_settings_set_boolean (a11y_keyboard_settings, "mousekeys-enable", TRUE);
+
+  keyboard_device = meta_create_test_keyboard ();
+  meta_wait_for_uinput_device (keyboard_device);
 
   context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
@@ -101,5 +85,11 @@ main (int    argc,
   test_context = context;
 
   g_test_add_func ("/a11y/mouse-keys", meta_test_a11y_mouse_keys);
-  return g_test_run ();
+
+  ret = meta_context_test_run_tests (META_CONTEXT_TEST (context),
+                                     META_TEST_RUN_FLAG_CAN_SKIP);
+
+  libevdev_uinput_destroy (keyboard_device);
+
+  return ret;
 }
