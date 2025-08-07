@@ -932,6 +932,14 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'window-config',
+    'suite': 'wayland',
+    'sources': [
+      'window-config-tests.c',
+      wayland_test_utils,
+    ],
+  },
+  {
     'name': 'wayland-unit',
     'suite': 'wayland',
     'sources': [
