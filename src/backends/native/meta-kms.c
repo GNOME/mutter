@@ -350,6 +350,14 @@ meta_kms_create_device (MetaKms            *kms,
     flags |= META_KMS_DEVICE_FLAG_NO_MODE_SETTING;
 
   device = meta_kms_device_new (kms, path, flags, error);
+  if (!device &&
+      flags & META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY &&
+      !(flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING))
+    {
+      flags |= META_KMS_DEVICE_FLAG_NO_MODE_SETTING;
+      device = meta_kms_device_new (kms, path, flags, error);
+    }
+
   if (!device)
     return NULL;
 
