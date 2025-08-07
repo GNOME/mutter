@@ -23,7 +23,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <core/meta-anonymous-file.h>
+#include "mtk/mtk.h"
 
 #if defined(HAVE_MEMFD_CREATE)
 #define READONLY_SEALS (F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
@@ -122,13 +122,13 @@ int
 main (int    argc,
       char **argv)
 {
-  MetaAnonymousFile *file;
+  MtkAnonymousFile *file;
   int fd = -1, other_fd = -1;
   g_autofree char *fd_path = NULL;
 
-  file = meta_anonymous_file_new ("test",
-                                  strlen (teststring) + 1,
-                                  (const uint8_t *) teststring);
+  file = mtk_anonymous_file_new ("test",
+                                 strlen (teststring) + 1,
+                                 (const uint8_t *) teststring);
   if (!file)
     {
       g_critical ("%s: Creating file failed", __func__);
@@ -136,12 +136,12 @@ main (int    argc,
     }
 
 #if defined(HAVE_MEMFD_CREATE)
-  fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   g_assert_cmpint (fd, !=, -1);
-  other_fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  other_fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   g_assert_cmpint (other_fd, !=, -1);
 
-  /* When MAPMODE_PRIVATE was used, meta_anonymous_file_open_fd() should always
+  /* When MAPMODE_PRIVATE was used, mtk_anonymous_file_open_fd() should always
    * return the same fd. */
   if (other_fd != fd)
     goto fail;
@@ -175,13 +175,13 @@ main (int    argc,
   if (!test_read_fd_mmap (other_fd, teststring))
     goto fail;
 
-  meta_anonymous_file_close_fd (fd);
-  meta_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (fd);
 
 
-  fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_SHARED);
+  fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_SHARED);
   g_assert_cmpint (fd, !=, -1);
-  other_fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_SHARED);
+  other_fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_SHARED);
   g_assert_cmpint (other_fd, !=, -1);
 
   /* The MAPMODE_SHARED fd should not have readonly seals applied */
@@ -202,8 +202,8 @@ main (int    argc,
   if (!test_read_fd_mmap (other_fd, teststring))
     goto fail;
 
-  meta_anonymous_file_close_fd (fd);
-  meta_anonymous_file_close_fd (other_fd);
+  mtk_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (other_fd);
 
 
   /* Test an artificial out-of-space situation by setting the maximum file
@@ -221,18 +221,18 @@ main (int    argc,
       if (setrlimit (RLIMIT_FSIZE, &rlimit) == -1)
         goto fail;
 
-      fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+      fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
       g_assert_cmpint (fd, !=, -1);
 
       if (!test_read_fd_mmap (fd, teststring))
         goto fail;
 
-      meta_anonymous_file_close_fd (fd);
+      mtk_anonymous_file_close_fd (fd);
     }
 #else
-  fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   g_assert_cmpint (fd, !=, -1);
-  other_fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  other_fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   g_assert_cmpint (other_fd, !=, -1);
 
   /* Writing and reading the written data should succeed */
@@ -243,13 +243,13 @@ main (int    argc,
   if (!test_read_fd_mmap (other_fd, teststring))
     goto fail;
 
-  meta_anonymous_file_close_fd (fd);
-  meta_anonymous_file_close_fd (other_fd);
+  mtk_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (other_fd);
 
 
-  fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_SHARED);
+  fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_SHARED);
   g_assert_cmpint (fd, !=, -1);
-  other_fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_SHARED);
+  other_fd = mtk_anonymous_file_open_fd (file, MTK_ANONYMOUS_FILE_MAPMODE_SHARED);
   g_assert_cmpint (other_fd, !=, -1);
 
   if (!test_read_fd_mmap (fd, teststring))
@@ -266,18 +266,18 @@ main (int    argc,
   if (!test_read_fd_mmap (other_fd, teststring))
     goto fail;
 
-  meta_anonymous_file_close_fd (fd);
-  meta_anonymous_file_close_fd (other_fd);
+  mtk_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (other_fd);
 #endif
 
-  meta_anonymous_file_free (file);
+  mtk_anonymous_file_free (file);
   return EXIT_SUCCESS;
 
   fail:
     if (fd > 0)
-      meta_anonymous_file_close_fd (fd);
+      mtk_anonymous_file_close_fd (fd);
     if (other_fd > 0)
-      meta_anonymous_file_close_fd (other_fd);
-    meta_anonymous_file_free (file);
+      mtk_anonymous_file_close_fd (other_fd);
+    mtk_anonymous_file_free (file);
     return EXIT_FAILURE;
 }

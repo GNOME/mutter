@@ -46,7 +46,7 @@
 #include <xkbcommon/xkbcommon.h>
 
 #include "clutter/clutter.h"
-#include "core/meta-anonymous-file.h"
+#include "core/util-private.h"
 #include "wayland/meta-wayland-input-device.h"
 #include "wayland/meta-wayland-types.h"
 

@@ -24,9 +24,9 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-#include "core/meta-anonymous-file.h"
+#include "mtk/mtk-anonymous-file.h"
 
-struct _MetaAnonymousFile
+struct _MtkAnonymousFile
 {
   char *name;
   int fd;
@@ -168,7 +168,7 @@ create_anonymous_file (const char *name,
 }
 
 /**
- * meta_anonymous_file_new: (skip)
+ * mtk_anonymous_file_new: (skip)
  * @name: Name of the file
  * @size: The size of @data
  * @data: The data of the file with the size @size
@@ -177,21 +177,21 @@ create_anonymous_file (const char *name,
  * The intended use-case is for sending mid-sized data from the compositor
  * to clients.
  *
- * When done, free the data using meta_anonymous_file_free().
+ * When done, free the data using mtk_anonymous_file_free().
  *
  * If this function fails errno is set.
  *
  * The name is used to as part of the file name.
  *
  * Returns: The newly created #MetaAnonymousFile, or NULL on failure. Use
- *   meta_anonymous_file_free() to free the resources when done.
+ *   mtk_anonymous_file_free() to free the resources when done.
  */
-MetaAnonymousFile *
-meta_anonymous_file_new (const char    *name,
-                         size_t         size,
-                         const uint8_t *data)
+MtkAnonymousFile *
+mtk_anonymous_file_new (const char    *name,
+                        size_t         size,
+                        const uint8_t *data)
 {
-  g_autoptr (MetaAnonymousFile) file = NULL;
+  g_autoptr (MtkAnonymousFile) file = NULL;
 
   file = g_malloc0 (sizeof *file);
   file->name = g_strdup (name);
@@ -215,7 +215,7 @@ meta_anonymous_file_new (const char    *name,
 #if defined(HAVE_MEMFD_CREATE)
   /* try to put seals on the file to make it read-only so that we can
    * return the fd later directly when MAPMODE_SHARED is not set.
-   * meta_anonymous_file_open_fd can handle the fd even if it is not
+   * mtk_anonymous_file_open_fd can handle the fd even if it is not
    * sealed read-only and will instead create a new anonymous file on
    * each invocation.
    */
@@ -227,20 +227,20 @@ meta_anonymous_file_new (const char    *name,
 
 
 /**
- * meta_anonymous_file_free: (skip)
+ * mtk_anonymous_file_free: (skip)
  * @file: the #MetaAnonymousFile
  *
  * Free the resources used by an anonymous read-only file.
  */
 void
-meta_anonymous_file_free (MetaAnonymousFile *file)
+mtk_anonymous_file_free (MtkAnonymousFile *file)
 {
   g_clear_fd (&file->fd, NULL);
   g_free (file);
 }
 
 /**
- * meta_anonymous_file_size: (skip)
+ * mtk_anonymous_file_size: (skip)
  * @file: the #MetaAnonymousFile
  *
  * Get the size of an anonymous read-only file.
@@ -248,41 +248,41 @@ meta_anonymous_file_free (MetaAnonymousFile *file)
  * Returns: The size of the anonymous read-only file.
  */
 size_t
-meta_anonymous_file_size (MetaAnonymousFile *file)
+mtk_anonymous_file_size (const MtkAnonymousFile *file)
 {
   return file->size;
 }
 
 /**
- * meta_anonymous_file_open_fd: (skip)
+ * mtk_anonymous_file_open_fd: (skip)
  * @file: the #MetaAnonymousFile to get a file descriptor for
  * @mapmode: describes the ways in which the returned file descriptor can
  *   be used with mmap
  *
  * Returns a file descriptor for the given file, ready to be sent to a client.
  * The returned file descriptor must not be shared between multiple clients.
- * If @mapmode is %META_ANONYMOUS_FILE_MAPMODE_PRIVATE the file descriptor is
+ * If @mapmode is %MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE the file descriptor is
  * only guaranteed to be mmapable with MAP_PRIVATE. If @mapmode is
- * %META_ANONYMOUS_FILE_MAPMODE_SHARED the file descriptor can be mmaped with
+ * %MTK_ANONYMOUS_FILE_MAPMODE_SHARED the file descriptor can be mmaped with
  * either MAP_PRIVATE or MAP_SHARED.
  *
- * In case %META_ANONYMOUS_FILE_MAPMODE_PRIVATE is used, it is important to
+ * In case %MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE is used, it is important to
  * only read the returned fd using mmap() since using read() will move the
  * read cursor of the fd and thus may cause read() calls on other returned
  * fds to fail.
  *
- * When done using the fd, it is required to call meta_anonymous_file_close_fd()
+ * When done using the fd, it is required to call mtk_anonymous_file_close_fd()
  * instead of close().
  *
  * If this function fails errno is set.
  *
  * Returns: A file descriptor for the given file that can be sent to a client
- *   or -1 on failure. Use meta_anonymous_file_close_fd() to release the fd
+ *   or -1 on failure. Use mtk_anonymous_file_close_fd() to release the fd
  *   when done.
  */
 int
-meta_anonymous_file_open_fd (MetaAnonymousFile        *file,
-                             MetaAnonymousFileMapmode  mapmode)
+mtk_anonymous_file_open_fd (const MtkAnonymousFile  *file,
+                            MtkAnonymousFileMapmode  mapmode)
 {
   void *src, *dst;
   int fd;
@@ -295,7 +295,7 @@ meta_anonymous_file_open_fd (MetaAnonymousFile        *file,
   /* file was sealed for read-only and we don't have to support MAP_SHARED
    * so we can simply pass the memfd fd
    */
-  if (seals != -1 && mapmode == META_ANONYMOUS_FILE_MAPMODE_PRIVATE &&
+  if (seals != -1 && mapmode == MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE &&
       (seals & READONLY_SEALS) == READONLY_SEALS)
     return file->fd;
 #endif
@@ -333,17 +333,17 @@ meta_anonymous_file_open_fd (MetaAnonymousFile        *file,
 }
 
 /**
- * meta_anonymous_file_close_fd: (skip)
- * @fd: A file descriptor obtained using meta_anonymous_file_open_fd()
+ * mtk_anonymous_file_close_fd: (skip)
+ * @fd: A file descriptor obtained using mtk_anonymous_file_open_fd()
  *
- * Release a file descriptor returned by meta_anonymous_file_open_fd().
+ * Release a file descriptor returned by mtk_anonymous_file_open_fd().
  * This function must be called for every file descriptor created with
- * meta_anonymous_file_open_fd() to not leak any resources.
+ * mtk_anonymous_file_open_fd() to not leak any resources.
  *
  * If this function fails errno is set.
  */
 void
-meta_anonymous_file_close_fd (int fd)
+mtk_anonymous_file_close_fd (int fd)
 {
 #if defined(HAVE_MEMFD_CREATE)
   int seals;

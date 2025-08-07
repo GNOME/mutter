@@ -452,11 +452,6 @@ test_cases += [
     ],
   },
   {
-    'name': 'anonymous-file',
-    'suite': 'unit',
-    'sources': [ 'anonymous-file.c', ],
-  },
-  {
     'name': 'edid',
     'suite': 'unit',
     'sources': [ 'edid-tests.c', ],

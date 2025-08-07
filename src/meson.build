@@ -347,8 +347,6 @@ mutter_sources = [
   'core/keybindings-private.h',
   'core/meta-accel-parse.c',
   'core/meta-accel-parse.h',
-  'core/meta-anonymous-file.c',
-  'core/meta-anonymous-file.h',
   'core/meta-border.c',
   'core/meta-border.h',
   'core/meta-clipboard-manager.c',

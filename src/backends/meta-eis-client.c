@@ -26,7 +26,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/native/meta-keymap-native.h"
 #include "clutter/clutter-mutter.h"
-#include "core/meta-anonymous-file.h"
+#include "mtk/mtk.h"
 
 #define MAX_BUTTON 128
 #define MAX_KEY 0x2ff /* KEY_MAX as of 5.13 */
@@ -134,9 +134,9 @@ remove_device (MetaEisClient     *client,
 
   if (eis_keymap)
     {
-      MetaAnonymousFile *f = eis_keymap_get_user_data (eis_keymap);
+      MtkAnonymousFile *f = eis_keymap_get_user_data (eis_keymap);
       if (f)
-        meta_anonymous_file_free (f);
+        mtk_anonymous_file_free (f);
     }
 
   if (remove_from_hashtable)
@@ -234,7 +234,7 @@ configure_keyboard (MetaEisClient     *client,
                     gpointer           user_data)
 {
   size_t len;
-  MetaAnonymousFile *f;
+  MtkAnonymousFile *f;
   int fd = -1;
   char *data;
   struct xkb_keymap *xkb_keymap;
@@ -251,9 +251,9 @@ configure_keyboard (MetaEisClient     *client,
     return;
 
   len = strlen (data);
-  f = meta_anonymous_file_new ("eis-keymap", len, (uint8_t*)data);
+  f = mtk_anonymous_file_new ("eis-keymap", len, (uint8_t*)data);
   if (f)
-    fd = meta_anonymous_file_open_fd (f, META_ANONYMOUS_FILE_MAPMODE_SHARED);
+    fd = mtk_anonymous_file_open_fd (f, MTK_ANONYMOUS_FILE_MAPMODE_SHARED);
 
   g_free (data);
   if (fd != -1)
@@ -263,7 +263,7 @@ configure_keyboard (MetaEisClient     *client,
       eis_keymap = eis_device_new_keymap (eis_device, EIS_KEYMAP_TYPE_XKB,
                                           fd, len);
       /* libeis dup()s the fd */
-      meta_anonymous_file_close_fd (fd);
+      mtk_anonymous_file_close_fd (fd);
       /* The memfile must be kept alive while the device is alive */
       eis_keymap_set_user_data (eis_keymap, f);
       eis_keymap_add (eis_keymap);

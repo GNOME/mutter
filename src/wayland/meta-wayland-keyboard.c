@@ -53,14 +53,14 @@
 
 #include "backends/meta-backend-private.h"
 #include "core/display-private.h"
-#include "core/meta-anonymous-file.h"
+#include "mtk/mtk.h"
 #include "wayland/meta-wayland-private.h"
 
 typedef struct
 {
   struct xkb_keymap *keymap;
   struct xkb_state *state;
-  MetaAnonymousFile *keymap_rofile;
+  MtkAnonymousFile *keymap_rofile;
 } MetaWaylandXkbInfo;
 
 struct _MetaWaylandKeyboard
@@ -117,15 +117,15 @@ send_keymap (MetaWaylandKeyboard *keyboard,
   MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
   int fd;
   size_t size;
-  MetaAnonymousFileMapmode mapmode;
+  MtkAnonymousFileMapmode mapmode;
 
   if (wl_resource_get_version (resource) < 7)
-    mapmode = META_ANONYMOUS_FILE_MAPMODE_SHARED;
+    mapmode = MTK_ANONYMOUS_FILE_MAPMODE_SHARED;
   else
-    mapmode = META_ANONYMOUS_FILE_MAPMODE_PRIVATE;
+    mapmode = MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE;
 
-  fd = meta_anonymous_file_open_fd (xkb_info->keymap_rofile, mapmode);
-  size = meta_anonymous_file_size (xkb_info->keymap_rofile);
+  fd = mtk_anonymous_file_open_fd (xkb_info->keymap_rofile, mapmode);
+  size = mtk_anonymous_file_size (xkb_info->keymap_rofile);
 
   if (fd == -1)
     {
@@ -137,7 +137,7 @@ send_keymap (MetaWaylandKeyboard *keyboard,
                            WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1,
                            fd, size);
 
-  meta_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (fd);
 }
 
 static void
@@ -179,10 +179,10 @@ meta_wayland_keyboard_take_keymap (MetaWaylandKeyboard *keyboard,
     }
   keymap_size = strlen (keymap_string) + 1;
 
-  g_clear_pointer (&xkb_info->keymap_rofile, meta_anonymous_file_free);
+  g_clear_pointer (&xkb_info->keymap_rofile, mtk_anonymous_file_free);
   xkb_info->keymap_rofile =
-    meta_anonymous_file_new ("wayland-keymap",
-                             keymap_size, (const uint8_t *) keymap_string);
+    mtk_anonymous_file_new ("wayland-keymap",
+                            keymap_size, (const uint8_t *) keymap_string);
 
   free (keymap_string);
 
@@ -580,7 +580,7 @@ meta_wayland_xkb_info_destroy (MetaWaylandXkbInfo *xkb_info)
 {
   g_clear_pointer (&xkb_info->keymap, xkb_keymap_unref);
   g_clear_pointer (&xkb_info->state, xkb_state_unref);
-  g_clear_pointer (&xkb_info->keymap_rofile, meta_anonymous_file_free);
+  g_clear_pointer (&xkb_info->keymap_rofile, mtk_anonymous_file_free);
 }
 
 void

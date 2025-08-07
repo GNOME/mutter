@@ -31,10 +31,10 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-remote-access-controller-private.h"
-#include "core/meta-anonymous-file.h"
 #include "meta/barrier.h"
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
+#include "mtk/mtk.h"
 
 #include "meta-dbus-input-capture.h"
 
@@ -95,7 +95,7 @@ struct _MetaInputCaptureSession
   struct eis_device *eis_keyboard;
   GSource *eis_source;
 
-  MetaAnonymousFile *keymap_file;
+  MtkAnonymousFile *keymap_file;
 
   MetaViewportInfo *viewports;
 
@@ -228,7 +228,7 @@ ensure_eis_pointer (MetaInputCaptureSession *session)
     eis_device_start_emulating (session->eis_pointer, session->activation_id);
 }
 
-static MetaAnonymousFile *
+static MtkAnonymousFile *
 ensure_xkb_keymap_file (MetaInputCaptureSession  *session,
                         GError                  **error)
 {
@@ -253,9 +253,9 @@ ensure_xkb_keymap_file (MetaInputCaptureSession  *session,
   keymap_size = strlen (keymap_string) + 1;
 
   session->keymap_file =
-    meta_anonymous_file_new ("input-capture-keymap",
-                             keymap_size,
-                             (const uint8_t *) keymap_string);
+    mtk_anonymous_file_new ("input-capture-keymap",
+                            keymap_size,
+                            (const uint8_t *) keymap_string);
 
   return session->keymap_file;
 }
@@ -266,7 +266,7 @@ ensure_eis_keyboard (MetaInputCaptureSession *session)
   struct eis_device *eis_keyboard;
   g_autoptr (GError) error = NULL;
   struct eis_keymap *eis_keymap;
-  MetaAnonymousFile *keymap_file;
+  MtkAnonymousFile *keymap_file;
   int keymap_fd;
   size_t keymap_size;
 
@@ -285,15 +285,15 @@ ensure_eis_keyboard (MetaInputCaptureSession *session)
   eis_device_configure_name (eis_keyboard, "captured keyboard");
   eis_device_configure_capability (eis_keyboard, EIS_DEVICE_CAP_KEYBOARD);
 
-  keymap_fd = meta_anonymous_file_open_fd (keymap_file,
-                                           META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
-  keymap_size = meta_anonymous_file_size (keymap_file);
+  keymap_fd = mtk_anonymous_file_open_fd (keymap_file,
+                                          MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  keymap_size = mtk_anonymous_file_size (keymap_file);
   eis_keymap = eis_device_new_keymap (eis_keyboard,
                                       EIS_KEYMAP_TYPE_XKB,
                                       keymap_fd, keymap_size);
   eis_keymap_add (eis_keymap);
   eis_keymap_unref (eis_keymap);
-  meta_anonymous_file_close_fd (keymap_fd);
+  mtk_anonymous_file_close_fd (keymap_fd);
 
   eis_device_add (eis_keyboard);
   eis_device_resume (eis_keyboard);
@@ -348,7 +348,7 @@ on_keymap_changed (MetaBackend *backend,
 {
   MetaInputCaptureSession *session = META_INPUT_CAPTURE_SESSION (user_data);
 
-  g_clear_pointer (&session->keymap_file, meta_anonymous_file_free);
+  g_clear_pointer (&session->keymap_file, mtk_anonymous_file_free);
 
   if (session->eis_keyboard)
     {
@@ -1202,7 +1202,7 @@ meta_input_capture_session_finalize (GObject *object)
   g_free (session->session_id);
   g_free (session->object_path);
   g_clear_object (&session->viewports);
-  g_clear_pointer (&session->keymap_file, meta_anonymous_file_free);
+  g_clear_pointer (&session->keymap_file, mtk_anonymous_file_free);
   g_clear_pointer (&session->eis_source, g_source_destroy);
   g_clear_pointer (&session->eis, eis_unref);
 

@@ -27,8 +27,6 @@
 #include <gvdb/gvdb-builder.h>
 #include <gvdb/gvdb-reader.h>
 
-#include "core/meta-anonymous-file.h"
-
 #define SESSION_FILE_NAME "session.gvdb"
 
 typedef struct _MetaSessionData MetaSessionData;

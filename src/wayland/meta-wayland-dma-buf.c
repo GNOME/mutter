@@ -123,7 +123,7 @@ struct _MetaWaylandDmaBufManager
   dev_t main_device_id;
 
   GArray *formats;
-  MetaAnonymousFile *format_table_file;
+  MtkAnonymousFile *format_table_file;
   MetaWaylandDmaBufFeedback *default_feedback;
 };
 
@@ -295,11 +295,11 @@ meta_wayland_dma_buf_feedback_send (MetaWaylandDmaBufFeedback *feedback,
   struct wl_array main_device_buf;
   dev_t *device_id_ptr;
 
-  fd = meta_anonymous_file_open_fd (dma_buf_manager->format_table_file,
-                                    META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
-  size = meta_anonymous_file_size (dma_buf_manager->format_table_file);
+  fd = mtk_anonymous_file_open_fd (dma_buf_manager->format_table_file,
+                                   MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  size = mtk_anonymous_file_size (dma_buf_manager->format_table_file);
   zwp_linux_dmabuf_feedback_v1_send_format_table (resource, fd, size);
-  meta_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (fd);
 
   wl_array_init (&main_device_buf);
   device_id_ptr = wl_array_add (&main_device_buf, sizeof (*device_id_ptr));
@@ -1785,8 +1785,8 @@ init_format_table (MetaWaylandDmaBufManager *dma_buf_manager)
     }
 
   dma_buf_manager->format_table_file =
-    meta_anonymous_file_new ("dmabuf-format-table",
-                             size, (uint8_t *) format_table);
+    mtk_anonymous_file_new ("dmabuf-format-table",
+                            size, (uint8_t *) format_table);
 }
 
 static gboolean
@@ -2030,7 +2030,7 @@ meta_wayland_dma_buf_manager_finalize (GObject *object)
     META_WAYLAND_DMA_BUF_MANAGER (object);
 
   g_clear_pointer (&dma_buf_manager->format_table_file,
-                   meta_anonymous_file_free);
+                   mtk_anonymous_file_free);
   g_clear_pointer (&dma_buf_manager->formats, g_array_unref);
   g_clear_pointer (&dma_buf_manager->default_feedback,
                    meta_wayland_dma_buf_feedback_free);

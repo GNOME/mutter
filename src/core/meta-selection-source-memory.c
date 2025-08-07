@@ -23,13 +23,13 @@
 
 #include <gio/gunixinputstream.h>
 
-#include "core/meta-anonymous-file.h"
+#include "mtk/mtk.h"
 
 struct _MetaSelectionSourceMemory
 {
   MetaSelectionSource parent_instance;
   char *mimetype;
-  MetaAnonymousFile *content;
+  MtkAnonymousFile *content;
 };
 
 G_DEFINE_TYPE (MetaSelectionSourceMemory,
@@ -63,7 +63,7 @@ meta_unix_input_stream_close_fn (GInputStream  *input_stream,
     return TRUE;
 
   fd = g_unix_input_stream_get_fd (stream);
-  meta_anonymous_file_close_fd (fd);
+  mtk_anonymous_file_close_fd (fd);
 
   return TRUE;
 }
@@ -114,8 +114,8 @@ meta_selection_source_memory_read_async (MetaSelectionSource *source,
   task = g_task_new (source, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_source_memory_read_async);
 
-  fd = meta_anonymous_file_open_fd (source_mem->content,
-                                    META_ANONYMOUS_FILE_MAPMODE_SHARED);
+  fd = mtk_anonymous_file_open_fd (source_mem->content,
+                                   MTK_ANONYMOUS_FILE_MAPMODE_SHARED);
 
   if (fd == -1)
     {
@@ -157,7 +157,7 @@ meta_selection_source_memory_finalize (GObject *object)
 {
   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (object);
 
-  g_clear_pointer (&source_mem->content, meta_anonymous_file_free);
+  g_clear_pointer (&source_mem->content, mtk_anonymous_file_free);
   g_free (source_mem->mimetype);
 
   G_OBJECT_CLASS (meta_selection_source_memory_parent_class)->finalize (object);
@@ -187,7 +187,7 @@ meta_selection_source_memory_new (const char  *mimetype,
                                   GError     **error)
 {
   MetaSelectionSourceMemory *source;
-  MetaAnonymousFile *anon_file;
+  MtkAnonymousFile *anon_file;
   const uint8_t *data;
   size_t size;
 
@@ -195,7 +195,7 @@ meta_selection_source_memory_new (const char  *mimetype,
   g_return_val_if_fail (content != NULL, NULL);
 
   data = g_bytes_get_data (content, &size);
-  anon_file = meta_anonymous_file_new ("selection-source", size, data);
+  anon_file = mtk_anonymous_file_new ("selection-source", size, data);
 
   if (anon_file == NULL)
     {

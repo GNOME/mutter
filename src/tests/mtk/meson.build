@@ -1,5 +1,12 @@
 test_cases += [
   {
+    'name': 'mtk-anonymous-file',
+    'suite': 'unit',
+    'sources': [
+      'mtk/anonymous-file.c',
+    ],
+  },
+  {
     'name': 'mtk-dispose-bin',
     'suite': 'unit',
     'sources': [
