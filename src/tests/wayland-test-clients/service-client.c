@@ -33,6 +33,11 @@ typedef enum _ServiceClientType
   SERVICE_CLIENT_TYPE_PORTAL_BACKEND,
 } ServiceClientType;
 
+typedef enum _MetaWaylandClientCaps
+{
+  META_WAYLAND_CLIENT_CAPS_X11_INTEROP = (1 << 0),
+} MetaWaylandClientCaps;
+
 static void
 on_sync_event (WaylandDisplay *display,
                uint32_t        serial,
@@ -89,6 +94,35 @@ test_open_wayland_service_connection (void)
 
   while (last_sync_event != 1)
     wayland_display_dispatch (display);
+}
+
+static void
+on_name_acquired (GDBusConnection *connection,
+                  const char      *name,
+                  gpointer         user_data)
+{
+  gboolean *acquired = user_data;
+
+  *acquired = TRUE;
+}
+
+static void
+own_dbus_name (const char *name)
+{
+  gboolean name_acquired = FALSE;
+
+  g_bus_own_name (G_BUS_TYPE_SESSION,
+                  name,
+                  G_BUS_NAME_OWNER_FLAGS_REPLACE |
+                  G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT,
+                  NULL,
+                  on_name_acquired,
+                  NULL,
+                  &name_acquired,
+                  NULL);
+
+  while (!name_acquired)
+    g_main_context_iteration (NULL, TRUE);
 }
 
 static gboolean
@@ -166,6 +200,40 @@ test_window_tag (void)
     wayland_display_dispatch (display);
 }
 
+static void
+test_caps_no_permission (void)
+{
+  g_autoptr (GError) error = NULL;
+  g_auto (GVariantBuilder) options_builder =
+    G_VARIANT_BUILDER_INIT (G_VARIANT_TYPE_VARDICT);
+
+  own_dbus_name ("org.gnome.Example.AppWithoutCaps");
+
+  g_variant_builder_add (&options_builder, "{sv}",
+                         "capabilities",
+                         g_variant_new_uint64 (META_WAYLAND_CLIENT_CAPS_X11_INTEROP));
+
+  g_assert_false (open_wayland_connection (&options_builder, NULL, &error));
+  g_assert_true (g_error_matches (error, G_DBUS_ERROR, G_DBUS_ERROR_ACCESS_DENIED));
+}
+
+static void
+test_caps_granted (void)
+{
+  g_autoptr (GError) error = NULL;
+  g_auto (GVariantBuilder) options_builder =
+    G_VARIANT_BUILDER_INIT (G_VARIANT_TYPE_VARDICT);
+
+  own_dbus_name ("org.freedesktop.impl.portal.desktop.gnome");
+
+  g_variant_builder_add (&options_builder, "{sv}",
+                         "capabilities",
+                         g_variant_new_uint64 (META_WAYLAND_CLIENT_CAPS_X11_INTEROP));
+
+  g_assert_true (open_wayland_connection (&options_builder, NULL, &error));
+  g_assert_no_error (error);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -174,6 +242,10 @@ main (int    argc,
     test_open_wayland_service_connection ();
   else if (g_strcmp0 (argv[1], "WindowTag") == 0)
     test_window_tag ();
+  else if (g_strcmp0 (argv[1], "CapsNoPermission") == 0)
+    test_caps_no_permission ();
+  else if (g_strcmp0 (argv[1], "CapsGranted") == 0)
+    test_caps_granted ();
   else
     g_assert_not_reached ();
 

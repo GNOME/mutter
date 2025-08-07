@@ -97,6 +97,32 @@ meta_test_service_channel_window_tag (void)
 }
 
 static void
+meta_test_service_channel_caps_no_permission (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context, "service-client",
+                                            "CapsNoPermission",
+                                            NULL);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
+meta_test_service_channel_caps_granted (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context, "service-client",
+                                            "CapsGranted",
+                                            NULL);
+
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -121,6 +147,10 @@ init_tests (void)
                    meta_test_service_channel_wayland);
   g_test_add_func ("/service-channel/window-tag",
                    meta_test_service_channel_window_tag);
+  g_test_add_func ("/service-channel/caps-no-permission",
+                   meta_test_service_channel_caps_no_permission);
+  g_test_add_func ("/service-channel/caps-granted",
+                   meta_test_service_channel_caps_granted);
 }
 
 int
