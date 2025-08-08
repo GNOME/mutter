@@ -146,7 +146,7 @@ then
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
       https://gitlab.gnome.org/GNOME/glib.git \
-      main
+      2.85.2
 fi
 
 if ! check_gsettings_key org.gnome.desktop.screensaver restart-enabled
@@ -154,5 +154,5 @@ then
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
       https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git \
-      main
+      49.beta
 fi
