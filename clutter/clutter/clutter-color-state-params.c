@@ -522,7 +522,8 @@ luminances_equal (const ClutterLuminance *lum,
 {
   return luminance_value_approx_equal (lum->min, other_lum->min, 0.1f) &&
          luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
-         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f);
+         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f) &&
+         lum->ref_is_1_0 == other_lum->ref_is_1_0;
 }
 
 static guint
@@ -548,8 +549,23 @@ static gboolean
 needs_lum_mapping (const ClutterLuminance *lum,
                    const ClutterLuminance *target_lum)
 {
-  return !needs_tone_mapping (lum, target_lum) &&
-         !luminances_equal (lum, target_lum);
+  if (needs_tone_mapping (lum, target_lum))
+    return FALSE;
+
+  if (target_lum->ref_is_1_0)
+    {
+      if (lum->ref_is_1_0)
+        return FALSE;
+
+      return !G_APPROX_VALUE (lum->max, lum->ref, 0.1f);
+    }
+
+  if (lum->ref_is_1_0)
+    return !G_APPROX_VALUE (target_lum->ref, target_lum->max, 0.1f);
+
+  return !G_APPROX_VALUE (target_lum->ref * lum->max,
+                          lum->ref * target_lum->max,
+                          0.1f);
 }
 
 static void
@@ -1082,14 +1098,24 @@ clutter_color_state_params_append_transform_snippet (ClutterColorState *color_st
                                           snippet_color_var);
 }
 
-static void
-clutter_luminance_get_luminance_mapping (const ClutterLuminance *lum,
-                                         const ClutterLuminance *target_lum,
-                                         float                  *lum_mapping)
+static float
+get_lum_mapping (const ClutterLuminance *lum,
+                       const ClutterLuminance *target_lum)
 {
+  if (target_lum->ref_is_1_0)
+    {
+      if (lum->ref_is_1_0)
+        return 1.0f;
+
+      return lum->max / lum->ref;
+    }
+
+  if (lum->ref_is_1_0)
+      return target_lum->ref / target_lum->max;
+
   /* this is a very basic, non-contrast preserving way of matching the reference
    * luminance level */
-  *lum_mapping = (target_lum->ref / lum->ref) * (lum->max / target_lum->max);
+  return (target_lum->ref / lum->ref) * (lum->max / target_lum->max);
 }
 
 static void
@@ -1515,9 +1541,7 @@ update_luminance_mapping_uniforms (ClutterColorStateParams *color_state_params,
   if (!needs_lum_mapping (lum, target_lum))
     return;
 
-  clutter_luminance_get_luminance_mapping (lum,
-                                           target_lum,
-                                           &lum_mapping);
+  lum_mapping = get_lum_mapping (lum, target_lum);
 
   uniform_location_luminance_mapping =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1812,7 +1836,8 @@ clutter_luminance_apply_luminance_mapping (const ClutterLuminance *lum,
   if (!needs_lum_mapping (lum, target_lum))
     return;
 
-  clutter_luminance_get_luminance_mapping (lum, target_lum, &lum_mapping);
+  lum_mapping = get_lum_mapping (lum, target_lum);
+
   for (i = 0; i < n_samples; i++)
     {
       data[0] *= lum_mapping;
@@ -1939,9 +1964,6 @@ clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
       dst_lum = &sdr_default_luminance;
     }
 
-  if (luminances_equal (src_lum, dst_lum))
-    return;
-
   if (needs_tone_mapping (src_lum, dst_lum))
     {
       clutter_luminance_apply_tone_mapping (src_lum,
@@ -1949,7 +1971,7 @@ clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
                                             data,
                                             n_samples);
     }
-  else
+  else if (needs_lum_mapping (src_lum, dst_lum))
     {
       clutter_luminance_apply_luminance_mapping (src_lum,
                                                  dst_lum,
@@ -2034,6 +2056,11 @@ clutter_color_state_params_required_format (ClutterColorState *color_state)
 {
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
+  const ClutterLuminance *luminance;
+
+  luminance = clutter_color_state_params_get_luminance (color_state_params);
+  if (luminance->max > luminance->ref && luminance->ref_is_1_0)
+    return CLUTTER_ENCODING_REQUIRED_FORMAT_FP16;
 
   switch (color_state_params->eotf.type)
     {
@@ -2148,7 +2175,8 @@ clutter_color_state_params_new (ClutterContext          *context,
 {
   return clutter_color_state_params_new_full (context,
                                               colorspace, transfer_function,
-                                              NULL, -1.0f, -1.0f, -1.0f, -1.0f);
+                                              NULL, -1.0f, -1.0f, -1.0f, -1.0f,
+                                              FALSE);
 }
 
 /**
@@ -2167,7 +2195,8 @@ clutter_color_state_params_new_full (ClutterContext          *context,
                                      float                    gamma_exp,
                                      float                    min_lum,
                                      float                    max_lum,
-                                     float                    ref_lum)
+                                     float                    ref_lum,
+                                     gboolean                 ref_is_1_0)
 {
   ClutterColorStateParams *color_state_params;
 
@@ -2198,6 +2227,7 @@ clutter_color_state_params_new_full (ClutterContext          *context,
       color_state_params->eotf.tf_name = transfer_function;
     }
 
+  color_state_params->luminance.ref_is_1_0 = ref_is_1_0;
   if (min_lum >= 0.0f && max_lum > 0.0f && ref_lum >= 0.0f)
     {
       color_state_params->luminance.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
@@ -2265,7 +2295,8 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
                                               gamma_exp,
                                               luminance.min,
                                               luminance.max,
-                                              luminance.ref);
+                                              luminance.ref,
+                                              luminance.ref_is_1_0);
 }
 
 static gboolean
