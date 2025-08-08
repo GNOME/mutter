@@ -1507,3 +1507,16 @@ meta_color_device_stop_calibration (MetaColorDevice *color_device)
   color_device->is_calibrating = FALSE;
   do_update (color_device);
 }
+
+size_t
+meta_color_device_get_calibration_lut_size (MetaColorDevice *color_device)
+{
+  return meta_monitor_get_gamma_lut_size (color_device->monitor);
+}
+
+void
+meta_color_device_set_calibration_lut (MetaColorDevice    *color_device,
+                                       const MetaGammaLut *lut)
+{
+  meta_monitor_set_gamma_lut (color_device->monitor, lut);
+}
