@@ -39,11 +39,17 @@ typedef struct
 } HistoryEntry;
 
 typedef struct _ClutterPanGesture ClutterPanGesture;
+typedef struct _ClutterPanGesturePrivate ClutterPanGesturePrivate;
 
 struct _ClutterPanGesture
 {
   ClutterGesture parent;
 
+  ClutterPanGesturePrivate *priv;
+};
+
+struct _ClutterPanGesturePrivate
+{
   int begin_threshold;
   gboolean threshold_reached;
 
@@ -89,60 +95,64 @@ enum
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 static unsigned int obj_signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_FINAL_TYPE (ClutterPanGesture, clutter_pan_gesture, CLUTTER_TYPE_GESTURE)
+G_DEFINE_FINAL_TYPE_WITH_PRIVATE (ClutterPanGesture, clutter_pan_gesture, CLUTTER_TYPE_GESTURE)
 
 static void
 add_delta_to_event_history (ClutterPanGesture     *self,
                             const graphene_vec2_t *delta,
                             uint32_t               time)
 {
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
   HistoryEntry *last_history_entry, *history_entry;
 
-  last_history_entry = self->event_history->len == 0
+  last_history_entry = priv->event_history->len == 0
     ? NULL
-    : &g_array_index (self->event_history,
+    : &g_array_index (priv->event_history,
                       HistoryEntry,
-                      (self->event_history_begin_index - 1) % EVENT_HISTORY_MAX_LENGTH);
+                      (priv->event_history_begin_index - 1) % EVENT_HISTORY_MAX_LENGTH);
 
   if (last_history_entry &&
       last_history_entry->time > (time - EVENT_HISTORY_MIN_STORE_INTERVAL_MS))
     return;
 
-  if (self->event_history->len < EVENT_HISTORY_MAX_LENGTH)
-    g_array_set_size (self->event_history, self->event_history->len + 1);
+  if (priv->event_history->len < EVENT_HISTORY_MAX_LENGTH)
+    g_array_set_size (priv->event_history, priv->event_history->len + 1);
 
   history_entry =
-    &g_array_index (self->event_history, HistoryEntry, self->event_history_begin_index);
+    &g_array_index (priv->event_history, HistoryEntry, priv->event_history_begin_index);
 
   history_entry->delta = *delta;
   history_entry->time = time;
 
-  self->event_history_begin_index =
-    (self->event_history_begin_index + 1) % EVENT_HISTORY_MAX_LENGTH;
+  priv->event_history_begin_index =
+    (priv->event_history_begin_index + 1) % EVENT_HISTORY_MAX_LENGTH;
 }
 
 static void
 calculate_velocity (ClutterPanGesture *self,
                     graphene_vec2_t   *velocity)
 {
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
   unsigned int i, j;
   uint32_t first_time = 0;
   uint32_t last_time = 0;
   uint32_t time_delta;
   graphene_vec2_t accumulated_deltas = { 0 };
 
-  j = self->event_history_begin_index;
+  j = priv->event_history_begin_index;
 
-  for (i = 0; i < self->event_history->len; i++)
+  for (i = 0; i < priv->event_history->len; i++)
     {
       HistoryEntry *history_entry;
 
-      if (j == self->event_history->len)
+      if (j == priv->event_history->len)
         j = 0;
 
-      history_entry = &g_array_index (self->event_history, HistoryEntry, j);
+      history_entry = &g_array_index (priv->event_history, HistoryEntry, j);
 
-      if (history_entry->time >= self->latest_event_time - EVENT_HISTORY_DURATION_MS)
+      if (history_entry->time >= priv->latest_event_time - EVENT_HISTORY_DURATION_MS)
         {
           if (first_time == 0)
             first_time = history_entry->time;
@@ -267,46 +277,48 @@ clutter_pan_gesture_point_began (ClutterGesture *gesture,
                                  unsigned int    sequence)
 {
   ClutterPanGesture *self = CLUTTER_PAN_GESTURE (gesture);
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
   unsigned int active_n_points = clutter_gesture_get_n_points (gesture);
   const ClutterEvent *event = clutter_gesture_get_point_event (gesture, sequence);
 
-  if (active_n_points < self->min_n_points)
+  if (active_n_points < priv->min_n_points)
     return;
 
   if (clutter_event_type (event) == CLUTTER_BUTTON_PRESS &&
-      self->required_button != 0 &&
-      clutter_event_get_button (event) != self->required_button)
+      priv->required_button != 0 &&
+      clutter_event_get_button (event) != priv->required_button)
     {
       clutter_gesture_set_state (gesture, CLUTTER_GESTURE_STATE_CANCELLED);
       return;
     }
 
   if (clutter_gesture_get_state (gesture) == CLUTTER_GESTURE_STATE_POSSIBLE &&
-      self->max_n_points != 0 && active_n_points > self->max_n_points)
+      priv->max_n_points != 0 && active_n_points > priv->max_n_points)
     {
       clutter_gesture_set_state (gesture, CLUTTER_GESTURE_STATE_CANCELLED);
       return;
     }
 
-  self->modifier_state = clutter_event_get_state (event);
-  self->threshold_reached = FALSE;
-  self->latest_event_time = clutter_event_get_time (event);
+  priv->modifier_state = clutter_event_get_state (event);
+  priv->threshold_reached = FALSE;
+  priv->latest_event_time = clutter_event_get_time (event);
 
-  if (self->event_history->len == 0)
-    add_delta_to_event_history (self, graphene_vec2_zero (), self->latest_event_time);
+  if (priv->event_history->len == 0)
+    add_delta_to_event_history (self, graphene_vec2_zero (), priv->latest_event_time);
 
   if (clutter_gesture_get_state (gesture) == CLUTTER_GESTURE_STATE_POSSIBLE &&
-      (self->begin_threshold == 0))
+      (priv->begin_threshold == 0))
     {
       unsigned int *active_points = clutter_gesture_get_points (gesture, NULL);
 
-      get_centroid_from_points (self, active_points, active_n_points, &self->start_point);
+      get_centroid_from_points (self, active_points, active_n_points, &priv->start_point);
       g_free (active_points);
 
       clutter_gesture_set_state (gesture, CLUTTER_GESTURE_STATE_RECOGNIZING);
     }
 
-  self->use_point = sequence;
+  priv->use_point = sequence;
 }
 
 static void
@@ -314,6 +326,8 @@ clutter_pan_gesture_point_moved (ClutterGesture *gesture,
                                  unsigned int    sequence)
 {
   ClutterPanGesture *self = CLUTTER_PAN_GESTURE (gesture);
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
   unsigned int active_n_points = clutter_gesture_get_n_points (gesture);
   graphene_vec2_t delta;
   const ClutterEvent *event = clutter_gesture_get_point_event (gesture, sequence);
@@ -325,34 +339,34 @@ clutter_pan_gesture_point_moved (ClutterGesture *gesture,
    * For now, we only look at the first point and ignore all other events that
    * happened at the same time though.
    */
-  if (sequence != self->use_point)
+  if (sequence != priv->use_point)
     return;
 
-  self->modifier_state = clutter_event_get_state (event);
-  self->latest_event_time = clutter_event_get_time (event);
+  priv->modifier_state = clutter_event_get_state (event);
+  priv->latest_event_time = clutter_event_get_time (event);
 
   get_delta_from_points (self, &sequence, 1, &delta);
-  add_delta_to_event_history (self, &delta, self->latest_event_time);
+  add_delta_to_event_history (self, &delta, priv->latest_event_time);
 
-  graphene_vec2_add (&self->total_delta, &delta, &self->total_delta);
-  total_distance = graphene_vec2_length (&self->total_delta);
+  graphene_vec2_add (&priv->total_delta, &delta, &priv->total_delta);
+  total_distance = graphene_vec2_length (&priv->total_delta);
 
-  if (!self->threshold_reached &&
-      ((self->pan_axis == CLUTTER_PAN_AXIS_BOTH &&
-        total_distance < self->begin_threshold) ||
-       (self->pan_axis == CLUTTER_PAN_AXIS_X &&
-        ABS (graphene_vec2_get_x (&self->total_delta)) < self->begin_threshold) ||
-       (self->pan_axis == CLUTTER_PAN_AXIS_Y &&
-        ABS (graphene_vec2_get_y (&self->total_delta)) < self->begin_threshold)))
+  if (!priv->threshold_reached &&
+      ((priv->pan_axis == CLUTTER_PAN_AXIS_BOTH &&
+        total_distance < priv->begin_threshold) ||
+       (priv->pan_axis == CLUTTER_PAN_AXIS_X &&
+        ABS (graphene_vec2_get_x (&priv->total_delta)) < priv->begin_threshold) ||
+       (priv->pan_axis == CLUTTER_PAN_AXIS_Y &&
+        ABS (graphene_vec2_get_y (&priv->total_delta)) < priv->begin_threshold)))
     return;
 
-  self->threshold_reached = TRUE;
+  priv->threshold_reached = TRUE;
 
   if (clutter_gesture_get_state (gesture) == CLUTTER_GESTURE_STATE_POSSIBLE &&
-      active_n_points >= self->min_n_points &&
-      (self->max_n_points == 0 || active_n_points <= self->max_n_points))
+      active_n_points >= priv->min_n_points &&
+      (priv->max_n_points == 0 || active_n_points <= priv->max_n_points))
     {
-      get_centroid_from_points (self, &sequence, 1, &self->start_point);
+      get_centroid_from_points (self, &sequence, 1, &priv->start_point);
       clutter_gesture_set_state (gesture, CLUTTER_GESTURE_STATE_RECOGNIZING);
     }
 
@@ -365,24 +379,26 @@ clutter_pan_gesture_point_ended (ClutterGesture *gesture,
                                  unsigned int    sequence)
 {
   ClutterPanGesture *self = CLUTTER_PAN_GESTURE (gesture);
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
   unsigned int active_n_points = clutter_gesture_get_n_points (gesture);
   const ClutterEvent *event = clutter_gesture_get_point_event (gesture, sequence);
 
-  if (active_n_points - 1 >= self->min_n_points)
+  if (active_n_points - 1 >= priv->min_n_points)
     {
       unsigned int *active_points = clutter_gesture_get_points (gesture, NULL);
 
       /* The point we were using ended but there's still enough points on screen
        * to allow the gesture to continue, so use another one to drive the gesture.
        */
-      self->use_point = active_points[0] != sequence
+      priv->use_point = active_points[0] != sequence
         ? active_points[0] : active_points[1];
 
       g_free (active_points);
       return;
     }
 
-  self->latest_event_time = clutter_event_get_time (event);
+  priv->latest_event_time = clutter_event_get_time (event);
 
   if (clutter_gesture_get_state (gesture) == CLUTTER_GESTURE_STATE_RECOGNIZING)
     clutter_gesture_set_state (gesture, CLUTTER_GESTURE_STATE_COMPLETED);
@@ -396,13 +412,15 @@ clutter_pan_gesture_state_changed (ClutterGesture      *gesture,
                                    ClutterGestureState  new_state)
 {
   ClutterPanGesture *self = CLUTTER_PAN_GESTURE (gesture);
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
 
   if (new_state == CLUTTER_GESTURE_STATE_WAITING)
     {
-      graphene_vec2_init (&self->total_delta, 0, 0);
-      self->event_history_begin_index = 0;
-      g_array_set_size (self->event_history, 0);
-      self->modifier_state = 0;
+      graphene_vec2_init (&priv->total_delta, 0, 0);
+      priv->event_history_begin_index = 0;
+      g_array_set_size (priv->event_history, 0);
+      priv->modifier_state = 0;
     }
 }
 
@@ -479,9 +497,10 @@ clutter_pan_gesture_get_property (GObject      *gobject,
 static void
 clutter_pan_gesture_finalize (GObject *gobject)
 {
-  ClutterPanGesture *self = CLUTTER_PAN_GESTURE (gobject);
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (CLUTTER_PAN_GESTURE (gobject));
 
-  g_array_unref (self->event_history);
+  g_array_unref (priv->event_history);
 
   G_OBJECT_CLASS (clutter_pan_gesture_parent_class)->finalize (gobject);
 }
@@ -588,14 +607,17 @@ clutter_pan_gesture_class_init (ClutterPanGestureClass *klass)
 static void
 clutter_pan_gesture_init (ClutterPanGesture *self)
 {
-  self->begin_threshold = DEFAULT_BEGIN_THRESHOLD_PX;
+  ClutterPanGesturePrivate *priv =
+    clutter_pan_gesture_get_instance_private (self);
 
-  self->event_history =
+  priv->begin_threshold = DEFAULT_BEGIN_THRESHOLD_PX;
+
+  priv->event_history =
     g_array_sized_new (FALSE, TRUE, sizeof (HistoryEntry), EVENT_HISTORY_MAX_LENGTH);
 
-  self->pan_axis = CLUTTER_PAN_AXIS_BOTH;
-  self->min_n_points = 1;
-  self->required_button = 1;
+  priv->pan_axis = CLUTTER_PAN_AXIS_BOTH;
+  priv->min_n_points = 1;
+  priv->required_button = 1;
 }
 
 /**
@@ -622,9 +644,13 @@ clutter_pan_gesture_new (void)
 unsigned int
 clutter_pan_gesture_get_begin_threshold (ClutterPanGesture *self)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
 
-  return self->begin_threshold;
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->begin_threshold;
 }
 
 /**
@@ -638,12 +664,16 @@ void
 clutter_pan_gesture_set_begin_threshold (ClutterPanGesture *self,
                                          unsigned int       begin_threshold)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
 
-  if (self->begin_threshold == begin_threshold)
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  if (priv->begin_threshold == begin_threshold)
     return;
 
-  self->begin_threshold = begin_threshold;
+  priv->begin_threshold = begin_threshold;
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_BEGIN_THRESHOLD]);
 
@@ -652,15 +682,15 @@ clutter_pan_gesture_set_begin_threshold (ClutterPanGesture *self,
       unsigned int active_n_points =
         clutter_gesture_get_n_points (CLUTTER_GESTURE (self));
 
-      if (active_n_points >= self->min_n_points &&
-          (self->max_n_points == 0 || active_n_points <= self->max_n_points))
+      if (active_n_points >= priv->min_n_points &&
+          (priv->max_n_points == 0 || active_n_points <= priv->max_n_points))
         {
-          if ((self->pan_axis == CLUTTER_PAN_AXIS_BOTH &&
-               graphene_vec2_length (&self->total_delta) >= self->begin_threshold) ||
-              (self->pan_axis == CLUTTER_PAN_AXIS_X &&
-               ABS (graphene_vec2_get_x (&self->total_delta)) >= self->begin_threshold) ||
-              (self->pan_axis == CLUTTER_PAN_AXIS_Y &&
-               ABS (graphene_vec2_get_y (&self->total_delta)) >= self->begin_threshold))
+          if ((priv->pan_axis == CLUTTER_PAN_AXIS_BOTH &&
+               graphene_vec2_length (&priv->total_delta) >= priv->begin_threshold) ||
+              (priv->pan_axis == CLUTTER_PAN_AXIS_X &&
+               ABS (graphene_vec2_get_x (&priv->total_delta)) >= priv->begin_threshold) ||
+              (priv->pan_axis == CLUTTER_PAN_AXIS_Y &&
+               ABS (graphene_vec2_get_y (&priv->total_delta)) >= priv->begin_threshold))
             clutter_gesture_set_state (CLUTTER_GESTURE (self), CLUTTER_GESTURE_STATE_RECOGNIZING);
         }
     }
@@ -677,10 +707,14 @@ clutter_pan_gesture_set_begin_threshold (ClutterPanGesture *self,
 ClutterPanAxis
 clutter_pan_gesture_get_pan_axis (ClutterPanGesture *self)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self),
                         CLUTTER_PAN_AXIS_BOTH);
 
-  return self->pan_axis;
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->pan_axis;
 }
 
 /**
@@ -694,15 +728,19 @@ void
 clutter_pan_gesture_set_pan_axis (ClutterPanGesture *self,
                                   ClutterPanAxis     axis)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (axis == CLUTTER_PAN_AXIS_BOTH ||
                     axis == CLUTTER_PAN_AXIS_X ||
                     axis == CLUTTER_PAN_AXIS_Y);
 
-  if (self->pan_axis == axis)
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  if (priv->pan_axis == axis)
     return;
 
-  self->pan_axis = axis;
+  priv->pan_axis = axis;
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PAN_AXIS]);
 }
@@ -719,9 +757,13 @@ clutter_pan_gesture_set_pan_axis (ClutterPanGesture *self,
 unsigned int
 clutter_pan_gesture_get_min_n_points (ClutterPanGesture *self)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 1);
 
-  return self->min_n_points;
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->min_n_points;
 }
 
 /**
@@ -735,14 +777,19 @@ void
 clutter_pan_gesture_set_min_n_points (ClutterPanGesture *self,
                                       unsigned int       min_n_points)
 {
-  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
-  g_return_if_fail (min_n_points >= 1 &&
-                    (self->max_n_points == 0 || min_n_points <= self->max_n_points));
+  ClutterPanGesturePrivate *priv;
 
-  if (self->min_n_points == min_n_points)
+  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
+
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  g_return_if_fail (min_n_points >= 1 &&
+                    (priv->max_n_points == 0 || min_n_points <= priv->max_n_points));
+
+  if (priv->min_n_points == min_n_points)
     return;
 
-  self->min_n_points = min_n_points;
+  priv->min_n_points = min_n_points;
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MIN_N_POINTS]);
 }
@@ -759,9 +806,13 @@ clutter_pan_gesture_set_min_n_points (ClutterPanGesture *self,
 unsigned int
 clutter_pan_gesture_get_max_n_points (ClutterPanGesture *self)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 1);
 
-  return self->max_n_points;
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->max_n_points;
 }
 
 /**
@@ -776,13 +827,18 @@ void
 clutter_pan_gesture_set_max_n_points (ClutterPanGesture *self,
                                       unsigned int       max_n_points)
 {
-  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
-  g_return_if_fail (max_n_points == 0 || max_n_points >= self->min_n_points);
+  ClutterPanGesturePrivate *priv;
 
-  if (self->max_n_points == max_n_points)
+  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
+
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  g_return_if_fail (max_n_points == 0 || max_n_points >= priv->min_n_points);
+
+  if (priv->max_n_points == max_n_points)
     return;
 
-  self->max_n_points = max_n_points;
+  priv->max_n_points = max_n_points;
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAX_N_POINTS]);
 }
@@ -798,14 +854,17 @@ void
 clutter_pan_gesture_get_begin_centroid (ClutterPanGesture *self,
                                         graphene_point_t  *centroid_out)
 {
+  ClutterPanGesturePrivate *priv;
   float x, y;
   ClutterActor *action_actor;
 
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (centroid_out != NULL);
 
-  x = self->start_point.x;
-  y = self->start_point.y;
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  x = priv->start_point.x;
+  y = priv->start_point.y;
 
   action_actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
   if (action_actor && !CLUTTER_IS_STAGE (action_actor))
@@ -826,11 +885,15 @@ void
 clutter_pan_gesture_get_begin_centroid_abs (ClutterPanGesture *self,
                                             graphene_point_t  *centroid_out)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (centroid_out != NULL);
 
-  centroid_out->x = self->start_point.x;
-  centroid_out->y = self->start_point.y;
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  centroid_out->x = priv->start_point.x;
+  centroid_out->y = priv->start_point.y;
 }
 
 /**
@@ -848,14 +911,17 @@ void
 clutter_pan_gesture_get_centroid (ClutterPanGesture *self,
                                   graphene_point_t  *centroid_out)
 {
+  ClutterPanGesturePrivate *priv;
   float x, y;
   ClutterActor *action_actor;
 
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (centroid_out != NULL);
 
-  x = self->start_point.x + graphene_vec2_get_x (&self->total_delta);
-  y = self->start_point.y + graphene_vec2_get_y (&self->total_delta);
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  x = priv->start_point.x + graphene_vec2_get_x (&priv->total_delta);
+  y = priv->start_point.y + graphene_vec2_get_y (&priv->total_delta);
 
   action_actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
   if (action_actor && !CLUTTER_IS_STAGE (action_actor))
@@ -881,11 +947,15 @@ void
 clutter_pan_gesture_get_centroid_abs (ClutterPanGesture *self,
                                       graphene_point_t  *centroid_out)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (centroid_out != NULL);
 
-  centroid_out->x = self->start_point.x + graphene_vec2_get_x (&self->total_delta);
-  centroid_out->y = self->start_point.y + graphene_vec2_get_y (&self->total_delta);
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  centroid_out->x = priv->start_point.x + graphene_vec2_get_x (&priv->total_delta);
+  centroid_out->y = priv->start_point.y + graphene_vec2_get_y (&priv->total_delta);
 }
 
 static void
@@ -914,12 +984,15 @@ void
 clutter_pan_gesture_get_velocity (ClutterPanGesture *self,
                                   graphene_vec2_t   *velocity_out)
 {
+  ClutterPanGesturePrivate *priv;
   ClutterActor *action_actor;
 
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (velocity_out != NULL);
 
-  if (!self->threshold_reached)
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  if (!priv->threshold_reached)
     {
       graphene_vec2_init (velocity_out, 0, 0);
       return;
@@ -946,10 +1019,14 @@ void
 clutter_pan_gesture_get_velocity_abs (ClutterPanGesture *self,
                                       graphene_vec2_t   *velocity_out)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (velocity_out != NULL);
 
-  if (!self->threshold_reached)
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  if (!priv->threshold_reached)
     {
       graphene_vec2_init (velocity_out, 0, 0);
       return;
@@ -973,17 +1050,20 @@ void
 clutter_pan_gesture_get_delta (ClutterPanGesture *self,
                                graphene_vec2_t   *delta_out)
 {
+  ClutterPanGesturePrivate *priv;
   HistoryEntry *last_history_entry;
   ClutterActor *action_actor;
 
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (delta_out != NULL);
 
-  last_history_entry = self->event_history->len == 0
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  last_history_entry = priv->event_history->len == 0
     ? NULL
-    : &g_array_index (self->event_history,
+    : &g_array_index (priv->event_history,
                       HistoryEntry,
-                      (self->event_history_begin_index - 1) % EVENT_HISTORY_MAX_LENGTH);
+                      (priv->event_history_begin_index - 1) % EVENT_HISTORY_MAX_LENGTH);
 
   if (!last_history_entry)
     {
@@ -1023,13 +1103,16 @@ void
 clutter_pan_gesture_get_accumulated_delta (ClutterPanGesture *self,
                                            graphene_vec2_t   *accumulated_delta_out)
 {
+  ClutterPanGesturePrivate *priv;
   ClutterActor *action_actor;
 
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (accumulated_delta_out != NULL);
 
+  priv = clutter_pan_gesture_get_instance_private (self);
+
   if (accumulated_delta_out)
-    *accumulated_delta_out = self->total_delta;
+    *accumulated_delta_out = priv->total_delta;
 
   action_actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
   if (action_actor && !CLUTTER_IS_STAGE (action_actor))
@@ -1052,16 +1135,19 @@ void
 clutter_pan_gesture_get_delta_abs (ClutterPanGesture *self,
                                    graphene_vec2_t   *delta_out)
 {
+  ClutterPanGesturePrivate *priv;
   HistoryEntry *last_history_entry;
 
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (delta_out != NULL);
 
-  last_history_entry = self->event_history->len == 0
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  last_history_entry = priv->event_history->len == 0
     ? NULL
-    : &g_array_index (self->event_history,
+    : &g_array_index (priv->event_history,
                       HistoryEntry,
-                      (self->event_history_begin_index - 1) % EVENT_HISTORY_MAX_LENGTH);
+                      (priv->event_history_begin_index - 1) % EVENT_HISTORY_MAX_LENGTH);
 
   if (!last_history_entry)
     {
@@ -1084,11 +1170,15 @@ void
 clutter_pan_gesture_get_accumulated_delta_abs (ClutterPanGesture *self,
                                                graphene_vec2_t   *accumulated_delta_out)
 {
+  ClutterPanGesturePrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
   g_return_if_fail (accumulated_delta_out != NULL);
 
+  priv = clutter_pan_gesture_get_instance_private (self);
+
   if (accumulated_delta_out)
-    *accumulated_delta_out = self->total_delta;
+    *accumulated_delta_out = priv->total_delta;
 }
 
 /**
@@ -1102,9 +1192,12 @@ clutter_pan_gesture_get_accumulated_delta_abs (ClutterPanGesture *self,
 unsigned int
 clutter_pan_gesture_get_button (ClutterPanGesture *self)
 {
-  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+  ClutterPanGesturePrivate *priv;
 
-  return self->button;
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->button;
 }
 
 /**
@@ -1118,9 +1211,12 @@ clutter_pan_gesture_get_button (ClutterPanGesture *self)
 unsigned int
 clutter_pan_gesture_get_required_button (ClutterPanGesture *self)
 {
-  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+  ClutterPanGesturePrivate *priv;
 
-  return self->required_button;
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->required_button;
 }
 
 /**
@@ -1136,12 +1232,15 @@ void
 clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
                                          unsigned int       required_button)
 {
-  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
+  ClutterPanGesturePrivate *priv;
 
-  if (self->required_button == required_button)
+  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  if (priv->required_button == required_button)
     return;
 
-  self->required_button = required_button;
+  priv->required_button = required_button;
   g_object_notify (G_OBJECT (self), "required-button");
 }
 
@@ -1156,7 +1255,10 @@ clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
 ClutterModifierType
 clutter_pan_gesture_get_state (ClutterPanGesture *self)
 {
-  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+  ClutterPanGesturePrivate *priv;
 
-  return self->modifier_state;
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+  priv = clutter_pan_gesture_get_instance_private (self);
+
+  return priv->modifier_state;
 }
