@@ -1940,6 +1940,15 @@ clutter_color_state_params_do_transform_from_XYZ (ClutterColorState *color_state
     }
 }
 
+/**
+ * clutter_color_state_params_do_tone_mapping:
+ * @color_state: a #ClutterColorState
+ * @other_color_state: the other a #ClutterColorState
+ * @data: (array): The data
+ * @n_samples: The number of data samples
+ *
+ * Applies the tone mapping to the given #ClutterColorState
+ */
 void
 clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
                                             ClutterColorState *other_color_state,

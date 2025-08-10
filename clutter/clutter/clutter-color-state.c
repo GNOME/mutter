@@ -686,6 +686,15 @@ clutter_color_state_update_uniforms (ClutterColorState *color_state,
                                       pipeline);
 }
 
+/**
+ * clutter_color_state_do_transform:
+ * @color_state: a #ClutterColorState
+ * @target_color_state: the target a #ClutterColorState
+ * @data: (array): The transform data
+ * @n_samples: The number of data samples
+ *
+ * Applies the transform to the given #ClutterColorState
+ */
 void
 clutter_color_state_do_transform (ClutterColorState *color_state,
                                   ClutterColorState *target_color_state,

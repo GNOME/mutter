@@ -57,10 +57,22 @@ struct _ClutterColorStateClass
                             ClutterColorState *target_color_state,
                             CoglPipeline      *pipeline);
 
+  /**
+   * ClutterColorStateClass::do_transform_to_XYZ:
+   * @color_state: the #ClutterColorState
+   * @data: (array): the given data
+   * @n_samples: the number of provided samples
+   */
   void (* do_transform_to_XYZ) (ClutterColorState *color_state,
                                 float             *data,
                                 int                n_samples);
 
+  /**
+   * ClutterColorStateClass::do_transform_from_XYZ:
+   * @color_state: the #ClutterColorState
+   * @data: (array): the given data
+   * @n_samples: the number of provided samples
+   */
   void (* do_transform_from_XYZ) (ClutterColorState *color_state,
                                   float             *data,
                                   int                n_samples);
