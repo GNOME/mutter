@@ -378,7 +378,9 @@ notify_key_repeat_for_resource (MetaWaylandKeyboard *keyboard,
       gboolean repeat;
       unsigned int delay, rate;
 
-      repeat = g_settings_get_boolean (keyboard->settings, "repeat");
+      repeat = (wl_resource_get_version (keyboard_resource) <
+                WL_KEYBOARD_KEY_STATE_REPEATED_SINCE_VERSION ||
+                g_settings_get_boolean (keyboard->settings, "repeat"));
 
       if (repeat)
         {
