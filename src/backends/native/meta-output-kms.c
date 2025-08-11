@@ -403,19 +403,13 @@ meta_output_kms_create_backlight (MetaOutput  *output,
         meta_color_device_get_reference_luminance_factor (color_device);
     }
 
-  backlight_sysfs = meta_backlight_sysfs_new (backend,
-                                              output_info,
-                                              &local_error);
-  if (!backlight_sysfs &&
-      g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED) &&
-      color_mode == META_COLOR_MODE_BT2100)
+  /* Unfortunately we don't know if a sysfs backlight actually works in
+   * HDR modes. Ideally a new KMS backlight API would allow us to get this
+   * information and react accordingly. Until then, we force the ref-white
+   * backlight.
+   */
+  if (color_mode == META_COLOR_MODE_BT2100)
     {
-
-      meta_topic (META_DEBUG_BACKEND,
-                  "Creating reference-white software backlight control for %s, "
-                  "because sysfs based backlight is not supported and HDR is active.",
-                  output_info->name);
-
       return META_BACKLIGHT (meta_backlight_ref_white_new (backend,
                                                            monitor,
                                                            orig_ref_white));
@@ -423,6 +417,10 @@ meta_output_kms_create_backlight (MetaOutput  *output,
 
   meta_color_device_set_reference_luminance_factor (color_device,
                                                     orig_ref_white);
+
+  backlight_sysfs = meta_backlight_sysfs_new (backend,
+                                              output_info,
+                                              &local_error);
 
   if (!backlight_sysfs)
     {
