@@ -293,23 +293,6 @@ privileged_test_cases = []
 
 subdir('mtk')
 
-backlight_client = executable('monitor-backlight-client',
-  sources: [
-    'monitor-backlight-client.c',
-    built_dbus_sources['meta-dbus-display-config'],
-  ],
-  include_directories: tests_includes,
-  c_args: [
-    tests_c_args,
-    '-DG_LOG_DOMAIN="mutter-monitor-backlight-test-client"',
-  ],
-  dependencies: [
-    gio_dep,
-  ],
-  install: have_installed_tests,
-  install_dir: mutter_installed_tests_libexecdir,
-)
-
 test_cases += [
   {
     'name': 'unit',
@@ -471,9 +454,6 @@ test_cases += [
     'name': 'monitor-backlight',
     'suite': 'backend',
     'sources': [ 'monitor-backlight-tests.c', ],
-    'depends': [
-      backlight_client,
-    ],
   },
   {
     'name': 'monitor-gdctl',

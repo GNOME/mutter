@@ -216,47 +216,6 @@ def print_properties(*, level, lines, properties):
         )
 
 
-def print_monitor_prefs(
-    display_config, monitor, level: int, lines: list[int], is_last: bool
-):
-    print_data(
-        level=level,
-        is_last=is_last,
-        lines=lines,
-        data="Preferences",
-    )
-
-    (_, backlight_entry) = display_config.get_backlight(monitor)
-    if backlight_entry:
-        print_data(
-            level=level + 1,
-            is_last=True,
-            lines=lines,
-            data="Backlight:",
-        )
-
-        props = [
-            (k, v) for (k, v) in backlight_entry.items() if k != "connector"
-        ]
-        for prop in props:
-            is_last = prop == props[-1]
-            (k, v) = prop
-
-            print_data(
-                level=level + 2,
-                is_last=is_last,
-                lines=lines,
-                data=f"{k} ⇒  {v}",
-            )
-    else:
-        print_data(
-            level=level + 1,
-            is_last=True,
-            lines=lines,
-            data="Backlight: None",
-        )
-
-
 def strip_dbus_error_prefix(message):
     if message.startswith("GDBus.Error"):
         return message.partition(" ")[2]
@@ -1172,19 +1131,11 @@ class MonitorsState:
                 if mode:
                     print_data(
                         level=1,
-                        is_last=False,
+                        is_last=not show_properties,
                         lines=lines,
                         data=f"{mode_type} mode",
                     )
                     self.print_mode(mode, True, show_properties, lines)
-
-            print_monitor_prefs(
-                self.display_config,
-                monitor,
-                level=1,
-                lines=lines,
-                is_last=not show_properties,
-            )
 
             if show_properties:
                 print_properties(level=1, lines=lines, properties=properties)
@@ -1659,33 +1610,6 @@ if __name__ == "__main__":
         type=str,
     ).completer = MonitorCompleter()  # type: ignore[attr-defined]
 
-    prefs_parser = subparser.add_parser(
-        "prefs",
-        help="Set display preferences",
-    )
-    prefs_parser.add_argument(
-        "-M",
-        "--monitor",
-        dest="monitors",
-        metavar="CONNECTOR",
-        action=GroupAction,
-        nargs=1,
-        default=[],
-        help="Change monitor preferences",
-    ).completer = MonitorCompleter()  # type: ignore[attr-defined]
-    monitor_prefs_parser = prefs_parser.add_argument_group(
-        "monitor",
-        "Monitor preferences (pass after --monitor)",
-        argument_default=argparse.SUPPRESS,
-    )
-    monitor_prefs_parser.add_argument(
-        "-b",
-        "--backlight",
-        action=AppendToGroup,
-        type=float,
-        nargs=1,
-    )
-
     if argcomplete:
         for action in [
             GroupAction,
@@ -1762,31 +1686,3 @@ if __name__ == "__main__":
                         file=sys.stderr,
                     )
                 sys.exit(1)
-        case "prefs":
-            try:
-                display_config = DisplayConfig()
-                monitors_state = MonitorsState(display_config)
-            except GLib.Error as e:
-                if e.domain == GLib.quark_to_string(Gio.DBusError.quark()):
-                    error_message = strip_dbus_error_prefix(e.message)
-                    print(
-                        f"Failed to retrieve current state: {error_message}",
-                        file=sys.stderr,
-                    )
-                sys.exit(1)
-
-            for monitor_prefs in args.monitors:
-                connector = monitor_prefs["key"]
-
-                if connector not in monitors_state.monitors:
-                    print(
-                        f"Monitor with connector {connector} not found",
-                        file=sys.stderr,
-                    )
-                    sys.exit(1)
-
-                monitor = monitors_state.monitors[connector]
-
-                if "backlight" in monitor_prefs:
-                    (value,) = monitor_prefs["backlight"]
-                    display_config.set_backlight(monitor, value)

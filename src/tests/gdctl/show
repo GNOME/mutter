@@ -3,18 +3,14 @@ Monitors:
 │  ├──Vendor: MetaProduct's Inc.
 │  ├──Product: MetaMonitor
 │  ├──Serial: 0x1012000
-│  ├──Current mode
-│  │   └──3840x2160@60.000
-│  └──Preferences
-│      └──Backlight: None
+│  └──Current mode
+│      └──3840x2160@60.000
 └──Monitor DP-2 (MetaProduct's Inc. 13")
    ├──Vendor: MetaProduct's Inc.
    ├──Product: MetaMonitor
    ├──Serial: 0x1012001
-   ├──Current mode
-   │   └──2560x1440@60.000
-   └──Preferences
-       └──Backlight: None
+   └──Current mode
+       └──2560x1440@60.000
 
 Logical monitors:
 ├──Logical monitor #1

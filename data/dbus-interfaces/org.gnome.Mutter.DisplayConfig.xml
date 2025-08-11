@@ -94,9 +94,6 @@
                                             particular hardware part
 			    - "display-name" (s): (readonly) a human readable name
 			                          of this output, to be shown in the UI
-	                    - "backlight" (i): (readonly, use the specific interface)
-                                               the backlight value as a percentage
-                                               (-1 if not supported)
 			    - "primary" (b): whether this output is primary
 			                     or not
 			    - "presentation" (b): whether this output is
@@ -197,56 +194,6 @@
       <arg name="crtcs" direction="in" type="a(uiiiuaua{sv})" />
       <arg name="outputs" direction="in" type="a(ua{sv})" />
     </method>
-
-    <!--
-        ChangeBacklight:
-	@serial: configuration serial
-	@output: the API id of the output
-	@value: the new backlight value
-
-	Changes the backlight of @output to @value, which is
-	expressed as a percentage and rounded to the HW limits.
-
-        Returns the new value after rounding.
-    -->
-    <method name="ChangeBacklight">
-      <annotation name="org.freedesktop.DBus.Deprecated" value="true"/>
-      <arg name="serial" direction="in" type="u" />
-      <arg name="output" direction="in" type="u" />
-      <arg name="value" direction="in" type="i" />
-      <arg name="new_value" direction="out" type="i" />
-    </method>
-
-    <!--
-	SetBacklight:
-	@serial: configuration serial
-	@connector: the connector name
-	@value: the new backlight value
-
-	Changes the backlight of @output to @value.
-    -->
-    <method name="SetBacklight">
-      <arg name="serial" direction="in" type="u" />
-      <arg name="connector" direction="in" type="s" />
-      <arg name="value" direction="in" type="i" />
-    </method>
-
-    <!--
-	Backlight:
-
-	A set of backlights. Each backlight is a dictionary with the following
-	entries. If an entry is only a connector, it means there is no way to
-	control it via this D-Bus interface.
-
-	  * 'connector' (s) - An associated monitor connector
-	  * 'active' (b) - True if the monitor is active
-	  * 'min' (i) - Minimum value (optional)
-	  * 'max' (i) - Maximum value (optional)
-	  * 'value' (i) - Current value (optional)
-
-	The initial 'u' is a serial number used when setting the backlight.
-    -->
-    <property name="Backlight" type="(uaa{sv})" access="read" />
 
     <!--
         GetCrtcGamma:

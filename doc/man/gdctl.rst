@@ -31,10 +31,6 @@ COMMANDS
 
   Set a new display configuration
 
-``pref``
-
-  Set display related preferences.
-
 SHOW OPTIONS
 ------------
 ``--help``, ``-h``
@@ -152,24 +148,6 @@ MONITOR OPTIONS
 
   Set the RGB quantization range of the monitor. Available ranges are ``auto``,
   ``full`` and ``limited`` (16:235).
-
-PREFS OPTIONS
--------------
-
-``--monitor CONNECTOR``, ``-M CONNECTOR``
-
-  Change monitor preferences. See MONITOR PREFS OPTIONS.
-
-MONITOR PREFS OPTIONS
----------------------
-
-``--luminance LUMINANCE``, ``-l LUMINANCE``
-
-  Set the luminance of the monitor for the current color mode.
-
-``--reset-luminance``
-
-  Reset the luminance of the monitor for the current color mode to its default.
 
 EXAMPLES
 --------
