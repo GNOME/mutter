@@ -149,13 +149,13 @@ generate_monitor_id (MetaMonitor *monitor)
   const char *vendor;
   const char *product;
   const char *serial;
+  const char *connector;
   GString *id;
 
   vendor = meta_monitor_get_vendor (monitor);
   product = meta_monitor_get_product (monitor);
   serial = meta_monitor_get_serial (monitor);
-  if (!vendor && !product && !serial)
-    return g_strdup (meta_monitor_get_connector (monitor));
+  connector = meta_monitor_get_connector (monitor);
 
   id = g_string_new ("");
 
@@ -164,7 +164,9 @@ generate_monitor_id (MetaMonitor *monitor)
   if (product)
     g_string_append_printf (id, "%sp:%s", id->len > 0 ? ";" : "", product);
   if (serial)
-    g_string_append_printf (id, "%sp:%s", id->len > 0 ? ";" : "", serial);
+    g_string_append_printf (id, "%ss:%s", id->len > 0 ? ";" : "", serial);
+  if (connector)
+    g_string_append_printf (id, "%sc:%s", id->len > 0 ? ";" : "", connector);
 
   return g_string_free (id, FALSE);
 }
