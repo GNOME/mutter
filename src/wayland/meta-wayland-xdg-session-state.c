@@ -38,6 +38,7 @@ typedef enum _WindowState
   WINDOW_STATE_MAXIMIZED = 2,
   WINDOW_STATE_TILED_LEFT = 3,
   WINDOW_STATE_TILED_RIGHT = 4,
+  WINDOW_STATE_FULLSCREEN = 5,
 } WindowState;
 
 struct _MetaWaylandXdgToplevelState
@@ -108,6 +109,8 @@ window_state_to_string (WindowState state)
       return "tiled-left";
     case WINDOW_STATE_TILED_RIGHT:
       return "tiled-right";
+    case WINDOW_STATE_FULLSCREEN:
+      return "fullscreen";
     }
 
   g_assert_not_reached ();
@@ -136,6 +139,7 @@ meta_wayland_xdg_toplevel_state_to_string (MetaWaylandXdgToplevelState *state)
     case WINDOW_STATE_MAXIMIZED:
     case WINDOW_STATE_TILED_LEFT:
     case WINDOW_STATE_TILED_RIGHT:
+    case WINDOW_STATE_FULLSCREEN:
       g_string_append_printf (str, " Rect [%d,%d +%d,%d]",
                               state->tiled.rect.x,
                               state->tiled.rect.y,
@@ -221,6 +225,7 @@ meta_wayland_xdg_session_state_serialize (MetaSessionState *session_state,
         case WINDOW_STATE_MAXIMIZED:
         case WINDOW_STATE_TILED_LEFT:
         case WINDOW_STATE_TILED_RIGHT:
+        case WINDOW_STATE_FULLSCREEN:
           item = gvdb_hash_table_insert (toplevel, "tiled-rect");
           gvdb_item_set_value (item, new_rect_variant (&toplevel_state->tiled.rect));
           break;
@@ -350,6 +355,12 @@ meta_wayland_xdg_session_state_save_window (MetaSessionState *state,
 
       toplevel_state->tiled.rect = rect;
     }
+  else if (meta_window_is_fullscreen (window))
+    {
+      toplevel_state->window_state = WINDOW_STATE_FULLSCREEN;
+
+      toplevel_state->tiled.rect = rect;
+    }
   else
     {
       toplevel_state->window_state = WINDOW_STATE_FLOATING;
@@ -408,6 +419,7 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
       rect = &toplevel_state->floating.rect;
       break;
     case WINDOW_STATE_MAXIMIZED:
+    case WINDOW_STATE_FULLSCREEN:
       rect = &toplevel_state->tiled.rect;
       break;
     case WINDOW_STATE_TILED_LEFT:
@@ -454,6 +466,9 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
       break;
     case WINDOW_STATE_MAXIMIZED:
       meta_window_maximize (window);
+      break;
+    case WINDOW_STATE_FULLSCREEN:
+      meta_window_make_fullscreen (window);
       break;
     }
 
