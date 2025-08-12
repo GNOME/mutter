@@ -375,10 +375,15 @@ setup_constraint_info (MetaBackend         *backend,
   info->rel_y = 0;
   info->flags = flags;
 
-  if (info->current.width < 1)
-    info->current.width = 1;
-  if (info->current.height < 1)
-    info->current.height = 1;
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      if (info->current.width < 1)
+        info->current.width = 1;
+      if (info->current.height < 1)
+        info->current.height = 1;
+    }
+#endif
 
   if (flags & META_MOVE_RESIZE_MOVE_ACTION && flags & META_MOVE_RESIZE_RESIZE_ACTION)
     info->action_type = ACTION_MOVE_AND_RESIZE;
