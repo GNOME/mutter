@@ -1543,6 +1543,9 @@ constrain_size_limits (MetaWindow         *window,
     return TRUE;
 #endif
 
+  if (mtk_rectangle_is_empty (&info->current))
+    return TRUE;
+
   /* Determine whether constraint is already satisfied; exit if it is */
   get_size_limits (window, &min_size, &max_size);
   /* We ignore max-size limits for maximized windows; see #327543 */
@@ -1812,6 +1815,7 @@ constrain_to_single_monitor (MetaWindow         *window,
       !window->require_on_single_monitor ||
       client_driven_interactive_move ||
       info->is_user_action ||
+      mtk_rectangle_is_empty (&info->current) ||
       meta_window_get_placement_rule (window))
     return TRUE;
 
@@ -1840,6 +1844,7 @@ constrain_fully_onscreen (MetaWindow         *window,
       meta_window_is_fullscreen (window)  ||
       !window->require_fully_onscreen     ||
       info->is_user_action                ||
+      mtk_rectangle_is_empty (&info->current) ||
       meta_window_get_placement_rule (window))
     return TRUE;
 
@@ -1904,6 +1909,7 @@ constrain_titlebar_visible (MetaWindow         *window,
       !window->require_titlebar_visible   ||
       unconstrained_user_action           ||
       user_nonnorthern_resize             ||
+      mtk_rectangle_is_empty (&info->current) ||
       meta_window_get_placement_rule (window))
     return TRUE;
 
@@ -1984,6 +1990,7 @@ constrain_partially_onscreen (MetaWindow         *window,
    */
   if (window->type == META_WINDOW_DESKTOP ||
       window->type == META_WINDOW_DOCK    ||
+      mtk_rectangle_is_empty (&info->current) ||
       meta_window_get_placement_rule (window))
     return TRUE;
 
