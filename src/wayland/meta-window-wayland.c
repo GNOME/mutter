@@ -521,7 +521,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
     *result |= META_MOVE_RESIZE_RESULT_STATE_CHANGED;
 
   if (flags & META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE ||
-      !(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE))
+      (can_move_now &&
+      !(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE)))
     *result |= META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED;
 }
 
