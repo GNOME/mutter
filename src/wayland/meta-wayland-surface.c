@@ -790,6 +790,16 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   gboolean had_damage = FALSE;
   int old_width, old_height;
 
+  if (surface->resource)
+    {
+      meta_topic (META_DEBUG_WAYLAND, "Applying wl_surface#%u state",
+                  wl_resource_get_id (surface->resource));
+    }
+  else
+    {
+      meta_topic (META_DEBUG_WAYLAND, "Applying state of orphaned surface");
+    }
+
   old_width = meta_wayland_surface_get_width (surface);
   old_height = meta_wayland_surface_get_height (surface);
 

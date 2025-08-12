@@ -768,6 +768,75 @@ add_wm_capability_value (struct wl_array                   *states,
 }
 
 static void
+append_state_string (struct wl_array *states,
+                     GString         *string)
+{
+  uint32_t *p;
+  gboolean first = TRUE;
+
+  g_string_append (string, "state=");
+
+  if (states->size == 0)
+    {
+      g_string_append (string, "none");
+      return;
+    }
+
+  wl_array_for_each (p, states)
+    {
+      uint32_t state = *p;
+
+      if (!first)
+        g_string_append_c (string, '|');
+
+      switch (state)
+        {
+        case XDG_TOPLEVEL_STATE_MAXIMIZED:
+          g_string_append (string, "maximized");
+          break;
+        case XDG_TOPLEVEL_STATE_FULLSCREEN:
+          g_string_append (string, "fullscreen");
+          break;
+        case XDG_TOPLEVEL_STATE_RESIZING:
+          g_string_append (string, "resizing");
+          break;
+        case XDG_TOPLEVEL_STATE_ACTIVATED:
+          g_string_append (string, "activated");
+          break;
+        case XDG_TOPLEVEL_STATE_SUSPENDED:
+          g_string_append (string, "suspended");
+          break;
+        case XDG_TOPLEVEL_STATE_TILED_TOP:
+          g_string_append (string, "tiled-top");
+          break;
+        case XDG_TOPLEVEL_STATE_TILED_RIGHT:
+          g_string_append (string, "tiled-right");
+          break;
+        case XDG_TOPLEVEL_STATE_TILED_BOTTOM:
+          g_string_append (string, "tiled-bottom");
+          break;
+        case XDG_TOPLEVEL_STATE_TILED_LEFT:
+          g_string_append (string, "tiled-left");
+          break;
+        case XDG_TOPLEVEL_STATE_CONSTRAINED_TOP:
+          g_string_append (string, "constrained-top");
+          break;
+        case XDG_TOPLEVEL_STATE_CONSTRAINED_RIGHT:
+          g_string_append (string, "constrained-right");
+          break;
+        case XDG_TOPLEVEL_STATE_CONSTRAINED_BOTTOM:
+          g_string_append (string, "constrained-bottom");
+          break;
+        case XDG_TOPLEVEL_STATE_CONSTRAINED_LEFT:
+          g_string_append (string, "constrained-left");
+          break;
+        }
+
+      first = FALSE;
+    }
+}
+
+static void
 meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel         *xdg_toplevel,
                                           MetaWaylandWindowConfiguration *configuration)
 {
@@ -778,6 +847,35 @@ meta_wayland_xdg_toplevel_send_configure (MetaWaylandXdgToplevel         *xdg_to
 
   wl_array_init (&states);
   fill_states (xdg_toplevel, configuration, &states);
+
+  if (meta_is_topic_enabled (META_DEBUG_WAYLAND))
+    {
+      MetaWaylandSurfaceRole *surface_role =
+        META_WAYLAND_SURFACE_ROLE (xdg_toplevel);
+      MetaWaylandSurface *surface =
+        meta_wayland_surface_role_get_surface (surface_role);
+      g_autoptr (GString) string = NULL;
+
+      string = g_string_new ("");
+
+      g_string_append_printf (string,
+                              "Configuring xdg_toplevel#%u (wl_surface#%u): "
+                              "serial=%u ",
+                              wl_resource_get_id (xdg_toplevel->resource),
+                              wl_resource_get_id (surface->resource),
+                              configuration->serial);
+
+      append_state_string (&states, string);
+      g_string_append_printf (string, ", size=%dx%d",
+                              configuration->width, configuration->height);
+      if (configuration->has_position)
+        {
+          g_string_append_printf (string, ", position=%d,%d",
+                                  configuration->x, configuration->y);
+        }
+
+      meta_topic (META_DEBUG_WAYLAND, "%s", string->str);
+    }
 
   if (wl_resource_get_version (xdg_toplevel->resource) >=
       XDG_TOPLEVEL_CONFIGURE_BOUNDS_SINCE_VERSION &&

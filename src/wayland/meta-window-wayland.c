@@ -1323,6 +1323,24 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   acked_configuration = acquire_acked_configuration (wl_window, pending,
                                                      &is_client_resize);
 
+  if (meta_is_topic_enabled (META_DEBUG_WAYLAND))
+    {
+      g_autoptr (GString) string = NULL;
+
+      string = g_string_new ("");
+      g_string_append_printf (string,
+                              "Applying window state for wl_surface#%u: ",
+                              wl_resource_get_id (surface->resource));
+      g_string_append_printf (string, "size=%dx%d",
+                              new_geom.width, new_geom.height);
+      if (acked_configuration)
+        {
+          g_string_append_printf (string, ", serial=%u",
+                                  acked_configuration->serial);
+        }
+      meta_topic (META_DEBUG_WAYLAND, "%s", string->str);
+    }
+
   if (acked_configuration &&
       acked_configuration->has_size &&
       acked_configuration->is_fullscreen &&
