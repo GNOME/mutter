@@ -110,8 +110,8 @@ variables:
   extends:
     - .skip-git-clone
   variables:
-    FDO_DISTRIBUTION_VERSION: 42
-    BASE_TAG: '2025-08-26.0'
+    FDO_DISTRIBUTION_VERSION: 43
+    BASE_TAG: '2025-09-10.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
