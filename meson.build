@@ -176,7 +176,7 @@ if have_x11_client
   xext_dep = dependency('xext')
   xfixes_dep = dependency('xfixes', version: xfixes_req)
   xi_dep = dependency('xi', version: xi_req)
-  xkeyboard_config_dep = dependency('xkeyboard-config')
+  xkeyboard_config_dep = dependency('xkeyboard-config-2', 'xkeyboard-config')
   x11_xcb_dep = dependency('x11-xcb')
   xrandr_dep = dependency('xrandr', version: xrandr_req)
   xcb_res_dep = dependency('xcb-res')
