@@ -64,3 +64,5 @@ void meta_window_config_set_tile_match (MetaWindowConfig *config,
                                         MetaWindow       *tile_match);
 
 gboolean meta_window_config_is_floating (MetaWindowConfig *config);
+
+gboolean meta_window_config_has_position (MetaWindowConfig *config);

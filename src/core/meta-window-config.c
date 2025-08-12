@@ -35,6 +35,7 @@ struct _MetaWindowConfig
 
   /* The window geometry */
   MtkRectangle rect;
+  gboolean has_position;
 
   gboolean is_fullscreen;
 
@@ -149,6 +150,7 @@ meta_window_config_set_rect (MetaWindowConfig *window_config,
                              MtkRectangle      rect)
 {
   window_config->rect = rect;
+  window_config->has_position = TRUE;
 }
 
 MtkRectangle
@@ -182,6 +184,7 @@ meta_window_config_set_position (MetaWindowConfig *window_config,
 {
   window_config->rect.x = x;
   window_config->rect.y = y;
+  window_config->has_position = TRUE;
 }
 
 void
@@ -300,6 +303,12 @@ meta_window_config_is_floating (MetaWindowConfig *config)
 {
   return (!config->is_fullscreen &&
           !meta_window_config_is_any_maximized (config));
+}
+
+gboolean
+meta_window_config_has_position (MetaWindowConfig *config)
+{
+  return config->has_position;
 }
 
 MetaWindowConfig *
