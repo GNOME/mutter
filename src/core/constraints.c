@@ -552,8 +552,9 @@ get_start_rect_for_resize (MetaWindow     *window,
 }
 
 static gboolean
-window_needs_placement (MetaWindow    *window,
-                        MetaPlaceFlag  place_flags)
+window_needs_placement (MetaWindow     *window,
+                        MetaPlaceFlag   place_flags,
+                        ConstraintInfo *info)
 {
   if (window->placed)
     return FALSE;
@@ -568,6 +569,9 @@ window_needs_placement (MetaWindow    *window,
     return FALSE;
 
   if (window->minimized)
+    return FALSE;
+
+  if (mtk_rectangle_is_empty (&info->current))
     return FALSE;
 
   return TRUE;
@@ -586,7 +590,7 @@ place_window_if_needed (MetaWindow     *window,
    * unmaximized, unminimized and unfullscreened.
    */
   did_placement = FALSE;
-  if (window_needs_placement (window, place_flags))
+  if (window_needs_placement (window, place_flags, info))
     {
       MetaMonitorManager *monitor_manager =
         meta_backend_get_monitor_manager (info->backend);
