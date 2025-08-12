@@ -26,6 +26,7 @@
 #include "backends/meta-logical-monitor-private.h"
 #include "compositor/compositor-private.h"
 #include "core/boxes-private.h"
+#include "core/meta-window-config-private.h"
 #include "core/window-private.h"
 #include "meta/meta-window-config.h"
 #include "wayland/meta-wayland-outputs.h"
@@ -984,49 +985,14 @@ meta_wayland_xdg_toplevel_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   if (!xdg_surface_priv->configure_sent)
     {
-      MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
-      g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
       g_autoptr (MetaWindowConfig) window_config = NULL;
-      int bounds_width, bounds_height, geometry_scale;
-      MtkRectangle rect;
 
-      geometry_scale = meta_window_wayland_get_geometry_scale (window);
-      rect = meta_window_config_get_rect (window->config);
-
-      if (!meta_window_calculate_bounds (window, &bounds_width, &bounds_height))
-        {
-          bounds_width = 0;
-          bounds_height = 0;
-        }
-
-      if (xdg_toplevel->restored_from_session)
-        {
-          configuration =
-            meta_wayland_window_configuration_new (window,
-                                                   rect,
-                                                   bounds_width,
-                                                   bounds_height,
-                                                   geometry_scale,
-                                                   META_MOVE_RESIZE_STATE_CHANGED,
-                                                   META_GRAVITY_NONE);
-        }
-      else
-        {
-          configuration =
-            meta_wayland_window_configuration_new_empty (bounds_width,
-                                                         bounds_height,
-                                                         geometry_scale);
-        }
-
-      window_config =
-        meta_window_config_new_from_wayland_window_configuration (window,
-                                                                  configuration);
+      window_config = meta_window_config_initial_new ();
       meta_window_emit_configure (window, window_config);
-      meta_wayland_window_configuration_apply_window_config (window,
-                                                             configuration,
-                                                             window_config);
 
-      meta_window_wayland_configure (wl_window, configuration);
+      meta_window_apply_config (window, window_config,
+                                META_WINDOW_APPLY_FLAG_ALWAYS_MOVE_RESIZE);
+      g_warn_if_fail (xdg_surface_priv->configure_sent);
     }
 }
 

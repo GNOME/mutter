@@ -4328,7 +4328,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
       g_signal_emit (window, window_signals[SIZE_CHANGED], 0);
     }
 
-  if (result & META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED)
+  if (result & META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED ||
+      did_placement)
     {
       window->unconstrained_rect = unconstrained_rect;
       window->unconstrained_rect_valid = TRUE;
