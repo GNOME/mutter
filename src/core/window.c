@@ -3463,8 +3463,7 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
       MtkRectangle old_frame_rect, old_buffer_rect;
       gboolean has_target_size;
       MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
-      MetaMoveResizeFlags flags = (META_MOVE_RESIZE_MOVE_ACTION |
-                                   META_MOVE_RESIZE_RESIZE_ACTION |
+      MetaMoveResizeFlags flags = (META_MOVE_RESIZE_RESIZE_ACTION |
                                    META_MOVE_RESIZE_STATE_CHANGED |
                                    META_MOVE_RESIZE_UNMAXIMIZE);
 
@@ -3575,7 +3574,10 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
        */
       has_target_size = (target_rect.width > 0 && target_rect.height > 0);
       if (has_target_size)
-        meta_window_maybe_apply_size_hints (window, &target_rect);
+        {
+          meta_window_maybe_apply_size_hints (window, &target_rect);
+          flags |= META_MOVE_RESIZE_MOVE_ACTION;
+        }
 
       meta_compositor_size_change_window (window->display->compositor, window,
                                           META_SIZE_CHANGE_UNMAXIMIZE,
@@ -3706,8 +3708,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
       MtkRectangle old_frame_rect, old_buffer_rect, target_rect;
       gboolean has_target_size;
       MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
-      MetaMoveResizeFlags flags = (META_MOVE_RESIZE_MOVE_ACTION |
-                                   META_MOVE_RESIZE_RESIZE_ACTION |
+      MetaMoveResizeFlags flags = (META_MOVE_RESIZE_RESIZE_ACTION |
                                    META_MOVE_RESIZE_STATE_CHANGED |
                                    META_MOVE_RESIZE_UNFULLSCREEN);
 
@@ -3742,7 +3743,10 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
        */
       has_target_size = (target_rect.width > 0 && target_rect.height > 0);
       if (has_target_size)
-        meta_window_maybe_apply_size_hints (window, &target_rect);
+        {
+          meta_window_maybe_apply_size_hints (window, &target_rect);
+          flags |= META_MOVE_RESIZE_MOVE_ACTION;
+        }
 
       /* Need to update window->has_resize_func before we move_resize()
        */
