@@ -885,14 +885,6 @@ void meta_window_protocol_to_stage_point (MetaWindow          *window,
                                           int                 *stage_y,
                                           MtkRoundingStrategy  rounding_strategy);
 
-MetaMaximizeFlags meta_window_get_maximize_flags (MetaWindow *window);
-
-void meta_window_set_maximize_flags   (MetaWindow        *window,
-                                       MetaMaximizeFlags  directions);
-
-void meta_window_set_unmaximize_flags (MetaWindow        *window,
-                                       MetaMaximizeFlags  directions);
-
 gboolean meta_window_is_tiled_side_by_side (MetaWindow *window);
 
 gboolean meta_window_is_tiled_left (MetaWindow *window);

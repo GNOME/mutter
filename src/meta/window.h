@@ -450,3 +450,14 @@ void meta_window_hide_from_window_list (MetaWindow *window);
 
 META_EXPORT
 void meta_window_show_in_window_list (MetaWindow *window);
+
+META_EXPORT
+MetaMaximizeFlags meta_window_get_maximize_flags (MetaWindow *window);
+
+META_EXPORT
+void meta_window_set_maximize_flags   (MetaWindow        *window,
+                                       MetaMaximizeFlags  directions);
+
+META_EXPORT
+void meta_window_set_unmaximize_flags (MetaWindow        *window,
+                                       MetaMaximizeFlags  directions);
