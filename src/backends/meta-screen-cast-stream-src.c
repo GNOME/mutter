@@ -723,7 +723,7 @@ maybe_set_sync_points (MetaScreenCastStreamSrc *src,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  int sync_fd;
+  g_autofd int sync_fd = -1;
   g_autoptr (GError) local_error = NULL;
 
   sync_timeline = spa_buffer_find_meta_data (spa_buffer,
