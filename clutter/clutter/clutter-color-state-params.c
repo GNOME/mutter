@@ -538,18 +538,18 @@ get_eotf_key (ClutterEOTF eotf)
 }
 
 static gboolean
-needs_lum_mapping (const ClutterLuminance *lum,
-                   const ClutterLuminance *target_lum)
-{
-  return !luminances_equal (lum, target_lum) &&
-         lum->max <= target_lum->max;
-}
-
-static gboolean
 needs_tone_mapping (const ClutterLuminance *lum,
                     const ClutterLuminance *target_lum)
 {
   return lum->max > target_lum->max;
+}
+
+static gboolean
+needs_lum_mapping (const ClutterLuminance *lum,
+                   const ClutterLuminance *target_lum)
+{
+  return !needs_tone_mapping (lum, target_lum) &&
+         !luminances_equal (lum, target_lum);
 }
 
 static void
