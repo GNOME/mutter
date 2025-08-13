@@ -356,7 +356,8 @@ clutter_stage_view_invalidate_offscreen (ClutterStageView *view)
     }
 
   if (priv->transform == MTK_MONITOR_TRANSFORM_NORMAL &&
-      clutter_color_state_equals (priv->color_state, priv->output_color_state))
+      !clutter_color_state_needs_mapping (priv->color_state,
+                                          priv->output_color_state))
     {
       g_clear_object (&priv->offscreen_pipeline);
       g_clear_object (&priv->offscreen);

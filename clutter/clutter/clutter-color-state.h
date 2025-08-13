@@ -80,6 +80,9 @@ struct _ClutterColorStateClass
   gboolean (* equals) (ClutterColorState *color_state,
                        ClutterColorState *other_color_state);
 
+  gboolean (* needs_mapping) (ClutterColorState *color_state,
+                              ClutterColorState *target_color_state);
+
   char * (* to_string) (ClutterColorState *color_state);
 
   ClutterEncodingRequiredFormat (* required_format) (ClutterColorState *color_state);
@@ -113,6 +116,10 @@ void clutter_color_state_do_transform (ClutterColorState *color_state,
 CLUTTER_EXPORT
 gboolean clutter_color_state_equals (ClutterColorState *color_state,
                                      ClutterColorState *other_color_state);
+
+CLUTTER_EXPORT
+gboolean clutter_color_state_needs_mapping (ClutterColorState *color_state,
+                                            ClutterColorState *target_color_state);
 
 CLUTTER_EXPORT
 ClutterEncodingRequiredFormat clutter_color_state_required_format (ClutterColorState *color_state);

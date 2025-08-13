@@ -1979,6 +1979,28 @@ clutter_color_state_params_equals (ClutterColorState *color_state,
   return luminances_equal (lum, target_lum);
 }
 
+static gboolean
+clutter_color_state_params_needs_mapping (ClutterColorState *color_state,
+                                          ClutterColorState *target_color_state)
+{
+  ClutterColorStateParams *color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (color_state);
+  ClutterColorStateParams *target_color_state_params =
+    CLUTTER_COLOR_STATE_PARAMS (target_color_state);
+  const ClutterLuminance *lum, *target_lum;
+
+  if (!colorimetry_equal (color_state_params, target_color_state_params) ||
+      !eotf_equal (color_state_params, target_color_state_params))
+    return TRUE;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum =
+    clutter_color_state_params_get_luminance (target_color_state_params);
+
+  return needs_tone_mapping (lum, target_lum) ||
+         needs_lum_mapping (lum, target_lum);
+}
+
 static char *
 clutter_color_state_params_to_string (ClutterColorState *color_state)
 {
@@ -2101,6 +2123,7 @@ clutter_color_state_params_class_init (ClutterColorStateParamsClass *klass)
   color_state_class->do_transform_to_XYZ = clutter_color_state_params_do_transform_to_XYZ;
   color_state_class->do_transform_from_XYZ = clutter_color_state_params_do_transform_from_XYZ;
   color_state_class->equals = clutter_color_state_params_equals;
+  color_state_class->needs_mapping = clutter_color_state_params_needs_mapping;
   color_state_class->to_string = clutter_color_state_params_to_string;
   color_state_class->required_format = clutter_color_state_params_required_format;
   color_state_class->get_blending = clutter_color_state_params_get_blending;

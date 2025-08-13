@@ -180,6 +180,13 @@ clutter_color_state_icc_equals (ClutterColorState *color_state,
          color_state_icc->is_linear == other_color_state_icc->is_linear;
 }
 
+static gboolean
+clutter_color_state_icc_needs_mapping (ClutterColorState *color_state,
+                                       ClutterColorState *target_color_state)
+{
+  return !clutter_color_state_icc_equals (color_state, target_color_state);
+}
+
 static char *
 clutter_color_state_icc_to_string (ClutterColorState *color_state)
 {
@@ -259,6 +266,7 @@ clutter_color_state_icc_class_init (ClutterColorStateIccClass *klass)
   color_state_class->do_transform_to_XYZ = clutter_color_state_icc_do_transform_to_XYZ;
   color_state_class->do_transform_from_XYZ = clutter_color_state_icc_do_transform_from_XYZ;
   color_state_class->equals = clutter_color_state_icc_equals;
+  color_state_class->needs_mapping = clutter_color_state_icc_needs_mapping;
   color_state_class->to_string = clutter_color_state_icc_to_string;
   color_state_class->required_format = clutter_color_state_icc_required_format;
   color_state_class->get_blending = clutter_color_state_icc_get_blending;

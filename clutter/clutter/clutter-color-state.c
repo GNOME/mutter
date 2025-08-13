@@ -737,7 +737,7 @@ clutter_color_state_add_pipeline_transform (ClutterColorState *color_state,
   g_return_if_fail (CLUTTER_IS_COLOR_STATE (color_state));
   g_return_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state));
 
-  if (clutter_color_state_equals (color_state, target_color_state))
+  if (!clutter_color_state_needs_mapping (color_state, target_color_state))
     return;
 
   snippet = clutter_color_state_get_transform_snippet (color_state,
@@ -769,6 +769,28 @@ clutter_color_state_equals (ClutterColorState *color_state,
     return FALSE;
 
   return color_state_class->equals (color_state, other_color_state);
+}
+
+gboolean
+clutter_color_state_needs_mapping (ClutterColorState *color_state,
+                                   ClutterColorState *target_color_state)
+{
+  ClutterColorStateClass *color_state_class =
+    CLUTTER_COLOR_STATE_GET_CLASS (color_state);
+
+  if (color_state == target_color_state)
+    return FALSE;
+
+  if (color_state == NULL || target_color_state == NULL)
+    return TRUE;
+
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (color_state), TRUE);
+  g_return_val_if_fail (CLUTTER_IS_COLOR_STATE (target_color_state), TRUE);
+
+  if (G_OBJECT_TYPE (color_state) != G_OBJECT_TYPE (target_color_state))
+    return TRUE;
+
+  return color_state_class->needs_mapping (color_state, target_color_state);
 }
 
 char *
