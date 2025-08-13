@@ -91,7 +91,13 @@ def DeleteDevice(self, device_path):
 
 @dbus.service.method(MAIN_IFACE, in_signature='s', out_signature='o')
 def FindDeviceById(self, device_id):
-    return self.devices[device_id]
+    try:
+        return self.devices[device_id]
+    except KeyError:
+        raise dbus.exceptions.DBusException(
+            f"Device {device_id} not found",
+            name="org.freedesktop.ColorManager.NotFound"
+        )
 
 
 @dbus.service.method(MAIN_IFACE, in_signature='ssha{sv}', out_signature='o')
