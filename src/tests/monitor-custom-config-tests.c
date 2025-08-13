@@ -1247,7 +1247,7 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
             .tile_w = 512,
             .tile_h = 768
           },
-          .serial = "0x123456",
+          .serial = "0x923456",
         },
         {
           .crtc = -1,
@@ -1267,7 +1267,7 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
             .tile_w = 512,
             .tile_h = 768
           },
-          .serial = "0x123456",
+          .serial = "0x923456",
         }
       },
       .n_outputs = 2,

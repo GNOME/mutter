@@ -363,6 +363,7 @@ meta_test_monitor_orientation_is_managed (void)
 
   g_assert_null (meta_monitor_manager_get_builtin_monitor (monitor_manager));
   test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_eDP;
+  test_case.setup.outputs[0].serial = "0x1000001";
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
@@ -396,6 +397,7 @@ meta_test_monitor_orientation_is_managed (void)
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
   test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_DisplayPort;
+  test_case.setup.outputs[0].serial = NULL;
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
@@ -405,6 +407,7 @@ meta_test_monitor_orientation_is_managed (void)
     meta_monitor_manager_get_panel_orientation_managed (monitor_manager));
 
   test_case.setup.outputs[0].connector_type = META_CONNECTOR_TYPE_eDP;
+  test_case.setup.outputs[0].serial = "0x1000001";
   test_setup = meta_create_monitor_test_setup (backend,
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
