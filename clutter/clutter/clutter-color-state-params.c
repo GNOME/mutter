@@ -517,25 +517,12 @@ luminance_value_approx_equal (float lum,
 }
 
 static gboolean
-clutter_luminances_equal (const ClutterLuminance *lum,
-                          const ClutterLuminance *other_lum)
+luminances_equal (const ClutterLuminance *lum,
+                  const ClutterLuminance *other_lum)
 {
   return luminance_value_approx_equal (lum->min, other_lum->min, 0.1f) &&
          luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
          luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f);
-}
-
-static gboolean
-luminances_equal (ClutterColorStateParams *color_state_params,
-                  ClutterColorStateParams *other_color_state_params)
-{
-  const ClutterLuminance *lum;
-  const ClutterLuminance *other_lum;
-
-  lum = clutter_color_state_params_get_luminance (color_state_params);
-  other_lum = clutter_color_state_params_get_luminance (other_color_state_params);
-
-  return clutter_luminances_equal (lum, other_lum);
 }
 
 static guint
@@ -551,37 +538,18 @@ get_eotf_key (ClutterEOTF eotf)
 }
 
 static gboolean
-needs_lum_mapping (ClutterColorStateParams *color_state_params,
-                   ClutterColorStateParams *target_color_state_params)
+needs_lum_mapping (const ClutterLuminance *lum,
+                   const ClutterLuminance *target_lum)
 {
-  const ClutterLuminance *lum;
-  const ClutterLuminance *target_lum;
-
-  lum = clutter_color_state_params_get_luminance (color_state_params);
-  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
-
-  return !luminances_equal (color_state_params, target_color_state_params) &&
+  return !luminances_equal (lum, target_lum) &&
          lum->max <= target_lum->max;
 }
 
 static gboolean
-clutter_luminance_needs_tone_mapping (const ClutterLuminance *lum,
-                                      const ClutterLuminance *target_lum)
+needs_tone_mapping (const ClutterLuminance *lum,
+                    const ClutterLuminance *target_lum)
 {
   return lum->max > target_lum->max;
-}
-
-static gboolean
-needs_tone_mapping (ClutterColorStateParams *color_state_params,
-                    ClutterColorStateParams *target_color_state_params)
-{
-  const ClutterLuminance *lum;
-  const ClutterLuminance *target_lum;
-
-  lum = clutter_color_state_params_get_luminance (color_state_params);
-  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
-
-  return clutter_luminance_needs_tone_mapping (lum, target_lum);
 }
 
 static void
@@ -593,15 +561,18 @@ clutter_color_state_params_init_color_transform_key (ClutterColorState        *c
     CLUTTER_COLOR_STATE_PARAMS (color_state);
   ClutterColorStateParams *target_color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (target_color_state);
+  const ClutterLuminance *lum, *target_lum;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum =
+    clutter_color_state_params_get_luminance (target_color_state_params);
 
   key->source_eotf_bits = get_eotf_key (color_state_params->eotf);
   key->target_eotf_bits = get_eotf_key (target_color_state_params->eotf);
-  key->luminance_bit = needs_lum_mapping (color_state_params,
-                                          target_color_state_params) ? 1 : 0;
+  key->luminance_bit = needs_lum_mapping (lum, target_lum) ? 1 : 0;
   key->color_trans_bit = colorimetry_equal (color_state_params,
                                             target_color_state_params) ? 0 : 1;
-  key->tone_mapping_bit = needs_tone_mapping (color_state_params,
-                                              target_color_state_params) ? 1 : 0;
+  key->tone_mapping_bit = needs_tone_mapping (lum, target_lum) ? 1 : 0;
   key->lut_3d = 0;
 }
 
@@ -884,11 +855,11 @@ static const ClutterColorOpSnippet luminance_mapping = {
 };
 
 static void
-get_luminance_mapping_snippet (ClutterColorStateParams      *color_state_params,
-                               ClutterColorStateParams      *target_color_state_params,
+get_luminance_mapping_snippet (const ClutterLuminance       *lum,
+                               const ClutterLuminance       *target_lum,
                                const ClutterColorOpSnippet **luminance_mapping_snippet)
 {
-  if (!needs_lum_mapping (color_state_params, target_color_state_params))
+  if (!needs_lum_mapping (lum, target_lum))
     return;
 
   *luminance_mapping_snippet = &luminance_mapping;
@@ -1012,11 +983,11 @@ get_color_space_mapping_snippet (ClutterColorStateParams      *color_state_param
 }
 
 static void
-get_tone_mapping_snippet (ClutterColorStateParams      *color_state_params,
-                          ClutterColorStateParams      *target_color_state_params,
+get_tone_mapping_snippet (const ClutterLuminance       *lum,
+                          const ClutterLuminance       *target_lum,
                           const ClutterColorOpSnippet **tone_mapping_snippet)
 {
-  if (!needs_tone_mapping (color_state_params, target_color_state_params))
+  if (!needs_tone_mapping (lum, target_lum))
     return;
 
   *tone_mapping_snippet = &tone_mapping;
@@ -1038,20 +1009,21 @@ clutter_color_state_params_append_transform_snippet (ClutterColorState *color_st
     CLUTTER_COLOR_STATE_PARAMS (color_state);
   ClutterColorStateParams *target_color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (target_color_state);
+  const ClutterLuminance *lum, *target_lum;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum =
+    clutter_color_state_params_get_luminance (target_color_state_params);
 
   get_eotf_snippets (color_state_params,
                      target_color_state_params,
                      &eotf_snippet,
                      &inv_eotf_snippet);
-  get_luminance_mapping_snippet (color_state_params,
-                                 target_color_state_params,
-                                 &luminance_mapping_snippet);
+  get_luminance_mapping_snippet (lum, target_lum, &luminance_mapping_snippet);
   get_color_space_mapping_snippet (color_state_params,
                                    target_color_state_params,
                                    &color_space_mapping_snippet);
-  get_tone_mapping_snippet (color_state_params,
-                            target_color_state_params,
-                            &tone_mapping_snippet);
+  get_tone_mapping_snippet (lum, target_lum, &tone_mapping_snippet);
 
   /*
    * The following statements generate a shader snippet that transforms colors
@@ -1118,26 +1090,6 @@ clutter_luminance_get_luminance_mapping (const ClutterLuminance *lum,
   /* this is a very basic, non-contrast preserving way of matching the reference
    * luminance level */
   *lum_mapping = (target_lum->ref / lum->ref) * (lum->max / target_lum->max);
-}
-
-static void
-clutter_color_state_params_get_luminance_mapping (ClutterColorStateParams *color_state_params,
-                                                  ClutterColorStateParams *target_color_state_params,
-                                                  float                   *lum_mapping)
-{
-  const ClutterLuminance *lum;
-  const ClutterLuminance *target_lum;
-
-  if (!needs_lum_mapping (color_state_params, target_color_state_params))
-    {
-      *lum_mapping = 1.0f;
-      return;
-    }
-
-  lum = clutter_color_state_params_get_luminance (color_state_params);
-  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
-
-  clutter_luminance_get_luminance_mapping (lum, target_lum, lum_mapping);
 }
 
 static void
@@ -1554,13 +1506,18 @@ update_luminance_mapping_uniforms (ClutterColorStateParams *color_state_params,
 {
   float lum_mapping;
   int uniform_location_luminance_mapping;
+  const ClutterLuminance *lum, *target_lum;
 
-  if (!needs_lum_mapping (color_state_params, target_color_state_params))
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum =
+    clutter_color_state_params_get_luminance (target_color_state_params);
+
+  if (!needs_lum_mapping (lum, target_lum))
     return;
 
-  clutter_color_state_params_get_luminance_mapping (color_state_params,
-                                                    target_color_state_params,
-                                                    &lum_mapping);
+  clutter_luminance_get_luminance_mapping (lum,
+                                           target_lum,
+                                           &lum_mapping);
 
   uniform_location_luminance_mapping =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1652,14 +1609,14 @@ update_tone_mapping_uniforms (ClutterColorStateParams *color_state_params,
   const ClutterLuminance *target_lum;
   graphene_matrix_t to_LMS, from_LMS;
 
-  if (!needs_tone_mapping (color_state_params, target_color_state_params))
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
+
+  if (!needs_tone_mapping (lum, target_lum))
     return;
 
   clutter_color_state_params_get_to_LMS (target_color_state_params, &to_LMS);
   graphene_matrix_to_float (&to_LMS, matrix);
-
-  lum = clutter_color_state_params_get_luminance (color_state_params);
-  target_lum = clutter_color_state_params_get_luminance (target_color_state_params);
 
   uniform_location_to_lms =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1852,6 +1809,9 @@ clutter_luminance_apply_luminance_mapping (const ClutterLuminance *lum,
   float lum_mapping;
   int i;
 
+  if (!needs_lum_mapping (lum, target_lum))
+    return;
+
   clutter_luminance_get_luminance_mapping (lum, target_lum, &lum_mapping);
   for (i = 0; i < n_samples; i++)
     {
@@ -1979,10 +1939,10 @@ clutter_color_state_params_do_tone_mapping (ClutterColorState *color_state,
       dst_lum = &sdr_default_luminance;
     }
 
-  if (clutter_luminances_equal (src_lum, dst_lum))
+  if (luminances_equal (src_lum, dst_lum))
     return;
 
-  if (clutter_luminance_needs_tone_mapping (src_lum, dst_lum))
+  if (needs_tone_mapping (src_lum, dst_lum))
     {
       clutter_luminance_apply_tone_mapping (src_lum,
                                             dst_lum,
@@ -2006,10 +1966,17 @@ clutter_color_state_params_equals (ClutterColorState *color_state,
     CLUTTER_COLOR_STATE_PARAMS (color_state);
   ClutterColorStateParams *other_color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (other_color_state);
+  const ClutterLuminance *lum, *target_lum;
 
-  return colorimetry_equal (color_state_params, other_color_state_params) &&
-         eotf_equal (color_state_params, other_color_state_params) &&
-         luminances_equal (color_state_params, other_color_state_params);
+  if (!colorimetry_equal (color_state_params, other_color_state_params) ||
+      !eotf_equal (color_state_params, other_color_state_params))
+    return FALSE;
+
+  lum = clutter_color_state_params_get_luminance (color_state_params);
+  target_lum =
+    clutter_color_state_params_get_luminance (other_color_state_params);
+
+  return luminances_equal (lum, target_lum);
 }
 
 static char *
