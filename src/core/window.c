@@ -8551,6 +8551,46 @@ meta_window_new_window_config (MetaWindow *window)
     return meta_window_config_new ();
 }
 
+void
+meta_window_apply_config (MetaWindow       *window,
+                          MetaWindowConfig *config)
+{
+  if (meta_window_config_get_is_fullscreen (config))
+    {
+      meta_window_make_fullscreen (window);
+    }
+  else if (meta_window_config_get_tile_mode (config) != META_TILE_NONE)
+    {
+      MetaTileMode tile_mode = meta_window_config_get_tile_mode (config);
+
+      meta_window_tile (window, tile_mode);
+    }
+  else if (meta_window_config_is_any_maximized (config))
+    {
+      MetaMaximizeFlags maximize_flags = 0;
+
+      if (meta_window_config_is_maximized_horizontally (config))
+        maximize_flags |= META_MAXIMIZE_HORIZONTAL;
+      if (meta_window_config_is_maximized_vertically (config))
+        maximize_flags |= META_MAXIMIZE_VERTICAL;
+
+      meta_window_set_maximize_flags (window, maximize_flags);
+    }
+  else if (meta_window_config_has_position (config))
+    {
+      MtkRectangle rect = meta_window_config_get_rect (config);
+
+      if (meta_window_config_is_floating (config))
+        window->placed = TRUE;
+
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               rect);
+    }
+}
+
 MetaGravity
 meta_window_get_gravity (MetaWindow *window)
 {

@@ -4812,39 +4812,25 @@ meta_window_x11_shutdown_group (MetaWindow *window)
 void
 meta_window_x11_configure (MetaWindow *window)
 {
-  MtkRectangle prev_rect;
-  MtkRectangle new_rect;
-  MetaMoveResizeFlags flags;
   g_autoptr (MetaWindowConfig) window_config = NULL;
+  MtkRectangle new_rect;
 
   window_config = meta_window_config_new_from (window, window->config);
-  prev_rect = meta_window_config_get_rect (window->config);
   meta_window_emit_configure (window, window_config);
+
   new_rect = meta_window_config_get_rect (window_config);
 
   meta_topic (META_DEBUG_GEOMETRY,
               "Window %s pre-configured at (%i,%i) [%ix%i]",
               window->desc, new_rect.x, new_rect.y, new_rect.width, new_rect.height);
 
-  if (!mtk_rectangle_equal (&prev_rect, &new_rect))
+  if (meta_window_config_has_position (window_config))
     {
-      window->placed = TRUE;
-
-      /* Update the size hints to match the new pre-configuration */
       window->size_hints.x = new_rect.x;
       window->size_hints.y = new_rect.y;
       window->size_hints.width = new_rect.width;
       window->size_hints.height = new_rect.height;
-
-      flags = (META_MOVE_RESIZE_MOVE_ACTION |
-               META_MOVE_RESIZE_RESIZE_ACTION |
-               META_MOVE_RESIZE_CONSTRAIN);
-
-      meta_window_move_resize (window,
-                               flags,
-                               new_rect);
     }
 
-  if (meta_window_config_get_is_fullscreen (window_config))
-    meta_window_make_fullscreen (window);
+  meta_window_apply_config (window, window_config);
 }

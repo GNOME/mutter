@@ -893,6 +893,9 @@ gboolean meta_window_is_tiled_right (MetaWindow *window);
 
 MetaWindowConfig * meta_window_new_window_config (MetaWindow *window);
 
+void meta_window_apply_config (MetaWindow       *window,
+                               MetaWindowConfig *config);
+
 MetaGravity meta_window_get_gravity (MetaWindow *window);
 
 void meta_window_set_tag (MetaWindow *window,
