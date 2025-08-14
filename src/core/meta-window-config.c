@@ -20,6 +20,8 @@
 
 #include "core/meta-window-config-private.h"
 
+#include "core/window-private.h"
+
 /**
  * MetaWindowConfig:
  *
@@ -327,4 +329,27 @@ meta_window_config_initial_new (void)
   window_config->is_initial = TRUE;
 
   return window_config;
+}
+
+MetaWindowConfig *
+meta_window_config_new_from (MetaWindow       *window,
+                             MetaWindowConfig *other_config)
+{
+  MetaWindowConfig *config;
+
+  if (window->showing_for_first_time)
+    config = meta_window_config_initial_new ();
+  else
+    config = meta_window_config_new ();
+
+  config->rect = meta_window_config_get_rect (other_config);
+  config->is_fullscreen = other_config->is_fullscreen;
+  config->maximized_horizontally = other_config->maximized_horizontally;
+  config->maximized_vertically = other_config->maximized_vertically;
+  config->tile_mode = other_config->tile_mode;
+  config->tile_monitor_number = other_config->tile_monitor_number;
+  config->tile_hfraction = other_config->tile_hfraction;
+  config->tile_match = other_config->tile_match;
+
+  return config;
 }

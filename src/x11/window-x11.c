@@ -4815,15 +4815,10 @@ meta_window_x11_configure (MetaWindow *window)
   MtkRectangle prev_rect;
   MtkRectangle new_rect;
   MetaMoveResizeFlags flags;
-  gboolean is_fullscreen;
   g_autoptr (MetaWindowConfig) window_config = NULL;
 
-  window_config = meta_window_new_window_config (window);
+  window_config = meta_window_config_new_from (window, window->config);
   prev_rect = meta_window_config_get_rect (window->config);
-  meta_window_config_set_rect (window_config, prev_rect);
-  is_fullscreen = meta_window_is_fullscreen (window);
-  meta_window_config_set_is_fullscreen (window_config, is_fullscreen);
-
   meta_window_emit_configure (window, window_config);
   new_rect = meta_window_config_get_rect (window_config);
 
