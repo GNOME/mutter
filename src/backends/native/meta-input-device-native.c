@@ -1783,6 +1783,9 @@ meta_input_device_native_has_scroll_inverted (MetaInputDeviceNative *device_nati
 {
   struct libinput_device *libinput_device = device_native->libinput_device;
 
+  if (!libinput_device)
+    return FALSE;
+
   if (!libinput_device_config_scroll_has_natural_scroll (libinput_device))
     return FALSE;
 
