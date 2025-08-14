@@ -1450,6 +1450,46 @@ add_video_damage_meta_param (GPtrArray *params)
   g_ptr_array_add (params, g_steal_pointer (&pod));
 }
 
+static gboolean
+explicit_sync_supported (MetaScreenCastStreamSrc *src)
+{
+  uint64_t supported = 0;
+#ifdef HAVE_NATIVE_BACKEND
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session =
+    meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer;
+  CoglRendererEGL *cogl_renderer_egl;
+  MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaRenderDevice *render_device;
+  MetaDeviceFile *device_file;
+  int drm_fd;
+
+  if (!cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_SYNC_FD))
+    return FALSE;
+
+  cogl_renderer = cogl_context_get_renderer (cogl_context);
+  cogl_renderer_egl = cogl_renderer->winsys;
+  renderer_gpu_data = cogl_renderer_egl->platform;
+  render_device = renderer_gpu_data->render_device;
+  device_file = meta_render_device_get_device_file (render_device);
+  if (!device_file)
+    return FALSE;
+
+  drm_fd = meta_device_file_get_fd (device_file);
+  if (drmGetCap (drm_fd, DRM_CAP_SYNCOBJ_TIMELINE, &supported) != 0)
+    return FALSE;
+#endif /* HAVE_NATIVE_BACKEND */
+
+  return supported != 0;
+}
+
 static void
 on_stream_param_changed (void                 *data,
                          uint32_t              id,
@@ -1605,14 +1645,26 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
   g_ptr_array_add (params, g_steal_pointer (&pod));
 
-  /* we support Explicit sync */
-  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
-  pod = spa_pod_builder_add_object (
-    &pod_builder.b,
-    SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
-    SPA_PARAM_META_type, SPA_POD_Id (SPA_META_SyncTimeline),
-    SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_sync_timeline)));
-  g_ptr_array_add (params, g_steal_pointer (&pod));
+  if (explicit_sync_supported (src))
+    {
+      spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+      pod = spa_pod_builder_add_object (
+        &pod_builder.b,
+        SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
+        SPA_PARAM_META_type, SPA_POD_Id (SPA_META_SyncTimeline),
+        SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_sync_timeline)));
+      g_ptr_array_add (params, g_steal_pointer (&pod));
+
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Advertising explicit sync support for pw_stream %u",
+                  pw_stream_get_node_id (priv->pipewire_stream));
+    }
+  else
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Not advertising explicit sync support for pw_stream %u",
+                  pw_stream_get_node_id (priv->pipewire_stream));
+    }
 
   add_video_damage_meta_param (params);
 
