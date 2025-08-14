@@ -84,12 +84,5 @@ void meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *co
 gboolean meta_wayland_window_configuration_is_equivalent (MetaWaylandWindowConfiguration *configuration,
                                                           MetaWaylandWindowConfiguration *other);
 
-MetaWindowConfig * meta_window_config_new_from_wayland_window_configuration (MetaWindow                     *window,
-                                                                             MetaWaylandWindowConfiguration *configuration);
-
-MetaWaylandWindowConfiguration * meta_wayland_window_configuration_apply_window_config (MetaWindow                     *window,
-                                                                                        MetaWaylandWindowConfiguration *configuration,
-                                                                                        MetaWindowConfig               *window_config);
-
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaWaylandWindowConfiguration,
                                meta_wayland_window_configuration_unref)
