@@ -2389,6 +2389,9 @@ meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface)
 int
 meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 {
+  if (!surface->buffer)
+    return 0;
+
   if (surface->viewport.has_dst_size)
     {
       return surface->viewport.dst_width;
@@ -2413,6 +2416,9 @@ meta_wayland_surface_get_width (MetaWaylandSurface *surface)
 int
 meta_wayland_surface_get_height (MetaWaylandSurface *surface)
 {
+  if (!surface->buffer)
+    return 0;
+
   if (surface->viewport.has_dst_size)
     {
       return surface->viewport.dst_height;
