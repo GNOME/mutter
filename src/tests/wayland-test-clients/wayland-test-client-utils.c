@@ -315,6 +315,13 @@ static const struct wl_seat_listener wl_seat_listener = {
 };
 
 static void
+test_driver_handle_terminate (void               *user_data,
+                              struct test_driver *test_driver)
+{
+  exit (EXIT_SUCCESS);
+}
+
+static void
 test_driver_handle_sync_event (void               *user_data,
                                struct test_driver *test_driver,
                                uint32_t            serial)
@@ -351,6 +358,7 @@ test_driver_handle_property_int (void               *user_data,
 }
 
 static const struct test_driver_listener test_driver_listener = {
+  test_driver_handle_terminate,
   test_driver_handle_sync_event,
   test_driver_handle_property,
   test_driver_handle_property_int,
