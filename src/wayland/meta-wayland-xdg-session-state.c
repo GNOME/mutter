@@ -441,33 +441,53 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
                                              TRUE);
     }
 
-  if (rect)
-    {
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_WAYLAND_CLIENT_RESIZE |
-                                META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE |
-                                META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
-    }
 
   switch (toplevel_state->window_state)
     {
     case WINDOW_STATE_NONE:
     case WINDOW_STATE_FLOATING:
       window->placed = TRUE;
+
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               *rect);
       break;
     case WINDOW_STATE_TILED_LEFT:
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_FORCE_MOVE |
+                                META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               *rect);
       meta_window_tile (window, META_TILE_LEFT);
       break;
     case WINDOW_STATE_TILED_RIGHT:
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_FORCE_MOVE |
+                                META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               *rect);
       meta_window_tile (window, META_TILE_RIGHT);
       break;
     case WINDOW_STATE_MAXIMIZED:
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_FORCE_MOVE |
+                                META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               *rect);
       meta_window_maximize (window);
       break;
     case WINDOW_STATE_FULLSCREEN:
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_FORCE_MOVE |
+                                META_MOVE_RESIZE_MOVE_ACTION |
+                                META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               *rect);
       meta_window_make_fullscreen (window);
       break;
     }
