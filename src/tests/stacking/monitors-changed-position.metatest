@@ -1,0 +1,39 @@
+resize_monitor default 500 500
+new_client w wayland
+new_client x x11
+
+# Map Wayland window and check position
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+wait_reconfigure w/1
+assert_position w/1 200 200
+assert_size w/1 100 100
+
+# Trigger monitors changed signal and ensure position remains intact
+
+resize_monitor default 501 501
+wait_reconfigure w/1
+assert_position w/1 200 200
+assert_size w/1 100 100
+
+destroy w/1
+wait
+resize_monitor default 500 500
+
+# Map X11 window and check position
+
+create x/1 csd
+resize x/1 100 100
+show x/1
+wait_reconfigure x/1
+assert_position x/1 200 200
+assert_size x/1 100 100
+
+# Trigger monitors changed signal and ensure position remains intact
+
+resize_monitor default 501 501
+wait_reconfigure x/1
+assert_position x/1 200 200
+assert_size x/1 100 100
