@@ -4832,5 +4832,6 @@ meta_window_x11_configure (MetaWindow *window)
       window->size_hints.height = new_rect.height;
     }
 
-  meta_window_apply_config (window, window_config);
+  meta_window_apply_config (window, window_config,
+                            META_WINDOW_APPLY_FLAG_NONE);
 }

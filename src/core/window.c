@@ -8552,8 +8552,9 @@ meta_window_new_window_config (MetaWindow *window)
 }
 
 void
-meta_window_apply_config (MetaWindow       *window,
-                          MetaWindowConfig *config)
+meta_window_apply_config (MetaWindow           *window,
+                          MetaWindowConfig     *config,
+                          MetaWindowApplyFlags  flags)
 {
   if (meta_window_config_get_is_fullscreen (config))
     {
@@ -8586,6 +8587,15 @@ meta_window_apply_config (MetaWindow       *window,
       meta_window_move_resize (window,
                                (META_MOVE_RESIZE_MOVE_ACTION |
                                 META_MOVE_RESIZE_RESIZE_ACTION |
+                                META_MOVE_RESIZE_CONSTRAIN),
+                               rect);
+    }
+  else if (flags & META_WINDOW_APPLY_FLAG_ALWAYS_MOVE_RESIZE)
+    {
+      MtkRectangle rect = meta_window_config_get_rect (config);
+
+      meta_window_move_resize (window,
+                               (META_MOVE_RESIZE_RESIZE_ACTION |
                                 META_MOVE_RESIZE_CONSTRAIN),
                                rect);
     }

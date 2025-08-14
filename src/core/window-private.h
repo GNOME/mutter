@@ -135,6 +135,12 @@ typedef enum _MetaWindowSuspendState
   META_WINDOW_SUSPEND_STATE_SUSPENDED,
 } MetaWindowSuspendState;
 
+typedef enum _MetaWindowApplyFlags
+{
+  META_WINDOW_APPLY_FLAG_NONE = 0,
+  META_WINDOW_APPLY_FLAG_ALWAYS_MOVE_RESIZE = 1 << 0,
+} MetaWindowApplyFlags;
+
 typedef struct _MetaPlacementRule
 {
   MtkRectangle anchor_rect;
@@ -893,8 +899,9 @@ gboolean meta_window_is_tiled_right (MetaWindow *window);
 
 MetaWindowConfig * meta_window_new_window_config (MetaWindow *window);
 
-void meta_window_apply_config (MetaWindow       *window,
-                               MetaWindowConfig *config);
+void meta_window_apply_config (MetaWindow           *window,
+                               MetaWindowConfig     *config,
+                               MetaWindowApplyFlags  flags);
 
 MetaGravity meta_window_get_gravity (MetaWindow *window);
 
