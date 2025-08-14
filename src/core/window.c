@@ -8543,15 +8543,6 @@ meta_window_get_client_content_rect (MetaWindow   *window,
 #endif
 }
 
-MetaWindowConfig *
-meta_window_new_window_config (MetaWindow *window)
-{
-  if (window->showing_for_first_time)
-    return meta_window_config_initial_new ();
-  else
-    return meta_window_config_new ();
-}
-
 void
 meta_window_apply_config (MetaWindow           *window,
                           MetaWindowConfig     *config,
