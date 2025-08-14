@@ -476,3 +476,16 @@ meta_wayland_test_driver_wait_for_sync_point (MetaWaylandTestDriver *test_driver
     g_main_context_iteration (NULL, TRUE);
   g_signal_handler_disconnect (test_driver, handler_id);
 }
+
+void
+meta_wayland_test_driver_terminate (MetaWaylandTestDriver *test_driver)
+{
+  GList *l;
+
+  for (l = test_driver->resources; l; l = l->next)
+    {
+      struct wl_resource *resource = l->data;
+
+      test_driver_send_terminate (resource);
+    }
+}

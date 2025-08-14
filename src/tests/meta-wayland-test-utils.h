@@ -30,6 +30,8 @@ MetaWaylandTestClient * meta_wayland_test_client_new_with_args (MetaContext *con
 
 void meta_wayland_test_client_finish (MetaWaylandTestClient *wayland_test_client);
 
+void meta_wayland_test_client_terminate (MetaWaylandTestClient *wayland_test_client);
+
 MetaWindow * meta_find_client_window (MetaContext *context,
                                       const char  *title);
 

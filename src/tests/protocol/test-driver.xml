@@ -42,6 +42,8 @@
       <arg name="direction" type="uint" enum="direction"/>
     </request>
 
+    <event name="terminate"/>
+
     <event name="sync_event">
       <arg name="sequence" type="uint"/>
     </event>
