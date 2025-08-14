@@ -172,6 +172,50 @@ wait_for_paint (ClutterActor *stage)
   g_signal_handler_disconnect (stage, handler_id);
 }
 
+static gboolean
+validate_one_transform (CoglFramebuffer *fb,
+                        int              x,
+                        float           *cpu_color,
+                        TestColor       *test_color,
+                        const char      *name)
+{
+  float shader_color[4];
+
+  cogl_framebuffer_read_pixels (fb,
+                                x, 0, 1, 1,
+                                COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE,
+                                (uint8_t *) shader_color);
+
+  if (!G_APPROX_VALUE (cpu_color[0],
+                       shader_color[0],
+                       COLOR_TRANSFORM_EPSILON) ||
+      !G_APPROX_VALUE (cpu_color[1],
+                       shader_color[1],
+                       COLOR_TRANSFORM_EPSILON) ||
+      !G_APPROX_VALUE (cpu_color[2],
+                       shader_color[2],
+                       COLOR_TRANSFORM_EPSILON))
+    {
+      g_test_message ("Failed %s color transform:\n"
+                      "input  (%.5f, %.5f, %.5f, %.5f)\n"
+                      "cpu    (%.5f, %.5f, %.5f)\n"
+                      "shader (%.5f, %.5f, %.5f)\n"
+                      "diff   (%.5f, %.5f, %.5f)\n",
+                      name,
+                      test_color->r, test_color->g, test_color->b,
+                      test_color->a,
+                      cpu_color[0], cpu_color[1], cpu_color[2],
+                      shader_color[0], shader_color[1], shader_color[2],
+                      ABS (cpu_color[0] - shader_color[0]),
+                      ABS (cpu_color[1] - shader_color[1]),
+                      ABS (cpu_color[2] - shader_color[2]));
+
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 validate_transform (ClutterActor      *stage,
                     ClutterColorState *src_color_state,
@@ -182,8 +226,6 @@ validate_transform (ClutterActor      *stage,
   CoglFramebuffer *output_fb = clutter_stage_view_get_onscreen (view);
   CoglFramebuffer *blend_fb = clutter_stage_view_get_framebuffer (view);
   float cpu_color[3];
-  float shader_color[4];
-  int x, y;
   gboolean transform_passed;
 
   for (int i = 0; i < G_N_ELEMENTS (test_colors); i++)
@@ -203,39 +245,11 @@ validate_transform (ClutterActor      *stage,
       cpu_color[1] *= test_colors[i].a;
       cpu_color[2] *= test_colors[i].a;
 
-      x = (int) (i * ACTOR_SIZE);
-      y = 0;
-      cogl_framebuffer_read_pixels (blend_fb,
-                                    x, y, 1, 1,
-                                    COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE,
-                                    (uint8_t *) shader_color);
-
-      transform_passed = G_APPROX_VALUE (cpu_color[0],
-                                         shader_color[0],
-                                         COLOR_TRANSFORM_EPSILON) &&
-                         G_APPROX_VALUE (cpu_color[1],
-                                         shader_color[1],
-                                         COLOR_TRANSFORM_EPSILON) &&
-                         G_APPROX_VALUE (cpu_color[2],
-                                         shader_color[2],
-                                         COLOR_TRANSFORM_EPSILON);
-
-      if (!transform_passed)
-        {
-          g_test_message ("Failed blend color transform:\n"
-                          "input  (%.5f, %.5f, %.5f, %.5f)\n"
-                          "cpu    (%.5f, %.5f, %.5f)\n"
-                          "shader (%.5f, %.5f, %.5f)\n"
-                          "diff   (%.5f, %.5f, %.5f)\n",
-                          test_colors[i].r, test_colors[i].g, test_colors[i].b,
-                          test_colors[i].a,
-                          cpu_color[0], cpu_color[1], cpu_color[2],
-                          shader_color[0], shader_color[1], shader_color[2],
-                          ABS (cpu_color[0] - shader_color[0]),
-                          ABS (cpu_color[1] - shader_color[1]),
-                          ABS (cpu_color[2] - shader_color[2]));
-        }
-
+      transform_passed = validate_one_transform (blend_fb,
+                                                 (int) (i * ACTOR_SIZE),
+                                                 cpu_color,
+                                                 test_colors + i,
+                                                 "source -> blend");
       g_assert_true (transform_passed);
 
       clutter_color_state_do_transform (blend_color_state,
@@ -243,37 +257,11 @@ validate_transform (ClutterActor      *stage,
                                         cpu_color,
                                         1);
 
-      cogl_framebuffer_read_pixels (output_fb,
-                                    x, y, 1, 1,
-                                    COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE,
-                                    (uint8_t *) shader_color);
-
-      transform_passed = G_APPROX_VALUE (cpu_color[0],
-                                         shader_color[0],
-                                         COLOR_TRANSFORM_EPSILON) &&
-                         G_APPROX_VALUE (cpu_color[1],
-                                         shader_color[1],
-                                         COLOR_TRANSFORM_EPSILON) &&
-                         G_APPROX_VALUE (cpu_color[2],
-                                         shader_color[2],
-                                         COLOR_TRANSFORM_EPSILON);
-
-      if (!transform_passed)
-        {
-          g_test_message ("Failed output color transform:\n"
-                          "input  (%.5f, %.5f, %.5f, %.5f)\n"
-                          "cpu    (%.5f, %.5f, %.5f)\n"
-                          "shader (%.5f, %.5f, %.5f)\n"
-                          "diff   (%.5f, %.5f, %.5f)\n",
-                          test_colors[i].r, test_colors[i].g, test_colors[i].b,
-                          test_colors[i].a,
-                          cpu_color[0], cpu_color[1], cpu_color[2],
-                          shader_color[0], shader_color[1], shader_color[2],
-                          ABS (cpu_color[0] - shader_color[0]),
-                          ABS (cpu_color[1] - shader_color[1]),
-                          ABS (cpu_color[2] - shader_color[2]));
-        }
-
+      transform_passed = validate_one_transform (output_fb,
+                                                 (int) (i * ACTOR_SIZE),
+                                                 cpu_color,
+                                                 test_colors + i,
+                                                 "blend -> output");
       g_assert_true (transform_passed);
     }
 }
