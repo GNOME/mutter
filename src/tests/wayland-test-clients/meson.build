@@ -139,6 +139,9 @@ wayland_test_clients = [
   {
     'name': 'fixed-size-client',
   },
+  {
+    'name': 'buffer-less-viewport-client',
+  },
 ]
 
 test_client_executables = {}

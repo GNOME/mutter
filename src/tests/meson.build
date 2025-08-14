@@ -940,6 +940,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'viewport-tests',
+    'suite': 'wayland',
+    'sources': [
+      'viewport-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('buffer-less-viewport-client'),
+    ],
+  },
+  {
     'name': 'wayland-unit',
     'suite': 'wayland',
     'sources': [
