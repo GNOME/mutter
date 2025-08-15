@@ -1376,8 +1376,8 @@ constrain_fullscreen (MetaWindow         *window,
                       ConstraintPriority  priority,
                       gboolean            check_only)
 {
-  MtkRectangle min_size, max_size, monitor;
-  gboolean too_big, too_small, constraint_already_satisfied;
+  MtkRectangle monitor;
+  gboolean constraint_already_satisfied;
 
   if (priority > PRIORITY_FULLSCREEN)
     return TRUE;
@@ -1388,11 +1388,19 @@ constrain_fullscreen (MetaWindow         *window,
 
   monitor = info->entire_monitor;
 
-  get_size_limits (window, &min_size, &max_size);
-  too_big = !mtk_rectangle_could_fit_rect (&monitor, &min_size);
-  too_small = !mtk_rectangle_could_fit_rect (&max_size, &monitor);
-  if (too_big || too_small)
-    return TRUE;
+#ifdef HAVE_X11_CLIENT
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+    {
+      MtkRectangle min_size, max_size;
+      gboolean too_big, too_small;
+
+      get_size_limits (window, &min_size, &max_size);
+      too_big = !mtk_rectangle_could_fit_rect (&monitor, &min_size);
+      too_small = !mtk_rectangle_could_fit_rect (&max_size, &monitor);
+      if (too_big || too_small)
+        return TRUE;
+    }
+#endif /* HAVE_X11_CLIENT */
 
   /* Determine whether constraint is already satisfied; exit if it is */
   constraint_already_satisfied =
@@ -1501,6 +1509,12 @@ constrain_size_limits (MetaWindow         *window,
    */
   if (info->action_type == ACTION_MOVE)
     return TRUE;
+
+#ifdef HAVE_WAYLAND
+  if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
+      meta_window_is_fullscreen (window))
+    return TRUE;
+#endif
 
   /* Determine whether constraint is already satisfied; exit if it is */
   get_size_limits (window, &min_size, &max_size);

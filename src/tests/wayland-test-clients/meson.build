@@ -136,6 +136,9 @@ wayland_test_clients = [
   {
     'name': 'xdg-activation-before-mapped',
   },
+  {
+    'name': 'fixed-size-client',
+  },
 ]
 
 test_client_executables = {}
