@@ -50,6 +50,7 @@ enum
   PROP_0,
 
   PROP_SURFACE,
+  PROP_CLIENT,
 
   PROP_LAST
 };
@@ -62,6 +63,7 @@ struct _MetaWindowWayland
 
   int geometry_scale;
 
+  MetaWaylandClient *client;
   MetaWaylandSurface *surface;
 
   GList *pending_configurations;
@@ -968,6 +970,7 @@ meta_window_wayland_finalize (GObject *object)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (object);
 
+  g_clear_object (&wl_window->client);
   g_clear_pointer (&wl_window->last_acked_configuration,
                    meta_wayland_window_configuration_unref);
   g_clear_pointer (&wl_window->last_sent_configuration,
@@ -991,6 +994,9 @@ meta_window_wayland_get_property (GObject    *object,
     case PROP_SURFACE:
       g_value_set_object (value, window->surface);
       break;
+    case PROP_CLIENT:
+      g_value_set_object (value, window->client);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1009,6 +1015,9 @@ meta_window_wayland_set_property (GObject      *object,
     {
     case PROP_SURFACE:
       window->surface = g_value_get_object (value);
+      break;
+    case PROP_CLIENT:
+      window->client = g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1058,6 +1067,11 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
                          META_TYPE_WAYLAND_SURFACE,
                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
+  obj_props[PROP_CLIENT] =
+    g_param_spec_object ("client", NULL, NULL,
+                         META_TYPE_WAYLAND_CLIENT,
+                         G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
@@ -1084,12 +1098,18 @@ meta_window_wayland_new (MetaDisplay        *display,
 {
   MetaWindowWayland *wl_window;
   MetaWindow *window;
+  struct wl_client *wl_client;
+  MetaWaylandClient *client;
+
+  wl_client = wl_resource_get_client (surface->resource);
+  client = meta_get_wayland_client (wl_client);
 
   window = g_initable_new (META_TYPE_WINDOW_WAYLAND,
                            NULL, NULL,
                            "display", display,
                            "effect", META_COMP_EFFECT_CREATE,
                            "surface", surface,
+                           "client", client,
                            NULL);
   wl_window = META_WINDOW_WAYLAND (window);
   set_geometry_scale_for_window (wl_window, wl_window->geometry_scale);
@@ -1676,4 +1696,10 @@ meta_window_wayland_get_pending_serial (MetaWindowWayland *wl_window,
     }
 
   return FALSE;
+}
+
+MetaWaylandClient *
+meta_window_wayland_get_client (MetaWindowWayland *wl_window)
+{
+  return wl_window->client;
 }

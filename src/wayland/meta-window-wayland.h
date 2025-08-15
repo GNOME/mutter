@@ -84,3 +84,5 @@ gboolean meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window);
 META_EXPORT_TEST
 gboolean meta_window_wayland_get_pending_serial (MetaWindowWayland *wl_window,
                                                  uint32_t          *serial);
+
+MetaWaylandClient * meta_window_wayland_get_client (MetaWindowWayland *wl_window);
