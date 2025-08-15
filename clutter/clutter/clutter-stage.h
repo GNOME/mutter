@@ -240,9 +240,9 @@ typedef gboolean (*ClutterStageInputForeachFunc) (ClutterStage  *stage,
                                                   gpointer       user_data);
 
 CLUTTER_EXPORT
-gboolean clutter_stage_pointing_input_foreach (ClutterStage                 *self,
-                                               ClutterStageInputForeachFunc  func,
-                                               gpointer                      user_data);
+gboolean clutter_stage_foreach_sprite (ClutterStage                 *self,
+                                       ClutterStageInputForeachFunc  func,
+                                       gpointer                      user_data);
 
 CLUTTER_EXPORT
 gboolean clutter_stage_is_active (ClutterStage *stage);

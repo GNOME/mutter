@@ -363,9 +363,9 @@ update_cursors (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  clutter_stage_pointing_input_foreach (CLUTTER_STAGE (priv->stage),
-                                        update_cursor_foreach_cb,
-                                        backend);
+  clutter_stage_foreach_sprite (CLUTTER_STAGE (priv->stage),
+                                update_cursor_foreach_cb,
+                                backend);
 }
 
 void

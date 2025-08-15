@@ -2906,7 +2906,7 @@ clutter_stage_maybe_invalidate_focus (ClutterStage *self,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
 
-  clutter_stage_pointing_input_foreach (self, invalidate_focus_foreach_cb, actor);
+  clutter_stage_foreach_sprite (self, invalidate_focus_foreach_cb, actor);
 }
 
 void
@@ -3006,7 +3006,7 @@ clutter_stage_notify_grab (ClutterStage *stage,
   if (cur_actor == old_actor)
     return;
 
-  clutter_stage_pointing_input_foreach (stage, notify_grab_foreach_cb, old);
+  clutter_stage_foreach_sprite (stage, notify_grab_foreach_cb, old);
 
   context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   backend = clutter_context_get_backend (context);
@@ -3418,7 +3418,7 @@ void
 clutter_stage_implicit_grab_actor_unmapped (ClutterStage *self,
                                             ClutterActor *actor)
 {
-  clutter_stage_pointing_input_foreach (self, break_implicit_grab_foreach_cb, actor);
+  clutter_stage_foreach_sprite (self, break_implicit_grab_foreach_cb, actor);
 }
 
 void
@@ -3429,7 +3429,7 @@ clutter_stage_notify_action_implicit_grab (ClutterStage  *self,
 }
 
 /**
- * clutter_stage_pointing_input_foreach:
+ * clutter_stage_foreach_sprite:
  * @self: The stage
  * @func: (scope call): Iterator function
  * @user_data: user data
@@ -3439,9 +3439,9 @@ clutter_stage_notify_action_implicit_grab (ClutterStage  *self,
  * Returns: %TRUE if the foreach function did not stop.
  **/
 gboolean
-clutter_stage_pointing_input_foreach (ClutterStage                 *self,
-                                      ClutterStageInputForeachFunc  func,
-                                      gpointer                      user_data)
+clutter_stage_foreach_sprite (ClutterStage                 *self,
+                              ClutterStageInputForeachFunc  func,
+                              gpointer                      user_data)
 {
   ClutterContext *context;
   ClutterBackend *backend;
@@ -3555,7 +3555,7 @@ void
 clutter_stage_update_devices_in_view (ClutterStage     *stage,
                                       ClutterStageView *view)
 {
-  clutter_stage_pointing_input_foreach (stage,
-                                        update_devices_in_view_foreach_cb,
-                                        view);
+  clutter_stage_foreach_sprite (stage,
+                                update_devices_in_view_foreach_cb,
+                                view);
 }

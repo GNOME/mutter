@@ -1166,8 +1166,8 @@ meta_xwayland_dnd_handle_xfixes_selection_notify (MetaWaylandCompositor *composi
   dnd->owner = event->owner;
 
   if (event->owner != None && event->owner != x11_display->selection.xwindow &&
-      !clutter_stage_pointing_input_foreach (stage, find_dnd_candidate_device,
-                                             &candidate))
+      !clutter_stage_foreach_sprite (stage, find_dnd_candidate_device,
+                                     &candidate))
     {
 
       dnd->source = meta_wayland_data_source_xwayland_new (dnd, compositor);

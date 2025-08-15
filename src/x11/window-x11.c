@@ -3174,9 +3174,7 @@ guess_nearest_device (MetaWindow            *window,
 
   data.button = button;
   graphene_point_init (&data.coords, root_x, root_y);
-  clutter_stage_pointing_input_foreach (stage,
-                                        nearest_device_func,
-                                        &data);
+  clutter_stage_foreach_sprite (stage, nearest_device_func, &data);
 
   if (sprite && data.sprite)
     *sprite = data.sprite;
