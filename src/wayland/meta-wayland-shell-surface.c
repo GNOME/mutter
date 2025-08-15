@@ -137,6 +137,7 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
     META_WAYLAND_SURFACE_ROLE (shell_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaDisplay *display = window->display;
   MetaSurfaceActor *surface_actor;
 
   g_assert (!priv->window);
@@ -154,6 +155,8 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
                       shell_surface);
 
   meta_window_update_monitor (window, META_WINDOW_UPDATE_MONITOR_FLAGS_NONE);
+
+  meta_display_notify_window_created (display, window);
 
   priv->main_monitor_binding =
     g_object_bind_property (G_OBJECT (window), "main-monitor",

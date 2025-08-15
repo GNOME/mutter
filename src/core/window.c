@@ -1470,14 +1470,6 @@ meta_window_initable_init (GInitable     *initable,
                            GCancellable  *cancellable,
                            GError       **error)
 {
-  MetaWindow *window = META_WINDOW (initable);
-  MetaDisplay *display = window->display;
-
-  meta_display_notify_window_created (display, window);
-
-  if (window->wm_state_demands_attention)
-    g_signal_emit_by_name (display, "window-demands-attention", window);
-
   return TRUE;
 }
 

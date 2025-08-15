@@ -4075,6 +4075,9 @@ meta_window_x11_new (MetaDisplay       *display,
     }
 
   mtk_x11_error_trap_pop (x11_display->xdisplay); /* pop the XSync()-reducing trap */
+
+  meta_display_notify_window_created (display, window);
+
   return window;
 
 error:

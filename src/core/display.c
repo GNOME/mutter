@@ -1679,6 +1679,9 @@ meta_display_notify_window_created (MetaDisplay  *display,
   COGL_TRACE_BEGIN_SCOPED (MetaDisplayNotifyWindowCreated,
                            "Meta::Display::notify_window_created()");
   g_signal_emit (display, display_signals[WINDOW_CREATED], 0, window);
+
+  if (window->wm_state_demands_attention)
+    g_signal_emit_by_name (display, "window-demands-attention", window);
 }
 
 void

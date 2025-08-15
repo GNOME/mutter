@@ -484,6 +484,11 @@ test_cases += [
     'suite': 'core',
     'sources': [ 'debug-control-tests.c', ],
   },
+  {
+    'name': 'window-created',
+    'suite': 'core',
+    'sources': [ 'window-created-tests.c', ],
+  },
 ]
 
 remote_desktop_utils = [
