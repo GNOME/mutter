@@ -1703,6 +1703,37 @@ toplevel_fixed_size_fullscreen (void)
 }
 
 static void
+toplevel_fixed_size_fullscreen_exceeds (void)
+{
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "fixed-size-client",
+                                            "1000", "1000",
+                                            NULL);
+
+  while (!(window = find_client_window ("fixed-size-client")))
+    g_main_context_iteration (NULL, TRUE);
+  while (meta_window_is_hidden (window))
+    g_main_context_iteration (NULL, TRUE);
+  meta_wait_for_effects (window);
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "Window * (fixed-size-client) (wl_surface#*) "
+                         "size 1000x1000 exceeds allowed maximum size 640x480");
+
+  meta_window_make_fullscreen (window);
+  meta_wait_wayland_window_reconfigure (window);
+  meta_wait_for_effects (window);
+
+  meta_wayland_test_driver_terminate (test_driver);
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -1821,6 +1852,8 @@ init_tests (void)
                    toplevel_activation_before_mapped);
   g_test_add_func ("/wayland/toplevel/fixed-size-fullscreen",
                    toplevel_fixed_size_fullscreen);
+  g_test_add_func ("/wayland/toplevel/fixed-size-fullscreen-exceeds",
+                   toplevel_fixed_size_fullscreen_exceeds);
 }
 
 int

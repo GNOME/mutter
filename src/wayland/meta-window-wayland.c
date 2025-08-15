@@ -1323,6 +1323,24 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   acked_configuration = acquire_acked_configuration (wl_window, pending,
                                                      &is_client_resize);
 
+  if (acked_configuration &&
+      acked_configuration->has_size &&
+      acked_configuration->is_fullscreen &&
+      (new_geom.width > acked_configuration->width ||
+       new_geom.height > acked_configuration->height))
+    {
+      g_warning ("Window %s (wl_surface#%u) size %dx%d exceeds "
+                 "allowed maximum size %dx%d",
+                 window->desc,
+                 surface->resource
+                   ? wl_resource_get_id (surface->resource)
+                   : 0,
+                 new_geom.width / geometry_scale,
+                 new_geom.height / geometry_scale,
+                 acked_configuration->width / geometry_scale,
+                 acked_configuration->height / geometry_scale);
+    }
+
   window_drag = meta_compositor_get_current_window_drag (display->compositor);
 
   /* x/y are ignored when we're doing interactive resizing */
