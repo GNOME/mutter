@@ -32,6 +32,7 @@
 #include "meta/meta-workspace-manager.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-monitor-test-utils.h"
+#include "tests/meta-ref-test.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-client-private.h"
@@ -995,6 +996,57 @@ toplevel_suspended (void)
 }
 
 static void
+toplevel_fixed_size_fullscreen (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaWaylandTestClient *wayland_test_client;
+  GSettings *settings;
+  GList *views;
+  ClutterStageView *view;
+  MetaWindow *window;
+
+  meta_cursor_tracker_set_pointer_visible (cursor_tracker, FALSE);
+
+  settings = g_settings_new ("org.gnome.mutter");
+  g_assert_true (g_settings_set_boolean (settings, "center-new-windows", FALSE));
+
+  views = meta_renderer_get_views (renderer);
+  g_assert_cmpint (g_list_length (views), ==, 1);
+  view = CLUTTER_STAGE_VIEW (views->data);
+
+  wayland_test_client =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "fixed-size-client",
+                                            "100", "100",
+                                            NULL);
+
+  while (!(window = find_client_window ("fixed-size-client")))
+    g_main_context_iteration (NULL, TRUE);
+  while (meta_window_is_hidden (window))
+    g_main_context_iteration (NULL, TRUE);
+  meta_wait_for_effects (window);
+
+  meta_ref_test_verify_view (view,
+                             g_test_get_path (), 0,
+                             meta_ref_test_determine_ref_test_flag ());
+
+  meta_window_make_fullscreen (window);
+  meta_wait_wayland_window_reconfigure (window);
+  meta_wait_for_effects (window);
+
+  meta_ref_test_verify_view (view,
+                             g_test_get_path (), 1,
+                             meta_ref_test_determine_ref_test_flag ());
+
+  meta_wayland_test_driver_terminate (test_driver);
+  meta_wayland_test_client_finish (wayland_test_client);
+
+  meta_cursor_tracker_set_pointer_visible (cursor_tracker, TRUE);
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -1081,6 +1133,8 @@ init_tests (void)
                    toplevel_show_states);
   g_test_add_func ("/wayland/toplevel/suspended",
                    toplevel_suspended);
+  g_test_add_func ("/wayland/toplevel/fixed-size-fullscreen",
+                   toplevel_fixed_size_fullscreen);
 }
 
 int
@@ -1100,6 +1154,8 @@ main (int   argc,
                                       META_CONTEXT_TEST_FLAG_NO_X11);
 #endif
   g_assert (meta_context_configure (context, &argc, &argv, NULL));
+  meta_context_test_set_background_color (META_CONTEXT_TEST (context),
+                                          COGL_COLOR_INIT (255, 255, 255, 255));
 
   test_context = context;
 
