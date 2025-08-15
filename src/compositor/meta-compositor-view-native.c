@@ -161,10 +161,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
-  ClutterColorState *output_color_state;
-  ClutterColorState *surface_color_state;
   MetaWaylandSurface *surface;
-  MetaMultiTextureCoefficients coeffs;
 
   if (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT)
     return FALSE;
@@ -293,18 +290,25 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  output_color_state =
-    clutter_stage_view_get_output_color_state (CLUTTER_STAGE_VIEW (view));
-  surface_color_state =
-    clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
-  if (!clutter_color_state_equals (output_color_state, surface_color_state))
+  if (!(meta_get_debug_paint_flags () &
+        META_DEBUG_PAINT_IGNORE_COLOR_STATE_FOR_DIRECT_SCANOUT))
     {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: "
-                  "surface color state (%s) doesn't match the outputs (%s)",
-                  clutter_color_state_to_string (surface_color_state),
-                  clutter_color_state_to_string (output_color_state));
-      return FALSE;
+      ClutterColorState *output_color_state;
+      ClutterColorState *surface_color_state;
+
+      output_color_state =
+        clutter_stage_view_get_output_color_state (CLUTTER_STAGE_VIEW (view));
+      surface_color_state =
+        clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
+      if (!clutter_color_state_equals (output_color_state, surface_color_state))
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "No direct scanout candidate: "
+                      "surface color state (%s) doesn't match the output's (%s)",
+                      clutter_color_state_to_string (surface_color_state),
+                      clutter_color_state_to_string (output_color_state));
+          return FALSE;
+        }
     }
 
   if (meta_surface_actor_is_effectively_obscured (surface_actor))
@@ -323,14 +327,20 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  coeffs = surface->applied_state.coeffs;
-  if (coeffs != META_MULTI_TEXTURE_COEFFICIENTS_NONE &&
-      coeffs != META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_FULL &&
-      coeffs != META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED)
+  if (!(meta_get_debug_paint_flags () &
+        META_DEBUG_PAINT_IGNORE_COLOR_STATE_FOR_DIRECT_SCANOUT))
     {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: unsupported color model");
-      return FALSE;
+      MetaMultiTextureCoefficients coeffs;
+
+      coeffs = surface->applied_state.coeffs;
+      if (coeffs != META_MULTI_TEXTURE_COEFFICIENTS_NONE &&
+          coeffs != META_MULTI_TEXTURE_COEFFICIENTS_IDENTITY_FULL &&
+          coeffs != META_MULTI_TEXTURE_COEFFICIENTS_BT709_LIMITED)
+        {
+          meta_topic (META_DEBUG_RENDER,
+                      "No direct scanout candidate: unsupported color model");
+          return FALSE;
+        }
     }
 
   *crtc_out = crtc;
