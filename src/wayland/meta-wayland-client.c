@@ -348,15 +348,18 @@ gboolean
 meta_wayland_client_owns_window (MetaWaylandClient *client,
                                  MetaWindow        *window)
 {
-  MetaWaylandSurface *surface;
+  MetaWindowWayland *wl_window;
+  MetaWaylandClient *window_client;
 
   g_return_val_if_fail (meta_is_wayland_compositor (), FALSE);
 
-  surface = meta_window_get_wayland_surface (window);
-  if (surface == NULL || surface->resource == NULL)
+  if (!META_IS_WINDOW_WAYLAND (window))
     return FALSE;
 
-  return wl_resource_get_client (surface->resource) == client->wayland_client;
+  wl_window = META_WINDOW_WAYLAND (window);
+  window_client = meta_window_wayland_get_client (wl_window);
+
+  return client == window_client;
 }
 
 MetaWaylandClient *
