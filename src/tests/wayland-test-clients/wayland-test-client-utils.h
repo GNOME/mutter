@@ -101,6 +101,7 @@ typedef struct _WaylandSurface
   int default_height;
   int width;
   int height;
+  gboolean fixed_size;
 
   uint32_t color;
 
@@ -139,6 +140,8 @@ WaylandSurface * wayland_surface_new_unassigned (WaylandDisplay *display);
 
 gboolean wayland_surface_has_state (WaylandSurface          *surface,
                                     enum xdg_toplevel_state  state);
+
+void wayland_surface_fixate_size (WaylandSurface *surface);
 
 void wayland_surface_commit (WaylandSurface *surface);
 
