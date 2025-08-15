@@ -162,17 +162,25 @@ meta_window_wayland_delete (MetaWindow *window,
 static void
 meta_window_wayland_kill (MetaWindow *window)
 {
-  MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
-  struct wl_resource *resource;
-
-  resource = surface->resource;
-  if (!resource)
-    return;
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaWaylandSurface *surface;
+  struct wl_client *client;
 
   /* Send the client an unrecoverable error to kill the client. */
-  wl_resource_post_error (resource,
-                          WL_DISPLAY_ERROR_NO_MEMORY,
-                          "User requested that we kill you. Sorry. Don't take it too personally.");
+
+  surface = meta_window_get_wayland_surface (window);
+  if (surface->resource)
+    {
+      wl_resource_post_error (surface->resource,
+                              WL_DISPLAY_ERROR_NO_MEMORY,
+                              "User requested that we kill you. Sorry. "
+                              "Don't take it too personally.");
+      return;
+    }
+
+  client = meta_wayland_client_get_wl_client (wl_window->client);
+  if (client)
+    wl_client_post_no_memory (client);
 }
 
 static void
