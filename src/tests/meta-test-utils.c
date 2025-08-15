@@ -36,6 +36,7 @@
 #include "core/window-private.h"
 #include "meta-test/meta-context-test.h"
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-window-wayland.h"
 #include "wayland/meta-xwayland.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -1024,4 +1025,15 @@ meta_wait_for_effects (MetaWindow *window)
       g_object_remove_weak_pointer (G_OBJECT (window_actor),
                                     (gpointer *) &window_actor);
     }
+}
+
+void
+meta_wait_wayland_window_reconfigure (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  uint32_t serial;
+
+  g_assert_true (meta_window_wayland_get_pending_serial (wl_window, &serial));
+  while (meta_window_wayland_peek_configuration (wl_window, serial))
+    g_main_context_iteration (NULL, TRUE);
 }
