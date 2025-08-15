@@ -426,7 +426,7 @@ meta_ref_test_verify (MetaRefTestAdaptor  adaptor,
           g_critical ("Pixel difference exceeds limits "
                       "(min: [%d, %d, %d, %d], "
                       "max: [%d, %d, %d, %d])\n"
-                      "See %s, %s, and %s for details.",
+                      "See %s %s %s for details.",
                       diff_stat.ch[0].min_diff,
                       diff_stat.ch[1].min_diff,
                       diff_stat.ch[2].min_diff,
