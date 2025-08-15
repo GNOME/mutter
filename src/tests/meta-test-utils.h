@@ -158,3 +158,6 @@ void meta_wait_for_window_cursor (MetaContext *context);
 
 META_EXPORT
 void meta_wait_for_effects (MetaWindow *window);
+
+META_EXPORT
+void meta_wait_wayland_window_reconfigure (MetaWindow *window);
