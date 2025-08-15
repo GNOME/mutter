@@ -43,5 +43,8 @@ META_EXPORT
 gboolean meta_wayland_client_owns_window (MetaWaylandClient *client,
                                           MetaWindow        *window);
 
+META_EXPORT
+pid_t meta_wayland_client_get_pid (MetaWaylandClient *client);
+
 G_END_DECLS
 

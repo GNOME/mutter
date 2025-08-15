@@ -42,6 +42,7 @@ MetaWaylandClient * meta_wayland_client_new_from_wl (MetaContext      *context,
 
 META_EXPORT_TEST
 MetaWaylandClient * meta_wayland_client_new_create (MetaContext  *context,
+                                                    pid_t         pid,
                                                     GError      **error);
 
 META_EXPORT_TEST

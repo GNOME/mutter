@@ -309,12 +309,12 @@ registry_filter (void)
   gboolean client2_saw_global;
   gboolean client3_saw_global;
 
-  client1 = meta_wayland_client_new_create (test_context, &error);
+  client1 = meta_wayland_client_new_create (test_context, getpid (), &error);
   g_assert_nonnull (client1);
   g_assert_null (error);
   fd1 = meta_wayland_client_take_client_fd (client1);
   g_assert_cmpint (fd1, >=, 0);
-  client2 = meta_wayland_client_new_create (test_context, &error);
+  client2 = meta_wayland_client_new_create (test_context, getpid (), &error);
   g_assert_nonnull (client2);
   g_assert_null (error);
   fd2 = meta_wayland_client_take_client_fd (client2);
@@ -353,7 +353,7 @@ registry_filter (void)
   meta_wayland_filter_manager_remove_global (filter_manager, dummy_global);
   wl_global_destroy (dummy_global);
 
-  client3 = meta_wayland_client_new_create (test_context, &error);
+  client3 = meta_wayland_client_new_create (test_context, getpid (), &error);
   g_assert_nonnull (client3);
   g_assert_null (error);
   fd3 = meta_wayland_client_take_client_fd (client3);

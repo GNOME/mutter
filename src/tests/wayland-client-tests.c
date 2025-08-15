@@ -56,7 +56,7 @@ meta_test_wayland_client_indirect_self_terminate (void)
   int fd;
   gboolean client_destroyed = FALSE;
 
-  client = meta_wayland_client_new_create (test_context, &error);
+  client = meta_wayland_client_new_create (test_context, getpid (), &error);
   g_assert_nonnull (client);
   g_assert_null (error);
 
@@ -119,7 +119,7 @@ meta_test_wayland_client_indirect_destroy (void)
   int fd;
   gboolean client_destroyed = FALSE;
 
-  client = meta_wayland_client_new_create (test_context, &error);
+  client = meta_wayland_client_new_create (test_context, getpid (), &error);
   g_assert_nonnull (client);
   g_assert_null (error);
 

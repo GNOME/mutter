@@ -129,6 +129,7 @@ verify_service_client_type (uint32_t service_client_type)
 
 static MetaWaylandClient *
 setup_wayland_client_with_fd (MetaContext  *context,
+                              pid_t         pid,
                               GUnixFDList  *fd_list,
                               int          *fd_id,
                               GError      **error)
@@ -136,7 +137,7 @@ setup_wayland_client_with_fd (MetaContext  *context,
   g_autoptr (MetaWaylandClient) wayland_client = NULL;
   g_autofd int fd = -1;
 
-  wayland_client = meta_wayland_client_new_create (context, error);
+  wayland_client = meta_wayland_client_new_create (context, pid, error);
   if (!wayland_client)
       return NULL;
 
@@ -176,6 +177,7 @@ on_dbus_pidfd_new_with_type (GObject      *source_object,
 
   out_fd_list = g_unix_fd_list_new ();
   wayland_client = setup_wayland_client_with_fd (service_channel->context,
+                                                 mtk_dbus_pidfd_get_pid (pidfd),
                                                  out_fd_list,
                                                  &fd_id,
                                                  &error);
@@ -289,6 +291,7 @@ on_dbus_pidfd_new_with_options (GObject      *source_object,
 
   out_fd_list = g_unix_fd_list_new ();
   wayland_client = setup_wayland_client_with_fd (service_channel->context,
+                                                 mtk_dbus_pidfd_get_pid (pidfd),
                                                  out_fd_list,
                                                  &fd_id,
                                                  &error);
