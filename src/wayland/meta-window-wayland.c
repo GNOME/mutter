@@ -1087,15 +1087,9 @@ static void
 meta_window_wayland_maybe_apply_custom_tag (MetaWindow *window)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
-  MetaWaylandSurface *surface = wl_window->surface;
-  MetaWaylandClient *wayland_client;
-  struct wl_client *wl_client;
   const char *window_tag;
 
-  wl_client = wl_resource_get_client (surface->resource);
-  wayland_client = meta_get_wayland_client (wl_client);
-
-  window_tag = meta_wayland_client_get_window_tag (wayland_client);
+  window_tag = meta_wayland_client_get_window_tag (wl_window->client);
   if (window_tag)
     meta_window_set_tag (window, window_tag);
 }
