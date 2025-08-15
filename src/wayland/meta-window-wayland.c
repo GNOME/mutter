@@ -736,16 +736,9 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
 static pid_t
 meta_window_wayland_get_client_pid (MetaWindow *window)
 {
-  MetaWaylandSurface *surface = meta_window_get_wayland_surface (window);
-  struct wl_resource *resource;
-  pid_t pid;
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
 
-  resource = surface->resource;
-  if (!resource)
-    return 0;
-
-  wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL, NULL);
-  return pid;
+  return meta_wayland_client_get_pid (wl_window->client);
 }
 
 static void
