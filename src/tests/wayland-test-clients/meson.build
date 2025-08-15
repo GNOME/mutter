@@ -121,6 +121,9 @@ wayland_test_clients = [
       wayland_cursor_dep,
     ],
   },
+  {
+    'name': 'fixed-size-client',
+  },
 ]
 
 test_client_executables = {}
