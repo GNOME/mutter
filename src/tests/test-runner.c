@@ -2543,7 +2543,6 @@ test_case_do (TestCase    *test,
       MetaTestClient *client;
       const char *window_id;
       MetaWindow *window;
-      MetaWindowActor *window_actor;
 
       if (argc != 2)
         BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
@@ -2555,16 +2554,7 @@ test_case_do (TestCase    *test,
       if (!window)
         return FALSE;
 
-      window_actor = meta_window_actor_from_window (window);
-      g_object_add_weak_pointer (G_OBJECT (window_actor),
-                                 (gpointer *) &window_actor);
-      while (window_actor && meta_window_actor_effect_in_progress (window_actor))
-        g_main_context_iteration (NULL, TRUE);
-      if (window_actor)
-        {
-          g_object_remove_weak_pointer (G_OBJECT (window_actor),
-                                        (gpointer *) &window_actor);
-        }
+      meta_wait_for_effects (window);
     }
   else if (argc > 2 && g_str_equal (argv[1], "=>"))
     {
