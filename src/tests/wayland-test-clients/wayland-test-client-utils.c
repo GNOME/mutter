@@ -653,15 +653,23 @@ handle_xdg_toplevel_configure (void                *data,
   WaylandSurface *surface = data;
   uint32_t *p;
 
-  if (width == 0)
-    surface->width = surface->default_width;
+  if (surface->fixed_size)
+    {
+      surface->width = surface->default_width;
+      surface->height = surface->default_height;
+    }
   else
-    surface->width = width;
+    {
+      if (width == 0)
+        surface->width = surface->default_width;
+      else
+        surface->width = width;
 
-  if (height == 0)
-    surface->height = surface->default_height;
-  else
-    surface->height = height;
+      if (height == 0)
+        surface->height = surface->default_height;
+      else
+        surface->height = height;
+    }
 
   g_assert_null (surface->pending_state);
   surface->pending_state = g_hash_table_new (NULL, NULL);
@@ -876,6 +884,18 @@ void
 wayland_surface_set_opaque (WaylandSurface *surface)
 {
   surface->is_opaque = TRUE;
+}
+
+void
+wayland_surface_fixate_size (WaylandSurface *surface)
+{
+  surface->fixed_size = TRUE;
+  xdg_toplevel_set_min_size (surface->xdg_toplevel,
+                             surface->default_width,
+                             surface->default_height);
+  xdg_toplevel_set_max_size (surface->xdg_toplevel,
+                             surface->default_width,
+                             surface->default_height);
 }
 
 const char *
