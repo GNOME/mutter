@@ -168,7 +168,7 @@ handle_open_wayland_service_connection (MetaDBusServiceChannel *object,
     {
       g_dbus_method_invocation_return_error (invocation,
                                              G_DBUS_ERROR,
-                                             G_DBUS_ERROR_NOT_SUPPORTED,
+                                             G_DBUS_ERROR_FAILED,
                                              "Failed to create Wayland client: %s",
                                              error->message);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
@@ -228,7 +228,7 @@ handle_open_wayland_connection (MetaDBusServiceChannel *object,
     {
       g_dbus_method_invocation_return_error (invocation,
                                              G_DBUS_ERROR,
-                                             G_DBUS_ERROR_NOT_SUPPORTED,
+                                             G_DBUS_ERROR_FAILED,
                                              "Failed to create Wayland client: %s",
                                              error->message);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
