@@ -61,6 +61,11 @@ typedef struct _MetaWindowActorPrivate
 
   int geometry_scale;
 
+  int n_mapped_clones;
+  int n_obscured_surfaces;
+  int n_mapped_surfaces;
+  gboolean is_effectively_visible;
+
   /*
    * These need to be counters rather than flags, since more plugins
    * can implement same effect; the practicality of stacking effects
@@ -138,14 +143,68 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TY
                                   G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
+update_is_effectively_visible (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  gboolean is_visible;
+
+  if (!priv->window)
+    return;
+
+  if (priv->n_mapped_clones > 0)
+    {
+      is_visible = TRUE;
+      goto out;
+    }
+
+  is_visible = priv->n_mapped_surfaces > priv->n_obscured_surfaces;
+
+out:
+  if (priv->is_effectively_visible == is_visible)
+    return;
+
+  if (is_visible)
+    meta_window_inhibit_suspend_state (priv->window);
+  else
+    meta_window_uninhibit_suspend_state (priv->window);
+
+  priv->is_effectively_visible = is_visible;
+}
+
+static void
+meta_window_actor_map (ClutterActor *actor)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (actor);
+
+  CLUTTER_ACTOR_CLASS (meta_window_actor_parent_class)->map (actor);
+
+  update_is_effectively_visible (window_actor);
+}
+
+static void
+meta_window_actor_unmap (ClutterActor *actor)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (actor);
+
+  CLUTTER_ACTOR_CLASS (meta_window_actor_parent_class)->unmap (actor);
+
+  update_is_effectively_visible (window_actor);
+}
+
+static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   object_class->dispose      = meta_window_actor_dispose;
   object_class->set_property = meta_window_actor_set_property;
   object_class->get_property = meta_window_actor_get_property;
   object_class->constructed  = meta_window_actor_constructed;
+
+  actor_class->map = meta_window_actor_map;
+  actor_class->unmap = meta_window_actor_unmap;
 
   klass->get_scanout_candidate = meta_window_actor_real_get_scanout_candidate;
   klass->assign_surface_actor = meta_window_actor_real_assign_surface_actor;
@@ -231,6 +290,7 @@ meta_window_actor_init (MetaWindowActor *self)
 
   priv->surface_actors = g_ptr_array_new ();
   priv->geometry_scale = 1;
+  priv->is_effectively_visible = FALSE;
 
   g_signal_connect (self, "cloned",
                     G_CALLBACK (on_cloned), NULL);
@@ -403,9 +463,25 @@ is_surface_actor_obscured_changed (MetaSurfaceActor *surface_actor,
     meta_window_actor_get_instance_private (window_actor);
 
   if (meta_surface_actor_is_obscured (surface_actor))
-    meta_window_uninhibit_suspend_state (priv->window);
+    priv->n_obscured_surfaces++;
   else
-    meta_window_inhibit_suspend_state (priv->window);
+    priv->n_obscured_surfaces--;
+  update_is_effectively_visible  (window_actor);
+}
+
+static void
+is_surface_actor_mapped_changed (MetaSurfaceActor *surface_actor,
+                                 GParamSpec       *pspec,
+                                 MetaWindowActor  *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (surface_actor)))
+    priv->n_mapped_surfaces++;
+  else
+    priv->n_mapped_surfaces--;
+  update_is_effectively_visible  (window_actor);
 }
 
 static void
@@ -418,8 +494,11 @@ disconnect_surface_actor_from (MetaSurfaceActor *surface_actor,
   g_signal_handlers_disconnect_by_func (surface_actor,
                                         is_surface_actor_obscured_changed,
                                         window_actor);
-  if (!meta_surface_actor_is_obscured (surface_actor))
-    meta_window_uninhibit_suspend_state (priv->window);
+  if (meta_surface_actor_is_obscured (surface_actor))
+    priv->n_obscured_surfaces--;
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (surface_actor)))
+    priv->n_mapped_surfaces--;
+  update_is_effectively_visible  (window_actor);
 }
 
 void
@@ -433,9 +512,16 @@ meta_window_actor_add_surface_actor (MetaWindowActor  *window_actor,
                     "notify::is-obscured",
                     G_CALLBACK (is_surface_actor_obscured_changed),
                     window_actor);
-  if (!meta_surface_actor_is_obscured (surface_actor))
-    meta_window_inhibit_suspend_state (priv->window);
+  g_signal_connect (surface_actor,
+                    "notify::mapped",
+                    G_CALLBACK (is_surface_actor_mapped_changed),
+                    window_actor);
+  if (meta_surface_actor_is_obscured (surface_actor))
+    priv->n_obscured_surfaces++;
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (surface_actor)))
+    priv->n_mapped_surfaces++;
   g_ptr_array_add (priv->surface_actors, surface_actor);
+  update_is_effectively_visible  (window_actor);
 }
 
 void
@@ -458,9 +544,10 @@ on_clone_notify_mapped (ClutterClone    *clone,
     meta_window_actor_get_instance_private (window_actor);
 
   if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
-    meta_window_inhibit_suspend_state (priv->window);
+    priv->n_mapped_clones++;
   else
-    meta_window_uninhibit_suspend_state (priv->window);
+    priv->n_mapped_clones--;
+  update_is_effectively_visible  (window_actor);
 }
 
 static void
@@ -474,7 +561,8 @@ on_cloned (ClutterActor *actor,
   g_signal_connect (clone, "notify::mapped",
                     G_CALLBACK (on_clone_notify_mapped), actor);
   if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
-    meta_window_inhibit_suspend_state (priv->window);
+    priv->n_mapped_clones++;
+  update_is_effectively_visible  (window_actor);
 }
 
 static void
@@ -486,9 +574,9 @@ on_decloned (ClutterActor *actor,
     meta_window_actor_get_instance_private (window_actor);
 
   g_signal_handlers_disconnect_by_func (clone, on_clone_notify_mapped, actor);
-  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)) &&
-      priv->window)
-    meta_window_uninhibit_suspend_state (priv->window);
+  if (clutter_actor_is_mapped (CLUTTER_ACTOR (clone)))
+    priv->n_mapped_clones--;
+  update_is_effectively_visible  (window_actor);
 }
 
 static void
