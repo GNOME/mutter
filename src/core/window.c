@@ -2285,8 +2285,7 @@ update_suspend_state (MetaWindow *window)
   if (window->unmanaging)
     return;
 
-  if (!window->hidden &&
-      priv->suspend_state_inhibitors > 0)
+  if (priv->suspend_state_inhibitors > 0)
     {
       priv->suspend_state = META_WINDOW_SUSPEND_STATE_ACTIVE;
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_SUSPEND_STATE]);

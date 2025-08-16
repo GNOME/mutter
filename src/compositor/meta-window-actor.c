@@ -158,7 +158,13 @@ update_is_effectively_visible (MetaWindowActor *window_actor)
       goto out;
     }
 
-  is_visible = priv->n_mapped_surfaces > priv->n_obscured_surfaces;
+  if (priv->n_mapped_surfaces == priv->n_obscured_surfaces)
+    {
+      is_visible = FALSE;
+      goto out;
+    }
+
+  is_visible = clutter_actor_is_mapped (CLUTTER_ACTOR (window_actor));
 
 out:
   if (priv->is_effectively_visible == is_visible)
