@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-02-28 12:56+0100\n"
+"POT-Creation-Date: 2025-08-18 17:20+0000\n"
+"PO-Revision-Date: 2025-08-18 23:16+0200\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -312,8 +312,8 @@ msgstr "Pracovní plochy jsou spravovány dynamicky"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Určuje, zda jsou pracovní plochy spravovány dynamicky nebo jich je pevný "
 "počet (daný klíčem num-workspaces v org.gnome.desktop.wm.preferences)."
@@ -625,26 +625,66 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients, která toto nastavení řídí. Aby se "
 "nastavení projevilo, musí být Xwayland restartován."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_Vstup"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_Emulovat dotyk"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Blokovat klávesové zkratky"
+
+#: mdk/mdk-main-window.ui:19
+msgid "_About Mutter Development Kit"
+msgstr "O _aplikaci Vývojové prostředí Mutteru"
+
+#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+msgid "Mutter Development Kit"
+msgstr "Vývojové prostředí Mutteru"
+
+#: mdk/mdk-main-window.ui:35
+msgid "Main Menu"
+msgstr "Hlavní nabídka"
+
+#: mdk/mdk-main.c:69
+msgid "The Mutter Team"
+msgstr "Tým Mutteru"
+
+#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+msgid "Mutter software development kit"
+msgstr "Vývojové prostředí softwaru Mutteru"
+
+#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+msgid "About Mutter Development Kit"
+msgstr "O aplikaci Vývojové prostředí Mutteru"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Selhalo vytvoření monitoru"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Vestavěný displej"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Neznámý"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Neznámý displej"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -652,7 +692,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Událost zvonku"
 
@@ -664,74 +704,66 @@ msgstr "Soukromí obrazovky zapnuto"
 msgid "Privacy Screen Disabled"
 msgstr "Soukromí obrazovky vypnuto"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:632
 msgid "Replace the running window manager"
 msgstr "Nahradí běžícího správce oken"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:638
 msgid "X Display to use"
 msgstr "Displej X, který se má použít"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Zakázat připojení ke správci sezení"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Určit ID správy sezení"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Spustit sezení z uloženého souboru"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:644
 msgid "Make X calls synchronous"
 msgstr "Provádět volání X synchronně"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:652
 msgid "Run as a wayland compositor"
 msgstr "Spustit jako kompozitor protokolu Wayland"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:659
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:667
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:674
 msgid "Specify Wayland display name to use"
 msgstr "Určit název displeje Wayland, který se má používat"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:682
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:687
 msgid "Run as a headless display server"
 msgstr "Spustit jako server displeje bez monitoru"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:692
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Přidat trvalý virtuální monitor (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:709
+#: src/core/meta-context-main.c:699
+msgid "Run development kit"
+msgstr "Spustit vývojové prostředí"
+
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:717
 msgid "Profile performance using trace instrumentation"
 msgstr "Profilovat výkon pomocí instrumentace trasování"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:723
 msgid "Enable debug control D-Bus interface"
 msgstr "Povolit rozhraní D-Bus pro ovládání ladění"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Přepínač režimu (skupina %d)"
@@ -739,7 +771,7 @@ msgstr "Přepínač režimu (skupina %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Přepínač režimu"
@@ -747,11 +779,11 @@ msgstr "Přepínač režimu"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Přepnout monitor"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Zobrazit nápovědu na obrazovce"
 
@@ -773,7 +805,7 @@ msgstr "Zásuvný modul Mutter, který se má použít"
 msgid "Workspace %d"
 msgstr "Plocha %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter byl přeloženo bez podpory podrobného režimu"
 
@@ -781,12 +813,12 @@ msgstr "Mutter byl přeloženo bez podpory podrobného režimu"
 msgid "Workspace switched"
 msgstr "Přepnuta plocha"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Přepínač režimu: režim %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -795,19 +827,19 @@ msgstr ""
 "Displej „%s“ již správce oken má; zkuste prosím nahradit aktuálního správce "
 "oken pomocí přepínače --replace."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka %d na displeji „%s“ je neplatná"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -818,10 +850,19 @@ msgstr "Jiný kompozitní správce již běží na obrazovce %i displeje „%s�
 msgid "Format %s not supported"
 msgstr "Formát %s není podporován"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "Zakázat připojení ke správci sezení"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "Určit ID správy sezení"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "Spustit sezení z uloženého souboru"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "Přepnout na pracovní plochu nad"
