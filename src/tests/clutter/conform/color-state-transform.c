@@ -263,6 +263,25 @@ validate_transform (ClutterActor      *stage,
                                                  test_colors + i,
                                                  "blend -> output");
       g_assert_true (transform_passed);
+
+      if (test_colors[i].a == 1.0f)
+        {
+          cpu_color[0] = test_colors[i].r;
+          cpu_color[1] = test_colors[i].g;
+          cpu_color[2] = test_colors[i].b;
+
+          clutter_color_state_do_transform (src_color_state,
+                                            output_color_state,
+                                            cpu_color,
+                                            1);
+
+          transform_passed = validate_one_transform (output_fb,
+                                                     (int) (i * ACTOR_SIZE),
+                                                     cpu_color,
+                                                     test_colors + i,
+                                                     "source -> output");
+          g_assert_true (transform_passed);
+        }
     }
 }
 
