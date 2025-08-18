@@ -24,6 +24,7 @@
 #define __MTK_H_INSIDE__
 
 #include "mtk/mtk-anonymous-file.h"
+#include "mtk/mtk-dbus.h"
 #include "mtk/mtk-dispose-bin.h"
 #include "mtk/mtk-rectangle.h"
 #include "mtk/mtk-region.h"
