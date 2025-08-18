@@ -230,39 +230,42 @@ validate_transform (ClutterActor      *stage,
 
   for (int i = 0; i < G_N_ELEMENTS (test_colors); i++)
     {
-      /* Start unpremultiplied */
-      cpu_color[0] = test_colors[i].r;
-      cpu_color[1] = test_colors[i].g;
-      cpu_color[2] = test_colors[i].b;
+      if (blend_color_state)
+        {
+          /* Start unpremultiplied */
+          cpu_color[0] = test_colors[i].r;
+          cpu_color[1] = test_colors[i].g;
+          cpu_color[2] = test_colors[i].b;
 
-      clutter_color_state_do_transform (src_color_state,
-                                        blend_color_state,
-                                        cpu_color,
-                                        1);
+          clutter_color_state_do_transform (src_color_state,
+                                            blend_color_state,
+                                            cpu_color,
+                                            1);
 
-      /* Premultiply */
-      cpu_color[0] *= test_colors[i].a;
-      cpu_color[1] *= test_colors[i].a;
-      cpu_color[2] *= test_colors[i].a;
+          /* Premultiply */
+          cpu_color[0] *= test_colors[i].a;
+          cpu_color[1] *= test_colors[i].a;
+          cpu_color[2] *= test_colors[i].a;
 
-      transform_passed = validate_one_transform (blend_fb,
-                                                 (int) (i * ACTOR_SIZE),
-                                                 cpu_color,
-                                                 test_colors + i,
-                                                 "source -> blend");
-      g_assert_true (transform_passed);
+          transform_passed = validate_one_transform (blend_fb,
+                                                     (int) (i * ACTOR_SIZE),
+                                                     cpu_color,
+                                                     test_colors + i,
+                                                     "source -> blend");
+          g_assert_true (transform_passed);
 
-      clutter_color_state_do_transform (blend_color_state,
-                                        output_color_state,
-                                        cpu_color,
-                                        1);
+          clutter_color_state_do_transform (blend_color_state,
+                                            output_color_state,
+                                            cpu_color,
+                                            1);
 
-      transform_passed = validate_one_transform (output_fb,
-                                                 (int) (i * ACTOR_SIZE),
-                                                 cpu_color,
-                                                 test_colors + i,
-                                                 "blend -> output");
-      g_assert_true (transform_passed);
+          transform_passed = validate_one_transform (output_fb,
+                                                     (int) (i * ACTOR_SIZE),
+                                                     cpu_color,
+                                                     test_colors + i,
+                                                     "blend -> output");
+          g_assert_true (transform_passed);
+        }
 
       if (test_colors[i].a == 1.0f)
         {
@@ -420,9 +423,49 @@ color_state_transform_params_to_params (void)
   g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
 }
 
+static void
+color_state_transform_bt2020_to_bt2020 (void)
+{
+  ClutterContext *context = clutter_test_get_context ();
+  g_autoptr (ClutterColorState) src_color_state = NULL;
+  g_autoptr (ClutterColorState) output_color_state = NULL;
+  ClutterStageView *stage_view;
+  ClutterActor *stage;
+  GList *actors;
+
+  stage = clutter_test_get_stage ();
+
+  src_color_state =
+    clutter_color_state_params_new_full (context,
+                                         CLUTTER_COLORSPACE_BT2020,
+                                         CLUTTER_TRANSFER_FUNCTION_SRGB,
+                                         NULL,
+                                         -1.0f,
+                                         0.005f,
+                                         203.0f,
+                                         203.0f,
+                                         FALSE);
+  actors = create_actors (stage);
+  actors_set_color_state (actors, src_color_state);
+
+  output_color_state =
+    clutter_color_state_params_new (context,
+                                    CLUTTER_COLORSPACE_BT2020,
+                                    CLUTTER_TRANSFER_FUNCTION_PQ);
+  stage_view = get_stage_view (stage);
+  stage_view_set_color_state (stage_view, output_color_state);
+
+  wait_for_paint (stage);
+
+  validate_transform (stage, src_color_state, NULL, output_color_state);
+
+  g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/color-state-transform/icc-to-params", color_state_transform_icc_to_params)
   CLUTTER_TEST_UNIT ("/color-state-transform/params-to-icc", color_state_transform_params_to_icc)
   CLUTTER_TEST_UNIT ("/color-state-transform/icc-to-icc", color_state_transform_icc_to_icc)
   CLUTTER_TEST_UNIT ("/color-state-transform/params-to-params", color_state_transform_params_to_params)
+  CLUTTER_TEST_UNIT ("/color-state-transform/bt2020-to-bt2020", color_state_transform_bt2020_to_bt2020)
 )
