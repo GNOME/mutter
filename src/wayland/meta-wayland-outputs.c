@@ -527,11 +527,12 @@ delayed_destroy_outputs (gpointer data)
   g_hash_table_destroy (data);
 }
 
-static GHashTable *
+static void
 meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
                                         MetaMonitorManager    *monitor_manager)
 {
-  GHashTable *new_table;
+  g_autoptr (GHashTable) new_table = NULL;
+  g_autoptr (GHashTable) old_table = NULL;
   GList *monitors, *l;
 
   monitors = meta_monitor_manager_get_monitors (monitor_manager);
@@ -539,6 +540,7 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
                                      (GEqualFunc) meta_monitor_spec_equals,
                                      (GDestroyNotify) meta_monitor_spec_free,
                                      g_object_unref);
+  old_table = g_steal_pointer (&compositor->outputs);
 
   for (l = monitors; l; l = l->next)
     {
@@ -550,8 +552,8 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
       if (!meta_monitor_is_active (monitor))
         continue;
 
-      if (!compositor->outputs ||
-          !g_hash_table_steal_extended (compositor->outputs, lookup_monitor_spec,
+      if (!old_table ||
+          !g_hash_table_steal_extended (old_table, lookup_monitor_spec,
                                         (gpointer *) &monitor_spec,
                                         (gpointer *) &wayland_output))
         {
@@ -565,20 +567,21 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
                            g_steal_pointer (&wayland_output));
     }
 
-  if (compositor->outputs)
-    {
-      g_hash_table_foreach (compositor->outputs, make_output_inert, NULL);
-      g_timeout_add_seconds_once (10, delayed_destroy_outputs, compositor->outputs);
-    }
+  compositor->outputs = g_steal_pointer (&new_table);
 
-  return new_table;
+  if (old_table)
+    {
+      g_hash_table_foreach (old_table, make_output_inert, NULL);
+      g_timeout_add_seconds_once (10, delayed_destroy_outputs,
+                                  g_steal_pointer (&old_table));
+    }
 }
 
 static void
 on_monitors_changing (MetaMonitorManager    *monitors,
                       MetaWaylandCompositor *compositor)
 {
-  compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
+  meta_wayland_compositor_update_outputs (compositor, monitors);
 }
 
 static void
@@ -804,8 +807,7 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
   g_signal_connect (monitor_manager, "monitors-changing",
                     G_CALLBACK (on_monitors_changing), compositor);
 
-  compositor->outputs =
-    meta_wayland_compositor_update_outputs (compositor, monitor_manager);
+  meta_wayland_compositor_update_outputs (compositor, monitor_manager);
 
   wl_global_create (compositor->wayland_display,
                     &zxdg_output_manager_v1_interface,
