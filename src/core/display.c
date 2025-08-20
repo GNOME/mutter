@@ -1933,7 +1933,8 @@ in_tab_chain (MetaWindow  *window,
   return (type == META_TAB_LIST_NORMAL && in_normal_tab_chain)
          || (type == META_TAB_LIST_DOCKS && in_dock_tab_chain)
          || (type == META_TAB_LIST_GROUP && in_group_tab_chain)
-         || (type == META_TAB_LIST_NORMAL_ALL && in_normal_tab_chain_type);
+         || (type == META_TAB_LIST_NORMAL_ALL && in_normal_tab_chain_type)
+         || (type == META_TAB_LIST_NORMAL_ALL_MRU && in_normal_tab_chain_type);
 }
 
 static MetaWindow*
@@ -2078,7 +2079,9 @@ meta_display_get_tab_list (MetaDisplay   *display,
 {
   GList *tab_list = NULL;
   GList *global_mru_list = NULL;
-  GList *mru_list, *tmp;
+  g_autoptr(GList) minimized_tabs = NULL;
+  g_autoptr(GList) unminimized_tabs = NULL;
+  GList *mru_list, *l;
   GSList *windows = meta_display_list_windows (display, META_LIST_DEFAULT);
   GSList *w;
 
@@ -2092,26 +2095,30 @@ meta_display_get_tab_list (MetaDisplay   *display,
 
   mru_list = workspace ? workspace->mru_list : global_mru_list;
 
-  /* Windows sellout mode - MRU order. Collect unminimized windows
-   * then minimized so minimized windows aren't in the way so much.
+  /* Windows MRU ordering strategy:
+   * - NORMAL_ALL_MRU: Pure MRU order
+   * - Default: Unminimized windows first, minimized last (less intrusive)
    */
-  for (tmp = mru_list; tmp; tmp = tmp->next)
+  for (l = mru_list; l; l = l->next)
     {
-      MetaWindow *window = tmp->data;
+      MetaWindow *window = l->data;
 
-      if (!window->minimized && in_tab_chain (window, type))
-        tab_list = g_list_prepend (tab_list, window);
+      if (in_tab_chain (window, type))
+        {
+          if (type == META_TAB_LIST_NORMAL_ALL_MRU)
+            tab_list = g_list_prepend (tab_list, window);
+          else if (window->minimized)
+            minimized_tabs = g_list_prepend (minimized_tabs, window);
+          else
+            unminimized_tabs = g_list_prepend (unminimized_tabs, window);
+        }
     }
 
-  for (tmp = mru_list; tmp; tmp = tmp->next)
+  if (type != META_TAB_LIST_NORMAL_ALL_MRU)
     {
-      MetaWindow *window = tmp->data;
-
-      if (window->minimized && in_tab_chain (window, type))
-        tab_list = g_list_prepend (tab_list, window);
+      tab_list = g_list_concat (g_list_reverse (minimized_tabs),
+                                g_list_reverse (unminimized_tabs));
     }
-
-  tab_list = g_list_reverse (tab_list);
 
   /* If filtering by workspace, include windows from
    * other workspaces that demand attention
