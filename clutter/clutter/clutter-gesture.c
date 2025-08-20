@@ -836,6 +836,12 @@ clutter_gesture_handle_event (ClutterAction      *action,
   gboolean may_remove_point = TRUE;
   ClutterGestureState old_state = priv->state;
 
+  if (event_type == CLUTTER_TOUCHPAD_PINCH ||
+      event_type == CLUTTER_TOUCHPAD_SWIPE ||
+      event_type == CLUTTER_TOUCHPAD_HOLD ||
+      event_type == CLUTTER_SCROLL)
+    return CLUTTER_EVENT_PROPAGATE;
+
   if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_SYNTHETIC)
     return CLUTTER_EVENT_PROPAGATE;
 
