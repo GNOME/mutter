@@ -48,7 +48,7 @@ struct _MetaWaylandColorManager
   /* struct wl_resource */
   GList *resources;
 
-  /* Key:   MetaMonitor
+  /* Key:   MetaWaylandOutput
    * Value: MetaWaylandColorManagementOutput
    */
   GHashTable *outputs;
@@ -836,9 +836,7 @@ meta_wayland_color_management_output_new (MetaWaylandColorManager *color_manager
                       G_CALLBACK (on_output_destroyed),
                       cm_output);
 
-  g_hash_table_insert (color_manager->outputs,
-                       meta_wayland_output_get_monitor (output),
-                       cm_output);
+  g_hash_table_insert (color_manager->outputs, output, cm_output);
 
   return cm_output;
 }
@@ -860,8 +858,7 @@ meta_wayland_color_management_output_free (MetaWaylandColorManagementOutput *cm_
   g_clear_signal_handler (&cm_output->output_destroyed_handler_id,
                           cm_output->output);
 
-  g_hash_table_remove (cm_output->color_manager->outputs,
-                       meta_wayland_output_get_monitor (cm_output->output));
+  g_hash_table_remove (cm_output->color_manager->outputs, cm_output->output);
 
   free (cm_output);
 }
@@ -872,8 +869,7 @@ ensure_color_management_output (MetaWaylandColorManager *color_manager,
 {
   MetaWaylandColorManagementOutput *cm_output;
 
-  cm_output = g_hash_table_lookup (color_manager->outputs,
-                                   meta_wayland_output_get_monitor (output));
+  cm_output = g_hash_table_lookup (color_manager->outputs, output);
   if (cm_output)
     return cm_output;
 
@@ -1816,7 +1812,10 @@ update_output_color_state (MetaWaylandColorManager *color_manager,
   MetaWaylandColorManagementSurface *cm_surface;
   MetaWaylandOutput *wayland_output;
 
-  cm_output = g_hash_table_lookup (color_manager->outputs, monitor);
+  wayland_output = g_hash_table_lookup (color_manager->compositor->outputs,
+                                        meta_monitor_get_spec (monitor));
+
+  cm_output = g_hash_table_lookup (color_manager->outputs, wayland_output);
 
   if (cm_output)
     {
@@ -1829,9 +1828,6 @@ update_output_color_state (MetaWaylandColorManager *color_manager,
           wp_color_management_output_v1_send_image_description_changed (resource);
         }
     }
-
-  wayland_output = g_hash_table_lookup (color_manager->compositor->outputs,
-                                        meta_monitor_get_spec (monitor));
 
   g_hash_table_iter_init (&iter_surfaces, color_manager->surfaces);
   while (g_hash_table_iter_next (&iter_surfaces, NULL, (gpointer *)&cm_surface))
