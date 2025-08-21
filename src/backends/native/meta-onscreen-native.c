@@ -107,6 +107,13 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   MetaDrmBuffer *source_framebuffer;
 } MetaOnscreenNativeSecondaryGpuState;
 
+typedef struct _RenderSource
+{
+  GSource source;
+  MetaOnscreenNative *onscreen_native;
+  GHashTable *frames;
+} RenderSource;
+
 typedef struct _KmsProperty
 {
   gboolean invalidated;
@@ -149,6 +156,8 @@ struct _MetaOnscreenNative
 
   MetaRendererView *view;
 
+  GSource *render_source;
+
   union {
     struct {
       KmsProperty gamma_lut;
@@ -175,6 +184,197 @@ static gboolean
 init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                           CoglOnscreen        *onscreen,
                           GError             **error);
+
+static MetaEgl *
+meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native);
+
+static void
+render_source_remove_frame (GSource      *source,
+                            ClutterFrame *frame)
+{
+  RenderSource *render_source;
+
+  if (!source || !frame)
+    return;
+
+  render_source = (RenderSource *) source;
+  if (g_hash_table_contains (render_source->frames, frame))
+    {
+      MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
+
+      meta_frame_native_remove_source (frame_native, source);
+      g_hash_table_remove (render_source->frames, frame);
+    }
+}
+
+static void
+render_source_add_frame (GSource      *source,
+                         ClutterFrame *frame)
+{
+  RenderSource *render_source;
+  MetaFrameNative *frame_native;
+
+  g_return_if_fail (source != NULL);
+  g_return_if_fail (frame != NULL);
+
+  render_source = (RenderSource *) source;
+  g_return_if_fail (!g_hash_table_contains (render_source->frames, frame));
+
+  frame_native = meta_frame_native_from_frame (frame);
+  meta_frame_native_add_source (frame_native, source);
+  g_hash_table_insert (render_source->frames, clutter_frame_ref (frame), NULL);
+}
+
+static gboolean
+render_source_ready (GSource *source)
+{
+  RenderSource *render_source = (RenderSource *) source;
+  MetaOnscreenNative *onscreen_native = render_source->onscreen_native;
+  ClutterFrame *frame = onscreen_native->next_frame;
+  MetaFrameNative *frame_native;
+
+  if (frame == NULL)
+    return FALSE;
+
+  if (!g_hash_table_contains (render_source->frames, frame))
+    return FALSE;
+
+  frame_native = meta_frame_native_from_frame (frame);
+  return meta_frame_native_is_ready (frame_native);
+}
+
+static void
+maybe_post_next_frame_if_gl_finished (CoglOnscreen *onscreen)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  RenderSource *render_source = (RenderSource *) onscreen_native->render_source;
+  ClutterFrame *frame = onscreen_native->next_frame;
+
+  if (frame == NULL)
+    return;
+
+  if (render_source &&
+      g_hash_table_contains (render_source->frames, frame) &&
+      !meta_frame_native_is_ready (meta_frame_native_from_frame (frame)))
+    {
+      return;
+    }
+
+  maybe_post_next_frame (onscreen);
+}
+
+static gboolean
+render_source_prepare (GSource *source,
+                       gint    *timeout_ms)
+{
+  *timeout_ms = -1;
+
+  return render_source_ready (source);
+}
+
+static gboolean
+render_source_check (GSource *source)
+{
+  return render_source_ready (source);
+}
+
+static gboolean
+render_source_dispatch (GSource     *source,
+                        GSourceFunc  callback,
+                        gpointer     user_data)
+{
+  if (callback)
+    callback (user_data);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+render_source_finalize (GSource *source)
+{
+  RenderSource *render_source = (RenderSource *) source;
+
+  g_clear_pointer (&render_source->frames, g_hash_table_destroy);
+}
+
+static void
+maybe_init_render_source (MetaOnscreenNative *onscreen_native)
+{
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  const char *force_render_source;
+  gboolean use_render_source;
+
+  force_render_source = g_getenv ("MUTTER_DEBUG_FORCE_RENDER_SOURCE");
+  if (force_render_source != NULL)
+    {
+      use_render_source = g_strcmp0 (force_render_source, "0") != 0;
+    }
+  else
+    {
+      MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state =
+        onscreen_native->secondary_gpu_state;
+      gboolean output_gpu_is_nvidia;
+
+      if (secondary_gpu_state)
+        {
+          MetaRendererNativeGpuData *renderer_gpu_data =
+            secondary_gpu_state->renderer_gpu_data;
+
+          output_gpu_is_nvidia = renderer_gpu_data->secondary.is_nvidia;
+        }
+      else
+        {
+          MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+          EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+          const char *egl_vendor =
+            meta_egl_query_string (egl, egl_display, EGL_VENDOR);
+          output_gpu_is_nvidia =
+            g_strcmp0 (egl_vendor, "NVIDIA") == 0;
+        }
+
+      /* TODO: When the secondary GPU path is wired up with working sync_fd's
+       *       this can change to: use_render_source = output_gpu_is_nvidia;
+       */
+      use_render_source = output_gpu_is_nvidia && !secondary_gpu_state;
+    }
+
+  if (use_render_source)
+    {
+      static GSourceFuncs render_source_funcs = {
+        .prepare = render_source_prepare,
+        .check = render_source_check,
+        .dispatch = render_source_dispatch,
+        .finalize = render_source_finalize,
+      };
+      GSource *source;
+      RenderSource *render_source;
+
+      if (!cogl_context_has_winsys_feature (cogl_context,
+                                            COGL_WINSYS_FEATURE_SYNC_FD))
+        {
+          g_warning ("Render source feature was requested but is disabled "
+                     "due to lack of driver support.");
+          return;
+        }
+
+      source = g_source_new (&render_source_funcs, sizeof (RenderSource));
+      onscreen_native->render_source = source;
+      render_source = (RenderSource *) source;
+      render_source->frames = g_hash_table_new_full (g_direct_hash,
+                                                     g_direct_equal,
+                                                     (GDestroyNotify) clutter_frame_unref,
+                                                     NULL);
+      render_source->onscreen_native = onscreen_native;
+      g_source_set_name (source, "MetaOnscreenNative.render_source");
+      g_source_set_can_recurse (source, FALSE);
+      g_source_set_callback (source,
+                             (GSourceFunc) maybe_post_next_frame_if_gl_finished,
+                             onscreen_native,
+                             NULL);
+      g_source_attach (source, NULL);
+    }
+}
 
 static void
 meta_onscreen_native_promote_posted_frame (CoglOnscreen *onscreen)
@@ -283,7 +483,7 @@ notify_view_crtc_presented (MetaRendererView *view,
 
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_promote_posted_frame (onscreen);
-  maybe_post_next_frame (onscreen);
+  maybe_post_next_frame_if_gl_finished (onscreen);
 }
 
 static void
@@ -340,7 +540,7 @@ page_flip_feedback_ready (MetaKmsCrtc *kms_crtc,
 
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_promote_posted_frame (onscreen);
-  maybe_post_next_frame (onscreen);
+  maybe_post_next_frame_if_gl_finished (onscreen);
 }
 
 static void
@@ -408,7 +608,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
 
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_clear_posted_fb (onscreen);
-  maybe_post_next_frame (onscreen);
+  maybe_post_next_frame_if_gl_finished (onscreen);
 }
 
 static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
@@ -1615,6 +1815,8 @@ assign_next_frame (MetaOnscreenNative *onscreen_native,
 
   if (onscreen_native->next_frame != NULL)
     {
+      render_source_remove_frame (onscreen_native->render_source,
+                                  onscreen_native->next_frame);
       clear_superseded_frame (onscreen);
       onscreen_native->superseded_frame =
         g_steal_pointer (&onscreen_native->next_frame);
@@ -1654,6 +1856,21 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Meta::OnscreenNative::swap_buffers_with_damage()");
 
+  if (onscreen_native->next_frame != NULL)
+    {
+      /* This is needed to make sure we lock the correct front buffer for the
+       * new frame, as eglSwapBuffers() swaps what is the active front buffer.
+       *
+       * On Nvidia this will result in potentially synchronously waiting for
+       * pending GPU work.
+       */
+      cogl_framebuffer_flush (framebuffer);
+      maybe_post_next_frame (onscreen);
+
+      if (onscreen_native->next_frame != NULL)
+        goto swap_failed;
+    }
+
   secondary_gpu_fb =
     update_secondary_gpu_state_pre_swap_buffers (onscreen, region);
 
@@ -1672,8 +1889,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                           user_data);
 
   sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
-  if (sync_fd >= 0)
-    meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
 
   assign_next_frame (onscreen_native, frame);
 
@@ -1682,7 +1897,23 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 
   meta_frame_native_set_damage (frame_native, region);
 
-  maybe_post_next_frame (onscreen);
+  if (sync_fd >= 0)
+    {
+      meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
+      if (onscreen_native->render_source)
+        render_source_add_frame (onscreen_native->render_source, frame);
+      else
+        maybe_post_next_frame (onscreen);
+    }
+  else
+    {
+      maybe_post_next_frame (onscreen);
+    }
+
+  return;
+
+swap_failed:
+  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
 }
 
 static void
@@ -1721,8 +1952,19 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
 
   COGL_TRACE_SCOPED_ANCHOR (MetaRendererNativePostKmsUpdate);
 
-  if (onscreen_native->next_frame == NULL ||
-      onscreen_native->posted_frame != NULL ||
+  if (onscreen_native->next_frame == NULL)
+    return;
+
+  /* Prevent a busy wait. Even if we're not ready to post next_frame yet,
+   * the render source has done its job by getting us here at least once.
+   * If we need to come back here later to retry then it will be via the
+   * presentation-related callbacks. So spinning the render source until
+   * then would be a waste. Especially if the monitor is in power saving.
+   */
+  render_source_remove_frame (onscreen_native->render_source,
+                              onscreen_native->next_frame);
+
+  if (onscreen_native->posted_frame != NULL ||
       onscreen_native->view == NULL ||
       meta_kms_is_shutting_down (kms))
     return;
@@ -2397,6 +2639,9 @@ meta_onscreen_native_discard_pending_swaps (CoglOnscreen *onscreen)
     g_clear_object (&secondary_gpu_state->source_framebuffer);
 
   discard_pending_swap (&onscreen_native->superseded_frame);
+
+  render_source_remove_frame (onscreen_native->render_source,
+                              onscreen_native->next_frame);
   discard_pending_swap (&onscreen_native->next_frame);
 }
 
@@ -2821,6 +3066,8 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
         return FALSE;
     }
 
+  maybe_init_render_source (onscreen_native);
+
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
 
@@ -3230,6 +3477,7 @@ meta_onscreen_native_dispose (GObject *object)
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
+  g_clear_pointer (&onscreen_native->render_source, g_source_destroy);
   meta_onscreen_native_detach (onscreen_native);
 
   meta_onscreen_native_discard_pending_swaps (onscreen);
