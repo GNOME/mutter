@@ -77,9 +77,6 @@ cogl_context_dispose (GObject *object)
   if (context->blit_texture_pipeline)
     g_object_unref (context->blit_texture_pipeline);
 
-  if (context->swap_callback_closures)
-    g_hash_table_destroy (context->swap_callback_closures);
-
   if (context->journal_flush_attributes_array)
     g_array_free (context->journal_flush_attributes_array, TRUE);
   if (context->journal_clip_bounds)
@@ -287,9 +284,6 @@ cogl_context_new (CoglDisplay *display,
   context->current_draw_buffer_state_flushed = 0;
   context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
 
-  context->swap_callback_closures =
-    g_hash_table_new (g_direct_hash, g_direct_equal);
-
   _cogl_list_init (&context->onscreen_events_queue);
   _cogl_list_init (&context->onscreen_dirty_queue);
 
@@ -305,7 +299,6 @@ cogl_context_new (CoglDisplay *display,
   _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
   _cogl_bitmask_init (&context->changed_bits_tmp);
 
-  context->max_texture_units = -1;
   context->max_activateable_texture_units = -1;
 
   context->current_gl_program = 0;
