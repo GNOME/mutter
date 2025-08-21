@@ -69,10 +69,6 @@ struct _CoglContext
 
   CoglDisplay *display;
 
-  int glsl_major;
-  int glsl_minor;
-  gboolean glsl_es;
-
   /* Features cache */
   unsigned long features[COGL_FLAGS_N_LONGS_FOR_SIZE (_COGL_N_FEATURE_IDS)];
   unsigned long private_features

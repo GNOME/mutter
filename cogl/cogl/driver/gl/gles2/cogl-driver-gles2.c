@@ -697,7 +697,8 @@ static gboolean
 check_glsl_version (CoglContext  *ctx,
                     GError      **error)
 {
-  int major, minor;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  int driver_major, driver_minor, major, minor;
 
   if (!_cogl_get_glsl_version (ctx, &major, &minor))
     {
@@ -708,13 +709,15 @@ check_glsl_version (CoglContext  *ctx,
       return FALSE;
     }
 
-  if (!COGL_CHECK_GL_VERSION (major, minor, ctx->glsl_major, ctx->glsl_minor))
+  cogl_driver_gl_get_glsl_version (COGL_DRIVER_GL (driver),
+                                   &driver_major, &driver_minor);
+  if (!COGL_CHECK_GL_VERSION (major, minor, driver_major, driver_minor))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_INVALID_VERSION,
                    "GLSL ES %d%d0 or better is required",
-                   ctx->glsl_major, ctx->glsl_minor);
+                   driver_major, driver_minor);
       return FALSE;
     }
 
@@ -741,10 +744,6 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
 
   if (!check_gl_version (context, error))
     return FALSE;
-
-  context->glsl_major = 1;
-  context->glsl_minor = 0;
-  context->glsl_es = TRUE;
 
   if (!check_glsl_version (context, error))
     return FALSE;
@@ -1012,4 +1011,10 @@ cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
 static void
 cogl_driver_gles2_init (CoglDriverGLES2 *driver)
 {
+  CoglDriverGLPrivate *priv =
+    cogl_driver_gl_get_private (COGL_DRIVER_GL (driver));
+
+  priv->glsl_major = 1;
+  priv->glsl_minor = 0;
+  priv->glsl_es = TRUE;
 }

@@ -569,3 +569,24 @@ cogl_driver_gl_get_private (CoglDriverGL *driver)
 {
   return cogl_driver_gl_get_instance_private (driver);
 }
+
+gboolean
+cogl_driver_gl_is_es (CoglDriverGL *driver)
+{
+  CoglDriverGLPrivate *priv =
+    cogl_driver_gl_get_instance_private (driver);
+
+  return priv->glsl_es;
+}
+
+void
+cogl_driver_gl_get_glsl_version (CoglDriverGL *driver,
+                                 int          *major,
+                                 int          *minor)
+{
+  CoglDriverGLPrivate *priv =
+    cogl_driver_gl_get_instance_private (driver);
+
+  *major = priv->glsl_major;
+  *minor = priv->glsl_minor;
+}

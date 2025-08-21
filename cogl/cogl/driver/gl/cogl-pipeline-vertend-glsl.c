@@ -38,6 +38,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-pipeline-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 
@@ -190,23 +191,30 @@ add_layer_fragment_boilerplate_cb (CoglPipelineLayer *layer,
 }
 
 static char *
-glsl_version_string (CoglContext *ctx)
+glsl_version_string (CoglDriverGL *driver)
 {
-  gboolean needs_es_annotation = ctx->glsl_es && ctx->glsl_major > 1;
+  int major, minor;
+  gboolean needs_es_annotation;
+
+  cogl_driver_gl_get_glsl_version (driver, &major, &minor);
+  needs_es_annotation = cogl_driver_gl_is_es (driver) && major > 1;
 
   return g_strdup_printf ("%d%02d%s",
-                          ctx->glsl_major,
-                          ctx->glsl_minor,
+                          major,
+                          minor,
                           needs_es_annotation ? " es" : "");
 }
 
 static gboolean
-is_glsl140_syntax (CoglContext *ctx)
+is_glsl140_syntax (CoglDriverGL *driver)
 {
-  if (ctx->glsl_es)
-    return COGL_CHECK_GL_VERSION (ctx->glsl_major, ctx->glsl_minor, 3, 0);
+  int major, minor;
 
-  return COGL_CHECK_GL_VERSION (ctx->glsl_major, ctx->glsl_minor, 1, 40);
+  cogl_driver_gl_get_glsl_version (driver, &major, &minor);
+  if (cogl_driver_gl_is_es (driver))
+    return COGL_CHECK_GL_VERSION (major, minor, 3, 0);
+
+  return COGL_CHECK_GL_VERSION (major, minor, 1, 40);
 }
 
 void
@@ -218,6 +226,8 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
                                                const char **strings_in,
                                                const GLint *lengths_in)
 {
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
   const char **strings = g_alloca (sizeof (char *) * (count_in + 5));
   GLint *lengths = g_alloca (sizeof (GLint) * (count_in + 5));
   g_autofree char *glsl_version = NULL;
@@ -226,7 +236,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
   int n_layers;
   g_autoptr (GString) layer_declarations = NULL;
 
-  glsl_version = glsl_version_string (ctx);
+  glsl_version = glsl_version_string (driver_gl);
   version_string = g_strdup_printf ("#version %s\n\n", glsl_version);
 
   strings[count] = version_string;
@@ -242,7 +252,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
 
   if (shader_gl_type == GL_VERTEX_SHADER)
     {
-      if (is_glsl140_syntax (ctx))
+      if (is_glsl140_syntax (driver_gl))
         {
           strings[count] = _COGL_VERTEX_SHADER_FALLBACK_BOILERPLATE;
           lengths[count++] = strlen (_COGL_VERTEX_SHADER_FALLBACK_BOILERPLATE);
@@ -253,7 +263,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
     }
   else if (shader_gl_type == GL_FRAGMENT_SHADER)
     {
-      if (is_glsl140_syntax (ctx))
+      if (is_glsl140_syntax (driver_gl))
         {
           strings[count] = _COGL_FRAGMENT_SHADER_FALLBACK_BOILERPLATE;
           lengths[count++] = strlen (_COGL_FRAGMENT_SHADER_FALLBACK_BOILERPLATE);
