@@ -840,10 +840,26 @@ scale_and_transform_cursor_sprite_cpu (MetaCursorRendererNative *cursor_renderer
   if (!src_texture)
     return NULL;
 
+  if (dst_width < 1 || dst_height < 1)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Invalid size for cursor texture %d x %d",
+                   dst_width, dst_height);
+      return NULL;
+    }
+
   dst_texture = cogl_texture_2d_new_with_format (cogl_context,
                                                  dst_width,
                                                  dst_height,
                                                  dst_format);
+  if (!dst_texture)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to create cursor texture for size %d x %d and format %d",
+                   dst_width, dst_height, dst_format);
+      return NULL;
+    }
+
   offscreen = cogl_offscreen_new_with_texture (dst_texture);
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (offscreen), error))
     return NULL;
