@@ -111,17 +111,6 @@ struct _MetaOutputAssignment
   MetaColorMode color_mode;
 };
 
-/*
- * MetaOutputCtm:
- *
- * A 3x3 color transform matrix in the fixed-point S31.32 sign-magnitude format
- * used by DRM.
- */
-typedef struct _MetaOutputCtm
-{
-  uint64_t matrix[9];
-} MetaOutputCtm;
-
 #define META_TYPE_MONITOR_MANAGER            (meta_monitor_manager_get_type ())
 #define META_MONITOR_MANAGER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_MONITOR_MANAGER, MetaMonitorManager))
 #define META_MONITOR_MANAGER_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_MONITOR_MANAGER, MetaMonitorManagerClass))
@@ -247,8 +236,8 @@ struct _MetaMonitorManagerClass
 
   MetaLogicalMonitorLayoutMode (* get_default_layout_mode) (MetaMonitorManager *manager);
 
-  void (* set_output_ctm) (MetaOutput          *output,
-                           const MetaOutputCtm *ctm);
+  void (* set_output_ctm) (MetaOutput    *output,
+                           const MetaCtm *ctm);
 
   MetaVirtualMonitor * (* create_virtual_monitor) (MetaMonitorManager            *manager,
                                                    const MetaVirtualMonitorInfo  *info,

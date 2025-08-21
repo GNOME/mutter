@@ -347,6 +347,51 @@ meta_gamma_lut_equal (const MetaGammaLut *gamma,
                  gamma->size * sizeof (uint16_t)) == 0;
 }
 
+void
+meta_ctm_free (MetaCtm *ctm)
+{
+  g_free (ctm);
+}
+
+MetaCtm *
+meta_ctm_new (void)
+{
+  MetaCtm *ctm = g_new0 (MetaCtm, 1);
+
+  /* Initialize as identity matrix in S31.32 fixed-point format */
+  ctm->matrix[0] = (int64_t)1 << 32;
+  ctm->matrix[4] = (int64_t)1 << 32;
+  ctm->matrix[8] = (int64_t)1 << 32;
+
+  return ctm;
+}
+
+MetaCtm *
+meta_ctm_copy (const MetaCtm *src_ctm)
+{
+  MetaCtm *dst_ctm;
+  g_return_val_if_fail (src_ctm != NULL, NULL);
+
+  dst_ctm = g_new (MetaCtm, 1);
+  dst_ctm = g_memdup2 (src_ctm, sizeof (*src_ctm));
+
+  return dst_ctm;
+}
+
+gboolean
+meta_ctm_equal (const MetaCtm *ctm,
+                const MetaCtm *other_ctm)
+{
+  if (ctm == other_ctm)
+    return TRUE;
+
+  if (ctm == NULL || other_ctm == NULL)
+    return FALSE;
+
+  return memcmp (ctm->matrix, other_ctm->matrix,
+                 9 * sizeof (uint64_t)) == 0;
+}
+
 static void
 meta_crtc_set_property (GObject      *object,
                         guint         prop_id,

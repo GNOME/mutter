@@ -3546,7 +3546,7 @@ meta_monitor_manager_handle_set_output_ctm  (MetaDBusDisplayConfig *skeleton,
   MetaMonitorManagerClass *klass;
   GList *combined_outputs;
   MetaOutput *output;
-  MetaOutputCtm ctm;
+  MetaCtm ctm;
   int i;
 
   if (serial != manager->serial)

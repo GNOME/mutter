@@ -131,6 +131,15 @@ META_EXPORT_TEST
 gboolean meta_gamma_lut_equal (const MetaGammaLut *gamma,
                                const MetaGammaLut *other_gamma);
 
+void meta_ctm_free (MetaCtm *ctm);
+
+MetaCtm * meta_ctm_new (void);
+
+MetaCtm * meta_ctm_copy (const MetaCtm *ctm);
+
+gboolean meta_ctm_equal (const MetaCtm *ctm,
+                         const MetaCtm *other_ctm);
+
 META_EXPORT_TEST
 MetaCrtcConfig * meta_crtc_config_new (graphene_rect_t     *layout,
                                        MetaCrtcMode        *mode,

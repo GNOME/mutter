@@ -575,6 +575,26 @@ meta_kms_update_set_crtc_degamma (MetaKmsUpdate      *update,
 }
 
 void
+meta_kms_update_set_crtc_ctm (MetaKmsUpdate *update,
+                              MetaKmsCrtc   *crtc,
+                              const MetaCtm *ctm)
+{
+  MetaKmsCrtcColorUpdate *color_update;
+  MetaCtm *ctm_update = NULL;
+
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+
+  if (ctm)
+    ctm_update = meta_ctm_copy (ctm);
+
+  color_update = ensure_color_update (update, crtc);
+  color_update->ctm.state = ctm_update;
+  color_update->ctm.has_update = TRUE;
+
+  update_latch_crtc (update, crtc);
+}
+
+void
 meta_kms_update_set_crtc_gamma (MetaKmsUpdate      *update,
                                 MetaKmsCrtc        *crtc,
                                 const MetaGammaLut *gamma)
@@ -600,6 +620,8 @@ meta_kms_crtc_color_updates_free (MetaKmsCrtcColorUpdate *color_update)
 {
   if (color_update->degamma.has_update)
     g_clear_pointer (&color_update->degamma.state, meta_gamma_lut_free);
+  if (color_update->ctm.has_update)
+    g_clear_pointer (&color_update->ctm.state, meta_ctm_free);
   if (color_update->gamma.has_update)
     g_clear_pointer (&color_update->gamma.state, meta_gamma_lut_free);
   g_free (color_update);

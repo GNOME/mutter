@@ -868,6 +868,33 @@ process_crtc_color_updates (MetaKmsImplDevice  *impl_device,
         return FALSE;
     }
 
+  if (color_update->ctm.has_update)
+    {
+      MetaCtm *ctm = color_update->ctm.state;
+      struct drm_color_ctm drm_color_ctm;
+      uint32_t ctm_blob_id = 0;
+      int i;
+
+      for (i = 0; i < 9; i++)
+        drm_color_ctm.matrix[i] = ctm->matrix[i];
+
+      ctm_blob_id = store_new_blob (impl_device, blob_ids,
+                                    &drm_color_ctm, sizeof drm_color_ctm,
+                                    error);
+      if (!ctm_blob_id)
+        return FALSE;
+
+      meta_topic (META_DEBUG_KMS,
+                  "[atomic] Setting CRTC (%u, %s) ctm",
+                  meta_kms_crtc_get_id (crtc),
+                  meta_kms_impl_device_get_path (impl_device));
+
+      if (!add_crtc_property (impl_device, crtc, req,
+                              META_KMS_CRTC_PROP_CTM,
+                              ctm_blob_id, error))
+        return FALSE;
+    }
+
   if (color_update->gamma.has_update)
     {
       uint32_t gamma_blob_id;

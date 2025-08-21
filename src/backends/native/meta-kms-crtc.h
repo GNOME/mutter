@@ -46,6 +46,11 @@ typedef struct _MetaKmsCrtcState
   } degamma;
 
   struct {
+    MetaCtm *value;
+    gboolean supported;
+  } ctm;
+
+  struct {
     MetaGammaLut *value;
     int size;
     gboolean supported;
