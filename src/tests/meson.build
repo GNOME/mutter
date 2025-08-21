@@ -973,6 +973,7 @@ wayland_test_cases = [
       test_client_executables.get('fractional-scale'),
       test_client_executables.get('fullscreen'),
       test_client_executables.get('idle-inhibit'),
+      test_client_executables.get('invalid-size-limits-on-map-client'),
       test_client_executables.get('invalid-subsurfaces'),
       test_client_executables.get('invalid-xdg-shell-actions'),
       test_client_executables.get('kms-cursor-hotplug-helper'),

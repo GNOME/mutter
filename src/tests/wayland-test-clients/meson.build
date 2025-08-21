@@ -142,6 +142,9 @@ wayland_test_clients = [
   {
     'name': 'buffer-less-viewport-client',
   },
+  {
+    'name': 'invalid-size-limits-on-map-client',
+  },
 ]
 
 test_client_executables = {}

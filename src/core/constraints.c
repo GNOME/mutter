@@ -1546,6 +1546,9 @@ constrain_size_limits (MetaWindow         *window,
   if (mtk_rectangle_is_empty (&info->current))
     return TRUE;
 
+  if (info->flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE)
+    return TRUE;
+
   /* Determine whether constraint is already satisfied; exit if it is */
   get_size_limits (window, &min_size, &max_size);
   /* We ignore max-size limits for maximized windows; see #327543 */
