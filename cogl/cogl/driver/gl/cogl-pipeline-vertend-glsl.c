@@ -31,6 +31,7 @@
  *   Neil Roberts <neil@linux.intel.com>
  */
 
+#include "cogl-driver-gl-private.h"
 #include "config.h"
 
 #include <string.h>
@@ -192,21 +193,30 @@ add_layer_fragment_boilerplate_cb (CoglPipelineLayer *layer,
 static char *
 glsl_version_string (CoglContext *ctx)
 {
-  gboolean needs_es_annotation = ctx->glsl_es && ctx->glsl_major > 1;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  int major, minor;
+  gboolean needs_es_annotation;
+
+  cogl_driver_gl_get_version (ctx, &major, &minor);
+  needs_es_annotation = cogl_driver_gl_is_es (COGL_DRIVER_GL (driver)) && major > 1;
 
   return g_strdup_printf ("%d%02d%s",
-                          ctx->glsl_major,
-                          ctx->glsl_minor,
+                          major,
+                          minor,
                           needs_es_annotation ? " es" : "");
 }
 
 static gboolean
 is_glsl140_syntax (CoglContext *ctx)
 {
-  if (ctx->glsl_es)
-    return COGL_CHECK_GL_VERSION (ctx->glsl_major, ctx->glsl_minor, 3, 0);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  int major, minor;
 
-  return COGL_CHECK_GL_VERSION (ctx->glsl_major, ctx->glsl_minor, 1, 40);
+  cogl_driver_gl_get_version (ctx, &major, &minor);
+  if (cogl_driver_gl_is_es (COGL_DRIVER_GL (driver)))
+    return COGL_CHECK_GL_VERSION (major, minor, 3, 0);
+
+  return COGL_CHECK_GL_VERSION (major, minor, 1, 40);
 }
 
 void

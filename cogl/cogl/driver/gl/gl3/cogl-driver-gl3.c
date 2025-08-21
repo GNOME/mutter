@@ -500,7 +500,8 @@ static gboolean
 check_glsl_version (CoglContext  *ctx,
                     GError      **error)
 {
-  int major, minor;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  int major, minor, driver_major, driver_minor;
 
   if (!_cogl_get_glsl_version (ctx, &major, &minor))
     {
@@ -511,13 +512,14 @@ check_glsl_version (CoglContext  *ctx,
       return FALSE;
     }
 
-  if (!COGL_CHECK_GL_VERSION (major, minor, ctx->glsl_major, ctx->glsl_minor))
+  cogl_driver_gl_get_version (driver, &driver_major, &driver_minor);
+  if (!COGL_CHECK_GL_VERSION (major, minor, driver_major, driver_minor))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_INVALID_VERSION,
                    "GLSL %d%d0 or better is required",
-                   ctx->glsl_major, ctx->glsl_minor);
+                   driver_major, driver_minor);
       return FALSE;
     }
 
@@ -544,10 +546,6 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
 
   if (!check_gl_version (ctx, error))
     return FALSE;
-
-  ctx->glsl_major = 1;
-  ctx->glsl_minor = 40;
-  ctx->glsl_es = FALSE;
 
   if (!check_glsl_version (ctx, error))
     return FALSE;
@@ -764,4 +762,10 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
 static void
 cogl_driver_gl3_init (CoglDriverGL3 *driver)
 {
+  CoglDriverGLPrivate *priv =
+    cogl_driver_gl_get_private (COGL_DRIVER_GL (driver));
+
+  priv->glsl_major = 1;
+  priv->glsl_minor = 40;
+  priv->glsl_es = FALSE;
 }

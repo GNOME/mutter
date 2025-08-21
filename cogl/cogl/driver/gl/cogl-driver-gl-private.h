@@ -32,6 +32,10 @@
 
 typedef struct _CoglDriverGLPrivate
 {
+  int glsl_major;
+  int glsl_minor;
+  gboolean glsl_es;
+
   GArray *texture_units;
   int active_texture_unit;
 
@@ -92,3 +96,9 @@ struct _CoglDriverGLClass
 #define COGL_TYPE_DRIVER_GL (cogl_driver_gl_get_type ())
 
 CoglDriverGLPrivate * cogl_driver_gl_get_private (CoglDriverGL *driver);
+
+gboolean cogl_driver_gl_is_es (CoglDriverGL *driver);
+
+void cogl_driver_gl_get_version (CoglDriverGL *driver,
+                                 int          *major,
+                                 int          *minor);
