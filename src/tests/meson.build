@@ -1147,6 +1147,7 @@ stacking_tests = [
   'auto-maximize-dialog',
   'drag-restore-maximized',
   'monitors-changed-position',
+  'multi-monitor-placement',
 ]
 
 foreach stacking_test: stacking_tests
