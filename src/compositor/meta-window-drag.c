@@ -174,13 +174,22 @@ hide_tile_preview (MetaWindowDrag *window_drag)
 }
 
 static void
-meta_window_drag_finalize (GObject *object)
+meta_window_drag_dispose (GObject *object)
 {
   MetaWindowDrag *window_drag = META_WINDOW_DRAG (object);
 
   hide_tile_preview (window_drag);
   if (window_drag->grab)
     g_clear_object (&window_drag->grab);
+
+  G_OBJECT_CLASS (meta_window_drag_parent_class)->dispose (object);
+}
+
+static void
+meta_window_drag_finalize (GObject *object)
+{
+  MetaWindowDrag *window_drag = META_WINDOW_DRAG (object);
+
   g_clear_object (&window_drag->effective_grab_window);
 
   G_OBJECT_CLASS (meta_window_drag_parent_class)->finalize (object);
@@ -235,6 +244,7 @@ meta_window_drag_class_init (MetaWindowDragClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->dispose = meta_window_drag_dispose;
   object_class->finalize = meta_window_drag_finalize;
   object_class->set_property = meta_window_drag_set_property;
   object_class->get_property = meta_window_drag_get_property;
@@ -1985,4 +1995,11 @@ meta_window_drag_set_position_hint (MetaWindowDrag   *window_drag,
   window_drag->pos_hint_set = pos_hint != NULL;
   if (pos_hint)
     window_drag->pos_hint = *pos_hint;
+}
+
+void
+meta_window_drag_destroy (MetaWindowDrag *window_drag)
+{
+  g_object_run_dispose (G_OBJECT (window_drag));
+  g_object_unref (window_drag);
 }
