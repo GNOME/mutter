@@ -200,12 +200,12 @@ static const char rgba_shader[] =
   "}\n";
 
 /* Shader for a single YUV plane */
-static const char y_xuxv_shader[] =
-  "vec4 sample_y_xuxv(vec4 unused)\n"
+static const char yuyv_shader[] =
+  "vec4 sample_yuyv(vec4 unused)\n"
   "{\n"
   "  vec4 yuva;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r;\n"
   "  yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).ga;\n"
   "  return yuva;\n"
   "}\n";
@@ -216,7 +216,7 @@ static const char y_uv_shader[] =
   "{\n"
   "  vec4 yuva;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r;\n"
   "  yuva.yz = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).rg;\n"
   "  return yuva;\n"
   "}\n";
@@ -227,9 +227,9 @@ static const char y_u_v_shader[] =
   "{\n"
   "  vec4 yuva;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x;\n"
-  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x;\n"
-  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r;\n"
   "  return yuva;\n"
   "}\n";
 
@@ -239,9 +239,9 @@ static const char y_u_v_shader_10bit_lsb[] =
   "{\n"
   "  vec4 yuva;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x * 64.0;\n"
-  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x * 64.0;\n"
-  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x * 64.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r * 64.0;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r * 64.0;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r * 64.0;\n"
   "  return yuva;\n"
   "}\n";
 
@@ -251,9 +251,9 @@ static const char y_u_v_shader_12bit_lsb[] =
   "{\n"
   "  vec4 yuva;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).x * 16.0;\n"
-  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).x * 16.0;\n"
-  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).x * 16.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r * 16.0;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r * 16.0;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r * 16.0;\n"
   "  return yuva;\n"
   "}\n";
 
@@ -288,8 +288,8 @@ static MetaMultiTextureFormatFullInfo multi_format_table[] = {
   [META_MULTI_TEXTURE_FORMAT_YUYV] = {
     .name = "YUYV",
     .snippet = {
-      .source = y_xuxv_shader,
-      .name = "sample_y_xuxv",
+      .source = yuyv_shader,
+      .name = "sample_yuyv",
     },
     .info = {
       .n_planes = 2,
