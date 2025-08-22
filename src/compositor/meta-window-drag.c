@@ -1192,6 +1192,44 @@ update_move_maybe_tile (MetaWindowDrag *window_drag,
 }
 
 static void
+calculate_window_position (MetaWindowDrag          *window_drag,
+                           MetaEdgeResistanceFlags  flags,
+                           int                      window_width,
+                           int                      window_height,
+                           int                      motion_x,
+                           int                      motion_y,
+                           int                     *out_x,
+                           int                     *out_y)
+{
+  MetaWindow *window;
+  MtkRectangle frame_rect;
+  int new_x, new_y;
+
+  window = window_drag->effective_grab_window;
+  g_assert (window);
+
+  meta_window_get_frame_rect (window, &frame_rect);
+  new_x = (int) (motion_x - (window_width * window_drag->anchor_rel_x));
+  new_y = (int) (motion_y - (window_height * window_drag->anchor_rel_y));
+
+  /* Don't allow movement in the maximized directions or while tiled */
+  if (meta_window_config_is_maximized_horizontally (window->config) ||
+      meta_window_is_tiled_side_by_side (window))
+    new_x = frame_rect.x;
+  if (meta_window_config_is_maximized_vertically (window->config))
+    new_y = frame_rect.y;
+
+  /* Do any edge resistance/snapping */
+  meta_window_drag_edge_resistance_for_move (window_drag,
+                                             &new_x,
+                                             &new_y,
+                                             flags);
+
+  *out_x = new_x;
+  *out_y = new_y;
+}
+
+static void
 update_move (MetaWindowDrag          *window_drag,
              MetaEdgeResistanceFlags  flags,
              int                      x,
@@ -1216,8 +1254,12 @@ update_move (MetaWindowDrag          *window_drag,
   dy = y - window_drag->anchor_root_y;
 
   meta_window_get_frame_rect (window, &frame_rect);
-  new_x = (int) (x - (frame_rect.width * window_drag->anchor_rel_x));
-  new_y = (int) (y - (frame_rect.height * window_drag->anchor_rel_y));
+  calculate_window_position (window_drag,
+                             flags,
+                             frame_rect.width,
+                             frame_rect.height,
+                             x, y,
+                             &new_x, &new_y);
 
   meta_topic (META_DEBUG_RENDER,
               "x,y = %d,%d anchor ptr %d,%d rel anchor pos %f,%f dx,dy %d,%d",
@@ -1373,21 +1415,8 @@ update_move (MetaWindowDrag          *window_drag,
                        meta_window_config_get_tile_mode (window->config) !=
                        META_TILE_NONE);
 
-  /* Don't allow movement in the maximized directions or while tiled */
-  if (meta_window_config_is_maximized_horizontally (window->config) ||
-      meta_window_is_tiled_side_by_side (window))
-    new_x = frame_rect.x;
-  if (meta_window_config_is_maximized_vertically (window->config))
-    new_y = frame_rect.y;
-
   window_drag->last_edge_resistance_flags =
     flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
-
-  /* Do any edge resistance/snapping */
-  meta_window_drag_edge_resistance_for_move (window_drag,
-                                             &new_x,
-                                             &new_y,
-                                             flags);
 
   meta_window_move_frame (window, TRUE, new_x, new_y);
 }
