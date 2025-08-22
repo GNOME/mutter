@@ -39,6 +39,7 @@ GQuark event_source_quark;
 GQuark event_handlers_quark;
 GQuark can_take_focus_quark;
 gboolean sync_after_lines = -1;
+gboolean is_sleeping;
 
 typedef void (*XEventHandler) (GtkWidget *window, XEvent *event);
 
@@ -409,7 +410,17 @@ find_monitor_from_connector (const char *connector)
 }
 
 static void
-process_line (const char *line)
+sleep_timeout_cb (gpointer user_data)
+{
+  GDataInputStream *in = G_DATA_INPUT_STREAM (user_data);
+
+  is_sleeping = FALSE;
+  read_next_line (in);
+}
+
+static void
+process_line (const char       *line,
+              GDataInputStream *in)
 {
   GdkDisplay *display = gdk_display_get_default ();
   GError *error = NULL;
@@ -1239,6 +1250,20 @@ process_line (const char *line)
       g_hash_table_remove (windows, argv[1]);
       gtk_widget_destroy (popup);
     }
+  else if (strcmp (argv[0], "sleep") == 0)
+    {
+      int64_t sleep_ms;
+
+      if (argc != 2)
+        {
+          g_print ("usage: sleep <milliseconds>\n");
+          goto out;
+        }
+
+      sleep_ms = atoi (argv[1]);
+      is_sleeping = TRUE;
+      g_timeout_add_once (sleep_ms, sleep_timeout_cb, in);
+    }
   else
     {
       g_print ("Unknown command %s\n", argv[0]);
@@ -1249,6 +1274,13 @@ process_line (const char *line)
 
  out:
   g_strfreev (argv);
+}
+
+static void
+maybe_read_next_line (GDataInputStream *in)
+{
+  if (!is_sleeping)
+    read_next_line (in);
 }
 
 static void
@@ -1270,9 +1302,9 @@ on_line_received (GObject      *source,
       return;
     }
 
-  process_line (line);
+  process_line (line, in);
   g_free (line);
-  read_next_line (in);
+  maybe_read_next_line (in);
 }
 
 static void
@@ -1297,7 +1329,9 @@ read_next_line (GDataInputStream *in)
           return;
         }
 
-      process_line (line);
+      process_line (line, in);
+      if (is_sleeping)
+        return;
     }
 
   if (sync_after_lines >= 0)
