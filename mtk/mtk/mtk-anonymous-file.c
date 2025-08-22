@@ -23,6 +23,7 @@
 #include <glib/gstdio.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 #include "mtk/mtk-anonymous-file.h"
 
