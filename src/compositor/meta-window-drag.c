@@ -1200,7 +1200,7 @@ update_move (MetaWindowDrag          *window_drag,
   MetaWindow *window;
   int dx, dy;
   int new_x, new_y;
-  MtkRectangle old, frame_rect;
+  MtkRectangle frame_rect;
   int shake_threshold;
 
   window = window_drag->effective_grab_window;
@@ -1373,14 +1373,12 @@ update_move (MetaWindowDrag          *window_drag,
                        meta_window_config_get_tile_mode (window->config) !=
                        META_TILE_NONE);
 
-  meta_window_get_frame_rect (window, &old);
-
   /* Don't allow movement in the maximized directions or while tiled */
   if (meta_window_config_is_maximized_horizontally (window->config) ||
       meta_window_is_tiled_side_by_side (window))
-    new_x = old.x;
+    new_x = frame_rect.x;
   if (meta_window_config_is_maximized_vertically (window->config))
-    new_y = old.y;
+    new_y = frame_rect.y;
 
   window_drag->last_edge_resistance_flags =
     flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
