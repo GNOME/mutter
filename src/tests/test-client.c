@@ -34,6 +34,7 @@
 const char *client_id = "0";
 static gboolean wayland;
 static gboolean dont_exit_on_eof;
+static gboolean verbose;
 GHashTable *windows;
 GQuark event_source_quark;
 GQuark event_handlers_quark;
@@ -426,6 +427,9 @@ process_line (const char       *line,
   GError *error = NULL;
   int argc;
   char **argv;
+  static int line_count = 0;
+
+  line_count++;
 
   if (!g_shell_parse_argv (line, &argc, &argv, &error))
     {
@@ -439,6 +443,9 @@ process_line (const char       *line,
       g_print ("Empty command\n");
       goto out;
     }
+
+  if (verbose)
+    g_printerr ("%d %s\n", line_count, line);
 
   if (strcmp (argv[0], "create") == 0)
     {
@@ -1359,6 +1366,12 @@ const GOptionEntry options[] = {
     &client_id,
     "Identifier used in Window titles for this client",
     "CLIENT_ID",
+  },
+  {
+    "verbose", 'v', 0, G_OPTION_ARG_NONE,
+    &verbose,
+    "Verbose",
+    NULL,
   },
   { NULL }
 };
