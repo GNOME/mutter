@@ -1144,9 +1144,15 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterInputDevice *device;
   ClutterInputDeviceType device_type;
+  ClutterEventType event_type;
   uint32_t time_ms;
 
   g_warn_if_fail (!priv->in_init);
+
+  event_type = clutter_event_type (event);
+  if (event_type == CLUTTER_KEY_PRESS ||
+      event_type == CLUTTER_KEY_RELEASE)
+    return;
 
   device = clutter_event_get_source_device (event);
   if (!device)
