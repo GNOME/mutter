@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-08-18 17:20+0000\n"
-"PO-Revision-Date: 2025-08-18 23:16+0200\n"
+"POT-Creation-Date: 2025-08-21 19:45+0000\n"
+"PO-Revision-Date: 2025-08-22 11:56+0200\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -625,6 +625,50 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients, která toto nastavení řídí. Aby se "
 "nastavení projevilo, musí být Xwayland restartován."
 
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Aplikace"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Spustitelný soubor"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Přidat spouštěč"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Spouštěč"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Typ"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Přidat"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Spustit"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Smazat"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Činnost"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Upravit spouštěče"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Spouštěče"
+
 #: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Vstup"
@@ -637,27 +681,35 @@ msgstr "_Emulovat dotyk"
 msgid "_Inhibit system shortcuts"
 msgstr "_Blokovat klávesové zkratky"
 
-#: mdk/mdk-main-window.ui:19
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Spouštěče"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Upravit spouštěče"
+
+#: mdk/mdk-main-window.ui:31
 msgid "_About Mutter Development Kit"
 msgstr "O _aplikaci Vývojové prostředí Mutteru"
 
-#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Vývojové prostředí Mutteru"
 
-#: mdk/mdk-main-window.ui:35
+#: mdk/mdk-main-window.ui:47
 msgid "Main Menu"
 msgstr "Hlavní nabídka"
 
-#: mdk/mdk-main.c:69
+#: mdk/mdk-main.c:49
 msgid "The Mutter Team"
 msgstr "Tým Mutteru"
 
-#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+#: mdk/mdk-main.c:62
 msgid "Mutter software development kit"
 msgstr "Vývojové prostředí softwaru Mutteru"
 
-#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+#: mdk/mdk-main.c:65
 msgid "About Mutter Development Kit"
 msgstr "O aplikaci Vývojové prostředí Mutteru"
 
@@ -704,59 +756,59 @@ msgstr "Soukromí obrazovky zapnuto"
 msgid "Privacy Screen Disabled"
 msgstr "Soukromí obrazovky vypnuto"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Nahradí běžícího správce oken"
 
-#: src/core/meta-context-main.c:638
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Displej X, který se má použít"
 
-#: src/core/meta-context-main.c:644
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Provádět volání X synchronně"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Spustit jako kompozitor protokolu Wayland"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/meta-context-main.c:674
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Určit název displeje Wayland, který se má používat"
 
-#: src/core/meta-context-main.c:682
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Spustit jako server displeje bez monitoru"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Přidat trvalý virtuální monitor (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:699
+#: src/core/meta-context-main.c:697
 msgid "Run development kit"
 msgstr "Spustit vývojové prostředí"
 
-#: src/core/meta-context-main.c:711
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
-#: src/core/meta-context-main.c:717
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "Profilovat výkon pomocí instrumentace trasování"
 
-#: src/core/meta-context-main.c:723
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "Povolit rozhraní D-Bus pro ovládání ladění"
 
