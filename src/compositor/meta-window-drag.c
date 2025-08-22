@@ -1407,18 +1407,22 @@ update_move (MetaWindowDrag          *window_drag,
         }
     }
 
-  /* Delay showing the tile preview slightly to make it more unlikely to
-   * trigger it unwittingly, e.g. when shaking loose the window or moving
-   * it to another monitor.
-   */
-  update_tile_preview (window_drag,
-                       meta_window_config_get_tile_mode (window->config) !=
-                       META_TILE_NONE);
+  if (!meta_window_config_is_maximized (window->config) &&
+      !meta_window_is_tiled_side_by_side (window))
+    {
+      /* Delay showing the tile preview slightly to make it more unlikely to
+       * trigger it unwittingly, e.g. when shaking loose the window or moving
+       * it to another monitor.
+       */
+      update_tile_preview (window_drag,
+                           meta_window_config_get_tile_mode (window->config) !=
+                           META_TILE_NONE);
 
-  window_drag->last_edge_resistance_flags =
-    flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
+      window_drag->last_edge_resistance_flags =
+        flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
-  meta_window_move_frame (window, TRUE, new_x, new_y);
+      meta_window_move_frame (window, TRUE, new_x, new_y);
+    }
 }
 
 static gboolean
