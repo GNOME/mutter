@@ -1933,7 +1933,7 @@ on_stream_add_buffer (void             *data,
 
       /* Fallback to a memfd buffer */
       spa_data->type = SPA_DATA_MemFd;
-      spa_data->flags = SPA_DATA_FLAG_READABLE;
+      spa_data->flags = SPA_DATA_FLAG_READABLE | SPA_DATA_FLAG_MAPPABLE;
       spa_data->fd = memfd_create ("mutter-screen-cast-memfd",
                                    MFD_CLOEXEC | MFD_ALLOW_SEALING);
       if (spa_data->fd == -1)
