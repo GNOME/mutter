@@ -11,10 +11,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?"
-"product=mutter&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2015-07-18 22:50+0000\n"
-"PO-Revision-Date: 2016-10-13 11:22+0700\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2025-08-10 22:54+0000\n"
+"PO-Revision-Date: 2025-08-24 09:51+0700\n"
 "Last-Translator: Theppitak Karoonboonyanan <theppitak@gmail.com>\n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
 "Language: th\n"
@@ -22,580 +21,800 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 2.91.6\n"
+"X-Generator: Poedit 3.7\n"
 
-#: ../data/50-mutter-navigation.xml.in.h:1
+#: data/50-mutter-navigation.xml:6
 msgid "Navigation"
 msgstr "ท่องย้าย"
 
-#: ../data/50-mutter-navigation.xml.in.h:2
+#: data/50-mutter-navigation.xml:9
 msgid "Move window to workspace 1"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงาน 1"
 
-#: ../data/50-mutter-navigation.xml.in.h:3
+#: data/50-mutter-navigation.xml:12
 msgid "Move window to workspace 2"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงาน 2"
 
-#: ../data/50-mutter-navigation.xml.in.h:4
+#: data/50-mutter-navigation.xml:15
 msgid "Move window to workspace 3"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงาน 3"
 
-#: ../data/50-mutter-navigation.xml.in.h:5
+#: data/50-mutter-navigation.xml:18
 msgid "Move window to workspace 4"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงาน 4"
 
-#: ../data/50-mutter-navigation.xml.in.h:6
+#: data/50-mutter-navigation.xml:21
 msgid "Move window to last workspace"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงานสุดท้าย"
 
-#: ../data/50-mutter-navigation.xml.in.h:7
+#: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace to the left"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงานด้านซ้าย"
 
-#: ../data/50-mutter-navigation.xml.in.h:8
+#: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace to the right"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงานด้านขวา"
 
-#: ../data/50-mutter-navigation.xml.in.h:9
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงานด้านบน"
 
-#: ../data/50-mutter-navigation.xml.in.h:10
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "ย้ายหน้าต่างไปพื้นที่ทำงานด้านล่าง"
 
-#: ../data/50-mutter-navigation.xml.in.h:11
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "ย้ายหน้าต่างไปจอภาพด้านซ้าย"
 
-#: ../data/50-mutter-navigation.xml.in.h:12
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "ย้ายหน้าต่างไปจอภาพด้านขวา"
 
-#: ../data/50-mutter-navigation.xml.in.h:13
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "ย้ายหน้าต่างไปจอภาพด้านบน"
 
-#: ../data/50-mutter-navigation.xml.in.h:14
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "ย้ายหน้าต่างไปจอภาพด้านล่าง"
 
-#: ../data/50-mutter-navigation.xml.in.h:15
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
-msgstr "สลับโปรแกรม"
+msgstr "สลับแอปพลิเคชัน"
 
-#: ../data/50-mutter-navigation.xml.in.h:16
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
-msgstr "สลับไปโปรแกรมก่อนหน้า"
+msgstr "สลับไปแอปพลิเคชันก่อนหน้า"
 
-#: ../data/50-mutter-navigation.xml.in.h:17
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
 msgstr "สลับหน้าต่าง"
 
-#: ../data/50-mutter-navigation.xml.in.h:18
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "สลับไปหน้าต่างก่อนหน้า"
 
-#: ../data/50-mutter-navigation.xml.in.h:19
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
-msgstr "สลับหน้าต่างภายในโปรแกรม"
+msgstr "สลับหน้าต่างภายในแอปพลิเคชัน"
 
-#: ../data/50-mutter-navigation.xml.in.h:20
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
-msgstr "สลับไปหน้าต่างก่อนหน้าภายในโปรแกรม"
+msgstr "สลับไปหน้าต่างก่อนหน้าภายในแอปพลิเคชัน"
 
-#: ../data/50-mutter-navigation.xml.in.h:21
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
 msgstr "สลับส่วนควบคุมระบบ"
 
-#: ../data/50-mutter-navigation.xml.in.h:22
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "สลับไปส่วนควบคุมระบบก่อนหน้า"
 
-#: ../data/50-mutter-navigation.xml.in.h:23
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
 msgstr "สลับหน้าต่างโดยตรง"
 
-#: ../data/50-mutter-navigation.xml.in.h:24
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "สลับโดยตรงไปหน้าต่างก่อนหน้า"
 
-#: ../data/50-mutter-navigation.xml.in.h:25
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr "สลับหน้าต่างภายในโปรแกรมโดยตรง"
+msgstr "สลับหน้าต่างภายในแอปโดยตรง"
 
-#: ../data/50-mutter-navigation.xml.in.h:26
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
-msgstr "สลับโดยตรงไปหน้าต่างก่อนหน้าภายในโปรแกรม"
+msgstr "สลับโดยตรงไปหน้าต่างก่อนหน้าภายในแอป"
 
-#: ../data/50-mutter-navigation.xml.in.h:27
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
 msgstr "สลับส่วนควบคุมระบบโดยตรง"
 
-#: ../data/50-mutter-navigation.xml.in.h:28
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "สลับโดยตรงไปส่วนควบคุมระบบก่อนหน้า"
 
-#: ../data/50-mutter-navigation.xml.in.h:29
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "ซ่อนหน้าต่างทั้งหมด"
 
-#: ../data/50-mutter-navigation.xml.in.h:30
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "สลับไปพื้นที่ทำงาน 1"
 
-#: ../data/50-mutter-navigation.xml.in.h:31
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "สลับไปพื้นที่ทำงาน 2"
 
-#: ../data/50-mutter-navigation.xml.in.h:32
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "สลับไปพื้นที่ทำงาน 3"
 
-#: ../data/50-mutter-navigation.xml.in.h:33
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "สลับไปพื้นที่ทำงาน 4"
 
-#: ../data/50-mutter-navigation.xml.in.h:34
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "สลับไปพื้นที่ทำงานสุดท้าย"
 
-#: ../data/50-mutter-navigation.xml.in.h:35
-msgid "Move to workspace left"
-msgstr "ย้ายไปพื้นที่ทำงานซ้าย"
+#: data/50-mutter-navigation.xml:131
+msgid "Switch to workspace on the left"
+msgstr "สลับไปพื้นที่ทำงานด้านซ้าย"
 
-#: ../data/50-mutter-navigation.xml.in.h:36
-msgid "Move to workspace right"
-msgstr "ย้ายไปพื้นที่ทำงานขวา"
+#: data/50-mutter-navigation.xml:134
+msgid "Switch to workspace on the right"
+msgstr "สลับไปพื้นที่ทำงานด้านขวา"
 
-#: ../data/50-mutter-navigation.xml.in.h:37
-msgid "Move to workspace above"
-msgstr "ย้ายไปพื้นที่ทำงานบน"
+#: data/50-mutter-navigation.xml:138
+msgid "Switch to workspace above"
+msgstr "สลับไปพื้นที่ทำงานด้านบน"
 
-#: ../data/50-mutter-navigation.xml.in.h:38
-msgid "Move to workspace below"
-msgstr "ย้ายไปพื้นที่ทำงานล่าง"
+#: data/50-mutter-navigation.xml:142
+msgid "Switch to workspace below"
+msgstr "สลับไปพื้นที่ทำงานด้านล่าง"
 
-#: ../data/50-mutter-system.xml.in.h:1
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
 msgstr "ระบบ"
 
-#: ../data/50-mutter-system.xml.in.h:2
+#: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
 msgstr "แสดงกล่องเรียกคำสั่ง"
 
-#: ../data/50-mutter-system.xml.in.h:3
-msgid "Show the activities overview"
-msgstr "แสดงภาพรวมของกิจกรรมต่างๆ"
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "คืนค่าปุ่มลัดแป้นพิมพ์"
 
-#: ../data/50-mutter-windows.xml.in.h:1
+#: data/50-mutter-windows.xml:6
 msgid "Windows"
 msgstr "หน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:2
+#: data/50-mutter-windows.xml:8
 msgid "Activate the window menu"
 msgstr "เปิดเมนูหน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:3
+#: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
 msgstr "สลับโหมดเต็มหน้าจอ"
 
-#: ../data/50-mutter-windows.xml.in.h:4
+#: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
 msgstr "สลับสถานะขยายแผ่"
 
-#: ../data/50-mutter-windows.xml.in.h:5
+#: data/50-mutter-windows.xml:14
 msgid "Maximize window"
-msgstr "ขยายแผ่หน้าต่างเต็มพื้นโต๊ะ"
+msgstr "ขยายแผ่หน้าต่างใหญ่สุด"
 
-#: ../data/50-mutter-windows.xml.in.h:6
+#: data/50-mutter-windows.xml:16
 msgid "Restore window"
 msgstr "คืนขนาดหน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:7
-msgid "Toggle shaded state"
-msgstr "ม้วน/คลี่หน้าต่าง"
-
-#: ../data/50-mutter-windows.xml.in.h:8
+#: data/50-mutter-windows.xml:18
 msgid "Close window"
 msgstr "ปิดหน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:9
+#: data/50-mutter-windows.xml:20
 msgid "Hide window"
 msgstr "ซ่อนหน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:10
+#: data/50-mutter-windows.xml:22
 msgid "Move window"
 msgstr "ย้ายหน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:11
+#: data/50-mutter-windows.xml:24
 msgid "Resize window"
 msgstr "ปรับขนาดหน้าต่าง"
 
-#: ../data/50-mutter-windows.xml.in.h:12
+#: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
 msgstr "สลับการแสดงหน้าต่างบนทุกพื้นที่ทำงานกับบนพื้นที่เดียว"
 
-#: ../data/50-mutter-windows.xml.in.h:13
+#: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
 msgstr "ยกหน้าต่างขึ้นถ้าถูกบัง มิฉะนั้นก็เอาลงด้านหลัง"
 
-#: ../data/50-mutter-windows.xml.in.h:14
+#: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
 msgstr "ยกหน้าต่างขึ้นมาไว้หน้าหน้าต่างอื่นๆ"
 
-#: ../data/50-mutter-windows.xml.in.h:15
+#: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
 msgstr "ถอยหน้าต่างลงไปใว้หลังหน้าต่างอื่น"
 
-#: ../data/50-mutter-windows.xml.in.h:16
+#: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
 msgstr "ขยายแผ่หน้าต่างเต็มด้านสูง"
 
-#: ../data/50-mutter-windows.xml.in.h:17
+#: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
 msgstr "ขยายแผ่หน้าต่างเต็มด้านกว้าง"
 
-#: ../data/50-mutter-windows.xml.in.h:18
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "แบ่งจอแสดงที่ครึ่งซ้าย"
 
-#: ../data/50-mutter-windows.xml.in.h:19
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "แบ่งจอแสดงที่ครึ่งขวา"
 
-#: ../data/mutter.desktop.in.h:1
-msgid "Mutter"
-msgstr "Mutter"
-
-#: ../data/org.gnome.mutter.gschema.xml.in.h:1
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid "Modifier to use for extended window management operations"
 msgstr "ปุ่ม modifier เพื่อใช้เข้าสู่การจัดการหน้าต่างแบบพิเศษ"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:2
+#: data/org.gnome.mutter.gschema.xml.in:17
 msgid ""
-"This key will initiate the \"overlay\", which is a combination window "
-"overview and application launching system. The default is intended to be the "
-"\"Windows key\" on PC hardware. It's expected that this binding either the "
-"default or set to the empty string."
+"This key will initiate the “overlay”, which is a combination window overview and application "
+"launching system. The default is intended to be the “Windows key” on PC hardware. It’s "
+"expected that this binding either the default or set to the empty string."
 msgstr ""
-"ปุ่มนี้จะสร้าง \"ภาพซ้อน (overlay)\" ซึ่งประกอบด้วยภาพรวมของหน้าต่างและระบบเรียกโปรแกรม "
-"ปุ่มปริยายเจตนาให้เป็นปุ่ม \"วินโดวส์\" ในเครื่องพีซีทั่วไป "
-"และคาดหมายว่าค่านี้จะเป็นค่าปริยายดังกล่าว หรือมิฉะนั้นก็เป็นสตริงว่างเปล่า"
+"ปุ่มนี้จะสร้าง “ภาพซ้อน (overlay)” ซึ่งประกอบด้วยภาพรวมของหน้าต่างและระบบเรียกแอปพลิเคชัน ปุ่มเริ่มต้นตั้งใจให้เป็น "
+"“ปุ่ม Windows” ในเครื่องพีซีทั่วไป และคาดหมายว่าค่านี้จะเป็นค่าเริ่มต้นดังกล่าว หรือมิฉะนั้นก็เป็นสตริงว่างเปล่า"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:3
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid "Attach modal dialogs"
 msgstr "แนบกล่องโต้ตอบแบบโมดัล"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:4
+#: data/org.gnome.mutter.gschema.xml.in:30
 msgid ""
-"When true, instead of having independent titlebars, modal dialogs appear "
-"attached to the titlebar of the parent window and are moved together with "
-"the parent window."
+"When true, instead of having independent titlebars, modal dialogs appear attached to the "
+"titlebar of the parent window and are moved together with the parent window."
 msgstr ""
-"ถ้ากำหนดเป็นค่าจริง แทนที่กล่องโต้ตอบโมดัลจะมีแถบหัวหน้าต่างเป็นของตัวเอง "
-"ก็จะแนบติดไปกับแถบหัวหน้าต่างของหน้าต่างแม่ และจะเคลื่อนไปพร้อมกับหน้าต่างแม่ด้วย"
+"ถ้ากำหนดเป็นค่าจริง แทนที่กล่องโต้ตอบโมดัลจะมีแถบหัวหน้าต่างเป็นของตัวเอง ก็จะแนบติดไปกับแถบหัวหน้าต่างของหน้าต่างแม่ "
+"และจะเคลื่อนไปพร้อมกับหน้าต่างแม่ด้วย"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:5
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "เปิดใช้การปูหน้าต่างชิดขอบเมื่อวางหน้าต่างที่ขอบหน้าจอ"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:6
+#: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
-"If enabled, dropping windows on vertical screen edges maximizes them "
-"vertically and resizes them horizontally to cover half of the available "
-"area. Dropping windows on the top screen edge maximizes them completely."
+"If enabled, dropping windows on vertical screen edges maximizes them vertically and resizes "
+"them horizontally to cover half of the available area. Dropping windows on the top screen edge "
+"maximizes them completely."
 msgstr ""
 "ถ้าเปิดใช้ จะทำให้การวางหน้าต่างที่ขอบหน้าจอด้านแนวตั้งกลายเป็นการขยายแผ่หน้าต่างเต็มแนวตั้ง "
-"และปรับขนาดให้วางปิดครึ่งหนึ่งของหน้าจอในแนวนอน "
-"และการวางหน้าต่างที่ขอบหน้าจอด้านบนจะขยายแผ่หน้าต่างเต็มที่"
+"และปรับขนาดให้วางปิดครึ่งหนึ่งของหน้าจอในแนวนอน และการวางหน้าต่างที่ขอบหน้าจอด้านบนจะขยายแผ่หน้าต่างเต็มที่"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:7
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid "Workspaces are managed dynamically"
 msgstr "จัดการพื้นที่ทำงานตามการใช้งานจริง"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:8
+#: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
-"Determines whether workspaces are managed dynamically or whether there's a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"Determines whether workspaces are managed dynamically or whether there’s a static number of "
+"workspaces (determined by the num-workspaces key in org.gnome.desktop.wm.preferences)."
 msgstr ""
-"กำหนดว่าจะจัดการพื้นที่ทำงานแบบปรับเปลี่ยนตามการใช้งานจริง หรือจะให้มีจำนวนพื้นที่ทำงานตายตัว "
-"(กำหนดโดยคีย์ num-workspaces ใน org.gnome.desktop.wm.preferences)"
+"กำหนดว่าจะจัดการพื้นที่ทำงานแบบปรับเปลี่ยนตามการใช้งานจริง หรือจะให้มีจำนวนพื้นที่ทำงานตายตัว (กำหนดโดยคีย์ num-"
+"workspaces ใน org.gnome.desktop.wm.preferences)"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:9
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
 msgstr "พื้นที่ทำงานอยู่บนจอภาพหลักเท่านั้น"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:10
+#: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
-"Determines whether workspace switching should happen for windows on all "
-"monitors or only for windows on the primary monitor."
-msgstr ""
-"กำหนดว่าการสลับพื้นที่ทำงานควรเกิดเฉพาะกับหน้าต่างบนจอภาพทั้งหมด "
-"หรือเฉพาะหน้าต่างบนจอภาพหลักเท่านั้น"
+"Determines whether workspace switching should happen for windows on all monitors or only for "
+"windows on the primary monitor."
+msgstr "กำหนดว่าการสลับพื้นที่ทำงานควรเกิดเฉพาะกับหน้าต่างบนจอภาพทั้งหมด หรือเฉพาะหน้าต่างบนจอภาพหลักเท่านั้น"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:11
-msgid "No tab popup"
-msgstr "ไม่ใช้กล่องผุดขึ้นของปุ่มแท็บ"
-
-#: ../data/org.gnome.mutter.gschema.xml.in.h:12
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr "กำหนดว่าจะปิดการใช้กล่องผุดขึ้นและการเน้นกรอบหน้าต่างสำหรับการสลับหน้าต่างหรือไม่"
-
-#: ../data/org.gnome.mutter.gschema.xml.in.h:13
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "ชะลอการย้ายโฟกัสจนกว่าเคอร์เซอร์เมาส์จะหยุดเคลื่อน"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:14
+#: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
-"If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
-"the focus will not be changed immediately when entering a window, but only "
-"after the pointer stops moving."
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the focus will not be "
+"changed immediately when entering a window, but only after the pointer stops moving."
 msgstr ""
-"ถ้ามีค่าเป็นจริง และโหมดโฟกัสเป็น \"sloppy\" หรือ \"mouse\" อย่างใดอย่างหนึ่งแล้ว "
+"ถ้ามีค่าเป็นจริง และโหมดโฟกัสเป็น “sloppy” หรือ “mouse” อย่างใดอย่างหนึ่งแล้ว "
 "ก็จะไม่ย้ายโฟกัสหน้าต่างทันทีทันใดเมื่อเข้าสู่หน้าต่าง จนกว่าเคอร์เซอร์เมาส์จะหยุดเคลื่อนที่"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:15
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid "Draggable border width"
 msgstr "ความกว้างของขอบหน้าต่างส่วนที่ลากได้"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:16
+#: data/org.gnome.mutter.gschema.xml.in:80
 msgid ""
-"The amount of total draggable borders. If the theme's visible borders are "
-"not enough, invisible borders will be added to meet this value."
+"The amount of total draggable borders. If the theme’s visible borders are not enough, "
+"invisible borders will be added to meet this value."
 msgstr ""
 "ขนาดของขอบหน้าต่างส่วนที่ลากได้ ถ้าขอบหน้าต่างส่วนที่ปรากฏของชุดตกแต่งกว้างไม่พอ "
 "ก็จะเพิ่มขอบส่วนที่มองไม่เห็นเพื่อให้ได้เท่ากับความกว้างนี้"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:17
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "ขยายแผ่หน้าต่างที่มีขนาดใกล้เคียงกับจอภาพโดยอัตโนมัติ"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:18
+#: data/org.gnome.mutter.gschema.xml.in:90
 msgid ""
-"If enabled, new windows that are initially the size of the monitor "
-"automatically get maximized."
+"If enabled, new windows that are initially the size of the monitor automatically get maximized."
 msgstr "ถ้าเปิดใช้ หน้าต่างใหม่ที่มีขนาดเริ่มแรกเท่ากับจอภาพจะขยายแผ่โดยอัตโนมัติ"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:19
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
 msgstr "วางหน้าต่างใหม่กลางหน้าจอ"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:20
+#: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
-"When true, the new windows will always be put in the center of the active "
-"screen of the monitor."
+"When true, the new windows will always be put in the center of the active screen of the "
+"monitor."
 msgstr "ถ้าเป็นจริง จะวางหน้าต่างใหม่ที่กลางหน้าจอที่จอภาพแสดงอยู่เสมอ"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:21
-msgid "Select window from tab popup"
-msgstr "เลือกหน้าต่างจากกล่องผุดขึ้นของปุ่มแท็บ"
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid "Enable experimental features"
+msgstr "เปิดใช้คุณลักษณะขั้นทดลอง"
 
-#: ../data/org.gnome.mutter.gschema.xml.in.h:22
-msgid "Cancel tab popup"
-msgstr "ยกเลิกกล่องผุดขึ้นของปุ่มแท็บ"
+#: data/org.gnome.mutter.gschema.xml.in:109
+msgid ""
+"To enable experimental features, add the feature keyword to the list. Whether the feature "
+"requires restarting the compositor depends on the given feature. Any experimental feature is "
+"not required to still be available, or configurable. Don’t expect adding anything in this "
+"setting to be future proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate space, while scaling "
+"monitor framebuffers instead of window content, to manage HiDPI monitors. Does not require a "
+"restart. • “kms-modifiers” — makes mutter always allocate scanout buffers with explicit "
+"modifiers, if supported by the driver. Requires a restart. • “autoclose-xwayland” — "
+"automatically terminates Xwayland if all relevant X11 clients are gone. Requires a restart. • "
+"“variable-refresh-rate” — makes mutter dynamically adjust the refresh rate of the monitor when "
+"applicable if supported by the monitor, GPU and DRM driver. Configurable in Settings. Requires "
+"a restart. • “xwayland-native-scaling” — lets Xwayland clients use their native scaling "
+"support. If scaling is not supported by client, the client will be unscaled. Setting only "
+"takes effect when “scale-monitor-framebuffer” is enabled as well."
+msgstr ""
+"เมื่อต้องการเปิดใช้คุณลักษณะขั้นทดลอง ให้เพิ่มคำสำคัญของคุณลักษณะลงในรายชื่อ "
+"ความจำเป็นที่คุณลักษณะต้องเริ่มคอมโพสิเตอร์ใหม่จะขึ้นอยู่กับคุณลักษณะที่ระบุ "
+"คุณลักษณะขั้นทดลองทั้งหมดไม่จำเป็นต้องใช้งานได้หรือกำหนดค่าได้ "
+"อย่าคาดหวังว่าการเพิ่มอะไรก็ตามในการตั้งค่านี้จะทำให้ใช้งานได้ในอนาคต คำสำคัญที่ใช้ได้ในขณะนี้คือ: • “scale-monitor-"
+"framebuffer” — กำหนดค่าเริ่มต้นให้ mutter จัดวางทุกอย่างบนจอภาพเชิงตรรกะ ในพื้นที่พิกัดพิกเซลเชิงตรรกะ "
+"แล้วสเกลเฟรมบัฟเฟอร์ของจอภาพแทนที่จะเป็นเนื้อหาหน้าต่าง เพื่อจัดการกับจอภาพ HiDPI ไม่จำเป็นต้องเริ่มคอมโพสิเตอร์ใหม่ "
+"• “kms-modifiers” — ให้ mutter จัดสรรบัฟเฟอร์สำหรับอ่านทีละแถว (scanout) ด้วย modifier แบบชัดเจน "
+"ถ้าไดรเวอร์รองรับ จำเป็นต้องเริ่มคอมโพสิเตอร์ใหม่ • “autoclose-xwayland” — จบการทำงานของ Xwayland "
+"โดยอัตโนมัติ ถ้าไคลเอนต์ X11 ที่เกี่ยวข้องทั้งหมดหายไปแล้ว จำเป็นต้องเริ่มคอมโพสิเตอร์ใหม่ • “variable-refresh-"
+"rate” — ให้ mutter ปรับค่าอัตราการรีเฟรชของจอภาพแบบไดนามิกเมื่อนำไปใช้ได้ถ้าจอภาพ รวมทั้งไดรเวอร์ GPU และ "
+"DRM รองรับ โดยสามารถกำหนดค่าได้ในการตั้งค่า จำเป็นต้องเริ่มคอมโพสิเตอร์ใหม่ • “xwayland-native-scaling” — "
+"ให้ไคลเอนต์ Xwayland ใช้ระบบรองรับการสเกลแบบเนทีฟของตัวเอง ถ้าไคลเอนต์ไม่รองรับการสเกล "
+"ก็จะไม่มีการสเกลไคลเอนต์ โดยการตั้งค่าจะมีผลก็ต่อเมื่อ “scale-monitor-framebuffer” เปิดใช้ด้วย"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:1
+#: data/org.gnome.mutter.gschema.xml.in:151
+msgid "Modifier to use to locate the pointer"
+msgstr "ปุ่มประกอบที่จะใช้หาตำแหน่งตัวชี้"
+
+#: data/org.gnome.mutter.gschema.xml.in:152
+msgid "This key will initiate the “locate pointer” action."
+msgstr "ปุ่มนี้จะตั้งต้นการกระทำ “หาตำแหน่งตัวชี้”"
+
+#: data/org.gnome.mutter.gschema.xml.in:159
+msgid "Timeout for check-alive ping"
+msgstr "ค่าหมดเวลาสำหรับ ping ที่ใช้ตรวจสอบการค้าง"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to not be detected "
+"as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"จำนวนมิลลิวินาทีที่ไคลเอนต์จะต้องตอบกลับคำขอ ping เพื่อไม่ให้ถูกตรวจจับว่าค้าง การใช้ 0 "
+"จะปิดใช้การตรวจสอบการค้างแบบสมบูรณ์"
+
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "การตั้งค่าการส่องสว่างแยกแต่ละเอาต์พุต"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple with connector, "
+"vendor, product, serial, and a color mode, as well as an associated floating point value "
+"representing the output luminance in percent (%). The default when not specified is 100%."
+msgstr ""
+"การตั้งค่าการส่องสว่างแยกสำหรับแต่ละเอาต์พุตและแต่ละโหมดสี "
+"โดยแต่ละรายการจะประกอบด้วยทูเพิลซึ่งมีข้อมูลเกี่ยวกับตัวเชื่อมต่อ ผู้ขาย ผลิตภัณฑ์ หมายเลขซีเรียล และโหมดสี "
+"พร้อมค่าจุดลอยตัวที่สัมพันธ์กันซึ่งแสดงถึงการส่องสว่างของเอาต์พุตในค่าเปอร์เซ็นต์ (%) ค่าเริ่มต้นเมื่อไม่ได้ระบุจะอยู่ที่ 100%"
+
+#: data/org.gnome.mutter.gschema.xml.in:197
+msgid "Switch monitor configurations"
+msgstr "สลับค่ากำหนดจอภาพ"
+
+#: data/org.gnome.mutter.gschema.xml.in:202
+msgid "Rotates the built-in monitor configuration"
+msgstr "สับเปลี่ยนค่ากำหนดจอภาพในตัว"
+
+#: data/org.gnome.mutter.gschema.xml.in:207
+msgid "Cancel any active input capture session"
+msgstr "ยกเลิกเซสชันควบคุมอินพุตใด ๆ ที่ทำงานอยู่"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "สลับไป VT 1"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:2
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "สลับไป VT 2"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:3
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "สลับไป VT 3"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:4
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "สลับไป VT 4"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:5
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "สลับไป VT 5"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "สลับไป VT 6"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:7
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "สลับไป VT 7"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:8
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "สลับไป VT 8"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:9
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "สลับไป VT 9"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "สลับไป VT 10"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:11
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "สลับไป VT 11"
 
-#: ../data/org.gnome.mutter.wayland.gschema.xml.in.h:12
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "สลับไป VT 12"
 
-#: ../src/backends/meta-monitor-manager.c:500
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+msgid "Re-enable shortcuts"
+msgstr "เปิดใช้ปุ่มลัดอีกครั้ง"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+msgid ""
+"Allow all keyboard events to be routed to X11 “override redirect” windows with a grab when "
+"running in Xwayland. This option is to support X11 clients which map an “override redirect” "
+"window (which do not receive keyboard focus) and issue a keyboard grab to force all keyboard "
+"events to that window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab to be taken into "
+"account under Wayland, the client must also either send a specific X11 ClientMessage to the "
+"root window or be among the applications allowed in key “xwayland-grab-access-rules”."
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or not allowed to "
+"issue X11 keyboard grabs under Xwayland. The resource name or resource class of a given X11 "
+"window can be obtained using the command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the "
+"values are supported. Values starting with “!” are denied, which has precedence over the list "
+"of values allowed, to revoke applications from the default system list. The default system "
+"list includes the following applications: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can "
+"break an existing grab by using the specific keyboard shortcut defined by the keybinding key "
+"“restore-shortcuts”."
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was built with support "
+"for those X extensions. This option has no effect if Xwayland was built without support for "
+"the selected extensions. Xwayland needs to be restarted for this setting to take effect."
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr ""
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of Xwayland. The X server "
+"byte-swapping code is a huge attack surface, much of that code in Xwayland is prone to "
+"security issues. The use-case of byte-swapped clients is very niche, and disabled by default "
+"in Xwayland. Enable this option to instruct Xwayland to accept connections from X11 clients "
+"with a different endianness. This option has no effect if Xwayland does not support the "
+"command line option +byteswappedclients/-byteswappedclients to control that setting. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+
+#: src/backends/meta-monitor.c:266
 msgid "Built-in display"
 msgstr "จอแสดงผลในตัว"
 
-#: ../src/backends/meta-monitor-manager.c:526
+#: src/backends/meta-monitor.c:293
 msgid "Unknown"
 msgstr "ไม่ทราบยี่ห้อ"
 
-#: ../src/backends/meta-monitor-manager.c:528
+#: src/backends/meta-monitor.c:295
 msgid "Unknown Display"
 msgstr "จอแสดงผลไม่ทราบรุ่น"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: ../src/backends/meta-monitor-manager.c:536
+#: src/backends/meta-monitor.c:303
 #, c-format
+msgctxt "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: ../src/compositor/compositor.c:451
+#: src/backends/meta-monitor.c:311
 #, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display \"%s"
-"\"."
-msgstr "มีโปรแกรมจัดการ composite ทำงานอยู่แล้วที่สกรีน %i ดิสเพลย์ \"%s\""
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in inches could not be "
+"calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
 
-#: ../src/core/bell.c:185
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "เหตุการณ์กระดิ่ง"
 
-#: ../src/core/delete.c:127
-#, c-format
-msgid "“%s” is not responding."
-msgstr "“%s” ไม่ตอบสนอง"
+#: src/core/display.c:741
+msgid "Privacy Screen Enabled"
+msgstr "ที่บังจอเปิดใช้อยู่"
 
-#: ../src/core/delete.c:129
-msgid "Application is not responding."
-msgstr "โปรแกรมไม่ตอบสนอง"
+#: src/core/display.c:742
+msgid "Privacy Screen Disabled"
+msgstr "ที่บังจอปิดใช้อยู่"
 
-#: ../src/core/delete.c:134
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr "คุณอาจเลือกที่จะรอสักครู่ เพื่อให้โปรแกรมทำงานต่อ หรือจะบังคับโปรแกรมออกทันทีเลยก็ได้"
-
-#: ../src/core/delete.c:141
-msgid "_Wait"
-msgstr "_รอ"
-
-#: ../src/core/delete.c:141
-msgid "_Force Quit"
-msgstr "_บังคับออก"
-
-#: ../src/core/display.c:563
-#, c-format
-msgid "Failed to open X Window System display '%s'\n"
-msgstr "ไม่สามารถเปิดดิสเพลย์ '%s' ของระบบ X Window\n"
-
-#: ../src/core/main.c:176
-msgid "Disable connection to session manager"
-msgstr "ปิดการเชื่อมต่อไปยังโปรแกรมจัดการวาระ"
-
-#: ../src/core/main.c:182
+#: src/core/meta-context-main.c:621
 msgid "Replace the running window manager"
-msgstr "แทนที่โปรแกรมจัดการหน้าต่างที่กำลังทำงานอยู่"
+msgstr "แทนที่ตัวจัดการหน้าต่างที่กำลังทำงานอยู่"
 
-#: ../src/core/main.c:188
-msgid "Specify session management ID"
-msgstr "ระบุ ID ของการจัดการวาระ"
-
-#: ../src/core/main.c:193
+#: src/core/meta-context-main.c:627
 msgid "X Display to use"
 msgstr "ดิสเพลย์ X ที่จะใช้"
 
-#: ../src/core/main.c:199
-msgid "Initialize session from savefile"
-msgstr "ใช้ค่าเริ่มต้นของวาระจากแฟ้มที่บันทึกไว้"
+#: src/core/meta-context-main.c:633
+msgid "Disable connection to session manager"
+msgstr "ปิดการเชื่อมต่อไปยังตัวจัดการเซสชัน"
 
-#: ../src/core/main.c:205
+#: src/core/meta-context-main.c:639
+msgid "Specify session management ID"
+msgstr "ระบุ ID ของการจัดการเซสชัน"
+
+#: src/core/meta-context-main.c:645
+msgid "Initialize session from savefile"
+msgstr "ใช้ค่าตั้งต้นของเซสชันจากไฟล์ที่บันทึกไว้"
+
+#: src/core/meta-context-main.c:651
 msgid "Make X calls synchronous"
 msgstr "ให้การเรียกฟังก์ชัน X เป็นแบบซิงโครนัส"
 
-#: ../src/core/main.c:212
+#: src/core/meta-context-main.c:659
 msgid "Run as a wayland compositor"
-msgstr "เรียกทำงานในฐานะ compositor ของ wayland"
+msgstr "เรียกทำงานในฐานะคอมโพสิเตอร์ของ wayland"
 
-#: ../src/core/main.c:220
+#: src/core/meta-context-main.c:666
+msgid "Run as a nested compositor"
+msgstr "เรียกทำงานในฐานะคอมโพสิเตอร์แบบซ้อน"
+
+#: src/core/meta-context-main.c:674
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "เรียกทำงานคอมโพสิเตอร์ของ wayland โดยไม่เริ่ม Xwayland"
+
+#: src/core/meta-context-main.c:681
+msgid "Specify Wayland display name to use"
+msgstr "ระบุชื่อดิสเพลย์ Wayland ที่จะใช้"
+
+#: src/core/meta-context-main.c:689
 msgid "Run as a full display server, rather than nested"
-msgstr "เรียกทำงานในฐานเซิร์ฟเวอร์แสดงผลเต็มขั้น ไม่ใช่ซ้อนในเซิร์ฟเวอร์อื่น"
+msgstr "เรียกทำงานในฐานะเซิร์ฟเวอร์แสดงผลเต็มขั้น ไม่ใช่ซ้อนในเซิร์ฟเวอร์อื่น"
 
-# FIXME: Get a lawer to translate the legal clause.
-#: ../src/core/mutter.c:39
+#: src/core/meta-context-main.c:694
+msgid "Run as a headless display server"
+msgstr "เรียกทำงานในฐานะเซิร์ฟเวอร์แสดงผลแบบไม่ต่อกับจอภาพจริง"
+
+#: src/core/meta-context-main.c:699
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "เพิ่มจอภาพเสมือนแบบคงอยู่ตลอด (WxH หรือ WxH@R)"
+
+#: src/core/meta-context-main.c:711
+msgid "Run with X11 backend"
+msgstr "เรียกทำงานด้วยแบ็กเอนด์ X11"
+
+#: src/core/meta-context-main.c:717
+msgid "Profile performance using trace instrumentation"
+msgstr "ทำโปรไฟล์เกี่ยวกับประสิทธิภาพโดยใช้วิธี trace instrumentation"
+
+#: src/core/meta-context-main.c:723
+msgid "Enable debug control D-Bus interface"
+msgstr "เปิดใช้ส่วนติดต่อ D-Bus สำหรับควบคุมการดีบัก"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes in that button group.
+#.
+#: src/core/meta-pad-action-mapper.c:552
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"mutter %s\n"
-"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"นี่เป็นซอฟต์แวร์เสรี อ่านเงื่อนไขลิขสิทธิ์ได้ในโค้ดต้นฉบับ\n"
-"ไม่รับผิดชอบข้อเสียหายใดๆ "
-"ไม่รับประกันความเหมาะสมในเชิงพาณิชย์หรือการใช้งานเฉพาะทางอย่างหนึ่งอย่างใด\n"
+msgid "Mode Switch (Group %d)"
+msgstr "สลับโหมด (กลุ่ม %d)"
 
-#: ../src/core/mutter.c:53
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:559
+#, c-format
+msgid "Mode Switch"
+msgstr "สลับโหมด"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:582
+msgid "Switch monitor"
+msgstr "สลับจอภาพ"
+
+#: src/core/meta-pad-action-mapper.c:584
+msgid "Show on-screen help"
+msgstr "แสดงวิธีใช้บนหน้าจอ"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+msgid "Compositor"
+msgstr "คอมโพสิเตอร์"
+
+#: src/core/mutter.c:74
 msgid "Print version"
 msgstr "แสดงเลขรุ่น"
 
-#: ../src/core/mutter.c:59
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "ปลั๊กอินของ mutter ที่จะใช้"
 
-#: ../src/core/prefs.c:2004
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "พื้นที่ทำงาน %d"
 
-#: ../src/core/screen.c:525
+#: src/core/util.c:140
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter ถูกคอมไพล์โดยไม่ได้เลือกรองรับโหมดข้อความละเอียด"
+
+#: src/core/workspace.c:508
+msgid "Workspace switched"
+msgstr "สลับพื้นที่ทำงานแล้ว"
+
+#: src/wayland/meta-wayland-tablet-pad.c:532
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "สลับโหมด: โหมด %d"
+
+#: src/x11/meta-x11-display.c:858
 #, c-format
 msgid ""
-"Display \"%s\" already has a window manager; try using the --replace option "
-"to replace the current window manager."
-msgstr ""
-"ดิสเพลย์ \"%s\" มีโปรแกรมจัดการหน้าต่างอยู่แล้ว ลองใช้ตัวเลือก --replace "
-"ถ้าต้องการแทนที่โปรแกรมจัดการหน้าต่างปัจจุบัน"
+"Display “%s” already has a window manager; try using the --replace option to replace the "
+"current window manager."
+msgstr "ดิสเพลย์ “%s” มีตัวจัดการหน้าต่างอยู่แล้ว ลองใช้ตัวเลือก --replace ถ้าต้องการแทนที่ตัวจัดการหน้าต่างปัจจุบัน"
 
-#: ../src/core/screen.c:607
+#: src/x11/meta-x11-display.c:1243
 #, c-format
-msgid "Screen %d on display '%s' is invalid\n"
-msgstr "สกรีน %d ที่ดิสเพลย์ '%s' ใช้ไม่ได้\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "ไม่สามารถเปิดดิสเพลย์ “%s” ของระบบ X Window"
 
-#: ../src/core/util.c:118
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter ถูกคอมไพล์โดยไม่ได้เลือกรองรับโหมดข้อความละเอียด\n"
+#: src/x11/meta-x11-display.c:1476
+#, c-format
+msgid "Screen %d on display “%s” is invalid"
+msgstr "สกรีน %d ที่ดิสเพลย์ “%s” ใช้ไม่ได้"
 
-#: ../src/x11/session.c:1815
-msgid ""
-"These windows do not support &quot;save current setup&quot; and will have to "
-"be restarted manually next time you log in."
-msgstr ""
-"หน้าต่างเหล่านี้ไม่รองรับการ &quot;บันทึกค่าตั้งปัจจุบัน&quot; "
-"และคุณต้องกำหนดใหม่เองเมื่อเข้าสู่ระบบครั้งต่อไป"
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2807
+#, c-format
+msgid "Another compositing manager is already running on screen %i on display “%s”."
+msgstr "มีตัวจัดการคอมโพสิตทำงานอยู่แล้วที่สกรีน %i ดิสเพลย์ “%s”"
 
-#: ../src/x11/window-props.c:549
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "ไม่รองรับรูปแบบ %s"
+
+#: src/x11/window-props.c:555
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (ที่เครื่อง %s)"
 
+#~ msgid "Move to workspace left"
+#~ msgstr "ย้ายไปพื้นที่ทำงานซ้าย"
+
+#~ msgid "Move to workspace right"
+#~ msgstr "ย้ายไปพื้นที่ทำงานขวา"
+
+#~ msgid "Move to workspace above"
+#~ msgstr "ย้ายไปพื้นที่ทำงานบน"
+
+#~ msgid "Move to workspace below"
+#~ msgstr "ย้ายไปพื้นที่ทำงานล่าง"
+
+#~ msgid "Show the activities overview"
+#~ msgstr "แสดงภาพรวมของกิจกรรมต่างๆ"
+
+#~ msgid "Toggle shaded state"
+#~ msgstr "ม้วน/คลี่หน้าต่าง"
+
+#~ msgid "Mutter"
+#~ msgstr "Mutter"
+
+#~ msgid "No tab popup"
+#~ msgstr "ไม่ใช้กล่องผุดขึ้นของปุ่มแท็บ"
+
+#~ msgid ""
+#~ "Determines whether the use of popup and highlight frame should be disabled for window "
+#~ "cycling."
+#~ msgstr "กำหนดว่าจะปิดการใช้กล่องผุดขึ้นและการเน้นกรอบหน้าต่างสำหรับการสลับหน้าต่างหรือไม่"
+
+#~ msgid "Select window from tab popup"
+#~ msgstr "เลือกหน้าต่างจากกล่องผุดขึ้นของปุ่มแท็บ"
+
+#~ msgid "Cancel tab popup"
+#~ msgstr "ยกเลิกกล่องผุดขึ้นของปุ่มแท็บ"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "“%s” ไม่ตอบสนอง"
+
+#~ msgid "Application is not responding."
+#~ msgstr "โปรแกรมไม่ตอบสนอง"
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the application to quit "
+#~ "entirely."
+#~ msgstr "คุณอาจเลือกที่จะรอสักครู่ เพื่อให้โปรแกรมทำงานต่อ หรือจะบังคับโปรแกรมออกทันทีเลยก็ได้"
+
+#~ msgid "_Wait"
+#~ msgstr "_รอ"
+
+#~ msgid "_Force Quit"
+#~ msgstr "_บังคับออก"
+
+# FIXME: Get a lawer to translate the legal clause.
+#, c-format
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "mutter %s\n"
+#~ "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "นี่เป็นซอฟต์แวร์เสรี อ่านเงื่อนไขลิขสิทธิ์ได้ในโค้ดต้นฉบับ\n"
+#~ "ไม่รับผิดชอบข้อเสียหายใดๆ ไม่รับประกันความเหมาะสมในเชิงพาณิชย์หรือการใช้งานเฉพาะทางอย่างหนึ่งอย่างใด\n"
+
+#~ msgid ""
+#~ "These windows do not support &quot;save current setup&quot; and will have to be restarted "
+#~ "manually next time you log in."
+#~ msgstr "หน้าต่างเหล่านี้ไม่รองรับการ &quot;บันทึกค่าตั้งปัจจุบัน&quot; และคุณต้องกำหนดใหม่เองเมื่อเข้าสู่ระบบครั้งต่อไป"
