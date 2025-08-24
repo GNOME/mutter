@@ -1902,7 +1902,7 @@ on_stream_add_buffer (void             *data,
                   pw_stream_get_node_id (priv->pipewire_stream));
 
       spa_data->type = SPA_DATA_DmaBuf;
-      spa_data->flags = SPA_DATA_FLAG_READWRITE;
+      spa_data->flags = SPA_DATA_FLAG_READABLE;
       spa_data->fd = cogl_dma_buf_handle_get_fd (dmabuf_handle, 0);
 
       g_hash_table_insert (priv->dmabuf_handles,
@@ -1933,7 +1933,7 @@ on_stream_add_buffer (void             *data,
 
       /* Fallback to a memfd buffer */
       spa_data->type = SPA_DATA_MemFd;
-      spa_data->flags = SPA_DATA_FLAG_READWRITE;
+      spa_data->flags = SPA_DATA_FLAG_READABLE;
       spa_data->fd = memfd_create ("mutter-screen-cast-memfd",
                                    MFD_CLOEXEC | MFD_ALLOW_SEALING);
       if (spa_data->fd == -1)
