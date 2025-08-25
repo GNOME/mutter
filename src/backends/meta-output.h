@@ -221,6 +221,7 @@ void meta_output_set_monitor (MetaOutput  *output,
 
 void meta_output_unset_monitor (MetaOutput *output);
 
+META_EXPORT_TEST
 const char * meta_output_get_name (MetaOutput *output);
 
 META_EXPORT_TEST

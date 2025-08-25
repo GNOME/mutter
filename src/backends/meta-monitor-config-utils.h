@@ -23,6 +23,7 @@
 
 GList * meta_clone_logical_monitor_config_list (GList *logical_monitor_configs);
 
+META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitors_config_copy (MetaMonitorsConfig *monitors_config);
 
 gboolean meta_verify_logical_monitor_config_list (GList                         *logical_monitor_configs,

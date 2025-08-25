@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "backends/meta-monitor-config-utils.h"
 #include "backends/meta-virtual-monitor.h"
 #include "clutter/clutter.h"
 #include "compositor/compositor-private.h"
@@ -1026,6 +1027,40 @@ track_popup (TestCase        *test,
     return FALSE;
 
   return TRUE;
+}
+
+static gboolean
+logical_monitor_config_has_connector (MetaLogicalMonitorConfig *logical_monitor_config,
+                                      const char               *connector)
+{
+  GList *l;
+
+  for (l = logical_monitor_config->monitor_configs; l; l = l->next)
+    {
+      MetaMonitorConfig *monitor_config = l->data;
+
+      if (g_strcmp0 (monitor_config->monitor_spec->connector, connector) == 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static MetaLogicalMonitorConfig *
+find_logical_monitor_config (MetaMonitorsConfig *config,
+                             const char         *connector)
+{
+  GList *l;
+
+  for (l = config->logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *logical_monitor_config = l->data;
+
+      if (logical_monitor_config_has_connector (logical_monitor_config,
+                                                connector))
+        return logical_monitor_config;
+    }
+  return NULL;
 }
 
 static gboolean
@@ -2068,6 +2103,49 @@ test_case_do (TestCase    *test,
       meta_monitor_manager_reload (monitor_manager);
 
       g_hash_table_insert (test->virtual_monitors, g_strdup (argv[1]), monitor);
+    }
+  else if (strcmp (argv[0], "set_monitor_order") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaMonitorsConfig *current_config;
+      g_autoptr (MetaMonitorsConfig) new_config = NULL;
+      int i;
+      int total_width = 0;
+
+      if (argc < 2)
+        BAD_COMMAND ("usage: %s [<monitor-id>, ...]", argv[0]);
+
+      current_config =
+        meta_monitor_config_manager_get_current (monitor_manager->config_manager);
+      new_config =
+        meta_monitors_config_copy (current_config);
+
+      for (i = 1; i < argc; i++)
+        {
+          MetaVirtualMonitor *virtual_monitor;
+          MetaOutput *output;
+          MetaLogicalMonitorConfig *logical_monitor_config;
+
+          virtual_monitor =
+            g_hash_table_lookup (test->virtual_monitors, argv[i]);
+          if (!virtual_monitor)
+            BAD_COMMAND ("Unknown monitor %s", argv[1]);
+
+          output = meta_virtual_monitor_get_output (virtual_monitor);
+          logical_monitor_config =
+            find_logical_monitor_config (new_config,
+                                         meta_output_get_name (output));
+          logical_monitor_config->layout.x = total_width;
+          total_width += logical_monitor_config->layout.width;
+        }
+
+      if (!meta_monitor_manager_apply_monitors_config (monitor_manager,
+                                                       new_config,
+                                                       META_MONITORS_CONFIG_METHOD_TEMPORARY,
+                                                       error))
+        return FALSE;
     }
   else if (strcmp (argv[0], "assert_window_main_monitor") == 0)
     {
