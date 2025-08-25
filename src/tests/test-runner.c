@@ -2069,6 +2069,51 @@ test_case_do (TestCase    *test,
 
       g_hash_table_insert (test->virtual_monitors, g_strdup (argv[1]), monitor);
     }
+  else if (strcmp (argv[0], "assert_window_main_monitor") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaLogicalMonitor *logical_monitor;
+      const char *monitor_id;
+
+      if (argc != 3)
+        BAD_COMMAND ("usage: %s <window-id> <monitor-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      monitor_id = argv[2];
+      logical_monitor = get_logical_monitor (test, monitor_id, error);
+      if (!logical_monitor)
+        return FALSE;
+
+      if (window->monitor != logical_monitor)
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                       "Monitor %s (%d, %dx%d+%d+%d) is not the primary monitor of window %s (%d, %dx%d+%d+%d)",
+                       monitor_id,
+                       logical_monitor->number,
+                       logical_monitor->rect.width,
+                       logical_monitor->rect.height,
+                       logical_monitor->rect.x,
+                       logical_monitor->rect.y,
+                       window_id,
+                       window->monitor->number,
+                       window->monitor->rect.width,
+                       window->monitor->rect.height,
+                       window->monitor->rect.x,
+                       window->monitor->rect.y
+                       );
+          return FALSE;
+        }
+    }
   else if (strcmp (argv[0], "assert_primary_monitor") == 0)
     {
       MetaVirtualMonitor *virtual_monitor;
