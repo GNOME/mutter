@@ -622,6 +622,15 @@ meta_monitor_manager_native_dispose (GObject *object)
   G_OBJECT_CLASS (meta_monitor_manager_native_parent_class)->dispose (object);
 }
 
+static void
+on_monitors_changed (MetaMonitorManagerNative *manager_native)
+{
+  MetaMonitorManagerNativePrivate *priv =
+    meta_monitor_manager_native_get_instance_private (manager_native);
+
+  g_clear_handle_id (&priv->rebuild_virtual_idle_id, g_source_remove);
+}
+
 static gboolean
 meta_monitor_manager_native_initable_init (GInitable    *initable,
                                            GCancellable *cancellable,
@@ -661,6 +670,9 @@ meta_monitor_manager_native_initable_init (GInitable    *initable,
     g_hash_table_new_full (NULL, NULL,
                            NULL,
                            (GDestroyNotify) meta_gamma_lut_free);
+
+  g_signal_connect (manager, "monitors-changed",
+                    G_CALLBACK (on_monitors_changed), NULL);
 
   return TRUE;
 }
