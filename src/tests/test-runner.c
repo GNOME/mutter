@@ -1063,6 +1063,83 @@ find_logical_monitor_config (MetaMonitorsConfig *config,
   return NULL;
 }
 
+typedef struct _PointerMotionInterpolation
+{
+  TestCase *test;
+  ClutterInterval *interval_x;
+  ClutterInterval *interval_y;
+  float last_x;
+  float last_y;
+} PointerMotionInterpolation;
+
+static void
+on_pointer_motion_frame (ClutterTimeline            *timeline,
+                         int                         elapsed_ms,
+                         PointerMotionInterpolation *interpolation)
+{
+  ClutterVirtualInputDevice *pointer = interpolation->test->pointer;
+  float progress;
+  const GValue *x_value, *y_value;
+  float x, y;
+
+  progress = (float) elapsed_ms / clutter_timeline_get_duration (timeline);
+  x_value = clutter_interval_compute (interpolation->interval_x, progress);
+  y_value = clutter_interval_compute (interpolation->interval_y, progress);
+  x = g_value_get_float (x_value);
+  y = g_value_get_float (y_value);
+
+  if (x == interpolation->last_x &&
+      y == interpolation->last_y)
+    return;
+
+  interpolation->last_x = x;
+  interpolation->last_y = y;
+
+  clutter_virtual_input_device_notify_absolute_motion (pointer,
+                                                       CLUTTER_CURRENT_TIME,
+                                                       x, y);
+  meta_flush_input (interpolation->test->context);
+}
+
+static gboolean
+interpolate_pointer_motion (TestCase  *test,
+                            float      x,
+                            float      y,
+                            uint32_t   duration_ms,
+                            GError   **error)
+{
+  ClutterSeat *seat =
+    clutter_virtual_input_device_get_seat (test->pointer);
+  MetaBackend *backend = meta_context_get_backend (test->context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  PointerMotionInterpolation interpolation = {
+    .test = test,
+  };
+  g_autoptr (ClutterTimeline) timeline = NULL;
+  graphene_point_t source;
+
+  clutter_seat_query_state (seat, NULL, &source, NULL);
+  interpolation.interval_x = clutter_interval_new (G_TYPE_FLOAT,
+                                                   source.x, x);
+  interpolation.interval_y = clutter_interval_new (G_TYPE_FLOAT,
+                                                   source.y, y);
+
+  timeline = clutter_timeline_new_for_actor (stage, duration_ms);
+  g_signal_connect (timeline, "new-frame", G_CALLBACK (on_pointer_motion_frame),
+                    &interpolation);
+  clutter_timeline_start (timeline);
+  while (clutter_timeline_is_playing (timeline))
+    g_main_context_iteration (NULL, TRUE);
+
+  g_object_unref (interpolation.interval_x);
+  g_object_unref (interpolation.interval_y);
+
+  if (!test_case_dispatch (test, error))
+    return FALSE;
+
+  return TRUE;
+}
+
 static gboolean
 warp_pointer_to (TestCase  *test,
                  float      x,
@@ -2513,14 +2590,32 @@ test_case_do (TestCase    *test,
     }
   else if (strcmp (argv[0], "move_cursor_to") == 0)
     {
-      if (argc != 3)
-        BAD_COMMAND ("usage: %s <x> <y>", argv[0]);
-
       float x = (float) atof (argv[1]);
       float y = (float) atof (argv[2]);
 
-      if (!warp_pointer_to (test, x, y, error))
-        return FALSE;
+      if (argc != 3 && argc != 4)
+        BAD_COMMAND ("usage: %s <x> <y> [<interpolation duration (s/ms)>]", argv[0]);
+
+      if (argc == 4)
+        {
+          char *duration_str = argv[3];
+          int duration_ms;
+
+          if (g_str_has_suffix (duration_str, "ms"))
+            duration_ms = atoi (duration_str);
+          else if (g_str_has_suffix (duration_str, "s"))
+            duration_ms = s2ms (atoi (duration_str));
+          else
+            BAD_COMMAND ("Unknown interpolation time granularity");
+
+          if (!interpolate_pointer_motion (test, x, y, duration_ms, error))
+            return FALSE;
+        }
+      else
+        {
+          if (!warp_pointer_to (test, x, y, error))
+            return FALSE;
+        }
     }
   else if (strcmp (argv[0], "click") == 0)
     {
