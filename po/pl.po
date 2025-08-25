@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-03-02 12:50+0100\n"
+"POT-Creation-Date: 2025-08-25 11:31+0000\n"
+"PO-Revision-Date: 2025-08-25 14:50+0200\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -316,12 +316,12 @@ msgstr "Dynamiczne zarządzanie obszarami roboczymi"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Określa, czy obszary robocze są zarządzane dynamicznie, czy istnieje "
-"statyczna liczba obszarów (określona przez klucz „num-workspaces” w „org."
-"gnome.desktop.wm.preferences”)."
+"statyczna liczba obszarów (określona przez klucz „num-workspaces” "
+"w „org.gnome.desktop.wm.preferences”)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -641,26 +641,118 @@ msgstr ""
 "ustawieniem. Xwayland musi zostać ponownie uruchomiony, aby to ustawienie "
 "zostało uwzględnione."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Program"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Plik wykonywalny"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Dodanie aktywatora"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Aktywator"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Typ"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Dodaj"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Uruchom"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Usuwa"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Działanie"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Modyfikacja aktywatorów"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Aktywatory"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_Wejście"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_Emulacja ekranu dotykowego"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Wstrzymanie skrótów systemowych"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Aktywatory"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Modyfikuj aktywatory"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "_O zestawie programistycznym Mutter"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Zestaw programistyczny Mutter"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "Menu główne"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Zespół Mutter"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Zestaw programistyczny Mutter"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "O zestawie programistycznym Mutter"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Utworzenie monitora się nie powiodło"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Wbudowany ekran"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Nieznany"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Nieznany ekran"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -668,7 +760,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Zdarzenie sygnału dźwiękowego"
 
@@ -680,57 +772,49 @@ msgstr "Włączono prywatny ekran"
 msgid "Privacy Screen Disabled"
 msgstr "Wyłączono prywatny ekran"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Zastępuje uruchomionego menedżera okien"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Używany ekran X"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Rozłącza połączenie z menedżerem sesji"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Podaje identyfikator zarządzania sesją"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Inicjuje sesję z zapisanego pliku"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Synchroniczne wywołania X"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Uruchamia jako menedżer składania Wayland"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Uruchamia jako osadzony menedżer składania"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Uruchamia menedżer składania Wayland bez uruchamiania serwera Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Podaje używaną nazwę ekranu Wayland"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Uruchamia jako serwer wyświetlania bez monitora"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Dodaje trwały wirtualny monitor (SzxW lub SzxW@O)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Uruchamia zestaw programistyczny"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -747,7 +831,7 @@ msgstr "Włącza interfejs D-Bus do sterowania debugowaniem"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Przełącznik trybu (%d. grupa)"
@@ -755,7 +839,7 @@ msgstr "Przełącznik trybu (%d. grupa)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Przełącznik trybu"
@@ -763,11 +847,11 @@ msgstr "Przełącznik trybu"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Przełączenie monitora"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Ekran pomocy"
 
@@ -789,7 +873,7 @@ msgstr "Używana wtyczka menedżera Mutter"
 msgid "Workspace %d"
 msgstr "%d. obszar roboczy"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr ""
 "Menedżer Mutter został skompilowany bez obsługi trybu z obszerną informacją"
@@ -798,12 +882,12 @@ msgstr ""
 msgid "Workspace switched"
 msgstr "Przełączono obszar roboczy"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Przełącznik trybu: %d. tryb"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -812,19 +896,19 @@ msgstr ""
 "Na ekranie „%s” działa już menedżer okien. Aby zastąpić działającego "
 "menedżera okien, należy użyć opcji „--replace”."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Otwarcie ekranu „%s” systemu X Window się nie powiodło"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Podekran %d ekranu „%s” jest nieprawidłowy"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -836,7 +920,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Format %s jest nieobsługiwany"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
