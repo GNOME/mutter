@@ -592,7 +592,7 @@ meta_window_wayland_update_main_monitor (MetaWindow                   *window,
     }
 
   frame_rect = meta_window_config_get_rect (window->config);
-  if (frame_rect.width == 0 || frame_rect.height == 0 || !window->placed)
+  if (frame_rect.width == 0 || frame_rect.height == 0)
     {
       g_set_object (&window->monitor, meta_window_find_monitor_from_id (window));
       return;
