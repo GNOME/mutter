@@ -255,9 +255,6 @@ struct _MetaMonitorManagerClass
                                                    GError                       **error);
 };
 
-META_EXPORT_TEST
-MetaBackend *       meta_monitor_manager_get_backend (MetaMonitorManager *manager);
-
 void                meta_monitor_manager_setup (MetaMonitorManager *manager);
 
 META_EXPORT_TEST

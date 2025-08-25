@@ -43,6 +43,9 @@ META_EXPORT
 GType meta_monitor_manager_get_type (void);
 
 META_EXPORT
+MetaBackend * meta_monitor_manager_get_backend (MetaMonitorManager *manager);
+
+META_EXPORT
 gint meta_monitor_manager_get_monitor_for_connector (MetaMonitorManager *manager,
                                                      const char         *connector);
 

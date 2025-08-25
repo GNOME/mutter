@@ -147,6 +147,14 @@ is_global_scale_matching_in_config (MetaMonitorsConfig *config,
 static void update_backlight (MetaMonitorManager *manager,
                               gboolean            bump_serial);
 
+/**
+ * meta_monitor_manager_get_backend:
+ * @manager: A #MetaMonitorManager object
+ *
+ * Returns the backend who own this monitor manager instance.
+ *
+ * Returns: (transfer none): A [class@Meta.Backend].
+ */
 MetaBackend *
 meta_monitor_manager_get_backend (MetaMonitorManager *manager)
 {
