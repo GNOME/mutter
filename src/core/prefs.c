@@ -1206,6 +1206,11 @@ meta_prefs_get_cursor_theme (void)
 int
 meta_prefs_get_cursor_size (void)
 {
+  if (cursor_size <= 0)
+    {
+      g_warning_once ("Invalid cursor size (%d) in settings, resetting to 24", cursor_size);
+      cursor_size = 24;
+    }
   return cursor_size;
 }
 
