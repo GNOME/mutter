@@ -4341,12 +4341,42 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   if (result & META_MOVE_RESIZE_RESULT_MOVED)
     {
+      if (meta_is_topic_enabled (META_DEBUG_WINDOW_STATE))
+        {
+          MtkRectangle new_rect;
+
+          new_rect = meta_window_config_get_rect (window->config);
+          meta_topic (META_DEBUG_WINDOW_STATE,
+                      "Moved window %s moved: "
+                      "frame position=%d, %d, "
+                      "buffer position=%d, %d",
+                      window->desc,
+                      new_rect.x, new_rect.y,
+                      window->buffer_rect.x,
+                      window->buffer_rect.y);
+        }
+
       moved_or_resized = TRUE;
       g_signal_emit (window, window_signals[POSITION_CHANGED], 0);
     }
 
   if (result & META_MOVE_RESIZE_RESULT_RESIZED)
     {
+      if (meta_is_topic_enabled (META_DEBUG_WINDOW_STATE))
+        {
+          MtkRectangle new_rect;
+
+          new_rect = meta_window_config_get_rect (window->config);
+          meta_topic (META_DEBUG_WINDOW_STATE,
+                      "Moved window %s resized: "
+                      "frame size=%dx%d, "
+                      "buffer size=%dx%d",
+                      window->desc,
+                      new_rect.width, new_rect.height,
+                      window->buffer_rect.width,
+                      window->buffer_rect.height);
+        }
+
       moved_or_resized = TRUE;
       g_signal_emit (window, window_signals[SIZE_CHANGED], 0);
     }
