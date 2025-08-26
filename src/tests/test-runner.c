@@ -1452,7 +1452,6 @@ test_case_do (TestCase    *test,
            strcmp (argv[0], "unminimize") == 0 ||
            strcmp (argv[0], "maximize") == 0 ||
            strcmp (argv[0], "unmaximize") == 0 ||
-           strcmp (argv[0], "fullscreen") == 0 ||
            strcmp (argv[0], "unfullscreen") == 0 ||
            strcmp (argv[0], "set_modal") == 0 ||
            strcmp (argv[0], "unset_modal") == 0 ||
@@ -1470,6 +1469,39 @@ test_case_do (TestCase    *test,
 
       if (!meta_test_client_do (client, error, argv[0], window_id, NULL))
         return FALSE;
+    }
+  else if (strcmp (argv[0], "fullscreen") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+
+      if (argc != 2 && argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> [<connector>]", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      if (argc == 3)
+        {
+          MetaVirtualMonitor *virtual_monitor;
+          MetaOutput *output;
+
+          virtual_monitor = g_hash_table_lookup (test->virtual_monitors,
+                                                 argv[2]);
+          if (!virtual_monitor)
+            BAD_COMMAND ("Unknown monitor %s", argv[2]);
+
+          output = meta_virtual_monitor_get_output (virtual_monitor);
+          if (!meta_test_client_do (client, error, argv[0], window_id,
+                                    meta_output_get_name (output),
+                                    NULL))
+            return FALSE;
+        }
+      else
+        {
+          if (!meta_test_client_do (client, error, argv[0], window_id, NULL))
+            return FALSE;
+        }
     }
   else if (strcmp (argv[0], "local_activate") == 0)
     {

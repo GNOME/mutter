@@ -387,6 +387,27 @@ popup_at (GtkWidget  *parent,
     }
 }
 
+static int
+find_monitor_from_connector (const char *connector)
+{
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkScreen *screen = gdk_screen_get_default ();
+  int i;
+
+  for (i = 0; i < gdk_display_get_n_monitors (display); i++)
+    {
+      g_autofree char *monitor_connector = NULL;
+
+      G_GNUC_BEGIN_IGNORE_DEPRECATIONS
+      monitor_connector = gdk_screen_get_monitor_plug_name (screen, i);
+      G_GNUC_END_IGNORE_DEPRECATIONS
+      if (g_strcmp0 (connector, monitor_connector) == 0)
+        return i;
+    }
+
+  return -1;
+}
+
 static void
 process_line (const char *line)
 {
@@ -924,9 +945,9 @@ process_line (const char *line)
     }
   else if (strcmp (argv[0], "fullscreen") == 0)
     {
-      if (argc != 2)
+      if (argc != 2 && argc != 3)
         {
-          g_print ("usage: fullscreen <id>\n");
+          g_print ("usage: fullscreen <id> [<connector>]\n");
           goto out;
         }
 
@@ -934,7 +955,26 @@ process_line (const char *line)
       if (!window)
         goto out;
 
-      gtk_window_fullscreen (GTK_WINDOW (window));
+      if (argc == 3)
+        {
+          GdkScreen *screen = gdk_screen_get_default ();
+          int monitor;
+
+          monitor = find_monitor_from_connector (argv[2]);
+          if (monitor == -1)
+            {
+              g_printerr ("Unknown monitor %s\n", argv[2]);
+              goto out;
+            }
+
+          gtk_window_fullscreen_on_monitor (GTK_WINDOW (window),
+                                            screen,
+                                            monitor);
+        }
+      else
+        {
+          gtk_window_fullscreen (GTK_WINDOW (window));
+        }
     }
   else if (strcmp (argv[0], "unfullscreen") == 0)
     {
