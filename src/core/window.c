@@ -4600,9 +4600,7 @@ meta_window_move_to_monitor (MetaWindow  *window,
                                          monitor,
                                          &new_area);
 
-  if (window->unconstrained_rect.width == 0 ||
-      window->unconstrained_rect.height == 0 ||
-      !mtk_rectangle_overlap (&window->unconstrained_rect, &old_area))
+  if (meta_window_is_hidden (window))
     {
       meta_window_move_between_rects (window, 0, NULL, &new_area);
     }
