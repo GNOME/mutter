@@ -1229,6 +1229,23 @@ calculate_window_position (MetaWindowDrag          *window_drag,
   *out_y = new_y;
 }
 
+void
+meta_window_drag_calculate_window_position (MetaWindowDrag *window_drag,
+                                            int             window_width,
+                                            int             window_height,
+                                            int            *out_x,
+                                            int            *out_y)
+{
+  calculate_window_position (window_drag,
+                             window_drag->last_edge_resistance_flags,
+                             window_width,
+                             window_height,
+                             window_drag->latest_motion_x,
+                             window_drag->latest_motion_y,
+                             out_x,
+                             out_y);
+}
+
 static void
 update_move (MetaWindowDrag          *window_drag,
              MetaEdgeResistanceFlags  flags,
