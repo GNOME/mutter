@@ -69,7 +69,6 @@ typedef struct _MetaOutputPrivate
 
   int backlight;
 
-  MetaPrivacyScreenState privacy_screen_state;
   gboolean is_privacy_screen_enabled;
 
   MetaColorMode color_mode;
@@ -491,7 +490,7 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
   MetaPrivacyScreenState state;
 
-  state = priv->privacy_screen_state;
+  state = meta_output_get_privacy_screen_state (output);
 
   if (state == META_PRIVACY_SCREEN_UNAVAILABLE)
     {
@@ -508,7 +507,7 @@ meta_output_set_privacy_screen_enabled (MetaOutput  *output,
       return FALSE;
     }
 
-  if (priv->is_privacy_screen_enabled == enabled)
+  if ((state == META_PRIVACY_SCREEN_ENABLED) == enabled)
     return TRUE;
 
   priv->is_privacy_screen_enabled = enabled;
