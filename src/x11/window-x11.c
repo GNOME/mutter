@@ -541,6 +541,7 @@ meta_window_x11_initialize_state (MetaWindow *window)
     {
       MtkRectangle rect;
       MetaMoveResizeFlags flags;
+      MetaSizeHintsFlags size_hints_flags;
       MetaGravity gravity = window->size_hints.win_gravity;
       MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
 
@@ -554,7 +555,9 @@ meta_window_x11_initialize_state (MetaWindow *window)
                META_MOVE_RESIZE_RESIZE_ACTION |
                META_MOVE_RESIZE_CONSTRAIN);
 
-      if (!(window->size_hints.flags & META_SIZE_HINTS_USER_POSITION))
+      size_hints_flags = window->size_hints.flags;
+      if (!(size_hints_flags & META_SIZE_HINTS_USER_POSITION) &&
+          !meta_window_config_get_is_fullscreen (window->config))
         flags |= META_MOVE_RESIZE_RECT_INVALID;
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
