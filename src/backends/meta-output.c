@@ -461,7 +461,7 @@ meta_output_is_privacy_screen_enabled (MetaOutput *output)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
-  return priv->privacy_screen_state;
+  return priv->is_privacy_screen_enabled;
 }
 
 gboolean
