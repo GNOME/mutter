@@ -1,0 +1,80 @@
+resize_monitor default 800 600
+add_monitor secondary 640 480
+set_pref center-new-windows true
+
+new_client w wayland
+new_client x x11
+
+#
+# 1. Map a window fullscreen on the secondary monitor
+# 2. Map a window as floating, then fullscreen on the secondary monitor
+#
+# First for Wayland, then for X11
+#
+
+create w/1 csd
+fullscreen w/1 secondary
+show w/1
+wait
+assert_position w/1 800 0
+assert_size w/1 640 480
+destroy w/1
+
+create w/2 csd
+resize w/2 200 200
+show w/2
+wait
+assert_position w/2 300 200
+assert_size w/2 200 200
+fullscreen w/2 secondary
+wait_reconfigure w/2
+assert_position w/2 800 0
+assert_size w/2 640 480
+destroy w/2
+
+create x/1 csd
+fullscreen x/1 secondary
+show x/1
+wait
+assert_position x/1 800 0
+assert_size x/1 640 480
+destroy x/1
+
+create x/2 csd
+resize x/2 200 200
+show x/2
+wait
+assert_position x/2 300 200
+assert_size x/2 200 200
+fullscreen x/2 secondary
+wait_reconfigure x/2
+assert_position x/2 800 0
+assert_size x/2 640 480
+destroy x/2
+
+#
+# This following part of the test checks that the existing X11 behavior
+# applies, which isn't necessarily ideal. The semantics are:
+#
+# No matter what the current active monitor is, always fullscreen the window on
+# the monitor determined by the X11 window metadata received when mapped. In
+# practice this means windows mapped as fullscreen without an explicit
+# rectangle configured will be placed on the left most monitor.
+#
+
+move_cursor_to 700 200
+
+create x/3 csd
+resize_ignore_titlebar x/3 100 100
+fullscreen x/3
+show x/3
+assert_position x/3 0 0
+assert_size x/3 800 600
+
+move_cursor_to 10 10
+
+unfullscreen x/3
+wait_reconfigure x/3
+assert_position x/3 350 250
+assert_size x/3 100 100
+destroy x/3

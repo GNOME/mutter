@@ -88,22 +88,3 @@ wait_reconfigure x/2
 assert_position x/2 990 250
 assert_size x/2 100 100
 destroy x/2
-
-# Map fullscreen on secondary monitor, then unfullscreen
-
-move_cursor_to 700 200
-
-create x/3 csd
-resize_ignore_titlebar x/3 100 100
-fullscreen x/3
-show x/3
-assert_position x/3 640 0
-assert_size x/3 800 600
-
-move_cursor_to 10 10
-
-unfullscreen x/3
-wait_reconfigure x/3
-assert_position x/3 990 250
-assert_size x/3 100 100
-destroy x/3

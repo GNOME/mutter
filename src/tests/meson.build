@@ -1137,6 +1137,7 @@ stacking_tests = [
   'x11-move',
   'map-maximized',
   'map-fullscreen',
+  'fullscreen-on-monitor',
   'tiling',
   'interactive-move',
   'map-on-monitor',
