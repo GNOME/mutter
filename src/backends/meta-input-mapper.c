@@ -235,7 +235,7 @@ mapper_input_info_set_output (MetaMapperInputInfo  *input,
   double aspect_ratio;
   int width, height;
 
-  if (input->output == output)
+  if (input->output == output && output)
     return;
 
   input->output = output;
@@ -622,6 +622,9 @@ mapping_helper_apply (MappingHelper   *helper,
           mapper_output_info_add_input (output, info->input, monitor);
           break;
         }
+
+      if (j >= info->matches->len)
+        mapper_input_info_set_output (info->input, NULL, NULL);
     }
 }
 
