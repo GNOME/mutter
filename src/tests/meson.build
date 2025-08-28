@@ -1161,6 +1161,7 @@ stacking_tests = [
   'multi-monitor-placement',
   'unmaximize-placement',
   'resize-after-unmaximize',
+  'move-to-monitor',
 ]
 
 foreach stacking_test: stacking_tests

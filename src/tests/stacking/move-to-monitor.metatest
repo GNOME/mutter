@@ -1,0 +1,13 @@
+resize_monitor default 640 480
+add_monitor secondary 800 600
+new_client w wayland
+create w/1 csd
+maximize w/1
+show w/1
+wait
+assert_size w/1 640 480
+assert_position w/1 0 0
+move_to_monitor w/1 secondary
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 640 0

@@ -1509,6 +1509,29 @@ test_case_do (TestCase    *test,
 
       meta_window_move_frame (window, TRUE, atoi (argv[2]), atoi (argv[3]));
     }
+  else if (strcmp (argv[0], "move_to_monitor") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaLogicalMonitor *logical_monitor;
+
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> <monitor-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      logical_monitor = get_logical_monitor (test, argv[2], error);
+      if (!logical_monitor)
+        BAD_COMMAND ("Unknown monitor %s", argv[1]);
+
+      meta_window_move_to_monitor (window, logical_monitor->number);
+    }
   else if (strcmp (argv[0], "tile") == 0)
     {
       MetaWindow *window;
@@ -3059,6 +3082,19 @@ sanity_check_transient_children (MetaWindow *window,
 }
 
 static void
+sanity_check_monitor (MetaWindow *window)
+{
+  if (!meta_window_is_hidden (window))
+    {
+      MtkRectangle rect;
+
+      g_assert_nonnull (window->monitor);
+      rect = meta_window_config_get_rect (window->config);
+      g_assert_true (mtk_rectangle_overlap (&rect, &window->monitor->rect));
+    }
+}
+
+static void
 sanity_check (MetaContext *context)
 {
   MetaDisplay *display = meta_context_get_display (context);
@@ -3072,6 +3108,7 @@ sanity_check (MetaContext *context)
 
       sanity_check_transient_for (window, windows);
       sanity_check_transient_children (window, windows);
+      sanity_check_monitor (window);
     }
 }
 
