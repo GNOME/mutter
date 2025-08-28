@@ -1,0 +1,28 @@
+resize_monitor default 800 600
+set_pref center-new-windows true
+
+new_client w wayland
+
+create w/1 csd
+resize w/1 200 200
+maximize w/1
+show w/1
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 300 200
+assert_size w/1 200 200
+
+
+begin_resize w/1 right
+wait_reconfigure w/1
+assert_position w/1 300 200
+assert_size w/1 200 200
+update_resize w/1 10 0
+wait_reconfigure w/1
+assert_position w/1 300 200
+assert_size w/1 210 200
+end_resize w/1
+wait_reconfigure w/1
+assert_position w/1 300 200
+assert_size w/1 210 200
