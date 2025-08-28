@@ -1368,7 +1368,7 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
         frame_clock->refresh_interval_us;
       extrapolated_presentation_time_us =
         next_presentation_time_us + frame_clock->refresh_interval_us * cycles;
-      max_update_time_estimate_us = next_presentation_time_us - next_frame_deadline_us;
+      max_update_time_estimate_us = next_presentation_time_us - next_update_time_us;
       ready_time_us = extrapolated_presentation_time_us - max_update_time_estimate_us;
       break;
     case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
