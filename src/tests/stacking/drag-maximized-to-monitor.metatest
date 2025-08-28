@@ -1,0 +1,31 @@
+resize_monitor default 800 600
+add_monitor secondary 640 480
+set_pref center-new-windows true
+new_client w wayland
+
+create w/1 csd
+maximize w/1
+show w/1
+assert_size w/1 800 600
+assert_position w/1 0 0
+wait_for_effects w/1
+
+# Drag to secondary monitor
+
+move_cursor_to 760 10
+click_and_hold
+move_cursor_to 820 10 700ms
+release_click
+wait_reconfigure w/1
+assert_size w/1 640 480
+assert_position w/1 800 0
+wait_for_effects w/1
+
+# Drag back to first monitor
+
+click_and_hold
+move_cursor_to 760 10 700ms
+release_click
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 0 0

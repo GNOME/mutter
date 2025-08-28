@@ -1,0 +1,69 @@
+resize_monitor default 800 600
+add_monitor secondary 640 480
+set_pref center-new-windows true
+new_client w wayland
+
+# Map as maximized
+
+create w/1 csd
+resize w/1 200 200
+maximize w/1
+show w/1
+assert_size w/1 800 600
+assert_position w/1 0 0
+wait_for_effects w/1
+
+# Drag to secondary monitor
+
+move_cursor_to 760 10
+click_and_hold
+move_cursor_to 820 10 700ms
+release_click
+wait_reconfigure w/1
+assert_size w/1 640 480
+assert_position w/1 800 0
+wait_for_effects w/1
+
+# Unmaximize should place in center of second monitor
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_size w/1 200 200
+assert_position w/1 1020 140
+
+destroy w/1
+move_cursor_to 0 0
+
+# Maximize after mapping
+
+create w/2 csd
+resize w/2 200 200
+show w/2
+assert_size w/2 200 200
+assert_position w/2 300 200
+maximize w/2
+wait_reconfigure w/2
+assert_size w/2 800 600
+assert_position w/2 0 0
+wait_for_effects w/2
+
+# Drag to secondary monitor
+
+move_cursor_to 760 10
+click_and_hold
+move_cursor_to 820 10 700ms
+release_click
+wait_reconfigure w/2
+assert_size w/2 640 480
+assert_position w/2 800 0
+wait_for_effects w/2
+
+# Unmaximize should be on the secondary monitor
+
+unmaximize w/2
+wait_reconfigure w/2
+assert_size w/2 200 200
+
+# This position is not ideal and logic should be improved; for now check we're
+# at least in the right monitor.
+assert_position w/2 800 0
