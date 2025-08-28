@@ -228,9 +228,9 @@ surface_state_changed (MetaWindow *window)
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   MetaWaylandWindowConfiguration *last_sent_configuration =
     wl_window->last_sent_configuration;
-  MetaWaylandWindowConfiguration *last_acked_configuration =
-    wl_window->last_acked_configuration;
+  MetaWaylandWindowConfiguration *last_acked_configuration;
   g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
+  gboolean is_configuration_up_to_date;
   MetaWindowDrag *window_drag;
 
   /* don't send notify when the window is being unmanaged */
@@ -244,9 +244,13 @@ surface_state_changed (MetaWindow *window)
   configuration->flags = META_MOVE_RESIZE_STATE_CHANGED;
   configuration->is_suspended = wl_window->is_suspended;
 
-  if (last_acked_configuration &&
-      last_acked_configuration->serial == last_sent_configuration->serial &&
-      last_sent_configuration->is_floating)
+  last_acked_configuration = wl_window->last_acked_configuration;
+
+  is_configuration_up_to_date =
+    last_acked_configuration &&
+    last_acked_configuration->serial == last_sent_configuration->serial;
+
+  if (is_configuration_up_to_date && last_sent_configuration->is_floating)
     {
       configuration->has_position = FALSE;
       configuration->x = 0;
@@ -261,6 +265,14 @@ surface_state_changed (MetaWindow *window)
       meta_window_drag_calculate_window_size (window_drag,
                                               &configuration->width,
                                               &configuration->height);
+    }
+  else if (is_configuration_up_to_date && last_sent_configuration->is_floating)
+    {
+      MtkRectangle frame_rect = meta_window_config_get_rect (window->config);
+
+      configuration->has_size = TRUE;
+      configuration->width = frame_rect.width;
+      configuration->height = frame_rect.height;
     }
 
   meta_window_wayland_configure (wl_window, configuration);
