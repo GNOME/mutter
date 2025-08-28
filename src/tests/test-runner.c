@@ -1064,6 +1064,22 @@ find_logical_monitor_config (MetaMonitorsConfig *config,
 }
 
 static gboolean
+warp_pointer_to (TestCase  *test,
+                 float      x,
+                 float      y,
+                 GError   **error)
+{
+  clutter_virtual_input_device_notify_absolute_motion (test->pointer,
+                                                       CLUTTER_CURRENT_TIME,
+                                                       x, y);
+  meta_flush_input (test->context);
+  if (!test_case_dispatch (test, error))
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
 test_case_do (TestCase    *test,
               const char  *filename,
               int          line_no,
@@ -2476,11 +2492,7 @@ test_case_do (TestCase    *test,
       float x = (float) atof (argv[1]);
       float y = (float) atof (argv[2]);
 
-      clutter_virtual_input_device_notify_absolute_motion (test->pointer,
-                                                           CLUTTER_CURRENT_TIME,
-                                                           x, y);
-      meta_flush_input (test->context);
-      if (!test_case_dispatch (test, error))
+      if (!warp_pointer_to (test, x, y, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "click") == 0)
