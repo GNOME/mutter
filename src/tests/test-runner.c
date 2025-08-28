@@ -1079,6 +1079,12 @@ warp_pointer_to (TestCase  *test,
   return TRUE;
 }
 
+static graphene_point_t *
+point_copy (const graphene_point_t *point)
+{
+  return graphene_point_init_from_point (graphene_point_alloc (), point);
+}
+
 static gboolean
 test_case_do (TestCase    *test,
               const char  *filename,
@@ -1310,6 +1316,7 @@ test_case_do (TestCase    *test,
       MetaGrabOp grab_op;
       MtkRectangle rect;
       gboolean ret;
+      graphene_point_t grab_origin;
       MetaWindowDrag *window_drag;
 
       if (argc != 3)
@@ -1323,10 +1330,12 @@ test_case_do (TestCase    *test,
       grab_op = grab_op_from_edge (argv[2]);
 
       meta_window_get_frame_rect (window, &rect);
-      graphene_point_t grab_origin;
 
       grab_origin = GRAPHENE_POINT_INIT (rect.x + rect.width / 2.0f,
                                          rect.y + rect.height / 2.0f);
+
+      if (!warp_pointer_to (test, grab_origin.x, grab_origin.y, error))
+        return FALSE;
 
       window_drag =
         meta_compositor_get_current_window_drag (window->display->compositor);
@@ -1339,6 +1348,14 @@ test_case_do (TestCase    *test,
                                        meta_display_get_current_time_roundtrip (window->display),
                                        &grab_origin);
       g_assert_true (ret);
+
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+      g_assert_nonnull (window_drag);
+      g_assert_true (meta_window_drag_get_window (window_drag) == window);
+      g_object_set_data_full (G_OBJECT (window_drag), "test-resize-drag",
+                              point_copy (&grab_origin),
+                              (GDestroyNotify) graphene_point_free);
     }
   else if (strcmp (argv[0], "update_resize") == 0)
     {
@@ -1346,7 +1363,9 @@ test_case_do (TestCase    *test,
       const char *window_id;
       MetaWindow *window;
       MtkRectangle rect;
-      int delta_x, delta_y;
+      float delta_x, delta_y;
+      graphene_point_t *grab_origin;
+      MetaWindowDrag *window_drag;
 
       if (argc != 4)
         BAD_COMMAND ("usage: %s <client-id>/<window-id> <x> <y>", argv[0]);
@@ -1357,13 +1376,21 @@ test_case_do (TestCase    *test,
       window = meta_test_client_find_window (client, window_id, error);
 
       meta_window_get_frame_rect (window, &rect);
-      delta_x = atoi (argv[2]);
-      delta_y = atoi (argv[3]);
+      delta_x = (float) atof (argv[2]);
+      delta_y = (float) atof (argv[3]);
 
-      meta_window_resize_frame (window,
-                                TRUE,
-                                rect.width + delta_x,
-                                rect.height + delta_y);
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+      g_assert_nonnull (window_drag);
+      g_assert_true (meta_window_drag_get_window (window_drag) == window);
+
+      grab_origin = g_object_get_data (G_OBJECT (window_drag),
+                                       "test-resize-drag");
+      g_assert_nonnull (grab_origin);
+      if (!warp_pointer_to (test,
+                            grab_origin->x + delta_x,
+                            grab_origin->y + delta_y, error))
+        return FALSE;
     }
   else if (strcmp (argv[0], "end_resize") == 0)
     {
