@@ -174,6 +174,10 @@ meta_test_disconnect_connect (void)
   g_signal_emit_by_name (udev, "hotplug", udev_device);
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  meta_wait_for_monitors_changed (test_context);
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (logical_monitors), ==, 0);
 
   g_debug ("Wait until page flip completes");
@@ -197,6 +201,10 @@ meta_test_disconnect_connect (void)
   drm_mock_set_resource_filter (DRM_MOCK_CALL_FILTER_GET_CONNECTOR,
                                 disconnect_connector_filter, NULL);
   g_signal_emit_by_name (udev, "hotplug", udev_device);
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  meta_wait_for_monitors_changed (test_context);
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (logical_monitors), ==, 0);
