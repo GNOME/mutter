@@ -211,6 +211,17 @@ meta_window_wayland_configure (MetaWindowWayland              *wl_window,
     meta_wayland_window_configuration_ref (configuration);
 }
 
+static gboolean
+is_drag_resizing_window (MetaWindowDrag *window_drag,
+                         MetaWindow     *window)
+{
+  return (window_drag &&
+          meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
+          (meta_window_drag_get_window (window_drag) == window ||
+           meta_window_drag_get_window (window_drag) ==
+           meta_window_config_get_tile_match (window->config)));
+}
+
 static void
 surface_state_changed (MetaWindow *window)
 {
@@ -220,6 +231,7 @@ surface_state_changed (MetaWindow *window)
   MetaWaylandWindowConfiguration *last_acked_configuration =
     wl_window->last_acked_configuration;
   g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
+  MetaWindowDrag *window_drag;
 
   /* don't send notify when the window is being unmanaged */
   if (window->unmanaging)
@@ -239,6 +251,16 @@ surface_state_changed (MetaWindow *window)
       configuration->has_position = FALSE;
       configuration->x = 0;
       configuration->y = 0;
+    }
+
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+  if (is_drag_resizing_window (window_drag, window))
+    {
+      configuration->has_size = TRUE;
+      meta_window_drag_calculate_window_size (window_drag,
+                                              &configuration->width,
+                                              &configuration->height);
     }
 
   meta_window_wayland_configure (wl_window, configuration);
@@ -1377,14 +1399,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     }
 
   window_drag = meta_compositor_get_current_window_drag (display->compositor);
-
-  /* x/y are ignored when we're doing interactive resizing */
-  is_window_being_resized =
-    (window_drag &&
-     meta_grab_op_is_resizing (meta_window_drag_get_grab_op (window_drag)) &&
-     (meta_window_drag_get_window (window_drag) == window ||
-      meta_window_drag_get_window (window_drag) ==
-      meta_window_config_get_tile_match (window->config)));
+  is_window_being_resized = is_drag_resizing_window (window_drag, window);
 
   frame_rect = meta_window_config_get_rect (window->config);
   rect = (MtkRectangle) {
