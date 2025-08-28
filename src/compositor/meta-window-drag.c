@@ -74,6 +74,7 @@ struct _MetaWindowDrag {
   unsigned int move_resize_later_id;
   /* if TRUE, window was maximized at start of current grab op */
   gboolean shaken_loose;
+  int target_monitor_number;
 
   gulong unmanaged_id;
   gulong size_changed_id;
@@ -274,6 +275,7 @@ meta_window_drag_class_init (MetaWindowDragClass *klass)
 static void
 meta_window_drag_init (MetaWindowDrag *window_drag)
 {
+  window_drag->target_monitor_number = -1;
 }
 
 MetaWindowDrag *
@@ -1390,7 +1392,8 @@ update_move (MetaWindowDrag          *window_drag,
               /* move the saved rect if window will become maximized on an
                * other monitor so user isn't surprised on a later unmaximize
                */
-              if (wmonitor->number != monitor)
+              if (wmonitor->number != monitor &&
+                  monitor != window_drag->target_monitor_number)
                 {
                   window->saved_rect.x = work_area.x;
                   window->saved_rect.y = work_area.y;
@@ -1408,17 +1411,26 @@ update_move (MetaWindowDrag          *window_drag,
                         }
                     }
 #endif
-                  window->unconstrained_rect.x = window->saved_rect.x;
-                  window->unconstrained_rect.y = window->saved_rect.y;
-
-                  meta_window_unmaximize (window);
 
                   window_drag->initial_window_pos = work_area;
                   window_drag->anchor_root_x = x;
                   window_drag->anchor_root_y = y;
                   window_drag->shaken_loose = FALSE;
 
-                  meta_window_maximize (window);
+                  if (meta_window_is_maximized (window))
+                    {
+
+                      meta_window_move_to_monitor (window, monitor);
+                    }
+                  else
+                    {
+                      meta_window_maximize_internal (window,
+                                                     META_MAXIMIZE_BOTH,
+                                                     &window->saved_rect);
+                      meta_window_move_to_monitor (window, monitor);
+                    }
+
+                  window_drag->target_monitor_number = monitor;
                 }
 
               return;
