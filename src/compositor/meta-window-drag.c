@@ -1429,15 +1429,74 @@ queue_update_move (MetaWindowDrag          *window_drag,
 }
 
 static void
+calculate_window_size (MetaWindowDrag          *window_drag,
+                       MetaEdgeResistanceFlags  flags,
+                       int                     *out_width,
+                       int                     *out_height)
+{
+  MetaWindow *window;
+  int dx, dy;
+  MetaGravity gravity;
+  MtkRectangle old_rect;
+  MtkRectangle new_rect = {};
+
+  window = window_drag->effective_grab_window;
+  g_return_if_fail (window);
+
+  meta_window_get_frame_rect (window, &old_rect);
+
+  new_rect.width = window_drag->initial_window_pos.width;
+  new_rect.height = window_drag->initial_window_pos.height;
+
+  dx = window_drag->latest_motion_x - window_drag->anchor_root_x;
+  dy = window_drag->latest_motion_y - window_drag->anchor_root_y;
+
+  if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_EAST)
+    new_rect.width += dx;
+  else if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_WEST)
+    new_rect.width -= dx;
+
+  if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_SOUTH)
+    new_rect.height += dy;
+  else if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_NORTH)
+    new_rect.height -= dy;
+
+  meta_window_maybe_apply_size_hints (window, &new_rect);
+
+  /* One sided resizing ought to actually be one-sided, despite the fact that
+   * aspect ratio windows don't interact nicely with the above stuff.  So,
+   * to avoid some nasty flicker, we enforce that.
+   */
+
+  if (!(window_drag->grab_op & (META_GRAB_OP_WINDOW_DIR_WEST |
+                                META_GRAB_OP_WINDOW_DIR_EAST)))
+    new_rect.width = old_rect.width;
+
+  if (!(window_drag->grab_op & (META_GRAB_OP_WINDOW_DIR_NORTH |
+                                META_GRAB_OP_WINDOW_DIR_SOUTH)))
+    new_rect.height = old_rect.height;
+
+  gravity = meta_resize_gravity_from_grab_op (window_drag->grab_op);
+  g_assert (gravity >= 0);
+
+  meta_window_drag_edge_resistance_for_resize (window_drag,
+                                               &new_rect.width,
+                                               &new_rect.height,
+                                               gravity,
+                                               flags);
+
+  *out_width = new_rect.width;
+  *out_height = new_rect.height;
+}
+
+static void
 update_resize (MetaWindowDrag          *window_drag,
                MetaEdgeResistanceFlags  flags,
                int                      x,
                int                      y)
 {
   int dx, dy;
-  MetaGravity gravity;
-  MtkRectangle new_rect;
-  MtkRectangle old_rect;
+  int new_width, new_height;
   MetaWindow *window;
 
   window = window_drag->effective_grab_window;
@@ -1462,15 +1521,14 @@ update_resize (MetaWindowDrag          *window_drag,
       dy *= 2;
     }
 
-  new_rect.width = window_drag->initial_window_pos.width;
-  new_rect.height = window_drag->initial_window_pos.height;
-
   /* Don't bother doing anything if no move has been specified.  (This
    * happens often, even in keyboard resizing, due to the warping of the
    * pointer.
    */
   if (dx == 0 && dy == 0)
     return;
+
+  calculate_window_size (window_drag, flags, &new_width, &new_height);
 
   if ((window_drag->grab_op & META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN) ==
       META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN)
@@ -1494,18 +1552,6 @@ update_resize (MetaWindowDrag          *window_drag,
       update_keyboard_resize (window_drag, TRUE);
     }
 
-  if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_EAST)
-    new_rect.width += dx;
-  else if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_WEST)
-    new_rect.width -= dx;
-
-  if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_SOUTH)
-    new_rect.height += dy;
-  else if (window_drag->grab_op & META_GRAB_OP_WINDOW_DIR_NORTH)
-    new_rect.height -= dy;
-
-  meta_window_maybe_apply_size_hints (window, &new_rect);
-
   /* If we're waiting for a request for _NET_WM_SYNC_REQUEST, we'll
    * resize the window when the window responds, or when we time
    * the response out.
@@ -1516,35 +1562,10 @@ update_resize (MetaWindowDrag          *window_drag,
     return;
 #endif
 
-  meta_window_get_frame_rect (window, &old_rect);
-
-  /* One sided resizing ought to actually be one-sided, despite the fact that
-   * aspect ratio windows don't interact nicely with the above stuff.  So,
-   * to avoid some nasty flicker, we enforce that.
-   */
-
-  if ((window_drag->grab_op & (META_GRAB_OP_WINDOW_DIR_WEST | META_GRAB_OP_WINDOW_DIR_EAST)) == 0)
-    new_rect.width = old_rect.width;
-
-  if ((window_drag->grab_op & (META_GRAB_OP_WINDOW_DIR_NORTH | META_GRAB_OP_WINDOW_DIR_SOUTH)) == 0)
-    new_rect.height = old_rect.height;
-
-  /* compute gravity of client during operation */
-  gravity = meta_resize_gravity_from_grab_op (window_drag->grab_op);
-  g_assert (gravity >= 0);
-
   window_drag->last_edge_resistance_flags =
     flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
-  /* Do any edge resistance/snapping */
-  meta_window_drag_edge_resistance_for_resize (window_drag,
-                                               &new_rect.width,
-                                               &new_rect.height,
-                                               gravity,
-                                               flags);
-
-  meta_window_resize_frame (window, TRUE,
-			    new_rect.width, new_rect.height);
+  meta_window_resize_frame (window, TRUE, new_width, new_height);
 }
 
 static gboolean
