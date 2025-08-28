@@ -250,15 +250,22 @@ meta_kms_update_states_sync (MetaKms *kms)
 }
 
 static void
-meta_kms_update_resources (MetaKms                *kms,
-                           char                   *hotplug_event,
-                           MetaKmsResourceChanges  changes)
+(meta_kms_update_resources) (MetaKms                *kms,
+                             char                   *hotplug_event,
+                             MetaKmsResourceChanges  changes,
+                             const char             *caller)
 {
   changes |= update_states_sync (kms, hotplug_event);
+
+  meta_topic (META_DEBUG_KMS, "%s -> %s for '%s', changes=0x%x",
+              caller, G_STRFUNC, hotplug_event, changes);
 
   if (changes != META_KMS_RESOURCE_CHANGE_NONE)
     meta_kms_emit_resources_changed (kms, changes);
 }
+
+#define meta_kms_update_resources(kms, hotplug_event, changes) \
+  (meta_kms_update_resources) ((kms), (hotplug_event), (changes), G_STRFUNC);
 
 static gpointer
 resume_in_impl (MetaThreadImpl  *thread_impl,
@@ -286,7 +293,7 @@ hotplug_event_from_udev_device (GUdevDevice *udev_device)
   uint32_t crtc_id, connector_id;
 
   if (!udev_device)
-    return NULL;
+    return g_strdup ("");
 
   device_path = g_udev_device_get_device_file (udev_device);
   crtc_id =
@@ -304,6 +311,13 @@ on_udev_hotplug (MetaUdev    *udev,
                  MetaKms     *kms)
 {
   g_autofree char *hotplug_event = NULL;
+
+  if (meta_is_topic_enabled (META_DEBUG_KMS))
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "%s called at %" G_GINT64_FORMAT,
+                  G_STRFUNC, g_get_monotonic_time ());
+    }
 
   hotplug_event = hotplug_event_from_udev_device (udev_device);
   meta_kms_update_resources (kms, hotplug_event, META_KMS_RESOURCE_CHANGE_NONE);
