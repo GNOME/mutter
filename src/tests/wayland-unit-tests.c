@@ -1886,6 +1886,109 @@ toplevel_focus_changes_remembers_size (void)
 }
 
 static void
+toplevel_begin_interactive_resize (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterInputDevice *pointer;
+  ClutterSprite *pointer_sprite;
+  GSettings *settings;
+  MetaWindow *window;
+  MetaWindowWayland *wl_window;
+  MtkRectangle rect;
+  MetaTestClient *test_client;
+  GError *error = NULL;
+  gboolean ret;
+  uint32_t serial;
+  MetaWaylandWindowConfiguration *pending_configuration;
+
+  settings = g_settings_new ("org.gnome.mutter");
+  g_assert_true (g_settings_set_boolean (settings, "center-new-windows", TRUE));
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+  pointer = clutter_seat_get_pointer (seat);
+  g_assert_nonnull (pointer);
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       0.0f, 0.0f);
+  meta_flush_input (test_context);
+
+  test_client = meta_test_client_new (test_context,
+                                      __func__,
+                                      META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                      &error);
+  g_assert_no_error (error);
+  meta_test_client_run (test_client,
+                        "create 1 csd\n"
+                        "resize 1 200 200\n"
+                        "show 1\n");
+
+  while (!(window = meta_test_client_find_window (test_client, "1", &error)))
+    {
+      g_assert_no_error (error);
+      g_main_context_iteration (NULL, TRUE);
+    }
+  wl_window = META_WINDOW_WAYLAND (window);
+  while (meta_window_is_hidden (window))
+    g_main_context_iteration (NULL, TRUE);
+  meta_wait_for_effects (window);
+
+  rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (rect.x, ==, 220);
+  g_assert_cmpint (rect.y, ==, 140);
+  g_assert_cmpint (rect.width, ==, 200);
+  g_assert_cmpint (rect.height, ==, 200);
+
+  pointer_sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
+  ret = meta_window_begin_grab_op (window,
+                                   META_GRAB_OP_RESIZING_E,
+                                   pointer_sprite,
+                                   meta_display_get_current_time_roundtrip (window->display),
+                                   NULL);
+  g_assert_true (ret);
+
+  g_assert_true (meta_window_wayland_get_pending_serial (wl_window, &serial));
+  pending_configuration =
+    meta_window_wayland_peek_configuration (wl_window, serial);
+  g_assert_nonnull (pending_configuration);
+  g_assert_true (pending_configuration->has_size);
+  g_assert_cmpint (pending_configuration->width, ==, 200);
+  g_assert_cmpint (pending_configuration->height, ==, 200);
+  meta_wait_wayland_window_reconfigure (window);
+  rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (rect.x, ==, 220);
+  g_assert_cmpint (rect.y, ==, 140);
+  g_assert_cmpint (rect.width, ==, 200);
+  g_assert_cmpint (rect.height, ==, 200);
+
+  clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       10.0f, 0.0f);
+  meta_flush_input (test_context);
+  meta_wait_for_update (test_context);
+  g_assert_true (meta_window_wayland_get_pending_serial (wl_window, &serial));
+  pending_configuration =
+    meta_window_wayland_peek_configuration (wl_window, serial);
+  g_assert_nonnull (pending_configuration);
+  g_assert_true (pending_configuration->has_size);
+  g_assert_cmpint (pending_configuration->width, ==, 210);
+  g_assert_cmpint (pending_configuration->height, ==, 200);
+  meta_wait_wayland_window_reconfigure (window);
+  rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (rect.x, ==, 220);
+  g_assert_cmpint (rect.y, ==, 140);
+  g_assert_cmpint (rect.width, ==, 210);
+  g_assert_cmpint (rect.height, ==, 200);
+
+
+  meta_test_client_destroy (test_client);
+  g_clear_object (&virtual_pointer);
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -2010,6 +2113,8 @@ init_tests (void)
                    toplevel_fixed_size_fullscreen_exceeds);
   g_test_add_func ("/wayland/toplevel/focus-changes-remembers-size",
                    toplevel_focus_changes_remembers_size);
+  g_test_add_func ("/wayland/toplevel/begin-interactive-resize",
+                   toplevel_begin_interactive_resize);
 }
 
 int
