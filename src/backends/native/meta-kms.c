@@ -373,7 +373,7 @@ on_udev_hotplug (MetaUdev    *udev,
     }
 
   ensure_hotplug_timeout_source (kms);
-  g_source_set_ready_time (kms->hotplug_timeout, now + 3 * G_USEC_PER_SEC);
+  g_source_set_ready_time (kms->hotplug_timeout, now + 2 * G_USEC_PER_SEC);
 
   g_hash_table_insert (kms->hotplug_events, g_steal_pointer (&hotplug_event),
                        NULL);
