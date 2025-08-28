@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+#include "compositor/compositor-private.h"
 #include "core/meta-window-config-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-window-configuration.h"
@@ -171,7 +172,10 @@ void
 meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *configuration)
 {
   if (g_ref_count_dec (&configuration->ref_count))
-    g_free (configuration);
+    {
+      g_clear_object (&configuration->window_drag);
+      g_free (configuration);
+    }
 }
 
 gboolean

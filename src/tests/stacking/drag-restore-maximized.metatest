@@ -1,5 +1,13 @@
 resize_monitor default 1000 1000
 new_client w wayland
+
+#
+# Test 1:
+#  - Maximize window showing window
+#  - Drag to unmaximize, and imitate a slow client by not drawing the
+#    unmaximized frame until after the drag completes.
+#
+
 create w/1 csd
 resize w/1 500 500
 show w/1
@@ -17,13 +25,113 @@ freeze w/1
 move_cursor_to 10 2
 click_and_hold
 move_cursor_to 10 20
+wait
+assert_position w/1 0 0
 move_cursor_to 10 30
+wait
+assert_position w/1 0 0
 move_cursor_to 10 40
+wait
+assert_position w/1 0 0
 move_cursor_to 10 50
-move_cursor_to 10 60
-move_cursor_to 10 70
+wait
+assert_position w/1 0 0
+move_cursor_to 20 70
+wait
+assert_position w/1 0 0
+move_cursor_to 30 90
+wait
+assert_position w/1 0 0
+move_cursor_to 40 120
+wait
+assert_position w/1 0 0
+move_cursor_to 50 150
+wait
+assert_position w/1 0 0
+move_cursor_to 60 200
 release_click
 thaw w/1
 
 wait_reconfigure w/1
 assert_size w/1 500 500
+assert_position w/1 55 199
+
+# Map another window, causing w/1 to loose focus (change state)
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+wait_reconfigure w/2
+wait_reconfigure w/1
+
+assert_focused w/2
+assert_size w/1 500 500
+assert_position w/1 55 199
+
+destroy w/1
+destroy w/2
+
+#
+# Test 2
+#  - Drag to unmaximize, and imitate a slow client by not drawing the
+#    unmaximized frame until the middle of the drag.
+#
+
+create w/1 csd
+resize w/1 500 500
+maximize w/1
+show w/1
+
+assert_size w/1 1000 1000
+assert_position w/1 0 0
+wait_for_effects w/1
+
+freeze w/1
+
+move_cursor_to 10 2
+click_and_hold
+move_cursor_to 20 20
+wait
+assert_position w/1 0 0
+move_cursor_to 30 30
+wait
+assert_position w/1 0 0
+move_cursor_to 40 40
+wait
+assert_position w/1 0 0
+move_cursor_to 50 50
+wait
+assert_position w/1 0 0
+move_cursor_to 70 70
+wait
+assert_position w/1 0 0
+move_cursor_to 90 90
+thaw w/1
+wait_reconfigure w/1
+assert_size w/1 500 500
+assert_position w/1 85 89
+move_cursor_to 120 120
+wait
+assert_position w/1 115 119
+move_cursor_to 150 150
+wait
+assert_position w/1 145 149
+move_cursor_to 200 200
+release_click
+assert_position w/1 195 199
+assert_size w/1 500 500
+
+# Map another window, causing w/1 to loose focus (change state)
+
+create w/2 csd
+resize w/2 100 100
+show w/2
+wait_reconfigure w/2
+wait_reconfigure w/1
+
+assert_focused w/2
+assert_size w/1 500 500
+assert_position w/1 195 199
+
+destroy w/1
+destroy w/2
