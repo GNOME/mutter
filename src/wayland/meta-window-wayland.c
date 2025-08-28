@@ -57,6 +57,11 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
+typedef struct _UnmaximizeDrag
+{
+  uint32_t serial;
+} UnmaximizeDrag;
+
 struct _MetaWindowWayland
 {
   MetaWindow parent;
@@ -83,6 +88,8 @@ struct _MetaWindowWaylandClass
 };
 
 G_DEFINE_TYPE (MetaWindowWayland, meta_window_wayland, META_TYPE_WINDOW)
+
+static GQuark unmaximize_drag_quark;
 
 static void
 set_geometry_scale_for_window (MetaWindowWayland *wl_window,
@@ -336,6 +343,39 @@ should_configure (MetaWindow          *window,
   return FALSE;
 }
 
+static gboolean
+maybe_update_pending_configuration_from_drag (MetaWindowWayland  *wl_window,
+                                              const MtkRectangle *constrained_rect)
+{
+  MetaWindow *window = META_WINDOW (wl_window);
+  MetaDisplay *display = window->display;
+  MetaWindowDrag *window_drag;
+  UnmaximizeDrag *unmaximize_drag;
+  MetaWaylandWindowConfiguration *unmaximize_configuration;
+
+  window_drag =
+    meta_compositor_get_current_window_drag (display->compositor);
+  if (!window_drag)
+    return FALSE;
+
+  unmaximize_drag = g_object_get_qdata (G_OBJECT (window_drag),
+                                        unmaximize_drag_quark);
+  if (!unmaximize_drag)
+    return FALSE;
+
+  unmaximize_configuration =
+    meta_window_wayland_peek_configuration (wl_window,
+                                            unmaximize_drag->serial);
+  if (!unmaximize_configuration)
+    return FALSE;
+
+  unmaximize_configuration->has_position = TRUE;
+  unmaximize_configuration->x = constrained_rect->x;
+  unmaximize_configuration->y = constrained_rect->y;
+
+  return TRUE;
+}
+
 static void
 meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                           MtkRectangle               unconstrained_rect,
@@ -347,6 +387,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                           MetaMoveResizeResultFlags *result)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaDisplay *display = window->display;
   MetaWaylandWindowConfiguration *last_sent_configuration =
     wl_window->last_sent_configuration;
   gboolean can_move_now = FALSE;
@@ -512,13 +553,36 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                 configuration,
                 wl_window->last_sent_configuration))
             {
+              MetaWindowDrag *window_drag;
+
+              window_drag =
+                meta_compositor_get_current_window_drag (display->compositor);
+              if (window_drag &&
+                  meta_window_drag_get_window (window_drag) == window &&
+                  meta_grab_op_is_moving (meta_window_drag_get_grab_op (window_drag)) &&
+                  meta_window_config_is_floating (window->config) &&
+                  flags & META_MOVE_RESIZE_UNMAXIMIZE)
+                {
+                  UnmaximizeDrag *unmaximize_drag;
+
+                  unmaximize_drag = g_new0 (UnmaximizeDrag, 1);
+                  g_object_set_qdata_full (G_OBJECT (window_drag),
+                                           unmaximize_drag_quark,
+                                           unmaximize_drag,
+                                           g_free);
+                  unmaximize_drag->serial = configuration->serial;
+                  g_set_object (&configuration->window_drag, window_drag);
+                }
+
               meta_window_wayland_configure (wl_window, configuration);
               can_move_now = FALSE;
             }
         }
       else
         {
-          can_move_now = TRUE;
+          if (!maybe_update_pending_configuration_from_drag (wl_window,
+                                                             &constrained_rect))
+            can_move_now = TRUE;
         }
     }
 
@@ -1109,6 +1173,9 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
+
+  unmaximize_drag_quark =
+    g_quark_from_static_string ("window-wayland-drag-unmaximize-quark");
 }
 
 static void
@@ -1277,9 +1344,37 @@ meta_window_wayland_get_geometry_scale (MetaWindow *window)
   return get_window_geometry_scale_for_logical_monitor (window->monitor);
 }
 
+static gboolean
+maybe_derive_position_from_drag (MetaWaylandWindowConfiguration *configuration,
+                                 const MtkRectangle             *geometry,
+                                 MtkRectangle                   *rect)
+{
+  MetaWindowDrag *window_drag;
+  UnmaximizeDrag *unmaximize_drag;
+
+  window_drag = configuration->window_drag;
+  if (!window_drag)
+    return FALSE;
+
+  unmaximize_drag = g_object_get_qdata (G_OBJECT (window_drag),
+                                        unmaximize_drag_quark);
+  if (!unmaximize_drag)
+    return FALSE;
+
+  if (unmaximize_drag->serial != configuration->serial)
+    return FALSE;
+
+  meta_window_drag_calculate_window_position (window_drag,
+                                              geometry->width,
+                                              geometry->height,
+                                              &rect->x,
+                                              &rect->y);
+  return TRUE;
+}
+
 static void
 calculate_position (MetaWaylandWindowConfiguration *configuration,
-                    MtkRectangle                   *geometry,
+                    const MtkRectangle             *geometry,
                     MtkRectangle                   *rect)
 {
   int offset_x;
@@ -1450,7 +1545,13 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
               if (acked_configuration->has_position)
                 {
                   has_position = TRUE;
-                  calculate_position (acked_configuration, &new_geom, &rect);
+
+                  if (maybe_derive_position_from_drag (acked_configuration,
+                                                       &new_geom,
+                                                       &rect))
+                    window->placed = TRUE;
+                  else
+                    calculate_position (acked_configuration, &new_geom, &rect);
                 }
             }
         }
