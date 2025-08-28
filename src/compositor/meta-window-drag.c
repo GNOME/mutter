@@ -1949,6 +1949,17 @@ meta_window_drag_update_resize (MetaWindowDrag *window_drag)
                  window_drag->latest_motion_y);
 }
 
+void
+meta_window_drag_calculate_window_size (MetaWindowDrag *window_drag,
+                                        int            *out_width,
+                                        int            *out_height)
+{
+  calculate_window_size (window_drag,
+                         window_drag->last_edge_resistance_flags,
+                         out_width,
+                         out_height);
+}
+
 MetaWindow *
 meta_window_drag_get_window (MetaWindowDrag *window_drag)
 {

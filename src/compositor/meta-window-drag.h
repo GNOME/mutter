@@ -60,3 +60,7 @@ void meta_window_drag_set_position_hint (MetaWindowDrag   *window_drag,
 
 gboolean meta_window_drag_process_event (MetaWindowDrag     *window_drag,
                                          const ClutterEvent *event);
+
+void meta_window_drag_calculate_window_size (MetaWindowDrag *window_drag,
+                                             int            *out_width,
+                                             int            *out_height);
