@@ -2080,8 +2080,8 @@ meta_display_get_tab_list (MetaDisplay   *display,
 {
   GList *tab_list = NULL;
   GList *global_mru_list = NULL;
-  g_autoptr(GList) minimized_tabs = NULL;
-  g_autoptr(GList) unminimized_tabs = NULL;
+  GList *minimized_tabs = NULL;
+  GList *unminimized_tabs = NULL;
   GList *mru_list, *l;
   GSList *windows = meta_display_list_windows (display, META_LIST_DEFAULT);
   GSList *w;
