@@ -97,6 +97,7 @@ typedef struct _ClutterLuminance
   float min;
   float max;
   float ref;
+  float mastering_max;
 } ClutterLuminance;
 
 typedef enum
@@ -151,6 +152,7 @@ ClutterColorState * clutter_color_state_params_new_full (ClutterContext         
                                                          float                    min_lum,
                                                          float                    max_lum,
                                                          float                    ref_lum,
+                                                         float                    mastering_max_lum,
                                                          gboolean                 ref_is_1_0);
 
 CLUTTER_EXPORT

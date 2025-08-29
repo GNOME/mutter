@@ -444,6 +444,7 @@ color_state_transform_bt2020_to_bt2020 (void)
                                          0.005f,
                                          203.0f,
                                          203.0f,
+                                         -1.0f,
                                          FALSE);
   actors = create_actors (stage);
   actors_set_color_state (actors, src_color_state);

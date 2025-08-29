@@ -111,6 +111,7 @@ color_management (void)
   lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_EXPLICIT);
   g_assert_cmpuint (lum->ref_is_1_0, ==, FALSE);
+  g_assert_cmpfloat (lum->mastering_max, ==, lum->max);
   g_assert_cmpfloat_with_epsilon (lum->min, 0.005f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (lum->max, lum->min + 10000.0f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (lum->ref, 303.0f, TEST_COLOR_EPSILON);
@@ -128,6 +129,7 @@ color_management (void)
   lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_EXPLICIT);
   g_assert_cmpuint (lum->ref_is_1_0, ==, FALSE);
+  g_assert_cmpfloat (lum->mastering_max, ==, lum->max);
   g_assert_cmpfloat_with_epsilon (lum->min, 0.2f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (lum->max, 80.0f, TEST_COLOR_EPSILON);
   g_assert_cmpfloat_with_epsilon (lum->ref, 70.0f, TEST_COLOR_EPSILON);

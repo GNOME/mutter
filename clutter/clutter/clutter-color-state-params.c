@@ -163,6 +163,7 @@ static const ClutterLuminance sdr_default_luminance = {
   .min = 0.2f,
   .max = 80.0f,
   .ref = 80.0f,
+  .mastering_max = 80.0f,
 };
 
 static const ClutterLuminance bt709_default_luminance = {
@@ -170,6 +171,7 @@ static const ClutterLuminance bt709_default_luminance = {
   .min = 0.01f,
   .max = 100.0f,
   .ref = 100.0f,
+  .mastering_max = 100.0f,
 };
 
 static const ClutterLuminance pq_default_luminance = {
@@ -177,6 +179,7 @@ static const ClutterLuminance pq_default_luminance = {
   .min = 0.005f,
   .max = 10000.0f,
   .ref = 203.0f,
+  .mastering_max = 10000.0f,
 };
 
 const ClutterLuminance *
@@ -540,6 +543,8 @@ luminances_equal (const ClutterLuminance *lum,
 {
   return luminance_value_approx_equal (lum->min, other_lum->min, 0.1f) &&
          luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
+         luminance_value_approx_equal (lum->mastering_max,
+                                       other_lum->mastering_max, 0.1f) &&
          luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f) &&
          lum->ref_is_1_0 == other_lum->ref_is_1_0;
 }
@@ -2075,13 +2080,15 @@ clutter_color_state_params_to_string (ClutterColorState *color_state)
 
   return g_strdup_printf ("ClutterColorState %d "
                           "(primaries: %s, transfer function: %s, "
-                          "min lum: %f, max lum: %f, ref lum: %f)",
+                          "min lum: %f, max lum: %f, ref lum: %f, "
+                          "mastering max lum: %f)",
                           id,
                           primaries_name,
                           transfer_function_name,
                           lum->min,
                           lum->max,
-                          lum->ref);
+                          lum->ref,
+                          lum->mastering_max);
 
 
 }
@@ -2203,7 +2210,7 @@ clutter_color_state_params_new (ClutterContext          *context,
   return clutter_color_state_params_new_full (context,
                                               colorspace, transfer_function,
                                               NULL, -1.0f, -1.0f, -1.0f, -1.0f,
-                                              FALSE);
+                                              -1.0f, FALSE);
 }
 
 /**
@@ -2223,6 +2230,7 @@ clutter_color_state_params_new_full (ClutterContext          *context,
                                      float                    min_lum,
                                      float                    max_lum,
                                      float                    ref_lum,
+                                     float                    mastering_max_lum,
                                      gboolean                 ref_is_1_0)
 {
   ClutterColorStateParams *color_state_params;
@@ -2264,6 +2272,12 @@ clutter_color_state_params_new_full (ClutterContext          *context,
       else
         color_state_params->luminance.max = max_lum;
       color_state_params->luminance.ref = ref_lum;
+
+      if (mastering_max_lum > 0.0f)
+        color_state_params->luminance.mastering_max = mastering_max_lum;
+      else
+        color_state_params->luminance.mastering_max =
+          color_state_params->luminance.max;
     }
   else
     {
@@ -2323,6 +2337,7 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
                                               luminance.min,
                                               luminance.max,
                                               luminance.ref,
+                                              luminance.mastering_max,
                                               luminance.ref_is_1_0);
 }
 
