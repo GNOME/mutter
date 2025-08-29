@@ -28,6 +28,14 @@
 #define META_SERVICE_CHANNEL_DBUS_SERVICE "org.gnome.Mutter.ServiceChannel"
 #define META_SERVICE_CHANNEL_DBUS_PATH "/org/gnome/Mutter/ServiceChannel"
 
+typedef struct _MetaServiceClient
+{
+  MetaWaylandClient *wayland_client;
+  gulong destroyed_handler_id;
+  MetaServiceChannel *service_channel;
+  MetaServiceClientType service_client_type;
+} MetaServiceClient;
+
 struct _MetaServiceChannel
 {
   MetaDBusServiceChannelSkeleton parent;
@@ -38,14 +46,6 @@ struct _MetaServiceChannel
 
   GHashTable *service_clients;
 };
-
-typedef struct _MetaServiceClient
-{
-  MetaWaylandClient *wayland_client;
-  gulong destroyed_handler_id;
-  MetaServiceChannel *service_channel;
-  MetaServiceClientType service_client_type;
-} MetaServiceClient;
 
 static void meta_service_channel_init_iface (MetaDBusServiceChannelIface *iface);
 
