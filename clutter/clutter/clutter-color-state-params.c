@@ -37,6 +37,8 @@
 #define UNIFORM_NAME_FROM_LMS "from_lms"
 #define UNIFORM_NAME_SRC_MAX_LUM "src_max_lum"
 #define UNIFORM_NAME_DST_MAX_LUM "dst_max_lum"
+#define UNIFORM_NAME_SRC_MASTERING_MAX_LUM "src_mastering_max_lum"
+#define UNIFORM_NAME_DST_MASTERING_MAX_LUM "dst_mastering_max_lum"
 #define UNIFORM_NAME_SRC_REF_LUM "src_ref_lum"
 #define UNIFORM_NAME_TONEMAPPING_REF_LUM "tone_mapping_ref_lum"
 #define UNIFORM_NAME_LINEAR_TONEMAPPING "linear_mapping"
@@ -565,7 +567,7 @@ static gboolean
 needs_tone_mapping (const ClutterLuminance *lum,
                     const ClutterLuminance *target_lum)
 {
-  return lum->max > target_lum->max;
+  return lum->mastering_max > target_lum->mastering_max;
 }
 
 static gboolean
@@ -935,6 +937,8 @@ static const char tone_mapping_source[] =
   "uniform mat4 " UNIFORM_NAME_FROM_LMS ";\n"
   "uniform float " UNIFORM_NAME_SRC_MAX_LUM ";\n"
   "uniform float " UNIFORM_NAME_DST_MAX_LUM ";\n"
+  "uniform float " UNIFORM_NAME_SRC_MASTERING_MAX_LUM ";\n"
+  "uniform float " UNIFORM_NAME_DST_MASTERING_MAX_LUM ";\n"
   "uniform float " UNIFORM_NAME_SRC_REF_LUM ";\n"
   "uniform float " UNIFORM_NAME_TONEMAPPING_REF_LUM ";\n"
   "uniform float " UNIFORM_NAME_LINEAR_TONEMAPPING ";\n"
@@ -993,8 +997,8 @@ static const char tone_mapping_source[] =
   "  else\n"
   "    {\n"
   "      float x = (luminance - " UNIFORM_NAME_SRC_REF_LUM ") / "
-                   "(" UNIFORM_NAME_SRC_MAX_LUM " - " UNIFORM_NAME_SRC_REF_LUM ");\n"
-  "      luminance = " UNIFORM_NAME_TONEMAPPING_REF_LUM " + (" UNIFORM_NAME_DST_MAX_LUM " - "
+                   "(" UNIFORM_NAME_SRC_MASTERING_MAX_LUM " - " UNIFORM_NAME_SRC_REF_LUM ");\n"
+  "      luminance = " UNIFORM_NAME_TONEMAPPING_REF_LUM " + (" UNIFORM_NAME_DST_MASTERING_MAX_LUM " - "
                      "" UNIFORM_NAME_TONEMAPPING_REF_LUM ") * (5.0 * x) / (4.0 * x + 1.0);\n"
   "    }\n"
   "\n"
@@ -1651,8 +1655,8 @@ get_tonemapping_ref_lum (const ClutterLuminance *lum)
   float headroom;
 
   /* The tone mapper needs for dst lum at least a headroom of 1.5 */
-  headroom = lum->max / lum->ref;
-  return headroom >= 1.5f ? lum->ref : lum->max / 1.5f;
+  headroom = lum->mastering_max / lum->ref;
+  return headroom >= 1.5f ? lum->ref : lum->mastering_max / 1.5f;
 }
 
 static void
@@ -1665,6 +1669,8 @@ update_tone_mapping_uniforms (ClutterColorStateParams *color_state_params,
   int uniform_location_from_lms;
   int uniform_location_src_max_lum;
   int uniform_location_dst_max_lum;
+  int uniform_location_src_mastering_max_lum;
+  int uniform_location_dst_mastering_max_lum;
   int uniform_location_src_ref_lum;
   int uniform_location_tonemapping_ref_lum;
   int uniform_location_linear_tonemapping;
@@ -1720,6 +1726,20 @@ update_tone_mapping_uniforms (ClutterColorStateParams *color_state_params,
   cogl_pipeline_set_uniform_1f (pipeline,
                                 uniform_location_dst_max_lum,
                                 target_lum->max);
+
+  uniform_location_src_mastering_max_lum =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_SRC_MASTERING_MAX_LUM);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_src_mastering_max_lum,
+                                lum->mastering_max);
+
+  uniform_location_dst_mastering_max_lum =
+    cogl_pipeline_get_uniform_location (pipeline,
+                                        UNIFORM_NAME_DST_MASTERING_MAX_LUM);
+  cogl_pipeline_set_uniform_1f (pipeline,
+                                uniform_location_dst_mastering_max_lum,
+                                target_lum->mastering_max);
 
   uniform_location_src_ref_lum =
     cogl_pipeline_get_uniform_location (pipeline,
@@ -1833,10 +1853,10 @@ clutter_luminance_apply_tone_mapping (const ClutterLuminance *lum,
         }
       else
         {
-          float ratio = (luminance - lum->ref) / (lum->max - lum->ref);
+          float ratio = (luminance - lum->ref) / (lum->mastering_max - lum->ref);
 
           luminance = tonemapping_ref_lum +
-                      (target_lum->max - tonemapping_ref_lum) *
+                      (target_lum->mastering_max - tonemapping_ref_lum) *
                       5.0f * ratio / (4.0f * ratio + 1.0f);
         }
       result[0] = clutter_eotf_apply_pq_inv (luminance / target_lum->max);
