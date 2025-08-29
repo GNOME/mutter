@@ -2121,7 +2121,7 @@ clutter_color_state_params_required_format (ClutterColorState *color_state)
   const ClutterLuminance *luminance;
 
   luminance = clutter_color_state_params_get_luminance (color_state_params);
-  if (luminance->max > luminance->ref && luminance->ref_is_1_0)
+  if (luminance->mastering_max > luminance->max)
     return CLUTTER_ENCODING_REQUIRED_FORMAT_FP16;
 
   switch (color_state_params->eotf.type)
@@ -2157,7 +2157,7 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
   ClutterContext *context;
   ClutterColorimetry blending_colorimetry;
   ClutterEOTF blending_eotf;
-  ClutterLuminance blending_luminance;
+  ClutterLuminance luminance, blending_luminance;
 
   blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
 
@@ -2177,10 +2177,17 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
       color_state_params->eotf.tf_name == blending_eotf.tf_name)
     return g_object_ref (color_state);
 
-  blending_luminance =
-    *clutter_color_state_params_get_luminance (color_state_params);
-  blending_luminance.ref_is_1_0 =
-    blending_luminance.max > blending_luminance.ref;
+  luminance = *clutter_color_state_params_get_luminance (color_state_params);
+  if (force_linear)
+    {
+      blending_luminance = luminance;
+    }
+  else
+    {
+      blending_luminance = *clutter_eotf_get_default_luminance (blending_eotf);
+      blending_luminance.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
+      blending_luminance.mastering_max = luminance.mastering_max;
+    }
 
   g_object_get (G_OBJECT (color_state), "context", &context, NULL);
 
