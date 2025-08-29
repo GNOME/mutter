@@ -237,7 +237,7 @@ build_format_param (MdkStream              *stream,
     }
 
   rect = SPA_RECTANGLE (stream->width, stream->height);
-  min_framerate = SPA_FRACTION (1, 1);
+  min_framerate = SPA_FRACTION (0, 1);
   max_framerate = SPA_FRACTION (60, 1);
   spa_pod_builder_add (
     pod_builder,
