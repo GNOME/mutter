@@ -1431,6 +1431,16 @@ meta_wayland_pointer_get_grab_info (MetaWaylandPointer    *pointer,
 }
 
 gboolean
+meta_wayland_pointer_can_warp (MetaWaylandPointer *pointer,
+                               MetaWaylandSurface *surface,
+                               uint32_t            serial)
+{
+    return (pointer->button_count > 0 &&
+            pointer->focus_serial == serial &&
+            pointer_can_grab_surface (pointer, surface));
+}
+
+gboolean
 meta_wayland_pointer_can_popup (MetaWaylandPointer *pointer, uint32_t serial)
 {
   return pointer->grab_serial == serial;

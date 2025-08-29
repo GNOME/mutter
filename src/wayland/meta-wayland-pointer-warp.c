@@ -62,8 +62,7 @@ pointer_warp_perform (struct wl_client   *client,
                             0.0);
 
   /* Not focused and implicitly grabbed */
-  if (!meta_wayland_pointer_get_grab_info (pointer, surface, serial, TRUE,
-                                           NULL, NULL, NULL))
+  if (!meta_wayland_pointer_can_warp (pointer, surface, serial))
     return;
 
   /* Outside of actor */
