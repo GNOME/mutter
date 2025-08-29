@@ -2116,10 +2116,9 @@ meta_display_get_tab_list (MetaDisplay   *display,
     }
 
   if (type != META_TAB_LIST_NORMAL_ALL_MRU)
-    {
-      tab_list = g_list_concat (g_list_reverse (minimized_tabs),
-                                g_list_reverse (unminimized_tabs));
-    }
+    tab_list = g_list_concat (minimized_tabs, unminimized_tabs);
+
+  tab_list = g_list_reverse (tab_list);
 
   /* If filtering by workspace, include windows from
    * other workspaces that demand attention
