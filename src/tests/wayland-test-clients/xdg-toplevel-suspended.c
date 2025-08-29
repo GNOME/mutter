@@ -29,6 +29,8 @@ enum
   XDG_TOPLEVEL_SUSPENDED_COMMAND_PREV_WORKSPACE = 1,
   XDG_TOPLEVEL_SUSPENDED_COMMAND_ACTIVATE_WINDOW = 2,
   XDG_TOPLEVEL_SUSPENDED_COMMAND_CLONE = 3,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_SHOW_SCREEN_SHIELD = 4,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_HIDE_SCREEN_SHIELD = 5,
 };
 
 static void
@@ -253,6 +255,30 @@ test_delayed_map (WaylandDisplay *display)
   g_assert_cmpint (suspended_time_us - commit_time_us, >, ms2us (3000 - 200));
 }
 
+static void
+test_screen_shield (WaylandDisplay *display)
+{
+  g_autoptr (WaylandSurface) surface = NULL;
+
+  g_debug ("Testing suspended state when showing screen shield");
+
+  surface = wayland_surface_new (display, __func__, 100, 100, 0xffffffff);
+  wl_surface_commit (surface->wl_surface);
+
+  wait_for_window_shown (display, surface->wl_surface);
+  g_assert_false (wayland_surface_has_state (surface,
+                                             XDG_TOPLEVEL_STATE_SUSPENDED));
+
+  test_driver_sync_point (display->test_driver,
+                          XDG_TOPLEVEL_SUSPENDED_COMMAND_SHOW_SCREEN_SHIELD,
+                          surface->wl_surface);
+  wait_for_state (surface, XDG_TOPLEVEL_STATE_SUSPENDED);
+  test_driver_sync_point (display->test_driver,
+                          XDG_TOPLEVEL_SUSPENDED_COMMAND_HIDE_SCREEN_SHIELD,
+                          surface->wl_surface);
+  wait_for_no_state (surface, XDG_TOPLEVEL_STATE_SUSPENDED);
+}
+
 int
 main (int    argc,
       char **argv)
@@ -270,6 +296,7 @@ main (int    argc,
   test_obstructed (display);
   test_obstructed_clone (display);
   test_delayed_map (display);
+  test_screen_shield (display);
 
   return EXIT_SUCCESS;
 }

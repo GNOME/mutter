@@ -1546,6 +1546,8 @@ enum
   XDG_TOPLEVEL_SUSPENDED_COMMAND_PREV_WORKSPACE = 1,
   XDG_TOPLEVEL_SUSPENDED_COMMAND_ACTIVATE_WINDOW = 2,
   XDG_TOPLEVEL_SUSPENDED_COMMAND_CLONE = 3,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_SHOW_SCREEN_SHIELD = 4,
+  XDG_TOPLEVEL_SUSPENDED_COMMAND_HIDE_SCREEN_SHIELD = 5,
 };
 
 static void
@@ -1606,6 +1608,34 @@ on_toplevel_suspended_sync_point (MetaWaylandTestDriver *driver,
         g_object_set_data_full (G_OBJECT (window), "suspend-test-clone",
                                 clone, (GDestroyNotify) clutter_actor_destroy);
 
+        break;
+      }
+    case XDG_TOPLEVEL_SUSPENDED_COMMAND_SHOW_SCREEN_SHIELD:
+      {
+        MetaCompositor *compositor = meta_display_get_compositor (display);
+        ClutterActor *window_group;
+        ClutterActor *top_window_group;
+
+        /* Imitate what the screen shield does to the window groups. */
+        window_group = meta_compositor_get_window_group (compositor);
+        top_window_group = meta_compositor_get_top_window_group (compositor);
+
+        clutter_actor_hide (window_group);
+        clutter_actor_hide (top_window_group);
+        break;
+      }
+    case XDG_TOPLEVEL_SUSPENDED_COMMAND_HIDE_SCREEN_SHIELD:
+      {
+        MetaCompositor *compositor = meta_display_get_compositor (display);
+        ClutterActor *window_group;
+        ClutterActor *top_window_group;
+
+        /* Imitate what the screen shield does to the window groups. */
+        window_group = meta_compositor_get_window_group (compositor);
+        top_window_group = meta_compositor_get_top_window_group (compositor);
+
+        clutter_actor_show (window_group);
+        clutter_actor_show (top_window_group);
         break;
       }
     }
