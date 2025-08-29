@@ -1105,6 +1105,35 @@ meta_kms_connector_update_state_changes (MetaKmsConnector       *connector,
     current_state->privacy_screen_state = new_state->privacy_screen_state;
 }
 
+static gpointer
+update_connector_in_impl (MetaThreadImpl  *thread_impl,
+                          gpointer         user_data,
+                          GError         **error)
+{
+  MetaKmsConnector *connector = user_data;
+  MetaKmsResourceChanges changes;
+
+  changes = meta_kms_impl_device_update_states (connector->impl_device,
+                                                0, connector->id);
+
+  return GUINT_TO_POINTER (changes);
+}
+
+static MetaKmsResourceChanges
+update_connector (MetaKmsConnector *connector)
+{
+  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (connector->impl_device);
+  MetaKms *kms = meta_kms_impl_get_kms (impl);
+  g_autoptr (MetaKmsConnector) reffed_connector = g_object_ref (connector);
+  gpointer ret;
+
+  meta_assert_not_in_kms_impl (kms);
+
+  ret = meta_kms_run_impl_task_sync (kms, update_connector_in_impl,
+                                     reffed_connector, NULL);
+  return GPOINTER_TO_UINT (ret);
+}
+
 static gboolean
 connection_change_timeout (gpointer user_data)
 {
@@ -1129,7 +1158,7 @@ connection_change_timeout (gpointer user_data)
                   dispatch_time - ready_time);
     }
 
-  changes = meta_kms_update_states_sync (kms);
+  changes = update_connector (connector);
 
   meta_topic (META_DEBUG_KMS, "%s, changes=0x%x", G_STRFUNC, changes);
 
