@@ -149,7 +149,7 @@ then
       2.85.2
 fi
 
-if ! pkgconf --atleast-version 2.0i.beta.2 glycin-2
+if ! pkgconf --atleast-version 2.0.beta.2 glycin-2
 then
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
