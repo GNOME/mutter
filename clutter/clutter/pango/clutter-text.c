@@ -185,14 +185,12 @@ typedef struct _ClutterTextPrivate
   /* Signal handler for when the :text-direction changes */
   gulong direction_changed_id;
 
+  ClutterAction *pan_gesture;
+  ClutterAction *click_gesture;
+
   ClutterInputFocus *input_focus;
   ClutterInputContentHintFlags input_hints;
   ClutterInputContentPurpose input_purpose;
-
-  float last_click_x;
-  float last_click_y;
-  uint32_t last_click_time_ms;
-  int click_count;
 
   /* bitfields */
   guint alignment               : 2;
@@ -208,8 +206,6 @@ typedef struct _ClutterTextPrivate
   guint activatable             : 1;
   guint selectable              : 1;
   guint selection_color_set     : 1;
-  guint in_select_drag          : 1;
-  guint in_select_touch         : 1;
   guint cursor_color_set        : 1;
   guint preedit_set             : 1;
   guint is_default_font         : 1;
@@ -2274,244 +2270,6 @@ clutter_text_select_line (ClutterText *self)
   clutter_text_set_selection (self, start_pos, end_pos);
 }
 
-static int
-clutter_text_update_click_count (ClutterText        *self,
-                                 const ClutterEvent *event)
-{
-  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (self));
-  ClutterSettings *settings = clutter_context_get_settings (context);
-  int double_click_time, double_click_distance;
-  uint32_t evtime;
-  float x, y;
-
-  clutter_event_get_coords (event, &x, &y);
-  evtime = clutter_event_get_time (event);
-
-  g_object_get (settings,
-                "double-click-distance", &double_click_distance,
-                "double-click-time", &double_click_time,
-                NULL);
-
-  if (evtime > (priv->last_click_time_ms + double_click_time) ||
-      (ABS (x - priv->last_click_x) > double_click_distance) ||
-      (ABS (y - priv->last_click_y) > double_click_distance))
-    priv->click_count = 0;
-
-  priv->last_click_time_ms = evtime;
-  priv->last_click_x = x;
-  priv->last_click_y = y;
-
-  priv->click_count = (priv->click_count % 3) + 1;
-
-  return priv->click_count;
-}
-
-static gboolean
-clutter_text_press (ClutterActor *actor,
-                    ClutterEvent *event)
-{
-  ClutterText *self = CLUTTER_TEXT (actor);
-  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  ClutterEventType type = clutter_event_type (event);
-  gboolean res = FALSE;
-  gfloat x, y;
-  gint index_;
-
-  /* if a ClutterText is just used for display purposes, then we
-   * should ignore the events we receive
-   */
-  if (!(priv->editable || priv->selectable))
-    return CLUTTER_EVENT_PROPAGATE;
-
-  clutter_actor_grab_key_focus (actor);
-  clutter_input_focus_reset (priv->input_focus);
-  clutter_input_focus_set_input_panel_state (priv->input_focus,
-                                             CLUTTER_INPUT_PANEL_STATE_TOGGLE);
-
-  if (clutter_input_focus_is_focused (priv->input_focus))
-    clutter_input_focus_filter_event (priv->input_focus, event);
-
-  /* if the actor is empty we just reset everything and not
-   * set up the dragging of the selection since there's nothing
-   * to select
-   */
-  if (clutter_text_buffer_get_length (get_buffer (self)) == 0)
-    {
-      clutter_text_set_positions (self, -1, -1);
-
-      return CLUTTER_EVENT_STOP;
-    }
-
-  clutter_event_get_coords (event, &x, &y);
-
-  res = clutter_actor_transform_stage_point (actor, x, y, &x, &y);
-  if (res)
-    {
-      const char *text;
-      int offset;
-
-      index_ = clutter_text_coords_to_position (self, x, y);
-      text = clutter_text_buffer_get_text (get_buffer (self));
-      offset = bytes_to_offset (text, index_);
-
-      /* what we select depends on the number of button clicks we
-       * receive, and whether we are selectable:
-       *
-       *   1: just position the cursor and the selection
-       *   2: select the current word
-       *   3: select the contents of the whole actor
-       */
-      if (type == CLUTTER_BUTTON_PRESS)
-        {
-          gint click_count;
-
-          click_count = clutter_text_update_click_count (self, event);
-
-          if (click_count == 1)
-            {
-              clutter_text_set_positions (self, offset, offset);
-            }
-          else if (priv->selectable && click_count == 2)
-            {
-              clutter_text_select_word (self);
-            }
-          else if (priv->selectable && click_count == 3)
-            {
-              clutter_text_select_line (self);
-            }
-        }
-      else
-        {
-          /* touch events do not have click count */
-          clutter_text_set_positions (self, offset, offset);
-        }
-    }
-
-  /* we don't need to go any further if we're not selectable */
-  if (!priv->selectable)
-    return CLUTTER_EVENT_STOP;
-
-  /* grab the pointer */
-  priv->in_select_drag = TRUE;
-
-  if (type != CLUTTER_BUTTON_PRESS)
-    priv->in_select_touch = TRUE;
-
-  return CLUTTER_EVENT_STOP;
-}
-
-static gboolean
-clutter_text_move (ClutterActor *actor,
-                   ClutterEvent *event)
-{
-  ClutterText *self = CLUTTER_TEXT (actor);
-  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  gfloat x, y;
-  gint index_, offset;
-  gboolean res;
-  const gchar *text;
-
-  if (!priv->in_select_drag)
-    return CLUTTER_EVENT_PROPAGATE;
-
-  clutter_event_get_coords (event, &x, &y);
-
-  res = clutter_actor_transform_stage_point (actor, x, y, &x, &y);
-  if (!res)
-    return CLUTTER_EVENT_PROPAGATE;
-
-  index_ = clutter_text_coords_to_position (self, x, y);
-  text = clutter_text_buffer_get_text (get_buffer (self));
-  offset = bytes_to_offset (text, index_);
-
-  if (priv->selectable)
-    clutter_text_set_cursor_position (self, offset);
-  else
-    clutter_text_set_positions (self, offset, offset);
-
-  return CLUTTER_EVENT_STOP;
-}
-
-static gboolean
-clutter_text_release (ClutterActor *actor,
-                      ClutterEvent *event)
-{
-  ClutterText *self = CLUTTER_TEXT (actor);
-  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  ClutterEventType type = clutter_event_type (event);
-
-  if (priv->in_select_drag)
-    {
-      if (type == CLUTTER_BUTTON_RELEASE)
-        {
-          if (!priv->in_select_touch)
-            {
-              priv->in_select_drag = FALSE;
-
-              return CLUTTER_EVENT_STOP;
-            }
-        }
-      else
-        {
-          if (priv->in_select_touch)
-            {
-              priv->in_select_touch = FALSE;
-              priv->in_select_drag = FALSE;
-
-              return CLUTTER_EVENT_STOP;
-            }
-        }
-    }
-
-  return CLUTTER_EVENT_PROPAGATE;
-}
-
-static gboolean
-clutter_text_button_press (ClutterActor *actor,
-                           ClutterEvent *event)
-{
-  return clutter_text_press (actor, event);
-}
-
-static gboolean
-clutter_text_motion (ClutterActor *actor,
-                     ClutterEvent *event)
-{
-  return clutter_text_move (actor, event);
-}
-
-static gboolean
-clutter_text_button_release (ClutterActor *actor,
-                             ClutterEvent *event)
-{
-  return clutter_text_release (actor, event);
-}
-
-static gboolean
-clutter_text_touch_event (ClutterActor *actor,
-                          ClutterEvent *event)
-{
-  switch (clutter_event_type (event))
-    {
-    case CLUTTER_TOUCH_BEGIN:
-      return clutter_text_press (actor, event);
-
-    case CLUTTER_TOUCH_END:
-    case CLUTTER_TOUCH_CANCEL:
-      /* TODO: the cancel case probably need a special handler */
-      return clutter_text_release (actor, event);
-
-    case CLUTTER_TOUCH_UPDATE:
-      return clutter_text_move (actor, event);
-
-    default:
-      break;
-    }
-
-  return CLUTTER_EVENT_PROPAGATE;
-}
-
 static void
 clutter_text_remove_password_hint (gpointer data)
 {
@@ -3193,6 +2951,13 @@ clutter_text_event (ClutterActor *self,
   ClutterEventType event_type;
 
   event_type = clutter_event_type (event);
+
+  if ((priv->editable || priv->selectable) &&
+      event_type == CLUTTER_BUTTON_PRESS &&
+      clutter_input_focus_is_focused (priv->input_focus))
+    {
+      clutter_input_focus_filter_event (priv->input_focus, event);
+    }
 
   if (clutter_input_focus_is_focused (priv->input_focus) &&
       (event_type == CLUTTER_IM_COMMIT ||
@@ -3906,10 +3671,6 @@ clutter_text_class_init (ClutterTextClass *klass)
   actor_class->allocate = clutter_text_allocate;
   actor_class->key_press_event = clutter_text_key_press;
   actor_class->key_release_event = clutter_text_key_release;
-  actor_class->button_press_event = clutter_text_button_press;
-  actor_class->button_release_event = clutter_text_button_release;
-  actor_class->motion_event = clutter_text_motion;
-  actor_class->touch_event = clutter_text_touch_event;
   actor_class->key_focus_in = clutter_text_key_focus_in;
   actor_class->key_focus_out = clutter_text_key_focus_out;
   actor_class->has_overlaps = clutter_text_has_overlaps;
@@ -4505,6 +4266,89 @@ clutter_text_class_init (ClutterTextClass *klass)
 }
 
 static void
+on_click_gesture_pressed (ClutterClickGesture *gesture,
+                          ClutterText         *self)
+{
+  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
+  ClutterActor *actor = CLUTTER_ACTOR (self);
+  graphene_point_t coords;
+  int index_;
+  const char *text;
+  int offset, click_count;
+
+  /* if a ClutterText is just used for display purposes, then we
+   * should ignore the events we receive
+   */
+  if (!(priv->editable || priv->selectable))
+    return;
+
+  clutter_actor_grab_key_focus (actor);
+  clutter_input_focus_reset (priv->input_focus);
+  clutter_input_focus_set_input_panel_state (priv->input_focus,
+                                             CLUTTER_INPUT_PANEL_STATE_TOGGLE);
+
+  /* if the actor is empty we just reset everything and not
+   * set up the dragging of the selection since there's nothing
+   * to select
+   */
+  if (clutter_text_buffer_get_length (get_buffer (self)) == 0)
+    {
+      clutter_text_set_positions (self, -1, -1);
+      return;
+    }
+
+  clutter_press_gesture_get_coords (CLUTTER_PRESS_GESTURE (priv->click_gesture),
+                                    &coords);
+
+  index_ = clutter_text_coords_to_position (self, coords.x, coords.y);
+  text = clutter_text_buffer_get_text (get_buffer (self));
+  offset = bytes_to_offset (text, index_);
+
+  /* what we select depends on the number of button clicks we
+   * receive, and whether we are selectable:
+   *
+   *   1: just position the cursor and the selection
+   *   2: select the current word
+   *   3: select the contents of the whole actor
+   */
+  click_count =
+    clutter_press_gesture_get_n_presses (CLUTTER_PRESS_GESTURE (gesture));
+
+  if (click_count == 1)
+    clutter_text_set_positions (self, offset, offset);
+  else if (priv->selectable && click_count == 2)
+    clutter_text_select_word (self);
+  else if (priv->selectable && click_count == 3)
+    clutter_text_select_line (self);
+}
+
+static void
+on_pan_update (ClutterPanGesture *gesture,
+               ClutterText       *self)
+{
+  ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
+  graphene_point_t coords;
+  int index_, offset;
+  const char *text;
+
+  /* we don't need to go any further if we're not selectable */
+  if (!priv->selectable)
+    return;
+
+  clutter_pan_gesture_get_centroid (CLUTTER_PAN_GESTURE (priv->pan_gesture),
+                                    &coords);
+
+  index_ = clutter_text_coords_to_position (self, coords.x, coords.y);
+  text = clutter_text_buffer_get_text (get_buffer (self));
+  offset = bytes_to_offset (text, index_);
+
+  if (priv->selectable)
+    clutter_text_set_cursor_position (self, offset);
+  else
+    clutter_text_set_positions (self, offset, offset);
+}
+
+static void
 clutter_text_init (ClutterText *self)
 {
   ClutterTextPrivate *priv;
@@ -4561,6 +4405,29 @@ clutter_text_init (ClutterText *self)
                       NULL);
 
   priv->input_focus = clutter_text_input_focus_new (self);
+
+  priv->click_gesture = clutter_click_gesture_new ();
+  clutter_press_gesture_set_required_button (CLUTTER_PRESS_GESTURE (priv->click_gesture),
+                                             CLUTTER_BUTTON_PRIMARY);
+  clutter_click_gesture_set_recognize_on_press (CLUTTER_CLICK_GESTURE (priv->click_gesture),
+                                                TRUE);
+  clutter_actor_add_action (CLUTTER_ACTOR (self), priv->click_gesture);
+
+  g_signal_connect (priv->click_gesture,
+                    "recognize",
+                    G_CALLBACK (on_click_gesture_pressed),
+                    self);
+
+  priv->pan_gesture = clutter_pan_gesture_new ();
+  clutter_actor_add_action (CLUTTER_ACTOR (self), priv->pan_gesture);
+
+  g_signal_connect (priv->pan_gesture,
+                    "pan-update",
+                    G_CALLBACK (on_pan_update),
+                    self);
+
+  clutter_gesture_can_not_cancel (CLUTTER_GESTURE (priv->click_gesture),
+                                  CLUTTER_GESTURE (priv->pan_gesture));
 }
 
 /**
