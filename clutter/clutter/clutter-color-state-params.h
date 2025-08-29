@@ -93,7 +93,6 @@ typedef struct _ClutterEOTF
 typedef struct _ClutterLuminance
 {
   ClutterLuminanceType type : 1;
-  guint ref_is_1_0 : 1;
   float min;
   float max;
   float ref;
@@ -152,8 +151,7 @@ ClutterColorState * clutter_color_state_params_new_full (ClutterContext         
                                                          float                    min_lum,
                                                          float                    max_lum,
                                                          float                    ref_lum,
-                                                         float                    mastering_max_lum,
-                                                         gboolean                 ref_is_1_0);
+                                                         float                    mastering_max_lum);
 
 CLUTTER_EXPORT
 ClutterColorState * clutter_color_state_params_new_from_primitives (ClutterContext     *context,

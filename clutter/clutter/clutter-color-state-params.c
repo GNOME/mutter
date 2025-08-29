@@ -547,8 +547,7 @@ luminances_equal (const ClutterLuminance *lum,
          luminance_value_approx_equal (lum->max, other_lum->max, 0.1f) &&
          luminance_value_approx_equal (lum->mastering_max,
                                        other_lum->mastering_max, 0.1f) &&
-         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f) &&
-         lum->ref_is_1_0 == other_lum->ref_is_1_0;
+         luminance_value_approx_equal (lum->ref, other_lum->ref, 0.1f);
 }
 
 static guint
@@ -576,17 +575,6 @@ needs_lum_mapping (const ClutterLuminance *lum,
 {
   if (needs_tone_mapping (lum, target_lum))
     return FALSE;
-
-  if (target_lum->ref_is_1_0)
-    {
-      if (lum->ref_is_1_0)
-        return FALSE;
-
-      return !G_APPROX_VALUE (lum->max, lum->ref, 0.1f);
-    }
-
-  if (lum->ref_is_1_0)
-    return !G_APPROX_VALUE (target_lum->ref, target_lum->max, 0.1f);
 
   return !G_APPROX_VALUE (target_lum->ref * lum->max,
                           lum->ref * target_lum->max,
@@ -1146,17 +1134,6 @@ static float
 get_lum_mapping (const ClutterLuminance *lum,
                        const ClutterLuminance *target_lum)
 {
-  if (target_lum->ref_is_1_0)
-    {
-      if (lum->ref_is_1_0)
-        return 1.0f;
-
-      return lum->max / lum->ref;
-    }
-
-  if (lum->ref_is_1_0)
-      return target_lum->ref / target_lum->max;
-
   /* this is a very basic, non-contrast preserving way of matching the reference
    * luminance level */
   return (target_lum->ref / lum->ref) * (lum->max / target_lum->max);
@@ -2237,7 +2214,7 @@ clutter_color_state_params_new (ClutterContext          *context,
   return clutter_color_state_params_new_full (context,
                                               colorspace, transfer_function,
                                               NULL, -1.0f, -1.0f, -1.0f, -1.0f,
-                                              -1.0f, FALSE);
+                                              -1.0f);
 }
 
 /**
@@ -2257,8 +2234,7 @@ clutter_color_state_params_new_full (ClutterContext          *context,
                                      float                    min_lum,
                                      float                    max_lum,
                                      float                    ref_lum,
-                                     float                    mastering_max_lum,
-                                     gboolean                 ref_is_1_0)
+                                     float                    mastering_max_lum)
 {
   ClutterColorStateParams *color_state_params;
 
@@ -2289,7 +2265,6 @@ clutter_color_state_params_new_full (ClutterContext          *context,
       color_state_params->eotf.tf_name = transfer_function;
     }
 
-  color_state_params->luminance.ref_is_1_0 = ref_is_1_0;
   if (min_lum >= 0.0f && max_lum > 0.0f && ref_lum >= 0.0f)
     {
       color_state_params->luminance.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
@@ -2364,8 +2339,7 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
                                               luminance.min,
                                               luminance.max,
                                               luminance.ref,
-                                              luminance.mastering_max,
-                                              luminance.ref_is_1_0);
+                                              luminance.mastering_max);
 }
 
 static gboolean
