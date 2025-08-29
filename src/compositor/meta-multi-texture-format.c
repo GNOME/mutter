@@ -289,27 +289,29 @@ static const char y_v_u_shader[] =
   "  return yuva;\n"
   "}\n";
 
-/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane, shifted by 6 bits (2^6=64) */
+/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane, shifted by 6 bits */
 static const char y_u_v_shader_10bit_lsb[] =
   "vec4 sample_y_u_v_10bit_lsb(vec4 unused)\n"
   "{\n"
   "  vec4 yuva;\n"
+  "  float mult = 65535.0 / 1023.0;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r * 64.0;\n"
-  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r * 64.0;\n"
-  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r * 64.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r * mult;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r * mult;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r * mult;\n"
   "  return yuva;\n"
   "}\n";
 
-/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane, shifted by 4 bits (2^4=16) */
+/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane, shifted by 4 bits */
 static const char y_u_v_shader_12bit_lsb[] =
   "vec4 sample_y_u_v_12bit_lsb(vec4 unused)\n"
   "{\n"
   "  vec4 yuva;\n"
+  "  float mult = 65535.0 / 4095.0;\n"
   "  yuva.a = 1.0;\n"
-  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r * 16.0;\n"
-  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r * 16.0;\n"
-  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r * 16.0;\n"
+  "  yuva.x = texture2D(cogl_sampler0, cogl_tex_coord0_in.st).r * mult;\n"
+  "  yuva.y = texture2D(cogl_sampler1, cogl_tex_coord0_in.st).r * mult;\n"
+  "  yuva.z = texture2D(cogl_sampler2, cogl_tex_coord0_in.st).r * mult;\n"
   "  return yuva;\n"
   "}\n";
 
