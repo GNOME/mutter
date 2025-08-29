@@ -1478,7 +1478,7 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
 
   obj_props[PROP_REFRESH_RATE] =
     g_param_spec_float ("refresh-rate", NULL, NULL,
-                        1.0, G_MAXFLOAT, 60.0,
+                        0.0, G_MAXFLOAT, 60.0,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);

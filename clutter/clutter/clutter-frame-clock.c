@@ -1818,7 +1818,7 @@ clutter_frame_clock_new (float                            refresh_rate,
 {
   ClutterFrameClock *frame_clock;
 
-  g_assert_cmpfloat (refresh_rate, >, 0.0);
+  g_assert (refresh_rate >= 0.0f);
 
   frame_clock = g_object_new (CLUTTER_TYPE_FRAME_CLOCK, NULL);
 
