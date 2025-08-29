@@ -1719,6 +1719,7 @@ meta_kms_connector_finalize (GObject *object)
 static void
 meta_kms_connector_init (MetaKmsConnector *connector)
 {
+  connector->connection = DRM_MODE_DISCONNECTED;
 }
 
 static void
