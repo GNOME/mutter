@@ -250,9 +250,9 @@ meta_kms_update_states_sync (MetaKms *kms)
 }
 
 static void
-handle_hotplug_event (MetaKms                *kms,
-                      char                   *hotplug_event,
-                      MetaKmsResourceChanges  changes)
+meta_kms_update_resources (MetaKms                *kms,
+                           char                   *hotplug_event,
+                           MetaKmsResourceChanges  changes)
 {
   changes |= update_states_sync (kms, hotplug_event);
 
@@ -274,7 +274,7 @@ resume_in_impl (MetaThreadImpl  *thread_impl,
 void
 meta_kms_resume (MetaKms *kms)
 {
-  handle_hotplug_event (kms, NULL, META_KMS_RESOURCE_CHANGE_FULL);
+  meta_kms_update_resources (kms, NULL, META_KMS_RESOURCE_CHANGE_FULL);
 
   meta_kms_run_impl_task_sync (kms, resume_in_impl, NULL, NULL);
 }
@@ -306,7 +306,7 @@ on_udev_hotplug (MetaUdev    *udev,
   g_autofree char *hotplug_event = NULL;
 
   hotplug_event = hotplug_event_from_udev_device (udev_device);
-  handle_hotplug_event (kms, hotplug_event, META_KMS_RESOURCE_CHANGE_NONE);
+  meta_kms_update_resources (kms, hotplug_event, META_KMS_RESOURCE_CHANGE_NONE);
 }
 
 static void
@@ -314,7 +314,7 @@ on_udev_device_removed (MetaUdev    *udev,
                         GUdevDevice *device,
                         MetaKms     *kms)
 {
-  handle_hotplug_event (kms, NULL, META_KMS_RESOURCE_CHANGE_NONE);
+  meta_kms_update_resources (kms, NULL, META_KMS_RESOURCE_CHANGE_NONE);
 }
 
 static void
