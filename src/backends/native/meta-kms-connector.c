@@ -1204,7 +1204,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
       goto out;
     }
 
-  if (drm_connector->connection != DRM_MODE_CONNECTED)
+  if (drm_connector->connection == DRM_MODE_DISCONNECTED)
     {
       if (drm_connector->connection != connector->connection)
         {
@@ -1236,6 +1236,12 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
         }
 
       goto out;
+    }
+  else if (drm_connector->connection == DRM_MODE_UNKNOWNCONNECTION)
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "%s: connector %u appears to be in an unknown state",
+                  G_STRFUNC, connector->id);
     }
 
   connector->pending_connection = drm_connector->connection;
