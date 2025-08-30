@@ -185,16 +185,8 @@ COGL_EXT_FUNCTION (void, glEnableVertexAttribArray,
                    (GLuint		 index))
 COGL_EXT_FUNCTION (void, glDisableVertexAttribArray,
                    (GLuint		 index))
-COGL_EXT_FUNCTION (void, glVertexAttrib1fv,
-                   (GLuint indx, const GLfloat* values))
-COGL_EXT_FUNCTION (void, glVertexAttrib2fv,
-                   (GLuint indx, const GLfloat* values))
-COGL_EXT_FUNCTION (void, glVertexAttrib3fv,
-                   (GLuint indx, const GLfloat* values))
 COGL_EXT_FUNCTION (void, glVertexAttrib4f,
                    (GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w))
-COGL_EXT_FUNCTION (void, glVertexAttrib4fv,
-                   (GLuint indx, const GLfloat* values))
 COGL_EXT_FUNCTION (GLint, glGetAttribLocation,
                    (GLuint program, const char *name))
 COGL_EXT_FUNCTION (void, glBindAttribLocation,

@@ -142,8 +142,6 @@ COGL_EXT_FUNCTION (void, glGetIntegerv,
                    (GLenum pname, GLint* params))
 COGL_EXT_FUNCTION (const GLubyte*, glGetString,
                    (GLenum name))
-COGL_EXT_FUNCTION (GLboolean, glIsTexture,
-                   (GLuint texture))
 COGL_EXT_FUNCTION (void, glPixelStorei,
                    (GLenum pname, GLint param))
 COGL_EXT_FUNCTION (void, glReadPixels,

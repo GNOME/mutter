@@ -142,25 +142,6 @@ COGL_EXT_FUNCTION (void, glDiscardFramebuffer,
                     const GLenum    *attachments))
 COGL_EXT_END ()
 
-COGL_EXT_BEGIN (IMG_multisampled_render_to_texture, 255, 255,
-                0, /* not in either GLES */
-                "\0",
-                "IMG_multisampled_render_to_texture\0")
-COGL_EXT_FUNCTION (void, glRenderbufferStorageMultisampleIMG,
-                   (GLenum           target,
-                    GLsizei          samples,
-                    GLenum           internal_format,
-                    GLsizei          width,
-                    GLsizei          height))
-COGL_EXT_FUNCTION (void, glFramebufferTexture2DMultisampleIMG,
-                   (GLenum           target,
-                    GLenum           attachment,
-                    GLenum           textarget,
-                    GLuint           texture,
-                    GLint            level,
-                    GLsizei          samples))
-COGL_EXT_END ()
-
 COGL_EXT_BEGIN (ARB_sampler_objects, 3, 3,
                 COGL_EXT_IN_GLES3,
                 "ARB:\0",
@@ -221,10 +202,6 @@ COGL_EXT_BEGIN (sync, 3, 2,
                 "sync\0")
 COGL_EXT_FUNCTION (GLsync, glFenceSync,
                    (GLenum condition, GLbitfield flags))
-COGL_EXT_FUNCTION (GLenum, glClientWaitSync,
-                   (GLsync sync, GLbitfield flags, GLuint64 timeout))
-COGL_EXT_FUNCTION (void, glDeleteSync,
-                   (GLsync sync))
 COGL_EXT_END ()
 #endif
 
@@ -250,14 +227,6 @@ COGL_EXT_BEGIN (robustness, 255, 255,
                 "robustness\0")
 COGL_EXT_FUNCTION (GLenum, glGetGraphicsResetStatus,
                    (void))
-COGL_EXT_END ()
-
-COGL_EXT_BEGIN (multitexture_part1, 1, 3,
-                0,
-                "ARB\0",
-                "multitexture\0")
-COGL_EXT_FUNCTION (void, glClientActiveTexture,
-                   (GLenum                texture))
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (query_counter, 3, 3,
