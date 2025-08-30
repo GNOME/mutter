@@ -42,6 +42,7 @@
 #include "cogl/cogl-attribute-private.h"
 #include "cogl/driver/gl/cogl-attribute-gl-private.h"
 #include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
@@ -59,11 +60,12 @@ toggle_custom_attribute_enabled_cb (int bit_num, void *user_data)
   ForeachChangedBitState *state = user_data;
   gboolean enabled = _cogl_bitmask_get (state->new_bits, bit_num);
   CoglContext *context = state->context;
+  CoglDriver *driver = cogl_context_get_driver (context);
 
   if (enabled)
-    GE( context, glEnableVertexAttribArray (bit_num) );
+    GE (driver, glEnableVertexAttribArray (bit_num));
   else
-    GE( context, glDisableVertexAttribArray (bit_num) );
+    GE (driver, glDisableVertexAttribArray (bit_num));
 
   return TRUE;
 }
@@ -97,6 +99,7 @@ setup_generic_buffered_attribute (CoglContext *context,
                                   CoglAttribute *attribute,
                                   uint8_t *base)
 {
+  CoglDriver *driver = cogl_context_get_driver (context);
   int name_index = attribute->name_state->name_index;
   int attrib_location =
     _cogl_pipeline_progend_glsl_get_attrib_location (pipeline, name_index);
@@ -104,12 +107,12 @@ setup_generic_buffered_attribute (CoglContext *context,
   if (attrib_location == -1)
     return;
 
-  GE( context, glVertexAttribPointer (attrib_location,
-                                      attribute->n_components,
-                                      attribute->type,
-                                      attribute->normalized,
-                                      attribute->stride,
-                                      base + attribute->offset) );
+  GE (driver, glVertexAttribPointer (attrib_location,
+                                     attribute->n_components,
+                                     attribute->type,
+                                     attribute->normalized,
+                                     attribute->stride,
+                                     base + attribute->offset));
   _cogl_bitmask_set (&context->enable_custom_attributes_tmp,
                      attrib_location, TRUE);
 }

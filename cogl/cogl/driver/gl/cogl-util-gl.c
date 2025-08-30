@@ -34,6 +34,7 @@
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
 #include "cogl/driver/gl/cogl-gl-framebuffer-fbo.h"
 #include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
@@ -81,7 +82,10 @@ _cogl_gl_error_to_string (GLenum error_code)
 GLenum
 _cogl_gl_util_get_error (CoglContext *ctx)
 {
-  GLenum gl_error = ctx->glGetError ();
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  GLenum gl_error;
+
+  GE_RET (gl_error, driver, glGetError ());
 
   if (gl_error != GL_NO_ERROR && gl_error != GL_CONTEXT_LOST)
     return gl_error;
@@ -89,50 +93,10 @@ _cogl_gl_util_get_error (CoglContext *ctx)
     return GL_NO_ERROR;
 }
 
-void
-_cogl_gl_util_clear_gl_errors (CoglContext *ctx)
-{
-  GLenum gl_error;
-
-  while ((gl_error = ctx->glGetError ()) != GL_NO_ERROR && gl_error != GL_CONTEXT_LOST)
-    ;
-}
-
-gboolean
-_cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error)
-{
-  GLenum gl_error;
-  gboolean out_of_memory = FALSE;
-
-  while ((gl_error = ctx->glGetError ()) != GL_NO_ERROR && gl_error != GL_CONTEXT_LOST)
-    {
-      if (gl_error == GL_OUT_OF_MEMORY)
-        out_of_memory = TRUE;
-#ifdef COGL_ENABLE_DEBUG
-      else
-        {
-          g_warning ("%s: GL error (%d): %s\n",
-                     G_STRLOC,
-                     gl_error,
-                     _cogl_gl_error_to_string (gl_error));
-        }
-#endif
-    }
-
-  if (out_of_memory)
-    {
-      g_set_error_literal (error, COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_NO_MEMORY,
-                           "Out of memory");
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
 char **
 _cogl_context_get_gl_extensions (CoglContext *context)
 {
+  CoglDriver *driver = cogl_context_get_driver (context);
 #ifdef HAVE_GL
   CoglRenderer *renderer = cogl_context_get_renderer (context);
 #endif
@@ -146,15 +110,17 @@ _cogl_context_get_gl_extensions (CoglContext *context)
     {
       int num_extensions, i;
 
-      context->glGetIntegerv (GL_NUM_EXTENSIONS, &num_extensions);
+      GE (driver, glGetIntegerv (GL_NUM_EXTENSIONS, &num_extensions));
 
       ret = g_malloc (sizeof (char *) * (num_extensions + 1));
 
       for (i = 0; i < num_extensions; i++)
         {
-          const char *ext =
-            (const char *) context->glGetStringi (GL_EXTENSIONS, i);
-          ret[i] = g_strdup (ext);
+          const GLubyte *ext;
+
+          GE_RET (ext, driver, glGetStringi (GL_EXTENSIONS, i));
+
+          ret[i] = g_strdup ((const char *)ext);
         }
 
       ret[num_extensions] = NULL;
@@ -162,8 +128,8 @@ _cogl_context_get_gl_extensions (CoglContext *context)
   else
 #endif
     {
-      const char *all_extensions =
-        (const char *) context->glGetString (GL_EXTENSIONS);
+      const char *all_extensions = cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
+                                                                 GL_EXTENSIONS);
 
       ret = g_strsplit (all_extensions, " ", 0 /* max tokens */);
     }
@@ -217,11 +183,12 @@ const char *
 _cogl_context_get_gl_version (CoglContext *context)
 {
   const char *version_override;
+  CoglDriver *driver = cogl_context_get_driver (context);
 
   if ((version_override = g_getenv ("COGL_OVERRIDE_GL_VERSION")))
     return version_override;
   else
-    return (const char *) context->glGetString (GL_VERSION);
+    return cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_VERSION);
 
 }
 

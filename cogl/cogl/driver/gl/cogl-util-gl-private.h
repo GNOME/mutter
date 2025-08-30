@@ -47,10 +47,12 @@
 const char *
 _cogl_gl_error_to_string (GLenum error_code);
 
-#define GE(ctx, x)                      G_STMT_START {  \
+#define GE(driver, x)                      G_STMT_START {  \
   GLenum __err;                                         \
-  (ctx)->x;                                             \
-  while ((__err = (ctx)->glGetError ()) != GL_NO_ERROR && __err != GL_CONTEXT_LOST) \
+  CoglDriverGL *_driver_gl = COGL_DRIVER_GL (driver);   \
+  CoglDriverGLPrivate *_driver_gl_private = cogl_driver_gl_get_private (_driver_gl);   \
+  (_driver_gl_private)->x;                                             \
+  while ((__err = (_driver_gl_private)->glGetError ()) != GL_NO_ERROR && __err != GL_CONTEXT_LOST) \
     {                                                   \
       g_warning ("%s: GL error (%d): %s\n",             \
                  G_STRLOC,                              \
@@ -58,10 +60,12 @@ _cogl_gl_error_to_string (GLenum error_code);
                  _cogl_gl_error_to_string (__err));     \
     }                                   } G_STMT_END
 
-#define GE_RET(ret, ctx, x)             G_STMT_START {  \
+#define GE_RET(ret, driver, x)             G_STMT_START {  \
   GLenum __err;                                         \
-  ret = (ctx)->x;                                       \
-  while ((__err = (ctx)->glGetError ()) != GL_NO_ERROR && __err != GL_CONTEXT_LOST) \
+  CoglDriverGL *_driver_gl = COGL_DRIVER_GL (driver);   \
+  CoglDriverGLPrivate *_driver_gl_private = cogl_driver_gl_get_private (_driver_gl);   \
+  ret = (_driver_gl_private)->x;                                       \
+  while ((__err = (_driver_gl_private)->glGetError ()) != GL_NO_ERROR && __err != GL_CONTEXT_LOST) \
     {                                                   \
       g_warning ("%s: GL error (%d): %s\n",             \
                  G_STRLOC,                              \
@@ -71,19 +75,40 @@ _cogl_gl_error_to_string (GLenum error_code);
 
 #else /* !COGL_ENABLE_DEBUG */
 
-#define GE(ctx, x) ((ctx)->x)
-#define GE_RET(ret, ctx, x) (ret = ((ctx)->x))
+#define GE(driver, x)                      G_STMT_START {  \
+  CoglDriverGL *_driver_gl = COGL_DRIVER_GL (driver);   \
+  CoglDriverGLPrivate *_driver_gl_private = cogl_driver_gl_get_private (_driver_gl);   \
+  (_driver_gl_private)->x;                                             \
+                                  } G_STMT_END
+
+#define GE_RET(ret, driver, x)             G_STMT_START {  \
+  CoglDriverGL *_driver_gl = COGL_DRIVER_GL (driver);   \
+  CoglDriverGLPrivate *_driver_gl_private = cogl_driver_gl_get_private (_driver_gl);   \
+  ret = (_driver_gl_private)->x;                                       \
+                                   } G_STMT_END
+
+#define GE(driver, x) (COGL_DRIVER_GL (driver)->x)
+#define GE_RET(ret, driver, x) (ret = (COGL_DRIVER_GL (driver)->x))
 
 #endif /* COGL_ENABLE_DEBUG */
 
+static inline void *
+cogl_gl_get_proc (CoglDriver *driver,
+                  size_t      offset)
+{
+  CoglDriverGL *_driver_gl = COGL_DRIVER_GL (driver);
+  CoglDriverGLPrivate *_driver_gl_private =
+      cogl_driver_gl_get_private (_driver_gl);
+
+  return *(void **)(((char *)_driver_gl_private) + offset);
+}
+
+#define GE_HAS(driver, member) \
+  (cogl_gl_get_proc ((driver), G_STRUCT_OFFSET (CoglDriverGLPrivate, member)))
+
+
 GLenum
 _cogl_gl_util_get_error (CoglContext *ctx);
-
-void
-_cogl_gl_util_clear_gl_errors (CoglContext *ctx);
-
-gboolean
-_cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error);
 
 /*
  * _cogl_context_get_gl_extensions:

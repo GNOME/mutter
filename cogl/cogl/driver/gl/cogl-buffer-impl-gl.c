@@ -36,6 +36,7 @@
 
 #include "cogl/cogl-context-private.h"
 #include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
 struct _CoglBufferImplGL
@@ -90,9 +91,9 @@ cogl_buffer_impl_gl_create (CoglBufferImpl *impl,
                             CoglBuffer     *buffer)
 {
   CoglBufferImplGL *gl_impl = COGL_BUFFER_IMPL_GL (impl);
-  CoglContext *ctx = buffer->context;
+  CoglDriver *driver = cogl_context_get_driver (buffer->context);
 
-  GE (ctx, glGenBuffers (1, &gl_impl->gl_handle));
+  GE (driver, glGenBuffers (1, &gl_impl->gl_handle));
 }
 
 static void
@@ -100,8 +101,9 @@ cogl_buffer_impl_gl_destroy (CoglBufferImpl *impl,
                              CoglBuffer     *buffer)
 {
   CoglBufferImplGL *gl_impl = COGL_BUFFER_IMPL_GL (impl);
+  CoglDriver *driver = cogl_context_get_driver (buffer->context);
 
-  GE (buffer->context, glDeleteBuffers (1, &gl_impl->gl_handle));
+  GE (driver, glDeleteBuffers (1, &gl_impl->gl_handle));
 }
 
 static GLenum
@@ -145,6 +147,7 @@ recreate_store (CoglBuffer *buffer,
                 GError **error)
 {
   CoglContext *ctx = buffer->context;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   GLenum gl_target;
   GLenum gl_enum;
 
@@ -154,14 +157,14 @@ recreate_store (CoglBuffer *buffer,
   gl_enum = update_hints_to_gl_enum (buffer);
 
   /* Clear any GL errors */
-  _cogl_gl_util_clear_gl_errors (ctx);
+  cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
-  ctx->glBufferData (gl_target,
-                     buffer->size,
-                     NULL,
-                     gl_enum);
+  GE (driver, glBufferData (gl_target,
+                            buffer->size,
+                            NULL,
+                            gl_enum));
 
-  if (_cogl_gl_util_catch_out_of_memory (ctx, error))
+  if (cogl_driver_gl_catch_out_of_memory (COGL_DRIVER_GL (driver), error))
     return FALSE;
 
   buffer->store_created = TRUE;
@@ -201,7 +204,10 @@ cogl_buffer_impl_gl_bind_no_create (CoglBufferImplGL     *gl_impl,
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {
       GLenum gl_target = convert_bind_target_to_gl_target (buffer->last_target);
-      GE( ctx, glBindBuffer (gl_target, gl_impl->gl_handle) );
+      CoglDriver *driver = cogl_context_get_driver (ctx);
+
+      GE (driver, glBindBuffer (gl_target, gl_impl->gl_handle));
+
       return NULL;
     }
   else
@@ -221,6 +227,7 @@ cogl_buffer_impl_gl_map_range (CoglBufferImpl     *impl,
   CoglBufferBindTarget target;
   GLenum gl_target;
   CoglContext *ctx = buffer->context;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
   if (((access & COGL_BUFFER_ACCESS_READ) &&
        !cogl_context_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ)) ||
@@ -249,7 +256,7 @@ cogl_buffer_impl_gl_map_range (CoglBufferImpl     *impl,
    * always use it even if we are mapping the full range because the
    * normal mapping function doesn't support passing the discard
    * hints */
-  if (ctx->glMapBufferRange)
+  if (GE_HAS (driver, glMapBufferRange))
     {
       GLbitfield gl_access = 0;
       gboolean should_recreate_store = !buffer->store_created;
@@ -288,14 +295,14 @@ cogl_buffer_impl_gl_map_range (CoglBufferImpl     *impl,
         }
 
       /* Clear any GL errors */
-      _cogl_gl_util_clear_gl_errors (ctx);
+      cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
-      data = ctx->glMapBufferRange (gl_target,
-                                    offset,
-                                    size,
-                                    gl_access);
+      GE_RET (data, driver, glMapBufferRange (gl_target,
+                                              offset,
+                                              size,
+                                              gl_access));
 
-      if (_cogl_gl_util_catch_out_of_memory (ctx, error))
+      if (cogl_driver_gl_catch_out_of_memory (COGL_DRIVER_GL (driver), error))
         {
           _cogl_buffer_gl_unbind (buffer);
           return NULL;
@@ -319,12 +326,12 @@ cogl_buffer_impl_gl_map_range (CoglBufferImpl     *impl,
         }
 
       /* Clear any GL errors */
-      _cogl_gl_util_clear_gl_errors (ctx);
+      cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
-      data = ctx->glMapBuffer (gl_target,
-                               _cogl_buffer_access_to_gl_enum (access));
+      GE_RET (data, driver, glMapBuffer (gl_target,
+                                         _cogl_buffer_access_to_gl_enum (access)));
 
-      if (_cogl_gl_util_catch_out_of_memory (ctx, error))
+      if (cogl_driver_gl_catch_out_of_memory (COGL_DRIVER_GL (driver), error))
         {
           _cogl_buffer_gl_unbind (buffer);
           return NULL;
@@ -348,13 +355,14 @@ cogl_buffer_impl_gl_unmap (CoglBufferImpl *impl,
                            CoglBuffer     *buffer)
 {
   CoglContext *ctx = buffer->context;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
   cogl_buffer_impl_gl_bind_no_create (COGL_BUFFER_IMPL_GL (impl),
                                       buffer,
                                       buffer->last_target);
 
-  GE( ctx, glUnmapBuffer (convert_bind_target_to_gl_target
-                          (buffer->last_target)) );
+  GE (driver, glUnmapBuffer (convert_bind_target_to_gl_target
+                             (buffer->last_target)));
   buffer->flags &= ~COGL_BUFFER_FLAG_MAPPED;
 
   _cogl_buffer_gl_unbind (buffer);
@@ -371,6 +379,7 @@ cogl_buffer_impl_gl_set_data (CoglBufferImpl  *impl,
   CoglBufferBindTarget target;
   GLenum gl_target;
   CoglContext *ctx = buffer->context;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   gboolean status = TRUE;
   GError *internal_error = NULL;
 
@@ -391,11 +400,11 @@ cogl_buffer_impl_gl_set_data (CoglBufferImpl  *impl,
   gl_target = convert_bind_target_to_gl_target (target);
 
   /* Clear any GL errors */
-  _cogl_gl_util_clear_gl_errors (ctx);
+  cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
-  ctx->glBufferSubData (gl_target, offset, size, data);
+  GE (driver, glBufferSubData (gl_target, offset, size, data));
 
-  if (_cogl_gl_util_catch_out_of_memory (ctx, error))
+  if (cogl_driver_gl_catch_out_of_memory (COGL_DRIVER_GL (driver), error))
     status = FALSE;
 
   _cogl_buffer_gl_unbind (buffer);
@@ -442,8 +451,11 @@ _cogl_buffer_gl_unbind (CoglBuffer *buffer)
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {
+      CoglDriver *driver = cogl_context_get_driver (ctx);
+
       GLenum gl_target = convert_bind_target_to_gl_target (buffer->last_target);
-      GE( ctx, glBindBuffer (gl_target, 0) );
+
+      GE (driver, glBindBuffer (gl_target, 0));
     }
 
   ctx->current_buffer[buffer->last_target] = NULL;

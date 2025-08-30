@@ -37,12 +37,12 @@
 #include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-texture-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
 #include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
-  #include "cogl/driver/gl/cogl-driver-gl-private.h"
-  #include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
 
 #include <glib.h>
 #include <string.h>
@@ -62,9 +62,11 @@ context_from_driver (CoglFramebufferDriver *driver)
 static void
 cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
 {
-  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebufferDriver *fb_driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   float viewport_x, viewport_y, viewport_width, viewport_height;
   float gl_viewport_y;
 
@@ -94,7 +96,7 @@ cogl_gl_framebuffer_flush_viewport_state (CoglGlFramebuffer *gl_framebuffer)
              viewport_width,
              viewport_height);
 
-  GE (cogl_framebuffer_get_context (framebuffer),
+  GE (driver,
       glViewport ((GLint) viewport_x,
                   (GLint) gl_viewport_y,
                   (GLsizei) viewport_width,
@@ -115,19 +117,20 @@ cogl_gl_framebuffer_flush_clip_state (CoglGlFramebuffer *gl_framebuffer)
 static void
 cogl_gl_framebuffer_flush_dither_state (CoglGlFramebuffer *gl_framebuffer)
 {
-  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
+  CoglFramebufferDriver *fb_driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer);
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   gboolean is_dither_enabled;
 
   is_dither_enabled = cogl_framebuffer_get_dither_enabled (framebuffer);
   if (ctx->current_gl_dither_enabled != is_dither_enabled)
     {
       if (is_dither_enabled)
-        GE (ctx, glEnable (GL_DITHER));
+        GE (driver, glEnable (GL_DITHER));
       else
-        GE (ctx, glDisable (GL_DITHER));
+        GE (driver, glDisable (GL_DITHER));
       ctx->current_gl_dither_enabled = is_dither_enabled;
     }
 }
@@ -245,26 +248,27 @@ cogl_gl_framebuffer_bind (CoglGlFramebuffer *gl_framebuffer,
 }
 
 static void
-cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
+cogl_gl_framebuffer_clear (CoglFramebufferDriver *fb_driver,
                            unsigned long          buffers,
                            float                  red,
                            float                  green,
                            float                  blue,
                            float                  alpha)
 {
-  CoglContext *ctx = context_from_driver (driver);
+  CoglContext *ctx = context_from_driver (fb_driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   GLbitfield gl_buffers = 0;
 
   if (buffers & COGL_BUFFER_BIT_COLOR)
     {
-      GE( ctx, glClearColor (red, green, blue, alpha) );
+      GE (driver, glClearColor (red, green, blue, alpha));
       gl_buffers |= GL_COLOR_BUFFER_BIT;
     }
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     {
       CoglFramebuffer *framebuffer =
-        cogl_framebuffer_driver_get_framebuffer (driver);
+        cogl_framebuffer_driver_get_framebuffer (fb_driver);
       gboolean is_depth_writing_enabled;
 
       gl_buffers |= GL_DEPTH_BUFFER_BIT;
@@ -273,7 +277,7 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
         cogl_framebuffer_get_depth_write_enabled (framebuffer);
       if (ctx->depth_writing_enabled_cache != is_depth_writing_enabled)
         {
-          GE( ctx, glDepthMask (is_depth_writing_enabled));
+          GE (driver, glDepthMask (is_depth_writing_enabled));
 
           ctx->depth_writing_enabled_cache = is_depth_writing_enabled;
 
@@ -288,33 +292,35 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *driver,
     gl_buffers |= GL_STENCIL_BUFFER_BIT;
 
 
-  GE (ctx, glClear (gl_buffers));
+  GE (driver, glClear (gl_buffers));
 }
 
 static void
-cogl_gl_framebuffer_finish (CoglFramebufferDriver *driver)
+cogl_gl_framebuffer_finish (CoglFramebufferDriver *fb_driver)
 {
-  CoglContext *ctx = context_from_driver (driver);
+  CoglContext *ctx = context_from_driver (fb_driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
   /* Update our "latest" sync fd to contain all previous work */
   _cogl_context_update_sync (ctx);
 
-  ctx->glFinish ();
+  GE (driver, glFinish ());
 }
 
 static void
-cogl_gl_framebuffer_flush (CoglFramebufferDriver *driver)
+cogl_gl_framebuffer_flush (CoglFramebufferDriver *fb_driver)
 {
-  CoglContext *ctx = context_from_driver (driver);
+  CoglContext *ctx = context_from_driver (fb_driver);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
   /* Update our "latest" sync fd to contain all previous work */
   _cogl_context_update_sync (ctx);
 
-  ctx->glFlush ();
+  GE (driver, glFlush ());
 }
 
 static void
-cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
+cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *fb_driver,
                                      CoglPipeline           *pipeline,
                                      CoglVerticesMode        mode,
                                      int                     first_vertex,
@@ -324,17 +330,19 @@ cogl_gl_framebuffer_draw_attributes (CoglFramebufferDriver  *driver,
                                      CoglDrawFlags           flags)
 {
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
   _cogl_flush_attributes_state (framebuffer, pipeline, flags,
                                 attributes, n_attributes);
 
-  GE (cogl_framebuffer_get_context (framebuffer),
+  GE (driver,
       glDrawArrays ((GLenum)mode, first_vertex, n_vertices));
 }
 
 static void
-cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
+cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *fb_driver,
                                              CoglPipeline           *pipeline,
                                              CoglVerticesMode        mode,
                                              int                     first_vertex,
@@ -345,7 +353,9 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
                                              CoglDrawFlags           flags)
 {
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglBuffer *buffer;
   uint8_t *base;
   size_t index_size;
@@ -378,7 +388,7 @@ cogl_gl_framebuffer_draw_indexed_attributes (CoglFramebufferDriver  *driver,
       break;
     }
 
-  GE (cogl_framebuffer_get_context (framebuffer),
+  GE (driver,
       glDrawElements ((GLenum)mode,
                       n_vertices,
                       indices_gl_type,
@@ -440,7 +450,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
       else
         gl_pack_enum = GL_PACK_INVERT_MESA;
 
-      GE (ctx, glPixelStorei (gl_pack_enum, TRUE));
+      GE (driver, glPixelStorei (gl_pack_enum, TRUE));
       pack_invert_set = TRUE;
     }
   else
@@ -499,9 +509,9 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
                                        COGL_BUFFER_MAP_HINT_DISCARD,
                                        NULL);
 
-      GE( ctx, glReadPixels (x, y, width, height,
-                             gl_format, gl_type,
-                             tmp_data) );
+      GE (driver, glReadPixels (x, y, width, height,
+                                gl_format, gl_type,
+                                tmp_data));
 
       _cogl_bitmap_gl_unbind (tmp_bmp);
 
@@ -570,10 +580,10 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
           goto EXIT;
         }
 
-      GE( ctx, glReadPixels (x, y,
-                             width, height,
-                             gl_format, gl_type,
-                             pixels) );
+      GE (driver, glReadPixels (x, y,
+                                width, height,
+                                gl_format, gl_type,
+                                pixels));
 
       _cogl_bitmap_gl_unbind (shared_bmp);
 
@@ -636,7 +646,7 @@ EXIT:
    * to interfere with other Cogl components so all other code can assume that
    * we leave the pack_invert state off. */
   if (pack_invert_set)
-    GE (ctx, glPixelStorei (gl_pack_enum, FALSE));
+    GE (driver, glPixelStorei (gl_pack_enum, FALSE));
 
   return status;
 }

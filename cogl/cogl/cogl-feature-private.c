@@ -37,6 +37,7 @@
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 gboolean
 _cogl_feature_check (CoglRenderer *renderer,
@@ -176,7 +177,7 @@ error:
                        namespaces, extension_names)                     \
   static const CoglFeatureFunction cogl_ext_ ## name ## _funcs[] = {
 #define COGL_EXT_FUNCTION(ret, name, args)                          \
-  { G_STRINGIFY (name), G_STRUCT_OFFSET (CoglContext, name) },
+  { G_STRINGIFY (name), G_STRUCT_OFFSET (CoglDriverGLPrivate, name) },
 #define COGL_EXT_END()                      \
   { NULL, 0 },                                  \
   };
@@ -209,6 +210,9 @@ _cogl_feature_check_ext_functions (CoglContext *context,
                                    char * const *gl_extensions)
 {
   CoglRenderer *renderer = cogl_context_get_renderer (context);
+  CoglDriver *driver = cogl_context_get_driver (context);
+  CoglDriverGL *driver_gl = COGL_DRIVER_GL (driver);
+  CoglDriverGLPrivate *priv_gl = cogl_driver_gl_get_private (driver_gl);
   int i;
 
   for (i = 0; i < G_N_ELEMENTS (cogl_feature_ext_functions_data); i++)
@@ -217,5 +221,5 @@ _cogl_feature_check_ext_functions (CoglContext *context,
                          gl_major, gl_minor,
                          cogl_renderer_get_driver_id (renderer),
                          gl_extensions,
-                         context);
+                         priv_gl);
 }

@@ -44,11 +44,11 @@
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-bitmap-gl-private.h"
-#include "cogl/driver/gl/cogl-driver-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -68,14 +68,15 @@ G_DEFINE_FINAL_TYPE (CoglTextureDriverGL3,
                      COGL_TYPE_TEXTURE_DRIVER_GL)
 
 static GLuint
-cogl_texture_driver_gl3_gen (CoglTextureDriverGL *driver,
+cogl_texture_driver_gl3_gen (CoglTextureDriverGL *tex_driver,
                              CoglContext         *ctx,
                              GLenum               gl_target,
                              CoglPixelFormat      internal_format)
 {
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   GLuint tex;
 
-  GE (ctx, glGenTextures (1, &tex));
+  GE (driver, glGenTextures (1, &tex));
 
   _cogl_bind_gl_texture_transient (ctx, gl_target, tex);
 
@@ -88,12 +89,12 @@ cogl_texture_driver_gl3_gen (CoglTextureDriverGL *driver,
        * level to 0 so OpenGL will consider the texture storage to be
        * "complete".
        */
-      GE( ctx, glTexParameteri (gl_target, GL_TEXTURE_MAX_LEVEL, 0));
+      GE (driver, glTexParameteri (gl_target, GL_TEXTURE_MAX_LEVEL, 0));
 
       /* GL_TEXTURE_MAG_FILTER defaults to GL_LINEAR, no need to set it */
-      GE( ctx, glTexParameteri (gl_target,
-                                GL_TEXTURE_MIN_FILTER,
-                                GL_LINEAR) );
+      GE (driver, glTexParameteri (gl_target,
+                                   GL_TEXTURE_MIN_FILTER,
+                                   GL_LINEAR));
       break;
 
     case GL_TEXTURE_RECTANGLE_ARB:
@@ -112,9 +113,9 @@ cogl_texture_driver_gl3_gen (CoglTextureDriverGL *driver,
     {
       static const GLint red_swizzle[] = { GL_ZERO, GL_ZERO, GL_ZERO, GL_RED };
 
-      GE( ctx, glTexParameteriv (gl_target,
-                                 GL_TEXTURE_SWIZZLE_RGBA,
-                                 red_swizzle) );
+      GE (driver, glTexParameteriv (gl_target,
+                                    GL_TEXTURE_SWIZZLE_RGBA,
+                                    red_swizzle));
     }
 
   return tex;
@@ -130,17 +131,19 @@ prep_gl_for_pixels_upload_full (CoglContext *ctx,
                                 int pixels_src_y,
                                 int pixels_bpp)
 {
-  GE( ctx, glPixelStorei (GL_UNPACK_ROW_LENGTH,
-                          pixels_rowstride / pixels_bpp) );
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
-  GE( ctx, glPixelStorei (GL_UNPACK_SKIP_PIXELS, pixels_src_x) );
-  GE( ctx, glPixelStorei (GL_UNPACK_SKIP_ROWS, pixels_src_y) );
+  GE (driver, glPixelStorei (GL_UNPACK_ROW_LENGTH,
+                             pixels_rowstride / pixels_bpp));
+
+  GE (driver, glPixelStorei (GL_UNPACK_SKIP_PIXELS, pixels_src_x));
+  GE (driver, glPixelStorei (GL_UNPACK_SKIP_ROWS, pixels_src_y));
 
   _cogl_texture_gl_prep_alignment_for_pixels_upload (ctx, pixels_rowstride);
 }
 
 static gboolean
-cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
+cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *tex_driver,
                                                 CoglContext          *ctx,
                                                 CoglTexture          *texture,
                                                 int                   src_x,
@@ -158,6 +161,7 @@ cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
   GLenum gl_target;
   GLuint gl_handle;
   uint8_t *data;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp;
   gboolean status = TRUE;
@@ -194,7 +198,7 @@ cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
   _cogl_bind_gl_texture_transient (ctx, gl_target, gl_handle);
 
   /* Clear any GL errors */
-  _cogl_gl_util_clear_gl_errors (ctx);
+  cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
   _cogl_texture_get_level_size (texture,
                                 level,
@@ -208,15 +212,15 @@ cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
        * contents of a mipmap level so we make sure to use
        * glTexImage2D if we are uploading a full mipmap level.
        */
-      ctx->glTexImage2D (gl_target,
-                         level,
-                         _cogl_texture_gl_get_format (texture),
-                         width,
-                         height,
-                         0,
-                         source_gl_format,
-                         source_gl_type,
-                         data);
+      GE (driver, glTexImage2D (gl_target,
+                                level,
+                                _cogl_texture_gl_get_format (texture),
+                                width,
+                                height,
+                                0,
+                                source_gl_format,
+                                source_gl_type,
+                                data));
 
     }
   else
@@ -229,27 +233,27 @@ cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
        */
       if (cogl_texture_get_max_level_set (texture) < level)
         {
-          ctx->glTexImage2D (gl_target,
-                             level,
-                             _cogl_texture_gl_get_format (texture),
-                             level_width,
-                             level_height,
-                             0,
-                             source_gl_format,
-                             source_gl_type,
-                             NULL);
+          GE (driver, glTexImage2D (gl_target,
+                                    level,
+                                    _cogl_texture_gl_get_format (texture),
+                                    level_width,
+                                    level_height,
+                                    0,
+                                    source_gl_format,
+                                    source_gl_type,
+                                    NULL));
         }
 
-      ctx->glTexSubImage2D (gl_target,
-                            level,
-                            dst_x, dst_y,
-                            width, height,
-                            source_gl_format,
-                            source_gl_type,
-                            data);
+      GE (driver, glTexSubImage2D (gl_target,
+                                   level,
+                                   dst_x, dst_y,
+                                   width, height,
+                                   source_gl_format,
+                                   source_gl_type,
+                                   data));
     }
 
-  if (_cogl_gl_util_catch_out_of_memory (ctx, error))
+  if (cogl_driver_gl_catch_out_of_memory (COGL_DRIVER_GL (driver), error))
     status = FALSE;
 
   _cogl_bitmap_gl_unbind (source_bmp);
@@ -258,7 +262,7 @@ cogl_texture_driver_gl3_upload_subregion_to_gl (CoglTextureDriverGL  *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriverGL *driver,
+cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriverGL *tex_driver,
                                       CoglContext         *ctx,
                                       GLenum               gl_target,
                                       GLuint               gl_handle,
@@ -269,6 +273,7 @@ cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriverGL *driver,
                                       GError             **error)
 {
   uint8_t *data;
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp;
   gboolean status = TRUE;
@@ -302,18 +307,18 @@ cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriverGL *driver,
   _cogl_bind_gl_texture_transient (ctx, gl_target, gl_handle);
 
   /* Clear any GL errors */
-  _cogl_gl_util_clear_gl_errors (ctx);
+  cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
-  ctx->glTexImage2D (gl_target, 0,
-                     internal_gl_format,
-                     cogl_bitmap_get_width (source_bmp),
-                     cogl_bitmap_get_height (source_bmp),
-                     0,
-                     source_gl_format,
-                     source_gl_type,
-                     data);
+  GE (driver, glTexImage2D (gl_target, 0,
+                            internal_gl_format,
+                            cogl_bitmap_get_width (source_bmp),
+                            cogl_bitmap_get_height (source_bmp),
+                            0,
+                            source_gl_format,
+                            source_gl_type,
+                            data));
 
-  if (_cogl_gl_util_catch_out_of_memory (ctx, error))
+  if (cogl_driver_gl_catch_out_of_memory (COGL_DRIVER_GL (driver), error))
     status = FALSE;
 
   _cogl_bitmap_gl_unbind (source_bmp);
@@ -322,18 +327,20 @@ cogl_texture_driver_gl3_upload_to_gl (CoglTextureDriverGL *driver,
 }
 
 static gboolean
-cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriverGL *driver,
+cogl_texture_driver_gl3_gl_get_tex_image (CoglTextureDriverGL *tex_driver,
                                           CoglContext         *ctx,
                                           GLenum               gl_target,
                                           GLenum               dest_gl_format,
                                           GLenum               dest_gl_type,
                                           uint8_t             *dest)
 {
-  GE (ctx, glGetTexImage (gl_target,
-                          0, /* level */
-                          dest_gl_format,
-                          dest_gl_type,
-                          (GLvoid *)dest));
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+
+  GE (driver, glGetTexImage (gl_target,
+                             0, /* level */
+                             dest_gl_format,
+                             dest_gl_type,
+                             (GLvoid *)dest));
   return TRUE;
 }
 

@@ -47,6 +47,8 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"
 #include "cogl/cogl-trace.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/winsys/cogl-winsys.h"
 
 enum
@@ -1424,6 +1426,7 @@ cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
   CoglFramebufferPrivate *dst_priv =
     cogl_framebuffer_get_instance_private (dst);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   int src_x1, src_y1, src_x2, src_y2;
   int dst_x1, dst_y1, dst_x2, dst_y2;
 
@@ -1504,10 +1507,10 @@ cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
       dst_y2 = dst_y1 - height;
     }
 
-  ctx->glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
-                          dst_x1, dst_y1, dst_x2, dst_y2,
-                          GL_COLOR_BUFFER_BIT,
-                          GL_NEAREST);
+  GE (driver, glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
+                                 dst_x1, dst_y1, dst_x2, dst_y2,
+                                 GL_COLOR_BUFFER_BIT,
+                                 GL_NEAREST));
 
   return TRUE;
 }

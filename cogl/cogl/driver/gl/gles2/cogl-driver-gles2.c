@@ -516,7 +516,7 @@ cogl_driver_gles2_texture_size_supported (CoglDriverGL *driver,
 
   /* GLES doesn't support a proxy texture target so let's at least
      check whether the size is greater than GL_MAX_TEXTURE_SIZE */
-  GE( ctx, glGetIntegerv (GL_MAX_TEXTURE_SIZE, &max_size) );
+  GE (driver, glGetIntegerv (GL_MAX_TEXTURE_SIZE, &max_size));
 
   return width <= max_size && height <= max_size;
 }
@@ -692,9 +692,9 @@ _cogl_get_glsl_version (CoglContext *ctx,
                         int         *major_out,
                         int         *minor_out)
 {
-  const char *version_string;
-
-  version_string = (char *)ctx->glGetString (GL_SHADING_LANGUAGE_VERSION);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  const char *version_string = cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
+                                                             GL_SHADING_LANGUAGE_VERSION);
 
   if (!g_str_has_prefix (version_string, "OpenGL ES GLSL ES "))
     return FALSE;
@@ -740,6 +740,8 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                                    CoglContext  *context,
                                    GError      **error)
 {
+  CoglDriverGLPrivate *priv_gl =
+    cogl_driver_gl_get_private (COGL_DRIVER_GL (driver));
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   g_auto (GStrv) gl_extensions = 0;
@@ -749,7 +751,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
   /* We have to special case getting the pointer to the glGetString
      function because we need to use it to determine what functions we
      can expect */
-  context->glGetString =
+  priv_gl->glGetString =
     (void *) cogl_renderer_get_proc_address (context->display->renderer,
                                              "glGetString");
 
@@ -771,8 +773,8 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                  "  GL_RENDERER: %s\n"
                  "  GL_VERSION: %s\n"
                  "  GL_EXTENSIONS: %s",
-                 context->glGetString (GL_VENDOR),
-                 context->glGetString (GL_RENDERER),
+                 cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_VENDOR),
+                 cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_RENDERER),
                  _cogl_context_get_gl_version (context),
                  all_extensions);
     }
@@ -801,10 +803,10 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
-  if (context->glGenSamplers)
+  if (GE_HAS (driver, glGenSamplers))
     COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS, TRUE);
 
-  if (context->glBlitFramebuffer)
+  if (GE_HAS (driver, glBlitFramebuffer))
     COGL_FLAGS_SET (context->features,
                     COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
 
@@ -814,7 +816,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                       COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
     }
 
-  if (context->glMapBuffer)
+  if (GE_HAS (driver, glMapBuffer))
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
          read */
@@ -822,16 +824,16 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                       COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
     }
 
-  if (context->glMapBufferRange)
+  if (GE_HAS (driver, glMapBufferRange))
     {
       /* MapBufferRange in ES3+ does support mapping for read */
-      COGL_FLAGS_SET(context->features,
-                     COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
-      COGL_FLAGS_SET(context->features,
-                     COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
     }
 
-  if (context->glEGLImageTargetTexture2D)
+  if (GE_HAS (driver, glEGLImageTargetTexture2D))
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
 
@@ -867,7 +869,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_OES_EGL_SYNC, TRUE);
 
 #ifdef GL_ARB_sync
-  if (context->glFenceSync)
+  if (GE_HAS (driver, glFenceSync))
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
 #endif
 
@@ -883,10 +885,10 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                       COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
     }
 
-  if (context->glGenQueries && context->glQueryCounter && context->glGetInteger64v)
+  if (GE_HAS (driver, glGenQueries) && GE_HAS (driver, glQueryCounter) && GE_HAS (driver, glGetInteger64v))
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
 
-  if (!g_strcmp0 ((char *) context->glGetString (GL_RENDERER), "Mali-400 MP"))
+  if (!g_strcmp0 (cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_RENDERER), "Mali-400 MP"))
     {
       COGL_FLAGS_SET (private_features,
                       COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
