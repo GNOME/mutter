@@ -10,9 +10,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-03-02 11:42+0200\n"
-"Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
+"POT-Creation-Date: 2025-08-29 20:59+0000\n"
+"PO-Revision-Date: 2025-08-30 19:18+0300\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n==2 ? 1 : n>10 && n%10==0 ? "
 "2 : 3);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.6\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -309,12 +309,12 @@ msgstr "Workspaces are managed dynamically"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -616,26 +616,118 @@ msgstr ""
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "יישום"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "קובץ הפעלה"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "הוספת משגר"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "משגר"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "סוג"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "הוספה"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "הרצה"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "מחיקה"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "פעולה"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "עריכת משגרים"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "משגרים"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_קלט"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "ה_דמיית נגיעה"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "מ_ניעת קיצורי מקשים של המערכת"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "מ_שגרים"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_עריכת משגרים"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "_על ערכת הפיתוח Mutter"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "ערכת הפיתוח של Mutter"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "תפריט ראשי"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "צוות Mutter"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "ערכת פיתוח התוכנה Mutter"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "על ערכת הפיתוח Mutter"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "יצירת צג נכשלה"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "תצוגה מובנית"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "לא ידוע"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "תצוגה לא ידועה"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "‏%s ‏%s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -643,69 +735,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "‏%s ‏%s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "אירוע פעמון"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "מסך פרטי מופעל"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "מסך פרטי מושבת"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "החלפת מנהל החלונות הפעיל"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "תצוגת X לשימוש"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "השבתת החיבור למנהל ההפעלות"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Specify session management ID"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Initialize session from savefile"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "להפוך את הקריאות ל־X לסינכרוניות"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "הרצה כמנהל חלונאי של wayland"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "הרצה כמנהל חלונאי מקונן"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Run wayland compositor without starting Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "נא לציין שם תצוגת Wayland לשימוש"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "הרצה כשרת תצוגה מלא, במקום מקונן"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "הרצה כשרת תצוגה ללא פלט מסך"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "הוספת צג וירטואלי קבוע (WxH או WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "הרצת ערכת פיתוח"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -722,7 +806,7 @@ msgstr "הפעלת מנשק D-Bus לבקרת ניפוי שגיאות"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "מצב העברה (קבוצה %d)"
@@ -730,7 +814,7 @@ msgstr "מצב העברה (קבוצה %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "מצב העברה"
@@ -738,11 +822,11 @@ msgstr "מצב העברה"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "החלפה בין צגים"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "הצגת עזרה על המסך"
 
@@ -764,7 +848,7 @@ msgstr "תוסף ה־mutter לשימוש"
 msgid "Workspace %d"
 msgstr "מרחב עבודה %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter הודר ללא תמיכה במצב מפורט"
 
@@ -772,12 +856,12 @@ msgstr "Mutter הודר ללא תמיכה במצב מפורט"
 msgid "Workspace switched"
 msgstr "מרחב עבודה מתחלף"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "מצב העברה: מצב %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -786,19 +870,19 @@ msgstr ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "פתיחת התצוגה של מערכת החלונות X בשם „%s” נכשלה"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "מסך %d בתצוגה „%s” הוא שגוי"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -809,10 +893,19 @@ msgstr "מנהל תצוגת חלונות אחר כבר פועל במסך %i בת
 msgid "Format %s not supported"
 msgstr "אין תמיכה בתסדיר %s"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (מעל %s)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "השבתת החיבור למנהל ההפעלות"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "Specify session management ID"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "Initialize session from savefile"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "העברה למרחב העבודה שמלמעלה"
@@ -961,11 +1054,11 @@ msgstr "%s (מעל %s)"
 #~ "fit the format"
 
 #~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:"
-#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ "GTK color specification must have the state in brackets, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 #~ msgstr ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:"
-#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ "GTK color specification must have the state in brackets, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 
 #~ msgid ""
 #~ "GTK color specification must have a close bracket after the state, e.g. "
@@ -1157,11 +1250,11 @@ msgstr "%s (מעל %s)"
 #~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
 
 #~ msgid ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
-#~ "large,x-large,xx-large)\n"
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-"
+#~ "small,small,medium,large,x-large,xx-large)\n"
 #~ msgstr ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
-#~ "large,x-large,xx-large)\n"
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-"
+#~ "small,small,medium,large,x-large,xx-large)\n"
 
 #~ msgid "<%s> name \"%s\" used a second time"
 #~ msgstr "<%s> name \"%s\" used a second time"
@@ -1760,9 +1853,6 @@ msgstr "%s (מעל %s)"
 #~ msgid "Close Window"
 #~ msgstr "סגור חלון"
 
-#~ msgid "Window Menu"
-#~ msgstr "תפריט חלון"
-
 #~ msgid "Minimize Window"
 #~ msgstr "מזער חלון"
 
@@ -1996,9 +2086,6 @@ msgstr "%s (מעל %s)"
 
 #~ msgid "Internal argument for GObject introspection"
 #~ msgstr "Internal argument for GObject introspection"
-
-#~ msgid "Failed to restart: %s\n"
-#~ msgstr "Failed to restart: %s\n"
 
 #~ msgid "Error setting compositor status: %s\n"
 #~ msgstr "Error setting compositor status: %s\n"
