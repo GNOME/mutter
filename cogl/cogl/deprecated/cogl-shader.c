@@ -32,6 +32,7 @@
 
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-glsl-shader-boilerplate.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/deprecated/cogl-shader-private.h"
 
@@ -51,7 +52,11 @@ cogl_shader_dispose (GObject *object)
      released! Do that separately before this! */
 
   if (shader->gl_handle)
-    GE (ctx, glDeleteShader (shader->gl_handle));
+    {
+      CoglDriver *driver = cogl_context_get_driver (ctx);
+
+      GE (driver, glDeleteShader (shader->gl_handle));
+    }
 
   G_OBJECT_CLASS (cogl_shader_parent_class)->dispose (object);
 }

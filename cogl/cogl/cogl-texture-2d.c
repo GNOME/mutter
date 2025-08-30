@@ -42,6 +42,8 @@
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 #ifdef HAVE_EGL
 #include "cogl/winsys/cogl-winsys-egl-private.h"
 #endif
@@ -214,6 +216,7 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
       tex_2d->auto_mipmap && tex_2d->mipmaps_dirty)
     {
       CoglContext *ctx = cogl_texture_get_context (tex);
+      CoglDriver *driver = cogl_context_get_driver (ctx);
       CoglTextureDriver *tex_driver = cogl_texture_get_driver (tex);
       CoglTextureDriverClass *tex_driver_klass =
         COGL_TEXTURE_DRIVER_GET_CLASS (tex_driver);
@@ -225,7 +228,7 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
 
       if (_cogl_has_private_feature (ctx, COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
           _cogl_texture_get_associated_framebuffers (tex))
-        ctx->glFlush ();
+        GE (driver, glFlush ());
 
       tex_driver_klass->texture_2d_generate_mipmap (tex_driver, tex_2d);
 
