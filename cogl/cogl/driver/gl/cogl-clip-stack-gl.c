@@ -38,6 +38,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-graphene.h"
 #include "cogl/cogl-primitives-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
@@ -55,6 +56,7 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   CoglMatrixStack *projection_stack =
     _cogl_framebuffer_get_projection_stack (framebuffer);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglMatrixEntry *old_projection_entry, *old_modelview_entry;
 
   /* NB: This can be called while flushing the journal so we need
@@ -66,16 +68,16 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   ctx->current_projection_entry = projection_stack->last_entry;
   ctx->current_modelview_entry = modelview_entry;
 
-  GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
-  GE( ctx, glDepthMask (FALSE) );
-  GE( ctx, glStencilMask (0x3) );
+  GE (driver, glColorMask (FALSE, FALSE, FALSE, FALSE));
+  GE (driver, glDepthMask (FALSE));
+  GE (driver, glStencilMask (0x3));
 
   if (merge)
     {
       /* Add one to every pixel of the stencil buffer in the
 	 rectangle */
-      GE( ctx, glStencilFunc (GL_NEVER, 0x1, 0x3) );
-      GE( ctx, glStencilOp (GL_INCR, GL_INCR, GL_INCR) );
+      GE (driver, glStencilFunc (GL_NEVER, 0x1, 0x3));
+      GE (driver, glStencilOp (GL_INCR, GL_INCR, GL_INCR));
       _cogl_rectangle_immediate (framebuffer,
                                  ctx->stencil_pipeline,
                                  x_1, y_1, x_2, y_2);
@@ -83,7 +85,7 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
       /* Subtract one from all pixels in the stencil buffer so that
 	 only pixels where both the original stencil buffer and the
 	 rectangle are set will be valid */
-      GE( ctx, glStencilOp (GL_DECR, GL_DECR, GL_DECR) );
+      GE (driver, glStencilOp (GL_DECR, GL_DECR, GL_DECR));
 
       ctx->current_projection_entry = &ctx->identity_entry;
       ctx->current_modelview_entry = &ctx->identity_entry;
@@ -94,15 +96,15 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
     }
   else
     {
-      GE( ctx, glEnable (GL_STENCIL_TEST) );
+      GE (driver, glEnable (GL_STENCIL_TEST));
 
       /* Initially disallow everything */
-      GE( ctx, glClearStencil (0) );
-      GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
+      GE (driver, glClearStencil (0));
+      GE (driver, glClear (GL_STENCIL_BUFFER_BIT));
 
       /* Punch out a hole to allow the rectangle */
-      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x1) );
-      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
+      GE (driver, glStencilFunc (GL_ALWAYS, 0x1, 0x1));
+      GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE));
       _cogl_rectangle_immediate (framebuffer,
                                  ctx->stencil_pipeline,
                                  x_1, y_1, x_2, y_2);
@@ -112,11 +114,11 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   ctx->current_modelview_entry = old_modelview_entry;
 
   /* Restore the stencil mode */
-  GE( ctx, glDepthMask (TRUE) );
-  GE( ctx, glColorMask (TRUE, TRUE, TRUE, TRUE) );
-  GE( ctx, glStencilMask (0x0) );
-  GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
-  GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
+  GE (driver, glDepthMask (TRUE));
+  GE (driver, glColorMask (TRUE, TRUE, TRUE, TRUE));
+  GE (driver, glStencilMask (0x0));
+  GE (driver, glStencilFunc (GL_EQUAL, 0x1, 0x1));
+  GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP));
 }
 
 static void
@@ -125,6 +127,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
                          gboolean         merge)
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglMatrixEntry *old_projection_entry, *old_modelview_entry;
   graphene_matrix_t matrix;
   int num_rectangles = mtk_region_num_rectangles (region);
@@ -157,26 +160,26 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
                          1.0);
   graphene_matrix_translate (&matrix, &GRAPHENE_POINT3D_INIT (-1.f, 1.f, 0.f));
 
-  GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
-  GE( ctx, glDepthMask (FALSE) );
-  GE( ctx, glStencilMask (0x3) );
+  GE (driver, glColorMask (FALSE, FALSE, FALSE, FALSE));
+  GE (driver, glDepthMask (FALSE));
+  GE (driver, glStencilMask (0x3));
 
   if (merge)
     {
-      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x3) );
-      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_INCR) );
+      GE (driver, glStencilFunc (GL_ALWAYS, 0x1, 0x3));
+      GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_INCR));
     }
   else
     {
-      GE( ctx, glEnable (GL_STENCIL_TEST) );
+      GE (driver, glEnable (GL_STENCIL_TEST));
 
       /* Initially disallow everything */
-      GE( ctx, glClearStencil (0) );
-      GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
+      GE (driver, glClearStencil (0));
+      GE (driver, glClear (GL_STENCIL_BUFFER_BIT));
 
       /* Punch out holes to allow the rectangles */
-      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x1) );
-      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
+      GE (driver, glStencilFunc (GL_ALWAYS, 0x1, 0x1));
+      GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE));
     }
 
   vertices = g_alloca (sizeof (CoglVertexP2) * num_rectangles * 6);
@@ -229,7 +232,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
        * only pixels where both the original stencil buffer and the
        * region are set will be valid
        */
-      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_DECR) );
+      GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_DECR));
       _cogl_rectangle_immediate (framebuffer,
                                  ctx->stencil_pipeline,
                                  -1.0, -1.0, 1.0, 1.0);
@@ -239,11 +242,11 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   ctx->current_modelview_entry = old_modelview_entry;
 
   /* Restore the stencil mode */
-  GE (ctx, glDepthMask (TRUE));
-  GE (ctx, glColorMask (TRUE, TRUE, TRUE, TRUE));
-  GE( ctx, glStencilMask (0x0) );
-  GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
-  GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
+  GE (driver, glDepthMask (TRUE));
+  GE (driver, glColorMask (TRUE, TRUE, TRUE, TRUE));
+  GE (driver, glStencilMask (0x0));
+  GE (driver, glStencilFunc (GL_EQUAL, 0x1, 0x1));
+  GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP));
 }
 
 void
@@ -273,7 +276,7 @@ _cogl_clip_stack_gl_flush (CoglDriver      *driver,
   ctx->current_clip_stack_valid = TRUE;
   ctx->current_clip_stack = _cogl_clip_stack_ref (stack);
 
-  GE( ctx, glDisable (GL_STENCIL_TEST) );
+  GE (driver, glDisable (GL_STENCIL_TEST));
 
   /* If the stack is empty then there's nothing else to do
    */
@@ -281,7 +284,7 @@ _cogl_clip_stack_gl_flush (CoglDriver      *driver,
     {
       COGL_NOTE (CLIPPING, "Flushed empty clip stack");
 
-      GE (ctx, glDisable (GL_SCISSOR_TEST));
+      GE (driver, glDisable (GL_SCISSOR_TEST));
       return;
     }
 
@@ -323,10 +326,10 @@ _cogl_clip_stack_gl_flush (CoglDriver      *driver,
              scissor_x0, scissor_y0,
              scissor_x1, scissor_y1);
 
-  GE (ctx, glEnable (GL_SCISSOR_TEST));
-  GE (ctx, glScissor (scissor_x0, scissor_y_start,
-                      scissor_x1 - scissor_x0,
-                      scissor_y1 - scissor_y0));
+  GE (driver, glEnable (GL_SCISSOR_TEST));
+  GE (driver, glScissor (scissor_x0, scissor_y_start,
+                         scissor_x1 - scissor_x0,
+                         scissor_y1 - scissor_y0));
 
   /* Add all of the entries. This will end up adding them in the
      reverse order that they were specified but as all of the clips
