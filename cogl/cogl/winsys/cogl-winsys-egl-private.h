@@ -91,6 +91,10 @@ typedef struct _CoglWinsysEGLVtable
 
 #define MAX_EGL_CONFIG_ATTRIBS 30
 
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
 typedef enum _CoglEGLWinsysFeature
 {
   COGL_EGL_WINSYS_FEATURE_SWAP_REGION                   = 1L << 0,

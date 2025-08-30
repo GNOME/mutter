@@ -34,6 +34,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 
 struct _CoglGlFramebufferBack
@@ -50,10 +51,11 @@ G_DEFINE_FINAL_TYPE (CoglGlFramebufferBack, cogl_gl_framebuffer_back,
 static gboolean
 ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
 {
-  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
+  CoglFramebufferDriver *fb_driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglFramebufferBits *bits = &gl_framebuffer_back->bits;
 
   if (!gl_framebuffer_back->dirty_bitmasks)
@@ -108,10 +110,10 @@ ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
           int *value =
             (int *) ((uint8_t *) bits + params[i].offset);
 
-          GE (ctx, glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
-                                                          params[i].attachment,
-                                                          params[i].pname,
-                                                          value));
+          GE (driver, glGetFramebufferAttachmentParameteriv (GL_FRAMEBUFFER,
+                                                             params[i].attachment,
+                                                             params[i].pname,
+                                                             value));
         }
     }
   else
@@ -148,16 +150,17 @@ cogl_gl_framebuffer_back_query_bits (CoglFramebufferDriver *driver,
 }
 
 static void
-cogl_gl_framebuffer_back_discard_buffers (CoglFramebufferDriver *driver,
+cogl_gl_framebuffer_back_discard_buffers (CoglFramebufferDriver *fb_driver,
                                           unsigned long          buffers)
 {
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   GLenum attachments[3];
   int i = 0;
 
-  if (!ctx->glDiscardFramebuffer)
+  if (!GE_HAS (driver, glDiscardFramebuffer))
     return;
 
   if (buffers & COGL_BUFFER_BIT_COLOR)
@@ -171,7 +174,7 @@ cogl_gl_framebuffer_back_discard_buffers (CoglFramebufferDriver *driver,
                                         framebuffer,
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
-  GE (ctx, glDiscardFramebuffer (GL_FRAMEBUFFER, i, attachments));
+  GE (driver, glDiscardFramebuffer (GL_FRAMEBUFFER, i, attachments));
 }
 
 static void
@@ -180,14 +183,15 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
 {
   CoglGlFramebufferBack *gl_framebuffer_back =
     COGL_GL_FRAMEBUFFER_BACK (gl_framebuffer);
-  CoglFramebufferDriver *driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
+  CoglFramebufferDriver *fb_driver = COGL_FRAMEBUFFER_DRIVER (gl_framebuffer_back);
   CoglFramebuffer *framebuffer =
-    cogl_framebuffer_driver_get_framebuffer (driver);
+    cogl_framebuffer_driver_get_framebuffer (fb_driver);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
   cogl_onscreen_bind (COGL_ONSCREEN (framebuffer));
 
-  GE (ctx, glBindFramebuffer (target, 0));
+  GE (driver, glBindFramebuffer (target, 0));
 
   /* Initialise the glDrawBuffer state the first time the context
    * is bound to the default framebuffer. If the winsys is using a
@@ -197,11 +201,11 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
    * there is no default framebuffer won't work */
   if (!ctx->was_bound_to_onscreen)
     {
-      if (ctx->glDrawBuffer)
+      if (GE_HAS (driver, glDrawBuffer))
         {
-          GE (ctx, glDrawBuffer (GL_BACK));
+          GE (driver, glDrawBuffer (GL_BACK));
         }
-      else if (ctx->glDrawBuffers)
+      else if (GE_HAS (driver, glDrawBuffers))
         {
           /* glDrawBuffer isn't available on GLES 3.0 so we need
            * to be able to use glDrawBuffers as well. On GLES 2
@@ -212,7 +216,7 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
            * GLES we can just use GL_BACK. */
           static const GLenum buffers[] = { GL_BACK };
 
-          GE (ctx, glDrawBuffers (G_N_ELEMENTS (buffers), buffers));
+          GE (driver, glDrawBuffers (G_N_ELEMENTS (buffers), buffers));
         }
 
       ctx->was_bound_to_onscreen = TRUE;

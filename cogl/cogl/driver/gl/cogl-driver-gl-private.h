@@ -42,6 +42,27 @@ typedef struct _CoglDriverGLPrivate
   /* This is used for generated fake unique sampler object numbers
    when the sampler object extension is not supported */
   GLuint next_fake_sampler_object_number;
+
+  /* This defines a list of function pointers that Cogl uses from
+     either GL or GLES. All functions are accessed indirectly through
+     these pointers rather than linking to them directly */
+#ifndef APIENTRY
+#define APIENTRY
+#endif
+
+#define COGL_EXT_BEGIN(name, \
+                       min_gl_major, min_gl_minor, \
+                       gles_availability, \
+                       extension_suffixes, extension_names)
+#define COGL_EXT_FUNCTION(ret, name, args) \
+  ret (APIENTRY * name) args;
+#define COGL_EXT_END()
+
+#include "cogl/gl-prototypes/cogl-all-functions.h"
+
+#undef COGL_EXT_BEGIN
+#undef COGL_EXT_FUNCTION
+#undef COGL_EXT_END
 } CoglDriverGLPrivate;
 
 
@@ -102,3 +123,11 @@ gboolean cogl_driver_gl_is_es (CoglDriverGL *driver);
 void cogl_driver_gl_get_glsl_version (CoglDriverGL *driver,
                                       int          *major,
                                       int          *minor);
+
+void cogl_driver_gl_clear_gl_errors (CoglDriverGL *driver);
+
+gboolean cogl_driver_gl_catch_out_of_memory (CoglDriverGL *driver,
+                                             GError      **error);
+
+const char * cogl_driver_gl_get_gl_string (CoglDriverGL  *driver,
+                                           GLenum         name);

@@ -44,6 +44,8 @@
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-xlib-renderer.h"
 #include "cogl/cogl-util.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/winsys/cogl-glx-renderer-private.h"
 #include "cogl/winsys/cogl-glx-display-private.h"
@@ -426,6 +428,7 @@ static gboolean
 update_winsys_features (CoglContext *context, GError **error)
 {
   CoglGLXDisplay *glx_display = context->display->winsys;
+  CoglDriver *driver = cogl_context_get_driver (context);
   CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
 
   g_return_val_if_fail (glx_display->glx_context, FALSE);
@@ -437,7 +440,7 @@ update_winsys_features (CoglContext *context, GError **error)
           glx_renderer->base_winsys_features,
           sizeof (context->winsys_features));
 
-  if (glx_renderer->glXCopySubBuffer || context->glBlitFramebuffer)
+  if (glx_renderer->glXCopySubBuffer || GE_HAS (driver, glBlitFramebuffer))
     COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
 
   /* Note: glXCopySubBuffer and glBlitFramebuffer won't be throttled
