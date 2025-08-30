@@ -334,7 +334,7 @@ allocate_custom_egl_image_external (CoglTexture2D     *tex_2d,
   GE (driver, glBindTexture (GL_TEXTURE_EXTERNAL_OES,
                              tex_2d->gl_texture));
 
-  if (_cogl_gl_util_get_error (ctx) != GL_NO_ERROR)
+  if (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) != GL_NO_ERROR)
     {
       g_set_error_literal (error,
                            COGL_TEXTURE_ERROR,

@@ -993,7 +993,7 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
     {
       cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
       GE (driver, glUseProgram (gl_program));
-      if (_cogl_gl_util_get_error (ctx) == GL_NO_ERROR)
+      if (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) == GL_NO_ERROR)
         ctx->current_gl_program = gl_program;
       else
         {

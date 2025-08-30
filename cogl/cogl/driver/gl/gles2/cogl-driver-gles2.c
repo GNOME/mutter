@@ -642,14 +642,14 @@ cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
 }
 
 static gboolean
-_cogl_get_gl_version (CoglContext *ctx,
-                      int *major_out,
-                      int *minor_out)
+_cogl_get_gl_version (CoglDriverGL *driver,
+                      int          *major_out,
+                      int          *minor_out)
 {
   const char *version_string;
 
   /* Get the OpenGL version number */
-  if ((version_string = _cogl_context_get_gl_version (ctx)) == NULL)
+  if ((version_string = cogl_driver_gl_get_gl_version (driver)) == NULL)
     return FALSE;
 
   if (!g_str_has_prefix (version_string, "OpenGL ES "))
@@ -661,12 +661,12 @@ _cogl_get_gl_version (CoglContext *ctx,
 }
 
 static gboolean
-check_gl_version (CoglContext  *ctx,
+check_gl_version (CoglDriverGL *driver,
                   GError      **error)
 {
   int major, minor;
 
-  if (!_cogl_get_gl_version (ctx, &major, &minor))
+  if (!_cogl_get_gl_version (driver, &major, &minor))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
@@ -688,12 +688,11 @@ check_gl_version (CoglContext  *ctx,
 }
 
 static gboolean
-_cogl_get_glsl_version (CoglContext *ctx,
-                        int         *major_out,
-                        int         *minor_out)
+_cogl_get_glsl_version (CoglDriverGL *driver,
+                        int          *major_out,
+                        int          *minor_out)
 {
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  const char *version_string = cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
+  const char *version_string = cogl_driver_gl_get_gl_string (driver,
                                                              GL_SHADING_LANGUAGE_VERSION);
 
   if (!g_str_has_prefix (version_string, "OpenGL ES GLSL ES "))
@@ -705,13 +704,12 @@ _cogl_get_glsl_version (CoglContext *ctx,
 }
 
 static gboolean
-check_glsl_version (CoglContext  *ctx,
+check_glsl_version (CoglDriverGL *driver,
                     GError      **error)
 {
-  CoglDriver *driver = cogl_context_get_driver (ctx);
   int driver_major, driver_minor, major, minor;
 
-  if (!_cogl_get_glsl_version (ctx, &major, &minor))
+  if (!_cogl_get_glsl_version (driver, &major, &minor))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
@@ -720,7 +718,7 @@ check_glsl_version (CoglContext  *ctx,
       return FALSE;
     }
 
-  cogl_driver_gl_get_glsl_version (COGL_DRIVER_GL (driver),
+  cogl_driver_gl_get_glsl_version (driver,
                                    &driver_major, &driver_minor);
   if (!COGL_CHECK_GL_VERSION (major, minor, driver_major, driver_minor))
     {
@@ -755,13 +753,14 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     (void *) cogl_renderer_get_proc_address (context->display->renderer,
                                              "glGetString");
 
-  if (!check_gl_version (context, error))
+  if (!check_gl_version (COGL_DRIVER_GL (driver), error))
     return FALSE;
 
-  if (!check_glsl_version (context, error))
+  if (!check_glsl_version (COGL_DRIVER_GL (driver), error))
     return FALSE;
 
-  gl_extensions = _cogl_context_get_gl_extensions (context);
+  gl_extensions = cogl_driver_gl_get_gl_extensions (COGL_DRIVER_GL (driver),
+                                                    context->display->renderer);
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
     {
@@ -775,11 +774,11 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                  "  GL_EXTENSIONS: %s",
                  cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_VENDOR),
                  cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_RENDERER),
-                 _cogl_context_get_gl_version (context),
+                 cogl_driver_gl_get_gl_version (COGL_DRIVER_GL (driver)),
                  all_extensions);
     }
 
-  _cogl_get_gl_version (context, &gl_major, &gl_minor);
+  _cogl_get_gl_version (COGL_DRIVER_GL (driver), &gl_major, &gl_minor);
 
   _cogl_feature_check_ext_functions (context,
                                      gl_major,
