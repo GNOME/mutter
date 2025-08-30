@@ -59,7 +59,7 @@ cogl_texture_2d_gl_bind_egl_image (CoglTexture2D *tex_2d,
   cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
 
   GE (driver, glEGLImageTargetTexture2D (GL_TEXTURE_2D, image));
-  if (_cogl_gl_util_get_error (ctx) != GL_NO_ERROR)
+  if (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) != GL_NO_ERROR)
     {
       g_set_error_literal (error,
                            COGL_TEXTURE_ERROR,

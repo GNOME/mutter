@@ -626,7 +626,7 @@ cogl_driver_gl_catch_out_of_memory (CoglDriverGL *driver,
           g_warning ("%s: GL error (%d): %s\n",
                      G_STRLOC,
                      gl_error,
-                     _cogl_gl_error_to_string (gl_error));
+                     cogl_gl_error_to_string (gl_error));
         }
 #endif
     }
@@ -650,4 +650,112 @@ cogl_driver_gl_get_gl_string (CoglDriverGL  *driver,
     cogl_driver_gl_get_instance_private (driver);
 
   return (const char *) priv->glGetString (name);
+}
+
+
+char **
+cogl_driver_gl_get_gl_extensions (CoglDriverGL *driver,
+                                  CoglRenderer *renderer)
+{
+  const char *env_disabled_extensions;
+  char **ret;
+
+  /* In GL 3, querying GL_EXTENSIONS is deprecated so we have to build
+   * the array using glGetStringi instead */
+#ifdef HAVE_GL
+  if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3)
+    {
+      int num_extensions, i;
+
+      GE (driver, glGetIntegerv (GL_NUM_EXTENSIONS, &num_extensions));
+
+      ret = g_malloc (sizeof (char *) * (num_extensions + 1));
+
+      for (i = 0; i < num_extensions; i++)
+        {
+          const GLubyte *ext;
+
+          GE_RET (ext, driver, glGetStringi (GL_EXTENSIONS, i));
+
+          ret[i] = g_strdup ((const char *)ext);
+        }
+
+      ret[num_extensions] = NULL;
+    }
+  else
+#endif
+    {
+      const char *all_extensions = cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
+                                                                 GL_EXTENSIONS);
+
+      ret = g_strsplit (all_extensions, " ", 0 /* max tokens */);
+    }
+
+  if ((env_disabled_extensions = g_getenv ("COGL_DISABLE_GL_EXTENSIONS")))
+    {
+      char **split_env_disabled_extensions;
+      char **src, **dst;
+
+      if (*env_disabled_extensions)
+        {
+          split_env_disabled_extensions =
+            g_strsplit (env_disabled_extensions,
+                        ",",
+                        0 /* no max tokens */);
+        }
+      else
+        {
+          split_env_disabled_extensions = NULL;
+        }
+
+      for (dst = ret, src = ret;
+           *src;
+           src++)
+        {
+          char **d;
+
+          if (split_env_disabled_extensions)
+            for (d = split_env_disabled_extensions; *d; d++)
+              if (!strcmp (*src, *d))
+                goto disabled;
+
+          *(dst++) = *src;
+          continue;
+
+        disabled:
+          g_free (*src);
+          continue;
+        }
+
+      *dst = NULL;
+
+      if (split_env_disabled_extensions)
+        g_strfreev (split_env_disabled_extensions);
+    }
+
+  return ret;
+}
+
+const char *
+cogl_driver_gl_get_gl_version (CoglDriverGL *driver)
+{
+  const char *version_override;
+
+  if ((version_override = g_getenv ("COGL_OVERRIDE_GL_VERSION")))
+    return version_override;
+  else
+    return cogl_driver_gl_get_gl_string (driver, GL_VERSION);
+}
+
+GLenum
+cogl_driver_gl_get_gl_error (CoglDriverGL *driver)
+{
+  GLenum gl_error;
+
+  GE_RET (gl_error, driver, glGetError ());
+
+  if (gl_error != GL_NO_ERROR && gl_error != GL_CONTEXT_LOST)
+    return gl_error;
+  else
+    return GL_NO_ERROR;
 }
