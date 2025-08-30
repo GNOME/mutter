@@ -225,27 +225,6 @@ struct _CoglContext
   int n_uniform_names;
 
   GHashTable *named_pipelines;
-
-  /* This defines a list of function pointers that Cogl uses from
-     either GL or GLES. All functions are accessed indirectly through
-     these pointers rather than linking to them directly */
-#ifndef APIENTRY
-#define APIENTRY
-#endif
-
-#define COGL_EXT_BEGIN(name, \
-                       min_gl_major, min_gl_minor, \
-                       gles_availability, \
-                       extension_suffixes, extension_names)
-#define COGL_EXT_FUNCTION(ret, name, args) \
-  ret (APIENTRY * name) args;
-#define COGL_EXT_END()
-
-#include "gl-prototypes/cogl-all-functions.h"
-
-#undef COGL_EXT_BEGIN
-#undef COGL_EXT_FUNCTION
-#undef COGL_EXT_END
 };
 
 

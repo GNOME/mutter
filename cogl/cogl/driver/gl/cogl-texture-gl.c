@@ -33,6 +33,7 @@
 
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-util.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
@@ -49,8 +50,10 @@ void
 _cogl_texture_gl_prep_alignment_for_pixels_upload (CoglContext *ctx,
                                                    int pixels_rowstride)
 {
-  GE( ctx, glPixelStorei (GL_UNPACK_ALIGNMENT,
-                          calculate_alignment (pixels_rowstride)) );
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+
+  GE (driver, glPixelStorei (GL_UNPACK_ALIGNMENT,
+                             calculate_alignment (pixels_rowstride)));
 }
 
 void
@@ -59,6 +62,7 @@ _cogl_texture_gl_prep_alignment_for_pixels_download (CoglContext *ctx,
                                                      int width,
                                                      int rowstride)
 {
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   int alignment;
 
   /* If no padding is needed then we can always use an alignment of 1.
@@ -75,7 +79,7 @@ _cogl_texture_gl_prep_alignment_for_pixels_download (CoglContext *ctx,
   else
     alignment = calculate_alignment (rowstride);
 
-  GE( ctx, glPixelStorei (GL_PACK_ALIGNMENT, alignment) );
+  GE (driver, glPixelStorei (GL_PACK_ALIGNMENT, alignment));
 }
 
 void

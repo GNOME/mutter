@@ -35,6 +35,8 @@
 
 #include "cogl/deprecated/cogl-shader-private.h"
 #include "cogl/deprecated/cogl-program-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 #include <string.h>
 
@@ -247,6 +249,7 @@ _cogl_program_flush_uniforms (CoglContext *ctx,
                               GLuint       gl_program,
                               gboolean     gl_program_changed)
 {
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglProgramUniform *uniform;
   int i;
 
@@ -259,8 +262,8 @@ _cogl_program_flush_uniforms (CoglContext *ctx,
         {
           if (gl_program_changed || !uniform->location_valid)
             {
-               uniform->location =
-                 ctx->glGetUniformLocation (gl_program, uniform->name);
+              GE_RET (uniform->location, driver,
+                      glGetUniformLocation (gl_program, uniform->name));
 
                uniform->location_valid = TRUE;
             }
