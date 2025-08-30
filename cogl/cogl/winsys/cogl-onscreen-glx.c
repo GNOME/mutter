@@ -35,6 +35,8 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-x11-onscreen.h"
 #include "cogl/cogl-xlib-renderer-private.h"
+#include "cogl/driver/gl/cogl-driver-gl-private.h"
+#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/winsys/cogl-glx-display-private.h"
 #include "cogl/winsys/cogl-glx-renderer-private.h"
 #include "cogl/winsys/cogl-winsys-glx-private.h"
@@ -663,6 +665,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen    *onscreen,
   CoglOnscreenGlx *onscreen_glx = COGL_ONSCREEN_GLX (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (context);
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (context->display->renderer);
   CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
@@ -763,7 +766,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen    *onscreen,
                                           rect[0], rect[1], rect[2], rect[3]);
         }
     }
-  else if (context->glBlitFramebuffer)
+  else if (GE_HAS (driver, glBlitFramebuffer))
     {
       int i;
 
@@ -778,17 +781,17 @@ cogl_onscreen_glx_swap_region (CoglOnscreen    *onscreen,
       _cogl_clip_stack_flush (NULL, framebuffer);
       context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
 
-      context->glDrawBuffer (GL_FRONT);
+      GE (driver, glDrawBuffer (GL_FRONT));
       for (i = 0; i < n_rectangles; i++)
         {
           int *rect = &rectangles[4 * i];
           int x2 = rect[0] + rect[2];
           int y2 = rect[1] + rect[3];
-          context->glBlitFramebuffer (rect[0], rect[1], x2, y2,
-                                      rect[0], rect[1], x2, y2,
-                                      GL_COLOR_BUFFER_BIT, GL_NEAREST);
+          GE (driver, glBlitFramebuffer (rect[0], rect[1], x2, y2,
+                                         rect[0], rect[1], x2, y2,
+                                         GL_COLOR_BUFFER_BIT, GL_NEAREST));
         }
-      context->glDrawBuffer (GL_BACK);
+      GE (driver, glDrawBuffer (GL_BACK));
     }
 
   /* NB: unlike glXSwapBuffers, glXCopySubBuffer and
@@ -796,7 +799,7 @@ cogl_onscreen_glx_swap_region (CoglOnscreen    *onscreen,
    * have to flush ourselves if we want the request to complete in
    * a finite amount of time since otherwise the driver can batch
    * the command indefinitely. */
-  context->glFlush ();
+  GE (driver, glFlush ());
 
   /* NB: It's important we save the counter we read before acting on
    * the swap request since if we are mixing and matching different
