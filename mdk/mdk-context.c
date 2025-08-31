@@ -558,6 +558,8 @@ mdk_context_activate (MdkContext *context)
 
   init_session (context);
 
+  setsid ();
+
   context->name_watcher_id =
     g_bus_watch_name (G_BUS_TYPE_SESSION,
                       "org.gnome.Mutter.RemoteDesktop",
