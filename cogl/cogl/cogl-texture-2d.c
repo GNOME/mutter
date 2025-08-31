@@ -43,7 +43,6 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #ifdef HAVE_EGL
 #include "cogl/winsys/cogl-winsys-egl-private.h"
 #endif

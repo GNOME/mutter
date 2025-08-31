@@ -37,7 +37,6 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/driver/gl/cogl-buffer-impl-gl-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 struct _CoglBufferImplGL
 {

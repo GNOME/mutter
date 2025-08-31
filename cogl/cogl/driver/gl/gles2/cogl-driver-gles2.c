@@ -38,7 +38,6 @@
 #include "cogl/cogl-feature-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 #ifndef GL_UNSIGNED_INT_24_8
 #define GL_UNSIGNED_INT_24_8 0x84FA
@@ -644,7 +643,7 @@ _cogl_get_gl_version (CoglDriverGL *driver,
   if (!g_str_has_prefix (version_string, "OpenGL ES "))
     return FALSE;
 
-  return _cogl_gl_util_parse_gl_version (version_string + 10,
+  return cogl_parse_gl_version (version_string + 10,
                                          major_out,
                                          minor_out);
 }
@@ -687,7 +686,7 @@ _cogl_get_glsl_version (CoglDriverGL *driver,
   if (!g_str_has_prefix (version_string, "OpenGL ES GLSL ES "))
     return FALSE;
 
-  return _cogl_gl_util_parse_gl_version (version_string + 18,
+  return cogl_parse_gl_version (version_string + 18,
                                          major_out,
                                          minor_out);
 }
