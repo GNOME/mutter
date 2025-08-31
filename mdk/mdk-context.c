@@ -61,6 +61,8 @@ struct _MdkContext
   MdkPipewire *pipewire;
   MdkSession *session;
 
+  guint name_watcher_id;
+
   MdkDBusDevkit *devkit_proxy;
 
   gboolean emulate_touch;
@@ -360,6 +362,7 @@ mdk_context_finalize (GObject *object)
   g_clear_object (&context->devkit_proxy);
   g_clear_object (&context->session);
   g_clear_object (&context->settings);
+  g_clear_handle_id (&context->name_watcher_id, g_bus_unwatch_name);
 
   G_OBJECT_CLASS (mdk_context_parent_class)->finalize (object);
 }
@@ -523,6 +526,24 @@ mdk_context_new (void)
   return context;
 }
 
+static void
+remote_desktop_name_appeared_cb (GDBusConnection *connection,
+                                 const char      *name,
+                                 const char      *name_owner,
+                                 gpointer         user_data)
+{
+}
+
+static void
+remote_desktop_name_vanished_cb (GDBusConnection *connection,
+                                 const char      *name,
+                                 gpointer         user_data)
+{
+  MdkContext *context = MDK_CONTEXT (user_data);
+
+  g_signal_emit (context, signals[CLOSED], 0);
+}
+
 void
 mdk_context_activate (MdkContext *context)
 {
@@ -536,6 +557,14 @@ mdk_context_activate (MdkContext *context)
     }
 
   init_session (context);
+
+  context->name_watcher_id =
+    g_bus_watch_name (G_BUS_TYPE_SESSION,
+                      "org.gnome.Mutter.RemoteDesktop",
+                      G_BUS_NAME_WATCHER_FLAGS_NONE,
+                      remote_desktop_name_appeared_cb,
+                      remote_desktop_name_vanished_cb,
+                      context, NULL);
 }
 
 MdkSession *
