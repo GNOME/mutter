@@ -36,7 +36,6 @@
 #include "cogl/cogl-x11-onscreen.h"
 #include "cogl/cogl-xlib-renderer-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/winsys/cogl-glx-display-private.h"
 #include "cogl/winsys/cogl-glx-renderer-private.h"
 #include "cogl/winsys/cogl-winsys-glx-private.h"
