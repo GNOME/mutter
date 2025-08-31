@@ -39,7 +39,6 @@
 #include "cogl/cogl-graphene.h"
 #include "cogl/cogl-primitives-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-clip-stack-gl-private.h"
 #include "mtk/mtk.h"
