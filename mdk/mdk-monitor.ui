@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <template class="MdkMonitor" parent="GtkWidget">
+    <property name="focusable">yes</property>
+    <child>
+      <object class="GtkBox" id="box">
+        <property name="orientation">vertical</property>
+        <property name="vexpand">yes</property>
+        <property name="hexpand">yes</property>
+      </object>
+    </child>
+  </template>
+</interface>

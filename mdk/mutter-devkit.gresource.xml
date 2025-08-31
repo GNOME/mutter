@@ -5,6 +5,7 @@
     <file preprocess="xml-stripblanks">mdk-launcher-entry.ui</file>
     <file preprocess="xml-stripblanks">mdk-launchers-editor.ui</file>
     <file preprocess="xml-stripblanks">mdk-main-window.ui</file>
+    <file preprocess="xml-stripblanks">mdk-monitor.ui</file>
     <file preprocess="xml-stripblanks">mdk-window.ui</file>
     <file>mdk-devkit.css</file>
   </gresource>

@@ -26,7 +26,7 @@
 #define MDK_TYPE_MONITOR (mdk_monitor_get_type ())
 G_DECLARE_FINAL_TYPE (MdkMonitor, mdk_monitor,
                       MDK, MONITOR,
-                      GtkBox)
+                      GtkWidget)
 
 MdkMonitor * mdk_monitor_new (MdkContext *context);
 
