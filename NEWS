@@ -1,3 +1,57 @@
+49.rc
+=====
+* Fix windows sometimes not unmaximizing on drag [Jonas Å.; !4533]
+* Add ICtCp Tone Mapping [Joan; !4332]
+* Add custom service client [Olivier; !4539]
+* Add support for ICC profiles [Joan; !4102]
+* Ensure input capture sessions have the requested devices [Peter; !4273]
+* Advertise Broadcast RGB support [voidanix; !4489]
+* Support wl_seat v10 [Carlos; !4552]
+* Use glycin for loading background images [Matthias, Sebastian W.; !4554]
+* Improve picking fractional scaling factors [Daniel; !4503]
+* Flip wayland popups even if they won't fully fit afterwards [Jonas D.; !4350]
+* Add color calibration D-Bus API [Jonas Å.; !4523]
+* Improve consistency of keyboard modifier state [Carlos; !4546]
+* Make meta_window_{get,set}_maximize_flags() public again [Aleksandr; !4573]
+* Fix fd leak during screencasting [Georges; !4577]
+* Fix captured devices getting stuck when client disconnects [Peter; !4420]
+* Allow the cursor to move at maximum refresh rate with VRR [Michel; !4551]
+* Still constrain fullscreen wayland windows with size limits [Jonas Å.; !4587]
+* Add launchers to devkit [Jonas Å.; !4527]
+* Revamp initial wayland window configuration [Jonas Å., Olivier; !4582]
+* Add support for variations of YCbCr formats [Robert; !4594]
+* Do not switch from tablet cursor to pointer on keyboard events [Tim; !4597]
+* Place initially-maximized windows on the correct monitor [Jonas Å.; !4599]
+* Replace click/tap/pan actions with gesture-based actions [Jonas D.; !2857]
+* Drop logical ClutterInputDevice from public API [Carlos; !4458]
+* Fix reading and updating the privacy screen property [Marco; !4603]
+* Release the accelerometer from iio-sensor-proxy when unused [Jonas D.; !4119]
+* Always respect position hint when mapping as fullscreen [Jonas Å.; !4605]
+* Add pure MRU order stragegy to tab list [jovo.lopez; !4589]
+* Don't constrain size limits when applying wayland commits [Jonas Å.; !4593]
+* Suspend windows when screen shield is active [Jonas Å.; !4588]
+* Use the right PID for wayland clients [Sebastian W.; !4585]
+* Use extended sRGB for blending by default [Michel; !4387]
+* Fixed crashes [Daniel, Sebastian K., Carlos, Sebastian W., Florian, Michel,
+  Jonas Å.; !4549, !4544, !4555, !4566, !4581, !4547, !4583]
+* Misc. bug fixes and cleanups [Florian, Sebastian W., Jonas Å., Peter, Carlos,
+  Corentin, Robert, Jonas D., Daniel, Bilal, Sebastian K.; !4557, !4560, !4563,
+  !4570, !4567, !4565, !4580, !4564, !4586, !4590, !4595, !4596, !4598, !4574,
+  !4576, !4606, !4609, !4611, !4506, !4613, !4615]
+
+Contributors:
+  Georges Basile Stavracas Neto, Matthias Clasen, Jonas Dreßler,
+  Michel Dänzer, Bilal Elmoussaoui, Olivier Fourdan, Carlos Garnacho,
+  Peter Hutterer, jovo.lopez, Sebastian Keller, Robert Mader, Aleksandr Mezin,
+  Florian Müllner, Corentin Noël, Tim Schumacher, Joan Torres,
+  Joan Torres Lopez, Marco Trevisan (Treviño), Daniel van Vugt, voidanix,
+  Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Artur S0 [ru], Daniel Rusek [cs], Martin [sl], Makoto Sakaguchi [ja],
+  Aefgh Threenine [th], Piotr Drąg [pl], Yaron Shahrabani [he],
+  Fran Diéguez [gl]
+
 49.beta
 =======
 * Reintroduce snippet caching [Daniel; !4534]
