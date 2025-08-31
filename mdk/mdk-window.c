@@ -178,3 +178,11 @@ mdk_window_get_context (MdkWindow *window)
 
   return priv->context;
 }
+
+void
+mdk_window_set_monitor (MdkWindow  *window,
+                        MdkMonitor *monitor)
+{
+  gtk_window_set_child (GTK_WINDOW (window), GTK_WIDGET (monitor));
+  gtk_window_set_focus (GTK_WINDOW (window), GTK_WIDGET (monitor));
+}

@@ -32,3 +32,6 @@ struct _MdkWindowClass
 };
 
 MdkContext * mdk_window_get_context (MdkWindow *window);
+
+void mdk_window_set_monitor (MdkWindow  *window,
+                             MdkMonitor *monitor);
