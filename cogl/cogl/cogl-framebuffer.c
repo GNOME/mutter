@@ -48,7 +48,6 @@
 #include "cogl/cogl-primitives-private.h"
 #include "cogl/cogl-trace.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/winsys/cogl-winsys.h"
 
 enum

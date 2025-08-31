@@ -36,7 +36,6 @@
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 typedef struct _CoglGlFbo
 {

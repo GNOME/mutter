@@ -45,7 +45,6 @@
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-progend-glsl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 typedef struct _ForeachChangedBitState
 {

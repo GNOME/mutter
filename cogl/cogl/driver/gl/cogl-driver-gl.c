@@ -35,7 +35,6 @@
 #include "cogl/driver/gl/cogl-gl-framebuffer-back.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 /* This is a relatively new extension */
 #ifndef GL_PURGED_CONTEXT_RESET_NV
@@ -758,4 +757,43 @@ cogl_driver_gl_get_gl_error (CoglDriverGL *driver)
     return gl_error;
   else
     return GL_NO_ERROR;
+}
+
+/* Parses a GL version number stored in a string. @version_string must
+ * point to the beginning of the version number (ie, it can't point to
+ * the "OpenGL ES" part on GLES). The version number can be followed
+ * by the end of the string, a space or a full stop. Anything else
+ * will be treated as invalid. Returns TRUE and sets major_out and
+ * minor_out if it is successfully parsed or FALSE otherwise. */
+gboolean
+cogl_parse_gl_version (const char *version_string,
+                       int        *major_out,
+                       int        *minor_out)
+{
+  const char *major_end, *minor_end;
+  int major = 0, minor = 0;
+
+  /* Extract the major number */
+  for (major_end = version_string; *major_end >= '0'
+         && *major_end <= '9'; major_end++)
+    major = (major * 10) + *major_end - '0';
+  /* If there were no digits or the major number isn't followed by a
+     dot then it is invalid */
+  if (major_end == version_string || *major_end != '.')
+    return FALSE;
+
+  /* Extract the minor number */
+  for (minor_end = major_end + 1; *minor_end >= '0'
+         && *minor_end <= '9'; minor_end++)
+    minor = (minor * 10) + *minor_end - '0';
+  /* If there were no digits or there is an unexpected character then
+     it is invalid */
+  if (minor_end == major_end + 1
+      || (*minor_end && *minor_end != ' ' && *minor_end != '.'))
+    return FALSE;
+
+  *major_out = major;
+  *minor_out = minor;
+
+  return TRUE;
 }

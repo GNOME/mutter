@@ -33,7 +33,6 @@
 #include "cogl/driver/gl/cogl-texture-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/cogl-texture-2d-private.h"
 
 #if defined (HAVE_EGL)

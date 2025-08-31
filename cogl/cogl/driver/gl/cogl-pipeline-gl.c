@@ -40,7 +40,6 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-offscreen.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-pipeline-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 

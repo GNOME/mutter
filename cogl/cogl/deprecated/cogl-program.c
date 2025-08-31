@@ -36,7 +36,6 @@
 #include "cogl/deprecated/cogl-shader-private.h"
 #include "cogl/deprecated/cogl-program-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 
 #include <string.h>
 

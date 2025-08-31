@@ -36,7 +36,6 @@
 #include "cogl/driver/gl/gl3/cogl-texture-driver-gl3-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-feature-private.h"
-#include "cogl/driver/gl/cogl-util-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-2d-gl-private.h"
 #include "cogl/driver/gl/cogl-texture-gl-private.h"
 
@@ -462,7 +461,7 @@ _cogl_get_gl_version (CoglDriverGL *driver,
   if ((version_string = cogl_driver_gl_get_gl_version (driver)) == NULL)
     return FALSE;
 
-  return _cogl_gl_util_parse_gl_version (version_string, major_out, minor_out);
+  return cogl_parse_gl_version (version_string, major_out, minor_out);
 }
 
 static gboolean
@@ -500,7 +499,7 @@ _cogl_get_glsl_version (CoglDriverGL *driver,
   const char *version_string = cogl_driver_gl_get_gl_string (driver,
                                                              GL_SHADING_LANGUAGE_VERSION);
 
-  return _cogl_gl_util_parse_gl_version (version_string, major_out, minor_out);
+  return cogl_parse_gl_version (version_string, major_out, minor_out);
 }
 
 static gboolean

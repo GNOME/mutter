@@ -148,6 +148,11 @@ const char * cogl_driver_gl_get_gl_version (CoglDriverGL *driver);
 
 GLenum cogl_driver_gl_get_gl_error (CoglDriverGL *driver);
 
+
+gboolean cogl_parse_gl_version (const char *version_string,
+                                int        *major_out,
+                                int        *minor_out);
+
 #ifdef COGL_ENABLE_DEBUG
 /* GL error to string conversion */
 static const struct {
@@ -243,3 +248,199 @@ cogl_gl_get_proc (CoglDriver *driver,
 
 #define GE_HAS(driver, member) \
   (cogl_gl_get_proc ((driver), G_STRUCT_OFFSET (CoglDriverGLPrivate, member)))
+
+/* In OpenGL ES context, GL_CONTEXT_LOST has a _KHR prefix */
+#ifndef GL_CONTEXT_LOST
+#define GL_CONTEXT_LOST GL_CONTEXT_LOST_KHR
+#endif
+#ifndef GL_FRAMEBUFFER
+#define GL_FRAMEBUFFER 0x8D40
+#endif
+#ifndef GL_RENDERBUFFER
+#define GL_RENDERBUFFER	0x8D41
+#endif
+#ifndef GL_STENCIL_ATTACHMENT
+#define GL_STENCIL_ATTACHMENT 0x8D00
+#endif
+#ifndef GL_COLOR_ATTACHMENT0
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#endif
+#ifndef GL_FRAMEBUFFER_COMPLETE
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#endif
+#ifndef GL_STENCIL_INDEX8
+#define GL_STENCIL_INDEX8 0x8D48
+#endif
+#ifndef GL_DEPTH_STENCIL
+#define GL_DEPTH_STENCIL 0x84F9
+#endif
+#ifndef GL_DEPTH24_STENCIL8
+#define GL_DEPTH24_STENCIL8 0x88F0
+#endif
+#ifndef GL_DEPTH_ATTACHMENT
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#endif
+#ifndef GL_DEPTH_STENCIL_ATTACHMENT
+#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+#endif
+#ifndef GL_DEPTH_COMPONENT16
+#define GL_DEPTH_COMPONENT16 0x81A5
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE 0x8212
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE 0x8213
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE 0x8214
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE 0x8215
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE 0x8216
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE 0x8217
+#endif
+#ifndef GL_READ_FRAMEBUFFER
+#define GL_READ_FRAMEBUFFER 0x8CA8
+#endif
+#ifndef GL_DRAW_FRAMEBUFFER
+#define GL_DRAW_FRAMEBUFFER 0x8CA9
+#endif
+#ifndef GL_TEXTURE_SAMPLES_IMG
+#define GL_TEXTURE_SAMPLES_IMG 0x9136
+#endif
+#ifndef GL_PACK_INVERT_MESA
+#define GL_PACK_INVERT_MESA 0x8758
+#endif
+#ifndef GL_PACK_REVERSE_ROW_ORDER_ANGLE
+#define GL_PACK_REVERSE_ROW_ORDER_ANGLE 0x93A4
+#endif
+#ifndef GL_BACK_LEFT
+#define GL_BACK_LEFT 0x0402
+#endif
+#ifndef GL_BACK_RIGHT
+#define GL_BACK_RIGHT 0x0403
+#endif
+
+#ifndef GL_COLOR
+#define GL_COLOR 0x1800
+#endif
+#ifndef GL_DEPTH
+#define GL_DEPTH 0x1801
+#endif
+#ifndef GL_STENCIL
+#define GL_STENCIL 0x1802
+#endif
+
+#ifndef GL_TIMESTAMP
+#define GL_TIMESTAMP 0x8E28
+#endif
+#ifndef GL_QUERY_RESULT
+#define GL_QUERY_RESULT 0x8866
+#endif
+
+#ifndef GL_TEXTURE_LOD_BIAS
+#define GL_TEXTURE_LOD_BIAS 0x8501
+#endif
+
+/* In OpenGL ES context, GL_CONTEXT_LOST has a _KHR prefix */
+#ifndef GL_CONTEXT_LOST
+#define GL_CONTEXT_LOST GL_CONTEXT_LOST_KHR
+#endif
+#ifndef GL_FRAMEBUFFER
+#define GL_FRAMEBUFFER 0x8D40
+#endif
+#ifndef GL_RENDERBUFFER
+#define GL_RENDERBUFFER 0x8D41
+#endif
+#ifndef GL_STENCIL_ATTACHMENT
+#define GL_STENCIL_ATTACHMENT 0x8D00
+#endif
+#ifndef GL_COLOR_ATTACHMENT0
+#define GL_COLOR_ATTACHMENT0 0x8CE0
+#endif
+#ifndef GL_FRAMEBUFFER_COMPLETE
+#define GL_FRAMEBUFFER_COMPLETE 0x8CD5
+#endif
+#ifndef GL_STENCIL_INDEX8
+#define GL_STENCIL_INDEX8 0x8D48
+#endif
+#ifndef GL_DEPTH_STENCIL
+#define GL_DEPTH_STENCIL 0x84F9
+#endif
+#ifndef GL_DEPTH24_STENCIL8
+#define GL_DEPTH24_STENCIL8 0x88F0
+#endif
+#ifndef GL_DEPTH_ATTACHMENT
+#define GL_DEPTH_ATTACHMENT 0x8D00
+#endif
+#ifndef GL_DEPTH_STENCIL_ATTACHMENT
+#define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+#endif
+#ifndef GL_DEPTH_COMPONENT16
+#define GL_DEPTH_COMPONENT16 0x81A5
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE 0x8212
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE 0x8213
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE 0x8214
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE 0x8215
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE 0x8216
+#endif
+#ifndef GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE
+#define GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE 0x8217
+#endif
+#ifndef GL_READ_FRAMEBUFFER
+#define GL_READ_FRAMEBUFFER 0x8CA8
+#endif
+#ifndef GL_DRAW_FRAMEBUFFER
+#define GL_DRAW_FRAMEBUFFER 0x8CA9
+#endif
+#ifndef GL_TEXTURE_SAMPLES_IMG
+#define GL_TEXTURE_SAMPLES_IMG 0x9136
+#endif
+#ifndef GL_PACK_INVERT_MESA
+#define GL_PACK_INVERT_MESA 0x8758
+#endif
+#ifndef GL_PACK_REVERSE_ROW_ORDER_ANGLE
+#define GL_PACK_REVERSE_ROW_ORDER_ANGLE 0x93A4
+#endif
+#ifndef GL_BACK_LEFT
+#define GL_BACK_LEFT 0x0402
+#endif
+#ifndef GL_BACK_RIGHT
+#define GL_BACK_RIGHT 0x0403
+#endif
+
+#ifndef GL_COLOR
+#define GL_COLOR 0x1800
+#endif
+#ifndef GL_DEPTH
+#define GL_DEPTH 0x1801
+#endif
+#ifndef GL_STENCIL
+#define GL_STENCIL 0x1802
+#endif
+
+#ifndef GL_TIMESTAMP
+#define GL_TIMESTAMP 0x8E28
+#endif
+#ifndef GL_QUERY_RESULT
+#define GL_QUERY_RESULT 0x8866
+#endif
+
+#ifndef GL_TEXTURE_LOD_BIAS
+#define GL_TEXTURE_LOD_BIAS 0x8501
+#endif
