@@ -380,6 +380,7 @@ on_stream_state_changed (void                 *user_data,
     case PW_STREAM_STATE_PAUSED:
       break;
     case PW_STREAM_STATE_STREAMING:
+      gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
       gdk_paintable_invalidate_contents (GDK_PAINTABLE (stream));
       break;
     case PW_STREAM_STATE_UNCONNECTED:
@@ -456,11 +457,10 @@ on_stream_param_changed (void                 *user_data,
                            params, G_N_ELEMENTS (params));
 }
 
+
 static void
-renegotiate_stream_format (void     *user_data,
-                           uint64_t  expirations)
+mdk_stream_renegotiate (MdkStream *stream)
 {
-  MdkStream *stream = user_data;
   g_autoptr (GPtrArray) new_params = NULL;
   struct spa_pod_builder builder;
   uint8_t params_buffer[2048];
@@ -471,6 +471,15 @@ renegotiate_stream_format (void     *user_data,
   pw_stream_update_params (stream->pipewire_stream,
                            (const struct spa_pod **) new_params->pdata,
                            new_params->len);
+}
+
+static void
+renegotiate_stream_format (void     *user_data,
+                           uint64_t  expirations)
+{
+  MdkStream *stream = user_data;
+
+  mdk_stream_renegotiate (stream);
 }
 
 static void
@@ -714,12 +723,23 @@ on_stream_command (void                     *user_data,
     }
 }
 
+static void
+on_stream_remove_buffer (void             *user_data,
+                         struct pw_buffer *buffer)
+{
+  MdkStream *stream = MDK_STREAM (user_data);
+
+  if (buffer == stream->active_buffer)
+    stream->active_buffer = NULL;
+}
+
 static const struct pw_stream_events stream_events = {
   PW_VERSION_STREAM_EVENTS,
   .state_changed = on_stream_state_changed,
   .param_changed = on_stream_param_changed,
   .process = on_stream_process,
   .command = on_stream_command,
+  .remove_buffer = on_stream_remove_buffer,
 };
 
 static gboolean
@@ -849,12 +869,12 @@ render_compositor_frame (MdkStream *stream)
 
   if (active_buffer)
     pw_stream_queue_buffer (stream->pipewire_stream, active_buffer);
-
   pw_stream_trigger_process (stream->pipewire_stream);
 
   mdk_pipewire_push_main_context (pipewire, stream->main_context);
 
   frame_sequence = stream->frame_sequence;
+
   while (frame_sequence == stream->frame_sequence &&
          pw_stream_get_state (stream->pipewire_stream, NULL) ==
          PW_STREAM_STATE_STREAMING)
@@ -1103,4 +1123,32 @@ void
 mdk_stream_unrealize (MdkStream *stream)
 {
   g_clear_pointer (&stream->formats, g_array_unref);
+}
+
+void
+mdk_stream_resize (MdkStream *stream,
+                   int        width,
+                   int        height)
+{
+  MdkContext *context = mdk_session_get_context (stream->session);
+  MdkPipewire *pipewire = mdk_context_get_pipewire (context);
+
+  if (stream->width == width &&
+      stream->height == height)
+    return;
+
+  stream->width = width;
+  stream->height = height;
+
+  mdk_pipewire_push_main_context (pipewire, stream->main_context);
+
+  mdk_stream_renegotiate (stream);
+
+  while (stream->format.info.raw.size.width != stream->width ||
+         stream->format.info.raw.size.height != stream->height ||
+         pw_stream_get_state (stream->pipewire_stream, NULL) !=
+         PW_STREAM_STATE_STREAMING)
+    g_main_context_iteration (stream->main_context, TRUE);
+
+  mdk_pipewire_pop_main_context (pipewire, stream->main_context);
 }

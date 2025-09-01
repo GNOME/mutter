@@ -38,3 +38,7 @@ const char * mdk_stream_get_path (MdkStream *stream);
 void mdk_stream_realize (MdkStream  *stream);
 
 void mdk_stream_unrealize (MdkStream  *stream);
+
+void mdk_stream_resize (MdkStream *stream,
+                        int        width,
+                        int        height);
