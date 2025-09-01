@@ -236,6 +236,7 @@ main (int    argc,
     { "about", activate_about, NULL, NULL, NULL },
     { "toggle_emulate_touch", .state = "false", },
     { "toggle_inhibit_system_shortcuts", .state = "false", },
+    { "toggle_resizable_monitors", .state = "false", },
     { "launch", activate_launch, .parameter_type = "i", },
     { "edit_launchers", activate_edit_launchers, },
   };
@@ -256,6 +257,8 @@ main (int    argc,
                            app->context, "emulate-touch");
   bind_action_to_property (app, "toggle_inhibit_system_shortcuts",
                            app->context, "inhibit-system-shortcuts");
+  bind_action_to_property (app, "toggle_resizable_monitors",
+                           app->context, "resizable-monitors");
 
   g_signal_connect (app, "startup", G_CALLBACK (startup), NULL);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);

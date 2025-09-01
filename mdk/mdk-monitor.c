@@ -36,6 +36,17 @@
 
 #define BUTTON_BASE (BTN_LEFT - 1)
 
+enum
+{
+  PROP_0,
+
+  PROP_IS_RESIZABLE,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 struct _MdkMonitor
 {
   GtkWidget parent;
@@ -47,6 +58,8 @@ struct _MdkMonitor
   MdkStream *stream;
 
   gboolean emulated_touch_down;
+
+  gboolean is_resizable;
 };
 
 G_DEFINE_FINAL_TYPE (MdkMonitor, mdk_monitor, GTK_TYPE_WIDGET)
@@ -617,6 +630,8 @@ mdk_monitor_size_allocate (GtkWidget *widget,
                                                               width,
                                                               height,
                                                               baseline);
+
+  mdk_stream_resize (monitor->stream, width, height);
 }
 
 static gboolean
@@ -630,6 +645,44 @@ mdk_monitor_focus (GtkWidget        *widget,
     }
 
   return FALSE;
+}
+
+static void
+mdk_monitor_set_property (GObject      *object,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+  MdkMonitor *monitor = MDK_MONITOR (object);
+
+  switch (prop_id)
+    {
+    case PROP_IS_RESIZABLE:
+      monitor->is_resizable = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+mdk_monitor_get_property (GObject    *object,
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+  MdkMonitor *monitor = MDK_MONITOR (object);
+
+  switch (prop_id)
+    {
+    case PROP_IS_RESIZABLE:
+      g_value_set_boolean (value, monitor->is_resizable);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -658,6 +711,8 @@ mdk_monitor_class_init (MdkMonitorClass *klass)
 
   object_class->dispose = mdk_monitor_dispose;
   object_class->finalize = mdk_monitor_finalize;
+  object_class->set_property = mdk_monitor_set_property;
+  object_class->get_property = mdk_monitor_get_property;
 
   widget_class->realize = mdk_monitor_realize;
   widget_class->unrealize = mdk_monitor_unrealize;
@@ -669,6 +724,13 @@ mdk_monitor_class_init (MdkMonitorClass *klass)
 
   gtk_widget_class_set_template_from_resource (widget_class,
                                                "/ui/mdk-monitor.ui");
+
+  obj_props[PROP_IS_RESIZABLE] =
+    g_param_spec_boolean ("is-resizable", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   gtk_widget_class_bind_template_child (widget_class, MdkMonitor, box);
 }
@@ -764,6 +826,12 @@ mdk_monitor_new (MdkContext *context)
   g_signal_connect_object (context, "notify::emulate-touch",
                            G_CALLBACK (on_emulate_touch_changed),
                            monitor, 0);
+
+  g_object_bind_property (G_OBJECT (context),
+                          "resizable-monitors",
+                          G_OBJECT (monitor),
+                          "is-resizable",
+                          G_BINDING_SYNC_CREATE);
 
   return monitor;
 }

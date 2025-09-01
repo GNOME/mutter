@@ -36,6 +36,7 @@ enum
 
   PROP_EMULATE_TOUCH,
   PROP_INHIBIT_SYSTEM_SHORTCUTS,
+  PROP_RESIZABLE_MONITORS,
 
   N_PROPS
 };
@@ -67,6 +68,8 @@ struct _MdkContext
 
   gboolean emulate_touch;
   gboolean inhibit_system_shortcuts;
+
+  gboolean resizable_monitors;
 
   GSettings *settings;
 
@@ -324,6 +327,9 @@ mdk_context_set_property (GObject      *object,
     case PROP_INHIBIT_SYSTEM_SHORTCUTS:
       context->inhibit_system_shortcuts = g_value_get_boolean (value);
       break;
+    case PROP_RESIZABLE_MONITORS:
+      context->resizable_monitors = g_value_get_boolean (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -345,6 +351,9 @@ mdk_context_get_property (GObject    *object,
       break;
     case PROP_INHIBIT_SYSTEM_SHORTCUTS:
       g_value_set_boolean (value, context->inhibit_system_shortcuts);
+      break;
+    case PROP_RESIZABLE_MONITORS:
+      g_value_set_boolean (value, context->resizable_monitors);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -383,6 +392,11 @@ mdk_context_class_init (MdkContextClass *klass)
                           G_PARAM_STATIC_STRINGS);
   obj_props[PROP_INHIBIT_SYSTEM_SHORTCUTS] =
     g_param_spec_boolean ("inhibit-system-shortcuts", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_RESIZABLE_MONITORS] =
+    g_param_spec_boolean ("resizable-monitors", NULL, NULL,
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);

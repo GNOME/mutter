@@ -17,6 +17,15 @@
       </section>
       <section>
         <submenu>
+          <attribute name="label" translatable="yes">_Monitors</attribute>
+          <item>
+            <attribute name="label" translatable="yes">_Resizable</attribute>
+            <attribute name="action">app.toggle_resizable_monitors</attribute>
+          </item>
+        </submenu>
+      </section>
+      <section>
+        <submenu>
           <attribute name="label" translatable="yes">_Launchers</attribute>
           <section id="launchers"/>
           <section>
