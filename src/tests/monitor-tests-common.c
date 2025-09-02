@@ -24,6 +24,7 @@
 #include "meta-test/meta-context-test.h"
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/meta-test-utils.h"
+#include "x11/meta-x11-display-private.h"
 
 MetaContext *test_context;
 
@@ -152,6 +153,8 @@ MonitorTestCase initial_test_case = {
 MetaTestClient *wayland_monitor_test_client = NULL;
 MetaTestClient *x11_monitor_test_client = NULL;
 
+static MetaAsyncWaiter *x11_async_waiter = NULL;
+
 #define WAYLAND_TEST_CLIENT_NAME "wayland_monitor_test_client"
 #define X11_TEST_CLIENT_NAME "x11_monitor_test_client"
 
@@ -224,6 +227,8 @@ check_test_client_x11_state (MetaTestClient *test_client)
 void
 meta_check_monitor_test_clients_state (void)
 {
+  meta_async_waiter_set_and_wait (x11_async_waiter);
+
   meta_check_test_client_state (wayland_monitor_test_client);
   meta_check_test_client_state (x11_monitor_test_client);
   check_test_client_x11_state (x11_monitor_test_client);
@@ -240,6 +245,8 @@ create_initial_test_setup (MetaBackend *backend)
 static void
 create_monitor_test_clients (void)
 {
+  MetaDisplay *display = meta_context_get_display (test_context);
+  MetaX11Display *x11_display;
   GError *error = NULL;
 
   wayland_monitor_test_client = meta_test_client_new (test_context,
@@ -275,6 +282,9 @@ create_monitor_test_clients (void)
                             "show", X11_TEST_CLIENT_WINDOW,
                             NULL))
     g_error ("Failed to show the window: %s", error->message);
+
+  x11_display = meta_display_get_x11_display (display);
+  x11_async_waiter = meta_async_waiter_new (x11_display);
 }
 
 static void
@@ -290,6 +300,8 @@ destroy_monitor_test_clients (void)
 
   meta_test_client_destroy (wayland_monitor_test_client);
   meta_test_client_destroy (x11_monitor_test_client);
+
+  g_clear_pointer (&x11_async_waiter, meta_async_waiter_destroy);
 }
 
 static void
