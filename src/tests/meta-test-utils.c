@@ -56,7 +56,6 @@ struct _MetaTestClient
   GError **error;
 
   MetaAsyncWaiter *waiter;
-  MetaX11AlarmFilter *alarm_filter;
 };
 
 struct _MetaAsyncWaiter
@@ -69,6 +68,8 @@ struct _MetaAsyncWaiter
 
   GMainLoop *loop;
   int counter_wait_value;
+
+  MetaX11AlarmFilter *alarm_filter;
 };
 
 typedef struct
@@ -118,6 +119,16 @@ meta_ensure_test_client_path (int    argc,
     g_error ("mutter-test-client executable not found");
 }
 
+static gboolean
+async_waiter_alarm_filter (MetaX11Display        *x11_display,
+                           XSyncAlarmNotifyEvent *event,
+                           gpointer               user_data)
+{
+  MetaAsyncWaiter *waiter = user_data;
+
+  return meta_async_waiter_process_x11_event (waiter, x11_display, event);
+}
+
 MetaAsyncWaiter *
 meta_async_waiter_new (MetaX11Display *x11_display)
 {
@@ -161,6 +172,11 @@ meta_async_waiter_new (MetaX11Display *x11_display)
 
   waiter->loop = g_main_loop_new (NULL, FALSE);
 
+  waiter->alarm_filter =
+    meta_x11_display_add_alarm_filter (x11_display,
+                                       async_waiter_alarm_filter,
+                                       waiter);
+
   return waiter;
 }
 
@@ -176,6 +192,12 @@ meta_async_waiter_destroy (MetaAsyncWaiter *waiter)
 
       XSyncDestroyAlarm (xdisplay, waiter->alarm);
       XSyncDestroyCounter (xdisplay, waiter->counter);
+
+      if (waiter->alarm_filter)
+        {
+          meta_x11_display_remove_alarm_filter (x11_display,
+                                                waiter->alarm_filter);
+        }
 
       g_object_remove_weak_pointer (G_OBJECT (x11_display),
                                     (gpointer *) &waiter->x11_display);
@@ -543,23 +565,6 @@ meta_wait_for_window_shown (MetaWindow *window)
   g_main_loop_unref (data.loop);
 }
 
-static gboolean
-meta_test_client_process_x11_event (MetaTestClient        *client,
-                                    MetaX11Display        *x11_display,
-                                    XSyncAlarmNotifyEvent *event)
-{
-  if (client->waiter)
-    {
-      return meta_async_waiter_process_x11_event (client->waiter,
-                                                  x11_display,
-                                                  event);
-    }
-  else
-    {
-      return FALSE;
-    }
-}
-
 static gpointer
 spawn_xwayland (gpointer user_data)
 {
@@ -630,16 +635,6 @@ ensure_process_handler (MetaContext *context)
                     process_handler);
 
   return process_handler;
-}
-
-static gboolean
-alarm_filter (MetaX11Display        *x11_display,
-              XSyncAlarmNotifyEvent *event,
-              gpointer               user_data)
-{
-  MetaTestClient *client = user_data;
-
-  return meta_test_client_process_x11_event (client, x11_display, event);
 }
 
 MetaTestClient *
@@ -734,10 +729,6 @@ meta_test_client_new (MetaContext           *context,
       x11_display = meta_display_get_x11_display (display);
       g_assert_nonnull (x11_display);
 
-      client->alarm_filter = meta_x11_display_add_alarm_filter (x11_display,
-                                                                alarm_filter,
-                                                                client);
-
       client->waiter = meta_async_waiter_new (x11_display);
     }
 
@@ -760,16 +751,7 @@ meta_test_client_quit (MetaTestClient  *client,
 void
 meta_test_client_destroy (MetaTestClient *client)
 {
-  MetaDisplay *display = meta_context_get_display (client->context);
-  MetaX11Display *x11_display;
   GError *error = NULL;
-
-  x11_display = meta_display_get_x11_display (display);
-  if (client->alarm_filter && x11_display)
-    {
-      meta_x11_display_remove_alarm_filter (x11_display,
-                                            client->alarm_filter);
-    }
 
   if (client->waiter)
     meta_async_waiter_destroy (client->waiter);

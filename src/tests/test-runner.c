@@ -96,30 +96,13 @@ wait_for_signal_emission (gpointer    instance,
   g_signal_handler_disconnect (instance, handler_id);
 }
 
-static gboolean
-test_case_alarm_filter (MetaX11Display        *x11_display,
-                        XSyncAlarmNotifyEvent *event,
-                        gpointer               data)
-{
-  TestCase *test = data;
-
-  if (meta_async_waiter_process_x11_event (test->waiter, x11_display, event))
-    return TRUE;
-
-  return FALSE;
-}
-
 static void
 on_x11_display_opened (MetaDisplay *display,
                        TestCase    *test)
 {
   MetaX11Display *x11_display = meta_display_get_x11_display (display);
 
-  test->alarm_filter =
-    meta_x11_display_add_alarm_filter (x11_display,
-                                       test_case_alarm_filter,
-                                       test);
-  test->waiter = meta_async_waiter_new (display->x11_display);
+  test->waiter = meta_async_waiter_new (x11_display);
 }
 
 static TestCase *
