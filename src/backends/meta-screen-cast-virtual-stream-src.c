@@ -277,7 +277,10 @@ meta_screen_cast_virtual_stream_src_enable (MetaScreenCastStreamSrc *src)
 
   setup_cursor_handling (virtual_src);
 
-  meta_screen_cast_stream_notify_is_configured (stream);
+  if (!meta_screen_cast_stream_is_configured (stream))
+    meta_screen_cast_stream_notify_is_configured (stream);
+  else
+    meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
 
   virtual_src->monitors_changed_handler_id =
     g_signal_connect (monitor_manager, "monitors-changed-internal",
