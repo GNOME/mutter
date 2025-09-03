@@ -2365,7 +2365,8 @@ implement_showing (MetaWindow *window,
        * Force placing windows only when they should be already mapped,
        * see #751887
        */
-      if (!window->placed && window_has_buffer (window))
+      if (!window->placed && window_has_buffer (window) &&
+          meta_window_config_is_floating (window->config))
         meta_window_force_placement (window, META_PLACE_FLAG_NONE);
 
       meta_window_hide (window);
