@@ -1413,7 +1413,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
                 {
                   flags |= META_MOVE_RESIZE_CONSTRAIN;
                 }
-              else if (!window->placed)
+              else if (!window->placed && !window->minimized)
                 {
                   place_flags |= META_PLACE_FLAG_CALCULATE;
                   flags |= META_MOVE_RESIZE_CONSTRAIN;
