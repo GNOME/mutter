@@ -1105,6 +1105,7 @@ stacking_tests = [
   'closed-transient-no-input-parents-queued-default-focus-destroyed',
   'closed-transient-only-take-focus-parents',
   'minimized',
+  'unminimize',
   'mixed-windows',
   'set-parent',
   'override-redirect',
