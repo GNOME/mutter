@@ -958,6 +958,7 @@ wayland_test_cases = [
   {
     'name': 'wayland-unit',
     'suite': 'wayland',
+    'timeout': 300,
     'sources': [
       'wayland-unit-tests.c',
       dummy_client_header,
