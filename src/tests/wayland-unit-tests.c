@@ -1743,6 +1743,8 @@ toplevel_fixed_size_fullscreen (void)
 
   while (!(window = find_client_window ("fixed-size-client")))
     g_main_context_iteration (NULL, TRUE);
+  g_object_add_weak_pointer (G_OBJECT (window), (gpointer *) &window);
+
   while (meta_window_is_hidden (window))
     g_main_context_iteration (NULL, TRUE);
   meta_wait_for_effects (window);
@@ -1763,6 +1765,9 @@ toplevel_fixed_size_fullscreen (void)
   meta_wayland_test_client_finish (wayland_test_client);
 
   meta_cursor_tracker_uninhibit_cursor_visibility (cursor_tracker);
+
+  while (window)
+    g_main_context_iteration (NULL, TRUE);
 }
 
 static void
@@ -1779,6 +1784,8 @@ toplevel_fixed_size_fullscreen_exceeds (void)
 
   while (!(window = find_client_window ("fixed-size-client")))
     g_main_context_iteration (NULL, TRUE);
+  g_object_add_weak_pointer (G_OBJECT (window), (gpointer *) &window);
+
   while (meta_window_is_hidden (window))
     g_main_context_iteration (NULL, TRUE);
   meta_wait_for_effects (window);
@@ -1794,6 +1801,9 @@ toplevel_fixed_size_fullscreen_exceeds (void)
   meta_wayland_test_driver_terminate (test_driver);
   meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();
+
+  while (window)
+    g_main_context_iteration (NULL, TRUE);
 }
 
 static void
