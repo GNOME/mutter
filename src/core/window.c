@@ -171,6 +171,10 @@ static void update_edge_constraints (MetaWindow *window);
 
 static void set_hidden_suspended_state (MetaWindow *window);
 
+static void move_rect_between_rects (MtkRectangle       *rect,
+                                     const MtkRectangle *old_area,
+                                     const MtkRectangle *new_area);
+
 static void initable_iface_init (GInitableIface *initable_iface);
 
 typedef struct _MetaWindowPrivate
@@ -4291,11 +4295,38 @@ meta_window_move_resize_internal (MetaWindow          *window,
   /* If we did placement, then we need to save the position that the window
    * was placed at to make sure that meta_window_idle_move_resize() places the
    * window correctly.
+   *
+   * If we constrained an unplaced window, we also need to move any non-empty
+   * unconstrained rect, so that the eventual placement happens on the same
+   * monitor as where it was constrained.
    */
   if (did_placement)
     {
       unconstrained_rect.x = constrained_rect.x;
       unconstrained_rect.y = constrained_rect.y;
+    }
+  else if (!window->placed &&
+           !mtk_rectangle_is_empty (&unconstrained_rect) &&
+           !meta_window_config_is_floating (window->config))
+    {
+      MetaBackend *backend = backend_from_window (window);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaLogicalMonitor *from;
+      MetaLogicalMonitor *to;
+
+      from =
+        meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                            &unconstrained_rect);
+      to =
+        meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                            &constrained_rect);
+      if (to && from != to)
+        {
+          move_rect_between_rects (&unconstrained_rect,
+                                   from ? &from->rect : NULL,
+                                   &to->rect);
+        }
     }
 
   /* Do the protocol-specific move/resize logic */
