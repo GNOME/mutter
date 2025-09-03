@@ -1,0 +1,42 @@
+resize_monitor default 800 600
+add_monitor secondary 800 600
+set_pref center-new-windows true
+
+new_client w wayland
+new_client x x11
+
+#
+# Maximize on secondary output, then unmaximize
+#
+
+move_cursor_to 800 200
+
+# Wayland
+create w/2 csd
+resize w/2 200 200
+maximize w/2
+show w/2
+wait
+assert_size w/2 800 600
+assert_position w/2 800 0
+
+unmaximize w/2
+wait_reconfigure w/2
+assert_position w/2 1100 200
+assert_size w/2 200 200
+destroy w/2
+
+# X11
+create x/2 csd
+resize x/2 200 200
+maximize x/2
+show x/2
+wait
+assert_size x/2 800 600
+assert_position x/2 800 0
+
+unmaximize x/2
+wait_reconfigure x/2
+assert_position x/2 1100 200
+assert_size x/2 200 200
+destroy x/2
