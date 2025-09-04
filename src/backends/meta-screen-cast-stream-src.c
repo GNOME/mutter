@@ -1598,6 +1598,7 @@ on_stream_param_changed (void                 *data,
   g_autoptr (GPtrArray) params = NULL;
   int buffer_types;
   const struct spa_pod_prop *prop_modifier;
+  gboolean use_explicit_sync = FALSE;
 
   if (!format || id != SPA_PARAM_Format)
     return;
@@ -1613,6 +1614,9 @@ on_stream_param_changed (void                 *data,
     buffer_types = 1 << SPA_DATA_DmaBuf;
   else
     buffer_types = 1 << SPA_DATA_MemFd;
+
+  if ((buffer_types == (1 << SPA_DATA_DmaBuf)) && explicit_sync_supported (src))
+    use_explicit_sync = TRUE;
 
   if (prop_modifier && (prop_modifier->flags & SPA_POD_PROP_FLAG_DONT_FIXATE))
     {
@@ -1685,22 +1689,25 @@ on_stream_param_changed (void                 *data,
 
   /* Buffers param when using explicit sync with extra data blocks for acquire_fd
    * and release_fd */
-  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
-  spa_pod_builder_push_object (
-    &pod_builder.b,
-    &pod_frame,
-    SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers);
-  spa_pod_builder_add (
-    &pod_builder.b,
-    SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
-    SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (3),
-    SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
-    SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types),
-    0);
-  spa_pod_builder_prop (&pod_builder.b, SPA_PARAM_BUFFERS_metaType, SPA_POD_PROP_FLAG_MANDATORY);
-  spa_pod_builder_int (&pod_builder.b, 1 << SPA_META_SyncTimeline);
-  pod = spa_pod_builder_pop (&pod_builder.b, &pod_frame);
-  g_ptr_array_add (params, g_steal_pointer (&pod));
+  if (use_explicit_sync)
+    {
+      spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
+      spa_pod_builder_push_object (
+        &pod_builder.b,
+        &pod_frame,
+        SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers);
+      spa_pod_builder_add (
+        &pod_builder.b,
+        SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
+        SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (3),
+        SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
+        SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types),
+        0);
+      spa_pod_builder_prop (&pod_builder.b, SPA_PARAM_BUFFERS_metaType, SPA_POD_PROP_FLAG_MANDATORY);
+      spa_pod_builder_int (&pod_builder.b, 1 << SPA_META_SyncTimeline);
+      pod = spa_pod_builder_pop (&pod_builder.b, &pod_frame);
+      g_ptr_array_add (params, g_steal_pointer (&pod));
+    }
 
   /* Fallback Buffers param */
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
@@ -1737,7 +1744,7 @@ on_stream_param_changed (void                 *data,
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
   g_ptr_array_add (params, g_steal_pointer (&pod));
 
-  if (explicit_sync_supported (src))
+  if (use_explicit_sync)
     {
       spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, 1024);
       pod = spa_pod_builder_add_object (
