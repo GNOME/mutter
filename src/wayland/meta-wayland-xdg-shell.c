@@ -1606,6 +1606,24 @@ meta_wayland_xdg_popup_configure (MetaWaylandShellSurface        *shell_surface,
   if (!parent_window)
     return;
 
+  if (meta_is_topic_enabled (META_DEBUG_WAYLAND))
+    {
+      MetaWaylandSurfaceRole *surface_role =
+        META_WAYLAND_SURFACE_ROLE (xdg_popup);
+      MetaWaylandSurface *surface =
+        meta_wayland_surface_role_get_surface (surface_role);
+
+      meta_topic (META_DEBUG_WAYLAND,
+                  "Configuring xdg_popup#%u (wl_surface#%u): "
+                  "serial=%u, size=%dx%d, rel-position=%d,%d, repositioned=%s",
+                  wl_resource_get_id (xdg_popup->resource),
+                  wl_resource_get_id (surface->resource),
+                  configuration->serial,
+                  configuration->width, configuration->height,
+                  configuration->rel_x, configuration->rel_y,
+                  xdg_popup->pending_repositioned ? "yes" : "no");
+    }
+
   geometry_scale = meta_window_wayland_get_geometry_scale (parent_window);
   x = configuration->rel_x / geometry_scale;
   y = configuration->rel_y / geometry_scale;
