@@ -22,3 +22,36 @@ dismiss w/p1
 popup_at w/p4 1 top 100 100
 assert_position w/p4 100 0
 dismiss w/p4
+
+#
+# Pop up resizable non-reactive popup and move it off screen
+#
+
+popup_at w/p5 1 top 100 100 resize
+wait_reconfigure w/p5
+assert_position w/p5 100 0
+move w/1 200 200
+assert_position w/p5 200 100
+move w/1 200 50
+assert_position w/p5 200 -50
+dismiss w/p5
+
+#
+# Pop up resizable popup and make sure it resizes
+#
+
+popup_at w/p6 1 top 100 100 resize
+wait_reconfigure w/p6
+assert_position w/p6 200 0
+assert_size w/p6 100 50
+dismiss w/p6
+
+#
+# Pop up flippable popup and make sure it flips
+#
+
+popup_at w/p7 1 top 100 100 flip
+wait_reconfigure w/p7
+assert_position w/p7 200 150
+assert_size w/p7 100 100
+dismiss w/p7
