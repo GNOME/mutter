@@ -10,8 +10,8 @@
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-03-05 02:13+0000\n"
-"PO-Revision-Date: 2025-03-09 10:00+0100\n"
+"POT-Creation-Date: 2025-09-03 12:44+0000\n"
+"PO-Revision-Date: 2025-09-04 10:00+0100\n"
 "Last-Translator: Asier Saratsua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -297,8 +297,8 @@ msgstr "Laneko areak dinamikoki kudeatzen dira"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr "Laneko areak dinamikoki kudeatzen diren edo laneko areak kopuru estatikoa (“org.gnome.desktop.wm.preferences“-eko “num-workspaces” gakoak zehazten du) daukan zehazten du ."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
@@ -537,26 +537,119 @@ msgid ""
 "take effect."
 msgstr "Onartu konexioak Xwayland-ek duen endian balioa ez den beste bat duten bezeroekin. X zerbitzariaren byte-trukerako kodea eraso-azalera erraldoia da eta Xwayland-eko kode horrek segurtasun-arazoak eduki ditzake. Byte-trukeko bezeroen erabilera-kasua oso bazterrkoa da, eta modu lehenetsian desgaituta dago Xwayland-en. Gaitu aukera hori Xwayland-ek beste endian balio bat duten X11 bezeroen konexioak onartu ditzan. Aukera honek ez du eraginik Xwayland-ek ez badu onartzen komando-lerroko +byteswappedclients/-byteswappedclients euskarria ezarpen hori kontrolatzeko. Xwayland berrabiarazi behar da ezarpen hau indarrean sartzeko."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+#| msgid "Switch applications"
+msgid "Application"
+msgstr "Aplikazioa"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Exekutagarria"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Gehitu abiarazlea"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Abiarazlea"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Mota"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Gehitu"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Exekutatu"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Ezabatu"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Ekintza"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Editatu abiarazlea"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Abiarazleak"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_Sarrera"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_Emulatu ukipena"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Indargabetu sistemaren lasterbideak"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Abiarazleak"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Editatu abiarazleak"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "Mutter Development Kit aplikazioari _buruz"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Mutter Development Kit"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "Menu nagusia"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Mutter taldea"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Mutter softwarea garatzeko kita"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "Mutter Development Kit aplikazioari buruz"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Huts egin du pantaila sortzeak"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Bertako pantaila"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Ezezaguna"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Pantaila ezezaguna"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -564,69 +657,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Soinuaren gertaera"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Pribatutasun-pantaila gaituta"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Pribatutasun-pantaila desgaituta"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Ordeztu exekutatzen dagoen leiho-kudeatzailea"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "X pantaila erabiltzeko"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Desgaitu saio-kudeatzailearen konexioa"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Zehaztu saio-kudeatzailearen IDa"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Hasieratu saioa babes-fitxategitik"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Bihurtu X dei sinkroniko"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Exekutatu wayland konposatzaile gisa"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Exekutatu habiaratutako konposatzaile gisa"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Exekutatu waylan konposatzailea Xwayland abiarazi gabe"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Zehaztu erabiliko den Wayland pantailaren izena"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Exekutatu pantaila-zerbitzari oso bezala, habiaratuta baino"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Exekutatu bururik gabeko pantaila-zerbitzari gisa"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Gehitu pantaila birtual iraunkorra (WxH edo WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Exekutatu garatzeko kita"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -643,7 +728,7 @@ msgstr "Gaitu arazketa-kontrolerako D-Bus interfazea"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modu-aldaketa (%d taldea)"
@@ -651,7 +736,7 @@ msgstr "Modu-aldaketa (%d taldea)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Modu-aldaketa"
@@ -659,11 +744,11 @@ msgstr "Modu-aldaketa"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Aldatu monitorea"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Erakutsi pantailako laguntzan"
 
@@ -685,7 +770,7 @@ msgstr "Mutter-en osagaia erabiltzeko"
 msgid "Workspace %d"
 msgstr "%d. laneko area"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter modu xehatuaren euskarririk gabe konpilatu da"
 
@@ -693,31 +778,31 @@ msgstr "Mutter modu xehatuaren euskarririk gabe konpilatu da"
 msgid "Workspace switched"
 msgstr "Laneko area aldatu da"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Modu aldaketa: %d modua"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr "“%s” pantailak badu leiho-kudeatzailea; erabili --replace aukera uneko leiho-kudeatzailea ordezteko."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Huts egin du X Window sistemaren “%s“ pantaila irekitzean"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "%d pantaila, “%s” bistakoa, ez da baliozkoa"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -728,10 +813,19 @@ msgstr "Dagoeneko beste konposatze-kudeatzailea ari da exekutatzen “%2$s” pa
 msgid "Format %s not supported"
 msgstr "%s formatua ez da onartzen"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "Desgaitu saio-kudeatzailearen konexioa"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "Zehaztu saio-kudeatzailearen IDa"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "Hasieratu saioa babes-fitxategitik"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "Eraman gaineko laneko areara"
