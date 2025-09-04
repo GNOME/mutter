@@ -91,6 +91,9 @@ G_DEFINE_TYPE (MetaWindowWayland, meta_window_wayland, META_TYPE_WINDOW)
 
 static GQuark unmaximize_drag_quark;
 
+static gboolean meta_window_wayland_get_oldest_pending_serial (MetaWindowWayland *wl_window,
+                                                               uint32_t          *serial);
+
 static void
 set_geometry_scale_for_window (MetaWindowWayland *wl_window,
                                int                geometry_scale)
@@ -1239,6 +1242,7 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
 {
   GList *l;
   gboolean has_pending_resize = FALSE;
+  uint32_t acked_serial = 0;
 
   /* There can be 3 different cases where a resizing configurations can be found
    * in the list of pending configurations. We consider resizes in any of these
@@ -1269,7 +1273,31 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
   *is_client_resize = !has_pending_resize;
 
   if (!pending->has_acked_configure_serial)
-    return NULL;
+    {
+      if (meta_wayland_surface_get_buffer (wl_window->surface) &&
+          wl_window->pending_configurations &&
+          !wl_window->last_acked_configuration)
+        {
+          MetaWindow *toplevel_window;
+
+          toplevel_window =
+            meta_wayland_surface_get_toplevel_window (wl_window->surface);
+
+          g_warning ("Buggy client (%s) committed initial non-empty content "
+                     "without acknowledging configuration, working around.",
+                     toplevel_window->res_class);
+          meta_window_wayland_get_oldest_pending_serial (wl_window,
+                                                         &acked_serial);
+        }
+      else
+        {
+          return NULL;
+        }
+    }
+  else
+    {
+      acked_serial = pending->acked_configure_serial;
+    }
 
   for (l = wl_window->pending_configurations; l; l = l->next)
     {
@@ -1277,7 +1305,7 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
       GList *tail;
       gboolean is_matching_configuration;
 
-      if (configuration->serial > pending->acked_configure_serial)
+      if (configuration->serial > acked_serial)
         continue;
 
       tail = l;
@@ -1293,7 +1321,7 @@ acquire_acked_configuration (MetaWindowWayland       *wl_window,
         }
 
       is_matching_configuration =
-        configuration->serial == pending->acked_configure_serial;
+        configuration->serial == acked_serial;
 
       if (is_matching_configuration)
         tail = g_list_delete_link (tail, l);
@@ -1814,6 +1842,22 @@ meta_window_wayland_get_pending_serial (MetaWindowWayland *wl_window,
     {
       MetaWaylandWindowConfiguration *configuration =
         wl_window->pending_configurations->data;
+
+      *serial = configuration->serial;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+meta_window_wayland_get_oldest_pending_serial (MetaWindowWayland *wl_window,
+                                               uint32_t          *serial)
+{
+  if (wl_window->pending_configurations)
+    {
+      MetaWaylandWindowConfiguration *configuration =
+        g_list_last (wl_window->pending_configurations)->data;
 
       *serial = configuration->serial;
       return TRUE;

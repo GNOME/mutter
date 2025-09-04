@@ -525,6 +525,8 @@ subsurface_invalid_xdg_shell_actions (void)
     meta_wayland_test_client_new (test_context, "invalid-xdg-shell-actions");
   g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
                          "Invalid geometry * set on xdg_surface*");
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "Buggy client * committed initial non-empty content*");
   meta_wayland_test_client_finish (wayland_test_client);
   g_test_assert_expected_messages ();
 }
