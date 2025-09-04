@@ -125,6 +125,7 @@ on_context_error (MdkContext   *context,
                   GApplication *app)
 {
   g_warning ("Context got an error: %s", error->message);
+  exit (EXIT_FAILURE);
 }
 
 static void
