@@ -330,19 +330,28 @@ prepare_popup_window (GdkSeat   *seat,
   gtk_widget_show (popup);
 }
 
+typedef enum _PopupAtFlags
+{
+  POPUP_AT_FLAG_NONE = 0,
+  POPUP_AT_FLAG_GRAB = 1 << 0,
+  POPUP_AT_FLAG_RESIZE = 1 << 1,
+  POPUP_AT_FLAG_FLIP = 1 << 2,
+} PopupAtFlags;
+
 static void
-popup_at (GtkWidget  *parent,
-          const char *popup_id,
-          const char *position,
-          int         width,
-          int         height,
-          gboolean    grab)
+popup_at (GtkWidget    *parent,
+          const char   *popup_id,
+          const char   *position,
+          int           width,
+          int           height,
+          PopupAtFlags  flags)
 {
   GtkWidget *popup;
   g_autofree char *title;
   GdkWindow *gdk_window;
   GdkRectangle window_rect;
   GdkGravity rect_anchor, window_anchor;
+  GdkAnchorHints anchor_hints = 0;
 
   popup = g_object_new (GTK_TYPE_WINDOW,
                         "type", GTK_WINDOW_POPUP,
@@ -362,13 +371,20 @@ popup_at (GtkWidget  *parent,
   gtk_widget_get_allocation (popup, &window_rect);
 
   calculate_anchors (position, &rect_anchor, &window_anchor);
+
+  if (flags & POPUP_AT_FLAG_RESIZE)
+    anchor_hints |= GDK_ANCHOR_RESIZE;
+  if (flags & POPUP_AT_FLAG_FLIP)
+    anchor_hints |= GDK_ANCHOR_FLIP;
+
   gdk_window_move_to_rect (gdk_window,
                            &window_rect,
                            rect_anchor,
                            window_anchor,
-                           0, 0, 0);
+                           anchor_hints,
+                           0, 0);
 
-  if (grab)
+  if (flags & POPUP_AT_FLAG_GRAB)
     {
       GdkSeat *seat =
         gdk_display_get_default_seat (gtk_widget_get_display (popup));
@@ -1183,12 +1199,14 @@ process_line (const char       *line,
     {
       GtkWidget *parent;
       int width, height;
-      gboolean grab;
+      PopupAtFlags flags = POPUP_AT_FLAG_NONE;
+      int i;
 
-      if (argc != 6 &&
-          argc != 7)
+      if (argc < 6)
         {
-          g_print ("usage: popup <popup-id> <parent-id> <top|bottom|left|right|center> <width> <height> [grab]\n");
+          g_print ("usage: popup_at <popup-id> <parent-id> "
+                   "<top|bottom|left|right|center> "
+                   "<width> <height> [<grab>,<resize>,<flip>]\n");
           goto out;
         }
 
@@ -1202,11 +1220,19 @@ process_line (const char       *line,
       width = atoi (argv[4]);
       height = atoi (argv[5]);
 
-      if (argc == 7)
+      for (i = 6; i < argc; i++)
         {
-          if (g_strcmp0 (argv[6], "grab") == 0)
+          if (g_strcmp0 (argv[i], "grab") == 0)
             {
-              grab = TRUE;
+              flags |= POPUP_AT_FLAG_GRAB;
+            }
+          else if (g_strcmp0 (argv[i], "resize") == 0)
+            {
+              flags |= POPUP_AT_FLAG_RESIZE;
+            }
+          else if (g_strcmp0 (argv[i], "flip") == 0)
+            {
+              flags |= POPUP_AT_FLAG_FLIP;
             }
           else
             {
@@ -1214,12 +1240,8 @@ process_line (const char       *line,
               goto out;
             }
         }
-      else
-        {
-          grab = FALSE;
-        }
 
-      popup_at (parent, argv[1], argv[3], width, height, grab);
+      popup_at (parent, argv[1], argv[3], width, height, flags);
     }
   else if (strcmp (argv[0], "popup") == 0)
     {
@@ -1238,7 +1260,7 @@ process_line (const char       *line,
           goto out;
         }
 
-      popup_at (parent, argv[1], "center", 100, 100, FALSE);
+      popup_at (parent, argv[1], "center", 100, 100, POPUP_AT_FLAG_NONE);
     }
   else if (strcmp (argv[0], "dismiss") == 0)
     {

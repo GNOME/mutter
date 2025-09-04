@@ -2929,9 +2929,16 @@ test_case_do (TestCase    *test,
       MetaTestClient *client;
       const char *window_id;
       const char *parent_id;
+      g_autoptr (GStrvBuilder) args_builder = NULL;
+      g_auto (GStrv) args = NULL;
+      int i;
 
-      if (argc != 6 && argc != 7)
-        BAD_COMMAND ("usage: %s <client-id>/<popup-id> <parent-id> <top|bottom|left|right|center> <width> <height> [grab]", argv[0]);
+      if (argc < 6)
+        {
+          BAD_COMMAND ("usage: %s <client-id>/<popup-id> <parent-id> "
+                       "<top|bottom|left|right|center> "
+                       "<width> <height> [<grab>,<resize>,<flip>]", argv[0]);
+        }
 
       if (!test_case_parse_window_id (test, argv[1],
                                       &client, &window_id, error))
@@ -2939,15 +2946,17 @@ test_case_do (TestCase    *test,
 
       parent_id = argv[2];
 
-      if (!meta_test_client_do (client, error,
-                                argv[0],
-                                window_id,
-                                parent_id,
-                                argv[3],
-                                argv[4],
-                                argv[5],
-                                argc == 7 ? argv[6] : NULL,
-                                NULL))
+      args_builder = g_strv_builder_new ();
+      g_strv_builder_add_many (args_builder,
+                               argv[0],
+                               window_id,
+                               parent_id,
+                               NULL);
+      for (i = 3; i < argc; i++)
+        g_strv_builder_add (args_builder, argv[i]);
+
+      args = g_strv_builder_end (args_builder);
+      if (!meta_test_client_do_strv (client, (const char **) args, error))
         return FALSE;
 
       if (!track_popup (test, client, window_id, parent_id, error))
