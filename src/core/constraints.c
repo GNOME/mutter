@@ -863,8 +863,10 @@ is_custom_rule_satisfied (MtkRectangle      *rect,
   uint32_t x_constrain_actions, y_constrain_actions;
 
   x_constrain_actions = (META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_X |
+                         META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_X |
                          META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_X);
   y_constrain_actions = (META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_Y |
+                         META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_Y |
                          META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_Y);
   if ((placement_rule->constraint_adjustment & x_constrain_actions &&
        rect->width != intersection->width) ||
