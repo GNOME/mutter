@@ -475,8 +475,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                                    flags,
                                                    gravity);
           if (!meta_wayland_window_configuration_is_equivalent (
-              configuration,
-              wl_window->last_sent_configuration))
+                configuration,
+                wl_window->last_sent_configuration))
             {
               meta_window_wayland_configure (wl_window, configuration);
               can_move_now = FALSE;
