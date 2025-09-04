@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-03-02 08:59+0100\n"
+"POT-Creation-Date: 2025-09-04 08:43+0000\n"
+"PO-Revision-Date: 2025-09-04 11:46+0200\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.7\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -306,8 +306,8 @@ msgstr "სამუშაო სივრცეები დინამიკ�
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "განსაზღვრავს, იმართება თუ არა სამუშაო სივრცე დინამიკურად, თუ არსებობს მათი "
 "სტატიკური რაოდენობა (განისაზღვრება org.gnome.desktop.wm.preferences-ში num-"
@@ -628,26 +628,118 @@ msgstr ""
 "byteswappedclients ამ პარამეტრის გასაკონტროლებლად. Xwayland უნდა განახლდეს, "
 "რომ ეს პარამეტრი ამოქმედდეს."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "პროგრამა"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "შესრულებადი"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "გამშვების დამატება"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "გამშვები"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "ტიპი"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "დამატება"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "გაშვება"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "წაშლა"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "ქმედება"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "გამშვებების ჩასწორება"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "გამშვებები"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_შეყვანა"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "შეხების _ემულაცია"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "სისტემური მალსახმობებ_ის გამორთვა"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "გამშვებე_ბი"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "გამშვებ_ების ჩასწორება"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "Mutter-ის პროგრამისტების ნაკრების შეს_ახებ"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Mutter-ის პროგრამისტების ნაკრები"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "მთავარი მენიუ"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Mutter-ის გუნდი"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Mutter-ის პროგრამისტების ნაკრები"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "Mutter-ის პროგრამისტების ნაკრების შესახებ"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "მონიტორის შექმნა ჩავარდა"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "ჩაშენებული ეკრანი"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "უცნობია"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "უცნობი ეკრანი"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -655,69 +747,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "მოვლენის ზარი"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "კონფიდენციალური ეკრანი ჩართულია"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "კონფიდენციალური ეკრანი გამორთულია"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "ფანჯრების გაშვებული მმართველის შეცვლა"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "გამოყენებადი X"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "სესიების მმართველთან კავშირის გაუქმება"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "სესიის მართვის ID-ის მითითება"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "სესიის დამახსოვრებული ფაილიდან ჩატვირთვა"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "X-ის ფუნქციების სინქრონულად გამოძახება"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Wayland-ის კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "ჩადგმულ კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland კომპოზიტორის Xwayland-ის შესრულებს გარეშე გაშვება"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "მიუთითეთ Wayland-ის ეკრანის სახელი"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "ჩადგმულის მაგიერ ეკრანის სრულ სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "უთავო ეკრანის სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "მუდმინი ვირტუალური ეკრანის დამატება (WxH or WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "პროგრამისტების ნაკრების გაშვება"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -734,7 +818,7 @@ msgstr "გამართვის კონტროლის D-Bus-ის ი
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "რეჟიმის შეცვლა (ჯგუფი %d)"
@@ -742,7 +826,7 @@ msgstr "რეჟიმის შეცვლა (ჯგუფი %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "რეჟიმის გადართვა"
@@ -750,11 +834,11 @@ msgstr "რეჟიმის გადართვა"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "ეკრანის შეცვლა"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "ეკრანზე ნაჩვენები დახმარება"
 
@@ -776,7 +860,7 @@ msgstr "Mutter-ის დამატება"
 msgid "Workspace %d"
 msgstr "სამუშაო სივრცე %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter დამატებითი შეტყობინების მხარდაჭერის გარეშეა აგებული"
 
@@ -784,12 +868,12 @@ msgstr "Mutter დამატებითი შეტყობინები�
 msgid "Workspace switched"
 msgstr "სამუშაო სივრცე გადაირთო"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "რეჟიმის შეცვლა რეჟიმი %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -798,19 +882,19 @@ msgstr ""
 "ეკრანს \"%s\" ფანჯრების მმართველი უკვე გააჩნიათ. მის ჩასანაცვლებლად, სცადეთ, "
 "--replace პარამეტრი გამოიყენოთ."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "ფანჯრების X სისტემის ეკრანის (%s) გახსნის შეცდომა"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "ასლი \"%d\" ეკრანზე \"%s\" არასწორია"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -822,10 +906,19 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "ფორმატი მხარდაუჭერელია: %s"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s-ზე)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "სესიების მმართველთან კავშირის გაუქმება"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "სესიის მართვის ID-ის მითითება"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "სესიის დამახსოვრებული ფაილიდან ჩატვირთვა"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "ზედა სამუშაო სივრცეზე გადატანა"
@@ -875,9 +968,6 @@ msgstr "%s (%s-ზე)"
 
 #~ msgid "Close Window"
 #~ msgstr "ფანჯრის დახურვა"
-
-#~ msgid "Window Menu"
-#~ msgstr "ფანჯრის მენუ"
 
 #~ msgid "Minimize Window"
 #~ msgstr "ფანჯრის მინიმიზირება"
@@ -936,10 +1026,6 @@ msgstr "%s (%s-ზე)"
 #~ msgid ""
 #~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
 #~ msgstr "არა პოვნა a წმ და შეიცავს."
-
-#, fuzzy, c-format
-#~ msgid "Failed to restart: %s\n"
-#~ msgstr "ვერ განხორციელდა -სკენ წმ n"
 
 #~ msgid "Mi_nimize"
 #~ msgstr "მი_ნიმიზირება"
@@ -1326,41 +1412,44 @@ msgstr "%s (%s-ზე)"
 #~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
 #~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "დუ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "დუ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding that switches to the workspace above the current "
-#~ "workspace. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "workspace. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding that switches to the workspace below the current "
-#~ "workspace. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "workspace. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding that switches to the workspace on the left of the current "
-#~ "workspace. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "workspace. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ ჩართულია მარცხენა ის&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; "
 #~ "F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი "
@@ -1369,11 +1458,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding that switches to the workspace on the right of the current "
-#~ "workspace. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "workspace. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ ჩართულია მარჯვენა ის&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; "
 #~ "F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი "
@@ -1381,147 +1470,159 @@ msgstr "%s (%s-ზე)"
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 1. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 1. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 10. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 10. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 11. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 11. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 12. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 12. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 2. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 2. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 3. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 3. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 4. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 4. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 5. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 5. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 6. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 6. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 7. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 7. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 8. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 8. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding that switches to workspace 9. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding that switches to workspace 9. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
@@ -1538,12 +1639,12 @@ msgstr "%s (%s-ზე)"
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding used to close a window. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding used to close a window. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ დახურვა a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; "
 #~ "F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი "
@@ -1552,11 +1653,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to enter \"move mode\" and begin moving a window "
-#~ "using the keyboard. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "using the keyboard. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ რეჟიმი და a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; "
 #~ "F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი "
@@ -1565,11 +1666,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to enter \"resize mode\" and begin resizing a window "
-#~ "using the keyboard. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "using the keyboard. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ რეჟიმი და a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; "
 #~ "F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი "
@@ -1578,24 +1679,24 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to hide all normal windows and set the focus to the "
-#~ "desktop background. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "desktop background. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "-სკენ ყველა საშუალო და მინიჭება -სკენ&lt; Control&gt; a ან&lt; Shift&gt;"
-#~ "&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ "
-#~ "სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ ყველა საშუალო და მინიჭება -სკენ&lt; Control&gt; a ან&lt; "
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding used to maximize a window. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding used to maximize a window. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -1603,12 +1704,12 @@ msgstr "%s (%s-ზე)"
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding used to minimize a window. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding used to minimize a window. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -1838,11 +1939,12 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between panels and the "
-#~ "desktop, without a popup window. The format looks like \"&lt;Control&gt;"
-#~ "a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and "
-#~ "allows lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;"
-#~ "\" and \"&lt;Ctrl&gt;\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action."
+#~ "desktop, without a popup window. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ და a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  "
 #~ "არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული "
@@ -1852,12 +1954,12 @@ msgstr "%s (%s-ზე)"
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between windows of an "
 #~ "application without a popup window. Holding \"shift\" together with this "
-#~ "binding makes the direction go forward again. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "binding makes the direction go forward again. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -1867,12 +1969,12 @@ msgstr "%s (%s-ზე)"
 #~ msgid ""
 #~ "The keybinding used to move focus backwards between windows of an "
 #~ "application, using a popup window. Holding \"shift\" together with this "
-#~ "binding makes the direction go forward again. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "binding makes the direction go forward again. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -1909,11 +2011,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to move focus between panels and the desktop, using a "
-#~ "popup window. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "popup window. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ და a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  "
 #~ "არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული "
@@ -1922,11 +2024,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to move focus between panels and the desktop, without "
-#~ "a popup window. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "a popup window. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ და a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  "
 #~ "არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული "
@@ -1936,16 +2038,16 @@ msgstr "%s (%s-ზე)"
 #~ msgid ""
 #~ "The keybinding used to move focus between windows of an application "
 #~ "without a popup window. Holding the \"shift\" key while using this "
-#~ "binding reverses the direction of movement. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "binding reverses the direction of movement. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Alt&gt; Escape გასაღები ის&lt; Control&gt; a ან&lt; "
-#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -"
-#~ "სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
@@ -1959,8 +2061,8 @@ msgstr "%s (%s-ზე)"
 #~ "keybinding for this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Alt&gt; ჩანართი გასაღები ის&lt; Control&gt; a ან&lt; "
-#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -"
-#~ "სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
@@ -1974,23 +2076,23 @@ msgstr "%s (%s-ზე)"
 #~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Alt&gt; Escape გასაღები ის&lt; Control&gt; a ან&lt; "
-#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -"
-#~ "სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to move focus between windows, using a popup window. "
 #~ "(Traditionally &lt;Alt&gt;Tab) Holding the \"shift\" key while using this "
-#~ "binding reverses the direction of movement. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "binding reverses the direction of movement. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Alt&gt; ჩანართი გასაღები ის&lt; Control&gt; a ან&lt; "
-#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -"
-#~ "სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
@@ -2021,15 +2123,16 @@ msgstr "%s (%s-ზე)"
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding used to toggle maximization. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding used to toggle maximization. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
@@ -2040,30 +2143,31 @@ msgstr "%s (%s-ზე)"
 #~ "the special string \"disabled\", then there will be no keybinding for "
 #~ "this action."
 #~ msgstr ""
-#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;"
-#~ "&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
+#~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
+#~ "მოქმედება."
 
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding used to toggle whether the window is on all workspaces or "
-#~ "just one. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "just one. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "-სკენ ფანჯარა  არის ჩართულია ყველა ან&lt; Control&gt; a ან&lt; Shift&gt;"
-#~ "&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ "
-#~ "სტრიქონი გამორთული არა მოქმედება."
+#~ "-სკენ ფანჯარა  არის ჩართულია ყველა ან&lt; Control&gt; a ან&lt; "
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding used to unmaximize a window. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding used to unmaximize a window. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "-სკენ a ფანჯარა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის "
 #~ "და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2072,24 +2176,24 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "The keybinding which display's the panel's \"Run Application\" dialog "
-#~ "box. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;"
-#~ "Alt&gt;F1\". The parser is fairly liberal and allows lower or upper case, "
-#~ "and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If "
-#~ "you set the option to the special string \"disabled\", then there will be "
-#~ "no keybinding for this action."
+#~ "box. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
-#~ "წმ პანელი წმ გაშვება პროგრამა დიალოგი&lt; Control&gt; a ან&lt; Shift&gt;"
-#~ "&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ "
-#~ "სტრიქონი გამორთული არა მოქმედება."
+#~ "წმ პანელი წმ გაშვება პროგრამა დიალოგი&lt; Control&gt; a ან&lt; "
+#~ "Shift&gt;&lt; Alt&gt; F1  არის და ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება "
+#~ "-სკენ სტრიქონი გამორთული არა მოქმედება."
 
 #, fuzzy
 #~ msgid ""
-#~ "The keybinding which invokes a terminal. The format looks like \"&lt;"
-#~ "Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly "
-#~ "liberal and allows lower or upper case, and also abbreviations such as "
-#~ "\"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to the "
-#~ "special string \"disabled\", then there will be no keybinding for this "
-#~ "action."
+#~ "The keybinding which invokes a terminal. The format looks like "
+#~ "\"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is "
+#~ "fairly liberal and allows lower or upper case, and also abbreviations "
+#~ "such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you set the option to "
+#~ "the special string \"disabled\", then there will be no keybinding for "
+#~ "this action."
 #~ msgstr ""
 #~ "a ტერმინალი&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და ან "
 #~ "და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2171,11 +2275,11 @@ msgstr "%s (%s-ზე)"
 #~ "This keybinding changes whether a window is above or below other windows. "
 #~ "If the window is covered by another one, it raises the window above all "
 #~ "others, and if the window is already fully visible, it lowers it below "
-#~ "all others. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "all others. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა  არის ან სხვა ფანჯარა  არის ფანჯარა ფანჯარა სხვა ფანჯარა  არის "
 #~ "ხილული ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  "
@@ -2198,11 +2302,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window against the north (top) side of the "
-#~ "screen. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;"
-#~ "Alt&gt;F1\". The parser is fairly liberal and allows lower or upper case, "
-#~ "and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If "
-#~ "you set the option to the special string \"disabled\", then there will be "
-#~ "no keybinding for this action."
+#~ "screen. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2211,11 +2315,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the east (right) side of the screen. "
-#~ "The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;"
-#~ "F1\". The parser is fairly liberal and allows lower or upper case, and "
-#~ "also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you "
-#~ "set the option to the special string \"disabled\", then there will be no "
-#~ "keybinding for this action."
+#~ "The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2224,11 +2328,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the north-east (top right) corner of "
-#~ "the screen. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "the screen. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2237,11 +2341,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the north-west (top left) corner of "
-#~ "the screen. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;"
-#~ "&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower or upper "
-#~ "case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;"
-#~ "\". If you set the option to the special string \"disabled\", then there "
-#~ "will be no keybinding for this action."
+#~ "the screen. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2250,11 +2354,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the south (bottom) side of the "
-#~ "screen. The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;"
-#~ "Alt&gt;F1\". The parser is fairly liberal and allows lower or upper case, "
-#~ "and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If "
-#~ "you set the option to the special string \"disabled\", then there will be "
-#~ "no keybinding for this action."
+#~ "screen. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2263,11 +2367,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the south-east (bottom right) corner "
-#~ "of the screen. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "of the screen. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2276,11 +2380,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the south-west (bottom left) corner "
-#~ "of the screen. The format looks like \"&lt;Control&gt;a\" or \"&lt;"
-#~ "Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows lower "
-#~ "or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;"
-#~ "Ctrl&gt;\". If you set the option to the special string \"disabled\", "
-#~ "then there will be no keybinding for this action."
+#~ "of the screen. The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2289,11 +2393,11 @@ msgstr "%s (%s-ზე)"
 #, fuzzy
 #~ msgid ""
 #~ "This keybinding moves a window into the west (left) side of the screen. "
-#~ "The format looks like \"&lt;Control&gt;a\" or \"&lt;Shift&gt;&lt;Alt&gt;"
-#~ "F1\". The parser is fairly liberal and allows lower or upper case, and "
-#~ "also abbreviations such as \"&lt;Ctl&gt;\" and \"&lt;Ctrl&gt;\". If you "
-#~ "set the option to the special string \"disabled\", then there will be no "
-#~ "keybinding for this action."
+#~ "The format looks like \"&lt;Control&gt;a\" or "
+#~ "\"&lt;Shift&gt;&lt;Alt&gt;F1\". The parser is fairly liberal and allows "
+#~ "lower or upper case, and also abbreviations such as \"&lt;Ctl&gt;\" and "
+#~ "\"&lt;Ctrl&gt;\". If you set the option to the special string "
+#~ "\"disabled\", then there will be no keybinding for this action."
 #~ msgstr ""
 #~ "a ფანჯარა სხვა&lt; Control&gt; a ან&lt; Shift&gt;&lt; Alt&gt; F1  არის და "
 #~ "ან და&lt;&gt; და&lt; Ctrl&gt; მინიჭება -სკენ სტრიქონი გამორთული არა "
@@ -2566,8 +2670,8 @@ msgstr "%s (%s-ზე)"
 
 #, fuzzy, c-format
 #~ msgid ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
-#~ "large,x-large,xx-large)\n"
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-"
+#~ "small,small,medium,large,x-large,xx-large)\n"
 #~ msgstr "არასწორი სათაური წმ ის პატარა x პატარა პატარა x n"
 
 #, fuzzy, c-format
@@ -3110,8 +3214,8 @@ msgstr "%s (%s-ზე)"
 
 #, fuzzy, c-format
 #~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:"
-#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ "GTK color specification must have the state in brackets, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 #~ msgstr "დუ e g  არის არა წმ"
 
 #, fuzzy, c-format
