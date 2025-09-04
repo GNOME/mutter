@@ -316,46 +316,51 @@ meta_test_client_do_line (MetaTestClient  *client,
 }
 
 gboolean
-meta_test_client_dov (MetaTestClient  *client,
-                      GError         **error,
-                      va_list          vap)
+meta_test_client_do_strv (MetaTestClient  *client,
+                          const char     **args,
+                          GError         **error)
 {
-  GString *command = g_string_new (NULL);
-  GError *local_error = NULL;
+  g_autoptr (GString) command = NULL;
+  const char **arg;
 
-  while (TRUE)
+  command = g_string_new (NULL);
+  for (arg = &args[0]; *arg; arg++)
     {
-      char *word = va_arg (vap, char *);
-      char *quoted;
-
-      if (word == NULL)
-        break;
+      g_autofree char *quoted = NULL;
 
       if (command->len > 0)
         g_string_append_c (command, ' ');
 
-      quoted = g_shell_quote (word);
+      quoted = g_shell_quote (*arg);
       g_string_append (command, quoted);
-      g_free (quoted);
     }
 
   g_string_append_c (command, '\n');
 
-  if (!meta_test_client_do_line (client, command->str, &local_error))
-    goto out;
+  return meta_test_client_do_line (client, command->str, error);
+}
 
- out:
-  g_string_free (command, TRUE);
+gboolean
+meta_test_client_dov (MetaTestClient  *client,
+                      GError         **error,
+                      va_list          vap)
+{
+  g_autoptr (GStrvBuilder) args_builder = NULL;
+  g_auto (GStrv) args = NULL;
 
-  if (local_error)
+  args_builder = g_strv_builder_new ();
+  while (TRUE)
     {
-      g_propagate_error (error, local_error);
-      return FALSE;
+      char *word = va_arg (vap, char *);
+
+      if (!word)
+        break;
+
+      g_strv_builder_add (args_builder, word);
     }
-  else
-    {
-      return TRUE;
-    }
+
+  args = g_strv_builder_end (args_builder);
+  return meta_test_client_do_strv (client, (const char **) args, error);
 }
 
 gboolean
