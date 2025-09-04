@@ -181,6 +181,7 @@ mdk_ei_finalize (GObject *object)
 {
   MdkEi *ei = MDK_EI (object);
 
+  g_clear_pointer (&ei->source, g_source_destroy);
   g_clear_pointer (&ei->seats, g_hash_table_unref);
   g_clear_pointer (&ei->ei, ei_unref);
 
