@@ -466,7 +466,7 @@ is_button_event (GdkEvent *event)
     }
 }
 
-static void
+static gboolean
 on_event (GtkEventControllerLegacy *controller,
           GdkEvent                 *event,
           MdkMonitor               *monitor)
@@ -474,7 +474,7 @@ on_event (GtkEventControllerLegacy *controller,
   if (is_touch_event (event))
     {
       if (monitor->emulated_touch_down)
-        return;
+        return GDK_EVENT_PROPAGATE;
       else
         handle_touch_event (monitor, event);
     }
@@ -482,6 +482,8 @@ on_event (GtkEventControllerLegacy *controller,
     {
       handle_button_event (monitor, event);
     }
+
+  return GDK_EVENT_PROPAGATE;
 }
 
 static void
