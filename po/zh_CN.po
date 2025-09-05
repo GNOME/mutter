@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-02-28 08:23+0800\n"
+"POT-Creation-Date: 2025-09-04 17:31+0000\n"
+"PO-Revision-Date: 2025-09-05 11:10+0800\n"
 "Last-Translator: lumingzh <lumingzh@qq.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -31,7 +31,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 47.1\n"
+"X-Generator: Gtranslator 48.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -600,26 +600,118 @@ msgstr ""
 "+byteswappedclients/-bytewappedclients 来控制该设置，则该选项没有效果。"
 "Xwayland 需要重新启动以使该设置生效。"
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "应用程序"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "可执行"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "添加启动器"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "启动器"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "类型"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "添加"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "运行"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "删除"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "动作"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "编辑启动器"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "启动器"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "输入(_I)"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "模拟触控(_E)"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "抑制系统快捷键(_I)"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "启动器(_L)"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "编辑启动器(_E)"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "关于 Mutter 开发工具集(_A)"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Mutter 开发工具集"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "主菜单"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Mutter 团队"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Mutter 软件开发工具集"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "关于 Mutter 开发工具集"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "创建监视器失败"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "内置显示器"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "未知"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "未知的显示器"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -627,69 +719,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "隐私屏幕已启用"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "隐私屏幕已禁用"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "要使用的 X 显示"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "禁止连接到会话管理器"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "指定会话管理 ID"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "从保存文件中初始化会话"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 合成器运行"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "以嵌套合成器运行"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "运行 wayland 合成器但不启动 Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "指定要使用的 Wayland 显示的名称"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "以无外设显示服务器运行"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "添加持久性虚拟显示器（WxH 或 WxH@R）"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "运行开发工具集"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -706,7 +790,7 @@ msgstr "启用调试控制 D-Bus 接口"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切换（组别 %d）"
@@ -714,7 +798,7 @@ msgstr "模式切换（组别 %d）"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "模式切换"
@@ -722,11 +806,11 @@ msgstr "模式切换"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "切换显示器"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "显示在屏帮助"
 
@@ -748,7 +832,7 @@ msgstr "要使用的 Mutter 插件"
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter 编译的时候没有加入详细模式的支持"
 
@@ -756,12 +840,12 @@ msgstr "Mutter 编译的时候没有加入详细模式的支持"
 msgid "Workspace switched"
 msgstr "工作区已切换"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -769,19 +853,19 @@ msgid ""
 msgstr ""
 "显示“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理器。"
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "无法打开 X 窗口系统显示“%s”"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -792,10 +876,19 @@ msgstr "显示“%2$s”的屏幕 %1$i 上已有另外一个合成管理器正�
 msgid "Format %s not supported"
 msgstr "不支持 %s 格式"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "禁止连接到会话管理器"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "指定会话管理 ID"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "从保存文件中初始化会话"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "移动到上层工作区"
@@ -1874,9 +1967,6 @@ msgstr "%s（于 %s）"
 #~ msgid "Close Window"
 #~ msgstr "关闭窗口"
 
-#~ msgid "Window Menu"
-#~ msgstr "窗口菜单"
-
 #~ msgid "Minimize Window"
 #~ msgstr "最小化窗口"
 
@@ -1910,9 +2000,6 @@ msgstr "%s（于 %s）"
 
 #~ msgid "Internal argument for GObject introspection"
 #~ msgstr "GObject 内省用的内部变量"
-
-#~ msgid "Failed to restart: %s\n"
-#~ msgstr "无法重启动：%s\n"
 
 #~ msgid "Error setting clutter plugin list: %s\n"
 #~ msgstr "设置clutter插件列表时出错：%s\n"
