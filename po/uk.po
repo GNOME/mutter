@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-02-27 17:05+0200\n"
+"POT-Creation-Date: 2025-09-05 12:34+0000\n"
+"PO-Revision-Date: 2025-09-05 22:39+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -308,12 +308,12 @@ msgstr "Робочі простори організовуються динам�
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Визначає, чи робочі простори керуються динамічно, чи є певна статична "
-"кількість просторів (визначено ключем num-workspaces у org.gnome.desktop.wm."
-"preferences)."
+"кількість просторів (визначено ключем num-workspaces у "
+"org.gnome.desktop.wm.preferences)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -457,11 +457,11 @@ msgid ""
 "associated floating point value representing the output luminance in percent "
 "(%). The default when not specified is 100%."
 msgstr ""
-"Окремі параметри для виведення та кольорового режиму освітлення. Кожен запис"
-" складається з кортежу записів з'єднувача, виробника, продукту, серійного"
-" номера та режиму кольорів, а також пов'язаного значення з рухомою крапкою,"
-" що відповідає освітленості результату у відсотках (%). Типовим значенням,"
-" якщо не задано, є 100%."
+"Окремі параметри для виведення та кольорового режиму освітлення. Кожен запис "
+"складається з кортежу записів з'єднувача, виробника, продукту, серійного "
+"номера та режиму кольорів, а також пов'язаного значення з рухомою крапкою, "
+"що відповідає освітленості результату у відсотках (%). Типовим значенням, "
+"якщо не задано, є 100%."
 
 #: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
@@ -632,26 +632,119 @@ msgstr ""
 "byteswappedclients для керування відповідною обробкою. Щоб значення цього "
 "параметра набуло чинності, Xwayland слід перезапустити."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+#| msgid "Switch applications"
+msgid "Application"
+msgstr "Програма"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Виконуваний файл"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Додати засіб запуску"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Засіб запуску"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Тип"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Додати"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Запустити"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Вилучити"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Дія"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Редагувати засоби запуску"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Засоби запуску"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "В_хід"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_Імітувати торкання"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "З_аборонити загальносистемні скорочення"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "Зас_оби запуску"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Редагувати засоби запуску"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "_Про «Інструменти для розробників Mutter»"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Інструменти для розробників Mutter"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "Головне меню"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Команда Mutter"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Набір для розробки програмного забезпечення Mutter"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "Про «Інструменти для розробників Mutter»"
+
+#: mdk/mdk-monitor.c:674
+msgid "Failed to create monitor"
+msgstr "Не вдалося створити монітор"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Вбудований екран"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Невідомо"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Невідомий екран"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -659,69 +752,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Подія гудка"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Конфіденційний екран увімкнено"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Конфіденційний екран вимкнено"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Замінити запущений віконний менеджер"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Дисплей X"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Вимкнути з'єднання з менеджером сеансу"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Вказати ідентифікатор сеансу"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Розпочати сеанс зі збереженого файла"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Зробити виклики X синхронними"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Запустити як вкладений композитор"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запустити композитор wayland без запуску Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Вказати назву дисплея Wayland, якою слід скористатися"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Запустити як повноцінний сервер, а не вкладений"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Запустити у форматі сервера без дисплея"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Додати сталий віртуальний монітор (ШxВ або ШxВ@Ч)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Запустити інструменти для розробників"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -738,7 +823,7 @@ msgstr "Увімкнути інтерфейс D-Bus керування діаг�
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Перемкнути режим (група %d)"
@@ -746,7 +831,7 @@ msgstr "Перемкнути режим (група %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Перемикач режимів"
@@ -754,11 +839,11 @@ msgstr "Перемикач режимів"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Перемкнути монітор"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Показати довідку на екрані"
 
@@ -780,7 +865,7 @@ msgstr "Додатки Clutter для використання"
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter зібрано без підтримки докладного режиму"
 
@@ -788,12 +873,12 @@ msgstr "Mutter зібрано без підтримки докладного р�
 msgid "Workspace switched"
 msgstr "Перемикання робочого простору"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Перемикання режимів: режим %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -802,19 +887,19 @@ msgstr ""
 "Екран «%s» вже має менеджера вікон; спробуйте вказати параметр --replace, "
 "щоб замінити поточний менеджер вікон."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не вдалося відкрити дисплей віконної системи X «%s»"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Екран %d на дисплеї «%s» є некоректним"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -826,10 +911,19 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Підтримки формату %s не передбачено"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "Вимкнути з'єднання з менеджером сеансу"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "Вказати ідентифікатор сеансу"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "Розпочати сеанс зі збереженого файла"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "Перейти до робочого простору вище"
