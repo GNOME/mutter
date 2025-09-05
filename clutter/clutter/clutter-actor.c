@@ -9544,7 +9544,12 @@ clutter_actor_get_fixed_position (ClutterActor *self,
  * @self: A #ClutterActor
  * @rect: (out): return location for the transformed bounding rect
  *
- * Gets the transformed bounding rect of an actor, in pixels relative to the stage.
+ * Gets the transformed bounding rect of an actor, in pixels relative to the
+ * stage. Using this outside of paint() may result in outdated results.
+ *
+ * The result can only be assumed valid inside a paint() method, or an
+ * allocate() function of an actor that explicitly gets allocated after @self;
+ * anywhere else, it may be out-of-date.
  */
 void
 clutter_actor_get_transformed_extents (ClutterActor    *self,
