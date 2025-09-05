@@ -21,6 +21,7 @@
 
 #include <gdk/wayland/gdkwayland.h>
 #include <gio/gio.h>
+#include <gio/gunixoutputstream.h>
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 #include <libei.h>
@@ -90,6 +91,10 @@ struct _MdkSession
 
   struct xkb_keymap *xkb_keymap;
   int layout_index;
+
+  gulong clipboard_changed_handler_id;
+
+  GCancellable *cancellable;
 };
 
 static void
@@ -357,6 +362,248 @@ init_session (MdkSession    *session,
   return TRUE;
 }
 
+static void
+on_selection_owner_changed (MdkDBusRemoteDesktopSession *session_proxy,
+                            GVariant                    *options_variant,
+                            MdkSession                  *session)
+{
+  gboolean session_is_owner = TRUE;
+
+  g_variant_lookup (options_variant, "session-is-owner",
+                    "b", &session_is_owner);
+
+  if (session_is_owner)
+    {
+      g_debug ("Selection owner changed to devkit");
+      return;
+    }
+
+  g_debug ("Selection owner changed compositor");
+}
+
+typedef struct _ClipboardWriteTransfer
+{
+  grefcount ref_count;
+  MdkSession *session;
+  GInputStream *input_stream;
+  GOutputStream *output_stream;
+  uint32_t serial;
+} ClipboardWriteTransfer;
+
+static ClipboardWriteTransfer *
+clipboard_write_transfer_ref (ClipboardWriteTransfer *transfer)
+{
+  g_ref_count_inc (&transfer->ref_count);
+  return transfer;
+}
+
+static void
+clipboard_write_transfer_unref (ClipboardWriteTransfer *transfer)
+{
+  if (g_ref_count_dec (&transfer->ref_count))
+    {
+      g_clear_object (&transfer->input_stream);
+      g_clear_object (&transfer->output_stream);
+      g_free (transfer);
+    }
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClipboardWriteTransfer,
+                               clipboard_write_transfer_unref)
+
+static void
+write_splice_cb (GObject      *source_object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
+{
+  GOutputStream *output_stream = G_OUTPUT_STREAM (source_object);
+  g_autoptr (ClipboardWriteTransfer) transfer = user_data;
+  MdkSession *session = transfer->session;
+  g_autoptr (GError) error = NULL;
+
+  g_output_stream_splice_finish (output_stream, result, &error);
+  if (error)
+    {
+      mdk_dbus_remote_desktop_session_call_selection_write_done (
+        session->remote_desktop_session_proxy,
+        transfer->serial, FALSE,
+        NULL, NULL, NULL);
+    }
+  else
+    {
+      mdk_dbus_remote_desktop_session_call_selection_write_done (
+        session->remote_desktop_session_proxy,
+        transfer->serial, TRUE,
+        NULL, NULL, NULL);
+    }
+}
+
+static void
+selection_write_cb (GObject      *source_object,
+                    GAsyncResult *result,
+                    gpointer      user_data)
+{
+  g_autoptr (ClipboardWriteTransfer) transfer = user_data;
+  MdkSession *session = transfer->session;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  int fd_idx = -1;
+  g_autofd int fd = -1;
+
+  if (!mdk_dbus_remote_desktop_session_call_selection_write_finish (
+        session->remote_desktop_session_proxy,
+        &fd_variant,
+        &fd_list,
+        result,
+        &error))
+    {
+      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        return;
+
+      g_warning ("Failed to begin write: %s", error->message);
+      goto err;
+    }
+
+  g_variant_get (fd_variant, "h", &fd_idx);
+  if (fd_idx < g_unix_fd_list_get_length (fd_list))
+    {
+      fd = g_unix_fd_list_get (fd_list, fd_idx, &error);
+      if (fd < 0)
+        {
+          g_warning ("Failed to get fd: %s", error->message);
+          goto err;
+        }
+    }
+  else
+    {
+      g_warning ("Bad file descriptor index");
+      goto err;
+    }
+
+  transfer->output_stream = g_unix_output_stream_new (g_steal_fd (&fd), TRUE);
+
+  g_output_stream_splice_async (transfer->output_stream,
+                                transfer->input_stream,
+                                (G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+                                 G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET),
+                                G_PRIORITY_DEFAULT,
+                                session->cancellable,
+                                write_splice_cb,
+                                clipboard_write_transfer_ref (transfer));
+
+err:
+  mdk_dbus_remote_desktop_session_call_selection_write_done (
+    session->remote_desktop_session_proxy,
+    transfer->serial, FALSE,
+    NULL, NULL, NULL);
+}
+
+static void
+clipboard_read_cb (GObject      *source_object,
+                   GAsyncResult *result,
+                   gpointer      user_data)
+{
+  g_autoptr (ClipboardWriteTransfer) transfer = user_data;
+  MdkSession *session = transfer->session;
+  GdkClipboard *clipboard = GDK_CLIPBOARD (source_object);
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GInputStream) input_stream = NULL;
+
+  input_stream = gdk_clipboard_read_finish (clipboard, result, NULL, &error);
+  if (!input_stream)
+    {
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
+        {
+          g_warning ("Failed to read GDK clipboard: %s", error->message);
+          return;
+        }
+
+      mdk_dbus_remote_desktop_session_call_selection_write_done (
+        session->remote_desktop_session_proxy,
+        transfer->serial, FALSE,
+        NULL, NULL, NULL);
+      return;
+    }
+
+  transfer->input_stream = g_steal_pointer (&input_stream);
+
+  mdk_dbus_remote_desktop_session_call_selection_write (
+    session->remote_desktop_session_proxy,
+    transfer->serial,
+    NULL,
+    session->cancellable,
+    selection_write_cb,
+    clipboard_write_transfer_ref (transfer));
+}
+
+static void
+on_selection_transfer (MdkDBusRemoteDesktopSession *session_proxy,
+                       char                        *mime_type_string,
+                       unsigned int                 serial,
+                       MdkSession                  *session)
+{
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkClipboard *clipboard = gdk_display_get_clipboard (display);
+  const char *mime_types[] = {
+    mime_type_string,
+    NULL,
+  };
+  g_autoptr (ClipboardWriteTransfer) transfer = NULL;
+
+  transfer = g_new0 (ClipboardWriteTransfer, 1);
+  g_ref_count_init (&transfer->ref_count);
+  transfer->serial = serial;
+  transfer->session = session;
+
+  gdk_clipboard_read_async (clipboard,
+                            mime_types,
+                            G_PRIORITY_DEFAULT,
+                            session->cancellable,
+                            clipboard_read_cb,
+                            clipboard_write_transfer_ref (transfer));
+}
+
+static GVariant *
+create_clipboard_options (void)
+{
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkClipboard *clipboard = gdk_display_get_clipboard (display);
+  GdkContentFormats *formats;
+  GVariantBuilder builder;
+  const char * const *mime_types;
+  size_t i;
+
+  formats = gdk_clipboard_get_formats (clipboard);
+  mime_types = gdk_content_formats_get_mime_types (formats, NULL);
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
+  if (mime_types && *mime_types[0])
+    {
+      g_variant_builder_open (&builder, G_VARIANT_TYPE ("{sv}"));
+      g_variant_builder_add (&builder, "s", "mime-types");
+      g_variant_builder_open (&builder, G_VARIANT_TYPE ("v"));
+      g_variant_builder_open (&builder, G_VARIANT_TYPE ("as"));
+      for (i = 0; mime_types && mime_types[i]; i++)
+        g_variant_builder_add (&builder, "s", mime_types[i]);
+      g_variant_builder_close (&builder);
+      g_variant_builder_close (&builder);
+      g_variant_builder_close (&builder);
+    }
+
+  return g_variant_builder_end (&builder);
+}
+
+static void
+on_clipboard_changed (GdkClipboard *clipboard,
+                      MdkSession   *session)
+{
+  mdk_dbus_remote_desktop_session_call_set_selection (
+    session->remote_desktop_session_proxy,
+    create_clipboard_options (),
+    NULL, NULL, NULL);
+}
+
 static gboolean
 mdk_session_initable_init (GInitable      *initable,
                            GCancellable   *cancellable,
@@ -366,6 +613,7 @@ mdk_session_initable_init (GInitable      *initable,
   GdkDisplay *display = gdk_display_get_default ();
   GdkSeat *seat = gdk_display_get_default_seat (display);
   GdkDevice *keyboard = gdk_seat_get_keyboard (seat);
+  GdkClipboard *clipboard = gdk_display_get_clipboard (display);
 
   g_debug ("Initializing session");
 
@@ -408,6 +656,29 @@ mdk_session_initable_init (GInitable      *initable,
                            G_CALLBACK (maybe_sync_keymap),
                            session,
                            G_CONNECT_SWAPPED);
+
+  session->cancellable = g_cancellable_new ();
+
+  session->clipboard_changed_handler_id =
+    g_signal_connect (clipboard, "changed",
+                      G_CALLBACK (on_clipboard_changed),
+                      session);
+
+  if (!mdk_dbus_remote_desktop_session_call_enable_clipboard_sync (
+        session->remote_desktop_session_proxy,
+        create_clipboard_options (),
+        cancellable,
+        error))
+    return FALSE;
+
+  g_signal_connect (session->remote_desktop_session_proxy,
+                    "selection-owner-changed",
+                    G_CALLBACK (on_selection_owner_changed),
+                    session);
+  g_signal_connect (session->remote_desktop_session_proxy,
+                    "selection-transfer",
+                    G_CALLBACK (on_selection_transfer),
+                    session);
 
   return TRUE;
 }
@@ -460,6 +731,13 @@ static void
 mdk_session_finalize (GObject *object)
 {
   MdkSession *session = MDK_SESSION (object);
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkClipboard *clipboard = gdk_display_get_clipboard (display);
+
+  g_cancellable_cancel (session->cancellable);
+  g_clear_object (&session->cancellable);
+
+  g_clear_signal_handler (&session->clipboard_changed_handler_id, clipboard);
 
   g_clear_object (&session->ei);
 
