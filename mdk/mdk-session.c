@@ -21,6 +21,7 @@
 
 #include <gdk/wayland/gdkwayland.h>
 #include <gio/gio.h>
+#include <gio/gunixinputstream.h>
 #include <gio/gunixoutputstream.h>
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
@@ -28,6 +29,7 @@
 #include <sys/mman.h>
 #include <xkbcommon/xkbcommon.h>
 
+#include "mdk-content-provider.h"
 #include "mdk-context.h"
 #include "mdk-ei.h"
 #include "mdk-keyboard.h"
@@ -100,9 +102,14 @@ struct _MdkSession
 static void
 initable_iface_init (GInitableIface *iface);
 
+static void
+content_writer_iface_init (MdkContentWriterInterface *iface);
+
 G_DEFINE_FINAL_TYPE_WITH_CODE (MdkSession, mdk_session, G_TYPE_OBJECT,
                                G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                      initable_iface_init))
+                                                      initable_iface_init)
+                               G_IMPLEMENT_INTERFACE (MDK_TYPE_CONTENT_WRITER,
+                                                      content_writer_iface_init))
 
 static void
 on_session_closed (MdkDBusRemoteDesktopSession *remote_desktop_session_proxy,
@@ -367,7 +374,13 @@ on_selection_owner_changed (MdkDBusRemoteDesktopSession *session_proxy,
                             GVariant                    *options_variant,
                             MdkSession                  *session)
 {
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkClipboard *clipboard = gdk_display_get_clipboard (display);
   gboolean session_is_owner = TRUE;
+  g_autoptr (GPtrArray) providers = NULL;
+  const char **mime_types;
+  size_t i;
+  g_autoptr (GdkContentProvider) union_provider = NULL;
 
   g_variant_lookup (options_variant, "session-is-owner",
                     "b", &session_is_owner);
@@ -379,6 +392,27 @@ on_selection_owner_changed (MdkDBusRemoteDesktopSession *session_proxy,
     }
 
   g_debug ("Selection owner changed compositor");
+
+  providers = g_ptr_array_new ();
+  if (!g_variant_lookup (options_variant, "mime-types",
+                         "(^a&s)", &mime_types))
+    {
+      g_debug ("No mime-types listed.");
+      return;
+    }
+
+  for (i = 0; mime_types[i]; i++)
+    {
+      MdkContentProvider *content;
+
+      content = mdk_content_provider_new (mime_types[i],
+                                          MDK_CONTENT_WRITER (session));
+      g_ptr_array_add (providers, content);
+    }
+  union_provider =
+    gdk_content_provider_new_union ((GdkContentProvider **) providers->pdata,
+                                    providers->len);
+  gdk_clipboard_set_content (clipboard, union_provider);
 }
 
 typedef struct _ClipboardWriteTransfer
@@ -598,6 +632,9 @@ static void
 on_clipboard_changed (GdkClipboard *clipboard,
                       MdkSession   *session)
 {
+  if (gdk_clipboard_is_local (clipboard))
+    return;
+
   mdk_dbus_remote_desktop_session_call_set_selection (
     session->remote_desktop_session_proxy,
     create_clipboard_options (),
@@ -687,6 +724,141 @@ static void
 initable_iface_init (GInitableIface *iface)
 {
   iface->init = mdk_session_initable_init;
+}
+
+typedef struct _ClipboardReadTransfer
+{
+  MdkSession *session;
+  GOutputStream *output_stream;
+  GInputStream *input_stream;
+  int io_priority;
+} ClipboardReadTransfer;
+
+static void
+clipboard_read_transfer_free (ClipboardReadTransfer *transfer)
+{
+  g_clear_object (&transfer->output_stream);
+  g_clear_object (&transfer->input_stream);
+  g_free (transfer);
+}
+
+static void
+read_splice_cb (GObject      *source_object,
+                GAsyncResult *result,
+                gpointer      user_data)
+{
+  GOutputStream *output_stream = G_OUTPUT_STREAM (source_object);
+  g_autoptr (GTask) task = G_TASK (user_data);
+  g_autoptr (GError) error = NULL;
+
+  g_output_stream_splice_finish (output_stream, result, &error);
+  if (error)
+    g_task_return_error (task, g_steal_pointer (&error));
+  else
+    g_task_return_boolean (task, TRUE);
+}
+
+static void
+write_clipboard_cb (GObject      *source_object,
+                    GAsyncResult *result,
+                    gpointer      user_data)
+{
+  MdkDBusRemoteDesktopSession *proxy =
+    MDK_DBUS_REMOTE_DESKTOP_SESSION (source_object);
+  g_autoptr (GTask) task = G_TASK (user_data);
+  ClipboardReadTransfer *transfer = g_task_get_task_data (task);
+  g_autoptr (GVariant) fd_variant = NULL;
+  g_autoptr (GUnixFDList) fd_list = NULL;
+  g_autoptr (GError) error = NULL;
+  int fd_idx = -1;
+  g_autofd int fd = -1;
+
+  if (!mdk_dbus_remote_desktop_session_call_selection_read_finish (
+        proxy,
+        &fd_variant,
+        &fd_list,
+        result,
+        &error))
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
+
+  g_variant_get (fd_variant, "h", &fd_idx);
+  if (fd_idx < g_unix_fd_list_get_length (fd_list))
+    {
+      fd = g_unix_fd_list_get (fd_list, fd_idx, &error);
+      if (fd < 0)
+        {
+          g_task_return_error (task, g_steal_pointer (&error));
+          return;
+        }
+    }
+  else
+    {
+      g_task_return_error (task,
+                           g_error_new_literal (G_IO_ERROR, G_IO_ERROR_FAILED,
+                                                "Bad file descriptor index"));
+      return;
+    }
+
+  transfer->input_stream = g_unix_input_stream_new (g_steal_fd (&fd), TRUE);
+
+  g_output_stream_splice_async (transfer->output_stream,
+                                transfer->input_stream,
+                                (G_OUTPUT_STREAM_SPLICE_CLOSE_SOURCE |
+                                 G_OUTPUT_STREAM_SPLICE_CLOSE_TARGET),
+                                transfer->io_priority,
+                                g_task_get_cancellable (task),
+                                read_splice_cb,
+                                g_object_ref (task));
+}
+
+static void
+mdk_session_write_clipboard_async (MdkContentWriter    *writer,
+                                   const char          *mime_type,
+                                   GOutputStream       *stream,
+                                   int                  io_priority,
+                                   GCancellable        *cancellable,
+                                   GAsyncReadyCallback  callback,
+                                   gpointer             user_data)
+{
+  MdkSession *session = MDK_SESSION (writer);
+  ClipboardReadTransfer *transfer;
+  GTask *task;
+
+  g_debug ("Retrieving '%s' clipboard from compositor", mime_type);
+  transfer = g_new0 (ClipboardReadTransfer, 1);
+  transfer->session = session;
+  transfer->io_priority = io_priority;
+  transfer->output_stream = g_object_ref (stream);
+
+  task = g_task_new (session, cancellable, callback, user_data);
+  g_task_set_task_data (task, transfer,
+                        (GDestroyNotify) clipboard_read_transfer_free);
+
+  mdk_dbus_remote_desktop_session_call_selection_read (
+    session->remote_desktop_session_proxy,
+    mime_type,
+    NULL,
+    cancellable,
+    write_clipboard_cb,
+    task);
+}
+
+static gboolean
+mdk_session_write_clipboard_finish (MdkContentWriter  *writer,
+                                    GAsyncResult      *result,
+                                    GError           **error)
+{
+  return g_task_propagate_boolean (G_TASK (result), error);
+}
+
+static void
+content_writer_iface_init (MdkContentWriterInterface *iface)
+{
+  iface->write_async = mdk_session_write_clipboard_async;
+  iface->write_finish = mdk_session_write_clipboard_finish;
 }
 
 static void
