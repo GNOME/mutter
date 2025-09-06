@@ -1027,9 +1027,23 @@ meta_eis_client_process_event (MetaEisClient    *client,
         MetaEisDevice *device = eis_device_get_user_data (eis_device);
 
         if (client->pointer_device == device)
-          client->pointer_device = NULL;
+          {
+            client->pointer_device = NULL;
+          }
         else if (client->keyboard_device == device)
-          client->keyboard_device = NULL;
+          {
+            MetaBackend *backend = meta_eis_get_backend (client->eis);
+            ClutterSeat *seat = meta_backend_get_default_seat (backend);
+            ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
+
+            client->keyboard_device = NULL;
+
+            g_clear_signal_handler (&client->keymap_changed_handler_id,
+                                    backend);
+            g_clear_signal_handler (&client->keymap_state_changed_handler_id,
+                                    keymap);
+          }
+
         remove_device (client, eis_device, TRUE);
 
         break;
