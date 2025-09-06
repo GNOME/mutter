@@ -1,0 +1,76 @@
+resize_monitor default 800 600
+add_monitor secondary 800 600
+num_workspaces 2
+set_pref center-new-windows true
+move_cursor_to 1000 100
+activate_workspace 0
+
+new_client w wayland
+new_client x x11
+
+#
+# This test checks that a window mapped as maximized on a primary monitor
+# placed to the right doesn't change position or size when changing workspace.
+#
+
+# Wayland
+create w/1 csd
+resize w/1 200 200
+maximize w/1
+show w/1
+wait
+assert_stacking_showing w/1
+assert_position w/1 800 0
+assert_size w/1 800 600
+
+activate_workspace 1
+wait
+assert_stacking_showing
+wait_reconfigure w/1
+assert_position w/1 800 0
+assert_size w/1 800 600
+
+activate_workspace 0
+wait
+assert_stacking_showing w/1
+wait_reconfigure w/1
+assert_position w/1 800 0
+assert_size w/1 800 600
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 1100 200
+assert_size w/1 200 200
+
+destroy w/1
+
+# X11
+create x/1 csd
+resize x/1 200 200
+maximize x/1
+show x/1
+wait
+assert_stacking_showing x/1
+assert_position x/1 800 0
+assert_size x/1 800 600
+
+activate_workspace 1
+wait
+assert_stacking_showing
+wait_reconfigure x/1
+assert_position x/1 800 0
+assert_size x/1 800 600
+
+activate_workspace 0
+wait
+assert_stacking_showing x/1
+wait_reconfigure x/1
+assert_position x/1 800 0
+assert_size x/1 800 600
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 1100 200
+assert_size x/1 200 200
+
+destroy x/1

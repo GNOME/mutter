@@ -1135,6 +1135,7 @@ stacking_tests = [
   'map-on-hotplug',
   'workspace-basic',
   'workspace-test',
+  'workspace-maximized',
   'always-on-top',
   'always-on-top-map-new-maximized',
   'always-on-top-map-new-partial',
