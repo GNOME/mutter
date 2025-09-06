@@ -1,4 +1,6 @@
 mdk_sources = [
+  'mdk-content-provider.c',
+  'mdk-content-provider.h',
   'mdk-context.c',
   'mdk-context.h',
   'mdk-device.c',
