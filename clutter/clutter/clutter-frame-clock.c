@@ -1193,17 +1193,17 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
                                      CLUTTER_FRAME_CLOCK_STATE_SCHEDULED);
       return;
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
       clutter_frame_clock_set_state (frame_clock,
                                      CLUTTER_FRAME_CLOCK_STATE_SCHEDULED);
       break;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_NOW:
-    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED_LATER:
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
-    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
       return;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE:
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
       if (want_triple_buffering (frame_clock))
         {
           clutter_frame_clock_set_state (frame_clock,
