@@ -4807,7 +4807,9 @@ meta_window_x11_configure (MetaWindow *window)
   g_autoptr (MetaWindowConfig) window_config = NULL;
   MtkRectangle new_rect;
 
-  window_config = meta_window_config_new_from (window, window->config);
+  window_config = meta_window_config_new_from (window->config);
+  if (window->showing_for_first_time)
+    meta_window_config_set_initial (window_config);
   meta_window_emit_configure (window, window_config);
 
   new_rect = meta_window_config_get_rect (window_config);

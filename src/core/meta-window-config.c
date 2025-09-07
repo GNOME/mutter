@@ -332,16 +332,12 @@ meta_window_config_initial_new (void)
 }
 
 MetaWindowConfig *
-meta_window_config_new_from (MetaWindow       *window,
-                             MetaWindowConfig *other_config)
+meta_window_config_new_from (MetaWindowConfig *other_config)
 {
   MetaWindowConfig *config;
 
-  if (window->showing_for_first_time)
-    config = meta_window_config_initial_new ();
-  else
-    config = meta_window_config_new ();
-
+  config = meta_window_config_new ();
+  config->is_initial = other_config->is_initial;
   config->rect = meta_window_config_get_rect (other_config);
   config->is_fullscreen = other_config->is_fullscreen;
   config->maximized_horizontally = other_config->maximized_horizontally;
@@ -352,4 +348,10 @@ meta_window_config_new_from (MetaWindow       *window,
   config->tile_match = other_config->tile_match;
 
   return config;
+}
+
+void
+meta_window_config_set_initial (MetaWindowConfig *config)
+{
+  config->is_initial = TRUE;
 }

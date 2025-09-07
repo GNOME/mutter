@@ -31,8 +31,9 @@ typedef enum
 
 MetaWindowConfig * meta_window_config_initial_new (void);
 
-MetaWindowConfig * meta_window_config_new_from (MetaWindow       *window,
-                                                MetaWindowConfig *other_config);
+MetaWindowConfig * meta_window_config_new_from (MetaWindowConfig *other_config);
+
+void meta_window_config_set_initial (MetaWindowConfig *config);
 
 gboolean meta_window_config_is_maximized (MetaWindowConfig *config);
 
