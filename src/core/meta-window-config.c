@@ -406,3 +406,19 @@ meta_window_config_set_initial (MetaWindowConfig *config)
 
   config->is_initial = TRUE;
 }
+
+gboolean
+meta_window_config_is_equivalent (MetaWindowConfig *config,
+                                  MetaWindowConfig *other_config)
+{
+  g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), FALSE);
+  g_return_val_if_fail (META_IS_WINDOW_CONFIG (other_config), FALSE);
+
+  return (mtk_rectangle_equal (&config->rect, &other_config->rect) &&
+          config->is_fullscreen == other_config->is_fullscreen &&
+          config->maximized_horizontally == other_config->maximized_horizontally &&
+          config->maximized_vertically == other_config->maximized_vertically &&
+          config->tile_mode == other_config->tile_mode &&
+          config->tile_monitor_number == other_config->tile_monitor_number &&
+          config->tile_hfraction == other_config->tile_hfraction);
+}
