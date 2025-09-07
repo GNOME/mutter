@@ -52,8 +52,7 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
     .gravity = gravity,
     .flags = flags,
 
-    .is_fullscreen = meta_window_is_fullscreen (window),
-    .is_floating = meta_window_config_is_floating (window->config),
+    .config = meta_window_config_new_from (window->config),
     .is_suspended = meta_window_is_suspended (window),
   };
 
@@ -61,7 +60,7 @@ meta_wayland_window_configuration_new (MetaWindow          *window,
   if (flags & META_MOVE_RESIZE_MOVE_ACTION ||
       x != rect.x ||
       y != rect.y ||
-      !configuration->is_floating)
+      !meta_window_config_is_floating (configuration->config))
     {
       configuration->has_position = TRUE;
       configuration->x = rect.x;
@@ -153,8 +152,7 @@ meta_wayland_window_configuration_new_from_other (MetaWaylandWindowConfiguration
     .flags = other->flags,
     .bounds_width = other->bounds_width,
     .bounds_height = other->bounds_height,
-    .is_fullscreen = other->is_fullscreen,
-    .is_floating = other->is_floating,
+    .config = meta_window_config_new_from (other->config),
     .is_suspended = other->is_suspended,
   };
 
@@ -173,6 +171,7 @@ meta_wayland_window_configuration_unref (MetaWaylandWindowConfiguration *configu
 {
   if (g_ref_count_dec (&configuration->ref_count))
     {
+      g_clear_object (&configuration->config);
       g_clear_object (&configuration->window_drag);
       g_free (configuration);
     }
@@ -202,7 +201,7 @@ meta_wayland_window_configuration_is_equivalent (MetaWaylandWindowConfiguration 
           configuration->flags == other->flags &&
           configuration->bounds_width == other->bounds_width &&
           configuration->bounds_height == other->bounds_height &&
-          configuration->is_fullscreen == other->is_fullscreen &&
-          configuration->is_floating == other->is_floating &&
-          configuration->is_suspended == other->is_suspended);
+          configuration->is_suspended == other->is_suspended &&
+          meta_window_config_is_equivalent (configuration->config,
+                                            other->config));
 }

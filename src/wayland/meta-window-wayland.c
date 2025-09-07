@@ -260,7 +260,9 @@ surface_state_changed (MetaWindow *window)
     last_acked_configuration &&
     last_acked_configuration->serial == last_sent_configuration->serial;
 
-  if (is_configuration_up_to_date && last_sent_configuration->is_floating)
+  if (is_configuration_up_to_date &&
+      last_sent_configuration->config &&
+      meta_window_config_is_floating (last_sent_configuration->config))
     {
       configuration->has_position = FALSE;
       configuration->x = 0;
@@ -276,7 +278,9 @@ surface_state_changed (MetaWindow *window)
                                               &configuration->width,
                                               &configuration->height);
     }
-  else if (is_configuration_up_to_date && last_sent_configuration->is_floating)
+  else if (is_configuration_up_to_date &&
+           last_sent_configuration->config &&
+           meta_window_config_is_floating (last_sent_configuration->config))
     {
       MtkRectangle frame_rect = meta_window_config_get_rect (window->config);
 
@@ -403,6 +407,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
   int new_y;
   int new_buffer_x;
   int new_buffer_y;
+  MetaWaylandWindowConfiguration *last_acked_configuration;
 
   /* don't do anything if we're dropping the window, see #751847 */
   if (window->unmanaging)
@@ -442,7 +447,9 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
       int new_width, new_height;
 
       configuration = wl_window->last_acked_configuration;
-      if (configuration && configuration->is_fullscreen)
+      if (configuration &&
+          configuration->config &&
+          meta_window_config_get_is_fullscreen (configuration->config))
         {
           new_width = constrained_rect.width;
           new_height = constrained_rect.height;
@@ -635,8 +642,10 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
       flags & META_MOVE_RESIZE_WAYLAND_STATE_CHANGED)
     *result |= META_MOVE_RESIZE_RESULT_STATE_CHANGED;
 
-  if ((wl_window->last_acked_configuration &&
-       wl_window->last_acked_configuration->is_floating) ||
+  last_acked_configuration = wl_window->last_acked_configuration;
+  if ((last_acked_configuration &&
+       last_acked_configuration->config &&
+       meta_window_config_is_floating (last_acked_configuration->config)) ||
       (can_move_now &&
        !(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE)))
     *result |= META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED;
@@ -1523,7 +1532,8 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
   if (acked_configuration &&
       acked_configuration->has_size &&
-      acked_configuration->is_fullscreen &&
+      acked_configuration->config &&
+      meta_window_config_get_is_fullscreen (acked_configuration->config) &&
       (new_geom.width > acked_configuration->width ||
        new_geom.height > acked_configuration->height))
     {
@@ -1566,7 +1576,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
             }
           else
             {
-              if (!acked_configuration->is_floating)
+              if (!meta_window_config_is_floating (acked_configuration->config))
                 {
                   flags |= META_MOVE_RESIZE_CONSTRAIN;
                 }
@@ -1837,8 +1847,18 @@ meta_window_wayland_get_max_size (MetaWindow *window,
 gboolean
 meta_window_wayland_is_acked_fullscreen (MetaWindowWayland *wl_window)
 {
-  return (wl_window->last_acked_configuration &&
-          wl_window->last_acked_configuration->is_fullscreen);
+  MetaWaylandWindowConfiguration *last_acked_configuration =
+    wl_window->last_acked_configuration;
+  MetaWindowConfig *config;
+
+  if (!last_acked_configuration)
+    return FALSE;
+
+  config = last_acked_configuration->config;
+  if (!config)
+    return FALSE;
+
+  return meta_window_config_get_is_fullscreen (config);
 }
 
 gboolean
