@@ -422,3 +422,11 @@ meta_window_config_is_equivalent (MetaWindowConfig *config,
           config->tile_monitor_number == other_config->tile_monitor_number &&
           config->tile_hfraction == other_config->tile_hfraction);
 }
+
+gboolean
+meta_window_config_is_tiled_side_by_side (MetaWindowConfig *config)
+{
+  return (meta_window_config_is_maximized_vertically (config) &&
+          !meta_window_config_is_maximized_horizontally (config) &&
+          meta_window_config_get_tile_mode (config) != META_TILE_NONE);
+}

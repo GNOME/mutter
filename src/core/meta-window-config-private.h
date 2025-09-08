@@ -73,3 +73,5 @@ gboolean meta_window_config_has_position (MetaWindowConfig *config);
 
 gboolean meta_window_config_is_equivalent (MetaWindowConfig *config,
                                            MetaWindowConfig *other_config);
+
+gboolean meta_window_config_is_tiled_side_by_side (MetaWindowConfig *config);

@@ -3236,11 +3236,7 @@ update_edge_constraints (MetaWindow *window)
 gboolean
 meta_window_is_tiled_side_by_side (MetaWindow *window)
 {
-  MetaWindowConfig *config = window->config;
-
-  return (meta_window_config_is_maximized_vertically (config) &&
-          !meta_window_config_is_maximized_horizontally (config) &&
-          meta_window_config_get_tile_mode (config) != META_TILE_NONE);
+  return meta_window_config_is_tiled_side_by_side (window->config);
 }
 
 gboolean
