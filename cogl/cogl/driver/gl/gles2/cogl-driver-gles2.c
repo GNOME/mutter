@@ -520,6 +520,20 @@ cogl_driver_gles2_texture_size_supported (CoglDriverGL *driver,
   return width <= max_size && height <= max_size;
 }
 
+static void
+cogl_driver_gles2_query_max_texture_units (CoglDriverGL *driver,
+                                           GLint        *values,
+                                           int          *n_values)
+{
+  GE (driver, glGetIntegerv (GL_MAX_VERTEX_ATTRIBS, values + (*n_values)));
+  /* Two of the vertex attribs need to be used for the position
+     and color */
+  values[(*n_values)++] -= 2;
+
+  GE (driver, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+                             values + (*n_values)++));
+}
+
 static CoglPixelFormat
 cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
                                           CoglContext     *context,
@@ -1015,6 +1029,7 @@ cogl_driver_gles2_class_init (CoglDriverGLES2Class *klass)
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gles2_pixel_format_to_gl;
   driver_gl_klass->prep_gl_for_pixels_download = cogl_driver_gles2_prep_gl_for_pixels_download;
   driver_gl_klass->texture_size_supported = cogl_driver_gles2_texture_size_supported;
+  driver_gl_klass->query_max_texture_units = cogl_driver_gles2_query_max_texture_units;
 }
 
 static void
