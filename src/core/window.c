@@ -2802,25 +2802,7 @@ ensure_size_hints_satisfied (MtkRectangle        *rect,
 static void
 meta_window_save_rect (MetaWindow *window)
 {
-  if (!(meta_window_is_maximized (window) ||
-        meta_window_is_tiled_side_by_side (window) ||
-        meta_window_is_fullscreen (window)))
-    {
-      MtkRectangle frame_rect;
-
-      frame_rect = meta_window_config_get_rect (window->config);
-      /* save size/pos as appropriate args for move_resize */
-      if (!meta_window_config_is_maximized_horizontally (window->config))
-        {
-          window->saved_rect.x      = frame_rect.x;
-          window->saved_rect.width  = frame_rect.width;
-        }
-      if (!meta_window_config_is_maximized_vertically (window->config))
-        {
-          window->saved_rect.y      = frame_rect.y;
-          window->saved_rect.height = frame_rect.height;
-        }
-    }
+  META_WINDOW_GET_CLASS (window)->save_rect (window);
 }
 
 void

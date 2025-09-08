@@ -628,6 +628,8 @@ struct _MetaWindowClass
                              MtkRoundingStrategy  rounding_strategy);
 
   MetaGravity (* get_gravity) (MetaWindow *window);
+
+  void (* save_rect) (MetaWindow *window);
 };
 
 void        meta_window_unmanage           (MetaWindow  *window,

@@ -2019,6 +2019,28 @@ meta_window_x11_get_gravity (MetaWindow *window)
   return gravity;
 }
 
+static void
+meta_window_x11_save_rect (MetaWindow *window)
+{
+  MtkRectangle rect;
+
+  if (!meta_window_config_is_floating (window->config))
+    return;
+
+  rect = meta_window_config_get_rect (window->config);
+
+  if (!meta_window_config_is_maximized_horizontally (window->config))
+    {
+      window->saved_rect.x = rect.x;
+      window->saved_rect.width = rect.width;
+    }
+  if (!meta_window_config_is_maximized_vertically (window->config))
+    {
+      window->saved_rect.y = rect.y;
+      window->saved_rect.height = rect.height;
+    }
+}
+
 gboolean
 meta_window_x11_is_ssd (MetaWindow *window)
 {
@@ -2190,6 +2212,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->stage_to_protocol = meta_window_x11_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_x11_protocol_to_stage;
   window_class->get_gravity = meta_window_x11_get_gravity;
+  window_class->save_rect = meta_window_x11_save_rect;
 
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;

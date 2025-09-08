@@ -1049,6 +1049,87 @@ meta_window_wayland_get_gravity (MetaWindow *window)
   return META_WINDOW_CLASS (meta_window_wayland_parent_class)->get_gravity (window);
 }
 
+static gboolean
+maybe_save_rect (MetaWindow                     *window,
+                 MetaWindowConfig               *config,
+                 MetaWaylandWindowConfiguration *configuration)
+{
+  MtkRectangle frame_rect;
+
+  if (!meta_window_config_is_floating (config))
+    return FALSE;
+
+  frame_rect = meta_window_config_get_rect (config);
+  if (!meta_window_config_is_maximized_horizontally (config))
+    {
+      if (configuration)
+        {
+          if (configuration->has_position)
+            window->saved_rect.x = configuration->x;
+        }
+      else
+        {
+          window->saved_rect.x = frame_rect.x;
+        }
+      if (configuration)
+        {
+          if (configuration->has_position)
+            window->saved_rect.width = configuration->width;
+        }
+      else
+        {
+          window->saved_rect.width = frame_rect.width;
+        }
+    }
+  if (!meta_window_config_is_maximized_vertically (config))
+    {
+      if (configuration)
+        {
+          if (configuration->has_position)
+            window->saved_rect.y = configuration->y;
+        }
+      else
+        {
+          window->saved_rect.y = frame_rect.y;
+        }
+      if (configuration)
+        {
+          if (configuration->has_size)
+            window->saved_rect.height = configuration->height;
+        }
+      else
+        {
+          window->saved_rect.height = frame_rect.height;
+        }
+    }
+
+  return TRUE;
+}
+
+static void
+meta_window_wayland_save_rect (MetaWindow *window)
+{
+  MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  GList *l;
+
+  if (!meta_wayland_surface_get_buffer (wl_window->surface))
+    return;
+
+  for (l = wl_window->pending_configurations; l; l = l->next)
+    {
+      MetaWaylandWindowConfiguration *configuration = l->data;
+
+      if (maybe_save_rect (window, configuration->config, configuration))
+        return;
+    }
+
+  if (!wl_window->pending_configurations)
+    {
+      maybe_save_rect (window, window->config, NULL);
+      return;
+    }
+}
+
 static MetaStackLayer
 meta_window_wayland_calculate_layer (MetaWindow *window)
 {
@@ -1177,6 +1258,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->stage_to_protocol = meta_window_wayland_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_wayland_protocol_to_stage;
   window_class->get_gravity = meta_window_wayland_get_gravity;
+  window_class->save_rect = meta_window_wayland_save_rect;
 
   obj_props[PROP_SURFACE] =
     g_param_spec_object ("surface", NULL, NULL,
