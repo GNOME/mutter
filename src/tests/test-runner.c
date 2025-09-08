@@ -2222,8 +2222,7 @@ test_case_do (TestCase    *test,
                        window->monitor->rect.width,
                        window->monitor->rect.height,
                        window->monitor->rect.x,
-                       window->monitor->rect.y
-                       );
+                       window->monitor->rect.y);
           return FALSE;
         }
     }
