@@ -348,8 +348,16 @@ meta_window_config_is_floating (MetaWindowConfig *config)
 {
   g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), FALSE);
 
-  return (!config->is_fullscreen &&
-          !meta_window_config_is_any_maximized (config));
+  if (config->is_fullscreen)
+    return FALSE;
+
+  if (meta_window_config_is_maximized (config))
+    return FALSE;
+
+  if (meta_window_config_get_tile_mode (config))
+    return FALSE;
+
+  return TRUE;
 }
 
 gboolean

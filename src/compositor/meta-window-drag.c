@@ -1438,8 +1438,7 @@ update_move (MetaWindowDrag          *window_drag,
         }
     }
 
-  if (!meta_window_config_is_maximized (window->config) &&
-      !meta_window_is_tiled_side_by_side (window))
+  if (meta_window_config_is_floating (window->config))
     {
       /* Delay showing the tile preview slightly to make it more unlikely to
        * trigger it unwittingly, e.g. when shaking loose the window or moving
