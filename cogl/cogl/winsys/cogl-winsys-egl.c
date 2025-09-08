@@ -505,7 +505,6 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
       COGL_FLAGS_SET (context->winsys_features,
                       COGL_WINSYS_FEATURE_BUFFER_AGE,
                       TRUE);
-      COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_BUFFER_AGE, TRUE);
     }
 
   if (egl_renderer->platform_vtable->context_init &&
