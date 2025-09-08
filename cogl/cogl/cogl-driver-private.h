@@ -32,6 +32,7 @@
 
 #include "cogl/cogl-buffer-impl-private.h"
 #include "cogl/cogl-context.h"
+#include "cogl/cogl-driver.h"
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-attribute-private.h"
@@ -39,11 +40,6 @@
 #include "cogl/cogl-texture-driver.h"
 #include "cogl/cogl-texture-private.h"
 
-G_DECLARE_DERIVABLE_TYPE (CoglDriver,
-                          cogl_driver,
-                          COGL,
-                          DRIVER,
-                          GObject)
 
 struct _CoglDriverClass
 {
@@ -118,7 +114,6 @@ struct _CoglDriverClass
                         const CoglBoxedValue *value);
 };
 
-#define COGL_TYPE_DRIVER (cogl_driver_get_type ())
 
 CoglBufferImpl * cogl_driver_create_buffer_impl (CoglDriver *driver);
 

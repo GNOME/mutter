@@ -244,6 +244,4 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
 void
 _cogl_context_update_sync (CoglContext *context);
 
-CoglDriver * cogl_context_get_driver (CoglContext *context);
-
 void cogl_context_clear_onscreen_dirty_queue (CoglContext *context);
