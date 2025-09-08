@@ -220,54 +220,6 @@ COGL_EXPORT gboolean
 cogl_context_has_feature (CoglContext   *context,
                           CoglFeatureID  feature);
 
-/**
- * CoglGraphicsResetStatus:
- * @COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
- * @COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET:
- * @COGL_GRAPHICS_RESET_STATUS_INNOCENT_CONTEXT_RESET:
- * @COGL_GRAPHICS_RESET_STATUS_UNKNOWN_CONTEXT_RESET:
- * @COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
- *
- * All the error values that might be returned by
- * cogl_context_get_graphics_reset_status(). Each value's meaning corresponds
- * to the similarly named value defined in the ARB_robustness and
- * NV_robustness_video_memory_purge extensions.
- */
-typedef enum _CoglGraphicsResetStatus
-{
-  COGL_GRAPHICS_RESET_STATUS_NO_ERROR,
-  COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET,
-  COGL_GRAPHICS_RESET_STATUS_INNOCENT_CONTEXT_RESET,
-  COGL_GRAPHICS_RESET_STATUS_UNKNOWN_CONTEXT_RESET,
-  COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET,
-} CoglGraphicsResetStatus;
-
-/**
- * cogl_context_get_graphics_reset_status:
- * @context: a #CoglContext pointer
- *
- * Returns the graphics reset status as reported by
- * GetGraphicsResetStatusARB defined in the ARB_robustness extension.
- *
- * Note that Cogl doesn't normally enable the ARB_robustness
- * extension in which case this will only ever return
- * #COGL_GRAPHICS_RESET_STATUS_NO_ERROR.
- *
- * Return value: a #CoglGraphicsResetStatus
- */
-COGL_EXPORT CoglGraphicsResetStatus
-cogl_context_get_graphics_reset_status (CoglContext *context);
-
-/**
- * cogl_context_is_hardware_accelerated:
- * @context: a #CoglContext pointer
- *
- * Returns: %TRUE if the @context is hardware accelerated, or %FALSE if
- * not.
- */
-COGL_EXPORT gboolean
-cogl_context_is_hardware_accelerated (CoglContext *context);
-
 typedef const char * const CoglPipelineKey;
 
 /**
@@ -299,31 +251,6 @@ cogl_context_set_named_pipeline (CoglContext     *context,
 COGL_EXPORT CoglPipeline *
 cogl_context_get_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key);
-
-/**
- * cogl_context_free_timestamp_query:
- * @context: a #CoglContext pointer
- * @query: (transfer full): a #CoglTimestampQuery
- */
-COGL_EXPORT void
-cogl_context_free_timestamp_query (CoglContext        *context,
-                                   CoglTimestampQuery *query);
-
-COGL_EXPORT int64_t
-cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
-                                          CoglTimestampQuery *query);
-
-/**
- * cogl_context_get_gpu_time_ns:
- * @context: a #CoglContext pointer
- *
- * This function should only be called if the COGL_FEATURE_ID_TIMESTAMP_QUERY
- * feature is advertised.
- *
- * Return value: Current GPU time in nanoseconds
- */
-COGL_EXPORT int64_t
-cogl_context_get_gpu_time_ns (CoglContext *context);
 
 /**
  * cogl_context_get_latest_sync_fd
@@ -397,10 +324,6 @@ cogl_context_get_rectangle_indices (CoglContext *context,
 COGL_EXPORT EGLDisplay
 cogl_context_get_egl_display (CoglContext *context);
 #endif /* HAVE_EGL */
-
-COGL_EXPORT gboolean
-cogl_context_format_supports_upload (CoglContext     *ctx,
-                                     CoglPixelFormat  format);
 
 /**
  * cogl_context_get_driver:

@@ -41,7 +41,11 @@ cogl_frame_info_dispose (GObject *object)
   CoglFrameInfo *info = COGL_FRAME_INFO (object);
 
   if (info->timestamp_query)
-    cogl_context_free_timestamp_query (info->context, info->timestamp_query);
+    {
+      CoglDriver *driver = cogl_context_get_driver (info->context);
+
+      cogl_driver_free_timestamp_query (driver, info->timestamp_query);
+    }
 
   G_OBJECT_CLASS (cogl_frame_info_parent_class)->dispose (object);
 }
@@ -153,14 +157,15 @@ int64_t
 cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info)
 {
   int64_t gpu_time_rendering_done_ns;
+  CoglDriver *driver = cogl_context_get_driver (info->context);
 
   if (!info->timestamp_query ||
       info->gpu_time_before_buffer_swap_ns == 0)
     return 0;
 
   gpu_time_rendering_done_ns =
-    cogl_context_timestamp_query_get_time_ns (info->context,
-                                              info->timestamp_query);
+    cogl_driver_timestamp_query_get_time_ns (driver,
+                                             info->timestamp_query);
 
   return gpu_time_rendering_done_ns - info->gpu_time_before_buffer_swap_ns;
 }

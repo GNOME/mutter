@@ -432,7 +432,7 @@ update_winsys_features (CoglContext *context, GError **error)
 
   g_return_val_if_fail (glx_display->glx_context, FALSE);
 
-  if (!_cogl_context_update_features (context, error))
+  if (!cogl_driver_update_features (driver, context, error))
     return FALSE;
 
   memcpy (context->winsys_features,

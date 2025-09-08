@@ -72,3 +72,80 @@ cogl_driver_create_texture_driver (CoglDriver *driver)
 
   return klass->create_texture_driver (driver);
 }
+
+gboolean
+cogl_driver_is_hardware_accelerated (CoglDriver *driver)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  if (klass->is_hardware_accelerated)
+    return klass->is_hardware_accelerated (driver);
+  else
+    return FALSE;
+}
+
+const char *
+cogl_driver_get_vendor (CoglDriver *driver)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->get_vendor (driver);
+}
+
+CoglGraphicsResetStatus
+cogl_driver_get_graphics_reset_status (CoglDriver *driver)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->get_graphics_reset_status (driver);
+}
+
+int64_t
+cogl_driver_timestamp_query_get_time_ns (CoglDriver         *driver,
+                                         CoglTimestampQuery *query)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->timestamp_query_get_time_ns (driver, query);
+}
+
+void
+cogl_driver_free_timestamp_query (CoglDriver         *driver,
+                                  CoglTimestampQuery *query)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  klass->free_timestamp_query (driver, query);
+}
+
+gboolean
+cogl_driver_update_features (CoglDriver  *driver,
+                             CoglContext *context,
+                             GError     **error)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->update_features (driver, context, error);
+}
+
+gboolean
+cogl_driver_format_supports_upload (CoglDriver     *driver,
+                                    CoglContext    *context,
+                                    CoglPixelFormat format)
+{
+  CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
+
+  return klass->format_supports_upload (driver, context, format);
+}
+
+int64_t
+cogl_driver_get_gpu_time_ns (CoglDriver  *driver,
+                             CoglContext *context)
+{
+  g_return_val_if_fail (cogl_context_has_feature (context,
+                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
+                        0);
+
+
+  return COGL_DRIVER_GET_CLASS (driver)->get_gpu_time_ns (driver, context);
+}

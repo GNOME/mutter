@@ -48,14 +48,11 @@ struct _CoglDriverClass
   gboolean (* context_init) (CoglDriver  *driver,
                              CoglContext *context);
 
-  const char * (* get_vendor) (CoglDriver  *driver,
-                               CoglContext *context);
+  const char * (* get_vendor) (CoglDriver *driver);
 
-  gboolean (* is_hardware_accelerated) (CoglDriver  *driver,
-                                        CoglContext *context);
+  gboolean (* is_hardware_accelerated) (CoglDriver *driver);
 
-  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver  *driver,
-                                                         CoglContext *context);
+  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver *driver);
 
   gboolean (* update_features) (CoglDriver   *driver,
                                 CoglContext  *context,
@@ -66,7 +63,6 @@ struct _CoglDriverClass
                                        CoglPixelFormat  format);
 
   CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
-                                                         CoglContext                        *context,
                                                          CoglFramebuffer                    *framebuffer,
                                                          const CoglFramebufferDriverConfig  *driver_config,
                                                          GError                            **error);
@@ -109,7 +105,6 @@ struct _CoglDriverClass
                         CoglSamplerCacheEntry *entry);
 
   void (* set_uniform) (CoglDriver           *driver,
-                        CoglContext          *ctx,
                         GLint                 location,
                         const CoglBoxedValue *value);
 
@@ -117,11 +112,9 @@ struct _CoglDriverClass
                                                    CoglContext *context);
 
   void (* free_timestamp_query) (CoglDriver         *driver,
-                                 CoglContext        *context,
                                  CoglTimestampQuery *query);
 
   int64_t (* timestamp_query_get_time_ns) (CoglDriver         *driver,
-                                           CoglContext        *context,
                                            CoglTimestampQuery *query);
 
   int64_t (* get_gpu_time_ns) (CoglDriver  *driver,
@@ -132,6 +125,41 @@ struct _CoglDriverClass
 CoglBufferImpl * cogl_driver_create_buffer_impl (CoglDriver *driver);
 
 CoglTextureDriver * cogl_driver_create_texture_driver (CoglDriver *driver);
+
+int64_t cogl_driver_timestamp_query_get_time_ns (CoglDriver         *driver,
+                                                 CoglTimestampQuery *query);
+/**
+ * cogl_driver_free_timestamp_query:
+ * @driver: a #CoglDriver
+ * @query: (transfer full): the #CoglTimestampQuery to free
+ *
+ * Free the #CoglTimestampQuery
+ */
+void cogl_driver_free_timestamp_query (CoglDriver         *driver,
+                                       CoglTimestampQuery *query);
+
+/* Query the GL extensions and lookup the corresponding function
+ * pointers. Theoretically the list of extensions can change for
+ * different GL contexts so it is the winsys backend's responsibility
+ * to know when to re-query the GL extensions. The backend should also
+ * check whether the GL context is supported by Cogl. If not it should
+ * return FALSE and set @error */
+gboolean cogl_driver_update_features (CoglDriver   *driver,
+                                      CoglContext  *context,
+                                      GError      **error);
+
+/**
+ * cogl_driver_get_gpu_time_ns:
+ * @driver: a #CoglDriver
+ * @context: a #CoglContext
+ *
+ * This function should only be called if the COGL_FEATURE_ID_TIMESTAMP_QUERY
+ * feature is advertised.
+ *
+ * Return value: Current GPU time in nanoseconds
+ */
+int64_t cogl_driver_get_gpu_time_ns (CoglDriver  *driver,
+                                     CoglContext *context);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 

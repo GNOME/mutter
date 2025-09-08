@@ -21,7 +21,6 @@
 #include "tests/cogl-test-utils.h"
 
 #include "backends/meta-backend-private.h"
-#include "cogl/cogl-context-test-utils.h"
 
 static gboolean cogl_test_is_verbose;
 CoglContext *test_ctx;
@@ -374,7 +373,9 @@ on_before_tests (MetaContext *context)
 const char *
 test_utils_get_cogl_driver_vendor (CoglContext *context)
 {
-  return _cogl_context_get_driver_vendor (context);
+  CoglDriver *driver = cogl_context_get_driver (context);
+
+  return cogl_driver_get_vendor (driver);
 }
 
 static void
