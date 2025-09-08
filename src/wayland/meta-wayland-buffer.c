@@ -1085,6 +1085,7 @@ static gboolean
 context_supports_format (CoglContext         *cogl_context,
                          const MetaFormatInfo *format_info)
 {
+  CoglDriver *cogl_driver = cogl_context_get_driver (cogl_context);
   const MetaMultiTextureFormatInfo *mt_format_info;
   size_t i;
 
@@ -1093,8 +1094,9 @@ context_supports_format (CoglContext         *cogl_context,
 
   if (format_info->multi_texture_format == META_MULTI_TEXTURE_FORMAT_SIMPLE)
     {
-      return cogl_context_format_supports_upload (cogl_context,
-                                                  format_info->cogl_format);
+      return cogl_driver_format_supports_upload (cogl_driver,
+                                                 cogl_context,
+                                                 format_info->cogl_format);
     }
 
   mt_format_info =
@@ -1102,8 +1104,9 @@ context_supports_format (CoglContext         *cogl_context,
 
   for (i = 0; i < mt_format_info->n_planes; i++)
     {
-      if (!cogl_context_format_supports_upload (cogl_context,
-                                                mt_format_info->subformats[i]))
+      if (!cogl_driver_format_supports_upload (cogl_driver,
+                                               cogl_context,
+                                               mt_format_info->subformats[i]))
         return FALSE;
     }
 
