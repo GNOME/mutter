@@ -397,56 +397,6 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
     }
 }
 
-static int
-get_max_activateable_texture_units (CoglContext *ctx)
-{
-  if (G_UNLIKELY (ctx->max_activateable_texture_units == -1))
-    {
-      CoglRenderer *renderer = cogl_context_get_renderer (ctx);
-      CoglDriver *driver = cogl_context_get_driver (ctx);
-      GLint values[3];
-      int n_values = 0;
-      int i;
-
-#ifdef HAVE_GL
-      if (cogl_renderer_get_driver_id (renderer) != COGL_DRIVER_ID_GLES2)
-        {
-          /* GL_MAX_TEXTURE_COORDS defines the number of texture coordinates
-           * that can be uploaded (but doesn't necessarily relate to how many
-           * texture images can be sampled) */
-          GE (driver, glGetIntegerv (GL_MAX_TEXTURE_COORDS, values + n_values++));
-
-          GE (driver, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-                                     values + n_values++));
-        }
-#endif /* HAVE_GL */
-
-#ifdef HAVE_GLES2
-      if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
-        {
-          GE (driver, glGetIntegerv (GL_MAX_VERTEX_ATTRIBS, values + n_values));
-          /* Two of the vertex attribs need to be used for the position
-             and color */
-          values[n_values++] -= 2;
-
-          GE (driver, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-                                     values + n_values++));
-        }
-#endif
-
-      g_assert (n_values <= G_N_ELEMENTS (values) &&
-                n_values > 0);
-
-      /* Use the maximum value */
-      ctx->max_activateable_texture_units = values[0];
-      for (i = 1; i < n_values; i++)
-        ctx->max_activateable_texture_units =
-          MAX (values[i], ctx->max_activateable_texture_units);
-    }
-
-  return ctx->max_activateable_texture_units;
-}
-
 typedef struct
 {
   int i;
@@ -459,6 +409,8 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
   CoglPipelineFlushLayerState *flush_state = user_data;
   CoglContext *ctx = layer->owner->context;
   CoglDriver *driver = cogl_context_get_driver (ctx);
+  GLint max_activateable_texture_units =
+    cogl_driver_gl_get_max_activateable_texture_units (COGL_DRIVER_GL (driver));
   int unit_index = flush_state->i;
   CoglTextureUnit *unit = _cogl_get_texture_unit (ctx, unit_index);
   unsigned long layers_difference =
@@ -467,7 +419,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
   /* There may not be enough texture units so we can bail out if
    * that's the case...
    */
-  if (G_UNLIKELY (unit_index >= get_max_activateable_texture_units (ctx)))
+  if (G_UNLIKELY (unit_index >= max_activateable_texture_units))
     {
       static gboolean shown_warning = FALSE;
 
