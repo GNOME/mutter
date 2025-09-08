@@ -168,9 +168,6 @@ cogl_context_get_renderer (CoglContext *context);
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including write support.
- * @COGL_FEATURE_ID_BUFFER_AGE: Available if the age of #CoglOnscreen back
- *    buffers are tracked and so cogl_onscreen_get_buffer_age() can be
- *    expected to return age values other than 0.
  * @COGL_FEATURE_ID_BLIT_FRAMEBUFFER: Whether blitting using
  *    [method@Cogl.Framebuffer.blit] is supported.
  * @COGL_FEATURE_ID_SYNC_FD
@@ -190,7 +187,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_RGBA1010102,
   COGL_FEATURE_ID_TEXTURE_HALF_FLOAT,
   COGL_FEATURE_ID_TEXTURE_NORM16,
-  COGL_FEATURE_ID_BUFFER_AGE,
   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL,
   COGL_FEATURE_ID_BLIT_FRAMEBUFFER,
   COGL_FEATURE_ID_SYNC_FD,
