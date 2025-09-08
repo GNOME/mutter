@@ -35,7 +35,6 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-context-test-utils.h"
 #include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-journal-private.h"
@@ -373,25 +372,6 @@ cogl_context_get_renderer (CoglContext *context)
   return context->display->renderer;
 }
 
-const char *
-_cogl_context_get_driver_vendor (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->get_vendor (driver, context);
-}
-
-gboolean
-_cogl_context_update_features (CoglContext *context,
-                               GError **error)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->update_features (driver, context, error);
-}
-
 void
 _cogl_context_set_current_projection_entry (CoglContext *context,
                                             CoglMatrixEntry *entry)
@@ -434,37 +414,6 @@ cogl_context_get_latest_sync_fd (CoglContext *context)
   return winsys->get_sync_fd (context);
 }
 
-CoglGraphicsResetStatus
-cogl_context_get_graphics_reset_status (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->get_graphics_reset_status (driver, context);
-}
-
-gboolean
-cogl_context_is_hardware_accelerated (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  if (driver_klass->is_hardware_accelerated)
-    return driver_klass->is_hardware_accelerated (driver, context);
-  else
-    return FALSE;
-}
-
-gboolean
-cogl_context_format_supports_upload (CoglContext *ctx,
-                                     CoglPixelFormat format)
-{
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->format_supports_upload (driver, ctx, format);
-}
-
 void
 cogl_context_set_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key,
@@ -487,48 +436,6 @@ cogl_context_get_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key)
 {
   return g_hash_table_lookup (context->named_pipelines, key);
-}
-
-/**
- * cogl_context_free_timestamp_query:
- * @context: a #CoglContext object
- * @query: (transfer full): the #CoglTimestampQuery to free
- *
- * Free the #CoglTimestampQuery
- */
-void
-cogl_context_free_timestamp_query (CoglContext        *context,
-                                   CoglTimestampQuery *query)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  driver_klass->free_timestamp_query (driver, context, query);
-}
-
-int64_t
-cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
-                                          CoglTimestampQuery *query)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->timestamp_query_get_time_ns (driver, context, query);
-}
-
-int64_t
-cogl_context_get_gpu_time_ns (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass;
-
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
-                        0);
-
-  driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->get_gpu_time_ns (driver, context);
 }
 
 /* FIXME: we should distinguish renderer and context features */

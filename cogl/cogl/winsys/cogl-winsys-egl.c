@@ -472,6 +472,7 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
   CoglRenderer *renderer = context->display->renderer;
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglDriver *driver = cogl_context_get_driver (context);
 
   context->winsys = g_new0 (CoglContextEGL, 1);
 
@@ -481,7 +482,7 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
 
   check_egl_extensions (renderer);
 
-  if (!_cogl_context_update_features (context, error))
+  if (!cogl_driver_update_features (driver, context, error))
     return FALSE;
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_SWAP_REGION)
