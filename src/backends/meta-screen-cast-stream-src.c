@@ -1619,7 +1619,7 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
   MetaDeviceFile *device_file;
   int drm_fd;
 
-  if (!cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_SYNC_FD))
+  if (!cogl_context_has_winsys_feature (cogl_context, COGL_WINSYS_FEATURE_SYNC_FD))
     return FALSE;
 
   cogl_renderer = cogl_context_get_renderer (cogl_context);

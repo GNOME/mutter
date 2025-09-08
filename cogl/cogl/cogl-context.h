@@ -170,8 +170,6 @@ cogl_context_get_renderer (CoglContext *context);
  *     supported with CoglBufferAccess including write support.
  * @COGL_FEATURE_ID_BLIT_FRAMEBUFFER: Whether blitting using
  *    [method@Cogl.Framebuffer.blit] is supported.
- * @COGL_FEATURE_ID_SYNC_FD
- *    cogl_context_get_latest_sync_fd() is supported.
  *
  * All the capabilities that can vary between different GPUs supported
  * by Cogl. Applications that depend on any of these features should explicitly
@@ -189,7 +187,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_NORM16,
   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL,
   COGL_FEATURE_ID_BLIT_FRAMEBUFFER,
-  COGL_FEATURE_ID_SYNC_FD,
 
   /*< private >*/
   _COGL_N_FEATURE_IDS   /*< skip >*/

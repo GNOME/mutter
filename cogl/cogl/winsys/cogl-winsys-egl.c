@@ -493,7 +493,7 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC)
-    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_SYNC_FD, TRUE);
+    COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SYNC_FD, TRUE);
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_BUFFER_AGE)
     {

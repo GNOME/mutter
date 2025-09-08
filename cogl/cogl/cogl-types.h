@@ -254,6 +254,9 @@ typedef enum _CoglWinsysFeature
   /* Available if the winsys directly handles _SYNC and _COMPLETE events */
   COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT,
 
+  /* cogl_context_get_latest_sync_fd() is supported */
+  COGL_WINSYS_FEATURE_SYNC_FD,
+
   COGL_WINSYS_FEATURE_N_FEATURES
 } CoglWinsysFeature;
 
