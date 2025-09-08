@@ -1353,16 +1353,38 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "resize") == 0 ||
            strcmp (argv[0], "resize_ignore_titlebar") == 0)
     {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      int width, height;
+      g_autofree char *width_str = NULL;
+      g_autofree char *height_str = NULL;
+
       if (argc != 4)
         BAD_COMMAND ("usage: %s <client-id>/<window-id> width height", argv[0]);
 
-      MetaTestClient *client;
-      const char *window_id;
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
 
+      window = meta_test_client_find_window (client, window_id, NULL);
+      if (window)
+        {
+          width = parse_window_size (window, argv[2]);
+          height = parse_window_size (window, argv[3]);
+        }
+      else
+        {
+          width = atoi (argv[2]);
+          height = atoi (argv[3]);
+        }
+      if (width == 0 || height == 0)
+        BAD_COMMAND ("Invalid resize dimension %s x %s", argv[2], argv[3]);
+
+      width_str = g_strdup_printf ("%d", width);
+      height_str = g_strdup_printf ("%d", height);
+
       if (!meta_test_client_do (client, error, argv[0], window_id,
-                                argv[2], argv[3], NULL))
+                                width_str, height_str, NULL))
         return FALSE;
     }
   else if (strcmp (argv[0], "x11_geometry") == 0)
