@@ -90,8 +90,7 @@ cogl_driver_gl_context_init (CoglDriver  *driver,
 }
 
 static const char *
-cogl_driver_gl_get_gl_vendor (CoglDriver  *driver,
-                              CoglContext *context)
+cogl_driver_gl_get_gl_vendor (CoglDriver *driver)
 {
   return cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
                                        GL_VENDOR);
@@ -108,8 +107,7 @@ cogl_driver_gl_get_gl_vendor (CoglDriver  *driver,
  * So instead just check a list of known software renderer strings.
  */
 static gboolean
-cogl_driver_gl_is_hardware_accelerated (CoglDriver  *driver,
-                                        CoglContext *ctx)
+cogl_driver_gl_is_hardware_accelerated (CoglDriver *driver)
 {
   const char *renderer = cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver),
                                                        GL_RENDERER);
@@ -132,8 +130,7 @@ cogl_driver_gl_is_hardware_accelerated (CoglDriver  *driver,
 }
 
 static CoglGraphicsResetStatus
-cogl_driver_gl_get_graphics_reset_status (CoglDriver  *driver,
-                                          CoglContext *context)
+cogl_driver_gl_get_graphics_reset_status (CoglDriver *driver)
 {
   int status;
 
@@ -162,7 +159,6 @@ cogl_driver_gl_get_graphics_reset_status (CoglDriver  *driver,
 
 static CoglFramebufferDriver *
 cogl_driver_gl_create_framebuffer_driver (CoglDriver                         *driver,
-                                          CoglContext                        *context,
                                           CoglFramebuffer                    *framebuffer,
                                           const CoglFramebufferDriverConfig  *driver_config,
                                           GError                            **error)
@@ -371,7 +367,6 @@ cogl_driver_gl_sampler_free (CoglDriver            *driver,
 
 static void
 cogl_driver_gl_set_uniform (CoglDriver           *driver,
-                            CoglContext          *ctx,
                             GLint                 location,
                             const CoglBoxedValue *value)
 {

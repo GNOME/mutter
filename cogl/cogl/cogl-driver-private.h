@@ -48,14 +48,11 @@ struct _CoglDriverClass
   gboolean (* context_init) (CoglDriver  *driver,
                              CoglContext *context);
 
-  const char * (* get_vendor) (CoglDriver  *driver,
-                               CoglContext *context);
+  const char * (* get_vendor) (CoglDriver *driver);
 
-  gboolean (* is_hardware_accelerated) (CoglDriver  *driver,
-                                        CoglContext *context);
+  gboolean (* is_hardware_accelerated) (CoglDriver *driver);
 
-  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver  *driver,
-                                                         CoglContext *context);
+  CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver *driver);
 
   gboolean (* update_features) (CoglDriver   *driver,
                                 CoglContext  *context,
@@ -66,7 +63,6 @@ struct _CoglDriverClass
                                        CoglPixelFormat  format);
 
   CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
-                                                         CoglContext                        *context,
                                                          CoglFramebuffer                    *framebuffer,
                                                          const CoglFramebufferDriverConfig  *driver_config,
                                                          GError                            **error);
@@ -109,7 +105,6 @@ struct _CoglDriverClass
                         CoglSamplerCacheEntry *entry);
 
   void (* set_uniform) (CoglDriver           *driver,
-                        CoglContext          *ctx,
                         GLint                 location,
                         const CoglBoxedValue *value);
 };
@@ -118,6 +113,16 @@ struct _CoglDriverClass
 CoglBufferImpl * cogl_driver_create_buffer_impl (CoglDriver *driver);
 
 CoglTextureDriver * cogl_driver_create_texture_driver (CoglDriver *driver);
+
+/* Query the GL extensions and lookup the corresponding function
+ * pointers. Theoretically the list of extensions can change for
+ * different GL contexts so it is the winsys backend's responsibility
+ * to know when to re-query the GL extensions. The backend should also
+ * check whether the GL context is supported by Cogl. If not it should
+ * return FALSE and set @error */
+gboolean cogl_driver_update_features (CoglDriver   *driver,
+                                      CoglContext  *context,
+                                      GError      **error);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 

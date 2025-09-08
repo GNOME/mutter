@@ -901,7 +901,6 @@ cogl_framebuffer_init_driver (CoglFramebuffer  *framebuffer,
   CoglFramebufferDriver *fb_driver;
 
   fb_driver = driver_klass->create_framebuffer_driver (driver,
-                                                       priv->context,
                                                        framebuffer,
                                                        &priv->driver_config,
                                                        error);

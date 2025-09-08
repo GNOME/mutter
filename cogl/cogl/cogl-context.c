@@ -35,7 +35,6 @@
 #include "cogl/cogl-profile.h"
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-context-test-utils.h"
 #include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-journal-private.h"
@@ -369,25 +368,6 @@ cogl_context_get_renderer (CoglContext *context)
   return context->display->renderer;
 }
 
-const char *
-_cogl_context_get_driver_vendor (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->get_vendor (driver, context);
-}
-
-gboolean
-_cogl_context_update_features (CoglContext *context,
-                               GError **error)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->update_features (driver, context, error);
-}
-
 void
 _cogl_context_set_current_projection_entry (CoglContext *context,
                                             CoglMatrixEntry *entry)
@@ -432,37 +412,6 @@ cogl_context_get_latest_sync_fd (CoglContext *context)
     return -1;
 
   return winsys_class->get_sync_fd (winsys, context);
-}
-
-CoglGraphicsResetStatus
-cogl_context_get_graphics_reset_status (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->get_graphics_reset_status (driver, context);
-}
-
-gboolean
-cogl_context_is_hardware_accelerated (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  if (driver_klass->is_hardware_accelerated)
-    return driver_klass->is_hardware_accelerated (driver, context);
-  else
-    return FALSE;
-}
-
-gboolean
-cogl_context_format_supports_upload (CoglContext *ctx,
-                                     CoglPixelFormat format)
-{
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->format_supports_upload (driver, ctx, format);
 }
 
 void

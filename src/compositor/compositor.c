@@ -970,11 +970,12 @@ meta_compositor_real_after_paint (MetaCompositor     *compositor,
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   ClutterActor *stage_actor = meta_backend_get_stage (priv->backend);
+  CoglDriver *cogl_driver = cogl_context_get_driver (priv->context);
   CoglGraphicsResetStatus status;
   ClutterStageView *stage_view;
   GList *l;
 
-  status = cogl_context_get_graphics_reset_status (priv->context);
+  status = cogl_driver_get_graphics_reset_status (cogl_driver);
   switch (status)
     {
     case COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:

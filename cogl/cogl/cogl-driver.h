@@ -34,6 +34,28 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
+/**
+ * CoglGraphicsResetStatus:
+ * @COGL_GRAPHICS_RESET_STATUS_NO_ERROR:
+ * @COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET:
+ * @COGL_GRAPHICS_RESET_STATUS_INNOCENT_CONTEXT_RESET:
+ * @COGL_GRAPHICS_RESET_STATUS_UNKNOWN_CONTEXT_RESET:
+ * @COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
+ *
+ * All the error values that might be returned by
+ * cogl_driver_get_graphics_reset_status(). Each value's meaning corresponds
+ * to the similarly named value defined in the ARB_robustness and
+ * NV_robustness_video_memory_purge extensions.
+ */
+typedef enum _CoglGraphicsResetStatus
+{
+  COGL_GRAPHICS_RESET_STATUS_NO_ERROR,
+  COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET,
+  COGL_GRAPHICS_RESET_STATUS_INNOCENT_CONTEXT_RESET,
+  COGL_GRAPHICS_RESET_STATUS_UNKNOWN_CONTEXT_RESET,
+  COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET,
+} CoglGraphicsResetStatus;
+
 COGL_EXPORT
 G_DECLARE_DERIVABLE_TYPE (CoglDriver,
                           cogl_driver,
@@ -44,3 +66,37 @@ G_DECLARE_DERIVABLE_TYPE (CoglDriver,
 #define COGL_TYPE_DRIVER (cogl_driver_get_type ())
 
 typedef struct _CoglDriverClass CoglDriverClass;
+
+/**
+ * cogl_driver_is_hardware_accelerated:
+ * @driver: a #CoglDriver
+ *
+ * Returns: %TRUE if the @driver is hardware accelerated, or %FALSE if
+ * not.
+ */
+COGL_EXPORT
+gboolean cogl_driver_is_hardware_accelerated (CoglDriver *driver);
+
+COGL_EXPORT_TEST
+const char * cogl_driver_get_vendor (CoglDriver *driver);
+
+/**
+ * cogl_driver_get_graphics_reset_status:
+ * @driver: a #CoglDriver
+ *
+ * Returns the graphics reset status as reported by
+ * GetGraphicsResetStatusARB defined in the ARB_robustness extension.
+ *
+ * Note that Cogl doesn't normally enable the ARB_robustness
+ * extension in which case this will only ever return
+ * #COGL_GRAPHICS_RESET_STATUS_NO_ERROR.
+ *
+ * Return value: a #CoglGraphicsResetStatus
+ */
+COGL_EXPORT
+CoglGraphicsResetStatus cogl_driver_get_graphics_reset_status (CoglDriver *driver);
+
+COGL_EXPORT
+gboolean cogl_driver_format_supports_upload (CoglDriver     *driver,
+                                             CoglContext    *ctx,
+                                             CoglPixelFormat format);

@@ -77,15 +77,13 @@ cogl_driver_nop_update_features (CoglDriver   *driver,
 }
 
 static const char *
-cogl_driver_nop_get_vendor (CoglDriver  *driver,
-                            CoglContext *context)
+cogl_driver_nop_get_vendor (CoglDriver *driver)
 {
   return "NOP";
 }
 
 static CoglFramebufferDriver *
 cogl_driver_nop_create_framebuffer_driver (CoglDriver                         *driver,
-                                           CoglContext                        *context,
                                            CoglFramebuffer                    *framebuffer,
                                            const CoglFramebufferDriverConfig  *driver_config,
                                            GError                            **error)

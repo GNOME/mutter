@@ -223,16 +223,6 @@ struct _CoglContext
 };
 
 
-/* Query the GL extensions and lookup the corresponding function
- * pointers. Theoretically the list of extensions can change for
- * different GL contexts so it is the winsys backend's responsibility
- * to know when to re-query the GL extensions. The backend should also
- * check whether the GL context is supported by Cogl. If not it should
- * return FALSE and set @error */
-gboolean
-_cogl_context_update_features (CoglContext *context,
-                               GError **error);
-
 void
 _cogl_context_set_current_projection_entry (CoglContext *context,
                                             CoglMatrixEntry *entry);

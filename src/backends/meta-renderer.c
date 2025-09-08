@@ -346,8 +346,10 @@ meta_renderer_is_hardware_accelerated (MetaRenderer *renderer)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
+  CoglDriver *cogl_driver =
+    cogl_context_get_driver (cogl_context);
 
-  return cogl_context_is_hardware_accelerated (cogl_context);
+  return cogl_driver_is_hardware_accelerated (cogl_driver);
 }
 
 static void
