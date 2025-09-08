@@ -1082,17 +1082,17 @@ test_case_do (TestCase    *test,
       MetaTestClient *client;
 
       if (argc != 3)
-        BAD_COMMAND("usage: new_client <client-id> [wayland|x11]");
+        BAD_COMMAND ("usage: new_client <client-id> [wayland|x11]");
 
       if (strcmp (argv[2], "x11") == 0)
         type = META_WINDOW_CLIENT_TYPE_X11;
       else if (strcmp (argv[2], "wayland") == 0)
         type = META_WINDOW_CLIENT_TYPE_WAYLAND;
       else
-        BAD_COMMAND("usage: new_client <client-id> [wayland|x11]");
+        BAD_COMMAND ("usage: new_client <client-id> [wayland|x11]");
 
       if (g_hash_table_lookup (test->clients, argv[1]))
-        BAD_COMMAND("client %s already exists", argv[1]);
+        BAD_COMMAND ("client %s already exists", argv[1]);
 
       client = meta_test_client_new (test->context, argv[1], type, error);
       if (!client)
@@ -1103,7 +1103,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "quit_client") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: quit_client <client-id>");
+        BAD_COMMAND ("usage: quit_client <client-id>");
 
       MetaTestClient *client = test_case_lookup_client (test, argv[1], error);
       if (!client)
@@ -1120,7 +1120,7 @@ test_case_do (TestCase    *test,
       if (!(argc == 2 ||
             (argc == 3 && strcmp (argv[2], "override") == 0) ||
             (argc == 3 && strcmp (argv[2], "csd") == 0)))
-        BAD_COMMAND("usage: %s <client-id>/<window-id > [override|csd]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id > [override|csd]", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1140,8 +1140,10 @@ test_case_do (TestCase    *test,
            strcmp (argv[0], "set_parent_exported") == 0)
     {
       if (argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> <parent-window-id>",
-                    argv[0]);
+        {
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> <parent-window-id>",
+                       argv[0]);
+        }
 
       MetaTestClient *client;
       const char *window_id;
@@ -1157,8 +1159,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "accept_focus") == 0)
     {
       if (argc != 3 || !str_to_bool (argv[2], NULL))
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
-                    argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [true|false]", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1174,8 +1175,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "can_take_focus") == 0)
     {
       if (argc != 3 || !str_to_bool (argv[2], NULL))
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
-                    argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [true|false]", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1191,8 +1191,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "accept_take_focus") == 0)
     {
       if (argc != 3 || !str_to_bool (argv[2], NULL))
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
-                    argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [true|false]", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1211,7 +1210,7 @@ test_case_do (TestCase    *test,
       gboolean show_async = FALSE;
 
       if (argc != 2 && argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [async]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [async]", argv[0]);
 
       if (argc == 3 && strcmp (argv[2], "async") == 0)
         show_async = TRUE;
@@ -1241,7 +1240,7 @@ test_case_do (TestCase    *test,
       const char *window_id;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1256,7 +1255,7 @@ test_case_do (TestCase    *test,
            strcmp (argv[0], "resize_ignore_titlebar") == 0)
     {
       if (argc != 4)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> width height", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> width height", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1298,7 +1297,7 @@ test_case_do (TestCase    *test,
       MetaWindowDrag *window_drag;
 
       if (argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [top|bottom|left|right]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [top|bottom|left|right]", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1334,7 +1333,7 @@ test_case_do (TestCase    *test,
       int delta_x, delta_y;
 
       if (argc != 4)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> <x> <y>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> <x> <y>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1358,7 +1357,7 @@ test_case_do (TestCase    *test,
       MetaWindowDrag *window_drag;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1377,7 +1376,7 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
 
       if (argc != 4)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> x y", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> x y", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1395,7 +1394,7 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
 
       if (argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [right|left]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [right|left]", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1431,7 +1430,7 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1460,7 +1459,7 @@ test_case_do (TestCase    *test,
            strcmp (argv[0], "destroy") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1476,7 +1475,7 @@ test_case_do (TestCase    *test,
       const char *window_id;
 
       if (argc != 2 && argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [<connector>]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [<connector>]", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1508,7 +1507,7 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -1524,7 +1523,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "wait") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       if (!test_case_wait (test, error))
         return FALSE;
@@ -1540,7 +1539,7 @@ test_case_do (TestCase    *test,
       gboolean has_unfinished_configurations;
 
       if (argc < 2)
-        BAD_COMMAND("usage: %s [<client-id>/<window-id>..]", argv[0]);
+        BAD_COMMAND ("usage: %s [<client-id>/<window-id>..]", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1624,7 +1623,7 @@ test_case_do (TestCase    *test,
       int width, height;
 
       if (argc != 4)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> <width> <height>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> <width> <height>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -1648,7 +1647,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "dispatch") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       if (!test_case_dispatch (test, error))
         return FALSE;
@@ -1658,7 +1657,7 @@ test_case_do (TestCase    *test,
       uint64_t interval_ms;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <milliseconds>|<known-time>", argv[0]);
+        BAD_COMMAND ("usage: %s <milliseconds>|<known-time>", argv[0]);
 
       if (strcmp (argv[1], "suspend_timeout") == 0)
         interval_ms = s2ms (meta_get_window_suspend_timeout_s ());
@@ -1993,8 +1992,8 @@ test_case_do (TestCase    *test,
 
       if (argc != 4)
         {
-          BAD_COMMAND("usage: %s <client-id>/<window-id> <width> <height>",
-                      argv[0]);
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> <width> <height>",
+                       argv[0]);
         }
 
       MetaTestClient *client;
@@ -2045,8 +2044,8 @@ test_case_do (TestCase    *test,
 
       if (argc != 4)
         {
-          BAD_COMMAND("usage: %s <client-id>/<window-id> <x> <y>",
-                      argv[0]);
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> <x> <y>",
+                       argv[0]);
         }
 
       MetaTestClient *client;
@@ -2076,7 +2075,7 @@ test_case_do (TestCase    *test,
            strcmp (argv[0], "continue") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>", argv[0]);
 
       MetaTestClient *client = test_case_lookup_client (test, argv[1], error);
       if (!client)
@@ -2088,7 +2087,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "clipboard-set") == 0)
     {
       if (argc != 4)
-        BAD_COMMAND("usage: %s <client-id> <mimetype> <text>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id> <mimetype> <text>", argv[0]);
 
       MetaTestClient *client = test_case_lookup_client (test, argv[1], error);
       if (!client)
@@ -2267,7 +2266,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "num_workspaces") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <num>", argv[0]);
+        BAD_COMMAND ("usage: %s <num>", argv[0]);
 
       MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
@@ -2280,7 +2279,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "activate_workspace") == 0)
     {
       if (argc != 2)
-        BAD_COMMAND("usage: %s <workspace-index>", argv[0]);
+        BAD_COMMAND ("usage: %s <workspace-index>", argv[0]);
 
       MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
@@ -2299,7 +2298,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "activate_workspace_with_focus") == 0)
     {
       if (argc != 3)
-        BAD_COMMAND("usage: %s <workspace-index> <window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <workspace-index> <window-id>", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -2328,7 +2327,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "assert_stacking_workspace") == 0)
     {
       if (argc < 2)
-        BAD_COMMAND("usage: %s <workspace-index> [<window-id1> ...]", argv[0]);
+        BAD_COMMAND ("usage: %s <workspace-index> [<window-id1> ...]", argv[0]);
 
       MetaDisplay *display = meta_context_get_display (test->context);
       MetaWorkspaceManager *workspace_manager =
@@ -2354,7 +2353,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "window_to_workspace") == 0)
     {
       if (argc != 3)
-        BAD_COMMAND("usage: %s <window-id> <workspace-index>", argv[0]);
+        BAD_COMMAND ("usage: %s <window-id> <workspace-index>", argv[0]);
 
       MetaTestClient *client;
       const char *window_id;
@@ -2388,8 +2387,10 @@ test_case_do (TestCase    *test,
       gboolean make_above;
 
       if (argc != 3 || !str_to_bool (argv[2], &make_above))
-        BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
-                    argv[0]);
+        {
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> [true|false]",
+                       argv[0]);
+        }
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -2411,7 +2412,7 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -2435,8 +2436,8 @@ test_case_do (TestCase    *test,
 
       if (argc != 3 || !str_to_bool (argv[2], &should_be_sticky))
         {
-          BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
-                      argv[0]);
+          BAD_COMMAND ("usage: %s <client-id>/<window-id> [true|false]",
+                       argv[0]);
         }
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
@@ -2461,7 +2462,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "focus_default_window") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       MetaDisplay *display = meta_context_get_display (test->context);
       uint32_t timestamp = meta_display_get_current_time_roundtrip (display);
@@ -2471,7 +2472,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "move_cursor_to") == 0)
     {
       if (argc != 3)
-        BAD_COMMAND("usage: %s <x> <y>", argv[0]);
+        BAD_COMMAND ("usage: %s <x> <y>", argv[0]);
 
       float x = (float) atof (argv[1]);
       float y = (float) atof (argv[2]);
@@ -2486,7 +2487,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "click") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       clutter_virtual_input_device_notify_button (test->pointer,
                                                   CLUTTER_CURRENT_TIME,
@@ -2501,7 +2502,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "click_and_hold") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       clutter_virtual_input_device_notify_button (test->pointer,
                                                   CLUTTER_CURRENT_TIME,
@@ -2514,7 +2515,7 @@ test_case_do (TestCase    *test,
   else if (strcmp (argv[0], "release_click") == 0)
     {
       if (argc != 1)
-        BAD_COMMAND("usage: %s", argv[0]);
+        BAD_COMMAND ("usage: %s", argv[0]);
 
       clutter_virtual_input_device_notify_button (test->pointer,
                                                   CLUTTER_CURRENT_TIME,
@@ -2530,7 +2531,7 @@ test_case_do (TestCase    *test,
       GSettings *mutter;
 
       if (argc != 3)
-        BAD_COMMAND("usage: %s <KEY> <VALUE>", argv[0]);
+        BAD_COMMAND ("usage: %s <KEY> <VALUE>", argv[0]);
 
       wm = g_settings_new ("org.gnome.desktop.wm.preferences");
       g_assert_nonnull (wm);
@@ -2541,7 +2542,7 @@ test_case_do (TestCase    *test,
         {
           gboolean value;
           if (!str_to_bool (argv[2], &value))
-            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (wm, "raise-on-click", value));
         }
@@ -2556,7 +2557,7 @@ test_case_do (TestCase    *test,
           else if (g_ascii_strcasecmp (argv[2], "mouse") == 0)
             mode = G_DESKTOP_FOCUS_MODE_MOUSE;
           else
-            BAD_COMMAND("usage: %s %s [click|sloppy|mouse]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [click|sloppy|mouse]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_enum (wm, "focus-mode", mode));
         }
@@ -2564,7 +2565,7 @@ test_case_do (TestCase    *test,
         {
           gboolean value;
           if (!str_to_bool (argv[2], &value))
-            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (mutter, "workspaces-only-on-primary", value));
         }
@@ -2572,7 +2573,7 @@ test_case_do (TestCase    *test,
         {
           gboolean value;
           if (!str_to_bool (argv[2], &value))
-            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (mutter, "focus-change-on-pointer-rest", value));
         }
@@ -2580,7 +2581,7 @@ test_case_do (TestCase    *test,
         {
           gboolean value;
           if (!str_to_bool (argv[2], &value))
-            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (wm, "auto-raise", value));
         }
@@ -2595,7 +2596,7 @@ test_case_do (TestCase    *test,
           gboolean value;
 
           if (!str_to_bool (argv[2], &value))
-            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (mutter, "center-new-windows",
                                                  value));
@@ -2605,13 +2606,13 @@ test_case_do (TestCase    *test,
           gboolean value;
 
           if (!str_to_bool (argv[2], &value))
-            BAD_COMMAND("usage: %s %s [true|false]", argv[0], argv[1]);
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
 
           g_assert_true (g_settings_set_boolean (mutter, "auto-maximize",
                                                  value));
         }
       else {
-        BAD_COMMAND("Unknown preference %s", argv[1]);
+        BAD_COMMAND ("Unknown preference %s", argv[1]);
       }
     }
   else if (strcmp (argv[0], "toggle_overview") == 0)
@@ -2634,7 +2635,7 @@ test_case_do (TestCase    *test,
       ClutterActor *clone;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -2674,7 +2675,7 @@ test_case_do (TestCase    *test,
       ClutterActor *clone;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -2704,7 +2705,7 @@ test_case_do (TestCase    *test,
       MetaWindow *window;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
@@ -2749,7 +2750,7 @@ test_case_do (TestCase    *test,
       const char *parent_id;
 
       if (argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<popup-id> <parent-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1],
                                       &client, &window_id, error))
@@ -2773,7 +2774,7 @@ test_case_do (TestCase    *test,
       const char *parent_id;
 
       if (argc != 6 && argc != 7)
-        BAD_COMMAND("usage: %s <client-id>/<popup-id> <parent-id> <top|bottom|left|right|center> <width> <height> [grab]", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<popup-id> <parent-id> <top|bottom|left|right|center> <width> <height> [grab]", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1],
                                       &client, &window_id, error))
@@ -2801,7 +2802,7 @@ test_case_do (TestCase    *test,
       const char *window_id;
 
       if (argc != 2)
-        BAD_COMMAND("usage: %s <client-id>/<popup-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<popup-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1],
                                       &client, &window_id, error))
@@ -2816,7 +2817,7 @@ test_case_do (TestCase    *test,
     }
   else
     {
-      BAD_COMMAND("Unknown command %s", argv[0]);
+      BAD_COMMAND ("Unknown command %s", argv[0]);
     }
 
   return TRUE;
