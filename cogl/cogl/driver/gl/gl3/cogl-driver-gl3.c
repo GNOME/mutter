@@ -434,6 +434,20 @@ cogl_driver_gl3_texture_size_supported (CoglDriverGL *driver,
   return new_width != 0;
 }
 
+static void
+cogl_driver_gl3_query_max_texture_units (CoglDriverGL *driver,
+                                         GLint        *values,
+                                         int          *n_values)
+{
+  /* GL_MAX_TEXTURE_COORDS defines the number of texture coordinates
+   * that can be uploaded (but doesn't necessarily relate to how many
+   * texture images can be sampled) */
+  GE (driver, glGetIntegerv (GL_MAX_TEXTURE_COORDS, values + (*n_values)++));
+
+  GE (driver, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+                             values + (*n_values)++));
+}
+
 static CoglPixelFormat
 cogl_driver_gl3_get_read_pixels_format (CoglDriverGL    *driver,
                                         CoglContext     *context,
@@ -767,6 +781,7 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
   driver_gl_klass->pixel_format_to_gl = cogl_driver_gl3_pixel_format_to_gl;
   driver_gl_klass->prep_gl_for_pixels_download = cogl_driver_gl3_prep_gl_for_pixels_download;
   driver_gl_klass->texture_size_supported = cogl_driver_gl3_texture_size_supported;
+  driver_gl_klass->query_max_texture_units = cogl_driver_gl3_query_max_texture_units;
 }
 
 static void

@@ -169,10 +169,6 @@ struct _CoglContext
      chances of getting the same colour during an animation */
   uint8_t            journal_rectangles_color;
 
-  /* Cached values for GL_MAX_TEXTURE_[IMAGE_]UNITS to avoid calling
-     glGetInteger too often */
-  GLint             max_activateable_texture_units;
-
   /* Fragment processing programs */
   GLuint                  current_gl_program;
 

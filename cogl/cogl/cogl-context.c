@@ -277,8 +277,6 @@ cogl_context_new (CoglDisplay *display,
   _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
   _cogl_bitmask_init (&context->changed_bits_tmp);
 
-  context->max_activateable_texture_units = -1;
-
   context->current_gl_dither_enabled = TRUE;
 
   context->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;

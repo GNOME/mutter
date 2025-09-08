@@ -486,6 +486,7 @@ cogl_driver_gl_init (CoglDriverGL *driver)
   CoglDriverGLPrivate *priv =
     cogl_driver_gl_get_instance_private (driver);
 
+  priv->max_activateable_texture_units = -1;
   priv->next_fake_sampler_object_number = 1;
   priv->texture_units =
     g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
@@ -684,6 +685,33 @@ cogl_driver_gl_get_gl_error (CoglDriverGL *driver)
     return gl_error;
   else
     return GL_NO_ERROR;
+}
+
+GLint
+cogl_driver_gl_get_max_activateable_texture_units (CoglDriverGL *driver)
+{
+  CoglDriverGLPrivate *priv = cogl_driver_gl_get_instance_private (driver);
+
+  if (G_UNLIKELY (priv->max_activateable_texture_units == -1))
+    {
+      CoglDriverGLClass *klass = COGL_DRIVER_GL_GET_CLASS (driver);
+      GLint values[3];
+      int n_values = 0;
+      int i;
+
+      klass->query_max_texture_units (driver, values, &n_values);
+
+      g_assert (n_values <= G_N_ELEMENTS (values) &&
+                n_values > 0);
+
+      /* Use the maximum value */
+      priv->max_activateable_texture_units = values[0];
+      for (i = 1; i < n_values; i++)
+        priv->max_activateable_texture_units =
+          MAX (values[i], priv->max_activateable_texture_units);
+    }
+
+  return priv->max_activateable_texture_units;
 }
 
 /* Parses a GL version number stored in a string. @version_string must
