@@ -2610,9 +2610,10 @@ test_case_do (TestCase    *test,
           g_assert_true (g_settings_set_boolean (mutter, "auto-maximize",
                                                  value));
         }
-      else {
-        BAD_COMMAND ("Unknown preference %s", argv[1]);
-      }
+      else
+        {
+          BAD_COMMAND ("Unknown preference %s", argv[1]);
+        }
     }
   else if (strcmp (argv[0], "toggle_overview") == 0)
     {
