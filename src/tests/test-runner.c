@@ -1754,7 +1754,7 @@ test_case_do (TestCase    *test,
       if (argc != 2)
         BAD_COMMAND ("usage: %s <client-id>/<window-id>|none", argv[0]);
 
-      expected_window  = argv[1];
+      expected_window = argv[1];
       old_focus = display->focus_window;
 
       if (g_strcmp0 (expected_window, "none") == 0)
