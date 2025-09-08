@@ -1345,9 +1345,9 @@ test_case_do (TestCase    *test,
       delta_y = atoi (argv[3]);
 
       meta_window_resize_frame (window,
-				TRUE,
-				rect.width + delta_x,
-				rect.height + delta_y);
+                                TRUE,
+                                rect.width + delta_x,
+                                rect.height + delta_y);
     }
   else if (strcmp (argv[0], "end_resize") == 0)
     {
