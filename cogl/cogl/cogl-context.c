@@ -234,8 +234,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->attribute_name_states_hash =
     g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  context->attribute_name_index_map = NULL;
-  context->n_attribute_names = 0;
 
   /* The "cogl_color_in" attribute needs a deterministic name_index
    * so we make sure it's the first attribute name we register */
@@ -245,7 +243,6 @@ cogl_context_new (CoglDisplay *display,
   context->uniform_names =
     g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
   context->uniform_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
-  context->n_uniform_names = 0;
 
   /* Initialise the driver specific state */
   _cogl_init_feature_overrides (context);
@@ -256,9 +253,6 @@ cogl_context_new (CoglDisplay *display,
   _cogl_pipeline_init_default_layers (context);
   _cogl_pipeline_init_state_hash_functions ();
   _cogl_pipeline_init_layer_state_hash_functions ();
-
-  context->current_clip_stack_valid = FALSE;
-  context->current_clip_stack = NULL;
 
   graphene_matrix_init_identity (&context->identity_matrix);
   graphene_matrix_init_identity (&context->y_flip_matrix);
@@ -271,12 +265,6 @@ cogl_context_new (CoglDisplay *display,
   context->codegen_header_buffer = g_string_new ("");
   context->codegen_source_buffer = g_string_new ("");
 
-  context->default_gl_texture_2d_tex = NULL;
-
-  context->framebuffers = NULL;
-  context->current_draw_buffer = NULL;
-  context->current_read_buffer = NULL;
-  context->current_draw_buffer_state_flushed = 0;
   context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
 
   _cogl_list_init (&context->onscreen_events_queue);
@@ -284,11 +272,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->journal_flush_attributes_array =
     g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
-  context->journal_clip_bounds = NULL;
-
-  context->current_pipeline = NULL;
-  context->current_pipeline_changes_since_flush = 0;
-  context->current_pipeline_with_color_attrib = FALSE;
 
   _cogl_bitmask_init (&context->enabled_custom_attributes);
   _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
@@ -296,16 +279,10 @@ cogl_context_new (CoglDisplay *display,
 
   context->max_activateable_texture_units = -1;
 
-  context->current_gl_program = 0;
-
   context->current_gl_dither_enabled = TRUE;
 
-  context->gl_blend_enable_cache = FALSE;
-
-  context->depth_test_enabled_cache = FALSE;
   context->depth_test_function_cache = COGL_DEPTH_TEST_FUNCTION_LESS;
   context->depth_writing_enabled_cache = TRUE;
-  context->depth_range_near_cache = 0;
   context->depth_range_far_cache = 1;
 
   context->pipeline_cache = _cogl_pipeline_cache_new (context);
@@ -317,14 +294,6 @@ cogl_context_new (CoglDisplay *display,
   cogl_pipeline_set_static_name (context->stencil_pipeline,
                                  "Cogl (stencil)");
 
-  context->rectangle_byte_indices = NULL;
-  context->rectangle_short_indices = NULL;
-  context->rectangle_short_indices_len = 0;
-
-  context->blit_texture_pipeline = NULL;
-
-  context->current_modelview_entry = NULL;
-  context->current_projection_entry = NULL;
   _cogl_matrix_entry_identity_init (&context->identity_entry);
 
   /* Create default textures used for fall backs */
@@ -344,11 +313,9 @@ cogl_context_new (CoglDisplay *display,
       return NULL;
     }
 
-  context->atlases = NULL;
   g_hook_list_init (&context->atlas_reorganize_callbacks, sizeof (GHook));
 
   context->buffer_map_fallback_array = g_byte_array_new ();
-  context->buffer_map_fallback_in_use = FALSE;
 
   context->named_pipelines =
     g_hash_table_new_full (NULL, NULL, NULL, g_object_unref);
