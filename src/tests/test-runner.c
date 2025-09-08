@@ -1608,6 +1608,42 @@ test_case_do (TestCase    *test,
 
       meta_window_untile (window);
     }
+  else if (strcmp (argv[0], "set_maximize_flag") == 0)
+    {
+      MetaWindow *window;
+      MetaTestClient *client;
+      const char *window_id;
+      MetaMaximizeFlags flags;
+
+      if (argc != 3)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> [vertically|horizontally]", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      if (strcmp (argv[2], "vertically") == 0)
+        {
+          flags = META_MAXIMIZE_VERTICAL;
+        }
+      else if (strcmp (argv[2], "horizontally") == 0)
+        {
+          flags = META_MAXIMIZE_HORIZONTAL;
+        }
+      else
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                       "Invalid tile mode '%s'", argv[2]);
+          return FALSE;
+        }
+
+      meta_window_set_maximize_flags (window, flags);
+    }
   else if (strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
            strcmp (argv[0], "raise") == 0 ||
