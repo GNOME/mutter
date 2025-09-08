@@ -30,6 +30,7 @@ cogl_headers = [
   'cogl-depth-state.h',
   'cogl-display.h',
   'cogl-dma-buf-handle.h',
+  'cogl-driver.h',
   'cogl-framebuffer.h',
   'cogl-frame-info.h',
   'cogl-glib-source.h',

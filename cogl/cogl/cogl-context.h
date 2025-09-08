@@ -37,6 +37,7 @@
 #endif
 
 #include "cogl/cogl-display.h"
+#include "cogl/cogl-driver.h"
 #include "cogl/cogl-pipeline.h"
 #include "cogl/cogl-primitive.h"
 
@@ -372,5 +373,14 @@ cogl_context_get_egl_display (CoglContext *context);
 COGL_EXPORT gboolean
 cogl_context_format_supports_upload (CoglContext     *ctx,
                                      CoglPixelFormat  format);
+
+/**
+ * cogl_context_get_driver:
+ * @context: A #CoglContext
+ *
+ * Returns: (transfer none): the associated #CoglDriver
+ */
+COGL_EXPORT
+CoglDriver * cogl_context_get_driver (CoglContext *context);
 
 G_END_DECLS
