@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-03-05 02:13+0000\n"
-"PO-Revision-Date: 2025-03-08 14:08+0100\n"
+"POT-Creation-Date: 2025-08-31 20:24+0000\n"
+"PO-Revision-Date: 2025-09-02 15:20+0200\n"
 "Last-Translator: Ask Hjorth Larsen <asklarsen@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -319,12 +319,12 @@ msgstr "Arbejdsområder håndteres dynamisk"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Afgør om arbejdsområderne håndteres dynamisk, eller om der er et statisk "
-"antal arbejdsområder (angivet med nøglen num-workspaces i org.gnome.desktop."
-"wm.preferences)."
+"antal arbejdsområder (angivet med nøglen num-workspaces i "
+"org.gnome.desktop.wm.preferences)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -465,7 +465,11 @@ msgid ""
 "with connector, vendor, product, serial, and a color mode, as well as an "
 "associated floating point value representing the output luminance in percent "
 "(%). The default when not specified is 100%."
-msgstr "Outputspecifik farvetilstand og luminansindstilling. Hver indgang består af en tupel med connector, udbyder, produkt, serienummer og farvetilstand samt en tilknyttet flydende talværdi, som repræsenterer outputluminansen i procent (%). Standard er 100 % hvis ikke angivet."
+msgstr ""
+"Outputspecifik farvetilstand og luminansindstilling. Hver indgang består af "
+"en tupel med connector, udbyder, produkt, serienummer og farvetilstand samt "
+"en tilknyttet flydende talværdi, som repræsenterer outputluminansen i "
+"procent (%). Standard er 100 % hvis ikke angivet."
 
 #: data/org.gnome.mutter.gschema.xml.in:197
 msgid "Switch monitor configurations"
@@ -631,26 +635,118 @@ msgstr ""
 "denne indstilling. Xwayland skal genstartes for, at denne ændring træder i "
 "kraft."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Program"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Kørbar fil"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Tilføj programstarter"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Programstarter"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Type"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Tilføj"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Kør"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Slet"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Handling"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Redigér programstartere"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Programstartere"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_Input"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_Emulér berøring"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Hindr systemgenveje"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Programstartere"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Redigér programstartere"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "_Om Udviklingsværktøjskassen Mutter"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Udviklingsværktøjskassen Mutter"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "Hovedmenu"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Mutter-gruppen"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Udviklingsværktøjskassen Mutter"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "Om udviklingsværktøjskassen Mutter"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "Kunne ikke oprette skærm"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Indbygget skærm"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Ukendt"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Ukendt skærm"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -658,69 +754,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Bip-hændelse"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Privatlivsskærm aktiveret"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Privatlivsskærm deaktiveret"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "X-terminal som bruges"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Deaktivér forbindelse til sessionshåndtering"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Angiv sessionhåndterings-id"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Initialisér session fra gemt fil"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Gør kald til X synkrone"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Kør som en wayland-kompositor"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Kør som en indlejret kompositor"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kør wayland-kompositoren uden at starte Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Angiv Wayland-visningsnavnet, der skal bruges"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Kør som fuld terminalserver, frem for indlejret"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Kør som headless terminalserver"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tilføj persistent virtuel skærm (WxH eller WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Kør udviklingsværktøjskasse"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -737,7 +825,7 @@ msgstr "Slå D-Bus-grænsefladen med fejlsøgningskontrol til"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tilstandsskift (Gruppe %d)"
@@ -745,7 +833,7 @@ msgstr "Tilstandsskift (Gruppe %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Tilstandsskift"
@@ -753,11 +841,11 @@ msgstr "Tilstandsskift"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Skift skærm"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Vis integreret hjælp"
 
@@ -779,7 +867,7 @@ msgstr "Mutter-udvidelsesmodul der skal bruges"
 msgid "Workspace %d"
 msgstr "Arbejdsområde %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand"
 
@@ -787,12 +875,12 @@ msgstr "Mutter blev kompileret uden understøttelse for uddybende tilstand"
 msgid "Workspace switched"
 msgstr "Skiftede arbejdsområde"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tilstandsskift: Tilstand %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -801,19 +889,19 @@ msgstr ""
 "Terminalen “%s” har allerede en vindueshåndtering; prøv tilvalget --replace "
 "for at erstatte den aktuelle vindueshåndtering."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Kunne ikke åbne X Window System-terminalen “%s”"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Skærm %d på terminal “%s” er ugyldig"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -825,10 +913,19 @@ msgid "Format %s not supported"
 msgstr "Formatet %s understøttes ikke"
 
 # Lad os håbe dette er rigtigt
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "Deaktivér forbindelse til sessionshåndtering"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "Angiv sessionhåndterings-id"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "Initialisér session fra gemt fil"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "Flyt til arbejdsområdet ovenover"
@@ -913,9 +1010,6 @@ msgstr "%s (på %s)"
 #~ msgid "Toggle shaded state"
 #~ msgstr "Slå vinduesoprulning til/fra"
 
-#~ msgid "Failed to scan themes directory: %s\n"
-#~ msgstr "Kunne ikke skanne temamappe: %s\n"
-
 #~ msgid ""
 #~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
 #~ msgstr ""
@@ -974,8 +1068,8 @@ msgstr "%s (på %s)"
 #~ "ikke med formatet"
 
 #~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:"
-#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ "GTK color specification must have the state in brackets, e.g. "
+#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 #~ msgstr ""
 #~ "GTK-farvespecifikation skal have tilstanden i firkantede klammer, f.eks. "
 #~ "gtk:fg[NORMAL] hvor NORMAL er tilstanden; kunne ikke fortolke “%s”"
@@ -1164,11 +1258,11 @@ msgstr "%s (på %s)"
 #~ "Alfa skal være mellem 0.0 (usynlig) og 1.0 (helt ugennemsigtig), var %g\n"
 
 #~ msgid ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
-#~ "large,x-large,xx-large)\n"
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-"
+#~ "small,small,medium,large,x-large,xx-large)\n"
 #~ msgstr ""
-#~ "Ugyldig titelskalering “%s” (skal være en af xx-small,x-small,small,"
-#~ "medium,large,x-large,xx-large)\n"
+#~ "Ugyldig titelskalering “%s” (skal være en af xx-small,x-"
+#~ "small,small,medium,large,x-large,xx-large)\n"
 
 #~ msgid "<%s> name \"%s\" used a second time"
 #~ msgstr "<%s>-navnet \"%s\" brugt to gange"
@@ -1757,9 +1851,6 @@ msgstr "%s (på %s)"
 
 #~ msgid "Close Window"
 #~ msgstr "Luk vindue"
-
-#~ msgid "Window Menu"
-#~ msgstr "Vinduesmenu"
 
 #~ msgid "Minimize Window"
 #~ msgstr "Minimér vindue"
