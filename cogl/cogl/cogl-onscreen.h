@@ -141,7 +141,7 @@ cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
  * of back buffers then this function will always return 0 which
  * implies that the contents are undefined.
  *
- * The %COGL_FEATURE_ID_BUFFER_AGE feature can optionally be
+ * The %COGL_WINSYS_FEATURE_BUFFER_AGE feature can optionally be
  * explicitly checked to determine if Cogl is currently tracking the
  * age of #CoglOnscreen back buffer contents. If this feature is
  * missing then this function will always return 0.
