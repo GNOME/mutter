@@ -1174,6 +1174,7 @@ stacking_tests = [
   'multi-monitor-placement',
   'unmaximize-placement',
   'resize-after-unmaximize',
+  'maximize-unmaximize-race',
   'move-to-monitor',
 ]
 
