@@ -1,0 +1,202 @@
+new_client w wayland
+new_client x x11
+
+#
+#  1) Initialize as 200x200 floating
+#  2) Maximize vertically
+#  3) Drag 100 pixels towards the right
+#  4) Make 50 pixels larger towards the right
+#  5) Maximize
+#  6) Unmaximize
+#  7) Toggle vertical maximization
+#  8) Maximize horizontally
+#  9) Drag 100 pixels towards the bottom
+# 10) Make 50 pixels larger towards the bottom
+# 11) Maximize
+# 12) Unmaximize
+# 13) Toggle horizontal maximization
+#
+
+# Wayland
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+move w/1 100 100
+
+set_maximize_flag w/1 vertically
+wait_reconfigure w/1
+assert_position w/1 100 0
+assert_size w/1 200 MONITOR_HEIGHT
+wait_for_effects w/1
+
+move_cursor_to 150 10
+click_and_hold
+move_cursor_to 250 10 1s
+release_click
+assert_position w/1 200 0
+assert_size w/1 200 MONITOR_HEIGHT
+
+begin_resize w/1 right
+update_resize w/1 50 0
+end_resize w/1
+wait_reconfigure w/1
+assert_position w/1 200 0
+assert_size w/1 250 MONITOR_HEIGHT
+
+maximize w/1
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 200 100
+assert_size w/1 250 200
+
+set_maximize_flag w/1 vertically
+wait_reconfigure w/1
+assert_position w/1 200 0
+assert_size w/1 250 MONITOR_HEIGHT
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 200 100
+assert_size w/1 250 200
+
+# Now again horizontally
+
+set_maximize_flag w/1 horizontally
+wait_reconfigure w/1
+assert_position w/1 0 100
+assert_size w/1 MONITOR_WIDTH 200
+wait_for_effects w/1
+
+move_cursor_to 10 110
+click_and_hold
+move_cursor_to 10 210 1s
+release_click
+assert_position w/1 0 200
+assert_size w/1 MONITOR_WIDTH 200
+
+begin_resize w/1 bottom
+update_resize w/1 0 50
+end_resize w/1
+wait_reconfigure w/1
+assert_position w/1 0 200
+assert_size w/1 MONITOR_WIDTH 250
+
+maximize w/1
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 200 200
+assert_size w/1 250 250
+
+set_maximize_flag w/1 horizontally
+wait_reconfigure w/1
+assert_position w/1 0 200
+assert_size w/1 MONITOR_WIDTH 250
+wait_for_effects w/1
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 200 200
+assert_size w/1 250 250
+
+destroy w/1
+
+# X11
+create x/1 csd
+resize x/1 200 200
+show x/1
+wait
+move x/1 100 100
+
+set_maximize_flag x/1 vertically
+wait_reconfigure x/1
+assert_position x/1 100 0
+assert_size x/1 200 MONITOR_HEIGHT
+wait_for_effects x/1
+
+move_cursor_to 150 10
+click_and_hold
+move_cursor_to 250 10 1s
+release_click
+assert_position x/1 200 0
+assert_size x/1 200 MONITOR_HEIGHT
+
+begin_resize x/1 right
+update_resize x/1 50 0
+end_resize x/1
+wait_reconfigure x/1
+assert_position x/1 200 0
+assert_size x/1 250 MONITOR_HEIGHT
+
+maximize x/1
+wait_reconfigure x/1
+assert_position x/1 0 0
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 200 100
+assert_size x/1 250 200
+
+set_maximize_flag x/1 vertically
+wait_reconfigure x/1
+assert_position x/1 200 0
+assert_size x/1 250 MONITOR_HEIGHT
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 200 100
+assert_size x/1 250 200
+
+# Now again horizontally
+
+set_maximize_flag x/1 horizontally
+wait_reconfigure x/1
+assert_position x/1 0 100
+assert_size x/1 MONITOR_WIDTH 200
+wait_for_effects x/1
+
+move_cursor_to 10 110
+click_and_hold
+move_cursor_to 10 210 1s
+release_click
+assert_position x/1 0 200
+assert_size x/1 MONITOR_WIDTH 200
+
+begin_resize x/1 bottom
+update_resize x/1 0 50
+end_resize x/1
+wait_reconfigure x/1
+assert_position x/1 0 200
+assert_size x/1 MONITOR_WIDTH 250
+
+maximize x/1
+wait_reconfigure x/1
+assert_position x/1 0 0
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 200 200
+assert_size x/1 250 250
+
+set_maximize_flag x/1 horizontally
+wait_reconfigure x/1
+assert_position x/1 0 200
+assert_size x/1 MONITOR_WIDTH 250
+wait_for_effects x/1
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 200 200
+assert_size x/1 250 250
+
+destroy x/1
