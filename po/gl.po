@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-08-30 16:20+0000\n"
-"PO-Revision-Date: 2025-08-30 23:29+0200\n"
+"POT-Creation-Date: 2025-09-07 21:49+0000\n"
+"PO-Revision-Date: 2025-09-08 08:53+0200\n"
 "Last-Translator: Fran Dieguez <fran.dieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -639,10 +639,8 @@ msgstr ""
 "configuración."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
-#, fuzzy
-#| msgid "Switch applications"
 msgid "Application"
-msgstr "Cambiar entre aplicacións"
+msgstr "Aplicación"
 
 #: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
 msgid "Executable"
@@ -728,7 +726,7 @@ msgstr "O Kit de Desenvolvemento de Mutter"
 msgid "About Mutter Development Kit"
 msgstr "Sobre o Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:674
 msgid "Failed to create monitor"
 msgstr "Produciuse un fallo ao crear o monitor"
 
