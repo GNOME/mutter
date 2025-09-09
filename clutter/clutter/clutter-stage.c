@@ -2963,9 +2963,9 @@ clutter_stage_pick_and_update_sprite (ClutterStage             *stage,
       g_return_if_fail (new_actor != NULL);
     }
 
+  clutter_sprite_update (sprite, point, clear_area);
   clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), new_actor,
                                    source_device, time_ms);
-  clutter_sprite_update (sprite, point, clear_area);
 
   g_clear_pointer (&clear_area, mtk_region_unref);
 }
@@ -3496,9 +3496,9 @@ clutter_stage_update_device_for_event (ClutterStage *stage,
 
       sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
       g_assert (sprite != NULL);
+      clutter_sprite_update (sprite, point, NULL);
       clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), NULL,
                                        source_device, time_ms);
-      clutter_sprite_update (sprite, point, NULL);
       clutter_backend_destroy_sprite (clutter_backend, sprite);
     }
   else
