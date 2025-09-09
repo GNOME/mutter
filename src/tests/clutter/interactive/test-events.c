@@ -202,7 +202,7 @@ input_cb (ClutterActor *actor,
   ClutterEventType event_type;
   ClutterSprite *sprite;
 
-  device = clutter_event_get_device (event);
+  device = clutter_event_get_source_device (event);
   device_name = clutter_input_device_get_device_name (device);
   event_type = clutter_event_type (event);
 
