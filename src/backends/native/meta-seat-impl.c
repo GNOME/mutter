@@ -4002,7 +4002,7 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
   graphene_point_t coords;
 
   if (!meta_seat_impl_query_state (seat_impl,
-                                   seat_impl->core_pointer, NULL,
+                                   NULL, NULL,
                                    &coords, NULL))
     return;
 
