@@ -128,7 +128,7 @@ _cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
   GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter));
   GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter));
 
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS) &&
+  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
       min_filter != GL_NEAREST &&
       min_filter != GL_LINEAR)
     {

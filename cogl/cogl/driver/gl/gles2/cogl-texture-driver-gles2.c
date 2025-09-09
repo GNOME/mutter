@@ -118,7 +118,7 @@ prep_gl_for_pixels_upload_full (CoglContext *ctx,
                                 int pixels_src_y,
                                 int pixels_bpp)
 {
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_UNPACK_SUBIMAGE))
+  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_UNPACK_SUBIMAGE))
     {
       CoglDriver *driver = cogl_context_get_driver (ctx);
 
@@ -164,7 +164,7 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
 
   bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_UNPACK_SUBIMAGE) ||
+  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_UNPACK_SUBIMAGE) ||
       src_rowstride == 0)
     return g_object_ref (src_bmp);
 
@@ -222,7 +222,7 @@ cogl_texture_driver_gles2_upload_subregion_to_gl (CoglTextureDriverGL *tex_drive
   /* If we have the GL_EXT_unpack_subimage extension then we can
      upload from subregions directly. Otherwise we may need to copy
      the bitmap */
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_UNPACK_SUBIMAGE) &&
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_UNPACK_SUBIMAGE) &&
       (src_x != 0 || src_y != 0 ||
        width != cogl_bitmap_get_width (source_bmp) ||
        height != cogl_bitmap_get_height (source_bmp)))

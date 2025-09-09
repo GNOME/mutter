@@ -553,11 +553,8 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
 {
   CoglDriverGLPrivate *priv_gl =
     cogl_driver_gl_get_private (COGL_DRIVER_GL (driver));
-  unsigned long private_features
-    [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   g_auto (GStrv) gl_extensions = 0;
   int gl_major = 0, gl_minor = 0;
-  int i;
 
   /* We have to special case getting the pointer to the glGetString*
      functions because we need to use them to determine what functions
@@ -615,46 +612,46 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
                                      gl_extensions);
 
   if (_cogl_check_extension ("GL_MESA_pack_invert", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
+    COGL_FLAGS_SET (ctx->features,
+                    COGL_FEATURE_ID_MESA_PACK_INVERT, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
+  COGL_FLAGS_SET (ctx->features,
+                  COGL_FEATURE_ID_QUERY_FRAMEBUFFER_BITS,
                   TRUE);
 
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
 
-  COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_PBOS, TRUE);
 
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
 
   if (GE_HAS (driver, glEGLImageTargetTexture2D))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
+    COGL_FLAGS_SET (ctx->features,
+                    COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL, TRUE);
+  COGL_FLAGS_SET (ctx->features,
+                  COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL, TRUE);
 
   if (GE_HAS (driver, glGenSamplers))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS, TRUE);
+    COGL_FLAGS_SET (ctx->features,
+                    COGL_FEATURE_ID_SAMPLER_OBJECTS, TRUE);
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 3) ||
       _cogl_check_extension ("GL_ARB_texture_swizzle", gl_extensions) ||
       _cogl_check_extension ("GL_EXT_texture_swizzle", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE, TRUE);
+    COGL_FLAGS_SET (ctx->features,
+                    COGL_FEATURE_ID_TEXTURE_SWIZZLE, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE, TRUE);
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_FORMAT_CONVERSION, TRUE);
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL, TRUE);
+  COGL_FLAGS_SET (ctx->features,
+                  COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE, TRUE);
+  COGL_FLAGS_SET (ctx->features,
+                  COGL_FEATURE_ID_FORMAT_CONVERSION, TRUE);
+  COGL_FLAGS_SET (ctx->features,
+                  COGL_FEATURE_ID_TEXTURE_MAX_LEVEL, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
+  COGL_FLAGS_SET (ctx->features,
+                  COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
 
   if (GE_HAS (driver, glFenceSync))
     COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_FENCE, TRUE);
@@ -668,10 +665,7 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NORM16, TRUE);
 
   /* Cache features */
-  for (i = 0; i < G_N_ELEMENTS (private_features); i++)
-    ctx->private_features[i] |= private_features[i];
-
-  if (!COGL_FLAGS_GET (private_features, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
+  if (!COGL_FLAGS_GET (ctx->features, COGL_FEATURE_ID_TEXTURE_SWIZZLE))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,

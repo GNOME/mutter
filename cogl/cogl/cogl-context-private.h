@@ -59,8 +59,6 @@ struct _CoglContext
 
   /* Features cache */
   unsigned long features[COGL_FLAGS_N_LONGS_FOR_SIZE (_COGL_N_FEATURE_IDS)];
-  unsigned long private_features
-    [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)];
 
   CoglPipeline *default_pipeline;
   CoglPipelineLayer *default_layer_0;

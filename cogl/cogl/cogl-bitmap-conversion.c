@@ -751,7 +751,7 @@ driver_can_convert (CoglContext *ctx,
                     CoglPixelFormat src_format,
                     CoglPixelFormat internal_format)
 {
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_FORMAT_CONVERSION))
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_FORMAT_CONVERSION))
     return FALSE;
 
   if (src_format == internal_format)
@@ -760,7 +760,7 @@ driver_can_convert (CoglContext *ctx,
   /* If the driver doesn't natively support alpha textures then it
    * won't work correctly to convert to/from component-alpha
    * textures */
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) &&
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_ALPHA_TEXTURES) &&
       (src_format == COGL_PIXEL_FORMAT_A_8 ||
        internal_format == COGL_PIXEL_FORMAT_A_8))
     return FALSE;

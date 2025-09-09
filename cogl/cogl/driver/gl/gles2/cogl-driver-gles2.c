@@ -201,8 +201,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       break;
 
     case COGL_PIXEL_FORMAT_RGB_888:
-      if (_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_SIZED_RGBA))
+      if (cogl_context_has_feature
+          (context, COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA))
         glintformat = GL_RGB8;
       else
         glintformat = GL_RGB;
@@ -278,8 +278,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_BGRA_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
-      if (_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888))
+      if (cogl_context_has_feature
+          (context, COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888))
         {
           /* Using the sized internal format GL_BGRA8 only become possible on
            * 23/06/2024 (https://registry.khronos.org/OpenGL/extensions/EXT/EXT_texture_format_BGRA8888.txt).
@@ -331,8 +331,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
-      if (_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_SIZED_RGBA))
+      if (cogl_context_has_feature
+          (context, COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA))
         glintformat = GL_RGBA8;
       else
         glintformat = GL_RGBA;
@@ -753,11 +753,8 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
 {
   CoglDriverGLPrivate *priv_gl =
     cogl_driver_gl_get_private (COGL_DRIVER_GL (driver));
-  unsigned long private_features
-    [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   g_auto (GStrv) gl_extensions = 0;
   int gl_major, gl_minor;
-  int i;
 
   /* We have to special case getting the pointer to the glGetString
      function because we need to use it to determine what functions we
@@ -801,21 +798,21 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
     {
       /* unfortunately there is no GLES 2 ext which adds the equivalent */
-      COGL_FLAGS_SET (private_features,
-                      COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_SIZED_RGBA, TRUE);
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA, TRUE);
     }
 
   if (_cogl_check_extension ("GL_ANGLE_pack_reverse_row_order", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_MESA_PACK_INVERT, TRUE);
 
   /* Note GLES 2 core doesn't support mipmaps for npot textures or
    * repeat modes other than CLAMP_TO_EDGE. */
 
-  COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
+  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_ALPHA_TEXTURES, TRUE);
 
   if (GE_HAS (driver, glGenSamplers))
-    COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS, TRUE);
+    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_SAMPLER_OBJECTS, TRUE);
 
   if (GE_HAS (driver, glBlitFramebuffer))
     COGL_FLAGS_SET (context->features,
@@ -845,16 +842,16 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     }
 
   if (GE_HAS (driver, glEGLImageTargetTexture2D))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
 
   if (_cogl_check_extension ("GL_OES_packed_depth_stencil", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL, TRUE);
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL, TRUE);
 
   if (_cogl_check_extension ("GL_EXT_texture_format_BGRA8888", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888, TRUE);
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888, TRUE);
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
@@ -870,14 +867,14 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                     COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
 
   if (_cogl_check_extension ("GL_EXT_unpack_subimage", gl_extensions))
-    COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_UNPACK_SUBIMAGE, TRUE);
+    COGL_FLAGS_SET (context->features,
+                    COGL_FEATURE_ID_UNPACK_SUBIMAGE, TRUE);
 
   /* A nameless vendor implemented the extension, but got the case wrong
    * per the spec. */
   if (_cogl_check_extension ("GL_OES_EGL_sync", gl_extensions) ||
       _cogl_check_extension ("GL_OES_egl_sync", gl_extensions))
-    COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_OES_EGL_SYNC, TRUE);
+    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OES_EGL_SYNC, TRUE);
 
 #ifdef GL_ARB_sync
   if (GE_HAS (driver, glFenceSync))
@@ -892,14 +889,14 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
 
   if (_cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
     {
-      COGL_FLAGS_SET (private_features,
-                      COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
     }
 
   if (!g_strcmp0 (cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_RENDERER), "Mali-400 MP"))
     {
-      COGL_FLAGS_SET (private_features,
-                      COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
+      COGL_FLAGS_SET (context->features,
+                      COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
                       TRUE);
     }
 
@@ -908,10 +905,6 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     COGL_FLAGS_SET (context->features,
                     COGL_FEATURE_ID_TEXTURE_NORM16,
                     TRUE);
-
-  /* Cache features */
-  for (i = 0; i < G_N_ELEMENTS (private_features); i++)
-    context->private_features[i] |= private_features[i];
 
   return TRUE;
 }
