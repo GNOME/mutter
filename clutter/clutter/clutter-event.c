@@ -799,17 +799,6 @@ clutter_event_get_device_type (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_get_device: (skip)
- */
-ClutterInputDevice *
-clutter_event_get_device (const ClutterEvent *event)
-{
-  g_return_val_if_fail (event != NULL, NULL);
-
-  return event->any.device;
-}
-
-/**
  * clutter_event_get_device_tool:
  * @event: a #ClutterEvent
  *
@@ -1105,10 +1094,7 @@ clutter_event_get_source_device (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, NULL);
 
-  if (event->any.source_device)
-    return event->any.source_device;
-  else
-    return clutter_event_get_device (event);
+  return event->any.source_device;
 }
 
 /**
