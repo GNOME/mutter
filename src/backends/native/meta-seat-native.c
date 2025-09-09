@@ -787,51 +787,58 @@ MetaCursorRenderer *
 meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative *seat_native,
                                                ClutterSprite  *sprite)
 {
-  ClutterInputDevice *device;
+  ClutterSpriteRole role;
 
-  device = clutter_sprite_get_device (sprite);
+  role = clutter_sprite_get_role (sprite);
 
-  if (device == seat_native->core_pointer)
+  switch (role)
     {
-      if (!seat_native->cursor_renderer)
-        {
-          MetaCursorRendererNative *cursor_renderer_native;
+    case CLUTTER_SPRITE_ROLE_POINTER:
+      {
+        if (!seat_native->cursor_renderer)
+          {
+            MetaCursorRendererNative *cursor_renderer_native;
 
-          cursor_renderer_native =
-            meta_cursor_renderer_native_new (seat_native->backend,
-                                             sprite);
-          seat_native->cursor_renderer =
-            META_CURSOR_RENDERER (cursor_renderer_native);
-        }
+            cursor_renderer_native =
+              meta_cursor_renderer_native_new (seat_native->backend,
+                                               sprite);
+            seat_native->cursor_renderer =
+              META_CURSOR_RENDERER (cursor_renderer_native);
+          }
 
-      return seat_native->cursor_renderer;
-    }
+        return seat_native->cursor_renderer;
+      }
+    case CLUTTER_SPRITE_ROLE_TABLET:
+      {
+        ClutterInputDevice *device;
+        MetaCursorRenderer *cursor_renderer = NULL;
 
-  if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
-    {
-      MetaCursorRenderer *cursor_renderer = NULL;
+        device = clutter_sprite_get_device (sprite);
 
-      if (!seat_native->tablet_cursors)
-        {
-          seat_native->tablet_cursors =
-            g_hash_table_new_full (NULL, NULL, NULL,
-                                   g_object_unref);
-        }
-      else
-        {
-          cursor_renderer = g_hash_table_lookup (seat_native->tablet_cursors,
-                                                 device);
-        }
+        if (!seat_native->tablet_cursors)
+          {
+            seat_native->tablet_cursors =
+              g_hash_table_new_full (NULL, NULL, NULL,
+                                     g_object_unref);
+          }
+        else
+          {
+            cursor_renderer = g_hash_table_lookup (seat_native->tablet_cursors,
+                                                   device);
+          }
 
-      if (!cursor_renderer)
-        {
-          cursor_renderer = meta_cursor_renderer_new (seat_native->backend,
-                                                      sprite);
-          g_hash_table_insert (seat_native->tablet_cursors,
-                               device, cursor_renderer);
-        }
+        if (!cursor_renderer)
+          {
+            cursor_renderer = meta_cursor_renderer_new (seat_native->backend,
+                                                        sprite);
+            g_hash_table_insert (seat_native->tablet_cursors,
+                                 device, cursor_renderer);
+          }
 
-      return cursor_renderer;
+        return cursor_renderer;
+      }
+    case CLUTTER_SPRITE_ROLE_TOUCHPOINT:
+      break;
     }
 
   return NULL;
