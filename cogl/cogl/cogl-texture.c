@@ -873,7 +873,7 @@ cogl_texture_get_data (CoglTexture *texture,
    * this case the driver will be faking the alpha textures with a
    * red-component texture and it won't swizzle to the correct format
    * while reading */
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES))
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_ALPHA_TEXTURES))
     {
       if (texture_format == COGL_PIXEL_FORMAT_A_8)
         {
@@ -1247,10 +1247,10 @@ _cogl_texture_determine_internal_format (CoglTexture *texture,
         {
           CoglContext *ctx = cogl_texture_get_context (texture);
 
-          if (_cogl_has_private_feature (ctx,
-                  COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL) ||
-              _cogl_has_private_feature (ctx,
-                  COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL))
+          if (cogl_context_has_feature (ctx,
+                  COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL) ||
+              cogl_context_has_feature (ctx,
+                  COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL))
             {
               return COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8;
             }

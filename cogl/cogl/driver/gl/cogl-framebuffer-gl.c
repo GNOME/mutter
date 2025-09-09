@@ -438,7 +438,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
   if (!cogl_framebuffer_is_y_flipped (framebuffer))
     y = framebuffer_height - y - height;
 
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_MESA_PACK_INVERT) &&
+  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_MESA_PACK_INVERT) &&
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
       !cogl_framebuffer_is_y_flipped (framebuffer))
     {
@@ -467,8 +467,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
 
   bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (format, 0);
   stride_mismatch =
-    !_cogl_has_private_feature (ctx,
-                                COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE) &&
+    !cogl_context_has_feature (ctx,
+                                COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE) &&
     (cogl_bitmap_get_rowstride (bitmap) != bytes_per_pixel * width);
 
   if (format_mismatch || stride_mismatch)
