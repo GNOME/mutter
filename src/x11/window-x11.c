@@ -3137,7 +3137,7 @@ nearest_device_func (ClutterStage  *stage,
 
   clutter_seat_query_state (seat, sprite, &point, &mods);
 
-  if (!clutter_sprite_get_sequence (sprite))
+  if (clutter_sprite_get_role (sprite) != CLUTTER_SPRITE_ROLE_TOUCHPOINT)
     {
       ClutterModifierType accepted_buttons = 0;
       ClutterModifierType mask =
