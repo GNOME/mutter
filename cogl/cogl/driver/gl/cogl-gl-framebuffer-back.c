@@ -65,7 +65,7 @@ ensure_bits_initialized (CoglGlFramebufferBack *gl_framebuffer_back)
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_QUERY_FRAMEBUFFER_BITS))
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_QUERY_FRAMEBUFFER_BITS))
     {
       const struct {
         GLenum attachment, pname;

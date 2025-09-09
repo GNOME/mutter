@@ -97,13 +97,14 @@
 G_DEFINE_FINAL_TYPE (CoglDriverGLES2, cogl_driver_gles2, COGL_TYPE_DRIVER_GL)
 
 static CoglPixelFormat
-cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
+cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
                                       CoglContext     *context,
                                       CoglPixelFormat  format,
                                       GLenum          *out_glintformat,
                                       GLenum          *out_glformat,
                                       GLenum          *out_gltype)
 {
+  CoglDriver *driver = COGL_DRIVER (driver_gl);
   CoglPixelFormat required_format;
   GLenum glintformat;
   GLenum glformat = 0;
@@ -182,7 +183,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       break;
 
     case COGL_PIXEL_FORMAT_RG_88:
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_RG))
         {
           glintformat = GL_RG8;
           glformat = GL_RG;
@@ -191,7 +192,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       else
         {
           required_format =
-            cogl_driver_gles2_pixel_format_to_gl (driver,
+            cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                                   context,
                                                   COGL_PIXEL_FORMAT_RGB_888,
                                                   &glintformat,
@@ -201,8 +202,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       break;
 
     case COGL_PIXEL_FORMAT_RGB_888:
-      if (cogl_context_has_feature
-          (context, COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA))
+      if (cogl_driver_has_feature
+          (driver, COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA))
         glintformat = GL_RGB8;
       else
         glintformat = GL_RGB;
@@ -213,7 +214,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_BGR_888:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_RGB_888,
                                               &glintformat,
@@ -222,7 +223,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       break;
 
     case COGL_PIXEL_FORMAT_R_16:
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_NORM16))
         {
           glintformat = GL_R16;
           glformat = GL_RED;
@@ -236,10 +237,10 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       break;
 
     case COGL_PIXEL_FORMAT_RG_1616:
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_NORM16))
         {
           /* NORM16 implies RG for GLES */
-          g_assert (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_RG));
+          g_assert (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_RG));
           glintformat = GL_RG16;
           glformat = GL_RG;
           gltype = GL_UNSIGNED_SHORT;
@@ -253,7 +254,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_RGBX_16161616:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_RGBA_16161616_PRE,
                                               &glintformat,
@@ -263,7 +264,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_NORM16))
         {
           glintformat = GL_RGBA16;
           glformat = GL_RGBA;
@@ -278,8 +279,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_BGRA_8888:
     case COGL_PIXEL_FORMAT_BGRA_8888_PRE:
-      if (cogl_context_has_feature
-          (context, COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888))
+      if (cogl_driver_has_feature
+          (driver, COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888))
         {
           /* Using the sized internal format GL_BGRA8 only become possible on
            * 23/06/2024 (https://registry.khronos.org/OpenGL/extensions/EXT/EXT_texture_format_BGRA8888.txt).
@@ -293,7 +294,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
       else
         {
           required_format =
-            cogl_driver_gles2_pixel_format_to_gl (driver,
+            cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                                   context,
                                                   COGL_PIXEL_FORMAT_RGBA_8888,
                                                   &glintformat,
@@ -307,7 +308,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_XRGB_8888:
     case COGL_PIXEL_FORMAT_XBGR_8888:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                               &glintformat,
@@ -320,7 +321,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_ABGR_8888:
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_RGBA_8888 |
                                               (format & COGL_PREMULT_BIT),
@@ -331,8 +332,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_RGBA_8888:
     case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
-      if (cogl_context_has_feature
-          (context, COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA))
+      if (cogl_driver_has_feature
+          (driver, COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA))
         glintformat = GL_RGBA8;
       else
         glintformat = GL_RGBA;
@@ -366,7 +367,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
         {
           glintformat = GL_RGB10_A2;
           glformat = GL_RGBA;
@@ -389,7 +390,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_ABGR_2101010 |
                                               (format & COGL_PREMULT_BIT),
@@ -400,7 +401,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
         {
           glintformat = GL_RGBA16F;
           glformat = GL_RGBA;
@@ -417,7 +418,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_XRGB_FP_16161616:
     case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
                                               &glintformat,
@@ -432,7 +433,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
-        cogl_driver_gles2_pixel_format_to_gl (driver,
+        cogl_driver_gles2_pixel_format_to_gl (driver_gl,
                                               context,
                                               COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
                                               (format & COGL_PREMULT_BIT),
@@ -443,7 +444,7 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
-      if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
         {
           glintformat = GL_RGBA32F;
           glformat = GL_RGBA;
@@ -798,120 +799,123 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
     {
       /* unfortunately there is no GLES 2 ext which adds the equivalent */
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA, TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_TEXTURE_FORMAT_SIZED_RGBA, TRUE);
     }
 
   if (_cogl_check_extension ("GL_ANGLE_pack_reverse_row_order", gl_extensions))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_MESA_PACK_INVERT, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_MESA_PACK_INVERT, TRUE);
 
   /* Note GLES 2 core doesn't support mipmaps for npot textures or
    * repeat modes other than CLAMP_TO_EDGE. */
 
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_ALPHA_TEXTURES, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_ALPHA_TEXTURES, TRUE);
 
   if (GE_HAS (driver, glGenSamplers))
-    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_SAMPLER_OBJECTS, TRUE);
+    cogl_driver_set_feature (driver, COGL_FEATURE_ID_SAMPLER_OBJECTS, TRUE);
 
   if (GE_HAS (driver, glBlitFramebuffer))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
 
   if (_cogl_check_extension ("GL_OES_element_index_uint", gl_extensions))
     {
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
     }
 
   if (GE_HAS (driver, glMapBuffer))
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
          read */
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
     }
 
   if (GE_HAS (driver, glMapBufferRange))
     {
       /* MapBufferRange in ES3+ does support mapping for read */
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,
+                               TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_MAP_BUFFER_FOR_READ,
+                               TRUE);
     }
 
   if (GE_HAS (driver, glEGLImageTargetTexture2D))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE,
+                             TRUE);
 
   if (_cogl_check_extension ("GL_OES_packed_depth_stencil", gl_extensions))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL,
+                             TRUE);
 
   if (_cogl_check_extension ("GL_EXT_texture_format_BGRA8888", gl_extensions))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_FORMAT_BGRA8888, TRUE);
 
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
 #endif
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 2) ||
       (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) &&
        _cogl_check_extension ("GL_OES_texture_half_float", gl_extensions) &&
        _cogl_check_extension ("GL_EXT_color_buffer_half_float", gl_extensions)))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
 
   if (_cogl_check_extension ("GL_EXT_unpack_subimage", gl_extensions))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_UNPACK_SUBIMAGE, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_UNPACK_SUBIMAGE, TRUE);
 
   /* A nameless vendor implemented the extension, but got the case wrong
    * per the spec. */
   if (_cogl_check_extension ("GL_OES_EGL_sync", gl_extensions) ||
       _cogl_check_extension ("GL_OES_egl_sync", gl_extensions))
-    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OES_EGL_SYNC, TRUE);
+    cogl_driver_set_feature (driver, COGL_FEATURE_ID_OES_EGL_SYNC, TRUE);
 
 #ifdef GL_ARB_sync
   if (GE_HAS (driver, glFenceSync))
-    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
+    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
 #endif
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
       _cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_TEXTURE_RG,
-                    TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_RG,
+                             TRUE);
 
   if (_cogl_check_extension ("GL_EXT_texture_lod_bias", gl_extensions))
     {
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
     }
 
   if (!g_strcmp0 (cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_RENDERER), "Mali-400 MP"))
     {
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
-                      TRUE);
+      cogl_driver_set_feature (driver,
+                               COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
+                               TRUE);
     }
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 1) &&
       _cogl_check_extension ("GL_EXT_texture_norm16", gl_extensions))
-    COGL_FLAGS_SET (context->features,
-                    COGL_FEATURE_ID_TEXTURE_NORM16,
-                    TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_NORM16,
+                             TRUE);
 
   return TRUE;
 }
 
 static gboolean
 cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
-                                          CoglContext     *ctx,
                                           CoglPixelFormat  format)
 {
   switch (format)
@@ -937,7 +941,7 @@ cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-      if (cogl_context_has_feature (ctx,  COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+      if (cogl_driver_has_feature (driver,  COGL_FEATURE_ID_TEXTURE_RGBA1010102))
         return TRUE;
       else
         return FALSE;
@@ -974,7 +978,7 @@ cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
     case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232:
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
-      if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
         return TRUE;
       else
         return FALSE;
@@ -983,7 +987,7 @@ cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
     case COGL_PIXEL_FORMAT_RGBX_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
-      if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NORM16))
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_NORM16))
         return TRUE;
       else
         return FALSE;

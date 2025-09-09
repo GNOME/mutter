@@ -118,10 +118,10 @@ prep_gl_for_pixels_upload_full (CoglContext *ctx,
                                 int pixels_src_y,
                                 int pixels_bpp)
 {
-  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_UNPACK_SUBIMAGE))
-    {
-      CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_UNPACK_SUBIMAGE))
+    {
       GE (driver, glPixelStorei (GL_UNPACK_ROW_LENGTH,
                                  pixels_rowstride / pixels_bpp));
 
@@ -149,7 +149,7 @@ _cogl_texture_driver_prep_gl_for_pixels_upload (CoglContext *ctx,
 }
 
 static CoglBitmap *
-prepare_bitmap_alignment_for_upload (CoglContext *ctx,
+prepare_bitmap_alignment_for_upload (CoglDriver *driver,
                                      CoglBitmap *src_bmp,
                                      GError **error)
 {
@@ -164,7 +164,7 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
 
   bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
-  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_UNPACK_SUBIMAGE) ||
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_UNPACK_SUBIMAGE) ||
       src_rowstride == 0)
     return g_object_ref (src_bmp);
 
@@ -222,7 +222,7 @@ cogl_texture_driver_gles2_upload_subregion_to_gl (CoglTextureDriverGL *tex_drive
   /* If we have the GL_EXT_unpack_subimage extension then we can
      upload from subregions directly. Otherwise we may need to copy
      the bitmap */
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_UNPACK_SUBIMAGE) &&
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_UNPACK_SUBIMAGE) &&
       (src_x != 0 || src_y != 0 ||
        width != cogl_bitmap_get_width (source_bmp) ||
        height != cogl_bitmap_get_height (source_bmp)))
@@ -250,7 +250,7 @@ cogl_texture_driver_gles2_upload_subregion_to_gl (CoglTextureDriverGL *tex_drive
     }
   else
     {
-      slice_bmp = prepare_bitmap_alignment_for_upload (ctx, source_bmp, error);
+      slice_bmp = prepare_bitmap_alignment_for_upload (driver, source_bmp, error);
       if (!slice_bmp)
         return FALSE;
     }
@@ -367,7 +367,7 @@ cogl_texture_driver_gles2_upload_to_gl (CoglTextureDriverGL *tex_driver,
 
   bpp = cogl_pixel_format_get_bytes_per_pixel (source_format, 0);
 
-  bmp = prepare_bitmap_alignment_for_upload (ctx, source_bmp, error);
+  bmp = prepare_bitmap_alignment_for_upload (driver, source_bmp, error);
   if (!bmp)
     return FALSE;
 

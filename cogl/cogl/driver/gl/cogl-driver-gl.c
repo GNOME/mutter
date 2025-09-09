@@ -279,8 +279,8 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
         {
           /* NB: Currently we only take advantage of binding separate
            * read/write buffers for framebuffer blit purposes. */
-          g_return_if_fail (cogl_context_has_feature
-                            (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
+          g_return_if_fail (cogl_driver_has_feature
+                            (driver, COGL_FEATURE_ID_BLIT_FRAMEBUFFER));
 
           cogl_gl_framebuffer_bind (draw_gl_framebuffer, GL_DRAW_FRAMEBUFFER);
           cogl_gl_framebuffer_bind (read_gl_framebuffer, GL_READ_FRAMEBUFFER);
@@ -304,11 +304,10 @@ cogl_driver_gl_create_buffer_impl (CoglDriver *driver)
 
 static void
 cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
-                                  CoglContext           *context,
                                   CoglSamplerCacheEntry *entry)
 {
-  if (cogl_context_has_feature (context,
-                                COGL_FEATURE_ID_SAMPLER_OBJECTS))
+  if (cogl_driver_has_feature (driver,
+                               COGL_FEATURE_ID_SAMPLER_OBJECTS))
     {
       GE (driver, glGenSamplers (1, &entry->sampler_object));
 
@@ -330,8 +329,8 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
        * GL_TEXTURE_LOD_BIAS in GL, the same is not true in GLES. So check,
        * and also only apply GL_TEXTURE_LOD_BIAS in mipmap modes:
        */
-      if (cogl_context_has_feature (context,
-                                    COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
+      if (cogl_driver_has_feature (driver,
+                                   COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
           entry->min_filter != GL_NEAREST &&
           entry->min_filter != GL_LINEAR)
         {
@@ -357,11 +356,10 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
 
 static void
 cogl_driver_gl_sampler_free (CoglDriver            *driver,
-                             CoglContext           *context,
                              CoglSamplerCacheEntry *entry)
 {
-  if (cogl_context_has_feature (context,
-                                COGL_FEATURE_ID_SAMPLER_OBJECTS))
+  if (cogl_driver_has_feature (driver,
+                               COGL_FEATURE_ID_SAMPLER_OBJECTS))
     GE (driver, glDeleteSamplers (1, &entry->sampler_object));
 }
 
