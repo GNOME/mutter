@@ -344,7 +344,7 @@ on_name_acquired (GDBusConnection *connection,
                   const char      *name,
                   gpointer         user_data)
 {
-  g_debug ("Acquired name %s", name);
+  meta_topic (META_DEBUG_DBUS, "Acquired name %s", name);
 }
 
 static void
@@ -352,7 +352,7 @@ on_name_lost (GDBusConnection *connection,
               const char      *name,
               gpointer         user_data)
 {
-  g_debug ("Lost or failed to acquire name %s", name);
+  meta_topic (META_DEBUG_DBUS, "Lost or failed to acquire name %s", name);
 }
 
 static void

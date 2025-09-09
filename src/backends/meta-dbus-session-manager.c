@@ -165,7 +165,7 @@ on_name_lost (GDBusConnection *connection,
   MetaDbusSessionManagerPrivate *priv =
     meta_dbus_session_manager_get_instance_private (session_manager);
 
-  g_warning ("Lost or failed to acquire name %s", name);
+  meta_topic (META_DEBUG_DBUS, "Lost or failed to acquire name %s", name);
 
   priv->is_enabled = FALSE;
 
