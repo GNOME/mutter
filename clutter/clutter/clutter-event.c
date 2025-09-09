@@ -2510,6 +2510,7 @@ clutter_event_device_notify_new (ClutterEventType    type,
   event->device.time_us = timestamp_us;
   event->device.flags = flags;
 
+  g_set_object (&event->device.source_device, source_device);
   g_set_object (&event->device.device, source_device);
 
   return event;
@@ -2737,7 +2738,7 @@ generate_event_description (const ClutterEvent *event)
       {
         ClutterInputDevice *device;
 
-        device = clutter_event_get_device (event);
+        device = clutter_event_get_source_device (event);
         return g_strdup_printf ("%s (%s)",
                                 clutter_input_device_get_device_name (device),
                                 clutter_input_device_get_device_node (device));
