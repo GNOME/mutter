@@ -454,6 +454,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
   CoglContext *ctx = cogl_texture_get_context (tex);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglTexturePixmapEGL *egl_tex_pixmap;
   EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
   CoglPixelFormat texture_format;
@@ -463,8 +464,8 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
 
   if (!(egl_renderer->private_features &
         COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_X11_PIXMAP) ||
-      !cogl_context_has_feature
-      (ctx, COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE))
+      !cogl_driver_has_feature
+        (driver, COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE))
     {
       tex_pixmap->winsys = NULL;
       return FALSE;

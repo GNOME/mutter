@@ -535,11 +535,12 @@ encode_3d_lut_output (float            *lut_output,
 {
   CoglContext *context =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  CoglDriver *driver = cogl_context_get_driver (context);
   uint16_t *encoded_output_half;
   uint8_t *encoded_output;
   int i;
 
-  if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
     {
       encoded_output_half = g_malloc (n_samples * 4 * sizeof (uint16_t));
       *out_encoded = (uint8_t *) encoded_output_half;

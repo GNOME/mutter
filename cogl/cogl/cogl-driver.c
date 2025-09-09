@@ -31,7 +31,13 @@
 
 #include "cogl/cogl-driver-private.h"
 
-G_DEFINE_ABSTRACT_TYPE (CoglDriver, cogl_driver, G_TYPE_OBJECT)
+typedef struct _CoglDriverPrivate
+{
+  /* Features cache */
+  unsigned long features[COGL_FLAGS_N_LONGS_FOR_SIZE (_COGL_N_FEATURE_IDS)];
+} CoglDriverPrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglDriver, cogl_driver, G_TYPE_OBJECT)
 
 static CoglBufferImpl *
 cogl_driver_default_create_buffer_impl (CoglDriver *driver)
@@ -55,6 +61,13 @@ cogl_driver_class_init (CoglDriverClass *klass)
 static void
 cogl_driver_init (CoglDriver *driver)
 {
+  CoglDriverPrivate *priv =
+    cogl_driver_get_instance_private (driver);
+
+  memset (priv->features, 0, sizeof (priv->features));
+
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
+    COGL_FLAGS_SET (priv->features, COGL_FEATURE_ID_PBOS, FALSE);
 }
 
 CoglBufferImpl *
@@ -130,22 +143,41 @@ cogl_driver_update_features (CoglDriver  *driver,
 
 gboolean
 cogl_driver_format_supports_upload (CoglDriver     *driver,
-                                    CoglContext    *context,
                                     CoglPixelFormat format)
 {
   CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
 
-  return klass->format_supports_upload (driver, context, format);
+  return klass->format_supports_upload (driver, format);
 }
 
 int64_t
-cogl_driver_get_gpu_time_ns (CoglDriver  *driver,
-                             CoglContext *context)
+cogl_driver_get_gpu_time_ns (CoglDriver  *driver)
 {
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
+  g_return_val_if_fail (cogl_driver_has_feature (driver,
+                                                 COGL_FEATURE_ID_TIMESTAMP_QUERY),
                         0);
 
 
-  return COGL_DRIVER_GET_CLASS (driver)->get_gpu_time_ns (driver, context);
+  return COGL_DRIVER_GET_CLASS (driver)->get_gpu_time_ns (driver);
+}
+
+gboolean
+cogl_driver_has_feature (CoglDriver   *driver,
+                         CoglFeatureID feature)
+{
+  CoglDriverPrivate *priv =
+    cogl_driver_get_instance_private (driver);
+
+  return COGL_FLAGS_GET (priv->features, feature);
+}
+
+void
+cogl_driver_set_feature (CoglDriver   *driver,
+                         CoglFeatureID feature,
+                         gboolean      value)
+{
+  CoglDriverPrivate *priv =
+    cogl_driver_get_instance_private (driver);
+
+  COGL_FLAGS_SET (priv->features, feature, value);
 }

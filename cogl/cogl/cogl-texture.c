@@ -813,6 +813,7 @@ cogl_texture_get_data (CoglTexture *texture,
 		       uint8_t *data)
 {
   CoglContext *ctx;
+  CoglDriver *driver;
   CoglTextureDriver *tex_driver;
   CoglTextureDriverGLClass *tex_driver_gl_klass;
   int bpp;
@@ -852,6 +853,7 @@ cogl_texture_get_data (CoglTexture *texture,
     return byte_size;
 
   ctx = cogl_texture_get_context (texture);
+  driver = cogl_context_get_driver (ctx);
   tex_driver = cogl_texture_get_driver (texture);
   tex_driver_gl_klass = COGL_TEXTURE_DRIVER_GL_GET_CLASS (tex_driver);
   closest_format =
@@ -873,7 +875,7 @@ cogl_texture_get_data (CoglTexture *texture,
    * this case the driver will be faking the alpha textures with a
    * red-component texture and it won't swizzle to the correct format
    * while reading */
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_ALPHA_TEXTURES))
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_ALPHA_TEXTURES))
     {
       if (texture_format == COGL_PIXEL_FORMAT_A_8)
         {
@@ -1175,6 +1177,7 @@ gboolean
 cogl_texture_allocate (CoglTexture *texture,
                        GError **error)
 {
+  CoglDriver *driver;
   CoglTexturePrivate *priv;
 
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
@@ -1184,8 +1187,10 @@ cogl_texture_allocate (CoglTexture *texture,
   if (cogl_texture_is_allocated (texture))
     return TRUE;
 
+  driver = cogl_context_get_driver (priv->context);
+
   if (priv->components == COGL_TEXTURE_COMPONENTS_RG &&
-      !cogl_context_has_feature (priv->context, COGL_FEATURE_ID_TEXTURE_RG))
+      !cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_RG))
     g_set_error (error,
                  COGL_TEXTURE_ERROR,
                  COGL_TEXTURE_ERROR_FORMAT,
@@ -1246,10 +1251,11 @@ _cogl_texture_determine_internal_format (CoglTexture *texture,
       else
         {
           CoglContext *ctx = cogl_texture_get_context (texture);
+          CoglDriver *driver = cogl_context_get_driver (ctx);
 
-          if (cogl_context_has_feature (ctx,
+          if (cogl_driver_has_feature (driver,
                   COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL) ||
-              cogl_context_has_feature (ctx,
+              cogl_driver_has_feature (driver,
                   COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL))
             {
               return COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8;
