@@ -621,7 +621,6 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
     flags |= CLUTTER_EVENT_FLAG_A11Y_MODIFIER_FIRST_CLICK;
 
   event = meta_key_event_new_from_evdev (device,
-                                         seat_impl->core_keyboard,
                                          flags,
                                          seat_impl->xkb,
                                          seat_impl->button_state,

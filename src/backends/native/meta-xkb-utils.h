@@ -25,7 +25,6 @@
 #include "clutter/clutter.h"
 
 ClutterEvent *    meta_key_event_new_from_evdev (ClutterInputDevice *device,
-                                                 ClutterInputDevice *core_keyboard,
                                                  ClutterEventFlags   flags,
                                                  struct xkb_state   *xkb_state,
                                                  uint32_t            button_state,
