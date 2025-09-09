@@ -134,6 +134,20 @@ meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
                          handler->user_data);
 }
 
+static gboolean
+invalidate_sprite_focus (ClutterStage  *stage,
+                         ClutterSprite *sprite,
+                         gpointer       user_data)
+{
+  MetaWaylandInput *input = user_data;
+  MetaWaylandEventHandler *handler =
+    wl_container_of (input->event_handler_list.next, handler, link);
+
+  meta_wayland_event_handler_invalidate_focus (handler, CLUTTER_FOCUS (sprite));
+
+  return TRUE;
+}
+
 static void
 meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
 {
@@ -146,9 +160,7 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
-  ClutterInputDevice *device;
   ClutterFocus *focus;
-  GHashTableIter iter;
 
   handler = wl_container_of (input->event_handler_list.next, handler, link);
 
@@ -156,37 +168,9 @@ meta_wayland_input_invalidate_all_focus (MetaWaylandInput *input)
   meta_wayland_event_handler_invalidate_focus (handler, focus);
 
   /* Trigger sync of all known devices */
-  if (meta_wayland_seat_has_pointer (seat))
-    {
-      focus = CLUTTER_FOCUS (clutter_backend_get_pointer_sprite (clutter_backend,
-                                                                 stage));
-      meta_wayland_event_handler_invalidate_focus (handler, focus);
-    }
-
-  if (meta_wayland_seat_has_touch (seat))
-    {
-      g_autoptr (GList) touches = NULL;
-      GList *l;
-
-      touches = g_hash_table_get_keys (seat->touch->touches);
-      for (l = touches; l; l = l->next)
-        {
-          focus = CLUTTER_FOCUS (clutter_backend_lookup_sprite (clutter_backend,
-                                                                stage,
-                                                                NULL,
-                                                                l->data));
-          meta_wayland_event_handler_invalidate_focus (handler, focus);
-        }
-    }
-
-  g_hash_table_iter_init (&iter, seat->tablet_seat->tablets);
-  while (g_hash_table_iter_next (&iter, (gpointer*) &device, NULL))
-    {
-      focus = CLUTTER_FOCUS (clutter_backend_lookup_sprite (clutter_backend,
-                                                            stage,
-                                                            device, NULL));
-      meta_wayland_event_handler_invalidate_focus (handler, focus);
-    }
+  clutter_stage_foreach_sprite (stage,
+                                invalidate_sprite_focus,
+                                input);
 }
 
 static gboolean
