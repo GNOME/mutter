@@ -474,11 +474,7 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
                                   gboolean            press)
 {
   ClutterInputMethodPrivate *priv;
-  ClutterInputDevice *keyboard;
-  ClutterSeat *seat;
   ClutterEvent *event;
-  ClutterContext *context;
-  ClutterBackend *backend;
 
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
@@ -486,15 +482,10 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
   if (!priv->focus)
     return;
 
-  context = _clutter_context_get_default ();
-  backend = clutter_context_get_backend (context);
-  seat = clutter_backend_get_default_seat (backend);
-  keyboard = clutter_seat_get_keyboard (seat);
-
   event = clutter_event_key_new (press ? CLUTTER_KEY_PRESS : CLUTTER_KEY_RELEASE,
                                  CLUTTER_EVENT_FLAG_INPUT_METHOD,
                                  time_,
-                                 keyboard,
+                                 NULL,
                                  (ClutterModifierSet) { 0, },
                                  state,
                                  keyval,
