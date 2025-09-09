@@ -28,6 +28,7 @@
 #include "clutter/clutter-action-private.h"
 #include "clutter/clutter-actor-private.h"
 #include "clutter/clutter-debug.h"
+#include "clutter/clutter-enum-types.h"
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-focus-private.h"
 #include "clutter/clutter-grab.h"
@@ -48,6 +49,7 @@ enum
   PROP_0,
   PROP_DEVICE,
   PROP_SEQUENCE,
+  PROP_ROLE,
   N_PROPS,
 };
 
@@ -65,6 +67,7 @@ struct _ClutterSpritePrivate
 
   GPtrArray *cur_event_actors;
   GArray *cur_event_emission_chain;
+  ClutterSpriteRole role;
 
   unsigned int press_count;
   ClutterActor *implicit_grab_actor;
@@ -447,6 +450,9 @@ clutter_sprite_set_property (GObject      *object,
     case PROP_SEQUENCE:
       priv->sequence = g_value_get_boxed (value);
       break;
+    case PROP_ROLE:
+      priv->role = g_value_get_enum (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -469,6 +475,9 @@ clutter_sprite_get_property (GObject    *object,
       break;
     case PROP_SEQUENCE:
       g_value_set_boxed (value, priv->sequence);
+      break;
+    case PROP_ROLE:
+      g_value_set_enum (value, priv->role);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -902,6 +911,13 @@ clutter_sprite_class_init (ClutterSpriteClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_ROLE] =
+    g_param_spec_enum ("role", NULL, NULL,
+                       CLUTTER_TYPE_SPRITE_ROLE,
+                       CLUTTER_SPRITE_ROLE_POINTER,
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -1116,4 +1132,12 @@ clutter_sprite_point_in_clear_area (ClutterSprite    *sprite,
 
   return mtk_region_contains_point (priv->clear_area,
                                     (int) point.x, (int) point.y);
+}
+
+ClutterSpriteRole
+clutter_sprite_get_role (ClutterSprite *sprite)
+{
+  ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
+
+  return priv->role;
 }

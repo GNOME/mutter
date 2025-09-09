@@ -117,15 +117,24 @@ create_sprite (ClutterBackend     *clutter_backend,
   MetaBackend *backend = clutter_backend_native->backend;
   ClutterInputDevice *device;
   ClutterEventSequence *sequence;
+  ClutterSpriteRole role;
 
   device = clutter_event_get_device (for_event);
   sequence = clutter_event_get_event_sequence (for_event);
+
+  if (clutter_event_get_event_sequence (for_event))
+    role = CLUTTER_SPRITE_ROLE_TOUCHPOINT;
+  else if (clutter_event_get_device_tool (for_event))
+    role = CLUTTER_SPRITE_ROLE_TABLET;
+  else
+    role = CLUTTER_SPRITE_ROLE_POINTER;
 
   return g_object_new (META_TYPE_SPRITE_NATIVE,
                        "backend", backend,
                        "stage", stage,
                        "device", device,
                        "sequence", sequence,
+                       "role", role,
                        NULL);
 }
 
@@ -165,6 +174,7 @@ ensure_pointer_sprite (ClutterBackend *clutter_backend)
                       "backend", backend,
                       "stage", stage,
                       "device", clutter_seat_get_pointer (seat),
+                      "role", CLUTTER_SPRITE_ROLE_POINTER,
                       NULL);
     }
 }

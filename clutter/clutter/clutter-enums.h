@@ -1153,4 +1153,11 @@ typedef enum /*< prefix=CLUTTER_GESTURE_STATE >*/
   CLUTTER_N_GESTURE_STATES
 } ClutterGestureState;
 
+typedef enum /*< prefix=CLUTTER_SPRITE_ROLE >*/
+{
+  CLUTTER_SPRITE_ROLE_POINTER,
+  CLUTTER_SPRITE_ROLE_TABLET,
+  CLUTTER_SPRITE_ROLE_TOUCHPOINT,
+} ClutterSpriteRole;
+
 G_END_DECLS
