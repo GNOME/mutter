@@ -132,7 +132,7 @@ create_sprite (ClutterBackend     *clutter_backend,
   return g_object_new (META_TYPE_SPRITE_NATIVE,
                        "backend", backend,
                        "stage", stage,
-                       "device", device,
+                       "leader-device", device,
                        "sequence", sequence,
                        "role", role,
                        NULL);
@@ -247,7 +247,7 @@ meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
   g_hash_table_remove (clutter_backend_native->touch_sprites,
                        clutter_sprite_get_sequence (sprite));
   g_hash_table_remove (clutter_backend_native->stylus_sprites,
-                       clutter_sprite_get_device (sprite));
+                       clutter_sprite_get_sprite_device (sprite));
 
   if (clutter_backend_native->pointer_sprite == sprite)
     g_clear_object (&clutter_backend_native->pointer_sprite);

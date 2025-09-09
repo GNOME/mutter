@@ -387,13 +387,21 @@ meta_seat_native_query_state (ClutterSeat         *seat,
     CLUTTER_STAGE (meta_backend_get_stage (seat_native->backend));
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (seat_native->backend);
+  ClutterInputDevice *sprite_device = NULL;
+  ClutterEventSequence *event_sequence = NULL;
 
   if (sprite == clutter_backend_get_pointer_sprite (clutter_backend, stage))
     sprite = NULL;
 
+  if (sprite)
+    {
+      sprite_device = clutter_sprite_get_sprite_device (sprite);
+      event_sequence = clutter_sprite_get_sequence (sprite);
+    }
+
   return meta_seat_impl_query_state (seat_native->impl,
-                                     sprite ? clutter_sprite_get_device (sprite) : NULL,
-                                     sprite ? clutter_sprite_get_sequence (sprite) : NULL,
+                                     sprite_device,
+                                     event_sequence,
                                      coords, modifiers);
 }
 
@@ -822,7 +830,7 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative *seat_native,
         ClutterInputDevice *device;
         MetaCursorRenderer *cursor_renderer = NULL;
 
-        device = clutter_sprite_get_device (sprite);
+        device = clutter_sprite_get_sprite_device (sprite);
 
         if (!seat_native->tablet_cursors)
           {

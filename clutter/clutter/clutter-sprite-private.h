@@ -30,7 +30,7 @@
 #include "clutter/clutter-sprite.h"
 
 CLUTTER_EXPORT
-ClutterInputDevice * clutter_sprite_get_device (ClutterSprite *sprite);
+ClutterInputDevice * clutter_sprite_get_sprite_device (ClutterSprite *sprite);
 
 CLUTTER_EXPORT
 ClutterEventSequence * clutter_sprite_get_sequence (ClutterSprite *sprite);

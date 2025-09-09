@@ -257,7 +257,7 @@ default_focus (MetaWaylandEventHandler *handler,
       {
         ClutterInputDevice *device;
 
-        device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+        device = clutter_sprite_get_sprite_device (CLUTTER_SPRITE (focus));
         meta_wayland_tablet_seat_focus_surface (seat->tablet_seat,
                                                 device,
                                                 surface);
@@ -727,7 +727,7 @@ meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
       {
         ClutterInputDevice *device;
 
-        device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+        device = clutter_sprite_get_sprite_device (CLUTTER_SPRITE (focus));
 
         return meta_wayland_tablet_seat_get_current_surface (seat->tablet_seat,
                                                              device);
