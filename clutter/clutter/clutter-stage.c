@@ -3571,7 +3571,7 @@ update_devices_in_view_foreach_cb (ClutterStage  *stage,
   graphene_point_t coords;
 
   /* touchpoints are implicitly grabbed */
-  if (clutter_sprite_get_sequence (sprite))
+  if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
     return TRUE;
 
   clutter_sprite_get_coords (sprite, &coords);
