@@ -1599,23 +1599,6 @@ meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat_impl,
 }
 
 static void
-notify_absolute_motion_in_impl (ClutterInputDevice *input_device,
-                                uint64_t            time_us,
-                                float               x,
-                                float               y,
-                                double             *axes)
-{
-  MetaSeatImpl *seat_impl;
-
-  seat_impl = seat_impl_from_device (input_device);
-  meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
-                                                 input_device,
-                                                 time_us,
-                                                 x, y,
-                                                 axes);
-}
-
-static void
 notify_relative_tool_motion_in_impl (ClutterInputDevice *input_device,
                                      uint64_t            time_us,
                                      float               dx,
@@ -2361,10 +2344,11 @@ process_tablet_axis (MetaSeatImpl          *seat_impl,
                                                         (uint32_t) stage_width);
       y = libinput_event_tablet_tool_get_y_transformed (tablet_event,
                                                         (uint32_t) stage_height);
-      notify_absolute_motion_in_impl (device, time,
-                                      (float) x,
-                                      (float) y,
-                                      axes);
+      meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
+                                                     device, time,
+                                                     (float) x,
+                                                     (float) y,
+                                                     axes);
     }
 }
 
@@ -3418,8 +3402,9 @@ warp_pointer_in_impl (GTask *task)
   graphene_point_t *point;
 
   point = g_task_get_task_data (task);
-  notify_absolute_motion_in_impl (seat_impl->core_pointer, 0,
-                                  point->x, point->y, NULL);
+  meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
+                                                 seat_impl->core_pointer, 0,
+                                                 point->x, point->y, NULL);
   g_task_return_boolean (task, TRUE);
 
   return G_SOURCE_REMOVE;
@@ -4042,8 +4027,9 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
   coords.y = CLAMP (coords.y, monitor_rect.y,
                     monitor_rect.y + monitor_rect.height - 1);
 
-  notify_absolute_motion_in_impl (seat_impl->core_pointer, 0,
-                                  coords.x, coords.y, NULL);
+  meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
+                                                 seat_impl->core_pointer, 0,
+                                                 coords.x, coords.y, NULL);
 }
 
 typedef struct
