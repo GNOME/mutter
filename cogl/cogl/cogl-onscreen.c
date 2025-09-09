@@ -85,7 +85,7 @@ cogl_onscreen_allocate (CoglFramebuffer  *framebuffer,
    * one on allocation so that if the application only paints in
    * response to dirty events then it will at least paint once to
    * start */
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_DIRTY_EVENTS))
     _cogl_onscreen_queue_full_dirty (onscreen);
 
   return TRUE;
@@ -489,8 +489,8 @@ _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
 
   cogl_framebuffer_update_size (framebuffer, width, height);
 
-  if (!_cogl_has_private_feature (cogl_framebuffer_get_context (framebuffer),
-                                  COGL_PRIVATE_FEATURE_DIRTY_EVENTS))
+  if (!cogl_context_has_feature (cogl_framebuffer_get_context (framebuffer),
+                                  COGL_FEATURE_ID_DIRTY_EVENTS))
     _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
 }
 

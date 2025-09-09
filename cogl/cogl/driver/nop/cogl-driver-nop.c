@@ -71,7 +71,6 @@ cogl_driver_nop_update_features (CoglDriver   *driver,
                                  CoglContext  *ctx,
                                  GError      **error)
 {
-  memset (ctx->private_features, 0, sizeof (ctx->private_features));
 
   return TRUE;
 }

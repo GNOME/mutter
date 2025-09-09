@@ -307,8 +307,8 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
                                   CoglContext           *context,
                                   CoglSamplerCacheEntry *entry)
 {
-  if (_cogl_has_private_feature (context,
-                                 COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
+  if (cogl_context_has_feature (context,
+                                COGL_FEATURE_ID_SAMPLER_OBJECTS))
     {
       GE (driver, glGenSamplers (1, &entry->sampler_object));
 
@@ -326,12 +326,12 @@ cogl_driver_gl_sampler_init_init (CoglDriver            *driver,
                                        GL_TEXTURE_WRAP_T,
                                        entry->wrap_mode_t));
 
-      /* While COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS implies support for
+      /* While COGL_FEATURE_ID_SAMPLER_OBJECTS implies support for
        * GL_TEXTURE_LOD_BIAS in GL, the same is not true in GLES. So check,
        * and also only apply GL_TEXTURE_LOD_BIAS in mipmap modes:
        */
-      if (_cogl_has_private_feature (context,
-                                     COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS) &&
+      if (cogl_context_has_feature (context,
+                                    COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
           entry->min_filter != GL_NEAREST &&
           entry->min_filter != GL_LINEAR)
         {
@@ -360,8 +360,8 @@ cogl_driver_gl_sampler_free (CoglDriver            *driver,
                              CoglContext           *context,
                              CoglSamplerCacheEntry *entry)
 {
-  if (_cogl_has_private_feature (context,
-                                 COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
+  if (cogl_context_has_feature (context,
+                                COGL_FEATURE_ID_SAMPLER_OBJECTS))
     GE (driver, glDeleteSamplers (1, &entry->sampler_object));
 }
 

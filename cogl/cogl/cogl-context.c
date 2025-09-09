@@ -154,7 +154,7 @@ static void
 _cogl_init_feature_overrides (CoglContext *ctx)
 {
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
-    COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_PBOS, FALSE);
+    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_PBOS, FALSE);
 }
 
 /* For reference: There was some deliberation over whether to have a
@@ -202,7 +202,6 @@ cogl_context_new (CoglDisplay *display,
 
   /* Init default values */
   memset (context->features, 0, sizeof (context->features));
-  memset (context->private_features, 0, sizeof (context->private_features));
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   context->display = g_object_ref (display);

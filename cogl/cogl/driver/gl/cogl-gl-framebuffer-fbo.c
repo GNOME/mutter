@@ -74,7 +74,7 @@ ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)
                                         framebuffer,
                                         COGL_FRAMEBUFFER_STATE_BIND);
 
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS))
+  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_QUERY_FRAMEBUFFER_BITS))
     {
       const struct {
         GLenum attachment, pname;
@@ -129,7 +129,7 @@ ensure_bits_initialized (CoglGlFramebufferFbo *gl_framebuffer_fbo)
       return FALSE;
     }
 
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) &&
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_ALPHA_TEXTURES) &&
       (cogl_framebuffer_get_internal_format (framebuffer) ==
        COGL_PIXEL_FORMAT_A_8))
     {
@@ -229,14 +229,14 @@ try_creating_renderbuffers (CoglContext                *ctx,
        * GL_OES_packed_depth_stencil doesn't allow GL_DEPTH_STENCIL to
        * be passed as an internal format to glRenderbufferStorage.
        */
-      if (_cogl_has_private_feature
-          (ctx, COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL))
+      if (cogl_context_has_feature
+          (ctx, COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL))
         format = GL_DEPTH_STENCIL;
       else
         {
           g_return_val_if_fail (
-            _cogl_has_private_feature (ctx,
-              COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL),
+            cogl_context_has_feature (ctx,
+              COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL),
             NULL);
           format = GL_DEPTH24_STENCIL8;
         }
@@ -458,10 +458,10 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
       (
        /* NB: WebGL introduces a DEPTH_STENCIL_ATTACHMENT and doesn't
         * need an extension to handle _FLAG_DEPTH_STENCIL */
-       (_cogl_has_private_feature
-        (context, COGL_PRIVATE_FEATURE_EXT_PACKED_DEPTH_STENCIL) ||
-        _cogl_has_private_feature
-        (context, COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL)) &&
+       (cogl_context_has_feature
+        (context, COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL) ||
+        cogl_context_has_feature
+        (context, COGL_FEATURE_ID_OES_PACKED_DEPTH_STENCIL)) &&
        try_creating_fbo (context,
                          texture,
                          texture_level,
