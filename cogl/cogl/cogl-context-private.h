@@ -57,9 +57,6 @@ struct _CoglContext
 
   CoglDisplay *display;
 
-  /* Features cache */
-  unsigned long features[COGL_FLAGS_N_LONGS_FOR_SIZE (_COGL_N_FEATURE_IDS)];
-
   CoglPipeline *default_pipeline;
   CoglPipelineLayer *default_layer_0;
   CoglPipelineLayer *default_layer_n;

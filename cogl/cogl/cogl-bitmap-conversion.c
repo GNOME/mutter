@@ -747,11 +747,11 @@ _cogl_bitmap_convert (CoglBitmap *src_bmp,
 }
 
 static gboolean
-driver_can_convert (CoglContext *ctx,
+driver_can_convert (CoglDriver     *driver,
                     CoglPixelFormat src_format,
                     CoglPixelFormat internal_format)
 {
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_FORMAT_CONVERSION))
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_FORMAT_CONVERSION))
     return FALSE;
 
   if (src_format == internal_format)
@@ -760,7 +760,7 @@ driver_can_convert (CoglContext *ctx,
   /* If the driver doesn't natively support alpha textures then it
    * won't work correctly to convert to/from component-alpha
    * textures */
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_ALPHA_TEXTURES) &&
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_ALPHA_TEXTURES) &&
       (src_format == COGL_PIXEL_FORMAT_A_8 ||
        internal_format == COGL_PIXEL_FORMAT_A_8))
     return FALSE;
@@ -768,7 +768,7 @@ driver_can_convert (CoglContext *ctx,
   /* Same for red-green textures. If red-green textures aren't
    * supported then the internal format should never be RG_88 but we
    * should still be able to convert from an RG source image */
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_RG) &&
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_RG) &&
       src_format == COGL_PIXEL_FORMAT_RG_88)
     return FALSE;
 
@@ -797,7 +797,7 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
      limited number of formats so we must convert using the Cogl
      bitmap code instead */
 
-  if (driver_can_convert (ctx, src_format, internal_format))
+  if (driver_can_convert (driver, src_format, internal_format))
     {
       /* If the source format does not have the same premult flag as the
          internal_format then we need to copy and convert it */

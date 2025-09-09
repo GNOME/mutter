@@ -153,7 +153,9 @@ cogl_buffer_set_property (GObject      *gobject,
         if (buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_PACK ||
             buffer->last_target == COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK)
           {
-            if (!cogl_context_has_feature (buffer->context, COGL_FEATURE_ID_PBOS))
+            CoglDriver *driver = cogl_context_get_driver (buffer->context);
+
+            if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_PBOS))
               use_malloc = TRUE;
           }
 

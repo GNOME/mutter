@@ -490,7 +490,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
     }
 
   if ((layers_difference & COGL_PIPELINE_LAYER_STATE_SAMPLER) &&
-      cogl_context_has_feature (ctx, COGL_FEATURE_ID_SAMPLER_OBJECTS))
+      cogl_driver_has_feature (driver, COGL_FEATURE_ID_SAMPLER_OBJECTS))
     {
       const CoglSamplerCacheEntry *sampler_state;
 
@@ -1018,7 +1018,7 @@ done:
 
   /* Handle the fact that OpenGL associates texture filter and wrap
    * modes with the texture objects not the texture units... */
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_SAMPLER_OBJECTS))
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_SAMPLER_OBJECTS))
     foreach_texture_unit_update_filter_and_wrap_modes (ctx);
 
   /* If this pipeline has more than one layer then we always need

@@ -80,12 +80,13 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              GDestroyNotify destroy,
                                              GError **error)
 {
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglTextureLoader *loader;
   CoglTexture2D *tex_2d;
   CoglPixelFormat internal_format = COGL_PIXEL_FORMAT_ANY;
 
-  g_return_val_if_fail (cogl_context_has_feature (ctx,
-                                                  COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
+  g_return_val_if_fail (cogl_driver_has_feature (driver,
+                                                 COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
                         NULL);
 
   loader = cogl_texture_loader_new (COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL);
@@ -128,7 +129,7 @@ _cogl_texture_2d_gl_flush_legacy_texobj_filters (CoglTexture *tex,
   GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter));
   GE (driver, glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter));
 
-  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_LOD_BIAS) &&
       min_filter != GL_NEAREST &&
       min_filter != GL_LINEAR)
     {

@@ -150,13 +150,6 @@ cogl_context_class_init (CoglContextClass *class)
   object_class->finalize = cogl_context_finalize;
 }
 
-static void
-_cogl_init_feature_overrides (CoglContext *ctx)
-{
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
-    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_PBOS, FALSE);
-}
-
 /* For reference: There was some deliberation over whether to have a
  * constructor that could throw an exception but looking at standard
  * practices with several high level OO languages including python, C++,
@@ -201,7 +194,6 @@ cogl_context_new (CoglDisplay *display,
   context = g_object_new (COGL_TYPE_CONTEXT, NULL);
 
   /* Init default values */
-  memset (context->features, 0, sizeof (context->features));
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   context->display = g_object_ref (display);
@@ -239,9 +231,6 @@ cogl_context_new (CoglDisplay *display,
   context->uniform_names =
     g_ptr_array_new_with_free_func ((GDestroyNotify) g_free);
   context->uniform_name_hash = g_hash_table_new (g_str_hash, g_str_equal);
-
-  /* Initialise the driver specific state */
-  _cogl_init_feature_overrides (context);
 
   context->sampler_cache = _cogl_sampler_cache_new (context);
 
@@ -405,13 +394,6 @@ cogl_context_has_winsys_feature (CoglContext       *context,
                                  CoglWinsysFeature  feature)
 {
   return COGL_FLAGS_GET (context->winsys_features, feature);
-}
-
-gboolean
-cogl_context_has_feature (CoglContext   *context,
-                          CoglFeatureID  feature)
-{
-  return COGL_FLAGS_GET (context->features, feature);
 }
 
 void

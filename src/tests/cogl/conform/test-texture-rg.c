@@ -36,7 +36,8 @@ test_texture_rg (void)
   int fb_width, fb_height;
   int x, y;
 
-  if (!cogl_context_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RG))
+  if (!cogl_driver_has_feature (cogl_context_get_driver (test_ctx),
+                                COGL_FEATURE_ID_TEXTURE_RG))
     {
       g_test_skip ("Missing TEXTURE_RG feature");
       return;

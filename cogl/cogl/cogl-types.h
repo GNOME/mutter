@@ -82,7 +82,7 @@ typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
  * variety of reasons. For example:
  *
  * - You've tried to use a feature that is not advertised by
- *   [method@Cogl.Context.has_feature].
+ *   [method@Cogl.Driver.has_feature].
  * - The GPU can not handle the configuration you have requested.
  *   An example might be if you try to use too many texture
  *   layers in a single #CoglPipeline

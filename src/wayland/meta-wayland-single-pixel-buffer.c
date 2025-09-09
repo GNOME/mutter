@@ -187,6 +187,7 @@ meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
+  CoglDriver *cogl_driver = cogl_context_get_driver (cogl_context);
   MetaWaylandSinglePixelBuffer *single_pixel_buffer =
     wl_resource_get_user_data (buffer->resource);
   g_autofree uint8_t *data = NULL;
@@ -200,14 +201,14 @@ meta_wayland_single_pixel_buffer_attach (MetaWaylandBuffer  *buffer,
       return TRUE;
     }
 
-  if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+  if (cogl_driver_has_feature (cogl_driver, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
     {
       get_data_in_half_float_format (single_pixel_buffer,
                                      &pixel_format,
                                      &rowstride,
                                      &data);
     }
-  else if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TEXTURE_RGBA1010102) &&
+  else if (cogl_driver_has_feature (cogl_driver, COGL_FEATURE_ID_TEXTURE_RGBA1010102) &&
            single_pixel_buffer->a == UINT32_MAX)
     {
       get_data_in_ABGR_2101010_format (single_pixel_buffer,

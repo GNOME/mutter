@@ -683,8 +683,10 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
           clutter_stage_view_get_framebuffer (view);
         CoglContext *cogl_context =
           cogl_framebuffer_get_context (view_framebuffer);
+        CoglDriver *cogl_driver =
+          cogl_context_get_driver (cogl_context);
 
-        if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
+        if (cogl_driver_has_feature (cogl_driver, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
           {
             g_autoptr (GError) local_error = NULL;
 

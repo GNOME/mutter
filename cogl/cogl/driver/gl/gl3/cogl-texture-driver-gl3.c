@@ -108,7 +108,7 @@ cogl_texture_driver_gl3_gen (CoglTextureDriverGL *tex_driver,
   /* As the driver doesn't support alpha textures directly then we'll
    * fake them by setting the swizzle parameters */
   if (internal_format == COGL_PIXEL_FORMAT_A_8 &&
-      cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_SWIZZLE))
+      cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_SWIZZLE))
     {
       static const GLint red_swizzle[] = { GL_ZERO, GL_ZERO, GL_ZERO, GL_RED };
 

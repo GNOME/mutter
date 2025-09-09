@@ -1220,8 +1220,8 @@ meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
 
 #ifdef HAVE_EGL_DEVICE
   if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
-    COGL_FLAGS_SET (cogl_context->features,
-                    COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL, TRUE);
+    cogl_driver_set_feature (cogl_context_get_driver (cogl_context),
+                             COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL, TRUE);
 #endif
 
   return TRUE;
@@ -1492,12 +1492,13 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
   MetaRenderer *renderer = META_RENDERER (renderer_native);
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
+  CoglDriver *cogl_driver = cogl_context_get_driver (cogl_context);
   MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
 
   if (meta_renderer_is_hardware_accelerated (renderer))
     return FALSE;
 
-  if (!cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
+  if (!cogl_driver_has_feature (cogl_driver, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     return FALSE;
 
   return meta_kms_device_prefers_shadow_buffer (kms_device);

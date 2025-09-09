@@ -603,8 +603,9 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
 
   _cogl_get_gl_version (COGL_DRIVER_GL (driver), &gl_major, &gl_minor);
 
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_UNSIGNED_INT_INDICES,
+                           TRUE);
 
   _cogl_feature_check_ext_functions (ctx,
                                      gl_major,
@@ -612,60 +613,62 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
                                      gl_extensions);
 
   if (_cogl_check_extension ("GL_MESA_pack_invert", gl_extensions))
-    COGL_FLAGS_SET (ctx->features,
-                    COGL_FEATURE_ID_MESA_PACK_INVERT, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_MESA_PACK_INVERT,
+                             TRUE);
 
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_QUERY_FRAMEBUFFER_BITS,
-                  TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_QUERY_FRAMEBUFFER_BITS,
+                           TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_BLIT_FRAMEBUFFER, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_PBOS, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_PBOS, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
 
   if (GE_HAS (driver, glEGLImageTargetTexture2D))
-    COGL_FLAGS_SET (ctx->features,
-                    COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE,
+                             TRUE);
 
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL, TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_EXT_PACKED_DEPTH_STENCIL, TRUE);
 
   if (GE_HAS (driver, glGenSamplers))
-    COGL_FLAGS_SET (ctx->features,
-                    COGL_FEATURE_ID_SAMPLER_OBJECTS, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_SAMPLER_OBJECTS,
+                             TRUE);
 
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 3) ||
       _cogl_check_extension ("GL_ARB_texture_swizzle", gl_extensions) ||
       _cogl_check_extension ("GL_EXT_texture_swizzle", gl_extensions))
-    COGL_FLAGS_SET (ctx->features,
-                    COGL_FEATURE_ID_TEXTURE_SWIZZLE, TRUE);
+    cogl_driver_set_feature (driver,
+                             COGL_FEATURE_ID_TEXTURE_SWIZZLE, TRUE);
 
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE, TRUE);
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_FORMAT_CONVERSION, TRUE);
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_TEXTURE_MAX_LEVEL, TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_READ_PIXELS_ANY_STRIDE, TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_FORMAT_CONVERSION, TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_TEXTURE_MAX_LEVEL, TRUE);
 
-  COGL_FLAGS_SET (ctx->features,
-                  COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
+  cogl_driver_set_feature (driver,
+                           COGL_FEATURE_ID_TEXTURE_LOD_BIAS, TRUE);
 
   if (GE_HAS (driver, glFenceSync))
-    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_FENCE, TRUE);
+    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_RG, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_TEXTURE_RG, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_TEXTURE_RGBA1010102, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NORM16, TRUE);
+  cogl_driver_set_feature (driver, COGL_FEATURE_ID_TEXTURE_NORM16, TRUE);
 
-  /* Cache features */
-  if (!COGL_FLAGS_GET (ctx->features, COGL_FEATURE_ID_TEXTURE_SWIZZLE))
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_SWIZZLE))
     {
       g_set_error (error,
                    COGL_DRIVER_ERROR,
@@ -680,7 +683,6 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
 
 static gboolean
 cogl_driver_gl3_format_supports_upload (CoglDriver      *driver,
-                                        CoglContext     *ctx,
                                         CoglPixelFormat  format)
 {
   switch (format)

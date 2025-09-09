@@ -59,7 +59,6 @@ struct _CoglDriverClass
                                 GError      **error);
 
   gboolean (* format_supports_upload) (CoglDriver      *driver,
-                                       CoglContext     *ctx,
                                        CoglPixelFormat  format);
 
   CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
@@ -97,11 +96,9 @@ struct _CoglDriverClass
   CoglTextureDriver * (* create_texture_driver) (CoglDriver *driver);
 
   void (*sampler_init) (CoglDriver            *driver,
-                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
   void (*sampler_free) (CoglDriver            *driver,
-                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
   void (* set_uniform) (CoglDriver           *driver,

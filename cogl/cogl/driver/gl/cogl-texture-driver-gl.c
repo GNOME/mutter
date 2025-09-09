@@ -441,10 +441,10 @@ cogl_texture_gl_set_max_level (CoglTexture *texture,
                                int          max_level)
 {
   CoglContext *ctx = cogl_texture_get_context (texture);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
 
-  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_MAX_LEVEL))
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_MAX_LEVEL))
     {
-      CoglDriver *driver = cogl_context_get_driver (ctx);
       GLuint gl_handle;
       GLenum gl_target;
 

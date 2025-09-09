@@ -150,7 +150,8 @@ test_offscreen_texture_formats_store_fp16 (void)
   };
   int i;
 
-  if (!cogl_context_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+  if (!cogl_driver_has_feature (cogl_context_get_driver (test_ctx),
+                                COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
     {
       g_test_skip ("Driver does not support fp formats");
       return;
@@ -295,7 +296,8 @@ test_offscreen_texture_formats_store_rgb10 (void)
   };
   int i;
 
-  if (!cogl_context_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+  if (!cogl_driver_has_feature (cogl_context_get_driver (test_ctx),
+                                COGL_FEATURE_ID_TEXTURE_RGBA1010102))
     {
       g_test_skip ("Driver does not support 10bpc formats");
       return;
@@ -534,7 +536,8 @@ test_offscreen_texture_formats_paint_fp16 (void)
   };
   int i;
 
-  if (!cogl_context_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
+  if (!cogl_driver_has_feature (cogl_context_get_driver (test_ctx),
+                                COGL_FEATURE_ID_TEXTURE_HALF_FLOAT))
     {
       g_test_skip ("Driver does not support fp formats");
       return;
@@ -664,7 +667,8 @@ test_offscreen_texture_formats_paint_rgb10 (void)
   };
   int i;
 
-  if (!cogl_context_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_RGBA1010102))
+  if (!cogl_driver_has_feature (cogl_context_get_driver (test_ctx),
+                                COGL_FEATURE_ID_TEXTURE_RGBA1010102))
     {
       g_test_skip ("Driver does not support 10bpc formats");
       return;
