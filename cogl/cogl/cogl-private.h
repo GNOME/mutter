@@ -52,7 +52,6 @@ typedef enum
   COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE,
   COGL_PRIVATE_FEATURE_FORMAT_CONVERSION,
   COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
-  COGL_PRIVATE_FEATURE_QUERY_TEXTURE_PARAMETERS,
   COGL_PRIVATE_FEATURE_ALPHA_TEXTURES,
   COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE,
   COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL,
@@ -62,10 +61,6 @@ typedef enum
    * events. Otherwise a dirty event will be queued when the onscreen
    * is first allocated or when it is shown or resized */
   COGL_PRIVATE_FEATURE_DIRTY_EVENTS,
-  /* This feature allows for explicitly selecting a GL-based backend,
-   * as opposed to nop or (in the future) Vulkan.
-   */
-  COGL_PRIVATE_FEATURE_ANY_GL,
 
   /* This is a Mali bug/quirk: */
   COGL_PRIVATE_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
