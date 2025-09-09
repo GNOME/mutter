@@ -3405,18 +3405,6 @@ meta_seat_impl_finalize (GObject *object)
   G_OBJECT_CLASS (meta_seat_impl_parent_class)->finalize (object);
 }
 
-ClutterInputDevice *
-meta_seat_impl_get_pointer (MetaSeatImpl *seat_impl)
-{
-  return seat_impl->core_pointer;
-}
-
-ClutterInputDevice *
-meta_seat_impl_get_keyboard (MetaSeatImpl *seat_impl)
-{
-  return seat_impl->core_keyboard;
-}
-
 MetaKeymapNative *
 meta_seat_impl_get_keymap (MetaSeatImpl *seat_impl)
 {

@@ -229,8 +229,6 @@ gboolean meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                                      ClutterEventSequence *sequence,
                                      graphene_point_t     *coords,
                                      ClutterModifierType  *modifiers);
-ClutterInputDevice * meta_seat_impl_get_pointer (MetaSeatImpl *seat_impl);
-ClutterInputDevice * meta_seat_impl_get_keyboard (MetaSeatImpl *seat_impl);
 
 MetaKeymapNative * meta_seat_impl_get_keymap (MetaSeatImpl *seat_impl);
 
