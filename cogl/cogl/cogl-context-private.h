@@ -51,13 +51,6 @@
 #include "cogl/cogl-private.h"
 #include "cogl/winsys/cogl-winsys-private.h"
 
-typedef struct
-{
-  GLfloat v[3];
-  GLfloat t[2];
-  GLubyte c[4];
-} CoglTextureGLVertex;
-
 struct _CoglTimestampQuery
 {
   unsigned int id;
