@@ -339,28 +339,6 @@ clutter_seat_init (ClutterSeat *seat)
 }
 
 /**
- * clutter_seat_get_pointer: (skip)
- **/
-ClutterInputDevice *
-clutter_seat_get_pointer (ClutterSeat *seat)
-{
-  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), NULL);
-
-  return CLUTTER_SEAT_GET_CLASS (seat)->get_pointer (seat);
-}
-
-/**
- * clutter_seat_get_keyboard: (skip)
- **/
-ClutterInputDevice *
-clutter_seat_get_keyboard (ClutterSeat *seat)
-{
-  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), NULL);
-
-  return CLUTTER_SEAT_GET_CLASS (seat)->get_keyboard (seat);
-}
-
-/**
  * clutter_seat_peek_devices: (skip)
  **/
 const GList *

@@ -51,9 +51,6 @@ struct _MetaSeatNative
   struct xkb_keymap *xkb_keymap;
   xkb_layout_index_t xkb_layout_index;
 
-  ClutterInputDevice *core_pointer;
-  ClutterInputDevice *core_keyboard;
-
   guint virtual_touch_slot_base;
   GHashTable *reserved_virtual_slots;
 

@@ -74,9 +74,6 @@ struct _ClutterSeatClass
 {
   GObjectClass parent_class;
 
-  ClutterInputDevice * (* get_pointer)  (ClutterSeat *seat);
-  ClutterInputDevice * (* get_keyboard) (ClutterSeat *seat);
-
   const GList * (* peek_devices) (ClutterSeat *seat);
 
   void (* bell_notify) (ClutterSeat *seat);
