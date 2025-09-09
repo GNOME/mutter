@@ -210,15 +210,9 @@ meta_wayland_event_handler_handle_event (MetaWaylandEventHandler *handler,
         ClutterBackend *clutter_backend =
           meta_backend_get_clutter_backend (backend);
         ClutterFocus *focus;
-        ClutterInputDevice *device;
-        ClutterEventSequence *sequence;
 
-        device = clutter_event_get_device (event);
-        sequence = clutter_event_get_event_sequence (event);
-        focus = CLUTTER_FOCUS (clutter_backend_lookup_sprite (clutter_backend,
-                                                              stage,
-                                                              device,
-                                                              sequence));
+	focus = CLUTTER_FOCUS (clutter_backend_get_sprite (clutter_backend,
+							   stage, event));
         meta_wayland_event_handler_invalidate_focus (handler, focus);
       }
 
