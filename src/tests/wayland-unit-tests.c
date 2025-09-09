@@ -2007,7 +2007,6 @@ toplevel_begin_interactive_resize (void)
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-  ClutterInputDevice *pointer;
   ClutterSprite *pointer_sprite;
   GSettings *settings;
   MetaWindow *window;
@@ -2024,8 +2023,6 @@ toplevel_begin_interactive_resize (void)
 
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
-  pointer = clutter_seat_get_pointer (seat);
-  g_assert_nonnull (pointer);
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        0.0f, 0.0f);

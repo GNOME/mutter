@@ -84,37 +84,7 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
   static float y = 0.0;
   static float xd = 0.0;
   static float yd = 0.0;
-  static gboolean inited = FALSE;
-
   gfloat w, h;
-
-  if (!inited) /* XXX:
-                  force clutter to do handle our motion events,
-                  by forcibly updating the input device's state
-                  this should be possible to do in a better
-                  manner in the future, a versioning check
-                  will have to be added when this is possible
-                  without a hack... and the means to do the
-                  hack is deprecated
-                */
-    {
-      ClutterEvent *event;
-      ClutterBackend *backend = clutter_test_get_backend ();
-      ClutterSeat *seat = clutter_backend_get_default_seat (backend);
-
-      device = clutter_seat_get_pointer (seat);
-
-      event = clutter_event_crossing_new (CLUTTER_ENTER,
-                                          CLUTTER_EVENT_NONE,
-                                          CLUTTER_CURRENT_TIME,
-                                          device, NULL,
-                                          GRAPHENE_POINT_INIT (10, 10),
-                                          stage,
-                                          NULL);
-      clutter_event_put (event);
-      clutter_event_free (event);
-      inited = TRUE;
-    }
 
   clutter_actor_get_size (stage, &w, &h);
 
