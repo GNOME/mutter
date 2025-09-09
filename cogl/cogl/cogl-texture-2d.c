@@ -225,7 +225,7 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
        */
       _cogl_texture_flush_journal_rendering (tex);
 
-      if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
+      if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH) &&
           _cogl_texture_get_associated_framebuffers (tex))
         GE (driver, glFlush ());
 
@@ -472,11 +472,12 @@ cogl_texture_2d_new_from_egl_image (CoglContext *ctx,
                                     CoglEglImageFlags flags,
                                     GError **error)
 {
+  CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglTextureLoader *loader;
   CoglTexture *tex;
 
-  g_return_val_if_fail (cogl_context_has_feature
-                        (ctx,
+  g_return_val_if_fail (cogl_driver_has_feature
+                        (driver,
                         COGL_FEATURE_ID_TEXTURE_2D_FROM_EGL_IMAGE),
                         NULL);
 

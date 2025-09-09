@@ -34,7 +34,8 @@ test_map_buffer_range (void)
   CoglAttribute *tex_coord_attribute;
   CoglPrimitive *primitive;
 
-  if (!cogl_context_has_feature (test_ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE))
+  if (!cogl_driver_has_feature (cogl_context_get_driver (test_ctx),
+                                COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE))
     {
       g_test_skip ("Missing map buffer for write capability");
       return;
