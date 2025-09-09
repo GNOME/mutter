@@ -148,6 +148,9 @@ wayland_test_clients = [
   {
     'name': 'keyboard',
   },
+  {
+    'name': 'invalid-geometry',
+  },
 ]
 
 test_client_executables = {}

@@ -775,6 +775,42 @@ toplevel_invalid_limits (void)
 }
 
 static void
+toplevel_invalid_geometry_basic (void)
+{
+  GSettings *settings = g_settings_new ("org.gnome.mutter");
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+  MtkRectangle rect;
+
+  g_assert_true (g_settings_set_boolean (settings, "center-new-windows", TRUE));
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "invalid-geometry");
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "Client provided invalid window geometry for "
+                         "xdg_surface*");
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         "Client provided invalid window geometry for "
+                         "xdg_surface*");
+
+  while (!(window = find_client_window ("invalid-geometry")))
+    g_main_context_iteration (NULL, TRUE);
+  while (meta_window_is_hidden (window))
+    g_main_context_iteration (NULL, TRUE);
+
+  rect = meta_window_config_get_rect (window->config);
+  g_assert_cmpint (rect.width, ==, 200);
+  g_assert_cmpint (rect.height, ==, 200);
+
+  /* Window position is bogus in this case. */
+
+  meta_wayland_test_driver_terminate (test_driver);
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_test_assert_expected_messages ();
+}
+
+static void
 toplevel_activation (void)
 {
   MetaWaylandTestClient *wayland_test_client;
@@ -2066,6 +2102,8 @@ init_tests (void)
                    toplevel_apply_limits);
   g_test_add_func ("/wayland/toplevel/invalid-limits",
                    toplevel_invalid_limits);
+  g_test_add_func ("/wayland/toplevel/invalid-geometry/basic",
+                   toplevel_invalid_geometry_basic);
   g_test_add_func ("/wayland/toplevel/activation",
                    toplevel_activation);
   g_test_add_func ("/wayland/toplevel/sessions/basic",

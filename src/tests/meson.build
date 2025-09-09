@@ -988,6 +988,7 @@ wayland_test_cases = [
       test_client_executables.get('invalid-size-limits-on-map-client'),
       test_client_executables.get('invalid-subsurfaces'),
       test_client_executables.get('invalid-xdg-shell-actions'),
+      test_client_executables.get('invalid-geometry'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
       test_client_executables.get('shm-destroy-before-release'),
