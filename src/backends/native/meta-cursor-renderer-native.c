@@ -1432,7 +1432,6 @@ connect_seat_signals_in_input_impl (gpointer user_data)
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
-  ClutterInputDevice *device;
   graphene_point_t position;
 
   priv->pointer_position_changed_in_impl_handler_id =
@@ -1440,9 +1439,7 @@ connect_seat_signals_in_input_impl (gpointer user_data)
                       G_CALLBACK (on_pointer_position_changed_in_input_impl),
                       backend);
 
-
-  device = meta_seat_impl_get_pointer (seat_impl);
-  meta_seat_impl_query_state (seat_impl, device, NULL, &position, NULL);
+  meta_seat_impl_query_state (seat_impl, NULL, NULL, &position, NULL);
   meta_kms_cursor_manager_position_changed_in_input_impl (kms_cursor_manager,
                                                           &position);
 
