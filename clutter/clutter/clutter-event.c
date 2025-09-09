@@ -759,29 +759,6 @@ clutter_event_get_event_sequence (const ClutterEvent *event)
 }
 
 /**
- * clutter_event_get_device_type:
- * @event: a #ClutterEvent
- *
- * Retrieves the type of the device for @event
- *
- * Return value: the #ClutterInputDeviceType for the device, if
- *   any is set
- */
-ClutterInputDeviceType
-clutter_event_get_device_type (const ClutterEvent *event)
-{
-  ClutterInputDevice *device = NULL;
-
-  g_return_val_if_fail (event != NULL, CLUTTER_POINTER_DEVICE);
-
-  device = clutter_event_get_source_device (event);
-  if (device != NULL)
-    return clutter_input_device_get_device_type (device);
-
-  return CLUTTER_POINTER_DEVICE;
-}
-
-/**
  * clutter_event_get_device_tool:
  * @event: a #ClutterEvent
  *

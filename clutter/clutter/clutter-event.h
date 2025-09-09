@@ -172,8 +172,6 @@ ClutterInputDeviceTool *clutter_event_get_device_tool           (const ClutterEv
 CLUTTER_EXPORT
 ClutterActor *          clutter_event_get_source                (const ClutterEvent     *event);
 CLUTTER_EXPORT
-ClutterInputDeviceType  clutter_event_get_device_type           (const ClutterEvent     *event);
-CLUTTER_EXPORT
 void                    clutter_event_get_coords                (const ClutterEvent     *event,
                                                                  gfloat                 *x,
                                                                  gfloat                 *y);
