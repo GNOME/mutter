@@ -1130,7 +1130,7 @@ find_dnd_candidate_device (ClutterStage  *stage,
   clutter_seat_query_state (candidate->seat->clutter_seat,
                             sprite, &pos, &modifiers);
 
-  if (clutter_sprite_get_sequence (sprite))
+  if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
     return TRUE;
 
   if ((modifiers &
