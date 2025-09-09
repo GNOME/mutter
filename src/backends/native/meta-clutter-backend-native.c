@@ -115,12 +115,9 @@ create_sprite (ClutterBackend     *clutter_backend,
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (clutter_backend);
   MetaBackend *backend = clutter_backend_native->backend;
-  ClutterInputDevice *device;
-  ClutterEventSequence *sequence;
+  ClutterInputDevice *sprite_device = NULL;
+  ClutterEventSequence *sequence = NULL;
   ClutterSpriteRole role;
-
-  device = clutter_event_get_device (for_event);
-  sequence = clutter_event_get_event_sequence (for_event);
 
   if (clutter_event_get_event_sequence (for_event))
     role = CLUTTER_SPRITE_ROLE_TOUCHPOINT;
@@ -129,10 +126,15 @@ create_sprite (ClutterBackend     *clutter_backend,
   else
     role = CLUTTER_SPRITE_ROLE_POINTER;
 
+  if (role == CLUTTER_SPRITE_ROLE_TABLET)
+    sprite_device = clutter_event_get_source_device (for_event);
+  else if (role == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
+    sequence = clutter_event_get_event_sequence (for_event);
+
   return g_object_new (META_TYPE_SPRITE_NATIVE,
                        "backend", backend,
                        "stage", stage,
-                       "leader-device", device,
+                       "sprite-device", sprite_device,
                        "sequence", sequence,
                        "role", role,
                        NULL);
@@ -167,13 +169,11 @@ ensure_pointer_sprite (ClutterBackend *clutter_backend)
     {
       MetaBackend *backend = clutter_backend_native->backend;
       ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-      ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
 
       clutter_backend_native->pointer_sprite =
         g_object_new (META_TYPE_SPRITE_NATIVE,
                       "backend", backend,
                       "stage", stage,
-                      "device", clutter_seat_get_pointer (seat),
                       "role", CLUTTER_SPRITE_ROLE_POINTER,
                       NULL);
     }
