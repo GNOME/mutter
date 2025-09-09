@@ -99,29 +99,6 @@ struct _MetaInputDeviceNative
     int32_t last_dx;
     int32_t last_dy;
   } value120;
-
-  /* Keyboard a11y */
-  MetaKeyboardA11yFlags a11y_flags;
-  ClutterVirtualInputDevice *mousekeys_pointer;
-  GList *slow_keys_list;
-  GSource *debounce_timer;
-  uint16_t debounce_key;
-  xkb_mod_mask_t stickykeys_depressed_mask;
-  xkb_mod_mask_t stickykeys_latched_mask;
-  xkb_mod_mask_t stickykeys_locked_mask;
-  GSource *toggle_slowkeys_timer;
-  uint16_t shift_count;
-  uint32_t last_shift_time;
-  int mousekeys_btn;
-  gboolean mousekeys_btn_states[3];
-  uint32_t mousekeys_first_motion_time; /* ms */
-  uint32_t mousekeys_last_motion_time; /* ms */
-  guint mousekeys_init_delay;
-  guint mousekeys_accel_time;
-  guint mousekeys_max_speed;
-  double mousekeys_curve_factor;
-  GSource *move_mousekeys_timer;
-  uint16_t last_mousekeys_key;
 };
 
 struct _MetaInputDeviceNativeClass
@@ -153,15 +130,8 @@ MetaInputDeviceMapping    meta_input_device_native_get_mapping_mode_in_impl (Clu
 void                      meta_input_device_native_set_mapping_mode_in_impl (ClutterInputDevice     *device,
                                                                              MetaInputDeviceMapping  mapping);
 
-void                      meta_input_device_native_apply_kbd_a11y_settings_in_impl (MetaInputDeviceNative *device,
-                                                                                    MetaKbdA11ySettings   *settings);
-
-void                      meta_input_device_native_a11y_maybe_notify_toggle_keys_in_impl (MetaInputDeviceNative *device_evdev);
-
 struct libinput_device * meta_input_device_native_get_libinput_device (ClutterInputDevice *device);
 
-gboolean                 meta_input_device_native_process_kbd_a11y_event_in_impl (ClutterInputDevice *device,
-                                                                                  ClutterEvent       *event);
 void                     meta_input_device_native_detach_libinput_in_impl (MetaInputDeviceNative *device_native);
 
 gboolean                 meta_input_device_native_has_scroll_inverted (MetaInputDeviceNative *device_native);

@@ -39,6 +39,7 @@
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-input-thread.h"
+#include "backends/native/meta-keyboard-a11y-private.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
 #include "core/bell.h"
@@ -640,15 +641,13 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                          seat_impl->xkb);
     }
 
-  if (!meta_input_device_native_process_kbd_a11y_event_in_impl (seat_impl->core_keyboard,
-                                                                event))
+  if (!meta_keyboard_a11y_process_event_in_impl (seat_impl->keyboard_a11y, event))
     queue_event (seat_impl, event);
   else
     clutter_event_free (event);
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
-      MetaInputDeviceNative *keyboard_native;
       gboolean numlock_active;
 
       meta_seat_impl_sync_leds_in_impl (seat_impl);
@@ -660,8 +659,7 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
       meta_input_settings_maybe_save_numlock_state (seat_impl->input_settings,
                                                     numlock_active);
 
-      keyboard_native = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
-      meta_input_device_native_a11y_maybe_notify_toggle_keys_in_impl (keyboard_native);
+      meta_keyboard_a11y_maybe_notify_toggle_keys_in_impl (seat_impl->keyboard_a11y);
     }
 
   if (update_keys && changed_state != 0)
@@ -1977,13 +1975,11 @@ meta_seat_impl_take_device (MetaSeatImpl       *seat_impl,
   if (type == CLUTTER_KEYBOARD_DEVICE)
     {
       MetaKbdA11ySettings kbd_a11y_settings;
-      MetaInputDeviceNative *keyboard_native;
 
-      keyboard_native = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
       meta_input_settings_get_kbd_a11y_settings (seat_impl->input_settings,
                                                  &kbd_a11y_settings);
-      meta_input_device_native_apply_kbd_a11y_settings_in_impl (keyboard_native,
-                                                                &kbd_a11y_settings);
+      meta_keyboard_a11y_apply_settings_in_impl (seat_impl->keyboard_a11y,
+                                                 &kbd_a11y_settings);
     }
 }
 
@@ -2972,10 +2968,7 @@ kbd_a11y_changed_cb (MetaInputSettings   *input_settings,
                      MetaKbdA11ySettings *a11y_settings,
                      MetaSeatImpl        *seat_impl)
 {
-  MetaInputDeviceNative *keyboard;
-
-  keyboard = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
-  meta_input_device_native_apply_kbd_a11y_settings_in_impl (keyboard, a11y_settings);
+  meta_keyboard_a11y_apply_settings_in_impl (seat_impl->keyboard_a11y, a11y_settings);
 }
 
 static void
@@ -3183,6 +3176,8 @@ input_thread (MetaSeatImpl *seat_impl)
   g_signal_connect_object (seat_impl->input_settings, "kbd-a11y-changed",
                            G_CALLBACK (kbd_a11y_changed_cb), seat_impl, 0);
 
+  seat_impl->keyboard_a11y = meta_keyboard_a11y_new (seat_impl);
+
   seat_impl->keymap = meta_keymap_native_new (seat_impl);
 
   xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (seat_impl->keymap);
@@ -3325,6 +3320,7 @@ destroy_in_impl (GTask *task)
   g_clear_pointer (&seat_impl->tools, g_hash_table_unref);
   g_clear_pointer (&priv->touch_states, g_hash_table_destroy);
   g_clear_pointer (&seat_impl->libinput_source, g_source_destroy);
+  g_clear_object (&seat_impl->keyboard_a11y);
 
   numlock_active =
     xkb_state_mod_name_is_active (seat_impl->xkb, XKB_MOD_NAME_NUM,

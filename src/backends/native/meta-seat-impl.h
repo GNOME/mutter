@@ -35,6 +35,7 @@
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
+#include "backends/native/meta-keyboard-a11y.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-pointer-constraint-native.h"
 #include "backends/native/meta-xkb-utils.h"
@@ -77,6 +78,7 @@ struct _MetaSeatImpl
   MetaBarrierManagerNative *barrier_manager;
   MetaPointerConstraintImpl *pointer_constraint;
 
+  MetaKeyboardA11y *keyboard_a11y;
   MetaKeymapNative *keymap;
   MetaInputSettings *input_settings;
   ClutterInputDevice *virtual_source_pointer;
