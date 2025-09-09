@@ -1014,18 +1014,26 @@ pointer_constraints_focus (MetaWaylandEventHandler *handler,
                            gpointer                 user_data)
 {
   MetaWaylandPointerConstraint *constraint = user_data;
-  ClutterInputDevice *device =
-    clutter_sprite_get_device (CLUTTER_SPRITE (focus));
-  ClutterEventSequence *sequence =
-    clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
 
-  if (!sequence &&
-      (clutter_input_device_get_capabilities (device) &
-       CLUTTER_INPUT_CAPABILITY_POINTER) &&
-      surface != constraint->surface)
-    meta_wayland_pointer_constraint_deactivate (constraint);
-  else
-    meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
+  if (CLUTTER_IS_SPRITE (focus))
+    {
+      ClutterInputDevice *device;
+      ClutterEventSequence *sequence;
+
+      device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
+      sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
+
+      if (!sequence &&
+          (clutter_input_device_get_capabilities (device) &
+           CLUTTER_INPUT_CAPABILITY_POINTER) &&
+          surface != constraint->surface)
+        {
+          meta_wayland_pointer_constraint_deactivate (constraint);
+          return;
+        }
+    }
+
+  meta_wayland_event_handler_chain_up_focus (handler, focus, surface);
 }
 
 static const MetaWaylandEventInterface pointer_constraints_event_interface = {
