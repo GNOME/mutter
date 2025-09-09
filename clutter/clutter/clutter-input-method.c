@@ -340,7 +340,7 @@ clutter_input_method_notify_key_event (ClutterInputMethod *im,
                                     clutter_event_get_flags (event) |
                                     CLUTTER_EVENT_FLAG_INPUT_METHOD,
                                     clutter_event_get_time_us (event),
-                                    clutter_event_get_device (event),
+                                    clutter_event_get_source_device (event),
                                     raw_modifiers,
                                     clutter_event_get_state (event),
                                     clutter_event_get_key_symbol (event),
