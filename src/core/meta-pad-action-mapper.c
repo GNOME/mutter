@@ -338,7 +338,7 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
                                              const ClutterEvent  *event,
                                              MetaPadDirection    *direction)
 {
-  ClutterInputDevice *pad = clutter_event_get_device (event);
+  ClutterInputDevice *pad;
   MetaPadFeatureType pad_feature;
   gboolean has_direction = FALSE;
   MetaPadDirection inc_dir, dec_dir;
@@ -347,6 +347,8 @@ meta_pad_action_mapper_get_action_direction (MetaPadActionMapper *mapper,
   gboolean detect_wraparound = FALSE;
   gboolean value_in_range = FALSE;
   gboolean is_relative = FALSE;
+
+  pad = clutter_event_get_source_device (event);
 
   switch (clutter_event_type (event))
     {
