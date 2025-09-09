@@ -648,11 +648,8 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
 
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_READ_PIXELS_ANY_STRIDE, TRUE);
-  COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_FORMAT_CONVERSION, TRUE);
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_QUERY_TEXTURE_PARAMETERS, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL, TRUE);
 
