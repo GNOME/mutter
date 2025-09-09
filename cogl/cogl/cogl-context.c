@@ -150,9 +150,6 @@ cogl_context_class_init (CoglContextClass *class)
   object_class->finalize = cogl_context_finalize;
 }
 
-extern void
-_cogl_create_context_driver (CoglContext *context);
-
 static void
 _cogl_init_feature_overrides (CoglContext *ctx)
 {

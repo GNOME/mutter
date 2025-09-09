@@ -51,13 +51,6 @@
 #include "cogl/cogl-private.h"
 #include "cogl/winsys/cogl-winsys.h"
 
-typedef struct
-{
-  GLfloat v[3];
-  GLfloat t[2];
-  GLubyte c[4];
-} CoglTextureGLVertex;
-
 struct _CoglContext
 {
   GObject parent_instance;
