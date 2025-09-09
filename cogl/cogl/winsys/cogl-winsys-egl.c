@@ -489,8 +489,8 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
     }
 
   if ((egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_FENCE_SYNC) &&
-      cogl_context_has_feature (context, COGL_FEATURE_ID_OES_EGL_SYNC))
-    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
+      cogl_driver_has_feature (driver, COGL_FEATURE_ID_OES_EGL_SYNC))
+    cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC)
     COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SYNC_FD, TRUE);

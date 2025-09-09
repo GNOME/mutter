@@ -59,7 +59,6 @@ struct _CoglDriverClass
                                 GError      **error);
 
   gboolean (* format_supports_upload) (CoglDriver      *driver,
-                                       CoglContext     *ctx,
                                        CoglPixelFormat  format);
 
   CoglFramebufferDriver * (* create_framebuffer_driver) (CoglDriver                         *driver,
@@ -97,19 +96,16 @@ struct _CoglDriverClass
   CoglTextureDriver * (* create_texture_driver) (CoglDriver *driver);
 
   void (*sampler_init) (CoglDriver            *driver,
-                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
   void (*sampler_free) (CoglDriver            *driver,
-                        CoglContext           *context,
                         CoglSamplerCacheEntry *entry);
 
   void (* set_uniform) (CoglDriver           *driver,
                         GLint                 location,
                         const CoglBoxedValue *value);
 
-  CoglTimestampQuery * (* create_timestamp_query) (CoglDriver  *driver,
-                                                   CoglContext *context);
+  CoglTimestampQuery * (* create_timestamp_query) (CoglDriver *driver);
 
   void (* free_timestamp_query) (CoglDriver         *driver,
                                  CoglTimestampQuery *query);
@@ -117,8 +113,7 @@ struct _CoglDriverClass
   int64_t (* timestamp_query_get_time_ns) (CoglDriver         *driver,
                                            CoglTimestampQuery *query);
 
-  int64_t (* get_gpu_time_ns) (CoglDriver  *driver,
-                               CoglContext *context);
+  int64_t (* get_gpu_time_ns) (CoglDriver  *driver);
 };
 
 
@@ -151,15 +146,13 @@ gboolean cogl_driver_update_features (CoglDriver   *driver,
 /**
  * cogl_driver_get_gpu_time_ns:
  * @driver: a #CoglDriver
- * @context: a #CoglContext
  *
  * This function should only be called if the COGL_FEATURE_ID_TIMESTAMP_QUERY
  * feature is advertised.
  *
  * Return value: Current GPU time in nanoseconds
  */
-int64_t cogl_driver_get_gpu_time_ns (CoglDriver  *driver,
-                                     CoglContext *context);
+int64_t cogl_driver_get_gpu_time_ns (CoglDriver  *driver);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
 

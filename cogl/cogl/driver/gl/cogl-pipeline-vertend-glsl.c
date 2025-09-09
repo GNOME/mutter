@@ -245,7 +245,7 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
   strings[count] = version_string;
   lengths[count++] = -1;
 
-  if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL))
+  if (cogl_driver_has_feature (driver, COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL))
     {
       static const char image_external_extension[] =
         "#extension GL_OES_EGL_image_external : require\n";

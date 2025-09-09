@@ -250,11 +250,11 @@ cogl_onscreen_egl_maybe_create_timestamp_query (CoglOnscreen  *onscreen,
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDriver *driver = cogl_context_get_driver (context);
 
-  if (!cogl_context_has_feature (context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+  if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     return;
 
   info->gpu_time_before_buffer_swap_ns =
-    cogl_driver_get_gpu_time_ns (driver, context);
+    cogl_driver_get_gpu_time_ns (driver);
   info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
 
   /* Set up a timestamp query for when all rendering will be finished. */

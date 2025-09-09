@@ -2002,6 +2002,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *cogl_driver = cogl_context_get_driver (cogl_context);
   CoglRenderer *cogl_renderer = cogl_context->display->renderer;
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
@@ -2022,7 +2023,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   frame_info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
 
-  if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
+  if (cogl_driver_has_feature (cogl_driver, COGL_FEATURE_ID_TIMESTAMP_QUERY))
     frame_info->has_valid_gpu_rendering_duration = TRUE;
 
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);

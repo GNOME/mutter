@@ -1095,7 +1095,6 @@ context_supports_format (CoglContext         *cogl_context,
   if (format_info->multi_texture_format == META_MULTI_TEXTURE_FORMAT_SIMPLE)
     {
       return cogl_driver_format_supports_upload (cogl_driver,
-                                                 cogl_context,
                                                  format_info->cogl_format);
     }
 
@@ -1105,7 +1104,6 @@ context_supports_format (CoglContext         *cogl_context,
   for (i = 0; i < mt_format_info->n_planes; i++)
     {
       if (!cogl_driver_format_supports_upload (cogl_driver,
-                                               cogl_context,
                                                mt_format_info->subformats[i]))
         return FALSE;
     }
