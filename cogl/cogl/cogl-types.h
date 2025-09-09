@@ -257,6 +257,11 @@ typedef enum _CoglWinsysFeature
   /* cogl_context_get_latest_sync_fd() is supported */
   COGL_WINSYS_FEATURE_SYNC_FD,
 
+  /* If this is set then the winsys is responsible for queueing dirty
+   * events. Otherwise a dirty event will be queued when the onscreen
+   * is first allocated or when it is shown or resized */
+  COGL_WINSYS_FEATURE_DIRTY_EVENTS,
+
   COGL_WINSYS_FEATURE_N_FEATURES
 } CoglWinsysFeature;
 

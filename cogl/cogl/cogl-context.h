@@ -204,10 +204,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_TEXTURE_MAX_LEVEL,
   COGL_FEATURE_ID_TEXTURE_LOD_BIAS,
   COGL_FEATURE_ID_OES_EGL_SYNC,
-  /* If this is set then the winsys is responsible for queueing dirty
-   * events. Otherwise a dirty event will be queued when the onscreen
-   * is first allocated or when it is shown or resized */
-  COGL_FEATURE_ID_DIRTY_EVENTS,
 
   /* This is a Mali bug/quirk: */
   COGL_FEATURE_ID_QUIRK_GENERATE_MIPMAP_NEEDS_FLUSH,
