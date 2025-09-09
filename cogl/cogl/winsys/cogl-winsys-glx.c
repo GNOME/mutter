@@ -458,8 +458,8 @@ update_winsys_features (CoglContext *context, GError **error)
 
   /* We'll manually handle queueing dirty events in response to
    * Expose events from X */
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_DIRTY_EVENTS,
+  COGL_FLAGS_SET (context->winsys_features,
+                  COGL_WINSYS_FEATURE_DIRTY_EVENTS,
                   TRUE);
 
   return TRUE;
