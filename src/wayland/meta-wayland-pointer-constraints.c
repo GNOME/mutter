@@ -1017,15 +1017,9 @@ pointer_constraints_focus (MetaWaylandEventHandler *handler,
 
   if (CLUTTER_IS_SPRITE (focus))
     {
-      ClutterInputDevice *device;
-      ClutterEventSequence *sequence;
+      ClutterSpriteRole role = clutter_sprite_get_role (CLUTTER_SPRITE (focus));
 
-      device = clutter_sprite_get_device (CLUTTER_SPRITE (focus));
-      sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
-
-      if (!sequence &&
-          (clutter_input_device_get_capabilities (device) &
-           CLUTTER_INPUT_CAPABILITY_POINTER) &&
+      if (role == CLUTTER_SPRITE_ROLE_POINTER &&
           surface != constraint->surface)
         {
           meta_wayland_pointer_constraint_deactivate (constraint);
