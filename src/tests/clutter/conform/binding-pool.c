@@ -18,7 +18,10 @@ struct _KeyGroup
 {
   ClutterActor parent_instance;
 
+  ClutterVirtualInputDevice *keyboard;
+
   gint selected_index;
+  gint serial;
 };
 
 struct _KeyGroupClass
@@ -41,6 +44,15 @@ enum
 };
 
 static guint group_signals[LAST_SIGNAL] = { 0, };
+
+static void
+wait_for_event (KeyGroup *group)
+{
+  int serial = group->serial;
+
+  while (group->serial == serial)
+    g_main_context_iteration (NULL, FALSE);
+}
 
 static gboolean
 key_group_action_move_left (KeyGroup            *self,
@@ -114,6 +126,7 @@ static gboolean
 key_group_key_press (ClutterActor *actor,
                      ClutterEvent *event)
 {
+  KeyGroup *group = (KeyGroup *) actor;
   ClutterBindingPool *pool;
   gboolean res;
 
@@ -128,6 +141,8 @@ key_group_key_press (ClutterActor *actor,
   /* if we activate a key binding, redraw the actor */
   if (res)
     clutter_actor_queue_redraw (actor);
+
+  group->serial++;
 
   return res;
 }
@@ -224,27 +239,27 @@ key_group_class_init (KeyGroupClass *klass)
 static void
 key_group_init (KeyGroup *self)
 {
+  ClutterSeat *seat;
+
   self->selected_index = -1;
+
+  seat = clutter_test_get_default_seat ();
+  self->keyboard = clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
 }
 
 static void
 send_keyval (KeyGroup *group, int keyval)
 {
-  ClutterSeat *seat;
-  ClutterEvent *event;
+  clutter_virtual_input_device_notify_keyval (group->keyboard,
+                                              g_get_monotonic_time (),
+                                              keyval,
+                                              CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_keyval (group->keyboard,
+                                              g_get_monotonic_time (),
+                                              keyval,
+                                              CLUTTER_KEY_STATE_RELEASED);
 
-  seat = clutter_test_get_default_seat ();
-  event = clutter_event_key_new (CLUTTER_KEY_PRESS,
-                                 CLUTTER_EVENT_FLAG_SYNTHETIC,
-                                 CLUTTER_CURRENT_TIME,
-                                 clutter_seat_get_keyboard (seat),
-                                 (ClutterModifierSet) { 0, },
-                                 0,
-                                 keyval,
-                                 0, 0, 0);
-
-  clutter_actor_event (CLUTTER_ACTOR (group), event, FALSE);
-  clutter_event_free (event);
+  wait_for_event (group);
 }
 
 static void
@@ -260,7 +275,10 @@ on_activate (KeyGroup     *key_group,
 static void
 binding_pool (void)
 {
-  KeyGroup *key_group = g_object_new (TYPE_KEY_GROUP, NULL);
+  ClutterActor *stage;
+  KeyGroup *key_group;
+
+  key_group = g_object_new (TYPE_KEY_GROUP, NULL);
   g_object_ref_sink (key_group);
 
   clutter_actor_add_child (CLUTTER_ACTOR (key_group),
@@ -281,6 +299,11 @@ binding_pool (void)
                                          "height", 50.0,
                                          "x", 150.0, "y", 0.0,
                                          NULL));
+
+  stage = clutter_test_get_stage ();
+  clutter_actor_add_child (stage, CLUTTER_ACTOR (key_group));
+  clutter_actor_set_reactive (CLUTTER_ACTOR (key_group), TRUE);
+  clutter_actor_grab_key_focus (CLUTTER_ACTOR (key_group));
 
   g_assert_cmpint (key_group->selected_index, ==, -1);
 

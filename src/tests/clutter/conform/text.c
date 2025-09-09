@@ -330,55 +330,69 @@ text_password_char (void)
 }
 
 static void
-send_keyval (ClutterText *text, int keyval)
+after_change_cb (ClutterText *text,
+                 gpointer     data)
 {
-  ClutterEvent *event;
-  ClutterSeat *seat;
+  gboolean *got_change = data;
 
-  /* Unicode should be ignored for cursor keys etc. */
-  seat = clutter_test_get_default_seat ();
-  event = clutter_event_key_new (CLUTTER_KEY_PRESS,
-                                 CLUTTER_EVENT_FLAG_SYNTHETIC,
-                                 CLUTTER_CURRENT_TIME,
-                                 clutter_seat_get_keyboard (seat),
-                                 (ClutterModifierSet) { 0, },
-                                 0, keyval, 0, 0, 0);
-
-  clutter_actor_event (CLUTTER_ACTOR (text), event, FALSE);
-
-  clutter_event_free (event);
+  *got_change = TRUE;
 }
 
 static void
-send_unichar (ClutterText *text, gunichar unichar)
+wait_for_change (ClutterText *text)
 {
-  ClutterEvent *event;
-  ClutterSeat *seat;
+  gboolean got_change = FALSE;
+  guint text_change_handler_id, cursor_change_handler_id;
 
-  /* Key symbol should be ignored for printable characters */
-  seat = clutter_test_get_default_seat ();
-  event = clutter_event_key_new (CLUTTER_KEY_PRESS,
-                                 CLUTTER_EVENT_FLAG_SYNTHETIC,
-                                 CLUTTER_CURRENT_TIME,
-                                 clutter_seat_get_keyboard (seat),
-                                 (ClutterModifierSet) { 0, },
-                                 0, 0, 0, 0, unichar);
+  text_change_handler_id = g_signal_connect_after (text, "text-changed",
+                                                   G_CALLBACK (after_change_cb),
+                                                   &got_change);
+  cursor_change_handler_id = g_signal_connect_after (text, "cursor-changed",
+                                                     G_CALLBACK (after_change_cb),
+                                                     &got_change);
 
-  clutter_actor_event (CLUTTER_ACTOR (text), event, FALSE);
+  while (!got_change)
+    g_main_context_iteration (NULL, FALSE);
 
-  clutter_event_free (event);
+  g_signal_handler_disconnect (text, text_change_handler_id);
+  g_signal_handler_disconnect (text, cursor_change_handler_id);
+}
+
+static void
+send_keyval (ClutterVirtualInputDevice *virtual_keyboard,
+             ClutterText               *text,
+             int                        keyval)
+{
+  clutter_virtual_input_device_notify_keyval (virtual_keyboard,
+                                              g_get_monotonic_time (),
+                                              keyval,
+                                              CLUTTER_KEY_STATE_PRESSED);
+  clutter_virtual_input_device_notify_keyval (virtual_keyboard,
+                                              g_get_monotonic_time (),
+                                              keyval,
+                                              CLUTTER_KEY_STATE_RELEASED);
 }
 
 static void
 text_cursor (void)
 {
   ClutterText *text = CLUTTER_TEXT (clutter_text_new ());
+  ClutterVirtualInputDevice *virtual_keyboard;
+  ClutterSeat *seat;
+  ClutterActor *stage;
   int i;
 
   g_object_ref_sink (text);
 
-  /* only editable entries listen to events */
+  stage = clutter_test_get_stage ();
+  clutter_actor_add_child (stage, CLUTTER_ACTOR (text));
   clutter_text_set_editable (text, TRUE);
+  clutter_actor_set_reactive (CLUTTER_ACTOR (text), TRUE);
+  clutter_actor_grab_key_focus (CLUTTER_ACTOR (text));
+
+  seat = clutter_test_get_default_seat ();
+  virtual_keyboard =
+    clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
 
   for (i = 0; i < G_N_ELEMENTS (test_text_data); i++)
     {
@@ -391,13 +405,12 @@ text_cursor (void)
       clutter_text_set_cursor_position (text, 2);
 
       /* test cursor moves and is clamped */
-      send_keyval (text, CLUTTER_KEY_Left);
+      send_keyval (virtual_keyboard, text, CLUTTER_KEY_Left);
+      wait_for_change (text);
       g_assert_cmpint (clutter_text_get_cursor_position (text), ==, 1);
 
-      send_keyval (text, CLUTTER_KEY_Left);
-      g_assert_cmpint (clutter_text_get_cursor_position (text), ==, 0);
-
-      send_keyval (text, CLUTTER_KEY_Left);
+      send_keyval (virtual_keyboard, text, CLUTTER_KEY_Left);
+      wait_for_change (text);
       g_assert_cmpint (clutter_text_get_cursor_position (text), ==, 0);
 
       /* delete text containing the cursor */
@@ -405,7 +418,8 @@ text_cursor (void)
       g_assert_cmpint (clutter_text_get_cursor_position (text), ==, 3);
 
       clutter_text_delete_text (text, 2, 4);
-      send_keyval (text, CLUTTER_KEY_Left);
+      send_keyval (virtual_keyboard, text, CLUTTER_KEY_Left);
+      wait_for_change (text);
 
       /* FIXME: cursor position should be -1?
       g_assert_cmpint (clutter_text_get_cursor_position (text), ==, -1);
@@ -421,25 +435,37 @@ static void
 text_event (void)
 {
   ClutterText *text = CLUTTER_TEXT (clutter_text_new ());
-  int i;
+  ClutterVirtualInputDevice *virtual_keyboard;
+  ClutterActor *stage;
+  ClutterSeat *seat;
 
   g_object_ref_sink (text);
 
-  /* only editable entries listen to events */
+  stage = clutter_test_get_stage ();
+  clutter_actor_add_child (stage, CLUTTER_ACTOR (text));
   clutter_text_set_editable (text, TRUE);
+  clutter_actor_set_reactive (CLUTTER_ACTOR (text), TRUE);
+  clutter_actor_grab_key_focus (CLUTTER_ACTOR (text));
 
-  for (i = 0; i < G_N_ELEMENTS (test_text_data); i++)
-    {
-      const TestData *t = &test_text_data[i];
+  seat = clutter_test_get_default_seat ();
+  virtual_keyboard =
+    clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
 
-      send_unichar (text, t->unichar);
+  send_keyval (virtual_keyboard, text, CLUTTER_KEY_A);
+  wait_for_change (text);
 
-      g_assert_cmpint (get_nchars (text), ==, 1);
-      g_assert_cmpint (get_nbytes (text), ==, 1 * t->nbytes);
-      g_assert_cmpint (clutter_text_get_cursor_position (text), ==, -1);
+  g_assert_cmpint (get_nchars (text), ==, 1);
+  g_assert_cmpint (get_nbytes (text), ==, 1);
+  g_assert_cmpint (clutter_text_get_cursor_position (text), ==, -1);
 
-      clutter_text_set_text (text, "");
-    }
+  send_keyval (virtual_keyboard, text, CLUTTER_KEY_B);
+  wait_for_change (text);
+
+  g_assert_cmpint (get_nchars (text), ==, 2);
+  g_assert_cmpint (get_nbytes (text), ==, 2);
+  g_assert_cmpint (clutter_text_get_cursor_position (text), ==, -1);
+
+  clutter_text_set_text (text, "");
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
 }
