@@ -637,7 +637,6 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
   if (update_keys)
     {
       meta_keymap_native_update_in_impl (seat_impl->keymap,
-                                         seat_impl,
                                          seat_impl->xkb);
     }
 
@@ -3019,7 +3018,6 @@ meta_seat_impl_set_keyboard_numlock_in_impl (MetaSeatImpl *seat_impl,
 
   meta_seat_impl_sync_leds_in_impl (seat_impl);
   meta_keymap_native_update_in_impl (seat_impl->keymap,
-                                     seat_impl,
                                      seat_impl->xkb);
 }
 
@@ -3665,7 +3663,6 @@ meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl)
 
   meta_seat_impl_sync_leds_in_impl (seat_impl);
   meta_keymap_native_update_in_impl (seat_impl->keymap,
-                                     seat_impl,
                                      seat_impl->xkb);
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
@@ -3872,7 +3869,6 @@ set_keyboard_layout_index (GTask *task)
 
   meta_seat_impl_sync_leds_in_impl (seat_impl);
   meta_keymap_native_update_in_impl (seat_impl->keymap,
-                                     seat_impl,
                                      seat_impl->xkb);
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);

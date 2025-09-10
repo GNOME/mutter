@@ -184,7 +184,6 @@ update_state_in_main (gpointer user_data)
 
 void
 meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
-                                   MetaSeatImpl     *seat_impl,
                                    struct xkb_state *xkb_state)
 {
   UpdateLockedModifierStateData *data;
@@ -202,7 +201,7 @@ meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
   data->locked_layout_group =
     xkb_state_serialize_layout (xkb_state, XKB_STATE_LAYOUT_LOCKED);
 
-  meta_seat_impl_queue_main_thread_idle (seat_impl,
+  meta_seat_impl_queue_main_thread_idle (keymap_native->impl.seat_impl,
                                          update_state_in_main,
                                          data, g_free);
 }
