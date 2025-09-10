@@ -477,7 +477,7 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
 
   check_egl_extensions (renderer);
 
-  if (!cogl_driver_update_features (driver, context, error))
+  if (!cogl_driver_update_features (driver, renderer, error))
     return FALSE;
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_SWAP_REGION)

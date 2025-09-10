@@ -55,7 +55,7 @@ struct _CoglDriverClass
   CoglGraphicsResetStatus (* get_graphics_reset_status) (CoglDriver *driver);
 
   gboolean (* update_features) (CoglDriver   *driver,
-                                CoglContext  *context,
+                                CoglRenderer *renderer,
                                 GError      **error);
 
   gboolean (* format_supports_upload) (CoglDriver      *driver,
@@ -118,7 +118,7 @@ CoglTextureDriver * cogl_driver_create_texture_driver (CoglDriver *driver);
  * check whether the GL context is supported by Cogl. If not it should
  * return FALSE and set @error */
 gboolean cogl_driver_update_features (CoglDriver   *driver,
-                                      CoglContext  *context,
+                                      CoglRenderer *renderer,
                                       GError      **error);
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())

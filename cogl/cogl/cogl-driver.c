@@ -114,13 +114,13 @@ cogl_driver_get_graphics_reset_status (CoglDriver *driver)
 }
 
 gboolean
-cogl_driver_update_features (CoglDriver  *driver,
-                             CoglContext *context,
-                             GError     **error)
+cogl_driver_update_features (CoglDriver    *driver,
+                             CoglRenderer  *renderer,
+                             GError       **error)
 {
   CoglDriverClass *klass = COGL_DRIVER_GET_CLASS (driver);
 
-  return klass->update_features (driver, context, error);
+  return klass->update_features (driver, renderer, error);
 }
 
 gboolean
