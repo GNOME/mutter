@@ -97,7 +97,8 @@ _cogl_feature_check (CoglRenderer *renderer,
                      void *function_table);
 
 void
-_cogl_feature_check_ext_functions (CoglContext *context,
-                                   int gl_major,
-                                   int gl_minor,
+_cogl_feature_check_ext_functions (CoglDriver   *driver,
+                                   CoglRenderer *renderer,
+                                   int           gl_major,
+                                   int           gl_minor,
                                    char * const *gl_extensions);
