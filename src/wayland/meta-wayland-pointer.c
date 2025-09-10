@@ -688,24 +688,19 @@ meta_wayland_pointer_update (MetaWaylandPointer *pointer,
 
       if (event_type == CLUTTER_ENTER || event_type == CLUTTER_LEAVE)
         {
-          ClutterInputDevice *device;
           graphene_point_t pos;
           MetaWindow *focus_window = NULL;
 
-          device = clutter_event_get_source_device (event);
           clutter_event_get_coords (event, &pos.x, &pos.y);
 
-          if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL)
-            {
-              if (pointer->focus_surface)
-                focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
+          if (pointer->focus_surface)
+            focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
 
-              meta_display_handle_window_enter (display,
-                                                focus_window,
-                                                clutter_event_get_time (event),
-                                                (int) pos.x,
-                                                (int) pos.y);
-            }
+          meta_display_handle_window_enter (display,
+                                            focus_window,
+                                            clutter_event_get_time (event),
+                                            (int) pos.x,
+                                            (int) pos.y);
         }
     }
 
