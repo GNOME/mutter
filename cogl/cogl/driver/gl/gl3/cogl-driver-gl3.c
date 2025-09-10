@@ -539,7 +539,7 @@ check_glsl_version (CoglDriverGL  *driver,
 
 static gboolean
 cogl_driver_gl3_update_features (CoglDriver   *driver,
-                                 CoglContext  *ctx,
+                                 CoglRenderer *renderer,
                                  GError      **error)
 {
   CoglDriverGLPrivate *priv_gl =
@@ -551,7 +551,7 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
      functions because we need to use them to determine what functions
      we can expect */
   priv_gl->glGetString =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetString");
 
   if (!check_gl_version (COGL_DRIVER_GL (driver), error))
@@ -564,17 +564,17 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
    * so don't look them up before check_gl_version()
    */
   priv_gl->glGetStringi =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetStringi");
   priv_gl->glGetIntegerv =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetIntegerv");
   priv_gl->glGetError =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetError");
 
   gl_extensions = cogl_driver_gl_get_gl_extensions (COGL_DRIVER_GL (driver),
-                                                    ctx->display->renderer);
+                                                    renderer);
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
     {
@@ -598,7 +598,8 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
                            COGL_FEATURE_ID_UNSIGNED_INT_INDICES,
                            TRUE);
 
-  _cogl_feature_check_ext_functions (ctx,
+  _cogl_feature_check_ext_functions (driver,
+                                     renderer,
                                      gl_major,
                                      gl_minor,
                                      gl_extensions);
