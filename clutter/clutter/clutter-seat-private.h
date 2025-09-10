@@ -42,3 +42,6 @@ ClutterInputDevice * clutter_seat_get_pointer (ClutterSeat *seat);
 
 CLUTTER_EXPORT
 ClutterInputDevice * clutter_seat_get_keyboard (ClutterSeat *seat);
+
+CLUTTER_EXPORT
+ClutterInputDevice * clutter_seat_get_virtual_source_pointer (ClutterSeat *seat);

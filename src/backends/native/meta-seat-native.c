@@ -397,6 +397,14 @@ meta_seat_native_query_state (ClutterSeat         *seat,
                                      coords, modifiers);
 }
 
+static ClutterInputDevice *
+meta_seat_native_get_virtual_source_pointer (ClutterSeat *seat)
+{
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+
+  return meta_seat_impl_get_virtual_source_pointer (seat_native->impl);
+}
+
 static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
@@ -419,6 +427,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->init_pointer_position = meta_seat_native_init_pointer_position;
   seat_class->handle_event_post = meta_seat_native_handle_event_post;
   seat_class->query_state = meta_seat_native_query_state;
+  seat_class->get_virtual_source_pointer = meta_seat_native_get_virtual_source_pointer;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id", NULL, NULL,

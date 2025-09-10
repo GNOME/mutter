@@ -3227,6 +3227,11 @@ input_thread (MetaSeatImpl *seat_impl)
         }
     }
 
+  seat_impl->virtual_source_pointer =
+    meta_input_device_native_new_virtual_in_impl (seat_impl,
+                                                  CLUTTER_POINTER_DEVICE,
+                                                  CLUTTER_INPUT_MODE_PHYSICAL);
+
   seat_impl->has_touchscreen = has_touchscreen (seat_impl);
   seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
   update_touch_mode (seat_impl);
@@ -3355,6 +3360,8 @@ destroy_in_impl (GTask *task)
 
   g_clear_pointer (&priv->a11y.grabbed_modifiers, g_hash_table_destroy);
   g_clear_pointer (&priv->a11y.pressed_modifiers, g_hash_table_destroy);
+
+  g_clear_object (&seat_impl->virtual_source_pointer);
 
   g_main_loop_quit (seat_impl->input_loop);
   g_task_return_boolean (task, TRUE);
@@ -4284,4 +4291,10 @@ meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
                                                   CLUTTER_CURRENT_TIME,
                                                   device);
   queue_event (seat_impl, device_event);
+}
+
+ClutterInputDevice *
+meta_seat_impl_get_virtual_source_pointer (MetaSeatImpl *seat_impl)
+{
+  return seat_impl->virtual_source_pointer;
 }

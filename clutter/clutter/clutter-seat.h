@@ -108,6 +108,8 @@ struct _ClutterSeatClass
   ClutterVirtualInputDevice * (* create_virtual_device) (ClutterSeat            *seat,
                                                          ClutterInputDeviceType  device_type);
   ClutterVirtualDeviceType (* get_supported_virtual_device_types) (ClutterSeat *seat);
+
+  ClutterInputDevice * (* get_virtual_source_pointer) (ClutterSeat *seat);
 };
 
 CLUTTER_EXPORT

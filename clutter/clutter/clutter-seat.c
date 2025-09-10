@@ -788,3 +788,11 @@ clutter_seat_get_context (ClutterSeat *seat)
 
   return priv->context;
 }
+
+ClutterInputDevice *
+clutter_seat_get_virtual_source_pointer (ClutterSeat *seat)
+{
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), NULL);
+
+  return CLUTTER_SEAT_GET_CLASS (seat)->get_virtual_source_pointer (seat);
+}

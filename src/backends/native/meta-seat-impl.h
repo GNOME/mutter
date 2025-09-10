@@ -79,6 +79,7 @@ struct _MetaSeatImpl
 
   MetaKeymapNative *keymap;
   MetaInputSettings *input_settings;
+  ClutterInputDevice *virtual_source_pointer;
 
   MetaViewportInfo *viewports;
 
@@ -259,3 +260,5 @@ void meta_seat_impl_remove_virtual_input_device (MetaSeatImpl       *seat_impl,
 void meta_seat_impl_set_a11y_modifiers (MetaSeatImpl   *seat_impl,
                                         const uint32_t *modifiers,
                                         int             n_modifiers);
+
+ClutterInputDevice * meta_seat_impl_get_virtual_source_pointer (MetaSeatImpl *seat_impl);
