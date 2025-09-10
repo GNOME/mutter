@@ -16,16 +16,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-07-13 10:23+0000\n"
-"PO-Revision-Date: 2025-07-13 08:00+0300\n"
-"Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
+"POT-Creation-Date: 2025-08-31 20:24+0000\n"
+"PO-Revision-Date: 2025-09-04 19:30+0300\n"
+"Last-Translator: Sabri Ünal <yakushabb@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.7\n"
 "X-DamnedLies-Scope: partial\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -319,8 +319,8 @@ msgstr "Çalışma alanları dinamik olarak yönetilir"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Çalışma alanlarının dinamik olarak mı yönetileceğini yoksa sabit sayıda "
 "çalışma alanı mı olacağını belirler (org.gnome.desktop.wm.preferences "
@@ -385,8 +385,8 @@ msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
-"Etkinleştirildiğinde, yeni pencereler her zaman monitörün etkin ekranında "
-"ortaya yerleştirilir."
+"Doğru olduğunda, yeni pencereler her zaman monitörün etkin ekranının "
+"ortasına yerleştirilir."
 
 #: data/org.gnome.mutter.gschema.xml.in:108
 msgid "Enable experimental features"
@@ -632,6 +632,50 @@ msgstr ""
 "desteklemiyorsa bu seçenek işlevsizdir. Bu ayarın etkinleşmesi için Xwayland "
 "yeniden başlatılmalıdır."
 
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Uygulama"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Çalıştırılabilir"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Başlatıcı Ekle"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Başlatıcı"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Tür"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Ekle"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Çalıştır"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Sil"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Eylem"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Başlatıcıları Düzenle"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Başlatıcılar"
+
 #: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Girdi"
@@ -644,27 +688,35 @@ msgstr "Dokunmayı _öykün"
 msgid "_Inhibit system shortcuts"
 msgstr "Sistem kısayollarını _engelle"
 
-#: mdk/mdk-main-window.ui:19
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Başlatıcılar"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "Başlatıcıları _düzenle"
+
+#: mdk/mdk-main-window.ui:31
 msgid "_About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı _Hakkında"
 
-#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı"
 
-#: mdk/mdk-main-window.ui:35
+#: mdk/mdk-main-window.ui:47
 msgid "Main Menu"
 msgstr "Ana Menü"
 
-#: mdk/mdk-main.c:69
+#: mdk/mdk-main.c:49
 msgid "The Mutter Team"
 msgstr "Mutter Takımı"
 
-#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+#: mdk/mdk-main.c:62
 msgid "Mutter software development kit"
 msgstr "Mutter yazılım geliştirme takımı"
 
-#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+#: mdk/mdk-main.c:65
 msgid "About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı Hakkında"
 
@@ -672,26 +724,26 @@ msgstr "Mutter Geliştirme Takımı Hakkında"
 msgid "Failed to create monitor"
 msgstr "Monitör oluşturulamadı"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Yerleşik monitör"
 
-#: src/backends/meta-monitor.c:302
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Bilinmeyen"
 
-#: src/backends/meta-monitor.c:304
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Bilinmeyen Monitör"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:320
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -703,67 +755,67 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Etkinlik zili"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Gizlilik Ekranı Etkin"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Gizlilik Ekranı Devre Dışı"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Çalışan pencere yöneticisinin yerini al"
 
-#: src/core/meta-context-main.c:638
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Kullanılacak X Ekranı"
 
-#: src/core/meta-context-main.c:644
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "X çağrılarını eşzamanlı yap"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Wayland dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Yuvalanmış dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
-#: src/core/meta-context-main.c:674
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Kullanılacak Wayland monitör adını belirt"
 
-#: src/core/meta-context-main.c:682
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Başsız monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
 
-#: src/core/meta-context-main.c:699
+#: src/core/meta-context-main.c:697
 msgid "Run development kit"
 msgstr "Geliştirme takımını çalıştır"
 
-#: src/core/meta-context-main.c:711
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "X11 arkayüzüyle çalıştır"
 
-#: src/core/meta-context-main.c:717
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "İzleme araçları kullanarak başarımı profille"
 
-#: src/core/meta-context-main.c:723
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus arayüzü için hata ayıklama denetimini etkinleştir"
 
@@ -812,7 +864,7 @@ msgstr "Kullanılacak Mutter eklentisi"
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 
