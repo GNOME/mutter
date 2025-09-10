@@ -68,7 +68,7 @@ cogl_framebuffer_nop_class_init (CoglFramebufferNopClass *klass)
 
 static gboolean
 cogl_driver_nop_update_features (CoglDriver   *driver,
-                                 CoglContext  *ctx,
+                                 CoglRenderer *renderer,
                                  GError      **error)
 {
 

@@ -428,11 +428,12 @@ update_winsys_features (CoglContext *context, GError **error)
 {
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglDriver *driver = cogl_context_get_driver (context);
-  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (context->display->renderer);
+  CoglRenderer *renderer = context->display->renderer;
+  CoglGLXRenderer *glx_renderer = cogl_renderer_get_winsys (renderer);
 
   g_return_val_if_fail (glx_display->glx_context, FALSE);
 
-  if (!cogl_driver_update_features (driver, context, error))
+  if (!cogl_driver_update_features (driver, renderer, error))
     return FALSE;
 
   memcpy (context->winsys_features,

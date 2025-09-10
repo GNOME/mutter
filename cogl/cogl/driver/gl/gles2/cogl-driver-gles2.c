@@ -725,7 +725,7 @@ check_glsl_version (CoglDriverGL *driver,
 
 static gboolean
 cogl_driver_gles2_update_features (CoglDriver   *driver,
-                                   CoglContext  *context,
+                                   CoglRenderer *renderer,
                                    GError      **error)
 {
   CoglDriverGLPrivate *priv_gl =
@@ -737,7 +737,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
      function because we need to use it to determine what functions we
      can expect */
   priv_gl->glGetString =
-    (void *) cogl_renderer_get_proc_address (context->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetString");
 
   if (!check_gl_version (COGL_DRIVER_GL (driver), error))
@@ -747,7 +747,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
     return FALSE;
 
   gl_extensions = cogl_driver_gl_get_gl_extensions (COGL_DRIVER_GL (driver),
-                                                    context->display->renderer);
+                                                    renderer);
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_WINSYS)))
     {
@@ -767,7 +767,8 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
 
   _cogl_get_gl_version (COGL_DRIVER_GL (driver), &gl_major, &gl_minor);
 
-  _cogl_feature_check_ext_functions (context,
+  _cogl_feature_check_ext_functions (driver,
+                                     renderer,
                                      gl_major,
                                      gl_minor,
                                      gl_extensions);
