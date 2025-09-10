@@ -686,8 +686,7 @@ clutter_seat_has_touchscreen (ClutterSeat *seat)
     {
       ClutterInputDevice *device = l->data;
 
-      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL &&
-          clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
+      if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
         {
           has_touchscreen = TRUE;
           break;
