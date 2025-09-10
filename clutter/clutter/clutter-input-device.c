@@ -57,7 +57,6 @@ enum
   PROP_DEVICE_TYPE,
   PROP_CAPABILITIES,
   PROP_SEAT,
-  PROP_DEVICE_MODE,
 
   PROP_HAS_CURSOR,
 
@@ -83,7 +82,6 @@ struct _ClutterInputDevicePrivate
 {
   ClutterInputDeviceType device_type;
   ClutterInputCapabilities capabilities;
-  ClutterInputMode device_mode;
 
   char *device_name;
 
@@ -189,10 +187,6 @@ clutter_input_device_set_property (GObject      *gobject,
       priv->seat = g_value_get_object (value);
       break;
 
-    case PROP_DEVICE_MODE:
-      priv->device_mode = g_value_get_enum (value);
-      break;
-
     case PROP_NAME:
       priv->device_name = g_value_dup_string (value);
       break;
@@ -265,10 +259,6 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_SEAT:
       g_value_set_object (value, priv->seat);
-      break;
-
-    case PROP_DEVICE_MODE:
-      g_value_set_enum (value, priv->device_mode);
       break;
 
     case PROP_NAME:
@@ -374,19 +364,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
                          G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterInputDevice:mode:
-   *
-   * The mode of the device.
-   */
-  obj_props[PROP_DEVICE_MODE] =
-    g_param_spec_enum ("device-mode", NULL, NULL,
-                       CLUTTER_TYPE_INPUT_MODE,
-                       CLUTTER_INPUT_MODE_FLOATING,
-                       G_PARAM_READWRITE |
-                       G_PARAM_STATIC_STRINGS |
-                       G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:has-cursor:
@@ -572,26 +549,6 @@ clutter_input_device_get_has_cursor (ClutterInputDevice *device)
 }
 
 /**
- * clutter_input_device_get_device_mode:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the #ClutterInputMode of @device.
- *
- * Return value: the device mode
- */
-ClutterInputMode
-clutter_input_device_get_device_mode (ClutterInputDevice *device)
-{
-  ClutterInputDevicePrivate *priv =
-    clutter_input_device_get_instance_private (device);
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device),
-                        CLUTTER_INPUT_MODE_FLOATING);
-
-  return priv->device_mode;
-}
-
-/**
  * clutter_input_device_get_vendor_id:
  * @device: a physical #ClutterInputDevice
  *
@@ -606,7 +563,6 @@ clutter_input_device_get_vendor_id (ClutterInputDevice *device)
     clutter_input_device_get_instance_private (device);
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
 
   return priv->vendor_id;
 }
@@ -626,7 +582,6 @@ clutter_input_device_get_product_id (ClutterInputDevice *device)
     clutter_input_device_get_instance_private (device);
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
 
   return priv->product_id;
 }
@@ -648,7 +603,6 @@ clutter_input_device_get_bus_type (ClutterInputDevice *device)
     clutter_input_device_get_instance_private (device);
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, 0);
 
   return priv->bus_type;
 }

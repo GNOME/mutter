@@ -1026,9 +1026,7 @@ create_device_in_impl (GTask *task)
 
   impl_state->seat_impl = seat_impl;
   impl_state->device =
-    meta_input_device_native_new_virtual_in_impl (seat_impl,
-                                                  device_type,
-                                                  CLUTTER_INPUT_MODE_PHYSICAL);
+    meta_input_device_native_new_virtual_in_impl (seat_impl, device_type);
   meta_seat_impl_add_virtual_input_device (seat_impl, impl_state->device);
 
   g_task_return_boolean (task, TRUE);

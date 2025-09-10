@@ -425,7 +425,6 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
                          "name", libinput_device_get_name (libinput_device),
                          "device-type", type,
                          "capabilities", capabilities,
-                         "device-mode", CLUTTER_INPUT_MODE_PHYSICAL,
                          "vendor-id", vendor,
                          "product-id", product,
                          "bus-type", bustype,
@@ -469,8 +468,7 @@ meta_input_device_native_new_in_impl (MetaSeatImpl           *seat_impl,
  */
 ClutterInputDevice *
 meta_input_device_native_new_virtual_in_impl (MetaSeatImpl           *seat_impl,
-                                              ClutterInputDeviceType  type,
-                                              ClutterInputMode        mode)
+                                              ClutterInputDeviceType  type)
 {
   MetaInputDeviceNative *device;
   const char *name;
@@ -495,7 +493,6 @@ meta_input_device_native_new_virtual_in_impl (MetaSeatImpl           *seat_impl,
                          "backend", meta_seat_impl_get_backend (seat_impl),
                          "name", name,
                          "device-type", type,
-                         "device-mode", mode,
                          "seat", seat_impl->seat_native,
                          NULL);
 

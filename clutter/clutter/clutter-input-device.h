@@ -74,8 +74,6 @@ ClutterInputDeviceType  clutter_input_device_get_device_type    (ClutterInputDev
 CLUTTER_EXPORT
 const gchar *           clutter_input_device_get_device_name    (ClutterInputDevice  *device);
 CLUTTER_EXPORT
-ClutterInputMode        clutter_input_device_get_device_mode    (ClutterInputDevice  *device);
-CLUTTER_EXPORT
 gboolean                clutter_input_device_get_has_cursor     (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT

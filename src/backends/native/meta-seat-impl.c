@@ -3185,8 +3185,7 @@ input_thread (MetaSeatImpl *seat_impl)
 
   seat_impl->virtual_source_pointer =
     meta_input_device_native_new_virtual_in_impl (seat_impl,
-                                                  CLUTTER_POINTER_DEVICE,
-                                                  CLUTTER_INPUT_MODE_PHYSICAL);
+                                                  CLUTTER_POINTER_DEVICE);
 
   seat_impl->has_touchscreen = has_touchscreen (seat_impl);
   seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
