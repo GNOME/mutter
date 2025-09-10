@@ -29,6 +29,15 @@ static const char *option_xkb_layout = "us";
 static const char *option_xkb_variant = "";
 static const char *option_xkb_options = "";
 
+enum
+{
+  PROP_0,
+  PROP_SEAT_IMPL,
+  N_PROPS,
+};
+
+static GParamSpec *props[N_PROPS] = { 0, };
+
 typedef struct _MetaKeymapNative MetaKeymapNative;
 
 struct _MetaKeymapNative
@@ -36,6 +45,7 @@ struct _MetaKeymapNative
   ClutterKeymap parent_instance;
 
   struct {
+    MetaSeatImpl *seat_impl;
     struct xkb_keymap *keymap;
   } impl;
 };
@@ -53,6 +63,25 @@ meta_keymap_native_finalize (GObject *object)
   G_OBJECT_CLASS (meta_keymap_native_parent_class)->finalize (object);
 }
 
+static void
+meta_keymap_native_set_property (GObject      *object,
+                                 guint         prop_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
+{
+  MetaKeymapNative *keymap_native = META_KEYMAP_NATIVE (object);
+
+  switch (prop_id)
+    {
+    case PROP_SEAT_IMPL:
+      keymap_native->impl.seat_impl = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
 static ClutterTextDirection
 meta_keymap_native_get_direction (ClutterKeymap *keymap)
 {
@@ -66,8 +95,18 @@ meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
   ClutterKeymapClass *keymap_class = CLUTTER_KEYMAP_CLASS (klass);
 
   object_class->finalize = meta_keymap_native_finalize;
+  object_class->set_property = meta_keymap_native_set_property;
 
   keymap_class->get_direction = meta_keymap_native_get_direction;
+
+  props[PROP_SEAT_IMPL] =
+    g_param_spec_object ("seat-impl", NULL, NULL,
+                         META_TYPE_SEAT_IMPL,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_STATIC_STRINGS |
+                         G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
@@ -166,4 +205,12 @@ meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
   meta_seat_impl_queue_main_thread_idle (seat_impl,
                                          update_state_in_main,
                                          data, g_free);
+}
+
+MetaKeymapNative *
+meta_keymap_native_new (MetaSeatImpl *seat_impl)
+{
+  return g_object_new (META_TYPE_KEYMAP_NATIVE,
+                       "seat-impl", seat_impl,
+                       NULL);
 }

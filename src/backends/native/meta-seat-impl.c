@@ -3185,7 +3185,7 @@ input_thread (MetaSeatImpl *seat_impl)
   g_signal_connect_object (seat_impl->input_settings, "kbd-a11y-changed",
                            G_CALLBACK (kbd_a11y_changed_cb), seat_impl, 0);
 
-  seat_impl->keymap = g_object_new (META_TYPE_KEYMAP_NATIVE, NULL);
+  seat_impl->keymap = meta_keymap_native_new (seat_impl);
 
   xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (seat_impl->keymap);
 
