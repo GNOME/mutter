@@ -79,8 +79,7 @@ meta_seat_native_handle_event_post (ClutterSeat        *seat,
     }
   else if (event_type == CLUTTER_DEVICE_ADDED)
     {
-      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL)
-        seat_native->devices = g_list_prepend (seat_native->devices, g_object_ref (device));
+      seat_native->devices = g_list_prepend (seat_native->devices, g_object_ref (device));
     }
   else if (event_type == CLUTTER_DEVICE_REMOVED)
     {
