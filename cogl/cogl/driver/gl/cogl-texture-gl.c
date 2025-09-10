@@ -56,12 +56,11 @@ _cogl_texture_gl_prep_alignment_for_pixels_upload (CoglContext *ctx,
 }
 
 void
-_cogl_texture_gl_prep_alignment_for_pixels_download (CoglContext *ctx,
-                                                     int bpp,
-                                                     int width,
-                                                     int rowstride)
+_cogl_texture_gl_prep_alignment_for_pixels_download (CoglDriver *driver,
+                                                     int         bpp,
+                                                     int         width,
+                                                     int         rowstride)
 {
-  CoglDriver *driver = cogl_context_get_driver (ctx);
   int alignment;
 
   /* If no padding is needed then we can always use an alignment of 1.

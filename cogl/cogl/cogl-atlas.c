@@ -206,7 +206,6 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
   g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
 
   driver_klass->pixel_format_to_gl (driver_gl,
-                                    ctx,
                                     format,
                                     &gl_intformat,
                                     &gl_format,
@@ -226,7 +225,6 @@ _cogl_atlas_get_initial_size (CoglContext *ctx,
      decrease the size until it can */
   while (size > 1 &&
          !driver_klass->texture_size_supported (driver_gl,
-                                                ctx,
                                                 GL_TEXTURE_2D,
                                                 gl_intformat,
                                                 gl_format,
@@ -254,7 +252,6 @@ _cogl_atlas_create_map (CoglContext             *ctx,
   GLenum gl_type;
 
   driver_klass->pixel_format_to_gl (driver_gl,
-                                    ctx,
                                     format,
                                     &gl_intformat,
                                     &gl_format,
@@ -263,7 +260,6 @@ _cogl_atlas_create_map (CoglContext             *ctx,
   /* Keep trying increasingly larger atlases until we can fit all of
      the textures */
   while (driver_klass->texture_size_supported (driver_gl,
-                                               ctx,
                                                GL_TEXTURE_2D,
                                                gl_intformat,
                                                gl_format,
