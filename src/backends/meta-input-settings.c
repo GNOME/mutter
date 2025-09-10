@@ -155,9 +155,6 @@ meta_input_settings_get_devices (MetaInputSettings        *settings,
     {
       ClutterInputDevice *device = l->data;
 
-      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
-        continue;
-
       if (!device_matches_capabilities (device,
                                         require_capabilities,
                                         reject_capabilities))
@@ -428,10 +425,6 @@ update_pointer_accel_profile (MetaInputSettings  *input_settings,
       for (l = priv->devices; l; l = l->next)
         {
           device = l->data;
-
-          if (clutter_input_device_get_device_mode (device) ==
-              CLUTTER_INPUT_MODE_LOGICAL)
-            continue;
 
           do_update_pointer_accel_profile (input_settings, settings,
                                            device, profile);
@@ -1667,9 +1660,6 @@ meta_input_settings_add_device (MetaInputSettings  *input_settings,
   MetaInputSettingsPrivate *priv =
     meta_input_settings_get_instance_private (input_settings);
 
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
-    return;
-
   priv->devices = g_list_prepend (priv->devices, device);
   evaluate_two_finger_scrolling (input_settings, device);
 
@@ -1764,9 +1754,6 @@ check_mappable_devices (MetaInputSettings *input_settings)
   for (l = priv->devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
-
-      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
-        continue;
 
       check_add_mappable_device (input_settings, device);
     }
