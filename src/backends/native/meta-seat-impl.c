@@ -3098,24 +3098,6 @@ init_libinput_source (MetaSeatImpl *seat_impl)
 }
 
 static void
-init_core_devices (MetaSeatImpl *seat_impl)
-{
-  ClutterInputDevice *device;
-
-  device =
-    meta_input_device_native_new_virtual_in_impl (seat_impl,
-                                                  CLUTTER_POINTER_DEVICE,
-                                                  CLUTTER_INPUT_MODE_LOGICAL);
-  seat_impl->core_pointer = device;
-
-  device =
-    meta_input_device_native_new_virtual_in_impl (seat_impl,
-                                                  CLUTTER_KEYBOARD_DEVICE,
-                                                  CLUTTER_INPUT_MODE_LOGICAL);
-  seat_impl->core_keyboard = device;
-}
-
-static void
 update_keyboard_leds (MetaSeatImpl *seat_impl)
 {
   MetaSeatImplPrivate *priv =
@@ -3161,8 +3143,6 @@ input_thread (MetaSeatImpl *seat_impl)
                                  seat_impl->input_context,
                                  "Mutter Input Thread");
 #endif
-
-  init_core_devices (seat_impl);
 
   priv->device_files =
     g_hash_table_new_full (NULL, NULL,

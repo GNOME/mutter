@@ -65,9 +65,6 @@ struct _MetaSeatImpl
   GSList *devices;
   GHashTable *tools;
 
-  ClutterInputDevice *core_pointer;
-  ClutterInputDevice *core_keyboard;
-
   GHashTable *cursor_renderers;
 
   struct xkb_state *xkb;
