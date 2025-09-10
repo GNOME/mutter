@@ -819,7 +819,6 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
 
       closest_format =
         driver_klass->pixel_format_to_gl (driver_gl,
-                                          ctx,
                                           internal_format,
                                           NULL, /* ignore gl intformat */
                                           NULL, /* ignore gl format */

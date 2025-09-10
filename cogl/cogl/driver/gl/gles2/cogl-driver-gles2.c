@@ -98,7 +98,6 @@ G_DEFINE_FINAL_TYPE (CoglDriverGLES2, cogl_driver_gles2, COGL_TYPE_DRIVER_GL)
 
 static CoglPixelFormat
 cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
-                                      CoglContext     *context,
                                       CoglPixelFormat  format,
                                       GLenum          *out_glintformat,
                                       GLenum          *out_glformat,
@@ -193,7 +192,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
         {
           required_format =
             cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                                  context,
                                                   COGL_PIXEL_FORMAT_RGB_888,
                                                   &glintformat,
                                                   &glformat,
@@ -215,7 +213,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
     case COGL_PIXEL_FORMAT_BGR_888:
       required_format =
         cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                              context,
                                               COGL_PIXEL_FORMAT_RGB_888,
                                               &glintformat,
                                               &glformat,
@@ -295,7 +292,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
         {
           required_format =
             cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                                  context,
                                                   COGL_PIXEL_FORMAT_RGBA_8888,
                                                   &glintformat,
                                                   &glformat,
@@ -309,7 +305,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
     case COGL_PIXEL_FORMAT_XBGR_8888:
       required_format =
         cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                              context,
                                               COGL_PIXEL_FORMAT_RGBA_8888_PRE,
                                               &glintformat,
                                               &glformat,
@@ -322,7 +317,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
     case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
       required_format =
         cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                              context,
                                               COGL_PIXEL_FORMAT_RGBA_8888 |
                                               (format & COGL_PREMULT_BIT),
                                               &glintformat,
@@ -391,7 +385,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       required_format =
         cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                              context,
                                               COGL_PIXEL_FORMAT_ABGR_2101010 |
                                               (format & COGL_PREMULT_BIT),
                                               &glintformat,
@@ -419,7 +412,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
     case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
       required_format =
         cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                              context,
                                               COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE,
                                               &glintformat,
                                               &glformat,
@@ -434,7 +426,6 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
         cogl_driver_gles2_pixel_format_to_gl (driver_gl,
-                                              context,
                                               COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
                                               (format & COGL_PREMULT_BIT),
                                               &glintformat,
@@ -491,12 +482,11 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver_gl,
 
 static void
 cogl_driver_gles2_prep_gl_for_pixels_download (CoglDriverGL *driver,
-                                               CoglContext  *ctx,
                                                int           image_width,
                                                int           pixels_rowstride,
                                                int           pixels_bpp)
 {
-  _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,
+  _cogl_texture_gl_prep_alignment_for_pixels_download (COGL_DRIVER (driver),
                                                        pixels_bpp,
                                                        image_width,
                                                        pixels_rowstride);
@@ -504,7 +494,6 @@ cogl_driver_gles2_prep_gl_for_pixels_download (CoglDriverGL *driver,
 
 static gboolean
 cogl_driver_gles2_texture_size_supported (CoglDriverGL *driver,
-                                          CoglContext  *ctx,
                                           GLenum        gl_target,
                                           GLenum        gl_intformat,
                                           GLenum        gl_format,
@@ -537,7 +526,6 @@ cogl_driver_gles2_query_max_texture_units (CoglDriverGL *driver,
 
 static CoglPixelFormat
 cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
-                                          CoglContext     *context,
                                           CoglPixelFormat  from,
                                           CoglPixelFormat  to,
                                           GLenum          *gl_format_out,
@@ -638,7 +626,6 @@ cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
   g_assert (required_format != 0);
 
   to_required_format = cogl_driver_gles2_pixel_format_to_gl (driver,
-                                                             context,
                                                              to,
                                                              NULL,
                                                              &to_gl_format,
