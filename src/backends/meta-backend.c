@@ -392,8 +392,7 @@ meta_backend_update_last_device (MetaBackend        *backend,
   if (priv->current_device == device)
     return;
 
-  if (!device ||
-      clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
+  if (!device)
     return;
 
   g_set_object (&priv->current_device, device);
@@ -464,10 +463,6 @@ on_device_added (ClutterSeat        *seat,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterInputDeviceType device_type;
 
-  if (clutter_input_device_get_device_mode (device) ==
-      CLUTTER_INPUT_MODE_LOGICAL)
-    return;
-
   device_type = clutter_input_device_get_device_type (device);
 
   if (!priv->in_init &&
@@ -496,10 +491,6 @@ on_device_removed (ClutterSeat        *seat,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   g_warn_if_fail (!priv->in_init);
-
-  if (clutter_input_device_get_device_mode (device) ==
-      CLUTTER_INPUT_MODE_LOGICAL)
-    return;
 
   meta_input_mapper_remove_device (priv->input_mapper, device);
 
