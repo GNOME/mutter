@@ -58,8 +58,6 @@ enum
   PROP_CAPABILITIES,
   PROP_SEAT,
 
-  PROP_HAS_CURSOR,
-
   PROP_VENDOR_ID,
   PROP_PRODUCT_ID,
   PROP_BUS_TYPE,
@@ -97,8 +95,6 @@ struct _ClutterInputDevicePrivate
   int n_dials;
   int n_mode_groups;
   int n_buttons;
-
-  gboolean has_cursor;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterInputDevice, clutter_input_device, G_TYPE_OBJECT);
@@ -191,10 +187,6 @@ clutter_input_device_set_property (GObject      *gobject,
       priv->device_name = g_value_dup_string (value);
       break;
 
-    case PROP_HAS_CURSOR:
-      priv->has_cursor = g_value_get_boolean (value);
-      break;
-
     case PROP_VENDOR_ID:
       priv->vendor_id = g_value_get_uint (value);
       break;
@@ -263,10 +255,6 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_NAME:
       g_value_set_string (value, priv->device_name);
-      break;
-
-    case PROP_HAS_CURSOR:
-      g_value_set_boolean (value, priv->has_cursor);
       break;
 
     case PROP_VENDOR_ID:
@@ -364,18 +352,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
                          G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterInputDevice:has-cursor:
-   *
-   * Whether the device has an on screen cursor following its movement.
-   */
-  obj_props[PROP_HAS_CURSOR] =
-    g_param_spec_boolean ("has-cursor", NULL, NULL,
-                          FALSE,
-                          G_PARAM_READWRITE |
-                          G_PARAM_STATIC_STRINGS |
-                          G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:vendor-id:
@@ -526,26 +502,6 @@ clutter_input_device_get_device_name (ClutterInputDevice *device)
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
   return priv->device_name;
-}
-
-/**
- * clutter_input_device_get_has_cursor:
- * @device: a #ClutterInputDevice
- *
- * Retrieves whether @device has a pointer that follows the
- * device motion.
- *
- * Return value: %TRUE if the device has a cursor
- */
-gboolean
-clutter_input_device_get_has_cursor (ClutterInputDevice *device)
-{
-  ClutterInputDevicePrivate *priv =
-    clutter_input_device_get_instance_private (device);
-
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
-
-  return priv->has_cursor;
 }
 
 /**
