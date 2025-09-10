@@ -3399,11 +3399,13 @@ static gboolean
 warp_pointer_in_impl (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
+  ClutterInputDevice *virtual_device;
   graphene_point_t *point;
 
   point = g_task_get_task_data (task);
+  virtual_device = meta_seat_impl_get_virtual_source_pointer (seat_impl);
   meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
-                                                 seat_impl->core_pointer, 0,
+                                                 virtual_device, 0,
                                                  point->x, point->y, NULL);
   g_task_return_boolean (task, TRUE);
 
@@ -3985,6 +3987,7 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
   int nearest_monitor_x, nearest_monitor_y, min_distance = G_MAXINT;
   MtkRectangle monitor_rect;
   graphene_point_t coords;
+  ClutterInputDevice *virtual_device;
 
   if (!meta_seat_impl_query_state (seat_impl,
                                    NULL, NULL,
@@ -4027,8 +4030,9 @@ ensure_pointer_onscreen (MetaSeatImpl *seat_impl)
   coords.y = CLAMP (coords.y, monitor_rect.y,
                     monitor_rect.y + monitor_rect.height - 1);
 
+  virtual_device = meta_seat_impl_get_virtual_source_pointer (seat_impl);
   meta_seat_impl_notify_absolute_motion_in_impl (seat_impl,
-                                                 seat_impl->core_pointer, 0,
+                                                 virtual_device, 0,
                                                  coords.x, coords.y, NULL);
 }
 
