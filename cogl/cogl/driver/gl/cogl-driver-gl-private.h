@@ -81,14 +81,12 @@ struct _CoglDriverGLClass
   CoglDriverClass parent_class;
 
   CoglPixelFormat (* pixel_format_to_gl) (CoglDriverGL    *driver,
-                                          CoglContext     *context,
                                           CoglPixelFormat  format,
                                           GLenum          *out_glintformat,
                                           GLenum          *out_glformat,
                                           GLenum          *out_gltype);
 
   CoglPixelFormat (* get_read_pixels_format) (CoglDriverGL    *driver,
-                                              CoglContext     *context,
                                               CoglPixelFormat  from,
                                               CoglPixelFormat  to,
                                               GLenum          *gl_format_out,
@@ -101,7 +99,6 @@ struct _CoglDriverGLClass
    * destination buffer, the GL driver has a more flexible version of
    * this function that it uses internally. */
   void (* prep_gl_for_pixels_download) (CoglDriverGL *driver,
-                                        CoglContext  *ctx,
                                         int           image_width,
                                         int           pixels_rowstride,
                                         int           pixels_bpp);
@@ -109,7 +106,6 @@ struct _CoglDriverGLClass
    * It may depend on the driver as to what texture sizes are supported...
    */
   gboolean (* texture_size_supported) (CoglDriverGL *driver,
-                                       CoglContext  *ctx,
                                        GLenum        gl_target,
                                        GLenum        gl_intformat,
                                        GLenum        gl_format,

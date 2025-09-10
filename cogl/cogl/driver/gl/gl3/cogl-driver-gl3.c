@@ -66,7 +66,6 @@ cogl_driver_gl3_context_init (CoglDriver  *driver,
 
 static CoglPixelFormat
 cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
-                                    CoglContext     *context,
                                     CoglPixelFormat  format,
                                     GLenum          *out_glintformat,
                                     GLenum          *out_glformat,
@@ -285,7 +284,6 @@ cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
       required_format =
         cogl_driver_gl3_pixel_format_to_gl (driver,
-                                            context,
                                             COGL_PIXEL_FORMAT_RGBA_FP_16161616 |
                                             (format & COGL_PREMULT_BIT),
                                             &glintformat,
@@ -296,7 +294,6 @@ cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
     case COGL_PIXEL_FORMAT_XBGR_FP_16161616:
       required_format =
         cogl_driver_gl3_pixel_format_to_gl (driver,
-                                            context,
                                             COGL_PIXEL_FORMAT_RGBX_FP_16161616,
                                             &glintformat,
                                             &glformat,
@@ -367,34 +364,31 @@ cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
 /* OpenGL - unlike GLES - can download pixel data into a sub region of
  * a larger destination buffer */
 static void
-prep_gl_for_pixels_download_full (CoglContext *ctx,
-                                  int image_width,
-                                  int pixels_rowstride,
-                                  int image_height,
-                                  int pixels_src_x,
-                                  int pixels_src_y,
-                                  int pixels_bpp)
+prep_gl_for_pixels_download_full (CoglDriver *driver,
+                                  int         image_width,
+                                  int         pixels_rowstride,
+                                  int         image_height,
+                                  int         pixels_src_x,
+                                  int         pixels_src_y,
+                                  int         pixels_bpp)
 {
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-
   GE (driver, glPixelStorei (GL_PACK_ROW_LENGTH, pixels_rowstride / pixels_bpp));
 
   GE (driver, glPixelStorei (GL_PACK_SKIP_PIXELS, pixels_src_x));
   GE (driver, glPixelStorei (GL_PACK_SKIP_ROWS, pixels_src_y));
 
-  _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,
+  _cogl_texture_gl_prep_alignment_for_pixels_download (driver,
                                                        pixels_bpp,
                                                        image_width,
                                                        pixels_rowstride);
 }
 static void
 cogl_driver_gl3_prep_gl_for_pixels_download (CoglDriverGL *driver,
-                                             CoglContext  *ctx,
                                              int           image_width,
                                              int           pixels_rowstride,
                                              int           pixels_bpp)
 {
-  prep_gl_for_pixels_download_full (ctx,
+  prep_gl_for_pixels_download_full (COGL_DRIVER (driver),
                                     image_width,
                                     pixels_rowstride,
                                     0 /* image height */,
@@ -404,7 +398,6 @@ cogl_driver_gl3_prep_gl_for_pixels_download (CoglDriverGL *driver,
 
 static gboolean
 cogl_driver_gl3_texture_size_supported (CoglDriverGL *driver,
-                                        CoglContext  *ctx,
                                         GLenum        gl_target,
                                         GLenum        gl_intformat,
                                         GLenum        gl_format,
@@ -450,14 +443,12 @@ cogl_driver_gl3_query_max_texture_units (CoglDriverGL *driver,
 
 static CoglPixelFormat
 cogl_driver_gl3_get_read_pixels_format (CoglDriverGL    *driver,
-                                        CoglContext     *context,
                                         CoglPixelFormat  from,
                                         CoglPixelFormat  to,
                                         GLenum          *gl_format_out,
                                         GLenum          *gl_type_out)
 {
   return cogl_driver_gl3_pixel_format_to_gl (driver,
-                                             context,
                                              to,
                                              NULL,
                                              gl_format_out,
