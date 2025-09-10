@@ -2012,10 +2012,15 @@ meta_wayland_xdg_surface_post_apply_state (MetaWaylandSurfaceRole  *surface_role
                                                      &priv->geometry);
       if (priv->geometry.width == 0 || priv->geometry.height == 0)
         {
-          g_warning ("Invalid window geometry for xdg_surface@%d. Ignoring "
-                     "for now, but this will result in client termination "
-                     "in the future.",
-                     wl_resource_get_id (priv->resource));
+          MetaWaylandSurface *surface =
+            meta_wayland_surface_role_get_surface (surface_role);
+          MetaWindow *window = meta_wayland_surface_get_window (surface);
+
+          g_warning ("Client provided invalid window geometry for "
+                     "xdg_surface#%d (%s - %s). Working around.",
+                     wl_resource_get_id (priv->resource),
+                     window ? window->res_class : "N\\A",
+                     window ? window->desc : "N\\A");
           return;
         }
 
