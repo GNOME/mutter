@@ -35,7 +35,7 @@
 
 struct _CoglDisplay
 {
-  GObjectClass parnet_class;
+  GObject parent_instance;
 
   CoglContext *context;
 
