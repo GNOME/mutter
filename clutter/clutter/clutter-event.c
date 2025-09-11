@@ -791,7 +791,7 @@ clutter_event_get_device_type (const ClutterEvent *event)
 
   g_return_val_if_fail (event != NULL, CLUTTER_POINTER_DEVICE);
 
-  device = clutter_event_get_device (event);
+  device = clutter_event_get_source_device (event);
   if (device != NULL)
     return clutter_input_device_get_device_type (device);
 
