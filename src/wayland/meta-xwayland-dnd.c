@@ -856,6 +856,9 @@ drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
   MetaWaylandDragGrab *drag_grab = user_data;
   ClutterSprite *drag_sprite;
 
+  if (CLUTTER_IS_KEY_FOCUS (focus))
+    return meta_wayland_drag_grab_get_origin (drag_grab);
+
   drag_sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
   if (!CLUTTER_IS_SPRITE (focus) || drag_sprite != CLUTTER_SPRITE (focus))
