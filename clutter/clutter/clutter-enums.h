@@ -517,6 +517,16 @@ typedef enum /*< flags prefix=CLUTTER_EVENT >*/
  *   cancelled when the finger(s) move past a certain threshold.
  * @CLUTTER_PROXIMITY_IN: A tool entered in proximity to a tablet;
  * @CLUTTER_PROXIMITY_OUT: A tool left from the proximity area of a tablet;
+ * @CLUTTER_PAD_BUTTON_PRESS: A tablet pad button press
+ * @CLUTTER_PAD_BUTTON_RELEASE: A tablet pad button release
+ * @CLUTTER_PAD_STRIP: A tablet pad tactile strip event
+ * @CLUTTER_PAD_RING: A tablet pad tactile ring event
+ * @CLUTTER_PAD_DIAL: A tablet pad dial event
+ * @CLUTTER_DEVICE_ADDED: Notification of an added device
+ * @CLUTTER_DEVICE_REMOVED: Notification of a removed device
+ * @CLUTTER_IM_COMMIT: Input method text commit
+ * @CLUTTER_IM_DELETE: Input method text delete action
+ * @CLUTTER_IM_PREEDIT: Input method pre-edit text notification
  * @CLUTTER_EVENT_LAST: Marks the end of the #ClutterEventType enumeration;
  *
  * Types of events.
