@@ -41,29 +41,6 @@
 
 G_DEFINE_FINAL_TYPE (CoglDriverGL3, cogl_driver_gl3, COGL_TYPE_DRIVER_GL);
 
-static gboolean
-cogl_driver_gl3_context_init (CoglDriver  *driver,
-                              CoglContext *context)
-{
-  GLuint vertex_array;
-
-  COGL_DRIVER_CLASS (cogl_driver_gl3_parent_class)->context_init (driver, context);
-
-  /* In a forward compatible context, GL 3 doesn't support rendering
-   * using the default vertex array object. Cogl doesn't use vertex
-   * array objects yet so for now we just create a dummy array
-   * object that we will use as our own default object. Eventually
-   * it could be good to attach the vertex array objects to
-   * CoglPrimitives */
-  GE (driver, glGenVertexArrays (1, &vertex_array));
-  GE (driver, glBindVertexArray (vertex_array));
-
-  /* There's no enable for this in GLES2, it's always on */
-  GE (driver, glEnable (GL_PROGRAM_POINT_SIZE));
-
-  return TRUE;
-}
-
 static CoglPixelFormat
 cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
                                     CoglPixelFormat  format,
@@ -751,7 +728,6 @@ cogl_driver_gl3_class_init (CoglDriverGL3Class *klass)
   CoglDriverClass *driver_klass = COGL_DRIVER_CLASS (klass);
   CoglDriverGLClass *driver_gl_klass = COGL_DRIVER_GL_CLASS (klass);
 
-  driver_klass->context_init = cogl_driver_gl3_context_init;
   driver_klass->update_features = cogl_driver_gl3_update_features;
   driver_klass->format_supports_upload = cogl_driver_gl3_format_supports_upload;
   driver_klass->create_texture_driver = cogl_driver_gl3_create_texture_driver;
@@ -768,8 +744,21 @@ cogl_driver_gl3_init (CoglDriverGL3 *driver)
 {
   CoglDriverGLPrivate *priv =
     cogl_driver_gl_get_private (COGL_DRIVER_GL (driver));
+  GLuint vertex_array;
 
   priv->glsl_major = 1;
   priv->glsl_minor = 40;
   priv->glsl_es = FALSE;
+
+  /* In a forward compatible context, GL 3 doesn't support rendering
+   * using the default vertex array object. Cogl doesn't use vertex
+   * array objects yet so for now we just create a dummy array
+   * object that we will use as our own default object. Eventually
+   * it could be good to attach the vertex array objects to
+   * CoglPrimitives */
+  GE (driver, glGenVertexArrays (1, &vertex_array));
+  GE (driver, glBindVertexArray (vertex_array));
+
+  /* There's no enable for this in GLES2, it's always on */
+  GE (driver, glEnable (GL_PROGRAM_POINT_SIZE));
 }

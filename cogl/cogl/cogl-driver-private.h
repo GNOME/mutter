@@ -45,9 +45,6 @@ struct _CoglDriverClass
 {
   GObjectClass parent_class;
 
-  gboolean (* context_init) (CoglDriver  *driver,
-                             CoglContext *context);
-
   const char * (* get_vendor) (CoglDriver *driver);
 
   gboolean (* is_hardware_accelerated) (CoglDriver *driver);
