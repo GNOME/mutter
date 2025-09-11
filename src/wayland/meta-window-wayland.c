@@ -1463,6 +1463,8 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   MetaWaylandToplevelDrag *toplevel_drag;
   MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
 
+  g_return_if_fail (!mtk_rectangle_is_empty (&new_geom));
+
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
    * scale new_geom to physical pixels given what buffer scale and texture scale

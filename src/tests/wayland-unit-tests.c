@@ -802,8 +802,8 @@ toplevel_invalid_geometry_basic (void)
   rect = meta_window_config_get_rect (window->config);
   g_assert_cmpint (rect.width, ==, 200);
   g_assert_cmpint (rect.height, ==, 200);
-
-  /* Window position is bogus in this case. */
+  g_assert_cmpint (rect.x, ==, 220);
+  g_assert_cmpint (rect.y, ==, 140);
 
   meta_wayland_test_driver_terminate (test_driver);
   meta_wayland_test_client_finish (wayland_test_client);
