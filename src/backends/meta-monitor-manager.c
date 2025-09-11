@@ -4030,20 +4030,33 @@ rebuild_monitors (MetaMonitorManager *manager)
               if (is_main_tiled_monitor_output (output))
                 {
                   MetaMonitorTiled *monitor_tiled;
+                  g_autoptr (GError) error = NULL;
 
-                  monitor_tiled = meta_monitor_tiled_new (manager, output);
-                  manager->monitors = g_list_append (manager->monitors,
-                                                     monitor_tiled);
+                  monitor_tiled = meta_monitor_tiled_new (manager, output, &error);
+                  if (monitor_tiled == NULL)
+                    {
+                      g_warning ("Failed to create tiled monitor output: %s",
+                                 error->message);
+                    }
+                  else
+                    {
+                      manager->monitors = g_list_append (manager->monitors,
+                                                         monitor_tiled);
+                    }
                 }
             }
-          else
-            {
-              MetaMonitorNormal *monitor_normal;
+        }
+      for (k = meta_gpu_get_outputs (gpu); k; k = k->next)
+        {
+          MetaOutput *output = META_OUTPUT (k->data);
+          MetaMonitorNormal *monitor_normal;
 
-              monitor_normal = meta_monitor_normal_new (manager, output);
-              manager->monitors = g_list_append (manager->monitors,
-                                                 monitor_normal);
-            }
+          if (meta_output_get_monitor (output))
+            continue;
+
+          monitor_normal = meta_monitor_normal_new (manager, output);
+          manager->monitors = g_list_append (manager->monitors,
+                                             monitor_normal);
         }
     }
 

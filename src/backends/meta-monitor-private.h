@@ -103,8 +103,9 @@ G_DECLARE_FINAL_TYPE (MetaMonitorTiled, meta_monitor_tiled,
                       META, MONITOR_TILED,
                       MetaMonitor)
 
-MetaMonitorTiled * meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
-                                           MetaOutput         *output);
+MetaMonitorTiled * meta_monitor_tiled_new (MetaMonitorManager  *monitor_manager,
+                                           MetaOutput          *output,
+                                           GError             **error);
 
 MetaMonitorNormal * meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
                                              MetaOutput         *output);

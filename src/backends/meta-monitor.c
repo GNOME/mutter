@@ -1784,9 +1784,69 @@ reset_tiled_monitor (MetaMonitorTiled *monitor_tiled,
   meta_monitor_init_supported_color_modes (monitor);
 }
 
+static gboolean
+verify_tiles_filled (GList *tile_outputs)
+{
+  uint32_t group_id = 0;
+  uint32_t max_h_tiles;
+  uint32_t max_v_tiles;
+  uint32_t tile_w;
+  uint32_t tile_h;
+  g_autofree gboolean *tiles = NULL;
+  GList *l;
+
+  for (l = tile_outputs; l; l = l->next)
+    {
+      MetaOutput *output = META_OUTPUT (l->data);
+      const MetaOutputInfo *output_info =
+        meta_output_get_info (output);
+      const MetaTileInfo *tile_info = &output_info->tile_info;
+
+      if (!tile_info->group_id)
+        return FALSE;
+
+      if (tile_info->loc_h_tile >= tile_info->max_h_tiles ||
+          tile_info->loc_v_tile >= tile_info->max_v_tiles)
+        return FALSE;
+
+      if (!group_id)
+        {
+          group_id = tile_info->group_id;
+          max_h_tiles = tile_info->max_h_tiles;
+          max_v_tiles = tile_info->max_v_tiles;
+
+          if ((max_h_tiles * max_v_tiles) != g_list_length (tile_outputs))
+            return FALSE;
+
+          tile_w = tile_info->tile_w;
+          tile_h = tile_info->tile_h;
+          tiles = g_new0 (gboolean, max_h_tiles * max_v_tiles);
+          tiles[tile_info->loc_h_tile +
+                (tile_info->loc_v_tile * max_h_tiles)] = TRUE;
+          continue;
+        }
+
+      if (group_id != tile_info->group_id ||
+          max_h_tiles != tile_info->max_h_tiles ||
+          max_v_tiles != tile_info->max_v_tiles ||
+          tile_w != tile_info->tile_w ||
+          tile_h != tile_info->tile_h)
+        return FALSE;
+
+      if (tiles[tile_info->loc_h_tile + (tile_info->loc_v_tile * max_h_tiles)])
+        return FALSE;
+
+      tiles[tile_info->loc_h_tile +
+            (tile_info->loc_v_tile * max_h_tiles)] = TRUE;
+    }
+
+  return TRUE;
+}
+
 MetaMonitorTiled *
-meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
-                        MetaOutput         *output)
+meta_monitor_tiled_new (MetaMonitorManager  *monitor_manager,
+                        MetaOutput          *output,
+                        GError             **error)
 {
   const MetaOutputInfo *output_info = meta_output_get_info (output);
   g_autolist (MetaOutput) outputs = NULL;
@@ -1808,6 +1868,14 @@ meta_monitor_tiled_new (MetaMonitorManager *monitor_manager,
   origin_output = output;
   outputs = find_tiled_monitor_outputs (meta_output_get_gpu (output),
                                         origin_output);
+
+  if (!verify_tiles_filled (outputs))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Invalid tile group %u",
+                   meta_output_get_info (origin_output)->tile_info.group_id);
+      return NULL;
+    }
 
   main_output = find_untiled_output (origin_output, outputs);
 
@@ -1975,6 +2043,9 @@ meta_monitor_tiled_update_outputs (MetaMonitor *monitor)
   main_output = find_untiled_output (origin_output, outputs);
   if (!meta_output_matches (monitor_tiled->main_output,
                             main_output))
+    return FALSE;
+
+  if (!verify_tiles_filled (outputs))
     return FALSE;
 
   reset_tiled_monitor (monitor_tiled, g_steal_pointer (&outputs),
