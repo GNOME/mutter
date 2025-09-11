@@ -863,6 +863,10 @@ drag_xgrab_get_focus_surface (MetaWaylandEventHandler *handler,
 
   drag_device = meta_wayland_drag_grab_get_device (drag_grab, &drag_sequence);
 
+  if (clutter_input_device_get_device_type (device) ==
+      CLUTTER_KEYBOARD_DEVICE)
+    return meta_wayland_drag_grab_get_origin (drag_grab);
+
   if (drag_sequence != sequence ||
       drag_device != device)
     return NULL;
