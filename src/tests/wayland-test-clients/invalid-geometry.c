@@ -45,7 +45,28 @@ main (int    argc,
   wl_surface_commit (surface->wl_surface);
 
   /* Imitate a common Wayland protocol violation. */
-  xdg_surface_set_window_geometry (surface->xdg_surface, 0, 0, 200, 200);
+  if (argc == 2 && g_strcmp0 (argv[1], "with-subsurface") == 0)
+    {
+      struct wl_surface *subsurface_surface;
+
+      /* A floating window hiding subsurface window decorations, while setting
+       * bogus window geometry each step.
+       */
+
+      subsurface_surface = wl_compositor_create_surface (display->compositor);
+      wl_subcompositor_get_subsurface (display->subcompositor,
+                                       subsurface_surface,
+                                       surface->wl_surface);
+      draw_surface (display, subsurface_surface, 100, 100, 0xff00ffff);
+      wl_surface_commit (subsurface_surface);
+      xdg_surface_set_window_geometry (surface->xdg_surface, 0, 0, 150, 150);
+      wl_surface_commit (surface->wl_surface);
+
+      wl_surface_attach (subsurface_surface, NULL, 0, 0);
+      wl_surface_commit (subsurface_surface);
+    }
+
+  xdg_surface_set_window_geometry (surface->xdg_surface, 0, 0, 150, 150);
   wl_surface_commit (surface->wl_surface);
 
   while (TRUE)
