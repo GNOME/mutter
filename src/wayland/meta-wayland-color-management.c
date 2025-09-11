@@ -221,8 +221,8 @@ wayland_tf_to_clutter (struct wl_resource                         *resource,
   switch (tf)
     {
     case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22:
-      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
-      eotf->gamma_exp = 2.2f;
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
       return TRUE;
     case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28:
       eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
@@ -264,6 +264,8 @@ clutter_tf_to_wayland (struct wl_resource      *resource,
 {
   switch (tf)
     {
+    case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
+      return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22;
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
       /* We defined the wl sRGB TF as the piece-wise (which arguably is wrong),
        * which is defined in the v2 by the less ambiguous compound power 2.4
@@ -587,10 +589,7 @@ send_information_from_params (struct wl_resource *info_resource,
       wp_image_description_info_v1_send_tf_named (info_resource, tf);
       break;
     case CLUTTER_EOTF_TYPE_GAMMA:
-      if (G_APPROX_VALUE (eotf->gamma_exp, 2.2f, 0.0001f))
-        wp_image_description_info_v1_send_tf_named (info_resource,
-                                                    WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22);
-      else if (G_APPROX_VALUE (eotf->gamma_exp, 2.8f, 0.0001f))
+      if (G_APPROX_VALUE (eotf->gamma_exp, 2.8f, 0.0001f))
         wp_image_description_info_v1_send_tf_named (info_resource,
                                                     WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28);
       else
@@ -1383,8 +1382,19 @@ creator_params_set_tf_power (struct wl_client   *client,
       return;
     }
 
-  creator_params->eotf.type = CLUTTER_EOTF_TYPE_GAMMA;
   creator_params->eotf.gamma_exp = scaled_uint32_to_float (eexp);
+
+  if (G_APPROX_VALUE (creator_params->eotf.gamma_exp, 2.2f, 0.0001f))
+    {
+      wayland_tf_to_clutter (resource,
+                             WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22,
+                             &creator_params->eotf);
+    }
+  else
+    {
+      creator_params->eotf.type = CLUTTER_EOTF_TYPE_GAMMA;
+    }
+
   creator_params->is_eotf_set = TRUE;
 }
 

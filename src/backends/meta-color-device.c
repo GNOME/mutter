@@ -670,8 +670,18 @@ get_color_metadata_from_monitor (MetaMonitor        *monitor,
       colorimetry->primaries->b_y = primaries->primary[2].y;
       colorimetry->primaries->w_x = primaries->default_white.x;
       colorimetry->primaries->w_y = primaries->default_white.y;
-      eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
-      eotf->gamma_exp = (float) edid_info->default_gamma;
+
+      if (G_APPROX_VALUE (edid_info->default_gamma, 2.2f, 0.0001f))
+        {
+          eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+          eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
+        }
+      else
+        {
+          eotf->type = CLUTTER_EOTF_TYPE_GAMMA;
+          eotf->gamma_exp = (float) edid_info->default_gamma;
+        }
+
       return;
     }
 
