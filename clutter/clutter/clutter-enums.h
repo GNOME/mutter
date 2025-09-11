@@ -527,6 +527,7 @@ typedef enum /*< flags prefix=CLUTTER_EVENT >*/
  * @CLUTTER_IM_COMMIT: Input method text commit
  * @CLUTTER_IM_DELETE: Input method text delete action
  * @CLUTTER_IM_PREEDIT: Input method pre-edit text notification
+ * @CLUTTER_KEY_STATE: Keyboard state change
  * @CLUTTER_EVENT_LAST: Marks the end of the #ClutterEventType enumeration;
  *
  * Types of events.
@@ -561,6 +562,7 @@ typedef enum /*< prefix=CLUTTER >*/
   CLUTTER_IM_COMMIT,
   CLUTTER_IM_DELETE,
   CLUTTER_IM_PREEDIT,
+  CLUTTER_KEY_STATE,
 
   CLUTTER_EVENT_LAST            /* helper */
 } ClutterEventType;

@@ -249,6 +249,7 @@ _clutter_process_event_details (ClutterActor    *stage,
 
       case CLUTTER_KEY_PRESS:
       case CLUTTER_KEY_RELEASE:
+      case CLUTTER_KEY_STATE:
       case CLUTTER_PAD_BUTTON_PRESS:
       case CLUTTER_PAD_BUTTON_RELEASE:
       case CLUTTER_PAD_STRIP:

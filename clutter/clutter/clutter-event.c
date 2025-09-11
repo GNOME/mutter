@@ -399,6 +399,7 @@ clutter_event_get_state (const ClutterEvent *event)
     {
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
+    case CLUTTER_KEY_STATE:
       return event->key.modifier_state;
 
     case CLUTTER_BUTTON_PRESS:
@@ -469,6 +470,7 @@ clutter_event_get_position (const ClutterEvent *event,
     case CLUTTER_NOTHING:
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
+    case CLUTTER_KEY_STATE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -735,7 +737,8 @@ clutter_event_get_key_state (const ClutterEvent  *event,
 {
   g_return_if_fail (event != NULL);
   g_return_if_fail (event->type == CLUTTER_KEY_PRESS ||
-                    event->type == CLUTTER_KEY_RELEASE);
+                    event->type == CLUTTER_KEY_RELEASE ||
+                    event->type == CLUTTER_KEY_STATE);
 
   if (pressed)
     *pressed = event->key.raw_modifiers.pressed;
@@ -1130,6 +1133,7 @@ clutter_event_get_axes (const ClutterEvent *event,
     case CLUTTER_LEAVE:
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
+    case CLUTTER_KEY_STATE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -1824,6 +1828,8 @@ clutter_event_get_name (const ClutterEvent *event)
       return "key-press";
     case CLUTTER_KEY_RELEASE:
       return "key-release";
+    case CLUTTER_KEY_STATE:
+      return "key-state";
     case CLUTTER_MOTION:
       return "motion";
     case CLUTTER_ENTER:
@@ -1897,7 +1903,8 @@ clutter_event_key_new (ClutterEventType     type,
   ClutterSeat *seat;
 
   g_return_val_if_fail (type == CLUTTER_KEY_PRESS ||
-                        type == CLUTTER_KEY_RELEASE, NULL);
+                        type == CLUTTER_KEY_RELEASE ||
+                        type == CLUTTER_KEY_STATE, NULL);
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (source_device), NULL);
 
   seat = clutter_input_device_get_seat (source_device);
@@ -1916,6 +1923,22 @@ clutter_event_key_new (ClutterEventType     type,
   g_set_object (&event->key.source_device, source_device);
 
   return event;
+}
+
+ClutterEvent *
+clutter_event_key_state_new (ClutterEventFlags    flags,
+                             int64_t              timestamp_us,
+                             ClutterInputDevice  *source_device,
+                             ClutterModifierSet   raw_modifiers,
+                             ClutterModifierType  modifiers)
+{
+  return clutter_event_key_new (CLUTTER_KEY_STATE,
+                                flags,
+                                timestamp_us,
+                                source_device,
+                                raw_modifiers,
+                                modifiers,
+                                0, 0, 0, 0);
 }
 
 ClutterEvent *
@@ -2681,6 +2704,7 @@ generate_event_description (const ClutterEvent *event)
                               event->touchpad_hold.n_fingers);
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
+    case CLUTTER_KEY_STATE:
       return g_strdup ("");
     case CLUTTER_PAD_BUTTON_PRESS:
     case CLUTTER_PAD_BUTTON_RELEASE:

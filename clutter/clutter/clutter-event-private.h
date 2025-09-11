@@ -29,6 +29,13 @@ ClutterEvent * clutter_event_key_new (ClutterEventType     type,
                                       gunichar             unicode_value);
 
 CLUTTER_EXPORT
+ClutterEvent * clutter_event_key_state_new (ClutterEventFlags    flags,
+                                            int64_t              timestamp_us,
+                                            ClutterInputDevice  *source_device,
+                                            ClutterModifierSet   raw_modifiers,
+                                            ClutterModifierType  modifiers);
+
+CLUTTER_EXPORT
 ClutterEvent * clutter_event_button_new (ClutterEventType        type,
                                          ClutterEventFlags       flags,
                                          int64_t                 timestamp_us,

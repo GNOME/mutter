@@ -243,6 +243,7 @@ meta_wayland_event_handler_handle_event (MetaWaylandEventHandler *handler,
 
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
+    case CLUTTER_KEY_STATE:
       if (!handler->iface->key)
         return CLUTTER_EVENT_PROPAGATE;
       return handler->iface->key (handler, event, handler->user_data);

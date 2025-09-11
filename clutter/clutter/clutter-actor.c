@@ -11870,6 +11870,10 @@ clutter_actor_event (ClutterActor       *actor,
       signal_num = KEY_RELEASE_EVENT;
       detail = quark_key;
       break;
+    case CLUTTER_KEY_STATE:
+      signal_num = -1;
+      detail = quark_key;
+      break;
     case CLUTTER_MOTION:
       signal_num = MOTION_EVENT;
       detail = quark_motion;
