@@ -647,7 +647,7 @@ get_color_metadata_from_monitor (MetaMonitor        *monitor,
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       colorimetry->colorspace = CLUTTER_COLORSPACE_SRGB;
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
-      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
       return;
     case META_COLOR_MODE_BT2100:
       colorimetry->type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;

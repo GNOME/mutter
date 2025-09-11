@@ -142,7 +142,7 @@ actor_unset_color_state (void)
   g_assert_cmpuint (colorimetry->type, ==, CLUTTER_COLORIMETRY_TYPE_COLORSPACE);
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
-  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_SRGB);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_GAMMA22);
 
   clutter_actor_destroy (actor);
 }

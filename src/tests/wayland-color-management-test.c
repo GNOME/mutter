@@ -93,7 +93,7 @@ color_management (void)
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
   eotf = clutter_color_state_params_get_eotf (color_state_params);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
-  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_SRGB);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_GAMMA22);
   lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_DERIVED);
   emit_sync_event (0);
@@ -123,7 +123,7 @@ color_management (void)
   g_assert_cmpuint (colorimetry->colorspace, ==, CLUTTER_COLORSPACE_SRGB);
   eotf = clutter_color_state_params_get_eotf (color_state_params);
   g_assert_cmpuint (eotf->type, ==, CLUTTER_EOTF_TYPE_NAMED);
-  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_SRGB);
+  g_assert_cmpuint (eotf->tf_name, ==, CLUTTER_TRANSFER_FUNCTION_GAMMA22);
   lum = clutter_color_state_params_get_luminance (color_state_params);
   g_assert_cmpuint (lum->type, ==, CLUTTER_LUMINANCE_TYPE_EXPLICIT);
   g_assert_cmpfloat (lum->mastering_max, ==, lum->max);

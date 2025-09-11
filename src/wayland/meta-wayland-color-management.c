@@ -233,7 +233,7 @@ wayland_tf_to_clutter (struct wl_resource                         *resource,
       if (wl_resource_get_version (resource) >= 2)
         return FALSE;
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
-      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
       return TRUE;
     case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;

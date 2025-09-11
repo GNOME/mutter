@@ -2205,7 +2205,7 @@ clutter_color_state_params_required_format (ClutterColorState *color_state)
 }
 
 /*
- * Currently all content is blended with sRGB/gamma transfer characteristics.
+ * Currently all content is blended with gamma transfer characteristics.
  */
 static ClutterColorState *
 clutter_color_state_params_get_blending (ClutterColorState *color_state,
@@ -2231,7 +2231,7 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
     {
       blending_colorimetry.colorspace = CLUTTER_COLORSPACE_SRGB;
       blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
-      blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
     }
 
   if (eotf_equal (&blending_eotf, &color_state_params->eotf) &&

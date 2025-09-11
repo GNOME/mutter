@@ -338,7 +338,7 @@ color_state_transform_params_to_icc (void)
   src_color_state =
     clutter_color_state_params_new (context,
                                     CLUTTER_COLORSPACE_SRGB,
-                                    CLUTTER_TRANSFER_FUNCTION_SRGB);
+                                    CLUTTER_TRANSFER_FUNCTION_GAMMA22);
   actors = create_actors (stage);
   actors_set_color_state (actors, src_color_state);
 
@@ -402,7 +402,7 @@ color_state_transform_params_to_params (void)
   src_color_state =
     clutter_color_state_params_new (context,
                                     CLUTTER_COLORSPACE_SRGB,
-                                    CLUTTER_TRANSFER_FUNCTION_SRGB);
+                                    CLUTTER_TRANSFER_FUNCTION_GAMMA22);
   actors = create_actors (stage);
   actors_set_color_state (actors, src_color_state);
 
@@ -438,7 +438,7 @@ color_state_transform_bt2020_to_bt2020 (void)
   src_color_state =
     clutter_color_state_params_new_full (context,
                                          CLUTTER_COLORSPACE_BT2020,
-                                         CLUTTER_TRANSFER_FUNCTION_SRGB,
+                                         CLUTTER_TRANSFER_FUNCTION_GAMMA22,
                                          NULL,
                                          -1.0f,
                                          0.005f,

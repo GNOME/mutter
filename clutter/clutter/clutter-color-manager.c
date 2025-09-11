@@ -152,7 +152,7 @@ clutter_color_manager_get_default_color_state (ClutterColorManager *color_manage
       color_manager->default_color_state =
         clutter_color_state_params_new (color_manager->context,
                                         CLUTTER_COLORSPACE_SRGB,
-                                        CLUTTER_TRANSFER_FUNCTION_SRGB);
+                                        CLUTTER_TRANSFER_FUNCTION_GAMMA22);
     }
 
   return color_manager->default_color_state;
