@@ -54,6 +54,12 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
   MtkRectangle geometry;
   MetaWaylandSurface *subsurface_surface;
 
+  if (!meta_wayland_surface_get_buffer (surface))
+    {
+      *out_geometry = (MtkRectangle) {};
+      return;
+    }
+
   geometry = (MtkRectangle) {
     .width = meta_wayland_surface_get_width (surface),
     .height = meta_wayland_surface_get_height (surface),
