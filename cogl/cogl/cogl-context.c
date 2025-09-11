@@ -154,8 +154,6 @@ CoglContext *
 cogl_context_new (CoglDisplay *display,
                   GError **error)
 {
-  CoglDriver *driver;
-
   g_return_val_if_fail (display != NULL, NULL);
 
   CoglContext *context;
@@ -195,17 +193,6 @@ cogl_context_new (CoglDisplay *display,
     {
       g_object_unref (display);
       g_free (context);
-      return NULL;
-    }
-
-  driver = cogl_renderer_get_driver (display->renderer);
-  if (COGL_DRIVER_GET_CLASS (driver)->context_init &&
-      !COGL_DRIVER_GET_CLASS (driver)->context_init (driver, context))
-    {
-      g_object_unref (display);
-      g_object_unref (context);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to initialize context");
       return NULL;
     }
 

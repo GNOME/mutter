@@ -78,17 +78,6 @@ cogl_driver_gl_dispose (GObject *object)
   G_OBJECT_CLASS (cogl_driver_gl_parent_class)->dispose (object);
 }
 
-static gboolean
-cogl_driver_gl_context_init (CoglDriver  *driver,
-                             CoglContext *context)
-{
-  /* See cogl-pipeline.c for more details about why we leave texture unit 1
-   * active by default... */
-  GE (driver, glActiveTexture (GL_TEXTURE1));
-
-  return TRUE;
-}
-
 static const char *
 cogl_driver_gl_get_gl_vendor (CoglDriver *driver)
 {
@@ -524,7 +513,6 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 
   gobject_class->dispose = cogl_driver_gl_dispose;
 
-  driver_klass->context_init = cogl_driver_gl_context_init;
   driver_klass->get_vendor = cogl_driver_gl_get_gl_vendor;
   driver_klass->is_hardware_accelerated = cogl_driver_gl_is_hardware_accelerated;
   driver_klass->get_graphics_reset_status = cogl_driver_gl_get_graphics_reset_status;
@@ -556,6 +544,7 @@ cogl_driver_gl_init (CoglDriverGL *driver)
   /* See cogl-pipeline.c for more details about why we leave texture unit 1
    * active by default... */
   priv->active_texture_unit = 1;
+  GE (driver, glActiveTexture (GL_TEXTURE1));
 }
 
 CoglDriverGLPrivate *
