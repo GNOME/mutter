@@ -699,7 +699,7 @@ can-run-gnome-shell@x86_64:
     - meson setup gnome-shell gnome-shell/build --prefix /usr -Dbuildtype=debugoptimized -Dman=false --werror --fatal-meson-warnings
     - sudo meson install -C gnome-shell/build
     - mkdir -m 1777 /tmp/.X11-unix
-    - dbus-run-session -- meson test -C gnome-shell/build --no-rebuild --timeout-multiplier 5
+    - dbus-run-session -- meson test -C gnome-shell/build --timeout-multiplier 5
   artifacts:
     expire_in: 7 day
     name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
