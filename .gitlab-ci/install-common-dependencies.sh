@@ -116,6 +116,19 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
+if ! pkgconf --atleast-version 2.86.0 glib-2.0
+then
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+    "${OPTIONS[@]}" \
+    https://gitlab.gnome.org/GNOME/glib.git \
+    2.86.0
+
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+    "${OPTIONS[@]}" \
+    https://gitlab.gnome.org/GNOME/gjs.git \
+    master
+fi
+
 # if ! pkgconf --atleast-version 1.44 wayland-protocols
 # then
 #    ./$SCRIPTS_DIR/install-meson-project.sh \
