@@ -659,6 +659,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
                                               framebuffer,
                                               x, y,
                                               &local_error);
+            cogl_framebuffer_flush (framebuffer);
           }
       }
       break;
@@ -675,6 +676,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
                                cogl_framebuffer_get_width (view_framebuffer),
                                cogl_framebuffer_get_height (view_framebuffer),
                                &local_error);
+        cogl_framebuffer_flush (framebuffer);
       }
       break;
 
@@ -713,8 +715,6 @@ stage_paint:
                                           view_scale,
                                           paint_flags);
     }
-
-  cogl_framebuffer_flush (framebuffer);
 
   return TRUE;
 }

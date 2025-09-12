@@ -2745,6 +2745,8 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
   cogl_framebuffer_pop_matrix (framebuffer);
 
   clutter_paint_context_destroy (paint_context);
+
+  cogl_framebuffer_flush (framebuffer);
 }
 
 /**
