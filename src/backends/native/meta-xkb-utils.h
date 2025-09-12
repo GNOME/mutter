@@ -32,6 +32,13 @@ ClutterEvent *    meta_key_event_new_from_evdev (ClutterInputDevice *device,
                                                  uint64_t            time_us,
                                                  uint32_t            key,
                                                  uint32_t            state);
+
+ClutterEvent * meta_key_state_event_new (ClutterInputDevice *device,
+                                         ClutterEventFlags   flags,
+                                         struct xkb_state   *xkb_state,
+                                         uint32_t            button_state,
+                                         uint64_t            time_us);
+
 ClutterModifierType meta_xkb_translate_modifiers (struct xkb_state    *state,
                                                   ClutterModifierType  button_state);
 uint32_t meta_xkb_keycode_to_evdev (uint32_t hardware_keycode);

@@ -101,6 +101,34 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   return event;
 }
 
+ClutterEvent *
+meta_key_state_event_new (ClutterInputDevice *device,
+                          ClutterEventFlags   flags,
+                          struct xkb_state   *xkb_state,
+                          uint32_t            button_state,
+                          uint64_t            time_us)
+{
+  ClutterEvent *event;
+  ClutterModifierType modifiers;
+  ClutterModifierSet raw_modifiers;
+
+  raw_modifiers = (ClutterModifierSet) {
+    .pressed = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED),
+    .latched = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED),
+    .locked = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED),
+  };
+
+  modifiers = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE) |
+    button_state;
+
+  event = clutter_event_key_state_new (flags,
+                                       time_us,
+                                       device,
+                                       raw_modifiers,
+                                       modifiers);
+  return event;
+}
+
 ClutterModifierType
 meta_xkb_translate_modifiers (struct xkb_state    *state,
                               ClutterModifierType  button_state)

@@ -665,6 +665,18 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
       meta_input_device_native_a11y_maybe_notify_toggle_keys_in_impl (keyboard_native);
     }
 
+  if (update_keys && changed_state != 0)
+    {
+      ClutterEvent *state_event;
+
+      state_event = meta_key_state_event_new (device,
+                                              flags,
+                                              seat_impl->xkb,
+                                              seat_impl->button_state,
+                                              time_us);
+      queue_event (seat_impl, state_event);
+    }
+
   if (state == 0 ||             /* key release */
       !seat_impl->repeat ||
       !xkb_keymap_key_repeats (xkb_state_get_keymap (seat_impl->xkb),
