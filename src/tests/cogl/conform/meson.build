@@ -33,6 +33,7 @@ cogl_tests = [
   [ 'test-alpha-textures', [] ],
   [ 'test-texture-get-set-data', [] ],
   [ 'test-framebuffer-get-bits', [] ],
+  [ 'test-framebuffer-cycles', [] ],
   [ 'test-primitive-and-journal', [] ],
   [ 'test-copy-replace-texture', [] ],
   [ 'test-pipeline-cache-unrefs-texture', [] ],

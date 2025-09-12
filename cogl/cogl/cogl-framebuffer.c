@@ -813,6 +813,28 @@ _cogl_framebuffer_get_projection_stack (CoglFramebuffer *framebuffer)
   return priv->projection_stack;
 }
 
+static gboolean
+find_cycle (CoglFramebuffer *framebuffer,
+            CoglFramebuffer *other_framebuffer)
+{
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+  GList *l;
+
+  for (l = priv->deps; l; l = l->next)
+    {
+      CoglFramebuffer *dependency = l->data;
+
+      if (dependency == other_framebuffer)
+        return TRUE;
+
+      if (find_cycle (dependency, other_framebuffer))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 void
 _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
                                   CoglFramebuffer *dependency)
@@ -827,6 +849,8 @@ _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
       if (existing_dep == dependency)
         return;
     }
+
+  g_return_if_fail (!find_cycle (dependency, framebuffer));
 
   /* TODO: generalize the primed-array type structure we e.g. use for
    * g_object_set_qdata_full or for pipeline children as a way to
