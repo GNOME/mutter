@@ -74,6 +74,7 @@ handle_xdg_surface_configure (void               *data,
   WaylandDisplay *display = data;
 
   draw_main (display);
+  xdg_surface_ack_configure (xdg_surface, serial);
   wl_surface_commit (surface);
 
   g_assert_cmpint (wl_display_roundtrip (display->display), !=, -1);
