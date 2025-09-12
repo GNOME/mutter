@@ -634,18 +634,18 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                             state ? XKB_KEY_DOWN : XKB_KEY_UP);
     }
 
-  if (!meta_input_device_native_process_kbd_a11y_event_in_impl (seat_impl->core_keyboard,
-                                                                event))
-    queue_event (seat_impl, event);
-  else
-    clutter_event_free (event);
-
   if (update_keys)
     {
       meta_keymap_native_update_in_impl (seat_impl->keymap,
                                          seat_impl,
                                          seat_impl->xkb);
     }
+
+  if (!meta_input_device_native_process_kbd_a11y_event_in_impl (seat_impl->core_keyboard,
+                                                                event))
+    queue_event (seat_impl, event);
+  else
+    clutter_event_free (event);
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
