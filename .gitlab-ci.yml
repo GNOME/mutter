@@ -138,6 +138,20 @@ variables:
       libjxl-devel
       lcms2-devel
       libseccomp-devel
+      'pkgconfig(x11-xcb)'
+      'pkgconfig(xcomposite)'
+      'pkgconfig(xcursor)'
+      'pkgconfig(xdamage)'
+      'pkgconfig(xext)'
+      'pkgconfig(xfixes)'
+      'pkgconfig(xi)'
+      'pkgconfig(xkbcommon-x11)'
+      'pkgconfig(xkbfile)'
+      'pkgconfig(xkeyboard-config)'
+      'pkgconfig(xrandr)'
+      'pkgconfig(xrender)'
+      'pkgconfig(xtst)'
+
 
     FDO_DISTRIBUTION_EXEC: |
       set -e
