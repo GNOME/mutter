@@ -1,3 +1,18 @@
+48.5
+====
+* Fix DND from X11 clients using tablet stylus [Carlos; !4526]
+* Fix fd leak during screencasting [Georges; !4577]
+* Fix reading and updating the privacy screen property [Marco; !4603]
+* Update viewport after virtual monitor size changes [Jonas; !4622]
+* Fixed crashes [Michel, Jonas, Sebastian; !4547, !4654, !4638]
+
+Contributors:
+  Georges Basile Stavracas Neto, Michel Dänzer, Carlos Garnacho,
+  Marco Trevisan (Treviño), Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Aefgh Threenine [th]
+
 48.4
 ====
 * Unlink outputs from unused connectors in update_outputs [Michel; !4474]
