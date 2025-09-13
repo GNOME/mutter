@@ -528,12 +528,18 @@ update_pressed_keys (struct wl_array *keys,
 }
 
 static void
-maybe_update_modifiers (MetaWaylandKeyboard *keyboard,
-                        ClutterEvent        *event)
+maybe_update_modifiers (MetaWaylandKeyboard *keyboard)
 {
+  MetaBackend *backend = backend_from_keyboard (keyboard);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
   ClutterModifierType pressed, locked, latched;
 
-  clutter_event_get_key_state (event, &pressed, &latched, &locked);
+  clutter_keymap_get_modifier_state (keymap,
+                                     &pressed,
+                                     &latched,
+                                     &locked);
 
   if (keyboard->xkb_info.modifiers.pressed != pressed ||
       keyboard->xkb_info.modifiers.latched != latched ||
@@ -551,46 +557,33 @@ void
 meta_wayland_keyboard_update (MetaWaylandKeyboard   *keyboard,
                               const ClutterKeyEvent *event)
 {
-  ClutterEventType event_type = clutter_event_type ((ClutterEvent *) event);
+  gboolean is_press = clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_PRESS;
+  uint32_t evdev_code, hardware_keycode;
 
-  if (event_type == CLUTTER_KEY_STATE)
-    {
-      maybe_update_modifiers (keyboard, (ClutterEvent *) event);
-    }
-  else if (event_type == CLUTTER_KEY_PRESS ||
-           event_type == CLUTTER_KEY_RELEASE)
-    {
-      gboolean is_press = event_type == CLUTTER_KEY_PRESS;
-      uint32_t evdev_code, hardware_keycode;
+  evdev_code = clutter_event_get_event_code ((ClutterEvent *) event);
+  hardware_keycode = clutter_event_get_key_code ((ClutterEvent *) event);
 
-      evdev_code = clutter_event_get_event_code ((ClutterEvent *) event);
-      hardware_keycode = clutter_event_get_key_code ((ClutterEvent *) event);
+  if (!update_pressed_keys (&keyboard->pressed_keys, evdev_code, is_press))
+    return;
 
-      if (!update_pressed_keys (&keyboard->pressed_keys, evdev_code, is_press))
-        return;
+  maybe_update_modifiers (keyboard);
 
-      maybe_update_modifiers (keyboard, (ClutterEvent *) event);
-
-      xkb_state_update_key (keyboard->xkb_info.state,
-                            hardware_keycode,
-                            is_press ? XKB_KEY_DOWN : XKB_KEY_UP);
-    }
+  xkb_state_update_key (keyboard->xkb_info.state,
+                        hardware_keycode,
+                        is_press ? XKB_KEY_DOWN : XKB_KEY_UP);
 }
 
 gboolean
 meta_wayland_keyboard_handle_event (MetaWaylandKeyboard   *keyboard,
                                     const ClutterKeyEvent *event)
 {
-  ClutterEventType event_type = clutter_event_type ((ClutterEvent *) event);
 #ifdef WITH_VERBOSE_MODE
-  gboolean is_press = event_type == CLUTTER_KEY_PRESS;
+  gboolean is_press =
+    clutter_event_type ((ClutterEvent *) event) == CLUTTER_KEY_PRESS;
 #endif
   gboolean handled;
   ClutterEventFlags flags;
   uint32_t hardware_keycode;
-
-  if (event_type == CLUTTER_KEY_STATE)
-    return CLUTTER_EVENT_PROPAGATE;
 
   flags = clutter_event_get_flags ((ClutterEvent *) event);
   hardware_keycode = clutter_event_get_key_code ((ClutterEvent *) event);
@@ -618,6 +611,8 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard   *keyboard,
       meta_topic (META_DEBUG_WAYLAND,
                   "No wayland surface is focused, continuing normal operation");
     }
+
+  maybe_update_modifiers (keyboard);
 
   return handled;
 }

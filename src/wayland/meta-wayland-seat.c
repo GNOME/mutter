@@ -486,7 +486,6 @@ meta_wayland_seat_update (MetaWaylandSeat    *seat,
 
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
-    case CLUTTER_KEY_STATE:
       if (meta_wayland_seat_has_keyboard (seat))
         meta_wayland_keyboard_update (seat->keyboard, (const ClutterKeyEvent *) event);
       break;
@@ -539,7 +538,6 @@ meta_wayland_seat_handle_event_internal (MetaWaylandSeat    *seat,
       break;
     case CLUTTER_KEY_PRESS:
     case CLUTTER_KEY_RELEASE:
-    case CLUTTER_KEY_STATE:
       if (meta_wayland_seat_has_keyboard (seat))
         return meta_wayland_keyboard_handle_event (seat->keyboard,
                                                    (const ClutterKeyEvent *) event);
