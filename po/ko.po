@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-03-09 15:01+0200\n"
+"POT-Creation-Date: 2025-09-12 20:13+0000\n"
+"PO-Revision-Date: 2025-09-13 12:07+0300\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -610,26 +610,118 @@ msgstr ""
 "byteswappedclients을 지원하지 않는 경우 효과가 없습니다. 이 설정을 적용하려"
 "면 X웨일랜드를 다시 시작해야 합니다."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "프로그램"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "실행가능"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "시작 관리자 추가"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "시작 관리자"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "유형"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "추가"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "실행"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "삭제"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "동작"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "시작 관리자 편집"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "시작 관리자 목록"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_입력"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_터치 흉내"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_시스템 단축키 금지"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_시작 관리자"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_시작 관리자 편집"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "_머터 개발 키트 소개"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "머터 개발 키트"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "기본 메뉴"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "머터 팀"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "머터 소프트웨어 개발 키트"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "머터 소프트웨어 개발 키트 소개"
+
+#: mdk/mdk-monitor.c:674
+msgid "Failed to create monitor"
+msgstr "모니터 생성에 실패했습니다"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -637,69 +729,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "사생활 보호 화면 사용"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "사생활 보호 화면 해제"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "세션 관리자와 연결 하지 않습니다"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "세션 관리 ID를 지정합니다"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "저장 파일에서 세션을 초기화 합니다"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "사용할 웨일랜드 디스플레이 이름 지정"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "헤드리스 디스플레이 서버로 실행"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "영구적인 가상 모니터 추가 (WxH or WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "개발 키트 실행"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -716,7 +800,7 @@ msgstr "디버깅 제어 D-Bus 인터페이스 사용"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -724,7 +808,7 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "모드 전환"
@@ -732,11 +816,11 @@ msgstr "모드 전환"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
@@ -758,7 +842,7 @@ msgstr "사용할 머터 플러그인"
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파일되었습니다"
 
@@ -766,12 +850,12 @@ msgstr "머터가 자세한 정보 표시 모드를 지원하지 않게 컴파�
 msgid "Workspace switched"
 msgstr "작업 공간 전환"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -780,19 +864,19 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1240
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1473
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2801
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -806,10 +890,19 @@ msgid "Format %s not supported"
 msgstr "%s 형식은 지원하지 않습니다"
 
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "세션 관리자와 연결 하지 않습니다"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "세션 관리 ID를 지정합니다"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "저장 파일에서 세션을 초기화 합니다"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "위 작업 공간으로 옮기기"
