@@ -1,3 +1,28 @@
+49.0
+====
+* Improve compliance of pointer-warp protocol implementation [Vadim; !4626]
+* Fix unminimizing in multi-monitor setups [Jonas; !4627]
+* Fix coordinates in crossing events [Carlos; !4640]
+* Update viewport after virtual monitor size changes [Jonas; !4622]
+* Fix "ghost" modifier key presses in clients [Carlos; !4653]
+* Fixed crashes [Jonas, Sebastian, Daniel; !4654, !4638, !4612]
+* Misc. bug fixes and cleanups [Jonas, Daniel, Olivier, Alexandre, Florian;
+  !4625, !4624, !4630, !4631, !4636, !4620, !4642, !4641, !4637, !4656,
+  !4649, !4657, !4658]
+
+Contributors:
+  Olivier Fourdan, Carlos Garnacho, Alexandre Janniaux, Florian Müllner,
+  Daniel van Vugt, Sebastian Wick, Vadim Zeitlin, Jonas Ådahl
+
+Translators:
+  Balázs Úr [hu], Jiri Grönroos [fi], Asier Saratsua Garmendia [eu],
+  Ekaterine Papava [ka], Artur S0 [ru], luming zh [zh_CN], Danial Behzadi [fa],
+  Yuri Chornoivan [uk], Aurimas Aurimas Černius [lt], Anders Jonsson [sv],
+  Nilton Perim Neto [pt_BR], Francisco Diéguez Souto [gl],
+  Ask Hjorth Larsen [da], Bruce Cowan [en_GB], Sabri Ünal [tr],
+  Daniel Mustieles [es], Jordi Mas [ca], Gwan-gyeong Mun [ko],
+  Kristjan SCHMIDT [eo], Nathan Follens [nl]
+
 49.rc
 =====
 * Fix windows sometimes not unmaximizing on drag [Jonas Å.; !4533]
