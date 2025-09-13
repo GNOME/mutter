@@ -1,3 +1,14 @@
+47.10
+=====
+* Fix reading and updating the privacy screen property [Marco; !4603]
+* Update viewport after virtual monitor size changes [Jonas; !4622]
+* Fix fd leak during screencasting [Georges; !4577]
+* Fixed crashes [Alessandro, Michel, Jonas; !4520, !4547, !4654]
+
+Contributors:
+  Alessandro Astone, Georges Basile Stavracas Neto, Michel Dänzer,
+  Marco Trevisan (Treviño), Jonas Ådahl
+
 47.9
 ====
 * Add speed limit to Visual alerts [Sergio; !4487]
