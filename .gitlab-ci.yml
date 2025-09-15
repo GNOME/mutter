@@ -111,7 +111,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 43
-    BASE_TAG: '2025-11-13.0'
+    BASE_TAG: '2025-11-21.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -189,11 +189,6 @@ variables:
         --commit 8e69aef1e4bbb79b5806692ea9f0280aae0fda06 \
         https://gitlab.gnome.org/jadahl/catch.git \
         main
-
-      ./.gitlab-ci/install-meson-project.sh \
-        -Dglycin=disabled \
-        https://gitlab.gnome.org/GNOME/gdk-pixbuf.git \
-        2.44.3
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
