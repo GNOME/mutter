@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-07-13 10:23+0000\n"
-"PO-Revision-Date: 2025-07-15 12:02+0200\n"
+"POT-Creation-Date: 2025-09-15 01:04+0000\n"
+"PO-Revision-Date: 2025-09-15 15:50+0200\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -640,6 +640,50 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients pentru a controla această reglare. "
 "Xwayland trebuie repornit pentru ca această reglare să aibă efect."
 
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Aplicație"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Executabil"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Adaugă un lansator"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Lansator"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Tip"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Adaugă"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Execută"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Șterge"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Acțiune"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Modifică Lansatoare"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Lansatoare"
+
 #: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Intrare"
@@ -652,54 +696,62 @@ msgstr "Simul_ează atingerea"
 msgid "_Inhibit system shortcuts"
 msgstr "Dezact_ivează scurtăturile de sistem"
 
-#: mdk/mdk-main-window.ui:19
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Lansatoare"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Modifică lansatoare"
+
+#: mdk/mdk-main-window.ui:31
 msgid "_About Mutter Development Kit"
 msgstr "_Despre Mutter Development Kit"
 
-#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter Development Kit"
 
-#: mdk/mdk-main-window.ui:35
+#: mdk/mdk-main-window.ui:47
 msgid "Main Menu"
 msgstr "Opțiuni"
 
-#: mdk/mdk-main.c:69
+#: mdk/mdk-main.c:49
 msgid "The Mutter Team"
 msgstr "Echipa Mutter"
 
-#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+#: mdk/mdk-main.c:62
 msgid "Mutter software development kit"
 msgstr "Set de dezvoltare a programelor pentru Mutter"
 
-#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+#: mdk/mdk-main.c:65
 msgid "About Mutter Development Kit"
 msgstr "Despre Mutter Development Kit"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:674
 msgid "Failed to create monitor"
 msgstr "Nu s-a putut crea monitorul"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Ecranul integrat"
 
-#: src/backends/meta-monitor.c:302
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/backends/meta-monitor.c:304
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Ecran necunoscut"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:320
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -711,67 +763,67 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Ecran de confidențialitate activat"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Înlocuiește administratorul de ferestre actual"
 
-#: src/core/meta-context-main.c:638
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Afișajul X ce va fi folosit"
 
-#: src/core/meta-context-main.c:644
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Fă sincrone apelurile către X"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Execută ca un compozitor Wayland"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Execută ca un compozitor integrat"
 
-#: src/core/meta-context-main.c:667
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Pornește compozitorul Wayland fără a porni Xwayland"
 
-#: src/core/meta-context-main.c:674
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Numele afișajului Wayland de utilizat"
 
-#: src/core/meta-context-main.c:682
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Funcționează ca server de afișare, iar nu ca server integrat"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Funcționează ca server fără ecran"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitorul virtual persistent (WxH sau WxH@R)"
 
-#: src/core/meta-context-main.c:699
+#: src/core/meta-context-main.c:697
 msgid "Run development kit"
 msgstr "Pornește setul de dezvoltare"
 
-#: src/core/meta-context-main.c:711
+#: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
 msgstr "Funcționează cu backend X11"
 
-#: src/core/meta-context-main.c:717
+#: src/core/meta-context-main.c:715
 msgid "Profile performance using trace instrumentation"
 msgstr "Înregistrează performanța folosind un instrument de urmărire"
 
-#: src/core/meta-context-main.c:723
+#: src/core/meta-context-main.c:721
 msgid "Enable debug control D-Bus interface"
 msgstr "Activează interfața D-Bus a controlului depanării"
 
@@ -820,7 +872,7 @@ msgstr "Extensia Mutter de utilizat"
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a fost compilat fără opțiunea de a afișa informații detaliate."
 
