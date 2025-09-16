@@ -3383,13 +3383,54 @@ clutter_stage_maybe_lost_implicit_grab (ClutterStage  *self,
   clutter_sprite_maybe_lost_implicit_grab (sprite);
 }
 
+static gboolean
+is_pointing_event (const ClutterEvent *event)
+{
+  switch (clutter_event_type (event))
+    {
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+    case CLUTTER_KEY_STATE:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
+    case CLUTTER_PAD_BUTTON_PRESS:
+    case CLUTTER_PAD_BUTTON_RELEASE:
+    case CLUTTER_PAD_RING:
+    case CLUTTER_PAD_STRIP:
+    case CLUTTER_PAD_DIAL:
+      return FALSE;
+    case CLUTTER_MOTION:
+    case CLUTTER_ENTER:
+    case CLUTTER_LEAVE:
+    case CLUTTER_BUTTON_PRESS:
+    case CLUTTER_BUTTON_RELEASE:
+    case CLUTTER_SCROLL:
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_UPDATE:
+    case CLUTTER_TOUCH_END:
+    case CLUTTER_TOUCH_CANCEL:
+    case CLUTTER_TOUCHPAD_PINCH:
+    case CLUTTER_TOUCHPAD_SWIPE:
+    case CLUTTER_TOUCHPAD_HOLD:
+    case CLUTTER_PROXIMITY_IN:
+    case CLUTTER_PROXIMITY_OUT:
+      return TRUE;
+    case CLUTTER_DEVICE_ADDED:
+    case CLUTTER_DEVICE_REMOVED:
+    case CLUTTER_NOTHING:
+    case CLUTTER_EVENT_LAST:
+      break;
+    }
+
+  g_warn_if_reached ();
+  return FALSE;
+}
+
 void
 clutter_stage_emit_event (ClutterStage       *self,
                           const ClutterEvent *event)
 {
-  ClutterInputDevice *source_device = clutter_event_get_source_device (event);
-  ClutterInputDeviceType device_type =
-    clutter_input_device_get_device_type (source_device);
   ClutterContext *context =
     clutter_actor_get_context (CLUTTER_ACTOR (self));
   ClutterBackend *backend = clutter_context_get_backend (context);
@@ -3397,11 +3438,10 @@ clutter_stage_emit_event (ClutterStage       *self,
 
   COGL_TRACE_BEGIN_SCOPED (EmitEvent, "Clutter::Stage::emit_event()");
 
-  if (device_type == CLUTTER_KEYBOARD_DEVICE ||
-      device_type == CLUTTER_PAD_DEVICE)
-    focus = CLUTTER_FOCUS (clutter_backend_get_key_focus (backend, self));
-  else
+  if (is_pointing_event (event))
     focus = CLUTTER_FOCUS (clutter_backend_get_sprite (backend, self, event));
+  else
+    focus = CLUTTER_FOCUS (clutter_backend_get_key_focus (backend, self));
 
   clutter_focus_propagate_event (focus, event);
 }
