@@ -1151,7 +1151,7 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
   float xf = 0.0f, yf = 0.0f;
   graphene_point_t pos;
 
-  pos = clutter_sprite_get_coords (pointer->sprite);
+  clutter_sprite_get_coords (pointer->sprite, &pos);
   meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, &xf, &yf);
 
   *sx = wl_fixed_from_double (xf);

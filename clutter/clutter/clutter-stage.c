@@ -1185,7 +1185,7 @@ on_seat_unfocus_inhibited_changed (ClutterStage *stage,
   graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
   sprite = clutter_backend_get_pointer_sprite (backend, stage);
-  point = clutter_sprite_get_coords (sprite);
+  clutter_sprite_get_coords (sprite, &point);
   clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
                                         CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
                                         point,
@@ -2890,11 +2890,14 @@ invalidate_focus_foreach_cb (ClutterStage  *self,
 
   if (clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)) == actor)
     {
+      graphene_point_t coords;
+
+      clutter_sprite_get_coords (sprite, &coords);
       clutter_stage_pick_and_update_sprite (self,
                                             sprite,
                                             NULL,
                                             CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
-                                            clutter_sprite_get_coords (sprite),
+                                            coords,
                                             CLUTTER_CURRENT_TIME);
     }
 
@@ -3577,7 +3580,7 @@ update_devices_in_view_foreach_cb (ClutterStage  *stage,
   if (clutter_sprite_get_sequence (sprite))
     return TRUE;
 
-  coords = clutter_sprite_get_coords (sprite);
+  clutter_sprite_get_coords (sprite, &coords);
   pointer_view = clutter_stage_get_view_at (stage,
                                             coords.x,
                                             coords.y);
