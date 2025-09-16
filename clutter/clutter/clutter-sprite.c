@@ -936,6 +936,14 @@ clutter_sprite_update (ClutterSprite    *sprite,
     priv->clear_area = mtk_region_ref (clear_area);
 }
 
+/**
+ * clutter_sprite_get_coords:
+ * @sprite: a #ClutterSprite
+ * @coords: (out): return location for the sprite coordinates
+ *
+ * Returns the current position that @sprite points to, in stage-global
+ * coordinate system.
+ **/
 void
 clutter_sprite_get_coords (ClutterSprite    *sprite,
                            graphene_point_t *coords)

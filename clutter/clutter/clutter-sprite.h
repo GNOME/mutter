@@ -42,3 +42,7 @@ struct _ClutterSpriteClass
 {
   ClutterFocusClass parent_class;
 };
+
+CLUTTER_EXPORT
+void clutter_sprite_get_coords (ClutterSprite    *sprite,
+                                graphene_point_t *coords);
