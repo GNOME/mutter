@@ -111,7 +111,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 43
-    BASE_TAG: '2025-10-04.0'
+    BASE_TAG: '2025-11-13.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -151,6 +151,7 @@ variables:
       'pkgconfig(xrandr)'
       'pkgconfig(xrender)'
       'pkgconfig(xtst)'
+      qrencode-devel
 
 
     FDO_DISTRIBUTION_EXEC: |
