@@ -76,6 +76,8 @@ struct _MetaWindowDrag {
   gboolean shaken_loose;
   int target_monitor_number;
 
+  MtkRectangle drag_rect;
+
   gulong unmanaged_id;
   gulong size_changed_id;
 
@@ -646,20 +648,27 @@ process_keyboard_move_grab (MetaWindowDrag  *window_drag,
 
   if (keyval == CLUTTER_KEY_Escape)
     {
+      meta_topic (META_DEBUG_KEYBINDINGS, "Cancelling keyboard resize drag");
+
       /* End move and restore to original state.  If the window was a
        * maximized window that had been "shaken loose" we need to
        * remaximize it.  In normal cases, we need to do a moveresize
        * now to get the position back to the original.
        */
       if (window_drag->shaken_loose)
-        meta_window_maximize (window);
+        {
+          meta_window_maximize (window);
+        }
       else
-        meta_window_move_resize_frame (window_drag->effective_grab_window,
-                                       TRUE,
-                                       window_drag->initial_window_pos.x,
-                                       window_drag->initial_window_pos.y,
-                                       window_drag->initial_window_pos.width,
-                                       window_drag->initial_window_pos.height);
+        {
+          meta_window_move_resize_frame (window_drag->effective_grab_window,
+                                         TRUE,
+                                         window_drag->initial_window_pos.x,
+                                         window_drag->initial_window_pos.y,
+                                         window_drag->initial_window_pos.width,
+                                         window_drag->initial_window_pos.height);
+          window_drag->drag_rect = window_drag->initial_window_pos;
+        }
     }
 
   /* When moving by increments, we still snap to edges if the move
@@ -718,6 +727,9 @@ process_keyboard_move_grab (MetaWindowDrag  *window_drag,
                                                  flags);
 
       meta_window_move_frame (window, TRUE, x, y);
+      window_drag->drag_rect.x = x;
+      window_drag->drag_rect.y = y;
+
       update_keyboard_move (window_drag);
     }
 
@@ -901,7 +913,7 @@ resize_window_frame (MetaWindowDrag *window_drag,
                                      META_MOVE_RESIZE_CONSTRAIN),
                                     META_PLACE_FLAG_NONE,
                                     rect,
-                                    NULL);
+                                    &window_drag->drag_rect);
 }
 
 static gboolean
@@ -941,6 +953,7 @@ process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
                                      window_drag->initial_window_pos.y,
                                      window_drag->initial_window_pos.width,
                                      window_drag->initial_window_pos.height);
+      window_drag->drag_rect = window_drag->initial_window_pos;
 
       return FALSE;
     }
@@ -1500,6 +1513,8 @@ update_move (MetaWindowDrag          *window_drag,
         flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
       meta_window_move_frame (window, TRUE, new_x, new_y);
+      window_drag->drag_rect.x = new_x;
+      window_drag->drag_rect.y = new_y;
     }
 }
 
@@ -1943,6 +1958,16 @@ meta_window_drag_begin (MetaWindowDrag      *window_drag,
   ClutterStage *stage;
   int root_x, root_y;
 
+  grab_window = window;
+
+  /* If we're trying to move a window, move the first
+   * non-attached dialog instead.
+   */
+  if (meta_grab_op_is_moving (grab_op))
+    grab_window = get_first_freefloating_window (window);
+
+  meta_window_get_frame_rect (grab_window, &window_drag->drag_rect);
+
   if ((grab_op & META_GRAB_OP_KEYBOARD_MOVING) == META_GRAB_OP_KEYBOARD_MOVING)
     {
       warp_grab_pointer (window_drag, window, grab_op, &root_x, &root_y);
@@ -1976,14 +2001,6 @@ meta_window_drag_begin (MetaWindowDrag      *window_drag,
       window_drag->initial_y = root_y;
       window_drag->threshold_movement_reached = FALSE;
     }
-
-  grab_window = window;
-
-  /* If we're trying to move a window, move the first
-   * non-attached dialog instead.
-   */
-  if (meta_grab_op_is_moving (grab_op))
-    grab_window = get_first_freefloating_window (window);
 
   g_assert (grab_window != NULL);
   g_assert (grab_op != META_GRAB_OP_NONE);
@@ -2040,8 +2057,7 @@ meta_window_drag_begin (MetaWindowDrag      *window_drag,
               "Grab op %u on window %s successful",
               grab_op, window ? window->desc : "(null)");
 
-  meta_window_get_frame_rect (window_drag->effective_grab_window,
-                              &window_drag->initial_window_pos);
+  window_drag->initial_window_pos = window_drag->drag_rect;
 
   window_drag->anchor_rel_x =
     CLAMP ((double) (root_x - window_drag->initial_window_pos.x) /
