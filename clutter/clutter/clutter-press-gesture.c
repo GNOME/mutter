@@ -660,24 +660,11 @@ void
 clutter_press_gesture_get_coords (ClutterPressGesture *self,
                                   graphene_point_t    *coords_out)
 {
-  ClutterPressGesturePrivate *priv;
-  float x, y;
-  ClutterActor *action_actor;
-
   g_return_if_fail (CLUTTER_IS_PRESS_GESTURE (self));
   g_return_if_fail (coords_out != NULL);
 
-  priv = clutter_press_gesture_get_instance_private (self);
-
-  x = priv->press_coords.x;
-  y = priv->press_coords.y;
-
-  action_actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (self));
-  if (action_actor && !CLUTTER_IS_STAGE (action_actor))
-    clutter_actor_transform_stage_point (action_actor, x, y, &x, &y);
-
-  coords_out->x = x;
-  coords_out->y = y;
+  clutter_gesture_get_point_begin_coords (CLUTTER_GESTURE (self),
+                                          0, coords_out);
 }
 
 /**
@@ -691,15 +678,11 @@ void
 clutter_press_gesture_get_coords_abs (ClutterPressGesture *self,
                                       graphene_point_t    *coords_out)
 {
-  ClutterPressGesturePrivate *priv;
-
   g_return_if_fail (CLUTTER_IS_PRESS_GESTURE (self));
   g_return_if_fail (coords_out != NULL);
 
-  priv = clutter_press_gesture_get_instance_private (self);
-
-  coords_out->x = priv->press_coords.x;
-  coords_out->y = priv->press_coords.y;
+  clutter_gesture_get_point_begin_coords_abs (CLUTTER_GESTURE (self),
+                                              0, coords_out);
 }
 
 /**
