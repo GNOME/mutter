@@ -563,7 +563,7 @@ meta_window_x11_initialize_state (MetaWindow *window)
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
 
-      meta_window_move_resize_internal (window, flags, place_flags, rect);
+      meta_window_move_resize_internal (window, flags, place_flags, rect, NULL);
     }
 
   meta_window_x11_update_shape_region (window);

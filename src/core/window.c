@@ -2245,7 +2245,8 @@ meta_window_force_placement (MetaWindow    *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     place_flags | META_PLACE_FLAG_CALCULATE,
-                                    window->unconstrained_rect);
+                                    window->unconstrained_rect,
+                                    NULL);
 
   /* don't ever do the initial position constraint thing again.
    * This is toggled here so that initially-iconified windows
@@ -3558,7 +3559,8 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
                                           &old_frame_rect, &old_buffer_rect);
 
       meta_window_move_resize_internal (window, flags, place_flags,
-                                        target_rect);
+                                        target_rect,
+                                        NULL);
 
       meta_window_recalc_features (window);
       set_net_wm_state (window);
@@ -3732,7 +3734,8 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
                                           &old_frame_rect, &old_buffer_rect);
 
       meta_window_move_resize_internal (window, flags, place_flags,
-                                        target_rect);
+                                        target_rect,
+                                        NULL);
 
       meta_display_queue_check_fullscreen (window->display);
 
@@ -4159,7 +4162,8 @@ void
 meta_window_move_resize_internal (MetaWindow          *window,
                                   MetaMoveResizeFlags  flags,
                                   MetaPlaceFlag        place_flags,
-                                  MtkRectangle         frame_rect)
+                                  MtkRectangle         frame_rect,
+                                  MtkRectangle        *result_rect)
 {
   /* The rectangle here that's passed in *always* in "frame rect"
    * coordinates. That means the position of the frame's visible bounds,
@@ -4410,6 +4414,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   meta_stack_update_window_tile_matches (window->display->stack,
                                          workspace_manager->active_workspace);
+
+  if (result_rect)
+    *result_rect = constrained_rect;
 }
 
 void
@@ -4420,7 +4427,8 @@ meta_window_move_resize (MetaWindow          *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     META_PLACE_FLAG_NONE,
-                                    rect);
+                                    rect,
+                                    NULL);
 }
 
 /**
@@ -4675,7 +4683,8 @@ meta_window_resize_frame (MetaWindow *window,
   meta_window_move_resize_internal (window,
                                     flags,
                                     META_PLACE_FLAG_NONE,
-                                    rect);
+                                    rect,
+                                    NULL);
 }
 
 void

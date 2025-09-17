@@ -804,7 +804,8 @@ void meta_window_move_resize (MetaWindow          *window,
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,
                                        MetaPlaceFlag        place_flags,
-                                       MtkRectangle         frame_rect);
+                                       MtkRectangle         frame_rect,
+                                       MtkRectangle        *result_rect);
 
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);

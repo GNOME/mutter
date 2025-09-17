@@ -1745,7 +1745,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
       meta_window_actor_set_tied_to_drag (window_actor, TRUE);
     }
 
-  meta_window_move_resize_internal (window, flags, place_flags, rect);
+  meta_window_move_resize_internal (window, flags, place_flags, rect, NULL);
 
   if (place_flags & META_PLACE_FLAG_CALCULATE)
     window->placed = TRUE;
@@ -1780,7 +1780,8 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
                                      META_MOVE_RESIZE_PLACEMENT_CHANGED |
                                      META_MOVE_RESIZE_CONSTRAIN),
                                     place_flags,
-                                    window->unconstrained_rect);
+                                    window->unconstrained_rect,
+                                    NULL);
 }
 
 void
