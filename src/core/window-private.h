@@ -664,12 +664,6 @@ gboolean    meta_window_has_fullscreen_monitors (MetaWindow *window);
 void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow    *window,
                                                         MtkRectangle  *monitor_rect);
 
-META_EXPORT_TEST
-void        meta_window_resize_frame (MetaWindow  *window,
-                                      gboolean     user_op,
-                                      int          w,
-                                      int          h);
-
 gboolean    meta_window_should_be_showing_on_workspace (MetaWindow    *window,
                                                         MetaWorkspace *workspace);
 
@@ -900,6 +894,10 @@ gboolean meta_window_is_tiled_side_by_side (MetaWindow *window);
 gboolean meta_window_is_tiled_left (MetaWindow *window);
 
 gboolean meta_window_is_tiled_right (MetaWindow *window);
+
+void meta_window_update_tile_fraction (MetaWindow *window,
+                                       int         new_w,
+                                       int         new_h);
 
 void meta_window_apply_config (MetaWindow           *window,
                                MetaWindowConfig     *config,

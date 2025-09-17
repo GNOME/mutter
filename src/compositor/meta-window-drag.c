@@ -853,6 +853,57 @@ process_keyboard_resize_grab_op_change (MetaWindowDrag  *window_drag,
   return FALSE;
 }
 
+static void
+adjust_size_for_tile_match (MetaWindow *window,
+                            int        *new_width,
+                            int        *new_height)
+{
+  MtkRectangle work_area, rect;
+  MetaWindow *tile_match = meta_window_config_get_tile_match (window->config);
+  int tile_monitor_number;
+
+  if (!meta_window_is_tiled_side_by_side (window) || !tile_match)
+    return;
+
+  tile_monitor_number =
+    meta_window_config_get_tile_monitor_number (window->config);
+  meta_window_get_work_area_for_monitor (window, tile_monitor_number,
+                                         &work_area);
+
+  /* Make sure the resize does not break minimum sizes */
+  rect = work_area;
+  rect.width = *new_width;
+
+  meta_window_frame_rect_to_client_rect (window, &rect, &rect);
+  *new_width += MAX (0, window->size_hints.min_width - rect.width);
+
+  /* Make sure we're not resizing the tile match below its min width */
+  rect = work_area;
+  rect.width = work_area.width - *new_width;
+
+  meta_window_frame_rect_to_client_rect (tile_match, &rect, &rect);
+  *new_width -= MAX (0, tile_match->size_hints.min_width - rect.width);
+}
+
+static void
+resize_window_frame (MetaWindowDrag *window_drag,
+                     MetaWindow     *window,
+                     int             width,
+                     int             height)
+{
+  MtkRectangle rect = MTK_RECTANGLE_INIT (0, 0, width, height);
+
+  adjust_size_for_tile_match (window, &rect.width, &rect.height);
+  meta_window_update_tile_fraction (window, rect.width, rect.height);
+  meta_window_move_resize_internal (window,
+                                    (META_MOVE_RESIZE_USER_ACTION |
+                                     META_MOVE_RESIZE_RESIZE_ACTION |
+                                     META_MOVE_RESIZE_CONSTRAIN),
+                                    META_PLACE_FLAG_NONE,
+                                    rect,
+                                    NULL);
+}
+
 static gboolean
 process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
                               MetaWindow      *window,
@@ -1084,10 +1135,7 @@ process_keyboard_resize_grab (MetaWindowDrag  *window_drag,
                                                    gravity,
                                                    flags);
 
-      meta_window_resize_frame (window,
-				TRUE,
-				width,
-				height);
+      resize_window_frame (window_drag, window, width, height);
 
       update_keyboard_resize (window_drag, FALSE);
     }
@@ -1636,7 +1684,7 @@ update_resize (MetaWindowDrag          *window_drag,
   window_drag->last_edge_resistance_flags =
     flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
 
-  meta_window_resize_frame (window, TRUE, new_width, new_height);
+  resize_window_frame (window_drag, window, new_width, new_height);
 }
 
 static gboolean

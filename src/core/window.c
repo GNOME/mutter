@@ -3124,7 +3124,7 @@ meta_window_get_tile_fraction (MetaWindow   *window,
     *fraction = .5;
 }
 
-static void
+void
 meta_window_update_tile_fraction (MetaWindow *window,
                                   int         new_w,
                                   int         new_h)
@@ -4615,76 +4615,6 @@ meta_window_move_to_monitor (MetaWindow  *window,
 
   if (meta_window_is_fullscreen (window) || window->override_redirect)
     meta_display_queue_check_fullscreen (window->display);
-}
-
-static void
-adjust_size_for_tile_match (MetaWindow *window,
-                            int        *new_w,
-                            int        *new_h)
-{
-  MtkRectangle work_area, rect;
-  MetaWindow *tile_match = meta_window_config_get_tile_match (window->config);
-  int tile_monitor_number;
-
-  if (!meta_window_is_tiled_side_by_side (window) || !tile_match)
-    return;
-
-  tile_monitor_number =
-    meta_window_config_get_tile_monitor_number (window->config);
-  meta_window_get_work_area_for_monitor (window, tile_monitor_number,
-                                         &work_area);
-
-  /* Make sure the resize does not break minimum sizes */
-  rect = work_area;
-  rect.width = *new_w;
-
-  meta_window_frame_rect_to_client_rect (window, &rect, &rect);
-  *new_w += MAX (0, window->size_hints.min_width - rect.width);
-
-  /* Make sure we're not resizing the tile match below its min width */
-  rect = work_area;
-  rect.width = work_area.width - *new_w;
-
-  meta_window_frame_rect_to_client_rect (tile_match, &rect, &rect);
-  *new_w -= MAX (0, tile_match->size_hints.min_width - rect.width);
-}
-
-void
-meta_window_resize_frame (MetaWindow *window,
-                          gboolean    user_op,
-                          int         w,
-                          int         h)
-{
-  MetaMoveResizeFlags flags;
-  MtkRectangle rect = { 0, };
-
-  rect.width = w;
-  rect.height = h;
-
-  if (user_op)
-    {
-      MetaWindowDrag *window_drag;
-
-      window_drag =
-        meta_compositor_get_current_window_drag (window->display->compositor);
-
-      /* When resizing in-tandem with a tile match, we need to respect
-       * its minimum width
-       */
-      if (window_drag &&
-          meta_window_drag_get_window (window_drag) == window)
-        adjust_size_for_tile_match (window, &w, &h);
-      meta_window_update_tile_fraction (window, w, h);
-    }
-
-  flags = ((user_op ? META_MOVE_RESIZE_USER_ACTION : 0) |
-           META_MOVE_RESIZE_RESIZE_ACTION |
-           META_MOVE_RESIZE_CONSTRAIN);
-  meta_window_move_resize_internal (window,
-                                    flags,
-                                    META_PLACE_FLAG_NONE,
-                                    rect,
-                                    NULL);
 }
 
 void
