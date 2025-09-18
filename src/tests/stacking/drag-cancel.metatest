@@ -1,0 +1,157 @@
+resize_monitor default 800 600
+new_client w wayland
+new_client x x11
+set_pref center-new-windows true
+
+# With edge tiling disabled, maximize a window, drag it from the top to
+# unmaximize, but cancel, the drag.
+
+set_pref edge-tiling false
+
+#
+# Wayland
+#
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+assert_position w/1 300 200
+assert_size w/1 200 200
+
+maximize w/1
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 800 600
+wait_for_effects w/1
+
+move_cursor_to 400 10
+click_and_hold
+move_cursor_to 500 300 500ms
+wait_reconfigure w/1
+assert_size w/1 200 200
+
+key_press KEY_ESC
+key_release KEY_ESC
+release_click
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 800 600
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 300 200
+assert_size w/1 200 200
+
+destroy w/1
+
+# Do the same, but with edge tiling enabled
+
+set_pref edge-tiling true
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+assert_position w/1 300 200
+assert_size w/1 200 200
+
+maximize w/1
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 800 600
+wait_for_effects w/1
+
+move_cursor_to 400 10
+click_and_hold
+move_cursor_to 500 300 500ms
+wait_reconfigure w/1
+assert_size w/1 200 200
+
+key_press KEY_ESC
+key_release KEY_ESC
+release_click
+wait_reconfigure w/1
+assert_position w/1 0 0
+assert_size w/1 800 600
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_position w/1 300 200
+assert_size w/1 200 200
+
+destroy w/1
+
+#
+# X11
+#
+
+create x/1 csd
+resize x/1 200 200
+show x/1
+wait
+assert_position x/1 300 200
+assert_size x/1 200 200
+
+maximize x/1
+wait_reconfigure x/1
+assert_position x/1 0 0
+assert_size x/1 800 600
+wait_for_effects x/1
+
+move_cursor_to 400 10
+click_and_hold
+move_cursor_to 500 300 500ms
+wait_reconfigure x/1
+assert_size x/1 200 200
+
+key_press KEY_ESC
+key_release KEY_ESC
+release_click
+wait_reconfigure x/1
+assert_position x/1 0 0
+assert_size x/1 800 600
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 300 200
+assert_size x/1 200 200
+
+destroy x/1
+
+# Do the same, but with edge tiling enabled
+
+set_pref edge-tiling true
+
+create x/1 csd
+resize x/1 200 200
+show x/1
+wait
+assert_position x/1 300 200
+assert_size x/1 200 200
+
+maximize x/1
+wait_reconfigure x/1
+assert_position x/1 0 0
+assert_size x/1 800 600
+wait_for_effects x/1
+
+move_cursor_to 400 10
+click_and_hold
+move_cursor_to 500 300 500ms
+wait_reconfigure x/1
+assert_size x/1 200 200
+
+key_press KEY_ESC
+key_release KEY_ESC
+release_click
+wait_reconfigure x/1
+assert_position x/1 0 0
+assert_size x/1 800 600
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_position x/1 300 200
+assert_size x/1 200 200
+
+destroy x/1
