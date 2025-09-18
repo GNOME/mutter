@@ -1123,12 +1123,12 @@ meta_wayland_xdg_toplevel_reset (MetaWaylandXdgSurface *xdg_surface)
 
   surface = meta_wayland_surface_role_get_surface (surface_role);
 
+  xdg_surface_class->reset (xdg_surface);
+
   meta_wayland_shell_surface_destroy_window (shell_surface);
   meta_wayland_actor_surface_reset_actor (META_WAYLAND_ACTOR_SURFACE (surface_role));
   window = meta_window_wayland_new (display_from_surface (surface), surface);
   meta_wayland_shell_surface_set_window (shell_surface, window);
-
-  xdg_surface_class->reset (xdg_surface);
 }
 
 static void
@@ -2081,8 +2081,6 @@ meta_wayland_xdg_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_surface_parent_class);
   surface_role_class->assigned (surface_role);
-
-  meta_wayland_xdg_surface_reset (xdg_surface);
 }
 
 static void
@@ -2281,6 +2279,8 @@ xdg_surface_constructor_get_toplevel (struct wl_client   *client,
 
   xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
   meta_wayland_xdg_surface_constructor_finalize (constructor, xdg_surface);
+
+  meta_wayland_xdg_surface_reset (xdg_surface);
 }
 
 static void
@@ -2359,6 +2359,8 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
   xdg_positioner = wl_resource_get_user_data (positioner_resource);
   xdg_popup->setup.xdg_positioner = *xdg_positioner;
   xdg_popup->setup.parent_surface = parent_surface;
+
+  meta_wayland_xdg_surface_reset (xdg_surface);
 }
 
 static void
