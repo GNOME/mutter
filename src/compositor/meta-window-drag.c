@@ -583,6 +583,7 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
        * moveresize now to get the position back to the original.
        */
       if (window_drag->shaken_loose ||
+          meta_window_config_is_maximized (initial_window_config) ||
           initial_tile_mode == META_TILE_MAXIMIZED)
         meta_window_maximize (window);
       else if (initial_tile_mode != META_TILE_NONE)
