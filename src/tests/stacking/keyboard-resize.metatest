@@ -1,0 +1,196 @@
+resize_monitor default 800 600
+new_client w wayland
+new_client x x11
+set_pref center-new-windows true
+
+#
+# Wayland
+#
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+assert_position w/1 300 200
+assert_size w/1 200 200
+
+# Initiate a keyboard resize drag
+
+key_press KEY_LEFTALT
+key_press KEY_F8
+key_release KEY_F8
+key_release KEY_LEFTALT
+
+# Warp pointer to the right
+key_press KEY_RIGHT
+key_release KEY_RIGHT
+
+# Resize 10 pixels towards the right
+key_press KEY_RIGHT
+key_release KEY_RIGHT
+wait_reconfigure w/1
+assert_size w/1 210 200
+assert_position w/1 300 200
+
+# Warp pointer to the bottom
+key_press KEY_DOWN
+key_release KEY_DOWN
+
+# Resize 10 pixels towards the bottom
+key_press KEY_DOWN
+key_release KEY_DOWN
+wait_reconfigure w/1
+assert_size w/1 210 210
+assert_position w/1 300 200
+
+# Warp pointer to the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+
+# Resize 10 pixels towards the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+wait_reconfigure w/1
+assert_size w/1 220 210
+assert_position w/1 290 200
+
+# Warp pointer to the top
+key_press KEY_UP
+key_release KEY_UP
+
+# Resize 10 pixels towards the top
+key_press KEY_UP
+key_release KEY_UP
+wait_reconfigure w/1
+assert_size w/1 220 220
+assert_position w/1 290 190
+
+# Finish resize
+key_press KEY_ENTER
+key_release KEY_ENTER
+wait_reconfigure w/1
+assert_size w/1 220 220
+assert_position w/1 290 190
+
+# Initiate a keyboard resize drag
+
+key_press KEY_LEFTALT
+key_press KEY_F8
+key_release KEY_F8
+key_release KEY_LEFTALT
+
+# Warp pointer to the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+
+# Resize 10 pixels towards the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+wait_reconfigure w/1
+assert_size w/1 230 220
+assert_position w/1 280 190
+
+# Cancel resize
+key_press KEY_ESC
+key_release KEY_ESC
+wait_reconfigure w/1
+assert_size w/1 220 220
+assert_position w/1 290 190
+
+destroy w/1
+
+#
+# X11
+#
+
+create x/1 csd
+resize x/1 200 200
+show x/1
+wait
+assert_position x/1 300 200
+assert_size x/1 200 200
+
+# Initiate a keyboard resize drag
+
+key_press KEY_LEFTALT
+key_press KEY_F8
+key_release KEY_F8
+key_release KEY_LEFTALT
+
+# Warp pointer to the right
+key_press KEY_RIGHT
+key_release KEY_RIGHT
+
+# Resize 10 pixels towards the right
+key_press KEY_RIGHT
+key_release KEY_RIGHT
+wait_reconfigure x/1
+assert_size x/1 210 200
+assert_position x/1 300 200
+
+# Warp pointer to the bottom
+key_press KEY_DOWN
+key_release KEY_DOWN
+
+# Resize 10 pixels towards the bottom
+key_press KEY_DOWN
+key_release KEY_DOWN
+wait_reconfigure x/1
+assert_size x/1 210 210
+assert_position x/1 300 200
+
+# Warp pointer to the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+
+# Resize 10 pixels towards the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+wait_reconfigure x/1
+assert_size x/1 220 210
+assert_position x/1 290 200
+
+# Warp pointer to the top
+key_press KEY_UP
+key_release KEY_UP
+
+# Resize 10 pixels towards the top
+key_press KEY_UP
+key_release KEY_UP
+wait_reconfigure x/1
+assert_size x/1 220 220
+assert_position x/1 290 190
+
+# Finish resize
+key_press KEY_ENTER
+key_release KEY_ENTER
+wait_reconfigure x/1
+assert_size x/1 220 220
+assert_position x/1 290 190
+
+# Initiate a keyboard resize drag
+
+key_press KEY_LEFTALT
+key_press KEY_F8
+key_release KEY_F8
+key_release KEY_LEFTALT
+
+# Warp pointer to the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+
+# Resize 10 pixels towards the left
+key_press KEY_LEFT
+key_release KEY_LEFT
+wait_reconfigure x/1
+assert_size x/1 230 220
+assert_position x/1 280 190
+
+# Cancel resize
+key_press KEY_ESC
+key_release KEY_ESC
+wait_reconfigure x/1
+assert_size x/1 220 220
+assert_position x/1 290 190
+
+destroy x/1
