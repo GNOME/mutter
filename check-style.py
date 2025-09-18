@@ -141,10 +141,10 @@ def reformat_chunks(chunks, action):
 parser = argparse.ArgumentParser(description='Check code style. Needs uncrustify installed.')
 parser.add_argument('--sha', metavar='SHA', type=str,
                     help='SHA for the commit to compare HEAD with')
-parser.add_argument('--dry-run', '-d', type=bool,
+parser.add_argument('--dry-run', '-d',
                     action=argparse.BooleanOptionalAction,
                     help='Only print changes to stdout, do not change code')
-parser.add_argument('--rewrite', '-r', type=bool,
+parser.add_argument('--rewrite', '-r',
                     action=argparse.BooleanOptionalAction,
                     help='Whether to amend the result to the last commit (e.g. \'git rebase --exec "%(prog)s -r"\')')
 
