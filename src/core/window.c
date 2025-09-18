@@ -3261,8 +3261,9 @@ meta_window_untile (MetaWindow *window)
 }
 
 void
-meta_window_tile (MetaWindow   *window,
-                  MetaTileMode  tile_mode)
+meta_window_tile_internal (MetaWindow   *window,
+                           MetaTileMode  tile_mode,
+                           MtkRectangle *saved_rect)
 {
   MetaMaximizeFlags directions;
   MetaWindowDrag *window_drag;
@@ -3292,7 +3293,7 @@ meta_window_tile (MetaWindow   *window,
   else
     directions = META_MAXIMIZE_VERTICAL;
 
-  meta_window_maximize_internal (window, directions, NULL);
+  meta_window_maximize_internal (window, directions, saved_rect);
 
   window_drag =
     meta_compositor_get_current_window_drag (window->display->compositor);
@@ -3318,6 +3319,13 @@ meta_window_tile (MetaWindow   *window,
                             META_MOVE_RESIZE_STATE_CHANGED |
                             META_MOVE_RESIZE_CONSTRAIN),
                            window->unconstrained_rect);
+}
+
+void
+meta_window_tile (MetaWindow   *window,
+                  MetaTileMode  tile_mode)
+{
+  meta_window_tile_internal (window, tile_mode, NULL);
 }
 
 void

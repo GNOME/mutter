@@ -639,6 +639,9 @@ void        meta_window_queue              (MetaWindow  *window,
 META_EXPORT_TEST
 void        meta_window_untile             (MetaWindow        *window);
 
+void        meta_window_tile_internal      (MetaWindow        *window,
+                                            MetaTileMode       mode,
+                                            MtkRectangle      *saved_rect);
 META_EXPORT_TEST
 void        meta_window_tile               (MetaWindow        *window,
                                             MetaTileMode       mode);

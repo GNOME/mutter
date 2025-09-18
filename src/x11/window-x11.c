@@ -2023,8 +2023,15 @@ static void
 meta_window_x11_save_rect (MetaWindow *window)
 {
   MtkRectangle rect;
+  MetaWindowDrag *window_drag;
 
   if (!meta_window_config_is_floating (window->config))
+    return;
+
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+  if (window_drag &&
+      meta_window_drag_get_window (window_drag) == window)
     return;
 
   rect = meta_window_config_get_rect (window->config);

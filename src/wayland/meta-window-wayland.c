@@ -1055,8 +1055,15 @@ maybe_save_rect (MetaWindow                     *window,
                  MetaWaylandWindowConfiguration *configuration)
 {
   MtkRectangle frame_rect;
+  MetaWindowDrag *window_drag;
 
   if (!meta_window_config_is_floating (config))
+    return FALSE;
+
+  window_drag =
+    meta_compositor_get_current_window_drag (window->display->compositor);
+  if (window_drag &&
+      meta_window_drag_get_window (window_drag) == window)
     return FALSE;
 
   frame_rect = meta_window_config_get_rect (config);

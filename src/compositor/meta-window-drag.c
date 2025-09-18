@@ -1415,9 +1415,6 @@ update_move (MetaWindowDrag          *window_drag,
       if (window_drag->anchor_root_y < window_drag->initial_window_pos.y)
         window_drag->anchor_root_y = window_drag->initial_window_pos.y + META_WINDOW_TITLEBAR_HEIGHT / 2;
 
-      window->saved_rect.x = window_drag->initial_window_pos.x;
-      window->saved_rect.y = window_drag->initial_window_pos.y;
-
       meta_window_unmaximize (window);
       return;
     }
@@ -1822,9 +1819,15 @@ end_grab_op (MetaWindowDrag     *window_drag,
       if (meta_grab_op_is_moving (window_drag->grab_op))
         {
           if (window_drag->preview_tile_mode != META_TILE_NONE)
-            meta_window_tile (window, window_drag->preview_tile_mode);
+            {
+              meta_window_tile_internal (window,
+                                         window_drag->preview_tile_mode,
+                                         &window_drag->initial_window_pos);
+            }
           else
-            update_move (window_drag, flags, (int) x, (int) y);
+            {
+              update_move (window_drag, flags, (int) x, (int) y);
+            }
         }
       else if (meta_grab_op_is_resizing (window_drag->grab_op))
         {
