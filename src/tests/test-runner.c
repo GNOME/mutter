@@ -2850,6 +2850,16 @@ test_case_do (TestCase    *test,
           g_assert_true (g_settings_set_boolean (mutter, "auto-maximize",
                                                  value));
         }
+      else if (strcmp (argv[1], "edge-tiling") == 0)
+        {
+          gboolean value;
+
+          if (!str_to_bool (argv[2], &value))
+            BAD_COMMAND ("usage: %s %s [true|false]", argv[0], argv[1]);
+
+          g_assert_true (g_settings_set_boolean (mutter, "edge-tiling",
+                                                 value));
+        }
       else
         {
           BAD_COMMAND ("Unknown preference %s", argv[1]);
