@@ -1171,6 +1171,7 @@ stacking_tests = [
   'drag-maximized-to-monitor',
   'drag-then-unmaximize',
   'drag-cancel',
+  'drag-restore-initial',
   'monitors-changed-position',
   'multi-monitor-placement',
   'unmaximize-placement',

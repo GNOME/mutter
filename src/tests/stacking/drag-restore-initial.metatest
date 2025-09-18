@@ -1,0 +1,60 @@
+resize_monitor default 800 600
+set_pref center-new-windows true
+set_pref edge-tiling true
+
+new_client w wayland
+new_client x x11
+
+#
+# Wayland
+#
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+assert_size w/1 200 200
+assert_position w/1 300 200
+wait_for_effects w/1
+
+move_cursor_to 400 210
+click_and_hold
+move_cursor_to 400 0 500ms
+release_click
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 0 0
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_size w/1 200 200
+assert_position w/1 300 200
+
+destroy w/1
+
+#
+# X11
+#
+
+create x/1 csd
+resize x/1 200 200
+show x/1
+wait
+assert_size x/1 200 200
+assert_position x/1 300 200
+wait_for_effects x/1
+
+move_cursor_to 400 210
+click_and_hold
+move_cursor_to 400 0 500ms
+release_click
+wait_reconfigure x/1
+assert_size x/1 800 600
+assert_position x/1 0 0
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_size x/1 200 200
+assert_position x/1 300 200
+
+destroy x/1
