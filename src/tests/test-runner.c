@@ -20,6 +20,7 @@
 #include "config.h"
 
 #include <gio/gio.h>
+#include <libevdev/libevdev.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -2735,6 +2736,30 @@ test_case_do (TestCase    *test,
                                                   CLUTTER_CURRENT_TIME,
                                                   CLUTTER_BUTTON_PRIMARY,
                                                   CLUTTER_BUTTON_STATE_RELEASED);
+      meta_flush_input (test->context);
+      if (!test_case_dispatch (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "key_press") == 0 ||
+           strcmp (argv[0], "key_release") == 0)
+    {
+      ClutterKeyState key_state;
+      int key;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <key-code>", argv[0]);
+
+      key_state = strcmp (argv[0], "key_press") == 0 ?
+        CLUTTER_KEY_STATE_PRESSED : CLUTTER_KEY_STATE_RELEASED;
+
+      key = libevdev_event_code_from_name (EV_KEY, argv[1]);
+      if (key == -1)
+        BAD_COMMAND ("Invalid key code %s", argv[1]);
+
+      clutter_virtual_input_device_notify_key (test->keyboard,
+                                               CLUTTER_CURRENT_TIME,
+                                               key, key_state);
+
       meta_flush_input (test->context);
       if (!test_case_dispatch (test, error))
         return FALSE;
