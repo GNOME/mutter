@@ -63,8 +63,7 @@ struct _MetaWindowDrag {
   double anchor_rel_y;
   int anchor_root_x;
   int anchor_root_y;
-  MetaTileMode tile_mode;
-  int tile_monitor_number;
+  MetaWindowConfig *initial_window_config;
   int latest_motion_x;
   int latest_motion_y;
   MtkRectangle initial_window_pos;
@@ -184,6 +183,7 @@ meta_window_drag_dispose (GObject *object)
   hide_tile_preview (window_drag);
   if (window_drag->grab)
     g_clear_object (&window_drag->grab);
+  g_clear_object (&window_drag->initial_window_config);
 
   G_OBJECT_CLASS (meta_window_drag_parent_class)->dispose (object);
 }
@@ -561,27 +561,33 @@ process_mouse_move_resize_grab (MetaWindowDrag  *window_drag,
 
   if (clutter_event_get_key_symbol ((ClutterEvent *) event) == CLUTTER_KEY_Escape)
     {
-      MetaTileMode tile_mode;
+      MetaWindowConfig *initial_window_config =
+        window_drag->initial_window_config;
+      MetaTileMode initial_tile_mode;
+      int tile_monitor_number;
 
       /* Hide the tiling preview if necessary */
       if (window_drag->preview_tile_mode != META_TILE_NONE)
         hide_tile_preview (window_drag);
 
       /* Restore the original tile mode */
-      tile_mode = window_drag->tile_mode;
+      initial_tile_mode = meta_window_config_get_tile_mode (initial_window_config);
+      tile_monitor_number =
+        meta_window_config_get_tile_monitor_number (initial_window_config);
       meta_window_config_set_tile_monitor_number (window->config,
-                                                  window_drag->tile_monitor_number);
+                                                  tile_monitor_number);
 
       /* End move or resize and restore to original state.  If the
        * window was a maximized window that had been "shaken loose" we
        * need to remaximize it.  In normal cases, we need to do a
        * moveresize now to get the position back to the original.
        */
-      if (window_drag->shaken_loose || tile_mode == META_TILE_MAXIMIZED)
+      if (window_drag->shaken_loose ||
+          initial_tile_mode == META_TILE_MAXIMIZED)
         meta_window_maximize (window);
-      else if (tile_mode != META_TILE_NONE)
+      else if (initial_tile_mode != META_TILE_NONE)
         meta_window_restore_tile (window,
-                                  tile_mode,
+                                  initial_tile_mode,
                                   window_drag->initial_window_pos.width,
                                   window_drag->initial_window_pos.height);
       else
@@ -2037,10 +2043,8 @@ meta_window_drag_begin (MetaWindowDrag      *window_drag,
                       G_CALLBACK (on_grab_window_unmanaged), window_drag);
 
   window_drag->leading_sprite = sprite;
-  window_drag->tile_mode =
-    meta_window_config_get_tile_mode (grab_window->config);
-  window_drag->tile_monitor_number =
-    meta_window_config_get_tile_monitor_number (grab_window->config);
+  window_drag->initial_window_config =
+    meta_window_config_new_from (grab_window->config);
   window_drag->anchor_root_x = root_x;
   window_drag->anchor_root_y = root_y;
   window_drag->latest_motion_x = root_x;
