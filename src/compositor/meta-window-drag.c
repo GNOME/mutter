@@ -443,7 +443,7 @@ warp_grab_pointer (MetaWindowDrag *window_drag,
                    int            *x,
                    int            *y)
 {
-  MtkRectangle rect;
+  MtkRectangle rect = window_drag->drag_rect;
   MtkRectangle display_rect = { 0 };
   MetaDisplay *display = window->display;
   MetaCompositor *compositor = meta_display_get_compositor (display);
@@ -458,8 +458,6 @@ warp_grab_pointer (MetaWindowDrag *window_drag,
 
   /* We may not have done begin_grab_op yet, i.e. may not be in a grab
    */
-
-  meta_window_get_frame_rect (window, &rect);
 
   if (grab_op & META_GRAB_OP_WINDOW_DIR_WEST)
     *x = 0;
