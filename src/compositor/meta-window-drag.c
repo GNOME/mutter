@@ -1572,14 +1572,11 @@ calculate_window_size (MetaWindowDrag          *window_drag,
                        int                     *out_width,
                        int                     *out_height)
 {
-  MetaWindow *window;
+  MetaWindow *window = window_drag->effective_grab_window;
   int dx, dy;
   MetaGravity gravity;
   MtkRectangle old_rect;
   MtkRectangle new_rect = {};
-
-  window = window_drag->effective_grab_window;
-  g_return_if_fail (window);
 
   meta_window_get_frame_rect (window, &old_rect);
 
@@ -2091,10 +2088,8 @@ meta_window_drag_calculate_window_size (MetaWindowDrag *window_drag,
                                         int            *out_width,
                                         int            *out_height)
 {
-  calculate_window_size (window_drag,
-                         window_drag->last_edge_resistance_flags,
-                         out_width,
-                         out_height);
+  *out_width = window_drag->drag_rect.width;
+  *out_height = window_drag->drag_rect.height;
 }
 
 MetaWindow *
