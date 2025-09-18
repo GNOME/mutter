@@ -534,7 +534,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
               break;
             }
         }
-      else if (should_configure (window, unconstrained_rect, flags))
+      else if (should_configure (window, constrained_rect, flags))
         {
           g_autoptr (MetaWaylandWindowConfiguration) configuration = NULL;
           int bounds_width;
