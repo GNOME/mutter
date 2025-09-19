@@ -199,7 +199,6 @@ variables:
       # https://gitlab.gnome.org/Infrastructure/Infrastructure/-/issues/1247
       rm -rf /etc/pki/pesign/
       chmod -R a+rX /opt/mutter/$MUTTER_USER
-      chmod -R a+rX /var/lib/gdm
 
       # Ensure that we mark the project clone dir as safe directory
       git config --system --add safe.directory "$CI_PROJECT_DIR"
