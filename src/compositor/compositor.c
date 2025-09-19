@@ -1602,8 +1602,8 @@ meta_compositor_drag_window (MetaCompositor      *compositor,
       return FALSE;
     }
 
-  g_signal_connect (priv->current_drag, "ended",
-                    G_CALLBACK (on_window_drag_ended), compositor);
+  g_signal_connect_after (priv->current_drag, "ended",
+                          G_CALLBACK (on_window_drag_ended), compositor);
   return TRUE;
 }
 
