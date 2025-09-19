@@ -660,9 +660,12 @@ drag_grab_release (MetaWaylandEventHandler *handler,
     }
 
   /* Finish drag and let actor self-destruct */
-  meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor),
-                              success);
-  drag_grab->feedback_actor = NULL;
+  if (drag_grab->feedback_actor)
+    {
+      meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor),
+                                  success);
+      drag_grab->feedback_actor = NULL;
+    }
 
   data_device_end_drag_grab (drag_grab);
 
