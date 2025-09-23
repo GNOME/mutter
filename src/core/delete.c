@@ -116,6 +116,8 @@ void
 meta_window_delete (MetaWindow  *window,
                     guint32      timestamp)
 {
+  g_return_if_fail (!window->unmanaging);
+
   META_WINDOW_GET_CLASS (window)->delete (window, timestamp);
 
   meta_window_check_alive (window, timestamp);
