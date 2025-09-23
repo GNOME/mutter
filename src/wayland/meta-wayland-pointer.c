@@ -1435,9 +1435,10 @@ meta_wayland_pointer_can_warp (MetaWaylandPointer *pointer,
                                MetaWaylandSurface *surface,
                                uint32_t            serial)
 {
-    return (pointer->button_count > 0 &&
-            pointer->focus_serial == serial &&
-            pointer_can_grab_surface (pointer, surface));
+  return (pointer->focus_serial == serial &&
+          meta_wayland_compositor_serial_is_later (pointer->click_serial,
+                                                   pointer->focus_serial) &&
+          pointer_can_grab_surface (pointer, surface));
 }
 
 gboolean
