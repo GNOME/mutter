@@ -27,8 +27,8 @@
 #include "clutter/clutter.h"
 #include "meta/meta-dnd.h"
 #include "meta/meta-idle-monitor.h"
-#include "meta/meta-monitor-manager.h"
 #include "meta/meta-logical-monitor.h"
+#include "meta/meta-monitor-manager.h"
 #include "meta/meta-orientation-manager.h"
 #include "meta/meta-remote-access-controller.h"
 
