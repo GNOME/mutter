@@ -222,6 +222,8 @@ mutter_sources = [
   'backends/meta-input-settings-private.h',
   'backends/meta-input-settings-dummy.c',
   'backends/meta-input-settings-dummy.h',
+  'backends/meta-keymap-description.c',
+  'backends/meta-keymap-description-private.h',
   'backends/meta-keymap-utils.c',
   'backends/meta-keymap-utils.h',
   'backends/meta-logical-monitor.c',

@@ -88,12 +88,9 @@ struct _MetaBackendClass
 
   gboolean (* is_lid_closed) (MetaBackend *backend);
 
-  void (* set_keymap_async) (MetaBackend *backend,
-                             const char  *layouts,
-                             const char  *variants,
-                             const char  *options,
-                             const char  *model,
-                             GTask       *task);
+  void (* set_keymap_async) (MetaBackend           *backend,
+                             MetaKeymapDescription *description,
+                             GTask                 *task);
 
   struct xkb_keymap * (* get_keymap) (MetaBackend *backend);
 

@@ -24,6 +24,7 @@ mutter_public_headers = [
   'meta-external-constraint.h',
   'meta-idle-monitor.h',
   'meta-inhibit-shortcuts-dialog.h',
+  'meta-keymap-description.h',
   'meta-later.h',
   'meta-launch-context.h',
   'meta-logical-monitor.h',

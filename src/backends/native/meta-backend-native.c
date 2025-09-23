@@ -334,19 +334,16 @@ set_keyboard_map_cb (GObject      *source_object,
 }
 
 static void
-meta_backend_native_set_keymap_async (MetaBackend *backend,
-                                      const char  *layouts,
-                                      const char  *variants,
-                                      const char  *options,
-                                      const char  *model,
-                                      GTask       *task)
+meta_backend_native_set_keymap_async (MetaBackend           *backend,
+                                      MetaKeymapDescription *description,
+                                      GTask                 *task)
 {
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_map_async (META_SEAT_NATIVE (seat),
-                                           layouts, variants, options, model,
+                                           description,
                                            g_task_get_cancellable (task),
                                            set_keyboard_map_cb,
                                            task);

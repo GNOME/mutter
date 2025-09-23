@@ -98,14 +98,11 @@ void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callba
 void  meta_seat_native_release_devices (MetaSeatNative *seat);
 void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
 
-void meta_seat_native_set_keyboard_map_async (MetaSeatNative      *seat,
-                                              const char          *layouts,
-                                              const char          *variants,
-                                              const char          *options,
-                                              const char          *model,
-                                              GCancellable        *cancellable,
-                                              GAsyncReadyCallback  callback,
-                                              gpointer             user_data);
+void meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
+                                              MetaKeymapDescription *description,
+                                              GCancellable          *cancellable,
+                                              GAsyncReadyCallback    callback,
+                                              gpointer               user_data);
 
 gboolean meta_seat_native_set_keyboard_map_finish (MetaSeatNative  *seat_native,
                                                    GAsyncResult    *result,

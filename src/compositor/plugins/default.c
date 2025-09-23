@@ -364,6 +364,7 @@ init_keymap (MetaDefaultPlugin *self,
   g_autofree char *x11_options = NULL;
   g_autofree char *x11_variant = NULL;
   g_autofree char *x11_model = NULL;
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
 
   proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                          (G_DBUS_PROXY_FLAGS_DO_NOT_LOAD_PROPERTIES |
@@ -414,11 +415,13 @@ init_keymap (MetaDefaultPlugin *self,
   if (!g_variant_lookup (props, "X11Model", "s", &x11_model))
     x11_model = g_strdup ("");
 
+  keymap_description = meta_keymap_description_new_from_rules (x11_model,
+                                                               x11_layout,
+                                                               x11_variant,
+                                                               x11_options);
+
   meta_backend_set_keymap_async (backend,
-                                 x11_layout,
-                                 x11_variant,
-                                 x11_options,
-                                 x11_model,
+                                 keymap_description,
                                  NULL, NULL, NULL);
 }
 

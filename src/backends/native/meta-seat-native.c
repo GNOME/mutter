@@ -30,6 +30,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-keymap-description-private.h"
 #include "backends/meta-keymap-utils.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-input-thread.h"
@@ -37,6 +38,7 @@
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
 #include "core/bell.h"
+#include "meta/meta-keymap-description.h"
 
 #include "meta-private-enum-types.h"
 
@@ -56,13 +58,10 @@ static GParamSpec *props[N_PROPS] = { NULL };
 
 G_DEFINE_TYPE (MetaSeatNative, meta_seat_native, CLUTTER_TYPE_SEAT)
 
-static gboolean meta_seat_native_set_keyboard_map_sync (MetaSeatNative  *seat_native,
-                                                        const char      *layouts,
-                                                        const char      *variants,
-                                                        const char      *options,
-                                                        const char      *model,
-                                                        GCancellable    *cancellable,
-                                                        GError         **error);
+static gboolean meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
+                                                        MetaKeymapDescription  *description,
+                                                        GCancellable           *cancellable,
+                                                        GError                **error);
 
 static gboolean
 meta_seat_native_handle_event_post (ClutterSeat        *seat,
@@ -177,6 +176,7 @@ static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   g_autoptr (GError) error = NULL;
 
   seat->impl = meta_seat_impl_new (seat, seat->seat_id, seat->flags);
@@ -190,8 +190,12 @@ meta_seat_native_constructed (GObject *object)
   g_signal_connect (seat->impl, "bell",
                     G_CALLBACK (proxy_bell), seat);
 
+  keymap_description = meta_keymap_description_new_from_rules (NULL,
+                                                               "us",
+                                                               NULL,
+                                                               NULL);
   if (!meta_seat_native_set_keyboard_map_sync (seat,
-                                               "us", "", "", DEFAULT_XKB_MODEL,
+                                               keymap_description,
                                                NULL, &error))
     g_warning ("Failed to set keyboard map: %s", error->message);
 
@@ -630,21 +634,27 @@ set_impl_keyboard_map_cb (GObject      *source_object,
  * is pressed when calling this function.
  */
 void
-meta_seat_native_set_keyboard_map_async (MetaSeatNative      *seat,
-                                         const char          *layouts,
-                                         const char          *variants,
-                                         const char          *options,
-                                         const char          *model,
-                                         GCancellable        *cancellable,
-                                         GAsyncReadyCallback  callback,
-                                         gpointer             user_data)
+meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
+                                         MetaKeymapDescription *description,
+                                         GCancellable          *cancellable,
+                                         GAsyncReadyCallback    callback,
+                                         gpointer               user_data)
 {
   g_autoptr (GTask) task = NULL;
   struct xkb_keymap *keymap, *impl_keymap;
+  g_autofree char *layouts = NULL;
+  g_autofree char *variants = NULL;
+  g_autofree char *options = NULL;
+  g_autofree char *model = NULL;
 
   task = g_task_new (G_OBJECT (seat), cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_seat_native_set_keyboard_map_async);
 
+  meta_keymap_description_get_rules (description,
+                                     &model,
+                                     &layouts,
+                                     &variants,
+                                     &options);
   keymap = create_keymap (layouts, variants, options, model);
   impl_keymap = create_keymap (layouts, variants, options, model);
 
@@ -687,13 +697,10 @@ set_keyboard_map_cb (GObject      *source_object,
 }
 
 static gboolean
-meta_seat_native_set_keyboard_map_sync (MetaSeatNative  *seat_native,
-                                        const char      *layouts,
-                                        const char      *variants,
-                                        const char      *options,
-                                        const char      *model,
-                                        GCancellable    *cancellable,
-                                        GError         **error)
+meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
+                                        MetaKeymapDescription  *description,
+                                        GCancellable           *cancellable,
+                                        GError                **error)
 {
   g_autoptr (GMainContext) main_context = NULL;
   g_autoptr (GMainLoop) main_loop = NULL;
@@ -707,7 +714,7 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative  *seat_native,
   g_task_set_task_data (task, main_loop, NULL);
 
   meta_seat_native_set_keyboard_map_async (seat_native,
-                                           layouts, variants, options, model,
+                                           description,
                                            cancellable,
                                            set_keyboard_map_cb, task);
   g_main_loop_run (main_loop);

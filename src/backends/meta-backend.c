@@ -1680,14 +1680,11 @@ meta_backend_set_keymap_finish (MetaBackend   *backend,
 }
 
 void
-meta_backend_set_keymap_async (MetaBackend         *backend,
-                               const char          *layouts,
-                               const char          *variants,
-                               const char          *options,
-                               const char          *model,
-                               GCancellable        *cancellable,
-                               GAsyncReadyCallback  callback,
-                               gpointer             user_data)
+meta_backend_set_keymap_async (MetaBackend           *backend,
+                               MetaKeymapDescription *description,
+                               GCancellable          *cancellable,
+                               GAsyncReadyCallback    callback,
+                               gpointer               user_data)
 {
   GTask *task;
 
@@ -1695,10 +1692,7 @@ meta_backend_set_keymap_async (MetaBackend         *backend,
   g_task_set_source_tag (task, meta_backend_set_keymap_async);
 
   META_BACKEND_GET_CLASS (backend)->set_keymap_async (backend,
-                                                      layouts,
-                                                      variants,
-                                                      options,
-                                                      model,
+                                                      description,
                                                       task);
 }
 

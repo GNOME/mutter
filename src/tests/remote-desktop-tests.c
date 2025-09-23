@@ -70,12 +70,17 @@ remote_desktop_test_client_command (int      argc,
       const char *layout = argv[1];
       const char *variant = argv[2];
       g_autoptr (GMainContext) main_context = NULL;
+      g_autoptr (MetaKeymapDescription) keymap_description = NULL;
       gboolean done = FALSE;
 
       g_debug ("Switching keyboard layout to %s, %s", layout, variant);
       main_context = g_main_context_new ();
       g_main_context_push_thread_default (main_context);
-      meta_backend_set_keymap_async (backend, layout, variant, "", "",
+      keymap_description = meta_keymap_description_new_from_rules (NULL,
+                                                                   layout,
+                                                                   variant,
+                                                                   NULL);
+      meta_backend_set_keymap_async (backend, keymap_description,
                                      NULL, set_keymap_cb, &done);
       while (!done)
         g_main_context_iteration (main_context, TRUE);

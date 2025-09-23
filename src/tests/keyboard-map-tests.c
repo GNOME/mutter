@@ -110,6 +110,7 @@ meta_test_native_keyboard_map_set_async (void)
     1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_ALT);
   ModMaskTuple expected_mods = { alt_mask, 0, 0 };
   ModMaskTuple *expected_mods_ptr = &expected_mods;
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   struct xkb_keymap *new_xkb_keymap;
   gboolean done = FALSE;
   gpointer expected_next_handler;
@@ -155,11 +156,13 @@ meta_test_native_keyboard_map_set_async (void)
                       &expected_next_handler);
 
   expected_next_handler = (gpointer) on_keymap_changed;
-  meta_backend_set_keymap_async (backend,
-                                 "us",
-                                 "dvorak-alt-intl",
-                                 NULL, NULL, NULL,
-                                 set_keymap_cb, &done);
+  keymap_description =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "us",
+                                            "dvorak-alt-intl",
+                                            NULL);
+  meta_backend_set_keymap_async (backend, keymap_description,
+                                 NULL, set_keymap_cb, &done);
 
   g_assert_true (xkb_keymap == meta_backend_get_keymap (backend));
 
@@ -191,9 +194,9 @@ meta_test_native_keyboard_map_change_layout (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
-
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
   struct xkb_keymap *xkb_keymap = meta_backend_get_keymap (backend);
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   struct xkb_keymap *new_xkb_keymap;
   gboolean done = FALSE;
 
@@ -202,12 +205,13 @@ meta_test_native_keyboard_map_change_layout (void)
 
   xkb_keymap_ref (xkb_keymap);
 
-  meta_backend_set_keymap_async (backend,
-                                 "us,ua",
-                                 NULL,
-                                 "grp:caps_select",
-                                 NULL, NULL,
-                                 set_keymap_cb, &done);
+  keymap_description =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "us,ua",
+                                            NULL,
+                                            "grp:caps_select");
+  meta_backend_set_keymap_async (backend, keymap_description,
+                                 NULL, set_keymap_cb, &done);
 
   while (!done)
     g_main_context_iteration (NULL, TRUE);
@@ -279,14 +283,17 @@ static void
 meta_test_native_keyboard_map_set_layout_index (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   gboolean done = FALSE;
   struct xkb_keymap *keymap;
 
-  meta_backend_set_keymap_async (backend,
-                                 "us,se",
-                                 "dvorak-alt-intl,svdvorak",
-                                 NULL, NULL, NULL,
-                                 set_keymap_cb, &done);
+  keymap_description =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "us,se",
+                                            "dvorak-alt-intl,svdvorak",
+                                            NULL);
+  meta_backend_set_keymap_async (backend, keymap_description,
+                                 NULL, set_keymap_cb, &done);
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
