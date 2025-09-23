@@ -114,3 +114,10 @@ META_EXPORT_TEST
 MetaWaylandFilterManager * meta_wayland_compositor_get_filter_manager (MetaWaylandCompositor *compositor);
 
 void meta_wayland_compositor_sync_focus (MetaWaylandCompositor *compositor);
+
+static inline gboolean
+meta_wayland_compositor_serial_is_later (uint32_t serial1,
+                                         uint32_t serial2)
+{
+  return serial1 - serial2 < UINT32_MAX / 2;
+}
