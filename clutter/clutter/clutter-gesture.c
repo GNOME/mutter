@@ -829,8 +829,8 @@ clutter_gesture_handle_event (ClutterAction      *action,
   ClutterStage *stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
   ClutterContext *context = clutter_actor_get_context (actor);
   ClutterBackend *backend = clutter_context_get_backend (context);
-  ClutterSprite *sprite = clutter_backend_get_sprite (backend, stage, event);
   ClutterEventType event_type = clutter_event_type (event);
+  ClutterSprite *sprite;
   GestureSequenceData *seq_data;
   unsigned int seq_index;
   gboolean is_first_event;
@@ -845,6 +845,10 @@ clutter_gesture_handle_event (ClutterAction      *action,
     return CLUTTER_EVENT_PROPAGATE;
 
   if (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_SYNTHETIC)
+    return CLUTTER_EVENT_PROPAGATE;
+
+  sprite = clutter_backend_get_sprite (backend, stage, event);
+  if (!sprite)
     return CLUTTER_EVENT_PROPAGATE;
 
   if ((seq_data = get_sequence_data (self, sprite, &seq_index)) == NULL)
