@@ -323,7 +323,7 @@ set_keyboard_map_cb (GObject      *source_object,
 
   if (!meta_seat_native_set_keyboard_map_finish (seat_native, result, &error))
     {
-      g_task_return_error (task, error);
+      g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
 
@@ -390,7 +390,7 @@ set_layout_index_cb (GObject      *source_object,
                                                        &error);
   if (error)
     {
-      g_task_return_error (task, error);
+      g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
 
