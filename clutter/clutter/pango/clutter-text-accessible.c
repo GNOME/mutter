@@ -236,6 +236,13 @@ G_DEFINE_FINAL_TYPE_WITH_CODE (ClutterTextAccessible,
                                                       cally_text_editable_text_interface_init));
 
 static void
+clutter_text_accessible_action_info_free (ClutterTextAccessibleActionInfo *info)
+{
+  g_clear_pointer (&info->name, g_free);
+  g_clear_pointer (&info, g_free);
+}
+
+static void
 clutter_text_accessible_class_init (ClutterTextAccessibleClass *klass)
 {
   GObjectClass   *gobject_class = G_OBJECT_CLASS (klass);
@@ -271,6 +278,8 @@ cally_text_finalize   (GObject *obj)
   g_clear_handle_id (&self->insert_idle_handler, g_source_remove);
   g_clear_handle_id (&self->action_idle_handler, g_source_remove);
   g_clear_pointer (&self->action_queue, g_queue_free);
+  g_clear_pointer (&self->activate_action,
+                   clutter_text_accessible_action_info_free);
 
   G_OBJECT_CLASS (clutter_text_accessible_parent_class)->finalize (obj);
 }
@@ -1789,8 +1798,8 @@ _check_activate_action (ClutterTextAccessible   *self,
       if (self->activate_action == NULL)
         return;
 
-      g_clear_pointer (&self->activate_action->name, g_free);
-      g_clear_pointer (&self->activate_action, g_free);
+      g_clear_pointer (&self->activate_action,
+                       clutter_text_accessible_action_info_free);
 
     }
 }
