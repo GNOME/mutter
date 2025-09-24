@@ -679,9 +679,12 @@ drag_grab_key (MetaWaylandEventHandler *handler,
 {
   MetaWaylandToplevelDrag *toplevel_drag;
   MetaWaylandDragGrab *drag_grab = user_data;
-  ClutterModifierType modifiers;
+  ClutterEventType event_type;
 
-  if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_Escape)
+  event_type = clutter_event_type (event);
+
+  if (event_type == CLUTTER_KEY_PRESS &&
+      clutter_event_get_key_symbol (event) == CLUTTER_KEY_Escape)
     {
       toplevel_drag = meta_wayland_data_device_get_toplevel_drag (&drag_grab->seat->data_device);
       if (toplevel_drag)
@@ -701,14 +704,11 @@ drag_grab_key (MetaWaylandEventHandler *handler,
       drag_grab->feedback_actor = NULL;
       data_device_end_drag_grab (drag_grab);
     }
-  else if (clutter_seat_query_state (drag_grab->seat->clutter_seat,
-                                     drag_grab->sprite,
-                                     NULL,
-                                     &modifiers) &&
-           drag_grab->drag_data_source &&
-           clutter_event_get_state (event) != modifiers)
+  else if (event_type == CLUTTER_KEY_STATE &&
+           drag_grab->drag_data_source)
     {
-      data_source_update_user_dnd_action (drag_grab->drag_data_source, modifiers);
+      data_source_update_user_dnd_action (drag_grab->drag_data_source,
+                                          clutter_event_get_state (event));
 
       if (drag_grab->drag_focus)
         meta_wayland_surface_drag_dest_update (drag_grab->drag_focus);
