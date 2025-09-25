@@ -515,7 +515,7 @@ cogl_pipeline_set_uniform_1i (CoglPipeline *pipeline,
  * @uniform_location: The uniform's location identifier
  * @n_components: The number of components in the corresponding uniform's type
  * @count: The number of values to set
- * @value: Pointer to the new values to set
+ * @value: (array): The array of float to set @uniform
  *
  * Sets new values for the uniform at @uniform_location. If this
  * pipeline has a user program attached and is later used as a source
@@ -543,7 +543,7 @@ cogl_pipeline_set_uniform_float (CoglPipeline *pipeline,
  * @uniform_location: The uniform's location identifier
  * @n_components: The number of components in the corresponding uniform's type
  * @count: The number of values to set
- * @value: Pointer to the new values to set
+ * @value: (array): The array of int to set @uniform
  *
  * Sets new values for the uniform at @uniform_location. If this
  * pipeline has a user program attached and is later used as a source
@@ -572,7 +572,7 @@ cogl_pipeline_set_uniform_int (CoglPipeline *pipeline,
  * @dimensions: The size of the matrix
  * @count: The number of values to set
  * @transpose: Whether to transpose the matrix
- * @value: Pointer to the new values to set
+ * @value: (array): The array of float to set @uniform
  *
  * Sets new values for the uniform at @uniform_location. If this
  * pipeline has a user program attached and is later used as a source
