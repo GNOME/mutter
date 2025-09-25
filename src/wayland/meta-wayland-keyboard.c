@@ -527,8 +527,28 @@ update_pressed_keys (struct wl_array *keys,
     }
 }
 
-static void
-maybe_update_modifiers (MetaWaylandKeyboard *keyboard)
+static gboolean
+maybe_update_modifiers (MetaWaylandKeyboard *keyboard,
+                        ClutterModifierType  pressed,
+                        ClutterModifierType  latched,
+                        ClutterModifierType  locked)
+{
+  if (keyboard->xkb_info.modifiers.pressed != pressed ||
+      keyboard->xkb_info.modifiers.latched != latched ||
+      keyboard->xkb_info.modifiers.locked != locked)
+    {
+      keyboard->xkb_info.modifiers.pressed = pressed;
+      keyboard->xkb_info.modifiers.latched = latched;
+      keyboard->xkb_info.modifiers.locked = locked;
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+maybe_update_modifiers_from_keymap (MetaWaylandKeyboard *keyboard)
 {
   MetaBackend *backend = backend_from_keyboard (keyboard);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
@@ -541,16 +561,27 @@ maybe_update_modifiers (MetaWaylandKeyboard *keyboard)
                                      &latched,
                                      &locked);
 
-  if (keyboard->xkb_info.modifiers.pressed != pressed ||
-      keyboard->xkb_info.modifiers.latched != latched ||
-      keyboard->xkb_info.modifiers.locked != locked)
-    {
-      keyboard->xkb_info.modifiers.pressed = pressed;
-      keyboard->xkb_info.modifiers.latched = latched;
-      keyboard->xkb_info.modifiers.locked = locked;
+  return maybe_update_modifiers (keyboard, pressed, latched, locked);
+}
 
-      notify_modifiers (keyboard);
-    }
+static gboolean
+maybe_update_modifiers_from_event (MetaWaylandKeyboard *keyboard,
+                                   const ClutterEvent  *event)
+{
+  ClutterModifierType pressed, locked, latched;
+  ClutterEventType event_type;
+
+  event_type = clutter_event_type (event);
+
+  if (event_type != CLUTTER_KEY_PRESS && event_type != CLUTTER_KEY_RELEASE)
+    return FALSE;
+
+  clutter_event_get_key_state (event,
+			       &pressed,
+			       &latched,
+			       &locked);
+
+  return maybe_update_modifiers (keyboard, pressed, latched, locked);
 }
 
 void
@@ -565,8 +596,6 @@ meta_wayland_keyboard_update (MetaWaylandKeyboard   *keyboard,
 
   if (!update_pressed_keys (&keyboard->pressed_keys, evdev_code, is_press))
     return;
-
-  maybe_update_modifiers (keyboard);
 
   xkb_state_update_key (keyboard->xkb_info.state,
                         hardware_keycode,
@@ -599,6 +628,10 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard   *keyboard,
               is_press ? "press" : "release",
               hardware_keycode);
 
+  if (maybe_update_modifiers_from_event (keyboard,
+                                         (const ClutterEvent *) event))
+    notify_modifiers (keyboard);
+
   handled = meta_wayland_keyboard_broadcast_key (keyboard,
                                                  (const ClutterEvent *) event);
 
@@ -612,7 +645,8 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard   *keyboard,
                   "No wayland surface is focused, continuing normal operation");
     }
 
-  maybe_update_modifiers (keyboard);
+  if (maybe_update_modifiers_from_keymap (keyboard))
+    notify_modifiers (keyboard);
 
   return handled;
 }
@@ -671,6 +705,7 @@ broadcast_focus (MetaWaylandKeyboard *keyboard,
   wl_keyboard_send_enter (resource, keyboard->focus_serial,
                           keyboard->focus_surface->resource,
                           &keyboard->pressed_keys);
+
   keyboard_send_modifiers (keyboard, resource, keyboard->focus_serial);
 }
 
@@ -733,6 +768,8 @@ meta_wayland_keyboard_set_focus (MetaWaylandKeyboard *keyboard,
 
           keyboard->focus_serial =
             meta_wayland_input_device_next_serial (input_device);
+
+          maybe_update_modifiers_from_keymap (keyboard);
 
           wl_resource_for_each (resource, &keyboard->focus_resource_list)
             {
