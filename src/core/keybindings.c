@@ -1548,6 +1548,8 @@ process_special_modifier_key (MetaDisplay          *display,
                * per-window key bindings or to the application */
               meta_compositor_handle_event (compositor, event, window,
                                             META_EVENT_MODE_REPLAY);
+
+              return CLUTTER_EVENT_PROPAGATE;
             }
         }
       else if (clutter_event_type (event) == CLUTTER_KEY_RELEASE)
@@ -1564,7 +1566,7 @@ process_special_modifier_key (MetaDisplay          *display,
 
       meta_compositor_handle_event (compositor, event, window,
                                     META_EVENT_MODE_THAW);
-      return TRUE;
+      return CLUTTER_EVENT_STOP;
     }
   else if (clutter_event_type (event) == CLUTTER_KEY_PRESS &&
            ((modifiers & ~(IGNORED_MODIFIERS)) & CLUTTER_MODIFIER_MASK) == 0 &&
@@ -1576,10 +1578,10 @@ process_special_modifier_key (MetaDisplay          *display,
       meta_compositor_handle_event (compositor, event, window,
                                     META_EVENT_MODE_KEEP_FROZEN);
 
-      return TRUE;
+      return CLUTTER_EVENT_PROPAGATE;
     }
   else
-    return FALSE;
+    return CLUTTER_EVENT_PROPAGATE;
 }
 
 
