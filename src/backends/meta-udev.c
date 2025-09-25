@@ -253,7 +253,7 @@ meta_udev_backlight_find_for_connector (GList      *devices,
   for (l = devices; l; l = l->next)
     {
       GUdevDevice *device = G_UDEV_DEVICE (l->data);
-      GUdevDevice *parent;
+      g_autoptr (GUdevDevice) parent = NULL;
       const char *prop;
 
       /* Only look for raw backlight interfaces */
