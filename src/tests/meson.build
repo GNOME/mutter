@@ -915,6 +915,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-keyboard',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-keyboard-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('keyboard'),
+    ],
+  },
+  {
     'name': 'wayland-fullscreen',
     'suite': 'wayland',
     'sources': [
