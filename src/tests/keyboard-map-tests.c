@@ -187,6 +187,78 @@ meta_test_native_keyboard_map_set_async (void)
 }
 
 static void
+meta_test_native_keyboard_map_change_layout (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
+  struct xkb_keymap *xkb_keymap = meta_backend_get_keymap (backend);
+  struct xkb_keymap *new_xkb_keymap;
+  gboolean done = FALSE;
+
+  virtual_keyboard = clutter_seat_create_virtual_device (seat,
+                                                         CLUTTER_KEYBOARD_DEVICE);
+
+  xkb_keymap_ref (xkb_keymap);
+
+  meta_backend_set_keymap_async (backend,
+                                 "us,ua",
+                                 NULL,
+                                 "grp:caps_select",
+                                 NULL, NULL,
+                                 set_keymap_cb, &done);
+
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  new_xkb_keymap = meta_backend_get_keymap (backend);
+  g_assert_true (new_xkb_keymap != xkb_keymap);
+  g_assert_cmpuint (xkb_keymap_num_layouts (new_xkb_keymap), ==, 2);
+  g_assert_cmpstr (xkb_keymap_layout_get_name (new_xkb_keymap, 0),
+                   ==,
+                   "English (US)");
+  g_assert_cmpstr (xkb_keymap_layout_get_name (new_xkb_keymap, 1),
+                   ==,
+                   "Ukrainian");
+
+  xkb_keymap_unref (xkb_keymap);
+
+  /* Test layout switching with Caps Lock */
+  /* First verify we start with layout 0 (English US) */
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+
+  /* Press Shift key */
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTSHIFT,
+                                           CLUTTER_KEY_STATE_PRESSED);
+
+  /* Press Caps Lock while Shift is held (Shift+Caps Lock) */
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_CAPSLOCK,
+                                           CLUTTER_KEY_STATE_PRESSED);
+
+  /* Release Caps Lock */
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_CAPSLOCK,
+                                           CLUTTER_KEY_STATE_RELEASED);
+
+  /* Release Shift key */
+  clutter_virtual_input_device_notify_key (virtual_keyboard,
+                                           g_get_monotonic_time (),
+                                           KEY_LEFTSHIFT,
+                                           CLUTTER_KEY_STATE_RELEASED);
+  meta_flush_input (test_context);
+  meta_wait_for_update (test_context);
+
+  /* Verify that layout switched to Ukrainian (layout 1) */
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 1);
+}
+
+static void
 set_keymap_layout_group_cb (GObject      *source_object,
                             GAsyncResult *result,
                             gpointer      user_data)
@@ -215,6 +287,13 @@ meta_test_native_keyboard_map_set_layout_index (void)
                                  "dvorak-alt-intl,svdvorak",
                                  NULL, NULL, NULL,
                                  set_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  done = FALSE;
+  meta_backend_set_keymap_layout_group_async (backend, 0, NULL,
+                                              set_keymap_layout_group_cb,
+                                              &done);
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
@@ -353,6 +432,8 @@ init_tests (void)
 {
   g_test_add_func ("/backends/native/keyboard-map/set-async",
                    meta_test_native_keyboard_map_set_async);
+  g_test_add_func ("/backends/native/keyboard-map/change-layout",
+                   meta_test_native_keyboard_map_change_layout);
   g_test_add_func ("/backends/native/keyboard-map/set-layout-index",
                    meta_test_native_keyboard_map_set_layout_index);
   g_test_add_func ("/backends/native/keyboard-map/modifiers",
