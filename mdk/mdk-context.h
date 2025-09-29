@@ -38,6 +38,8 @@ gboolean mdk_context_get_emulate_touch (MdkContext *context);
 
 gboolean mdk_context_get_inhibit_system_shortcuts (MdkContext *context);
 
+gboolean mdk_context_get_use_host_keymap (MdkContext *context);
+
 GPtrArray * mdk_context_get_launchers (MdkContext *context);
 
 void mdk_context_activate_launcher (MdkContext *context,

@@ -19,10 +19,13 @@
 
 #include "mdk-session.h"
 
+#include <gdk/wayland/gdkwayland.h>
 #include <gio/gio.h>
 #include <glib/gi18n-lib.h>
 #include <glib/gstdio.h>
 #include <libei.h>
+#include <sys/mman.h>
+#include <xkbcommon/xkbcommon.h>
 
 #include "mdk-context.h"
 #include "mdk-ei.h"
@@ -40,6 +43,17 @@ typedef enum _MdkScreenCastCursorMode
   MDK_SCREEN_CAST_CURSOR_MODE_EMBEDDED = 1,
   MDK_SCREEN_CAST_CURSOR_MODE_METADATA = 2,
 } MdkScreenCastCursorMode;
+
+typedef enum _MdkRemoteDesktopKeymapType
+{
+  MDK_REMOTE_DESKTOP_KEYMAP_TYPE_XKB = 0,
+} MdkRemoteDesktopKeymapType;
+
+typedef enum _MdkRemoteDesktopKeymapFormat
+{
+  MDK_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_TEXT_V1 = 1,
+  MDK_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_TEXT_V2 = 2,
+} MdkRemoteDesktopKeymapFormat;
 
 enum
 {
@@ -73,6 +87,9 @@ struct _MdkSession
   MdkDBusScreenCast *screen_cast_proxy;
   MdkDBusRemoteDesktopSession *remote_desktop_session_proxy;
   MdkDBusScreenCastSession *screen_cast_session_proxy;
+
+  struct xkb_keymap *xkb_keymap;
+  int layout_index;
 };
 
 static void
@@ -87,6 +104,150 @@ on_session_closed (MdkDBusRemoteDesktopSession *remote_desktop_session_proxy,
                    MdkSession                  *session)
 {
   g_signal_emit (session, signals[CLOSED], 0);
+}
+
+static void
+maybe_sync_keymap (MdkSession *session)
+{
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkSeat *seat = gdk_display_get_default_seat (display);
+  GdkDevice *keyboard = gdk_seat_get_keyboard (seat);
+  struct xkb_keymap *xkb_keymap;
+  int layout_index;
+
+  if (!mdk_context_get_use_host_keymap (session->context))
+    {
+      if (session->xkb_keymap)
+        {
+          GVariantBuilder options_builder;
+
+          session->xkb_keymap = NULL;
+
+          g_variant_builder_init (&options_builder, G_VARIANT_TYPE ("a{sv}"));
+          mdk_dbus_remote_desktop_session_call_set_keymap (
+            session->remote_desktop_session_proxy,
+            g_variant_builder_end (&options_builder),
+            NULL,
+            NULL, NULL, NULL);
+        }
+      return;
+    }
+
+  if (!GDK_IS_WAYLAND_DISPLAY (display))
+    {
+      g_warning ("Changing keymap not supported when running from X11");
+      return;
+    }
+
+  xkb_keymap = gdk_wayland_device_get_xkb_keymap (keyboard);
+  layout_index = gdk_device_get_active_layout_index (keyboard);
+
+  if (xkb_keymap == session->xkb_keymap &&
+      layout_index == session->layout_index)
+    return;
+
+  session->layout_index = layout_index;
+
+  if (xkb_keymap != session->xkb_keymap)
+    {
+      g_autofree char *keymap_serialized = NULL;
+      g_autofd int fd = -1;
+      int fd_idx;
+      size_t keymap_size;
+      void *keymap_mem;
+      GVariantBuilder options_builder;
+      g_autoptr (GUnixFDList) fd_list = NULL;
+      g_autoptr (GError) error = NULL;
+
+      session->xkb_keymap = xkb_keymap;
+
+      keymap_serialized = xkb_keymap_get_as_string (xkb_keymap,
+                                                    XKB_KEYMAP_FORMAT_TEXT_V1);
+      if (!keymap_serialized)
+        {
+          g_warning ("Failed to serialize current keymap.");
+          return;
+        }
+
+      fd = memfd_create ("mdk-keymap", MFD_ALLOW_SEALING | MFD_CLOEXEC);
+      if (fd == -1)
+        {
+          g_warning ("Failed to create keymap memfd: %s", g_strerror (errno));
+          return;
+        }
+
+      keymap_size = strlen (keymap_serialized) + 1;
+      if (ftruncate (fd, keymap_size) == -1)
+        {
+          g_warning ("ftruncate of keymap fd failed: %s", g_strerror (errno));
+          return;
+        }
+
+      keymap_mem = mmap (NULL, keymap_size, PROT_WRITE, MAP_SHARED, fd, 0);
+      if (keymap_mem == MAP_FAILED)
+        {
+          g_warning ("Failed mmap keymap fd: %s", g_strerror (errno));
+          return;
+        }
+
+      strcpy (keymap_mem, keymap_serialized);
+
+      if (munmap (keymap_mem, keymap_size) == -1)
+        {
+          g_warning ("Failed munmap keymap fd: %s", g_strerror (errno));
+          return;
+        }
+
+      fd_list = g_unix_fd_list_new ();
+
+      fd_idx = g_unix_fd_list_append (fd_list, fd, &error);
+      if (fd_idx == -1)
+        {
+          g_warning ("Failed to append file descriptor to fd list: %s",
+                     error->message);
+          return;
+        }
+
+      layout_index = gdk_device_get_active_layout_index (keyboard);
+
+      g_variant_builder_init (&options_builder, G_VARIANT_TYPE ("a{sv}"));
+      g_variant_builder_add (&options_builder, "{sv}",
+                             "keymap-type",
+                             g_variant_new_uint32 (MDK_REMOTE_DESKTOP_KEYMAP_TYPE_XKB));
+      g_variant_builder_add (&options_builder, "{sv}",
+                             "xkb-keymap-format",
+                             g_variant_new_uint32 (MDK_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_TEXT_V1));
+      g_variant_builder_add (&options_builder, "{sv}",
+                             "xkb-keymap",
+                             g_variant_new_handle (fd_idx));
+      g_variant_builder_add (&options_builder, "{sv}",
+                             "xkb-keymap-layout-index",
+                             g_variant_new_uint32 (layout_index));
+      g_variant_builder_add (&options_builder, "{sv}",
+                             "lock-keymap",
+                             g_variant_new_boolean (TRUE));
+
+      mdk_dbus_remote_desktop_session_call_set_keymap (
+        session->remote_desktop_session_proxy,
+        g_variant_builder_end (&options_builder),
+        fd_list,
+        NULL, NULL, NULL);
+    }
+  else
+    {
+      mdk_dbus_remote_desktop_session_call_set_keymap_layout_index (
+        session->remote_desktop_session_proxy,
+        layout_index,
+        NULL, NULL, NULL);
+    }
+}
+
+static void
+on_use_host_keymap_changed (MdkContext *context,
+                            GParamSpec *pspec,
+                            MdkSession *session)
+{
+  maybe_sync_keymap (session);
 }
 
 static gboolean
@@ -187,6 +348,12 @@ init_session (MdkSession    *session,
                     G_CALLBACK (on_session_closed),
                     session);
 
+  g_signal_connect_object (session->context,
+                           "notify::use-host-keymap",
+                           G_CALLBACK (on_use_host_keymap_changed),
+                           session,
+                           G_CONNECT_DEFAULT);
+
   return TRUE;
 }
 
@@ -196,6 +363,9 @@ mdk_session_initable_init (GInitable      *initable,
                            GError        **error)
 {
   MdkSession *session = MDK_SESSION (initable);
+  GdkDisplay *display = gdk_display_get_default ();
+  GdkSeat *seat = gdk_display_get_default_seat (display);
+  GdkDevice *keyboard = gdk_seat_get_keyboard (seat);
 
   g_debug ("Initializing session");
 
@@ -229,6 +399,15 @@ mdk_session_initable_init (GInitable      *initable,
         cancellable,
         error))
     return FALSE;
+
+  g_signal_connect_object (keyboard, "notify::layout-names",
+                           G_CALLBACK (maybe_sync_keymap),
+                           session,
+                           G_CONNECT_SWAPPED);
+  g_signal_connect_object (keyboard, "notify::active-layout-index",
+                           G_CALLBACK (maybe_sync_keymap),
+                           session,
+                           G_CONNECT_SWAPPED);
 
   return TRUE;
 }

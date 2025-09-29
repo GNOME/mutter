@@ -13,6 +13,10 @@
             <attribute name="label" translatable="yes">_Inhibit system shortcuts</attribute>
             <attribute name="action">app.toggle_inhibit_system_shortcuts</attribute>
           </item>
+          <item>
+            <attribute name="label" translatable="yes">Use host _keymap</attribute>
+            <attribute name="action">app.toggle_host_keymap</attribute>
+          </item>
         </submenu>
       </section>
       <section>
