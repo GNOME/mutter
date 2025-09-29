@@ -340,7 +340,8 @@ should_configure (MetaWindow          *window,
 
   /* The state was changed, or the change was explicitly marked as a configure
    * request. */
-  if (flags & META_MOVE_RESIZE_STATE_CHANGED)
+  if (flags & META_MOVE_RESIZE_STATE_CHANGED ||
+      flags & META_MOVE_RESIZE_WAYLAND_FORCE_CONFIGURE)
     return TRUE;
 
   return FALSE;
@@ -489,6 +490,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
             case META_PLACEMENT_STATE_CONSTRAINED_PENDING:
               {
                 if (flags & META_MOVE_RESIZE_PLACEMENT_CHANGED ||
+                    flags & META_MOVE_RESIZE_WAYLAND_FORCE_CONFIGURE ||
                     !last_sent_configuration ||
                     rel_x != last_sent_configuration->rel_x ||
                     rel_y != last_sent_configuration->rel_y ||
@@ -504,7 +506,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                                                       configured_rect.width,
                                                                       configured_rect.height,
                                                                       geometry_scale);
-                    if (!meta_wayland_window_configuration_is_equivalent (
+                    if (flags & META_MOVE_RESIZE_WAYLAND_FORCE_CONFIGURE ||
+                        !meta_wayland_window_configuration_is_equivalent (
                           configuration,
                           wl_window->last_sent_configuration))
                       {
@@ -552,7 +555,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                                    geometry_scale,
                                                    flags,
                                                    gravity);
-          if (!meta_wayland_window_configuration_is_equivalent (
+          if (flags & META_MOVE_RESIZE_WAYLAND_FORCE_CONFIGURE ||
+              !meta_wayland_window_configuration_is_equivalent (
                 configuration,
                 wl_window->last_sent_configuration))
             {
@@ -1676,7 +1680,8 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
     place_flags |= META_PLACE_FLAG_CALCULATE;
 
   meta_window_move_resize_internal (window,
-                                    (META_MOVE_RESIZE_MOVE_ACTION |
+                                    (META_MOVE_RESIZE_WAYLAND_FORCE_CONFIGURE |
+                                     META_MOVE_RESIZE_MOVE_ACTION |
                                      META_MOVE_RESIZE_RESIZE_ACTION |
                                      META_MOVE_RESIZE_PLACEMENT_CHANGED |
                                      META_MOVE_RESIZE_CONSTRAIN),
