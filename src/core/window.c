@@ -182,6 +182,8 @@ typedef struct _MetaWindowPrivate
     gboolean is_queued;
     guint idle_handle_id;
   } auto_maximize;
+
+  unsigned int mapped_inhibit_count;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
@@ -1746,6 +1748,7 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
   gboolean showing;
   gboolean is_desktop_or_dock;
   MetaWorkspace *workspace_of_window;
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
   showing = TRUE;
 
@@ -1753,7 +1756,11 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
   if (window->minimized)
     showing = FALSE;
 
-  /* 2. See if we're in "show desktop" mode */
+  /* 2. See if mapping state is inhibited */
+  if (priv->mapped_inhibit_count > 0)
+    showing = FALSE;
+
+  /* 3. See if we're in "show desktop" mode */
   is_desktop_or_dock = FALSE;
   is_desktop_or_dock_foreach (window,
                               &is_desktop_or_dock);
@@ -8660,4 +8667,50 @@ meta_window_show_in_window_list (MetaWindow *window)
 
   window->skip_from_window_list = FALSE;
   meta_window_recalc_features (window);
+}
+
+/**
+ * meta_window_inhibit_mapped
+ * @window: A #MetaWindow
+ *
+ * Inhibits the mapped state of the window.
+ */
+void
+meta_window_inhibit_mapped (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  if (++priv->mapped_inhibit_count == 1)
+    meta_window_queue (window, META_QUEUE_CALC_SHOWING);
+}
+
+/**
+ * meta_window_uninhibit_mapped
+ * @window: A #MetaWindow
+ *
+ * Uninhibits the mapped state of the window.
+ */
+void
+meta_window_uninhibit_mapped (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  g_return_if_fail (priv->mapped_inhibit_count > 0);
+
+  if (--priv->mapped_inhibit_count == 0)
+    meta_window_queue (window, META_QUEUE_CALC_SHOWING);
+}
+
+/**
+ * meta_window_is_mapped_inhibited
+ * @window: A #MetaWindow
+ *
+ * Returns whether the mapped state of the window is inhibited.
+ */
+gboolean
+meta_window_is_mapped_inhibited (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  return priv->mapped_inhibit_count > 0;
 }
