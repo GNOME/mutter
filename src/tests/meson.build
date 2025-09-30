@@ -956,6 +956,14 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'window-mapped-inhibit',
+    'suite': 'wayland',
+    'sources': [
+      'window-mapped-inhibit-tests.c',
+      wayland_test_utils,
+    ],
+  },
+  {
     'name': 'viewport-tests',
     'suite': 'wayland',
     'sources': [
