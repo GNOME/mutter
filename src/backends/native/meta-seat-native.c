@@ -136,6 +136,22 @@ proxy_bell (MetaSeatImpl   *seat_impl,
 }
 
 static void
+keymap_state_changed_cb (MetaSeatNative *seat_native,
+                         ClutterKeymap  *keymap)
+{
+  xkb_layout_index_t idx;
+
+  idx = clutter_keymap_get_layout_index (keymap);
+
+  if (idx != seat_native->xkb_layout_index)
+    {
+      seat_native->xkb_layout_index = idx;
+      meta_backend_notify_keymap_layout_group_changed (seat_native->backend,
+                                                       idx);
+    }
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
@@ -275,7 +291,14 @@ meta_seat_native_get_keymap (ClutterSeat *seat)
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
 
   if (!seat_native->keymap)
-    seat_native->keymap = meta_seat_impl_get_keymap (seat_native->impl);
+    {
+      seat_native->keymap = meta_seat_impl_get_keymap (seat_native->impl);
+      g_signal_connect_object (seat_native->keymap,
+                               "state-changed",
+                               G_CALLBACK (keymap_state_changed_cb),
+                               seat,
+                               G_CONNECT_SWAPPED);
+    }
 
   return CLUTTER_KEYMAP (seat_native->keymap);
 }
