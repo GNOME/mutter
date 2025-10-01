@@ -20,5 +20,18 @@
 
 #include "meta/meta-keymap-description.h"
 
+#include "core/meta-sealed-fd.h"
+
+typedef enum _MetaKeymapDescriptionSource
+{
+  META_KEYMAP_DESCRIPTION_SOURCE_RULES,
+  META_KEYMAP_DESCRIPTION_SOURCE_FD,
+} MetaKeymapDescriptionSource;
+
+MetaKeymapDescription * meta_keymap_description_new_from_fd (MetaSealedFd           *sealed_fd,
+                                                             enum xkb_keymap_format  format);
+
+MetaKeymapDescriptionSource meta_keymap_description_get_source (MetaKeymapDescription *keymap_description);
+
 struct xkb_keymap * meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
                                                                GError                **error);

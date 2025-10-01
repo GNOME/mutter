@@ -21,18 +21,30 @@
 #include "backends/meta-keymap-description-private.h"
 
 #include <glib-object.h>
+#include <xkbcommon/xkbregistry.h>
 
 #include "backends/meta-keymap-utils.h"
+#include "core/meta-sealed-fd.h"
 
 struct _MetaKeymapDescription
 {
   gatomicrefcount ref_count;
 
-  char *rules;
-  char *model;
-  char *layout;
-  char *variant;
-  char *options;
+  MetaKeymapDescriptionSource source;
+
+  union {
+    struct {
+      char *rules;
+      char *model;
+      char *layout;
+      char *variant;
+      char *options;
+    } rules;
+    struct {
+      MetaSealedFd *sealed_fd;
+      enum xkb_keymap_format format;
+    } fd;
+  };
 };
 
 #define DEFAULT_XKB_RULES_FILE "evdev"
@@ -58,11 +70,27 @@ meta_keymap_description_new_from_rules (const char *model,
 
   keymap_description = g_new0 (MetaKeymapDescription, 1);
   g_atomic_ref_count_init (&keymap_description->ref_count);
-  keymap_description->model = model ? g_strdup (model)
-                                    : g_strdup (DEFAULT_XKB_MODEL);
-  keymap_description->layout = strdup_or_empty (layout);
-  keymap_description->variant = strdup_or_empty (variant);
-  keymap_description->options = strdup_or_empty (options);
+  keymap_description->source = META_KEYMAP_DESCRIPTION_SOURCE_RULES;
+  keymap_description->rules.model = model ? g_strdup (model)
+                                          : g_strdup (DEFAULT_XKB_MODEL);
+  keymap_description->rules.layout = strdup_or_empty (layout);
+  keymap_description->rules.variant = strdup_or_empty (variant);
+  keymap_description->rules.options = strdup_or_empty (options);
+
+  return keymap_description;
+}
+
+MetaKeymapDescription *
+meta_keymap_description_new_from_fd (MetaSealedFd           *sealed_fd,
+                                     enum xkb_keymap_format  format)
+{
+  MetaKeymapDescription *keymap_description;
+
+  keymap_description = g_new0 (MetaKeymapDescription, 1);
+  g_atomic_ref_count_init (&keymap_description->ref_count);
+  keymap_description->source = META_KEYMAP_DESCRIPTION_SOURCE_FD;
+  g_set_object (&keymap_description->fd.sealed_fd, sealed_fd);
+  keymap_description->fd.format = format;
 
   return keymap_description;
 }
@@ -79,47 +107,98 @@ meta_keymap_description_unref (MetaKeymapDescription *keymap_description)
 {
   if (g_atomic_ref_count_dec (&keymap_description->ref_count))
     {
-      g_free (keymap_description->model);
-      g_free (keymap_description->layout);
-      g_free (keymap_description->variant);
-      g_free (keymap_description->options);
+      switch (keymap_description->source)
+        {
+        case META_KEYMAP_DESCRIPTION_SOURCE_RULES:
+          g_free (keymap_description->rules.model);
+          g_free (keymap_description->rules.layout);
+          g_free (keymap_description->rules.variant);
+          g_free (keymap_description->rules.options);
+          break;
+        case META_KEYMAP_DESCRIPTION_SOURCE_FD:
+          g_clear_object (&keymap_description->fd.sealed_fd);
+          break;
+        }
+
       g_free (keymap_description);
     }
+}
+
+MetaKeymapDescriptionSource
+meta_keymap_description_get_source (MetaKeymapDescription *keymap_description)
+{
+  return keymap_description->source;
 }
 
 struct xkb_keymap *
 meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
                                            GError                **error)
 {
-   struct xkb_rule_names names;
-   struct xkb_context *xkb_context;
-   struct xkb_keymap *xkb_keymap;
+  switch (keymap_description->source)
+    {
+    case META_KEYMAP_DESCRIPTION_SOURCE_RULES:
+      {
+        struct xkb_rule_names names;
+        struct xkb_context *xkb_context;
+        struct xkb_keymap *xkb_keymap;
 
-   names.rules = DEFAULT_XKB_RULES_FILE;
-   names.model = keymap_description->model;
-   names.layout = keymap_description->layout;
-   names.variant = keymap_description->variant;
-   names.options = keymap_description->options;
+        names.rules = DEFAULT_XKB_RULES_FILE;
+        names.model = keymap_description->rules.model;
+        names.layout = keymap_description->rules.layout;
+        names.variant = keymap_description->rules.variant;
+        names.options = keymap_description->rules.options;
 
-   xkb_context = meta_create_xkb_context ();
-   xkb_keymap = xkb_keymap_new_from_names (xkb_context,
-                                           &names,
-                                           XKB_KEYMAP_COMPILE_NO_FLAGS);
-   xkb_context_unref (xkb_context);
+        xkb_context = meta_create_xkb_context ();
+        xkb_keymap = xkb_keymap_new_from_names (xkb_context,
+                                                &names,
+                                                XKB_KEYMAP_COMPILE_NO_FLAGS);
+        xkb_context_unref (xkb_context);
 
-   if (!xkb_keymap)
-     {
-       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                    "Failed to create XKB keymap with "
-                    "rules=%s, model=%s, layout=%s, "
-                    "variant=%s, options=%s",
-                    keymap_description->rules,
-                    keymap_description->model,
-                    keymap_description->layout,
-                    keymap_description->variant,
-                    keymap_description->options);
-       return NULL;
-     }
+        if (!xkb_keymap)
+          {
+            g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                         "Failed to create XKB keymap with "
+                         "rules=%s, model=%s, layout=%s, "
+                         "variant=%s, options=%s",
+                         keymap_description->rules.rules,
+                         keymap_description->rules.model,
+                         keymap_description->rules.layout,
+                         keymap_description->rules.variant,
+                         keymap_description->rules.options);
+            return NULL;
+          }
 
-   return xkb_keymap;
+        return xkb_keymap;
+      }
+    case META_KEYMAP_DESCRIPTION_SOURCE_FD:
+      {
+        g_autoptr (GBytes) keymap_bytes = NULL;
+        struct xkb_context *xkb_context;
+        struct xkb_keymap *xkb_keymap;
+
+        keymap_bytes =
+          meta_sealed_fd_get_bytes (keymap_description->fd.sealed_fd, error);
+        if (!keymap_bytes)
+          return NULL;
+
+        xkb_context = meta_create_xkb_context ();
+        xkb_keymap =
+          xkb_keymap_new_from_string (xkb_context,
+                                      g_bytes_get_data (keymap_bytes, NULL),
+                                      keymap_description->fd.format,
+                                      XKB_KEYMAP_COMPILE_NO_FLAGS);
+        xkb_context_unref (xkb_context);
+
+        if (!xkb_keymap)
+          {
+            g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                         "Failed to create XKB keymap from file descriptor");
+            return NULL;
+          }
+
+        return xkb_keymap;
+      }
+    }
+
+  g_assert_not_reached ();
 }
