@@ -560,29 +560,6 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
   seat->released = FALSE;
 }
 
-static struct xkb_keymap *
-create_keymap (const char *layouts,
-               const char *variants,
-               const char *options,
-               const char *model)
-{
-  struct xkb_rule_names names;
-  struct xkb_keymap *keymap;
-  struct xkb_context *context;
-
-  names.rules = DEFAULT_XKB_RULES_FILE;
-  names.model = model;
-  names.layout = layouts;
-  names.variant = variants;
-  names.options = options;
-
-  context = meta_create_xkb_context ();
-  keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
-  xkb_context_unref (context);
-
-  return keymap;
-}
-
 gboolean
 meta_seat_native_set_keyboard_map_finish (MetaSeatNative  *seat_native,
                                           GAsyncResult    *result,
@@ -642,30 +619,22 @@ meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
 {
   g_autoptr (GTask) task = NULL;
   struct xkb_keymap *keymap, *impl_keymap;
-  g_autofree char *layouts = NULL;
-  g_autofree char *variants = NULL;
-  g_autofree char *options = NULL;
-  g_autofree char *model = NULL;
+  g_autoptr (GError) error = NULL;
 
   task = g_task_new (G_OBJECT (seat), cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_seat_native_set_keyboard_map_async);
 
-  meta_keymap_description_get_rules (description,
-                                     &model,
-                                     &layouts,
-                                     &variants,
-                                     &options);
-  keymap = create_keymap (layouts, variants, options, model);
-  impl_keymap = create_keymap (layouts, variants, options, model);
-
+  keymap = meta_keymap_description_create_xkb_keymap (description, &error);
   if (keymap == NULL)
     {
-      g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
-                               "Unable to load configured keymap: "
-                               "rules=%s, model=%s, ""layout=%s, "
-                               "variant=%s, options=%s",
-                               DEFAULT_XKB_RULES_FILE, model, layouts,
-                               variants, options);
+      g_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
+
+  impl_keymap = meta_keymap_description_create_xkb_keymap (description, &error);
+  if (impl_keymap == NULL)
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
 

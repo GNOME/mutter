@@ -87,19 +87,6 @@ meta_keymap_description_unref (MetaKeymapDescription *keymap_description)
     }
 }
 
-void
-meta_keymap_description_get_rules (MetaKeymapDescription  *keymap_description,
-                                   char                  **model,
-                                   char                  **layout,
-                                   char                  **variant,
-                                   char                  **options)
-{
-  *model = g_strdup (keymap_description->model);
-  *layout = g_strdup (keymap_description->layout);
-  *variant = g_strdup (keymap_description->variant);
-  *options = g_strdup (keymap_description->options);
-}
-
 struct xkb_keymap *
 meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
                                            GError                **error)
