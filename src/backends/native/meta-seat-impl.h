@@ -191,6 +191,7 @@ gboolean meta_seat_impl_set_keyboard_map_finish (MetaSeatImpl  *seat_impl,
 
 void meta_seat_impl_set_keyboard_map_async (MetaSeatImpl          *seat_impl,
                                             MetaKeymapDescription *keymap_description,
+                                            xkb_layout_index_t     layout_index,
                                             GCancellable          *cancellable,
                                             GAsyncReadyCallback    callback,
                                             gpointer               user_data);

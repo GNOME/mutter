@@ -51,6 +51,7 @@ gboolean meta_backend_set_keymap_finish (MetaBackend   *backend,
 META_EXPORT
 void meta_backend_set_keymap_async (MetaBackend           *backend,
                                     MetaKeymapDescription *description,
+                                    uint32_t               layout_index,
                                     GCancellable          *cancellable,
                                     GAsyncReadyCallback    callback,
                                     gpointer               user_data);

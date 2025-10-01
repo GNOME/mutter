@@ -77,7 +77,7 @@ remote_desktop_test_client_command (int      argc,
                                                                    layout,
                                                                    variant,
                                                                    NULL);
-      meta_backend_set_keymap_async (backend, keymap_description,
+      meta_backend_set_keymap_async (backend, keymap_description, 0,
                                      NULL, set_keymap_cb, &done);
       while (!done)
         g_main_context_iteration (NULL, TRUE);

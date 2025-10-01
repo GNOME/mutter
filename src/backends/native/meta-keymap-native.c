@@ -168,9 +168,10 @@ calculate_modifier_state (struct xkb_state *xkb_state)
   };
 }
 
-static void
+static gboolean
 update_state_from_modifier_state (MetaKeymapNative *keymap_native,
-                                  ModifierState    *modifier_state)
+                                  ModifierState    *modifier_state,
+                                  gboolean          emit_signal)
 {
   gboolean caps_lock_state;
   gboolean num_lock_state;
@@ -184,13 +185,14 @@ update_state_from_modifier_state (MetaKeymapNative *keymap_native,
        (1 << xkb_keymap_mod_get_index (keymap_native->impl.keymap,
                                        XKB_MOD_NAME_CAPS)));
 
-  clutter_keymap_update_state (CLUTTER_KEYMAP (keymap_native),
-                               caps_lock_state,
-                               num_lock_state,
-                               modifier_state->effective_layout_group,
-                               modifier_state->depressed_mods,
-                               modifier_state->latched_mods,
-                               modifier_state->locked_mods);
+  return clutter_keymap_update_state (CLUTTER_KEYMAP (keymap_native),
+                                      caps_lock_state,
+                                      num_lock_state,
+                                      modifier_state->effective_layout_group,
+                                      modifier_state->depressed_mods,
+                                      modifier_state->latched_mods,
+                                      modifier_state->locked_mods,
+                                      emit_signal);
 }
 
 typedef struct
@@ -198,6 +200,8 @@ typedef struct
   MetaKeymapNative *keymap_native;
 
   MetaKeymapDescription *keymap_description;
+
+  ModifierState modifier_state;
 } UpdateKeymapData;
 
 static void
@@ -214,9 +218,16 @@ update_keymap_in_main (gpointer user_data)
 {
   UpdateKeymapData *data = user_data;
   MetaKeymapNative *keymap_native = data->keymap_native;
+  gboolean state_changed;
+
+  state_changed = update_state_from_modifier_state (keymap_native,
+                                                    &data->modifier_state,
+                                                    FALSE);
 
   g_signal_emit (keymap_native, signals[KEYMAP_CHANGED], 0,
                  data->keymap_description);
+  if (state_changed)
+    g_signal_emit_by_name (keymap_native, "state-changed");
 
   return G_SOURCE_REMOVE;
 }
@@ -225,7 +236,8 @@ void
 meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
                                              MetaSeatImpl          *seat_impl,
                                              MetaKeymapDescription *keymap_description,
-                                             struct xkb_keymap     *xkb_keymap)
+                                             struct xkb_keymap     *xkb_keymap,
+                                             struct xkb_state      *xkb_state)
 {
   UpdateKeymapData *data;
 
@@ -236,6 +248,7 @@ meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
 
   data = g_new0 (UpdateKeymapData, 1);
   data->keymap_native = keymap;
+  data->modifier_state = calculate_modifier_state (xkb_state);
   data->keymap_description = meta_keymap_description_ref (keymap_description);
 
   meta_seat_impl_queue_main_thread_idle (seat_impl,
@@ -262,7 +275,7 @@ update_state_in_main (gpointer user_data)
   UpdateLockedModifierStateData *data = user_data;
   MetaKeymapNative *keymap_native = data->keymap_native;
 
-  update_state_from_modifier_state (keymap_native, &data->modifier_state);
+  update_state_from_modifier_state (keymap_native, &data->modifier_state, TRUE);
 
   return G_SOURCE_REMOVE;
 }

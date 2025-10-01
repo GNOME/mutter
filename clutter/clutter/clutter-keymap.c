@@ -159,14 +159,15 @@ clutter_keymap_get_direction (ClutterKeymap *keymap)
   return CLUTTER_KEYMAP_GET_CLASS (keymap)->get_direction (keymap);
 }
 
-void
+gboolean
 clutter_keymap_update_state (ClutterKeymap      *keymap,
                              gboolean            caps_lock_state,
                              gboolean            num_lock_state,
                              xkb_layout_index_t  effective_layout_group,
                              xkb_mod_mask_t      depressed_mods,
                              xkb_mod_mask_t      latched_mods,
-                             xkb_mod_mask_t      locked_mods)
+                             xkb_mod_mask_t      locked_mods,
+                             gboolean            emit_signal)
 {
   ClutterKeymapPrivate *priv = clutter_keymap_get_instance_private (keymap);
 
@@ -176,7 +177,7 @@ clutter_keymap_update_state (ClutterKeymap      *keymap,
       priv->depressed_mods == depressed_mods &&
       priv->latched_mods == latched_mods &&
       priv->locked_mods == locked_mods)
-    return;
+    return FALSE;
 
   priv->effective_layout_group = effective_layout_group;
   priv->depressed_mods = depressed_mods;
@@ -201,7 +202,10 @@ clutter_keymap_update_state (ClutterKeymap      *keymap,
            priv->num_lock_state ? "set" : "unset",
            priv->caps_lock_state ? "set" : "unset");
 
-  g_signal_emit (keymap, signals[STATE_CHANGED], 0);
+  if (emit_signal)
+    g_signal_emit (keymap, signals[STATE_CHANGED], 0);
+
+  return TRUE;
 }
 
 void

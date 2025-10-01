@@ -101,6 +101,7 @@ void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
 
 void meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
                                               MetaKeymapDescription *description,
+                                              xkb_layout_index_t     layout_index,
                                               GCancellable          *cancellable,
                                               GAsyncReadyCallback    callback,
                                               gpointer               user_data);

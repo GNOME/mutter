@@ -1682,6 +1682,7 @@ meta_backend_set_keymap_finish (MetaBackend   *backend,
 void
 meta_backend_set_keymap_async (MetaBackend           *backend,
                                MetaKeymapDescription *description,
+                               xkb_layout_index_t     layout_index,
                                GCancellable          *cancellable,
                                GAsyncReadyCallback    callback,
                                gpointer               user_data)
@@ -1693,6 +1694,7 @@ meta_backend_set_keymap_async (MetaBackend           *backend,
 
   META_BACKEND_GET_CLASS (backend)->set_keymap_async (backend,
                                                       description,
+                                                      layout_index,
                                                       task);
 }
 

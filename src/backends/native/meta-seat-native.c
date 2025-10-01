@@ -69,6 +69,7 @@ G_DEFINE_TYPE (MetaSeatNative, meta_seat_native, CLUTTER_TYPE_SEAT)
 
 static gboolean meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
                                                         MetaKeymapDescription  *description,
+                                                        xkb_layout_index_t      layout_index,
                                                         GCancellable           *cancellable,
                                                         GError                **error);
 
@@ -208,6 +209,8 @@ on_keymap_changed (MetaKeymapNative      *keymap_native,
 
   g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
   seat_native->xkb_keymap = xkb_keymap;
+  seat_native->xkb_layout_index =
+    clutter_keymap_get_layout_index (CLUTTER_KEYMAP (keymap_native));
 
   g_signal_emit (seat_native, signals[KEYMAP_CHANGED], 0);
 }
@@ -240,7 +243,7 @@ meta_seat_native_constructed (GObject *object)
                                                                NULL,
                                                                NULL);
   if (!meta_seat_native_set_keyboard_map_sync (seat,
-                                               keymap_description,
+                                               keymap_description, 0,
                                                NULL, &error))
     g_warning ("Failed to set keyboard map: %s", error->message);
 
@@ -659,6 +662,7 @@ set_impl_keyboard_map_cb (GObject      *source_object,
 void
 meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
                                          MetaKeymapDescription *description,
+                                         xkb_layout_index_t     layout_index,
                                          GCancellable          *cancellable,
                                          GAsyncReadyCallback    callback,
                                          gpointer               user_data)
@@ -670,6 +674,7 @@ meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
 
   meta_seat_impl_set_keyboard_map_async (seat->impl,
                                          description,
+                                         layout_index,
                                          cancellable,
                                          set_impl_keyboard_map_cb,
                                          g_object_ref (task));
@@ -699,6 +704,7 @@ sync_set_impl_keyboard_map_cb (GObject      *source_object,
 static gboolean
 meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
                                         MetaKeymapDescription  *description,
+                                        xkb_layout_index_t      layout_index,
                                         GCancellable           *cancellable,
                                         GError                **error)
 {
@@ -716,6 +722,7 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
 
   meta_seat_impl_set_keyboard_map_async (seat_native->impl,
                                          description,
+                                         layout_index,
                                          cancellable,
                                          sync_set_impl_keyboard_map_cb,
                                          task);
@@ -733,6 +740,7 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
 
   g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
   seat_native->xkb_keymap = xkb_keymap_ref (xkb_keymap);
+  seat_native->xkb_layout_index = layout_index;
 
   g_clear_pointer (&seat_native->keymap_description,
                    meta_keymap_description_unref);

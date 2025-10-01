@@ -421,7 +421,7 @@ init_keymap (MetaDefaultPlugin *self,
                                                                x11_options);
 
   meta_backend_set_keymap_async (backend,
-                                 keymap_description,
+                                 keymap_description, 0,
                                  NULL, NULL, NULL);
 }
 

@@ -161,7 +161,7 @@ meta_test_native_keyboard_map_set_async (void)
                                             "us",
                                             "dvorak-alt-intl",
                                             NULL);
-  meta_backend_set_keymap_async (backend, keymap_description,
+  meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
 
   g_assert_true (xkb_keymap == meta_backend_get_keymap (backend));
@@ -210,7 +210,7 @@ meta_test_native_keyboard_map_change_layout (void)
                                             "us,ua",
                                             NULL,
                                             "grp:caps_select");
-  meta_backend_set_keymap_async (backend, keymap_description,
+  meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
 
   while (!done)
@@ -292,7 +292,7 @@ meta_test_native_keyboard_map_set_layout_index (void)
                                             "us,se",
                                             "dvorak-alt-intl,svdvorak",
                                             NULL);
-  meta_backend_set_keymap_async (backend, keymap_description,
+  meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
   while (!done)
     g_main_context_iteration (NULL, TRUE);
