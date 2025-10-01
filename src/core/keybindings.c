@@ -30,7 +30,7 @@
 #include "config.h"
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-keymap-utils.h"
+#include "backends/meta-keymap-description-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "compositor/compositor-private.h"
@@ -766,19 +766,21 @@ clear_active_keyboard_layouts (MetaKeyBindingManager *keys)
 static MetaKeyBindingKeyboardLayout
 create_us_layout (void)
 {
-  struct xkb_rule_names names;
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
+  g_autoptr (GError) error = NULL;
   struct xkb_keymap *keymap;
-  struct xkb_context *context;
 
-  names.rules = DEFAULT_XKB_RULES_FILE;
-  names.model = DEFAULT_XKB_MODEL;
-  names.layout = "us";
-  names.variant = "";
-  names.options = "";
-
-  context = meta_create_xkb_context ();
-  keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
-  xkb_context_unref (context);
+  keymap_description = meta_keymap_description_new_from_rules (NULL,
+                                                               "us",
+                                                               NULL,
+                                                               NULL);
+  keymap = meta_keymap_description_create_xkb_keymap (keymap_description,
+                                                      &error);
+  if (!keymap)
+    {
+      g_warning ("Failed to create us keybinding layout: %s", error->message);
+      return (MetaKeyBindingKeyboardLayout) {};
+    }
 
   return (MetaKeyBindingKeyboardLayout) {
     .keymap = keymap,
