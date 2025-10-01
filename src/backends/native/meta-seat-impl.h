@@ -189,11 +189,11 @@ gboolean meta_seat_impl_set_keyboard_map_finish (MetaSeatImpl  *seat_impl,
                                                  GAsyncResult  *result,
                                                  GError       **error);
 
-void meta_seat_impl_set_keyboard_map_async (MetaSeatImpl        *seat_impl,
-                                            struct xkb_keymap   *keymap,
-                                            GCancellable        *cancellable,
-                                            GAsyncReadyCallback  callback,
-                                            gpointer             user_data);
+void meta_seat_impl_set_keyboard_map_async (MetaSeatImpl          *seat_impl,
+                                            MetaKeymapDescription *keymap_description,
+                                            GCancellable          *cancellable,
+                                            GAsyncReadyCallback    callback,
+                                            gpointer               user_data);
 
 gboolean meta_seat_impl_set_keyboard_layout_index_finish (MetaSeatImpl  *seat_impl,
                                                           GAsyncResult  *result,

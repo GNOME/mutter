@@ -583,6 +583,7 @@ set_impl_keyboard_map_cb (GObject      *source_object,
   g_autoptr (GTask) task = G_TASK (user_data);
   g_autoptr (GError) error = NULL;
   MetaSeatNative *seat_native;
+  MetaKeymapDescription *keymap_description;
   struct xkb_keymap *keymap;
 
   if (!meta_seat_impl_set_keyboard_map_finish (seat_impl, result, &error))
@@ -592,7 +593,14 @@ set_impl_keyboard_map_cb (GObject      *source_object,
     }
 
   seat_native = META_SEAT_NATIVE (g_task_get_source_object (task));
-  keymap = g_task_get_task_data (task);
+  keymap_description = g_task_get_task_data (task);
+  keymap = meta_keymap_description_create_xkb_keymap (keymap_description,
+                                                      &error);
+  if (!keymap)
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
 
   g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
   seat_native->xkb_keymap = xkb_keymap_ref (keymap);
@@ -618,33 +626,20 @@ meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
                                          gpointer               user_data)
 {
   g_autoptr (GTask) task = NULL;
-  struct xkb_keymap *keymap, *impl_keymap;
   g_autoptr (GError) error = NULL;
 
   task = g_task_new (G_OBJECT (seat), cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_seat_native_set_keyboard_map_async);
 
-  keymap = meta_keymap_description_create_xkb_keymap (description, &error);
-  if (keymap == NULL)
-    {
-      g_task_return_error (task, g_steal_pointer (&error));
-      return;
-    }
+  g_task_set_task_data (task,
+                        meta_keymap_description_ref (description),
+                        (GDestroyNotify) meta_keymap_description_unref);
 
-  impl_keymap = meta_keymap_description_create_xkb_keymap (description, &error);
-  if (impl_keymap == NULL)
-    {
-      g_task_return_error (task, g_steal_pointer (&error));
-      return;
-    }
-
-  g_task_set_task_data (task, keymap, (GDestroyNotify) xkb_keymap_unref);
-
-  meta_seat_impl_set_keyboard_map_async (seat->impl, impl_keymap,
+  meta_seat_impl_set_keyboard_map_async (seat->impl,
+                                         description,
                                          cancellable,
                                          set_impl_keyboard_map_cb,
                                          g_object_ref (task));
-  xkb_keymap_unref (impl_keymap);
 }
 
 static void

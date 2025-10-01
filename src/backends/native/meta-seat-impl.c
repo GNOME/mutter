@@ -35,6 +35,7 @@
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-fd-source.h"
+#include "backends/meta-keymap-description-private.h"
 #include "backends/native/meta-backend-native-private.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-device-pool.h"
@@ -3786,16 +3787,28 @@ static gboolean
 set_keyboard_map (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
-  struct xkb_keymap *xkb_keymap = g_task_get_task_data (task);
+  MetaKeymapDescription *keymap_description = g_task_get_task_data (task);
   MetaKeymapNative *keymap;
-
-  keymap = seat_impl->keymap;
-  meta_keymap_native_set_keyboard_map_in_impl (keymap, xkb_keymap);
+  g_autoptr (GError) error = NULL;
+  struct xkb_keymap *xkb_keymap;
 
   g_task_set_priority (task, G_PRIORITY_HIGH);
-  g_task_return_boolean (task, TRUE);
+
+  keymap = seat_impl->keymap;
+
+  xkb_keymap = meta_keymap_description_create_xkb_keymap (keymap_description,
+                                                          &error);
+  if (!xkb_keymap)
+    {
+      g_prefix_error (&error, "Unable to load configured keymap: ");
+      g_task_return_error (task, g_steal_pointer (&error));
+      return G_SOURCE_REMOVE;
+    }
+
+  meta_keymap_native_set_keyboard_map_in_impl (keymap, xkb_keymap);
 
   meta_seat_impl_update_xkb_state_in_impl (seat_impl);
+  g_task_return_boolean (task, TRUE);
 
   return G_SOURCE_REMOVE;
 }
@@ -3814,22 +3827,22 @@ set_keyboard_map (GTask *task)
  * is pressed when calling this function.
  */
 void
-meta_seat_impl_set_keyboard_map_async (MetaSeatImpl        *seat_impl,
-                                       struct xkb_keymap   *xkb_keymap,
-                                       GCancellable        *cancellable,
-                                       GAsyncReadyCallback  callback,
-                                       gpointer             user_data)
+meta_seat_impl_set_keyboard_map_async (MetaSeatImpl          *seat_impl,
+                                       MetaKeymapDescription *keymap_description,
+                                       GCancellable          *cancellable,
+                                       GAsyncReadyCallback    callback,
+                                       gpointer               user_data)
 {
   GTask *task;
 
   g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
-  g_return_if_fail (xkb_keymap != NULL);
+  g_return_if_fail (keymap_description);
 
   task = g_task_new (seat_impl, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_seat_impl_set_keyboard_map_async);
   g_task_set_task_data (task,
-                        xkb_keymap_ref (xkb_keymap),
-                        (GDestroyNotify) xkb_keymap_unref);
+                        meta_keymap_description_ref (keymap_description),
+                        (GDestroyNotify) meta_keymap_description_unref);
   meta_seat_impl_run_input_task (seat_impl, task, (GSourceFunc) set_keyboard_map);
   g_object_unref (task);
 }
