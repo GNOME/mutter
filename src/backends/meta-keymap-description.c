@@ -99,3 +99,40 @@ meta_keymap_description_get_rules (MetaKeymapDescription  *keymap_description,
   *variant = g_strdup (keymap_description->variant);
   *options = g_strdup (keymap_description->options);
 }
+
+struct xkb_keymap *
+meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
+                                           GError                **error)
+{
+   struct xkb_rule_names names;
+   struct xkb_context *xkb_context;
+   struct xkb_keymap *xkb_keymap;
+
+   names.rules = DEFAULT_XKB_RULES_FILE;
+   names.model = keymap_description->model;
+   names.layout = keymap_description->layout;
+   names.variant = keymap_description->variant;
+   names.options = keymap_description->options;
+
+   xkb_context = meta_create_xkb_context ();
+   xkb_keymap = xkb_keymap_new_from_names (xkb_context,
+                                           &names,
+                                           XKB_KEYMAP_COMPILE_NO_FLAGS);
+   xkb_context_unref (xkb_context);
+
+   if (!xkb_keymap)
+     {
+       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                    "Failed to create XKB keymap with "
+                    "rules=%s, model=%s, layout=%s, "
+                    "variant=%s, options=%s",
+                    keymap_description->rules,
+                    keymap_description->model,
+                    keymap_description->layout,
+                    keymap_description->variant,
+                    keymap_description->options);
+       return NULL;
+     }
+
+   return xkb_keymap;
+}

@@ -25,3 +25,6 @@ void meta_keymap_description_get_rules (MetaKeymapDescription  *keymap_descripti
                                         char                  **layout,
                                         char                  **variant,
                                         char                  **options);
+
+struct xkb_keymap * meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
+                                                               GError                **error);
