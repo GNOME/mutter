@@ -29,7 +29,9 @@ void meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
                                                   MetaSeatImpl          *seat_impl,
                                                   MetaKeymapDescription *keymap_description,
                                                   struct xkb_keymap     *xkb_keymap,
-                                                  struct xkb_state      *xkb_state);
+                                                  struct xkb_state      *xkb_state,
+                                                  GStrv                  display_names,
+                                                  GStrv                  short_names);
 
 struct xkb_keymap * meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap);
 

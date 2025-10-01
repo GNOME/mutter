@@ -3818,14 +3818,16 @@ set_keyboard_map (GTask *task)
   MetaKeymapNative *keymap;
   g_autoptr (GError) error = NULL;
   struct xkb_keymap *xkb_keymap;
+  g_auto (GStrv) display_names = NULL;
+  g_auto (GStrv) short_names = NULL;
 
   g_task_set_priority (task, G_PRIORITY_HIGH);
 
   keymap = seat_impl->keymap;
 
   xkb_keymap = meta_keymap_description_create_xkb_keymap (keymap_description,
-                                                          NULL,
-                                                          NULL,
+                                                          &display_names,
+                                                          &short_names,
                                                           &error);
   if (!xkb_keymap)
     {
@@ -3844,7 +3846,9 @@ set_keyboard_map (GTask *task)
                                                seat_impl,
                                                keymap_description,
                                                xkb_keymap,
-                                               seat_impl->xkb);
+                                               seat_impl->xkb,
+                                               g_steal_pointer (&display_names),
+                                               g_steal_pointer (&short_names));
   xkb_keymap_unref (xkb_keymap);
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);

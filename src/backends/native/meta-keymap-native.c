@@ -202,6 +202,9 @@ typedef struct
   MetaKeymapDescription *keymap_description;
 
   ModifierState modifier_state;
+
+  GStrv display_names;
+  GStrv short_names;
 } UpdateKeymapData;
 
 static void
@@ -210,6 +213,8 @@ update_keymap_data_free (gpointer user_data)
   UpdateKeymapData *data = user_data;
 
   meta_keymap_description_unref (data->keymap_description);
+  g_strfreev (data->display_names);
+  g_strfreev (data->short_names);
   g_free (data);
 }
 
@@ -219,6 +224,10 @@ update_keymap_in_main (gpointer user_data)
   UpdateKeymapData *data = user_data;
   MetaKeymapNative *keymap_native = data->keymap_native;
   gboolean state_changed;
+
+  clutter_keymap_update_keymap_names (CLUTTER_KEYMAP (keymap_native),
+                                      g_steal_pointer (&data->display_names),
+                                      g_steal_pointer (&data->short_names));
 
   state_changed = update_state_from_modifier_state (keymap_native,
                                                     &data->modifier_state,
@@ -237,7 +246,9 @@ meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
                                              MetaSeatImpl          *seat_impl,
                                              MetaKeymapDescription *keymap_description,
                                              struct xkb_keymap     *xkb_keymap,
-                                             struct xkb_state      *xkb_state)
+                                             struct xkb_state      *xkb_state,
+                                             GStrv                  display_names,
+                                             GStrv                  short_names)
 {
   UpdateKeymapData *data;
 
@@ -250,6 +261,8 @@ meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
   data->keymap_native = keymap;
   data->modifier_state = calculate_modifier_state (xkb_state);
   data->keymap_description = meta_keymap_description_ref (keymap_description);
+  data->display_names = g_steal_pointer (&display_names);
+  data->short_names = g_steal_pointer (&short_names);
 
   meta_seat_impl_queue_main_thread_idle (seat_impl,
                                          update_keymap_in_main,

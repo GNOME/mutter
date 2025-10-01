@@ -68,3 +68,21 @@ void clutter_keymap_get_modifier_state (ClutterKeymap  *keymap,
  */
 CLUTTER_EXPORT
 xkb_layout_index_t clutter_keymap_get_layout_index (ClutterKeymap *keymap);
+
+/**
+ * clutter_keymap_get_current_display_name:
+ * @keymap: A #ClutterKeymap
+ *
+ * Returns: (transfer none) (nullable): The display name of the current layout
+ */
+CLUTTER_EXPORT
+const char * clutter_keymap_get_current_display_name (ClutterKeymap *keymap);
+
+/**
+ * clutter_keymap_get_current_short_name:
+ * @keymap: A #ClutterKeymap
+ *
+ * Returns: (transfer none) (nullable): The short name of the current layout
+ */
+CLUTTER_EXPORT
+const char * clutter_keymap_get_current_short_name (ClutterKeymap *keymap);
