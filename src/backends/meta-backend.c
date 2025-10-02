@@ -122,6 +122,8 @@ enum
   GPU_ADDED,
   PREPARE_SHUTDOWN,
   OVERRIDE_CURSOR,
+  RESET_KEYMAP_DESCRIPTION,
+  RESET_KEYMAP_LAYOUT_INDEX,
 
   N_SIGNALS
 };
@@ -898,6 +900,20 @@ meta_backend_class_init (MetaBackendClass *klass)
                   G_SIGNAL_RUN_LAST, 0,
                   g_signal_accumulator_first_wins, NULL, NULL,
                   CLUTTER_TYPE_CURSOR_TYPE, 0);
+  signals[RESET_KEYMAP_DESCRIPTION] =
+    g_signal_new ("reset-keymap-description",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  g_signal_accumulator_first_wins, NULL, NULL,
+                  META_TYPE_KEYMAP_DESCRIPTION, 0);
+  signals[RESET_KEYMAP_LAYOUT_INDEX] =
+    g_signal_new ("reset-keymap-layout-index",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  g_signal_accumulator_first_wins, NULL, NULL,
+                  G_TYPE_UINT, 0);
 }
 
 #ifdef HAVE_LOGIND
@@ -1754,6 +1770,60 @@ meta_backend_set_keymap_layout_group_async (MetaBackend         *backend,
   META_BACKEND_GET_CLASS (backend)->set_keymap_layout_group_async (backend,
                                                                    idx,
                                                                    task);
+}
+
+gboolean
+meta_backend_reset_keymap_finish (MetaBackend   *backend,
+                                  GAsyncResult  *result,
+                                  GError       **error)
+{
+  GTask *task = G_TASK (result);
+
+  g_return_val_if_fail (g_task_is_valid (result, backend), FALSE);
+  g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
+                        meta_backend_reset_keymap_async, FALSE);
+
+  return g_task_propagate_boolean (task, error);
+}
+
+void
+meta_backend_reset_keymap_async (MetaBackend         *backend,
+                                 GCancellable        *cancellable,
+                                 GAsyncReadyCallback  callback,
+                                 gpointer             user_data)
+{
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
+  uint32_t layout_index = 0;
+  GTask *task;
+
+  g_signal_emit (backend,
+                 signals[RESET_KEYMAP_DESCRIPTION], 0,
+                 &keymap_description);
+  g_signal_emit (backend,
+                 signals[RESET_KEYMAP_LAYOUT_INDEX], 0,
+                 &layout_index);
+
+  if (!keymap_description)
+    {
+      g_warning ("No fallback keymap description available, "
+                 "falling batk to 'us'");
+      keymap_description =
+        meta_keymap_description_new_from_rules (NULL,
+                                                "us",
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL);
+      layout_index = 0;
+    }
+
+  task = g_task_new (G_OBJECT (backend), cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_backend_reset_keymap_async);
+
+  META_BACKEND_GET_CLASS (backend)->set_keymap_async (backend,
+                                                      keymap_description,
+                                                      layout_index,
+                                                      task);
 }
 
 /**

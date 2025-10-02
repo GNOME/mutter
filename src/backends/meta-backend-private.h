@@ -168,6 +168,15 @@ struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
 META_EXPORT_TEST
 xkb_layout_index_t meta_backend_get_keymap_layout_group (MetaBackend *backend);
 
+gboolean meta_backend_reset_keymap_finish (MetaBackend   *backend,
+                                           GAsyncResult  *result,
+                                           GError       **error);
+
+void meta_backend_reset_keymap_async (MetaBackend         *backend,
+                                      GCancellable        *cancellable,
+                                      GAsyncReadyCallback  callback,
+                                      gpointer             user_data);
+
 gboolean meta_backend_is_lid_closed (MetaBackend *backend);
 
 void meta_backend_set_client_pointer_constraint (MetaBackend *backend,
