@@ -548,7 +548,7 @@ set_impl_keyboard_map_cb (GObject      *source_object,
 
   if (!meta_seat_impl_set_keyboard_map_finish (seat_impl, result, &error))
     {
-      g_task_return_error (task, error);
+      g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
 
