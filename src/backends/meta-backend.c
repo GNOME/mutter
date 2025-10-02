@@ -1704,6 +1704,21 @@ meta_backend_get_keymap (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->get_keymap (backend);
 }
 
+/**
+ * meta_backend_get_keymap_description:
+ * @backend: a #MetaBackend
+ * keyboard map description
+ *
+ * Gets the description of the current keyboard map.
+ *
+ * Returns: (transfer none): The current keymap description.
+ */
+MetaKeymapDescription *
+meta_backend_get_keymap_description (MetaBackend *backend)
+{
+  return META_BACKEND_GET_CLASS (backend)->get_keymap_description (backend);
+}
+
 xkb_layout_index_t
 meta_backend_get_keymap_layout_group (MetaBackend *backend)
 {

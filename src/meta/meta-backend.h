@@ -57,6 +57,9 @@ void meta_backend_set_keymap_async (MetaBackend           *backend,
                                     gpointer               user_data);
 
 META_EXPORT
+MetaKeymapDescription * meta_backend_get_keymap_description (MetaBackend *backend);
+
+META_EXPORT
 gboolean meta_backend_set_keymap_layout_group_finish (MetaBackend   *backend,
                                                       GAsyncResult  *result,
                                                       GError       **error);

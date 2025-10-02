@@ -123,6 +123,8 @@ void meta_seat_native_set_keyboard_layout_index_async (MetaSeatNative      *seat
                                                        GAsyncReadyCallback  callback,
                                                        gpointer             user_data);
 
+MetaKeymapDescription * meta_seat_native_get_keyboard_map_description (MetaSeatNative *seat_native);
+
 xkb_layout_index_t meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat);
 
 void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,

@@ -95,6 +95,8 @@ struct _MetaBackendClass
 
   struct xkb_keymap * (* get_keymap) (MetaBackend *backend);
 
+  MetaKeymapDescription * (* get_keymap_description) (MetaBackend *backend);
+
   xkb_layout_index_t (* get_keymap_layout_group) (MetaBackend *backend);
 
   void (* set_keymap_layout_group_async) (MetaBackend        *backend,

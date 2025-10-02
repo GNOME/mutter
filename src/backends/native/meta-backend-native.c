@@ -364,6 +364,16 @@ meta_backend_native_get_keymap (MetaBackend *backend)
   return meta_seat_native_get_keyboard_map (META_SEAT_NATIVE (seat));
 }
 
+static MetaKeymapDescription *
+meta_backend_native_get_keymap_description (MetaBackend *backend)
+{
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat;
+
+  seat = clutter_backend_get_default_seat (clutter_backend);
+  return meta_seat_native_get_keyboard_map_description (META_SEAT_NATIVE (seat));
+}
+
 static xkb_layout_index_t
 meta_backend_native_get_keymap_layout_group (MetaBackend *backend)
 {
@@ -942,6 +952,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
 
   backend_class->set_keymap_async = meta_backend_native_set_keymap_async;
   backend_class->get_keymap = meta_backend_native_get_keymap;
+  backend_class->get_keymap_description = meta_backend_native_get_keymap_description;
   backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
   backend_class->set_keymap_layout_group_async = meta_backend_native_set_keymap_layout_group_async;
   backend_class->update_stage = meta_backend_native_update_stage;

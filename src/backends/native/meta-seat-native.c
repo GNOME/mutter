@@ -317,6 +317,7 @@ meta_seat_native_dispose (GObject *object)
   g_clear_pointer (&seat->keymap_description,
                    meta_keymap_description_unref);
   g_clear_pointer (&seat->xkb_keymap, xkb_keymap_unref);
+  g_clear_pointer (&seat->keymap_description, meta_keymap_description_unref);
   g_list_free_full (g_steal_pointer (&seat->devices), g_object_unref);
   g_clear_object (&seat->impl);
   g_clear_pointer (&seat->reserved_virtual_slots, g_hash_table_destroy);
@@ -763,6 +764,14 @@ meta_seat_native_get_keyboard_map (MetaSeatNative *seat)
   g_return_val_if_fail (META_IS_SEAT_NATIVE (seat), NULL);
 
   return seat->xkb_keymap;
+}
+
+MetaKeymapDescription *
+meta_seat_native_get_keyboard_map_description (MetaSeatNative *seat_native)
+{
+  g_return_val_if_fail (seat_native->keymap_description, NULL);
+
+  return seat_native->keymap_description;
 }
 
 gboolean
