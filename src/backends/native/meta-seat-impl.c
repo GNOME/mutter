@@ -3824,6 +3824,8 @@ set_keyboard_map (GTask *task)
   keymap = seat_impl->keymap;
 
   xkb_keymap = meta_keymap_description_create_xkb_keymap (keymap_description,
+                                                          NULL,
+                                                          NULL,
                                                           &error);
   if (!xkb_keymap)
     {

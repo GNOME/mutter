@@ -160,6 +160,8 @@ meta_test_native_keyboard_map_set_async (void)
     meta_keymap_description_new_from_rules (NULL,
                                             "us",
                                             "dvorak-alt-intl",
+                                            NULL,
+                                            NULL,
                                             NULL);
   meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
@@ -209,7 +211,9 @@ meta_test_native_keyboard_map_change_layout (void)
     meta_keymap_description_new_from_rules (NULL,
                                             "us,ua",
                                             NULL,
-                                            "grp:caps_select");
+                                            "grp:caps_select",
+                                            NULL,
+                                            NULL);
   meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
 
@@ -291,6 +295,8 @@ meta_test_native_keyboard_map_set_layout_index (void)
     meta_keymap_description_new_from_rules (NULL,
                                             "us,se",
                                             "dvorak-alt-intl,svdvorak",
+                                            NULL,
+                                            NULL,
                                             NULL);
   meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);

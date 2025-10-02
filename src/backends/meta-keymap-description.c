@@ -39,6 +39,8 @@ struct _MetaKeymapDescription
       char *layout;
       char *variant;
       char *options;
+      GStrv display_names;
+      GStrv short_names;
     } rules;
     struct {
       MetaSealedFd *sealed_fd;
@@ -64,7 +66,9 @@ MetaKeymapDescription *
 meta_keymap_description_new_from_rules (const char *model,
                                         const char *layout,
                                         const char *variant,
-                                        const char *options)
+                                        const char *options,
+                                        GStrv       display_names,
+                                        GStrv       short_names)
 {
   MetaKeymapDescription *keymap_description;
 
@@ -76,6 +80,8 @@ meta_keymap_description_new_from_rules (const char *model,
   keymap_description->rules.layout = strdup_or_empty (layout);
   keymap_description->rules.variant = strdup_or_empty (variant);
   keymap_description->rules.options = strdup_or_empty (options);
+  keymap_description->rules.display_names = g_strdupv (display_names);
+  keymap_description->rules.short_names = g_strdupv (short_names);
 
   return keymap_description;
 }
@@ -114,6 +120,8 @@ meta_keymap_description_unref (MetaKeymapDescription *keymap_description)
           g_free (keymap_description->rules.layout);
           g_free (keymap_description->rules.variant);
           g_free (keymap_description->rules.options);
+          g_strfreev (keymap_description->rules.display_names);
+          g_strfreev (keymap_description->rules.short_names);
           break;
         case META_KEYMAP_DESCRIPTION_SOURCE_FD:
           g_clear_object (&keymap_description->fd.sealed_fd);
@@ -130,17 +138,42 @@ meta_keymap_description_get_source (MetaKeymapDescription *keymap_description)
   return keymap_description->source;
 }
 
+static char *
+maybe_derive_short_name (struct rxkb_context *rxkb_context,
+                         const char          *layout_name)
+{
+  struct rxkb_layout *rxkb_layout;
+  if (!layout_name)
+    return NULL;
+
+  for (rxkb_layout = rxkb_layout_first (rxkb_context);
+       rxkb_layout;
+       rxkb_layout = rxkb_layout_next (rxkb_layout))
+    {
+      if (g_strcmp0 (layout_name,
+                     rxkb_layout_get_description (rxkb_layout)) == 0)
+        return g_strdup (rxkb_layout_get_brief (rxkb_layout));
+    }
+
+  return NULL;
+}
+
 struct xkb_keymap *
 meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
+                                           GStrv                  *out_display_names,
+                                           GStrv                  *out_short_names,
                                            GError                **error)
 {
+  g_auto (GStrv) display_names = NULL;
+  g_auto (GStrv) short_names = NULL;
+  struct xkb_keymap *xkb_keymap = NULL;
+
   switch (keymap_description->source)
     {
     case META_KEYMAP_DESCRIPTION_SOURCE_RULES:
       {
         struct xkb_rule_names names;
         struct xkb_context *xkb_context;
-        struct xkb_keymap *xkb_keymap;
 
         names.rules = DEFAULT_XKB_RULES_FILE;
         names.model = keymap_description->rules.model;
@@ -168,13 +201,17 @@ meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_descri
             return NULL;
           }
 
-        return xkb_keymap;
+        if (out_display_names)
+          display_names = g_strdupv (keymap_description->rules.display_names);
+        if (out_short_names)
+          short_names = g_strdupv (keymap_description->rules.short_names);
+
+        break;
       }
     case META_KEYMAP_DESCRIPTION_SOURCE_FD:
       {
         g_autoptr (GBytes) keymap_bytes = NULL;
         struct xkb_context *xkb_context;
-        struct xkb_keymap *xkb_keymap;
 
         keymap_bytes =
           meta_sealed_fd_get_bytes (keymap_description->fd.sealed_fd, error);
@@ -196,9 +233,63 @@ meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_descri
             return NULL;
           }
 
-        return xkb_keymap;
+        break;
       }
     }
 
-  g_assert_not_reached ();
+  g_assert (xkb_keymap);
+
+  if (out_display_names && !display_names)
+    {
+      g_autoptr (GStrvBuilder) display_names_builder = NULL;
+      xkb_layout_index_t n_layouts, i;
+
+      display_names_builder = g_strv_builder_new ();
+      n_layouts = xkb_keymap_num_layouts (xkb_keymap);
+      for (i = 0; i < n_layouts; i++)
+        {
+          const char *display_name;
+
+          display_name = xkb_keymap_layout_get_name (xkb_keymap, i);
+          g_strv_builder_add (display_names_builder,
+                              display_name ? display_name : "");
+        }
+
+      display_names = g_strv_builder_end (display_names_builder);
+    }
+
+  if (out_short_names && !short_names)
+    {
+      g_autoptr (GStrvBuilder) short_names_builder = NULL;
+      struct rxkb_context *rxkb_context = NULL;
+
+      short_names_builder = g_strv_builder_new ();
+
+      rxkb_context = rxkb_context_new (RXKB_CONTEXT_LOAD_EXOTIC_RULES);
+      if (rxkb_context_parse (rxkb_context, "evdev"))
+        {
+          xkb_layout_index_t n_layouts, i;
+
+          n_layouts = xkb_keymap_num_layouts (xkb_keymap);
+          for (i = 0; i < n_layouts; i++)
+            {
+              g_autofree char *short_name = NULL;
+
+              short_name = maybe_derive_short_name (rxkb_context,
+                                                    display_names[i]);
+              g_strv_builder_add (short_names_builder,
+                                  short_name ? short_name : "");
+            }
+
+          short_names = g_strv_builder_end (short_names_builder);
+        }
+      rxkb_context_unref (rxkb_context);
+    }
+
+  if (out_display_names)
+    *out_display_names = g_steal_pointer (&display_names);
+  if (out_short_names)
+    *out_short_names = g_steal_pointer (&short_names);
+
+  return xkb_keymap;
 }

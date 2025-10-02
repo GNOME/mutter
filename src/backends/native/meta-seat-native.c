@@ -195,6 +195,7 @@ on_keymap_changed (MetaKeymapNative      *keymap_native,
 
   xkb_keymap =
     meta_keymap_description_create_xkb_keymap (keymap_description,
+                                               NULL, NULL,
                                                &error);
   if (!xkb_keymap)
     {
@@ -240,6 +241,8 @@ meta_seat_native_constructed (GObject *object)
 
   keymap_description = meta_keymap_description_new_from_rules (NULL,
                                                                "us",
+                                                               NULL,
+                                                               NULL,
                                                                NULL,
                                                                NULL);
   if (!meta_seat_native_set_keyboard_map_sync (seat,
@@ -735,6 +738,7 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
 
   xkb_keymap =
     meta_keymap_description_create_xkb_keymap (description,
+                                               NULL, NULL,
                                                error);
   if (!xkb_keymap)
     return FALSE;

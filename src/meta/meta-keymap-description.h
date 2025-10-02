@@ -32,7 +32,9 @@ META_EXPORT
 MetaKeymapDescription * meta_keymap_description_new_from_rules (const char *model,
                                                                 const char *layout,
                                                                 const char *variant,
-                                                                const char *options);
+                                                                const char *options,
+                                                                GStrv       display_names,
+                                                                GStrv       short_names);
 
 META_EXPORT
 MetaKeymapDescription * meta_keymap_description_ref (MetaKeymapDescription *keymap_description);

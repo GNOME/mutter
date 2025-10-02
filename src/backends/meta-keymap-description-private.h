@@ -34,4 +34,6 @@ MetaKeymapDescription * meta_keymap_description_new_from_fd (MetaSealedFd       
 MetaKeymapDescriptionSource meta_keymap_description_get_source (MetaKeymapDescription *keymap_description);
 
 struct xkb_keymap * meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_description,
+                                                               GStrv                  *out_display_names,
+                                                               GStrv                  *out_short_names,
                                                                GError                **error);
