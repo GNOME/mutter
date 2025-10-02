@@ -367,6 +367,106 @@
       <arg type="h" name="fd" direction="out"/>
     </method>
 
+    <!--
+        KeymapCapabilities:
+
+        Available options:
+
+        * ``supported-keymap-types`` (``au``)
+
+          Supported keymap types.
+
+          Available types:
+            ``0``: XKB: A keymap specified as a XKB keymap.
+
+        * ``supported-xkb-keymap-formats`` (``au``)
+
+          Supported XKB keymap formats.
+
+          Available formats:
+            ``1``: XKB_TEXT_V1: XKB text format version 1.
+            ``2``: XKB_TEXT_V2: XKB text format version 2.
+
+    -->
+    <property name="KeymapCapabilities" type="a{sv}" access="read"/>
+
+    <!--
+        SetKeymap:
+        @options: Options vararg describing the keymap.
+
+        Set the current input source. The type indicates how the input source is
+        defined.
+
+        For possible types, see the ``type`` option in KeyboardLayouts.
+
+        Available options:
+
+        * ``keymap-type`` (``u``)
+
+          The keymap type. Must only use a format listed in
+          ``supported-keymap-types`` in ``KeymapCapabilities``. Not setting the
+          keymap type resets the current keymap according to display server
+          policy.
+
+        * ``xkb-keymap-format`` (``u``)
+
+          The XKB keymap format. Must only use a format listed in
+          ``supported-xkb-keymap-formats``` in ``KeymapCapabilites``.
+
+        * ``xkb-keymap`` (``h``)
+
+          The XKB keymap in the XKB text format version 1. Required when setting
+          input source with ``XKB``.
+
+        * ``xkb-keymap-layout-index`` (``u``)
+
+          The initial XKB layout index.
+
+        * ``lock-keymap`` (``b``)
+
+          Lock the keymap to the specified one. This will result in the
+          keymap not being changable via the regular methods normally
+          used within the remote system.
+
+          Defaults to false.
+
+    -->
+    <method name="SetKeymap">
+      <annotation name="org.gtk.GDBus.C.UnixFD" value="true"/>
+      <arg name="options" type="a{sv}" direction="in"/>
+    </method>
+
+    <!--
+        SetKeymapLayoutIndex:
+        @index: The layout index
+
+        Sets the layout group index in the keymap set via SetKeymap. Will only
+        succeed if the current keymap is one set by the last call to SetKeymap
+        on this session.
+    -->
+    <method name="SetKeymapLayoutIndex">
+      <arg name="index" type="u" direction="in"/>
+    </method>
+
+    <!--
+        CurrentKeymap:
+
+        Available options:
+
+        * ``name`` (``s``)
+
+          The name of the current active keymap.
+
+        * ``source`` (``u``)
+
+          The source of the current active keymap.
+
+          Available sources:
+            ``0``: EXTERNAL: Keymap was configured externally to this session.
+            ``1``: SESSION: Keymap was configured by this session.
+    -->
+    <property name="CurrentKeymap" type="a{sv}" access="read"/>
+
   </interface>
 
 </node>

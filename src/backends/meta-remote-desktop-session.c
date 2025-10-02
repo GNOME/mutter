@@ -31,23 +31,39 @@
 #include <unistd.h>
 #include <xkbcommon/xkbcommon.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-dbus-session-manager.h"
 #include "backends/meta-eis.h"
+#include "backends/meta-keymap-description-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
+#include "core/meta-sealed-fd.h"
 #include "core/meta-selection-private.h"
 #include "core/meta-selection-source-remote.h"
-#include "meta/meta-backend.h"
 
 #include "meta-dbus-remote-desktop.h"
 
 #define META_REMOTE_DESKTOP_SESSION_DBUS_PATH "/org/gnome/Mutter/RemoteDesktop/Session"
 
 #define TRANSFER_REQUEST_CLEANUP_TIMEOUT_MS (s2ms (15))
+
+typedef enum _MetaRemoteDesktopKeymapFormat
+{
+  META_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_V1 = 1,
+  META_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_V2 = 2,
+} MetaRemoteDesktopKeymapFormat;
+
+typedef enum _MetaRemoteDesktopKeymapSource
+{
+  META_REMOTE_DESKTOP_KEYMAP_SOURCE_EXTERNAL = 0,
+  META_REMOTE_DESKTOP_KEYMAP_SOURCE_SESSION = 1,
+} MetaRemoteDesktopKeymapSource;
+
+#define SUPPORTED_KEYMAP_FORMATS (1 << META_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_V1)
 
 enum
 {
@@ -106,6 +122,14 @@ struct _MetaRemoteDesktopSession
   GHashTable *mapping_ids;
 
   gulong monitors_changed_handler_id;
+  gulong keymap_changed_handler_id;
+  gulong keymap_layout_group_changed_handler_id;
+  gulong keymap_state_changed_handler_id;
+
+  MetaKeymapDescription *keymap_description;
+  MetaKeymapDescriptionOwner *keymap_owner;
+
+  GCancellable *cancellable;
 };
 
 static void initable_init_iface (GInitableIface *iface);
@@ -475,6 +499,8 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
     meta_dbus_session_manager_get_backend (session->session_manager);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
 
   session->started = FALSE;
 
@@ -491,6 +517,12 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
 
   g_clear_signal_handler (&session->monitors_changed_handler_id,
                           monitor_manager);
+  g_clear_signal_handler (&session->keymap_changed_handler_id,
+                          backend);
+  g_clear_signal_handler (&session->keymap_layout_group_changed_handler_id,
+                          backend);
+  g_clear_signal_handler (&session->keymap_state_changed_handler_id,
+                          keymap);
 
   g_clear_object (&session->virtual_pointer);
   g_clear_object (&session->virtual_keyboard);
@@ -1998,6 +2030,276 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
+static void
+update_current_keymap (MetaRemoteDesktopSession *session)
+{
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  ClutterKeymap *keymap;
+  MetaKeymapDescription *keymap_description;
+  GVariantBuilder builder;
+  const char *layout_name;
+  MetaRemoteDesktopKeymapSource source;
+
+  keymap = clutter_seat_get_keymap (seat);
+  keymap_description = meta_backend_get_keymap_description (backend);
+
+  g_variant_builder_init (&builder, G_VARIANT_TYPE ("a{sv}"));
+
+  layout_name = clutter_keymap_get_current_display_name (keymap);
+  if (layout_name)
+    {
+      g_variant_builder_add (&builder, "{sv}",
+                             "name", g_variant_new_string (layout_name));
+    }
+
+  if (keymap_description == session->keymap_description)
+    source = META_REMOTE_DESKTOP_KEYMAP_SOURCE_SESSION;
+  else
+    source = META_REMOTE_DESKTOP_KEYMAP_SOURCE_EXTERNAL;
+  g_variant_builder_add (&builder, "{sv}",
+                         "source", g_variant_new_uint32 (source));
+
+  meta_dbus_remote_desktop_session_set_current_keymap (
+    META_DBUS_REMOTE_DESKTOP_SESSION (session),
+    g_variant_builder_end (&builder));
+}
+
+typedef struct _SetKeymapData
+{
+  MetaRemoteDesktopSession *session;
+  GDBusMethodInvocation *invocation;
+} SetKeymapData;
+
+static void
+set_keymap_data_free (gpointer user_data)
+{
+  SetKeymapData *data = user_data;
+
+  g_free (data);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (SetKeymapData, set_keymap_data_free)
+
+static void
+set_keymap_cb (GObject      *source_object,
+               GAsyncResult *result,
+               gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  g_autoptr (SetKeymapData) data = user_data;
+  MetaRemoteDesktopSession *session = data->session;
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_backend_set_keymap_finish (backend, result, &error))
+    {
+      g_dbus_method_invocation_return_gerror (data->invocation, error);
+      return;
+    }
+
+  meta_dbus_remote_desktop_session_complete_set_keymap (
+    META_DBUS_REMOTE_DESKTOP_SESSION (session),
+    data->invocation,
+    NULL);
+
+  update_current_keymap (session);
+}
+
+static void
+reset_keymap_cb (GObject      *source_object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  g_autoptr (SetKeymapData) data = user_data;
+  MetaRemoteDesktopSession *session = data->session;
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_backend_reset_keymap_finish (backend, result, &error))
+    {
+      g_dbus_method_invocation_return_gerror (data->invocation, error);
+      return;
+    }
+
+  g_clear_pointer (&session->keymap_description,
+                   meta_keymap_description_unref);
+
+  meta_dbus_remote_desktop_session_complete_set_keymap (
+    META_DBUS_REMOTE_DESKTOP_SESSION (session),
+    data->invocation,
+    NULL);
+
+  update_current_keymap (session);
+}
+
+static gboolean
+verify_keymap_format (uint32_t keymap_format)
+{
+  switch (keymap_format)
+    {
+    case META_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_V1:
+    case META_REMOTE_DESKTOP_KEYMAP_FORMAT_XKB_V2:
+      return TRUE;
+    }
+  return FALSE;
+}
+
+static gboolean
+handle_set_keymap (MetaDBusRemoteDesktopSession *skeleton,
+                   GDBusMethodInvocation        *invocation,
+                   GUnixFDList                  *fd_list_in,
+                   GVariant                     *arg_options)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  uint32_t keymap_type = UINT32_MAX;
+  uint32_t keymap_format = UINT32_MAX;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) keymap_handle = NULL;
+  g_autoptr (MetaSealedFd) sealed_keymap = NULL;
+  g_autoptr (MetaKeymapDescription) keymap_description = NULL;
+  uint32_t layout_index = 0;
+  gboolean lock_keymap;
+  SetKeymapData *data;
+
+  if (!g_variant_lookup (arg_options, "keymap-type", "u", &keymap_type))
+    {
+      data = g_new0 (SetKeymapData, 1);
+      data->session = session;
+      data->invocation = invocation;
+
+      meta_backend_reset_keymap_async (backend,
+                                       session->keymap_owner,
+                                       session->cancellable,
+                                       reset_keymap_cb,
+                                       data);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  g_variant_lookup (arg_options, "xkb-keymap-format", "u", &keymap_format);
+
+  if (!verify_keymap_format (keymap_format))
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_INVALID_ARGS,
+                                             "Invalid keymap format");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  if (!((1 << keymap_format) & SUPPORTED_KEYMAP_FORMATS))
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_NOT_SUPPORTED,
+                                             "Non-supported keymap format");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  keymap_handle = g_variant_lookup_value (arg_options, "xkb-keymap",
+                                          G_VARIANT_TYPE_HANDLE);
+  if (!keymap_handle)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "No keymap handle");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  sealed_keymap = meta_sealed_fd_new_from_handle (keymap_handle,
+                                                  fd_list_in,
+                                                  &error);
+
+  g_variant_lookup (arg_options, "xkb-keymap-layout-index", "u", &layout_index);
+
+  keymap_description = meta_keymap_description_new_from_fd (sealed_keymap,
+                                                            keymap_format);
+  if (g_variant_lookup (arg_options, "lock-keymap", "b", &lock_keymap) &&
+      lock_keymap)
+    meta_keymap_description_lock (keymap_description, session->keymap_owner);
+  else
+    meta_keymap_description_unlock (keymap_description, session->keymap_owner);
+
+  data = g_new0 (SetKeymapData, 1);
+  data->session = session;
+  data->invocation = invocation;
+
+  g_clear_pointer (&session->keymap_description,
+                   meta_keymap_description_unref);
+  session->keymap_description =
+    meta_keymap_description_ref (keymap_description);
+
+  meta_backend_set_keymap_async (backend,
+                                 keymap_description,
+                                 layout_index,
+                                 session->cancellable,
+                                 set_keymap_cb,
+                                 data);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+
+}
+
+static void
+set_keymap_layout_group_cb (GObject      *source_object,
+                            GAsyncResult *result,
+                            gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  g_autoptr (SetKeymapData) data = user_data;
+  g_autoptr (GError) error = NULL;
+
+ if (!meta_backend_set_keymap_finish (backend, result, &error))
+   {
+     g_dbus_method_invocation_return_gerror (data->invocation, error);
+     return;
+   }
+
+ meta_dbus_remote_desktop_session_complete_set_keymap_layout_index (
+   META_DBUS_REMOTE_DESKTOP_SESSION (data->session),
+   data->invocation);
+}
+
+static gboolean
+handle_set_keymap_layout_index (MetaDBusRemoteDesktopSession *skeleton,
+                                GDBusMethodInvocation        *invocation,
+                                uint32_t                      layout_index)
+{
+  MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
+  MetaKeymapDescription *keymap_description;
+  SetKeymapData *data;
+
+  keymap_description = meta_backend_get_keymap_description (backend);
+
+  if (!session->keymap_description ||
+      keymap_description != session->keymap_description)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Invalid current keymap");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+
+  data = g_new0 (SetKeymapData, 1);
+  data->session = session;
+  data->invocation = invocation;
+
+  meta_backend_set_keymap_async (backend,
+                                 session->keymap_description,
+                                 layout_index,
+                                 session->cancellable,
+                                 set_keymap_layout_group_cb,
+                                 data);
+
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
 static gboolean
 meta_remote_desktop_session_initable_init (GInitable     *initable,
                                            GCancellable  *cancellable,
@@ -2028,6 +2330,17 @@ meta_remote_desktop_session_initable_init (GInitable     *initable,
   g_object_bind_property (keymap, "num-lock-state",
                           session, "num-lock-state",
                           G_BINDING_DEFAULT | G_BINDING_SYNC_CREATE);
+
+  session->keymap_changed_handler_id =
+    g_signal_connect_swapped (backend, "keymap-changed",
+                              G_CALLBACK (update_current_keymap), session);
+  session->keymap_layout_group_changed_handler_id =
+    g_signal_connect_swapped (backend, "keymap-layout-group-changed",
+                              G_CALLBACK (update_current_keymap), session);
+  session->keymap_state_changed_handler_id =
+    g_signal_connect_swapped (keymap, "state-changed",
+                              G_CALLBACK (update_current_keymap), session);
+  update_current_keymap (session);
 
   session->mapping_ids = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
@@ -2062,6 +2375,8 @@ meta_remote_desktop_session_init_iface (MetaDBusRemoteDesktopSessionIface *iface
   iface->handle_selection_write_done = handle_selection_write_done;
   iface->handle_selection_read = handle_selection_read;
   iface->handle_connect_to_eis = handle_connect_to_eis;
+  iface->handle_set_keymap = handle_set_keymap;
+  iface->handle_set_keymap_layout_index = handle_set_keymap_layout_index;
 }
 
 static void
@@ -2079,12 +2394,18 @@ meta_remote_desktop_session_finalize (GObject *object)
 
   g_assert (!meta_remote_desktop_session_is_running (session));
 
+  g_cancellable_cancel (session->cancellable);
+  g_clear_object (&session->cancellable);
+
   g_clear_signal_handler (&session->owner_changed_handler_id, selection);
   reset_current_selection_source (session);
   cancel_selection_read (session);
   g_hash_table_unref (session->transfer_requests);
 
   g_clear_pointer (&session->mapping_ids, g_hash_table_unref);
+
+  g_clear_pointer (&session->keymap_description, meta_keymap_description_unref);
+  g_clear_pointer (&session->keymap_owner, meta_keymap_description_owner_unref);
 
   g_clear_object (&session->handle);
   g_free (session->peer_name);
@@ -2154,6 +2475,10 @@ meta_remote_desktop_session_init (MetaRemoteDesktopSession *session)
                      ++global_session_number);
 
   session->transfer_requests = g_hash_table_new (NULL, NULL);
+
+  session->keymap_owner = meta_keymap_description_owner_new ();
+
+  session->cancellable = g_cancellable_new ();
 }
 
 static void
