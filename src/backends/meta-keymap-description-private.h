@@ -21,12 +21,23 @@
 #include "meta/meta-keymap-description.h"
 
 #include "core/meta-sealed-fd.h"
+#include "core/util-private.h"
 
 typedef enum _MetaKeymapDescriptionSource
 {
   META_KEYMAP_DESCRIPTION_SOURCE_RULES,
   META_KEYMAP_DESCRIPTION_SOURCE_FD,
 } MetaKeymapDescriptionSource;
+
+typedef struct _MetaKeymapDescriptionOwner MetaKeymapDescriptionOwner;
+
+META_EXPORT_TEST
+MetaKeymapDescriptionOwner * meta_keymap_description_owner_new (void);
+
+MetaKeymapDescriptionOwner * meta_keymap_description_owner_ref (MetaKeymapDescriptionOwner *owner);
+
+META_EXPORT_TEST
+void meta_keymap_description_owner_unref (MetaKeymapDescriptionOwner *owner);
 
 MetaKeymapDescription * meta_keymap_description_new_from_fd (MetaSealedFd           *sealed_fd,
                                                              enum xkb_keymap_format  format);
@@ -37,3 +48,13 @@ struct xkb_keymap * meta_keymap_description_create_xkb_keymap (MetaKeymapDescrip
                                                                GStrv                  *out_display_names,
                                                                GStrv                  *out_short_names,
                                                                GError                **error);
+
+META_EXPORT_TEST
+void meta_keymap_description_lock (MetaKeymapDescription      *keymap_description,
+                                   MetaKeymapDescriptionOwner *owner);
+
+META_EXPORT_TEST
+void meta_keymap_description_unlock (MetaKeymapDescription      *keymap_description,
+                                     MetaKeymapDescriptionOwner *owner);
+
+MetaKeymapDescriptionOwner * meta_keymap_description_get_owner (MetaKeymapDescription *keymap_description);

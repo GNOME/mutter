@@ -42,5 +42,8 @@ MetaKeymapDescription * meta_keymap_description_ref (MetaKeymapDescription *keym
 META_EXPORT
 void meta_keymap_description_unref (MetaKeymapDescription *keymap_description);
 
+META_EXPORT
+gboolean meta_keymap_description_is_locked (MetaKeymapDescription *keymap_description);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKeymapDescription,
                                meta_keymap_description_unref);

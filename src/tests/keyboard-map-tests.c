@@ -21,6 +21,7 @@
 #include <linux/input-event-codes.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-keymap-description-private.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "tests/meta-test-utils.h"
@@ -36,6 +37,12 @@ typedef struct
 static MetaContext *test_context;
 
 static void
+set_true_cb (gboolean *value)
+{
+  *value = TRUE;
+}
+
+static void
 set_keymap_cb (GObject      *source_object,
                GAsyncResult *result,
                gpointer      user_data)
@@ -46,6 +53,21 @@ set_keymap_cb (GObject      *source_object,
 
   g_assert_true (meta_backend_set_keymap_finish (backend, result, &error));
   g_assert_no_error (error);
+
+  *done = TRUE;
+}
+
+static void
+set_keymap_expect_error_cb (GObject      *source_object,
+                            GAsyncResult *result,
+                            gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  gboolean *done = user_data;
+  g_autoptr (GError) error = NULL;
+
+  g_assert_false (meta_backend_set_keymap_finish (backend, result, &error));
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_FAILED);
 
   *done = TRUE;
 }
@@ -342,6 +364,147 @@ meta_test_native_keyboard_map_set_layout_index (void)
 }
 
 static void
+meta_test_native_keyboard_map_lock_layout (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  g_autoptr (MetaKeymapDescription) keymap_description1 = NULL;
+  g_autoptr (MetaKeymapDescription) keymap_description2 = NULL;
+  g_autoptr (MetaKeymapDescription) keymap_description3 = NULL;
+  MetaKeymapDescriptionOwner *owner;
+  gboolean done = FALSE;
+  gboolean was_signalled;
+  struct xkb_keymap *keymap;
+  gulong keymap_changed_handler_id;
+  gulong keymap_layout_group_changed_handler_id;
+
+  owner = meta_keymap_description_owner_new ();
+
+  /*
+   * Set a locking keymap.
+   */
+
+  keymap_description1 =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "us,se",
+                                            "dvorak-alt-intl,svdvorak",
+                                            NULL,
+                                            NULL,
+                                            NULL);
+  meta_keymap_description_lock (keymap_description1, owner);
+  meta_backend_set_keymap_async (backend, keymap_description1, 0,
+                                 NULL, set_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  keymap = xkb_keymap_ref (meta_backend_get_keymap (backend));
+  g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
+                   ==,
+                   "English (Dvorak, alt. intl.)");
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 1),
+                   ==,
+                   "Swedish (Svdvorak)");
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+
+  /*
+   * Set a new keymap without an owner. Should cause an error and not take
+   * effect.
+   */
+
+  keymap_changed_handler_id =
+    g_signal_connect_swapped (backend,
+                              "keymap-changed",
+                              G_CALLBACK (trigger_error),
+                              (gpointer) "Unexpected keymap-changed emission");
+
+  keymap_description2 =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "se,us",
+                                            "svdvorak,dvorak-alt-intl",
+                                            NULL,
+                                            NULL,
+                                            NULL);
+  done = FALSE;
+  meta_backend_set_keymap_async (backend, keymap_description2, 0,
+                                 NULL, set_keymap_expect_error_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_true (keymap == meta_backend_get_keymap (backend));
+
+  /*
+   * Set the same keymap with a different layout index. Should take effect.
+   */
+
+  was_signalled = FALSE;
+  keymap_layout_group_changed_handler_id =
+    g_signal_connect_swapped (backend,
+                              "keymap-layout-group-changed",
+                              G_CALLBACK (set_true_cb),
+                              &was_signalled);
+
+  done = FALSE;
+  meta_backend_set_keymap_async (backend, keymap_description1, 1,
+                                 NULL, set_keymap_layout_group_cb, &done);
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 1);
+  g_assert_true (was_signalled);
+
+  xkb_keymap_unref (keymap);
+  g_signal_handler_disconnect (backend, keymap_changed_handler_id);
+  g_signal_handler_disconnect (backend, keymap_layout_group_changed_handler_id);
+
+  /*
+   * Set another keymap with the same owner. Should take effect.
+   */
+
+  keymap_description3 =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "ua",
+                                            "",
+                                            NULL,
+                                            NULL,
+                                            NULL);
+  meta_keymap_description_unlock (keymap_description3, owner);
+  done = FALSE;
+  meta_backend_set_keymap_async (backend, keymap_description3, 0,
+                                 NULL, set_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  keymap = meta_backend_get_keymap (backend);
+  g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 1);
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
+                   ==,
+                   "Ukrainian");
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+
+  /*
+   * Set keymap again without owner. Should take effect.
+   */
+
+  done = FALSE;
+  meta_backend_set_keymap_async (backend, keymap_description2, 0,
+                                 NULL, set_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  keymap = meta_backend_get_keymap (backend);
+  g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
+                   ==,
+                   "Swedish (Svdvorak)");
+  g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 1),
+                   ==,
+                   "English (Dvorak, alt. intl.)");
+  g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
+
+  meta_keymap_description_owner_unref (owner);
+}
+
+static void
 record_modifier_state (ClutterKeymap  *keymap,
                        ModMaskTuple  **expected_mods)
 {
@@ -460,6 +623,8 @@ init_tests (void)
                    meta_test_native_keyboard_map_change_layout);
   g_test_add_func ("/backends/native/keyboard-map/set-layout-index",
                    meta_test_native_keyboard_map_set_layout_index);
+  g_test_add_func ("/backends/native/keyboard-map/lock-layout",
+                   meta_test_native_keyboard_map_lock_layout);
   g_test_add_func ("/backends/native/keyboard-map/modifiers",
                    meta_test_native_keyboard_map_modifiers);
 }

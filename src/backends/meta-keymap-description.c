@@ -26,11 +26,19 @@
 #include "backends/meta-keymap-utils.h"
 #include "core/meta-sealed-fd.h"
 
+struct _MetaKeymapDescriptionOwner
+{
+  gatomicrefcount ref_count;
+};
+
 struct _MetaKeymapDescription
 {
   gatomicrefcount ref_count;
 
   MetaKeymapDescriptionSource source;
+
+  gboolean is_locked;
+  MetaKeymapDescriptionOwner *owner;
 
   union {
     struct {
@@ -60,6 +68,31 @@ static char *
 strdup_or_empty (const char *string)
 {
   return string ? g_strdup (string) : g_strdup ("");
+}
+
+MetaKeymapDescriptionOwner *
+meta_keymap_description_owner_new (void)
+{
+  MetaKeymapDescriptionOwner *owner;
+
+  owner = g_new0 (MetaKeymapDescriptionOwner, 1);
+  g_atomic_ref_count_init (&owner->ref_count);
+
+  return owner;
+}
+
+MetaKeymapDescriptionOwner *
+meta_keymap_description_owner_ref (MetaKeymapDescriptionOwner *owner)
+{
+  g_atomic_ref_count_inc (&owner->ref_count);
+  return owner;
+}
+
+void
+meta_keymap_description_owner_unref (MetaKeymapDescriptionOwner *owner)
+{
+  if (g_atomic_ref_count_dec (&owner->ref_count))
+    g_free (owner);
 }
 
 MetaKeymapDescription *
@@ -127,6 +160,9 @@ meta_keymap_description_unref (MetaKeymapDescription *keymap_description)
           g_clear_object (&keymap_description->fd.sealed_fd);
           break;
         }
+
+      g_clear_pointer (&keymap_description->owner,
+                       meta_keymap_description_owner_unref);
 
       g_free (keymap_description);
     }
@@ -292,4 +328,36 @@ meta_keymap_description_create_xkb_keymap (MetaKeymapDescription  *keymap_descri
     *out_short_names = g_steal_pointer (&short_names);
 
   return xkb_keymap;
+}
+
+void
+meta_keymap_description_lock (MetaKeymapDescription      *keymap_description,
+                              MetaKeymapDescriptionOwner *owner)
+{
+  g_return_if_fail (!keymap_description->owner);
+
+  keymap_description->is_locked = TRUE;
+  keymap_description->owner = meta_keymap_description_owner_ref (owner);
+}
+
+void
+meta_keymap_description_unlock (MetaKeymapDescription      *keymap_description,
+                                MetaKeymapDescriptionOwner *owner)
+{
+  g_return_if_fail (!keymap_description->owner);
+  g_return_if_fail (!keymap_description->is_locked);
+
+  keymap_description->owner = meta_keymap_description_owner_ref (owner);
+}
+
+gboolean
+meta_keymap_description_is_locked (MetaKeymapDescription *keymap_description)
+{
+  return keymap_description->is_locked;
+}
+
+MetaKeymapDescriptionOwner *
+meta_keymap_description_get_owner (MetaKeymapDescription *keymap_description)
+{
+  return keymap_description->owner;
 }

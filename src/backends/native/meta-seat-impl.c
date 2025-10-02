@@ -3864,6 +3864,19 @@ set_keyboard_map (GTask *task)
       g_auto (GStrv) short_names = NULL;
       struct xkb_keymap *xkb_keymap = NULL;
 
+      if (priv->keymap_description)
+        {
+          if (meta_keymap_description_is_locked (priv->keymap_description) &&
+              meta_keymap_description_get_owner (keymap_description) !=
+              meta_keymap_description_get_owner (priv->keymap_description))
+            {
+              g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,
+                                       "Keymap locked by other owner");
+              g_rw_lock_writer_unlock (&seat_impl->state_lock);
+              return G_SOURCE_REMOVE;
+            }
+        }
+
       g_clear_pointer (&priv->keymap_description,
                        meta_keymap_description_unref);
       priv->keymap_description =
