@@ -207,6 +207,7 @@ meta_backend_native_init_post (MetaBackend  *backend,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaA11yManager *a11y_manager = meta_backend_get_a11y_manager (backend);
+  ClutterSeat *seat;
 
   g_clear_pointer (&priv->startup_render_devices,
                    g_hash_table_unref);
@@ -224,6 +225,11 @@ meta_backend_native_init_post (MetaBackend  *backend,
   priv->drm_lease_manager = g_object_new (META_TYPE_DRM_LEASE_MANAGER,
                                           "backend", backend,
                                           NULL);
+
+  seat = meta_backend_get_default_seat (backend);
+  g_signal_connect_swapped (seat, "keymap-changed",
+                            G_CALLBACK (meta_backend_notify_keymap_changed),
+                            backend);
 
   return TRUE;
 }
@@ -319,16 +325,12 @@ set_keyboard_map_cb (GObject      *source_object,
   MetaSeatNative *seat_native = META_SEAT_NATIVE (source_object);
   g_autoptr (GTask) task = G_TASK (user_data);
   g_autoptr (GError) error = NULL;
-  MetaBackend *backend;
 
   if (!meta_seat_native_set_keyboard_map_finish (seat_native, result, &error))
     {
       g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
-
-  backend = META_BACKEND (g_task_get_source_object (task));
-  meta_backend_notify_keymap_changed (backend);
 
   g_task_return_boolean (task, TRUE);
 }

@@ -56,6 +56,15 @@ enum
 
 static GParamSpec *props[N_PROPS] = { NULL };
 
+enum
+{
+  KEYMAP_CHANGED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 G_DEFINE_TYPE (MetaSeatNative, meta_seat_native, CLUTTER_TYPE_SEAT)
 
 static gboolean meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
@@ -173,11 +182,43 @@ on_prepare_shutdown (MetaBackend    *backend,
 }
 
 static void
+on_keymap_changed (MetaKeymapNative      *keymap_native,
+                   MetaKeymapDescription *keymap_description,
+                   MetaSeatNative        *seat_native)
+{
+  g_autoptr (GError) error = NULL;
+  struct xkb_keymap *xkb_keymap;
+
+  if (seat_native->keymap_description == keymap_description)
+    return;
+
+  xkb_keymap =
+    meta_keymap_description_create_xkb_keymap (keymap_description,
+                                               &error);
+  if (!xkb_keymap)
+    {
+      g_warning ("Failed to create xkb_keymap for seat: %s", error->message);
+      return;
+    }
+
+  g_clear_pointer (&seat_native->keymap_description,
+                   meta_keymap_description_unref);
+  seat_native->keymap_description =
+    meta_keymap_description_ref (keymap_description);
+
+  g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
+  seat_native->xkb_keymap = xkb_keymap;
+
+  g_signal_emit (seat_native, signals[KEYMAP_CHANGED], 0);
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
   g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   g_autoptr (GError) error = NULL;
+  ClutterKeymap *keymap;
 
   seat->impl = meta_seat_impl_new (seat, seat->seat_id, seat->flags);
   meta_seat_impl_setup (seat->impl);
@@ -189,6 +230,10 @@ meta_seat_native_constructed (GObject *object)
                     G_CALLBACK (proxy_touch_mode_changed), seat);
   g_signal_connect (seat->impl, "bell",
                     G_CALLBACK (proxy_bell), seat);
+
+  keymap = clutter_seat_get_keymap (CLUTTER_SEAT (seat));
+  g_signal_connect (keymap, "keymap-changed",
+                    G_CALLBACK (on_keymap_changed), seat);
 
   keymap_description = meta_keymap_description_new_from_rules (NULL,
                                                                "us",
@@ -266,6 +311,8 @@ meta_seat_native_dispose (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
 
+  g_clear_pointer (&seat->keymap_description,
+                   meta_keymap_description_unref);
   g_clear_pointer (&seat->xkb_keymap, xkb_keymap_unref);
   g_list_free_full (g_steal_pointer (&seat->devices), g_object_unref);
   g_clear_object (&seat->impl);
@@ -494,6 +541,13 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
 
   g_object_class_override_property (object_class, PROP_TOUCH_MODE,
                                     "touch-mode");
+
+  signals[KEYMAP_CHANGED] =
+    g_signal_new ("keymap-changed",
+		  G_TYPE_FROM_CLASS (klass),
+		  G_SIGNAL_RUN_FIRST,
+		  0, NULL, NULL, NULL,
+		  G_TYPE_NONE, 0);
 }
 
 static void
@@ -582,28 +636,12 @@ set_impl_keyboard_map_cb (GObject      *source_object,
   MetaSeatImpl *seat_impl = META_SEAT_IMPL (source_object);
   g_autoptr (GTask) task = G_TASK (user_data);
   g_autoptr (GError) error = NULL;
-  MetaSeatNative *seat_native;
-  MetaKeymapDescription *keymap_description;
-  struct xkb_keymap *keymap;
 
   if (!meta_seat_impl_set_keyboard_map_finish (seat_impl, result, &error))
     {
       g_task_return_error (task, g_steal_pointer (&error));
       return;
     }
-
-  seat_native = META_SEAT_NATIVE (g_task_get_source_object (task));
-  keymap_description = g_task_get_task_data (task);
-  keymap = meta_keymap_description_create_xkb_keymap (keymap_description,
-                                                      &error);
-  if (!keymap)
-    {
-      g_task_return_error (task, g_steal_pointer (&error));
-      return;
-    }
-
-  g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
-  seat_native->xkb_keymap = xkb_keymap_ref (keymap);
 
   g_task_return_boolean (task, TRUE);
 }
@@ -626,14 +664,9 @@ meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
                                          gpointer               user_data)
 {
   g_autoptr (GTask) task = NULL;
-  g_autoptr (GError) error = NULL;
 
   task = g_task_new (G_OBJECT (seat), cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_seat_native_set_keyboard_map_async);
-
-  g_task_set_task_data (task,
-                        meta_keymap_description_ref (description),
-                        (GDestroyNotify) meta_keymap_description_unref);
 
   meta_seat_impl_set_keyboard_map_async (seat->impl,
                                          description,
@@ -643,20 +676,23 @@ meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
 }
 
 static void
-set_keyboard_map_cb (GObject      *source_object,
-                     GAsyncResult *result,
-                     gpointer      user_data)
+sync_set_impl_keyboard_map_cb (GObject      *source_object,
+                               GAsyncResult *result,
+                               gpointer      user_data)
 {
-  MetaSeatNative *seat_native = META_SEAT_NATIVE (source_object);
+  MetaSeatImpl *seat_impl = META_SEAT_IMPL (source_object);
+  g_autoptr (GError) error = NULL;
   GTask *task = G_TASK (user_data);
   GMainLoop *main_loop = g_task_get_task_data (task);
-  g_autoptr (GError) error = NULL;
 
-  if (!meta_seat_native_set_keyboard_map_finish (seat_native, result, &error))
-    g_task_return_error (task, error);
-  else
-    g_task_return_boolean (task, TRUE);
+  if (!meta_seat_impl_set_keyboard_map_finish (seat_impl, result, &error))
+    {
+      g_task_return_error (task, g_steal_pointer (&error));
+      g_main_loop_quit (main_loop);
+      return;
+    }
 
+  g_task_return_boolean (task, TRUE);
   g_main_loop_quit (main_loop);
 }
 
@@ -669,22 +705,40 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
   g_autoptr (GMainContext) main_context = NULL;
   g_autoptr (GMainLoop) main_loop = NULL;
   g_autoptr (GTask) task = NULL;
+  struct xkb_keymap *xkb_keymap;
 
   main_context = g_main_context_new ();
   main_loop = g_main_loop_new (main_context, FALSE);
   g_main_context_push_thread_default (main_context);
 
-  task = g_task_new (G_OBJECT (seat_native), NULL, NULL, NULL);
+  task = g_task_new (NULL, NULL, NULL, NULL);
   g_task_set_task_data (task, main_loop, NULL);
 
-  meta_seat_native_set_keyboard_map_async (seat_native,
-                                           description,
-                                           cancellable,
-                                           set_keyboard_map_cb, task);
+  meta_seat_impl_set_keyboard_map_async (seat_native->impl,
+                                         description,
+                                         cancellable,
+                                         sync_set_impl_keyboard_map_cb,
+                                         task);
   g_main_loop_run (main_loop);
   g_main_context_pop_thread_default (main_context);
 
-  return g_task_propagate_boolean (task, error);
+  if (!g_task_propagate_boolean (task, error))
+    return FALSE;
+
+  xkb_keymap =
+    meta_keymap_description_create_xkb_keymap (description,
+                                               error);
+  if (!xkb_keymap)
+    return FALSE;
+
+  g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
+  seat_native->xkb_keymap = xkb_keymap_ref (xkb_keymap);
+
+  g_clear_pointer (&seat_native->keymap_description,
+                   meta_keymap_description_unref);
+  seat_native->keymap_description = meta_keymap_description_ref (description);
+
+  return TRUE;
 }
 
 /**

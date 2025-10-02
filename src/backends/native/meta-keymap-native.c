@@ -31,6 +31,15 @@ static const char *option_xkb_options = "";
 
 enum
 {
+  KEYMAP_CHANGED,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS] = { 0, };
+
+enum
+{
   PROP_0,
   PROP_SEAT_IMPL,
   N_PROPS,
@@ -107,6 +116,14 @@ meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
                          G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
+
+  signals[KEYMAP_CHANGED] =
+    g_signal_new ("keymap-changed",
+		  G_TYPE_FROM_CLASS (klass),
+		  G_SIGNAL_RUN_FIRST,
+		  0, NULL, NULL, NULL,
+		  G_TYPE_NONE, 1,
+                 META_TYPE_KEYMAP_DESCRIPTION);
 }
 
 static void
@@ -127,14 +144,54 @@ meta_keymap_native_init (MetaKeymapNative *keymap)
   xkb_context_unref (ctx);
 }
 
-void
-meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative  *keymap,
-                                             struct xkb_keymap *xkb_keymap)
+typedef struct
 {
+  MetaKeymapNative *keymap_native;
+
+  MetaKeymapDescription *keymap_description;
+} UpdateKeymapData;
+
+static void
+update_keymap_data_free (gpointer user_data)
+{
+  UpdateKeymapData *data = user_data;
+
+  meta_keymap_description_unref (data->keymap_description);
+  g_free (data);
+}
+
+static gboolean
+update_keymap_in_main (gpointer user_data)
+{
+  UpdateKeymapData *data = user_data;
+  MetaKeymapNative *keymap_native = data->keymap_native;
+
+  g_signal_emit (keymap_native, signals[KEYMAP_CHANGED], 0,
+                 data->keymap_description);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
+                                             MetaSeatImpl          *seat_impl,
+                                             MetaKeymapDescription *keymap_description,
+                                             struct xkb_keymap     *xkb_keymap)
+{
+  UpdateKeymapData *data;
+
   g_return_if_fail (xkb_keymap != NULL);
 
   g_clear_pointer (&keymap->impl.keymap, xkb_keymap_unref);
   keymap->impl.keymap = xkb_keymap_ref (xkb_keymap);
+
+  data = g_new0 (UpdateKeymapData, 1);
+  data->keymap_native = keymap;
+  data->keymap_description = meta_keymap_description_ref (keymap_description);
+
+  meta_seat_impl_queue_main_thread_idle (seat_impl,
+                                         update_keymap_in_main,
+                                         data, update_keymap_data_free);
 }
 
 struct xkb_keymap *

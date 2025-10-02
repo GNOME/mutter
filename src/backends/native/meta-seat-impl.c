@@ -3805,7 +3805,10 @@ set_keyboard_map (GTask *task)
       return G_SOURCE_REMOVE;
     }
 
-  meta_keymap_native_set_keyboard_map_in_impl (keymap, xkb_keymap);
+  meta_keymap_native_set_keyboard_map_in_impl (keymap,
+                                               seat_impl,
+                                               keymap_description,
+                                               xkb_keymap);
 
   meta_seat_impl_update_xkb_state_in_impl (seat_impl);
   g_task_return_boolean (task, TRUE);

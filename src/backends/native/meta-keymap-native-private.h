@@ -25,8 +25,10 @@
 #error "This header cannot be included directly. Use "backends/native/meta-input-thread.h""
 #endif /* META_INPUT_THREAD_H_INSIDE */
 
-void meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative  *keymap,
-                                                  struct xkb_keymap *xkb_keymap);
+void meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
+                                                  MetaSeatImpl          *seat_impl,
+                                                  MetaKeymapDescription *keymap_description,
+                                                  struct xkb_keymap     *xkb_keymap);
 
 struct xkb_keymap * meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap);
 

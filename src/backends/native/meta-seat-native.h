@@ -50,6 +50,7 @@ struct _MetaSeatNative
   GList *devices;
   struct xkb_keymap *xkb_keymap;
   xkb_layout_index_t xkb_layout_index;
+  MetaKeymapDescription *keymap_description;
 
   guint virtual_touch_slot_base;
   GHashTable *reserved_virtual_slots;
