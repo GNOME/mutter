@@ -159,6 +159,7 @@ static void
 meta_wayland_keyboard_take_keymap (MetaWaylandKeyboard *keyboard,
 				   struct xkb_keymap   *keymap)
 {
+  MetaBackend *backend = backend_from_keyboard (keyboard);
   MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
   char *keymap_string;
   size_t keymap_size;
@@ -198,6 +199,7 @@ meta_wayland_keyboard_take_keymap (MetaWaylandKeyboard *keyboard,
 
   inform_clients_of_new_keymap (keyboard);
 
+  keyboard->xkb_info.group = meta_backend_get_keymap_layout_group (backend);
   notify_modifiers (keyboard);
 }
 
