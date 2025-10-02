@@ -1049,6 +1049,7 @@ get_secondary_gpu_buffer_age (MetaOnscreenNativeSecondaryGpuState *secondary_gpu
 
 static MetaDrmBuffer *
 copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
+                             MetaFrameNative                      *frame_native,
                              MetaOnscreenNativeSecondaryGpuState  *secondary_gpu_state,
                              MetaRendererNativeGpuData            *renderer_gpu_data,
                              MetaDrmBuffer                        *primary_gpu_fb,
@@ -1079,7 +1080,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
                            "copy_shared_framebuffer_gpu()");
 
   if (renderer_gpu_data->secondary.needs_explicit_sync)
-    sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+    sync_fd = meta_frame_native_steal_sync_fd (frame_native);
 
   render_device = renderer_gpu_data->render_device;
   egl_display = meta_render_device_get_egl_display (render_device);
@@ -1163,6 +1164,15 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
       g_prefix_error (error, "Failed to swap buffers: ");
       goto done;
     }
+
+  sync_fd = meta_egl_create_sync_fd (egl, egl_display, error);
+  if (sync_fd < 0)
+    {
+      g_prefix_error (error, "Failed to create sync fd: ");
+      goto done;
+    }
+
+  meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
 
   use_modifiers = meta_renderer_native_use_modifiers (renderer_native);
   device_file = meta_render_device_get_device_file (render_device);
@@ -1469,6 +1479,7 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen    *onscreen,
 
 static MetaDrmBuffer *
 acquire_front_buffer (CoglOnscreen     *onscreen,
+                      MetaFrameNative  *frame_native,
                       MetaDrmBuffer    *primary_gpu_fb,
                       MetaDrmBuffer    *secondary_gpu_fb,
                       const MtkRegion  *region,
@@ -1514,6 +1525,7 @@ acquire_front_buffer (CoglOnscreen     *onscreen,
       return g_object_ref (secondary_gpu_fb);
     case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
       return copy_shared_framebuffer_gpu (onscreen,
+                                          frame_native,
                                           secondary_gpu_state,
                                           renderer_gpu_data,
                                           primary_gpu_fb,
@@ -1635,6 +1647,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   g_autoptr (MetaDrmBuffer) primary_gpu_fb = NULL;
   g_autoptr (MetaDrmBuffer) secondary_gpu_fb = NULL;
   g_autoptr (MetaDrmBuffer) buffer = NULL;
+  g_autofd int sync_fd = -1;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Meta::OnscreenNative::swap_buffers_with_damage()");
@@ -1664,6 +1677,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                           frame_info,
                                           user_data);
 
+  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+  if (sync_fd >= 0)
+    meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
+
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
   render_device_file =
@@ -1690,6 +1707,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 
       primary_gpu_fb = META_DRM_BUFFER (g_steal_pointer (&buffer_gbm));
       buffer = acquire_front_buffer (onscreen,
+                                     frame_native,
                                      primary_gpu_fb,
                                      secondary_gpu_fb,
                                      region,
@@ -1724,13 +1742,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                             CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 
   meta_frame_native_set_damage (frame_native, region);
-
-  if (!secondary_gpu_used)
-    {
-      int sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
-
-      meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
-    }
 
   maybe_post_next_frame (onscreen);
   return;
