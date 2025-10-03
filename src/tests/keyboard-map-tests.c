@@ -151,6 +151,14 @@ on_keymap_changed (MetaBackend *backend,
 }
 
 static void
+on_keymap_changed2 (MetaBackend           *backend,
+                    MetaKeymapDescription *expected_keymap_description)
+{
+  g_assert_true (expected_keymap_description ==
+                 meta_backend_get_keymap_description (backend));
+}
+
+static void
 meta_test_native_keyboard_map_set_async (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -168,6 +176,7 @@ meta_test_native_keyboard_map_set_async (void)
   gpointer expected_next_handler;
   gulong await_mod_mask_handler_id;
   gulong keymap_changed_handler_id;
+  gulong keymap_changed_handler_id2;
   gulong keymap_state_changed_handler_id;
 
   await_mod_mask_handler_id =
@@ -215,6 +224,13 @@ meta_test_native_keyboard_map_set_async (void)
                                             NULL,
                                             NULL,
                                             NULL);
+
+  keymap_changed_handler_id2 =
+    g_signal_connect (backend,
+                      "keymap-changed",
+                      G_CALLBACK (on_keymap_changed2),
+                      keymap_description);
+
   meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
 
@@ -240,6 +256,7 @@ meta_test_native_keyboard_map_set_async (void)
   meta_wait_for_update (test_context);
 
   g_signal_handler_disconnect (backend, keymap_changed_handler_id);
+  g_signal_handler_disconnect (backend, keymap_changed_handler_id2);
   g_signal_handler_disconnect (keymap, keymap_state_changed_handler_id);
 }
 
