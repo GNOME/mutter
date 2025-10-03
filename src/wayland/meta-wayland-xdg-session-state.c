@@ -292,7 +292,7 @@ meta_wayland_xdg_session_state_parse (MetaSessionState  *session_state,
       tiled_rect = gvdb_table_get_value (toplevel, "tiled-rect");
       if (tiled_rect && g_variant_is_of_type (tiled_rect, G_VARIANT_TYPE ("(iiii)")))
         {
-          variant_to_rect (floating_rect, &toplevel_state->tiled.rect);
+          variant_to_rect (tiled_rect, &toplevel_state->tiled.rect);
         }
 
       is_minimized = gvdb_table_get_value (toplevel, "is-minimized");
