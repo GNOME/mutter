@@ -1078,7 +1078,7 @@ convert_property (MetaX11Display *x11_display,
 		     (unsigned char *)icccm_version, 2);
   else
     {
-      mtk_x11_error_trap_pop_with_return (x11_display->xdisplay);
+      mtk_x11_error_trap_pop (x11_display->xdisplay);
       return FALSE;
     }
 
@@ -1146,7 +1146,7 @@ process_selection_request (MetaX11Display *x11_display,
                                   x11_display->atom_ATOM_PAIR,
                                   &type, &format, &num, &rest, &data) != Success)
             {
-              mtk_x11_error_trap_pop_with_return (x11_display->xdisplay);
+              mtk_x11_error_trap_pop (x11_display->xdisplay);
               return;
             }
 

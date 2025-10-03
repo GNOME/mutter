@@ -110,7 +110,7 @@ meta_sync_counter_create_sync_alarm (MetaSyncCounter *sync_counter)
                               sync_counter->sync_request_counter,
                               &init))
         {
-          mtk_x11_error_trap_pop_with_return (x11_display->xdisplay);
+          mtk_x11_error_trap_pop (x11_display->xdisplay);
           sync_counter->sync_request_counter = None;
           return;
         }
