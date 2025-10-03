@@ -487,8 +487,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
 
       driver_gl_klass->prep_gl_for_pixels_download (COGL_DRIVER_GL (driver),
                                                     ctx,
-                                                    rowstride,
                                                     width,
+                                                    rowstride,
                                                     bpp);
 
       /* Note: we don't worry about catching errors here since we know
@@ -552,8 +552,8 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
 
       driver_gl_klass->prep_gl_for_pixels_download (COGL_DRIVER_GL (driver),
                                                     ctx,
-                                                    rowstride,
                                                     width,
+                                                    rowstride,
                                                     bpp);
 
       pixels = _cogl_bitmap_gl_bind (shared_bmp,

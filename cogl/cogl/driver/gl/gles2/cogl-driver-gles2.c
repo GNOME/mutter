@@ -482,8 +482,8 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
 static void
 cogl_driver_gles2_prep_gl_for_pixels_download (CoglDriverGL *driver,
                                                CoglContext  *ctx,
-                                               int           pixels_rowstride,
                                                int           image_width,
+                                               int           pixels_rowstride,
                                                int           pixels_bpp)
 {
   _cogl_texture_gl_prep_alignment_for_pixels_download (ctx,

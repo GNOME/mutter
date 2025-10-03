@@ -397,8 +397,8 @@ cogl_texture_driver_gl3_texture_2d_gl_get_data (CoglTextureDriver *tex_driver,
 
   driver_klass->prep_gl_for_pixels_download (driver_gl,
                                              ctx,
-                                             rowstride,
                                              width,
+                                             rowstride,
                                              bpp);
 
   _cogl_bind_gl_texture_transient (ctx, tex_2d->gl_target,

@@ -389,8 +389,8 @@ cogl_driver_gl3_prep_gl_for_pixels_download (CoglDriverGL *driver,
                                              int           pixels_bpp)
 {
   prep_gl_for_pixels_download_full (ctx,
-                                    pixels_rowstride,
                                     image_width,
+                                    pixels_rowstride,
                                     0 /* image height */,
                                     0, 0, /* pixels_src_x/y */
                                     pixels_bpp);
