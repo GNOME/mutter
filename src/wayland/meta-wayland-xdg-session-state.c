@@ -410,6 +410,8 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
   toplevel_state = g_hash_table_lookup (xdg_session_state->toplevels, name);
   if (!toplevel_state)
     return FALSE;
+  if (toplevel_state->window_state == WINDOW_STATE_NONE)
+    return FALSE;
 
   switch (toplevel_state->window_state)
     {
@@ -445,6 +447,7 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
   switch (toplevel_state->window_state)
     {
     case WINDOW_STATE_NONE:
+      break;
     case WINDOW_STATE_FLOATING:
       window->placed = TRUE;
 
