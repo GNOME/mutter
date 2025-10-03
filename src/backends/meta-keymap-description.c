@@ -177,6 +177,13 @@ meta_keymap_description_get_source (MetaKeymapDescription *keymap_description)
   return keymap_description->source;
 }
 
+gboolean
+meta_keymap_description_direct_equal (MetaKeymapDescription *keymap_description,
+                                      MetaKeymapDescription *other)
+{
+  return keymap_description == other;
+}
+
 static char *
 maybe_derive_short_name (struct rxkb_context *rxkb_context,
                          const char          *layout_name)

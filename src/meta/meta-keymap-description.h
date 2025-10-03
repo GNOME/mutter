@@ -45,5 +45,9 @@ void meta_keymap_description_unref (MetaKeymapDescription *keymap_description);
 META_EXPORT
 gboolean meta_keymap_description_is_locked (MetaKeymapDescription *keymap_description);
 
+META_EXPORT
+gboolean meta_keymap_description_direct_equal (MetaKeymapDescription *keymap_description,
+                                               MetaKeymapDescription *other);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKeymapDescription,
                                meta_keymap_description_unref);
