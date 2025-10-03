@@ -111,7 +111,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 43
-    BASE_TAG: '2025-09-13.0'
+    BASE_TAG: '2025-10-04.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -174,6 +174,16 @@ variables:
       dnf builddep -y gi-docgen --setopt=install_weak_deps=False
       dnf builddep -y wayland --setopt=install_weak_deps=False
 
+      if [[ x"$(uname -m )" = "xx86_64" ]] ; then
+        # deprecated header no longer included in openssl-devel
+        dnf install -y virtme-ng openssl-devel-engine
+      fi
+
+      rpm -e --nodeps gnome-bluetooth-libs-devel \
+                      mutter mutter-devel \
+                      gnome-shell \
+                      $NULL
+
       ./.gitlab-ci/install-meson-project.sh \
         --commit 8e69aef1e4bbb79b5806692ea9f0280aae0fda06 \
         https://gitlab.gnome.org/jadahl/catch.git \
@@ -182,18 +192,18 @@ variables:
       ./.gitlab-ci/install-meson-project.sh \
         -Dglycin=disabled \
         https://gitlab.gnome.org/GNOME/gdk-pixbuf.git \
-        2.44.0
+        2.44.3
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
         main
 
-      ./.gitlab-ci/install-common-dependencies.sh
+      ./.gitlab-ci/install-meson-project.sh \
+        --commit ed36f4c6427fb1b0db03aaeb81d42f348f79690c \
+        https://gitlab.gnome.org/GNOME/glib.git \
+        main
 
-      rpm -e --nodeps gnome-bluetooth-libs-devel \
-                      mutter mutter-devel \
-                      gnome-shell \
-                      $NULL
+      ./.gitlab-ci/install-common-dependencies.sh
 
       # Work-around for podman-push aborting on permission issue
       # https://gitlab.gnome.org/Infrastructure/Infrastructure/-/issues/1247
@@ -204,9 +214,6 @@ variables:
       git config --system --add safe.directory "$CI_PROJECT_DIR"
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
-        # deprecated header no longer included in openssl-devel
-        dnf install -y virtme-ng openssl-devel-engine
-
         if [ -n "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME" ]; then
           git clone --depth $MUTTER_CLONE_DEPTH \
             $CI_MERGE_REQUEST_SOURCE_PROJECT_URL.git mutter-src \
