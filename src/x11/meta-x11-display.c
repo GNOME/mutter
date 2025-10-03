@@ -653,21 +653,10 @@ init_x11_bell (MetaX11Display *x11_display)
     }
   else
     {
-      unsigned int mask = XkbBellNotifyMask;
-      gboolean visual_bell_auto_reset = FALSE;
-      /* TRUE if and when non-broken version is available */
       XkbSelectEvents (x11_display->xdisplay,
                        XkbUseCoreKbd,
                        XkbBellNotifyMask,
                        XkbBellNotifyMask);
-
-      if (visual_bell_auto_reset)
-        {
-          XkbSetAutoResetControls (x11_display->xdisplay,
-                                   XkbAudibleBellMask,
-                                   &mask,
-                                   &mask);
-        }
     }
 
   /* We are playing sounds using libcanberra support, we handle the
