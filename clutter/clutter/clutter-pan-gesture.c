@@ -666,9 +666,9 @@ clutter_pan_gesture_set_pan_axis (ClutterPanGesture *self,
                                   ClutterPanAxis     axis)
 {
   g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
-  g_return_if_fail (axis != CLUTTER_PAN_AXIS_BOTH ||
-                    axis != CLUTTER_PAN_AXIS_X ||
-                    axis != CLUTTER_PAN_AXIS_Y);
+  g_return_if_fail (axis == CLUTTER_PAN_AXIS_BOTH ||
+                    axis == CLUTTER_PAN_AXIS_X ||
+                    axis == CLUTTER_PAN_AXIS_Y);
 
   if (self->pan_axis == axis)
     return;
