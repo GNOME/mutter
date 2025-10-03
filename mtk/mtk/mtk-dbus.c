@@ -143,6 +143,7 @@ on_get_connection_credentials (GObject      *source_object,
   g_autoptr (GVariant) reply = NULL;
   g_autoptr (GUnixFDList) fd_list = NULL;
   g_autoptr (GError) error = NULL;
+  GCancellable *cancellable;
 
   reply = g_dbus_connection_call_with_unix_fd_list_finish (connection,
                                                            &fd_list,
@@ -168,6 +169,7 @@ on_get_connection_credentials (GObject      *source_object,
       return;
     }
 
+  cancellable = g_task_get_cancellable (task);
   g_dbus_connection_call (connection,
                           DBUS_NAME_DBUS,
                           DBUS_PATH_DBUS,
@@ -177,7 +179,7 @@ on_get_connection_credentials (GObject      *source_object,
                           G_VARIANT_TYPE ("(u)"),
                           G_DBUS_CALL_FLAGS_NONE,
                           5000,
-                          g_task_get_cancellable (task),
+                          cancellable,
                           on_get_connection_pid,
                           g_steal_pointer (&task));
 }
