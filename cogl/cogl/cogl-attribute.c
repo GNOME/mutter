@@ -328,7 +328,6 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglFlushLayerState layers_state;
-  CoglPipeline *copy = NULL;
   CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
 
@@ -374,9 +373,6 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
                                             attributes,
                                             n_attributes);
     }
-
-  if (copy)
-    g_object_unref (copy);
 }
 
 int
