@@ -1743,8 +1743,6 @@ notify_proximity (ClutterInputDevice *input_device,
                                        input_device,
                                        device_native->last_tool);
 
-  meta_seat_impl_release_stylus_state (seat_impl, input_device);
-
   queue_event (seat_impl, event);
 }
 
@@ -2012,7 +2010,7 @@ meta_seat_impl_remove_device (MetaSeatImpl       *seat_impl,
 {
   MetaInputDeviceNative *device_native;
   ClutterInputDeviceType device_type;
-  gboolean is_touchscreen, is_tablet_switch, is_pointer;
+  gboolean is_touchscreen, is_tablet_switch, is_pointer, is_tablet;
 
   device_native = META_INPUT_DEVICE_NATIVE (device);
   seat_impl->devices = g_slist_remove (seat_impl->devices, device);
@@ -2022,6 +2020,7 @@ meta_seat_impl_remove_device (MetaSeatImpl       *seat_impl,
   is_touchscreen = device_type == CLUTTER_TOUCHSCREEN_DEVICE;
   is_tablet_switch = device_is_tablet_switch (device_native);
   is_pointer = device_type_is_pointer (device_type);
+  is_tablet = device_type == CLUTTER_TABLET_DEVICE;
 
   if (is_touchscreen)
     seat_impl->has_touchscreen = has_touchscreen (seat_impl);
@@ -2029,6 +2028,8 @@ meta_seat_impl_remove_device (MetaSeatImpl       *seat_impl,
     seat_impl->has_tablet_switch = has_tablet_switch (seat_impl);
   if (is_pointer)
     seat_impl->has_pointer = has_pointer (seat_impl);
+  if (is_tablet)
+    meta_seat_impl_release_stylus_state (seat_impl, device);
 
   if (is_touchscreen || is_tablet_switch || is_pointer)
     update_touch_mode (seat_impl);
