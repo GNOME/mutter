@@ -322,10 +322,6 @@ meta_wayland_popup_create (MetaWaylandPopupSurface *popup_surface,
 
   wl_list_insert (&grab->all_popups, &popup->link);
 
-  /* Transfer implicit grab to the popup surface */
-  if (meta_wayland_pointer_get_implicit_grab_surface (grab->seat->pointer) != NULL)
-    meta_wayland_pointer_focus_surface (grab->seat->pointer, surface);
-
   meta_wayland_popup_grab_repick_keyboard_focus (grab);
 
   return popup;
