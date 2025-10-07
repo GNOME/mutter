@@ -46,6 +46,7 @@ typedef struct _MetaClutterBackendX11Private
   MetaBackend *backend;
   ClutterSprite *virtual_core_pointer;
   ClutterKeyFocus *virtual_core_keyboard;
+  GHashTable *touch_sprites;
 } MetaClutterBackendX11Private;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaClutterBackendX11, meta_clutter_backend_x11,
@@ -136,8 +137,36 @@ lookup_sprite (ClutterBackend       *clutter_backend,
   MetaClutterBackendX11Private *priv =
     meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
   ClutterInputDeviceType device_type;
+  GType sprite_type;
+
+  if (meta_is_wayland_compositor ())
+    sprite_type = META_TYPE_SPRITE_X11_NESTED;
+  else
+    sprite_type = META_TYPE_SPRITE_X11;
 
   device_type = clutter_input_device_get_device_type (device);
+
+  if (sequence)
+    {
+      ClutterSprite *touch_sprite;
+
+      touch_sprite = g_hash_table_lookup (priv->touch_sprites, sequence);
+
+      if (!touch_sprite && create)
+        {
+          touch_sprite =
+            g_object_new (sprite_type,
+                          "backend", priv->backend,
+                          "stage", stage,
+                          "device", device,
+                          "sequence", sequence,
+                          NULL);
+
+          g_hash_table_insert (priv->touch_sprites, sequence, touch_sprite);
+        }
+
+      return touch_sprite;
+    }
 
   if (device_type == CLUTTER_POINTER_DEVICE ||
       device_type == CLUTTER_TOUCHPAD_DEVICE ||
@@ -148,13 +177,6 @@ lookup_sprite (ClutterBackend       *clutter_backend,
     {
       if (!priv->virtual_core_pointer && create)
         {
-          GType sprite_type;
-
-          if (meta_is_wayland_compositor ())
-            sprite_type = META_TYPE_SPRITE_X11_NESTED;
-          else
-            sprite_type = META_TYPE_SPRITE_X11;
-
           priv->virtual_core_pointer =
             g_object_new (sprite_type,
                           "backend", priv->backend,
@@ -219,6 +241,9 @@ meta_clutter_backend_x11_destroy_sprite (ClutterBackend *clutter_backend,
 
   if (sprite == priv->virtual_core_pointer)
     g_clear_object (&priv->virtual_core_pointer);
+
+  g_hash_table_remove (priv->touch_sprites,
+                       clutter_sprite_get_sequence (sprite));
 }
 
 static gboolean
@@ -231,10 +256,19 @@ meta_clutter_backend_x11_foreach_sprite (ClutterBackend               *clutter_b
     META_CLUTTER_BACKEND_X11 (clutter_backend);
   MetaClutterBackendX11Private *priv =
     meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+  ClutterSprite *touch_sprite;
+  GHashTableIter iter;
 
   if (priv->virtual_core_pointer &&
       !func (stage, priv->virtual_core_pointer, user_data))
     return FALSE;
+
+  g_hash_table_iter_init (&iter, priv->touch_sprites);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &touch_sprite))
+    {
+      if (!func (stage, touch_sprite, user_data))
+          return FALSE;
+    }
 
   return TRUE;
 }
@@ -260,14 +294,35 @@ meta_clutter_backend_x11_get_key_focus (ClutterBackend *clutter_backend,
 }
 
 static void
+meta_clutter_backend_x11_finalize (GObject *object)
+{
+  MetaClutterBackendX11 *clutter_backend_x11 =
+    META_CLUTTER_BACKEND_X11 (object);
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+
+  g_clear_pointer (&priv->touch_sprites, g_hash_table_unref);
+
+  G_OBJECT_CLASS (meta_clutter_backend_x11_parent_class)->finalize (object);
+}
+
+static void
 meta_clutter_backend_x11_init (MetaClutterBackendX11 *clutter_backend_x11)
 {
+  MetaClutterBackendX11Private *priv =
+    meta_clutter_backend_x11_get_instance_private (clutter_backend_x11);
+
+  priv->touch_sprites =
+    g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
 }
 
 static void
 meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
+
+  object_class->finalize = meta_clutter_backend_x11_finalize;
 
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;

@@ -81,6 +81,8 @@ struct _MetaSeatX11
   GUdevClient *udev_client;
 #endif
 
+  ClutterEventSequence *pointer_emulating_sequence;
+
   int pointer_id;
   int keyboard_id;
   int opcode;
@@ -2573,6 +2575,11 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                              sequence,
                                              xev->root_x,
                                              xev->root_y);
+
+            if (xev->flags & XITouchEmulatingPointer)
+              seat->pointer_emulating_sequence = sequence;
+            else if (seat->pointer_emulating_sequence == sequence)
+              seat->pointer_emulating_sequence = NULL;
           }
         else if (xi_event->evtype == XI_TouchEnd)
           {
@@ -2722,4 +2729,10 @@ ClutterInputDevice *
 meta_seat_x11_get_core_pointer (MetaSeatX11 *seat_x11)
 {
   return seat_x11->core_pointer;
+}
+
+ClutterEventSequence *
+meta_seat_x11_get_pointer_emulating_sequence (MetaSeatX11 *seat_x11)
+{
+  return seat_x11->pointer_emulating_sequence;
 }

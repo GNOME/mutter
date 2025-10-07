@@ -42,4 +42,6 @@ void meta_seat_x11_notify_devices (MetaSeatX11  *seat_x11,
 
 ClutterInputDevice * meta_seat_x11_get_core_pointer (MetaSeatX11 *seat_x11);
 
+ClutterEventSequence * meta_seat_x11_get_pointer_emulating_sequence (MetaSeatX11 *seat_x11);
+
 G_END_DECLS
