@@ -1517,7 +1517,7 @@ test_case_do (TestCase    *test,
       MetaLogicalMonitor *logical_monitor;
 
       if (argc != 3)
-        BAD_COMMAND("usage: %s <client-id>/<window-id> <monitor-id>", argv[0]);
+        BAD_COMMAND ("usage: %s <client-id>/<window-id> <monitor-id>", argv[0]);
 
       if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
         return FALSE;
