@@ -34,7 +34,7 @@ assert_pointer_focus none
 
 dismiss w/p1
 
-# Check that implicit pointer grab is transfered to the popup
+# Check that focus can move to a popup despite a implicit pointer grab
 move_cursor_to 150 150
 assert_pointer_focus w/1
 
@@ -43,12 +43,18 @@ popup_at w/p2 1 right 100 100 grab
 assert_position w/p2 200 100
 assert_size w/p2 100 100
 assert_keyboard_focus w/p2
-assert_pointer_focus w/p2
+assert_pointer_focus w/1
 
-move_cursor_to 120 120
+# Move inside the popup, focus should move there
+move_cursor_to 220 120
+assert_pointer_focus w/p2
+# Move outside the client, focus should move to the implicit grab surface
+move_cursor_to 420 420
+assert_pointer_focus w/1
+# Move focus back to popup
+move_cursor_to 220 120
 assert_pointer_focus w/p2
 release_click
-assert_pointer_focus w/1
 
 dismiss w/p2
 
@@ -65,7 +71,7 @@ assert_pointer_focus w/1
 
 move_cursor_to 250 150
 assert_keyboard_focus w/1
-assert_pointer_focus w/1
+assert_pointer_focus w/p3
 
 release_click
 dismiss w/p3

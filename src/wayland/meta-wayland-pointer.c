@@ -93,6 +93,7 @@ struct _MetaWaylandPointer
   GHashTable *pointer_clients;
 
   MetaWaylandSurface *focus_surface;
+  MetaWaylandSurface *implicit_grab_surface;
   gulong focus_surface_destroyed_handler_id;
   gulong focus_surface_alive_notify_id;
   guint32 focus_serial;
@@ -113,6 +114,7 @@ struct _MetaWaylandPointer
   ClutterSprite *sprite;
   MetaWaylandSurface *current;
   gulong current_surface_destroyed_handler_id;
+  gulong implicit_grab_surface_destroyed_handler_id;
 
   guint32 button_count;
 };
@@ -126,6 +128,10 @@ meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
 
 static void meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                             MetaWaylandSurface *surface);
+
+static void
+meta_wayland_pointer_set_implicit_grab_surface (MetaWaylandPointer *pointer,
+                                                MetaWaylandSurface *surface);
 
 static MetaBackend *
 backend_from_pointer (MetaWaylandPointer *pointer)
@@ -586,6 +592,38 @@ meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
 }
 
 static void
+implicit_grab_surface_destroyed (MetaWaylandSurface *surface,
+                                 MetaWaylandPointer *pointer)
+{
+  meta_wayland_pointer_set_implicit_grab_surface (pointer, NULL);
+}
+
+static void
+meta_wayland_pointer_set_implicit_grab_surface (MetaWaylandPointer *pointer,
+                                                MetaWaylandSurface *surface)
+{
+  if (pointer->implicit_grab_surface == surface)
+    return;
+
+  if (pointer->implicit_grab_surface)
+    {
+      g_clear_signal_handler (&pointer->implicit_grab_surface_destroyed_handler_id,
+                              pointer->implicit_grab_surface);
+      pointer->implicit_grab_surface = NULL;
+    }
+
+  if (surface)
+    {
+      pointer->implicit_grab_surface = surface;
+      pointer->implicit_grab_surface_destroyed_handler_id =
+        g_signal_connect (surface, "destroy",
+                          G_CALLBACK (implicit_grab_surface_destroyed),
+                          pointer);
+    }
+}
+
+
+static void
 repick_for_event (MetaWaylandPointer *pointer,
                   const ClutterEvent *for_event)
 {
@@ -675,7 +713,13 @@ meta_wayland_pointer_update (MetaWaylandPointer *pointer,
       event_type == CLUTTER_BUTTON_PRESS ||
       event_type == CLUTTER_BUTTON_RELEASE)
     {
+      if (event_type == CLUTTER_BUTTON_PRESS && pointer->button_count == 0)
+        meta_wayland_pointer_set_implicit_grab_surface (pointer, pointer->current);
+
       pointer->button_count = count_buttons (event);
+
+      if (event_type == CLUTTER_BUTTON_RELEASE && pointer->button_count == 0)
+        meta_wayland_pointer_set_implicit_grab_surface (pointer, NULL);
     }
 }
 
@@ -1604,8 +1648,12 @@ meta_wayland_pointer_get_focus_surface (MetaWaylandPointer *pointer)
 MetaWaylandSurface *
 meta_wayland_pointer_get_implicit_grab_surface (MetaWaylandPointer *pointer)
 {
-  if (pointer->button_count > 0)
-    return pointer->focus_surface;
+  if (pointer->button_count > 0 &&
+      pointer->implicit_grab_surface &&
+      (!pointer->current ||
+       wl_resource_get_client (pointer->implicit_grab_surface->resource) !=
+       wl_resource_get_client (pointer->current->resource)))
+    return pointer->implicit_grab_surface;
 
   return NULL;
 }
