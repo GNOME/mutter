@@ -176,7 +176,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
                           "display", context->display,
                           "id", startup_id,
                           "application-id", application_id,
-                          "name", g_app_info_get_name (info),
+                          "name", info ? g_app_info_get_name (info) : NULL,
                           "workspace", workspace_idx,
                           "timestamp", (uint64_t) context->timestamp,
                           NULL);
