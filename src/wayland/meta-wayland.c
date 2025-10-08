@@ -826,6 +826,7 @@ meta_wayland_compositor_finalize (GObject *object)
   MetaBackend *backend = meta_context_get_backend (compositor->context);
   ClutterActor *stage = meta_backend_get_stage (backend);
 
+  meta_wayland_xdg_foreign_finalize (compositor);
   meta_wayland_xdg_session_management_finalize (compositor);
   meta_wayland_activation_finalize (compositor);
   meta_wayland_outputs_finalize (compositor);
