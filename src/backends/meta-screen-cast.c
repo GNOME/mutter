@@ -279,7 +279,7 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
 {
   MetaDbusSessionManager *session_manager =
     META_DBUS_SESSION_MANAGER (screen_cast);
-  char *remote_desktop_session_id = NULL;
+  const char *remote_desktop_session_id = NULL;
   MetaRemoteDesktopSession *remote_desktop_session = NULL;
   MetaDbusSession *dbus_session;
   MetaScreenCastSession *session;
@@ -287,7 +287,7 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
   gboolean disable_animations;
   const char *session_path;
 
-  g_variant_lookup (properties, "remote-desktop-session-id", "s",
+  g_variant_lookup (properties, "remote-desktop-session-id", "&s",
                     &remote_desktop_session_id);
 
   if (remote_desktop_session_id)
