@@ -212,7 +212,7 @@ make_frame_clock_passive (MetaScreenCastVirtualStreamSrc *virtual_src,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
   ClutterFrameClock *frame_clock =
     clutter_stage_view_get_frame_clock (view);
-  MetaScreenCastFrameClockDriver *driver;
+  g_autoptr (MetaScreenCastFrameClockDriver) driver = NULL;
 
   driver = g_object_new (META_TYPE_SCREEN_CAST_FRAME_CLOCK_DRIVER, NULL);
   driver->src = src;
