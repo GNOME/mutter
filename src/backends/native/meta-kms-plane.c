@@ -475,6 +475,8 @@ update_cursor_size_hints (MetaKmsPlane      *plane,
       plane->size_hints.cursor_width [i] = size_hints[i].width;
       plane->size_hints.cursor_height [i] = size_hints[i].height;
     }
+
+  drmModeFreePropertyBlob (size_hints_blob);
 }
 
 static void
