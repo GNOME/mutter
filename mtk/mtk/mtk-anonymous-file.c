@@ -236,6 +236,7 @@ mtk_anonymous_file_new (const char    *name,
 void
 mtk_anonymous_file_free (MtkAnonymousFile *file)
 {
+  g_clear_pointer (&file->name, g_free);
   g_clear_fd (&file->fd, NULL);
   g_free (file);
 }
