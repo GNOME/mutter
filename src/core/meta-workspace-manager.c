@@ -96,6 +96,10 @@ meta_workspace_manager_finalize (GObject *object)
 
   meta_prefs_remove_listener (prefs_changed_callback, workspace_manager);
 
+  workspace_manager->active_workspace = NULL;
+  while (workspace_manager->workspaces)
+    meta_workspace_remove (workspace_manager->workspaces->data);
+
   G_OBJECT_CLASS (meta_workspace_manager_parent_class)->finalize (object);
 }
 

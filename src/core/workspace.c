@@ -296,7 +296,7 @@ assert_workspace_empty (MetaWorkspace *workspace)
 void
 meta_workspace_remove (MetaWorkspace *workspace)
 {
-  MetaWorkspaceManager *manager = workspace->display->workspace_manager;
+  MetaWorkspaceManager *manager = workspace->manager;
 
   g_return_if_fail (workspace != manager->active_workspace);
 
