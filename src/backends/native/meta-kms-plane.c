@@ -440,8 +440,8 @@ update_cursor_size_hints (MetaKmsPlane      *plane,
 
 {
   MetaKmsProp *prop;
-  drmModePropertyBlobPtr size_hints_blob = NULL;
-  struct drm_plane_size_hint *size_hints_ptr;
+  drmModePropertyBlobPtr size_hints_blob;
+  struct drm_plane_size_hint *size_hints;
   uint32_t blob_id, i, num_of_size_hints;
   int fd;
   MetaKmsPlaneType type = meta_kms_plane_get_plane_type (plane);
@@ -462,17 +462,18 @@ update_cursor_size_hints (MetaKmsPlane      *plane,
     return;
 
   plane->size_hints.has_size_hints = TRUE;
-  size_hints_ptr = size_hints_blob->data;
+  size_hints = size_hints_blob->data;
 
-  num_of_size_hints = size_hints_blob->length / sizeof (struct drm_plane_size_hint);
+  num_of_size_hints =
+    size_hints_blob->length / sizeof (struct drm_plane_size_hint);
   plane->size_hints.cursor_width = g_new0 (uint64_t, num_of_size_hints);
   plane->size_hints.cursor_height = g_new0 (uint64_t, num_of_size_hints);
   plane->size_hints.num_of_size_hints = num_of_size_hints;
 
   for (i = 0; i < num_of_size_hints; i++)
     {
-      plane->size_hints.cursor_width [i] = size_hints_ptr[i].width;
-      plane->size_hints.cursor_height [i] = size_hints_ptr[i].height;
+      plane->size_hints.cursor_width [i] = size_hints[i].width;
+      plane->size_hints.cursor_height [i] = size_hints[i].height;
     }
 }
 
