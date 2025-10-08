@@ -101,6 +101,8 @@ clutter_context_dispose (GObject *object)
   g_clear_object (&priv->pipeline_cache);
   g_clear_object (&priv->color_manager);
   g_clear_pointer (&context->events_queue, g_async_queue_unref);
+  if (context->backend)
+    g_object_run_dispose (G_OBJECT (context->backend));
   g_clear_pointer (&context->backend, clutter_backend_destroy);
   g_clear_object (&context->stage_manager);
   g_clear_object (&context->settings);

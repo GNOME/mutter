@@ -2096,6 +2096,8 @@ clutter_stage_get_key_focus (ClutterStage *stage)
   context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
   backend = clutter_context_get_backend (context);
   key_focus = clutter_backend_get_key_focus (backend, stage);
+  if (!key_focus)
+    return NULL;
 
   return clutter_focus_get_current_actor (CLUTTER_FOCUS (key_focus));
 }

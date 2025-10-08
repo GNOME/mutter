@@ -57,6 +57,8 @@ struct _MetaClutterBackendNative
 
   MetaBackend *backend;
 
+  gboolean disposed;
+
   GHashTable *touch_sprites;
   GHashTable *stylus_sprites;
   ClutterSprite *pointer_sprite;
@@ -194,6 +196,9 @@ meta_clutter_backend_native_get_sprite (ClutterBackend     *clutter_backend,
   ClutterEventSequence *event_sequence;
   ClutterInputDeviceType device_type;
 
+  if (clutter_backend_native->disposed)
+    return NULL;
+
   event_sequence = clutter_event_get_event_sequence (for_event);
   if (event_sequence)
     {
@@ -301,6 +306,9 @@ meta_clutter_backend_native_get_key_focus (ClutterBackend *clutter_backend,
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (clutter_backend);
 
+  if (clutter_backend_native->disposed)
+    return NULL;
+
   if (!clutter_backend_native->key_focus)
     {
       clutter_backend_native->key_focus =
@@ -337,15 +345,19 @@ meta_clutter_backend_native_constructed (GObject *object)
 }
 
 static void
-meta_clutter_backend_native_finalize (GObject *object)
+meta_clutter_backend_native_dispose (GObject *object)
 {
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (object);
 
+  clutter_backend_native->disposed = TRUE;
+
+  g_clear_object (&clutter_backend_native->pointer_sprite);
+  g_clear_object (&clutter_backend_native->key_focus);
   g_clear_pointer (&clutter_backend_native->touch_sprites, g_hash_table_unref);
   g_clear_pointer (&clutter_backend_native->stylus_sprites, g_hash_table_unref);
 
-  G_OBJECT_CLASS (meta_clutter_backend_native_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_clutter_backend_native_parent_class)->dispose (object);
 }
 
 static void
@@ -360,7 +372,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   ClutterBackendClass *clutter_backend_class = CLUTTER_BACKEND_CLASS (klass);
 
   object_class->constructed = meta_clutter_backend_native_constructed;
-  object_class->finalize = meta_clutter_backend_native_finalize;
+  object_class->dispose = meta_clutter_backend_native_dispose;
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
