@@ -13,7 +13,8 @@ typedef struct _TestState
 static void
 validate_result (TestState *state)
 {
-  uint32_t *pixels, *p;
+  g_autofree uint32_t *pixels = NULL;
+  uint32_t *p;
   char *screen_pixel;
   const char *intended_pixel = "#ffffff";
 
