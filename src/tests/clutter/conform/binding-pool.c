@@ -326,6 +326,7 @@ binding_pool (void)
   send_keyval (key_group, CLUTTER_KEY_Return);
 
   clutter_actor_destroy (CLUTTER_ACTOR (key_group));
+  g_object_unref (key_group);
 }
 
 CLUTTER_TEST_SUITE (
