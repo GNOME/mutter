@@ -282,6 +282,7 @@ create_logind_backlight (MetaBackend *backend,
   g_autoptr (GDBusProxy) mock_proxy = NULL;
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
+  g_autoptr (GVariant) result = NULL;
 
   mock_proxy = get_logind_mock_proxy (backend);
 
@@ -290,11 +291,12 @@ create_logind_backlight (MetaBackend *backend,
   g_variant_builder_add (&params_builder, "s", name);
   g_variant_builder_add (&params_builder, "u", brightness);
 
-  if (!g_dbus_proxy_call_sync (mock_proxy,
-                               "CreateBacklight",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (mock_proxy,
+                                   "CreateBacklight",
+                                   g_variant_builder_end (&params_builder),
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to create logind backlight: %s", error->message);
 }
 
@@ -306,6 +308,7 @@ destroy_logind_backlight (MetaBackend *backend,
   g_autoptr (GDBusProxy) mock_proxy = NULL;
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
+  g_autoptr (GVariant) result = NULL;
 
   mock_proxy = get_logind_mock_proxy (backend);
 
@@ -313,11 +316,12 @@ destroy_logind_backlight (MetaBackend *backend,
   g_variant_builder_add (&params_builder, "s", "backlight");
   g_variant_builder_add (&params_builder, "s", name);
 
-  if (!g_dbus_proxy_call_sync (mock_proxy,
-                               "DestroyBacklight",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (mock_proxy,
+                                   "DestroyBacklight",
+                                   g_variant_builder_end (&params_builder),
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to destroy logind backlight: %s", error->message);
 }
 
