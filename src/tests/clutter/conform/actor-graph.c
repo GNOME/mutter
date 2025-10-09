@@ -84,13 +84,12 @@ assert_last_child_notified (ChildNotifyData *notify_data,
 static void
 actor_add_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ChildNotifyData first_child_notify_data = {0};
   ChildNotifyData last_child_notify_data = {0};
   ClutterActor *iter;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   g_signal_connect (actor,
                     "notify::first-child",
@@ -150,20 +149,18 @@ actor_add_child (void)
   g_assert_null (clutter_actor_get_previous_sibling (iter));
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
 actor_insert_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ChildNotifyData first_child_notify_data = {0};
   ChildNotifyData last_child_notify_data = {0};
   ClutterActor *iter;
   gulong first_child_added_id, last_child_added_id;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   first_child_added_id =
     g_signal_connect (actor,
@@ -281,19 +278,17 @@ actor_insert_child (void)
   assert_last_child_notified (&last_child_notify_data, iter);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
 }
 
 static void
 actor_swap_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ChildNotifyData first_child_notify_data = {0};
   ChildNotifyData last_child_notify_data = {0};
   ClutterActor *child1, *child2;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   g_signal_connect (actor,
                     "notify::first-child",
@@ -521,17 +516,15 @@ actor_swap_child (void)
   assert_child_not_notified (&last_child_notify_data);
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
 actor_remove_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ClutterActor *iter;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -565,20 +558,18 @@ actor_remove_child (void)
   g_assert_null (clutter_actor_get_last_child (actor));
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
 actor_raise_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ChildNotifyData first_child_notify_data = {0};
   ChildNotifyData last_child_notify_data = {0};
   ClutterActor *iter;
   gboolean show_on_set_parent;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -695,21 +686,19 @@ actor_raise_child (void)
   assert_child_not_notified (&last_child_notify_data);
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
   g_assert_null (iter);
 }
 
 static void
 actor_lower_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ChildNotifyData first_child_notify_data = {0};
   ChildNotifyData last_child_notify_data = {0};
   ClutterActor *iter;
   gboolean show_on_set_parent;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -825,17 +814,15 @@ actor_lower_child (void)
   assert_child_not_notified (&last_child_notify_data);
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
 actor_replace_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ClutterActor *iter;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -886,16 +873,14 @@ actor_replace_child (void)
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "baz");
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
 actor_remove_all (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -914,7 +899,6 @@ actor_remove_all (void)
   g_assert_cmpint (clutter_actor_get_n_children (actor), ==, 0);
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
@@ -961,11 +945,10 @@ child_removed (ClutterActor *container,
 static void
 actor_container_signals (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   int add_count, remove_count;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   add_count = remove_count = 0;
   g_signal_connect (actor,
@@ -997,7 +980,6 @@ actor_container_signals (void)
                                         &remove_count);
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
@@ -1026,15 +1008,14 @@ actor_noop_child_assert_no_change (ClutterActor  *actor,
 static void
 actor_noop_child (void)
 {
-  ClutterActor *actor = clutter_actor_new ();
+  g_autoptr (ClutterActor) actor = NULL;
   ChildNotifyData first_child_notify_data = {0};
   ChildNotifyData last_child_notify_data = {0};
   ClutterActor *children[5];
   int add_count = 0;
   int remove_count = 0;
 
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  actor = clutter_actor_new ();
 
   g_signal_connect (actor,
                     "child-added", G_CALLBACK (child_added),
@@ -1124,7 +1105,6 @@ actor_noop_child (void)
     }
 
   clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
