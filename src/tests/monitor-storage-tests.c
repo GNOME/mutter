@@ -55,6 +55,7 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
   g_autoptr (MetaMonitorsConfig) child_config3 = NULL;
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
   g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
+  MetaMonitorsConfig *config;
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -137,12 +138,14 @@ meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
 
   g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
                  linear_config);
-  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
-                 linear_config);
+  config = meta_monitor_config_manager_pop_previous (config_manager);
+  g_assert_true (config == linear_config);
+  g_object_unref (config);
   g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
                  child_config3);
-  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
-                 child_config3);
+  config = meta_monitor_config_manager_pop_previous (config_manager);
+  g_assert_true (config == child_config3);
+  g_object_unref (config);
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
 }
@@ -152,6 +155,7 @@ meta_test_monitor_config_store_set_current (void)
 {
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
   g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
+  MetaMonitorsConfig *config;
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -178,8 +182,9 @@ meta_test_monitor_config_store_set_current (void)
                  linear_config);
   g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
                  old_current);
-  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
-                 old_current);
+  config = meta_monitor_config_manager_pop_previous (config_manager);
+  g_assert_true (config == old_current);
+  g_object_unref (config);
 
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
@@ -192,6 +197,7 @@ meta_test_monitor_config_store_set_current_with_parent (void)
   g_autoptr (MetaMonitorsConfig) other_child = NULL;
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
   g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
+  MetaMonitorsConfig *config;
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -260,8 +266,9 @@ meta_test_monitor_config_store_set_current_with_parent (void)
                  old_current);
   g_assert_true (meta_monitor_config_manager_get_previous (config_manager) ==
                  linear_config);
-  g_assert_true (meta_monitor_config_manager_pop_previous (config_manager) ==
-                 linear_config);
+  config = meta_monitor_config_manager_pop_previous (config_manager);
+  g_assert_true (config == linear_config);
+  g_object_unref (config);
 
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
@@ -324,10 +331,12 @@ meta_test_monitor_config_store_set_current_max_size (void)
 
   for (i = 0; i < config_history_max_size; i++)
     {
+      g_autoptr (MetaMonitorsConfig) previous_config = NULL;
+
       config = meta_monitor_config_manager_get_previous (config_manager);
       g_assert_nonnull (config);
-      g_assert_true (meta_monitor_config_manager_pop_previous (config_manager)
-                     == config);
+      previous_config = meta_monitor_config_manager_pop_previous (config_manager);
+      g_assert_true (previous_config == config);
       g_assert_true (config == g_list_nth_data (added, i + 1));
     }
 
