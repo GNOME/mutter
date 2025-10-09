@@ -239,6 +239,7 @@ gesture_state_machine_move_to_cancelled_on_sequence_cancel (void)
   ClutterGesture *gesture = CLUTTER_GESTURE (g_object_new (TEST_TYPE_GESTURE, NULL));
   gboolean was_updated;
   ClutterGestureState gesture_state_change;
+  g_autoptr (ClutterGrab) grab = NULL;
 
   virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
   now_us = g_get_monotonic_time ();
@@ -272,7 +273,7 @@ gesture_state_machine_move_to_cancelled_on_sequence_cancel (void)
   /* Take a grab on the second_actor so that the sequence for the button press
    * gets cancelled.
    */
-  clutter_stage_grab (CLUTTER_STAGE (stage), second_actor);
+  grab = clutter_stage_grab (CLUTTER_STAGE (stage), second_actor);
   g_assert_true (gesture_state_change == CLUTTER_GESTURE_STATE_CANCELLED);
   g_assert_true (clutter_gesture_get_state (gesture) == CLUTTER_GESTURE_STATE_WAITING);
   g_assert_cmpint (clutter_gesture_get_n_points (gesture), ==, 0);
