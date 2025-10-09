@@ -3118,7 +3118,7 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
   g_autoptr (GVariant) layout_mode_variant = NULL;
   MetaLogicalMonitorLayoutMode layout_mode;
   GVariantIter logical_monitor_configs_iter;
-  MetaMonitorsConfig *config;
+  g_autoptr (MetaMonitorsConfig) config = NULL;
   GList *logical_monitor_configs = NULL;
   GList *disabled_monitor_specs = NULL;
   GList *for_lease_monitor_specs = NULL;
@@ -3226,7 +3226,6 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_INVALID_ARGS,
                                              "%s", error->message);
-      g_object_unref (config);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
@@ -3235,7 +3234,6 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_INVALID_ARGS,
                                              "%s", error->message);
-      g_object_unref (config);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
@@ -3253,7 +3251,6 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_INVALID_ARGS,
                                              "%s", error->message);
-      g_object_unref (config);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
