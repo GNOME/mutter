@@ -731,7 +731,7 @@ test_naming_texture_units (TestState *state)
 static void
 test_snippet_properties (TestState *state)
 {
-  CoglSnippet *snippet;
+  g_autoptr (CoglSnippet) snippet = NULL;
 
   /* Sanity check modifying the snippet */
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT, "foo", "bar");
