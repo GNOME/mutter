@@ -726,7 +726,7 @@ main (int    argc,
 {
   g_autoptr (MetaContext) context = NULL;
   g_autoptr (GFile) gdctl_file = NULL;
-  char **argv_ignored = NULL;
+  g_auto (GStrv) argv_ignored = NULL;
   GOptionEntry options[] = {
     {
       G_OPTION_REMAINING,
