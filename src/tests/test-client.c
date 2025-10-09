@@ -1411,6 +1411,8 @@ main(int    argc,
   g_autoptr (GError) error = NULL;
   g_autoptr (GInputStream) raw_in = NULL;
   g_autoptr (GDataInputStream) in = NULL;
+  GHashTableIter iter;
+  gpointer key, value;
 
   g_log_writer_default_set_use_stderr (TRUE);
 
@@ -1466,6 +1468,12 @@ main(int    argc,
   read_next_line (in);
 
   gtk_main ();
+
+  g_hash_table_iter_init (&iter, windows);
+  while (g_hash_table_iter_next (&iter, &key, &value))
+    gtk_widget_destroy (value);
+
+  gdk_display_close (gdk_display_get_default ());
 
   return 0;
 }
