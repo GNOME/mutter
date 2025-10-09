@@ -249,10 +249,12 @@ meta_sensors_proxy_mock_wait_accelerometer_claimed (MetaSensorsProxyMock *proxy,
     {
       g_autoptr (GVariant) ret = NULL;
       size_t n_owners = 0;
+      g_autofree const char **owners = NULL;
 
       ret = get_internal_property_value (proxy, "AccelerometerOwners");
 
-      if (!g_variant_get_strv (ret, &n_owners))
+      owners = g_variant_get_strv (ret, &n_owners);
+      if (!owners)
         g_assert_not_reached ();
 
       if (n_owners == (claimed ? 1 : 0))
