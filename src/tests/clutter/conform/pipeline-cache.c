@@ -36,10 +36,10 @@ pipeline_cache_group_pipelines (void)
   ClutterPipelineCache *pipeline_cache = clutter_context_get_pipeline_cache (context);
   static ClutterPipelineGroup group1 = &group1;
   static ClutterPipelineGroup group2 = &group2;
-  ClutterColorState *srgb_srgb;
-  ClutterColorState *srgb_linear;
-  ClutterColorState *bt2020_pq;
-  ClutterColorState *bt2020_linear;
+  g_autoptr (ClutterColorState) srgb_srgb = NULL;
+  g_autoptr (ClutterColorState) srgb_linear = NULL;
+  g_autoptr (ClutterColorState) bt2020_pq = NULL;
+  g_autoptr (ClutterColorState) bt2020_linear = NULL;
   /* SDR content with HDR output */
   CoglPipeline *srgb_srgb_to_bt2020_linear;
   CoglPipeline *bt2020_linear_to_bt2020_pq;
@@ -147,8 +147,8 @@ pipeline_cache_replace_pipeline (void)
   CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
   ClutterPipelineCache *pipeline_cache = clutter_context_get_pipeline_cache (context);
   static ClutterPipelineGroup group = &group;
-  ClutterColorState *srgb_srgb;
-  ClutterColorState *bt2020_linear;
+  g_autoptr (ClutterColorState) srgb_srgb = NULL;
+  g_autoptr (ClutterColorState) bt2020_linear = NULL;
   CoglPipeline *srgb_srgb_to_bt2020_linear;
   CoglPipeline *srgb_srgb_to_bt2020_linear_2;
 
@@ -203,8 +203,8 @@ pipeline_slots (void)
   CoglContext *cogl_context = clutter_backend_get_cogl_context (backend);
   ClutterPipelineCache *pipeline_cache = clutter_context_get_pipeline_cache (context);
   static ClutterPipelineGroup group = &group;
-  ClutterColorState *srgb_srgb;
-  ClutterColorState *bt2020_linear;
+  g_autoptr (ClutterColorState) srgb_srgb = NULL;
+  g_autoptr (ClutterColorState) bt2020_linear = NULL;
   CoglPipeline *srgb_srgb_to_bt2020_linear;
   CoglPipeline *srgb_srgb_to_bt2020_linear_2;
 
