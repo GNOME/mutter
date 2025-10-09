@@ -492,6 +492,7 @@ event_delivery_implicit_grab_existing_clutter_grab (void)
   n_child_1_enter_events = n_child_2_enter_events = n_stage_enter_events = 0;
   n_child_1_leave_events = n_child_2_leave_events = n_stage_leave_events = 0;
   clutter_grab_dismiss (grab_2);
+  g_object_unref (grab_2);
   g_assert_cmpint (n_child_1_enter_events, ==, 1);
   g_assert_cmpint (n_child_1_leave_events, ==, 0);
   g_assert_cmpint (n_child_2_enter_events, ==, 0);
@@ -502,6 +503,7 @@ event_delivery_implicit_grab_existing_clutter_grab (void)
   n_child_1_enter_events = n_child_2_enter_events = n_stage_enter_events = 0;
   n_child_1_leave_events = n_child_2_leave_events = n_stage_leave_events = 0;
   clutter_grab_dismiss (grab_1);
+  g_object_unref (grab_1);
   g_assert_cmpint (n_child_1_enter_events, ==, 0);
   g_assert_cmpint (n_child_1_leave_events, ==, 0);
   g_assert_cmpint (n_child_2_enter_events, ==, 0);
