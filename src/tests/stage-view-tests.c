@@ -895,6 +895,8 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
 
   clutter_actor_destroy (test_actor);
   clutter_actor_destroy (container);
+
+  g_object_unref (timeline);
 }
 
 static void
