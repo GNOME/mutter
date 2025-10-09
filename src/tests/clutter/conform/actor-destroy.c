@@ -9,6 +9,8 @@ struct _TestDestroy
 {
   ClutterActor parent_instance;
 
+  gboolean destroyed;
+
   ClutterActor *bg;
   ClutterActor *label;
 
@@ -22,6 +24,11 @@ test_destroy_destroy (ClutterActor *self)
 {
   TestDestroy *test = TEST_DESTROY (self);
   GList *children;
+
+  if (test->destroyed)
+    return;
+
+  test->destroyed = TRUE;
 
   children = clutter_actor_get_children (self);
   g_assert_cmpuint (g_list_length (children), ==, 3);
@@ -115,13 +122,18 @@ on_notify (ClutterActor *actor,
 static void
 actor_destruction (void)
 {
-  ClutterActor *test = g_object_new (TEST_TYPE_DESTROY, NULL);
-  ClutterActor *child = clutter_actor_new ();
+  ClutterActor *test;
+  ClutterActor *child;
+  g_autoptr (ClutterActor) to_cleanup = NULL;
   gboolean destroy_called = FALSE;
   gboolean parent_set_called = FALSE;
   gboolean property_changed = FALSE;
 
+  test = g_object_new (TEST_TYPE_DESTROY, NULL);
   g_object_ref_sink (test);
+  to_cleanup = test;
+
+  child = clutter_actor_new ();
 
   g_object_add_weak_pointer (G_OBJECT (test), (gpointer *) &test);
   g_object_add_weak_pointer (G_OBJECT (child), (gpointer *) &child);
