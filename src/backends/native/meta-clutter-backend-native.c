@@ -256,6 +256,7 @@ meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
 
   meta_seat_native_remove_cursor_renderer (META_SEAT_NATIVE (seat), sprite);
 
+  g_object_ref (sprite);
   g_hash_table_remove (clutter_backend_native->touch_sprites,
                        clutter_sprite_get_sequence (sprite));
   g_hash_table_remove (clutter_backend_native->stylus_sprites,
@@ -263,6 +264,7 @@ meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
 
   if (clutter_backend_native->pointer_sprite == sprite)
     g_clear_object (&clutter_backend_native->pointer_sprite);
+  g_object_unref (sprite);
 }
 
 static gboolean
