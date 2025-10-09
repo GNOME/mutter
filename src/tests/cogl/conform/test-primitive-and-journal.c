@@ -117,6 +117,9 @@ test_primitive_and_journal (void)
 
   cogl_framebuffer_pop_clip (test_fb);
 
+  g_clear_object (&primitives[0]);
+  g_clear_object (&primitives[1]);
+
   if (cogl_test_verbose ())
     g_print ("OK\n");
 }
