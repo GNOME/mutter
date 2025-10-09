@@ -8,11 +8,9 @@
 static void
 actor_initial_state (void)
 {
-  ClutterActor *actor;
+  g_autoptr (ClutterActor) actor = NULL;
 
   actor = clutter_actor_new ();
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
 
   if (!g_test_quiet ())
     g_print ("initial state - visible: %s, realized: %s, mapped: %s\n",
@@ -23,19 +21,14 @@ actor_initial_state (void)
   g_assert_false ((clutter_actor_is_realized (actor)));
   g_assert_false ((clutter_actor_is_mapped (actor)));
   g_assert_false ((clutter_actor_is_visible (actor)));
-
-  clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
 actor_shown_not_parented (void)
 {
-  ClutterActor *actor;
+  g_autoptr (ClutterActor) actor = NULL;
 
   actor = clutter_actor_new ();
-  g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
 
   clutter_actor_show (actor);
 
@@ -48,9 +41,6 @@ actor_shown_not_parented (void)
   g_assert_false (clutter_actor_is_realized (actor));
   g_assert_false (clutter_actor_is_mapped (actor));
   g_assert_true (clutter_actor_is_visible (actor));
-
-  clutter_actor_destroy (actor);
-  g_assert_null (actor);
 }
 
 static void
@@ -293,6 +283,7 @@ actor_show_on_set_parent (void)
 
   clutter_actor_destroy (actor);
   clutter_actor_destroy (group);
+  g_object_unref (actor);
 
   actor = clutter_actor_new ();
   clutter_actor_add_child (stage, actor);
