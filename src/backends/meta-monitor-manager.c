@@ -3115,7 +3115,7 @@ meta_monitor_manager_handle_apply_monitors_config (MetaDBusDisplayConfig *skelet
   MetaMonitorConfigStore *config_store;
   const MetaMonitorConfigPolicy *policy;
   MetaMonitorManagerCapability capabilities;
-  GVariant *layout_mode_variant = NULL;
+  g_autoptr (GVariant) layout_mode_variant = NULL;
   MetaLogicalMonitorLayoutMode layout_mode;
   GVariantIter logical_monitor_configs_iter;
   MetaMonitorsConfig *config;
