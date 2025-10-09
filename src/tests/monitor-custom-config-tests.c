@@ -3009,7 +3009,7 @@ on_proxy_call_cb (GObject      *object,
 
   *ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (object), res, &error);
   g_assert_no_error (error);
-  g_assert_nonnull (ret);
+  g_assert_nonnull (*ret);
 }
 
 static void
