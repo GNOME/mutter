@@ -4521,7 +4521,7 @@ switch_config_idle_cb (gpointer user_data)
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (monitor_manager);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
-  MetaMonitorsConfig *config;
+  g_autoptr (MetaMonitorsConfig) config = NULL;
   g_autoptr (GError) error = NULL;
 
   priv->switch_config_handle_id = 0;
