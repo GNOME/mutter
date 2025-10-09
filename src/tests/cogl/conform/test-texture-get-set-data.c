@@ -11,7 +11,7 @@ check_texture (int width, int height, TestUtilsTextureFlags flags)
   uint8_t *data, *p;
   int y, x;
   int rowstride;
-  CoglBitmap *bmp;
+  g_autoptr (CoglBitmap) bmp = NULL;
 
   p = data = g_malloc (width * height * 4);
   for (y = 0; y < height; y++)
