@@ -1402,13 +1402,16 @@ int
 main(int    argc,
      char **argv)
 {
-  GOptionContext *context = g_option_context_new (NULL);
+  g_autoptr (GOptionContext) context = NULL;
   GdkScreen *screen;
   GtkCssProvider *provider;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GInputStream) raw_in = NULL;
+  g_autoptr (GDataInputStream) in = NULL;
 
   g_log_writer_default_set_use_stderr (TRUE);
 
+  context = g_option_context_new (NULL);
   g_option_context_add_main_entries (context, options, NULL);
 
   if (!g_option_context_parse (context,
@@ -1454,8 +1457,8 @@ main(int    argc,
   event_handlers_quark = g_quark_from_static_string ("event-handlers");
   can_take_focus_quark = g_quark_from_static_string ("can-take-focus");
 
-  GInputStream *raw_in = g_unix_input_stream_new (0, FALSE);
-  GDataInputStream *in = g_data_input_stream_new (raw_in);
+  raw_in = g_unix_input_stream_new (0, FALSE);
+  in = g_data_input_stream_new (raw_in);
 
   read_next_line (in);
 
