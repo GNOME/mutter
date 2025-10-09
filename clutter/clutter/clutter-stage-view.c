@@ -289,7 +289,7 @@ ensure_stage_view_offscreen (ClutterStageView *view)
   if (!offscreen)
     g_error ("Failed to allocate back buffer texture: %s", local_error->message);
 
-  g_set_object (&priv->offscreen, g_steal_pointer (&offscreen));
+  g_set_object (&priv->offscreen, offscreen);
 }
 
 static void
