@@ -660,6 +660,7 @@ on_destroy_effect_stopped (ClutterTimeline    *timeline,
   actor_priv->destroy_timeline = NULL;
 
   meta_plugin_destroy_completed (plugin, window_actor);
+  effect_complete_data_free (data);
 }
 
 static void
