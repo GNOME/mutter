@@ -349,8 +349,8 @@ on_before_tests (MetaContext *context)
 {
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglOffscreen *offscreen;
-  CoglTexture *tex;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
+  g_autoptr (CoglTexture) tex = NULL;
   GError *error = NULL;
 
   test_ctx = clutter_backend_get_cogl_context (clutter_backend);
@@ -359,7 +359,7 @@ on_before_tests (MetaContext *context)
   g_assert_nonnull (tex);
   offscreen = cogl_offscreen_new_with_texture (tex);
   g_assert_nonnull (offscreen);
-  test_fb = COGL_FRAMEBUFFER (offscreen);
+  test_fb = COGL_FRAMEBUFFER (g_steal_pointer (&offscreen));
 
   if (!cogl_framebuffer_allocate (test_fb, &error))
     g_error ("Failed to allocate framebuffer: %s", error->message);
