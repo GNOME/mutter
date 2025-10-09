@@ -203,6 +203,8 @@ meta_async_waiter_destroy (MetaAsyncWaiter *waiter)
                                     (gpointer *) &waiter->x11_display);
     }
   g_main_loop_unref (waiter->loop);
+
+  g_free (waiter);
 }
 
 static int
