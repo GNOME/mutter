@@ -1569,7 +1569,7 @@ clutter_gesture_get_points (ClutterGesture *self,
                             size_t         *n_points)
 {
   ClutterGesturePrivate *priv;
-  GArray *points = NULL;
+  g_autoptr (GArray) points = NULL;
   unsigned int i;
 
   g_return_val_if_fail (CLUTTER_IS_GESTURE (self), 0);
