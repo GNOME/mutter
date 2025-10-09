@@ -74,7 +74,7 @@ clutter_pango_pipeline_cache_new (CoglContext *ctx)
 {
   ClutterPangoPipelineCache *cache = g_new (ClutterPangoPipelineCache, 1);
 
-  cache->ctx = g_object_ref (ctx);
+  cache->ctx = ctx;
 
   /* The key is the pipeline pointer. A reference is taken when the
      pipeline is used as a key so we should unref it again in the
@@ -222,8 +222,6 @@ clutter_pango_pipeline_cache_free (ClutterPangoPipelineCache *cache)
   g_clear_object (&cache->base_texture_alpha_pipeline);
 
   g_clear_pointer (&cache->hash_table, g_hash_table_destroy);
-
-  g_clear_object (&cache->ctx);
 
   g_free (cache);
 }

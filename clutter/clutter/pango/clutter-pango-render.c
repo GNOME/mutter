@@ -200,16 +200,6 @@ clutter_pango_renderer_set_property (GObject      *object,
 }
 
 static void
-clutter_pango_renderer_dispose (GObject *object)
-{
-  ClutterPangoRenderer *renderer = CLUTTER_PANGO_RENDERER (object);
-
-  g_clear_object (&renderer->ctx);
-
-  G_OBJECT_CLASS (clutter_pango_renderer_parent_class)->dispose (object);
-}
-
-static void
 clutter_pango_renderer_finalize (GObject *object)
 {
   ClutterPangoRenderer *renderer = CLUTTER_PANGO_RENDERER (object);
@@ -632,7 +622,6 @@ clutter_pango_renderer_class_init (ClutterPangoRendererClass *klass)
 
   object_class->set_property = clutter_pango_renderer_set_property;
   object_class->constructed = clutter_pango_renderer_constructed;
-  object_class->dispose = clutter_pango_renderer_dispose;
   object_class->finalize = clutter_pango_renderer_finalize;
 
   pspec = g_param_spec_object ("context", NULL, NULL,
