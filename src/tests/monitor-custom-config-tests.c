@@ -3106,6 +3106,7 @@ meta_test_monitor_custom_for_lease_config_dbus (void)
   MetaMonitorTestSetup *test_setup;
   g_autoptr (GDBusProxy) display_config_proxy = NULL;
   g_autoptr (GVariant) state = NULL;
+  g_autoptr (GVariant) serial_variant = NULL;
   uint32_t serial;
   GVariantBuilder b;
   g_autoptr (GVariant) apply_config_ret = NULL;
@@ -3145,7 +3146,8 @@ meta_test_monitor_custom_for_lease_config_dbus (void)
   assert_monitor_state (state, 1, "DP-2", TRUE);
 
   /* Swap monitor for lease */
-  serial = g_variant_get_uint32 (g_variant_get_child_value (state, 0));
+  serial_variant = g_variant_get_child_value (state, 0);
+  serial = g_variant_get_uint32 (serial_variant);
 
   g_variant_builder_init (&b, G_VARIANT_TYPE ("(uua(iiduba(ssa{sv}))a{sv})"));
   g_variant_builder_add (&b, "u", serial); /* Serial from GetCurrentState */
