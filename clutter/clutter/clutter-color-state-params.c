@@ -29,6 +29,7 @@
 #include "clutter/clutter-color-state-params.h"
 
 #include "clutter/clutter-color-state-private.h"
+#include "clutter/clutter-context.h"
 
 #define UNIFORM_NAME_GAMMA_EXP "gamma_exp"
 #define UNIFORM_NAME_INV_GAMMA_EXP "inv_gamma_exp"
@@ -2134,7 +2135,7 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
 {
   ClutterColorStateParams *color_state_params =
     CLUTTER_COLOR_STATE_PARAMS (color_state);
-  ClutterContext *context;
+  g_autoptr (ClutterContext) context = NULL;
   ClutterColorimetry blending_colorimetry;
   ClutterEOTF blending_eotf;
   ClutterLuminance luminance, blending_luminance;
