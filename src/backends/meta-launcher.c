@@ -129,6 +129,7 @@ get_session_proxy_from_id (const char    *session_id,
 {
   g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
   g_autofree char *proxy_path = NULL;
+  g_autofree char *name_owner = NULL;
 
   proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/session",
                                       session_id);
@@ -145,7 +146,8 @@ get_session_proxy_from_id (const char    *session_id,
       return NULL;
     }
 
-  g_warn_if_fail (g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy)));
+  name_owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy));
+  g_warn_if_fail (name_owner);
 
   return g_steal_pointer (&session_proxy);
 }
@@ -183,7 +185,8 @@ get_session_proxy_from_pid (GCancellable  *cancellable,
 {
   g_autoptr (MetaDBusLogin1Manager) manager_proxy = NULL;
   g_autoptr (MetaDBusLogin1Session) session_proxy = NULL;
-  char *session_path = NULL;
+  g_autofree char *session_path = NULL;
+  g_autofree char *name_owner = NULL;
 
   manager_proxy =
     meta_dbus_login1_manager_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
@@ -212,7 +215,8 @@ get_session_proxy_from_pid (GCancellable  *cancellable,
   if (!session_proxy)
     return NULL;
 
-  g_warn_if_fail (g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy)));
+  name_owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy));
+  g_warn_if_fail (name_owner);
 
   return g_steal_pointer (&session_proxy);
 }
@@ -401,6 +405,7 @@ get_seat_proxy (MetaDBusLogin1Session  *session_proxy,
   MetaDBusLogin1Seat *seat_proxy;
   const char *seat_path;
   GDBusProxyFlags flags;
+  g_autofree char *name_owner = NULL;
 
   seat_variant = meta_dbus_login1_session_get_seat (session_proxy);
 
@@ -417,7 +422,8 @@ get_seat_proxy (MetaDBusLogin1Session  *session_proxy,
   if (!seat_proxy)
     g_prefix_error (error, "Could not get seat proxy: ");
 
-  g_warn_if_fail (g_dbus_proxy_get_name_owner (G_DBUS_PROXY (seat_proxy)));
+  name_owner = g_dbus_proxy_get_name_owner (G_DBUS_PROXY (session_proxy));
+  g_warn_if_fail (name_owner);
 
   return seat_proxy;
 }
