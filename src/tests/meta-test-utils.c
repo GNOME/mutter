@@ -787,7 +787,7 @@ meta_set_custom_monitor_config_full (MetaBackend            *backend,
     meta_backend_get_monitor_manager (backend);
   MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
   MetaMonitorConfigStore *config_store;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   g_autofree char *path = NULL;
 
   g_assert_nonnull (config_manager);
