@@ -27,7 +27,7 @@
 static void
 actor_color_state_default (void)
 {
-  ClutterActor *actor;
+  g_autoptr (ClutterActor) actor = NULL;
   ClutterColorState *color_state;
   ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
@@ -50,8 +50,8 @@ static void
 actor_color_state_passed (void)
 {
   ClutterContext *context = clutter_test_get_context ();
-  ClutterActor *actor;
-  ClutterColorState *color_state;
+  g_autoptr (ClutterActor) actor = NULL;
+  g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterEOTF *eotf;
@@ -91,8 +91,8 @@ static void
 actor_change_color_state (void)
 {
   ClutterContext *context = clutter_test_get_context ();
-  ClutterActor *actor;
-  ClutterColorState *color_state;
+  g_autoptr (ClutterActor) actor = NULL;
+  g_autoptr (ClutterColorState) color_state = NULL;
   ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
   const ClutterEOTF *eotf;
@@ -124,7 +124,7 @@ actor_change_color_state (void)
 static void
 actor_unset_color_state (void)
 {
-  ClutterActor *actor;
+  g_autoptr (ClutterActor) actor = NULL;
   ClutterColorState *color_state;
   ClutterColorStateParams *color_state_params;
   const ClutterColorimetry *colorimetry;
