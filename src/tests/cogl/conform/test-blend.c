@@ -21,8 +21,8 @@ paint (void)
         { half_width, height, 0x80, 0x80, 0x80, 0x80 },
         { width, height, 0x80, 0x80, 0x80, 0x80 },
   };
-  CoglPrimitive *tri0;
-  CoglPrimitive *tri1;
+  g_autoptr (CoglPrimitive) tri0 = NULL;
+  g_autoptr (CoglPrimitive) tri1 = NULL;
 
   cogl_framebuffer_clear4f (test_fb, COGL_BUFFER_BIT_COLOR, 0, 0, 0, 0);
 
