@@ -29,8 +29,10 @@ static CoglTexture *
 create_source (TestState *state)
 {
   int dx, dy;
-  uint8_t *data = g_malloc (SOURCE_SIZE * SOURCE_SIZE * 4);
+  g_autofree uint8_t *data = NULL;
   CoglTexture *tex;
+
+  data = g_malloc (SOURCE_SIZE * SOURCE_SIZE * 4);
 
   /* Create a texture with a different coloured rectangle at each
      corner */
