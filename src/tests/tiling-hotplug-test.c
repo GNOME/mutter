@@ -37,7 +37,7 @@ dispatch (void)
   MetaDisplay *display = meta_context_get_display (test_context);
   MetaCompositor *compositor = meta_display_get_compositor (display);
   MetaLaters *laters = meta_compositor_get_laters (compositor);
-  GMainLoop *loop;
+  g_autoptr (GMainLoop) loop = NULL;
 
   loop = g_main_loop_new (NULL, FALSE);
   meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
