@@ -1131,6 +1131,7 @@ process_line (const char       *line,
           output_info = XRRGetOutputInfo (xdisplay, resources, primary_output);
           if (!output_info)
             {
+              XRRFreeScreenResources (resources);
               g_print ("Failed to retrieve primary XRANDR output info\n");
               goto out;
             }
@@ -1138,12 +1139,14 @@ process_line (const char       *line,
           if (g_strcmp0 (expected_name, output_info->name) != 0)
             {
               XRRFreeOutputInfo (output_info);
+              XRRFreeScreenResources (resources);
               g_print ("XRANDR output %s primary, expected %s\n",
                        output_info->name, expected_name);
               goto out;
             }
           XRRFreeOutputInfo (output_info);
         }
+      XRRFreeScreenResources (resources);
     }
   else if (strcmp (argv[0], "stop_after_next") == 0)
     {
