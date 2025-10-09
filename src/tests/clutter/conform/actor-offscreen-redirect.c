@@ -165,8 +165,10 @@ verify_results (Data *data,
 static void
 verify_redraw (Data *data, int expected_paint_count)
 {
-  GMainLoop *main_loop = g_main_loop_new (NULL, TRUE);
+  g_autoptr (GMainLoop) main_loop = NULL;
   gulong paint_handler;
+
+  main_loop = g_main_loop_new (NULL, TRUE);
 
   paint_handler = g_signal_connect_data (CLUTTER_STAGE (data->stage),
                                          "after-paint",
