@@ -83,7 +83,7 @@ test_actor_init (TestActor *self)
 static void
 actor_preferred_size (void)
 {
-  ClutterActor *test;
+  g_autoptr (ClutterActor) test = NULL;
   TestActor *self;
   gfloat min_width, min_height;
   gfloat nat_width, nat_height;
@@ -136,8 +136,6 @@ actor_preferred_size (void)
   g_assert_true (self->preferred_height_called);
   g_assert_cmpfloat (min_height, ==, 50);
   g_assert_cmpfloat (nat_height, ==, 100);
-
-  clutter_actor_destroy (test);
 }
 
 static void
