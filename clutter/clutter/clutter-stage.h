@@ -215,7 +215,8 @@ ClutterActor * clutter_stage_get_event_actor (ClutterStage       *stage,
 
 CLUTTER_EXPORT
 ClutterGrab * clutter_stage_grab (ClutterStage *stage,
-                                  ClutterActor *actor);
+                                  ClutterActor *actor)
+  G_GNUC_WARN_UNUSED_RESULT;
 
 CLUTTER_EXPORT
 ClutterGrab * clutter_stage_grab_inactive (ClutterStage *stage,
