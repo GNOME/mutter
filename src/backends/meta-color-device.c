@@ -273,7 +273,7 @@ meta_color_device_dispose (GObject *object)
   MetaColorDevice *color_device = META_COLOR_DEVICE (object);
   MetaColorManager *color_manager = color_device->color_manager;
   CdClient *cd_client = meta_color_manager_get_cd_client (color_manager);
-  CdDevice *cd_device;
+  g_autoptr (CdDevice) cd_device = NULL;
   const char *cd_device_id;
 
   meta_topic (META_DEBUG_COLOR,
@@ -296,7 +296,8 @@ meta_color_device_dispose (GObject *object)
   g_clear_object (&color_device->assigned_profile);
   g_clear_object (&color_device->device_profile);
 
-  cd_device = color_device->cd_device;
+  g_set_object (&cd_device, color_device->cd_device);
+
   cd_device_id = color_device->cd_device_id;
   if (!cd_device && !color_device->is_ready &&
       cd_device_id && meta_color_manager_is_ready (color_manager))
