@@ -26,15 +26,12 @@ actor_clone_unmapped (void)
   stage = clutter_test_get_stage ();
 
   container = clutter_actor_new ();
-  g_object_ref_sink (container);
   g_object_add_weak_pointer (G_OBJECT (container), (gpointer *) &container);
 
   actor = clutter_actor_new ();
-  g_object_ref_sink (actor);
   g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
 
   clone = clutter_clone_new (actor);
-  g_object_ref_sink (clone);
   g_object_add_weak_pointer (G_OBJECT (clone), (gpointer *) &clone);
 
   clutter_actor_hide (container);
