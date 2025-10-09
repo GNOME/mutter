@@ -236,6 +236,7 @@ set_colord_device_profiles (const char  *cd_device_id,
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
   GVariantBuilder profiles_builder;
+  g_autoptr (GVariant) result = NULL;
   int i;
 
   proxy = get_colord_mock_proxy ();
@@ -248,11 +249,12 @@ set_colord_device_profiles (const char  *cd_device_id,
     g_variant_builder_add (&profiles_builder, "s", cd_profile_ids[i]);
   g_variant_builder_add (&params_builder, "as", &profiles_builder);
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "SetDeviceProfiles",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (proxy,
+                                   "SetDeviceProfiles",
+                                   g_variant_builder_end (&params_builder),
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to set device profile: %s", error->message);
 }
 
@@ -263,6 +265,7 @@ add_colord_system_profile (const char *cd_profile_id,
   GDBusProxy *proxy;
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
+  g_autoptr (GVariant) result = NULL;
 
   proxy = get_colord_mock_proxy ();
 
@@ -270,11 +273,12 @@ add_colord_system_profile (const char *cd_profile_id,
   g_variant_builder_add (&params_builder, "s", cd_profile_id);
   g_variant_builder_add (&params_builder, "s", file_path);
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "AddSystemProfile",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (proxy,
+                                   "AddSystemProfile",
+                                   g_variant_builder_end (&params_builder),
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to add system profile: %s", error->message);
 }
 
@@ -308,17 +312,19 @@ set_night_light_temperature (unsigned int temperature)
   GDBusProxy *proxy;
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
+  g_autoptr (GVariant) result = NULL;
 
   proxy = get_gsd_color_mock_proxy ();
 
   g_variant_builder_init (&params_builder, G_VARIANT_TYPE ("(u)"));
   g_variant_builder_add (&params_builder, "u", temperature);
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "SetTemperature",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (proxy,
+                                   "SetTemperature",
+                                   g_variant_builder_end (&params_builder),
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to set gsd-color temperature devices: %s", error->message);
 }
 
@@ -328,17 +334,19 @@ set_night_light_active (gboolean active)
   GDBusProxy *proxy;
   g_autoptr (GError) error = NULL;
   GVariantBuilder params_builder;
+  g_autoptr (GVariant) result = NULL;
 
   proxy = get_gsd_color_mock_proxy ();
 
   g_variant_builder_init (&params_builder, G_VARIANT_TYPE ("(b)"));
   g_variant_builder_add (&params_builder, "b", active);
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "SetNightLightActive",
-                               g_variant_builder_end (&params_builder),
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (proxy,
+                                   "SetNightLightActive",
+                                   g_variant_builder_end (&params_builder),
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to set enable or disable night light: %s", error->message);
 }
 
@@ -352,14 +360,16 @@ prepare_color_test (void)
     meta_backend_get_color_manager (backend);
   GDBusProxy *proxy;
   g_autoptr (GError) error = NULL;
+  g_autoptr (GVariant) result = NULL;
 
   proxy = get_colord_mock_proxy ();
 
-  if (!g_dbus_proxy_call_sync (proxy,
-                               "Reset",
-                               NULL,
-                               G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
-                               &error))
+  result = g_dbus_proxy_call_sync (proxy,
+                                   "Reset",
+                                   NULL,
+                                   G_DBUS_CALL_FLAGS_NO_AUTO_START, -1, NULL,
+                                   &error);
+  if (!result)
     g_error ("Failed to reset mocked colord state: %s", error->message);
 
   g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
@@ -798,10 +808,10 @@ meta_test_color_management_profile_efivar (void)
     meta_backend_get_color_manager (backend);
   char efivar_path[] = "/tmp/efivar-test-profile-XXXXXX";
   int fd;
-  CdColorYxy *reference_red_yxy;
-  CdColorYxy *reference_green_yxy;
-  CdColorYxy *reference_blue_yxy;
-  CdColorYxy *reference_white_yxy;
+  g_autoptr (CdColorYxy) reference_red_yxy = NULL;
+  g_autoptr (CdColorYxy) reference_green_yxy = NULL;
+  g_autoptr (CdColorYxy) reference_blue_yxy = NULL;
+  g_autoptr (CdColorYxy) reference_white_yxy = NULL;
   MetaEdidInfo edid_info;
   MonitorTestCaseSetup test_case_setup = base_monitor_setup;
   MetaMonitorTestSetup *test_setup;
