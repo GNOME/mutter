@@ -288,6 +288,7 @@ meta_surface_actor_dispose (GObject *object)
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
+  g_clear_pointer (&priv->pending_damage, mtk_region_unref);
   g_clear_pointer (&priv->input_region, mtk_region_unref);
   g_clear_object (&priv->texture);
 
