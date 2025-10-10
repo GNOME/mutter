@@ -42,11 +42,13 @@ main (void)
     {
       printf ("X11 Compositor is available for display %s.%d\n",
               DisplayString (dpy), XDefaultScreen (dpy));
+      XCloseDisplay (dpy);
       return 0;
     }
 
   printf ("NO X11 Compositor is available for display %s:%d\n",
           DisplayString (dpy), XDefaultScreen (dpy));
+  XCloseDisplay (dpy);
 
   return 1;
 }
