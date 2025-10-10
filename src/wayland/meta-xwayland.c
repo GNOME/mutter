@@ -418,6 +418,9 @@ xserver_died (GObject      *source,
       g_clear_error (&error);
     }
 
+  g_clear_object (&manager->xserver_died_cancellable);
+  g_clear_object (&manager->proc);
+
   x11_display_policy =
     meta_context_get_x11_display_policy (compositor->context);
   if (!g_subprocess_get_successful (proc))
