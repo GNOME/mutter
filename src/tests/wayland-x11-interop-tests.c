@@ -200,6 +200,9 @@ service_client_thread_func (gpointer user_data)
 
   g_atomic_int_set (&data->client_terminated, TRUE);
 
+  g_clear_object (&service_channel);
+  while (g_main_context_iteration (thread_main_context, FALSE));
+
   return NULL;
 }
 
