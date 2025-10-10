@@ -487,7 +487,7 @@ meta_session_manager_snapshot (MetaSessionManager *manager)
   g_hash_table_iter_init (&iter, manager->sessions);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &session_state))
     {
-      GHashTable *session_table;
+      g_autoptr (GHashTable) session_table = NULL;
 
       session_table =
         gvdb_hash_table_new (session_data->new_table,

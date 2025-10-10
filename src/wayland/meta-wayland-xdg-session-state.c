@@ -186,7 +186,7 @@ meta_wayland_xdg_session_state_serialize (MetaSessionState *session_state,
 {
   MetaWaylandXdgSessionState *xdg_session_state =
     META_WAYLAND_XDG_SESSION_STATE (session_state);
-  GHashTable *toplevels;
+  g_autoptr (GHashTable) toplevels = NULL;
   GHashTableIter iter;
   gpointer key, value;
   GvdbItem *item;
@@ -204,7 +204,7 @@ meta_wayland_xdg_session_state_serialize (MetaSessionState *session_state,
     {
       char *name = key;
       MetaWaylandXdgToplevelState *toplevel_state = value;
-      GHashTable *toplevel;
+      g_autoptr (GHashTable) toplevel = NULL;
 
       meta_topic (META_DEBUG_SESSION_MANAGEMENT,
                   "Serializing toplevel state %s", name);
