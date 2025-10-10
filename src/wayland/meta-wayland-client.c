@@ -129,7 +129,13 @@ static void
 set_wayland_client (MetaWaylandClient *client,
                     struct wl_client  *wayland_client)
 {
+  g_autoptr (MetaWaylandClient) old_client = NULL;
+
   client->wayland_client = wayland_client;
+
+  old_client = wl_client_get_user_data (wayland_client);
+  if (old_client)
+    wl_list_remove (&old_client->client_destroy_listener.link);
 
   client->client_destroy_listener.notify = on_client_destroyed;
   wl_client_add_destroy_listener (wayland_client,
