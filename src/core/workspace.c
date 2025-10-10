@@ -277,7 +277,7 @@ workspace_free_builtin_struts (MetaWorkspace *workspace)
   if (workspace->builtin_struts == NULL)
     return;
 
-  g_clear_slist (&workspace->all_struts, g_free);
+  g_clear_slist (&workspace->builtin_struts, g_free);
 }
 
 /* Ensure that the workspace is empty by making sure that
