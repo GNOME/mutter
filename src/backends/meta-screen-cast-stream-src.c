@@ -902,12 +902,14 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
 
       if (num_buffers_available < n_rectangles)
         {
+          MtkRectangle extents;
+
           g_warning ("Not enough buffers (%d) to accommodate damaged "
                      "regions (%d)", num_buffers_available, n_rectangles);
+          extents = mtk_region_get_extents (priv->damage);
           meta_region = spa_meta_first (spa_meta_video_damage);
-          meta_region->region = SPA_REGION (0, 0,
-                                            priv->video_format.size.width,
-                                            priv->video_format.size.height);
+          meta_region->region = SPA_REGION (extents.x, extents.y,
+                                            extents.width, extents.height);
         }
       else
         {
