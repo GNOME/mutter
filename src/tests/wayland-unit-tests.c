@@ -140,6 +140,7 @@ cursor_shape (void)
                                             NULL);
   meta_wayland_test_client_finish (wayland_test_client);
   meta_backend_uninhibit_hw_cursor (backend);
+  g_clear_object (&virtual_pointer);
 }
 
 static void
@@ -1597,6 +1598,7 @@ toplevel_bounds_monitors (void)
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
+  g_clear_object (&virtual_pointer);
 }
 
 static void
