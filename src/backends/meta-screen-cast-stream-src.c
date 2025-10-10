@@ -932,6 +932,11 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
         }
     }
 
+  /* Set invalid region to mark end of array */
+  meta_region++;
+  if (spa_meta_check (meta_region, spa_meta_video_damage))
+    meta_region->region = SPA_REGION (0, 0, 0, 0);
+
   g_clear_pointer (&priv->damage, mtk_region_unref);
 }
 
