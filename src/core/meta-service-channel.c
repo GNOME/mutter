@@ -67,6 +67,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaServiceChannel, meta_service_channel,
 static void
 meta_service_channel_data_free (MetaServiceChannelData *data)
 {
+  g_clear_object (&data->invocation);
   g_clear_object (&data->service_channel);
   g_clear_pointer (&data->options, g_variant_unref);
   g_free (data);
