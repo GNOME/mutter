@@ -1789,6 +1789,7 @@ meta_wayland_surface_dispose (GObject *object)
     }
 
   g_clear_object (&surface->client);
+  g_clear_object (&surface->color_state);
 
   G_OBJECT_CLASS (meta_wayland_surface_parent_class)->dispose (object);
 }
