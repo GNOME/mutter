@@ -151,6 +151,9 @@ service_client_thread_func (gpointer user_data)
 
   g_atomic_int_set (&testdata->client_terminated, TRUE);
 
+  g_clear_object (&service_channel_proxy);
+  while (g_main_context_iteration (thread_main_context, FALSE));
+
   return NULL;
 }
 
