@@ -881,12 +881,9 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
   priv = meta_screen_cast_stream_src_get_instance_private (src);
   if (!priv->damage)
     {
-      spa_meta_for_each (meta_region, spa_meta_video_damage)
-      {
-        meta_region->region = SPA_REGION (0, 0, priv->video_format.size.width,
-                                          priv->video_format.size.height);
-        break;
-      }
+      meta_region = spa_meta_first (spa_meta_video_damage);
+      meta_region->region = SPA_REGION (0, 0, priv->video_format.size.width,
+                                        priv->video_format.size.height);
     }
   else
     {
@@ -905,16 +902,12 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
 
       if (num_buffers_available < n_rectangles)
         {
-          spa_meta_for_each (meta_region, spa_meta_video_damage)
-          {
-            g_warning ("Not enough buffers (%d) to accommodate damaged "
-                       "regions (%d)", num_buffers_available, n_rectangles);
-            meta_region->region = SPA_REGION (0, 0,
-                                              priv->video_format.size.width,
-                                              priv->video_format.size.height);
-
-            break;
-          }
+          g_warning ("Not enough buffers (%d) to accommodate damaged "
+                     "regions (%d)", num_buffers_available, n_rectangles);
+          meta_region = spa_meta_first (spa_meta_video_damage);
+          meta_region->region = SPA_REGION (0, 0,
+                                            priv->video_format.size.width,
+                                            priv->video_format.size.height);
         }
       else
         {
