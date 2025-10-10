@@ -212,10 +212,10 @@ meta_wayland_popup_grab_create (MetaWaylandSeat         *seat,
 void
 meta_wayland_popup_grab_finish (MetaWaylandPopupGrab *grab)
 {
-  MetaWaylandPopup *popup, *tmp;
-
-  wl_list_for_each_safe (popup, tmp, &grab->all_popups, link)
+  while (!wl_list_empty (&grab->all_popups))
     {
+      MetaWaylandPopup *popup = wl_container_of (grab->all_popups.next,
+                                                 popup, link);
       MetaWaylandPopupSurface *popup_surface = popup->popup_surface;
 
       meta_wayland_popup_surface_done (popup_surface);
