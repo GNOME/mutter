@@ -79,6 +79,7 @@ get_x11_interop (WaylandDisplay *display)
   registry = wl_display_get_registry (display->display);
   wl_registry_add_listener (registry, &registry_listener, &x11_interop);
   wl_display_roundtrip (display->display);
+  wl_registry_destroy (registry);
 
   return x11_interop;
 }
