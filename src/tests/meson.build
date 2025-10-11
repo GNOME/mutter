@@ -1133,6 +1133,7 @@ stacking_tests = [
   'modals',
   'map-fixed-size',
   'client-resize-respect-constraints',
+  'client-resize-focus-change',
   'map-on-hotplug',
   'workspace-basic',
   'workspace-test',

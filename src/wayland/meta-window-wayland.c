@@ -1741,9 +1741,13 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
         }
     }
 
-  g_clear_pointer (&wl_window->last_acked_configuration,
-                   meta_wayland_window_configuration_unref);
-  wl_window->last_acked_configuration = g_steal_pointer (&acked_configuration);
+  if (acked_configuration)
+    {
+      g_clear_pointer (&wl_window->last_acked_configuration,
+                       meta_wayland_window_configuration_unref);
+      wl_window->last_acked_configuration =
+        g_steal_pointer (&acked_configuration);
+    }
 
   /* Force unconstrained move when running toplevel drags */
   if (toplevel_drag && surface == toplevel_drag->dragged_surface)

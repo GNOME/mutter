@@ -1,0 +1,20 @@
+new_client w wayland
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait_reconfigure w/1
+assert_size w/1 200 200
+
+resize w/1 300 300
+wait_reconfigure w/1
+assert_size w/1 300 300
+
+create w/2 csd
+resize w/2 200 200
+show w/2
+wait_reconfigure w/1
+assert_stacking w/1 w/2
+assert_focused w/2
+assert_size w/2 200 200
+assert_size w/1 300 300
