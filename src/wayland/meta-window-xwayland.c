@@ -348,6 +348,32 @@ scale_and_handle_overflow (int                 input,
     return (int) value;
 }
 
+static float
+get_viewport_scale_x (MetaWaylandSurface *surface)
+{
+  int buffer_width;
+
+  if (mtk_monitor_transform_is_rotated (surface->buffer_transform))
+    buffer_width = meta_wayland_surface_get_buffer_height (surface);
+  else
+    buffer_width = meta_wayland_surface_get_buffer_width (surface);
+
+  return (float) surface->viewport.dst_width / buffer_width;
+}
+
+static float
+get_viewport_scale_y (MetaWaylandSurface *surface)
+{
+  int buffer_height;
+
+  if (mtk_monitor_transform_is_rotated (surface->buffer_transform))
+    buffer_height = meta_wayland_surface_get_buffer_width (surface);
+  else
+    buffer_height = meta_wayland_surface_get_buffer_height (surface);
+
+  return (float) surface->viewport.dst_height / buffer_height;
+}
+
 static void
 meta_window_xwayland_stage_to_protocol (MetaWindow          *window,
                                         int                  stage_x,
@@ -361,13 +387,31 @@ meta_window_xwayland_stage_to_protocol (MetaWindow          *window,
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
-  int scale;
+  MetaWaylandSurface *surface;
+  float scale_x, scale_y;
 
-  scale = meta_xwayland_get_effective_scale (xwayland_manager);
+  scale_x = scale_y = meta_xwayland_get_effective_scale (xwayland_manager);
+
+  surface = meta_window_get_wayland_surface (window);
+  if (surface && surface->viewport.has_dst_size)
+    {
+      if (stage_x)
+        scale_x /= get_viewport_scale_x (surface);
+
+      if (stage_y)
+        scale_y /= get_viewport_scale_y (surface);
+    }
+
   if (protocol_x)
-    *protocol_x = scale_and_handle_overflow (stage_x, scale, rounding_strategy);
+    {
+      *protocol_x = scale_and_handle_overflow (stage_x, scale_x,
+                                               rounding_strategy);
+    }
   if (protocol_y)
-    *protocol_y = scale_and_handle_overflow (stage_y, scale, rounding_strategy);
+    {
+      *protocol_y = scale_and_handle_overflow (stage_y, scale_y,
+                                               rounding_strategy);
+    }
 }
 
 static void
@@ -383,16 +427,33 @@ meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
+  MetaWaylandSurface *surface;
   int xwayland_scale;
-  float scale;
+  float scale_x, scale_y;
 
   xwayland_scale = meta_xwayland_get_effective_scale (xwayland_manager);
-  scale = 1.0f / xwayland_scale;
+  scale_x = scale_y = 1.0f / xwayland_scale;
+
+  surface = meta_window_get_wayland_surface (window);
+  if (surface && surface->viewport.has_dst_size)
+    {
+      if (stage_x)
+        scale_x *= get_viewport_scale_x (surface);
+
+      if (stage_y)
+        scale_y *= get_viewport_scale_y (surface);
+    }
 
   if (stage_x)
-    *stage_x = scale_and_handle_overflow (protocol_x, scale, rounding_strategy);
+    {
+      *stage_x = scale_and_handle_overflow (protocol_x, scale_x,
+                                            rounding_strategy);
+    }
   if (stage_y)
-    *stage_y = scale_and_handle_overflow (protocol_y, scale, rounding_strategy);
+    {
+      *stage_y = scale_and_handle_overflow (protocol_y, scale_y,
+                                            rounding_strategy);
+    }
 }
 
 static void
