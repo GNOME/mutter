@@ -51,19 +51,6 @@ gboolean meta_xwayland_signal (MetaXWaylandManager  *manager,
 
 int meta_xwayland_get_effective_scale (MetaXWaylandManager *manager);
 
-void meta_xwayland_stage_to_protocol_point (MetaXWaylandManager *manager,
-                                            int                  stage_x,
-                                            int                  stage_y,
-                                            int                 *protocol_x,
-                                            int                 *protocol_y);
-
-void meta_xwayland_protocol_to_stage (MetaXWaylandManager *manager,
-                                      int                  protocol_x,
-                                      int                  protocol_y,
-                                      int                 *stage_x,
-                                      int                 *stage_y,
-                                      MtkRoundingStrategy  rounding_strategy);
-
 int meta_xwayland_get_x11_ui_scaling_factor (MetaXWaylandManager *manager);
 
 const char * meta_xwayland_get_public_display_name (MetaXWaylandManager *manager);
