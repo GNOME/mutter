@@ -1378,18 +1378,6 @@ meta_xwayland_stage_to_protocol_point (MetaXWaylandManager *manager,
     *protocol_y = stage_y * scale;
 }
 
-void meta_xwayland_stage_to_protocol_rect (MetaXWaylandManager *manager,
-                                           const MtkRectangle  *stage_rect,
-                                           MtkRectangle        *protocol_rect)
-{
-  meta_xwayland_stage_to_protocol_point (manager,
-                                         stage_rect->x, stage_rect->y,
-                                         &protocol_rect->x, &protocol_rect->y);
-  meta_xwayland_stage_to_protocol_point (manager,
-                                         stage_rect->width, stage_rect->height,
-                                         &protocol_rect->width, &protocol_rect->height);
-}
-
 static int
 scale_and_handle_overflow (int      protocol,
                            float    scale,

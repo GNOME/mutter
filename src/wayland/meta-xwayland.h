@@ -57,10 +57,6 @@ void meta_xwayland_stage_to_protocol_point (MetaXWaylandManager *manager,
                                             int                 *protocol_x,
                                             int                 *protocol_y);
 
-void meta_xwayland_stage_to_protocol_rect (MetaXWaylandManager *manager,
-                                           const MtkRectangle  *stage_rect,
-                                           MtkRectangle        *protocol_rect);
-
 void meta_xwayland_protocol_to_stage (MetaXWaylandManager *manager,
                                       int                  protocol_x,
                                       int                  protocol_y,
