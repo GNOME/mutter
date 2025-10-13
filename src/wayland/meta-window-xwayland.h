@@ -32,4 +32,6 @@ G_DECLARE_FINAL_TYPE (MetaWindowXwayland, meta_window_xwayland,
 void meta_window_xwayland_set_surface (MetaWindowXwayland *window,
                                        MetaWaylandSurface *surface);
 
+void meta_window_xwayland_viewport_changed (MetaWindow *window);
+
 G_END_DECLS

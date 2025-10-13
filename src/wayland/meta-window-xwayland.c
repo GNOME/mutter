@@ -23,6 +23,7 @@
 #include "mtk/mtk-x11.h"
 #include "x11/meta-x11-display-private.h"
 #include "x11/meta-x11-frame.h"
+#include "x11/window-props.h"
 #include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
 #include "x11/xprops.h"
@@ -145,8 +146,11 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
     {
       if (rects[i].x == win_monitor_rect.x && rects[i].y == win_monitor_rect.y)
         {
-          fs_monitor_rect->width = rects[i].width;
-          fs_monitor_rect->height = rects[i].height;
+          meta_window_protocol_to_stage_point (window,
+                                               rects[i].width, rects[i].height,
+                                               &fs_monitor_rect->width,
+                                               &fs_monitor_rect->height,
+                                               MTK_ROUNDING_STRATEGY_GROW);
           break;
         }
     }
@@ -454,6 +458,16 @@ meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
       *stage_y = scale_and_handle_overflow (protocol_y, scale_y,
                                             rounding_strategy);
     }
+}
+
+void
+meta_window_xwayland_viewport_changed (MetaWindow *window)
+{
+  meta_window_x11_update_shape_region (window);
+  meta_window_x11_update_input_region (window);
+  meta_window_load_initial_properties (window);
+  meta_window_frame_size_changed (window);
+  meta_window_update_visibility (window);
 }
 
 static void

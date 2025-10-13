@@ -53,6 +53,7 @@
 #include "wayland/meta-wayland-linux-drm-syncobj.h"
 
 #ifdef HAVE_XWAYLAND
+#include "wayland/meta-window-xwayland.h"
 #include "wayland/meta-xwayland-private.h"
 #endif
 
@@ -783,6 +784,77 @@ meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
     }
 }
 
+static void
+meta_wayland_surface_apply_viewport_dst_size (MetaWaylandSurface      *surface,
+                                              MetaWaylandSurfaceState *state)
+{
+#ifdef HAVE_XWAYLAND
+  MtkRectangle buffer_rect, client_rect, unconstrained_rect;
+  MtkRectangle config_rect = { 0 };
+  gboolean update_xwayland = FALSE;
+  MetaWindowX11 *window_x11;
+  MetaWindow *window;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (window && meta_wayland_surface_is_xwayland (surface))
+    {
+      gboolean has_dst_size = state->viewport_dst_width > 0;
+
+      if (has_dst_size != surface->viewport.has_dst_size ||
+          (has_dst_size &&
+           (state->viewport_dst_width != surface->viewport.dst_width ||
+            state->viewport_dst_height != surface->viewport.dst_height)))
+        update_xwayland = TRUE;
+    }
+
+  if (update_xwayland)
+    {
+      meta_window_stage_to_protocol_rect (window, &window->buffer_rect,
+                                          &buffer_rect);
+      meta_window_stage_to_protocol_rect (window, &window->unconstrained_rect,
+                                          &unconstrained_rect);
+      meta_window_config_get_size (window->config, &config_rect.width,
+                                   &config_rect.height);
+      meta_window_stage_to_protocol_rect (window, &config_rect,
+                                          &config_rect);
+
+      window_x11 = META_WINDOW_X11 (window);
+      if (window_x11)
+        {
+          client_rect = meta_window_x11_get_client_rect (window_x11);
+          meta_window_stage_to_protocol_rect (window, &client_rect,
+                                              &client_rect);
+        }
+    }
+#endif
+
+  surface->viewport.dst_width = state->viewport_dst_width;
+  surface->viewport.dst_height = state->viewport_dst_height;
+  surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
+
+#ifdef HAVE_XWAYLAND
+  if (update_xwayland)
+    {
+      if (window_x11)
+        {
+          meta_window_protocol_to_stage_rect (window, &client_rect,
+                                              &client_rect);
+          meta_window_x11_set_client_rect (window_x11, &client_rect);
+        }
+
+      meta_window_protocol_to_stage_rect (window, &buffer_rect,
+                                          &window->buffer_rect);
+      meta_window_protocol_to_stage_rect (window, &unconstrained_rect,
+                                          &window->unconstrained_rect);
+      meta_window_protocol_to_stage_rect (window, &config_rect,
+                                          &config_rect);
+      meta_window_config_set_size (window->config, config_rect.width,
+                                   config_rect.height);
+      meta_window_xwayland_viewport_changed (window);
+    }
+#endif
+}
+
 void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
@@ -864,11 +936,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
     }
 
   if (state->has_new_viewport_dst_size)
-    {
-      surface->viewport.dst_width = state->viewport_dst_width;
-      surface->viewport.dst_height = state->viewport_dst_height;
-      surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
-    }
+    meta_wayland_surface_apply_viewport_dst_size (surface, state);
 
   if (meta_wayland_surface_is_xwayland (surface))
     {
