@@ -340,13 +340,27 @@ meta_window_xwayland_stage_to_protocol (MetaWindow *window,
 }
 
 static int
-scale_and_handle_overflow (int      protocol,
-                           float    scale,
-                           float (* rounding_function) (float value))
+scale_and_handle_overflow (int                 protocol,
+                           float               scale,
+                           MtkRoundingStrategy rounding_strategy)
 {
   float value;
 
-  value = rounding_function (protocol * scale);
+  switch (rounding_strategy)
+    {
+    case MTK_ROUNDING_STRATEGY_SHRINK:
+      value = floorf (protocol * scale);
+      break;
+    case MTK_ROUNDING_STRATEGY_GROW:
+      value = ceilf (protocol * scale);
+      break;
+    case MTK_ROUNDING_STRATEGY_ROUND:
+      value = roundf (protocol * scale);
+      break;
+    default:
+      g_return_val_if_reached (NAN);
+    }
+
   if (value >= (float) INT_MAX)
     return INT_MAX;
   else if (value <= (float) INT_MIN)
@@ -374,27 +388,10 @@ meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
   xwayland_scale = meta_xwayland_get_effective_scale (xwayland_manager);
   scale = 1.0f / xwayland_scale;
 
-  switch (rounding_strategy)
-    {
-    case MTK_ROUNDING_STRATEGY_SHRINK:
-      if (stage_x)
-        *stage_x = scale_and_handle_overflow (protocol_x, scale, floorf);
-      if (stage_y)
-        *stage_y = scale_and_handle_overflow (protocol_y, scale, floorf);
-      break;
-    case MTK_ROUNDING_STRATEGY_GROW:
-      if (stage_x)
-        *stage_x = scale_and_handle_overflow (protocol_x, scale, ceilf);
-      if (stage_y)
-        *stage_y = scale_and_handle_overflow (protocol_y, scale, ceilf);
-      break;
-    case MTK_ROUNDING_STRATEGY_ROUND:
-      if (stage_x)
-        *stage_x = scale_and_handle_overflow (protocol_x, scale, roundf);
-      if (stage_y)
-        *stage_y = scale_and_handle_overflow (protocol_y, scale, roundf);
-      break;
-    }
+  if (stage_x)
+    *stage_x = scale_and_handle_overflow (protocol_x, scale, rounding_strategy);
+  if (stage_y)
+    *stage_y = scale_and_handle_overflow (protocol_y, scale, rounding_strategy);
 }
 
 static void
