@@ -318,29 +318,8 @@ meta_window_xwayland_process_property_notify (MetaWindow     *window,
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
 }
 
-static void
-meta_window_xwayland_stage_to_protocol (MetaWindow *window,
-                                        int         stage_x,
-                                        int         stage_y,
-                                        int        *protocol_x,
-                                        int        *protocol_y)
-{
-  MetaDisplay *display = meta_window_get_display (window);
-  MetaContext *context = meta_display_get_context (display);
-  MetaWaylandCompositor *wayland_compositor =
-    meta_context_get_wayland_compositor (context);
-  MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
-  int scale;
-
-  scale = meta_xwayland_get_effective_scale (xwayland_manager);
-  if (protocol_x)
-    *protocol_x = stage_x * scale;
-  if (protocol_y)
-    *protocol_y = stage_y * scale;
-}
-
 static int
-scale_and_handle_overflow (int                 protocol,
+scale_and_handle_overflow (int                 input,
                            float               scale,
                            MtkRoundingStrategy rounding_strategy)
 {
@@ -349,13 +328,13 @@ scale_and_handle_overflow (int                 protocol,
   switch (rounding_strategy)
     {
     case MTK_ROUNDING_STRATEGY_SHRINK:
-      value = floorf (protocol * scale);
+      value = floorf (input * scale);
       break;
     case MTK_ROUNDING_STRATEGY_GROW:
-      value = ceilf (protocol * scale);
+      value = ceilf (input * scale);
       break;
     case MTK_ROUNDING_STRATEGY_ROUND:
-      value = roundf (protocol * scale);
+      value = roundf (input * scale);
       break;
     default:
       g_return_val_if_reached (NAN);
@@ -367,6 +346,28 @@ scale_and_handle_overflow (int                 protocol,
     return INT_MIN;
   else
     return (int) value;
+}
+
+static void
+meta_window_xwayland_stage_to_protocol (MetaWindow          *window,
+                                        int                  stage_x,
+                                        int                  stage_y,
+                                        int                 *protocol_x,
+                                        int                 *protocol_y,
+                                        MtkRoundingStrategy  rounding_strategy)
+{
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
+  MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
+  int scale;
+
+  scale = meta_xwayland_get_effective_scale (xwayland_manager);
+  if (protocol_x)
+    *protocol_x = scale_and_handle_overflow (stage_x, scale, rounding_strategy);
+  if (protocol_y)
+    *protocol_y = scale_and_handle_overflow (stage_y, scale, rounding_strategy);
 }
 
 static void

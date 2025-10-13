@@ -615,11 +615,12 @@ struct _MetaWindowClass
   gboolean (*set_transient_for) (MetaWindow *window,
                                  MetaWindow *parent);
 
-  void (*stage_to_protocol) (MetaWindow *window,
-                             int         stage_x,
-                             int         stage_y,
-                             int        *protocol_x,
-                             int        *protocol_y);
+  void (*stage_to_protocol) (MetaWindow          *window,
+                             int                  stage_x,
+                             int                  stage_y,
+                             int                 *protocol_x,
+                             int                 *protocol_y,
+                             MtkRoundingStrategy  rounding_strategy);
   void (*protocol_to_stage) (MetaWindow          *window,
                              int                  protocol_x,
                              int                  protocol_y,

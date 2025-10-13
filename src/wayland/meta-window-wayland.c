@@ -1007,11 +1007,12 @@ meta_window_wayland_set_transient_for (MetaWindow *window,
 }
 
 static void
-meta_window_wayland_stage_to_protocol (MetaWindow *window,
-                                       int         stage_x,
-                                       int         stage_y,
-                                       int        *protocol_x,
-                                       int        *protocol_y)
+meta_window_wayland_stage_to_protocol (MetaWindow          *window,
+                                       int                  stage_x,
+                                       int                  stage_y,
+                                       int                 *protocol_x,
+                                       int                 *protocol_y,
+                                       MtkRoundingStrategy  rounding_strategy)
 {
   if (protocol_x)
     *protocol_x = stage_x;

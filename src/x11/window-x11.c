@@ -111,11 +111,12 @@ meta_window_x11_get_private (MetaWindowX11 *window_x11)
 }
 
 static void
-meta_window_x11_stage_to_protocol (MetaWindow *window,
-                                   int         stage_x,
-                                   int         stage_y,
-                                   int        *protocol_x,
-                                   int        *protocol_y)
+meta_window_x11_stage_to_protocol (MetaWindow          *window,
+                                   int                  stage_x,
+                                   int                  stage_y,
+                                   int                 *protocol_x,
+                                   int                 *protocol_y,
+                                   MtkRoundingStrategy  rounding_strategy)
 {
   if (protocol_x)
     *protocol_x = stage_x;

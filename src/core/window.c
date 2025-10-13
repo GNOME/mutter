@@ -8422,10 +8422,12 @@ meta_window_stage_to_protocol_rect (MetaWindow         *window,
 
   klass->stage_to_protocol (window,
                             stage_rect->x, stage_rect->y,
-                            &protocol_rect->x, &protocol_rect->y);
+                            &protocol_rect->x, &protocol_rect->y,
+                            MTK_ROUNDING_STRATEGY_SHRINK);
   klass->stage_to_protocol (window,
                             stage_rect->width, stage_rect->height,
-                            &protocol_rect->width, &protocol_rect->height);
+                            &protocol_rect->width, &protocol_rect->height,
+                            MTK_ROUNDING_STRATEGY_GROW);
 }
 
 /**
@@ -8449,7 +8451,8 @@ meta_window_stage_to_protocol_point (MetaWindow *window,
 
   klass->stage_to_protocol (window,
                             stage_x, stage_y,
-                            protocol_x, protocol_y);
+                            protocol_x, protocol_y,
+                            MTK_ROUNDING_STRATEGY_SHRINK);
 }
 
 /**
