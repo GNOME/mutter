@@ -340,13 +340,13 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
                     int              y)
 {
   MetaWaylandCompositor *compositor = dnd->manager->compositor;
-  MetaXWaylandManager *manager = &compositor->xwayland_manager;
   MetaWaylandDataSource *source = compositor->seat->data_device.dnd_data_source;
   MetaX11Display *x11_display = x11_display_from_dnd (dnd);
   Display *xdisplay = x11_display->xdisplay;
   uint32_t action = 0, user_action, actions;
   int protocol_x, protocol_y;
   XEvent xev = { 0 };
+  MetaWindow *window;
 
   user_action = meta_wayland_data_source_get_user_action (source);
   meta_wayland_data_source_get_actions (source, &actions);
@@ -361,9 +361,11 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
   xev.xclient.format = 32;
   xev.xclient.window = dest;
 
-  meta_xwayland_stage_to_protocol_point (manager,
-                                         x, y,
-                                         &protocol_x, &protocol_y);
+  window = meta_x11_display_lookup_x_window (x11_display,
+                                             x11_display->selection.xwindow);
+  meta_window_stage_to_protocol_point (window,
+                                       x, y,
+                                       &protocol_x, &protocol_y);
 
   xev.xclient.data.l[0] = x11_display->selection.xwindow;
   xev.xclient.data.l[1] = 0;
@@ -803,7 +805,6 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
                      const ClutterEvent    *event)
 {
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
-  MetaXWaylandManager *manager = &compositor->xwayland_manager;
   MetaX11Display *x11_display = x11_display_from_dnd (dnd);
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   MetaWaylandSurface *focus = NULL;
@@ -832,9 +833,9 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
       XMapRaised (xdisplay, dnd_window);
 
       frame_rect = meta_window_config_get_rect (focus_window->config);
-      meta_xwayland_stage_to_protocol_rect (manager,
-                                            &frame_rect,
-                                            &frame_rect);
+      meta_window_stage_to_protocol_rect (focus_window,
+                                          &frame_rect,
+                                          &frame_rect);
 
       XMoveResizeWindow (xdisplay, dnd_window,
                          frame_rect.x,
