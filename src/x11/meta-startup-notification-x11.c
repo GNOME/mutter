@@ -380,12 +380,10 @@ meta_x11_startup_notification_launch (MetaX11Display *x11_display,
   if (G_IS_DESKTOP_APP_INFO (app_info))
     {
       const char *application_id;
-      SetAppIdFunc func = NULL;
-      GModule *self;
+      static SetAppIdFunc launcher_context_set_application_id = NULL;
 
       application_id =
         g_desktop_app_info_get_filename (G_DESKTOP_APP_INFO (app_info));
-      self = g_module_open (NULL, G_MODULE_BIND_MASK);
 
       /* This here is a terrible workaround to bypass a libsn bug that is not
        * likely to get fixed at this point.
@@ -396,17 +394,29 @@ meta_x11_startup_notification_launch (MetaX11Display *x11_display,
        * We look up the symbol instead, but still prefer the correctly named
        * function, if one were ever to be added.
        */
-      if (!g_module_symbol (self, "sn_launcher_context_set_application_id",
-                            (gpointer *) &func))
+      if (application_id &&
+          g_once_init_enter_pointer (&launcher_context_set_application_id))
         {
-          g_module_symbol (self, "sn_launcher_set_application_id",
-                           (gpointer *) &func);
+          GModule *self;
+          SetAppIdFunc func = NULL;
+
+          self = g_module_open (NULL, G_MODULE_BIND_MASK);
+
+          if (!g_module_symbol (self, "sn_launcher_context_set_application_id",
+                                (gpointer *) &func))
+            {
+              g_module_symbol (self, "sn_launcher_set_application_id",
+                               (gpointer *) &func);
+            }
+
+          g_module_close (self);
+
+          g_once_init_leave_pointer (&launcher_context_set_application_id,
+                                     func);
         }
 
-      if (func && application_id)
-        func (sn_launcher, application_id);
-
-      g_module_close (self);
+      if (launcher_context_set_application_id && application_id)
+        launcher_context_set_application_id (sn_launcher, application_id);
     }
 
   sn_launcher_context_initiate (sn_launcher,
