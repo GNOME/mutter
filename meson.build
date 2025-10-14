@@ -7,7 +7,7 @@ project('mutter', 'c',
 split_version = meson.project_version().split('.')
 
 # API version, bump each development cycle
-libmutter_api_version = '17'
+libmutter_api_version = '18'
 
 mutter_srcdir = meson.current_source_dir()
 mutter_builddir = meson.current_build_dir()
