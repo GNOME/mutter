@@ -4478,6 +4478,15 @@ meta_window_x11_get_client_rect (MetaWindowX11 *window_x11)
   return priv->client_rect;
 }
 
+void
+meta_window_x11_set_client_rect (MetaWindowX11 *window_x11,
+                                 MtkRectangle  *client_rect)
+{
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  priv->client_rect = *client_rect;
+}
+
 static gboolean
 has_requested_dont_bypass_compositor (MetaWindowX11 *window_x11)
 {

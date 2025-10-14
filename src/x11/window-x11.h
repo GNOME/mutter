@@ -100,6 +100,8 @@ void meta_window_x11_surface_rect_to_client_rect (MetaWindow   *window,
                                                   MtkRectangle *client_rect);
 
 MtkRectangle meta_window_x11_get_client_rect    (MetaWindowX11 *window_x11);
+void meta_window_x11_set_client_rect (MetaWindowX11 *window_x11,
+                                      MtkRectangle  *client_rect);
 
 META_EXPORT_TEST
 MetaFrame * meta_window_x11_get_frame (MetaWindow *window);
