@@ -280,6 +280,8 @@ meta_seat_impl_lookup_stylus_state (MetaSeatImpl       *seat_impl,
       return TRUE;
     }
 
+  *coords = GRAPHENE_POINT_INIT_ZERO;
+
   return FALSE;
 }
 
