@@ -4,7 +4,7 @@ include:
     ref: '145b1bc7ef1702d2bd71584010d7113c6786a506'
   - project: 'Infrastructure/freedesktop-ci-templates'
     file: 'templates/ci-fairy.yml'
-    ref: '34f4ade99434043f88e164933f570301fd18b125'
+    ref: 'aec7a6ce7bb38902c70641526f6611e27141784a'
   - component: gitlab.gnome.org/GNOME/citemplates/release-service@master
     inputs:
       job-stage: deploy
