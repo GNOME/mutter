@@ -1,3 +1,39 @@
+49.1
+====
+* Fix various glitches during resize/move drags [Jonas; !4607]
+* Fix lost keyboard focus in overview with some devices [Carlos; !4667]
+* Fix popup constraint rule and work around broken clients [Jonas; !4628]
+* Require pointer interaction prior to allowing pointer warp [Carlos; !4678]
+* Fix GTK apps locking up after entering popover submenu [Alessandro; !4691]
+* Fix presentation timings with commit-timing-v1 [Mario; !4645]
+* Be more robust against clients providing bogus window geometry [Jonas; !4648]
+* Fix maximized windows extending under panel [Alessandro; !4695]
+* Fix switching keyboard layout via xkb-options [Carlos; !4693]
+* Advertise explicit sync only for dmabufs screencasts [Jan; !4629]
+* Fix multi-touch handling on X11 [Carlos; !4706]
+* Fix keyboard driven resize drags [Jonas; !4673]
+* Fix DND actions not working reliably in some X11 clients [Jonas; !4650]
+* Do not force pointer focus on popups [Carlos; !4703]
+* Fixes for cancelling and restoring sizes after drags [Jonas; !4674]
+* Fix windows reverting to previous size after client resizes [Jonas; !4712]
+* Fix pointer constraints for some fullscreen X11 clients [Michel; !4689]
+* Fixed crashes [Jonas, Sebastian, Carlos, Eduard, Milan, Marco; !4677, !4682,
+  !4676, !4679, !4592, !4696, !4705]
+* Plugged leak [Guido; !4687]
+* Misc. bug fixes and cleanups [Jonas, Carlos, Alessandro, Florian, Sebastian,
+  Raihan, Devilish; !4632, !4672, !4668, !4675, !4683, !4694, !4686, !4634,
+  !4671, !4700, !4697, !4698, !4688, !4713, !4714, !4701, !4716]
+
+Contributors:
+  Raihan Ahamed, Alessandro Astone, Milan Crha, Michel Dänzer, Carlos Garnacho,
+  Jan Grulich, Guido Günther, Sebastian Keller, Mario Kleiner,
+  Florian Müllner, Devilish Spirits, Eduard Tolosa, Marco Trevisan (Treviño),
+  Jonas Ådahl
+
+Translators:
+  Antonio Marin [ro], Abduqadir Abliz [ug], Hugo Carvalho [pt],
+  twlvnn kraftwerk [bg], Fabio Tomat [fur]
+
 49.0
 ====
 * Improve compliance of pointer-warp protocol implementation [Vadim; !4626]
