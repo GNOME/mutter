@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-05-20 21:59+0000\n"
-"PO-Revision-Date: 2025-05-30 08:34+0200\n"
+"POT-Creation-Date: 2025-10-14 14:29+0000\n"
+"PO-Revision-Date: 2025-10-14 17:27+0200\n"
 "Last-Translator: Fabio T. <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <f.t.public@gmail.com>\n"
 "Language: fur\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Editor: HaiPO 1.4 beta\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -306,12 +306,12 @@ msgstr "I spazis di vore a son ministrât in maniere dinamiche"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in "
-"org.gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
 msgstr ""
 "Al determine se i spazis di lavôr a son gjestîts in maniere dinamiche o se "
-"il lôr numar al è fis (determinât de clâf num-workspaces in "
-"org.gnome.desktop.wm.preferences)."
+"il lôr numar al è fis (determinât de clâf num-workspaces in org.gnome."
+"desktop.wm.preferences)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -627,62 +627,118 @@ msgstr ""
 "modifiche di cheste impostazion e necessite il tornâ a inviâ Xwayland par fâ "
 "in mût che e sedi efetive."
 
-#: mdk/mdk-devkit.ui:7
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Aplicazion"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Eseguibil"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Zonte inviadôr"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Inviadôr"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Gjenar"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Zonte"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Eseguìs"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Elimine"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Azion"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Modifiche inviadôrs"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Inviadôrs"
+
+#: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Input"
 
-#: mdk/mdk-devkit.ui:9
+#: mdk/mdk-main-window.ui:9
 msgid "_Emulate touch"
 msgstr "_Emule tocjade"
 
-#: mdk/mdk-devkit.ui:15
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Inibìs scurtis di sisteme"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_Inviadôrs"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_Modifiche inviadôrs"
+
+#: mdk/mdk-main-window.ui:31
 msgid "_About Mutter Development Kit"
 msgstr "_Informazions su Mutter Development Kit"
 
-#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:84 mdk/mdk-main.c:99
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter Development Kit"
 
-#: mdk/mdk-devkit.ui:31
+#: mdk/mdk-main-window.ui:47
 msgid "Main Menu"
 msgstr "Menù principâl"
 
-#: mdk/mdk-main.c:68
+#: mdk/mdk-main.c:49
 msgid "The Mutter Team"
 msgstr "Il grup Mutter"
 
-#: mdk/mdk-main.c:90 mdk/mdk-main.c:104
+#: mdk/mdk-main.c:62
 msgid "Mutter software development kit"
 msgstr "Kit di disvilup software di Mutter"
 
-#: mdk/mdk-main.c:93 mdk/mdk-main.c:107
+#: mdk/mdk-main.c:65
 msgid "About Mutter Development Kit"
 msgstr "Informazions su Mutter Development Kit"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:674
 msgid "Failed to create monitor"
 msgstr "Impussibil creâ il monitor"
 
-#: src/backends/meta-monitor.c:272
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Display integrât"
 
-#: src/backends/meta-monitor.c:299
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "No cognossût"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Display no cognossût"
 
-#: src/backends/meta-monitor.c:309
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:317
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -690,35 +746,35 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Event cjampane"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Schermade di riservatece abilitât"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Schermade di riservatece disabilitât"
 
-#: src/core/meta-context-main.c:632
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Rimplace il window manager in vore"
 
-#: src/core/meta-context-main.c:638
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Display X di doprâ"
 
-#: src/core/meta-context-main.c:644
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Fâs lis clamadis X sincronis"
 
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Eseguìs come compositor wayland"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Eseguìs come compositor nidiât"
 
@@ -798,12 +854,12 @@ msgstr "Stampe version"
 msgid "Mutter plugin to use"
 msgstr "Plugin Mutter di doprâ"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Spazi di lavôr %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter al è stât compilât cence supuart pal mût prolìs"
 
@@ -816,7 +872,7 @@ msgstr "Spazi di lavôr cambiât"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambie mût: mût %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:844
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -825,19 +881,19 @@ msgstr ""
 "Il display “%s” al à za un window manager; prove dopre la opzion --replace "
 "par rimplaçâ chel atuâl."
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1229
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impussibil vierzi il display “%s” di X Window System"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1462
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Schermi %d su display “%s” no valit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2793
+#: src/x11/meta-x11-display.c:2790
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
