@@ -399,10 +399,10 @@ meta_window_xwayland_stage_to_protocol (MetaWindow          *window,
   surface = meta_window_get_wayland_surface (window);
   if (surface && surface->viewport.has_dst_size)
     {
-      if (stage_x)
+      if (protocol_x)
         scale_x /= get_viewport_scale_x (surface);
 
-      if (stage_y)
+      if (protocol_y)
         scale_y /= get_viewport_scale_y (surface);
     }
 
