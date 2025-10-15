@@ -357,6 +357,18 @@ get_viewport_scale_x (MetaWaylandSurface *surface)
 {
   int buffer_width;
 
+  if (surface->viewport.has_src_rect)
+    {
+      float src_width;
+
+      if (mtk_monitor_transform_is_rotated (surface->buffer_transform))
+        src_width = surface->viewport.src_rect.size.height;
+      else
+        src_width = surface->viewport.src_rect.size.width;
+
+      return surface->viewport.dst_width / src_width;
+    }
+
   if (mtk_monitor_transform_is_rotated (surface->buffer_transform))
     buffer_width = meta_wayland_surface_get_buffer_height (surface);
   else
@@ -370,6 +382,18 @@ static float
 get_viewport_scale_y (MetaWaylandSurface *surface)
 {
   int buffer_height;
+
+  if (surface->viewport.has_src_rect)
+    {
+      float src_height;
+
+      if (mtk_monitor_transform_is_rotated (surface->buffer_transform))
+        src_height = surface->viewport.src_rect.size.width;
+      else
+        src_height = surface->viewport.src_rect.size.height;
+
+      return surface->viewport.dst_height / src_height;
+    }
 
   if (mtk_monitor_transform_is_rotated (surface->buffer_transform))
     buffer_height = meta_wayland_surface_get_buffer_width (surface);
