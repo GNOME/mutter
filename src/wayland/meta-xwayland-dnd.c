@@ -348,6 +348,9 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
   XEvent xev = { 0 };
   MetaWindow *window;
 
+  window = meta_x11_display_lookup_x_window (x11_display, dest);
+  g_return_if_fail (window);
+
   user_action = meta_wayland_data_source_get_user_action (source);
   meta_wayland_data_source_get_actions (source, &actions);
 
@@ -361,8 +364,6 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
   xev.xclient.format = 32;
   xev.xclient.window = dest;
 
-  window = meta_x11_display_lookup_x_window (x11_display,
-                                             x11_display->selection.xwindow);
   meta_window_stage_to_protocol_point (window,
                                        x, y,
                                        &protocol_x, &protocol_y);
