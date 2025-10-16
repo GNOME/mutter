@@ -32,6 +32,7 @@
 #include <spa/debug/format.h>
 #include <spa/node/command.h>
 #include <spa/param/video/format-utils.h>
+#include <spa/pod/dynamic.h>
 #include <spa/utils/hook.h>
 #include <sys/mman.h>
 
@@ -104,9 +105,23 @@ struct _MdkStream
   } cursor;
 };
 
+#define PARAMS_BUFFER_SIZE 1024
+
 #define CURSOR_META_SIZE(width, height) \
   (sizeof (struct spa_meta_cursor) + \
    sizeof (struct spa_meta_bitmap) + width * height * 4)
+
+#define mdk_pod_builder_add_object(pod_builder, offsets, type, id, ...) \
+  G_STMT_START \
+    { \
+      struct spa_pod_builder *_pod_builder = (pod_builder); \
+      struct spa_pod_frame _frame; \
+      g_array_append_val (pod_offsets, _pod_builder->state.offset); \
+      spa_pod_builder_push_object (_pod_builder, &_frame, type, id); \
+      spa_pod_builder_add(_pod_builder, ##__VA_ARGS__, 0); \
+      spa_pod_builder_pop(_pod_builder, &_frame); \
+    } \
+  G_STMT_END
 
 static const struct
 {
@@ -191,9 +206,29 @@ spa_pixel_format_to_drm_format (uint32_t  spa_format,
   return TRUE;
 }
 
-static inline struct spa_pod *
+static GPtrArray *
+finish_params (struct spa_pod_builder *pod_builder,
+               GArray                 *pod_offsets)
+{
+  GPtrArray *params = NULL;
+  size_t i;
+
+  params = g_ptr_array_new ();
+
+  for (i = 0; i < pod_offsets->len; i++)
+    {
+      uint32_t pod_offset = g_array_index (pod_offsets, uint32_t, i);
+
+      g_ptr_array_add (params, spa_pod_builder_deref (pod_builder, pod_offset));
+    }
+
+  return params;
+}
+
+static void
 build_format_param (MdkStream              *stream,
                     struct spa_pod_builder *pod_builder,
+                    GArray                 *pod_offsets,
                     const MdkFormat        *format,
                     gboolean                build_modifiers)
 {
@@ -202,6 +237,7 @@ build_format_param (MdkStream              *stream,
   struct spa_fraction min_framerate;
   struct spa_fraction max_framerate;
 
+  g_array_append_val (pod_offsets, pod_builder->state.offset);
   spa_pod_builder_push_object (pod_builder, &object_frame,
                                SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat);
   spa_pod_builder_add (pod_builder,
@@ -248,31 +284,29 @@ build_format_param (MdkStream              *stream,
                                                                   &max_framerate),
     0);
 
-  return spa_pod_builder_pop (pod_builder, &object_frame);
+  spa_pod_builder_pop (pod_builder, &object_frame);
 }
 
 static GPtrArray *
 build_stream_format_params (MdkStream              *stream,
                             struct spa_pod_builder *pod_builder)
 {
-  g_autoptr (GPtrArray) params = NULL;
+  g_autoptr (GArray) pod_offsets = NULL;
   uint32_t i;
 
   g_assert (stream->formats);
 
-  params = g_ptr_array_sized_new (2 * stream->formats->len);
+  pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
 
   for (i = 0; i < stream->formats->len; i++)
     {
       const MdkFormat *format = &g_array_index (stream->formats, MdkFormat, i);
 
-      g_ptr_array_add (params,
-                       build_format_param (stream, pod_builder, format, TRUE));
-      g_ptr_array_add (params,
-                       build_format_param (stream, pod_builder, format, FALSE));
+      build_format_param (stream, pod_builder, pod_offsets, format, TRUE);
+      build_format_param (stream, pod_builder, pod_offsets, format, FALSE);
     }
 
-  return g_steal_pointer (&params);
+  return finish_params (pod_builder, pod_offsets);
 }
 
 static GArray *
@@ -395,9 +429,9 @@ on_stream_param_changed (void                 *user_data,
                          const struct spa_pod *format)
 {
   MdkStream *stream = MDK_STREAM (user_data);
-  uint8_t params_buffer[1024];
-  struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[4];
+  g_autoptr (GArray) pod_offsets = NULL;
+  g_autoptr (GPtrArray) params = NULL;
+  struct spa_pod_dynamic_builder pod_builder;
   const size_t meta_region_size = sizeof (struct spa_meta_region);
   int result;
 
@@ -428,43 +462,48 @@ on_stream_param_changed (void                 *user_data,
            stream->format.info.raw.framerate.num,
            stream->format.info.raw.framerate.denom);
 
-  pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
+  pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
 
-  params[0] = spa_pod_builder_add_object (
-    &pod_builder,
+  mdk_pod_builder_add_object (
+    &pod_builder.b,
+    pod_offsets,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
     SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (2, 2, 2),
     SPA_PARAM_BUFFERS_dataType, SPA_POD_Int ((1 << SPA_DATA_MemFd) |
-                                             (1 << SPA_DATA_DmaBuf)),
-    0);
+                                             (1 << SPA_DATA_DmaBuf)));
 
-  params[1] = spa_pod_builder_add_object (
-    &pod_builder,
+  mdk_pod_builder_add_object (
+    &pod_builder.b,
+    pod_offsets,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Header),
-    SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)),
-    0);
+    SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)));
 
-  params[2] = spa_pod_builder_add_object (
-    &pod_builder,
+  mdk_pod_builder_add_object (
+    &pod_builder.b,
+    pod_offsets,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Cursor),
     SPA_PARAM_META_size, SPA_POD_CHOICE_RANGE_Int (CURSOR_META_SIZE (384, 384),
                                                    CURSOR_META_SIZE (1,1),
-                                                   CURSOR_META_SIZE (384, 384)),
-    0);
+                                                   CURSOR_META_SIZE (384, 384)));
 
-  params[3] = spa_pod_builder_add_object (
-    &pod_builder,
+  mdk_pod_builder_add_object (
+    &pod_builder.b,
+    pod_offsets,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_VideoDamage),
     SPA_PARAM_META_size, SPA_POD_CHOICE_RANGE_Int (meta_region_size * 32,
                                                    meta_region_size * 1,
-                                                   meta_region_size * 32),
-    0);
+                                                   meta_region_size * 32));
 
+  params = finish_params (&pod_builder.b, pod_offsets);
   pw_stream_update_params (stream->pipewire_stream,
-                           params, G_N_ELEMENTS (params));
+                           (const struct spa_pod **) params->pdata,
+                           params->len);
+
+  spa_pod_dynamic_builder_clean (&pod_builder);
 }
 
 
@@ -472,15 +511,16 @@ static void
 mdk_stream_renegotiate (MdkStream *stream)
 {
   g_autoptr (GPtrArray) new_params = NULL;
-  struct spa_pod_builder builder;
-  uint8_t params_buffer[2048];
+  struct spa_pod_dynamic_builder pod_builder;
 
-  builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
-  new_params = build_stream_format_params (stream, &builder);
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
+  new_params = build_stream_format_params (stream, &pod_builder.b);
 
   pw_stream_update_params (stream->pipewire_stream,
                            (const struct spa_pod **) new_params->pdata,
                            new_params->len);
+
+  spa_pod_dynamic_builder_clean (&pod_builder);
 }
 
 static void
@@ -850,8 +890,7 @@ connect_to_stream (MdkStream  *stream,
   MdkPipewire *pipewire = mdk_context_get_pipewire (context);
   struct pw_properties *pipewire_props;
   struct pw_stream *pipewire_stream;
-  uint8_t params_buffer[1024];
-  struct spa_pod_builder pod_builder;
+  struct spa_pod_dynamic_builder pod_builder;
   g_autoptr (GPtrArray) params = NULL;
   int ret;
 
@@ -862,8 +901,8 @@ connect_to_stream (MdkStream  *stream,
                                    "mdk-pipewire-stream",
                                    pipewire_props);
 
-  pod_builder = SPA_POD_BUILDER_INIT (params_buffer, sizeof (params_buffer));
-  params = build_stream_format_params (stream, &pod_builder);
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
+  params = build_stream_format_params (stream, &pod_builder.b);
 
   stream->pipewire_stream = pipewire_stream;
 
