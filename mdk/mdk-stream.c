@@ -424,19 +424,14 @@ on_stream_state_changed (void                 *user_data,
 }
 
 static void
-on_stream_param_changed (void                 *user_data,
-                         uint32_t              id,
+on_format_param_changed (MdkStream            *stream,
                          const struct spa_pod *format)
 {
-  MdkStream *stream = MDK_STREAM (user_data);
   g_autoptr (GArray) pod_offsets = NULL;
   g_autoptr (GPtrArray) params = NULL;
   struct spa_pod_dynamic_builder pod_builder;
   const size_t meta_region_size = sizeof (struct spa_meta_region);
   int result;
-
-  if (!format || id != SPA_PARAM_Format)
-    return;
 
   result = spa_format_parse (format,
                              &stream->format.media_type,
@@ -506,6 +501,24 @@ on_stream_param_changed (void                 *user_data,
   spa_pod_dynamic_builder_clean (&pod_builder);
 }
 
+
+static void
+on_stream_param_changed (void                 *user_data,
+                         uint32_t              id,
+                         const struct spa_pod *param)
+{
+  MdkStream *stream = MDK_STREAM (user_data);
+
+  if (!param)
+    return;
+
+  switch (id)
+    {
+    case SPA_PARAM_Format:
+      on_format_param_changed (stream, param);
+      break;
+    }
+}
 
 static void
 mdk_stream_renegotiate (MdkStream *stream)
