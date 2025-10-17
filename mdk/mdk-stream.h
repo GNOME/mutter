@@ -27,18 +27,15 @@ G_DECLARE_FINAL_TYPE (MdkStream, mdk_stream,
                       MDK, STREAM,
                       GtkMediaStream)
 
-MdkStream * mdk_stream_new (MdkSession *session,
-                            gboolean    is_resizable,
-                            int         width,
-                            int         height);
+MdkStream * mdk_stream_new (MdkSession  *session,
+                            gboolean     is_resizable,
+                            int          width,
+                            int          height,
+                            GError     **error);
 
 MdkSession * mdk_stream_get_session (MdkStream *stream);
 
 const char * mdk_stream_get_path (MdkStream *stream);
-
-void mdk_stream_realize (MdkStream  *stream);
-
-void mdk_stream_unrealize (MdkStream  *stream);
 
 void mdk_stream_resize (MdkStream *stream,
                         int        width,

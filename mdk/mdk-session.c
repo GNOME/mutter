@@ -507,46 +507,16 @@ mdk_session_init (MdkSession *session)
 {
 }
 
-static void
-record_virtual_cb (GObject      *source_object,
-                   GAsyncResult *res,
-                   gpointer      user_data)
-{
-  g_autoptr (GTask) task = G_TASK (user_data);
-  MdkSession *session = g_task_get_task_data (task);
-  g_autoptr (GError) error = NULL;
-  g_autofree char *stream_path = NULL;
-
-  if (!mdk_dbus_screen_cast_session_call_record_virtual_finish (
-        session->screen_cast_session_proxy,
-        &stream_path,
-        res,
-        &error))
-    {
-      g_task_return_new_error (task, error->domain, error->code,
-                               "Failed to record virtual monitor: %s",
-                               error->message);
-      return;
-    }
-
-  g_task_return_pointer (task, g_steal_pointer (&stream_path), g_free);
-}
-
-void
-mdk_session_create_monitor_async (MdkSession          *session,
-                                  MdkMonitorInfo      *monitor_info,
-                                  GCancellable        *cancellable,
-                                  GAsyncReadyCallback  callback,
-                                  gpointer             user_data)
+char *
+mdk_session_create_monitor (MdkSession      *session,
+                            MdkMonitorInfo  *monitor_info,
+                            GError         **error)
 {
   MdkDBusScreenCastSession *proxy = session->screen_cast_session_proxy;
   GVariantBuilder properties_builder;
-  GTask *task;
+  g_autofree char *stream_path = NULL;
 
   g_debug ("Creating virtual monitor");
-
-  task = g_task_new (session, cancellable, callback, user_data);
-  g_task_set_task_data (task, session, NULL);
 
   g_variant_builder_init (&properties_builder, G_VARIANT_TYPE ("a{sv}"));
   g_variant_builder_add (&properties_builder, "{sv}",
@@ -590,20 +560,15 @@ mdk_session_create_monitor_async (MdkSession          *session,
                              g_variant_builder_end (&modes_builder));
     }
 
-  mdk_dbus_screen_cast_session_call_record_virtual (
-    proxy,
-    g_variant_builder_end (&properties_builder),
-    cancellable,
-    record_virtual_cb,
-    task);
-}
+  if (!mdk_dbus_screen_cast_session_call_record_virtual_sync (
+        proxy,
+        g_variant_builder_end (&properties_builder),
+        &stream_path,
+        NULL,
+        error))
+    return NULL;
 
-char *
-mdk_session_create_monitor_finish (MdkSession    *session,
-                                   GAsyncResult  *res,
-                                   GError       **error)
-{
-  return g_task_propagate_pointer (G_TASK (res), error);
+  return g_steal_pointer (&stream_path);
 }
 
 MdkContext *

@@ -49,15 +49,6 @@
 
 #include "mdk-dbus-screen-cast.h"
 
-enum
-{
-  ERROR,
-
-  N_SIGNALS
-};
-
-static guint signals[N_SIGNALS];
-
 typedef struct
 {
   uint32_t spa_format;
@@ -73,8 +64,6 @@ struct _MdkStream
   int width;
   int height;
   gboolean is_resizable;
-
-  GCancellable *init_cancellable;
 
   MdkDBusScreenCastStream *proxy;
 
@@ -974,72 +963,6 @@ connect_to_stream (MdkStream  *stream,
 }
 
 static void
-on_pipewire_stream_added (MdkDBusScreenCastStream *proxy,
-                          unsigned int             node_id,
-                          MdkStream               *stream)
-{
-  g_autoptr (GError) error = NULL;
-
-  stream->node_id = (uint32_t) node_id;
-
-  g_debug ("Received PipeWire stream node %u, connecting", node_id);
-
-  if (!connect_to_stream (stream, &error))
-    {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_signal_emit (stream, signals[ERROR], 0, error);
-      return;
-    }
-}
-
-static void
-start_cb (GObject      *source_object,
-          GAsyncResult *res,
-          gpointer      user_data)
-{
-  MdkStream *stream = MDK_STREAM (user_data);
-  g_autoptr (GError) error = NULL;
-
-  if (!mdk_dbus_screen_cast_stream_call_start_finish (stream->proxy,
-                                                      res,
-                                                      &error))
-    {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_signal_emit (stream, signals[ERROR], 0, error);
-      return;
-    }
-}
-
-static void
-stream_proxy_ready_cb (GObject      *source_object,
-                       GAsyncResult *res,
-                       gpointer      user_data)
-{
-  MdkStream *stream = user_data;
-  g_autoptr (GError) error = NULL;
-
-  stream->proxy =
-    mdk_dbus_screen_cast_stream_proxy_new_for_bus_finish (res, &error);
-  if (!stream->proxy)
-    {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_signal_emit (stream, signals[ERROR], 0, error);
-      return;
-    }
-
-  g_debug ("Stream ready, waiting for PipeWire stream node");
-
-  g_signal_connect (stream->proxy, "pipewire-stream-added",
-                    G_CALLBACK (on_pipewire_stream_added),
-                    stream);
-
-  mdk_dbus_screen_cast_stream_call_start (stream->proxy,
-                                          stream->init_cancellable,
-                                          start_cb,
-                                          stream);
-}
-
-static void
 render_compositor_frame (MdkStream *stream)
 {
   MdkSession *session = mdk_stream_get_session (stream);
@@ -1174,11 +1097,6 @@ mdk_stream_finalize (GObject *object)
 {
   MdkStream *stream = MDK_STREAM (object);
 
-  if (stream->init_cancellable)
-    {
-      g_cancellable_cancel (stream->init_cancellable);
-      g_clear_object (&stream->init_cancellable);
-    }
   g_clear_pointer (&stream->pipewire_stream, pw_stream_destroy);
   g_clear_handle_id (&stream->reinvalidate_source_id, g_source_remove);
   if (stream->proxy)
@@ -1197,14 +1115,6 @@ mdk_stream_class_init (MdkStreamClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = mdk_stream_finalize;
-
-  signals[ERROR] = g_signal_new ("error",
-                                 G_TYPE_FROM_CLASS (klass),
-                                 G_SIGNAL_RUN_LAST,
-                                 0,
-                                 NULL, NULL, NULL,
-                                 G_TYPE_NONE, 1,
-                                 G_TYPE_ERROR);
 }
 
 static void
@@ -1215,45 +1125,32 @@ mdk_stream_init (MdkStream *stream)
 }
 
 static void
-create_monitor_cb (GObject      *source_object,
-                   GAsyncResult *res,
-                   gpointer      user_data)
+on_pipewire_stream_added (MdkDBusScreenCastStream *proxy,
+                          unsigned int             node_id,
+                          MdkStream               *stream)
 {
-  MdkStream *stream = MDK_STREAM (user_data);
   g_autoptr (GError) error = NULL;
-  g_autofree char *stream_path = NULL;
 
-  stream_path = mdk_session_create_monitor_finish (stream->session,
-                                                   res,
-                                                   &error);
-  if (!stream_path)
-    {
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
-        g_signal_emit (stream, signals[ERROR], 0, error);
-      return;
-    }
+  stream->node_id = (uint32_t) node_id;
 
-  g_debug ("Creating stream proxy for '%s'", stream_path);
-
-  mdk_dbus_screen_cast_stream_proxy_new_for_bus (
-    G_BUS_TYPE_SESSION,
-    G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
-    "org.gnome.Mutter.ScreenCast",
-    stream_path,
-    stream->init_cancellable,
-    stream_proxy_ready_cb,
-    stream);
+  g_debug ("Received PipeWire stream node %u, connecting", node_id);
 }
 
-static void
-init_async (MdkStream *stream)
+static gboolean
+init_pipewire_stream (MdkStream  *stream,
+                      GError    **error)
 {
-  GCancellable *cancellable;
+  MdkContext *context = mdk_session_get_context (stream->session);
+  MdkPipewire *pipewire = mdk_context_get_pipewire (context);
   g_autolist (MdkMonitorMode) monitor_modes = NULL;
   g_autoptr (MdkMonitorInfo) monitor_info = NULL;
+  g_autofree char *stream_path = NULL;
+  gboolean ret = FALSE;
 
-  cancellable = g_cancellable_new ();
-  stream->init_cancellable = cancellable;
+  g_main_context_push_thread_default (stream->main_context);
+  mdk_pipewire_push_main_context (pipewire, stream->main_context);
+
+  query_formats_and_modifiers (stream);
 
   if (!stream->is_resizable)
     {
@@ -1279,23 +1176,74 @@ init_async (MdkStream *stream)
 
   monitor_info = mdk_monitor_info_new (monitor_modes);
 
-  mdk_session_create_monitor_async (stream->session,
-                                    monitor_info,
-                                    cancellable,
-                                    create_monitor_cb,
-                                    stream);
+  stream_path = mdk_session_create_monitor (stream->session,
+                                            monitor_info,
+                                            error);
+  if (!stream_path)
+    goto err;
+
+  g_debug ("Creating stream proxy for '%s'", stream_path);
+
+  stream->proxy =
+    mdk_dbus_screen_cast_stream_proxy_new_for_bus_sync (
+      G_BUS_TYPE_SESSION,
+      G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
+      "org.gnome.Mutter.ScreenCast",
+      stream_path,
+      NULL, error);
+  if (!stream->proxy)
+    goto err;
+
+  g_debug ("Stream ready, waiting for PipeWire stream node");
+
+  g_signal_connect (stream->proxy, "pipewire-stream-added",
+                    G_CALLBACK (on_pipewire_stream_added),
+                    stream);
+
+  if (!mdk_dbus_screen_cast_stream_call_start_sync (stream->proxy,
+                                                    NULL,
+                                                    error))
+    goto err;
+
+  while (!stream->node_id)
+    g_main_context_iteration (stream->main_context, TRUE);
+
+  if (!connect_to_stream (stream, error))
+    goto err;
+
+  while (stream->format.info.raw.size.width == 0 &&
+         pw_stream_get_state (stream->pipewire_stream, NULL) !=
+         PW_STREAM_STATE_ERROR)
+    g_main_context_iteration (stream->main_context, TRUE);
+
+  if (pw_stream_get_state (stream->pipewire_stream, NULL) ==
+      PW_STREAM_STATE_ERROR)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "PipeWire stream error occurred");
+      goto err;
+    }
+
+  ret = TRUE;
+
+err:
+  mdk_pipewire_pop_main_context (pipewire, stream->main_context);
+  g_main_context_pop_thread_default (stream->main_context);
+
+  return ret;
 }
 
 MdkStream *
-mdk_stream_new (MdkSession *session,
-                gboolean    is_resizable,
-                int         width,
-                int         height)
+mdk_stream_new (MdkSession  *session,
+                gboolean     is_resizable,
+                int          width,
+                int          height,
+                GError     **error)
 {
   MdkContext *context = mdk_session_get_context (session);
   MdkPipewire *pipewire = mdk_context_get_pipewire (context);
   struct pw_loop *pipewire_loop = mdk_pipewire_get_loop (pipewire);
-  MdkStream *stream;
+  g_autoptr (MdkStream) stream = NULL;
 
   stream = g_object_new (MDK_TYPE_STREAM, NULL);
   stream->session = session;
@@ -1309,9 +1257,10 @@ mdk_stream_new (MdkSession *session,
                                                  stream);
 
 
-  init_async (stream);
+  if (!init_pipewire_stream (stream, error))
+    return NULL;
 
-  return stream;
+  return g_steal_pointer (&stream);
 }
 
 MdkSession *
@@ -1324,18 +1273,6 @@ const char *
 mdk_stream_get_path (MdkStream *stream)
 {
   return g_dbus_proxy_get_object_path (G_DBUS_PROXY (stream->proxy));
-}
-
-void
-mdk_stream_realize (MdkStream *stream)
-{
-  query_formats_and_modifiers (stream);
-}
-
-void
-mdk_stream_unrealize (MdkStream *stream)
-{
-  g_clear_pointer (&stream->formats, g_array_unref);
 }
 
 void
