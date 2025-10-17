@@ -685,19 +685,15 @@ ensure_virtual_monitor (MetaScreenCastVirtualStreamSrc *virtual_src,
     {
       MetaCrtcMode *crtc_mode =
         meta_virtual_monitor_get_crtc_mode (virtual_monitor);
+      g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
       const MetaCrtcModeInfo *mode_info = meta_crtc_mode_get_info (crtc_mode);
-      float refresh_rate;
 
       if (mode_info->width == video_format->size.width &&
           mode_info->height == video_format->size.height)
         return;
 
-      refresh_rate = ((float) video_format->max_framerate.num /
-                      video_format->max_framerate.denom);
-      meta_virtual_monitor_set_mode (virtual_monitor,
-                                     video_format->size.width,
-                                     video_format->size.height,
-                                     refresh_rate);
+      mode_infos = g_list_append (mode_infos, create_mode_info (video_format));
+      meta_virtual_monitor_set_modes (virtual_monitor, mode_infos);
       meta_monitor_manager_reload (monitor_manager);
       return;
     }

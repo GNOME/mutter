@@ -48,12 +48,11 @@ struct _MetaVirtualMonitorClass
 {
   GObjectClass parent_class;
 
-  void (* set_mode) (MetaVirtualMonitor *virtual_monitor,
-                     int                 width,
-                     int                 height,
-                     float               refresh_rate);
+  void (* set_modes) (MetaVirtualMonitor *virtual_monitor,
+                      GList              *mode_infos);
 };
 
+META_EXPORT_TEST
 MetaVirtualModeInfo * meta_virtual_mode_info_new (int   width,
                                                   int   height,
                                                   float refresh_rate);
@@ -83,10 +82,8 @@ META_EXPORT_TEST
 MetaOutput * meta_virtual_monitor_get_output (MetaVirtualMonitor *virtual_monitor);
 
 META_EXPORT_TEST
-void meta_virtual_monitor_set_mode (MetaVirtualMonitor *virtual_monitor,
-                                    int                 width,
-                                    int                 height,
-                                    float               refresh_rate);
+void meta_virtual_monitor_set_modes (MetaVirtualMonitor *virtual_monitor,
+                                     GList              *mode_infos);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualModeInfo, g_free)
 

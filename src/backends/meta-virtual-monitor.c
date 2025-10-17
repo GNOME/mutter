@@ -267,13 +267,11 @@ meta_virtual_monitor_class_init (MetaVirtualMonitorClass *klass)
 }
 
 void
-meta_virtual_monitor_set_mode (MetaVirtualMonitor *virtual_monitor,
-                               int                 width,
-                               int                 height,
-                               float               refresh_rate)
+meta_virtual_monitor_set_modes (MetaVirtualMonitor *virtual_monitor,
+                                GList              *mode_infos)
 {
   MetaVirtualMonitorClass *klass =
     META_VIRTUAL_MONITOR_GET_CLASS (virtual_monitor);
 
-  klass->set_mode (virtual_monitor, width, height, refresh_rate);
+  klass->set_modes (virtual_monitor, mode_infos);
 }

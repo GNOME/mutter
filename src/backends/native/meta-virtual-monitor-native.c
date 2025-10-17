@@ -37,29 +37,27 @@ G_DEFINE_TYPE (MetaVirtualMonitorNative, meta_virtual_monitor_native,
                META_TYPE_VIRTUAL_MONITOR)
 
 static void
-meta_virtual_monitor_native_set_mode (MetaVirtualMonitor *virtual_monitor,
-                                      int                 width,
-                                      int                 height,
-                                      float               refresh_rate)
+meta_virtual_monitor_native_set_modes (MetaVirtualMonitor *virtual_monitor,
+                                       GList              *mode_infos)
 {
   MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
-  MetaVirtualModeInfo info;
-  MetaCrtcModeVirtual *crtc_mode_virtual;
   MetaCrtcMode **modes;
+  GList *l;
+  int n_modes = 0;
 
-  info = (MetaVirtualModeInfo) {
-    .width = width,
-    .height = height,
-    .refresh_rate = refresh_rate,
-  };
-  crtc_mode_virtual = meta_crtc_mode_virtual_new (mode_id++, &info);
+  modes = g_new0 (MetaCrtcMode *, g_list_length (mode_infos));
+  for (l = mode_infos; l; l = l->next)
+    {
+      MetaVirtualModeInfo *mode_info = l->data;
 
-  modes = g_new0 (MetaCrtcMode *, 1);
-  modes[0] = META_CRTC_MODE (crtc_mode_virtual);
-  meta_output_update_modes (output, modes[0], modes, 1);
+      modes[n_modes++] =
+        META_CRTC_MODE (meta_crtc_mode_virtual_new (mode_id++, mode_info));
+    }
+
+  meta_output_update_modes (output, modes[0], modes, n_modes);
 
   g_object_set (virtual_monitor,
-                "crtc-mode", crtc_mode_virtual,
+                "crtc-mode", modes[0],
                 NULL);
 }
 
@@ -113,5 +111,5 @@ meta_virtual_monitor_native_class_init (MetaVirtualMonitorNativeClass *klass)
 {
   MetaVirtualMonitorClass *virtual_monitor_class = META_VIRTUAL_MONITOR_CLASS (klass);
 
-  virtual_monitor_class->set_mode = meta_virtual_monitor_native_set_mode;
+  virtual_monitor_class->set_modes = meta_virtual_monitor_native_set_modes;
 }

@@ -2288,6 +2288,7 @@ test_case_do (TestCase    *test,
         meta_backend_get_monitor_manager (backend);
       MetaCrtcMode *crtc_mode;
       const MetaCrtcModeInfo *crtc_mode_info;
+      g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
       MetaVirtualMonitor *monitor;
 
       if (argc != 4)
@@ -2299,10 +2300,14 @@ test_case_do (TestCase    *test,
 
       crtc_mode = meta_virtual_monitor_get_crtc_mode (monitor);
       crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
-      meta_virtual_monitor_set_mode (monitor,
-                                     atoi (argv[2]),
-                                     atoi (argv[3]),
-                                     crtc_mode_info->refresh_rate);
+
+      mode_infos =
+        g_list_append (mode_infos,
+                       meta_virtual_mode_info_new (atoi (argv[2]),
+                                                   atoi (argv[3]),
+                                                   crtc_mode_info->refresh_rate));
+
+      meta_virtual_monitor_set_modes (monitor, mode_infos);
       meta_monitor_manager_reload (monitor_manager);
     }
   else if (strcmp (argv[0], "add_monitor") == 0)
