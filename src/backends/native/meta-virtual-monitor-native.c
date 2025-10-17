@@ -55,10 +55,6 @@ meta_virtual_monitor_native_set_modes (MetaVirtualMonitor *virtual_monitor,
     }
 
   meta_output_update_modes (output, modes[0], modes, n_modes);
-
-  g_object_set (virtual_monitor,
-                "crtc-mode", modes[0],
-                NULL);
 }
 
 uint64_t
@@ -93,7 +89,6 @@ meta_virtual_monitor_native_new (MetaBackend                  *backend,
 
   virtual_monitor_native = g_object_new (META_TYPE_VIRTUAL_MONITOR_NATIVE,
                                          "crtc", crtc_virtual,
-                                         "crtc-mode", crtc_modes->data,
                                          "output", output_virtual,
                                          NULL);
   virtual_monitor_native->id = id;

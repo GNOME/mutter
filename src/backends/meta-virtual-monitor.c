@@ -38,7 +38,6 @@ enum
   PROP_0,
 
   PROP_CRTC,
-  PROP_CRTC_MODE,
   PROP_OUTPUT,
 
   N_PROPS
@@ -49,7 +48,6 @@ static GParamSpec *obj_props[N_PROPS];
 typedef struct _MetaVirtualMonitorPrivate
 {
   MetaCrtc *crtc;
-  MetaCrtcMode *crtc_mode;
   MetaOutput *output;
 
   gboolean is_destroyed;
@@ -139,8 +137,10 @@ meta_virtual_monitor_get_crtc_mode (MetaVirtualMonitor *virtual_monitor)
 {
   MetaVirtualMonitorPrivate *priv =
     meta_virtual_monitor_get_instance_private (virtual_monitor);
+  const MetaCrtcConfig *crtc_config;
 
-  return priv->crtc_mode;
+  crtc_config = meta_crtc_get_config (priv->crtc);
+  return crtc_config->mode;
 }
 
 MetaOutput *
@@ -167,10 +167,6 @@ meta_virtual_monitor_set_property (GObject      *object,
     case PROP_CRTC:
       priv->crtc = g_value_get_object (value);
       break;
-    case PROP_CRTC_MODE:
-      g_set_object (&priv->crtc_mode,
-                    g_value_get_object (value));
-      break;
     case PROP_OUTPUT:
       priv->output = g_value_get_object (value);
       break;
@@ -194,9 +190,6 @@ meta_virtual_monitor_get_property (GObject    *object,
     case PROP_CRTC:
       g_value_set_object (value, priv->crtc);
       break;
-    case PROP_CRTC_MODE:
-      g_value_set_object (value, priv->crtc_mode);
-      break;
     case PROP_OUTPUT:
       g_value_set_object (value, priv->output);
       break;
@@ -219,7 +212,6 @@ meta_virtual_monitor_dispose (GObject *object)
     }
 
   g_clear_object (&priv->crtc);
-  g_clear_object (&priv->crtc_mode);
   g_clear_object (&priv->output);
 
   G_OBJECT_CLASS (meta_virtual_monitor_parent_class)->dispose (object);
@@ -244,11 +236,6 @@ meta_virtual_monitor_class_init (MetaVirtualMonitorClass *klass)
                          META_TYPE_CRTC,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  obj_props[PROP_CRTC_MODE] =
-    g_param_spec_object ("crtc-mode", NULL, NULL,
-                         META_TYPE_CRTC_MODE,
-                         G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
   obj_props[PROP_OUTPUT] =
     g_param_spec_object ("output", NULL, NULL,
