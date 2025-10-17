@@ -20,6 +20,7 @@
 #include <gio/gio.h>
 #include <glib-object.h>
 
+#include "mdk-monitor-info.h"
 #include "mdk-types.h"
 
 #define MDK_TYPE_SESSION (mdk_session_get_type ())
@@ -28,6 +29,7 @@ G_DECLARE_FINAL_TYPE (MdkSession, mdk_session,
                       GObject)
 
 void mdk_session_create_monitor_async (MdkSession          *session,
+                                       MdkMonitorInfo      *monitor_info,
                                        GCancellable        *cancellable,
                                        GAsyncReadyCallback  callback,
                                        gpointer             user_data);

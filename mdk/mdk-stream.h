@@ -28,6 +28,7 @@ G_DECLARE_FINAL_TYPE (MdkStream, mdk_stream,
                       GtkMediaStream)
 
 MdkStream * mdk_stream_new (MdkSession *session,
+                            gboolean    is_resizable,
                             int         width,
                             int         height);
 

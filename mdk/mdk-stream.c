@@ -72,6 +72,7 @@ struct _MdkStream
   MdkSession *session;
   int width;
   int height;
+  gboolean is_resizable;
 
   GCancellable *init_cancellable;
 
@@ -233,7 +234,6 @@ build_format_param (MdkStream              *stream,
                     gboolean                build_modifiers)
 {
   struct spa_pod_frame object_frame;
-  struct spa_rectangle rect;
   struct spa_fraction min_framerate;
   struct spa_fraction max_framerate;
 
@@ -272,17 +272,42 @@ build_format_param (MdkStream              *stream,
       spa_pod_builder_pop (pod_builder, &modifiers_frame);
     }
 
-  rect = SPA_RECTANGLE (stream->width, stream->height);
-  min_framerate = SPA_FRACTION (0, 1);
-  max_framerate = SPA_FRACTION (60, 1);
-  spa_pod_builder_add (
-    pod_builder,
-    SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&rect),
-    SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
-    SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
-                                                                  &min_framerate,
-                                                                  &max_framerate),
-    0);
+  if (stream->is_resizable)
+    {
+      struct spa_rectangle rect;
+
+      rect = SPA_RECTANGLE (stream->width, stream->height);
+      min_framerate = SPA_FRACTION (0, 1);
+      max_framerate = SPA_FRACTION (60, 1);
+      spa_pod_builder_add (
+        pod_builder,
+        SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&rect),
+        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+        SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
+                                                                      &min_framerate,
+                                                                      &max_framerate),
+        0);
+    }
+  else
+    {
+      struct spa_rectangle min_rect, max_rect;
+
+      min_rect = SPA_RECTANGLE (1, 1);
+      max_rect = SPA_RECTANGLE (INT32_MAX, INT32_MAX);
+
+      min_framerate = SPA_FRACTION (0, 1);
+      max_framerate = SPA_FRACTION (60, 1);
+      spa_pod_builder_add (
+        pod_builder,
+        SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&min_rect,
+                                                               &min_rect,
+                                                               &max_rect),
+        SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
+        SPA_FORMAT_VIDEO_maxFramerate, SPA_POD_CHOICE_RANGE_Fraction (&min_framerate,
+                                                                      &min_framerate,
+                                                                      &max_framerate),
+        0);
+    }
 
   spa_pod_builder_pop (pod_builder, &object_frame);
 }
@@ -499,6 +524,13 @@ on_format_param_changed (MdkStream            *stream,
                            params->len);
 
   spa_pod_dynamic_builder_clean (&pod_builder);
+
+  if (!stream->is_resizable)
+    {
+      stream->width = stream->format.info.raw.size.width;
+      stream->height = stream->format.info.raw.size.height;
+      gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
+    }
 }
 
 
@@ -1149,6 +1181,8 @@ mdk_stream_finalize (GObject *object)
     }
   g_clear_pointer (&stream->pipewire_stream, pw_stream_destroy);
   g_clear_handle_id (&stream->reinvalidate_source_id, g_source_remove);
+  if (stream->proxy)
+    mdk_dbus_screen_cast_stream_call_stop (stream->proxy, NULL, NULL, NULL);
   g_clear_object (&stream->proxy);
   g_clear_pointer (&stream->formats, g_array_unref);
   g_clear_object (&stream->paintable);
@@ -1215,11 +1249,38 @@ static void
 init_async (MdkStream *stream)
 {
   GCancellable *cancellable;
+  g_autolist (MdkMonitorMode) monitor_modes = NULL;
+  g_autoptr (MdkMonitorInfo) monitor_info = NULL;
 
   cancellable = g_cancellable_new ();
   stream->init_cancellable = cancellable;
 
+  if (!stream->is_resizable)
+    {
+      const struct {
+        int width;
+        int height;
+      } modes[] = {
+        { stream->width, stream->height, },
+        { 1920, 1080, },
+        { 1366, 768, },
+        { 1024, 768, },
+      };
+      size_t i;
+
+      for (i = 0; i < G_N_ELEMENTS (modes); i++)
+        {
+          monitor_modes =
+            g_list_append (monitor_modes,
+                           mdk_monitor_mode_new (modes[i].width,
+                                                 modes[i].height));
+        }
+    }
+
+  monitor_info = mdk_monitor_info_new (monitor_modes);
+
   mdk_session_create_monitor_async (stream->session,
+                                    monitor_info,
                                     cancellable,
                                     create_monitor_cb,
                                     stream);
@@ -1227,6 +1288,7 @@ init_async (MdkStream *stream)
 
 MdkStream *
 mdk_stream_new (MdkSession *session,
+                gboolean    is_resizable,
                 int         width,
                 int         height)
 {
@@ -1235,11 +1297,11 @@ mdk_stream_new (MdkSession *session,
   struct pw_loop *pipewire_loop = mdk_pipewire_get_loop (pipewire);
   MdkStream *stream;
 
-
   stream = g_object_new (MDK_TYPE_STREAM, NULL);
   stream->session = session;
   stream->width = width;
   stream->height = height;
+  stream->is_resizable = is_resizable;
   stream->paintable = gdk_paintable_new_empty (stream->width, stream->height);
 
   stream->renegotiate_event = pw_loop_add_event (pipewire_loop,
@@ -1283,6 +1345,11 @@ mdk_stream_resize (MdkStream *stream,
 {
   MdkContext *context = mdk_session_get_context (stream->session);
   MdkPipewire *pipewire = mdk_context_get_pipewire (context);
+
+  g_return_if_fail (stream->is_resizable);
+
+  if (!stream->pipewire_stream)
+    return;
 
   if (stream->width == width &&
       stream->height == height)

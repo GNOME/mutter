@@ -163,10 +163,16 @@ meta_screen_cast_virtual_stream_src_get_view (MetaScreenCastVirtualStreamSrc *vi
 MetaLogicalMonitor *
 meta_screen_cast_virtual_stream_src_logical_monitor (MetaScreenCastVirtualStreamSrc *virtual_src)
 {
-  MetaVirtualMonitor *virtual_monitor = virtual_src->virtual_monitor;
-  MetaOutput *output = meta_virtual_monitor_get_output (virtual_monitor);
-  MetaMonitor *monitor = meta_output_get_monitor (output);
+  MetaVirtualMonitor *virtual_monitor;
+  MetaOutput *output;
+  MetaMonitor *monitor;
 
+  virtual_monitor = virtual_src->virtual_monitor;
+  if (!virtual_monitor)
+    return NULL;
+
+  output = meta_virtual_monitor_get_output (virtual_monitor);
+  monitor = meta_output_get_monitor (output);
   return meta_monitor_get_logical_monitor (monitor);
 }
 

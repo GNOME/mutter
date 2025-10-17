@@ -534,6 +534,7 @@ record_virtual_cb (GObject      *source_object,
 
 void
 mdk_session_create_monitor_async (MdkSession          *session,
+                                  MdkMonitorInfo      *monitor_info,
                                   GCancellable        *cancellable,
                                   GAsyncReadyCallback  callback,
                                   gpointer             user_data)
@@ -554,6 +555,40 @@ mdk_session_create_monitor_async (MdkSession          *session,
   g_variant_builder_add (&properties_builder, "{sv}",
                          "is-platform",
                          g_variant_new_boolean (TRUE));
+
+  if (monitor_info->modes)
+    {
+      GVariantBuilder modes_builder;
+      gboolean has_marked_as_preferred = FALSE;
+      GList *l;
+
+      g_variant_builder_init (&modes_builder, G_VARIANT_TYPE ("aa{sv}"));
+
+      for (l = monitor_info->modes; l; l = l->next)
+        {
+          MdkMonitorMode *monitor_mode = l->data;
+
+          g_variant_builder_open (&modes_builder, G_VARIANT_TYPE ("a{sv}"));
+          g_variant_builder_add (&modes_builder, "{sv}",
+                                 "size", g_variant_new ("(uu)",
+                                                        monitor_mode->width,
+                                                        monitor_mode->height));
+
+          if (!has_marked_as_preferred)
+            {
+              g_variant_builder_add (&modes_builder, "{sv}",
+                                     "is-preferred",
+                                     g_variant_new_boolean (TRUE));
+              has_marked_as_preferred = TRUE;
+            }
+
+          g_variant_builder_close (&modes_builder);
+        }
+
+      g_variant_builder_add (&properties_builder, "{sv}",
+                             "modes",
+                             g_variant_builder_end (&modes_builder));
+    }
 
   mdk_dbus_screen_cast_session_call_record_virtual (
     proxy,
