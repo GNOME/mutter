@@ -36,9 +36,10 @@ MetaOutputVirtual *
 meta_output_virtual_new (uint64_t                      id,
                          const MetaVirtualMonitorInfo *info,
                          MetaCrtcVirtual              *crtc_virtual,
-                         MetaCrtcModeVirtual          *crtc_mode_virtual)
+                         GList                        *modes)
 {
   g_autoptr (MetaOutputInfo) output_info = NULL;
+  GList *l;
 
   output_info = meta_output_info_new ();
   output_info->name = g_strdup_printf ("Meta-%" G_GUINT64_FORMAT, id);
@@ -58,9 +59,13 @@ meta_output_virtual_new (uint64_t                      id,
   output_info->product = g_strdup (info->product);
   output_info->serial = g_strdup (info->serial);
 
-  output_info->n_modes = 1;
-  output_info->modes = g_new0 (MetaCrtcMode *, 1);
-  output_info->modes[0] = META_CRTC_MODE (crtc_mode_virtual);
+  output_info->modes = g_new0 (MetaCrtcMode *, g_list_length (modes));
+  for (l = modes; l; l = l->next)
+    {
+      g_set_object (&output_info->modes[output_info->n_modes],
+                    META_CRTC_MODE (l->data));
+      output_info->n_modes++;
+    }
   output_info->preferred_mode = output_info->modes[0];
 
   return g_object_new (META_TYPE_OUTPUT_VIRTUAL,

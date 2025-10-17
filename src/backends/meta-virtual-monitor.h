@@ -32,7 +32,6 @@ struct _MetaVirtualModeInfo
 
 struct _MetaVirtualMonitorInfo
 {
-  MetaVirtualModeInfo *mode_info;
   GList *mode_infos;
 
   char *vendor;

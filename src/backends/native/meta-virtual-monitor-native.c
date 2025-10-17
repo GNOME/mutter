@@ -69,6 +69,12 @@ meta_virtual_monitor_native_get_id (MetaVirtualMonitorNative *virtual_monitor_na
   return virtual_monitor_native->id;
 }
 
+static MetaCrtcModeVirtual *
+create_virtual_crtc_mode_cb (MetaVirtualModeInfo *mode_info)
+{
+  return meta_crtc_mode_virtual_new (mode_id++, mode_info);
+}
+
 MetaVirtualMonitorNative *
 meta_virtual_monitor_native_new (MetaBackend                  *backend,
                                  uint64_t                      id,
@@ -76,18 +82,20 @@ meta_virtual_monitor_native_new (MetaBackend                  *backend,
 {
   MetaVirtualMonitorNative *virtual_monitor_native;
   MetaCrtcVirtual *crtc_virtual;
-  MetaCrtcModeVirtual *crtc_mode_virtual;
+  g_autolist (MetaCrtcModeVirtual) crtc_modes = NULL;
   MetaOutputVirtual *output_virtual;
 
   crtc_virtual = meta_crtc_virtual_new (backend, id);
-  crtc_mode_virtual = meta_crtc_mode_virtual_new (mode_id++, info->mode_info);
+  crtc_modes = g_list_copy_deep (info->mode_infos,
+                                 (GCopyFunc) create_virtual_crtc_mode_cb,
+                                 NULL);
   output_virtual = meta_output_virtual_new (id, info,
                                             crtc_virtual,
-                                            crtc_mode_virtual);
+                                            crtc_modes);
 
   virtual_monitor_native = g_object_new (META_TYPE_VIRTUAL_MONITOR_NATIVE,
                                          "crtc", crtc_virtual,
-                                         "crtc-mode", crtc_mode_virtual,
+                                         "crtc-mode", crtc_modes->data,
                                          "output", output_virtual,
                                          NULL);
   virtual_monitor_native->id = id;

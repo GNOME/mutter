@@ -28,4 +28,4 @@ G_DECLARE_FINAL_TYPE (MetaOutputVirtual, meta_output_virtual,
 MetaOutputVirtual * meta_output_virtual_new (uint64_t                      id,
                                              const MetaVirtualMonitorInfo *info,
                                              MetaCrtcVirtual              *crtc_virtual,
-                                             MetaCrtcModeVirtual          *crtc_mode_virtual);
+                                             GList                        *modes);

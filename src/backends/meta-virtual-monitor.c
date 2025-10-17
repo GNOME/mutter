@@ -91,7 +91,6 @@ meta_virtual_monitor_info_new (const char *vendor,
   info->mode_infos = g_list_copy_deep (mode_infos,
                                        (GCopyFunc) meta_virtual_mode_info_dup,
                                        NULL);
-  info->mode_info = g_list_first (info->mode_infos)->data;
   info->vendor = g_strdup (vendor);
   info->product = g_strdup (product);
   info->serial = g_strdup (serial);
