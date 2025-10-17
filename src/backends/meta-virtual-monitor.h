@@ -54,6 +54,10 @@ struct _MetaVirtualMonitorClass
                      float               refresh_rate);
 };
 
+MetaVirtualModeInfo * meta_virtual_mode_info_new (int   width,
+                                                  int   height,
+                                                  float refresh_rate);
+
 MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (const char *vendor,
                                                         const char *product,
                                                         const char *serial,

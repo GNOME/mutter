@@ -628,6 +628,20 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
     }
 }
 
+static MetaVirtualModeInfo *
+create_mode_info (struct spa_video_info_raw *video_format)
+{
+  int width, height;
+  float refresh_rate;
+
+  width = (int) video_format->size.width;
+  height = (int) video_format->size.height;
+  refresh_rate = ((float) video_format->max_framerate.num /
+                  video_format->max_framerate.denom);
+
+  return meta_virtual_mode_info_new (width, height, refresh_rate);
+}
+
 static MetaVirtualMonitor *
 create_virtual_monitor (MetaScreenCastVirtualStreamSrc  *virtual_src,
                         struct spa_video_info_raw       *video_format,
@@ -638,20 +652,18 @@ create_virtual_monitor (MetaScreenCastVirtualStreamSrc  *virtual_src,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   static int virtual_monitor_src_seq = 0;
-  int width, height;
-  float refresh_rate;
   g_autofree char *serial = NULL;
+  g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
   g_autoptr (MetaVirtualMonitorInfo) info = NULL;
 
-  width = (int) video_format->size.width;
-  height = (int) video_format->size.height;
-  refresh_rate = ((float) video_format->max_framerate.num /
-                  video_format->max_framerate.denom);
   serial = g_strdup_printf ("0x%.6x", ++virtual_monitor_src_seq);
-  info = meta_virtual_monitor_info_new_simple (width, height, refresh_rate,
-                                               "MetaVendor",
-                                               "Virtual remote monitor",
-                                               serial);
+
+  mode_infos = g_list_append (mode_infos, create_mode_info (video_format));
+
+  info = meta_virtual_monitor_info_new ("MetaVendor",
+                                        "Virtual remote monitor",
+                                        serial,
+                                        mode_infos);
   return meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                       info,
                                                       error);

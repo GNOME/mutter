@@ -64,7 +64,7 @@ meta_virtual_mode_info_dup (const MetaVirtualModeInfo *mode_info)
   return g_memdup2 (mode_info, sizeof (*mode_info));
 }
 
-static MetaVirtualModeInfo *
+MetaVirtualModeInfo *
 meta_virtual_mode_info_new (int   width,
                             int   height,
                             float refresh_rate)
