@@ -35,7 +35,8 @@ struct _MetaFrameNative
   MetaKmsUpdate *kms_update;
 
   MtkRegion *damage;
-  int sync_fd;
+
+  GPollFD sync;
 };
 
 static void
@@ -43,7 +44,7 @@ meta_frame_native_release (ClutterFrame *frame)
 {
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
 
-  g_clear_fd (&frame_native->sync_fd, NULL);
+  g_clear_fd (&frame_native->sync.fd, NULL);
   g_clear_pointer (&frame_native->damage, mtk_region_unref);
   g_clear_object (&frame_native->buffer);
   g_clear_object (&frame_native->scanout);
@@ -57,7 +58,8 @@ meta_frame_native_new (void)
   MetaFrameNative *frame_native =
     clutter_frame_new (MetaFrameNative, meta_frame_native_release);
 
-  frame_native->sync_fd = -1;
+  frame_native->sync.fd = -1;
+  frame_native->sync.events = 0;
 
   return frame_native;
 }
@@ -139,12 +141,45 @@ void
 meta_frame_native_set_sync_fd (MetaFrameNative *frame_native,
                                int              sync_fd)
 {
-  g_clear_fd (&frame_native->sync_fd, NULL);
-  frame_native->sync_fd = sync_fd;
+  g_clear_fd (&frame_native->sync.fd, NULL);
+  frame_native->sync.fd = sync_fd;
 }
 
 int
 meta_frame_native_steal_sync_fd (MetaFrameNative *frame_native)
 {
-  return g_steal_fd (&frame_native->sync_fd);
+  g_warn_if_fail (frame_native->sync.events == 0);
+
+  return g_steal_fd (&frame_native->sync.fd);
+}
+
+void
+meta_frame_native_add_source (MetaFrameNative *frame_native,
+                              GSource         *source)
+{
+  g_return_if_fail (frame_native->sync.fd >= 0);
+  g_return_if_fail (frame_native->sync.events == 0);
+
+  frame_native->sync.events = G_IO_IN;
+  g_source_add_poll (source, &frame_native->sync);
+}
+
+void
+meta_frame_native_remove_source (MetaFrameNative *frame_native,
+                                 GSource         *source)
+{
+  g_return_if_fail (frame_native->sync.fd >= 0);
+  g_return_if_fail (frame_native->sync.events != 0);
+
+  g_source_remove_poll (source, &frame_native->sync);
+  frame_native->sync.events = 0;
+}
+
+gboolean
+meta_frame_native_is_ready (MetaFrameNative *frame_native)
+{
+  g_return_val_if_fail (frame_native->sync.fd >= 0, FALSE);
+  g_return_val_if_fail (frame_native->sync.events != 0, FALSE);
+
+  return !!(frame_native->sync.revents & G_IO_IN);
 }

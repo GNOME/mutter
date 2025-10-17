@@ -61,3 +61,14 @@ meta_frame_native_set_sync_fd (MetaFrameNative *frame_native,
 
 int
 meta_frame_native_steal_sync_fd (MetaFrameNative *frame_native);
+
+void
+meta_frame_native_add_source (MetaFrameNative *frame_native,
+                              GSource         *source);
+
+void
+meta_frame_native_remove_source (MetaFrameNative *frame_native,
+                                 GSource         *source);
+
+gboolean
+meta_frame_native_is_ready (MetaFrameNative *frame_native);
