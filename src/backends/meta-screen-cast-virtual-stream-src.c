@@ -37,6 +37,17 @@
 #include "backends/meta-virtual-monitor.h"
 #include "core/boxes-private.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_MODE_INFOS,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 #define META_TYPE_SCREEN_CAST_FRAME_CLOCK_DRIVER (meta_screen_cast_frame_clock_driver_get_type ())
 G_DECLARE_FINAL_TYPE (MetaScreenCastFrameClockDriver,
                       meta_screen_cast_frame_clock_driver,
@@ -48,6 +59,7 @@ struct _MetaScreenCastVirtualStreamSrc
   MetaScreenCastStreamSrc parent;
 
   MetaVirtualMonitor *virtual_monitor;
+  GList *mode_infos;
 
   gboolean cursor_bitmap_invalid;
 
@@ -69,9 +81,15 @@ struct _MetaScreenCastVirtualStreamSrc
   MetaScreenCastFrameClockDriver *driver;
 };
 
-G_DEFINE_FINAL_TYPE (MetaScreenCastVirtualStreamSrc,
-                     meta_screen_cast_virtual_stream_src,
-                     META_TYPE_SCREEN_CAST_STREAM_SRC)
+static void init_initable_iface (GInitableIface *iface);
+
+static GInitableIface *initable_parent_iface;
+
+G_DEFINE_FINAL_TYPE_WITH_CODE (MetaScreenCastVirtualStreamSrc,
+                               meta_screen_cast_virtual_stream_src,
+                               META_TYPE_SCREEN_CAST_STREAM_SRC,
+                               G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                      init_initable_iface))
 
 struct _MetaScreenCastFrameClockDriver
 {
@@ -89,7 +107,21 @@ meta_screen_cast_virtual_stream_src_get_specs (MetaScreenCastStreamSrc *src,
                                                int                     *height,
                                                float                   *frame_rate)
 {
-  return FALSE;
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
+  MetaCrtcMode *crtc_mode;
+  const MetaCrtcModeInfo *crtc_mode_info;
+
+  if (!virtual_src->mode_infos)
+    return FALSE;
+
+  crtc_mode = meta_virtual_monitor_get_crtc_mode (virtual_src->virtual_monitor);
+  crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
+
+  *width = crtc_mode_info->width;
+  *height = crtc_mode_info->height;
+  *frame_rate = crtc_mode_info->refresh_rate;
+  return TRUE;
 }
 
 static MetaBackend *
@@ -285,6 +317,7 @@ on_monitors_changed (MetaMonitorManager             *monitor_manager,
   setup_view (virtual_src, view);
 
   meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
+  meta_screen_cast_stream_src_renegotiate (src);
 }
 
 static void
@@ -642,6 +675,14 @@ create_mode_info (struct spa_video_info_raw *video_format)
   return meta_virtual_mode_info_new (width, height, refresh_rate);
 }
 
+static char *
+generate_next_virtual_monitor_serial (void)
+{
+  static int virtual_monitor_src_seq = 0;
+
+  return g_strdup_printf ("0x%.6x", ++virtual_monitor_src_seq);
+}
+
 static MetaVirtualMonitor *
 create_virtual_monitor (MetaScreenCastVirtualStreamSrc  *virtual_src,
                         struct spa_video_info_raw       *video_format,
@@ -651,12 +692,11 @@ create_virtual_monitor (MetaScreenCastVirtualStreamSrc  *virtual_src,
   MetaBackend *backend = backend_from_src (src);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  static int virtual_monitor_src_seq = 0;
   g_autofree char *serial = NULL;
   g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
   g_autoptr (MetaVirtualMonitorInfo) info = NULL;
 
-  serial = g_strdup_printf ("0x%.6x", ++virtual_monitor_src_seq);
+  serial = generate_next_virtual_monitor_serial ();
 
   mode_infos = g_list_append (mode_infos, create_mode_info (video_format));
 
@@ -719,6 +759,9 @@ meta_screen_cast_virtual_stream_src_notify_params_updated (MetaScreenCastStreamS
   MetaScreenCastVirtualStreamSrc *virtual_src =
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
 
+  if (virtual_src->mode_infos)
+    return;
+
   ensure_virtual_monitor (virtual_src, video_format);
 }
 
@@ -744,12 +787,100 @@ meta_screen_cast_virtual_stream_src_dispatch (MetaScreenCastStreamSrc *src)
 
 MetaScreenCastVirtualStreamSrc *
 meta_screen_cast_virtual_stream_src_new (MetaScreenCastVirtualStream  *virtual_stream,
+                                         GList                        *mode_infos,
                                          GError                      **error)
 {
   return g_initable_new (META_TYPE_SCREEN_CAST_VIRTUAL_STREAM_SRC, NULL, error,
                          "stream", virtual_stream,
                          "must-drive", FALSE,
+                         "mode-infos", mode_infos,
                          NULL);
+}
+
+static gboolean
+meta_screen_cast_virtual_stream_src_initable_init (GInitable     *initable,
+                                                   GCancellable  *cancellable,
+                                                   GError       **error)
+{
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (initable);
+
+  if (virtual_src->mode_infos)
+    {
+      MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+      MetaBackend *backend = backend_from_src (src);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      g_autofree char *serial = NULL;
+      g_autoptr (MetaVirtualMonitorInfo) info = NULL;
+      MetaVirtualMonitor *virtual_monitor;
+
+      serial = generate_next_virtual_monitor_serial ();
+      info = meta_virtual_monitor_info_new ("MetaVendor",
+                                            "Virtual remote monitor",
+                                            serial,
+                                            virtual_src->mode_infos);
+      virtual_monitor =
+        meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                     info,
+                                                     error);
+      if (!virtual_monitor)
+        return FALSE;
+
+      virtual_src->virtual_monitor = virtual_monitor;
+      meta_monitor_manager_reload (monitor_manager);
+    }
+
+  return initable_parent_iface->init (initable, cancellable, error);
+}
+
+static void
+init_initable_iface (GInitableIface *iface)
+{
+  initable_parent_iface = g_type_interface_peek_parent (iface);
+
+  iface->init = meta_screen_cast_virtual_stream_src_initable_init;
+}
+
+static void
+meta_screen_cast_virtual_stream_src_set_property (GObject      *object,
+                                                  guint         prop_id,
+                                                  const GValue *value,
+                                                  GParamSpec   *pspec)
+{
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (object);
+
+  switch (prop_id)
+    {
+    case PROP_MODE_INFOS:
+      virtual_src->mode_infos =
+        g_list_copy_deep (g_value_get_pointer (value),
+                          (GCopyFunc) meta_virtual_mode_info_dup,
+                          NULL);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_screen_cast_virtual_stream_src_get_property (GObject    *object,
+                                                  guint       prop_id,
+                                                  GValue     *value,
+                                                  GParamSpec *pspec)
+{
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (object);
+
+  switch (prop_id)
+    {
+    case PROP_MODE_INFOS:
+      g_value_set_pointer (value, virtual_src->mode_infos);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
 }
 
 static void
@@ -765,6 +896,8 @@ meta_screen_cast_virtual_stream_src_dispose (GObject *object)
   parent_class->dispose (object);
 
   g_clear_object (&virtual_src->virtual_monitor);
+  g_clear_list (&virtual_src->mode_infos,
+                (GDestroyNotify) meta_virtual_mode_info_free);
 }
 
 static void
@@ -780,6 +913,8 @@ meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcCl
   MetaScreenCastStreamSrcClass *src_class =
     META_SCREEN_CAST_STREAM_SRC_CLASS (klass);
 
+  object_class->set_property = meta_screen_cast_virtual_stream_src_set_property;
+  object_class->get_property = meta_screen_cast_virtual_stream_src_get_property;
   object_class->dispose = meta_screen_cast_virtual_stream_src_dispose;
 
   src_class->get_specs = meta_screen_cast_virtual_stream_src_get_specs;
@@ -799,6 +934,15 @@ meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcCl
     meta_screen_cast_virtual_stream_src_notify_params_updated;
   src_class->dispatch =
     meta_screen_cast_virtual_stream_src_dispatch;
+
+  obj_props[PROP_MODE_INFOS] =
+    g_param_spec_pointer ("mode-infos", NULL, NULL,
+                          G_PARAM_WRITABLE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class,
+                                     N_PROPS,
+                                     obj_props);
 }
 
 static void

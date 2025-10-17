@@ -172,6 +172,20 @@
                              interpreted as if the screen is shared, but more
                              transparently as if it was a real monitor.
                              Available since API version 3. Default: FALSE.
+        * "modes" (aa{sv}): List of modes to use. If set, the PipeWire stream
+                            becomes non-resizable, and size is controlled by
+                            the compositor as if it was a regular monitor.
+
+                            Each mode in the array is a vararg see below for
+                            available properties.
+
+        Available mode properties:
+
+        * "size" ((uu)): Width and height. Required.
+        * "refresh-rate" (d): Refresh rate. Optional.
+        * "is-preferred" (b): Is the preferred mode.
+
+        Exactly one mode must be marked as "is-preferred".
 
         Available cursor mode values:
 

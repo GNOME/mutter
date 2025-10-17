@@ -28,6 +28,8 @@
 struct _MetaScreenCastVirtualStream
 {
   MetaScreenCastStream parent;
+
+  GList *mode_infos;
 };
 
 static void meta_eis_viewport_iface_init (MetaEisViewportInterface *eis_viewport_iface);
@@ -42,6 +44,7 @@ MetaScreenCastVirtualStream *
 meta_screen_cast_virtual_stream_new (MetaScreenCastSession     *session,
                                      GDBusConnection           *connection,
                                      MetaScreenCastCursorMode   cursor_mode,
+                                     GList                     *mode_infos,
                                      MetaScreenCastFlag         flags,
                                      GError                   **error)
 {
@@ -57,6 +60,9 @@ meta_screen_cast_virtual_stream_new (MetaScreenCastSession     *session,
                                    NULL);
   if (!virtual_stream)
     return NULL;
+
+  virtual_stream->mode_infos =
+    g_list_copy_deep (mode_infos, (GCopyFunc) meta_virtual_mode_info_dup, NULL);
 
   return virtual_stream;
 }
@@ -162,8 +168,10 @@ meta_screen_cast_virtual_stream_create_src (MetaScreenCastStream  *stream,
     META_SCREEN_CAST_VIRTUAL_STREAM (stream);
   MetaScreenCastVirtualStreamSrc *virtual_stream_src;
 
-  virtual_stream_src = meta_screen_cast_virtual_stream_src_new (virtual_stream,
-                                                                error);
+  virtual_stream_src =
+    meta_screen_cast_virtual_stream_src_new (virtual_stream,
+                                             virtual_stream->mode_infos,
+                                             error);
   if (!virtual_stream_src)
     return NULL;
 
@@ -204,6 +212,18 @@ meta_screen_cast_virtual_stream_transform_position (MetaScreenCastStream *stream
 }
 
 static void
+meta_screen_cast_virtual_stream_finalize (GObject *object)
+{
+  MetaScreenCastVirtualStream *virtual_stream =
+    META_SCREEN_CAST_VIRTUAL_STREAM (object);
+
+  g_clear_list (&virtual_stream->mode_infos,
+                (GDestroyNotify) meta_virtual_mode_info_free);
+
+  G_OBJECT_CLASS (meta_screen_cast_virtual_stream_parent_class)->finalize (object);
+}
+
+static void
 meta_screen_cast_virtual_stream_init (MetaScreenCastVirtualStream *virtual_stream)
 {
 }
@@ -211,8 +231,11 @@ meta_screen_cast_virtual_stream_init (MetaScreenCastVirtualStream *virtual_strea
 static void
 meta_screen_cast_virtual_stream_class_init (MetaScreenCastVirtualStreamClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaScreenCastStreamClass *stream_class =
     META_SCREEN_CAST_STREAM_CLASS (klass);
+
+  object_class->finalize = meta_screen_cast_virtual_stream_finalize;
 
   stream_class->create_src = meta_screen_cast_virtual_stream_create_src;
   stream_class->set_parameters = meta_screen_cast_virtual_stream_set_parameters;

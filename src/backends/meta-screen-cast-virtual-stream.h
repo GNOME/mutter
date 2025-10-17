@@ -29,6 +29,7 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastVirtualStream,
 MetaScreenCastVirtualStream * meta_screen_cast_virtual_stream_new (MetaScreenCastSession     *session,
                                                                    GDBusConnection           *connection,
                                                                    MetaScreenCastCursorMode   cursor_mode,
+                                                                   GList                     *mode_infos,
                                                                    MetaScreenCastFlag         flags,
                                                                    GError                   **error);
 

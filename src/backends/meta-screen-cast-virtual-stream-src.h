@@ -27,8 +27,9 @@ G_DECLARE_FINAL_TYPE (MetaScreenCastVirtualStreamSrc,
                       META, SCREEN_CAST_VIRTUAL_STREAM_SRC,
                       MetaScreenCastStreamSrc)
 
-MetaScreenCastVirtualStreamSrc * meta_screen_cast_virtual_stream_src_new (MetaScreenCastVirtualStream *virtual_stream,
-                                                                          GError                     **error);
+MetaScreenCastVirtualStreamSrc * meta_screen_cast_virtual_stream_src_new (MetaScreenCastVirtualStream  *virtual_stream,
+                                                                          GList                        *mode_infos,
+                                                                          GError                      **error);
 
 ClutterStageView * meta_screen_cast_virtual_stream_src_get_view (MetaScreenCastVirtualStreamSrc *virtual_src);
 

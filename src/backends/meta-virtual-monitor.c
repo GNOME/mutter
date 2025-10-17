@@ -56,7 +56,7 @@ typedef struct _MetaVirtualMonitorPrivate
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaVirtualMonitor, meta_virtual_monitor,
                                      G_TYPE_OBJECT)
 
-static MetaVirtualModeInfo *
+MetaVirtualModeInfo *
 meta_virtual_mode_info_dup (const MetaVirtualModeInfo *mode_info)
 {
   return g_memdup2 (mode_info, sizeof (*mode_info));
@@ -75,6 +75,12 @@ meta_virtual_mode_info_new (int   width,
   mode_info->refresh_rate = refresh_rate;
 
   return mode_info;
+}
+
+void
+meta_virtual_mode_info_free (MetaVirtualModeInfo *mode_info)
+{
+  g_free (mode_info);
 }
 
 MetaVirtualMonitorInfo *

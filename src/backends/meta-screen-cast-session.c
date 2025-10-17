@@ -32,6 +32,7 @@
 #include "backends/meta-screen-cast-stream.h"
 #include "backends/meta-screen-cast-virtual-stream.h"
 #include "backends/meta-screen-cast-window-stream.h"
+#include "backends/meta-virtual-monitor.h"
 #include "core/display-private.h"
 
 #include "meta-private-enum-types.h"
@@ -720,6 +721,71 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   return TRUE;
 }
 
+static GList *
+create_mode_infos (GVariant  *modes_variant,
+                   GError   **error)
+{
+  g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
+  size_t n_modes;
+  size_t i;
+  gboolean has_is_preferred = FALSE;
+
+  n_modes = g_variant_n_children (modes_variant);
+  for (i = 0; i < n_modes; i++)
+    {
+      g_autoptr (GVariant) mode_variant = NULL;
+      uint32_t width, height;
+      double refresh_rate = 60.0;
+      MetaVirtualModeInfo *mode_info;
+      gboolean is_preferred = FALSE;
+
+      mode_variant = g_variant_get_child_value (modes_variant, i);
+      if (!g_variant_lookup (mode_variant, "size",
+                             "(uu)", &width, &height))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Missing mode dimension");
+          return NULL;
+        }
+
+      if (width == 0 || height == 0)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Invalid mode %dx%d", width, height);
+          return NULL;
+        }
+
+      g_variant_lookup (mode_variant, "refresh-rate", "d", &refresh_rate);
+      g_variant_lookup (mode_variant, "is-preferred", "b", &is_preferred);
+
+      if (is_preferred && has_is_preferred)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Multiple preferred modes");
+          return NULL;
+        }
+
+      has_is_preferred |= is_preferred;
+
+      mode_info = meta_virtual_mode_info_new (width, height,
+                                              (float) refresh_rate);
+
+      if (is_preferred)
+        mode_infos = g_list_prepend (mode_infos, mode_info);
+      else
+        mode_infos = g_list_append (mode_infos, mode_info);
+    }
+
+  if (!has_is_preferred)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No preferred modes");
+      return NULL;
+    }
+
+  return g_steal_pointer (&mode_infos);
+}
+
 static gboolean
 handle_record_virtual (MetaDBusScreenCastSession *skeleton,
                        GDBusMethodInvocation     *invocation,
@@ -730,6 +796,8 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
   GDBusConnection *connection;
   MetaScreenCastCursorMode cursor_mode;
   gboolean is_platform;
+  g_autoptr (GVariant) modes_variant = NULL;
+  g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
   MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
   MetaScreenCastVirtualStream *virtual_stream;
@@ -762,6 +830,22 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
   if (!g_variant_lookup (properties_variant, "is-platform", "b", &is_platform))
     is_platform = FALSE;
 
+  modes_variant = g_variant_lookup_value (properties_variant,
+                                          "modes", G_VARIANT_TYPE ("aa{sv}"));
+
+  if (modes_variant)
+    {
+      mode_infos = create_mode_infos (modes_variant, &error);
+      if (!mode_infos)
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Invalid modes passed: %s",
+                                                 error->message);
+          return TRUE;
+        }
+    }
+
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
 
@@ -772,6 +856,7 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
   virtual_stream = meta_screen_cast_virtual_stream_new (session,
                                                         connection,
                                                         cursor_mode,
+                                                        mode_infos,
                                                         flags,
                                                         &error);
   if (!virtual_stream)

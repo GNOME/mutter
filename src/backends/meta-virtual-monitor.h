@@ -57,6 +57,11 @@ MetaVirtualModeInfo * meta_virtual_mode_info_new (int   width,
                                                   int   height,
                                                   float refresh_rate);
 
+MetaVirtualModeInfo * meta_virtual_mode_info_dup (const MetaVirtualModeInfo *mode_info);
+
+META_EXPORT_TEST
+void meta_virtual_mode_info_free (MetaVirtualModeInfo *mode_info);
+
 MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (const char *vendor,
                                                         const char *product,
                                                         const char *serial,
@@ -85,7 +90,7 @@ META_EXPORT_TEST
 void meta_virtual_monitor_set_modes (MetaVirtualMonitor *virtual_monitor,
                                      GList              *mode_infos);
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualModeInfo, g_free)
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualModeInfo, meta_virtual_mode_info_free)
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualMonitorInfo,
                                meta_virtual_monitor_info_free)
