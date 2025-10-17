@@ -1473,15 +1473,15 @@ process_event (MetaDisplay          *display,
 
           invoke_handler (display, binding->handler, window, event, binding);
           binding->release_pending = FALSE;
-          return CLUTTER_EVENT_STOP;
         }
       else
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
                       "Ignore release for handler %s",
                       binding->name);
-          return CLUTTER_EVENT_PROPAGATE;
         }
+
+      return CLUTTER_EVENT_STOP;
     }
   else
     {
