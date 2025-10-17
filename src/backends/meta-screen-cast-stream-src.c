@@ -1545,8 +1545,8 @@ finish_params (struct spa_pod_builder *pod_builder,
   return params;
 }
 
-static void
-renegotiate_pipewire_stream (MetaScreenCastStreamSrc *src)
+void
+meta_screen_cast_stream_src_renegotiate (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
@@ -1997,7 +1997,7 @@ on_stream_add_buffer (void             *data,
               if (g_array_index (modifiers, uint64_t, i) == priv->video_format.modifier)
                 {
                   g_array_remove_index (modifiers, i);
-                  renegotiate_pipewire_stream (src);
+                  meta_screen_cast_stream_src_renegotiate (src);
                   break;
                 }
             }
