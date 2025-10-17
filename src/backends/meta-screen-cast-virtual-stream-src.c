@@ -648,10 +648,10 @@ create_virtual_monitor (MetaScreenCastVirtualStreamSrc  *virtual_src,
   refresh_rate = ((float) video_format->max_framerate.num /
                   video_format->max_framerate.denom);
   serial = g_strdup_printf ("0x%.6x", ++virtual_monitor_src_seq);
-  info = meta_virtual_monitor_info_new (width, height, refresh_rate,
-                                        "MetaVendor",
-                                        "Virtual remote monitor",
-                                        serial);
+  info = meta_virtual_monitor_info_new_simple (width, height, refresh_rate,
+                                               "MetaVendor",
+                                               "Virtual remote monitor",
+                                               serial);
   return meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                       info,
                                                       error);

@@ -32,7 +32,8 @@ struct _MetaVirtualModeInfo
 
 struct _MetaVirtualMonitorInfo
 {
-  MetaVirtualModeInfo mode_info;
+  MetaVirtualModeInfo *mode_info;
+  GList *mode_infos;
 
   char *vendor;
   char *product;
@@ -54,13 +55,18 @@ struct _MetaVirtualMonitorClass
                      float               refresh_rate);
 };
 
-META_EXPORT_TEST
-MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (int         width,
-                                                        int         height,
-                                                        float       refresh_rate,
-                                                        const char *vendor,
+MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (const char *vendor,
                                                         const char *product,
-                                                        const char *serial);
+                                                        const char *serial,
+                                                        GList      *mode_infos);
+
+META_EXPORT_TEST
+MetaVirtualMonitorInfo * meta_virtual_monitor_info_new_simple (int         width,
+                                                               int         height,
+                                                               float       refresh_rate,
+                                                               const char *vendor,
+                                                               const char *product,
+                                                               const char *serial);
 
 META_EXPORT_TEST
 void meta_virtual_monitor_info_free (MetaVirtualMonitorInfo *info);
@@ -78,6 +84,8 @@ void meta_virtual_monitor_set_mode (MetaVirtualMonitor *virtual_monitor,
                                     int                 width,
                                     int                 height,
                                     float               refresh_rate);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualModeInfo, g_free)
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaVirtualMonitorInfo,
                                meta_virtual_monitor_info_free)

@@ -65,10 +65,10 @@ meta_test_warp_on_hotplug (void)
   meta_set_custom_monitor_config_full (backend, "pointer-constraint.xml",
                                        META_MONITORS_CONFIG_FLAG_NONE);
 
-  monitor_info1 = meta_virtual_monitor_info_new (100, 100, 60.0,
-                                                 "MetaTestVendor",
-                                                 "MetaVirtualMonitor",
-                                                 "0x1234");
+  monitor_info1 = meta_virtual_monitor_info_new_simple (100, 100, 60.0,
+                                                        "MetaTestVendor",
+                                                        "MetaVirtualMonitor",
+                                                        "0x1234");
   virtual_monitor1 = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                   monitor_info1,
                                                                   &error);
@@ -85,10 +85,10 @@ meta_test_warp_on_hotplug (void)
                                    &coords, NULL);
   g_assert_nonnull (meta_backend_get_current_logical_monitor (backend));
 
-  monitor_info2 = meta_virtual_monitor_info_new (200, 200, 60.0,
-                                                 "MetaTestVendor",
-                                                 "MetaVirtualMonitor",
-                                                 "0x1235");
+  monitor_info2 = meta_virtual_monitor_info_new_simple (200, 200, 60.0,
+                                                        "MetaTestVendor",
+                                                        "MetaVirtualMonitor",
+                                                        "0x1235");
   virtual_monitor2 = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                   monitor_info2,
                                                                   &error);

@@ -71,10 +71,11 @@ meta_test_monitor_new (MetaContext  *context,
   MetaTestMonitor *test_monitor;
 
   serial = g_strdup_printf ("0x%x", serial_count++);
-  monitor_info = meta_virtual_monitor_info_new (width, height, refresh_rate,
-                                                "MetaTestVendor",
-                                                "MetaTestMonitor",
-                                                serial);
+  monitor_info = meta_virtual_monitor_info_new_simple (width, height,
+                                                       refresh_rate,
+                                                       "MetaTestVendor",
+                                                       "MetaTestMonitor",
+                                                       serial);
   virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                  monitor_info,
                                                                  error);

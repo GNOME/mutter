@@ -53,10 +53,10 @@ meta_test_virtual_monitor_create (void)
   g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
   g_assert_null (meta_renderer_get_views (renderer));
 
-  monitor_info = meta_virtual_monitor_info_new (80, 60, 60.0,
-                                                "MetaTestVendor",
-                                                "MetaVirtualMonitor",
-                                                "0x1234");
+  monitor_info = meta_virtual_monitor_info_new_simple (80, 60, 60.0,
+                                                       "MetaTestVendor",
+                                                       "MetaVirtualMonitor",
+                                                       "0x1234");
   virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                  monitor_info,
                                                                  &error);

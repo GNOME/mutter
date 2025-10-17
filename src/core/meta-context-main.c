@@ -324,12 +324,13 @@ add_virtual_monitor_cb (const char  *option_name,
       n_existing_virtual_monitor_infos =
         g_list_length (context_main->options.virtual_monitor_infos);
       serial = g_strdup_printf ("0x%.2x", n_existing_virtual_monitor_infos);
-      virtual_monitor = meta_virtual_monitor_info_new (width,
-                                                       height,
-                                                       refresh_rate,
-                                                       "MetaVendor",
-                                                       "MetaVirtualMonitor",
-                                                       serial);
+      virtual_monitor =
+        meta_virtual_monitor_info_new_simple (width,
+                                              height,
+                                              refresh_rate,
+                                              "MetaVendor",
+                                              "MetaVirtualMonitor",
+                                              serial);
       context_main->options.virtual_monitor_infos =
         g_list_append (context_main->options.virtual_monitor_infos,
                        virtual_monitor);

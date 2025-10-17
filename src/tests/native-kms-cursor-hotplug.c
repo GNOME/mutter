@@ -71,10 +71,10 @@ meta_test_cursor_hotplug (void)
   meta_set_custom_monitor_config_full (backend, "kms-cursor-hotplug-off.xml",
                                        META_MONITORS_CONFIG_FLAG_NONE);
 
-  monitor_info = meta_virtual_monitor_info_new (100, 100, 60.0,
-                                                "MetaTestVendor",
-                                                "MetaVirtualMonitor",
-                                                "0x1234");
+  monitor_info = meta_virtual_monitor_info_new_simple (100, 100, 60.0,
+                                                       "MetaTestVendor",
+                                                       "MetaVirtualMonitor",
+                                                       "0x1234");
   virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                  monitor_info,
                                                                  &error);
@@ -164,10 +164,10 @@ meta_test_hotplug_multi_view_invalidation (void)
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
 
-  monitor_info = meta_virtual_monitor_info_new (100, 100, 60.0,
-                                                "MetaTestVendor",
-                                                "MetaVirtualMonitor",
-                                                "0x1234");
+  monitor_info = meta_virtual_monitor_info_new_simple (100, 100, 60.0,
+                                                       "MetaTestVendor",
+                                                       "MetaVirtualMonitor",
+                                                       "0x1234");
   virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                  monitor_info,
                                                                  &error);

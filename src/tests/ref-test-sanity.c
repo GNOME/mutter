@@ -44,10 +44,10 @@ setup_test_environment (void)
     settings,
     META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
 
-  monitor_info = meta_virtual_monitor_info_new (100, 100, 60.0,
-                                                "MetaTestVendor",
-                                                "MetaVirtualMonitor",
-                                                "0x1234");
+  monitor_info = meta_virtual_monitor_info_new_simple (100, 100, 60.0,
+                                                       "MetaTestVendor",
+                                                       "MetaVirtualMonitor",
+                                                       "0x1234");
   virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
                                                                  monitor_info,
                                                                  &error);
