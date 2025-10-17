@@ -52,7 +52,7 @@ struct _MdkMonitor
   GtkWidget parent;
 
   GtkWidget *box;
-  GtkPicture *picture;
+  GtkWidget *picture;
 
   MdkContext *context;
   MdkStream *stream;
@@ -794,7 +794,7 @@ on_stream_error (MdkStream    *stream,
                                DEFAULT_MONITOR_WIDTH,
                                DEFAULT_MONITOR_HEIGHT);
   gtk_box_append (GTK_BOX (monitor->box), label);
-  gtk_widget_set_visible (GTK_WIDGET (monitor->picture), FALSE);
+  gtk_widget_set_visible (monitor->picture, FALSE);
 
   g_warning ("Failed to create monitor: %s", error->message);
 }
@@ -817,10 +817,10 @@ mdk_monitor_new (MdkContext *context)
                     monitor);
 
   paintable = GDK_PAINTABLE (monitor->stream);
-  monitor->picture = GTK_PICTURE (gtk_picture_new_for_paintable (paintable));
-  gtk_widget_add_css_class (GTK_WIDGET (monitor->picture), "monitor");
-  gtk_widget_set_sensitive (GTK_WIDGET (monitor->picture), FALSE);
-  gtk_box_append (GTK_BOX (monitor->box), GTK_WIDGET (monitor->picture));
+  monitor->picture = gtk_picture_new_for_paintable (paintable);
+  gtk_widget_add_css_class (monitor->picture, "monitor");
+  gtk_widget_set_sensitive (monitor->picture, FALSE);
+  gtk_box_append (GTK_BOX (monitor->box), monitor->picture);
 
   update_cursor (monitor);
   g_signal_connect_object (context, "notify::emulate-touch",
