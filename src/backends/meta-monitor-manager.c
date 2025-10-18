@@ -584,6 +584,39 @@ meta_monitor_manager_is_headless (MetaMonitorManager *manager)
   return !manager->logical_monitors;
 }
 
+static gboolean
+get_preferred_scale_for_crtc_mode (MetaMonitor         *monitor,
+                                   MetaMonitorMode     *mode,
+                                   MetaMonitorCrtcMode *monitor_crtc_mode,
+                                   gpointer             user_data,
+                                   GError             **error)
+{
+  const MetaCrtcModeInfo *mode_info =
+    meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
+
+  if (mode_info->has_preferred_scale)
+    {
+      float *preferred_scale = user_data;
+
+      *preferred_scale = mode_info->preferred_scale;
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+get_preferred_scale_for_monitor (MetaMonitor     *monitor,
+                                 MetaMonitorMode *monitor_mode,
+                                 float           *out_scale)
+{
+  return !meta_monitor_mode_foreach_crtc (monitor,
+                                          monitor_mode,
+                                          get_preferred_scale_for_crtc_mode,
+                                          out_scale,
+                                          NULL);
+}
+
 float
 meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager           *manager,
                                                    MetaLogicalMonitorLayoutMode  layout_mode,
@@ -592,6 +625,10 @@ meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager           
 {
   MetaMonitorManagerClass *manager_class =
     META_MONITOR_MANAGER_GET_CLASS (manager);
+  float scale;
+
+  if (get_preferred_scale_for_monitor (monitor, monitor_mode, &scale))
+    return scale;
 
   return manager_class->calculate_monitor_mode_scale (manager,
                                                       layout_mode,

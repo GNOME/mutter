@@ -61,6 +61,9 @@ typedef struct _MetaCrtcModeInfo
   int64_t vblank_duration_us;
   uint32_t pixel_clock_khz;
   MetaCrtcModeFlag flags;
+
+  gboolean has_preferred_scale;
+  float preferred_scale;
 } MetaCrtcModeInfo;
 
 #define META_TYPE_CRTC_MODE (meta_crtc_mode_get_type ())
