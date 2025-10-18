@@ -28,6 +28,8 @@ struct _MetaVirtualModeInfo
   int width;
   int height;
   float refresh_rate;
+  gboolean has_preferred_scale;
+  float preferred_scale;
 };
 
 struct _MetaVirtualMonitorInfo
@@ -61,6 +63,9 @@ MetaVirtualModeInfo * meta_virtual_mode_info_dup (const MetaVirtualModeInfo *mod
 
 META_EXPORT_TEST
 void meta_virtual_mode_info_free (MetaVirtualModeInfo *mode_info);
+
+void meta_virtual_mode_info_set_preferred_scale (MetaVirtualModeInfo *mode_info,
+                                                 float                scale);
 
 MetaVirtualMonitorInfo * meta_virtual_monitor_info_new (const char *vendor,
                                                         const char *product,

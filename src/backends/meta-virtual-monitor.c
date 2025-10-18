@@ -83,6 +83,14 @@ meta_virtual_mode_info_free (MetaVirtualModeInfo *mode_info)
   g_free (mode_info);
 }
 
+void
+meta_virtual_mode_info_set_preferred_scale (MetaVirtualModeInfo *mode_info,
+                                            float                scale)
+{
+  mode_info->has_preferred_scale = TRUE;
+  mode_info->preferred_scale = scale;
+}
+
 MetaVirtualMonitorInfo *
 meta_virtual_monitor_info_new (const char *vendor,
                                const char *product,

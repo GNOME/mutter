@@ -43,6 +43,8 @@ meta_crtc_mode_virtual_new (uint64_t                   id,
   crtc_mode_info->width = info->width;
   crtc_mode_info->height = info->height;
   crtc_mode_info->refresh_rate = info->refresh_rate;
+  crtc_mode_info->has_preferred_scale = info->has_preferred_scale;
+  crtc_mode_info->preferred_scale = info->preferred_scale;
 
   crtc_mode_name = g_strdup_printf ("%dx%d@%f",
                                     info->width,
