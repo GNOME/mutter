@@ -31,9 +31,6 @@
 #include "mdk-stream.h"
 #include "mdk-touch.h"
 
-#define DEFAULT_MONITOR_WIDTH 1280
-#define DEFAULT_MONITOR_HEIGHT 800
-
 #define BUTTON_BASE (BTN_LEFT - 1)
 
 enum
@@ -587,11 +584,11 @@ init_stream (MdkMonitor *monitor)
   MdkSession *session = mdk_context_get_session (monitor->context);
   g_autoptr (GError) error = NULL;
 
-  monitor->stream = mdk_stream_new (session,
-                                    monitor->is_resizable,
-                                    DEFAULT_MONITOR_WIDTH,
-                                    DEFAULT_MONITOR_HEIGHT,
-                                    &error);
+  if (monitor->is_resizable)
+    monitor->stream = mdk_stream_new_resizable (session, &error);
+  else
+    monitor->stream = mdk_stream_new_with_modes (session, &error);
+
   if (!monitor->stream)
     {
       show_fail_label (monitor, error);

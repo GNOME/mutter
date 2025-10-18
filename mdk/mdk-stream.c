@@ -49,6 +49,20 @@
 
 #include "mdk-dbus-screen-cast.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_SESSION,
+  PROP_IS_RESIZABLE,
+  PROP_DEFAULT_WIDTH,
+  PROP_DEFAULT_HEIGHT,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct
 {
   uint32_t spa_format;
@@ -141,9 +155,13 @@ static const struct
   },
 };
 
+static void initable_iface_init (GInitableIface *iface);
+
 static void paintable_iface_init (GdkPaintableInterface *iface);
 
 G_DEFINE_FINAL_TYPE_WITH_CODE (MdkStream, mdk_stream, GTK_TYPE_MEDIA_STREAM,
+                               G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                      initable_iface_init)
                                G_IMPLEMENT_INTERFACE (GDK_TYPE_PAINTABLE,
                                                       paintable_iface_init))
 
@@ -518,6 +536,12 @@ on_format_param_changed (MdkStream            *stream,
     {
       stream->width = stream->format.info.raw.size.width;
       stream->height = stream->format.info.raw.size.height;
+
+      if (!stream->paintable)
+        {
+          stream->paintable = gdk_paintable_new_empty (stream->width,
+                                                       stream->height);
+        }
       gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
     }
 }
@@ -1093,38 +1117,6 @@ paintable_iface_init (GdkPaintableInterface *iface)
 }
 
 static void
-mdk_stream_finalize (GObject *object)
-{
-  MdkStream *stream = MDK_STREAM (object);
-
-  g_clear_pointer (&stream->pipewire_stream, pw_stream_destroy);
-  g_clear_handle_id (&stream->reinvalidate_source_id, g_source_remove);
-  if (stream->proxy)
-    mdk_dbus_screen_cast_stream_call_stop (stream->proxy, NULL, NULL, NULL);
-  g_clear_object (&stream->proxy);
-  g_clear_pointer (&stream->formats, g_array_unref);
-  g_clear_object (&stream->paintable);
-  g_clear_pointer (&stream->main_context, g_main_context_unref);
-
-  G_OBJECT_CLASS (mdk_stream_parent_class)->finalize (object);
-}
-
-static void
-mdk_stream_class_init (MdkStreamClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->finalize = mdk_stream_finalize;
-}
-
-static void
-mdk_stream_init (MdkStream *stream)
-{
-  stream->process_requested = TRUE;
-  stream->main_context = g_main_context_new ();
-}
-
-static void
 on_pipewire_stream_added (MdkDBusScreenCastStream *proxy,
                           unsigned int             node_id,
                           MdkStream               *stream)
@@ -1167,10 +1159,13 @@ init_pipewire_stream (MdkStream  *stream,
 
       for (i = 0; i < G_N_ELEMENTS (modes); i++)
         {
-          monitor_modes =
-            g_list_append (monitor_modes,
-                           mdk_monitor_mode_new (modes[i].width,
-                                                 modes[i].height));
+          if (modes[i].width > 0 && modes[i].height > 0)
+            {
+              monitor_modes =
+                g_list_append (monitor_modes,
+                               mdk_monitor_mode_new (modes[i].width,
+                                                     modes[i].height));
+            }
         }
     }
 
@@ -1233,34 +1228,155 @@ err:
   return ret;
 }
 
-MdkStream *
-mdk_stream_new (MdkSession  *session,
-                gboolean     is_resizable,
-                int          width,
-                int          height,
-                GError     **error)
+static gboolean
+mdk_stream_initable_init (GInitable      *initable,
+                          GCancellable   *cancellable,
+                          GError        **error)
 {
-  MdkContext *context = mdk_session_get_context (session);
+  MdkStream *stream = MDK_STREAM (initable);
+  MdkContext *context = mdk_session_get_context (stream->session);
   MdkPipewire *pipewire = mdk_context_get_pipewire (context);
   struct pw_loop *pipewire_loop = mdk_pipewire_get_loop (pipewire);
-  g_autoptr (MdkStream) stream = NULL;
 
-  stream = g_object_new (MDK_TYPE_STREAM, NULL);
-  stream->session = session;
-  stream->width = width;
-  stream->height = height;
-  stream->is_resizable = is_resizable;
-  stream->paintable = gdk_paintable_new_empty (stream->width, stream->height);
+  if (stream->is_resizable)
+    stream->paintable = gdk_paintable_new_empty (stream->width, stream->height);
 
   stream->renegotiate_event = pw_loop_add_event (pipewire_loop,
                                                  renegotiate_stream_format,
                                                  stream);
 
 
-  if (!init_pipewire_stream (stream, error))
-    return NULL;
+  return init_pipewire_stream (stream, error);
+}
 
-  return g_steal_pointer (&stream);
+static void
+initable_iface_init (GInitableIface *iface)
+{
+  iface->init = mdk_stream_initable_init;
+}
+
+static void
+mdk_stream_set_property (GObject      *object,
+                         guint         prop_id,
+                         const GValue *value,
+                         GParamSpec   *pspec)
+{
+  MdkStream *stream = MDK_STREAM (object);
+
+  switch (prop_id)
+    {
+    case PROP_SESSION:
+      stream->session = g_value_get_object (value);
+      break;
+    case PROP_IS_RESIZABLE:
+      stream->is_resizable = g_value_get_boolean (value);
+      break;
+    case PROP_DEFAULT_WIDTH:
+      stream->width = g_value_get_int (value);
+      break;
+    case PROP_DEFAULT_HEIGHT:
+      stream->height = g_value_get_int (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+mdk_stream_get_property (GObject    *object,
+                         guint       prop_id,
+                         GValue     *value,
+                         GParamSpec *pspec)
+{
+  switch (prop_id)
+    {
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+mdk_stream_finalize (GObject *object)
+{
+  MdkStream *stream = MDK_STREAM (object);
+
+  g_clear_pointer (&stream->pipewire_stream, pw_stream_destroy);
+  g_clear_handle_id (&stream->reinvalidate_source_id, g_source_remove);
+  if (stream->proxy)
+    mdk_dbus_screen_cast_stream_call_stop (stream->proxy, NULL, NULL, NULL);
+  g_clear_object (&stream->proxy);
+  g_clear_pointer (&stream->formats, g_array_unref);
+  g_clear_object (&stream->paintable);
+  g_clear_pointer (&stream->main_context, g_main_context_unref);
+
+  G_OBJECT_CLASS (mdk_stream_parent_class)->finalize (object);
+}
+
+static void
+mdk_stream_class_init (MdkStreamClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->set_property = mdk_stream_set_property;
+  object_class->get_property = mdk_stream_get_property;
+  object_class->finalize = mdk_stream_finalize;
+
+  obj_props[PROP_SESSION] =
+    g_param_spec_object ("session", NULL, NULL,
+                         MDK_TYPE_SESSION,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IS_RESIZABLE] =
+    g_param_spec_boolean ("is-resizable", NULL, NULL,
+                          FALSE,
+                          G_PARAM_WRITABLE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEFAULT_WIDTH] =
+    g_param_spec_int ("default-width", NULL, NULL,
+                      0, INT_MAX, 0,
+                      G_PARAM_WRITABLE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEFAULT_HEIGHT] =
+    g_param_spec_int ("default-height", NULL, NULL,
+                      0, INT_MAX, 0,
+                      G_PARAM_WRITABLE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
+}
+
+static void
+mdk_stream_init (MdkStream *stream)
+{
+  stream->process_requested = TRUE;
+  stream->main_context = g_main_context_new ();
+}
+
+MdkStream *
+mdk_stream_new_resizable (MdkSession  *session,
+                          GError     **error)
+{
+  return g_initable_new (MDK_TYPE_STREAM, NULL, error,
+                         "session", session,
+                         "is-resizable", TRUE,
+                         "default-width", DEFAULT_MONITOR_WIDTH,
+                         "default-height", DEFAULT_MONITOR_HEIGHT,
+                         NULL);
+}
+
+MdkStream *
+mdk_stream_new_with_modes (MdkSession  *session,
+                           GError     **error)
+{
+  return g_initable_new (MDK_TYPE_STREAM, NULL, error,
+                         "session", session,
+                         "is-resizable", FALSE,
+                         NULL);
 }
 
 MdkSession *

@@ -22,16 +22,19 @@
 
 #include "mdk-types.h"
 
+#define DEFAULT_MONITOR_WIDTH 1280
+#define DEFAULT_MONITOR_HEIGHT 800
+
 #define MDK_TYPE_STREAM (mdk_stream_get_type ())
 G_DECLARE_FINAL_TYPE (MdkStream, mdk_stream,
                       MDK, STREAM,
                       GtkMediaStream)
 
-MdkStream * mdk_stream_new (MdkSession  *session,
-                            gboolean     is_resizable,
-                            int          width,
-                            int          height,
-                            GError     **error);
+MdkStream * mdk_stream_new_resizable (MdkSession  *session,
+                                      GError     **error);
+
+MdkStream * mdk_stream_new_with_modes (MdkSession  *session,
+                                       GError     **error);
 
 MdkSession * mdk_stream_get_session (MdkStream *stream);
 
