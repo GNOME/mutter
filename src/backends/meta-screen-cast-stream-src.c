@@ -34,6 +34,7 @@
 #include <pipewire/pipewire.h>
 #include <spa/param/props.h>
 #include <spa/param/format-utils.h>
+#include <spa/param/tag-utils.h>
 #include <spa/param/video/format-utils.h>
 #include <spa/pod/dynamic.h>
 #include <spa/utils/result.h>
@@ -206,6 +207,13 @@ syncobj_data_from_buffer (struct spa_buffer *spa_buffer,
 }
 
 #endif /* HAVE_NATIVE_BACKEND */
+
+static void
+meta_tag_entry_clear (MetaTagEntry *tag_entry)
+{
+  g_free (tag_entry->key);
+  g_free (tag_entry->value);
+}
 
 static gboolean
 spa_video_format_from_cogl_pixel_format (CoglPixelFormat        cogl_format,
@@ -1526,6 +1534,54 @@ build_format_params (MetaScreenCastStreamSrc *src,
     }
 }
 
+static void
+build_tag_params (MetaScreenCastStreamSrc *src,
+                  struct spa_pod_builder  *pod_builder,
+                  GArray                  *pod_offsets)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  struct spa_pod_frame tag_frame;
+  struct spa_dict_item *items;
+  g_autoptr (GArray) tags = NULL;
+  size_t i;
+
+  if (!klass->append_tags)
+    return;
+
+  tags = g_array_new (FALSE, FALSE, sizeof (MetaTagEntry));
+  g_array_set_clear_func (tags, (GDestroyNotify) meta_tag_entry_clear);
+
+  klass->append_tags (src, tags);
+
+  if (tags->len == 0)
+    return;
+
+  items = g_alloca (sizeof (struct spa_dict_item) * tags->len);
+  for (i = 0; i < tags->len; i++)
+    {
+      MetaTagEntry *tag_entry = &g_array_index (tags, MetaTagEntry, i);
+
+      items[i] = SPA_DICT_ITEM_INIT (tag_entry->key, tag_entry->value);
+    }
+
+  append_pod_offset (pod_offsets, pod_builder);
+  spa_tag_build_start (pod_builder, &tag_frame,
+                       SPA_PARAM_Tag, SPA_DIRECTION_OUTPUT);
+  spa_tag_build_add_dict (pod_builder,
+                          &SPA_DICT_INIT (items, tags->len));
+  spa_tag_build_end (pod_builder, &tag_frame);
+}
+
+static void
+build_stream_params (MetaScreenCastStreamSrc *src,
+                     struct spa_pod_builder  *pod_builder,
+                     GArray                  *pod_offsets)
+{
+  build_format_params (src, pod_builder, pod_offsets);
+  build_tag_params (src, pod_builder, pod_offsets);
+}
+
 static GPtrArray *
 finish_params (struct spa_pod_builder *pod_builder,
                GArray                 *pod_offsets)
@@ -1557,7 +1613,7 @@ meta_screen_cast_stream_src_renegotiate (MetaScreenCastStreamSrc *src)
   pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
 
-  build_format_params (src, &pod_builder.b, pod_offsets);
+  build_stream_params (src, &pod_builder.b, pod_offsets);
 
   params = finish_params (&pod_builder.b, pod_offsets);
 
@@ -1784,7 +1840,7 @@ on_stream_param_changed (void                 *data,
             0);
         }
 
-      build_format_params (src, &pod_builder.b, pod_offsets);
+      build_stream_params (src, &pod_builder.b, pod_offsets);
 
       params = finish_params (&pod_builder.b, pod_offsets);
       pw_stream_update_params (priv->pipewire_stream,
@@ -2196,7 +2252,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
   pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
 
-  build_format_params (src, &pod_builder.b, pod_offsets);
+  build_stream_params (src, &pod_builder.b, pod_offsets);
   params = finish_params (&pod_builder.b, pod_offsets);
 
   pw_stream_add_listener (pipewire_stream,

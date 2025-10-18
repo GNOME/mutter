@@ -51,6 +51,12 @@ typedef enum _MetaScreenCastPaintPhase
   META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER,
 } MetaScreenCastPaintPhase;
 
+typedef struct _MetaTagEntry
+{
+  char *key;
+  char *value;
+} MetaTagEntry;
+
 /* Declare some SPA types to avoid including the headers in too many places. */
 struct spa_meta_cursor;
 struct spa_video_info_raw;
@@ -96,6 +102,9 @@ struct _MetaScreenCastStreamSrcClass
   CoglPixelFormat (* get_preferred_format) (MetaScreenCastStreamSrc *src);
 
   void (* dispatch) (MetaScreenCastStreamSrc *src);
+
+  void (* append_tags) (MetaScreenCastStreamSrc *src,
+                        GArray                  *tags);
 };
 
 void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
