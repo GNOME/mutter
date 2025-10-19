@@ -1930,6 +1930,43 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
 }
 
 static void
+on_tag_changed (MetaScreenCastStreamSrc *src,
+                const char              *key,
+                const char              *value)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  if (klass->tag_changed)
+    klass->tag_changed (src, key, value);
+}
+
+static void
+on_tag_param_changed (MetaScreenCastStreamSrc *src,
+                      const struct spa_pod    *tag)
+{
+  struct spa_tag_info tag_info;
+  void *state = NULL;
+
+  while (spa_tag_parse (tag, &tag_info, &state) == 1)
+    {
+      struct spa_dict dict = {};
+      g_autofree struct spa_dict_item *items = NULL;
+
+      if (spa_tag_info_parse (&tag_info, &dict, NULL) < 0)
+        return;
+
+      items = g_new0 (struct spa_dict_item, dict.n_items);
+
+      if (spa_tag_info_parse (&tag_info, &dict, items) < 0)
+        return;
+
+      for (int i = 0; i < dict.n_items; i++)
+        on_tag_changed (src, items[i].key, items[i].value);
+    }
+}
+
+static void
 on_stream_param_changed (void                 *data,
                          uint32_t              id,
                          const struct spa_pod *param)
@@ -1943,6 +1980,9 @@ on_stream_param_changed (void                 *data,
     {
     case SPA_PARAM_Format:
       on_format_param_changed (src, param);
+      break;
+    case SPA_PARAM_Tag:
+      on_tag_param_changed (src, param);
       break;
     }
 }

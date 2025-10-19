@@ -105,6 +105,9 @@ struct _MetaScreenCastStreamSrcClass
 
   void (* append_tags) (MetaScreenCastStreamSrc *src,
                         GArray                  *tags);
+  void (* tag_changed) (MetaScreenCastStreamSrc *src,
+                        const char              *key,
+                        const char              *value);
 };
 
 void meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src);
