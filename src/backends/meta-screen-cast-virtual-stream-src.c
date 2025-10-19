@@ -61,6 +61,8 @@ struct _MetaScreenCastVirtualStreamSrc
 
   MetaVirtualMonitor *virtual_monitor;
   GList *mode_infos;
+  gboolean has_preferred_scale;
+  float preferred_scale;
 
   gboolean cursor_bitmap_invalid;
 
@@ -660,17 +662,26 @@ meta_screen_cast_virtual_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
 }
 
 static MetaVirtualModeInfo *
-create_mode_info (struct spa_video_info_raw *video_format)
+create_mode_info (MetaScreenCastVirtualStreamSrc *virtual_src,
+                  struct spa_video_info_raw      *video_format)
 {
   int width, height;
   float refresh_rate;
+  MetaVirtualModeInfo *mode_info;
 
   width = (int) video_format->size.width;
   height = (int) video_format->size.height;
   refresh_rate = ((float) video_format->max_framerate.num /
                   video_format->max_framerate.denom);
 
-  return meta_virtual_mode_info_new (width, height, refresh_rate);
+  mode_info = meta_virtual_mode_info_new (width, height, refresh_rate);
+  if (virtual_src->has_preferred_scale)
+    {
+      meta_virtual_mode_info_set_preferred_scale (mode_info,
+                                                  virtual_src->preferred_scale);
+    }
+
+  return mode_info;
 }
 
 static char *
@@ -696,7 +707,8 @@ create_virtual_monitor (MetaScreenCastVirtualStreamSrc  *virtual_src,
 
   serial = generate_next_virtual_monitor_serial ();
 
-  mode_infos = g_list_append (mode_infos, create_mode_info (video_format));
+  mode_infos = g_list_append (mode_infos, create_mode_info (virtual_src,
+                                                            video_format));
 
   info = meta_virtual_monitor_info_new ("MetaVendor",
                                         "Virtual remote monitor",
@@ -727,10 +739,12 @@ ensure_virtual_monitor (MetaScreenCastVirtualStreamSrc *virtual_src,
       const MetaCrtcModeInfo *mode_info = meta_crtc_mode_get_info (crtc_mode);
 
       if (mode_info->width == video_format->size.width &&
-          mode_info->height == video_format->size.height)
+          mode_info->height == video_format->size.height &&
+          mode_info->preferred_scale == virtual_src->preferred_scale)
         return;
 
-      mode_infos = g_list_append (mode_infos, create_mode_info (video_format));
+      mode_infos = g_list_append (mode_infos, create_mode_info (virtual_src,
+                                                                video_format));
       meta_virtual_monitor_set_modes (virtual_monitor, mode_infos);
       meta_monitor_manager_reload (monitor_manager);
       return;
@@ -803,6 +817,22 @@ meta_screen_cast_virtual_stream_src_append_tags (MetaScreenCastStreamSrc *src,
                   meta_logical_monitor_get_scale (logical_monitor));
 
   g_array_append_val (tags, tag_entry);
+}
+
+static void
+meta_screen_cast_virtual_stream_src_tag_changed (MetaScreenCastStreamSrc *src,
+                                                 const char              *key,
+                                                 const char              *value)
+{
+  if (g_strcmp0 (key, "org.gnome.preferred-scale") == 0)
+    {
+      MetaScreenCastVirtualStreamSrc *virtual_src =
+        META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
+      double scale = g_ascii_strtod (value, NULL);
+
+      virtual_src->has_preferred_scale = TRUE;
+      virtual_src->preferred_scale = (float) scale;
+    }
 }
 
 MetaScreenCastVirtualStreamSrc *
@@ -968,6 +998,8 @@ meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcCl
     meta_screen_cast_virtual_stream_src_dispatch;
   src_class->append_tags =
     meta_screen_cast_virtual_stream_src_append_tags;
+  src_class->tag_changed =
+    meta_screen_cast_virtual_stream_src_tag_changed;
 
   obj_props[PROP_MODE_INFOS] =
     g_param_spec_pointer ("mode-infos", NULL, NULL,
