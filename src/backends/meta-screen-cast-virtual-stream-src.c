@@ -30,6 +30,7 @@
 #include "backends/meta-crtc-mode.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-eis-viewport.h"
+#include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-output.h"
 #include "backends/meta-screen-cast-session.h"
@@ -782,6 +783,28 @@ meta_screen_cast_virtual_stream_src_dispatch (MetaScreenCastStreamSrc *src)
     }
 }
 
+static void
+meta_screen_cast_virtual_stream_src_append_tags (MetaScreenCastStreamSrc *src,
+                                                 GArray                  *tags)
+{
+  MetaScreenCastVirtualStreamSrc *virtual_src =
+    META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
+  MetaLogicalMonitor *logical_monitor;
+  MetaTagEntry tag_entry;
+
+  logical_monitor =
+    meta_screen_cast_virtual_stream_src_logical_monitor (virtual_src);
+  if (!logical_monitor)
+    return;
+
+  tag_entry.key = g_strdup ("org.gnome.scale");
+  tag_entry.value = g_new0 (char, G_ASCII_DTOSTR_BUF_SIZE);
+  g_ascii_dtostr (tag_entry.value, G_ASCII_DTOSTR_BUF_SIZE,
+                  meta_logical_monitor_get_scale (logical_monitor));
+
+  g_array_append_val (tags, tag_entry);
+}
+
 MetaScreenCastVirtualStreamSrc *
 meta_screen_cast_virtual_stream_src_new (MetaScreenCastVirtualStream  *virtual_stream,
                                          GList                        *mode_infos,
@@ -943,6 +966,8 @@ meta_screen_cast_virtual_stream_src_class_init (MetaScreenCastVirtualStreamSrcCl
     meta_screen_cast_virtual_stream_src_notify_params_updated;
   src_class->dispatch =
     meta_screen_cast_virtual_stream_src_dispatch;
+  src_class->append_tags =
+    meta_screen_cast_virtual_stream_src_append_tags;
 
   obj_props[PROP_MODE_INFOS] =
     g_param_spec_pointer ("mode-infos", NULL, NULL,
