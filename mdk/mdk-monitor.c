@@ -875,10 +875,11 @@ mdk_monitor_new (MdkContext *context)
                            monitor, 0);
 
   g_object_bind_property (G_OBJECT (context),
-                          "resizable-monitors",
+                          "emulate-monitor-modes",
                           G_OBJECT (monitor),
                           "is-resizable",
-                          G_BINDING_SYNC_CREATE);
+                          G_BINDING_SYNC_CREATE |
+                          G_BINDING_INVERT_BOOLEAN);
 
   return monitor;
 }

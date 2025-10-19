@@ -23,8 +23,8 @@
         <submenu>
           <attribute name="label" translatable="yes">_Monitors</attribute>
           <item>
-            <attribute name="label" translatable="yes">_Resizable</attribute>
-            <attribute name="action">app.toggle_resizable_monitors</attribute>
+            <attribute name="label" translatable="yes">_Emulate monitor modes</attribute>
+            <attribute name="action">app.toggle_emulate_monitor_modes</attribute>
           </item>
         </submenu>
       </section>
