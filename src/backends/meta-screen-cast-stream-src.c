@@ -1742,11 +1742,9 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
 }
 
 static void
-on_stream_param_changed (void                 *data,
-                         uint32_t              id,
-                         const struct spa_pod *format)
+on_format_param_changed (MetaScreenCastStreamSrc *src,
+                         const struct spa_pod    *format)
 {
-  MetaScreenCastStreamSrc *src = data;
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastStreamSrcClass *klass =
@@ -1758,9 +1756,6 @@ on_stream_param_changed (void                 *data,
   int buffer_types;
   const struct spa_pod_prop *prop_modifier;
   gboolean use_explicit_sync = FALSE;
-
-  if (!format || id != SPA_PARAM_Format)
-    return;
 
   pod_offsets = g_array_new (FALSE, TRUE, sizeof (uint32_t));
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
@@ -1932,6 +1927,24 @@ on_stream_param_changed (void                 *data,
 
   if (klass->notify_params_updated)
     klass->notify_params_updated (src, &priv->video_format);
+}
+
+static void
+on_stream_param_changed (void                 *data,
+                         uint32_t              id,
+                         const struct spa_pod *param)
+{
+  MetaScreenCastStreamSrc *src = data;
+
+  if (!param)
+    return;
+
+  switch (id)
+    {
+    case SPA_PARAM_Format:
+      on_format_param_changed (src, param);
+      break;
+    }
 }
 
 static void
