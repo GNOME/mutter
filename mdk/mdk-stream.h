@@ -35,6 +35,7 @@ MdkStream * mdk_stream_new_resizable (MdkSession  *session,
                                       GError     **error);
 
 MdkStream * mdk_stream_new_with_modes (MdkSession  *session,
+                                       double       scale,
                                        GError     **error);
 
 MdkSession * mdk_stream_get_session (MdkStream *stream);

@@ -23,6 +23,7 @@ typedef struct _MdkMonitorMode
 {
   int width;
   int height;
+  double preferred_scale;
 } MdkMonitorMode;
 
 typedef struct _MdkMonitorInfo
@@ -30,8 +31,9 @@ typedef struct _MdkMonitorInfo
   GList *modes;
 } MdkMonitorInfo;
 
-MdkMonitorMode * mdk_monitor_mode_new (int width,
-                                       int height);
+MdkMonitorMode * mdk_monitor_mode_new (int    width,
+                                       int    height,
+                                       double preferred_scale);
 
 MdkMonitorMode * mdk_monitor_mode_dup (MdkMonitorMode *monitor_mode);
 

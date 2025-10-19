@@ -1208,6 +1208,8 @@ init_pipewire_stream (MdkStream  *stream,
   g_autoptr (MdkMonitorInfo) monitor_info = NULL;
   g_autofree char *stream_path = NULL;
   gboolean ret = FALSE;
+  /* Set preferred size to 60% of a FHD resolution. */
+  const double max_logical_size = (1920 * 1080 * 0.6);
 
   g_main_context_push_thread_default (stream->main_context);
   mdk_pipewire_push_main_context (pipewire, stream->main_context);
@@ -1219,23 +1221,103 @@ init_pipewire_stream (MdkStream  *stream,
       const struct {
         int width;
         int height;
+        float preferred_scale;
       } modes[] = {
-        { stream->width, stream->height, },
+        /* 5:3 */
+        { 5120, 3200, },
+        { 4096, 2560, },
+        { 3840, 2400, },
+        { 3456, 2160, },
+        { 3360, 2100, },
+        { 3072, 1920, },
+        { 2880, 1800, },
+        { 2880, 1800, },
+        { 2560, 1600, },
+        { 2304, 1440, },
+        { 2296, 1435, },
+        { 2294, 1432, },
+        { 2240, 1400, },
+        { 2160, 1350, },
+        { 2048, 1280, },
+        { 1920, 1200, },
+        { 1800, 1125, },
+        { 1728, 1080, },
+        { 1706, 1066, },
+        { 1680, 1050, },
+        { 1536, 960, },
+        { 1440, 900, },
+        { 1440, 900, },
+        { 1384, 864, },
+        { 1280, 800, },
+        { 1152, 720, },
+        { 1024, 640, },
+        { 960, 600, },
+        { 768, 480, },
+        /* 16:9 */
+        { 5120, 2880, },
+        { 4480, 2520, },
+        { 4096, 2304, },
+        { 3840, 2160, },
+        { 3200, 1800, },
+        { 3200, 1800, },
+        { 3072, 1728, },
+        { 2880, 1620, },
+        { 2880, 1620, },
+        { 2576, 1450, },
+        { 2560, 1440, },
+        { 2400, 1350, },
+        { 2304, 1280, },
+        { 2240, 1260, },
+        { 2132, 1200, },
+        { 2048, 1152, },
         { 1920, 1080, },
+        { 1888, 1062, },
+        { 1776, 1000, },
+        { 1706, 960, },
+        { 1600, 900, },
+        { 1536, 864, },
+        { 1440, 810, },
         { 1366, 768, },
-        { 1024, 768, },
+        { 1360, 768, },
+        { 1334, 750, },
+        { 1280, 720, },
+        { 1248, 702, },
+        { 1136, 640, },
+        { 1064, 600, },
+        { 1050, 576, },
+        { 1024, 600, },
+        { 1024, 576, },
+        { 960, 544, },
+        { 960, 540, },
+        { 873, 480, },
+        { 854, 480, },
+        { 848, 480, },
       };
       size_t i;
 
       for (i = 0; i < G_N_ELEMENTS (modes); i++)
         {
-          if (modes[i].width > 0 && modes[i].height > 0)
+          MdkMonitorMode *monitor_mode;
+          int width = modes[i].width;
+          int height = modes[i].height;
+          double mode_scale;
+
+          if (!G_APPROX_VALUE (fmod (width, stream->scale), 0, 0.00001) ||
+              !G_APPROX_VALUE (fmod (height, stream->scale), 0, 0.00001))
             {
-              monitor_modes =
-                g_list_append (monitor_modes,
-                               mdk_monitor_mode_new (modes[i].width,
-                                                     modes[i].height));
+              if (width > 1280)
+                continue;
+              else
+                mode_scale = 1.0;
             }
+          else
+            mode_scale = stream->scale;
+
+          if (max_logical_size < ((width / mode_scale) * (height / mode_scale)))
+            continue;
+
+          monitor_mode = mdk_monitor_mode_new (width, height, mode_scale);
+          monitor_modes = g_list_append (monitor_modes, monitor_mode);
         }
     }
 
@@ -1453,10 +1535,12 @@ mdk_stream_new_resizable (MdkSession  *session,
 
 MdkStream *
 mdk_stream_new_with_modes (MdkSession  *session,
+                           double       scale,
                            GError     **error)
 {
   return g_initable_new (MDK_TYPE_STREAM, NULL, error,
                          "session", session,
+                         "scale", scale,
                          "is-resizable", FALSE,
                          NULL);
 }

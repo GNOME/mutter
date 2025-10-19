@@ -537,12 +537,17 @@ mdk_session_create_monitor (MdkSession      *session,
       for (l = monitor_info->modes; l; l = l->next)
         {
           MdkMonitorMode *monitor_mode = l->data;
+          double preferred_scale = monitor_mode->preferred_scale;
 
           g_variant_builder_open (&modes_builder, G_VARIANT_TYPE ("a{sv}"));
           g_variant_builder_add (&modes_builder, "{sv}",
                                  "size", g_variant_new ("(uu)",
                                                         monitor_mode->width,
                                                         monitor_mode->height));
+
+          g_variant_builder_add (&modes_builder, "{sv}",
+                                 "preferred-scale",
+                                 g_variant_new_double (preferred_scale));
 
           if (!has_marked_as_preferred)
             {

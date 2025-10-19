@@ -592,7 +592,7 @@ init_stream (MdkMonitor *monitor)
   if (monitor->is_resizable)
     monitor->stream = mdk_stream_new_resizable (session, scale, &error);
   else
-    monitor->stream = mdk_stream_new_with_modes (session, &error);
+    monitor->stream = mdk_stream_new_with_modes (session, scale, &error);
 
   if (!monitor->stream)
     {

@@ -18,14 +18,16 @@
 #include "mdk-monitor-info.h"
 
 MdkMonitorMode *
-mdk_monitor_mode_new (int width,
-                      int height)
+mdk_monitor_mode_new (int    width,
+                      int    height,
+                      double preferred_scale)
 {
   MdkMonitorMode *monitor_mode;
 
   monitor_mode = g_new0 (MdkMonitorMode, 1);
   monitor_mode->width = width;
   monitor_mode->height = height;
+  monitor_mode->preferred_scale = preferred_scale;
 
   return monitor_mode;
 }
