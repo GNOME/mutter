@@ -738,6 +738,7 @@ create_mode_infos (GVariant  *modes_variant,
       double refresh_rate = 60.0;
       MetaVirtualModeInfo *mode_info;
       gboolean is_preferred = FALSE;
+      double preferred_scale;
 
       mode_variant = g_variant_get_child_value (modes_variant, i);
       if (!g_variant_lookup (mode_variant, "size",
@@ -769,6 +770,13 @@ create_mode_infos (GVariant  *modes_variant,
 
       mode_info = meta_virtual_mode_info_new (width, height,
                                               (float) refresh_rate);
+
+      if (g_variant_lookup (mode_variant, "preferred-scale", "d",
+                            &preferred_scale))
+        {
+          meta_virtual_mode_info_set_preferred_scale (mode_info,
+                                                      (float) preferred_scale);
+        }
 
       if (is_preferred)
         mode_infos = g_list_prepend (mode_infos, mode_info);
