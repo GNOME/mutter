@@ -582,10 +582,15 @@ static void
 init_stream (MdkMonitor *monitor)
 {
   MdkSession *session = mdk_context_get_session (monitor->context);
+  GtkNative *native = gtk_widget_get_native (GTK_WIDGET (monitor));
+  GdkSurface *surface = gtk_native_get_surface (native);
+  double scale;
   g_autoptr (GError) error = NULL;
 
+  scale =  gdk_surface_get_scale (surface);
+
   if (monitor->is_resizable)
-    monitor->stream = mdk_stream_new_resizable (session, &error);
+    monitor->stream = mdk_stream_new_resizable (session, scale, &error);
   else
     monitor->stream = mdk_stream_new_with_modes (session, &error);
 

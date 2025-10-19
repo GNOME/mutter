@@ -31,6 +31,7 @@
 #include <pipewire/stream.h>
 #include <spa/debug/format.h>
 #include <spa/node/command.h>
+#include <spa/param/tag-utils.h>
 #include <spa/param/video/format-utils.h>
 #include <spa/pod/dynamic.h>
 #include <spa/utils/hook.h>
@@ -54,6 +55,7 @@ enum
   PROP_0,
 
   PROP_SESSION,
+  PROP_SCALE,
   PROP_IS_RESIZABLE,
   PROP_DEFAULT_WIDTH,
   PROP_DEFAULT_HEIGHT,
@@ -75,8 +77,10 @@ struct _MdkStream
   GtkMediaStream parent;
 
   MdkSession *session;
+
   int width;
   int height;
+  double scale;
   gboolean is_resizable;
 
   MdkDBusScreenCastStream *proxy;
@@ -319,9 +323,30 @@ build_format_param (MdkStream              *stream,
   spa_pod_builder_pop (pod_builder, &object_frame);
 }
 
+static void
+build_tag_param (MdkStream              *stream,
+                 struct spa_pod_builder *pod_builder,
+                 GArray                 *pod_offsets)
+{
+  struct spa_pod_frame tag_frame;
+  char scale_string[G_ASCII_DTOSTR_BUF_SIZE];
+  struct spa_dict_item items[1];
+
+  g_array_append_val (pod_offsets, pod_builder->state.offset);
+  spa_tag_build_start (pod_builder, &tag_frame,
+                       SPA_PARAM_Tag, SPA_DIRECTION_INPUT);
+  g_ascii_dtostr (scale_string, G_ASCII_DTOSTR_BUF_SIZE, stream->scale);
+  items[0] = SPA_DICT_ITEM_INIT ("org.gnome.preferred-scale",
+                                 scale_string);
+  spa_tag_build_add_dict (pod_builder,
+                          &SPA_DICT_INIT (items, G_N_ELEMENTS (items)));
+
+  spa_tag_build_end (pod_builder, &tag_frame);
+}
+
 static GPtrArray *
-build_stream_format_params (MdkStream              *stream,
-                            struct spa_pod_builder *pod_builder)
+build_stream_params (MdkStream              *stream,
+                     struct spa_pod_builder *pod_builder)
 {
   g_autoptr (GArray) pod_offsets = NULL;
   uint32_t i;
@@ -337,6 +362,8 @@ build_stream_format_params (MdkStream              *stream,
       build_format_param (stream, pod_builder, pod_offsets, format, TRUE);
       build_format_param (stream, pod_builder, pod_offsets, format, FALSE);
     }
+
+  build_tag_param (stream, pod_builder, pod_offsets);
 
   return finish_params (pod_builder, pod_offsets);
 }
@@ -546,6 +573,46 @@ on_format_param_changed (MdkStream            *stream,
     }
 }
 
+static void
+on_tag_changed (MdkStream  *stream,
+                const char *key,
+                const char *value)
+{
+  if (g_strcmp0 (key, "org.gnome.scale") == 0)
+    {
+      double scale = g_ascii_strtod (value, NULL);
+      if (scale != stream->scale)
+        {
+          stream->scale = (float) scale;
+          gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
+        }
+    }
+}
+
+static void
+on_tag_param_changed (MdkStream            *stream,
+                      const struct spa_pod *tag)
+{
+  struct spa_tag_info tag_info;
+  void *state = NULL;
+
+  while (spa_tag_parse (tag, &tag_info, &state) == 1)
+    {
+      struct spa_dict dict = {};
+      g_autofree struct spa_dict_item *items = NULL;
+
+      if (spa_tag_info_parse (&tag_info, &dict, NULL) < 0)
+        return;
+
+      items = g_new0 (struct spa_dict_item, dict.n_items);
+
+      if (spa_tag_info_parse (&tag_info, &dict, items) < 0)
+        return;
+
+      for (int i = 0; i < dict.n_items; i++)
+        on_tag_changed (stream, items[i].key, items[i].value);
+    }
+}
 
 static void
 on_stream_param_changed (void                 *user_data,
@@ -562,6 +629,9 @@ on_stream_param_changed (void                 *user_data,
     case SPA_PARAM_Format:
       on_format_param_changed (stream, param);
       break;
+    case SPA_PARAM_Tag:
+      on_tag_param_changed (stream, param);
+      break;
     }
 }
 
@@ -572,7 +642,7 @@ mdk_stream_renegotiate (MdkStream *stream)
   struct spa_pod_dynamic_builder pod_builder;
 
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
-  new_params = build_stream_format_params (stream, &pod_builder.b);
+  new_params = build_stream_params (stream, &pod_builder.b);
 
   pw_stream_update_params (stream->pipewire_stream,
                            (const struct spa_pod **) new_params->pdata,
@@ -960,7 +1030,7 @@ connect_to_stream (MdkStream  *stream,
                                    pipewire_props);
 
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
-  params = build_stream_format_params (stream, &pod_builder.b);
+  params = build_stream_params (stream, &pod_builder.b);
 
   stream->pipewire_stream = pipewire_stream;
 
@@ -1087,7 +1157,7 @@ mdk_stream_paintable_get_intrinsic_width (GdkPaintable *paintable)
 {
   MdkStream *stream = MDK_STREAM (paintable);
 
-  return stream->width;
+  return (int) round (stream->width / stream->scale);
 }
 
 static int
@@ -1095,7 +1165,7 @@ mdk_stream_paintable_get_intrinsic_height (GdkPaintable *paintable)
 {
   MdkStream *stream = MDK_STREAM (paintable);
 
-  return stream->height;
+  return (int) round (stream->height / stream->scale);
 }
 
 static double
@@ -1268,6 +1338,9 @@ mdk_stream_set_property (GObject      *object,
     case PROP_SESSION:
       stream->session = g_value_get_object (value);
       break;
+    case PROP_SCALE:
+      stream->scale = g_value_get_double (value);
+      break;
     case PROP_IS_RESIZABLE:
       stream->is_resizable = g_value_get_boolean (value);
       break;
@@ -1329,6 +1402,12 @@ mdk_stream_class_init (MdkStreamClass *klass)
                          G_PARAM_WRITABLE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_SCALE] =
+    g_param_spec_double ("scale", NULL, NULL,
+                         1.0, 10.0, 1.0,
+                         G_PARAM_WRITABLE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_IS_RESIZABLE] =
     g_param_spec_boolean ("is-resizable", NULL, NULL,
                           FALSE,
@@ -1355,17 +1434,20 @@ mdk_stream_init (MdkStream *stream)
 {
   stream->process_requested = TRUE;
   stream->main_context = g_main_context_new ();
+  stream->scale = 1.0f;
 }
 
 MdkStream *
 mdk_stream_new_resizable (MdkSession  *session,
+                          double       scale,
                           GError     **error)
 {
   return g_initable_new (MDK_TYPE_STREAM, NULL, error,
                          "session", session,
+                         "scale", scale,
                          "is-resizable", TRUE,
-                         "default-width", DEFAULT_MONITOR_WIDTH,
-                         "default-height", DEFAULT_MONITOR_HEIGHT,
+                         "default-width", (int) round (DEFAULT_MONITOR_WIDTH * scale),
+                         "default-height", (int) round (DEFAULT_MONITOR_HEIGHT * scale),
                          NULL);
 }
 
@@ -1403,6 +1485,9 @@ mdk_stream_resize (MdkStream *stream,
 
   if (!stream->pipewire_stream)
     return;
+
+  width = (int) round (width * stream->scale);
+  height = (int) round (height * stream->scale);
 
   if (stream->width == width &&
       stream->height == height)
