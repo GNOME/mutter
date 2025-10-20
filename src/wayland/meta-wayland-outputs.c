@@ -804,8 +804,8 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
 
-  g_signal_connect (monitor_manager, "monitors-changing",
-                    G_CALLBACK (on_monitors_changing), compositor);
+  g_signal_connect_after (monitor_manager, "monitors-changing",
+                          G_CALLBACK (on_monitors_changing), compositor);
 
   meta_wayland_compositor_update_outputs (compositor, monitor_manager);
 
