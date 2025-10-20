@@ -412,6 +412,18 @@ clutter_press_gesture_get_property (GObject      *gobject,
 }
 
 static void
+clutter_press_gesture_finalize (GObject *object)
+{
+  ClutterPressGesture *self = CLUTTER_PRESS_GESTURE (object);
+  ClutterPressGesturePrivate *priv =
+    clutter_press_gesture_get_instance_private (self);
+
+  g_clear_handle_id (&priv->next_press_timeout_id, g_source_remove);
+
+  G_OBJECT_CLASS (clutter_press_gesture_parent_class)->finalize (object);
+}
+
+static void
 clutter_press_gesture_class_init (ClutterPressGestureClass *klass)
 {
   ClutterGestureClass *gesture_class = CLUTTER_GESTURE_CLASS (klass);
@@ -419,6 +431,7 @@ clutter_press_gesture_class_init (ClutterPressGestureClass *klass)
 
   gobject_class->set_property = clutter_press_gesture_set_property;
   gobject_class->get_property = clutter_press_gesture_get_property;
+  gobject_class->finalize = clutter_press_gesture_finalize;
 
   gesture_class->should_handle_sequence = clutter_press_gesture_should_handle_sequence;
   gesture_class->point_began = clutter_press_gesture_point_began;
