@@ -1148,7 +1148,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
   /* Xwayland specific protocol, needs to be filtered out for all other clients */
   meta_xwayland_grab_keyboard_init (compositor);
 
-  g_signal_connect_swapped (monitor_manager, "monitors-changed-internal",
+  g_signal_connect_swapped (monitor_manager, "monitors-changing",
                             G_CALLBACK (update_highest_monitor_scale), manager);
   update_highest_monitor_scale (manager);
 
