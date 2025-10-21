@@ -656,14 +656,15 @@ handle_stickykeys_release (ClutterEvent          *event,
   xkb_mod_mask_t new_latched_mask;
   xkb_mod_mask_t new_locked_mask;
 
+  depressed_mods = device->stickykeys_depressed_mask;
+
+  /* When pressing a modifier and key together, don't make the modifier sticky.
+   * When pressing two modifiers together, only latch/lock once.
+   */
+  device->stickykeys_depressed_mask = 0;
+
   if (key_event_is_modifier (event))
     {
-      MetaSeatImpl *seat_impl = seat_impl_from_device_native (device);
-      struct xkb_state *xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
-
-      depressed_mods = device->stickykeys_depressed_mask;
-      device->stickykeys_depressed_mask = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
-
       if (!depressed_mods)
         return FALSE;
 
@@ -689,8 +690,6 @@ handle_stickykeys_release (ClutterEvent          *event,
     }
   else
     {
-      device->stickykeys_depressed_mask = 0;
-
       if (!device->stickykeys_latched_mask)
         return FALSE;
 
