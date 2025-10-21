@@ -1399,11 +1399,14 @@ meta_key_binding_has_handler_func (MetaKeyBinding *binding)
 static ClutterModifierType
 get_modifiers (ClutterEvent *event)
 {
-  ClutterModifierType pressed, latched;
+  ClutterModifierType pressed, latched, locked;
 
-  clutter_event_get_key_state (event, &pressed, &latched, NULL);
+  clutter_event_get_key_state (event, &pressed, &latched, &locked);
 
-  return pressed | latched;
+  /* Ignore the locked Caps Lock, but accept it if pressed */
+  locked &= ~CLUTTER_LOCK_MASK;
+
+  return pressed | latched | locked;
 }
 
 static gboolean
