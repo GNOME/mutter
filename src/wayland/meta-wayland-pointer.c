@@ -1651,8 +1651,8 @@ meta_wayland_pointer_get_implicit_grab_surface (MetaWaylandPointer *pointer)
   if (pointer->button_count > 0 &&
       pointer->implicit_grab_surface &&
       (!pointer->current ||
-       wl_resource_get_client (pointer->implicit_grab_surface->resource) !=
-       wl_resource_get_client (pointer->current->resource)))
+       meta_wayland_surface_get_toplevel (pointer->implicit_grab_surface) !=
+       meta_wayland_surface_get_toplevel (pointer->current)))
     return pointer->implicit_grab_surface;
 
   return NULL;
