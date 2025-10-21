@@ -786,8 +786,8 @@ meta_wayland_surface_apply_placement_ops (MetaWaylandSurface      *parent,
 }
 
 static void
-meta_wayland_surface_apply_viewport_dst_size (MetaWaylandSurface      *surface,
-                                              MetaWaylandSurfaceState *state)
+meta_wayland_surface_apply_viewport (MetaWaylandSurface      *surface,
+                                     MetaWaylandSurfaceState *state)
 {
 #ifdef HAVE_XWAYLAND
   MtkRectangle buffer_rect, client_rect, unconstrained_rect;
@@ -829,9 +829,21 @@ meta_wayland_surface_apply_viewport_dst_size (MetaWaylandSurface      *surface,
     }
 #endif
 
-  surface->viewport.dst_width = state->viewport_dst_width;
-  surface->viewport.dst_height = state->viewport_dst_height;
-  surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
+  if (state->has_new_viewport_src_rect)
+    {
+      surface->viewport.src_rect.origin.x = state->viewport_src_rect.origin.x;
+      surface->viewport.src_rect.origin.y = state->viewport_src_rect.origin.y;
+      surface->viewport.src_rect.size.width = state->viewport_src_rect.size.width;
+      surface->viewport.src_rect.size.height = state->viewport_src_rect.size.height;
+      surface->viewport.has_src_rect = surface->viewport.src_rect.size.width > 0;
+    }
+
+  if (state->has_new_viewport_dst_size)
+    {
+      surface->viewport.dst_width = state->viewport_dst_width;
+      surface->viewport.dst_height = state->viewport_dst_height;
+      surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
+    }
 
 #ifdef HAVE_XWAYLAND
   if (update_xwayland)
@@ -927,17 +939,9 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if (state->has_new_buffer_transform)
     surface->buffer_transform = state->buffer_transform;
 
-  if (state->has_new_viewport_src_rect)
-    {
-      surface->viewport.src_rect.origin.x = state->viewport_src_rect.origin.x;
-      surface->viewport.src_rect.origin.y = state->viewport_src_rect.origin.y;
-      surface->viewport.src_rect.size.width = state->viewport_src_rect.size.width;
-      surface->viewport.src_rect.size.height = state->viewport_src_rect.size.height;
-      surface->viewport.has_src_rect = surface->viewport.src_rect.size.width > 0;
-    }
-
-  if (state->has_new_viewport_dst_size)
-    meta_wayland_surface_apply_viewport_dst_size (surface, state);
+  if (state->has_new_viewport_src_rect ||
+      state->has_new_viewport_dst_size)
+    meta_wayland_surface_apply_viewport (surface, state);
 
   if (meta_wayland_surface_is_xwayland (surface))
     {
