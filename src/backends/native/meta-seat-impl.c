@@ -586,11 +586,13 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                    gboolean            update_keys)
 {
   ClutterEvent *event = NULL;
+  ClutterEvent *rewritten_event = NULL;
   ClutterEventFlags flags = CLUTTER_EVENT_NONE;
   enum xkb_state_component changed_state;
   uint32_t keycode;
   uint32_t keysym;
   gboolean should_ignore;
+  gboolean event_swallowed;
 
   if (state != AUTOREPEAT_VALUE)
     {
@@ -635,16 +637,28 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
                                             state ? XKB_KEY_DOWN : XKB_KEY_UP);
     }
 
+  event_swallowed =
+    meta_keyboard_a11y_process_event_in_impl (seat_impl->keyboard_a11y,
+                                              event,
+                                              &rewritten_event);
+
   if (update_keys)
     {
       meta_keymap_native_update_in_impl (seat_impl->keymap,
                                          seat_impl->xkb);
     }
 
-  if (!meta_keyboard_a11y_process_event_in_impl (seat_impl->keyboard_a11y, event))
-    queue_event (seat_impl, event);
+  if (event_swallowed)
+    {
+      clutter_event_free (event);
+      if (rewritten_event)
+        queue_event (seat_impl, rewritten_event);
+    }
   else
-    clutter_event_free (event);
+    {
+      queue_event (seat_impl, event);
+    }
+
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {

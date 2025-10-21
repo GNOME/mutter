@@ -31,5 +31,6 @@ void meta_keyboard_a11y_apply_settings_in_impl (MetaKeyboardA11y    *keyboard_a1
 
 void meta_keyboard_a11y_maybe_notify_toggle_keys_in_impl (MetaKeyboardA11y *keyboard_a11y);
 
-gboolean meta_keyboard_a11y_process_event_in_impl (MetaKeyboardA11y *keyboard_a11y,
-                                                   ClutterEvent     *event);
+gboolean meta_keyboard_a11y_process_event_in_impl (MetaKeyboardA11y  *keyboard_a11y,
+                                                   ClutterEvent      *event,
+                                                   ClutterEvent     **out_event);

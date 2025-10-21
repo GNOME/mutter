@@ -373,7 +373,7 @@ update_internal_xkb_state (MetaKeyboardA11y *keyboard_a11y,
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
 }
 
-static void
+static ClutterEvent *
 rewrite_stickykeys_event (ClutterEvent     *event,
                           MetaKeyboardA11y *keyboard_a11y,
                           xkb_mod_mask_t    new_latched_mask,
@@ -409,7 +409,7 @@ rewrite_stickykeys_event (ClutterEvent     *event,
                            clutter_event_get_key_code (event),
                            clutter_event_get_key_unicode (event));
 
-  _clutter_event_push (rewritten_event, FALSE);
+  return rewritten_event;
 }
 
 static void
@@ -464,7 +464,7 @@ set_slowkeys_on (MetaKeyboardA11y *keyboard_a11y)
                                                         META_A11Y_SLOW_KEYS_ENABLED);
 }
 
-static gboolean
+static ClutterEvent *
 handle_stickykeys_press (ClutterEvent     *event,
                          MetaKeyboardA11y *keyboard_a11y)
 {
@@ -472,14 +472,13 @@ handle_stickykeys_press (ClutterEvent     *event,
   struct xkb_state *xkb_state;
 
   if (!key_event_is_modifier (event))
-    return FALSE;
+    return NULL;
 
   if (keyboard_a11y->stickykeys_depressed_mask &&
       (keyboard_a11y->a11y_flags & META_A11Y_STICKY_KEYS_TWO_KEY_OFF))
     {
       set_stickykeys_off (keyboard_a11y);
-      rewrite_stickykeys_event (event, keyboard_a11y, 0, 0);
-      return TRUE;
+      return rewrite_stickykeys_event (event, keyboard_a11y, 0, 0);
     }
 
   xkb_state = meta_seat_impl_get_xkb_state_in_impl (seat_impl);
@@ -491,10 +490,10 @@ handle_stickykeys_press (ClutterEvent     *event,
    * to some other modifier which can be sticky.
    */
   keyboard_a11y->stickykeys_depressed_mask &= ~CLUTTER_LOCK_MASK;
-  return FALSE;
+  return NULL;
 }
 
-static gboolean
+static ClutterEvent *
 handle_stickykeys_release (ClutterEvent     *event,
                            MetaKeyboardA11y *keyboard_a11y)
 {
@@ -512,7 +511,7 @@ handle_stickykeys_release (ClutterEvent     *event,
   if (key_event_is_modifier (event))
     {
       if (!depressed_mods)
-        return FALSE;
+        return NULL;
 
       new_latched_mask = keyboard_a11y->stickykeys_latched_mask;
       new_locked_mask = keyboard_a11y->stickykeys_locked_mask;
@@ -537,15 +536,14 @@ handle_stickykeys_release (ClutterEvent     *event,
   else
     {
       if (!keyboard_a11y->stickykeys_latched_mask)
-        return FALSE;
+        return NULL;
 
       new_latched_mask = 0;
       new_locked_mask = keyboard_a11y->stickykeys_locked_mask;
     }
 
-  rewrite_stickykeys_event (event, keyboard_a11y,
-                            new_latched_mask, new_locked_mask);
-  return TRUE;
+  return rewrite_stickykeys_event (event, keyboard_a11y,
+                                   new_latched_mask, new_locked_mask);
 }
 
 static gboolean
@@ -1177,8 +1175,9 @@ meta_keyboard_a11y_maybe_notify_toggle_keys_in_impl (MetaKeyboardA11y *keyboard_
 }
 
 gboolean
-meta_keyboard_a11y_process_event_in_impl (MetaKeyboardA11y *keyboard_a11y,
-                                          ClutterEvent     *event)
+meta_keyboard_a11y_process_event_in_impl (MetaKeyboardA11y  *keyboard_a11y,
+                                          ClutterEvent      *event,
+                                          ClutterEvent     **out_event)
 {
   ClutterEventType event_type;
 
@@ -1229,9 +1228,15 @@ meta_keyboard_a11y_process_event_in_impl (MetaKeyboardA11y *keyboard_a11y,
   if (keyboard_a11y->a11y_flags & META_A11Y_STICKY_KEYS_ENABLED)
     {
       if (event_type == CLUTTER_KEY_PRESS)
-        return handle_stickykeys_press (event, keyboard_a11y);
+        {
+          *out_event = handle_stickykeys_press (event, keyboard_a11y);
+          return out_event != NULL;
+        }
       else if (event_type == CLUTTER_KEY_RELEASE)
-        return handle_stickykeys_release (event, keyboard_a11y);
+        {
+          *out_event = handle_stickykeys_release (event, keyboard_a11y);
+          return out_event != NULL;
+        }
     }
 
   return FALSE;
