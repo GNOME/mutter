@@ -1,3 +1,16 @@
+49.1.1
+======
+* Fix broken menus in some Xwayland clients [Carlos; !4729]
+* Avoid processing the same key event twice during keybindings [Carlos; !4724]
+* Fixed crash [Michel; !4720]
+* Misc. bug fixes and cleanups [Carlos; !4726]
+
+Contributors:
+  Michel Dänzer, Carlos Garnacho
+
+Translators:
+  Quentin PAGÈS [oc]
+
 49.1
 ====
 * Fix various glitches during resize/move drags [Jonas; !4607]
