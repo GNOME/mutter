@@ -1087,7 +1087,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
                            "copy_shared_framebuffer_gpu()");
 
-  if (renderer_gpu_data->secondary.needs_explicit_sync)
+  if (renderer_gpu_data->secondary.is_nvidia)
     sync_fd = meta_frame_native_steal_sync_fd (frame_native);
 
   render_device = renderer_gpu_data->render_device;

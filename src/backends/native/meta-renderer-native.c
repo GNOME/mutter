@@ -2114,7 +2114,7 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
 
   egl_vendor = meta_egl_query_string (egl, egl_display, EGL_VENDOR);
   if (!g_strcmp0 (egl_vendor, "NVIDIA"))
-    renderer_gpu_data->secondary.needs_explicit_sync = TRUE;
+    renderer_gpu_data->secondary.is_nvidia = TRUE;
 
   ret = TRUE;
 out:
