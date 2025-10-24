@@ -381,6 +381,33 @@ mtk_region_contains_rectangle (const MtkRegion    *region,
 }
 
 MtkRegion *
+mtk_region_downscale (MtkRegion *region,
+                      int        scale)
+{
+  int n_rects, i;
+  MtkRectangle *rects;
+  MtkRegion *scaled_region;
+
+  if (scale == 1)
+    return mtk_region_copy (region);
+
+  n_rects = mtk_region_num_rectangles (region);
+  MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      rects[i] = mtk_region_get_rectangle (region, i);
+      rects[i].x /= scale;
+      rects[i].y /= scale;
+      rects[i].width = (rects[i].width + scale - 1) / scale;
+      rects[i].height = (rects[i].height + scale - 1) / scale;
+    }
+
+  scaled_region = mtk_region_create_rectangles (rects, n_rects);
+
+  return scaled_region;
+}
+
+MtkRegion *
 mtk_region_scale (MtkRegion *region,
                   int        scale)
 {

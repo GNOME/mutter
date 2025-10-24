@@ -123,6 +123,10 @@ MtkRegionOverlap mtk_region_contains_rectangle (const MtkRegion    *region,
                                                 const MtkRectangle *rect);
 
 MTK_EXPORT
+MtkRegion * mtk_region_downscale (MtkRegion *region,
+                                  int        scale);
+
+MTK_EXPORT
 MtkRegion * mtk_region_scale (MtkRegion *region,
                               int        scale);
 
