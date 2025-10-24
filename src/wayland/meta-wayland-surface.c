@@ -1009,8 +1009,24 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if (state->input_region_set)
     {
       g_clear_pointer (&surface->input_region, mtk_region_unref);
+
       if (state->input_region)
-        surface->input_region = mtk_region_ref (state->input_region);
+        {
+          if (meta_wayland_surface_is_xwayland (surface) &&
+              surface->applied_state.scale > 1)
+            {
+              /* Compensate for rootless Xwayland always calculating region based
+               * on buffer scale 1
+               */
+              surface->input_region =
+                mtk_region_downscale (state->input_region,
+                                      surface->applied_state.scale);
+            }
+          else
+            {
+              surface->input_region = mtk_region_ref (state->input_region);
+            }
+        }
     }
 
   if (state->has_new_color_state)
