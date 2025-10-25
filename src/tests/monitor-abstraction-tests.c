@@ -720,7 +720,7 @@ meta_test_monitor_rebuild_preferred_mode (void)
         .serial = "0x10000",
       },
       {
-        .crtc = 0,
+        .crtc = 1,
         .modes = { 1, 3 },
         .n_modes = 2,
         .preferred_mode = 1,
@@ -740,7 +740,7 @@ meta_test_monitor_rebuild_preferred_mode (void)
         }
       },
       {
-        .crtc = 1,
+        .crtc = 2,
         .modes = { 1, 3 },
         .n_modes = 2,
         .preferred_mode = 0,
@@ -851,7 +851,7 @@ meta_test_monitor_rebuild_changed_connector (void)
         .connector_number = 1,
       },
       {
-        .crtc = 0,
+        .crtc = 1,
         .modes = { 1, },
         .n_modes = 1,
         .preferred_mode = 1,
@@ -872,7 +872,7 @@ meta_test_monitor_rebuild_changed_connector (void)
         .connector_number = 2,
       },
       {
-        .crtc = 1,
+        .crtc = 2,
         .modes = { 1, },
         .n_modes = 1,
         .preferred_mode = 0,
