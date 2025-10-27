@@ -421,29 +421,18 @@ meta_window_xwayland_stage_to_protocol (MetaWindow          *window,
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
-  MetaWaylandSurface *surface;
-  float scale_x, scale_y;
+  float scale;
 
-  scale_x = scale_y = meta_xwayland_get_effective_scale (xwayland_manager);
-
-  surface = meta_window_get_wayland_surface (window);
-  if (surface && surface->viewport.has_dst_size)
-    {
-      if (protocol_x)
-        scale_x /= get_viewport_scale_x (surface);
-
-      if (protocol_y)
-        scale_y /= get_viewport_scale_y (surface);
-    }
+  scale = meta_xwayland_get_effective_scale (xwayland_manager);
 
   if (protocol_x)
     {
-      *protocol_x = scale_and_handle_overflow (stage_x, scale_x,
+      *protocol_x = scale_and_handle_overflow (stage_x, scale,
                                                rounding_strategy);
     }
   if (protocol_y)
     {
-      *protocol_y = scale_and_handle_overflow (stage_y, scale_y,
+      *protocol_y = scale_and_handle_overflow (stage_y, scale,
                                                rounding_strategy);
     }
 }
@@ -455,12 +444,36 @@ meta_window_xwayland_stage_to_protocol_size (MetaWindow *window,
                                              int        *protocol_w,
                                              int        *protocol_h)
 {
-  meta_window_xwayland_stage_to_protocol (window,
-                                          stage_w,
-                                          stage_h,
-                                          protocol_w,
-                                          protocol_h,
-                                          MTK_ROUNDING_STRATEGY_GROW);
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
+  MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
+  MetaWaylandSurface *surface;
+  float scale_w, scale_h;
+
+  scale_w = scale_h = meta_xwayland_get_effective_scale (xwayland_manager);
+
+  surface = meta_window_get_wayland_surface (window);
+  if (surface && surface->viewport.has_dst_size)
+    {
+      if (protocol_w)
+        scale_w /= get_viewport_scale_x (surface);
+
+      if (protocol_h)
+        scale_h /= get_viewport_scale_y (surface);
+    }
+
+  if (protocol_w)
+    {
+      *protocol_w = scale_and_handle_overflow (stage_w, scale_w,
+                                               MTK_ROUNDING_STRATEGY_GROW);
+    }
+  if (protocol_h)
+    {
+      *protocol_h = scale_and_handle_overflow (stage_h, scale_h,
+                                               MTK_ROUNDING_STRATEGY_GROW);
+    }
 }
 
 static void
@@ -476,31 +489,20 @@ meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
   MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
-  MetaWaylandSurface *surface;
   int xwayland_scale;
-  float scale_x, scale_y;
+  float scale;
 
   xwayland_scale = meta_xwayland_get_effective_scale (xwayland_manager);
-  scale_x = scale_y = 1.0f / xwayland_scale;
-
-  surface = meta_window_get_wayland_surface (window);
-  if (surface && surface->viewport.has_dst_size)
-    {
-      if (stage_x)
-        scale_x *= get_viewport_scale_x (surface);
-
-      if (stage_y)
-        scale_y *= get_viewport_scale_y (surface);
-    }
+  scale = 1.0f / xwayland_scale;
 
   if (stage_x)
     {
-      *stage_x = scale_and_handle_overflow (protocol_x, scale_x,
+      *stage_x = scale_and_handle_overflow (protocol_x, scale,
                                             rounding_strategy);
     }
   if (stage_y)
     {
-      *stage_y = scale_and_handle_overflow (protocol_y, scale_y,
+      *stage_y = scale_and_handle_overflow (protocol_y, scale,
                                             rounding_strategy);
     }
 }
@@ -512,12 +514,38 @@ meta_window_xwayland_protocol_to_stage_size (MetaWindow *window,
                                              int        *stage_w,
                                              int        *stage_h)
 {
-  meta_window_xwayland_protocol_to_stage (window,
-                                          protocol_w,
-                                          protocol_h,
-                                          stage_w,
-                                          stage_h,
-                                          MTK_ROUNDING_STRATEGY_GROW);
+  MetaDisplay *display = meta_window_get_display (window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (context);
+  MetaXWaylandManager *xwayland_manager = &wayland_compositor->xwayland_manager;
+  MetaWaylandSurface *surface;
+  int xwayland_scale;
+  float scale_w, scale_h;
+
+  xwayland_scale = meta_xwayland_get_effective_scale (xwayland_manager);
+  scale_w = scale_h = 1.0f / xwayland_scale;
+
+  surface = meta_window_get_wayland_surface (window);
+  if (surface && surface->viewport.has_dst_size)
+    {
+      if (stage_w)
+        scale_w *= get_viewport_scale_x (surface);
+
+      if (stage_h)
+        scale_h *= get_viewport_scale_y (surface);
+    }
+
+  if (stage_w)
+    {
+      *stage_w = scale_and_handle_overflow (protocol_w, scale_w,
+                                            MTK_ROUNDING_STRATEGY_GROW);
+    }
+  if (stage_h)
+    {
+      *stage_h = scale_and_handle_overflow (protocol_h, scale_h,
+                                            MTK_ROUNDING_STRATEGY_GROW);
+    }
 }
 
 void
