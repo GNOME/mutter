@@ -1417,8 +1417,6 @@ meta_backend_initable_init (GInitable     *initable,
 
   meta_monitor_manager_setup (priv->monitor_manager);
 
-  meta_backend_update_stage (backend);
-
   priv->remote_access_controller =
     meta_remote_access_controller_new ();
 
