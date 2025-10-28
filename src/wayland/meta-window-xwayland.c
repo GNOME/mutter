@@ -144,6 +144,11 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
   n_items = n_items / 4;
   for (i = 0; i < n_items; i++)
     {
+      meta_window_protocol_to_stage_point (window,
+                                           rects[i].x, rects[i].y,
+                                           &rects[i].x, &rects[i].y,
+                                           MTK_ROUNDING_STRATEGY_SHRINK);
+
       if (rects[i].x == win_monitor_rect.x && rects[i].y == win_monitor_rect.y)
         {
           meta_window_protocol_to_stage_point (window,
