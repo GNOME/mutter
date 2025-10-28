@@ -69,6 +69,10 @@ struct _MetaWaylandOutput
   float scale;
 
   MetaMonitor *monitor;
+
+#ifdef HAVE_XWAYLAND
+  int xwayland_scale;
+#endif
 };
 
 G_DEFINE_TYPE (MetaWaylandOutput, meta_wayland_output, G_TYPE_OBJECT)
@@ -180,6 +184,24 @@ is_xwayland_resource (MetaWaylandOutput  *wayland_output,
 }
 #endif
 
+static gboolean
+xwayland_scale_changed (MetaWaylandOutput  *wayland_output,
+                        struct wl_resource *resource)
+{
+#ifdef HAVE_XWAYLAND
+  if (is_xwayland_resource (wayland_output, resource))
+    {
+      MetaXWaylandManager *xwayland_manager =
+        &wayland_output->compositor->xwayland_manager;
+
+      return wayland_output->xwayland_scale !=
+             meta_xwayland_get_effective_scale (xwayland_manager);
+    }
+#endif
+
+  return FALSE;
+}
+
 static void
 maybe_scale_for_xwayland (MetaWaylandOutput  *wayland_output,
                           struct wl_resource *resource,
@@ -262,7 +284,8 @@ send_output_events (struct wl_resource *resource,
 
   if (need_all_events ||
       old_layout.x != layout.x || old_layout.y != layout.y ||
-      old_transform != transform)
+      old_transform != transform ||
+      xwayland_scale_changed (wayland_output, resource))
     {
       const char *vendor;
       const char *product;
@@ -400,6 +423,21 @@ bind_output (struct wl_client *client,
 }
 
 static void
+meta_wayland_output_update_xwayland_effective_scale (MetaWaylandOutput *wayland_output)
+{
+#ifdef HAVE_XWAYLAND
+  MetaXWaylandManager *xwayland_manager =
+    &wayland_output->compositor->xwayland_manager;
+
+  if (xwayland_manager->compositor)
+    {
+      wayland_output->xwayland_scale =
+        meta_xwayland_get_effective_scale (xwayland_manager);
+    }
+#endif
+}
+
+static void
 meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
                                  MetaMonitor       *monitor)
 {
@@ -416,6 +454,7 @@ meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
   g_set_object (&wayland_output->preferred_mode,
                 meta_monitor_get_preferred_mode (monitor));
   wayland_output->scale = meta_logical_monitor_get_scale (logical_monitor);
+  meta_wayland_output_update_xwayland_effective_scale (wayland_output);
 }
 
 static void
@@ -671,7 +710,8 @@ send_xdg_output_events (struct wl_resource *resource,
   old_layout = wayland_output->layout;
 
   if (need_all_events ||
-      old_layout.x != layout.x || old_layout.y != layout.y)
+      old_layout.x != layout.x || old_layout.y != layout.y ||
+      xwayland_scale_changed (wayland_output, resource))
     {
       maybe_scale_for_xwayland (wayland_output, resource, &layout.x, &layout.y);
       zxdg_output_v1_send_logical_position (resource, layout.x, layout.y);
@@ -679,7 +719,8 @@ send_xdg_output_events (struct wl_resource *resource,
     }
 
   if (need_all_events ||
-      old_layout.width != layout.width || old_layout.height != layout.height)
+      old_layout.width != layout.width || old_layout.height != layout.height ||
+      xwayland_scale_changed (wayland_output, resource))
     {
       maybe_scale_for_xwayland (wayland_output, resource, &layout.width, &layout.height);
       zxdg_output_v1_send_logical_size (resource, layout.width, layout.height);
