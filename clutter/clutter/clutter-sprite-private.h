@@ -27,6 +27,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
+#include "clutter/clutter-cursor.h"
 #include "clutter/clutter-sprite.h"
 
 CLUTTER_EXPORT
@@ -51,3 +52,9 @@ void clutter_sprite_maybe_break_implicit_grab (ClutterSprite *sprite,
 void clutter_sprite_maybe_lost_implicit_grab (ClutterSprite *sprite);
 
 void clutter_sprite_remove_all_actors_from_chain (ClutterSprite *sprite);
+
+CLUTTER_EXPORT
+void clutter_sprite_invalidate_cursor (ClutterSprite *sprite);
+
+CLUTTER_EXPORT
+ClutterCursor * clutter_sprite_get_cursor (ClutterSprite *sprite);

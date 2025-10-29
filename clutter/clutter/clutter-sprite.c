@@ -73,6 +73,8 @@ struct _ClutterSpritePrivate
   unsigned int press_count;
   ClutterActor *implicit_grab_actor;
   GArray *event_emission_chain;
+
+  ClutterCursor *cursor;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterSprite, clutter_sprite, CLUTTER_TYPE_FOCUS)
@@ -140,6 +142,8 @@ cleanup_implicit_grab (ClutterSprite *sprite)
                         priv->event_emission_chain->len);
 
   priv->press_count = 0;
+
+  clutter_sprite_invalidate_cursor (sprite);
 }
 
 static gboolean
@@ -451,6 +455,8 @@ clutter_sprite_finalize (GObject *object)
   g_assert (priv->cur_event_emission_chain->len == 0);
   g_clear_pointer (&priv->cur_event_emission_chain, g_array_unref);
 
+  g_clear_object (&priv->cursor);
+
   G_OBJECT_CLASS (clutter_sprite_parent_class)->finalize (object);
 }
 
@@ -593,6 +599,8 @@ clutter_sprite_set_current_actor (ClutterFocus       *focus,
 
       clutter_event_free (event);
     }
+
+  clutter_sprite_invalidate_cursor (sprite);
 
   return TRUE;
 }
@@ -1095,6 +1103,8 @@ clutter_sprite_maybe_break_implicit_grab (ClutterSprite *sprite,
       priv->implicit_grab_actor = parent;
       clutter_actor_set_implicitly_grabbed (priv->implicit_grab_actor, TRUE);
     }
+
+  clutter_sprite_invalidate_cursor (sprite);
 }
 
 void
@@ -1161,4 +1171,56 @@ clutter_sprite_get_role (ClutterSprite *sprite)
   ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
 
   return priv->role;
+}
+
+void
+clutter_sprite_invalidate_cursor (ClutterSprite *sprite)
+{
+  ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
+  ClutterActor *actor = NULL, *grab_actor;
+  ClutterStage *stage = clutter_focus_get_stage (CLUTTER_FOCUS (sprite));
+  ClutterContext *context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *backend = clutter_context_get_backend (context);
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+  g_autoptr (ClutterCursor) cursor = NULL;
+
+  if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_POINTER &&
+      !clutter_seat_is_unfocus_inhibited (seat))
+    goto out;
+
+  /* If there's an implicit grab, use this actor */
+  if (priv->implicit_grab_actor)
+    actor = priv->implicit_grab_actor;
+  else if (priv->current_actor)
+    actor = priv->current_actor;
+
+  /* If there is no focus actor, this sprite is on its way out
+   * (touch_end, proximity_out, ...)
+   */
+  if (!actor)
+    goto out;
+
+  /* Make cursor honor explicit grab semantics when outside of the
+   * grabbed subtree
+   */
+  grab_actor = clutter_stage_get_grab_actor (stage);
+  if (grab_actor && !clutter_actor_contains (grab_actor, actor))
+    actor = grab_actor;
+
+  cursor = clutter_actor_get_cursor_for_sprite (actor, sprite);
+
+ out:
+  if (g_set_object (&priv->cursor, cursor))
+    {
+      if (CLUTTER_SPRITE_GET_CLASS (sprite)->update_cursor)
+        CLUTTER_SPRITE_GET_CLASS (sprite)->update_cursor (sprite, priv->cursor);
+    }
+}
+
+ClutterCursor *
+clutter_sprite_get_cursor (ClutterSprite *sprite)
+{
+  ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
+
+  return priv->cursor;
 }

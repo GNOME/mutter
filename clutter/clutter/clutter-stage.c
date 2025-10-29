@@ -1180,15 +1180,22 @@ on_seat_unfocus_inhibited_changed (ClutterStage *stage,
   ClutterContext *context =
     clutter_actor_get_context (CLUTTER_ACTOR (stage));
   ClutterBackend *backend = clutter_context_get_backend (context);
-  ClutterSprite *sprite;
+  ClutterSprite *sprite = clutter_backend_get_pointer_sprite (backend, stage);
   graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
-  sprite = clutter_backend_get_pointer_sprite (backend, stage);
-  clutter_sprite_get_coords (sprite, &point);
-  clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
-                                        CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
-                                        point,
-                                        CLUTTER_CURRENT_TIME);
+  if (clutter_seat_is_unfocus_inhibited (seat))
+    {
+      clutter_sprite_get_coords (sprite, &point);
+      clutter_stage_pick_and_update_sprite (stage, sprite, NULL,
+                                            CLUTTER_DEVICE_UPDATE_IGNORE_CACHE,
+                                            point,
+                                            CLUTTER_CURRENT_TIME);
+    }
+  else
+    {
+      clutter_focus_set_current_actor (CLUTTER_FOCUS (sprite), NULL,
+                                       NULL, CLUTTER_CURRENT_TIME);
+    }
 }
 
 static void

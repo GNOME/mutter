@@ -655,3 +655,13 @@ clutter_backend_destroy (ClutterBackend *backend)
   g_object_run_dispose (G_OBJECT (backend));
   g_object_unref (backend);
 }
+
+ClutterCursor *
+clutter_backend_get_cursor (ClutterBackend    *backend,
+                            ClutterCursorType  cursor_type)
+{
+  if (!CLUTTER_BACKEND_GET_CLASS (backend)->get_cursor)
+    return NULL;
+
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_cursor (backend, cursor_type);
+}

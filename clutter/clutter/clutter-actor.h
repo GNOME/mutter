@@ -36,6 +36,7 @@
 #include "cogl/cogl.h"
 
 #include "clutter/clutter-types.h"
+#include "clutter/clutter-cursor.h"
 #include "clutter/clutter-enums.h"
 #include "clutter/clutter-event.h"
 #include "clutter/clutter-paint-context.h"
@@ -215,6 +216,9 @@ struct _ClutterActorClass
   void     (* key_focus_out)        (ClutterActor         *actor);
 
   void     (* queue_relayout)       (ClutterActor         *self);
+
+  ClutterCursor * (* get_cursor_for_sprite) (ClutterActor  *self,
+                                             ClutterSprite *sprite);
 
   /* accessibility support */
   AtkObject * (* get_accessible)    (ClutterActor         *self);

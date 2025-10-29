@@ -5659,6 +5659,28 @@ clutter_actor_real_destroy (ClutterActor *actor)
   clutter_actor_destroy_all_children (actor);
 }
 
+static ClutterCursor *
+clutter_actor_real_get_cursor_for_sprite (ClutterActor  *self,
+                                          ClutterSprite *sprite)
+{
+  ClutterActorPrivate *priv = clutter_actor_get_instance_private (self);
+  ClutterContext *context = clutter_actor_get_context (self);
+  ClutterBackend *backend = clutter_context_get_backend (context);
+
+  if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
+    return NULL;
+
+  if (priv->cursor_type == CLUTTER_CURSOR_INHERIT)
+    {
+      if (priv->parent)
+        return clutter_actor_get_cursor_for_sprite (priv->parent, sprite);
+      else
+        return NULL;
+    }
+
+  return clutter_backend_get_cursor (backend, priv->cursor_type);
+}
+
 static GObject *
 clutter_actor_constructor (GType gtype,
                            guint n_props,
@@ -5745,6 +5767,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->calculate_resource_scale = clutter_actor_real_calculate_resource_scale;
   klass->paint = clutter_actor_real_paint;
   klass->destroy = clutter_actor_real_destroy;
+  klass->get_cursor_for_sprite = clutter_actor_real_get_cursor_for_sprite;
 
   klass->layout_manager_type = G_TYPE_INVALID;
 
@@ -19033,4 +19056,28 @@ clutter_actor_get_cursor_type (ClutterActor *actor)
   priv = clutter_actor_get_instance_private (actor);
 
   return priv->cursor_type;
+}
+
+ClutterCursor *
+clutter_actor_get_cursor_for_sprite (ClutterActor  *actor,
+                                     ClutterSprite *sprite)
+{
+  return CLUTTER_ACTOR_GET_CLASS (actor)->get_cursor_for_sprite (actor, sprite);
+}
+
+void
+clutter_actor_invalidate_sprite_cursor (ClutterActor  *actor,
+                                        ClutterSprite *sprite)
+{
+  ClutterActor *sprite_focus;
+
+  if (!clutter_actor_has_pointer (actor))
+    return;
+
+  sprite_focus = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
+  if (!sprite_focus)
+    return;
+
+  if (sprite_focus == actor || clutter_actor_contains (actor, sprite_focus))
+    clutter_sprite_invalidate_cursor (sprite);
 }

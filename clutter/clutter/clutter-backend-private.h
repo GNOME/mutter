@@ -104,6 +104,9 @@ struct _ClutterBackendClass
   ClutterKeyFocus * (* get_key_focus) (ClutterBackend *backend,
                                        ClutterStage   *stage);
 
+  ClutterCursor * (* get_cursor) (ClutterBackend    *backend,
+                                  ClutterCursorType  cursor_type);
+
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
 };
@@ -129,6 +132,10 @@ gboolean clutter_backend_foreach_sprite (ClutterBackend               *backend,
                                          ClutterStage                 *stage,
                                          ClutterStageInputForeachFunc  func,
                                          gpointer                      user_data);
+
+CLUTTER_EXPORT
+ClutterCursor * clutter_backend_get_cursor (ClutterBackend    *backend,
+                                            ClutterCursorType  cursor_type);
 
 CLUTTER_EXPORT
 void clutter_backend_destroy (ClutterBackend *backend);

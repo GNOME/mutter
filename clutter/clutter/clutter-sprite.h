@@ -27,6 +27,7 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
+#include "clutter/clutter-cursor.h"
 #include "clutter/clutter-focus.h"
 #include "clutter/clutter-types.h"
 
@@ -41,6 +42,9 @@ G_DECLARE_DERIVABLE_TYPE (ClutterSprite,
 struct _ClutterSpriteClass
 {
   ClutterFocusClass parent_class;
+
+  void (* update_cursor) (ClutterSprite *sprite,
+                          ClutterCursor *cursor);
 };
 
 CLUTTER_EXPORT
