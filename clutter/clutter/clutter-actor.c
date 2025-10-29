@@ -578,6 +578,8 @@ struct _ClutterActorPrivate
   /* clip, in actor coordinates */
   graphene_rect_t clip;
 
+  ClutterCursorType cursor_type;
+
   /* the cached transformation matrix; see apply_transform() */
   graphene_matrix_t transform;
 
@@ -865,6 +867,7 @@ enum
   PROP_CONTENT_REPEAT,
 
   PROP_COLOR_STATE,
+  PROP_CURSOR_TYPE,
 
   /* Accessible */
   PROP_ACCESSIBLE_ROLE,
@@ -4882,6 +4885,10 @@ clutter_actor_set_property (GObject      *object,
       clutter_actor_set_color_state_internal (actor, g_value_get_object (value));
       break;
 
+    case PROP_CURSOR_TYPE:
+      clutter_actor_set_cursor_type (actor, g_value_get_enum (value));
+      break;
+
     case PROP_ACCESSIBLE_ROLE:
       clutter_actor_set_accessible_role (actor, g_value_get_enum (value));
       break;
@@ -5345,6 +5352,10 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_COLOR_STATE:
       g_value_set_object (value, priv->color_state);
+      break;
+
+    case PROP_CURSOR_TYPE:
+      g_value_set_enum (value, priv->cursor_type);
       break;
 
     case PROP_ACCESSIBLE_ROLE:
@@ -6902,6 +6913,14 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          G_PARAM_CONSTRUCT |
                          G_PARAM_STATIC_STRINGS |
                          G_PARAM_EXPLICIT_NOTIFY);
+
+  obj_props[PROP_CURSOR_TYPE] =
+    g_param_spec_enum ("cursor-type", NULL, NULL,
+                       CLUTTER_TYPE_CURSOR_TYPE,
+                       CLUTTER_CURSOR_INHERIT,
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_EXPLICIT_NOTIFY);
 
   /**
    * ClutterActor:accessible-role:
@@ -18989,4 +19008,29 @@ clutter_actor_remove_accessible_state (ClutterActor *actor,
 
   if (atk_state_set_remove_state (priv->accessible_state, state) && accessible)
     atk_object_notify_state_change (accessible, state, FALSE);
+}
+
+void
+clutter_actor_set_cursor_type (ClutterActor      *actor,
+                               ClutterCursorType  cursor)
+{
+  ClutterActorPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  priv = clutter_actor_get_instance_private (actor);
+  priv->cursor_type = cursor;
+  g_object_notify (G_OBJECT (actor), "cursor-type");
+}
+
+ClutterCursorType
+clutter_actor_get_cursor_type (ClutterActor *actor)
+{
+  ClutterActorPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), CLUTTER_CURSOR_INHERIT);
+
+  priv = clutter_actor_get_instance_private (actor);
+
+  return priv->cursor_type;
 }
