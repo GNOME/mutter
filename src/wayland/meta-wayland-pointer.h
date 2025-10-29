@@ -63,8 +63,8 @@ void meta_wayland_pointer_broadcast_frame (MetaWaylandPointer *pointer);
 
 void meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
                                                     MetaWaylandSurface *surface,
-                                                    wl_fixed_t         *x,
-                                                    wl_fixed_t         *y);
+                                                    float              *x,
+                                                    float              *y);
 
 void meta_wayland_pointer_create_new_resource (MetaWaylandPointer *pointer,
                                                struct wl_client   *client,

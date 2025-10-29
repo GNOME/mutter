@@ -64,8 +64,8 @@ struct _MetaWaylandPointerConstraint
   gulong pointer_focus_surface_handler_id;
 
   gboolean hint_set;
-  wl_fixed_t x_hint;
-  wl_fixed_t y_hint;
+  float x_hint;
+  float y_hint;
 
   MetaPointerConfinementWayland *confinement;
 };
@@ -444,16 +444,16 @@ meta_wayland_pointer_constraint_destroy (MetaWaylandPointerConstraint *constrain
 
 static gboolean
 is_within_constraint_region (MetaWaylandPointerConstraint *constraint,
-                             wl_fixed_t                    sx,
-                             wl_fixed_t                    sy)
+                             float                         x,
+                             float                         y)
 {
   g_autoptr (MtkRegion) region = NULL;
   gboolean is_within;
 
   region = meta_wayland_pointer_constraint_calculate_effective_region (constraint);
   is_within = mtk_region_contains_point (region,
-                                         wl_fixed_to_int (sx),
-                                         wl_fixed_to_int (sy));
+                                         (int) floorf (x),
+                                         (int) floorf (y));
 
   return is_within;
 }
@@ -518,7 +518,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
 static void
 meta_wayland_pointer_constraint_maybe_enable (MetaWaylandPointerConstraint *constraint)
 {
-  wl_fixed_t sx, sy;
+  float x, y;
 
   if (constraint->is_enabled)
     return;
@@ -528,8 +528,8 @@ meta_wayland_pointer_constraint_maybe_enable (MetaWaylandPointerConstraint *cons
 
   meta_wayland_pointer_get_relative_coordinates (constraint->seat->pointer,
                                                  constraint->surface,
-                                                 &sx, &sy);
-  if (!is_within_constraint_region (constraint, sx, sy))
+                                                 &x, &y);
+  if (!is_within_constraint_region (constraint, x, y))
     return;
 
   meta_wayland_pointer_constraint_enable (constraint);
@@ -938,13 +938,11 @@ locked_pointer_destroy (struct wl_client   *client,
                                    constraint->x_hint,
                                    constraint->y_hint))
     {
-      float sx, sy;
       float x, y;
 
-      sx = (float)wl_fixed_to_double (constraint->x_hint);
-      sy = (float)wl_fixed_to_double (constraint->y_hint);
       meta_wayland_surface_get_absolute_coordinates (constraint->surface,
-                                                     sx, sy,
+                                                     constraint->x_hint,
+                                                     constraint->y_hint,
                                                      &x, &y);
       warp_pointer = TRUE;
       warp_x = (int) x;
@@ -972,8 +970,8 @@ locked_pointer_set_cursor_position_hint (struct wl_client   *client,
     return;
 
   constraint->hint_set = TRUE;
-  constraint->x_hint = surface_x;
-  constraint->y_hint = surface_y;
+  constraint->x_hint = (float) wl_fixed_to_double (surface_x);
+  constraint->y_hint = (float) wl_fixed_to_double (surface_y);
 }
 
 static void

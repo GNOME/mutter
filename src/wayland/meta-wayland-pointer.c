@@ -1010,9 +1010,12 @@ meta_wayland_pointer_send_enter (MetaWaylandPointer *pointer,
                                  uint32_t            serial,
                                  MetaWaylandSurface *surface)
 {
+  float xf, yf;
   wl_fixed_t sx, sy;
 
-  meta_wayland_pointer_get_relative_coordinates (pointer, surface, &sx, &sy);
+  meta_wayland_pointer_get_relative_coordinates (pointer, surface, &xf, &yf);
+  sx = wl_fixed_from_double (xf);
+  sy = wl_fixed_from_double (yf);
   wl_pointer_send_enter (pointer_resource,
                          serial,
                          surface->resource,
@@ -1189,17 +1192,13 @@ meta_wayland_pointer_focus_surface (MetaWaylandPointer *pointer,
 void
 meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 					       MetaWaylandSurface *surface,
-					       wl_fixed_t         *sx,
-					       wl_fixed_t         *sy)
+					       float              *x,
+					       float              *y)
 {
-  float xf = 0.0f, yf = 0.0f;
   graphene_point_t pos;
 
   clutter_sprite_get_coords (pointer->sprite, &pos);
-  meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, &xf, &yf);
-
-  *sx = wl_fixed_from_double (xf);
-  *sy = wl_fixed_from_double (yf);
+  meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, x, y);
 }
 
 void
