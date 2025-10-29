@@ -46,6 +46,18 @@ struct _MetaPointerLockWayland
 G_DEFINE_TYPE (MetaPointerLockWayland, meta_pointer_lock_wayland,
                META_TYPE_POINTER_CONFINEMENT_WAYLAND)
 
+static void
+maybe_scale_for_xwayland (MetaWaylandSurface *surface,
+                          float              *x,
+                          float              *y)
+{
+  if (meta_wayland_surface_is_xwayland (surface))
+    {
+      *x /= surface->applied_state.scale;
+      *y /= surface->applied_state.scale;
+    }
+}
+
 static MetaPointerConstraint *
 meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *confinement)
 {
@@ -71,6 +83,7 @@ meta_pointer_lock_wayland_create_constraint (MetaPointerConfinementWayland *conf
   meta_wayland_surface_get_relative_coordinates (surface,
                                                  point.x, point.y,
                                                  &sx, &sy);
+  maybe_scale_for_xwayland (surface, &sx, &sy);
 
   meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
   rect = (MtkRectangle) { .x = 0, .y = 0, .width = 0, .height = 0 };

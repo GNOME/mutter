@@ -516,6 +516,18 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
 }
 
 static void
+maybe_scale_for_xwayland (MetaWaylandSurface *surface,
+                          float              *x,
+                          float              *y)
+{
+  if (meta_wayland_surface_is_xwayland (surface))
+    {
+      *x /= surface->applied_state.scale;
+      *y /= surface->applied_state.scale;
+    }
+}
+
+static void
 meta_wayland_pointer_constraint_maybe_enable (MetaWaylandPointerConstraint *constraint)
 {
   float x, y;
@@ -529,6 +541,7 @@ meta_wayland_pointer_constraint_maybe_enable (MetaWaylandPointerConstraint *cons
   meta_wayland_pointer_get_relative_coordinates (constraint->seat->pointer,
                                                  constraint->surface,
                                                  &x, &y);
+  maybe_scale_for_xwayland (constraint->surface, &x, &y);
   if (!is_within_constraint_region (constraint, x, y))
     return;
 
