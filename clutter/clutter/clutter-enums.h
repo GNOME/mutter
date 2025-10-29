@@ -1143,4 +1143,87 @@ typedef enum /*< prefix=CLUTTER_SPRITE_ROLE >*/
   CLUTTER_SPRITE_ROLE_TOUCHPOINT,
 } ClutterSpriteRole;
 
+/**
+ * ClutterCursorType:
+ * @CLUTTER_CURSOR_INHERIT: Cursor is inherited from parent
+ * @CLUTTER_CURSOR_NONE: No cursor
+ * @CLUTTER_CURSOR_DEFAULT: Default cursor
+ * @CLUTTER_CURSOR_CONTEXT_MENU: Context menu cursor
+ * @CLUTTER_CURSOR_HELP: Help cursor
+ * @CLUTTER_CURSOR_POINTER: Pointer cursor
+ * @CLUTTER_CURSOR_PROGRESS: Progress cursor
+ * @CLUTTER_CURSOR_WAIT: Wait cursor
+ * @CLUTTER_CURSOR_CELL: Cell cursor
+ * @CLUTTER_CURSOR_CROSSHAIR: Crosshair cursor
+ * @CLUTTER_CURSOR_TEXT: Text cursor
+ * @CLUTTER_CURSOR_VERTICAL_TEXT: Vertical text cursor
+ * @CLUTTER_CURSOR_ALIAS: DnD alias cursor
+ * @CLUTTER_CURSOR_COPY: DnD copy cursor
+ * @CLUTTER_CURSOR_MOVE: DnD move cursor
+ * @CLUTTER_CURSOR_NO_DROP: DnD no drop cursor
+ * @CLUTTER_CURSOR_NOT_ALLOWED: DnD not allowed cursor
+ * @CLUTTER_CURSOR_GRAB: DnD grab cursor
+ * @CLUTTER_CURSOR_GRABBING: DnD grabbing cursor
+ * @CLUTTER_CURSOR_E_RESIZE: Resize eastern edge cursor
+ * @CLUTTER_CURSOR_N_RESIZE: Resize northern edge cursor
+ * @CLUTTER_CURSOR_NE_RESIZE: Resize north-eastern corner cursor
+ * @CLUTTER_CURSOR_NW_RESIZE: Resize north-western corner cursor
+ * @CLUTTER_CURSOR_S_RESIZE: Resize southern edge cursor
+ * @CLUTTER_CURSOR_SE_RESIZE: Resize south-eastern corner cursor
+ * @CLUTTER_CURSOR_SW_RESIZE: Resize south-western corner cursor
+ * @CLUTTER_CURSOR_W_RESIZE: Resize western edge cursor
+ * @CLUTTER_CURSOR_EW_RESIZE: Resize eastern and western edges cursor
+ * @CLUTTER_CURSOR_NS_RESIZE: Resize northern and eastern edges cursor
+ * @CLUTTER_CURSOR_NESW_RESIZE: Resize north-east and south-west corners cursor
+ * @CLUTTER_CURSOR_NWSE_RESIZE: Resize north-west and south-east corners cursor
+ * @CLUTTER_CURSOR_COL_RESIZE: Resize column cursor
+ * @CLUTTER_CURSOR_ROW_RESIZE: Resize row cursor
+ * @CLUTTER_CURSOR_ALL_SCROLL: Scroll all directions cursor
+ * @CLUTTER_CURSOR_ZOOM_IN: Zoom in cursor
+ * @CLUTTER_CURSOR_ZOOM_OUT: Zoom out cursor
+ * @CLUTTER_CURSOR_DND_ASK: DnD ask cursor
+ * @CLUTTER_CURSOR_ALL_RESIZE: Resize all directions
+ */
+typedef enum
+{
+  CLUTTER_CURSOR_INHERIT = 0,
+  CLUTTER_CURSOR_NONE,
+  CLUTTER_CURSOR_DEFAULT,
+  CLUTTER_CURSOR_CONTEXT_MENU,
+  CLUTTER_CURSOR_HELP,
+  CLUTTER_CURSOR_POINTER,
+  CLUTTER_CURSOR_PROGRESS,
+  CLUTTER_CURSOR_WAIT,
+  CLUTTER_CURSOR_CELL,
+  CLUTTER_CURSOR_CROSSHAIR,
+  CLUTTER_CURSOR_TEXT,
+  CLUTTER_CURSOR_VERTICAL_TEXT,
+  CLUTTER_CURSOR_ALIAS,
+  CLUTTER_CURSOR_COPY,
+  CLUTTER_CURSOR_MOVE,
+  CLUTTER_CURSOR_NO_DROP,
+  CLUTTER_CURSOR_NOT_ALLOWED,
+  CLUTTER_CURSOR_GRAB,
+  CLUTTER_CURSOR_GRABBING,
+  CLUTTER_CURSOR_E_RESIZE,
+  CLUTTER_CURSOR_N_RESIZE,
+  CLUTTER_CURSOR_NE_RESIZE,
+  CLUTTER_CURSOR_NW_RESIZE,
+  CLUTTER_CURSOR_S_RESIZE,
+  CLUTTER_CURSOR_SE_RESIZE,
+  CLUTTER_CURSOR_SW_RESIZE,
+  CLUTTER_CURSOR_W_RESIZE,
+  CLUTTER_CURSOR_EW_RESIZE,
+  CLUTTER_CURSOR_NS_RESIZE,
+  CLUTTER_CURSOR_NESW_RESIZE,
+  CLUTTER_CURSOR_NWSE_RESIZE,
+  CLUTTER_CURSOR_COL_RESIZE,
+  CLUTTER_CURSOR_ROW_RESIZE,
+  CLUTTER_CURSOR_ALL_SCROLL,
+  CLUTTER_CURSOR_ZOOM_IN,
+  CLUTTER_CURSOR_ZOOM_OUT,
+  CLUTTER_CURSOR_DND_ASK, /* not css */
+  CLUTTER_CURSOR_ALL_RESIZE, /* not css */
+} ClutterCursorType;
+
 G_END_DECLS
