@@ -26,6 +26,7 @@
 
 #include "clutter/clutter-backend.h"
 #include "clutter/clutter-backend-private.h"
+#include "clutter/clutter-cursor-private.h"
 #include "clutter/clutter-damage-history.h"
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-focus-private.h"

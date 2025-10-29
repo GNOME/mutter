@@ -53,6 +53,7 @@
 #include "clutter/clutter-constraint.h"
 #include "clutter/clutter-content.h"
 #include "clutter/clutter-context.h"
+#include "clutter/clutter-cursor.h"
 #include "clutter/clutter-deform-effect.h"
 #include "clutter/clutter-desaturate-effect.h"
 #include "clutter/clutter-effect.h"
