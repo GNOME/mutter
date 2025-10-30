@@ -20,7 +20,7 @@
 
 #include <glib-object.h>
 
-#include "backends/meta-cursor.h"
+#include "clutter/clutter.h"
 #include "wayland/meta-wayland-surface-private.h"
 
 #define META_TYPE_CURSOR_WAYLAND meta_cursor_wayland_get_type ()

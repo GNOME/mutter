@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "backends/meta-cursor.h"
 #include "backends/meta-cursor-renderer.h"
 #include "meta/meta-cursor-tracker.h"
 

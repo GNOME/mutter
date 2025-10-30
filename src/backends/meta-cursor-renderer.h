@@ -25,7 +25,6 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
-#include "backends/meta-cursor.h"
 #include "core/util-private.h"
 
 #define META_TYPE_HW_CURSOR_INHIBITOR (meta_hw_cursor_inhibitor_get_type ())

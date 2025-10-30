@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include "backends/meta-cursor.h"
 #include "core/util-private.h"
 #include "meta/boxes.h"
 #include "meta/meta-stage.h"

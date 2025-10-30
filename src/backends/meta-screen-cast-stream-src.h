@@ -24,7 +24,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
-#include "backends/meta-cursor.h"
 #include "backends/meta-renderer.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"

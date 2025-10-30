@@ -32,7 +32,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
-#include "backends/meta-cursor.h"
 #include "backends/meta-display-config-shared.h"
 #include "backends/meta-output.h"
 #include "backends/meta-viewport-info.h"

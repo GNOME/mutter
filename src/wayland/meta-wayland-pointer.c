@@ -50,7 +50,6 @@
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-cursor-xcursor.h"
-#include "backends/meta-cursor.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "compositor/meta-surface-actor-wayland.h"

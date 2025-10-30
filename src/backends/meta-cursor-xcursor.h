@@ -20,7 +20,7 @@
 
 #include <glib-object.h>
 
-#include "backends/meta-cursor.h"
+#include "clutter/clutter.h"
 #include "core/util-private.h"
 #include "meta/types.h"
 #include "third_party/xcursor/xcursor.h"

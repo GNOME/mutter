@@ -21,7 +21,7 @@
 #include <stdint.h>
 #include <glib-object.h>
 
-#include "backends/meta-cursor.h"
+#include "clutter/clutter.h"
 #include "meta/boxes.h"
 
 G_BEGIN_DECLS
