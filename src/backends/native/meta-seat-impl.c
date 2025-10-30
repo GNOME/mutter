@@ -3074,6 +3074,7 @@ init_libinput (MetaSeatImpl  *seat_impl,
 {
   struct udev *udev;
   struct libinput *libinput;
+  char xdg[PATH_MAX] = {0};
 
   udev = udev_new ();
   if (G_UNLIKELY (udev == NULL))
@@ -3093,6 +3094,12 @@ init_libinput (MetaSeatImpl  *seat_impl,
                    "Failed to create the libinput object.");
       return FALSE;
     }
+
+  g_snprintf (xdg, sizeof xdg, "%s/libinput/plugins", g_get_user_config_dir ());
+
+  libinput_plugin_system_append_path (libinput, xdg);
+  libinput_plugin_system_append_default_paths (libinput);
+  libinput_plugin_system_load_plugins (libinput, LIBINPUT_PLUGIN_SYSTEM_FLAG_NONE);
 
   if (libinput_udev_assign_seat (libinput, seat_impl->seat_id) == -1)
     {
