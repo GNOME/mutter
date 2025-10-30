@@ -124,6 +124,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
   CoglTexture *cursor_texture;
   MetaScreenCastWindow *screen_cast_window;
   graphene_point_t cursor_position;
@@ -145,7 +146,8 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   if (!cursor_sprite)
     return;
 
-  cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  cursor = CLUTTER_CURSOR (cursor_sprite);
+  cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
   if (!cursor_texture)
     return;
 
@@ -158,18 +160,17 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                                           &view_scale))
     return;
 
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
-  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  cursor_scale = clutter_cursor_get_texture_scale (cursor);
   scale = cursor_scale * view_scale;
-  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
-  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
+  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
   texture_width = cogl_texture_get_width (cursor_texture);
   texture_height = cogl_texture_get_height (cursor_texture);
 
-  if (meta_cursor_sprite_get_viewport_dst_size (cursor_sprite,
-                                                &width,
-                                                &height))
+  if (clutter_cursor_get_viewport_dst_size (cursor,
+                                            &width,
+                                            &height))
     {
       width = (int) ceilf (width * view_scale);
       height = (int) ceilf (height * view_scale);
@@ -254,6 +255,7 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
     meta_backend_get_cursor_tracker (backend);
   MetaScreenCastWindow *screen_cast_window;
   MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
   graphene_point_t relative_cursor_position;
   graphene_point_t cursor_position;
   CoglTexture *cursor_texture;
@@ -270,7 +272,8 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   if (!cursor_sprite)
     return;
 
-  cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  cursor = CLUTTER_CURSOR (cursor_sprite);
+  cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
   if (!cursor_texture)
     return;
 
@@ -283,11 +286,10 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                                           &view_scale))
     return;
 
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
-  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  cursor_scale = clutter_cursor_get_texture_scale (cursor);
   scale = cursor_scale * view_scale;
-  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
-  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
+  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
   x = (relative_cursor_position.x - hotspot_x) * scale;
   y = (relative_cursor_position.y - hotspot_y) * scale;

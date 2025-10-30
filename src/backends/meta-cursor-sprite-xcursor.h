@@ -21,6 +21,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-cursor.h"
+#include "core/util-private.h"
 #include "meta/types.h"
 #include "third_party/xcursor/xcursor.h"
 
@@ -28,13 +29,13 @@
 G_DECLARE_FINAL_TYPE (MetaCursorSpriteXcursor, meta_cursor_sprite_xcursor,
                       META, CURSOR_SPRITE_XCURSOR, MetaCursorSprite)
 
-MetaCursorSpriteXcursor * meta_cursor_sprite_xcursor_new (MetaCursor         cursor,
+MetaCursorSpriteXcursor * meta_cursor_sprite_xcursor_new (ClutterCursorType  cursor_type,
                                                           MetaCursorTracker *cursor_tracker);
 
 void meta_cursor_sprite_xcursor_set_theme_scale (MetaCursorSpriteXcursor *sprite_xcursor,
                                                  int                      scale);
 
-MetaCursor meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcusror);
+ClutterCursorType meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcursor);
 
 XcursorImage * meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xcursor);
 
@@ -43,6 +44,6 @@ void meta_cursor_sprite_xcursor_get_scaled_image_size (MetaCursorSpriteXcursor *
                                                        int                     *height);
 
 META_EXPORT_TEST
-const char * meta_cursor_get_name (MetaCursor cursor);
+const char * meta_cursor_get_name (ClutterCursorType cursor);
 
-const char * meta_cursor_get_legacy_name (MetaCursor cursor);
+const char * meta_cursor_get_legacy_name (ClutterCursorType cursor);

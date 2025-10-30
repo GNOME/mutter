@@ -32,3 +32,8 @@ MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *su
                                                           MetaCursorTracker  *cursor_tracker);
 
 MetaWaylandBuffer * meta_cursor_sprite_wayland_get_buffer (MetaCursorSpriteWayland *sprite_wayland);
+
+void meta_cursor_sprite_wayland_set_texture (MetaCursorSpriteWayland *sprite_wayland,
+                                             CoglTexture             *texture,
+                                             int                      hot_x,
+                                             int                      hot_y);

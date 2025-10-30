@@ -323,7 +323,7 @@ wait_for_no_windows (void)
 static void
 test_client_cursor (ClutterStageView    *view,
                     const char          *scale_method,
-                    MetaCursor           cursor,
+                    ClutterCursorType    cursor,
                     MtkMonitorTransform  transform,
                     const char          *ref_test_name,
                     int                  ref_test_seq,
@@ -386,7 +386,7 @@ meta_test_native_cursor_scaling (void)
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   ClutterActor *overlay_actor;
   ClutterStageView *view;
-  MetaCursor cursor;
+  ClutterCursorType cursor;
   struct {
     int width;
     int height;
@@ -420,7 +420,7 @@ meta_test_native_cursor_scaling (void)
   };
   int i;
 
-  cursor = META_CURSOR_MOVE;
+  cursor = CLUTTER_CURSOR_MOVE;
   meta_display_set_cursor (display, cursor);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
@@ -517,7 +517,7 @@ meta_test_native_cursor_cropping (void)
   };
   int i;
 
-  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
   overlay_actor = create_overlay_actor ();
@@ -542,7 +542,7 @@ meta_test_native_cursor_cropping (void)
 
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
-                          META_CURSOR_MOVE,
+                          CLUTTER_CURSOR_MOVE,
                           MTK_MONITOR_TRANSFORM_NORMAL,
                           ref_test_name, 0,
                           meta_ref_test_determine_ref_test_flag ());
@@ -599,7 +599,7 @@ meta_test_native_cursor_transform (void)
   };
   int i;
 
-  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
   overlay_actor = create_overlay_actor ();
@@ -624,19 +624,19 @@ meta_test_native_cursor_transform (void)
 
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_BUFFER_SCALE,
-                          META_CURSOR_DEFAULT,
+                          CLUTTER_CURSOR_DEFAULT,
                           test_cases[i].transform,
                           ref_test_name, 0,
                           meta_ref_test_determine_ref_test_flag ());
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT,
-                          META_CURSOR_DEFAULT,
+                          CLUTTER_CURSOR_DEFAULT,
                           test_cases[i].transform,
                           ref_test_name, 1,
                           meta_ref_test_determine_ref_test_flag ());
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_VIEWPORT_CROPPED,
-                          META_CURSOR_MOVE,
+                          CLUTTER_CURSOR_MOVE,
                           test_cases[i].transform,
                           ref_test_name, 2,
                           meta_ref_test_determine_ref_test_flag ());

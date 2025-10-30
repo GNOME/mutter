@@ -138,7 +138,7 @@ struct _MetaDisplay
 
   MetaStartupNotification *startup_notification;
 
-  MetaCursor current_cursor;
+  ClutterCursorType current_cursor;
 
   MetaStack *stack;
   MetaStackTracker *stack_tracker;

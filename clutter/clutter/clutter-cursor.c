@@ -36,11 +36,10 @@ static GParamSpec *obj_props[N_PROPS] = { 0, };
 enum
 {
   TEXTURE_CHANGED,
-
-  LAST_SIGNAL
+  N_SIGNALS,
 };
 
-static guint signals[LAST_SIGNAL];
+static guint signals[N_SIGNALS] = { 0, };
 
 typedef struct _ClutterCursorPrivate
 {

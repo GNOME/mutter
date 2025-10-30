@@ -21,91 +21,18 @@
 
 #pragma once
 
-#include "backends/meta-backend-types.h"
-#include "core/util-private.h"
-#include "meta/common.h"
-#include "meta/boxes.h"
-#include "mtk/mtk.h"
+#include "clutter/clutter.h"
+#include "meta/meta-cursor-tracker.h"
 
 #define META_TYPE_CURSOR_SPRITE (meta_cursor_sprite_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaCursorSprite,
                           meta_cursor_sprite,
                           META, CURSOR_SPRITE,
-                          GObject)
+                          ClutterCursor)
 
 struct _MetaCursorSpriteClass
 {
-  GObjectClass parent_class;
-
-  void (* invalidate) (MetaCursorSprite *sprite);
-  gboolean (* realize_texture) (MetaCursorSprite *sprite);
-  gboolean (* is_animated) (MetaCursorSprite *sprite);
-  void (* tick_frame) (MetaCursorSprite *sprite);
-  unsigned int (* get_current_frame_time) (MetaCursorSprite *sprite);
-  void (* prepare_at) (MetaCursorSprite *sprite,
-                       float             best_scale,
-                       int               x,
-                       int               y);
+  ClutterCursorClass parent_class;
 };
-
-void meta_cursor_sprite_prepare_at (MetaCursorSprite *sprite,
-                                    float             best_scale,
-                                    int               x,
-                                    int               y);
-
-void meta_cursor_sprite_invalidate (MetaCursorSprite *sprite);
-gboolean meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite);
-
-void meta_cursor_sprite_clear_texture (MetaCursorSprite *sprite);
-
-void meta_cursor_sprite_set_texture (MetaCursorSprite *sprite,
-                                     CoglTexture      *texture,
-                                     int               hot_x,
-                                     int               hot_y);
-
-void meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
-                                           float             scale);
-
-void meta_cursor_sprite_set_texture_transform (MetaCursorSprite    *sprite,
-                                               MtkMonitorTransform  transform);
-
-void meta_cursor_sprite_set_viewport_src_rect (MetaCursorSprite      *sprite,
-                                               const graphene_rect_t *src_rect);
-
-void meta_cursor_sprite_reset_viewport_src_rect (MetaCursorSprite *sprite);
-
-void meta_cursor_sprite_set_viewport_dst_size (MetaCursorSprite *sprite,
-                                               int               dst_width,
-                                               int               dst_height);
-
-void meta_cursor_sprite_reset_viewport_dst_size (MetaCursorSprite *sprite);
-
-CoglTexture *meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *sprite);
-
-void meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
-                                     int              *hot_x,
-                                     int              *hot_y);
-
-int meta_cursor_sprite_get_width (MetaCursorSprite *sprite);
-
-int meta_cursor_sprite_get_height (MetaCursorSprite *sprite);
-
-float meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite);
-
-MtkMonitorTransform meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite);
-
-const graphene_rect_t * meta_cursor_sprite_get_viewport_src_rect (MetaCursorSprite *sprite);
-
-gboolean meta_cursor_sprite_get_viewport_dst_size (MetaCursorSprite *sprite,
-                                                   int              *dst_width,
-                                                   int              *dst_height);
-
-gboolean meta_cursor_sprite_is_animated (MetaCursorSprite *sprite);
-
-void meta_cursor_sprite_tick_frame (MetaCursorSprite *sprite);
-
-unsigned int meta_cursor_sprite_get_current_frame_time (MetaCursorSprite *sprite);
-
-ClutterColorState * meta_cursor_sprite_get_color_state (MetaCursorSprite *sprite);
 
 MetaCursorTracker * meta_cursor_sprite_get_cursor_tracker (MetaCursorSprite *sprite);

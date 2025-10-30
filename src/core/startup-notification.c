@@ -92,7 +92,7 @@ struct _MetaStartupNotification
   GSList *startup_sequences;
   guint startup_sequence_timeout_id;
   guint update_cursor_timeout_id;
-  MetaCursor cursor;
+  ClutterCursorType cursor;
 };
 
 typedef struct
@@ -138,19 +138,19 @@ static void
 meta_startup_notification_update_cursor (MetaStartupNotification *sn)
 {
   MetaDisplay *display = sn->display;
-  MetaCursor cursor;
+  ClutterCursorType cursor;
 
   if (meta_startup_notification_has_pending_sequences (sn))
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting busy cursor");
-      cursor = META_CURSOR_WAIT;
+      cursor = CLUTTER_CURSOR_WAIT;
     }
   else
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting default cursor");
-      cursor = META_CURSOR_DEFAULT;
+      cursor = CLUTTER_CURSOR_DEFAULT;
     }
 
   if (sn->cursor != cursor)

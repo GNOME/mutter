@@ -112,14 +112,15 @@ update_displayed_cursor (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
   MetaContext *context = meta_backend_get_context (priv->backend);
   MetaDisplay *display = meta_context_get_display (context);
-  MetaCursorSprite *cursor = NULL;
+  MetaCursorSprite *cursor_sprite = NULL;
+  ClutterCursor *cursor;
 
   if (display && !meta_display_is_grabbed (display) && priv->has_window_cursor)
-    cursor = priv->window_cursor;
+    cursor_sprite = priv->window_cursor;
   else
-    cursor = priv->root_cursor;
+    cursor_sprite = priv->root_cursor;
 
-  if (priv->displayed_cursor == cursor)
+  if (priv->displayed_cursor == cursor_sprite)
     return FALSE;
 
   if (priv->displayed_cursor)
@@ -129,11 +130,12 @@ update_displayed_cursor (MetaCursorTracker *tracker)
                                             tracker);
     }
 
-  g_set_object (&priv->displayed_cursor, cursor);
+  g_set_object (&priv->displayed_cursor, cursor_sprite);
 
-  if (cursor)
+  if (cursor_sprite)
     {
-      meta_cursor_sprite_invalidate (cursor);
+      cursor = CLUTTER_CURSOR (cursor_sprite);
+      clutter_cursor_invalidate (cursor);
       g_signal_connect (cursor, "texture-changed",
                         G_CALLBACK (cursor_texture_updated), tracker);
     }
@@ -407,14 +409,16 @@ CoglTexture *
 meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 {
   MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
 
   cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
   if (!cursor_sprite)
     return NULL;
 
-  meta_cursor_sprite_realize_texture (cursor_sprite);
-  return meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  cursor = CLUTTER_CURSOR (cursor_sprite);
+  clutter_cursor_realize_texture (cursor);
+  return clutter_cursor_get_texture (cursor, NULL, NULL);
 }
 
 /**
@@ -429,13 +433,15 @@ float
 meta_cursor_tracker_get_scale (MetaCursorTracker *tracker)
 {
   MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
 
   cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
   if (!cursor_sprite)
     return 1.0;
 
-  return meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  cursor = CLUTTER_CURSOR (cursor_sprite);
+  return clutter_cursor_get_texture_scale (cursor);
 }
 
 /**
@@ -452,13 +458,18 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
                              int               *y)
 {
   MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
 
   g_return_if_fail (META_IS_CURSOR_TRACKER (tracker));
 
   cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
   if (cursor_sprite)
-    meta_cursor_sprite_get_hotspot (cursor_sprite, x, y);
+    {
+      G_GNUC_UNUSED CoglTexture *texture = NULL;
+      cursor = CLUTTER_CURSOR (cursor_sprite);
+      clutter_cursor_get_texture (cursor, x, y);
+    }
   else
     {
       if (x)

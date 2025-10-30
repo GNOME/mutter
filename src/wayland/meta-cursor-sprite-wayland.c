@@ -33,6 +33,9 @@ struct _MetaCursorSpriteWayland
   MetaCursorSprite parent;
 
   MetaWaylandSurface *surface;
+  CoglTexture *texture;
+  int hot_x;
+  int hot_y;
   gboolean invalidated;
 };
 
@@ -41,11 +44,11 @@ G_DEFINE_TYPE (MetaCursorSpriteWayland,
                META_TYPE_CURSOR_SPRITE)
 
 static gboolean
-meta_cursor_sprite_wayland_realize_texture (MetaCursorSprite *sprite)
+meta_cursor_sprite_wayland_realize_texture (ClutterCursor *cursor)
 {
   MetaCursorSpriteWayland *sprite_wayland;
 
-  sprite_wayland = META_CURSOR_SPRITE_WAYLAND (sprite);
+  sprite_wayland = META_CURSOR_SPRITE_WAYLAND (cursor);
 
   if (sprite_wayland->invalidated)
     {
@@ -57,29 +60,29 @@ meta_cursor_sprite_wayland_realize_texture (MetaCursorSprite *sprite)
 }
 
 static gboolean
-meta_cursor_sprite_wayland_is_animated (MetaCursorSprite *sprite)
+meta_cursor_sprite_wayland_is_animated (ClutterCursor *cursor)
 {
   return FALSE;
 }
 
 static void
-meta_cursor_sprite_wayland_invalidate (MetaCursorSprite *sprite)
+meta_cursor_sprite_wayland_invalidate (ClutterCursor *cursor)
 {
   MetaCursorSpriteWayland *sprite_wayland;
 
-  sprite_wayland = META_CURSOR_SPRITE_WAYLAND (sprite);
+  sprite_wayland = META_CURSOR_SPRITE_WAYLAND (cursor);
   sprite_wayland->invalidated = TRUE;
 }
 
 static void
-meta_cursor_sprite_wayland_prepare_at (MetaCursorSprite *sprite,
-                                       float             best_scale,
-                                       int               x,
-                                       int               y)
+meta_cursor_sprite_wayland_prepare_at (ClutterCursor *cursor,
+                                       float          best_scale,
+                                       int            x,
+                                       int            y)
 {
-  MetaCursorSpriteWayland *sprite_wayland = META_CURSOR_SPRITE_WAYLAND (sprite);
+  MetaCursorSpriteWayland *sprite_wayland = META_CURSOR_SPRITE_WAYLAND (cursor);
   MetaCursorTracker *cursor_tracker =
-    meta_cursor_sprite_get_cursor_tracker (sprite);
+    meta_cursor_sprite_get_cursor_tracker (META_CURSOR_SPRITE (cursor));
   MetaBackend *backend =
     meta_cursor_tracker_get_backend (cursor_tracker);
   MetaWaylandSurface *surface = sprite_wayland->surface;
@@ -111,18 +114,17 @@ meta_cursor_sprite_wayland_prepare_at (MetaCursorSprite *sprite,
         texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
                          surface_scale);
 
-      meta_cursor_sprite_set_texture_scale (sprite, texture_scale);
-      meta_cursor_sprite_set_texture_transform (sprite,
-                                                surface->buffer_transform);
+      clutter_cursor_set_texture_scale (cursor, texture_scale);
+      clutter_cursor_set_texture_transform (cursor, surface->buffer_transform);
 
       if (surface->viewport.has_src_rect)
         {
-          meta_cursor_sprite_set_viewport_src_rect (sprite,
-                                                    &surface->viewport.src_rect);
+          clutter_cursor_set_viewport_src_rect (cursor,
+                                                &surface->viewport.src_rect);
         }
       else
         {
-          meta_cursor_sprite_reset_viewport_src_rect (sprite);
+          clutter_cursor_reset_viewport_src_rect (cursor);
         }
 
       if (surface->viewport.has_dst_size)
@@ -144,19 +146,44 @@ meta_cursor_sprite_wayland_prepare_at (MetaCursorSprite *sprite,
               dst_height = (int) (surface->viewport.dst_height * monitor_scale);
             }
 
-          meta_cursor_sprite_set_viewport_dst_size (sprite,
-                                                    dst_width,
-                                                    dst_height);
+          clutter_cursor_set_viewport_dst_size (cursor,
+                                                dst_width,
+                                                dst_height);
         }
       else
         {
-          meta_cursor_sprite_reset_viewport_dst_size (sprite);
+          clutter_cursor_reset_viewport_dst_size (cursor);
         }
     }
 
   meta_wayland_surface_set_main_monitor (surface, logical_monitor);
   meta_wayland_surface_update_outputs (surface);
   meta_wayland_surface_notify_preferred_scale_monitor (surface);
+}
+
+static CoglTexture *
+meta_cursor_sprite_wayland_get_texture (ClutterCursor *cursor,
+                                        int           *hot_x,
+                                        int           *hot_y)
+{
+  MetaCursorSpriteWayland *sprite_wayland = META_CURSOR_SPRITE_WAYLAND (cursor);
+
+  if (hot_x)
+    *hot_x = sprite_wayland->hot_x;
+  if (hot_y)
+    *hot_y = sprite_wayland->hot_y;
+
+  return sprite_wayland->texture;
+}
+
+static void
+meta_cursor_sprite_wayland_finalize (GObject *object)
+{
+  MetaCursorSpriteWayland *sprite_wayland = META_CURSOR_SPRITE_WAYLAND (object);
+
+  g_clear_object (&sprite_wayland->texture);
+
+  G_OBJECT_CLASS (meta_cursor_sprite_wayland_parent_class)->finalize (object);
 }
 
 static ClutterColorState *
@@ -222,12 +249,27 @@ meta_cursor_sprite_wayland_init (MetaCursorSpriteWayland *sprite_wayland)
 static void
 meta_cursor_sprite_wayland_class_init (MetaCursorSpriteWaylandClass *klass)
 {
-  MetaCursorSpriteClass *cursor_sprite_class = META_CURSOR_SPRITE_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterCursorClass *cursor_class = CLUTTER_CURSOR_CLASS (klass);
 
-  cursor_sprite_class->realize_texture =
-    meta_cursor_sprite_wayland_realize_texture;
-  cursor_sprite_class->invalidate =
-    meta_cursor_sprite_wayland_invalidate;
-  cursor_sprite_class->is_animated = meta_cursor_sprite_wayland_is_animated;
-  cursor_sprite_class->prepare_at = meta_cursor_sprite_wayland_prepare_at;
+  object_class->finalize = meta_cursor_sprite_wayland_finalize;
+
+  cursor_class->realize_texture = meta_cursor_sprite_wayland_realize_texture;
+  cursor_class->invalidate = meta_cursor_sprite_wayland_invalidate;
+  cursor_class->is_animated = meta_cursor_sprite_wayland_is_animated;
+  cursor_class->prepare_at = meta_cursor_sprite_wayland_prepare_at;
+  cursor_class->get_texture = meta_cursor_sprite_wayland_get_texture;
+}
+
+void
+meta_cursor_sprite_wayland_set_texture (MetaCursorSpriteWayland *sprite_wayland,
+                                        CoglTexture             *texture,
+                                        int                      hot_x,
+                                        int                      hot_y)
+{
+  sprite_wayland->hot_x = hot_x;
+  sprite_wayland->hot_y = hot_y;
+
+  if (g_set_object (&sprite_wayland->texture, texture))
+    clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (sprite_wayland));
 }

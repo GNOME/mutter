@@ -222,7 +222,7 @@ on_drag_focus_destroyed (MetaWaylandSurface  *surface,
 
 static void
 meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
-                                   MetaCursor           cursor)
+                                   ClutterCursorType    cursor)
 {
   MetaWaylandCompositor *compositor =
     meta_wayland_seat_get_compositor (drag_grab->seat);
@@ -259,21 +259,21 @@ meta_wayland_drag_grab_update_cursor (MetaWaylandDragGrab *drag_grab)
 {
   enum wl_data_device_manager_dnd_action action =
     meta_wayland_data_source_get_current_action (drag_grab->drag_data_source);
-  MetaCursor cursor = META_CURSOR_DEFAULT;
+  ClutterCursorType cursor = CLUTTER_CURSOR_DEFAULT;
 
   switch (action)
     {
     case WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE:
-      cursor = META_CURSOR_NO_DROP;
+      cursor = CLUTTER_CURSOR_NO_DROP;
       break;
     case WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE:
-      cursor = META_CURSOR_MOVE;
+      cursor = CLUTTER_CURSOR_MOVE;
       break;
     case WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY:
-      cursor = META_CURSOR_COPY;
+      cursor = CLUTTER_CURSOR_COPY;
       break;
     case WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK:
-      cursor = META_CURSOR_DND_ASK;
+      cursor = CLUTTER_CURSOR_DND_ASK;
       break;
     default:
       break;
@@ -456,7 +456,7 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
   MetaDisplay *display = display_from_data_device (data_device);
   MetaCompositor *compositor = meta_display_get_compositor (display);
 
-  meta_wayland_drag_grab_set_cursor (drag_grab, META_CURSOR_DEFAULT);
+  meta_wayland_drag_grab_set_cursor (drag_grab, CLUTTER_CURSOR_DEFAULT);
 
   meta_wayland_drag_grab_set_source (drag_grab, NULL);
   meta_wayland_drag_grab_set_focus (drag_grab, NULL);

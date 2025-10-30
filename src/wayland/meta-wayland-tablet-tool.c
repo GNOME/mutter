@@ -52,7 +52,7 @@ struct _MetaWaylandTabletTool
   MetaCursorRenderer *cursor_renderer;
   MetaCursorSpriteXcursor *default_sprite;
 
-  MetaCursor cursor_shape;
+  ClutterCursorType cursor_shape;
   MetaCursorSpriteXcursor *shape_sprite;
 
   MetaWaylandSurface *current;
@@ -135,7 +135,7 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
 
           cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
         }
-      else if (tool->cursor_shape != META_CURSOR_INVALID)
+      else if (tool->cursor_shape != CLUTTER_CURSOR_INHERIT)
         {
           if (!tool->shape_sprite)
             {
@@ -174,7 +174,7 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
     }
 
   tool->cursor_surface = surface;
-  tool->cursor_shape = META_CURSOR_INVALID;
+  tool->cursor_shape = CLUTTER_CURSOR_INHERIT;
   g_clear_object (&tool->shape_sprite);
 
   if (tool->cursor_surface)
@@ -189,7 +189,7 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
 
 void
 meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
-                                           MetaCursor             shape)
+                                           ClutterCursorType      shape)
 {
   if (tool->cursor_surface)
     {
@@ -449,7 +449,7 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
   tool->focus_surface_destroy_listener.notify = tablet_tool_handle_focus_surface_destroy;
   tool->cursor_surface_destroy_listener.notify = tablet_tool_handle_cursor_surface_destroy;
 
-  tool->default_sprite = meta_cursor_sprite_xcursor_new (META_CURSOR_DEFAULT,
+  tool->default_sprite = meta_cursor_sprite_xcursor_new (CLUTTER_CURSOR_DEFAULT,
                                                          cursor_tracker);
 
   return tool;

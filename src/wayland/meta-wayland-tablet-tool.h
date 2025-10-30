@@ -66,7 +66,7 @@ void meta_wayland_tablet_tool_focus_surface (MetaWaylandTabletTool *tool,
                                              MetaWaylandSurface    *surface);
 
 void meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
-                                                MetaCursor             shape);
+                                                ClutterCursorType      shape);
 
 gboolean meta_wayland_tablet_tool_check_focus_serial (MetaWaylandTabletTool *tool,
                                                       struct wl_client      *client,

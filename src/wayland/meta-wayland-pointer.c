@@ -102,7 +102,7 @@ struct _MetaWaylandPointer
   MetaWaylandSurface *cursor_surface;
   gulong cursor_surface_destroy_id;
 
-  MetaCursor cursor_shape;
+  ClutterCursorType cursor_shape;
   MetaCursorSpriteXcursor *shape_sprite;
 
   guint32 grab_button;
@@ -500,7 +500,7 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   pointer->cursor_surface = NULL;
-  pointer->cursor_shape = META_CURSOR_INVALID;
+  pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
 
   g_signal_connect (cursor_tracker,
                     "cursor-changed",
@@ -535,7 +535,7 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
   meta_wayland_pointer_set_current (pointer, NULL);
 
   pointer->cursor_surface = NULL;
-  pointer->cursor_shape = META_CURSOR_INVALID;
+  pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
 }
 
 static int
@@ -1218,7 +1218,7 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 
           cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
         }
-      else if (pointer->cursor_shape != META_CURSOR_INVALID)
+      else if (pointer->cursor_shape != CLUTTER_CURSOR_INHERIT)
         {
           if (!pointer->shape_sprite)
             {
@@ -1258,11 +1258,11 @@ meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
   prev_cursor_surface = pointer->cursor_surface;
 
   if (prev_cursor_surface == cursor_surface &&
-      pointer->cursor_shape == META_CURSOR_INVALID)
+      pointer->cursor_shape == CLUTTER_CURSOR_INHERIT)
     return;
 
   pointer->cursor_surface = cursor_surface;
-  pointer->cursor_shape = META_CURSOR_INVALID;
+  pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
   g_clear_object (&pointer->shape_sprite);
 
   if (prev_cursor_surface)
@@ -1285,7 +1285,7 @@ meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
 
 void
 meta_wayland_pointer_set_cursor_shape (MetaWaylandPointer *pointer,
-                                       MetaCursor          shape)
+                                       ClutterCursorType   shape)
 {
   if (pointer->cursor_surface)
     {
@@ -1370,7 +1370,7 @@ pointer_set_cursor (struct wl_client *client,
                                                hot_x, hot_y);
 
       cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
-      meta_cursor_sprite_invalidate (cursor_sprite);
+      clutter_cursor_invalidate (CLUTTER_CURSOR (cursor_sprite));
     }
 
   meta_wayland_pointer_set_cursor_surface (pointer, surface);

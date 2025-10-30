@@ -54,7 +54,6 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (cursor_surface));
-  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (priv->cursor_sprite);
   MetaMultiTexture *texture;
 
   if (!priv->cursor_renderer)
@@ -87,14 +86,14 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
           hotspot_scale_y = surface->applied_state.scale;
         }
 
-      meta_cursor_sprite_set_texture (cursor_sprite,
-                                      meta_multi_texture_get_plane (texture, 0),
-                                      (int) roundf (priv->hot_x * hotspot_scale_x),
-                                      (int) roundf (priv->hot_y * hotspot_scale_y));
+      meta_cursor_sprite_wayland_set_texture (priv->cursor_sprite,
+                                              meta_multi_texture_get_plane (texture, 0),
+                                              (int) roundf (priv->hot_x * hotspot_scale_x),
+                                              (int) roundf (priv->hot_y * hotspot_scale_y));
     }
   else
     {
-      meta_cursor_sprite_set_texture (cursor_sprite, NULL, 0, 0);
+      meta_cursor_sprite_wayland_set_texture (priv->cursor_sprite, NULL, 0, 0);
     }
 
   meta_cursor_renderer_force_update (priv->cursor_renderer);

@@ -527,6 +527,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                                                         int                      y,
                                                         float                    view_scale)
 {
+  ClutterCursor *cursor = CLUTTER_CURSOR (cursor_sprite);
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;
   int hotspot_x, hotspot_y;
@@ -540,7 +541,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   graphene_matrix_t matrix;
   GError *error = NULL;
 
-  cursor_texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
+  cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
   if (!cursor_texture)
     {
       meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (src,
@@ -564,14 +565,13 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   texture_width = cogl_texture_get_width (cursor_texture);
   texture_height = cogl_texture_get_height (cursor_texture);
 
-  meta_cursor_sprite_get_hotspot (cursor_sprite, &hotspot_x, &hotspot_y);
-  cursor_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
-  cursor_transform = meta_cursor_sprite_get_texture_transform (cursor_sprite);
-  src_rect = meta_cursor_sprite_get_viewport_src_rect (cursor_sprite);
+  cursor_scale = clutter_cursor_get_texture_scale (cursor);
+  cursor_transform = clutter_cursor_get_texture_transform (cursor);
+  src_rect = clutter_cursor_get_viewport_src_rect (cursor);
 
-  if (meta_cursor_sprite_get_viewport_dst_size (cursor_sprite,
-                                                &dst_width,
-                                                &dst_height))
+  if (clutter_cursor_get_viewport_dst_size (cursor,
+                                            &dst_width,
+                                            &dst_height))
     {
       float cursor_scale_x, cursor_scale_y;
       float scaled_hotspot_x, scaled_hotspot_y;

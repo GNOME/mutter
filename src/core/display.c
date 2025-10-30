@@ -900,7 +900,7 @@ meta_display_new (MetaContext  *context,
 
   display->compositor = create_compositor (display);
 
-  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
 
   display->stack = meta_stack_new (display);
   display->stack_tracker = meta_stack_tracker_new (display->stack);
@@ -1561,7 +1561,7 @@ meta_display_notify_window_created (MetaDisplay  *display,
 void
 meta_display_reload_cursor (MetaDisplay *display)
 {
-  MetaCursor cursor = display->current_cursor;
+  ClutterCursorType cursor = display->current_cursor;
   MetaCursorSpriteXcursor *sprite_xcursor;
   MetaBackend *backend = backend_from_display (display);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
@@ -1575,8 +1575,8 @@ meta_display_reload_cursor (MetaDisplay *display)
 }
 
 void
-meta_display_set_cursor (MetaDisplay *display,
-                         MetaCursor   cursor)
+meta_display_set_cursor (MetaDisplay       *display,
+                         ClutterCursorType  cursor)
 {
   if (cursor == display->current_cursor)
     return;

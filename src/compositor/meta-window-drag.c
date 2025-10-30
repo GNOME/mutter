@@ -307,7 +307,7 @@ clear_move_resize_later (MetaWindowDrag *window_drag)
     }
 }
 
-static MetaCursor
+static ClutterCursorType
 meta_cursor_for_grab_op (MetaGrabOp op)
 {
   op &= ~(META_GRAB_OP_WINDOW_FLAG_UNCONSTRAINED);
@@ -316,55 +316,55 @@ meta_cursor_for_grab_op (MetaGrabOp op)
     {
     case META_GRAB_OP_RESIZING_SE:
     case META_GRAB_OP_KEYBOARD_RESIZING_SE:
-      return META_CURSOR_SE_RESIZE;
+      return CLUTTER_CURSOR_SE_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_S:
     case META_GRAB_OP_KEYBOARD_RESIZING_S:
-      return META_CURSOR_S_RESIZE;
+      return CLUTTER_CURSOR_S_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_SW:
     case META_GRAB_OP_KEYBOARD_RESIZING_SW:
-      return META_CURSOR_SW_RESIZE;
+      return CLUTTER_CURSOR_SW_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_N:
     case META_GRAB_OP_KEYBOARD_RESIZING_N:
-      return META_CURSOR_N_RESIZE;
+      return CLUTTER_CURSOR_N_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_NE:
     case META_GRAB_OP_KEYBOARD_RESIZING_NE:
-      return META_CURSOR_NE_RESIZE;
+      return CLUTTER_CURSOR_NE_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_NW:
     case META_GRAB_OP_KEYBOARD_RESIZING_NW:
-      return META_CURSOR_NW_RESIZE;
+      return CLUTTER_CURSOR_NW_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_W:
     case META_GRAB_OP_KEYBOARD_RESIZING_W:
-      return META_CURSOR_W_RESIZE;
+      return CLUTTER_CURSOR_W_RESIZE;
       break;
     case META_GRAB_OP_RESIZING_E:
     case META_GRAB_OP_KEYBOARD_RESIZING_E:
-      return META_CURSOR_E_RESIZE;
+      return CLUTTER_CURSOR_E_RESIZE;
       break;
     case META_GRAB_OP_MOVING:
-      return META_CURSOR_DEFAULT;
+      return CLUTTER_CURSOR_DEFAULT;
       break;
     case META_GRAB_OP_KEYBOARD_MOVING:
     case META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN:
-      return META_CURSOR_MOVE;
+      return CLUTTER_CURSOR_MOVE;
       break;
     default:
       break;
     }
 
-  return META_CURSOR_DEFAULT;
+  return CLUTTER_CURSOR_DEFAULT;
 }
 
 static void
 meta_window_drag_update_cursor (MetaWindowDrag *window_drag)
 {
   MetaDisplay *display;
-  MetaCursor cursor;
+  ClutterCursorType cursor;
 
   display = meta_window_get_display (window_drag->effective_grab_window);
 
@@ -405,7 +405,7 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
   g_clear_signal_handler (&window_drag->unmanaged_id, grab_window);
   g_clear_signal_handler (&window_drag->size_changed_id, grab_window);
 
-  meta_display_set_cursor (display, META_CURSOR_DEFAULT);
+  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
 
   clear_move_resize_later (window_drag);
 

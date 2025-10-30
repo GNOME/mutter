@@ -109,7 +109,7 @@ MetaWaylandSurface * meta_wayland_pointer_get_implicit_grab_surface (MetaWayland
 MetaWaylandPointerClient * meta_wayland_pointer_get_focus_client (MetaWaylandPointer *pointer);
 
 void meta_wayland_pointer_set_cursor_shape (MetaWaylandPointer *pointer,
-                                            MetaCursor          shape);
+                                            ClutterCursorType   shape);
 
 gboolean meta_wayland_pointer_check_focus_serial (MetaWaylandPointer *pointer,
                                                   struct wl_client   *client,

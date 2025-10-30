@@ -21,6 +21,7 @@
 
 #include "backends/meta-sprite.h"
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-tracker-private.h"
 
 #include "clutter/clutter-sprite-private.h"
 
@@ -88,12 +89,45 @@ meta_sprite_get_property (GObject    *object,
 }
 
 static void
+meta_sprite_update_cursor (ClutterSprite *sprite,
+                           ClutterCursor *cursor)
+{
+  MetaSprite *meta_sprite = META_SPRITE (sprite);
+  MetaSpritePrivate *priv = meta_sprite_get_instance_private (meta_sprite);
+  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (cursor);
+  MetaCursorRenderer *cursor_renderer;
+
+  cursor_renderer = meta_backend_get_cursor_renderer_for_sprite (priv->backend,
+                                                                 sprite);
+  if (!cursor_renderer)
+    return;
+
+  if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_POINTER)
+    {
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (priv->backend);
+
+      if (cursor)
+        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
+      else
+        meta_cursor_tracker_unset_window_cursor (cursor_tracker);
+    }
+  else
+    {
+      meta_cursor_renderer_set_cursor (cursor_renderer, cursor_sprite);
+    }
+}
+
+static void
 meta_sprite_class_init (MetaSpriteClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterSpriteClass *sprite_class = CLUTTER_SPRITE_CLASS (klass);
 
   object_class->set_property = meta_sprite_set_property;
   object_class->get_property = meta_sprite_get_property;
+
+  sprite_class->update_cursor = meta_sprite_update_cursor;
 
   props[PROP_BACKEND] =
     g_param_spec_object ("backend", NULL, NULL,
