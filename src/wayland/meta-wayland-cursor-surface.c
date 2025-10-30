@@ -347,13 +347,13 @@ meta_wayland_cursor_surface_class_init (MetaWaylandCursorSurfaceClass *klass)
   object_class->dispose = meta_wayland_cursor_surface_dispose;
 }
 
-MetaCursorSprite *
-meta_wayland_cursor_surface_get_sprite (MetaWaylandCursorSurface *cursor_surface)
+ClutterCursor *
+meta_wayland_cursor_surface_get_cursor (MetaWaylandCursorSurface *cursor_surface)
 {
   MetaWaylandCursorSurfacePrivate *priv =
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
 
-  return META_CURSOR_SPRITE (priv->cursor_sprite);
+  return CLUTTER_CURSOR (priv->cursor_sprite);
 }
 
 void
@@ -389,7 +389,7 @@ meta_wayland_cursor_surface_get_hotspot (MetaWaylandCursorSurface *cursor_surfac
 
 static void
 on_cursor_painted (MetaCursorRenderer       *renderer,
-                   MetaCursorSprite         *displayed_sprite,
+                   ClutterCursor            *displayed_cursor,
                    ClutterStageView         *stage_view,
                    int64_t                   view_frame_counter,
                    MetaWaylandCursorSurface *cursor_surface)
@@ -406,7 +406,7 @@ on_cursor_painted (MetaCursorRenderer       *renderer,
   MetaWaylandCompositor *compositor =
     meta_context_get_wayland_compositor (context);
 
-  if (displayed_sprite != META_CURSOR_SPRITE (priv->cursor_sprite))
+  if (displayed_cursor != CLUTTER_CURSOR (priv->cursor_sprite))
     return;
 
   while (!wl_list_empty (&priv->frame_callbacks))

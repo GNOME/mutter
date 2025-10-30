@@ -1210,24 +1210,24 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 
   if (surface)
     {
-      g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
+      g_autoptr (ClutterCursor) cursor = NULL;
 
       if (pointer->cursor_surface)
         {
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (pointer->cursor_surface->role);
 
-          g_set_object (&cursor_sprite,
-                        meta_wayland_cursor_surface_get_sprite (cursor_surface));
+          g_set_object (&cursor,
+                        meta_wayland_cursor_surface_get_cursor (cursor_surface));
         }
       else if (pointer->cursor_shape != CLUTTER_CURSOR_INHERIT)
         {
-          cursor_sprite =
-            META_CURSOR_SPRITE (clutter_backend_get_cursor (clutter_backend,
-                                                            pointer->cursor_shape));
+          cursor = clutter_backend_get_cursor (clutter_backend,
+                                               pointer->cursor_shape);
         }
 
-      meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
+      meta_cursor_tracker_set_window_cursor (cursor_tracker,
+                                             META_CURSOR_SPRITE (cursor));
     }
   else
     {
@@ -1344,7 +1344,7 @@ pointer_set_cursor (struct wl_client *client,
         meta_backend_get_cursor_renderer_for_sprite (backend,
                                                      clutter_sprite);
       MetaWaylandCursorSurface *cursor_surface;
-      MetaCursorSprite *cursor_sprite;
+      ClutterCursor *cursor;
 
       cursor_surface = META_WAYLAND_CURSOR_SURFACE (surface->role);
       meta_wayland_cursor_surface_set_renderer (cursor_surface,
@@ -1366,8 +1366,8 @@ pointer_set_cursor (struct wl_client *client,
       meta_wayland_cursor_surface_set_hotspot (cursor_surface,
                                                hot_x, hot_y);
 
-      cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
-      clutter_cursor_invalidate (CLUTTER_CURSOR (cursor_sprite));
+      cursor = meta_wayland_cursor_surface_get_cursor (cursor_surface);
+      clutter_cursor_invalidate (cursor);
     }
 
   meta_wayland_pointer_set_cursor_surface (pointer, surface);
