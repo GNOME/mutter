@@ -522,12 +522,11 @@ meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (MetaScreenCastStre
 void
 meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
                                                         struct spa_meta_cursor  *spa_meta_cursor,
-                                                        MetaCursorSprite        *cursor_sprite,
+                                                        ClutterCursor           *cursor,
                                                         int                      x,
                                                         int                      y,
                                                         float                    view_scale)
 {
-  ClutterCursor *cursor = CLUTTER_CURSOR (cursor_sprite);
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;
   int hotspot_x, hotspot_y;

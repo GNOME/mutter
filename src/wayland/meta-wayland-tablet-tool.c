@@ -146,8 +146,7 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
       g_set_object (&cursor, CLUTTER_CURSOR (tool->default_sprite));
     }
 
-  meta_cursor_renderer_set_cursor (tool->cursor_renderer,
-                                   META_CURSOR_SPRITE (cursor));
+  meta_cursor_renderer_set_cursor (tool->cursor_renderer, cursor);
 }
 
 static void

@@ -64,8 +64,8 @@ typedef struct _MetaCursorTrackerPrivate
   float x;
   float y;
 
-  MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
-  MetaCursorSprite *displayed_cursor;
+  ClutterCursor *effective_cursor; /* May be NULL when hidden */
+  ClutterCursor *displayed_cursor;
 
   /* Wayland clients can set a NULL buffer as their cursor
    * explicitly, which means that we shouldn't display anything.
@@ -73,9 +73,9 @@ typedef struct _MetaCursorTrackerPrivate
    * determine an unset window cursor; we need an extra boolean.
    */
   gboolean has_window_cursor;
-  MetaCursorSprite *window_cursor;
+  ClutterCursor *window_cursor;
 
-  MetaCursorSprite *root_cursor;
+  ClutterCursor *root_cursor;
 } MetaCursorTrackerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
@@ -99,7 +99,7 @@ meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker)
 }
 
 static void
-cursor_texture_updated (MetaCursorSprite  *cursor,
+cursor_texture_updated (ClutterCursor     *cursor,
                         MetaCursorTracker *tracker)
 {
   g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
@@ -112,15 +112,14 @@ update_displayed_cursor (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
   MetaContext *context = meta_backend_get_context (priv->backend);
   MetaDisplay *display = meta_context_get_display (context);
-  MetaCursorSprite *cursor_sprite = NULL;
-  ClutterCursor *cursor;
+  ClutterCursor *cursor = NULL;
 
   if (display && !meta_display_is_grabbed (display) && priv->has_window_cursor)
-    cursor_sprite = priv->window_cursor;
+    cursor = priv->window_cursor;
   else
-    cursor_sprite = priv->root_cursor;
+    cursor = priv->root_cursor;
 
-  if (priv->displayed_cursor == cursor_sprite)
+  if (priv->displayed_cursor == cursor)
     return FALSE;
 
   if (priv->displayed_cursor)
@@ -130,11 +129,10 @@ update_displayed_cursor (MetaCursorTracker *tracker)
                                             tracker);
     }
 
-  g_set_object (&priv->displayed_cursor, cursor_sprite);
+  g_set_object (&priv->displayed_cursor, cursor);
 
-  if (cursor_sprite)
+  if (cursor)
     {
-      cursor = CLUTTER_CURSOR (cursor_sprite);
       clutter_cursor_invalidate (cursor);
       g_signal_connect (cursor, "texture-changed",
                         G_CALLBACK (cursor_texture_updated), tracker);
@@ -148,7 +146,7 @@ update_effective_cursor (MetaCursorTracker *tracker)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
-  MetaCursorSprite *cursor = NULL;
+  ClutterCursor *cursor = NULL;
 
   if (meta_cursor_tracker_get_pointer_visible (tracker))
     cursor = priv->displayed_cursor;
@@ -206,7 +204,7 @@ meta_cursor_tracker_real_set_force_track_position (MetaCursorTracker *tracker,
 {
 }
 
-static MetaCursorSprite *
+static ClutterCursor *
 meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
 {
   MetaCursorTrackerPrivate *priv =
@@ -376,14 +374,12 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 static void
 set_window_cursor (MetaCursorTracker *tracker,
                    gboolean           has_cursor,
-                   MetaCursorSprite  *cursor_sprite)
+                   ClutterCursor     *cursor)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  g_clear_object (&priv->window_cursor);
-  if (cursor_sprite)
-    priv->window_cursor = g_object_ref (cursor_sprite);
+  g_set_object (&priv->window_cursor, cursor);
   priv->has_window_cursor = has_cursor;
   sync_cursor (tracker);
 }
@@ -408,15 +404,13 @@ meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker)
 CoglTexture *
 meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 {
-  MetaCursorSprite *cursor_sprite;
   ClutterCursor *cursor;
 
-  cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
+  cursor = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
-  if (!cursor_sprite)
+  if (!cursor)
     return NULL;
 
-  cursor = CLUTTER_CURSOR (cursor_sprite);
   clutter_cursor_realize_texture (cursor);
   return clutter_cursor_get_texture (cursor, NULL, NULL);
 }
@@ -432,15 +426,13 @@ meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 float
 meta_cursor_tracker_get_scale (MetaCursorTracker *tracker)
 {
-  MetaCursorSprite *cursor_sprite;
   ClutterCursor *cursor;
 
-  cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
+  cursor = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
-  if (!cursor_sprite)
+  if (!cursor)
     return 1.0;
 
-  cursor = CLUTTER_CURSOR (cursor_sprite);
   return clutter_cursor_get_texture_scale (cursor);
 }
 
@@ -457,17 +449,15 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
                              int               *x,
                              int               *y)
 {
-  MetaCursorSprite *cursor_sprite;
   ClutterCursor *cursor;
 
   g_return_if_fail (META_IS_CURSOR_TRACKER (tracker));
 
-  cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
+  cursor = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
-  if (cursor_sprite)
+  if (cursor)
     {
       G_GNUC_UNUSED CoglTexture *texture = NULL;
-      cursor = CLUTTER_CURSOR (cursor_sprite);
       clutter_cursor_get_texture (cursor, x, y);
     }
   else
@@ -481,9 +471,9 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
 
 void
 meta_cursor_tracker_set_window_cursor (MetaCursorTracker *tracker,
-                                       MetaCursorSprite  *cursor_sprite)
+                                       ClutterCursor     *cursor)
 {
-  set_window_cursor (tracker, TRUE, cursor_sprite);
+  set_window_cursor (tracker, TRUE, cursor);
 }
 
 void
@@ -495,23 +485,20 @@ meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker)
 /**
  * meta_cursor_tracker_set_root_cursor:
  * @tracker: a #MetaCursorTracker object.
- * @cursor_sprite: (transfer none) (nullable): the new root cursor
+ * @cursor: (transfer none) (nullable): the new root cursor
  *
  * Sets the root cursor (the cursor that is shown if not modified by a window).
  * The #MetaCursorTracker will take a strong reference to the sprite.
  */
 void
 meta_cursor_tracker_set_root_cursor (MetaCursorTracker *tracker,
-                                     MetaCursorSprite  *cursor_sprite)
+                                     ClutterCursor     *cursor)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  g_clear_object (&priv->root_cursor);
-  if (cursor_sprite)
-    priv->root_cursor = g_object_ref (cursor_sprite);
-
-  sync_cursor (tracker);
+  if (g_set_object (&priv->root_cursor, cursor))
+    sync_cursor (tracker);
 }
 
 void

@@ -222,7 +222,7 @@ on_drag_focus_destroyed (MetaWaylandSurface  *surface,
 
 static void
 meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
-                                   ClutterCursorType    cursor)
+                                   ClutterCursorType    cursor_type)
 {
   MetaWaylandCompositor *compositor =
     meta_wayland_seat_get_compositor (drag_grab->seat);
@@ -230,7 +230,7 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
-  g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
+  g_autoptr (ClutterCursor) cursor = NULL;
   MetaCursorRenderer *cursor_renderer;
 
 #ifdef HAVE_XWAYLAND
@@ -239,18 +239,18 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
     return;
 #endif
 
-  cursor_sprite =
-    META_CURSOR_SPRITE (meta_cursor_sprite_xcursor_new (cursor, cursor_tracker));
+  cursor =
+    CLUTTER_CURSOR (meta_cursor_sprite_xcursor_new (cursor_type, cursor_tracker));
 
   cursor_renderer =
     meta_backend_get_cursor_renderer_for_sprite (backend, drag_grab->sprite);
 
-  if (cursor_renderer && cursor_sprite)
+  if (cursor_renderer && cursor)
     {
       if (cursor_renderer == meta_backend_get_cursor_renderer (backend))
-        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
+        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor);
       else
-        meta_cursor_renderer_set_cursor (cursor_renderer, cursor_sprite);
+        meta_cursor_renderer_set_cursor (cursor_renderer, cursor);
     }
 }
 

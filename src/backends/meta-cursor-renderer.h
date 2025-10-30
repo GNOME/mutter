@@ -50,32 +50,32 @@ struct _MetaCursorRendererClass
   GObjectClass parent_class;
 
   gboolean (* update_cursor) (MetaCursorRenderer *renderer,
-                              MetaCursorSprite   *cursor_sprite);
+                              ClutterCursor      *cursor);
 };
 
 MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend   *backend,
                                                ClutterSprite *sprite);
 
 void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
-                                      MetaCursorSprite   *cursor_sprite);
+                                      ClutterCursor      *cursor);
 
 void meta_cursor_renderer_update_position (MetaCursorRenderer *renderer);
 void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
 META_EXPORT_TEST
-MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
+ClutterCursor * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
 
 graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
-                                                     MetaCursorSprite   *cursor_sprite);
+                                                     ClutterCursor      *cursor);
 
 void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
-                                        MetaCursorSprite   *cursor_sprite,
+                                        ClutterCursor      *cursor,
                                         ClutterStageView   *stage_view,
                                         int64_t             view_frame_counter);
 
 ClutterSprite * meta_cursor_renderer_get_sprite (MetaCursorRenderer *renderer);
 
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
-                                                MetaCursorSprite   *cursor_sprite);
+                                                ClutterCursor      *cursor);
 
 MetaBackend * meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer);

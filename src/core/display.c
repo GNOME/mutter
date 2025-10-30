@@ -1568,7 +1568,7 @@ meta_display_reload_cursor (MetaDisplay *display)
 
   sprite_xcursor = meta_cursor_sprite_xcursor_new (cursor, cursor_tracker);
   meta_cursor_tracker_set_root_cursor (cursor_tracker,
-                                       META_CURSOR_SPRITE (sprite_xcursor));
+                                       CLUTTER_CURSOR (sprite_xcursor));
   g_object_unref (sprite_xcursor);
 
   g_signal_emit (display, display_signals[CURSOR_UPDATED], 0, display);

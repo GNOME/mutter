@@ -1226,8 +1226,7 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
                                                pointer->cursor_shape);
         }
 
-      meta_cursor_tracker_set_window_cursor (cursor_tracker,
-                                             META_CURSOR_SPRITE (cursor));
+      meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor);
     }
   else
     {

@@ -47,7 +47,7 @@ meta_test_cursor_force_disable (void)
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (test_context);
   g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
-  MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
   g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
   MetaVirtualMonitor *virtual_monitor;
   ClutterSeat *seat;
@@ -79,12 +79,12 @@ meta_test_cursor_force_disable (void)
 
   while (TRUE)
     {
-      cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
-      if (cursor_sprite)
+      cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+      if (cursor)
         break;
       g_main_context_iteration (NULL, TRUE);
     }
-  g_assert_nonnull (cursor_sprite);
+  g_assert_nonnull (cursor);
 }
 
 static void

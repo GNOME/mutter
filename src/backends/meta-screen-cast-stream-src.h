@@ -160,7 +160,7 @@ void meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (MetaScreenCas
 
 void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
                                                              struct spa_meta_cursor  *spa_meta_cursor,
-                                                             MetaCursorSprite        *cursor_sprite,
+                                                             ClutterCursor           *cursor,
                                                              int                      x,
                                                              int                      y,
                                                              float                    view_scale);

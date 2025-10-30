@@ -54,7 +54,7 @@ meta_test_cursor_hotplug (void)
     meta_context_get_wayland_compositor (test_context);
   MetaWaylandSeat *wayland_seat = wayland_compositor->seat;
   g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
-  MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
   g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
   MetaVirtualMonitor *virtual_monitor;
   ClutterSeat *seat;
@@ -108,12 +108,12 @@ meta_test_cursor_hotplug (void)
 
   while (TRUE)
     {
-      cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
-      if (cursor_sprite)
+      cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+      if (cursor)
         break;
       g_main_context_iteration (NULL, TRUE);
     }
-  g_assert_true (META_IS_CURSOR_SPRITE_WAYLAND (cursor_sprite));
+  g_assert_true (META_IS_CURSOR_SPRITE_WAYLAND (cursor));
 
   /*
    * This tests a particular series of events:
@@ -160,7 +160,7 @@ meta_test_hotplug_multi_view_invalidation (void)
   g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
   MetaVirtualMonitor *virtual_monitor;
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
-  MetaCursorSprite *cursor_sprite;
+  ClutterCursor *cursor;
   gboolean texture_changed;
   gulong texture_changed_handler_id;
   g_autoptr (GError) error = NULL;
@@ -186,10 +186,10 @@ meta_test_hotplug_multi_view_invalidation (void)
 
   meta_wait_for_paint (test_context);
 
-  cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
-  g_assert_nonnull (cursor_sprite);
+  cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
+  g_assert_nonnull (cursor);
   texture_changed_handler_id =
-    g_signal_connect_swapped (cursor_sprite, "texture-changed",
+    g_signal_connect_swapped (cursor, "texture-changed",
                               G_CALLBACK (set_true_cb), &texture_changed);
 
   /* Trigger a cursor scale change, that causes invalidation on a non-first
@@ -204,7 +204,7 @@ meta_test_hotplug_multi_view_invalidation (void)
   g_assert_true (META_IS_CRTC_VIRTUAL (meta_renderer_view_get_crtc (views->next->data)));
   g_assert_true (texture_changed);
 
-  g_signal_handler_disconnect (cursor_sprite, texture_changed_handler_id);
+  g_signal_handler_disconnect (cursor, texture_changed_handler_id);
   g_clear_object (&virtual_monitor);
   meta_wait_for_monitors_changed (test_context);
   meta_wait_for_paint (test_context);

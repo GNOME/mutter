@@ -31,14 +31,14 @@ struct _MetaCursorTrackerClass
 
   void (* set_force_track_position) (MetaCursorTracker *tracker,
                                      gboolean           is_enabled);
-  MetaCursorSprite * (* get_sprite) (MetaCursorTracker *tracker);
+  ClutterCursor * (* get_sprite) (MetaCursorTracker *tracker);
 };
 
 void     meta_cursor_tracker_set_window_cursor   (MetaCursorTracker *tracker,
-                                                  MetaCursorSprite  *cursor_sprite);
+                                                  ClutterCursor     *cursor);
 void     meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker);
 void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker *tracker,
-                                                  MetaCursorSprite  *cursor_sprite);
+                                                  ClutterCursor     *cursor);
 
 void     meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker);
 

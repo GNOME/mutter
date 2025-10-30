@@ -94,7 +94,6 @@ meta_sprite_update_cursor (ClutterSprite *sprite,
 {
   MetaSprite *meta_sprite = META_SPRITE (sprite);
   MetaSpritePrivate *priv = meta_sprite_get_instance_private (meta_sprite);
-  MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (cursor);
   MetaCursorRenderer *cursor_renderer;
 
   cursor_renderer = meta_backend_get_cursor_renderer_for_sprite (priv->backend,
@@ -108,13 +107,13 @@ meta_sprite_update_cursor (ClutterSprite *sprite,
         meta_backend_get_cursor_tracker (priv->backend);
 
       if (cursor)
-        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);
+        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor);
       else
         meta_cursor_tracker_unset_window_cursor (cursor_tracker);
     }
   else
     {
-      meta_cursor_renderer_set_cursor (cursor_renderer, cursor_sprite);
+      meta_cursor_renderer_set_cursor (cursor_renderer, cursor);
     }
 }
 

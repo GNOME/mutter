@@ -1351,7 +1351,7 @@ meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast
 
 static gboolean
 meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_window,
-                                             MetaCursorSprite     *cursor_sprite,
+                                             ClutterCursor        *cursor,
                                              graphene_point_t     *cursor_position,
                                              graphene_point_t     *out_relative_cursor_position,
                                              float                *out_view_scale)

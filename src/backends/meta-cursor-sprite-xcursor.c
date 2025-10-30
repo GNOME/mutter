@@ -79,9 +79,9 @@ sprite_key_equal (gconstpointer data1,
 static GHashTable *
 ensure_cache (MetaCursorSpriteXcursor *sprite_xcursor)
 {
-  MetaCursorSprite *sprite = META_CURSOR_SPRITE (sprite_xcursor);
+  ClutterCursor *cursor = CLUTTER_CURSOR (sprite_xcursor);
   MetaCursorTracker *cursor_tracker =
-    meta_cursor_sprite_get_cursor_tracker (sprite);
+    meta_cursor_sprite_get_cursor_tracker (META_CURSOR_SPRITE (cursor));
   GHashTable *cache;
   static GOnce quark_once = G_ONCE_INIT;
 
@@ -345,9 +345,9 @@ load_cursor_on_client (ClutterCursorType cursor,
 static void
 load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
 {
-  MetaCursorSprite *sprite = META_CURSOR_SPRITE (sprite_xcursor);
+  ClutterCursor *cursor = CLUTTER_CURSOR (sprite_xcursor);
   MetaCursorTracker *cursor_tracker =
-    meta_cursor_sprite_get_cursor_tracker (sprite);
+    meta_cursor_sprite_get_cursor_tracker (META_CURSOR_SPRITE (cursor));
   MetaBackend *backend =
     meta_cursor_tracker_get_backend (cursor_tracker);
   XcursorImage *xc_image;
@@ -604,8 +604,8 @@ ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
 }
 
 static void
-on_prefs_changed (MetaCursorSprite *cursor,
-                  gpointer          user_data)
+on_prefs_changed (ClutterCursor *cursor,
+                  gpointer       user_data)
 {
   MetaCursorSpriteXcursor *sprite_xcursor =
     META_CURSOR_SPRITE_XCURSOR (user_data);
