@@ -31,7 +31,7 @@
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
-#include "wayland/meta-cursor-sprite-wayland.h"
+#include "wayland/meta-cursor-wayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
 
@@ -113,7 +113,7 @@ meta_test_cursor_hotplug (void)
         break;
       g_main_context_iteration (NULL, TRUE);
     }
-  g_assert_true (META_IS_CURSOR_SPRITE_WAYLAND (cursor));
+  g_assert_true (META_IS_CURSOR_WAYLAND (cursor));
 
   /*
    * This tests a particular series of events:

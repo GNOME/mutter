@@ -56,7 +56,7 @@
 #include "meta/boxes.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
-#include "wayland/meta-cursor-sprite-wayland.h"
+#include "wayland/meta-cursor-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 
 static GQuark quark_cursor_sprite = 0;
@@ -1039,15 +1039,15 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
 }
 
 static gboolean
-realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer,
-                                               MetaCrtcKms             *crtc_kms,
-                                               ClutterColorState       *target_color_state,
-                                               MetaCursorSpriteWayland *sprite_wayland)
+realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer *renderer,
+                                               MetaCrtcKms        *crtc_kms,
+                                               ClutterColorState  *target_color_state,
+                                               MetaCursorWayland  *cursor_wayland)
 {
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
-  ClutterCursor *cursor = CLUTTER_CURSOR (sprite_wayland);
+  ClutterCursor *cursor = CLUTTER_CURSOR (cursor_wayland);
   MetaGpu *gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
   CoglTexture *texture;
@@ -1058,7 +1058,7 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
   if (!is_hw_cursor_available_for_gpu (gpu_kms))
     return FALSE;
 
-  buffer = meta_cursor_sprite_wayland_get_buffer (sprite_wayland);
+  buffer = meta_cursor_wayland_get_buffer (cursor_wayland);
   if (!buffer)
     return FALSE;
 
@@ -1233,15 +1233,14 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
                                                           target_color_state,
                                                           cursor_xcursor);
     }
-  else if (META_IS_CURSOR_SPRITE_WAYLAND (cursor))
+  else if (META_IS_CURSOR_WAYLAND (cursor))
     {
-      MetaCursorSpriteWayland *sprite_wayland =
-        META_CURSOR_SPRITE_WAYLAND (cursor);
+      MetaCursorWayland *cursor_wayland = META_CURSOR_WAYLAND (cursor);
 
       return realize_cursor_sprite_from_wl_buffer_for_crtc (renderer,
                                                             crtc_kms,
                                                             target_color_state,
-                                                            sprite_wayland);
+                                                            cursor_wayland);
     }
   else
     {

@@ -23,17 +23,17 @@
 #include "backends/meta-cursor.h"
 #include "wayland/meta-wayland-surface-private.h"
 
-#define META_TYPE_CURSOR_SPRITE_WAYLAND meta_cursor_sprite_wayland_get_type ()
+#define META_TYPE_CURSOR_WAYLAND meta_cursor_wayland_get_type ()
 META_EXPORT_TEST
-G_DECLARE_FINAL_TYPE (MetaCursorSpriteWayland, meta_cursor_sprite_wayland,
-                      META, CURSOR_SPRITE_WAYLAND, MetaCursorSprite)
+G_DECLARE_FINAL_TYPE (MetaCursorWayland, meta_cursor_wayland,
+                      META, CURSOR_WAYLAND, ClutterCursor)
 
-MetaCursorSpriteWayland * meta_cursor_sprite_wayland_new (MetaWaylandSurface *surface,
-                                                          MetaCursorTracker  *cursor_tracker);
+MetaCursorWayland * meta_cursor_wayland_new (MetaWaylandSurface *surface,
+                                             MetaCursorTracker  *cursor_tracker);
 
-MetaWaylandBuffer * meta_cursor_sprite_wayland_get_buffer (MetaCursorSpriteWayland *sprite_wayland);
+MetaWaylandBuffer * meta_cursor_wayland_get_buffer (MetaCursorWayland *sprite_wayland);
 
-void meta_cursor_sprite_wayland_set_texture (MetaCursorSpriteWayland *sprite_wayland,
-                                             CoglTexture             *texture,
-                                             int                      hot_x,
-                                             int                      hot_y);
+void meta_cursor_wayland_set_texture (MetaCursorWayland *sprite_wayland,
+                                      CoglTexture             *texture,
+                                      int                      hot_x,
+                                      int                      hot_y);

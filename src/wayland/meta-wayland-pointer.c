@@ -55,7 +55,7 @@
 #include "cogl/cogl.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "meta/meta-cursor-tracker.h"
-#include "wayland/meta-cursor-sprite-wayland.h"
+#include "wayland/meta-cursor-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-cursor-surface.h"
 #include "wayland/meta-wayland-data-device.h"

@@ -25,7 +25,7 @@
 #include "backends/meta-logical-monitor-private.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
-#include "wayland/meta-cursor-sprite-wayland.h"
+#include "wayland/meta-cursor-wayland.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-presentation-time-private.h"
 #include "wayland/meta-wayland-private.h"
@@ -36,7 +36,7 @@ struct _MetaWaylandCursorSurfacePrivate
 {
   int hot_x;
   int hot_y;
-  MetaCursorSpriteWayland *cursor_sprite;
+  MetaCursorWayland *cursor_sprite;
   MetaCursorRenderer *cursor_renderer;
   MetaWaylandBuffer *buffer;
   struct wl_list frame_callbacks;
@@ -86,14 +86,14 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
           hotspot_scale_y = surface->applied_state.scale;
         }
 
-      meta_cursor_sprite_wayland_set_texture (priv->cursor_sprite,
-                                              meta_multi_texture_get_plane (texture, 0),
-                                              (int) roundf (priv->hot_x * hotspot_scale_x),
-                                              (int) roundf (priv->hot_y * hotspot_scale_y));
+      meta_cursor_wayland_set_texture (priv->cursor_sprite,
+                                       meta_multi_texture_get_plane (texture, 0),
+                                       (int) roundf (priv->hot_x * hotspot_scale_x),
+                                       (int) roundf (priv->hot_y * hotspot_scale_y));
     }
   else
     {
-      meta_cursor_sprite_wayland_set_texture (priv->cursor_sprite, NULL, 0, 0);
+      meta_cursor_wayland_set_texture (priv->cursor_sprite, NULL, 0, 0);
     }
 
   meta_cursor_renderer_force_update (priv->cursor_renderer);
@@ -314,8 +314,7 @@ meta_wayland_cursor_surface_constructed (GObject *object)
       meta_wayland_buffer_inc_use_count (priv->buffer);
     }
 
-  priv->cursor_sprite = meta_cursor_sprite_wayland_new (surface,
-                                                        cursor_tracker);
+  priv->cursor_sprite = meta_cursor_wayland_new (surface, cursor_tracker);
 }
 
 static void
