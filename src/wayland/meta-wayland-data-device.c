@@ -229,10 +229,8 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
     meta_wayland_seat_get_compositor (drag_grab->seat);
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
-  g_autoptr (ClutterCursor) cursor = NULL;
-  MetaCursorRenderer *cursor_renderer;
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterActor *grab_actor;
 
 #ifdef HAVE_XWAYLAND
   /* X11 DnD lets the drag source client drive pointer cursor updates */
@@ -240,19 +238,8 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
     return;
 #endif
 
-  cursor =
-    CLUTTER_CURSOR (meta_cursor_xcursor_new (cursor_type, cursor_tracker));
-
-  cursor_renderer =
-    meta_backend_get_cursor_renderer_for_sprite (backend, drag_grab->sprite);
-
-  if (cursor_renderer && cursor)
-    {
-      if (cursor_renderer == meta_backend_get_cursor_renderer (backend))
-        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor);
-      else
-        meta_cursor_renderer_set_cursor (cursor_renderer, cursor);
-    }
+  grab_actor = clutter_stage_get_grab_actor (stage);
+  clutter_actor_set_cursor_type (grab_actor, cursor_type);
 }
 
 static void
