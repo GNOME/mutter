@@ -100,3 +100,6 @@ MetaWaylandInput * meta_wayland_seat_get_input (MetaWaylandSeat *seat);
 
 MetaWaylandSurface * meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
                                                             ClutterFocus    *focus);
+
+ClutterCursor * meta_wayland_seat_get_cursor (MetaWaylandSeat *seat,
+                                              ClutterSprite   *sprite);

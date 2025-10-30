@@ -91,3 +91,6 @@ MetaWaylandSurface * meta_wayland_tablet_seat_get_current_surface (MetaWaylandTa
 void meta_wayland_tablet_seat_focus_surface (MetaWaylandTabletSeat *tablet_seat,
                                              ClutterInputDevice    *device,
                                              MetaWaylandSurface    *surface);
+
+ClutterCursor * meta_wayland_tablet_seat_get_cursor (MetaWaylandTabletSeat *tablet_seat,
+                                                     ClutterSprite         *sprite);

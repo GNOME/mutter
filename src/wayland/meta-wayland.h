@@ -115,6 +115,9 @@ MetaWaylandFilterManager * meta_wayland_compositor_get_filter_manager (MetaWayla
 
 void meta_wayland_compositor_sync_focus (MetaWaylandCompositor *compositor);
 
+ClutterCursor * meta_wayland_compositor_get_cursor (MetaWaylandCompositor *compositor,
+                                                    ClutterSprite         *sprite);
+
 static inline gboolean
 meta_wayland_compositor_serial_is_later (uint32_t serial1,
                                          uint32_t serial2)

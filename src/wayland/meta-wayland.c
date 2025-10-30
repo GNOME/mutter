@@ -1311,3 +1311,10 @@ meta_wayland_compositor_sync_focus (MetaWaylandCompositor *compositor)
   meta_wayland_compositor_update_focus (compositor,
                                         display ? display->focus_window : NULL);
 }
+
+ClutterCursor *
+meta_wayland_compositor_get_cursor (MetaWaylandCompositor *compositor,
+                                    ClutterSprite         *sprite)
+{
+  return meta_wayland_seat_get_cursor (compositor->seat, sprite);
+}

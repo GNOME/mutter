@@ -70,3 +70,6 @@ void meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
 gboolean meta_wayland_tablet_tool_check_focus_serial (MetaWaylandTabletTool *tool,
                                                       struct wl_client      *client,
                                                       uint32_t               serial);
+
+ClutterCursor * meta_wayland_tablet_tool_get_cursor (MetaWaylandTabletTool *tool,
+                                                     ClutterSprite         *sprite);

@@ -644,3 +644,23 @@ meta_wayland_tablet_seat_focus_surface (MetaWaylandTabletSeat *tablet_seat,
         meta_wayland_tablet_tool_focus_surface (tool, surface);
     }
 }
+
+ClutterCursor *
+meta_wayland_tablet_seat_get_cursor (MetaWaylandTabletSeat *tablet_seat,
+                                     ClutterSprite         *sprite)
+{
+  MetaWaylandTabletTool *tool;
+  GHashTableIter iter;
+
+  g_hash_table_iter_init (&iter, tablet_seat->tools);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &tool))
+    {
+      ClutterCursor *cursor;
+
+      cursor = meta_wayland_tablet_tool_get_cursor (tool, sprite);
+      if (cursor)
+        return cursor;
+    }
+
+  return NULL;
+}

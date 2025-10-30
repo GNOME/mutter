@@ -29,6 +29,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-screen-cast-window.h"
+#include "compositor/compositor-private.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "wayland/meta-wayland-buffer.h"
@@ -257,6 +258,23 @@ out:
   parent_class->apply_transform (actor, matrix);
 }
 
+static ClutterCursor *
+meta_surface_actor_wayland_get_cursor_for_sprite (ClutterActor  *actor,
+                                                  ClutterSprite *sprite)
+{
+  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
+  MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (self);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_wayland_surface_get_compositor (surface);
+  ClutterCursor *cursor;
+
+  cursor = meta_wayland_compositor_get_cursor (wayland_compositor, sprite);
+  if (!cursor)
+    return NULL;
+
+  return g_object_ref (cursor);
+}
+
 static void
 on_surface_disposed (gpointer user_data,
                      GObject *destroyed_object)
@@ -301,6 +319,8 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
   actor_class->apply_transform = meta_surface_actor_wayland_apply_transform;
+  actor_class->get_cursor_for_sprite =
+    meta_surface_actor_wayland_get_cursor_for_sprite;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
 }

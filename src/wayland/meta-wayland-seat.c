@@ -709,3 +709,17 @@ meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
 
   return NULL;
 }
+
+ClutterCursor *
+meta_wayland_seat_get_cursor (MetaWaylandSeat *seat,
+                              ClutterSprite   *sprite)
+{
+  ClutterSpriteRole role = clutter_sprite_get_role (sprite);
+
+  if (role == CLUTTER_SPRITE_ROLE_POINTER)
+    return meta_wayland_pointer_get_cursor (seat->pointer);
+  else if (role == CLUTTER_SPRITE_ROLE_TABLET)
+    return meta_wayland_tablet_seat_get_cursor (seat->tablet_seat, sprite);
+  else
+    return NULL;
+}
