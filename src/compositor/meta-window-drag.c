@@ -363,13 +363,19 @@ meta_cursor_for_grab_op (MetaGrabOp op)
 static void
 meta_window_drag_update_cursor (MetaWindowDrag *window_drag)
 {
-  MetaDisplay *display;
+  MetaDisplay *display =
+    meta_window_get_display (window_drag->effective_grab_window);
+  MetaContext *context = meta_display_get_context (display);
+  MetaBackend *backend = meta_context_get_backend (context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterCursorType cursor;
+  ClutterActor *grab_actor;
 
   display = meta_window_get_display (window_drag->effective_grab_window);
 
   cursor = meta_cursor_for_grab_op (window_drag->grab_op);
-  meta_display_set_cursor (display, cursor);
+  grab_actor = clutter_stage_get_grab_actor (stage);
+  clutter_actor_set_cursor_type (grab_actor, cursor);
 }
 
 void
@@ -404,8 +410,6 @@ meta_window_drag_end (MetaWindowDrag *window_drag)
 
   g_clear_signal_handler (&window_drag->unmanaged_id, grab_window);
   g_clear_signal_handler (&window_drag->size_changed_id, grab_window);
-
-  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
 
   clear_move_resize_later (window_drag);
 
