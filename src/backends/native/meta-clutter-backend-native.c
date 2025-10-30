@@ -41,6 +41,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-seat-native.h"
@@ -308,6 +309,16 @@ meta_clutter_backend_native_get_key_focus (ClutterBackend *clutter_backend,
   return clutter_backend_native->key_focus;
 }
 
+static ClutterCursor *
+meta_clutter_backend_native_get_cursor (ClutterBackend    *clutter_backend,
+                                        ClutterCursorType  cursor_type)
+{
+  MetaClutterBackendNative *clutter_backend_native =
+    META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+
+  return meta_backend_get_cursor (clutter_backend_native->backend, cursor_type);
+}
+
 static void
 meta_clutter_backend_native_constructed (GObject *object)
 {
@@ -357,6 +368,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->destroy_sprite = meta_clutter_backend_native_destroy_sprite;
   clutter_backend_class->foreach_sprite = meta_clutter_backend_native_foreach_sprite;
   clutter_backend_class->get_key_focus = meta_clutter_backend_native_get_key_focus;
+  clutter_backend_class->get_cursor = meta_clutter_backend_native_get_cursor;
 }
 
 MetaClutterBackendNative *
