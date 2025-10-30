@@ -35,7 +35,7 @@
 #include <unistd.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-cursor-sprite-xcursor.h"
+#include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-input-capture.h"
 #include "backends/meta-input-device-private.h"
@@ -1562,14 +1562,13 @@ void
 meta_display_reload_cursor (MetaDisplay *display)
 {
   ClutterCursorType cursor = display->current_cursor;
-  MetaCursorSpriteXcursor *sprite_xcursor;
+  g_autoptr (MetaCursorXcursor) cursor_xcursor = NULL;
   MetaBackend *backend = backend_from_display (display);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
-  sprite_xcursor = meta_cursor_sprite_xcursor_new (cursor, cursor_tracker);
+  cursor_xcursor = meta_cursor_xcursor_new (cursor, cursor_tracker);
   meta_cursor_tracker_set_root_cursor (cursor_tracker,
-                                       CLUTTER_CURSOR (sprite_xcursor));
-  g_object_unref (sprite_xcursor);
+                                       CLUTTER_CURSOR (cursor_xcursor));
 
   g_signal_emit (display, display_signals[CURSOR_UPDATED], 0, display);
 }

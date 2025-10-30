@@ -34,6 +34,7 @@
 
 #include "backends/meta-dnd-private.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-cursor-xcursor.h"
 #include "compositor/meta-dnd-actor-private.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-drag.h"
@@ -240,7 +241,7 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
 #endif
 
   cursor =
-    CLUTTER_CURSOR (meta_cursor_sprite_xcursor_new (cursor_type, cursor_tracker));
+    CLUTTER_CURSOR (meta_cursor_xcursor_new (cursor_type, cursor_tracker));
 
   cursor_renderer =
     meta_backend_get_cursor_renderer_for_sprite (backend, drag_grab->sprite);

@@ -41,7 +41,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-cursor-sprite-xcursor.h"
+#include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-seat-native.h"

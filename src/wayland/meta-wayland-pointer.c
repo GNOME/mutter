@@ -49,6 +49,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-cursor.h"
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
@@ -103,7 +104,7 @@ struct _MetaWaylandPointer
   gulong cursor_surface_destroy_id;
 
   ClutterCursorType cursor_shape;
-  MetaCursorSpriteXcursor *shape_sprite;
+  MetaCursorXcursor *shape_sprite;
 
   guint32 grab_button;
   guint32 grab_serial;

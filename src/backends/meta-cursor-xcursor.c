@@ -18,7 +18,7 @@
 
 #include "config.h"
 
-#include "backends/meta-cursor-sprite-xcursor.h"
+#include "backends/meta-cursor-xcursor.h"
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor.h"
@@ -30,16 +30,17 @@
 #include "meta/prefs.h"
 #include "meta/util.h"
 
-typedef struct _MetaCursorSpriteXcursorKey
+typedef struct _MetaCursorXcursorKey
 {
   ClutterCursorType cursor;
   int theme_scale;
-} MetaCursorSpriteXcursorKey;
+} MetaCursorXcursorKey;
 
-struct _MetaCursorSpriteXcursor
+struct _MetaCursorXcursor
 {
-  MetaCursorSprite parent;
+  ClutterCursor parent;
 
+  MetaCursorTracker *cursor_tracker;
   CoglTexture *texture;
   int hot_x;
   int hot_y;
@@ -53,46 +54,44 @@ struct _MetaCursorSpriteXcursor
   gboolean invalidated;
 };
 
-G_DEFINE_TYPE (MetaCursorSpriteXcursor, meta_cursor_sprite_xcursor,
-               META_TYPE_CURSOR_SPRITE)
+G_DEFINE_TYPE (MetaCursorXcursor, meta_cursor_xcursor,
+               CLUTTER_TYPE_CURSOR)
 
 static unsigned int
-sprite_key_hash (gconstpointer data)
+cursor_key_hash (gconstpointer data)
 {
-  const MetaCursorSpriteXcursorKey *key = data;
+  const MetaCursorXcursorKey *key = data;
 
   return key->cursor << 0  &
          key->theme_scale << 8;
 }
 
 static gboolean
-sprite_key_equal (gconstpointer data1,
+cursor_key_equal (gconstpointer data1,
                   gconstpointer data2)
 {
-  const MetaCursorSpriteXcursorKey *key1 = data1;
-  const MetaCursorSpriteXcursorKey *key2 = data2;
+  const MetaCursorXcursorKey *key1 = data1;
+  const MetaCursorXcursorKey *key2 = data2;
 
   return (key1->cursor == key2->cursor &&
           key1->theme_scale == key2->theme_scale);
 }
 
 static GHashTable *
-ensure_cache (MetaCursorSpriteXcursor *sprite_xcursor)
+ensure_cache (MetaCursorXcursor *cursor_xcursor)
 {
-  ClutterCursor *cursor = CLUTTER_CURSOR (sprite_xcursor);
-  MetaCursorTracker *cursor_tracker =
-    meta_cursor_sprite_get_cursor_tracker (META_CURSOR_SPRITE (cursor));
+  MetaCursorTracker *cursor_tracker = cursor_xcursor->cursor_tracker;
   GHashTable *cache;
   static GOnce quark_once = G_ONCE_INIT;
 
   g_once (&quark_once, (GThreadFunc) g_quark_from_static_string,
-          (gpointer) "-meta-cursor-sprite-xcursor-cache");
+          (gpointer) "-meta-cursor-xcursor-cache");
 
   cache = g_object_get_qdata (G_OBJECT (cursor_tracker),
                               GPOINTER_TO_INT (quark_once.retval));
   if (!cache)
     {
-      cache = g_hash_table_new_full (sprite_key_hash, sprite_key_equal,
+      cache = g_hash_table_new_full (cursor_key_hash, cursor_key_equal,
                                      g_free,
                                      (GDestroyNotify) xcursor_images_destroy);
 
@@ -106,9 +105,9 @@ ensure_cache (MetaCursorSpriteXcursor *sprite_xcursor)
 }
 
 static void
-drop_cache (MetaCursorSpriteXcursor *sprite_xcursor)
+drop_cache (MetaCursorXcursor *cursor_xcursor)
 {
-  GHashTable *cache = ensure_cache (sprite_xcursor);
+  GHashTable *cache = ensure_cache (cursor_xcursor);
 
   g_hash_table_remove_all (cache);
 }
@@ -301,9 +300,9 @@ create_blank_cursor_images (void)
 }
 
 ClutterCursorType
-meta_cursor_sprite_xcursor_get_cursor (MetaCursorSpriteXcursor *sprite_xcursor)
+meta_cursor_xcursor_get_cursor (MetaCursorXcursor *cursor_xcursor)
 {
-  return sprite_xcursor->cursor;
+  return cursor_xcursor->cursor;
 }
 
 static XcursorImages *
@@ -343,11 +342,9 @@ load_cursor_on_client (ClutterCursorType cursor,
 }
 
 static void
-load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
+load_from_current_xcursor_image (MetaCursorXcursor *cursor_xcursor)
 {
-  ClutterCursor *cursor = CLUTTER_CURSOR (sprite_xcursor);
-  MetaCursorTracker *cursor_tracker =
-    meta_cursor_sprite_get_cursor_tracker (META_CURSOR_SPRITE (cursor));
+  MetaCursorTracker *cursor_tracker = cursor_xcursor->cursor_tracker;
   MetaBackend *backend =
     meta_cursor_tracker_get_backend (cursor_tracker);
   XcursorImage *xc_image;
@@ -359,7 +356,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   g_autoptr (GError) error = NULL;
   int hotspot_x, hotspot_y;
 
-  xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
+  xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
   width = (int) xc_image->width;
   height = (int) xc_image->height;
   rowstride = width * 4;
@@ -382,40 +379,40 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
     g_warning ("Failed to allocate cursor texture: %s", error->message);
 
   hotspot_x = ((int) roundf ((float) xc_image->xhot /
-                              sprite_xcursor->theme_scale) *
-                sprite_xcursor->theme_scale);
+                              cursor_xcursor->theme_scale) *
+                cursor_xcursor->theme_scale);
   hotspot_y = ((int) roundf ((float) xc_image->yhot /
-                              sprite_xcursor->theme_scale) *
-                sprite_xcursor->theme_scale);
+                              cursor_xcursor->theme_scale) *
+                cursor_xcursor->theme_scale);
 
-  g_set_object (&sprite_xcursor->texture, texture);
-  sprite_xcursor->hot_x = hotspot_x;
-  sprite_xcursor->hot_y = hotspot_y;
-  clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (sprite_xcursor));
+  g_set_object (&cursor_xcursor->texture, texture);
+  cursor_xcursor->hot_x = hotspot_x;
+  cursor_xcursor->hot_y = hotspot_y;
+  clutter_cursor_emit_texture_changed (CLUTTER_CURSOR (cursor_xcursor));
 }
 
 void
-meta_cursor_sprite_xcursor_set_theme_scale (MetaCursorSpriteXcursor *sprite_xcursor,
-                                            int                      theme_scale)
+meta_cursor_xcursor_set_theme_scale (MetaCursorXcursor *cursor_xcursor,
+                                     int                theme_scale)
 {
-  if (sprite_xcursor->theme_scale == theme_scale)
+  if (cursor_xcursor->theme_scale == theme_scale)
     return;
 
-  sprite_xcursor->theme_scale = theme_scale;
-  sprite_xcursor->xcursor_images = NULL;
+  cursor_xcursor->theme_scale = theme_scale;
+  cursor_xcursor->xcursor_images = NULL;
 }
 
 void
-meta_cursor_sprite_xcursor_get_scaled_image_size (MetaCursorSpriteXcursor *sprite_xcursor,
-                                                  int                     *width,
-                                                  int                     *height)
+meta_cursor_xcursor_get_scaled_image_size (MetaCursorXcursor *cursor_xcursor,
+                                           int               *width,
+                                           int               *height)
 {
   XcursorImage *current_image;
   int theme_size;
   int image_size;
   float effective_theme_scale;
 
-  current_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
+  current_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
   theme_size = meta_prefs_get_cursor_size ();
   image_size = current_image->size;
   effective_theme_scale = (float) theme_size / image_size;
@@ -425,111 +422,110 @@ meta_cursor_sprite_xcursor_get_scaled_image_size (MetaCursorSpriteXcursor *sprit
 }
 
 static gboolean
-meta_cursor_sprite_xcursor_is_animated (ClutterCursor *cursor)
+meta_cursor_xcursor_is_animated (ClutterCursor *cursor)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
-  return (sprite_xcursor->xcursor_images &&
-          sprite_xcursor->xcursor_images->nimage > 1);
+  return (cursor_xcursor->xcursor_images &&
+          cursor_xcursor->xcursor_images->nimage > 1);
 }
 
 XcursorImage *
-meta_cursor_sprite_xcursor_get_current_image (MetaCursorSpriteXcursor *sprite_xcursor)
+meta_cursor_xcursor_get_current_image (MetaCursorXcursor *cursor_xcursor)
 {
-  return sprite_xcursor->xcursor_images->images[sprite_xcursor->current_frame];
+  return cursor_xcursor->xcursor_images->images[cursor_xcursor->current_frame];
 }
 
 static void
-meta_cursor_sprite_xcursor_tick_frame (ClutterCursor *cursor)
+meta_cursor_xcursor_tick_frame (ClutterCursor *cursor)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
   if (!clutter_cursor_is_animated (cursor))
     return;
 
-  sprite_xcursor->current_frame++;
+  cursor_xcursor->current_frame++;
 
-  if (sprite_xcursor->current_frame >= sprite_xcursor->xcursor_images->nimage)
-    sprite_xcursor->current_frame = 0;
+  if (cursor_xcursor->current_frame >= cursor_xcursor->xcursor_images->nimage)
+    cursor_xcursor->current_frame = 0;
 
-  load_from_current_xcursor_image (sprite_xcursor);
+  load_from_current_xcursor_image (cursor_xcursor);
 }
 
 static unsigned int
-meta_cursor_sprite_xcursor_get_current_frame_time (ClutterCursor *cursor)
+meta_cursor_xcursor_get_current_frame_time (ClutterCursor *cursor)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
   XcursorImages *xcursor_images;
 
   g_return_val_if_fail (clutter_cursor_is_animated (cursor), 0);
 
-  xcursor_images = sprite_xcursor->xcursor_images;
-  return xcursor_images->images[sprite_xcursor->current_frame]->delay;
+  xcursor_images = cursor_xcursor->xcursor_images;
+  return xcursor_images->images[cursor_xcursor->current_frame]->delay;
 }
 
 static gboolean
-load_cursor_from_theme (MetaCursorSpriteXcursor *sprite_xcursor)
+load_cursor_from_theme (MetaCursorXcursor *cursor_xcursor)
 {
-  GHashTable *cache = ensure_cache (sprite_xcursor);
+  GHashTable *cache = ensure_cache (cursor_xcursor);
   XcursorImages *xcursor_images;
-  MetaCursorSpriteXcursorKey key = {
-    .cursor = sprite_xcursor->cursor,
-    .theme_scale = sprite_xcursor->theme_scale,
+  MetaCursorXcursorKey key = {
+    .cursor = cursor_xcursor->cursor,
+    .theme_scale = cursor_xcursor->theme_scale,
   };
 
-  g_assert (sprite_xcursor->cursor != CLUTTER_CURSOR_INHERIT);
+  g_assert (cursor_xcursor->cursor != CLUTTER_CURSOR_INHERIT);
 
   xcursor_images = g_hash_table_lookup (cache, &key);
   if (!xcursor_images)
     {
-      xcursor_images = load_cursor_on_client (sprite_xcursor->cursor,
-                                              sprite_xcursor->theme_scale);
+      xcursor_images = load_cursor_on_client (cursor_xcursor->cursor,
+                                              cursor_xcursor->theme_scale);
 
       g_hash_table_insert (cache,
                            g_memdup2 (&key, sizeof (key)),
                            xcursor_images);
     }
 
-  if (sprite_xcursor->xcursor_images == xcursor_images)
+  if (cursor_xcursor->xcursor_images == xcursor_images)
     return FALSE;
 
-  sprite_xcursor->xcursor_images = xcursor_images;
-  sprite_xcursor->current_frame = 0;
-  load_from_current_xcursor_image (sprite_xcursor);
+  cursor_xcursor->xcursor_images = xcursor_images;
+  cursor_xcursor->current_frame = 0;
+  load_from_current_xcursor_image (cursor_xcursor);
   return TRUE;
 }
 
 static gboolean
-meta_cursor_sprite_xcursor_realize_texture (ClutterCursor *cursor)
+meta_cursor_xcursor_realize_texture (ClutterCursor *cursor)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
-  gboolean retval = sprite_xcursor->invalidated;
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+  gboolean retval = cursor_xcursor->invalidated;
 
-  if (load_cursor_from_theme (sprite_xcursor))
+  if (load_cursor_from_theme (cursor_xcursor))
     retval = TRUE;
 
-  sprite_xcursor->invalidated = FALSE;
+  cursor_xcursor->invalidated = FALSE;
 
   return retval;
 }
 
 static void
-meta_cursor_sprite_xcursor_invalidate (ClutterCursor *cursor)
+meta_cursor_xcursor_invalidate (ClutterCursor *cursor)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
-  sprite_xcursor->invalidated = TRUE;
+  cursor_xcursor->invalidated = TRUE;
 }
 
 static void
-meta_cursor_sprite_xcursor_prepare_at (ClutterCursor *cursor,
-                                       float          best_scale,
-                                       int            x,
-                                       int            y)
+meta_cursor_xcursor_prepare_at (ClutterCursor *cursor,
+                                float          best_scale,
+                                int            x,
+                                int            y)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
-  MetaCursorTracker *cursor_tracker =
-    meta_cursor_sprite_get_cursor_tracker (META_CURSOR_SPRITE (cursor));
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
+  MetaCursorTracker *cursor_tracker = cursor_xcursor->cursor_tracker;
   MetaBackend *backend =
     meta_cursor_tracker_get_backend (cursor_tracker);
 
@@ -541,13 +537,13 @@ meta_cursor_sprite_xcursor_prepare_at (ClutterCursor *cursor,
           int cursor_width, cursor_height;
 
           ceiled_scale = ceilf (best_scale);
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      (int) ceiled_scale);
+          meta_cursor_xcursor_set_theme_scale (cursor_xcursor,
+                                               (int) ceiled_scale);
 
           clutter_cursor_realize_texture (cursor);
-          meta_cursor_sprite_xcursor_get_scaled_image_size (sprite_xcursor,
-                                                            &cursor_width,
-                                                            &cursor_height);
+          meta_cursor_xcursor_get_scaled_image_size (cursor_xcursor,
+                                                     &cursor_width,
+                                                     &cursor_height);
           clutter_cursor_set_viewport_dst_size (cursor,
                                                 cursor_width,
                                                 cursor_height);
@@ -565,8 +561,8 @@ meta_cursor_sprite_xcursor_prepare_at (ClutterCursor *cursor,
       /* Reload the cursor texture if the scale has changed. */
       if (logical_monitor)
         {
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      (int) logical_monitor->scale);
+          meta_cursor_xcursor_set_theme_scale (cursor_xcursor,
+                                               (int) logical_monitor->scale);
           clutter_cursor_set_texture_scale (cursor, 1.0f);
         }
     }
@@ -579,7 +575,7 @@ ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
   static GOnce quark_once = G_ONCE_INIT;
 
   g_once (&quark_once, (GThreadFunc) g_quark_from_static_string,
-          (gpointer) "-meta-cursor-sprite-xcursor-color-state");
+          (gpointer) "-meta-cursor-xcursor-color-state");
 
   color_state = g_object_get_qdata (G_OBJECT (cursor_tracker),
                                     GPOINTER_TO_INT (quark_once.retval));
@@ -607,81 +603,81 @@ static void
 on_prefs_changed (ClutterCursor *cursor,
                   gpointer       user_data)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor =
-    META_CURSOR_SPRITE_XCURSOR (user_data);
+  MetaCursorXcursor *cursor_xcursor =
+    META_CURSOR_XCURSOR (user_data);
 
-  drop_cache (sprite_xcursor);
-  sprite_xcursor->xcursor_images = NULL;
+  drop_cache (cursor_xcursor);
+  cursor_xcursor->xcursor_images = NULL;
 }
 
-MetaCursorSpriteXcursor *
-meta_cursor_sprite_xcursor_new (ClutterCursorType  cursor_type,
-                                MetaCursorTracker *cursor_tracker)
+MetaCursorXcursor *
+meta_cursor_xcursor_new (ClutterCursorType  cursor_type,
+                         MetaCursorTracker *cursor_tracker)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor;
+  MetaCursorXcursor *cursor_xcursor;
   ClutterColorState *color_state;
 
   color_state = ensure_xcursor_color_state (cursor_tracker);
 
-  sprite_xcursor = g_object_new (META_TYPE_CURSOR_SPRITE_XCURSOR,
-                                 "cursor-tracker", cursor_tracker,
+  cursor_xcursor = g_object_new (META_TYPE_CURSOR_XCURSOR,
                                  "color-state", color_state,
                                  NULL);
-  sprite_xcursor->cursor = cursor_type;
+  cursor_xcursor->cursor = cursor_type;
+  cursor_xcursor->cursor_tracker = cursor_tracker;
 
   g_signal_connect_object (cursor_tracker, "cursor-prefs-changed",
                            G_CALLBACK (on_prefs_changed),
-                           sprite_xcursor,
+                           cursor_xcursor,
                            G_CONNECT_DEFAULT);
 
-  return sprite_xcursor;
+  return cursor_xcursor;
 }
 
 static CoglTexture *
-meta_cursor_sprite_xcursor_get_texture (ClutterCursor *cursor,
-                                        int           *hot_x,
-                                        int           *hot_y)
+meta_cursor_xcursor_get_texture (ClutterCursor *cursor,
+                                 int           *hot_x,
+                                 int           *hot_y)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (cursor);
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
   if (hot_x)
-    *hot_x = sprite_xcursor->hot_x;
+    *hot_x = cursor_xcursor->hot_x;
   if (hot_y)
-    *hot_y = sprite_xcursor->hot_y;
+    *hot_y = cursor_xcursor->hot_y;
 
-  return sprite_xcursor->texture;
+  return cursor_xcursor->texture;
 }
 
 static void
-meta_cursor_sprite_xcursor_finalize (GObject *object)
+meta_cursor_xcursor_finalize (GObject *object)
 {
-  MetaCursorSpriteXcursor *sprite_xcursor = META_CURSOR_SPRITE_XCURSOR (object);
+  MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (object);
 
-  g_clear_object (&sprite_xcursor->texture);
+  g_clear_object (&cursor_xcursor->texture);
 
-  G_OBJECT_CLASS (meta_cursor_sprite_xcursor_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_cursor_xcursor_parent_class)->finalize (object);
 }
 
 static void
-meta_cursor_sprite_xcursor_init (MetaCursorSpriteXcursor *sprite_xcursor)
+meta_cursor_xcursor_init (MetaCursorXcursor *cursor_xcursor)
 {
-  sprite_xcursor->theme_scale = 1;
+  cursor_xcursor->theme_scale = 1;
 }
 
 static void
-meta_cursor_sprite_xcursor_class_init (MetaCursorSpriteXcursorClass *klass)
+meta_cursor_xcursor_class_init (MetaCursorXcursorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterCursorClass *cursor_class = CLUTTER_CURSOR_CLASS (klass);
 
-  object_class->finalize = meta_cursor_sprite_xcursor_finalize;
+  object_class->finalize = meta_cursor_xcursor_finalize;
 
-  cursor_class->realize_texture = meta_cursor_sprite_xcursor_realize_texture;
-  cursor_class->invalidate = meta_cursor_sprite_xcursor_invalidate;
-  cursor_class->is_animated = meta_cursor_sprite_xcursor_is_animated;
-  cursor_class->tick_frame = meta_cursor_sprite_xcursor_tick_frame;
+  cursor_class->realize_texture = meta_cursor_xcursor_realize_texture;
+  cursor_class->invalidate = meta_cursor_xcursor_invalidate;
+  cursor_class->is_animated = meta_cursor_xcursor_is_animated;
+  cursor_class->tick_frame = meta_cursor_xcursor_tick_frame;
   cursor_class->get_current_frame_time =
-    meta_cursor_sprite_xcursor_get_current_frame_time;
-  cursor_class->prepare_at = meta_cursor_sprite_xcursor_prepare_at;
-  cursor_class->get_texture = meta_cursor_sprite_xcursor_get_texture;
+    meta_cursor_xcursor_get_current_frame_time;
+  cursor_class->prepare_at = meta_cursor_xcursor_prepare_at;
+  cursor_class->get_texture = meta_cursor_xcursor_get_texture;
 }

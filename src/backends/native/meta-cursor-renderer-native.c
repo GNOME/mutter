@@ -31,7 +31,7 @@
 #include <errno.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/meta-cursor-sprite-xcursor.h"
+#include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -1186,16 +1186,16 @@ realize_cursor_sprite_from_wl_buffer_for_crtc (MetaCursorRenderer      *renderer
 }
 
 static gboolean
-realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer      *renderer,
-                                             MetaCrtcKms             *crtc_kms,
-                                             ClutterColorState       *target_color_state,
-                                             MetaCursorSpriteXcursor *sprite_xcursor)
+realize_cursor_sprite_from_xcursor_for_crtc (MetaCursorRenderer *renderer,
+                                             MetaCrtcKms        *crtc_kms,
+                                             ClutterColorState  *target_color_state,
+                                             MetaCursorXcursor  *cursor_xcursor)
 {
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
-  ClutterCursor *cursor = CLUTTER_CURSOR (sprite_xcursor);
+  ClutterCursor *cursor = CLUTTER_CURSOR (cursor_xcursor);
   XcursorImage *xc_image;
 
-  xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
+  xc_image = meta_cursor_xcursor_get_current_image (cursor_xcursor);
 
   return load_scaled_and_transformed_cursor_sprite (native,
                                                     crtc_kms,
@@ -1224,15 +1224,14 @@ realize_cursor_sprite_for_crtc (MetaCursorRenderer *renderer,
 
   COGL_TRACE_BEGIN_SCOPED (CursorRendererNativeRealize,
                            "Meta::CursorRendererNative::realize_cursor_sprite_for_crtc()");
-  if (META_IS_CURSOR_SPRITE_XCURSOR (cursor))
+  if (META_IS_CURSOR_XCURSOR (cursor))
     {
-      MetaCursorSpriteXcursor *sprite_xcursor =
-        META_CURSOR_SPRITE_XCURSOR (cursor);
+      MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
 
       return realize_cursor_sprite_from_xcursor_for_crtc (renderer,
                                                           crtc_kms,
                                                           target_color_state,
-                                                          sprite_xcursor);
+                                                          cursor_xcursor);
     }
   else if (META_IS_CURSOR_SPRITE_WAYLAND (cursor))
     {

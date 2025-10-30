@@ -25,7 +25,6 @@
 #include <wayland-server.h>
 
 #include "backends/meta-cursor-renderer.h"
-#include "backends/meta-cursor-sprite-xcursor.h"
 #include "wayland/meta-wayland-types.h"
 
 MetaWaylandTabletTool * meta_wayland_tablet_tool_new  (MetaWaylandTabletSeat  *seat,

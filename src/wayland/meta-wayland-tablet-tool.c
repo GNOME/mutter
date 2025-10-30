@@ -26,6 +26,7 @@
 #include <glib.h>
 #include <wayland-server.h>
 
+#include "backends/meta-cursor-xcursor.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-tablet-cursor-surface.h"
 #include "compositor/meta-surface-actor-wayland.h"
@@ -50,10 +51,10 @@ struct _MetaWaylandTabletTool
   MetaWaylandSurface *cursor_surface;
   struct wl_listener cursor_surface_destroy_listener;
   MetaCursorRenderer *cursor_renderer;
-  MetaCursorSpriteXcursor *default_sprite;
+  MetaCursorXcursor *default_sprite;
 
   ClutterCursorType cursor_shape;
-  MetaCursorSpriteXcursor *shape_sprite;
+  MetaCursorXcursor *shape_sprite;
 
   MetaWaylandSurface *current;
   guint32 pressed_buttons;
@@ -443,8 +444,8 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
   tool->focus_surface_destroy_listener.notify = tablet_tool_handle_focus_surface_destroy;
   tool->cursor_surface_destroy_listener.notify = tablet_tool_handle_cursor_surface_destroy;
 
-  tool->default_sprite = meta_cursor_sprite_xcursor_new (CLUTTER_CURSOR_DEFAULT,
-                                                         cursor_tracker);
+  tool->default_sprite = meta_cursor_xcursor_new (CLUTTER_CURSOR_DEFAULT,
+                                                  cursor_tracker);
 
   return tool;
 }
