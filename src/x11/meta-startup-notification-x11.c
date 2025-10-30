@@ -368,10 +368,14 @@ meta_x11_startup_notification_launch (MetaX11Display *x11_display,
   screen = meta_x11_display_get_screen_number (x11_display);
   sn_launcher = sn_launcher_context_new (x11_sn->sn_display, screen);
 
-  sn_launcher_context_set_name (sn_launcher, g_app_info_get_name (app_info));
   sn_launcher_context_set_workspace (sn_launcher, workspace);
-  sn_launcher_context_set_binary_name (sn_launcher,
-                                       g_app_info_get_executable (app_info));
+
+  if (app_info)
+    {
+      sn_launcher_context_set_name (sn_launcher, g_app_info_get_name (app_info));
+      sn_launcher_context_set_binary_name (sn_launcher,
+                                           g_app_info_get_executable (app_info));
+    }
 
   if (G_IS_DESKTOP_APP_INFO (app_info))
     {
@@ -407,7 +411,7 @@ meta_x11_startup_notification_launch (MetaX11Display *x11_display,
 
   sn_launcher_context_initiate (sn_launcher,
                                 g_get_prgname (),
-                                g_app_info_get_name (app_info),
+                                app_info ? g_app_info_get_name (app_info) : "",
                                 timestamp);
 
   startup_id = g_strdup (sn_launcher_context_get_startup_id (sn_launcher));
