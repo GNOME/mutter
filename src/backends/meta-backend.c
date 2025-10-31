@@ -56,6 +56,7 @@
 #include "backends/meta-barrier-private.h"
 #include "backends/meta-color-manager-private.h"
 #include "backends/meta-cursor-renderer.h"
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-idle-manager.h"
@@ -2171,4 +2172,14 @@ meta_backend_renderdoc_capture (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   meta_renderdoc_queue_capture_all (priv->renderdoc);
+}
+
+ClutterCursor *
+meta_backend_get_cursor (MetaBackend       *backend,
+                         ClutterCursorType  cursor_type)
+{
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  return CLUTTER_CURSOR (meta_cursor_sprite_xcursor_new (cursor_type,
+                                                         cursor_tracker));
 }

@@ -283,3 +283,6 @@ uint32_t meta_evdev_button_to_clutter (uint32_t evdev_button);
 
 META_EXPORT_TEST
 uint32_t meta_evdev_tool_button_to_clutter (uint32_t evdev_button);
+
+ClutterCursor * meta_backend_get_cursor (MetaBackend       *backend,
+                                         ClutterCursorType  cursor_type);
