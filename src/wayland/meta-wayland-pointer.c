@@ -1203,31 +1203,28 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 {
   MetaBackend *backend = backend_from_pointer (pointer);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaWaylandSurface *surface;
 
   surface = pointer->focus_surface;
 
   if (surface)
     {
-      MetaCursorSprite *cursor_sprite = NULL;
+      g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
 
       if (pointer->cursor_surface)
         {
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (pointer->cursor_surface->role);
 
-          cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
+          g_set_object (&cursor_sprite,
+                        meta_wayland_cursor_surface_get_sprite (cursor_surface));
         }
       else if (pointer->cursor_shape != CLUTTER_CURSOR_INHERIT)
         {
-          if (!pointer->shape_sprite)
-            {
-              pointer->shape_sprite =
-                meta_cursor_sprite_xcursor_new (pointer->cursor_shape,
-                                                cursor_tracker);
-            }
-
-          cursor_sprite = META_CURSOR_SPRITE (pointer->shape_sprite);
+          cursor_sprite =
+            META_CURSOR_SPRITE (clutter_backend_get_cursor (clutter_backend,
+                                                            pointer->cursor_shape));
         }
 
       meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor_sprite);

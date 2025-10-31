@@ -118,9 +118,8 @@ static void
 meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
 {
   MetaBackend *backend = backend_from_tool (tool);
-  MetaCursorTracker *cursor_tracker =
-    meta_backend_get_cursor_tracker (backend);
-  MetaCursorSprite *cursor_sprite = NULL;
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  g_autoptr (MetaCursorSprite) cursor_sprite = NULL;
 
   if (tool->cursor_renderer == NULL)
     return;
@@ -133,23 +132,19 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
           MetaWaylandCursorSurface *cursor_surface =
             META_WAYLAND_CURSOR_SURFACE (tool->cursor_surface->role);
 
-          cursor_sprite = meta_wayland_cursor_surface_get_sprite (cursor_surface);
+          g_set_object (&cursor_sprite,
+                        meta_wayland_cursor_surface_get_sprite (cursor_surface));
         }
       else if (tool->cursor_shape != CLUTTER_CURSOR_INHERIT)
         {
-          if (!tool->shape_sprite)
-            {
-              tool->shape_sprite =
-                meta_cursor_sprite_xcursor_new (tool->cursor_shape,
-                                                cursor_tracker);
-            }
-
-          cursor_sprite = META_CURSOR_SPRITE (tool->shape_sprite);
+          cursor_sprite =
+            META_CURSOR_SPRITE (clutter_backend_get_cursor (clutter_backend,
+                                                            tool->cursor_shape));
         }
     }
   else if (tool->current_tablet)
     {
-      cursor_sprite = META_CURSOR_SPRITE (tool->default_sprite);
+      g_set_object (&cursor_sprite, META_CURSOR_SPRITE (tool->default_sprite));
     }
 
   meta_cursor_renderer_set_cursor (tool->cursor_renderer, cursor_sprite);
