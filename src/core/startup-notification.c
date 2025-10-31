@@ -119,7 +119,7 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaStartupSequence,
 
 static void meta_startup_notification_ensure_timeout  (MetaStartupNotification *sn);
 
-static gboolean
+gboolean
 meta_startup_notification_has_pending_sequences (MetaStartupNotification *sn)
 {
   GSList *l;
@@ -132,54 +132,6 @@ meta_startup_notification_has_pending_sequences (MetaStartupNotification *sn)
     }
 
   return FALSE;
-}
-
-static void
-meta_startup_notification_update_cursor (MetaStartupNotification *sn)
-{
-  MetaDisplay *display = sn->display;
-  ClutterCursorType cursor;
-
-  if (meta_startup_notification_has_pending_sequences (sn))
-    {
-      meta_topic (META_DEBUG_STARTUP,
-                  "Setting busy cursor");
-      cursor = CLUTTER_CURSOR_WAIT;
-    }
-  else
-    {
-      meta_topic (META_DEBUG_STARTUP,
-                  "Setting default cursor");
-      cursor = CLUTTER_CURSOR_DEFAULT;
-    }
-
-  if (sn->cursor != cursor)
-    {
-      meta_display_set_cursor (display, cursor);
-      sn->cursor = cursor;
-    }
-}
-
-static void
-meta_startup_notification_cursor_timeout (gpointer user_data)
-{
-  MetaStartupNotification *sn = user_data;
-
-  meta_startup_notification_update_cursor (sn);
-  sn->update_cursor_timeout_id = 0;
-}
-
-static void
-meta_startup_notification_update_feedback (MetaStartupNotification *sn)
-{
-  if (sn->update_cursor_timeout_id)
-    return;
-
-  meta_startup_notification_update_cursor (sn);
-  sn->update_cursor_timeout_id =
-    g_timeout_add_once (UPDATE_CURSOR_TIMEOUT_MS,
-                        meta_startup_notification_cursor_timeout,
-                        sn);
 }
 
 static void
@@ -502,7 +454,6 @@ static void
 on_sequence_completed (MetaStartupSequence     *seq,
                        MetaStartupNotification *sn)
 {
-  meta_startup_notification_update_feedback (sn);
   g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
 }
 
@@ -516,7 +467,6 @@ meta_startup_notification_add_sequence (MetaStartupNotification *sn,
                     G_CALLBACK (on_sequence_completed), sn);
 
   meta_startup_notification_ensure_timeout (sn);
-  meta_startup_notification_update_feedback (sn);
 
   g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
 }
@@ -604,7 +554,6 @@ meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
                                            MetaStartupSequence     *seq)
 {
   sn->startup_sequences = g_slist_remove (sn->startup_sequences, seq);
-  meta_startup_notification_update_feedback (sn);
 
   g_signal_handlers_disconnect_by_func (seq, on_sequence_completed, sn);
 

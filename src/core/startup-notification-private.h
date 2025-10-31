@@ -46,3 +46,5 @@ MetaStartupSequence *
                                                     const gchar             *id);
 
 MetaDisplay * meta_startup_sequence_get_display (MetaStartupSequence *seq);
+
+gboolean meta_startup_notification_has_pending_sequences (MetaStartupNotification *sn);

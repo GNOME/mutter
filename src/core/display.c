@@ -887,6 +887,7 @@ meta_display_new (MetaContext  *context,
 
   display->pad_action_mapper = meta_pad_action_mapper_new (monitor_manager);
   display->tool_action_mapper = meta_tool_action_mapper_new (backend);
+  display->startup_notification = meta_startup_notification_new (display);
 
   input_capture = meta_backend_get_input_capture (backend);
   meta_input_capture_set_event_router (input_capture,
@@ -906,8 +907,6 @@ meta_display_new (MetaContext  *context,
   display->stack_tracker = meta_stack_tracker_new (display->stack);
 
   display->workspace_manager = meta_workspace_manager_new (display);
-
-  display->startup_notification = meta_startup_notification_new (display);
 
   display->bell = meta_bell_new (display);
 
