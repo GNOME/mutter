@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-xcursor.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
 #include "clutter/clutter-mutter.h"
@@ -55,23 +56,14 @@ typedef struct _MetaCursorTrackerPrivate
 {
   MetaBackend *backend;
 
+  ClutterCursor *current_cursor;
+
   gboolean pointer_focus;
 
   int cursor_visibility_inhibitors;
 
   float x;
   float y;
-
-  ClutterCursor *effective_cursor; /* May be NULL when hidden */
-  ClutterCursor *displayed_cursor;
-
-  /* Wayland clients can set a NULL buffer as their cursor
-   * explicitly, which means that we shouldn't display anything.
-   * So, we can't simply store a NULL in window_cursor to
-   * determine an unset window cursor; we need an extra boolean.
-   */
-  gboolean has_window_cursor;
-  ClutterCursor *window_cursor;
 } MetaCursorTrackerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
@@ -88,7 +80,7 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
-void
+static void
 meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker)
 {
   g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
@@ -98,32 +90,27 @@ static void
 cursor_texture_updated (ClutterCursor     *cursor,
                         MetaCursorTracker *tracker)
 {
-  g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
+  meta_cursor_tracker_notify_cursor_changed (tracker);
 }
 
 static gboolean
-update_displayed_cursor (MetaCursorTracker *tracker)
+update_current_cursor (MetaCursorTracker *tracker,
+                       ClutterCursor     *cursor)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
-  MetaContext *context = meta_backend_get_context (priv->backend);
-  MetaDisplay *display = meta_context_get_display (context);
-  ClutterCursor *cursor = NULL;
 
-  if (display && !meta_display_is_grabbed (display) && priv->has_window_cursor)
-    cursor = priv->window_cursor;
-
-  if (priv->displayed_cursor == cursor)
+  if (priv->current_cursor == cursor)
     return FALSE;
 
-  if (priv->displayed_cursor)
+  if (priv->current_cursor)
     {
-      g_signal_handlers_disconnect_by_func (priv->displayed_cursor,
+      g_signal_handlers_disconnect_by_func (priv->current_cursor,
                                             cursor_texture_updated,
                                             tracker);
     }
 
-  g_set_object (&priv->displayed_cursor, cursor);
+  g_set_object (&priv->current_cursor, cursor);
 
   if (cursor)
     {
@@ -132,45 +119,9 @@ update_displayed_cursor (MetaCursorTracker *tracker)
                         G_CALLBACK (cursor_texture_updated), tracker);
     }
 
+  meta_cursor_tracker_notify_cursor_changed (tracker);
+
   return TRUE;
-}
-
-static gboolean
-update_effective_cursor (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-  ClutterCursor *cursor = NULL;
-
-  if (meta_cursor_tracker_get_pointer_visible (tracker))
-    cursor = priv->displayed_cursor;
-
-  return g_set_object (&priv->effective_cursor, cursor);
-}
-
-static void
-change_cursor_renderer (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (priv->backend);
-
-  meta_cursor_renderer_set_cursor (cursor_renderer, priv->effective_cursor);
-}
-
-static void
-sync_cursor (MetaCursorTracker *tracker)
-{
-  gboolean cursor_changed = FALSE;
-
-  cursor_changed = update_displayed_cursor (tracker);
-
-  if (update_effective_cursor (tracker))
-    change_cursor_renderer (tracker);
-
-  if (cursor_changed)
-    g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
 }
 
 static void
@@ -181,8 +132,6 @@ set_pointer_visible (MetaCursorTracker *tracker,
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-
-  sync_cursor (tracker);
 
   if (visible)
     clutter_seat_inhibit_unfocus (seat);
@@ -195,10 +144,21 @@ set_pointer_visible (MetaCursorTracker *tracker,
 static ClutterCursor *
 meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
 {
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  MetaCursorRenderer *cursor_renderer;
 
-  return priv->displayed_cursor;
+  if (clutter_seat_is_unfocus_inhibited (seat))
+    return NULL;
+
+  cursor_renderer = meta_backend_get_cursor_renderer (backend);
+
+  if (!cursor_renderer)
+    return NULL;
+
+  return meta_cursor_renderer_get_cursor (cursor_renderer);
 }
 
 static void
@@ -215,7 +175,7 @@ on_prefs_changed (MetaPreference pref,
 void
 meta_cursor_tracker_destroy (MetaCursorTracker *tracker)
 {
-  g_object_run_dispose (G_OBJECT (tracker));
+  meta_cursor_tracker_set_current_cursor (tracker, NULL);
   g_object_unref (tracker);
 }
 
@@ -267,24 +227,13 @@ meta_cursor_tracker_set_property (GObject      *object,
 }
 
 static void
-meta_cursor_tracker_dispose (GObject *object)
+meta_cursor_tracker_finalize (GObject *object)
 {
   MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  g_clear_object (&priv->effective_cursor);
-  g_clear_object (&priv->displayed_cursor);
-  g_clear_object (&priv->window_cursor);
-
-  G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->dispose (object);
-}
-
-static void
-meta_cursor_tracker_finalize (GObject *object)
-{
-  MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
-
+  g_clear_object (&priv->current_cursor);
   meta_prefs_remove_listener (on_prefs_changed, tracker);
 
   G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->finalize (object);
@@ -314,7 +263,6 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 
   object_class->get_property = meta_cursor_tracker_get_property;
   object_class->set_property = meta_cursor_tracker_set_property;
-  object_class->dispose = meta_cursor_tracker_dispose;
   object_class->finalize = meta_cursor_tracker_finalize;
   object_class->constructed = meta_cursor_tracker_constructed;
 
@@ -354,28 +302,6 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                                 G_SIGNAL_RUN_LAST,
                                                 0, NULL, NULL, NULL,
                                                 G_TYPE_NONE, 0);
-}
-
-static void
-set_window_cursor (MetaCursorTracker *tracker,
-                   gboolean           has_cursor,
-                   ClutterCursor     *cursor)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  g_set_object (&priv->window_cursor, cursor);
-  priv->has_window_cursor = has_cursor;
-  sync_cursor (tracker);
-}
-
-gboolean
-meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  return priv->has_window_cursor;
 }
 
 /**
@@ -455,16 +381,10 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
 }
 
 void
-meta_cursor_tracker_set_window_cursor (MetaCursorTracker *tracker,
-                                       ClutterCursor     *cursor)
+meta_cursor_tracker_set_current_cursor (MetaCursorTracker *tracker,
+                                        ClutterCursor     *cursor)
 {
-  set_window_cursor (tracker, TRUE, cursor);
-}
-
-void
-meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker)
-{
-  set_window_cursor (tracker, FALSE, NULL);
+  update_current_cursor (tracker, cursor);
 }
 
 void

@@ -31,17 +31,11 @@ struct _MetaCursorTrackerClass
   ClutterCursor * (* get_sprite) (MetaCursorTracker *tracker);
 };
 
-void     meta_cursor_tracker_set_window_cursor   (MetaCursorTracker *tracker,
-                                                  ClutterCursor     *cursor);
-void     meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker);
+void meta_cursor_tracker_set_current_cursor (MetaCursorTracker *tracker,
+                                             ClutterCursor     *cursor);
 
-void     meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker);
-
-META_EXPORT_TEST
-gboolean meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker);
+void meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker);
 
 MetaBackend * meta_cursor_tracker_get_backend (MetaCursorTracker *tracker);
-
-void meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker);
 
 void meta_cursor_tracker_destroy (MetaCursorTracker *tracker);

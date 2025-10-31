@@ -101,19 +101,14 @@ meta_sprite_update_cursor (ClutterSprite *sprite,
   if (!cursor_renderer)
     return;
 
+  meta_cursor_renderer_set_cursor (cursor_renderer, cursor);
+
   if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_POINTER)
     {
       MetaCursorTracker *cursor_tracker =
         meta_backend_get_cursor_tracker (priv->backend);
 
-      if (cursor)
-        meta_cursor_tracker_set_window_cursor (cursor_tracker, cursor);
-      else
-        meta_cursor_tracker_unset_window_cursor (cursor_tracker);
-    }
-  else
-    {
-      meta_cursor_renderer_set_cursor (cursor_renderer, cursor);
+      meta_cursor_tracker_set_current_cursor (cursor_tracker, cursor);
     }
 }
 
