@@ -50,7 +50,6 @@ struct _MetaWaylandTabletTool
 
   MetaWaylandSurface *cursor_surface;
   struct wl_listener cursor_surface_destroy_listener;
-  MetaCursorRenderer *cursor_renderer;
 
   ClutterCursorType cursor_shape;
   ClutterCursor *cursor;
@@ -120,9 +119,6 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
   MetaBackend *backend = backend_from_tool (tool);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   g_autoptr (ClutterCursor) cursor = NULL;
-
-  if (tool->cursor_renderer == NULL)
-    return;
 
   if (tool->current && tool->current_tablet)
     {
@@ -453,7 +449,6 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
   meta_wayland_tablet_tool_set_current_surface (tool, NULL);
   meta_wayland_tablet_tool_set_focus (tool, NULL, NULL);
   meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
-  g_clear_object (&tool->cursor_renderer);
 
   wl_resource_for_each_safe (resource, next, &tool->resource_list)
     {
@@ -474,7 +469,11 @@ tool_set_cursor (struct wl_client   *client,
                  int32_t             hotspot_y)
 {
   MetaWaylandTabletTool *tool = wl_resource_get_user_data (resource);
+  MetaWaylandTablet *tablet = tool->current_tablet;
   MetaWaylandSurface *surface;
+
+  if (!tablet)
+    return;
 
   if (!meta_wayland_tablet_tool_check_focus_serial (tool, client, serial))
     return;
@@ -494,11 +493,16 @@ tool_set_cursor (struct wl_client   *client,
 
   if (surface)
     {
+      MetaBackend *backend = backend_from_tool (tool);
       MetaWaylandCursorSurface *cursor_surface;
+      MetaCursorRenderer *cursor_renderer;
+
+      cursor_renderer =
+        meta_backend_get_cursor_renderer_for_sprite (backend, tablet->sprite);
 
       cursor_surface = META_WAYLAND_CURSOR_SURFACE (surface->role);
       meta_wayland_cursor_surface_set_renderer (cursor_surface,
-                                                tool->cursor_renderer);
+                                                cursor_renderer);
       meta_wayland_cursor_surface_set_hotspot (cursor_surface,
                                                hotspot_x, hotspot_y);
     }
@@ -892,22 +896,6 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
         repick_for_event (tool, event);
       break;
     case CLUTTER_PROXIMITY_IN:
-      if (!tool->cursor_renderer)
-        {
-          MetaBackend *backend = backend_from_tool (tool);
-          ClutterBackend *clutter_backend =
-            meta_backend_get_clutter_backend (backend);
-          ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-          MetaCursorRenderer *renderer;
-          ClutterSprite *sprite;
-
-          sprite = clutter_backend_get_sprite (clutter_backend,
-                                               stage,
-                                               event);
-          renderer =
-            meta_backend_get_cursor_renderer_for_sprite (backend, sprite);
-          g_set_object (&tool->cursor_renderer, renderer);
-        }
       tool->current_tablet =
         meta_wayland_tablet_seat_lookup_tablet (tool->seat,
                                                 clutter_event_get_source_device (event));
@@ -919,7 +907,6 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
       meta_wayland_tablet_tool_set_current_surface (tool, NULL);
       meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
       meta_wayland_tablet_tool_update_cursor_surface (tool);
-      g_clear_object (&tool->cursor_renderer);
       break;
     default:
       break;
@@ -1049,7 +1036,7 @@ meta_wayland_tablet_tool_check_focus_serial (MetaWaylandTabletTool *tool,
 {
   if (tool->focus_surface == NULL)
     return FALSE;
-  if (tool->cursor_renderer == NULL)
+  if (tool->current_tablet == NULL)
     return FALSE;
   if (wl_resource_get_client (tool->focus_surface->resource) != client)
     return FALSE;
