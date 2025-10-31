@@ -121,6 +121,7 @@ enum
   LID_IS_CLOSED_CHANGED,
   GPU_ADDED,
   PREPARE_SHUTDOWN,
+  OVERRIDE_CURSOR,
 
   N_SIGNALS
 };
@@ -948,6 +949,12 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+  signals[OVERRIDE_CURSOR] =
+    g_signal_new ("override-cursor",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST, 0,
+                  g_signal_accumulator_first_wins, NULL, NULL,
+                  CLUTTER_TYPE_CURSOR_TYPE, 0);
 }
 
 #ifdef HAVE_LOGIND
@@ -2179,6 +2186,12 @@ meta_backend_get_cursor (MetaBackend       *backend,
                          ClutterCursorType  cursor_type)
 {
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  ClutterCursorType global_cursor = CLUTTER_CURSOR_INHERIT;
+
+  g_signal_emit (backend, signals[OVERRIDE_CURSOR], 0, &global_cursor);
+
+  if (global_cursor != CLUTTER_CURSOR_INHERIT)
+    cursor_type = global_cursor;
 
   return CLUTTER_CURSOR (meta_cursor_xcursor_new (cursor_type, cursor_tracker));
 }
