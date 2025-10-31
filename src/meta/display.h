@@ -196,10 +196,6 @@ void meta_display_get_size (MetaDisplay *display,
                             int         *width,
                             int         *height);
 
-META_EXPORT
-void meta_display_set_cursor (MetaDisplay       *display,
-                              ClutterCursorType  cursor);
-
 /**
  * MetaDisplayDirection:
  * @META_DISPLAY_UP: up

@@ -139,7 +139,6 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaDisplay, meta_display, G_TYPE_OBJECT)
 /* Signals */
 enum
 {
-  CURSOR_UPDATED,
   X11_DISPLAY_SETUP,
   X11_DISPLAY_OPENED,
   X11_DISPLAY_CLOSING,
@@ -196,8 +195,6 @@ static void    prefs_changed_callback    (MetaPreference pref,
 
 static int mru_cmp (gconstpointer a,
                     gconstpointer b);
-
-static void meta_display_reload_cursor (MetaDisplay *display);
 
 static void meta_display_unmanage_windows (MetaDisplay *display,
                                            guint32      timestamp);
@@ -271,14 +268,6 @@ meta_display_class_init (MetaDisplayClass *klass)
 
   object_class->get_property = meta_display_get_property;
   object_class->set_property = meta_display_set_property;
-
-  display_signals[CURSOR_UPDATED] =
-    g_signal_new ("cursor-updated",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
 
   display_signals[X11_DISPLAY_SETUP] =
     g_signal_new ("x11-display-setup",
@@ -639,13 +628,6 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
 }
 
 static void
-on_ui_scaling_factor_changed (MetaSettings *settings,
-                              MetaDisplay  *display)
-{
-  meta_display_reload_cursor (display);
-}
-
-static void
 on_monitor_privacy_screen_changed (MetaDisplay        *display,
                                    MetaLogicalMonitor *logical_monitor,
                                    gboolean            enabled)
@@ -839,7 +821,6 @@ meta_display_new (MetaContext  *context,
   MetaDisplayPrivate *priv;
   guint32 timestamp = 0;
   MetaMonitorManager *monitor_manager;
-  MetaSettings *settings;
   MetaInputCapture *input_capture;
 
   display = g_object_new (META_TYPE_DISPLAY, NULL);
@@ -859,7 +840,6 @@ meta_display_new (MetaContext  *context,
   display->x11_display = NULL;
 #endif
 
-  display->current_cursor = -1; /* invalid/unset */
   display->check_fullscreen_later = 0;
   display->work_area_later = 0;
 
@@ -894,10 +874,6 @@ meta_display_new (MetaContext  *context,
                                        enable_input_capture,
                                        disable_input_capture,
                                        display);
-
-  settings = meta_backend_get_settings (backend);
-  g_signal_connect (settings, "ui-scaling-factor-changed",
-                    G_CALLBACK (on_ui_scaling_factor_changed), display);
 
   display->compositor = create_compositor (display);
 
@@ -1553,32 +1529,6 @@ meta_display_notify_window_created (MetaDisplay  *display,
 
   if (window->wm_state_demands_attention)
     g_signal_emit_by_name (display, "window-demands-attention", window);
-}
-
-void
-meta_display_reload_cursor (MetaDisplay *display)
-{
-  ClutterCursorType cursor = display->current_cursor;
-  g_autoptr (MetaCursorXcursor) cursor_xcursor = NULL;
-  MetaBackend *backend = backend_from_display (display);
-  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-
-  cursor_xcursor = meta_cursor_xcursor_new (cursor, cursor_tracker);
-  meta_cursor_tracker_set_root_cursor (cursor_tracker,
-                                       CLUTTER_CURSOR (cursor_xcursor));
-
-  g_signal_emit (display, display_signals[CURSOR_UPDATED], 0, display);
-}
-
-void
-meta_display_set_cursor (MetaDisplay       *display,
-                         ClutterCursorType  cursor)
-{
-  if (cursor == display->current_cursor)
-    return;
-
-  display->current_cursor = cursor;
-  meta_display_reload_cursor (display);
 }
 
 /**
@@ -2238,10 +2188,6 @@ prefs_changed_callback (MetaPreference pref,
     {
     case META_PREF_DRAGGABLE_BORDER_WIDTH:
       meta_display_queue_retheme_all_windows (display);
-      break;
-    case META_PREF_CURSOR_THEME:
-    case META_PREF_CURSOR_SIZE:
-      meta_display_reload_cursor (display);
       break;
     default:
       break;
