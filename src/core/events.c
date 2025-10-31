@@ -283,16 +283,6 @@ meta_display_handle_event (MetaDisplay        *display,
       meta_tablet_action_mapper_handle_event (mapper, event);
     }
 
-  if (event_type == CLUTTER_MOTION &&
-      !(clutter_input_device_get_capabilities (source_device) &
-        CLUTTER_INPUT_CAPABILITY_TABLET_TOOL))
-    {
-      MetaCursorTracker *cursor_tracker =
-        meta_backend_get_cursor_tracker (backend);
-
-      meta_cursor_tracker_invalidate_position (cursor_tracker);
-    }
-
   window = get_window_for_event (display, event, event_actor);
 
   if (window && !window->override_redirect &&

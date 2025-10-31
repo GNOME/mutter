@@ -2067,6 +2067,22 @@ meta_backend_update_from_event (MetaBackend  *backend,
 
   if (!priv->in_init)
     update_pointer_visibility_from_event (backend, event);
+
+  if (clutter_event_type (event) == CLUTTER_MOTION)
+    {
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (backend);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterStage *stage =
+        CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterSprite *sprite;
+
+      sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+
+      if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_POINTER)
+        meta_cursor_tracker_invalidate_position (cursor_tracker);
+    }
 }
 
 /**
