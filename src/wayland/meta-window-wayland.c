@@ -1301,18 +1301,13 @@ meta_window_wayland_new (MetaDisplay        *display,
 {
   MetaWindowWayland *wl_window;
   MetaWindow *window;
-  struct wl_client *wl_client;
-  MetaWaylandClient *client;
-
-  wl_client = wl_resource_get_client (surface->resource);
-  client = meta_get_wayland_client (wl_client);
 
   window = g_initable_new (META_TYPE_WINDOW_WAYLAND,
                            NULL, NULL,
                            "display", display,
                            "effect", META_COMP_EFFECT_CREATE,
                            "surface", surface,
-                           "client", client,
+                           "client", meta_wayland_surface_get_client (surface),
                            NULL);
   wl_window = META_WINDOW_WAYLAND (window);
   set_geometry_scale_for_window (wl_window, wl_window->geometry_scale);
