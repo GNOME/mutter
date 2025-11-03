@@ -77,23 +77,23 @@ void meta_backend_x11_passive_button_grab (MetaBackendX11      *backend_x11,
                                            Window               xwindow,
                                            int                  button,
                                            MetaPassiveGrabMode  grab_mode,
-                                           ClutterModifierType  modifiers);
+                                           GArray              *mods);
 
 void meta_backend_x11_passive_button_ungrab (MetaBackendX11      *backend_x11,
                                              Window               xwindow,
                                              int                  button,
-                                             ClutterModifierType  modifiers);
+                                             GArray              *mods);
 
 void meta_backend_x11_passive_key_grab (MetaBackendX11      *backend_x11,
                                         Window               xwindow,
                                         int                  keycode,
                                         MetaPassiveGrabMode  grab_mode,
-                                        ClutterModifierType  modmask);
+                                        GArray              *mods);
 
 void meta_backend_x11_passive_key_ungrab (MetaBackendX11      *backend_x11,
                                           Window               xwindow,
                                           int                  keycode,
-                                          ClutterModifierType  modmask);
+                                          GArray              *mods);
 
 void meta_backend_x11_allow_events (MetaBackendX11     *backend_x11,
                                     const ClutterEvent *event,
