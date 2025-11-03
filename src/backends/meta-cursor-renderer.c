@@ -325,7 +325,6 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
     g_param_spec_object ("sprite", NULL, NULL,
                          CLUTTER_TYPE_SPRITE,
                          G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
@@ -504,12 +503,10 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
 }
 
 MetaCursorRenderer *
-meta_cursor_renderer_new (MetaBackend   *backend,
-                          ClutterSprite *sprite)
+meta_cursor_renderer_new (MetaBackend *backend)
 {
   return g_object_new (META_TYPE_CURSOR_RENDERER,
                        "backend", backend,
-                       "sprite", sprite,
                        NULL);
 }
 
@@ -567,6 +564,27 @@ meta_cursor_renderer_get_sprite (MetaCursorRenderer *renderer)
     meta_cursor_renderer_get_instance_private (renderer);
 
   return priv->sprite;
+}
+
+void
+meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
+                                 ClutterSprite      *sprite)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  ClutterCursor *cursor;
+
+  g_set_object (&priv->sprite, sprite);
+
+  if (priv->sprite)
+    {
+      cursor = clutter_sprite_get_cursor (sprite);
+      meta_cursor_renderer_update_cursor (renderer, cursor);
+    }
+  else
+    {
+      meta_cursor_renderer_update_cursor (renderer, NULL);
+    }
 }
 
 MetaBackend *

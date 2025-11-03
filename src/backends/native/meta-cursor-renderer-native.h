@@ -35,5 +35,4 @@ void meta_cursor_renderer_native_prepare_frame (MetaCursorRendererNative *cursor
                                                 MetaRendererView         *view,
                                                 ClutterFrame             *frame);
 
-MetaCursorRendererNative * meta_cursor_renderer_native_new (MetaBackend   *backend,
-                                                            ClutterSprite *sprite);
+MetaCursorRendererNative * meta_cursor_renderer_native_new (MetaBackend *backend);

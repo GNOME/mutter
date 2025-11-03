@@ -52,8 +52,7 @@ struct _MetaCursorRendererClass
                               ClutterCursor      *cursor);
 };
 
-MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend   *backend,
-                                               ClutterSprite *sprite);
+MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend *backend);
 
 void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
                                       ClutterCursor      *cursor);
@@ -73,6 +72,9 @@ void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         int64_t             view_frame_counter);
 
 ClutterSprite * meta_cursor_renderer_get_sprite (MetaCursorRenderer *renderer);
+
+void meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
+                                      ClutterSprite      *sprite);
 
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 ClutterCursor      *cursor);
