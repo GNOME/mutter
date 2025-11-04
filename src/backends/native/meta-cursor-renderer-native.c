@@ -101,6 +101,12 @@ typedef struct _MetaCursorRendererNativeGpuData
   uint64_t cursor_height;
 } MetaCursorRendererNativeGpuData;
 
+typedef struct _KmsCursorData
+{
+  ClutterSeat *seat;
+  ClutterSprite *sprite;
+} KmsCursorData;
+
 typedef struct _MetaCursorNativePrivate
 {
   GHashTable *gpu_states;
@@ -310,6 +316,46 @@ is_hw_cursor_available_for_gpu (MetaGpuKms *gpu_kms)
     return FALSE;
 
   return TRUE;
+}
+
+static void
+query_cursor_position_in_kms_impl (float    *x,
+                                   float    *y,
+                                   gpointer  user_data)
+{
+  KmsCursorData *cursor_data = user_data;
+  graphene_point_t position;
+
+  clutter_seat_query_state (cursor_data->seat, cursor_data->sprite,
+                            &position, NULL);
+  *x = position.x;
+  *y = position.y;
+}
+
+static void
+meta_cursor_renderer_native_update_sprite (MetaCursorRenderer *cursor_renderer,
+                                           ClutterSprite      *sprite)
+{
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (cursor_renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCursorManager *kms_cursor_manager;
+  KmsCursorData *data;
+
+  kms_cursor_manager = meta_kms_get_cursor_manager (kms);
+  if (!kms_cursor_manager)
+    return;
+
+  data = g_new0 (KmsCursorData, 1);
+  data->seat = meta_backend_get_default_seat (priv->backend);
+  data->sprite = sprite;
+
+  meta_kms_cursor_manager_set_query_func (kms_cursor_manager,
+                                          query_cursor_position_in_kms_impl,
+                                          data, g_free);
 }
 
 static gboolean
@@ -1254,6 +1300,7 @@ meta_cursor_renderer_native_class_init (MetaCursorRendererNativeClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_cursor_renderer_native_finalize;
+  renderer_class->update_sprite = meta_cursor_renderer_native_update_sprite;
   renderer_class->update_cursor = meta_cursor_renderer_native_update_cursor;
 
   quark_cursor_sprite = g_quark_from_static_string ("-meta-cursor-native");
@@ -1466,27 +1513,10 @@ disconnect_seat_signals_in_input_impl (gpointer user_data)
 }
 
 static void
-query_cursor_position_in_kms_impl (float    *x,
-                                   float    *y,
-                                   gpointer  user_data)
-{
-  ClutterSeat *seat = user_data;
-  graphene_point_t position;
-
-  clutter_seat_query_state (seat, NULL, &position, NULL);
-  *x = position.x;
-  *y = position.y;
-}
-
-static void
 init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaBackend *backend = priv->backend;
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
   ClutterSeat *seat;
   MetaSeatNative *seat_native;
   GList *gpus;
@@ -1509,9 +1539,8 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
                                   connect_seat_signals_in_input_impl,
                                   cursor_renderer_native, NULL);
 
-  meta_kms_cursor_manager_set_query_func (kms_cursor_manager,
-                                          query_cursor_position_in_kms_impl,
-                                          seat, NULL);
+  meta_cursor_renderer_native_update_sprite (META_CURSOR_RENDERER (cursor_renderer_native),
+                                             NULL);
 }
 
 static void
