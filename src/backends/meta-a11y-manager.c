@@ -394,10 +394,6 @@ static void
 meta_a11y_manager_constructed (GObject *object)
 {
   MetaA11yManager *a11y_manager = META_A11Y_MANAGER (object);
-  MetaContext *context;
-
-  g_assert (a11y_manager->backend);
-  context = meta_backend_get_context (a11y_manager->backend);
 
   a11y_manager->grabbed_keypresses = g_hash_table_new (NULL, NULL);
   a11y_manager->all_grabbed_modifiers = g_hash_table_new (NULL, NULL);
@@ -406,9 +402,7 @@ meta_a11y_manager_constructed (GObject *object)
     g_bus_own_name (G_BUS_TYPE_SESSION,
                     "org.freedesktop.a11y.Manager",
                     G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
-                    (meta_context_is_replacing (context) ?
-                     G_BUS_NAME_OWNER_FLAGS_REPLACE :
-                     G_BUS_NAME_OWNER_FLAGS_NONE),
+                    G_BUS_NAME_OWNER_FLAGS_NONE,
                     on_bus_acquired,
                     on_name_acquired,
                     on_name_lost,

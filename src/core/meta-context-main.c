@@ -50,9 +50,6 @@
 
 typedef struct _MetaContextMainOptions
 {
-  struct {
-    gboolean replace;
-  } x11;
 #ifdef HAVE_WAYLAND
   gboolean wayland;
   gboolean no_x11;
@@ -166,14 +163,6 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
   else
 #endif
   return META_X11_DISPLAY_POLICY_ON_DEMAND;
-}
-
-static gboolean
-meta_context_main_is_replacing (MetaContext *context)
-{
-  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
-
-  return context_main->options.x11.replace;
 }
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -508,7 +497,6 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   context_class->configure = meta_context_main_configure;
   context_class->get_x11_display_policy =
     meta_context_main_get_x11_display_policy;
-  context_class->is_replacing = meta_context_main_is_replacing;
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
   context_class->notify_ready = meta_context_main_notify_ready;

@@ -26,13 +26,6 @@
 #include "meta/common.h"
 #include "meta/meta-context.h"
 
-META_EXPORT
-void            meta_restart                (const char  *message,
-                                             MetaContext *context);
-
-META_EXPORT
-gboolean        meta_is_restart             (void);
-
 /**
  * MetaExitCode:
  * @META_EXIT_SUCCESS: Success

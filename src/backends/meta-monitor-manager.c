@@ -3647,15 +3647,11 @@ on_name_lost (GDBusConnection *connection,
 static void
 initialize_dbus_interface (MetaMonitorManager *manager)
 {
-  MetaContext *context = meta_backend_get_context (manager->backend);
-
   manager->dbus_name_id =
     g_bus_own_name (G_BUS_TYPE_SESSION,
                     "org.gnome.Mutter.DisplayConfig",
                     G_BUS_NAME_OWNER_FLAGS_ALLOW_REPLACEMENT |
-                    (meta_context_is_replacing (context) ?
-                     G_BUS_NAME_OWNER_FLAGS_REPLACE :
-                     G_BUS_NAME_OWNER_FLAGS_NONE),
+                    G_BUS_NAME_OWNER_FLAGS_NONE,
                     on_bus_acquired,
                     on_name_acquired,
                     on_name_lost,

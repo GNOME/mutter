@@ -796,33 +796,16 @@ static Window
 take_manager_selection (MetaX11Display *x11_display,
                         Window          xroot,
                         Atom            manager_atom,
-                        int             timestamp,
-                        gboolean        should_replace)
+                        int             timestamp)
 {
   Window current_owner, new_owner;
 
   current_owner = XGetSelectionOwner (x11_display->xdisplay, manager_atom);
   if (current_owner != None)
     {
-      XSetWindowAttributes attrs;
-
-      if (should_replace)
-        {
-          /* We want to find out when the current selection owner dies */
-          mtk_x11_error_trap_push (x11_display->xdisplay);
-          attrs.event_mask = StructureNotifyMask;
-          XChangeWindowAttributes (x11_display->xdisplay, current_owner, CWEventMask, &attrs);
-          if (mtk_x11_error_trap_pop_with_return (x11_display->xdisplay) != Success)
-            current_owner = None; /* don't wait for it to die later on */
-        }
-      else
-        {
-          g_warning (_("Display “%s” already has a window manager; "
-                       "try using the --replace option to replace "
-                       "the current window manager."),
-                     x11_display->name);
-          return None;
-        }
+      g_warning (_("Display “%s” already has a window manager"),
+                 x11_display->name);
+      return None;
     }
 
   /* We need SelectionClear and SelectionRequest events on the new owner,
@@ -1343,14 +1326,10 @@ meta_x11_display_new (MetaDisplay  *display,
   Window xroot;
   int i, number;
   Window new_wm_sn_owner;
-  gboolean replace_current_wm;
   Atom wm_sn_atom;
   Atom wm_cm_atom;
   char buf[128];
   guint32 timestamp;
-  Atom atom_restart_helper;
-  Window restart_helper_window = None;
-  gboolean is_restart = FALSE;
 
   /* A list of all atom names, so that we can intern them in one go. */
   const char *atom_names[] = {
@@ -1374,9 +1353,6 @@ meta_x11_display_new (MetaDisplay  *display,
     }
 #endif
 
-  replace_current_wm =
-    meta_context_is_replacing (meta_backend_get_context (backend));
-
   number = DefaultScreen (xdisplay);
 
   xroot = RootWindow (xdisplay, number);
@@ -1397,14 +1373,6 @@ meta_x11_display_new (MetaDisplay  *display,
     }
 
   xscreen = ScreenOfDisplay (xdisplay, number);
-
-  atom_restart_helper = XInternAtom (xdisplay, "_MUTTER_RESTART_HELPER", False);
-  restart_helper_window = XGetSelectionOwner (xdisplay, atom_restart_helper);
-  if (restart_helper_window)
-    {
-      is_restart = TRUE;
-      meta_set_is_restart (TRUE);
-    }
 
   x11_display = g_object_new (META_TYPE_X11_DISPLAY, NULL);
   x11_display->display = display;
@@ -1510,11 +1478,6 @@ meta_x11_display_new (MetaDisplay  *display,
   if (!meta_is_wayland_compositor ())
     x11_display->composite_overlay_window = XCompositeGetOverlayWindow (xdisplay, xroot);
 
-  /* Now that we've gotten taken a reference count on the COW, we
-   * can close the helper that is holding on to it */
-  if (is_restart)
-    XSetSelectionOwner (xdisplay, atom_restart_helper, None, META_CURRENT_TIME);
-
   /* Handle creating a no_focus_window for this screen */
   x11_display->no_focus_window =
     meta_x11_display_create_offscreen_window (x11_display,
@@ -1601,8 +1564,7 @@ meta_x11_display_new (MetaDisplay  *display,
   new_wm_sn_owner = take_manager_selection (x11_display,
                                             xroot,
                                             wm_sn_atom,
-                                            timestamp,
-                                            replace_current_wm);
+                                            timestamp);
   if (new_wm_sn_owner == None)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1620,8 +1582,7 @@ meta_x11_display_new (MetaDisplay  *display,
   wm_cm_atom = XInternAtom (x11_display->xdisplay, buf, False);
 
   x11_display->wm_cm_selection_window =
-    take_manager_selection (x11_display, xroot, wm_cm_atom, timestamp,
-                            replace_current_wm);
+    take_manager_selection (x11_display, xroot, wm_cm_atom, timestamp);
 
   if (x11_display->wm_cm_selection_window == None)
     {
@@ -2571,17 +2532,11 @@ void
 meta_x11_display_redirect_windows (MetaX11Display *x11_display,
                                    MetaDisplay    *display)
 {
-  MetaContext *context = meta_display_get_context (display);
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
   Window xroot = meta_x11_display_get_xroot (x11_display);
   int screen_number = meta_x11_display_get_screen_number (x11_display);
   guint n_retries;
-  guint max_retries;
-
-  if (meta_context_is_replacing (context))
-    max_retries = 5;
-  else
-    max_retries = 1;
+  guint max_retries = 1;
 
   n_retries = 0;
 

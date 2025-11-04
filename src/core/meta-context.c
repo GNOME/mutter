@@ -307,14 +307,6 @@ meta_context_get_service_channel (MetaContext *context)
 }
 #endif
 
-gboolean
-meta_context_is_replacing (MetaContext *context)
-{
-  g_return_val_if_fail (META_IS_CONTEXT (context), FALSE);
-
-  return META_CONTEXT_GET_CLASS (context)->is_replacing (context);
-}
-
 MetaX11DisplayPolicy
 meta_context_get_x11_display_policy (MetaContext *context)
 {

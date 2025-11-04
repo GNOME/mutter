@@ -376,7 +376,6 @@ mutter_sources = [
   'core/place.h',
   'core/prefs-private.h',
   'core/prefs.c',
-  'core/restart.c',
   'core/stack.c',
   'core/stack.h',
   'core/stack-tracker.c',
