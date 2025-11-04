@@ -28,6 +28,7 @@
 #include "backends/native/meta-crtc-virtual.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-seat-native.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
@@ -97,8 +98,11 @@ meta_stage_native_prepare_frame (ClutterStageWindow *stage_window,
   MetaBackend *backend = meta_stage_impl_get_backend (stage_impl);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
+  MetaSeatNative *seat_native =
+    META_SEAT_NATIVE (meta_backend_get_default_seat (backend));
+  MetaCursorRenderer *cursor_renderer;
+
+  cursor_renderer = seat_native->cursor_renderer;
 
   meta_renderer_native_prepare_frame (renderer_native,
                                       META_RENDERER_VIEW (stage_view),

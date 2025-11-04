@@ -55,8 +55,9 @@ struct _MetaSeatNative
   GHashTable *reserved_virtual_slots;
 
   MetaKeymapNative *keymap;
+  ClutterSprite *native_cursor_owner;
   MetaCursorRenderer *cursor_renderer;
-  GHashTable *tablet_cursors;
+  GHashTable *secondary_cursor_renderers;
 
   gboolean released;
   gboolean touch_mode;
@@ -153,3 +154,6 @@ void meta_seat_native_run_impl_task (MetaSeatNative *seat,
 void meta_seat_native_set_a11y_modifiers (MetaSeatNative *seat,
                                           const uint32_t *modifiers,
                                           int             n_modifiers);
+
+void meta_seat_native_remove_cursor_renderer (MetaSeatNative *seat_native,
+                                              ClutterSprite  *sprite);

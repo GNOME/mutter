@@ -71,13 +71,7 @@ meta_seat_native_handle_event_post (ClutterSeat        *seat,
   ClutterInputDevice *device = clutter_event_get_source_device (event);
   ClutterEventType event_type = clutter_event_type (event);
 
-  if (event_type == CLUTTER_PROXIMITY_OUT)
-    {
-      if (seat_native->tablet_cursors)
-        g_hash_table_remove (seat_native->tablet_cursors, device);
-      return TRUE;
-    }
-  else if (event_type == CLUTTER_DEVICE_ADDED)
+  if (event_type == CLUTTER_DEVICE_ADDED)
     {
       seat_native->devices = g_list_prepend (seat_native->devices, g_object_ref (device));
     }
@@ -90,6 +84,18 @@ meta_seat_native_handle_event_post (ClutterSeat        *seat,
           seat_native->devices = g_list_delete_link (seat_native->devices, l);
           g_object_unref (device);
         }
+    }
+  else if (event_type == CLUTTER_PROXIMITY_OUT)
+    {
+      ClutterStage *stage =
+        CLUTTER_STAGE (meta_backend_get_stage (seat_native->backend));
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (seat_native->backend);
+      ClutterSprite *sprite;
+
+      sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+      if (sprite)
+        meta_seat_native_remove_cursor_renderer (seat_native, sprite);
     }
 
   return FALSE;
@@ -151,6 +157,15 @@ keymap_state_changed_cb (MetaSeatNative *seat_native,
 }
 
 static void
+drop_cursor_renderer (gpointer user_data)
+{
+  MetaCursorRenderer *cursor_renderer = user_data;
+
+  meta_cursor_renderer_set_sprite (cursor_renderer, NULL);
+  g_object_unref (cursor_renderer);
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
@@ -171,6 +186,9 @@ meta_seat_native_constructed (GObject *object)
                                                "us", "", "", DEFAULT_XKB_MODEL,
                                                NULL, &error))
     g_warning ("Failed to set keyboard map: %s", error->message);
+
+  seat->secondary_cursor_renderers = g_hash_table_new_full (NULL, NULL, NULL,
+                                                            drop_cursor_renderer);
 
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
@@ -237,7 +255,7 @@ meta_seat_native_dispose (GObject *object)
   g_clear_pointer (&seat->impl, meta_seat_impl_destroy);
   g_list_free_full (g_steal_pointer (&seat->devices), g_object_unref);
   g_clear_pointer (&seat->reserved_virtual_slots, g_hash_table_destroy);
-  g_clear_pointer (&seat->tablet_cursors, g_hash_table_unref);
+  g_clear_pointer (&seat->secondary_cursor_renderers, g_hash_table_unref);
   g_clear_object (&seat->cursor_renderer);
 
   g_clear_pointer (&seat->seat_id, g_free);
@@ -383,6 +401,29 @@ meta_seat_native_query_state (ClutterSeat         *seat,
                                      coords, modifiers);
 }
 
+static void
+meta_seat_native_is_unfocus_inhibited_changed (ClutterSeat *seat)
+{
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  gboolean may_focus;
+
+  may_focus = clutter_seat_is_unfocus_inhibited (seat);
+
+  if (!may_focus)
+    {
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (seat_native->backend);
+      ClutterStage *stage =
+        CLUTTER_STAGE (meta_backend_get_stage (seat_native->backend));
+      ClutterSprite *pointer_sprite;
+
+      pointer_sprite = clutter_backend_get_pointer_sprite (clutter_backend,
+                                                           stage);
+      meta_seat_native_remove_cursor_renderer (seat_native,
+                                               pointer_sprite);
+    }
+}
+
 static ClutterInputDevice *
 meta_seat_native_get_virtual_source_pointer (ClutterSeat *seat)
 {
@@ -411,6 +452,8 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->init_pointer_position = meta_seat_native_init_pointer_position;
   seat_class->handle_event_post = meta_seat_native_handle_event_post;
   seat_class->query_state = meta_seat_native_query_state;
+  seat_class->is_unfocus_inhibited_changed =
+    meta_seat_native_is_unfocus_inhibited_changed;
   seat_class->get_virtual_source_pointer = meta_seat_native_get_virtual_source_pointer;
 
   props[PROP_SEAT_ID] =
@@ -780,61 +823,54 @@ MetaCursorRenderer *
 meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative *seat_native,
                                                ClutterSprite  *sprite)
 {
-  ClutterSpriteRole role;
+  ClutterSprite *native_renderer_owner;
 
-  role = clutter_sprite_get_role (sprite);
+  if (clutter_sprite_get_role (sprite) == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
+    return NULL;
 
-  switch (role)
+  if (!seat_native->cursor_renderer)
     {
-    case CLUTTER_SPRITE_ROLE_POINTER:
-      {
-        if (!seat_native->cursor_renderer)
-          {
-            MetaCursorRendererNative *cursor_renderer_native;
+      MetaCursorRendererNative *cursor_renderer_native;
 
-            cursor_renderer_native =
-              meta_cursor_renderer_native_new (seat_native->backend);
-            seat_native->cursor_renderer =
-              META_CURSOR_RENDERER (cursor_renderer_native);
-            meta_cursor_renderer_set_sprite (seat_native->cursor_renderer, sprite);
-          }
-
-        return seat_native->cursor_renderer;
-      }
-    case CLUTTER_SPRITE_ROLE_TABLET:
-      {
-        ClutterInputDevice *device;
-        MetaCursorRenderer *cursor_renderer = NULL;
-
-        device = clutter_sprite_get_sprite_device (sprite);
-
-        if (!seat_native->tablet_cursors)
-          {
-            seat_native->tablet_cursors =
-              g_hash_table_new_full (NULL, NULL, NULL,
-                                     g_object_unref);
-          }
-        else
-          {
-            cursor_renderer = g_hash_table_lookup (seat_native->tablet_cursors,
-                                                   device);
-          }
-
-        if (!cursor_renderer)
-          {
-            cursor_renderer = meta_cursor_renderer_new (seat_native->backend);
-            meta_cursor_renderer_set_sprite (cursor_renderer, sprite);
-            g_hash_table_insert (seat_native->tablet_cursors,
-                                 device, cursor_renderer);
-          }
-
-        return cursor_renderer;
-      }
-    case CLUTTER_SPRITE_ROLE_TOUCHPOINT:
-      break;
+      cursor_renderer_native =
+        meta_cursor_renderer_native_new (seat_native->backend);
+      seat_native->cursor_renderer =
+        META_CURSOR_RENDERER (cursor_renderer_native);
     }
 
-  return NULL;
+  native_renderer_owner =
+    meta_cursor_renderer_get_sprite (seat_native->cursor_renderer);
+
+  if (!native_renderer_owner)
+    {
+      /* Hand over the native renderer to this sprite */
+      g_hash_table_remove (seat_native->secondary_cursor_renderers, sprite);
+      meta_cursor_renderer_set_sprite (seat_native->cursor_renderer, sprite);
+
+      return seat_native->cursor_renderer;
+    }
+  else if (native_renderer_owner == sprite)
+    {
+      return seat_native->cursor_renderer;
+    }
+  else
+    {
+      MetaCursorRenderer *secondary_renderer;
+
+      secondary_renderer = g_hash_table_lookup (seat_native->secondary_cursor_renderers,
+                                                sprite);
+
+      if (!secondary_renderer)
+        {
+          secondary_renderer = meta_cursor_renderer_new (seat_native->backend);
+          g_hash_table_insert (seat_native->secondary_cursor_renderers,
+                               sprite, secondary_renderer);
+
+          meta_cursor_renderer_set_sprite (secondary_renderer, sprite);
+        }
+
+      return secondary_renderer;
+    }
 }
 
 void
@@ -864,4 +900,15 @@ meta_seat_native_run_impl_task (MetaSeatNative *seat,
   g_task_set_task_data (task, user_data, destroy_notify);
   meta_seat_impl_run_input_task (seat->impl, task,
                                  (GSourceFunc) dispatch_func);
+}
+
+void
+meta_seat_native_remove_cursor_renderer (MetaSeatNative *seat_native,
+                                         ClutterSprite  *sprite)
+{
+  if (seat_native->cursor_renderer &&
+      sprite == meta_cursor_renderer_get_sprite (seat_native->cursor_renderer))
+    meta_cursor_renderer_set_sprite (seat_native->cursor_renderer, NULL);
+
+  g_hash_table_remove (seat_native->secondary_cursor_renderers, sprite);
 }

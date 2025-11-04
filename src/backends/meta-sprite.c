@@ -96,6 +96,9 @@ meta_sprite_update_cursor (ClutterSprite *sprite,
   MetaSpritePrivate *priv = meta_sprite_get_instance_private (meta_sprite);
   MetaCursorRenderer *cursor_renderer;
 
+  if (!clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite)))
+    return;
+
   cursor_renderer = meta_backend_get_cursor_renderer_for_sprite (priv->backend,
                                                                  sprite);
   if (!cursor_renderer)

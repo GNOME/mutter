@@ -247,6 +247,9 @@ meta_clutter_backend_native_destroy_sprite (ClutterBackend *clutter_backend,
 {
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (clutter_backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+  meta_seat_native_remove_cursor_renderer (META_SEAT_NATIVE (seat), sprite);
 
   g_hash_table_remove (clutter_backend_native->touch_sprites,
                        clutter_sprite_get_sequence (sprite));
