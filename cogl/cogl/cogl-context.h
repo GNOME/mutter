@@ -388,8 +388,6 @@ cogl_context_get_rectangle_indices (CoglContext *context,
  * handle that was setup internally. The result is undefined if Cogl
  * is not using EGL.
  *
- * Note: The current window system backend can be checked using
- * cogl_renderer_get_winsys_id().
  *
  * Return value: The internally setup EGLDisplay handle.
  */

@@ -50,8 +50,6 @@ typedef enum /*< prefix=COGL_WINSYS_ERROR >*/
 
 typedef struct _CoglWinsysVtable
 {
-  CoglWinsysID id;
-
   const char *name;
 
   /* Required functions */

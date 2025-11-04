@@ -1334,7 +1334,6 @@ get_native_cogl_winsys_vtable (CoglRenderer *cogl_renderer)
 
       vtable = *_cogl_winsys_egl_get_vtable ();
 
-      vtable.id = COGL_WINSYS_ID_CUSTOM;
       vtable.name = "EGL_KMS";
 
       vtable.renderer_connect = meta_renderer_native_connect;

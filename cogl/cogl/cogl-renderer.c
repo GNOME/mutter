@@ -403,14 +403,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
   return TRUE;
 }
 
-CoglWinsysID
-cogl_renderer_get_winsys_id (CoglRenderer *renderer)
-{
-  g_return_val_if_fail (renderer->connected, 0);
-
-  return renderer->winsys_vtable->id;
-}
-
 void *
 cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                  const char   *name)
