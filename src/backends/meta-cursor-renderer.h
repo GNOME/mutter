@@ -48,6 +48,9 @@ struct _MetaCursorRendererClass
 {
   GObjectClass parent_class;
 
+  void (* update_sprite) (MetaCursorRenderer *renderer,
+                          ClutterSprite      *sprite);
+
   gboolean (* update_cursor) (MetaCursorRenderer *renderer,
                               ClutterCursor      *cursor);
 };

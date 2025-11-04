@@ -576,6 +576,9 @@ meta_cursor_renderer_set_sprite (MetaCursorRenderer *renderer,
 
   g_set_object (&priv->sprite, sprite);
 
+  if (META_CURSOR_RENDERER_GET_CLASS (renderer)->update_sprite)
+    META_CURSOR_RENDERER_GET_CLASS (renderer)->update_sprite (renderer, sprite);
+
   if (priv->sprite)
     {
       cursor = clutter_sprite_get_cursor (sprite);
