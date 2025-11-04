@@ -922,9 +922,7 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
       num_buffers_available = 0;
 
       spa_meta_for_each (meta_region, spa_meta_video_damage)
-      {
         ++num_buffers_available;
-      }
 
       if (num_buffers_available < n_rectangles)
         {
@@ -941,16 +939,16 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
       else
         {
           spa_meta_for_each (meta_region, spa_meta_video_damage)
-          {
-            MtkRectangle rect;
+            {
+              MtkRectangle rect;
 
-            rect = mtk_region_get_rectangle (priv->damage, i);
-            meta_region->region = SPA_REGION (rect.x, rect.y,
-                                              rect.width, rect.height);
+              rect = mtk_region_get_rectangle (priv->damage, i);
+              meta_region->region = SPA_REGION (rect.x, rect.y,
+                                                rect.width, rect.height);
 
-            if (++i == n_rectangles)
-              break;
-          }
+              if (++i == n_rectangles)
+                break;
+            }
         }
     }
 
