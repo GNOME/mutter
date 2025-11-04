@@ -4750,6 +4750,10 @@ clutter_text_set_editable (ClutterText *self,
             clutter_text_im_focus (self);
         }
 
+      clutter_actor_set_cursor_type (CLUTTER_ACTOR (self),
+                                     editable ? CLUTTER_CURSOR_TEXT :
+                                     CLUTTER_CURSOR_INHERIT);
+
       clutter_text_queue_redraw (CLUTTER_ACTOR (self));
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_EDITABLE]);
