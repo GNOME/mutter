@@ -57,8 +57,8 @@ G_BEGIN_DECLS
  *
  * Another aspect is that display options may constrain or affect how
  * onscreen framebuffers should later be configured. The original
- * rationale for the display object in fact was to let us handle GLX
- * and EGLs requirements that framebuffers must be "compatible" with
+ * rationale for the display object in fact was to let us handle EGLs
+ * EGLs requirements that framebuffers must be "compatible" with
  * the config associated with the current context meaning we have to
  * force the user to describe how they would like to create their
  * onscreen windows before we can choose a suitable fbconfig and

@@ -44,9 +44,8 @@ G_BEGIN_DECLS
  * low-level textures like #CoglTexture2D.
  *
  * Cogl helps to make it easy to deal with high level textures such
- * as `CoglAtlasTexture`s, `CoglSubTexture`s,
- * #CoglTexturePixmapX11 textures and #CoglTexture2DSliced textures
- * consistently.
+ * as `CoglAtlasTexture`s, `CoglSubTexture`s and #CoglTexture2DSliced
+ * textures consistently.
  *
  * A #CoglTexture is a texture that might internally be
  * represented by one or more low-level `CoglTexture`s
@@ -140,8 +139,8 @@ typedef void (*CoglTextureForeachCallback) (CoglTexture *sub_texture,
  * not directly understood by a GPU and so this API must be used to
  * manually resolve the underlying textures for drawing.
  *
- * All high level textures (#CoglAtlasTexture, #CoglSubTexture,
- * #CoglTexturePixmapX11, and #CoglTexture2DSliced) can be handled
+ * All high level textures (#CoglAtlasTexture, #CoglSubTexture and
+ * #CoglTexture2DSliced) can be handled
  * consistently using this interface which greately simplifies
  * implementing primitives that support all texture types.
  *

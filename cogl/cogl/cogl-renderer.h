@@ -52,8 +52,7 @@ typedef enum _CoglDrmModifierFilter
  * Choosing a means to render
  *
  * A #CoglRenderer represents a means to render. It encapsulates the
- * selection of an underlying driver, such as OpenGL or OpenGL-ES and
- * a selection of a window system binding API such as GLX or EGL.
+ * selection of an underlying driver, such as OpenGL or OpenGL-ES.
  *
  * A #CoglRenderer has two states, "unconnected" and "connected". When
  * a renderer is first instantiated using cogl_renderer_new() it is
@@ -99,11 +98,7 @@ G_DECLARE_FINAL_TYPE (CoglRenderer,
  * Instantiates a new (unconnected) #CoglRenderer object. A
  * #CoglRenderer represents a means to render. It encapsulates the
  * selection of an underlying driver, such as OpenGL or OpenGL-ES and
- * a selection of a window system binding API such as GLX or EGL.
- *
- * There are also some platform specific configuration apis such
- * as cogl_xlib_renderer_set_foreign_display() that may also be
- * used while the renderer is unconnected.
+ * a selection of a window system binding API such as EGL.
  *
  * Once the renderer has been configured, then it may (optionally) be
  * explicitly connected using cogl_renderer_connect() which allows
