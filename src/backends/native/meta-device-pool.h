@@ -44,6 +44,8 @@ int meta_device_file_get_fd (MetaDeviceFile *device_file);
 
 const char * meta_device_file_get_path (MetaDeviceFile *device_file);
 
+dev_t meta_device_file_get_device_id (MetaDeviceFile *device_file);
+
 void meta_device_file_tag (MetaDeviceFile     *device_file,
                            MetaDeviceFileTags  tag,
                            uint32_t            value);

@@ -110,6 +110,12 @@ meta_device_file_get_path (MetaDeviceFile *device_file)
   return device_file->path;
 }
 
+dev_t
+meta_device_file_get_device_id (MetaDeviceFile *device_file)
+{
+  return makedev (device_file->major, device_file->minor);
+}
+
 void
 meta_device_file_tag (MetaDeviceFile     *device_file,
                       MetaDeviceFileTags  tag,
