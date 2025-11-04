@@ -40,8 +40,6 @@ struct _MetaContextClass
                           char        ***argv,
                           GError       **error);
 
-  MetaCompositorType (* get_compositor_type) (MetaContext *context);
-
   MetaX11DisplayPolicy (* get_x11_display_policy) (MetaContext *context);
 
   gboolean (* is_replacing) (MetaContext *context);
@@ -54,9 +52,6 @@ struct _MetaContextClass
 
   void (* notify_ready) (MetaContext *context);
 
-#ifdef HAVE_X11
-  gboolean (* is_x11_sync) (MetaContext *context);
-#endif
 
   MetaSessionManager * (* get_session_manager) (MetaContext *context);
 };
@@ -78,11 +73,6 @@ MetaServiceChannel * meta_context_get_service_channel (MetaContext *context);
 #endif
 
 MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
-
-#ifdef HAVE_X11
-META_EXPORT_TEST
-gboolean meta_context_is_x11_sync (MetaContext *context);
-#endif
 
 #ifdef HAVE_PROFILER
 MetaProfiler *

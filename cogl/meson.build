@@ -34,17 +34,6 @@ if have_egl
   ]
 endif
 
-if have_x11
-  cogl_pkg_deps += [
-    x11_dep,
-  ]
-  cogl_pkg_private_deps += [
-    xext_dep,
-    xdamage_dep,
-    xrandr_dep,
-  ]
-endif
-
 if have_gl
   cogl_pkg_deps += [
     gl_dep,

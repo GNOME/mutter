@@ -26,7 +26,7 @@
  */
 #pragma once
 
-#ifdef HAVE_X11_CLIENT
+#ifdef HAVE_XWAYLAND
 #include <X11/Xcursor/Xcursor.h>
 #else
 typedef unsigned int XcursorPixel;

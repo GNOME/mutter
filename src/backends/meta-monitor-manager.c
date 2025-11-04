@@ -64,10 +64,6 @@
 
 #include "meta-dbus-display-config.h"
 
-#ifdef HAVE_X11
-#include "backends/x11/meta-monitor-manager-xrandr.h"
-#endif
-
 #define DEFAULT_DISPLAY_CONFIGURATION_TIMEOUT 20
 
 enum

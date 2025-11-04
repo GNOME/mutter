@@ -35,10 +35,6 @@
 #include "core/meta-session-manager.h"
 #include "meta/meta-backend.h"
 
-#ifdef HAVE_X11
-#include "backends/x11/cm/meta-backend-x11-cm.h"
-#endif
-
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-backend-native-types.h"
@@ -48,10 +44,6 @@
 #include "core/meta-mdk.h"
 #endif
 
-#if defined (HAVE_X11) && defined (HAVE_WAYLAND)
-#include "backends/x11/nested/meta-backend-x11-nested.h"
-#endif
-
 #ifdef HAVE_WAYLAND
 #include "wayland/meta-wayland.h"
 #endif
@@ -59,14 +51,10 @@
 typedef struct _MetaContextMainOptions
 {
   struct {
-    char *display_name;
     gboolean replace;
-    gboolean sync;
-    gboolean force;
   } x11;
 #ifdef HAVE_WAYLAND
   gboolean wayland;
-  gboolean nested;
   gboolean no_x11;
   char *wayland_display;
 #endif
@@ -89,8 +77,6 @@ struct _MetaContextMain
 
   MetaSessionManager *session_manager;
 
-  MetaCompositorType compositor_type;
-
 #ifdef HAVE_NATIVE_BACKEND
   GList *persistent_virtual_monitors;
 #endif
@@ -106,40 +92,11 @@ static gboolean
 check_configuration (MetaContextMain  *context_main,
                      GError          **error)
 {
-#ifdef HAVE_WAYLAND
-  if (context_main->options.x11.force && context_main->options.no_x11)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in X11 mode with no X11");
-      return FALSE;
-    }
-  if (context_main->options.x11.force && context_main->options.wayland)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in X11 mode with Wayland enabled");
-      return FALSE;
-    }
-  if (context_main->options.x11.force && context_main->options.nested)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in X11 mode nested");
-      return FALSE;
-    }
-#endif /* HAVE_WAYLAND */
-
 #ifdef HAVE_NATIVE_BACKEND
-  if (context_main->options.x11.force && context_main->options.display_server)
+  if (context_main->options.headless && context_main->options.devkit)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in X11 mode as a display server");
-      return FALSE;
-    }
-
-  if (context_main->options.x11.force &&
-      (context_main->options.headless || context_main->options.devkit))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in X11 mode headlessly");
+                   "Can't run in both MDK and headless mode");
       return FALSE;
     }
 
@@ -153,123 +110,6 @@ check_configuration (MetaContextMain  *context_main,
 #endif /* HAVE_NATIVE_BACKEND */
 
   return TRUE;
-}
-
-#if defined(HAVE_WAYLAND) && defined(HAVE_NATIVE_BACKEND)
-static gboolean
-session_type_is_supported (const char *session_type)
-{
-   return (g_strcmp0 (session_type, "x11") == 0) ||
-          (g_strcmp0 (session_type, "wayland") == 0);
-}
-
-static char *
-find_session_type (GError **error)
-{
-  char **sessions = NULL;
-  char *session_id;
-  char *session_type;
-  const char *session_type_env;
-  gboolean is_tty = FALSE;
-  int ret, i;
-
-  ret = sd_pid_get_session (0, &session_id);
-  if (ret == 0 && session_id != NULL)
-    {
-      ret = sd_session_get_type (session_id, &session_type);
-      free (session_id);
-
-      if (ret == 0)
-        {
-          if (session_type_is_supported (session_type))
-            goto out;
-          else
-            is_tty = g_strcmp0 (session_type, "tty") == 0;
-          free (session_type);
-        }
-    }
-  else if (sd_uid_get_sessions (getuid (), 1, &sessions) > 0)
-    {
-      for (i = 0; sessions[i] != NULL; i++)
-        {
-          ret = sd_session_get_type (sessions[i], &session_type);
-
-          if (ret < 0)
-            continue;
-
-          if (session_type_is_supported (session_type))
-            {
-              g_strfreev (sessions);
-              goto out;
-            }
-
-          free (session_type);
-        }
-    }
-  g_strfreev (sessions);
-
-  session_type_env = g_getenv ("XDG_SESSION_TYPE");
-  if (session_type_is_supported (session_type_env))
-    {
-      /* The string should be freeable */
-      session_type = strdup (session_type_env);
-      goto out;
-    }
-
-  /* Legacy support for starting through xinit */
-  if (is_tty && g_getenv ("DISPLAY"))
-    {
-      session_type = strdup ("x11");
-      goto out;
-    }
-
-  g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-               "Unsupported session type");
-  return NULL;
-
-out:
-  return session_type;
-}
-#else /* defined(HAVE_WAYLAND) && defined(HAVE_NATIVE_BACKEND) */
-static char *
-find_session_type (GError **error)
-{
-  return g_strdup ("x11");
-}
-#endif /* defined(HAVE_WAYLAND) && defined(HAVE_NATIVE_BACKEND) */
-
-static MetaCompositorType
-determine_compositor_type (MetaContextMain  *context_main,
-                           GError          **error)
-{
-  g_autofree char *session_type = NULL;
-
-#ifdef HAVE_WAYLAND
-  if (context_main->options.wayland ||
-#ifdef HAVE_NATIVE_BACKEND
-      context_main->options.display_server ||
-      context_main->options.headless ||
-      context_main->options.devkit ||
-#endif /* HAVE_NATIVE_BACKEND */
-      context_main->options.nested)
-    return META_COMPOSITOR_TYPE_WAYLAND;
-#endif /* HAVE_WAYLAND */
-
-  if (context_main->options.x11.force)
-    return META_COMPOSITOR_TYPE_X11;
-
-  session_type = find_session_type (error);
-  if (!session_type)
-    return -1;
-
-  if (strcmp (session_type, "x11") == 0)
-    return META_COMPOSITOR_TYPE_X11;
-#ifdef HAVE_WAYLAND
-  else if (strcmp (session_type, "wayland") == 0)
-    return META_COMPOSITOR_TYPE_WAYLAND;
-#endif
-  else
-    g_assert_not_reached ();
 }
 
 static gboolean
@@ -286,11 +126,6 @@ meta_context_main_configure (MetaContext   *context,
     return FALSE;
 
   if (!check_configuration (context_main, error))
-    return FALSE;
-
-  context_main->compositor_type = determine_compositor_type (context_main,
-                                                             error);
-  if (context_main->compositor_type == -1)
     return FALSE;
 
 #ifdef HAVE_WAYLAND
@@ -314,44 +149,23 @@ meta_context_main_configure (MetaContext   *context,
   return TRUE;
 }
 
-static MetaCompositorType
-meta_context_main_get_compositor_type (MetaContext *context)
-{
-  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
-
-  return context_main->compositor_type;
-}
-
 static MetaX11DisplayPolicy
 meta_context_main_get_x11_display_policy (MetaContext *context)
 {
-  MetaCompositorType compositor_type;
-#ifdef HAVE_WAYLAND
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
+#ifdef HAVE_LOGIND
   g_autofree char *unit = NULL;
 #endif
 
-  compositor_type = meta_context_get_compositor_type (context);
-  switch (compositor_type)
-    {
-    case META_COMPOSITOR_TYPE_X11:
-      return META_X11_DISPLAY_POLICY_MANDATORY;
-    case META_COMPOSITOR_TYPE_WAYLAND:
-#ifdef HAVE_WAYLAND
-      if (context_main->options.no_x11)
-        return META_X11_DISPLAY_POLICY_DISABLED;
-#ifdef HAVE_LOGIND
-      else if (sd_pid_get_user_unit (0, &unit) < 0)
-        return META_X11_DISPLAY_POLICY_MANDATORY;
-#endif
-      else
-        return META_X11_DISPLAY_POLICY_ON_DEMAND;
-#else /* HAVE_WAYLAND */
-      g_assert_not_reached ();
-#endif /* HAVE_WAYLAND */
-    }
+  if (context_main->options.no_x11)
+    return META_X11_DISPLAY_POLICY_DISABLED;
 
-  g_assert_not_reached ();
+#ifdef HAVE_LOGIND
+  if (sd_pid_get_user_unit (0, &unit) < 0)
+    return META_X11_DISPLAY_POLICY_MANDATORY;
+  else
+#endif
+  return META_X11_DISPLAY_POLICY_ON_DEMAND;
 }
 
 static gboolean
@@ -453,38 +267,6 @@ meta_context_main_setup (MetaContext  *context,
   return TRUE;
 }
 
-#ifdef HAVE_X11
-static MetaBackend *
-create_x11_cm_backend (MetaContext  *context,
-                       GError      **error)
-{
-  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
-
-#ifdef HAVE_NATIVE_BACKEND
-  if (context_main->options.virtual_monitor_infos)
-    g_warning ("Ignoring added virtual monitors in X11 session");
-#endif
-
-  return g_initable_new (META_TYPE_BACKEND_X11_CM,
-                         NULL, error,
-                         "context", context,
-                         "display-name", context_main->options.x11.display_name,
-                         NULL);
-}
-#endif
-
-#if defined (HAVE_X11) && defined (HAVE_WAYLAND)
-static MetaBackend *
-create_nested_backend (MetaContext  *context,
-                       GError      **error)
-{
-  return g_initable_new (META_TYPE_BACKEND_X11_NESTED,
-                         NULL, error,
-                         "context", context,
-                         NULL);
-}
-#endif
-
 #ifdef HAVE_WAYLAND
 #ifdef HAVE_NATIVE_BACKEND
 static MetaBackend *
@@ -517,32 +299,18 @@ meta_context_main_create_backend (MetaContext  *context,
 #ifdef HAVE_WAYLAND
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
 #endif
-  MetaCompositorType compositor_type;
 
-  compositor_type = meta_context_get_compositor_type (context);
-  switch (compositor_type)
-    {
-    case META_COMPOSITOR_TYPE_X11:
-#ifdef HAVE_X11
-      return create_x11_cm_backend (context, error);
-#endif
-    case META_COMPOSITOR_TYPE_WAYLAND:
 #ifdef HAVE_WAYLAND
-#ifdef HAVE_X11
-      if (context_main->options.nested)
-        return create_nested_backend (context, error);
-#endif
 #ifdef HAVE_NATIVE_BACKEND
-      if (context_main->options.headless ||
-          context_main->options.devkit)
-        return create_headless_backend (context, error);
+  if (context_main->options.headless ||
+      context_main->options.devkit)
+    return create_headless_backend (context, error);
 
-      return create_native_backend (context, error);
+  return create_native_backend (context, error);
 #endif /* HAVE_NATIVE_BACKEND */
 #else /* HAVE_WAYLAND */
-      g_assert_not_reached ();
+  g_assert_not_reached ();
 #endif /* HAVE_WAYLAND */
-    }
 
   g_assert_not_reached ();
 }
@@ -559,16 +327,6 @@ meta_context_main_notify_ready (MetaContext *context)
   if (!context_main->session_manager)
     g_critical ("Could not create session manager: %s", error->message);
 }
-
-#ifdef HAVE_X11
-static gboolean
-meta_context_main_is_x11_sync (MetaContext *context)
-{
-  MetaContextMain *context_main = META_CONTEXT_MAIN (context);
-
-  return context_main->options.x11.sync || g_getenv ("MUTTER_SYNC");
-}
-#endif
 
 static MetaSessionManager *
 meta_context_main_get_session_manager (MetaContext *context)
@@ -623,26 +381,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
 {
   MetaContext *context = META_CONTEXT (context_main);
   GOptionEntry options[] = {
-#ifdef HAVE_X11
-    {
-      "replace", 'r', 0, G_OPTION_ARG_NONE,
-      &context_main->options.x11.replace,
-      N_("Replace the running window manager"),
-      NULL
-    },
-    {
-      "display", 'd', 0, G_OPTION_ARG_STRING,
-      &context_main->options.x11.display_name,
-      N_("X Display to use"),
-      "DISPLAY"
-    },
-    {
-      "sync", 0, 0, G_OPTION_ARG_NONE,
-      &context_main->options.x11.sync,
-      N_("Make X calls synchronous"),
-      NULL
-    },
-#endif
 #ifdef HAVE_WAYLAND
     {
       "wayland", 0, 0, G_OPTION_ARG_NONE,
@@ -650,14 +388,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Run as a wayland compositor"),
       NULL
     },
-#ifdef HAVE_X11
-    {
-      "nested", 0, 0, G_OPTION_ARG_NONE,
-      &context_main->options.nested,
-      N_("Run as a nested compositor"),
-      NULL
-    },
-#endif
 #ifdef HAVE_XWAYLAND
     {
       "no-x11", 0, 0, G_OPTION_ARG_NONE,
@@ -702,13 +432,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       &context_main->options.unsafe_mode,
       "Run in unsafe mode"
     },
-#ifdef HAVE_X11
-    {
-      "x11", 0, 0, G_OPTION_ARG_NONE,
-      &context_main->options.x11.force,
-      N_("Run with X11 backend")
-    },
-#endif
     {
       "profile", 0, 0, G_OPTION_ARG_FILENAME,
       &context_main->options.trace_file,
@@ -783,21 +506,16 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   object_class->constructed = meta_context_main_constructed;
 
   context_class->configure = meta_context_main_configure;
-  context_class->get_compositor_type = meta_context_main_get_compositor_type;
   context_class->get_x11_display_policy =
     meta_context_main_get_x11_display_policy;
   context_class->is_replacing = meta_context_main_is_replacing;
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
   context_class->notify_ready = meta_context_main_notify_ready;
-#ifdef HAVE_X11
-  context_class->is_x11_sync = meta_context_main_is_x11_sync;
-#endif
   context_class->get_session_manager = meta_context_main_get_session_manager;
 }
 
 static void
 meta_context_main_init (MetaContextMain *context_main)
 {
-  context_main->compositor_type = -1;
 }

@@ -61,12 +61,6 @@
 #include "meta/prefs.h"
 
 #ifdef HAVE_X11_CLIENT
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-clutter-backend-x11.h"
-#include "backends/x11/meta-event-x11.h"
-#include "backends/x11/cm/meta-backend-x11-cm.h"
-#include "backends/x11/nested/meta-backend-x11-nested.h"
-#include "compositor/meta-compositor-x11.h"
 #include "meta/meta-x11-group.h"
 #include "x11/meta-startup-notification-x11.h"
 #include "x11/meta-x11-display-private.h"
@@ -664,16 +658,8 @@ create_compositor (MetaDisplay *display)
   if (META_IS_BACKEND_NATIVE (backend))
     return META_COMPOSITOR (meta_compositor_native_new (display, backend));
 #endif
-#if defined(HAVE_XWAYLAND) && defined(HAVE_X11)
-  if (META_IS_BACKEND_X11_NESTED (backend))
-    return META_COMPOSITOR (meta_compositor_server_new (display, backend));
-#endif
 #endif/* HAVE_WAYLAND */
-#ifdef HAVE_X11
-  return META_COMPOSITOR (meta_compositor_x11_new (display, backend));
-#else
   g_assert_not_reached ();
-#endif
 }
 
 static void
@@ -801,29 +787,6 @@ disable_input_capture (MetaInputCapture *input_capture,
   priv->enable_input_capture = FALSE;
 }
 
-#ifdef HAVE_X11
-static gboolean
-meta_display_init_x11_display (MetaDisplay  *display,
-                               GError      **error)
-{
-  MetaX11Display *x11_display;
-
-  x11_display = meta_x11_display_new (display, error);
-  if (!x11_display)
-    return FALSE;
-
-  display->x11_display = x11_display;
-  g_signal_emit (display, display_signals[X11_DISPLAY_SETUP], 0);
-
-  meta_x11_display_create_guard_window (x11_display);
-
-  if (!display->display_opening)
-    g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
-
-  return TRUE;
-}
-#endif
-
 #ifdef HAVE_XWAYLAND
 gboolean
 meta_display_init_x11_finish (MetaDisplay   *display,
@@ -945,7 +908,7 @@ meta_display_new (MetaContext  *context,
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaDisplay *display;
   MetaDisplayPrivate *priv;
-  guint32 timestamp;
+  guint32 timestamp = 0;
   MetaMonitorManager *monitor_manager;
   MetaSettings *settings;
   MetaInputCapture *input_capture;
@@ -1045,21 +1008,6 @@ meta_display_new (MetaContext  *context,
     }
   else
 #endif /* HAVE_WAYLAND */
-#ifdef HAVE_X11
-    {
-      if (!meta_display_init_x11_display (display, error))
-        {
-          g_object_unref (display);
-          return NULL;
-        }
-
-      timestamp = display->x11_display->timestamp;
-    }
-#else
-    {
-      g_assert_not_reached ();
-    }
-#endif
 
   display->last_focus_time = timestamp;
   display->last_user_time = timestamp;

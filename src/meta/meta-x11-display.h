@@ -44,11 +44,6 @@ META_EXPORT
 Window   meta_x11_display_get_xroot         (MetaX11Display *x11_display);
 
 META_EXPORT
-void meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
-                                              XRectangle     *rects,
-                                              int             n_rects);
-
-META_EXPORT
 unsigned int meta_x11_display_add_event_func (MetaX11Display          *x11_display,
                                               MetaX11DisplayEventFunc  event_func,
                                               gpointer                 user_data,

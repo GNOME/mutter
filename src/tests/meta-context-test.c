@@ -141,12 +141,6 @@ meta_context_test_configure (MetaContext   *context,
   return TRUE;
 }
 
-static MetaCompositorType
-meta_context_test_get_compositor_type (MetaContext *context)
-{
-  return META_COMPOSITOR_TYPE_WAYLAND;
-}
-
 static MetaX11DisplayPolicy
 meta_context_test_get_x11_display_policy (MetaContext *context)
 {
@@ -276,14 +270,6 @@ meta_context_test_get_session_manager (MetaContext *context)
 
   return priv->session_manager;
 }
-
-#ifdef HAVE_X11
-static gboolean
-meta_context_test_is_x11_sync (MetaContext *context)
-{
-  return !!g_getenv ("MUTTER_SYNC");
-}
-#endif
 
 static gboolean
 run_tests_idle (gpointer user_data)
@@ -438,16 +424,13 @@ meta_context_test_class_init (MetaContextTestClass *klass)
   object_class->finalize = meta_context_test_finalize;
 
   context_class->configure = meta_context_test_configure;
-  context_class->get_compositor_type = meta_context_test_get_compositor_type;
   context_class->get_x11_display_policy =
     meta_context_test_get_x11_display_policy;
   context_class->is_replacing = meta_context_test_is_replacing;
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
   context_class->notify_ready = meta_context_test_notify_ready;
-#ifdef HAVE_X11
-  context_class->is_x11_sync = meta_context_test_is_x11_sync;
-#endif
+
   context_class->get_session_manager = meta_context_test_get_session_manager;
 
   signals[BEFORE_TESTS] =

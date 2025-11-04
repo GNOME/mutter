@@ -408,7 +408,6 @@ check-python-code-style:
       -Degl_device=true
       -Dwayland_eglstream=true
       -Dcatch=true
-      -Dx11=true
 
 .build-mutter:
   extends:
@@ -455,7 +454,7 @@ build-mutter@aarch64:
       artifacts: false
   when: manual
 
-build-without-opengl-and-glx@x86_64:
+build-without-opengl@x86_64:
   extends:
     - .mutter.distribution-image
     - .mutter.fedora@x86_64
@@ -470,61 +469,8 @@ build-without-opengl-and-glx@x86_64:
         --wrap-mode nofallback
         -Dbuildtype=debugoptimized
         -Dopengl=false
-        -Dglx=false
         -Degl_device=true
         -Dwayland_eglstream=true
-        -Dintrospection=false
-    - meson compile -C build
-    - sudo meson install --no-rebuild -C build
-  artifacts:
-    paths:
-      - build/meson-logs
-
-build-without-native-backend-and-wayland@x86_64:
-  extends:
-    - .mutter.distribution-image
-    - .mutter.fedora@x86_64
-  stage: build
-  needs:
-    - job: build-fedora-container@x86_64
-      artifacts: false
-  script:
-    - meson setup . build
-        --prefix /usr
-        --werror
-        --wrap-mode nofallback
-        -Dbuildtype=debugoptimized
-        -Dx11=true
-        -Dnative_backend=false
-        -Dudev=false
-        -Dwayland=false
-        -Dxwayland=false
-        -Dtests=disabled
-        -Dintrospection=false
-    - meson compile -C build
-    - sudo meson install --no-rebuild -C build
-  artifacts:
-    paths:
-      - build/meson-logs
-
-build-wayland-xwayland@x86_64:
-  extends:
-    - .mutter.distribution-image
-    - .mutter.fedora@x86_64
-  stage: build
-  needs:
-    - job: build-fedora-container@x86_64
-      artifacts: false
-  script:
-    - meson setup . build
-        --prefix /usr
-        --werror
-        --wrap-mode nofallback
-        -Dbuildtype=debugoptimized
-        -Dwayland=true
-        -Dxwayland=true
-        -Dx11=false
-        -Dtests=disabled
         -Dintrospection=false
     - meson compile -C build
     - sudo meson install --no-rebuild -C build
@@ -548,7 +494,6 @@ build-wayland-only@x86_64:
         -Dbuildtype=debugoptimized
         -Dwayland=true
         -Dxwayland=false
-        -Dx11=false
         -Dtests=disabled
         -Dintrospection=false
     - meson compile -C build

@@ -31,10 +31,10 @@
 #include <X11/Xlib-xcb.h>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/XInput2.h>
 #include <xcb/res.h>
 
 #include "backends/meta-logical-monitor-private.h"
-#include "backends/x11/meta-backend-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/boxes-private.h"
@@ -3863,12 +3863,6 @@ is_our_xwindow (MetaX11Display    *x11_display,
                 Window             xwindow,
                 XWindowAttributes *attrs)
 {
-#ifdef HAVE_X11
-  MetaDisplay *display;
-  MetaContext *context;
-  MetaBackend *backend;
-#endif
-
   if (xwindow == x11_display->no_focus_window)
     return TRUE;
 
@@ -3883,16 +3877,6 @@ is_our_xwindow (MetaX11Display    *x11_display,
 
   if (xwindow == x11_display->composite_overlay_window)
     return TRUE;
-
-#ifdef HAVE_X11
-  display = meta_x11_display_get_display (x11_display);
-  context = meta_display_get_context (display);
-  backend = meta_context_get_backend (context);
-
-  if (META_IS_BACKEND_X11 (backend) &&
-      xwindow == meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend)))
-    return TRUE;
-#endif
 
   /* Any windows created via meta_create_offscreen_window */
   if (attrs->override_redirect &&
@@ -4069,28 +4053,14 @@ meta_window_x11_new (MetaDisplay       *display,
       goto error;
     }
 
-#ifdef HAVE_XWAYLAND
-  if (meta_is_wayland_compositor ())
-    {
-      window = g_initable_new (META_TYPE_WINDOW_XWAYLAND,
-                               NULL, NULL,
-                               "display", display,
-                               "effect", effect,
-                               "attributes", &attrs,
-                               "xwindow", xwindow,
-                               NULL);
-    }
-  else
-#endif
-    {
-      window = g_initable_new (META_TYPE_WINDOW_X11,
-                               NULL, NULL,
-                               "display", display,
-                               "effect", effect,
-                               "attributes", &attrs,
-                               "xwindow", xwindow,
-                               NULL);
-    }
+    window = g_initable_new (META_TYPE_WINDOW_XWAYLAND,
+                             NULL, NULL,
+                             "display", display,
+                             "effect", effect,
+                             "attributes", &attrs,
+                             "xwindow", xwindow,
+                             NULL);
+
   if (existing_wm_state == IconicState)
     {
       /* WM_STATE said minimized */

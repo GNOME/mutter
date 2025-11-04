@@ -28,11 +28,6 @@
 /* Defined if EGLDevice support is enabled */
 #mesondefine HAVE_EGL_DEVICE
 
-/* Have GLX for rendering */
-#mesondefine HAVE_GLX
-
-#mesondefine HAVE_EGL_PLATFORM_XLIB
-
 /* Have GL for rendering */
 #mesondefine HAVE_GL
 
@@ -62,9 +57,6 @@
 
 /* Define if you want to enable XWayland support */
 #mesondefine HAVE_XWAYLAND
-
-/* Define if you want to enable X11 backend support */
-#mesondefine HAVE_X11
 
 /* Define if either XWayland or X11 backend are enabled */
 #mesondefine HAVE_X11_CLIENT

@@ -83,9 +83,6 @@ void meta_context_terminate_with_error (MetaContext *context,
                                         GError      *error);
 
 META_EXPORT
-MetaCompositorType meta_context_get_compositor_type (MetaContext *context);
-
-META_EXPORT
 gboolean meta_context_is_replacing (MetaContext *context);
 
 META_EXPORT

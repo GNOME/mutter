@@ -18,12 +18,6 @@
 
 #pragma once
 
-typedef enum _MetaCompositorType
-{
-  META_COMPOSITOR_TYPE_WAYLAND,
-  META_COMPOSITOR_TYPE_X11,
-} MetaCompositorType;
-
 /**
  * MetaGrabOp:
  * @META_GRAB_OP_NONE: None

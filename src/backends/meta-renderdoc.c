@@ -25,9 +25,6 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-stage-native.h"
 #endif
-#ifdef HAVE_X11
-#include "backends/x11/meta-stage-x11.h"
-#endif
 
 #include <dlfcn.h>
 
@@ -118,17 +115,6 @@ meta_renderdoc_capture_start (MetaRenderdoc    *renderdoc,
     }
   else
 #endif
-#ifdef HAVE_X11
-  if (META_IS_STAGE_X11 (stage_window))
-    {
-      MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-
-      capture_onscreen_start (renderdoc,
-                              stage_view,
-                              COGL_ONSCREEN (stage_x11->onscreen));
-    }
-  else
-#endif
     {
       g_warning ("capturing stage of type %s is not supported",
                  G_OBJECT_TYPE_NAME (stage_window));
@@ -161,21 +147,7 @@ meta_renderdoc_capture_end (MetaRenderdoc    *renderdoc,
                             stage_view,
                             COGL_ONSCREEN (framebuffer));
     }
-  else
 #endif
-#ifdef HAVE_X11
-  if (META_IS_STAGE_X11 (stage_window))
-    {
-      MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-
-      capture_onscreen_end (renderdoc,
-                            stage_view,
-                            COGL_ONSCREEN (stage_x11->onscreen));
-    }
-  else
-#endif
-    {
-    }
 }
 
 static void

@@ -46,7 +46,6 @@ cogl_tests = [
 #  "test-npot-texture",
 #  "test-readpixels",
 #  "test-texture-mipmaps",
-#  "test-texture-pixmap-x11",
 #  "test-viewport",
 #]
 

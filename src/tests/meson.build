@@ -1260,40 +1260,6 @@ if have_kvm_tests or have_tty_tests
   endif
 endif
 
-if have_x11_tests
-  xvfb_args = [
-    '-a',
-    '-s',
-    '+iglx -noreset',
-  ]
-
-  zenity = find_program('zenity', required: true)
-
-  foreach mode: ['', 'sync']
-    x11_env = test_env
-    x11_env.set('ZENITY', zenity.full_path())
-    if mode == 'sync'
-      x11_env.set('MUTTER_SYNC', '1')
-    endif
-    test('x11' + (mode != '' ? '-' + mode : ''), xvfb,
-      args: [
-        xvfb_args,
-        find_program('x11-test.sh').full_path(),
-        mutter.full_path(),
-      ],
-      depends: [
-        mutter,
-        default_plugin,
-        x11_frames,
-      ],
-      env: x11_env,
-      suite: ['core', 'mutter/x11'],
-      is_parallel: false,
-      timeout: 60,
-    )
-  endforeach
-endif
-
 tools_test_env = test_env
 tools_test_env.set('G_DEBUG', 'fatal-warnings')
 
