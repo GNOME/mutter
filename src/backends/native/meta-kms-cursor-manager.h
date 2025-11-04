@@ -45,7 +45,8 @@ MetaKmsCursorManager * meta_kms_cursor_manager_new (MetaKms *kms);
 
 void meta_kms_cursor_manager_set_query_func (MetaKmsCursorManager     *cursor_manager,
                                              MetaKmsCursorQueryInImpl  func,
-                                             gpointer                  user_data);
+                                             gpointer                  user_data,
+                                             GDestroyNotify            free_func);
 
 META_EXPORT_TEST
 void meta_kms_cursor_manager_position_changed_in_input_impl (MetaKmsCursorManager   *cursor_manager,

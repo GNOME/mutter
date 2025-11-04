@@ -1511,7 +1511,7 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 
   meta_kms_cursor_manager_set_query_func (kms_cursor_manager,
                                           query_cursor_position_in_kms_impl,
-                                          seat);
+                                          seat, NULL);
 }
 
 static void
