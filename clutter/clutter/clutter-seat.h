@@ -101,6 +101,8 @@ struct _ClutterSeatClass
   void (* ungrab) (ClutterSeat *seat,
                    uint32_t     time);
 
+  void (*is_unfocus_inhibited_changed) (ClutterSeat *seat);
+
   /* Virtual devices */
   ClutterVirtualInputDevice * (* create_virtual_device) (ClutterSeat            *seat,
                                                          ClutterInputDeviceType  device_type);

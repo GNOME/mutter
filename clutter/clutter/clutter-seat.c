@@ -295,8 +295,10 @@ clutter_seat_class_init (ClutterSeatClass *klass)
   signals[IS_UNFOCUS_INHIBITED_CHANGED] =
     g_signal_new (I_("is-unfocus-inhibited-changed"),
                   G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL, NULL,
+                  G_SIGNAL_RUN_FIRST,
+                  G_STRUCT_OFFSET (ClutterSeatClass,
+                                   is_unfocus_inhibited_changed),
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   /**
