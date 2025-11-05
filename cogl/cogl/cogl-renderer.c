@@ -525,14 +525,14 @@ cogl_renderer_get_winsys_vtable (CoglRenderer *renderer)
 }
 
 void *
-cogl_renderer_get_winsys (CoglRenderer *renderer)
+cogl_renderer_get_winsys_data (CoglRenderer *renderer)
 {
   return renderer->winsys;
 }
 
 void
-cogl_renderer_set_winsys (CoglRenderer *renderer,
-                          void         *winsys)
+cogl_renderer_set_winsys_data (CoglRenderer *renderer,
+                               void         *winsys)
 {
   renderer->winsys = winsys;
 }
