@@ -26,15 +26,20 @@
 #include <fcntl.h>
 #include <glib/gstdio.h>
 #include <pipewire/pipewire.h>
+#include <pipewire/capabilities.h>
 #include <spa/debug/pod.h>
+#include <spa/param/dict.h>
+#include <spa/param/dict-utils.h>
 #include <spa/param/props.h>
 #include <spa/param/format-utils.h>
 #include <spa/param/tag-utils.h>
+#include <spa/param/peer-utils.h>
 #include <spa/param/video/format-utils.h>
 #include <spa/pod/dynamic.h>
 #include <spa/utils/result.h>
 #include <stdint.h>
 #include <sys/mman.h>
+#include <sys/sysmacros.h>
 
 #ifdef HAVE_NATIVE_BACKEND
 #include <drm_fourcc.h>
@@ -130,6 +135,10 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   int64_t last_frame_timestamp_us;
 
   uint64_t buffer_sequence_counter;
+
+  gboolean device_negotiation_supported;
+  gboolean has_negotiated_device;
+  guint negotiate_with_device_handle_id;
 
   gboolean uses_dma_bufs;
   GHashTable *dmabuf_handles;
@@ -261,8 +270,10 @@ append_pod_offset (GArray                 *pod_offsets,
 }
 
 static void
-push_format_object (struct spa_pod_builder           *pod_builder,
+push_format_object (MetaScreenCastStreamSrc          *src,
+                    struct spa_pod_builder           *pod_builder,
                     GArray                           *pod_offsets,
+                    dev_t                             device_id,
                     enum spa_video_format             format,
                     uint64_t                         *modifiers,
                     int                               n_modifiers,
@@ -272,6 +283,8 @@ push_format_object (struct spa_pod_builder           *pod_builder,
                     const MetaSpaFractionRange       *max_framerate,
                     ...)
 {
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
   struct spa_pod_frame pod_frame;
   va_list args;
   uint32_t color_state_flags = 0;
@@ -290,6 +303,17 @@ push_format_object (struct spa_pod_builder           *pod_builder,
                        SPA_FORMAT_mediaSubtype,
                        SPA_POD_Id (SPA_MEDIA_SUBTYPE_raw),
                        0);
+
+  if (priv->device_negotiation_supported &&
+      modifiers &&
+      meta_is_device_id_valid (device_id))
+    {
+      spa_pod_builder_prop (pod_builder,
+                            SPA_FORMAT_VIDEO_deviceId,
+                            SPA_POD_PROP_FLAG_MANDATORY);
+      spa_pod_builder_bytes (pod_builder, &device_id, sizeof device_id);
+    }
+
   spa_pod_builder_add (pod_builder,
                        SPA_FORMAT_VIDEO_format,
                        SPA_POD_Id (format),
@@ -1475,6 +1499,9 @@ add_format_param (MetaScreenCastStreamSrc    *src,
   enum spa_video_format spa_format;
   enum spa_video_color_primaries spa_color_primaries;
   enum spa_video_transfer_function spa_transfer_function;
+  dev_t device_id;
+
+  device_id = meta_screen_cast_get_device_id (screen_cast);
 
   if (spec)
     {
@@ -1531,8 +1558,10 @@ add_format_param (MetaScreenCastStreamSrc    *src,
         }
 
       push_format_object (
+        src,
         pod_builder,
         pod_offsets,
+        device_id,
         spa_format,
         (uint64_t *) modifiers->data, modifiers->len, FALSE,
         spa_color_primaries, spa_transfer_function,
@@ -1545,8 +1574,10 @@ add_format_param (MetaScreenCastStreamSrc    *src,
   else
     {
       push_format_object (
+        src,
         pod_builder,
         pod_offsets,
+        device_id,
         spa_format, NULL, 0, FALSE,
         spa_color_primaries, spa_transfer_function,
         max_framerate,
@@ -1589,6 +1620,26 @@ build_format_params (MetaScreenCastStreamSrc *src,
                         spec_ptr,
                         FALSE);
     }
+}
+
+static void
+append_capabilities_dict_entry (MetaScreenCast *screen_cast,
+                                GArray         *capabilities)
+{
+  MetaSpaDictEntry dict_entry;
+  dev_t device_id;
+  g_autofree char *device_id_encoded = NULL;
+
+  dict_entry.key = g_strdup (PW_CAPABILITY_DEVICE_ID_NEGOTIATION);
+  dict_entry.value = g_strdup ("1");
+  g_array_append_val (capabilities, dict_entry);
+
+  dict_entry.key = g_strdup (PW_CAPABILITY_DEVICE_IDS);
+  device_id = meta_screen_cast_get_device_id (screen_cast);
+  device_id_encoded = meta_encode_hex (&device_id, sizeof (device_id));
+  dict_entry.value = g_strdup_printf ("{\"available-devices:\": [\"%s\"]}",
+                                      device_id_encoded);
+  g_array_append_val (capabilities, dict_entry);
 }
 
 static void
@@ -1635,12 +1686,46 @@ build_tag_params (MetaScreenCastStreamSrc *src,
 }
 
 static void
+build_capability_params (MetaScreenCastStreamSrc *src,
+                         struct spa_pod_builder  *pod_builder,
+                         GArray                  *pod_offsets)
+{
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session =
+    meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  struct spa_dict_item *items;
+  g_autoptr (GArray) capabilities = NULL;
+  size_t i;
+
+  capabilities = g_array_new (FALSE, FALSE, sizeof (MetaSpaDictEntry));
+  g_array_set_clear_func (capabilities, (GDestroyNotify)
+                          meta_spa_dict_entry_clear);
+
+  append_capabilities_dict_entry (screen_cast, capabilities);
+
+  items = g_alloca (sizeof (struct spa_dict_item) * capabilities->len);
+  for (i = 0; i < capabilities->len; i++)
+    {
+      MetaSpaDictEntry *dict_entry = &g_array_index (capabilities, MetaSpaDictEntry, i);
+
+      items[i] = SPA_DICT_ITEM_INIT (dict_entry->key, dict_entry->value);
+    }
+
+  append_pod_offset (pod_offsets, pod_builder);
+  spa_param_dict_build_dict (pod_builder, SPA_PARAM_Capability,
+                             &SPA_DICT_INIT (items, capabilities->len));
+}
+
+static void
 build_stream_params (MetaScreenCastStreamSrc *src,
                      struct spa_pod_builder  *pod_builder,
                      GArray                  *pod_offsets)
 {
   build_format_params (src, pod_builder, pod_offsets);
   build_tag_params (src, pod_builder, pod_offsets);
+  build_capability_params (src, pod_builder, pod_offsets);
 }
 
 static GPtrArray *
@@ -1988,10 +2073,15 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
             .min = MIN_FRAME_RATE,
             .max = priv->video_format.max_framerate,
           };
+          dev_t device_id;
+
+          device_id = meta_screen_cast_get_device_id (screen_cast);
 
           push_format_object (
+            src,
             &pod_builder.b,
             pod_offsets,
+            device_id,
             priv->video_format.format, &preferred_modifier, 1, TRUE,
             priv->video_format.color_primaries,
             priv->video_format.transfer_function,
@@ -2133,6 +2223,98 @@ on_tag_param_changed (MetaScreenCastStreamSrc *src,
 }
 
 static void
+negotiate_with_device_cb (gpointer user_data)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_pod_dynamic_builder pod_builder;
+  g_autoptr (GArray) pod_offsets = NULL;
+  g_autoptr (GPtrArray) params = NULL;
+
+  g_return_if_fail (!priv->has_negotiated_device);
+
+  priv->negotiate_with_device_handle_id = 0;
+  priv->has_negotiated_device = TRUE;
+
+  if (meta_is_topic_enabled (META_DEBUG_SCREEN_CAST))
+    {
+      MetaScreenCastStream *stream =
+        meta_screen_cast_stream_src_get_stream (src);
+      MetaScreenCastSession *session =
+        meta_screen_cast_stream_get_session (stream);
+      MetaScreenCast *screen_cast =
+        meta_screen_cast_session_get_screen_cast (session);
+      dev_t device_id = meta_screen_cast_get_device_id (screen_cast);
+
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Negotiating with device ID %u:%u",
+                  major (device_id), minor (device_id));
+    }
+
+  spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
+  pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
+
+  build_format_params (src, &pod_builder.b, pod_offsets);
+  params = finish_params (&pod_builder.b, pod_offsets);
+
+  pw_stream_update_params (priv->pipewire_stream,
+                           (const struct spa_pod **) params->pdata,
+                           params->len);
+  spa_pod_dynamic_builder_clean (&pod_builder);
+}
+
+static void
+on_peer_capability_param_changed (MetaScreenCastStreamSrc *src,
+                                  const struct spa_pod    *param)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_peer_param_info peer_info;
+  void *state = NULL;
+
+  while (spa_peer_param_parse (param,
+                               &peer_info, sizeof (peer_info),
+                               &state) == 1)
+    {
+      struct spa_param_dict_info dict_info;
+      struct spa_dict dict = {};
+      const struct spa_dict_item *iter;
+      g_autofree struct spa_dict_item *items = NULL;
+
+      if (spa_param_dict_parse (peer_info.param,
+                                &dict_info, sizeof (dict_info)) <= 0)
+        continue;
+
+      if (spa_param_dict_info_parse (&dict_info, sizeof (dict_info),
+                                     &dict, NULL) < 0)
+        continue;
+      items = g_new0 (struct spa_dict_item, dict.n_items);
+      if (spa_param_dict_info_parse (&dict_info, sizeof (dict_info),
+                                     &dict, items) < 0)
+        continue;
+
+      spa_dict_for_each (iter, &dict)
+        {
+          if (g_strcmp0 (iter->key, PW_CAPABILITY_DEVICE_ID_NEGOTIATION) == 0 &&
+              g_strcmp0 (iter->value, "true") == 0)
+            {
+              meta_topic (META_DEBUG_SCREEN_CAST,
+                          "Stream peer supports device ID negotiation");
+              priv->device_negotiation_supported = TRUE;
+            }
+        }
+    }
+
+  if (!priv->has_negotiated_device &&
+      !priv->negotiate_with_device_handle_id)
+    {
+      priv->negotiate_with_device_handle_id =
+        g_idle_add_once (negotiate_with_device_cb, src);
+    }
+}
+
+static void
 on_stream_param_changed (void                 *data,
                          uint32_t              id,
                          const struct spa_pod *param)
@@ -2149,6 +2331,9 @@ on_stream_param_changed (void                 *data,
       break;
     case SPA_PARAM_Tag:
       on_tag_param_changed (src, param);
+      break;
+    case SPA_PARAM_PeerCapability:
+      on_peer_capability_param_changed (src, param);
       break;
     }
 }
@@ -2684,6 +2869,8 @@ meta_screen_cast_stream_src_dispose (GObject *object)
   g_clear_pointer (&priv->pipewire_source, g_source_destroy);
   g_clear_pointer (&priv->damage, mtk_region_unref);
   g_clear_object (&priv->color_state);
+
+  g_clear_handle_id (&priv->negotiate_with_device_handle_id, g_source_remove);
 
   g_warn_if_fail (!priv->dequeued_buffers);
 

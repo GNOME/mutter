@@ -68,3 +68,5 @@ CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast  *scre
 MetaScreenCast * meta_screen_cast_new (MetaBackend *backend);
 
 gboolean meta_screen_cast_is_enabled (MetaScreenCast *screen_cast);
+
+dev_t meta_screen_cast_get_device_id (MetaScreenCast *screen_cast);

@@ -47,3 +47,6 @@ meta_timeval_to_microseconds (const struct timeval *tv)
 
 #define META_CONTAINER_OF(ptr, type, member) \
   (type *) ((uint8_t *) (ptr) - G_STRUCT_OFFSET (type, member))
+
+char * meta_encode_hex (gpointer data,
+                        size_t   size);

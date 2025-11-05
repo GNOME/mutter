@@ -29,6 +29,7 @@
 #include "backends/meta-screen-cast-session.h"
 
 #ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native-private.h"
@@ -43,6 +44,8 @@
 struct _MetaScreenCast
 {
   MetaDbusSessionManager parent;
+
+  MetaRenderDevice *screen_cast_device;
 };
 
 G_DEFINE_TYPE (MetaScreenCast, meta_screen_cast,
@@ -56,15 +59,9 @@ meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
   return meta_dbus_session_manager_get_backend (session_manager);
 }
 
-gboolean
-meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
-                                         CoglPixelFormat  format,
-                                         GArray          *modifiers,
-                                         int              width,
-                                         int              height,
-                                         uint64_t        *preferred_modifier)
+static MetaRenderDevice *
+get_render_device (MetaScreenCast *screen_cast)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend =
     meta_screen_cast_get_backend (screen_cast);
   ClutterBackend *clutter_backend =
@@ -77,18 +74,31 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
     cogl_renderer_get_winsys_data (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data =
     cogl_renderer_egl->platform;
+
+  return renderer_gpu_data->render_device;
+}
+
+gboolean
+meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
+                                         CoglPixelFormat  format,
+                                         GArray          *modifiers,
+                                         int              width,
+                                         int              height,
+                                         uint64_t        *preferred_modifier)
+{
+#ifdef HAVE_NATIVE_BACKEND
+  MetaBackend *backend =
+    meta_screen_cast_get_backend (screen_cast);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaRenderDevice *render_device =
-    renderer_gpu_data->render_device;
-  MetaRendererNative *renderer_native =
-    renderer_gpu_data->renderer_native;
+    get_render_device (screen_cast);
   int dmabuf_fd;
   uint32_t stride;
   uint32_t offset;
   g_autoptr (GError) error = NULL;
   const MetaFormatInfo *format_info;
   gboolean use_implicit_modifier;
-
-  g_assert (cogl_renderer_is_dma_buf_supported (cogl_renderer));
 
   format_info = meta_format_info_from_cogl_format (format);
   g_assert (format_info);
@@ -341,11 +351,20 @@ meta_screen_cast_constructed (GObject *object)
   GDBusInterfaceSkeleton *interface_skeleton =
     meta_dbus_session_manager_get_interface_skeleton (session_manager);
   MetaDBusScreenCast *skeleton = META_DBUS_SCREEN_CAST (interface_skeleton);
+#ifdef HAVE_NATIVE_BACKEND
+  MetaRenderDevice *render_device;
+#endif
 
   g_signal_connect (interface_skeleton, "handle-create-session",
                     G_CALLBACK (handle_create_session), screen_cast);
 
   meta_dbus_screen_cast_set_version (skeleton, META_SCREEN_CAST_API_VERSION);
+
+#ifdef HAVE_NATIVE_BACKEND
+  render_device = get_render_device (screen_cast);
+  if (meta_render_device_is_hardware_accelerated (render_device))
+    screen_cast->screen_cast_device = render_device;
+#endif
 
   G_OBJECT_CLASS (meta_screen_cast_parent_class)->constructed (object);
 }
@@ -397,3 +416,18 @@ meta_screen_cast_is_enabled (MetaScreenCast *screen_cast)
 
   return meta_dbus_session_manager_is_enabled (session_manager);
 }
+
+dev_t
+meta_screen_cast_get_device_id (MetaScreenCast *screen_cast)
+{
+  MetaDeviceFile *device_file;
+
+  if (!screen_cast->screen_cast_device)
+    return DEVICE_ID_INVALID;
+
+  device_file = meta_render_device_get_device_file (screen_cast->screen_cast_device);
+  if (device_file)
+    return meta_device_file_get_device_id (device_file);
+  else
+    return DEVICE_ID_INVALID;
+  }

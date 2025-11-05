@@ -636,3 +636,18 @@ meta_log (const char *format, ...)
   g_logv (G_LOG_DOMAIN, mutter_log_level, format, args);
   va_end (args);
 }
+
+char *
+meta_encode_hex (gpointer data,
+                 size_t   size)
+{
+  uint8_t *data_u8 = data;
+  GString *encoded;
+  size_t i;
+
+  encoded = g_string_new (NULL);
+  for (i = 0; i < size; i++)
+    g_string_append_printf (encoded, "%02x", data_u8[i]);
+
+  return g_string_free_and_steal (encoded);
+}
