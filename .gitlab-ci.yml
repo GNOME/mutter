@@ -337,22 +337,6 @@ check-commit-log:
   rules:
     - !reference [.only-merge-requests, rules]
 
-check-merge-request:
-  extends:
-    - .fdo.ci-fairy
-    - .skip-git-clone
-  stage: review
-  script:
-    ci-fairy check-merge-request --require-allow-collaboration --junit-xml=check-merge-request-report.xml
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - check-merge-request-report.xml
-    reports:
-      junit: check-merge-request-report.xml
-  rules:
-    - !reference [.only-merge-requests, rules]
-
 build-fedora-container@x86_64:
   extends:
     - .fdo.container-build@fedora@x86_64
