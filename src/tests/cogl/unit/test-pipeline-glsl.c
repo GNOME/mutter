@@ -1,6 +1,8 @@
 #include "config.h"
 
 #include "cogl/cogl.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-framebuffer-private.h"
 #include "tests/cogl-test-utils.h"
 
 static void

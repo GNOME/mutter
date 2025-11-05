@@ -24,6 +24,7 @@
 #include "backends/meta-egl.h"
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
+#include "cogl/cogl-context-private.h"
 
 enum
 {

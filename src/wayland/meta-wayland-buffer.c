@@ -53,6 +53,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter.h"
+#include "cogl/cogl-texture-private.h"
 #include "meta/util.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-private.h"

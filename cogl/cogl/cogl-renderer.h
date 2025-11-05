@@ -34,17 +34,11 @@
 
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-pixel-format.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 #include <glib-object.h>
 
 G_BEGIN_DECLS
-
-typedef enum _CoglDrmModifierFilter
-{
-  COGL_DRM_MODIFIER_FILTER_NONE = 0,
-  COGL_DRM_MODIFIER_FILTER_SINGLE_PLANE = 1 << 0,
-  COGL_DRM_MODIFIER_FILTER_NOT_EXTERNAL_ONLY = 1 << 1,
-} CoglDrmModifierFilter;
 
 /**
  * CoglRenderer:
@@ -276,6 +270,22 @@ void cogl_renderer_set_winsys_data (CoglRenderer *renderer,
 
 COGL_EXPORT
 void * cogl_renderer_get_winsys_data (CoglRenderer *renderer);
+
+/**
+ * cogl_renderer_get_winsys:
+ * @renderer: a #CoglRenderer
+ *
+ * Queries the associated #CoglWinsys.
+ *
+ * Return value: (transfer none): The associated #CoglWinsys
+ */
+COGL_EXPORT
+CoglWinsys * cogl_renderer_get_winsys (CoglRenderer *renderer);
+
+COGL_EXPORT
+void cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
+                                      CoglWinsys   *winsys,
+                                      void         *user_data);
 
 COGL_EXPORT
 void * cogl_renderer_get_custom_winsys_data (CoglRenderer *renderer);
