@@ -211,7 +211,6 @@ struct _CoglContext
 
   unsigned long winsys_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_WINSYS_FEATURE_N_FEATURES)];
-  void *winsys;
 
   /* Array of names of uniforms. These are used like quarks to give a
      unique number to each uniform name except that we ensure that

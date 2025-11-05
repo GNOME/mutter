@@ -57,11 +57,6 @@ static void
 cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
-  CoglWinsys *winsys =
-    cogl_renderer_get_winsys (context->display->renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
-
-  winsys_class->context_deinit (winsys, context);
 
   if (context->default_gl_texture_2d_tex)
     g_object_unref (context->default_gl_texture_2d_tex);

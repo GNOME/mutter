@@ -470,8 +470,6 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
   CoglDisplayEGL *egl_display = context->display->winsys;
   CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
-  context->winsys = g_new0 (CoglContextEGL, 1);
-
   g_return_val_if_fail (egl_display->egl_context, FALSE);
 
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
@@ -505,13 +503,6 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
     }
 
   return TRUE;
-}
-
-static void
-_cogl_winsys_context_deinit (CoglWinsys  *winsys,
-                             CoglContext *context)
-{
-  g_free (context->winsys);
 }
 
 #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
@@ -561,7 +552,6 @@ cogl_winsys_egl_class_init (CoglWinsysEGLClass *klass)
   winsys_class->display_setup = _cogl_winsys_display_setup;
   winsys_class->display_destroy = _cogl_winsys_display_destroy;
   winsys_class->context_init = _cogl_winsys_context_init;
-  winsys_class->context_deinit = _cogl_winsys_context_deinit;
 
   #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
   winsys_class->get_sync_fd = _cogl_winsys_get_sync_fd;

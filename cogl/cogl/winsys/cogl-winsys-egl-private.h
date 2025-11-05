@@ -58,13 +58,6 @@
 struct wl_resource;
 #endif
 
-typedef struct _CoglContextEGL
-{
-  EGLSurface saved_draw_surface;
-  EGLSurface saved_read_surface;
-} CoglContextEGL;
-
-
 #ifdef EGL_KHR_image_base
 EGLImageKHR
 _cogl_egl_create_image (CoglContext *ctx,
