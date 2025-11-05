@@ -412,3 +412,18 @@ typedef enum
   META_A11Y_STICKY_KEYS_BEEP = 1 << 12,
   META_A11Y_FEATURE_STATE_CHANGE_BEEP = 1 << 13,
 } MetaKeyboardA11yFlags;
+
+/**
+ * MetaMoveResizeFlags:
+ * @META_EXTERNAL_CONSTRAINT_FLAGS_NONE: No operation
+ * @META_EXTERNAL_CONSTRAINT_FLAGS_MOVE: Move operation
+ * @META_EXTERNAL_CONSTRAINT_FLAGS_RESIZE: Resize operation
+ *
+ * Flags for external constraint operations.
+ */
+typedef enum _MetaExternalConstraintFlags
+{
+  META_EXTERNAL_CONSTRAINT_FLAGS_NONE = 0,
+  META_EXTERNAL_CONSTRAINT_FLAGS_MOVE = 1 << 0,
+  META_EXTERNAL_CONSTRAINT_FLAGS_RESIZE = 1 << 1,
+} MetaExternalConstraintFlags;
