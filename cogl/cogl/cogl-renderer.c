@@ -75,7 +75,6 @@ typedef struct _CoglRenderer
   CoglDriverId driver_override;
   CoglDriver *driver;
   CoglWinsys *winsys;
-  void *custom_winsys_user_data;
 
   CoglList idle_closures;
 
@@ -338,10 +337,8 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
 void
 cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
-                                 CoglWinsys   *winsys,
-                                 void         *user_data)
+                                 CoglWinsys   *winsys)
 {
-  renderer->custom_winsys_user_data = user_data;
   renderer->winsys = winsys;
 }
 
@@ -558,10 +555,4 @@ cogl_renderer_set_display (CoglRenderer *renderer,
                            CoglDisplay   *display)
 {
   renderer->display = display;
-}
-
-void *
-cogl_renderer_get_custom_winsys_data (CoglRenderer *renderer)
-{
-  return renderer->custom_winsys_user_data;
 }
