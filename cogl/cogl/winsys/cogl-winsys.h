@@ -73,12 +73,6 @@ struct _CoglWinsysClass
                                 CoglRenderer *renderer,
                                 GError      **error);
 
-  void (*renderer_disconnect) (CoglWinsys   *winsys,
-                               CoglRenderer *renderer);
-
-  void (*renderer_outputs_changed) (CoglWinsys   *winsys,
-                                    CoglRenderer *renderer);
-
   gboolean (*display_setup) (CoglWinsys   *winsys,
                              CoglDisplay  *display,
                              GError      **error);
