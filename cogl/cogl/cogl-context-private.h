@@ -49,7 +49,7 @@
 #include "cogl/cogl-offscreen-private.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 typedef struct
 {
@@ -249,8 +249,6 @@ struct _CoglContext
 #undef COGL_EXT_END
 };
 
-const CoglWinsysVtable *
-_cogl_context_get_winsys (CoglContext *context);
 
 /* Query the GL extensions and lookup the corresponding function
  * pointers. Theoretically the list of extensions can change for

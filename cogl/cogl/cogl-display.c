@@ -37,28 +37,23 @@
 
 #include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 
 G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
-static const CoglWinsysVtable *
-_cogl_display_get_winsys (CoglDisplay *display)
-{
-  return cogl_renderer_get_winsys_vtable (display->renderer);
-}
 
 static void
 cogl_display_dispose (GObject *object)
 {
   CoglDisplay *display = COGL_DISPLAY (object);
 
-  const CoglWinsysVtable *winsys;
-
   if (display->setup)
     {
-      winsys = _cogl_display_get_winsys (display);
-      winsys->display_destroy (display);
+      CoglWinsys *winsys = cogl_renderer_get_winsys (display->renderer);
+      CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+
+      winsys_class->display_destroy (winsys, display);
       display->setup = FALSE;
     }
 
@@ -103,13 +98,13 @@ gboolean
 cogl_display_setup (CoglDisplay *display,
                     GError **error)
 {
-  const CoglWinsysVtable *winsys;
+  CoglWinsys *winsys = cogl_renderer_get_winsys (display->renderer);
+  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
   if (display->setup)
     return TRUE;
 
-  winsys = _cogl_display_get_winsys (display);
-  if (!winsys->display_setup (display, error))
+  if (!winsys_class->display_setup (winsys, display, error))
     return FALSE;
 
   display->setup = TRUE;

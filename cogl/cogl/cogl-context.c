@@ -45,7 +45,7 @@
 #include "cogl/cogl-framebuffer-private.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-attribute-private.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 #include <gio/gio.h>
 #include <string.h>
@@ -53,20 +53,15 @@
 
 G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
 
-
-const CoglWinsysVtable *
-_cogl_context_get_winsys (CoglContext *context)
-{
-  return cogl_renderer_get_winsys_vtable (context->display->renderer);
-}
-
 static void
 cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
-  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+  CoglWinsys *winsys =
+    cogl_renderer_get_winsys (context->display->renderer);
+  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
-  winsys->context_deinit (context);
+  winsys_class->context_deinit (winsys, context);
 
   if (context->default_gl_texture_2d_tex)
     g_object_unref (context->default_gl_texture_2d_tex);
@@ -181,12 +176,13 @@ cogl_context_new (CoglDisplay *display,
                   GError **error)
 {
   CoglDriver *driver;
+  CoglWinsys *winsys;
+  CoglWinsysClass *winsys_class;
 
   g_return_val_if_fail (display != NULL, NULL);
 
   CoglContext *context;
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
-  const CoglWinsysVtable *winsys;
   int i;
   GError *local_error = NULL;
 
@@ -218,8 +214,9 @@ cogl_context_new (CoglDisplay *display,
   /* Keep a backpointer to the context */
   display->context = context;
 
-  winsys = _cogl_context_get_winsys (context);
-  if (!winsys->context_init (context, error))
+  winsys = cogl_renderer_get_winsys (display->renderer);
+  winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  if (!winsys_class->context_init (winsys, context, error))
     {
       g_object_unref (display);
       g_free (context);
@@ -415,23 +412,27 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
 void
 _cogl_context_update_sync (CoglContext *context)
 {
-  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+  CoglWinsys *winsys =
+    cogl_renderer_get_winsys (context->display->renderer);
+  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
-  if (!winsys->update_sync)
+  if (!winsys_class->update_sync)
     return;
 
-  winsys->update_sync (context);
+  winsys_class->update_sync (winsys, context);
 }
 
 int
 cogl_context_get_latest_sync_fd (CoglContext *context)
 {
-  const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+  CoglWinsys *winsys =
+    cogl_renderer_get_winsys (context->display->renderer);
+  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
-  if (!winsys->get_sync_fd)
+  if (!winsys_class->get_sync_fd)
     return -1;
 
-  return winsys->get_sync_fd (context);
+  return winsys_class->get_sync_fd (winsys, context);
 }
 
 CoglGraphicsResetStatus

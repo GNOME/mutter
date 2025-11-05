@@ -30,20 +30,7 @@
 
 #pragma once
 
-#include "cogl/cogl-texture.h"
-#include "cogl/cogl-meta-texture.h"
-#include "cogl/cogl-frame-info-private.h"
-#include "cogl/cogl-renderer-private.h"
-#ifdef HAVE_EGL
-#include "cogl/winsys/cogl-onscreen-egl.h"
-#include "cogl/winsys/cogl-winsys-egl-private.h"
-#endif
-#include "cogl/winsys/cogl-winsys-private.h"
-
-COGL_EXPORT
-void cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
-                                      CoglCustomWinsysVtableGetter winsys_vtable_getter,
-                                      void                        *user_data);
+#include "cogl/cogl-macros.h"
 
 COGL_EXPORT
 void cogl_init (void);

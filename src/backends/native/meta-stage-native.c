@@ -38,8 +38,6 @@ struct _MetaStageNative
 {
   MetaStageImpl parent;
 
-  CoglClosure *frame_closure;
-
   int64_t presented_frame_counter_sync;
   int64_t presented_frame_counter_complete;
 };

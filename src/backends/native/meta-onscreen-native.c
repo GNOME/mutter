@@ -52,6 +52,9 @@
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-egl-gbm.h"
 #include "cogl/cogl.h"
+#include "cogl/cogl-context-private.h"
+#include "cogl/cogl-display-private.h"
+#include "cogl/cogl-frame-info-private.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
 
@@ -2329,7 +2332,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
-  EGLint attrs[MAX_EGL_CONFIG_ATTRIBS];
+  EGLint attrs[COGL_MAX_EGL_CONFIG_ATTRIBS];
   static const uint32_t alphaless_10bpc_formats[] = {
     GBM_FORMAT_XRGB2101010,
     GBM_FORMAT_XBGR2101010,

@@ -2,6 +2,7 @@
 
 #include "cogl/cogl.h"
 #include "cogl/cogl-pipeline-state.h"
+#include "cogl/cogl-pipeline-private.h"
 #include "tests/cogl-test-utils.h"
 
 static void

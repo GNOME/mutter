@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include "cogl/cogl.h"
+#include "cogl/cogl-pipeline-private.h"
 #include "cogl/cogl-pipeline-state.h"
 #include "tests/cogl-test-utils.h"
 
