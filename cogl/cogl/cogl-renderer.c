@@ -88,16 +88,8 @@ static void
 cogl_renderer_dispose (GObject *object)
 {
   CoglRenderer *renderer = COGL_RENDERER (object);
-  CoglWinsysClass *winsys_class;
 
   _cogl_closure_list_disconnect_all (&renderer->idle_closures);
-
-  if (renderer->winsys)
-    {
-      winsys_class = COGL_WINSYS_GET_CLASS (renderer->winsys);
-      if (winsys_class->renderer_disconnect)
-        winsys_class->renderer_disconnect (renderer->winsys, renderer);
-    }
 
   g_clear_object (&renderer->winsys);
 
