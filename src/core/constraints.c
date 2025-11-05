@@ -37,6 +37,7 @@
 #include "core/meta-workspace-manager-private.h"
 #include "core/place.h"
 #include "core/workspace-private.h"
+#include "meta/meta-external-constraint.h"
 #include "meta/prefs.h"
 
 #ifdef HAVE_XWAYLAND
@@ -115,7 +116,8 @@ typedef enum
   PRIORITY_TITLEBAR_VISIBLE = 4,
   PRIORITY_PARTIALLY_VISIBLE_ON_WORKAREA = 4,
   PRIORITY_CUSTOM_RULE = 4,
-  PRIORITY_MAXIMUM = 4 /* Dummy value used for loop end = max(all priorities) */
+  PRIORITY_EXTERNAL_CONSTRAINT = 5, /* External constraints - highest priority */
+  PRIORITY_MAXIMUM = 5 /* Dummy value used for loop end = max(all priorities) */
 } ConstraintPriority;
 
 typedef enum
@@ -164,6 +166,10 @@ static gboolean do_screen_and_monitor_relative_constraints (MetaWindow     *wind
                                                             GList          *region_spanning_rectangles,
                                                             ConstraintInfo *info,
                                                             gboolean        check_only);
+static gboolean constrain_external           (MetaWindow         *window,
+                                              ConstraintInfo     *info,
+                                              ConstraintPriority  priority,
+                                              gboolean            check_only);
 static gboolean constrain_custom_rule        (MetaWindow         *window,
                                               ConstraintInfo     *info,
                                               ConstraintPriority  priority,
@@ -249,6 +255,7 @@ static const Constraint all_constraints[] = {
   {constrain_fully_onscreen,     "constrain_fully_onscreen"},
   {constrain_titlebar_visible,   "constrain_titlebar_visible"},
   {constrain_partially_onscreen, "constrain_partially_onscreen"},
+  {constrain_external,           "constrain_external"},
   {NULL,                         NULL}
 };
 
@@ -875,6 +882,45 @@ is_custom_rule_satisfied (MtkRectangle      *rect,
     return FALSE;
   else
     return TRUE;
+}
+
+static MetaExternalConstraintFlags
+get_external_constraint_flags (ConstraintInfo *info)
+{
+  MetaExternalConstraintFlags flags = META_EXTERNAL_CONSTRAINT_FLAGS_NONE;
+
+  if (info->flags & META_MOVE_RESIZE_MOVE_ACTION)
+    flags |= META_EXTERNAL_CONSTRAINT_FLAGS_MOVE;
+  if (info->flags & META_MOVE_RESIZE_RESIZE_ACTION)
+    flags |= META_EXTERNAL_CONSTRAINT_FLAGS_RESIZE;
+
+  return flags;
+}
+
+static gboolean
+constrain_external (MetaWindow         *window,
+                    ConstraintInfo     *info,
+                    ConstraintPriority  priority,
+                    gboolean            check_only)
+{
+  MtkRectangle current_rect = info->current;
+  gboolean constraint_satisfied;
+
+  if (priority > PRIORITY_EXTERNAL_CONSTRAINT)
+    return TRUE;
+
+  constraint_satisfied =
+    meta_window_apply_external_constraints (window,
+                                            info->resize_gravity,
+                                            &current_rect,
+                                            get_external_constraint_flags (info));
+
+  if (check_only)
+    return constraint_satisfied;
+
+  info->current = current_rect;
+
+  return constraint_satisfied;
 }
 
 static gboolean
