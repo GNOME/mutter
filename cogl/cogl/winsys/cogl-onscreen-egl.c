@@ -31,6 +31,7 @@
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-trace.h"
+#include "cogl/winsys/cogl-winsys-egl.h"
 #include "cogl/winsys/cogl-winsys-egl-private.h"
 
 typedef struct _CoglOnscreenEglPrivate
@@ -54,7 +55,7 @@ cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
   CoglDisplay *display = context->display;
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
-  EGLint attributes[MAX_EGL_CONFIG_ATTRIBS];
+  EGLint attributes[COGL_MAX_EGL_CONFIG_ATTRIBS];
   EGLConfig egl_config;
   EGLint config_count = 0;
   EGLBoolean status;

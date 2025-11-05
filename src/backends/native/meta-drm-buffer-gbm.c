@@ -33,6 +33,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer-private.h"
+#include "cogl/cogl.h"
 #include "common/meta-cogl-drm-formats.h"
 
 struct _MetaDrmBufferGbm
@@ -284,8 +285,8 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
     meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
-  CoglDisplay *cogl_display = cogl_context->display;
-  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_renderer);
   EGLDisplay egl_display = cogl_renderer_egl->edpy;
   EGLImageKHR egl_image;

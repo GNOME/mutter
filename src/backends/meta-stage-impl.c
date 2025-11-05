@@ -38,6 +38,7 @@
 #include "backends/meta-stage-view-private.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
+#include "cogl/cogl-frame-info-private.h"
 #include "core/util-private.h"
 #include "meta/meta-backend.h"
 
