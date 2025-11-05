@@ -284,10 +284,6 @@ CoglWinsys * cogl_renderer_get_winsys (CoglRenderer *renderer);
 
 COGL_EXPORT
 void cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
-                                      CoglWinsys   *winsys,
-                                      void         *user_data);
-
-COGL_EXPORT
-void * cogl_renderer_get_custom_winsys_data (CoglRenderer *renderer);
+                                      CoglWinsys   *winsys);
 
 G_END_DECLS
