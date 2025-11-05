@@ -431,12 +431,7 @@ determine_hotplug_pointer_visibility (ClutterSeat *seat)
       if (device_type == CLUTTER_TABLET_DEVICE ||
           device_type == CLUTTER_PEN_DEVICE ||
           device_type == CLUTTER_ERASER_DEVICE)
-        {
-          if (meta_is_wayland_compositor ())
-            has_tablet = TRUE;
-          else
-            has_pointer = TRUE;
-        }
+        has_tablet = TRUE;
     }
 
   return has_pointer && !has_touchscreen && !has_tablet;
@@ -1151,8 +1146,7 @@ update_pointer_visibility_from_event (MetaBackend  *backend,
     case CLUTTER_PEN_DEVICE:
     case CLUTTER_ERASER_DEVICE:
     case CLUTTER_CURSOR_DEVICE:
-      if (meta_is_wayland_compositor () &&
-          time_ms > priv->last_pointer_motion + HIDDEN_POINTER_TIMEOUT)
+      if (time_ms > priv->last_pointer_motion + HIDDEN_POINTER_TIMEOUT)
         set_cursor_visible (backend, FALSE);
       break;
     case CLUTTER_KEYBOARD_DEVICE:

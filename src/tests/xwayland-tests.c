@@ -272,7 +272,6 @@ meta_test_xwayland_compositor_selection (void)
 
   g_assert_null (meta_display_get_x11_display (display));
 
-  g_assert_true (meta_is_wayland_compositor ());
   compositor = meta_context_get_wayland_compositor (test_context);
   x11_display_name = meta_wayland_get_public_xwayland_display_name (compositor);
   g_assert_nonnull (x11_display_name);

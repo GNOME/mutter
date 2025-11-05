@@ -381,32 +381,7 @@ static void
 on_x11_display_opened (MetaX11Display *x11_display,
                        MetaDisplay    *display)
 {
-  Window old_active_xwindow = None;
-
-  if (!meta_is_wayland_compositor ())
-    {
-      meta_prop_get_window (display->x11_display,
-                            display->x11_display->xroot,
-                            display->x11_display->atom__NET_ACTIVE_WINDOW,
-                            &old_active_xwindow);
-    }
-
   meta_display_manage_all_xwindows (display);
-
-  if (old_active_xwindow != None)
-    {
-      MetaWindow *old_active_window;
-
-      old_active_window = meta_x11_display_lookup_x_window (x11_display,
-                                                            old_active_xwindow);
-      if (old_active_window)
-        {
-          uint32_t timestamp;
-
-          timestamp = display->x11_display->timestamp;
-          meta_window_focus (old_active_window, timestamp);
-        }
-    }
 }
 
 static void
@@ -840,10 +815,6 @@ take_manager_selection (MetaX11Display *x11_display,
   if (current_owner != None)
     {
       XEvent event;
-
-#ifdef HAVE_XWAYLAND
-      g_return_val_if_fail (!meta_is_wayland_compositor (), new_owner);
-#endif
 
       /* We sort of block infinitely here which is probably lame. */
 
@@ -1344,13 +1315,10 @@ meta_x11_display_new (MetaDisplay  *display,
     return NULL;
 
 #ifdef HAVE_XWAYLAND
-  if (meta_is_wayland_compositor ())
-    {
-      MetaWaylandCompositor *compositor =
-        meta_context_get_wayland_compositor (context);
+  MetaWaylandCompositor *compositor =
+    meta_context_get_wayland_compositor (context);
 
-      meta_xwayland_setup_xdisplay (&compositor->xwayland_manager, xdisplay);
-    }
+  meta_xwayland_setup_xdisplay (&compositor->xwayland_manager, xdisplay);
 #endif
 
   number = DefaultScreen (xdisplay);
@@ -1472,11 +1440,6 @@ meta_x11_display_new (MetaDisplay  *display,
 
   /* Select for cursor changes so the cursor tracker is up to date. */
   XFixesSelectCursorInput (xdisplay, xroot, XFixesDisplayCursorNotifyMask);
-
-  /* If we're a Wayland compositor, then we don't grab the COW, since it
-   * will map it. */
-  if (!meta_is_wayland_compositor ())
-    x11_display->composite_overlay_window = XCompositeGetOverlayWindow (xdisplay, xroot);
 
   /* Handle creating a no_focus_window for this screen */
   x11_display->no_focus_window =
@@ -2070,7 +2033,7 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
   if (focus_window)
     data[0] = meta_window_x11_get_xwindow (focus_window);
 #ifdef HAVE_XWAYLAND
-  else if (x11_display->focus_xwindow && meta_is_wayland_compositor ())
+  else if (x11_display->focus_xwindow)
     /* On Wayland, when a Wayland window is focused, indicate that an
      * actual window is focused rather than None, as None is otherwise
      * also used during transient focus changes.

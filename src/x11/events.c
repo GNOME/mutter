@@ -932,9 +932,6 @@ handle_input_xevent (MetaX11Display *x11_display,
   MetaWindow *window;
   MetaDisplay *display = x11_display->display;
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
-  MetaContext *context = meta_display_get_context (display);
-  MetaBackend *backend = meta_context_get_backend (context);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   if (input_event == NULL)
     return FALSE;
@@ -957,38 +954,6 @@ handle_input_xevent (MetaX11Display *x11_display,
 
   switch (input_event->evtype)
     {
-    case XI_Enter:
-      if (clutter_stage_get_grab_actor (stage) != NULL)
-        break;
-
-      /* Check if we've entered a window; do this even if window->has_focus to
-       * avoid races.
-       */
-      if (window &&
-          enter_event->mode != XINotifyGrab &&
-          enter_event->mode != XINotifyUngrab &&
-          enter_event->detail != XINotifyInferior &&
-          !meta_is_wayland_compositor () &&
-          enter_event->sourceid != enter_event->deviceid)
-        {
-          meta_display_handle_window_enter (display,
-                                            window,
-                                            enter_event->time,
-                                            (int) enter_event->root_x,
-                                            (int) enter_event->root_y);
-        }
-      break;
-    case XI_Leave:
-      if (clutter_stage_get_grab_actor (stage) != NULL)
-        break;
-
-      if (window != NULL &&
-          enter_event->mode != XINotifyGrab &&
-          enter_event->mode != XINotifyUngrab)
-        {
-          meta_display_handle_window_leave (display, window);
-        }
-      break;
     case XI_FocusIn:
     case XI_FocusOut:
       if (handle_window_focus_event (x11_display, window, enter_event, serial) &&
@@ -1652,10 +1617,9 @@ handle_other_xevent (MetaX11Display *x11_display,
           else if (event->xclient.message_type ==
                    x11_display->atom__XWAYLAND_MAY_GRAB_KEYBOARD)
             {
-              if (meta_is_wayland_compositor ())
-                g_object_set (G_OBJECT (window),
-                              "xwayland-may-grab-keyboard", (event->xclient.data.l[0] != 0),
-                              NULL);
+              g_object_set (G_OBJECT (window),
+                            "xwayland-may-grab-keyboard", (event->xclient.data.l[0] != 0),
+                            NULL);
             }
           else
 #endif
@@ -1892,8 +1856,7 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 #ifdef HAVE_XWAYLAND
   wayland_compositor = meta_context_get_wayland_compositor (context);
 
-  if (meta_is_wayland_compositor () &&
-      meta_xwayland_manager_handle_xevent (&wayland_compositor->xwayland_manager,
+  if (meta_xwayland_manager_handle_xevent (&wayland_compositor->xwayland_manager,
                                            event))
     {
       bypass_compositor = TRUE;

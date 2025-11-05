@@ -383,8 +383,6 @@ meta_context_configure (MetaContext   *context,
   priv->profiler = meta_profiler_new (priv->trace_file);
 #endif
 
-  meta_set_is_wayland_compositor (TRUE);
-
   priv->state = META_CONTEXT_STATE_CONFIGURED;
 
   return TRUE;

@@ -7582,7 +7582,7 @@ window_has_pointer_wayland (MetaWindow *window)
 gboolean
 meta_window_has_pointer (MetaWindow *window)
 {
-  if (meta_is_wayland_compositor ())
+  if (meta_window_get_client_type (window) == META_WINDOW_CLIENT_TYPE_WAYLAND)
     return window_has_pointer_wayland (window);
 #ifdef HAVE_XWAYLAND
   else

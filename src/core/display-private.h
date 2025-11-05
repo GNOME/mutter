@@ -329,6 +329,3 @@ void meta_display_handle_window_enter (MetaDisplay *display,
                                        uint32_t     timestamp_ms,
                                        int          root_x,
                                        int          root_y);
-
-void meta_display_handle_window_leave (MetaDisplay *display,
-                                       MetaWindow  *window);

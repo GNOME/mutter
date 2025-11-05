@@ -20,7 +20,7 @@
 
 /**
  * MetaWaylandClient:
- * 
+ *
  * A class that allows to launch a trusted client and detect if an specific
  * Wayland window belongs to it.
  */
@@ -167,8 +167,6 @@ meta_wayland_client_new_create (MetaContext  *context,
   int client_fd[2];
   MetaWaylandClient *client;
 
-  g_return_val_if_fail (meta_is_wayland_compositor (), NULL);
-
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -232,7 +230,6 @@ meta_wayland_client_new_subprocess (MetaContext          *context,
                         argv[0][0] != '\0',
                         NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-  g_return_val_if_fail (meta_is_wayland_compositor (), NULL);
 
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
     {
@@ -358,7 +355,7 @@ meta_wayland_client_owns_window (MetaWaylandClient *client,
   MetaWindowWayland *wl_window;
   MetaWaylandClient *window_client;
 
-  g_return_val_if_fail (meta_is_wayland_compositor (), FALSE);
+  g_return_val_if_fail (client->subprocess.subprocess != NULL, FALSE);
 
   if (!META_IS_WINDOW_WAYLAND (window))
     return FALSE;
