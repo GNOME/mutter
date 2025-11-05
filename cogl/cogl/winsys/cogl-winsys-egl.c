@@ -131,7 +131,7 @@ _cogl_winsys_renderer_bind_api (CoglRenderer *renderer)
 static void
 check_egl_extensions (CoglRenderer *renderer)
 {
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
   const char *egl_extensions;
   char **split_extensions;
   int i;
@@ -160,7 +160,7 @@ gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
                                           GError **error)
 {
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
   if (!eglInitialize (egl_renderer->edpy,
                       &egl_renderer->egl_version_major,
@@ -191,7 +191,7 @@ cogl_display_egl_determine_attributes (CoglDisplay *display,
                                        EGLint      *attributes)
 {
   CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
   int i = 0;
 
   /* Let the platform add attributes first, including setting the
@@ -235,7 +235,7 @@ _cogl_winsys_egl_make_current (CoglDisplay *display,
                                EGLContext context)
 {
   CoglDisplayEGL *egl_display = display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (display->renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (display->renderer);
   EGLBoolean ret;
 
   if (egl_display->current_draw_surface == draw &&
@@ -259,7 +259,7 @@ EGLBoolean
 _cogl_winsys_egl_ensure_current (CoglDisplay *display)
 {
   CoglDisplayEGL *egl_display = display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (display->renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (display->renderer);
 
   return eglMakeCurrent (egl_renderer->edpy,
                          egl_display->current_draw_surface,
@@ -272,7 +272,7 @@ cleanup_context (CoglDisplay *display)
 {
   CoglRenderer *renderer = display->renderer;
   CoglDisplayEGL *egl_display = display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
   if (egl_display->egl_context != EGL_NO_CONTEXT)
     {
@@ -293,7 +293,7 @@ try_create_context (CoglDisplay *display,
 {
   CoglRenderer *renderer = display->renderer;
   CoglDisplayEGL *egl_display = display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
   EGLDisplay edpy;
   EGLConfig config;
   EGLint attribs[11];
@@ -422,7 +422,7 @@ err:
 static void
 _cogl_winsys_display_destroy (CoglDisplay *display)
 {
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (display->renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (display->renderer);
   CoglDisplayEGL *egl_display = display->winsys;
 
   g_return_if_fail (egl_display != NULL);
@@ -445,7 +445,7 @@ _cogl_winsys_display_setup (CoglDisplay *display,
 {
   CoglDisplayEGL *egl_display;
   CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
   g_return_val_if_fail (display->winsys == NULL, FALSE);
 
@@ -471,7 +471,7 @@ _cogl_winsys_context_init (CoglContext *context, GError **error)
 {
   CoglRenderer *renderer = context->display->renderer;
   CoglDisplayEGL *egl_display = context->display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
   context->winsys = g_new0 (CoglContextEGL, 1);
 
@@ -518,7 +518,7 @@ static void
 _cogl_winsys_context_deinit (CoglContext *context)
 {
   CoglRenderer *renderer = context->display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
   if (egl_renderer->platform_vtable->context_deinit)
     egl_renderer->platform_vtable->context_deinit (context);
@@ -531,7 +531,7 @@ _cogl_winsys_context_deinit (CoglContext *context)
 static int
 _cogl_winsys_get_sync_fd (CoglContext *context)
 {
-  CoglRendererEGL *renderer = cogl_renderer_get_winsys (context->display->renderer);
+  CoglRendererEGL *renderer = cogl_renderer_get_winsys_data (context->display->renderer);
   int fd;
 
   if (!renderer->pf_eglDupNativeFenceFD)
@@ -547,7 +547,7 @@ _cogl_winsys_get_sync_fd (CoglContext *context)
 static void
 _cogl_winsys_update_sync (CoglContext *context)
 {
-  CoglRendererEGL *renderer = cogl_renderer_get_winsys (context->display->renderer);
+  CoglRendererEGL *renderer = cogl_renderer_get_winsys_data (context->display->renderer);
 
   if (!renderer->pf_eglDestroySync || !renderer->pf_eglCreateSync)
     return;
@@ -602,7 +602,7 @@ _cogl_egl_create_image (CoglContext *ctx,
                         const EGLint *attribs)
 {
   CoglDisplayEGL *egl_display = ctx->display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (ctx->display->renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (ctx->display->renderer);
   EGLContext egl_ctx;
 
   g_return_val_if_fail (egl_renderer->pf_eglCreateImage, EGL_NO_IMAGE_KHR);
@@ -634,7 +634,7 @@ void
 _cogl_egl_destroy_image (CoglContext *ctx,
                          EGLImageKHR image)
 {
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (ctx->display->renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (ctx->display->renderer);
 
   g_return_if_fail (egl_renderer->pf_eglDestroyImage);
 
@@ -645,7 +645,7 @@ _cogl_egl_destroy_image (CoglContext *ctx,
 EGLDisplay
 cogl_context_get_egl_display (CoglContext *context)
 {
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (context->display->renderer);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (context->display->renderer);
 
   return egl_renderer->edpy;
 }
