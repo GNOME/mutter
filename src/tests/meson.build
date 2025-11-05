@@ -956,6 +956,14 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'external-constraint',
+    'suite': 'wayland',
+    'sources': [
+      'external-constraint-tests.c',
+      wayland_test_utils,
+    ],
+  },
+  {
     'name': 'window-mapped-inhibit',
     'suite': 'wayland',
     'sources': [
