@@ -56,6 +56,16 @@ cogl_headers = [
   'cogl-trace.h',
 ]
 
+cogl_winsys_headers = [
+  'winsys/cogl-winsys.h',
+  'winsys/cogl-winsys-egl.h',
+  'winsys/cogl-onscreen-egl.h',
+]
+
+cogl_winsys_nonintrospected_headers = [
+  'winsys/cogl-winsys-egl-feature-functions.h',
+]
+
 cogl_nonintrospected_headers = [
 ]
 
@@ -277,7 +287,6 @@ cogl_sources = [
   'deprecated/cogl-shader-private.h',
   'deprecated/cogl-shader.c',
   'gl-prototypes/cogl-all-functions.h',
-  'winsys/cogl-winsys-private.h',
   'winsys/cogl-winsys.c',
 ]
 
@@ -299,6 +308,7 @@ cogl_enum_headers = [
 
 cogl_headers += [
   cogl_enum_headers,
+  cogl_winsys_headers,
 ]
 
 cogl_enums = gnome.mkenums('cogl-enums',
@@ -320,6 +330,7 @@ cogl_introspected_headers = [
 cogl_headers_all = [
   cogl_introspected_headers,
   cogl_nonintrospected_headers,
+  cogl_winsys_nonintrospected_headers,
   cogl_deprecated_headers,
 ]
 
@@ -373,6 +384,12 @@ install_headers([
 
 install_headers(cogl_gl_prototype_headers,
   subdir: cogl_cogl_includesubdir / 'gl-prototypes')
+
+install_headers(cogl_winsys_headers,
+  subdir: cogl_cogl_includesubdir / 'winsys')
+
+install_headers(cogl_winsys_nonintrospected_headers,
+  subdir: cogl_cogl_includesubdir / 'winsys')
 
 pkg.generate(libmutter_cogl,
   name: 'Cogl',

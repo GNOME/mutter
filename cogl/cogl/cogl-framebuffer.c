@@ -47,7 +47,7 @@
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-primitives-private.h"
 #include "cogl/cogl-trace.h"
-#include "cogl/winsys/cogl-winsys-private.h"
+#include "cogl/winsys/cogl-winsys.h"
 
 enum
 {
