@@ -41,8 +41,8 @@
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-trace.h"
-#include "cogl/winsys/cogl-winsys-egl-private.h"
 #include "cogl/winsys/cogl-winsys.h"
+#include "cogl/winsys/cogl-winsys-egl.h"
 #include "cogl/winsys/cogl-onscreen-egl.h"
 
 #include <stdlib.h>
@@ -565,54 +565,6 @@ static void
 cogl_winsys_egl_init (CoglWinsysEGL *winsys_egl)
 {
 }
-
-#ifdef EGL_KHR_image_base
-EGLImageKHR
-_cogl_egl_create_image (CoglContext *ctx,
-                        EGLenum target,
-                        EGLClientBuffer buffer,
-                        const EGLint *attribs)
-{
-  CoglDisplayEGL *egl_display = ctx->display->winsys;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (ctx->display->renderer);
-  EGLContext egl_ctx;
-
-  g_return_val_if_fail (egl_renderer->pf_eglCreateImage, EGL_NO_IMAGE_KHR);
-
-  /* The EGL_KHR_image_pixmap spec explicitly states that EGL_NO_CONTEXT must
-   * always be used in conjunction with the EGL_NATIVE_PIXMAP_KHR target */
-#ifdef EGL_KHR_image_pixmap
-  if (target == EGL_NATIVE_PIXMAP_KHR)
-    egl_ctx = EGL_NO_CONTEXT;
-  else
-#endif
-#ifdef EGL_WL_bind_wayland_display
-  /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be used
-   * in conjunction with the EGL_WAYLAND_BUFFER_WL target */
-  if (target == EGL_WAYLAND_BUFFER_WL)
-    egl_ctx = EGL_NO_CONTEXT;
-  else
-#endif
-    egl_ctx = egl_display->egl_context;
-
-  return egl_renderer->pf_eglCreateImage (egl_renderer->edpy,
-                                          egl_ctx,
-                                          target,
-                                          buffer,
-                                          attribs);
-}
-
-void
-_cogl_egl_destroy_image (CoglContext *ctx,
-                         EGLImageKHR image)
-{
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (ctx->display->renderer);
-
-  g_return_if_fail (egl_renderer->pf_eglDestroyImage);
-
-  egl_renderer->pf_eglDestroyImage (egl_renderer->edpy, image);
-}
-#endif
 
 EGLDisplay
 cogl_context_get_egl_display (CoglContext *context)
