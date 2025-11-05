@@ -250,6 +250,15 @@ meta_device_pool_open (MetaDevicePool       *pool,
       return file;
     }
 
+  if (!get_device_info_from_path (path, &major, &minor))
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_NOT_FOUND,
+                   "Could not get device info for path %s: %m", path);
+      return NULL;
+    }
+
   if (flags & META_DEVICE_FILE_FLAG_TAKE_CONTROL)
     {
       meta_topic (META_DEBUG_BACKEND,
@@ -260,15 +269,6 @@ meta_device_pool_open (MetaDevicePool       *pool,
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                        "Can't take control without logind session");
-          return NULL;
-        }
-
-      if (!get_device_info_from_path (path, &major, &minor))
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       G_IO_ERROR_NOT_FOUND,
-                       "Could not get device info for path %s: %m", path);
           return NULL;
         }
 
