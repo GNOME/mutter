@@ -110,9 +110,6 @@ struct _CoglWinsysClass
                             CoglContext  *context,
                             GError      **error);
 
-  void (*context_deinit) (CoglWinsys   *winsys,
-                          CoglContext  *context);
-
   void (*update_sync) (CoglWinsys   *winsys,
                        CoglContext  *ctx);
 
