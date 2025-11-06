@@ -61,6 +61,14 @@ cogl_renderer_egl_dispose (GObject *object)
   G_OBJECT_CLASS (cogl_renderer_egl_parent_class)->dispose (object);
 }
 
+static void
+cogl_renderer_egl_bind_api (CoglRenderer *renderer)
+{
+  if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3)
+    eglBindAPI (EGL_OPENGL_API);
+  else if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
+    eglBindAPI (EGL_OPENGL_ES_API);
+}
 
 static gboolean
 cogl_renderer_egl_load_driver (CoglRenderer  *renderer,
@@ -135,6 +143,7 @@ cogl_renderer_egl_class_init (CoglRendererEglClass *class)
     COGL_RENDERER_CLASS (class);
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
+  renderer_class->bind_api = cogl_renderer_egl_bind_api;
   renderer_class->load_driver = cogl_renderer_egl_load_driver;
   renderer_class->get_proc_address = cogl_renderer_egl_get_proc_address;
 
