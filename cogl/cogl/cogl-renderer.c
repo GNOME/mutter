@@ -65,7 +65,7 @@ static CoglDriverId _cogl_drivers[] =
   COGL_DRIVER_ID_NOP,
 };
 
-typedef struct _CoglRenderer
+typedef struct _CoglRendererPrivate
 {
   GObject parent_instance;
 
@@ -81,26 +81,28 @@ typedef struct _CoglRenderer
 
   void *winsys_user_data;
   GDestroyNotify winsys_user_data_destroy;
-} CoglRenderer;
+} CoglRendererPrivate;
 
-G_DEFINE_FINAL_TYPE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
 
 static void
 cogl_renderer_dispose (GObject *object)
 {
   CoglRenderer *renderer = COGL_RENDERER (object);
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
 
-  g_clear_pointer (&renderer->winsys_user_data,
-                   renderer->winsys_user_data_destroy);
+  g_clear_pointer (&priv->winsys_user_data,
+                   priv->winsys_user_data_destroy);
 
-  _cogl_closure_list_disconnect_all (&renderer->idle_closures);
+  _cogl_closure_list_disconnect_all (&priv->idle_closures);
 
-  g_clear_object (&renderer->winsys);
+  g_clear_object (&priv->winsys);
 
-  if (renderer->libgl_module)
-    g_module_close (renderer->libgl_module);
+  if (priv->libgl_module)
+    g_module_close (priv->libgl_module);
 
-  g_clear_object (&renderer->driver);
+  g_clear_object (&priv->driver);
 
   G_OBJECT_CLASS (cogl_renderer_parent_class)->dispose (object);
 }
@@ -108,6 +110,12 @@ cogl_renderer_dispose (GObject *object)
 static void
 cogl_renderer_init (CoglRenderer *renderer)
 {
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  priv->connected = FALSE;
+
+  _cogl_list_init (&priv->idle_closures);
 }
 
 static void
@@ -128,10 +136,6 @@ CoglRenderer *
 cogl_renderer_new (void)
 {
   CoglRenderer *renderer = g_object_new (COGL_TYPE_RENDERER, NULL);
-
-  renderer->connected = FALSE;
-
-  _cogl_list_init (&renderer->idle_closures);
 
   return renderer;
 }
@@ -218,6 +222,8 @@ static gboolean
 _cogl_renderer_choose_driver (CoglRenderer *renderer,
                               GError **error)
 {
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
   const char *driver_name = g_getenv ("COGL_DRIVER");
   CoglDriverId picked_driver, driver_override;
   const char *invalid_override = NULL;
@@ -233,10 +239,10 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
         invalid_override = driver_name;
     }
 
-  if (renderer->driver_override != COGL_DRIVER_ID_ANY)
+  if (priv->driver_override != COGL_DRIVER_ID_ANY)
     {
       if (driver_override != COGL_DRIVER_ID_ANY &&
-          renderer->driver_override != driver_override)
+          priv->driver_override != driver_override)
         {
           g_set_error (error, COGL_RENDERER_ERROR,
                        COGL_RENDERER_ERROR_BAD_CONSTRAINT,
@@ -245,7 +251,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
           return FALSE;
         }
 
-      driver_override = renderer->driver_override;
+      driver_override = priv->driver_override;
     }
 
   if (driver_override != COGL_DRIVER_ID_ANY)
@@ -286,35 +292,35 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
       return FALSE;
     }
 
-  renderer->driver_id = picked_driver;
+  priv->driver_id = picked_driver;
 
-  switch (renderer->driver_id)
+  switch (priv->driver_id)
     {
 #ifdef HAVE_GL
     case COGL_DRIVER_ID_GL3:
-      renderer->driver = g_object_new (COGL_TYPE_DRIVER_GL3, NULL);
+      priv->driver = g_object_new (COGL_TYPE_DRIVER_GL3, NULL);
       libgl_name = COGL_GL_LIBNAME;
       break;
 #endif
 #ifdef HAVE_GLES2
     case COGL_DRIVER_ID_GLES2:
-      renderer->driver = g_object_new (COGL_TYPE_DRIVER_GLES2, NULL);
+      priv->driver = g_object_new (COGL_TYPE_DRIVER_GLES2, NULL);
       libgl_name = COGL_GLES2_LIBNAME;
       break;
 #endif
 
     case COGL_DRIVER_ID_NOP:
     default:
-      renderer->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
+      priv->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
       break;
     }
 
   if (libgl_name)
     {
-      renderer->libgl_module = g_module_open (libgl_name,
-                                              G_MODULE_BIND_LAZY);
+      priv->libgl_module = g_module_open (libgl_name,
+                                          G_MODULE_BIND_LAZY);
 
-      if (renderer->libgl_module == NULL)
+      if (priv->libgl_module == NULL)
         {
           g_set_error (error, COGL_DRIVER_ERROR,
                        COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
@@ -333,15 +339,20 @@ void
 cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
                                  CoglWinsys   *winsys)
 {
-  renderer->winsys = winsys;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  priv->winsys = winsys;
 }
 
 gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
   CoglWinsysClass *winsys_class;
 
-  if (renderer->connected)
+  if (priv->connected)
     return TRUE;
 
   /* The driver needs to be chosen before connecting the renderer
@@ -350,22 +361,22 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
   if (!_cogl_renderer_choose_driver (renderer, error))
     return FALSE;
 
-  if (!renderer->winsys)
+  if (!priv->winsys)
     {
       g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
                    "Failed to connected to any renderer: no winsys set");
       return FALSE;
     }
 
-  winsys_class = COGL_WINSYS_GET_CLASS (renderer->winsys);
+  winsys_class = COGL_WINSYS_GET_CLASS (priv->winsys);
   if (winsys_class->renderer_connect &&
-      !winsys_class->renderer_connect (renderer->winsys, renderer, error))
+      !winsys_class->renderer_connect (priv->winsys, renderer, error))
     {
-      g_clear_object (&renderer->winsys);
+      g_clear_object (&priv->winsys);
       return FALSE;
     }
 
-  renderer->connected = TRUE;
+  priv->connected = TRUE;
   return TRUE;
 }
 
@@ -383,14 +394,21 @@ void
 cogl_renderer_set_driver (CoglRenderer *renderer,
                           CoglDriverId  driver)
 {
-  g_return_if_fail (!renderer->connected);
-  renderer->driver_override = driver;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  g_return_if_fail (!priv->connected);
+
+  priv->driver_override = driver;
 }
 
 CoglDriverId
 cogl_renderer_get_driver_id (CoglRenderer *renderer)
 {
-  return renderer->driver_id;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return priv->driver_id;
 }
 
 GArray *
@@ -493,19 +511,28 @@ cogl_renderer_bind_api (CoglRenderer *renderer)
 CoglDriver *
 cogl_renderer_get_driver (CoglRenderer *renderer)
 {
-  return renderer->driver;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return priv->driver;
 }
 
 CoglWinsys *
 cogl_renderer_get_winsys (CoglRenderer *renderer)
 {
-  return renderer->winsys;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return priv->winsys;
 }
 
 void *
 cogl_renderer_get_winsys_data (CoglRenderer *renderer)
 {
-  return renderer->winsys_user_data;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return priv->winsys_user_data;
 }
 
 void
@@ -513,8 +540,11 @@ cogl_renderer_set_winsys_data (CoglRenderer   *renderer,
                                void           *winsys,
                                GDestroyNotify  destroy)
 {
-  renderer->winsys_user_data = winsys;
-  renderer->winsys_user_data_destroy = destroy;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  priv->winsys_user_data = winsys;
+  priv->winsys_user_data_destroy = destroy;
 }
 
 CoglClosure *
@@ -522,7 +552,10 @@ cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
                                 void (*closure)(void *),
                                 gpointer       data)
 {
-  return _cogl_closure_list_add (&renderer->idle_closures,
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return _cogl_closure_list_add (&priv->idle_closures,
                                  closure,
                                  data,
                                  NULL);
@@ -531,11 +564,17 @@ cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
 CoglList *
 cogl_renderer_get_idle_closures (CoglRenderer *renderer)
 {
-  return &renderer->idle_closures;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return &priv->idle_closures;
 }
 
 GModule *
 cogl_renderer_get_gl_module (CoglRenderer *renderer)
 {
-  return renderer->libgl_module;
+  CoglRendererPrivate *priv =
+    cogl_renderer_get_instance_private (renderer);
+
+  return priv->libgl_module;
 }
