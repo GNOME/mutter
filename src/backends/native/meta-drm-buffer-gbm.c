@@ -285,8 +285,8 @@ meta_drm_buffer_gbm_copy_to_framebuffer (CoglScanout      *scanout,
     clutter_backend_get_cogl_context (clutter_backend);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  CoglRendererEGL *cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_renderer);
-  EGLDisplay egl_display = cogl_renderer_egl->edpy;
+  EGLDisplay egl_display =
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
   EGLImageKHR egl_image;
   CoglPixelFormat cogl_format;
   CoglPixelFormat dst_format;

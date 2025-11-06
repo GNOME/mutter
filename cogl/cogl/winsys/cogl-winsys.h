@@ -65,37 +65,12 @@ struct _CoglWinsysClass
 {
   GObjectClass parent_class;
 
-  gboolean (*renderer_connect) (CoglWinsys   *winsys,
-                                CoglRenderer *renderer,
-                                GError      **error);
-
   gboolean (*display_setup) (CoglWinsys   *winsys,
                              CoglDisplay  *display,
                              GError      **error);
 
   void (*display_destroy) (CoglWinsys  *winsys,
                            CoglDisplay *display);
-
-  GArray * (* renderer_query_drm_modifiers) (CoglWinsys             *winsys,
-                                             CoglRenderer           *renderer,
-                                             CoglPixelFormat         format,
-                                             CoglDrmModifierFilter   filter,
-                                             GError                **error);
-
-  uint64_t (* renderer_get_implicit_drm_modifier) (CoglWinsys   *winsys,
-                                                   CoglRenderer *renderer);
-
-  CoglDmaBufHandle * (*renderer_create_dma_buf) (CoglWinsys       *winsys,
-                                                 CoglRenderer     *renderer,
-                                                 CoglPixelFormat   format,
-                                                 uint64_t         *modifiers,
-                                                 int               n_modifiers,
-                                                 int               width,
-                                                 int               height,
-                                                 GError          **error);
-
-  gboolean (*renderer_is_dma_buf_supported) (CoglWinsys   *winsys,
-                                             CoglRenderer *renderer);
 
   gboolean (*context_init) (CoglWinsys   *winsys,
                             CoglContext  *context,
