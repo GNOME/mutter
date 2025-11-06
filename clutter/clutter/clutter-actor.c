@@ -13831,7 +13831,8 @@ clutter_actor_add_action_full (ClutterActor      *self,
   g_return_if_fail (name != NULL);
   g_return_if_fail (CLUTTER_IS_ACTION (action));
   g_return_if_fail (phase == CLUTTER_PHASE_BUBBLE ||
-                    phase == CLUTTER_PHASE_CAPTURE);
+                    phase == CLUTTER_PHASE_CAPTURE ||
+                    phase == CLUTTER_PHASE_TARGET);
 
   clutter_actor_meta_set_name (CLUTTER_ACTOR_META (action), name);
   clutter_actor_add_action_internal (self, action, phase);

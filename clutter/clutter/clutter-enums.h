@@ -1113,6 +1113,7 @@ typedef enum
 typedef enum
 {
   CLUTTER_PHASE_CAPTURE,
+  CLUTTER_PHASE_TARGET,
   CLUTTER_PHASE_BUBBLE,
 } ClutterEventPhase;
 

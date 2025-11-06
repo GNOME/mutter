@@ -372,6 +372,7 @@ create_event_emission_chain (ClutterSprite *sprite,
                              ClutterActor  *deepmost)
 {
   ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
+  const GList *l;
   int i;
 
   g_assert (priv->cur_event_actors->len == 0);
@@ -380,7 +381,6 @@ create_event_emission_chain (ClutterSprite *sprite,
   for (i = priv->cur_event_actors->len - 1; i >= 0; i--)
     {
       ClutterActor *actor = g_ptr_array_index (priv->cur_event_actors, i);
-      const GList *l;
 
       for (l = clutter_actor_peek_actions (actor); l; l = l->next)
         {
@@ -394,10 +394,18 @@ create_event_emission_chain (ClutterSprite *sprite,
       add_actor_to_event_emission_chain (chain, actor, CLUTTER_PHASE_CAPTURE);
     }
 
+  for (l = clutter_actor_peek_actions (topmost); l; l = l->next)
+    {
+      ClutterAction *action = l->data;
+
+      if (clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)) &&
+          clutter_action_get_phase (action) == CLUTTER_PHASE_TARGET)
+        add_action_to_event_emission_chain (chain, action);
+    }
+
   for (i = 0; i < priv->cur_event_actors->len; i++)
     {
       ClutterActor *actor = g_ptr_array_index (priv->cur_event_actors, i);
-      const GList *l;
 
       for (l = clutter_actor_peek_actions (actor); l; l = l->next)
         {
