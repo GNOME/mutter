@@ -56,9 +56,4 @@ G_DECLARE_DERIVABLE_TYPE (CoglRendererEgl,
 COGL_EXPORT
 CoglRendererEgl * cogl_renderer_egl_new (void);
 
-/**
- * cogl_renderer_egl_get_gl_module: (skip)
- */
-GModule * cogl_renderer_egl_get_gl_module (CoglRendererEgl *renderer_egl);
-
 G_END_DECLS
