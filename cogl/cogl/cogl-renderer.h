@@ -102,6 +102,8 @@ struct _CoglRendererClass
 {
   GObjectClass parent_class;
 
+  void (* bind_api) (CoglRenderer *renderer);
+
   gboolean (* load_driver) (CoglRenderer  *renderer,
                             CoglDriverId   driver_id,
                             GError       **error);
