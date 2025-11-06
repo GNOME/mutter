@@ -104,6 +104,10 @@ struct _CoglRendererClass
   gboolean (* driver_chosen) (CoglRenderer  *renderer,
                               CoglDriverId   driver_id,
                               GError       **error);
+
+
+  GCallback (*get_proc_address) (CoglRenderer *renderer,
+                                 const char   *name);
 };
 
 COGL_EXPORT
