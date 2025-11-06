@@ -413,12 +413,11 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 
 void *
 cogl_renderer_get_proc_address (CoglRenderer *renderer,
-                                 const char   *name)
+                                const char   *name)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  return winsys_class->renderer_get_proc_address (winsys, renderer, name);
+  return class->get_proc_address (renderer, name);
 }
 
 void
