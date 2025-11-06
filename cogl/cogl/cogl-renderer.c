@@ -43,6 +43,7 @@
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-display-private.h"
+#include "cogl/cogl-driver-private.h"
 
 #include "cogl/winsys/cogl-winsys.h"
 
@@ -85,6 +86,15 @@ typedef struct _CoglRendererPrivate
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
 
+enum
+{
+  PROP_0,
+  PROP_DRIVER,
+  N_PROPS
+};
+
+static GParamSpec *props[N_PROPS] = { NULL };
+
 static void
 cogl_renderer_dispose (GObject *object)
 {
@@ -108,6 +118,91 @@ cogl_renderer_dispose (GObject *object)
 }
 
 static void
+cogl_renderer_get_property (GObject      *object,
+                            unsigned int  prop_id,
+                            GValue       *value,
+                            GParamSpec   *pspec)
+{
+  CoglRenderer *renderer = COGL_RENDERER (object);
+  CoglRendererPrivate *priv = cogl_renderer_get_instance_private (renderer);
+
+  switch (prop_id)
+    {
+    case PROP_DRIVER:
+      g_value_set_object (value, priv->driver);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cogl_renderer_set_property (GObject      *object,
+                            unsigned int  prop_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+  CoglRenderer *renderer = COGL_RENDERER (object);
+  CoglRendererPrivate *priv = cogl_renderer_get_instance_private (renderer);
+
+  switch (prop_id)
+    {
+    case PROP_DRIVER:
+      g_set_object (&priv->driver, g_value_get_object (value));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static gboolean
+cogl_renderer_load_driver (CoglRenderer  *renderer,
+                           CoglDriverId   driver_id,
+                           GError       **error)
+{
+  CoglRendererPrivate *priv = cogl_renderer_get_instance_private (renderer);
+  const char *libgl_name = NULL;
+
+#ifdef HAVE_GL
+  if (driver_id == COGL_DRIVER_ID_GL3)
+    {
+      priv->driver = g_object_new (COGL_TYPE_DRIVER_GL3, NULL);
+      libgl_name = COGL_GL_LIBNAME;
+    }
+#endif
+#ifdef HAVE_GLES2
+  if (driver_id == COGL_DRIVER_ID_GLES2)
+    {
+      priv->driver = g_object_new (COGL_TYPE_DRIVER_GLES2, NULL);
+      libgl_name = COGL_GLES2_LIBNAME;
+    }
+#endif
+
+  /* Return early to fallback to NOP driver */
+  if (priv->driver == NULL)
+    return FALSE;
+
+  if (libgl_name)
+    {
+      priv->libgl_module = g_module_open (libgl_name,
+                                          G_MODULE_BIND_LAZY);
+
+      if (priv->libgl_module == NULL)
+        {
+          g_set_error (error, COGL_DRIVER_ERROR,
+                       COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
+                       "Failed to dynamically open the GL library \"%s\"",
+                       libgl_name);
+          return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static void
 cogl_renderer_init (CoglRenderer *renderer)
 {
   CoglRendererPrivate *priv =
@@ -124,6 +219,19 @@ cogl_renderer_class_init (CoglRendererClass *class)
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
   object_class->dispose = cogl_renderer_dispose;
+  object_class->get_property = cogl_renderer_get_property;
+  object_class->set_property = cogl_renderer_set_property;
+
+  class->load_driver = cogl_renderer_load_driver;
+
+  props[PROP_DRIVER] =
+    g_param_spec_object ("driver", NULL, NULL,
+                         COGL_TYPE_DRIVER,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 uint32_t
@@ -227,7 +335,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
   const char *driver_name = g_getenv ("COGL_DRIVER");
   CoglDriverId picked_driver, driver_override;
   const char *invalid_override = NULL;
-  const char *libgl_name = NULL;
   int i;
 
   picked_driver = driver_override = COGL_DRIVER_ID_ANY;
@@ -294,40 +401,22 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
   priv->driver_id = picked_driver;
 
-  switch (priv->driver_id)
+  if (!COGL_RENDERER_GET_CLASS (renderer)->load_driver (renderer,
+                                                        picked_driver,
+                                                        error))
     {
-#ifdef HAVE_GL
-    case COGL_DRIVER_ID_GL3:
-      priv->driver = g_object_new (COGL_TYPE_DRIVER_GL3, NULL);
-      libgl_name = COGL_GL_LIBNAME;
-      break;
-#endif
-#ifdef HAVE_GLES2
-    case COGL_DRIVER_ID_GLES2:
-      priv->driver = g_object_new (COGL_TYPE_DRIVER_GLES2, NULL);
-      libgl_name = COGL_GLES2_LIBNAME;
-      break;
-#endif
-
-    case COGL_DRIVER_ID_NOP:
-    default:
-      priv->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
-      break;
-    }
-
-  if (libgl_name)
-    {
-      priv->libgl_module = g_module_open (libgl_name,
-                                          G_MODULE_BIND_LAZY);
-
-      if (priv->libgl_module == NULL)
+      /* If load_driver fails but no error was set, fallback to NOP driver */
+      if (error != NULL && *error == NULL)
         {
-          g_set_error (error, COGL_DRIVER_ERROR,
-                       COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
-                       "Failed to dynamically open the GL library \"%s\"",
-                       libgl_name);
-          return FALSE;
+          g_clear_error (error);
+
+          priv->driver_id = COGL_DRIVER_ID_NOP;
+          priv->driver = g_object_new (COGL_TYPE_DRIVER_NOP, NULL);
+
+          return TRUE;
         }
+
+      return FALSE;
     }
 
   return TRUE;
