@@ -60,6 +60,8 @@ struct _ClutterPanGesture
   unsigned int max_n_points;
 
   unsigned int use_point;
+  unsigned int required_button;
+  unsigned int button;
 };
 
 enum
@@ -70,6 +72,7 @@ enum
   PROP_PAN_AXIS,
   PROP_MIN_N_POINTS,
   PROP_MAX_N_POINTS,
+  PROP_REQUIRED_BUTTON,
 
   PROP_LAST
 };
@@ -268,11 +271,9 @@ clutter_pan_gesture_point_began (ClutterGesture *gesture,
   if (active_n_points < self->min_n_points)
     return;
 
-  /* Most pan gestures will only want to use the primary button anyway, could
-   * expose this as API later if necessary.
-   */
   if (clutter_event_type (event) == CLUTTER_BUTTON_PRESS &&
-      clutter_event_get_button (event) != CLUTTER_BUTTON_PRIMARY)
+      self->required_button != 0 &&
+      clutter_event_get_button (event) != self->required_button)
     {
       clutter_gesture_set_state (gesture, CLUTTER_GESTURE_STATE_CANCELLED);
       return;
@@ -426,6 +427,10 @@ clutter_pan_gesture_set_property (GObject      *gobject,
       clutter_pan_gesture_set_max_n_points (self, g_value_get_uint (value));
       break;
 
+    case PROP_REQUIRED_BUTTON:
+      clutter_pan_gesture_set_required_button (self, g_value_get_uint (value));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
     }
@@ -455,6 +460,10 @@ clutter_pan_gesture_get_property (GObject      *gobject,
 
     case PROP_MAX_N_POINTS:
       g_value_set_uint (value, clutter_pan_gesture_get_max_n_points (self));
+      break;
+
+    case PROP_REQUIRED_BUTTON:
+      g_value_set_uint (value, clutter_pan_gesture_get_required_button (self));
       break;
 
     default:
@@ -538,6 +547,20 @@ clutter_pan_gesture_class_init (ClutterPanGestureClass *klass)
                        G_PARAM_STATIC_STRINGS |
                        G_PARAM_EXPLICIT_NOTIFY);
 
+  /**
+   * ClutterPanGesture:required-button:
+   *
+   * The mouse button required for the pan gesture to recognize.
+   * Pass 0 to allow any button. Touch input is always handled as a press
+   * of the primary button.
+   */
+  obj_props[PROP_REQUIRED_BUTTON] =
+    g_param_spec_uint ("required-button", NULL, NULL,
+                       0, G_MAXUINT, 1,
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_EXPLICIT_NOTIFY);
+
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 
   /**
@@ -567,6 +590,7 @@ clutter_pan_gesture_init (ClutterPanGesture *self)
 
   self->pan_axis = CLUTTER_PAN_AXIS_BOTH;
   self->min_n_points = 1;
+  self->required_button = 1;
 }
 
 /**
@@ -1060,4 +1084,58 @@ clutter_pan_gesture_get_accumulated_delta_abs (ClutterPanGesture *self,
 
   if (accumulated_delta_out)
     *accumulated_delta_out = self->total_delta;
+}
+
+/**
+ * clutter_pan_gesture_get_button:
+ * @self: the `ClutterPanGesture`
+ *
+ * Retrieves the button that is currently pressed.
+ *
+ * Returns: the button value
+ **/
+unsigned int
+clutter_pan_gesture_get_button (ClutterPanGesture *self)
+{
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+
+  return self->button;
+}
+
+/**
+ * clutter_pan_gesture_get_required_button:
+ * @self: the `ClutterPanGesture`
+ *
+ * Gets the mouse button required for the pan gesture to recognize.
+ *
+ * Returns: The mouse button required to recognize
+ **/
+unsigned int
+clutter_pan_gesture_get_required_button (ClutterPanGesture *self)
+{
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+
+  return self->required_button;
+}
+
+/**
+ * clutter_pan_gesture_set_required_button:
+ * @self: the `ClutterPanGesture`
+ * @required_button: mouse button required for the gesture to recognize
+ *
+ * Sets the mouse button required for the pan gesture to recognize.
+ * Pass 0 to allow any button. Touch input is always handled as a press
+ * of the primary button.
+ **/
+void
+clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
+                                         unsigned int       required_button)
+{
+  g_return_if_fail (CLUTTER_IS_PAN_GESTURE (self));
+
+  if (self->required_button == required_button)
+    return;
+
+  self->required_button = required_button;
+  g_object_notify (G_OBJECT (self), "required-button");
 }

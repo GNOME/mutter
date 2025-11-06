@@ -102,4 +102,14 @@ CLUTTER_EXPORT
 void clutter_pan_gesture_get_accumulated_delta_abs (ClutterPanGesture *self,
                                                     graphene_vec2_t   *accumulated_delta_out);
 
+CLUTTER_EXPORT
+unsigned int clutter_pan_gesture_get_button (ClutterPanGesture *self);
+
+CLUTTER_EXPORT
+unsigned int clutter_pan_gesture_get_required_button (ClutterPanGesture *self);
+
+CLUTTER_EXPORT
+void clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
+                                              unsigned int       required_button);
+
 G_END_DECLS
