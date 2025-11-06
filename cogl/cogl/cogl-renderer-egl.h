@@ -36,8 +36,23 @@
 
 #include <glib-object.h>
 #include <gmodule.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 G_BEGIN_DECLS
+
+typedef enum _CoglEGLWinsysFeature
+{
+  COGL_EGL_WINSYS_FEATURE_SWAP_REGION                   = 1L << 0,
+  COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_WAYLAND_BUFFER = 1L << 2,
+  COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT                = 1L << 3,
+  COGL_EGL_WINSYS_FEATURE_BUFFER_AGE                    = 1L << 4,
+  COGL_EGL_WINSYS_FEATURE_FENCE_SYNC                    = 1L << 5,
+  COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           = 1L << 6,
+  COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY              = 1L << 7,
+  COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT             = 1L << 8,
+  COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC             = 1L << 9,
+} CoglEGLWinsysFeature;
 
 #define COGL_TYPE_RENDERER_EGL (cogl_renderer_egl_get_type ())
 
@@ -55,5 +70,35 @@ G_DECLARE_DERIVABLE_TYPE (CoglRendererEgl,
 
 COGL_EXPORT
 CoglRendererEgl *cogl_renderer_egl_new (void);
+
+/**
+ * cogl_renderer_egl_set_edisplay: (skip)
+ */
+COGL_EXPORT
+void cogl_renderer_egl_set_edisplay (CoglRendererEgl *renderer_egl,
+                                     EGLDisplay       edisplay);
+
+/**
+ * cogl_renderer_egl_get_edisplay: (skip)
+ */
+COGL_EXPORT
+EGLDisplay cogl_renderer_egl_get_edisplay (CoglRendererEgl *renderer_egl);
+
+COGL_EXPORT
+void cogl_renderer_egl_set_needs_config (CoglRendererEgl *renderer_egl,
+                                         gboolean         needs_config);
+
+COGL_EXPORT
+gboolean cogl_renderer_egl_get_needs_config (CoglRendererEgl *renderer_egl);
+
+/**
+ * cogl_renderer_egl_get_sync: (skip)
+ */
+COGL_EXPORT
+EGLSyncKHR cogl_renderer_egl_get_sync (CoglRendererEgl *renderer_egl);
+
+COGL_EXPORT
+gboolean cogl_renderer_egl_has_feature (CoglRendererEgl      *renderer_egl,
+                                        CoglEGLWinsysFeature  feature);
 
 G_END_DECLS

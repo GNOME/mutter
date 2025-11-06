@@ -297,6 +297,7 @@ cogl_sources = [
 if have_egl
   cogl_sources += [
     'cogl-renderer-egl.c',
+    'cogl-renderer-egl-private.h',
     'winsys/cogl-onscreen-egl.c',
     'winsys/cogl-onscreen-egl.h',
     'winsys/cogl-winsys-egl-feature-functions.h',
