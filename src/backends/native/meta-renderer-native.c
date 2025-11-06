@@ -65,6 +65,7 @@
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-render-device-gbm.h"
 #include "backends/native/meta-render-device-surfaceless.h"
+#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "backends/native/meta-renderer-view-native.h"
@@ -1449,7 +1450,7 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
 static CoglRenderer *
 meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
 {
-  CoglRendererEgl *cogl_renderer;
+  MetaRendererEGL *cogl_renderer;
   CoglWinsys *winsys;
 
   winsys = g_object_new (META_TYPE_WINSYS_EGL,
@@ -1457,7 +1458,7 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
                          "renderer", renderer,
                          NULL);
 
-  cogl_renderer = cogl_renderer_egl_new ();
+  cogl_renderer = meta_renderer_egl_new ();
   cogl_renderer_set_custom_winsys (COGL_RENDERER (cogl_renderer),
                                    winsys);
   return COGL_RENDERER (cogl_renderer);
