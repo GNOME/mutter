@@ -97,9 +97,6 @@ struct _CoglWinsysClass
   gboolean (*renderer_is_dma_buf_supported) (CoglWinsys   *winsys,
                                              CoglRenderer *renderer);
 
-  void (*renderer_bind_api) (CoglWinsys   *winsys,
-                             CoglRenderer *renderer);
-
   gboolean (*context_init) (CoglWinsys   *winsys,
                             CoglContext  *context,
                             GError      **error);
