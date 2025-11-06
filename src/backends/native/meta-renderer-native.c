@@ -1449,7 +1449,7 @@ meta_renderer_native_create_offscreen (MetaRendererNative    *renderer_native,
 static CoglRenderer *
 meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
 {
-  CoglRenderer *cogl_renderer;
+  CoglRendererEgl *cogl_renderer;
   CoglWinsys *winsys;
 
   winsys = g_object_new (META_TYPE_WINSYS_EGL,
@@ -1457,10 +1457,10 @@ meta_renderer_native_create_cogl_renderer (MetaRenderer *renderer)
                          "renderer", renderer,
                          NULL);
 
-  cogl_renderer = cogl_renderer_new ();
-  cogl_renderer_set_custom_winsys (cogl_renderer,
+  cogl_renderer = cogl_renderer_egl_new ();
+  cogl_renderer_set_custom_winsys (COGL_RENDERER (cogl_renderer),
                                    winsys);
-  return cogl_renderer;
+  return COGL_RENDERER (cogl_renderer);
 }
 
 static MtkMonitorTransform

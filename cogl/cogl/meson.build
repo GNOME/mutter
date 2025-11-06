@@ -57,6 +57,12 @@ cogl_headers = [
   'cogl-trace.h',
 ]
 
+if have_egl
+  cogl_headers += [
+    'cogl-renderer-egl.h',
+  ]
+endif
+
 cogl_winsys_headers = [
   'winsys/cogl-winsys.h',
   'winsys/cogl-winsys-egl.h',
@@ -258,7 +264,6 @@ cogl_sources = [
   'cogl-rectangle-map.h',
   'cogl-renderer-private.h',
   'cogl-renderer.c',
-  'cogl-renderer.h',
   'cogl-sampler-cache-private.h',
   'cogl-sampler-cache.c',
   'cogl-scanout.c',
@@ -291,6 +296,7 @@ cogl_sources = [
 
 if have_egl
   cogl_sources += [
+    'cogl-renderer-egl.c',
     'winsys/cogl-onscreen-egl.c',
     'winsys/cogl-onscreen-egl.h',
     'winsys/cogl-winsys-egl-feature-functions.h',

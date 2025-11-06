@@ -3,7 +3,7 @@
  *
  * A Low Level GPU Graphics and Utilities API
  *
- * Copyright (C) 2011 Intel Corporation.
+ * Copyright (C) 2025 Red Hat.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,25 +24,41 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- *
  */
 
 #pragma once
 
-#include "cogl/cogl-driver-private.h"
-#include "cogl/cogl-texture-driver.h"
-#include "cogl/cogl-context.h"
-#include "cogl/cogl-closure-list-private.h"
-#include "cogl/winsys/cogl-winsys.h"
+#if !defined(__COGL_H_INSIDE__) && !defined(COGL_COMPILATION)
+#error "Only <cogl/cogl.h> can be included directly."
+#endif
 
-CoglDriver * cogl_renderer_get_driver (CoglRenderer *renderer);
+#include "cogl/cogl-renderer.h"
 
-CoglClosure * cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
-                                              void (*closure)(void *),
-                                              gpointer       data);
+#include <glib-object.h>
+#include <gmodule.h>
 
-CoglList * cogl_renderer_get_idle_closures (CoglRenderer *renderer);
+G_BEGIN_DECLS
 
-void cogl_renderer_set_driver (CoglRenderer *renderer,
-                               CoglDriver   *driver);
+#define COGL_TYPE_RENDERER_EGL (cogl_renderer_egl_get_type ())
+
+struct _CoglRendererEglClass
+{
+  CoglRendererClass parent_class;
+};
+
+COGL_EXPORT
+G_DECLARE_DERIVABLE_TYPE (CoglRendererEgl,
+                          cogl_renderer_egl,
+                          COGL,
+                          RENDERER_EGL,
+                          CoglRenderer)
+
+COGL_EXPORT
+CoglRendererEgl *cogl_renderer_egl_new (void);
+
+/**
+ * cogl_renderer_egl_get_gl_module: (skip)
+ */
+GModule * cogl_renderer_egl_get_gl_module (CoglRendererEgl *renderer_egl);
+
+G_END_DECLS
