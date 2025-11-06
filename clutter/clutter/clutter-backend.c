@@ -183,7 +183,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Connecting the renderer");
-  cogl_renderer_set_driver (backend->cogl_renderer, driver_id);
+  cogl_renderer_set_driver_id (backend->cogl_renderer, driver_id);
   if (!cogl_renderer_connect (backend->cogl_renderer, error))
     goto error;
 

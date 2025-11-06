@@ -35,6 +35,7 @@
 #include "cogl/cogl-types.h"
 #include "cogl/cogl-pixel-format.h"
 #include "cogl/winsys/cogl-winsys.h"
+#include "cogl/cogl-driver.h"
 
 #include <glib-object.h>
 
@@ -161,7 +162,7 @@ COGL_EXPORT gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error);
 
 /**
- * cogl_renderer_set_driver:
+ * cogl_renderer_set_driver_id:
  * @renderer: An unconnected #CoglRenderer
  *
  * Requests that Cogl should try to use a specific underlying driver
@@ -175,8 +176,8 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error);
  * This may only be called on an un-connected #CoglRenderer.
  */
 COGL_EXPORT void
-cogl_renderer_set_driver (CoglRenderer *renderer,
-                          CoglDriverId  driver);
+cogl_renderer_set_driver_id (CoglRenderer *renderer,
+                             CoglDriverId  driver);
 
 /**
  * cogl_renderer_get_driver_id:

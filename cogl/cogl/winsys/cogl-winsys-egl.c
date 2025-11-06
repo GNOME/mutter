@@ -38,6 +38,7 @@
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen-private.h"
+#include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-private.h"
 #include "cogl/cogl-trace.h"
@@ -115,7 +116,8 @@ _cogl_winsys_renderer_get_proc_address (CoglWinsys   *winsys,
   GCallback result = eglGetProcAddress (name);
 
   if (result == NULL)
-    g_module_symbol (cogl_renderer_get_gl_module (renderer), name, (gpointer *)&result);
+    g_module_symbol (cogl_renderer_egl_get_gl_module (COGL_RENDERER_EGL (renderer)),
+                     name, (gpointer *)&result);
 
   return result;
 }
