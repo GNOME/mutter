@@ -112,6 +112,22 @@ cogl_renderer_egl_load_driver (CoglRenderer  *renderer,
   return TRUE;
 }
 
+static GCallback
+cogl_renderer_egl_get_proc_address (CoglRenderer *renderer,
+                                    const char   *name)
+{
+  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEglPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+  GCallback result = eglGetProcAddress (name);
+
+  if (result == NULL)
+    g_module_symbol (priv->libgl_module,
+                     name, (gpointer *)&result);
+
+  return result;
+}
+
 static void
 cogl_renderer_egl_class_init (CoglRendererEglClass *class)
 {
@@ -120,6 +136,7 @@ cogl_renderer_egl_class_init (CoglRendererEglClass *class)
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
   renderer_class->load_driver = cogl_renderer_egl_load_driver;
+  renderer_class->get_proc_address = cogl_renderer_egl_get_proc_address;
 
   object_class->dispose = cogl_renderer_egl_dispose;
 }
@@ -133,13 +150,4 @@ CoglRendererEgl *
 cogl_renderer_egl_new (void)
 {
   return g_object_new (COGL_TYPE_RENDERER_EGL, NULL);
-}
-
-GModule *
-cogl_renderer_egl_get_gl_module (CoglRendererEgl *renderer_egl)
-{
-  CoglRendererEglPrivate *priv =
-    cogl_renderer_egl_get_instance_private (renderer_egl);
-
-  return priv->libgl_module;
 }
