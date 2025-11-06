@@ -108,19 +108,6 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
   };
 
-static GCallback
-_cogl_winsys_renderer_get_proc_address (CoglWinsys   *winsys,
-                                        CoglRenderer *renderer,
-                                        const char   *name)
-{
-  GCallback result = eglGetProcAddress (name);
-
-  if (result == NULL)
-    g_module_symbol (cogl_renderer_egl_get_gl_module (COGL_RENDERER_EGL (renderer)),
-                     name, (gpointer *)&result);
-
-  return result;
-}
 
 static void
 _cogl_winsys_renderer_bind_api (CoglWinsys   *winsys,
@@ -546,7 +533,6 @@ cogl_winsys_egl_class_init (CoglWinsysEGLClass *klass)
 {
   CoglWinsysClass *winsys_class = COGL_WINSYS_CLASS (klass);
 
-  winsys_class->renderer_get_proc_address = _cogl_winsys_renderer_get_proc_address;
   winsys_class->renderer_connect = _cogl_winsys_renderer_connect;
   winsys_class->renderer_bind_api = _cogl_winsys_renderer_bind_api;
   winsys_class->display_setup = _cogl_winsys_display_setup;

@@ -65,10 +65,6 @@ struct _CoglWinsysClass
 {
   GObjectClass parent_class;
 
-  GCallback (*renderer_get_proc_address) (CoglWinsys   *winsys,
-                                          CoglRenderer *renderer,
-                                          const char   *name);
-
   gboolean (*renderer_connect) (CoglWinsys   *winsys,
                                 CoglRenderer *renderer,
                                 GError      **error);
