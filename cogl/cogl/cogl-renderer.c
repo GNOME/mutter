@@ -542,10 +542,9 @@ cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer)
 void
 cogl_renderer_bind_api (CoglRenderer *renderer)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  winsys_class->renderer_bind_api (winsys, renderer);
+  class->bind_api (renderer);
 }
 
 CoglDriver *

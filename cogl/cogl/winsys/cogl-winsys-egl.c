@@ -108,17 +108,6 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
   };
 
-
-static void
-_cogl_winsys_renderer_bind_api (CoglWinsys   *winsys,
-                                CoglRenderer *renderer)
-{
-  if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3)
-    eglBindAPI (EGL_OPENGL_API);
-  else if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
-    eglBindAPI (EGL_OPENGL_ES_API);
-}
-
 /* Updates all the function pointers */
 static void
 check_egl_extensions (CoglRenderer *renderer)
@@ -534,7 +523,6 @@ cogl_winsys_egl_class_init (CoglWinsysEGLClass *klass)
   CoglWinsysClass *winsys_class = COGL_WINSYS_CLASS (klass);
 
   winsys_class->renderer_connect = _cogl_winsys_renderer_connect;
-  winsys_class->renderer_bind_api = _cogl_winsys_renderer_bind_api;
   winsys_class->display_setup = _cogl_winsys_display_setup;
   winsys_class->display_destroy = _cogl_winsys_display_destroy;
   winsys_class->context_init = _cogl_winsys_context_init;
