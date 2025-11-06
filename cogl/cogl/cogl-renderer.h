@@ -76,11 +76,34 @@ G_BEGIN_DECLS
 COGL_EXPORT uint32_t
 cogl_renderer_error_quark (void);
 
+/**
+ * CoglDriverId:
+ * @COGL_DRIVER_ID_ANY: Implies no preference for which driver is used
+ * @COGL_DRIVER_ID_NOP: A No-Op driver.
+ * @COGL_DRIVER_ID_GL3: An OpenGL driver using the core GL 3.1 profile
+ * @COGL_DRIVER_ID_GLES2: An OpenGL ES 2.0 driver.
+ *
+ * Identifiers for underlying hardware drivers that may be used by
+ * Cogl for rendering.
+ */
+typedef enum
+{
+  COGL_DRIVER_ID_ANY,
+  COGL_DRIVER_ID_NOP,
+  COGL_DRIVER_ID_GL3,
+  COGL_DRIVER_ID_GLES2,
+} CoglDriverId;
+
+
 #define COGL_TYPE_RENDERER (cogl_renderer_get_type ())
 
 struct _CoglRendererClass
 {
   GObjectClass parent_class;
+
+  gboolean (* load_driver) (CoglRenderer  *renderer,
+                            CoglDriverId   driver_id,
+                            GError       **error);
 };
 
 COGL_EXPORT
@@ -136,24 +159,6 @@ cogl_renderer_new (void);
  */
 COGL_EXPORT gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error);
-
-/**
- * CoglDriverId:
- * @COGL_DRIVER_ID_ANY: Implies no preference for which driver is used
- * @COGL_DRIVER_ID_NOP: A No-Op driver.
- * @COGL_DRIVER_ID_GL3: An OpenGL driver using the core GL 3.1 profile
- * @COGL_DRIVER_ID_GLES2: An OpenGL ES 2.0 driver.
- *
- * Identifiers for underlying hardware drivers that may be used by
- * Cogl for rendering.
- */
-typedef enum
-{
-  COGL_DRIVER_ID_ANY,
-  COGL_DRIVER_ID_NOP,
-  COGL_DRIVER_ID_GL3,
-  COGL_DRIVER_ID_GLES2,
-} CoglDriverId;
 
 /**
  * cogl_renderer_set_driver:
