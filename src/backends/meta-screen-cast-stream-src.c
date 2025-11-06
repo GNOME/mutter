@@ -52,6 +52,7 @@
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
+#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-drm-timeline.h"
 #endif
@@ -1613,7 +1614,6 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer;
-  CoglRendererEGL *cogl_renderer_egl;
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRenderDevice *render_device;
   MetaDeviceFile *device_file;
@@ -1623,8 +1623,8 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
     return FALSE;
 
   cogl_renderer = cogl_context_get_renderer (cogl_context);
-  cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_renderer);
-  renderer_gpu_data = cogl_renderer_egl->platform;
+  renderer_gpu_data =
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   render_device = renderer_gpu_data->render_device;
   device_file = meta_render_device_get_device_file (render_device);
   if (!device_file)
@@ -1847,8 +1847,8 @@ maybe_create_syncobj (MetaScreenCastStreamSrc *src,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
-  CoglRendererEGL *cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_renderer);
-  MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
+  MetaRendererNativeGpuData *renderer_gpu_data =
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   MetaDeviceFile *device_file =
     meta_render_device_get_device_file (render_device);

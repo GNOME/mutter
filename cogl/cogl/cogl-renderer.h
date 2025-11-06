@@ -110,6 +110,27 @@ struct _CoglRendererClass
 
   GCallback (* get_proc_address) (CoglRenderer *renderer,
                                   const char   *name);
+
+  gboolean (* connect) (CoglRenderer  *renderer,
+                        GError       **error);
+
+  GArray * (* query_drm_modifiers) (CoglRenderer           *renderer,
+                                    CoglPixelFormat         format,
+                                    CoglDrmModifierFilter   filter,
+                                    GError                **error);
+
+  uint64_t (* get_implicit_drm_modifier) (CoglRenderer *renderer);
+
+  CoglDmaBufHandle * (* create_dma_buf) (CoglRenderer     *renderer,
+                                         CoglPixelFormat   format,
+                                         uint64_t         *modifiers,
+                                         int               n_modifiers,
+                                         int               width,
+                                         int               height,
+                                         GError          **error);
+
+  gboolean (* is_dma_buf_supported) (CoglRenderer *renderer);
+
 };
 
 COGL_EXPORT
