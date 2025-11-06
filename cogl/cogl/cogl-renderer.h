@@ -78,12 +78,17 @@ cogl_renderer_error_quark (void);
 
 #define COGL_TYPE_RENDERER (cogl_renderer_get_type ())
 
+struct _CoglRendererClass
+{
+  GObjectClass parent_class;
+};
+
 COGL_EXPORT
-G_DECLARE_FINAL_TYPE (CoglRenderer,
-                      cogl_renderer,
-                      COGL,
-                      RENDERER,
-                      GObject)
+G_DECLARE_DERIVABLE_TYPE (CoglRenderer,
+                          cogl_renderer,
+                          COGL,
+                          RENDERER,
+                          GObject)
 
 
 /**
