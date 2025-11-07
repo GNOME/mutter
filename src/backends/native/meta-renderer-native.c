@@ -325,7 +325,7 @@ meta_renderer_native_add_egl_config_attributes (CoglWinsysEGL *winsys,
                                                 CoglDisplay   *cogl_display,
                                                 EGLint        *attributes)
 {
-  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   int i = 0;
@@ -466,7 +466,7 @@ meta_renderer_native_choose_egl_config (CoglWinsysEGL  *winsys,
                                         EGLConfig      *out_config,
                                         GError        **error)
 {
-  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRendererNative *renderer =
     meta_winsys_egl_get_renderer (META_WINSYS_EGL (winsys));
   MetaBackend *backend = meta_renderer_get_backend (META_RENDERER (renderer));
@@ -520,7 +520,7 @@ meta_renderer_native_setup_egl_display (CoglWinsys   *winsys,
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRendererNative *renderer_native;
 
-  cogl_renderer = cogl_display->renderer;
+  cogl_renderer = cogl_display_get_renderer (cogl_display);
   renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   renderer_native = renderer_gpu_data->renderer_native;
@@ -589,7 +589,7 @@ meta_renderer_native_egl_context_created (CoglWinsysEGL  *winsys,
                                           GError        **error)
 {
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
-  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (renderer_egl);
@@ -624,7 +624,7 @@ meta_renderer_native_egl_cleanup_context (CoglWinsysEGL *winsys,
                                           CoglDisplay   *cogl_display)
 {
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
-  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   EGLDisplay egl_display =
@@ -671,7 +671,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context->display;
-  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
@@ -981,7 +981,7 @@ meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
   COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->context_init (winsys, cogl_context, error);
 
 #ifdef HAVE_EGL_DEVICE
-  CoglRenderer *cogl_renderer = cogl_context->display->renderer;
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
 #endif
