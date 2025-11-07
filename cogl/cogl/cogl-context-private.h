@@ -215,7 +215,4 @@ void
 _cogl_context_set_current_modelview_entry (CoglContext *context,
                                            CoglMatrixEntry *entry);
 
-void
-_cogl_context_update_sync (CoglContext *context);
-
 void cogl_context_clear_onscreen_dirty_queue (CoglContext *context);

@@ -729,6 +729,8 @@ maybe_set_sync_points (MetaScreenCastStreamSrc *src,
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer =
+    cogl_context_get_renderer (cogl_context);
   g_autofd int sync_fd = -1;
   g_autoptr (GError) local_error = NULL;
 
@@ -749,7 +751,7 @@ maybe_set_sync_points (MetaScreenCastStreamSrc *src,
   sync_timeline->acquire_point = sync_timeline->release_point + 1;
   sync_timeline->release_point = sync_timeline->acquire_point + 1;
 
-  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+  sync_fd = cogl_renderer_get_latest_sync_fd (cogl_renderer);
   if (!meta_drm_timeline_set_sync_point (timeline,
                                          sync_timeline->acquire_point,
                                          sync_fd,

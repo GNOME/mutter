@@ -36,6 +36,7 @@
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-indices-private.h"
 #include "cogl/cogl-offscreen-private.h"
+#include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-texture-private.h"
 #include "cogl/driver/gl/cogl-driver-gl-private.h"
 #include "cogl/driver/gl/cogl-framebuffer-gl-private.h"
@@ -298,10 +299,11 @@ static void
 cogl_gl_framebuffer_finish (CoglFramebufferDriver *fb_driver)
 {
   CoglContext *ctx = context_from_driver (fb_driver);
+  CoglRenderer *renderer = cogl_context_get_renderer (ctx);
   CoglDriver *driver = cogl_context_get_driver (ctx);
 
   /* Update our "latest" sync fd to contain all previous work */
-  _cogl_context_update_sync (ctx);
+  cogl_renderer_update_sync (renderer);
 
   GE (driver, glFinish ());
 }
@@ -310,10 +312,11 @@ static void
 cogl_gl_framebuffer_flush (CoglFramebufferDriver *fb_driver)
 {
   CoglContext *ctx = context_from_driver (fb_driver);
+  CoglRenderer *renderer = cogl_context_get_renderer (ctx);
   CoglDriver *driver = cogl_context_get_driver (ctx);
 
   /* Update our "latest" sync fd to contain all previous work */
-  _cogl_context_update_sync (ctx);
+  cogl_renderer_update_sync (renderer);
 
   GE (driver, glFlush ());
 }

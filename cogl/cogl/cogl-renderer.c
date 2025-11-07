@@ -598,3 +598,25 @@ cogl_renderer_get_idle_closures (CoglRenderer *renderer)
 
   return &priv->idle_closures;
 }
+
+void
+cogl_renderer_update_sync (CoglRenderer *renderer)
+{
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
+
+  if (!class->update_sync)
+    return;
+
+  class->update_sync (renderer);
+}
+
+int
+cogl_renderer_get_latest_sync_fd (CoglRenderer *renderer)
+{
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
+
+  if (!class->get_sync_fd)
+    return -1;
+
+  return class->get_sync_fd (renderer);
+}

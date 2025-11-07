@@ -1669,7 +1669,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                           frame_info,
                                           user_data);
 
-  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+  sync_fd = cogl_renderer_get_latest_sync_fd (cogl_renderer);
   if (sync_fd >= 0)
     meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
 
