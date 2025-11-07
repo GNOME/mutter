@@ -77,6 +77,11 @@ G_DECLARE_DERIVABLE_TYPE (CoglDisplay,
 struct _CoglDisplayClass
 {
   GObjectClass parent_class;
+
+  gboolean (*setup) (CoglDisplay  *display,
+                     GError      **error);
+
+  void (*destroy) (CoglDisplay  *display);
 };
 
 /**

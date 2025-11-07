@@ -65,13 +65,6 @@ struct _CoglWinsysClass
 {
   GObjectClass parent_class;
 
-  gboolean (*display_setup) (CoglWinsys   *winsys,
-                             CoglDisplay  *display,
-                             GError      **error);
-
-  void (*display_destroy) (CoglWinsys  *winsys,
-                           CoglDisplay *display);
-
   gboolean (*context_init) (CoglWinsys   *winsys,
                             CoglContext  *context,
                             GError      **error);
