@@ -40,8 +40,55 @@
 #include "cogl/winsys/cogl-winsys.h"
 
 
+enum
+{
+  PROP_0,
+  PROP_RENDERER,
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
+
+static void
+cogl_display_get_property (GObject    *object,
+                            guint       prop_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
+{
+  CoglDisplay *display = COGL_DISPLAY (object);
+
+  switch (prop_id)
+    {
+    case PROP_RENDERER:
+      g_value_set_object (value, display->renderer);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+cogl_display_set_property (GObject      *object,
+                            guint         prop_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+  CoglDisplay *display = COGL_DISPLAY (object);
+
+  switch (prop_id)
+    {
+    case PROP_RENDERER:
+      display->renderer = g_value_dup_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
 
 static void
 cogl_display_dispose (GObject *object)
@@ -72,17 +119,31 @@ cogl_display_class_init (CoglDisplayClass *class)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (class);
 
+  object_class->get_property = cogl_display_get_property;
+  object_class->set_property = cogl_display_set_property;
   object_class->dispose = cogl_display_dispose;
+
+  obj_props[PROP_RENDERER] =
+    g_param_spec_object ("renderer", NULL, NULL,
+                         COGL_TYPE_RENDERER,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 CoglDisplay *
 cogl_display_new (CoglRenderer *renderer)
 {
+  CoglDisplay *display;
+
   g_return_val_if_fail (renderer != NULL, NULL);
 
-  CoglDisplay *display = g_object_new (COGL_TYPE_DISPLAY, NULL);
+  display = g_object_new (COGL_TYPE_DISPLAY,
+                          "renderer", renderer,
+                          NULL);
 
-  display->renderer = g_object_ref (renderer);
   display->setup = FALSE;
 
   return display;
