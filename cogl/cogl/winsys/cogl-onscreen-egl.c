@@ -63,7 +63,8 @@ cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
   EGLint config_count = 0;
   EGLBoolean status;
 
-  cogl_display_egl_determine_attributes (display, attributes);
+  cogl_display_egl_determine_attributes (COGL_DISPLAY_EGL (display),
+                                         attributes);
 
   status = eglChooseConfig (edpy,
                             attributes,

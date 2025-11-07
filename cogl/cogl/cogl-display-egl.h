@@ -47,6 +47,9 @@ G_DECLARE_DERIVABLE_TYPE (CoglDisplayEGL,
 struct _CoglDisplayEGLClass
 {
   CoglDisplayClass parent_class;
+
+  int (* add_config_attributes) (CoglDisplayEGL *display,
+                                 EGLint         *attributes);
 };
 
 COGL_EXPORT
@@ -76,5 +79,12 @@ EGLContext cogl_display_egl_get_egl_context (CoglDisplayEGL *display_egl);
  */
 COGL_EXPORT
 EGLConfig cogl_display_egl_get_egl_config (CoglDisplayEGL *display_egl);
+
+/**
+ * cogl_display_egl_determine_attributes: (skip)
+ */
+COGL_EXPORT
+void cogl_display_egl_determine_attributes (CoglDisplayEGL *display,
+                                            EGLint         *attributes);
 
 G_END_DECLS
