@@ -21,10 +21,15 @@
 
 #include "cogl/cogl.h"
 
+typedef struct _MetaRendererNative MetaRendererNative;
+typedef struct _MetaRendererNativeGpuData MetaRendererNativeGpuData;
+
 #define META_TYPE_RENDERER_EGL (meta_renderer_egl_get_type ())
 G_DECLARE_FINAL_TYPE (MetaRendererEGL,
                       meta_renderer_egl,
                       META, RENDERER_EGL,
                       CoglRendererEgl)
 
-MetaRendererEGL * meta_renderer_egl_new (void);
+MetaRendererEGL * meta_renderer_egl_new (MetaRendererNativeGpuData *renderer_gpu_data);
+
+MetaRendererNativeGpuData * meta_renderer_egl_get_renderer_gpu_data (MetaRendererEGL *renderer_egl);

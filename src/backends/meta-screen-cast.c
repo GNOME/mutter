@@ -31,6 +31,7 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
+#include "backends/native/meta-renderer-egl.h"
 #include "backends/native/meta-renderer-native-private.h"
 
 #include "common/meta-cogl-drm-formats.h"
@@ -73,10 +74,8 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
     clutter_backend_get_cogl_context (clutter_backend);
   CoglRenderer *cogl_renderer =
     cogl_context_get_renderer (cogl_context);
-  CoglRendererEGL *cogl_renderer_egl =
-    cogl_renderer_get_winsys_data (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data =
-    cogl_renderer_egl->platform;
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   MetaRenderDevice *render_device =
     renderer_gpu_data->render_device;
   MetaRendererNative *renderer_native =
