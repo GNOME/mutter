@@ -59,6 +59,7 @@ cogl_headers = [
 
 if have_egl
   cogl_headers += [
+    'cogl-display-egl.h',
     'cogl-renderer-egl.h',
   ]
 endif
@@ -192,7 +193,6 @@ cogl_sources = [
   'cogl-debug.h',
   'cogl-depth-state-private.h',
   'cogl-depth-state.c',
-  'cogl-display-private.h',
   'cogl-display.c',
   'cogl-display.h',
   'cogl-dma-buf-handle.c',
@@ -296,6 +296,8 @@ cogl_sources = [
 
 if have_egl
   cogl_sources += [
+    'cogl-display-egl.c',
+    'cogl-display-egl-private.h',
     'cogl-renderer-egl.c',
     'cogl-renderer-egl-private.h',
     'winsys/cogl-onscreen-egl.c',

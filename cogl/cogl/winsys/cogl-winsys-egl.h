@@ -68,20 +68,6 @@ struct _CoglWinsysEGLClass
 #define COGL_MAX_EGL_CONFIG_ATTRIBS 30
 
 
-typedef struct _CoglDisplayEGL
-{
-  EGLContext egl_context;
-  EGLSurface dummy_surface;
-  EGLSurface egl_surface;
-
-  EGLConfig egl_config;
-
-  EGLSurface current_read_surface;
-  EGLSurface current_draw_surface;
-  EGLContext current_context;
-} CoglDisplayEGL;
-
-
 COGL_EXPORT EGLBoolean
 _cogl_winsys_egl_make_current (CoglDisplay *display,
                                EGLSurface   draw,

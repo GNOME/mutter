@@ -68,11 +68,16 @@ G_BEGIN_DECLS
 #define COGL_TYPE_DISPLAY (cogl_display_get_type ())
 
 COGL_EXPORT
-G_DECLARE_FINAL_TYPE (CoglDisplay,
-                      cogl_display,
-                      COGL,
-                      DISPLAY,
-                      GObject)
+G_DECLARE_DERIVABLE_TYPE (CoglDisplay,
+                          cogl_display,
+                          COGL,
+                          DISPLAY,
+                          GObject)
+
+struct _CoglDisplayClass
+{
+  GObjectClass parent_class;
+};
 
 /**
  * cogl_display_new:
