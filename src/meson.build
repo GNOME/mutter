@@ -704,6 +704,8 @@ if have_native_backend
     'backends/native/meta-device-pool-private.h',
     'backends/native/meta-device-pool.c',
     'backends/native/meta-device-pool.h',
+    'backends/native/meta-display-egl.c',
+    'backends/native/meta-display-egl-private.h',
     'backends/native/meta-drm-buffer-dumb.c',
     'backends/native/meta-drm-buffer-dumb.h',
     'backends/native/meta-drm-buffer-gbm.c',

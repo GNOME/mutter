@@ -54,10 +54,6 @@ struct _CoglWinsysEGLClass
   void (* cleanup_context) (CoglWinsysEGL *winsys,
                             CoglDisplay   *display);
 
-  int (* add_config_attributes) (CoglWinsysEGL *winsys,
-                                 CoglDisplay   *display,
-                                 EGLint        *attributes);
-
   gboolean (* choose_config) (CoglWinsysEGL  *winsys,
                               CoglDisplay    *display,
                               EGLint         *attributes,
@@ -76,10 +72,3 @@ _cogl_winsys_egl_make_current (CoglDisplay *display,
 
 COGL_EXPORT EGLBoolean
 _cogl_winsys_egl_ensure_current (CoglDisplay *display);
-
-/**
- * cogl_display_egl_determine_attributes: (skip)
- */
-COGL_EXPORT void
-cogl_display_egl_determine_attributes (CoglDisplay *display,
-                                       EGLint      *attributes);

@@ -79,50 +79,6 @@ G_DEFINE_ABSTRACT_TYPE (CoglWinsysEGL, cogl_winsys_egl, COGL_TYPE_WINSYS)
 #define EGL_CONTEXT_PRIORITY_LOW_IMG            0x3103
 #endif
 
-void
-cogl_display_egl_determine_attributes (CoglDisplay *display,
-                                       EGLint      *attributes)
-{
-  CoglRenderer *renderer = cogl_display_get_renderer (display);
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
-  int i = 0;
-
-  /* Let the platform add attributes first, including setting the
-   * EGL_SURFACE_TYPE */
-  i = egl_class->add_config_attributes (COGL_WINSYS_EGL (winsys),
-                                        display,
-                                        attributes);
-
-  attributes[i++] = EGL_STENCIL_SIZE;
-  attributes[i++] = 2;
-
-  attributes[i++] = EGL_RED_SIZE;
-  attributes[i++] = 1;
-  attributes[i++] = EGL_GREEN_SIZE;
-  attributes[i++] = 1;
-  attributes[i++] = EGL_BLUE_SIZE;
-  attributes[i++] = 1;
-
-  attributes[i++] = EGL_ALPHA_SIZE;
-  attributes[i++] = EGL_DONT_CARE;
-
-  attributes[i++] = EGL_DEPTH_SIZE;
-  attributes[i++] = 1;
-
-  attributes[i++] = EGL_BUFFER_SIZE;
-  attributes[i++] = EGL_DONT_CARE;
-
-  attributes[i++] = EGL_RENDERABLE_TYPE;
-  attributes[i++] = (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3 ?
-                     EGL_OPENGL_BIT :
-                     EGL_OPENGL_ES2_BIT);
-
-  attributes[i++] = EGL_NONE;
-
-  g_assert (i < COGL_MAX_EGL_CONFIG_ATTRIBS);
-}
-
 EGLBoolean
 _cogl_winsys_egl_make_current (CoglDisplay *display,
                                EGLSurface draw,
@@ -210,7 +166,7 @@ try_create_context (CoglWinsysEGL  *winsys,
 
   cogl_renderer_bind_api (renderer);
 
-  cogl_display_egl_determine_attributes (display,
+  cogl_display_egl_determine_attributes (egl_display,
                                          cfg_attribs);
 
   if (!cogl_renderer_egl_has_feature (renderer_egl,

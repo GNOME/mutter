@@ -44,6 +44,7 @@
 #include "backends/meta-cursor-xcursor.h"
 #include "backends/meta-renderer.h"
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-display-egl-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-sprite-native.h"
 #include "backends/native/meta-stage-native.h"
@@ -85,7 +86,7 @@ meta_clutter_backend_native_get_display (ClutterBackend  *clutter_backend,
                                          CoglRenderer    *cogl_renderer,
                                          GError         **error)
 {
-  return COGL_DISPLAY (cogl_display_egl_new (cogl_renderer));
+  return COGL_DISPLAY (meta_display_egl_new (cogl_renderer));
 }
 
 static ClutterStageWindow *
