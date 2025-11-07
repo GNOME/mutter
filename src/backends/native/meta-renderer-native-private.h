@@ -106,3 +106,5 @@ CoglFramebuffer * meta_renderer_native_create_dma_buf_framebuffer (MetaRendererN
 
 gboolean meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,
                                                     MetaRendererView   *view);
+
+void meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
