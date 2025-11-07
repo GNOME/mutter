@@ -31,6 +31,7 @@
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-display-egl-private.h"
 #include "cogl/cogl-renderer-private.h"
+#include "cogl/winsys/cogl-winsys-egl.h"
 
 typedef struct _CoglDisplayEGLPrivate
 {
@@ -157,4 +158,47 @@ cogl_display_egl_set_current_context (CoglDisplayEGL *display_egl,
 {
   CoglDisplayEGLPrivate *priv = cogl_display_egl_get_instance_private (display_egl);
   priv->current_context = current_context;
+}
+
+void
+cogl_display_egl_determine_attributes (CoglDisplayEGL *display_egl,
+                                       EGLint         *attributes)
+{
+  CoglDisplay *display = COGL_DISPLAY (display_egl);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+  CoglDisplayEGLClass *display_class = COGL_DISPLAY_EGL_GET_CLASS (display_egl);
+  int i = 0;
+
+  /* Let the platform add attributes first, including setting the
+   * EGL_SURFACE_TYPE */
+  i = display_class->add_config_attributes (display_egl,
+                                            attributes);
+
+  attributes[i++] = EGL_STENCIL_SIZE;
+  attributes[i++] = 2;
+
+  attributes[i++] = EGL_RED_SIZE;
+  attributes[i++] = 1;
+  attributes[i++] = EGL_GREEN_SIZE;
+  attributes[i++] = 1;
+  attributes[i++] = EGL_BLUE_SIZE;
+  attributes[i++] = 1;
+
+  attributes[i++] = EGL_ALPHA_SIZE;
+  attributes[i++] = EGL_DONT_CARE;
+
+  attributes[i++] = EGL_DEPTH_SIZE;
+  attributes[i++] = 1;
+
+  attributes[i++] = EGL_BUFFER_SIZE;
+  attributes[i++] = EGL_DONT_CARE;
+
+  attributes[i++] = EGL_RENDERABLE_TYPE;
+  attributes[i++] = (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3 ?
+                     EGL_OPENGL_BIT :
+                     EGL_OPENGL_ES2_BIT);
+
+  attributes[i++] = EGL_NONE;
+
+  g_assert (i < COGL_MAX_EGL_CONFIG_ATTRIBS);
 }
