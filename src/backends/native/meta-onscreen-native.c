@@ -1774,6 +1774,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   ClutterFrame *frame = user_data;
@@ -1817,7 +1818,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                           frame_info,
                                           user_data);
 
-  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+  sync_fd = cogl_renderer_get_latest_sync_fd (cogl_renderer);
 
   assign_next_frame (onscreen_native, frame);
 

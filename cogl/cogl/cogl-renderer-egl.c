@@ -186,6 +186,44 @@ cogl_renderer_egl_connect (CoglRenderer   *renderer,
   return TRUE;
 }
 
+#if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
+
+static int
+cogl_renderer_egl_get_sync_fd (CoglRenderer *renderer)
+{
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+  int fd;
+
+  if (!priv->pf_eglDupNativeFenceFD)
+    return -1;
+
+  fd = priv->pf_eglDupNativeFenceFD (priv->edisplay, priv->sync);
+  if (fd == EGL_NO_NATIVE_FENCE_FD_ANDROID)
+    return -1;
+
+  return fd;
+}
+
+static void
+cogl_renderer_egl_update_sync (CoglRenderer *renderer)
+{
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
+    cogl_renderer_egl_get_instance_private (renderer_egl);
+
+  if (!priv->pf_eglDestroySync || !priv->pf_eglCreateSync)
+    return;
+
+  if (priv->sync != EGL_NO_SYNC_KHR)
+    priv->pf_eglDestroySync (priv->edisplay, priv->sync);
+
+  priv->sync = priv->pf_eglCreateSync (priv->edisplay,
+                                       EGL_SYNC_NATIVE_FENCE_ANDROID, NULL);
+}
+#endif
+
 static void
 cogl_renderer_egl_class_init (CoglRendererEGLClass *class)
 {
@@ -197,6 +235,11 @@ cogl_renderer_egl_class_init (CoglRendererEGLClass *class)
   renderer_class->load_driver = cogl_renderer_egl_load_driver;
   renderer_class->get_proc_address = cogl_renderer_egl_get_proc_address;
   renderer_class->connect = cogl_renderer_egl_connect;
+
+#if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
+  renderer_class->get_sync_fd = cogl_renderer_egl_get_sync_fd;
+  renderer_class->update_sync = cogl_renderer_egl_update_sync;
+#endif
 
   object_class->dispose = cogl_renderer_egl_dispose;
 }
