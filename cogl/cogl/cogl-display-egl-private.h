@@ -3,7 +3,7 @@
  *
  * A Low Level GPU Graphics and Utilities API
  *
- * Copyright (C) 2011 Intel Corporation.
+ * Copyright (C) 2025 Red Hat.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,21 +24,32 @@
  * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
- *
  */
 
 #pragma once
 
-#include "cogl/cogl-display.h"
-#include "cogl/cogl-renderer.h"
+#include "cogl/cogl-display-egl.h"
 
-struct _CoglDisplay
-{
-  GObject parent_instance;
+#include <EGL/egl.h>
 
-  gboolean setup;
-  CoglRenderer *renderer;
 
-  void *winsys;
-};
+void cogl_display_egl_set_egl_context (CoglDisplayEGL *display_egl,
+                                       EGLContext      egl_context);
+
+void cogl_display_egl_set_egl_config (CoglDisplayEGL *display_egl,
+                                      EGLConfig       egl_config);
+
+EGLSurface cogl_display_egl_get_current_draw_surface (CoglDisplayEGL *display_egl);
+
+void cogl_display_egl_set_current_draw_surface (CoglDisplayEGL *display_egl,
+                                                EGLSurface      current_draw_surface);
+
+EGLSurface cogl_display_egl_get_current_read_surface (CoglDisplayEGL *display_egl);
+
+void cogl_display_egl_set_current_read_surface (CoglDisplayEGL *display_egl,
+                                                EGLSurface      current_read_surface);
+
+EGLContext cogl_display_egl_get_current_context (CoglDisplayEGL *display_egl);
+
+void cogl_display_egl_set_current_context (CoglDisplayEGL *display_egl,
+                                           EGLContext      current_context);

@@ -71,7 +71,6 @@
 #include "backends/native/meta-renderer-view-native.h"
 #include "cogl/cogl.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-display-private.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
 #include "core/boxes-private.h"
@@ -588,7 +587,7 @@ meta_renderer_native_egl_context_created (CoglWinsysEGL  *winsys,
                                           CoglDisplay    *cogl_display,
                                           GError        **error)
 {
-  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
+  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   EGLDisplay egl_display =
@@ -597,18 +596,18 @@ meta_renderer_native_egl_context_created (CoglWinsysEGL  *winsys,
   if (!cogl_renderer_egl_has_feature (renderer_egl,
                                       COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT))
     {
-      cogl_display_egl->dummy_surface =
-        create_dummy_pbuffer_surface (cogl_renderer,
-                                      egl_display,
-                                      error);
-      if (cogl_display_egl->dummy_surface == EGL_NO_SURFACE)
+      cogl_display_egl_set_dummy_surface (cogl_display_egl,
+                                          create_dummy_pbuffer_surface (cogl_renderer,
+                                                                        egl_display,
+                                                                        error));
+      if (cogl_display_egl_get_dummy_surface (cogl_display_egl) == EGL_NO_SURFACE)
         return FALSE;
     }
 
   if (!_cogl_winsys_egl_make_current (cogl_display,
-                                      cogl_display_egl->dummy_surface,
-                                      cogl_display_egl->dummy_surface,
-                                      cogl_display_egl->egl_context))
+                                      cogl_display_egl_get_dummy_surface (cogl_display_egl),
+                                      cogl_display_egl_get_dummy_surface (cogl_display_egl),
+                                      cogl_display_egl_get_egl_context (cogl_display_egl)))
     {
       g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_CONTEXT,
@@ -623,7 +622,7 @@ static void
 meta_renderer_native_egl_cleanup_context (CoglWinsysEGL *winsys,
                                           CoglDisplay   *cogl_display)
 {
-  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
+  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
@@ -632,13 +631,13 @@ meta_renderer_native_egl_cleanup_context (CoglWinsysEGL *winsys,
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
 
-  if (cogl_display_egl->dummy_surface != EGL_NO_SURFACE)
+  if (cogl_display_egl_get_dummy_surface (cogl_display_egl) != EGL_NO_SURFACE)
     {
       meta_egl_destroy_surface (egl,
                                 egl_display,
-                                cogl_display_egl->dummy_surface,
+                                cogl_display_egl_get_dummy_surface (cogl_display_egl),
                                 NULL);
-      cogl_display_egl->dummy_surface = EGL_NO_SURFACE;
+      cogl_display_egl_set_dummy_surface (cogl_display_egl, EGL_NO_SURFACE);
     }
 }
 
@@ -1410,13 +1409,13 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
                                      META_RENDERER_VIEW (view_native));
 
       /* Ensure we don't point to stale surfaces when creating the offscreen */
-      cogl_display_egl = cogl_display->winsys;
+      cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
       onscreen_egl = COGL_ONSCREEN_EGL (framebuffer);
       egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
       _cogl_winsys_egl_make_current (cogl_display,
                                      egl_surface,
                                      egl_surface,
-                                     cogl_display_egl->egl_context);
+                                     cogl_display_egl_get_egl_context (cogl_display_egl));
     }
 
   return META_RENDERER_VIEW (view_native);
