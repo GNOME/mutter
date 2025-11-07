@@ -62,13 +62,3 @@ struct _CoglWinsysEGLClass
 };
 
 #define COGL_MAX_EGL_CONFIG_ATTRIBS 30
-
-
-COGL_EXPORT EGLBoolean
-_cogl_winsys_egl_make_current (CoglDisplay *display,
-                               EGLSurface   draw,
-                               EGLSurface   read,
-                               EGLContext   context);
-
-COGL_EXPORT EGLBoolean
-_cogl_winsys_egl_ensure_current (CoglDisplay *display);

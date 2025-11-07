@@ -87,4 +87,19 @@ COGL_EXPORT
 void cogl_display_egl_determine_attributes (CoglDisplayEGL *display,
                                             EGLint         *attributes);
 
+/**
+ * cogl_display_egl_make_current: (skip)
+ */
+COGL_EXPORT
+EGLBoolean cogl_display_egl_make_current (CoglDisplayEGL *display_egl,
+                                          EGLSurface      draw,
+                                          EGLSurface      read,
+                                          EGLContext      context);
+
+/**
+ * cogl_display_egl_ensure_current: (skip)
+ */
+COGL_EXPORT
+EGLBoolean cogl_display_egl_ensure_current (CoglDisplayEGL *display_egl);
+
 G_END_DECLS

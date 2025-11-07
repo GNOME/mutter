@@ -1210,7 +1210,7 @@ done:
         g_warning ("Failed to destroy secondary GPU EGLSync: %s", local_error->message);
     }
 
-  _cogl_winsys_egl_ensure_current (cogl_display);
+  cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
 
   return buffer_gbm ? META_DRM_BUFFER (buffer_gbm) : NULL;
 }

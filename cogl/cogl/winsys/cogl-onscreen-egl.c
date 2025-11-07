@@ -73,7 +73,7 @@ cogl_onscreen_egl_dispose (GObject *object)
           (cogl_display_egl_get_current_draw_surface (display_egl) == priv->egl_surface ||
            cogl_display_egl_get_current_read_surface (display_egl) == priv->egl_surface))
         {
-          _cogl_winsys_egl_make_current (context->display,
+          cogl_display_egl_make_current (display_egl,
                                          dummy_surface,
                                          dummy_surface,
                                          cogl_display_egl_get_current_context (display_egl));
@@ -98,7 +98,7 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
 
-  gboolean status = _cogl_winsys_egl_make_current (context->display,
+  gboolean status = cogl_display_egl_make_current (COGL_DISPLAY_EGL (context->display),
                                                    priv->egl_surface,
                                                    priv->egl_surface,
                                                    egl_context);
@@ -159,7 +159,7 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
   if (!cogl_renderer_egl_has_feature (renderer_egl, COGL_EGL_WINSYS_FEATURE_BUFFER_AGE))
     return 0;
 
-  if (!_cogl_winsys_egl_make_current (context->display,
+  if (!cogl_display_egl_make_current (display_egl,
 				      surface, surface,
                                       cogl_display_egl_get_egl_context (display_egl)))
     return 0;
