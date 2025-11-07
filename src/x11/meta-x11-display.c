@@ -801,19 +801,6 @@ take_manager_selection (MetaX11Display *x11_display,
     XSendEvent (x11_display->xdisplay, xroot, False, StructureNotifyMask, (XEvent *) &ev);
   }
 
-  /* Wait for old window manager to go away */
-  if (current_owner != None)
-    {
-      XEvent event;
-
-      /* We sort of block infinitely here which is probably lame. */
-
-      meta_topic (META_DEBUG_X11, "Waiting for old window manager to exit");
-      do
-        XWindowEvent (x11_display->xdisplay, current_owner, StructureNotifyMask, &event);
-      while (event.type != DestroyNotify);
-    }
-
   return new_owner;
 }
 
