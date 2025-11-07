@@ -71,10 +71,4 @@ struct _CoglWinsysClass
   gboolean (*context_init) (CoglWinsys   *winsys,
                             CoglContext  *context,
                             GError      **error);
-
-  void (*update_sync) (CoglWinsys   *winsys,
-                       CoglContext  *ctx);
-
-  int (*get_sync_fd) (CoglWinsys   *winsys,
-                      CoglContext  *ctx);
 };

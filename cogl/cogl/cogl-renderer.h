@@ -132,6 +132,9 @@ struct _CoglRendererClass
 
   gboolean (*is_dma_buf_supported) (CoglRenderer *renderer);
 
+  void (*update_sync) (CoglRenderer *renderer);
+
+  int (*get_sync_fd) (CoglRenderer *renderer);
 };
 
 COGL_EXPORT
