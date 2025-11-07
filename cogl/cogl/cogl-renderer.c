@@ -73,8 +73,6 @@ typedef struct _CoglRendererPrivate
   CoglList idle_closures;
 
   CoglDriverId driver_id;
-
-  void *winsys_user_data;
 } CoglRendererPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
@@ -379,7 +377,7 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
   CoglRendererPrivate *priv =
     cogl_renderer_get_instance_private (renderer);
-  CoglWinsysClass *winsys_class;
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
   if (priv->connected)
     return TRUE;
@@ -397,9 +395,7 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
       return FALSE;
     }
 
-  winsys_class = COGL_WINSYS_GET_CLASS (priv->winsys);
-  if (winsys_class->renderer_connect &&
-      !winsys_class->renderer_connect (priv->winsys, renderer, error))
+  if (class->connect && !class->connect (renderer, error))
     {
       g_clear_object (&priv->winsys);
       return FALSE;
@@ -455,16 +451,14 @@ cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
                                    CoglDrmModifierFilter   filter,
                                    GError                **error)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  if (winsys_class->renderer_query_drm_modifiers)
+  if (class->query_drm_modifiers)
     {
-      return winsys_class->renderer_query_drm_modifiers (winsys,
-                                                         renderer,
-                                                         format,
-                                                         filter,
-                                                         error);
+      return class->query_drm_modifiers (renderer,
+                                         format,
+                                         filter,
+                                         error);
     }
 
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
@@ -476,26 +470,23 @@ cogl_renderer_query_drm_modifiers (CoglRenderer           *renderer,
 uint64_t
 cogl_renderer_get_implicit_drm_modifier (CoglRenderer *renderer)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  g_return_val_if_fail (winsys_class->renderer_get_implicit_drm_modifier, 0);
+  g_return_val_if_fail (class->get_implicit_drm_modifier, 0);
 
-  return winsys_class->renderer_get_implicit_drm_modifier (winsys, renderer);
+  return class->get_implicit_drm_modifier (renderer);
 }
 
 gboolean
 cogl_renderer_is_implicit_drm_modifier (CoglRenderer *renderer,
                                         uint64_t      modifier)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
   uint64_t implicit_modifier;
 
-  g_return_val_if_fail (winsys_class->renderer_get_implicit_drm_modifier, FALSE);
+  g_return_val_if_fail (class->get_implicit_drm_modifier, FALSE);
 
-  implicit_modifier = winsys_class->renderer_get_implicit_drm_modifier (winsys,
-                                                                        renderer);
+  implicit_modifier = class->get_implicit_drm_modifier (renderer);
   return modifier == implicit_modifier;
 }
 
@@ -508,16 +499,14 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
                               int               height,
                               GError          **error)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  if (winsys_class->renderer_create_dma_buf)
-    return winsys_class->renderer_create_dma_buf (winsys,
-                                                  renderer,
-                                                  format,
-                                                  modifiers, n_modifiers,
-                                                  width, height,
-                                                  error);
+  if (class->create_dma_buf)
+    return class->create_dma_buf (renderer,
+                                  format,
+                                  modifiers, n_modifiers,
+                                  width, height,
+                                  error);
 
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
                "CoglRenderer doesn't support creating DMA buffers");
@@ -528,11 +517,10 @@ cogl_renderer_create_dma_buf (CoglRenderer     *renderer,
 gboolean
 cogl_renderer_is_dma_buf_supported (CoglRenderer *renderer)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  if (winsys_class->renderer_is_dma_buf_supported)
-    return winsys_class->renderer_is_dma_buf_supported (winsys, renderer);
+  if (class->is_dma_buf_supported)
+    return class->is_dma_buf_supported (renderer);
   else
     return FALSE;
 }
@@ -561,25 +549,6 @@ cogl_renderer_get_winsys (CoglRenderer *renderer)
     cogl_renderer_get_instance_private (renderer);
 
   return priv->winsys;
-}
-
-void *
-cogl_renderer_get_winsys_data (CoglRenderer *renderer)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  return priv->winsys_user_data;
-}
-
-void
-cogl_renderer_set_winsys_data (CoglRenderer *renderer,
-                              void         *winsys)
-{
-  CoglRendererPrivate *priv =
-    cogl_renderer_get_instance_private (renderer);
-
-  priv->winsys_user_data = winsys;
 }
 
 CoglClosure *
