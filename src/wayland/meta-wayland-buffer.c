@@ -720,6 +720,7 @@ handle_release_points (MetaWaylandBuffer *buffer)
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterBackend *clutter_backend;
   CoglContext *cogl_context;
+  CoglRenderer *cogl_renderer;
   MetaWaylandSyncPoint *sync_point;
   g_autoptr (GError) error = NULL;
   g_autofd int sync_fd = -1;
@@ -729,7 +730,8 @@ handle_release_points (MetaWaylandBuffer *buffer)
 
   clutter_backend = meta_backend_get_clutter_backend (backend);
   cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+  cogl_renderer = cogl_context_get_renderer (cogl_context);
+  sync_fd = cogl_renderer_get_latest_sync_fd (cogl_renderer);
   if (sync_fd < 0)
     {
       meta_topic (META_DEBUG_WAYLAND, "Invalid Sync Fd returned by COGL");

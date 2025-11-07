@@ -46,3 +46,5 @@ CoglList * cogl_renderer_get_idle_closures (CoglRenderer *renderer);
 
 void cogl_renderer_set_driver (CoglRenderer *renderer,
                                CoglDriver   *driver);
+
+void cogl_renderer_update_sync (CoglRenderer *renderer);

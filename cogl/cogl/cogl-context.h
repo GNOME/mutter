@@ -182,20 +182,6 @@ COGL_EXPORT CoglPipeline *
 cogl_context_get_named_pipeline (CoglContext     *context,
                                  CoglPipelineKey *key);
 
-/**
- * cogl_context_get_latest_sync_fd
- * @context: a #CoglContext pointer
- *
- * This function is used to get support for waiting on previous
- * GPU work through sync fds. It will return a sync fd which will
- * signal when the previous work has completed.
- *
- * Return value: sync fd for latest GPU submission if available,
- * returns -1 if not.
- */
-COGL_EXPORT int
-cogl_context_get_latest_sync_fd (CoglContext *context);
-
 COGL_EXPORT gboolean
 cogl_context_has_winsys_feature (CoglContext       *context,
                                  CoglWinsysFeature  feature);
