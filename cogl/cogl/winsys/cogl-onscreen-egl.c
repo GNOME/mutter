@@ -28,7 +28,7 @@
 #include "cogl/winsys/cogl-onscreen-egl.h"
 
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-display-private.h"
+#include "cogl/cogl-display-egl-private.h"
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-renderer-egl-private.h"
 #include "cogl/cogl-renderer-private.h"
@@ -56,26 +56,27 @@ cogl_onscreen_egl_dispose (GObject *object)
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *egl_display = context->display->winsys;
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (context->display);
   CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
+  EGLSurface dummy_surface = cogl_display_egl_get_dummy_surface (display_egl);
 
   if (priv->egl_surface != EGL_NO_SURFACE)
     {
       /* Cogl always needs a valid context bound to something so if we
        * are destroying the onscreen that is currently bound we'll
        * switch back to the dummy drawable. */
-      if ((egl_display->dummy_surface != EGL_NO_SURFACE ||
+      if ((dummy_surface != EGL_NO_SURFACE ||
            cogl_renderer_egl_has_feature (renderer_egl,
                                            COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT)) &&
-          (egl_display->current_draw_surface == priv->egl_surface ||
-           egl_display->current_read_surface == priv->egl_surface))
+          (cogl_display_egl_get_current_draw_surface (display_egl) == priv->egl_surface ||
+           cogl_display_egl_get_current_read_surface (display_egl) == priv->egl_surface))
         {
           _cogl_winsys_egl_make_current (context->display,
-                                         egl_display->dummy_surface,
-                                         egl_display->dummy_surface,
-                                         egl_display->current_context);
+                                         dummy_surface,
+                                         dummy_surface,
+                                         cogl_display_egl_get_current_context (display_egl));
         }
 
       if (eglDestroySurface (edpy, priv->egl_surface)
@@ -129,9 +130,10 @@ cogl_onscreen_egl_bind (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *egl_display = context->display->winsys;
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (context->display);
 
-  bind_onscreen_with_context (onscreen, egl_display->egl_context);
+  bind_onscreen_with_context (onscreen,
+                              cogl_display_egl_get_egl_context (display_egl));
 }
 
 #ifndef EGL_BUFFER_AGE_EXT
@@ -149,7 +151,7 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
   CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
-  CoglDisplayEGL *egl_display = context->display->winsys;
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (context->display);
   EGLSurface surface = priv->egl_surface;
   static gboolean warned = FALSE;
   int age = 0;
@@ -159,7 +161,7 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
 
   if (!_cogl_winsys_egl_make_current (context->display,
 				      surface, surface,
-                                      egl_display->egl_context))
+                                      cogl_display_egl_get_egl_context (display_egl)))
     return 0;
 
   if (!eglQuerySurface (edpy, surface, EGL_BUFFER_AGE_EXT, &age))

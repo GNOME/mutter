@@ -35,7 +35,8 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
-#include "cogl/cogl-display-private.h"
+#include "cogl/cogl-display-egl.h"
+#include "cogl/cogl-display-egl-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-renderer-egl.h"
@@ -128,15 +129,15 @@ _cogl_winsys_egl_make_current (CoglDisplay *display,
                                EGLSurface read,
                                EGLContext context)
 {
-  CoglDisplayEGL *display_egl = display->winsys;
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
   CoglRenderer *renderer = cogl_display_get_renderer (display);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
   EGLBoolean ret;
 
-  if (display_egl->current_draw_surface == draw &&
-      display_egl->current_read_surface == read &&
-      display_egl->current_context == context)
+  if (cogl_display_egl_get_current_draw_surface (display_egl) == draw &&
+      cogl_display_egl_get_current_read_surface (display_egl) == read &&
+      cogl_display_egl_get_current_context (display_egl) == context)
     return EGL_TRUE;
 
   ret = eglMakeCurrent (egl_display,
@@ -144,9 +145,9 @@ _cogl_winsys_egl_make_current (CoglDisplay *display,
                         read,
                         context);
 
-  display_egl->current_draw_surface = draw;
-  display_egl->current_read_surface = read;
-  display_egl->current_context = context;
+  cogl_display_egl_set_current_draw_surface (display_egl, draw);
+  cogl_display_egl_set_current_read_surface (display_egl, read);
+  cogl_display_egl_set_current_context (display_egl, context);
 
   return ret;
 }
@@ -154,34 +155,34 @@ _cogl_winsys_egl_make_current (CoglDisplay *display,
 EGLBoolean
 _cogl_winsys_egl_ensure_current (CoglDisplay *display)
 {
-  CoglDisplayEGL *display_egl = display->winsys;
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
   CoglRenderer *renderer = cogl_display_get_renderer (display);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
 
   return eglMakeCurrent (egl_display,
-                         display_egl->current_draw_surface,
-                         display_egl->current_read_surface,
-                         display_egl->current_context);
+                         cogl_display_egl_get_current_draw_surface (display_egl),
+                         cogl_display_egl_get_current_read_surface (display_egl),
+                         cogl_display_egl_get_current_context (display_egl));
 }
 
 static void
 cleanup_context (CoglWinsysEGL *winsys,
                  CoglDisplay   *display)
 {
-  CoglDisplayEGL *display_egl = display->winsys;
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
   CoglRenderer *renderer = cogl_display_get_renderer (display);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
   CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
 
-  if (display_egl->egl_context != EGL_NO_CONTEXT)
+  if (cogl_display_egl_get_egl_context (display_egl) != EGL_NO_CONTEXT)
     {
       _cogl_winsys_egl_make_current (display,
                                      EGL_NO_SURFACE, EGL_NO_SURFACE,
                                      EGL_NO_CONTEXT);
-      eglDestroyContext (egl_display, display_egl->egl_context);
-      display_egl->egl_context = EGL_NO_CONTEXT;
+      eglDestroyContext (egl_display, cogl_display_egl_get_egl_context (display_egl));
+      cogl_display_egl_set_egl_context (display_egl, EGL_NO_CONTEXT);
     }
 
   if (egl_class->cleanup_context)
@@ -194,7 +195,7 @@ try_create_context (CoglWinsysEGL  *winsys,
                     GError       **error)
 {
   CoglRenderer *renderer = cogl_display_get_renderer (display);
-  CoglDisplayEGL *egl_display = display->winsys;
+  CoglDisplayEGL *egl_display = COGL_DISPLAY_EGL (display);
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
   CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
@@ -205,7 +206,7 @@ try_create_context (CoglWinsysEGL  *winsys,
   const char *error_message;
   int i = 0;
 
-  g_return_val_if_fail (egl_display->egl_context == NULL, TRUE);
+  g_return_val_if_fail (cogl_display_egl_get_egl_context (egl_display) == NULL, TRUE);
 
   cogl_renderer_bind_api (renderer);
 
@@ -229,7 +230,7 @@ try_create_context (CoglWinsysEGL  *winsys,
           goto err;
         }
 
-      egl_display->egl_config = config;
+      cogl_display_egl_set_egl_config (egl_display, config);
     }
 
   if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3)
@@ -269,20 +270,22 @@ try_create_context (CoglWinsysEGL  *winsys,
   if (cogl_renderer_egl_has_feature (renderer_egl,
                                      COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT))
     {
-      egl_display->egl_context = eglCreateContext (edpy,
-                                                   EGL_NO_CONFIG_KHR,
-                                                   EGL_NO_CONTEXT,
-                                                   attribs);
+      cogl_display_egl_set_egl_context (egl_display,
+                                        eglCreateContext (edpy,
+                                                          EGL_NO_CONFIG_KHR,
+                                                          EGL_NO_CONTEXT,
+                                                          attribs));
     }
   else
     {
-      egl_display->egl_context = eglCreateContext (edpy,
-                                                   config,
-                                                   EGL_NO_CONTEXT,
-                                                   attribs);
+      cogl_display_egl_set_egl_context (egl_display,
+                                        eglCreateContext (edpy,
+                                                          config,
+                                                          EGL_NO_CONTEXT,
+                                                          attribs));
     }
 
-  if (egl_display->egl_context == EGL_NO_CONTEXT)
+  if (cogl_display_egl_get_egl_context (egl_display) == EGL_NO_CONTEXT)
     {
       error_message = "Unable to create a suitable EGL context";
       goto fail;
@@ -294,7 +297,7 @@ try_create_context (CoglWinsysEGL  *winsys,
       EGLint value = EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
 
       eglQueryContext (edpy,
-                       egl_display->egl_context,
+                       cogl_display_egl_get_egl_context (egl_display),
                        EGL_CONTEXT_PRIORITY_LEVEL_IMG,
                        &value);
 
@@ -331,17 +334,11 @@ _cogl_winsys_display_destroy (CoglWinsys  *winsys,
     cogl_renderer_egl_get_private (renderer_egl);
   EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
-  CoglDisplayEGL *egl_display = display->winsys;
-
-  g_return_if_fail (egl_display != NULL);
 
   if (sync != EGL_NO_SYNC_KHR)
     priv_renderer->pf_eglDestroySync (edpy, sync);
 
   cleanup_context (COGL_WINSYS_EGL (winsys), display);
-
-  g_free (display->winsys);
-  display->winsys = NULL;
 }
 
 static gboolean
@@ -349,13 +346,6 @@ _cogl_winsys_display_setup (CoglWinsys   *winsys,
                             CoglDisplay  *display,
                             GError      **error)
 {
-  CoglDisplayEGL *egl_display;
-
-  g_return_val_if_fail (display->winsys == NULL, FALSE);
-
-  egl_display = g_new0 (CoglDisplayEGL, 1);
-  display->winsys = egl_display;
-
   if (!try_create_context (COGL_WINSYS_EGL (winsys), display, error))
     goto error;
 
@@ -371,12 +361,12 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
                            CoglContext *context,
                            GError     **error)
 {
-  CoglRenderer *renderer = context->display->renderer;
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglDriver *driver = cogl_renderer_get_driver (renderer);
-  CoglDisplayEGL *egl_display = context->display->winsys;
+  CoglDisplayEGL *egl_display = COGL_DISPLAY_EGL (context->display);
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
 
-  g_return_val_if_fail (egl_display->egl_context, FALSE);
+  g_return_val_if_fail (cogl_display_egl_get_egl_context (egl_display), FALSE);
 
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 

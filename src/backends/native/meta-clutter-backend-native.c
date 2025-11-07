@@ -80,6 +80,14 @@ meta_clutter_backend_native_get_renderer (ClutterBackend  *clutter_backend,
   return meta_renderer_create_cogl_renderer (renderer);
 }
 
+static CoglDisplay *
+meta_clutter_backend_native_get_display (ClutterBackend  *clutter_backend,
+                                         CoglRenderer    *cogl_renderer,
+                                         GError         **error)
+{
+  return COGL_DISPLAY (cogl_display_egl_new (cogl_renderer));
+}
+
 static ClutterStageWindow *
 meta_clutter_backend_native_create_stage (ClutterBackend  *clutter_backend,
                                           ClutterStage    *wrapper,
@@ -377,6 +385,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   object_class->dispose = meta_clutter_backend_native_dispose;
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
+  clutter_backend_class->get_display = meta_clutter_backend_native_get_display;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
   clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;

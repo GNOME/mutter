@@ -35,10 +35,17 @@
 
 #include "cogl/cogl-private.h"
 
-#include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/winsys/cogl-winsys.h"
 
+typedef struct _CoglDisplayPrivate
+{
+  CoglContext *context;
+
+  gboolean setup;
+  CoglRenderer *renderer;
+
+} CoglDisplayPrivate;
 
 enum
 {
@@ -49,7 +56,7 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-G_DEFINE_FINAL_TYPE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
 
 static void
@@ -59,11 +66,13 @@ cogl_display_get_property (GObject    *object,
                             GParamSpec *pspec)
 {
   CoglDisplay *display = COGL_DISPLAY (object);
+  CoglDisplayPrivate *priv =
+    cogl_display_get_instance_private (display);
 
   switch (prop_id)
     {
     case PROP_RENDERER:
-      g_value_set_object (value, display->renderer);
+      g_value_set_object (value, priv->renderer);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -78,11 +87,13 @@ cogl_display_set_property (GObject      *object,
                             GParamSpec   *pspec)
 {
   CoglDisplay *display = COGL_DISPLAY (object);
+  CoglDisplayPrivate *priv =
+    cogl_display_get_instance_private (display);
 
   switch (prop_id)
     {
     case PROP_RENDERER:
-      display->renderer = g_value_dup_object (value);
+      priv->renderer = g_value_dup_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -94,17 +105,18 @@ static void
 cogl_display_dispose (GObject *object)
 {
   CoglDisplay *display = COGL_DISPLAY (object);
+  CoglDisplayPrivate *priv = cogl_display_get_instance_private (display);
 
-  if (display->setup)
+  if (priv->setup)
     {
-      CoglWinsys *winsys = cogl_renderer_get_winsys (display->renderer);
+      CoglWinsys *winsys = cogl_renderer_get_winsys (priv->renderer);
       CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
       winsys_class->display_destroy (winsys, display);
-      display->setup = FALSE;
+      priv->setup = FALSE;
     }
 
-  g_clear_object (&display->renderer);
+  g_clear_object (&priv->renderer);
 
   G_OBJECT_CLASS (cogl_display_parent_class)->dispose (object);
 }
@@ -112,6 +124,9 @@ cogl_display_dispose (GObject *object)
 static void
 cogl_display_init (CoglDisplay *display)
 {
+  CoglDisplayPrivate *priv = cogl_display_get_instance_private (display);
+
+  priv->setup = FALSE;
 }
 
 static void
@@ -144,31 +159,32 @@ cogl_display_new (CoglRenderer *renderer)
                           "renderer", renderer,
                           NULL);
 
-  display->setup = FALSE;
-
   return display;
 }
 
 CoglRenderer *
 cogl_display_get_renderer (CoglDisplay *display)
 {
-  return display->renderer;
+  CoglDisplayPrivate *priv = cogl_display_get_instance_private (display);
+
+  return priv->renderer;
 }
 
 gboolean
 cogl_display_setup (CoglDisplay *display,
                     GError **error)
 {
-  CoglWinsys *winsys = cogl_renderer_get_winsys (display->renderer);
+  CoglDisplayPrivate *priv = cogl_display_get_instance_private (display);
+  CoglWinsys *winsys = cogl_renderer_get_winsys (priv->renderer);
   CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
 
-  if (display->setup)
+  if (priv->setup)
     return TRUE;
 
   if (!winsys_class->display_setup (winsys, display, error))
     return FALSE;
 
-  display->setup = TRUE;
+  priv->setup = TRUE;
 
   return TRUE;
 }
