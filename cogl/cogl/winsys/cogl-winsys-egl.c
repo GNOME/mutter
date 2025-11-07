@@ -407,50 +407,6 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
   return TRUE;
 }
 
-#if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
-
-static int
-_cogl_winsys_get_sync_fd (CoglWinsys  *winsys,
-                          CoglContext *context)
-{
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
-  CoglRendererEglPrivate *priv =
-    cogl_renderer_egl_get_private (renderer_egl);
-  EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
-  EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
-  int fd;
-
-  if (!priv->pf_eglDupNativeFenceFD)
-    return -1;
-
-  fd = priv->pf_eglDupNativeFenceFD (edpy, sync);
-  if (fd == EGL_NO_NATIVE_FENCE_FD_ANDROID)
-    return -1;
-
-  return fd;
-}
-
-static void
-_cogl_winsys_update_sync (CoglWinsys  *winsys,
-                          CoglContext *context)
-{
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
-  CoglRendererEglPrivate *priv =
-    cogl_renderer_egl_get_private (renderer_egl);
-  EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
-  EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
-
-  if (!priv->pf_eglDestroySync || !priv->pf_eglCreateSync)
-    return;
-
-  if (sync != EGL_NO_SYNC_KHR)
-    priv->pf_eglDestroySync (edpy, sync);
-
-  priv->sync = priv->pf_eglCreateSync (edpy,
-        EGL_SYNC_NATIVE_FENCE_ANDROID, NULL);
-}
-#endif
-
 static void
 cogl_winsys_egl_class_init (CoglWinsysEGLClass *klass)
 {
@@ -459,13 +415,6 @@ cogl_winsys_egl_class_init (CoglWinsysEGLClass *klass)
   winsys_class->display_setup = _cogl_winsys_display_setup;
   winsys_class->display_destroy = _cogl_winsys_display_destroy;
   winsys_class->context_init = _cogl_winsys_context_init;
-
-  #if defined(EGL_KHR_fence_sync) || defined(EGL_KHR_reusable_sync)
-  winsys_class->get_sync_fd = _cogl_winsys_get_sync_fd;
-  winsys_class->update_sync = _cogl_winsys_update_sync;
-#endif
-
-
 }
 
 static void

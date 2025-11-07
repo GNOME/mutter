@@ -341,27 +341,25 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
 void
 _cogl_context_update_sync (CoglContext *context)
 {
-  CoglWinsys *winsys =
-    cogl_renderer_get_winsys (context->display->renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRenderer *renderer = context->display->renderer;
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  if (!winsys_class->update_sync)
+  if (!class->update_sync)
     return;
 
-  winsys_class->update_sync (winsys, context);
+  class->update_sync (renderer);
 }
 
 int
 cogl_context_get_latest_sync_fd (CoglContext *context)
 {
-  CoglWinsys *winsys =
-    cogl_renderer_get_winsys (context->display->renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglRenderer *renderer = context->display->renderer;
+  CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
-  if (!winsys_class->get_sync_fd)
+  if (!class->get_sync_fd)
     return -1;
 
-  return winsys_class->get_sync_fd (winsys, context);
+  return class->get_sync_fd (renderer);
 }
 
 void
