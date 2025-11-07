@@ -131,6 +131,9 @@ struct _CoglRendererClass
 
   gboolean (* is_dma_buf_supported) (CoglRenderer *renderer);
 
+  void (* update_sync) (CoglRenderer *renderer);
+
+  int (* get_sync_fd) (CoglRenderer *renderer);
 };
 
 COGL_EXPORT
@@ -323,5 +326,19 @@ CoglWinsys * cogl_renderer_get_winsys (CoglRenderer *renderer);
 COGL_EXPORT
 void cogl_renderer_set_custom_winsys (CoglRenderer *renderer,
                                       CoglWinsys   *winsys);
+
+/**
+ * cogl_renderer_get_latest_sync_fd
+ * @renderer: a #CoglRenderer
+ *
+ * This function is used to get support for waiting on previous
+ * GPU work through sync fds. It will return a sync fd which will
+ * signal when the previous work has completed.
+ *
+ * Return value: sync fd for latest GPU submission if available,
+ * returns -1 if not.
+ */
+COGL_EXPORT
+int cogl_renderer_get_latest_sync_fd (CoglRenderer *renderer);
 
 G_END_DECLS
