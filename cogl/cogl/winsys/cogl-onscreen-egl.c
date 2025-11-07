@@ -31,6 +31,7 @@
 #include <EGL/eglext.h>
 
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-display-private.h"
 #include "cogl/cogl-frame-info-private.h"
 #include "cogl/cogl-renderer-egl-private.h"
 #include "cogl/cogl-renderer-private.h"
@@ -57,8 +58,8 @@ cogl_onscreen_egl_dispose (GObject *object)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplayEGL *egl_display = context->display->winsys;
-  CoglRendererEGL *renderer_egl =
-    COGL_RENDERER_EGL (context->display->renderer);
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
 
   if (priv->egl_surface != EGL_NO_SURFACE)
@@ -103,7 +104,7 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
                                                    egl_context);
   if (status)
     {
-      CoglRenderer *renderer = context->display->renderer;
+      CoglRenderer *renderer = cogl_context_get_renderer (context);
       CoglRendererEGLPrivate *priv_renderer =
         cogl_renderer_egl_get_private (COGL_RENDERER_EGL (renderer));
       EGLDisplay edpy =
@@ -146,7 +147,7 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
   CoglDisplayEGL *egl_display = context->display->winsys;
@@ -187,7 +188,7 @@ cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   CoglRendererEGLPrivate *priv_renderer =
     cogl_renderer_egl_get_private (renderer_egl);
@@ -229,7 +230,8 @@ cogl_onscreen_egl_queue_damage_region (CoglOnscreen    *onscreen,
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   CoglRendererEGLPrivate *priv_renderer =
     cogl_renderer_egl_get_private (renderer_egl);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
@@ -267,7 +269,7 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglRenderer *renderer = context->display->renderer;
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
 
