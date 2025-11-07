@@ -729,6 +729,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                                    CoglContext  *context,
                                    GError      **error)
 {
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   g_auto (GStrv) gl_extensions = 0;
@@ -739,7 +740,7 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
      function because we need to use it to determine what functions we
      can expect */
   context->glGetString =
-    (void *) cogl_renderer_get_proc_address (context->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetString");
 
   if (!check_gl_version (context, error))

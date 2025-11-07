@@ -37,8 +37,6 @@ struct _CoglDisplay
 {
   GObject parent_instance;
 
-  CoglContext *context;
-
   gboolean setup;
   CoglRenderer *renderer;
 

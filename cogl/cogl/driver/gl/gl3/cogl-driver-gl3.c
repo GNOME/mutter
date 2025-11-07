@@ -532,6 +532,7 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
                                  CoglContext  *ctx,
                                  GError      **error)
 {
+  CoglRenderer *renderer = cogl_context_get_renderer (ctx);
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   g_auto (GStrv) gl_extensions = 0;
@@ -542,7 +543,7 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
      functions because we need to use them to determine what functions
      we can expect */
   ctx->glGetString =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetString");
 
   if (!check_gl_version (ctx, error))
@@ -555,10 +556,10 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
    * so don't look them up before check_gl_version()
    */
   ctx->glGetStringi =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetStringi");
   ctx->glGetIntegerv =
-    (void *) cogl_renderer_get_proc_address (ctx->display->renderer,
+    (void *) cogl_renderer_get_proc_address (renderer,
                                              "glGetIntegerv");
 
   gl_extensions = _cogl_context_get_gl_extensions (ctx);

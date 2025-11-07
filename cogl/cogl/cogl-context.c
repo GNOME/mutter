@@ -36,7 +36,6 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context-private.h"
 #include "cogl/cogl-context-test-utils.h"
-#include "cogl/cogl-display-private.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/cogl-journal-private.h"
 #include "cogl/cogl-texture-private.h"
@@ -171,6 +170,7 @@ cogl_context_new (CoglDisplay *display,
                   GError **error)
 {
   CoglDriver *driver;
+  CoglRenderer *renderer;
   CoglWinsys *winsys;
   CoglWinsysClass *winsys_class;
 
@@ -206,10 +206,9 @@ cogl_context_new (CoglDisplay *display,
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   context->display = g_object_ref (display);
-  /* Keep a backpointer to the context */
-  display->context = context;
 
-  winsys = cogl_renderer_get_winsys (display->renderer);
+  renderer = cogl_display_get_renderer (display);;
+  winsys = cogl_renderer_get_winsys (renderer);
   winsys_class = COGL_WINSYS_GET_CLASS (winsys);
   if (!winsys_class->context_init (winsys, context, error))
     {
@@ -218,7 +217,7 @@ cogl_context_new (CoglDisplay *display,
       return NULL;
     }
 
-  driver = cogl_renderer_get_driver (display->renderer);
+  driver = cogl_renderer_get_driver (renderer);
   if (COGL_DRIVER_GET_CLASS (driver)->context_init &&
       !COGL_DRIVER_GET_CLASS (driver)->context_init (driver, context))
     {
@@ -362,7 +361,9 @@ cogl_context_get_display (CoglContext *context)
 CoglRenderer *
 cogl_context_get_renderer (CoglContext *context)
 {
-  return context->display->renderer;
+  CoglDisplay *display = cogl_context_get_display (context);
+
+  return cogl_display_get_renderer (display);
 }
 
 const char *
@@ -407,7 +408,7 @@ _cogl_context_set_current_modelview_entry (CoglContext *context,
 void
 _cogl_context_update_sync (CoglContext *context)
 {
-  CoglRenderer *renderer = context->display->renderer;
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
   if (!class->update_sync)
@@ -419,7 +420,7 @@ _cogl_context_update_sync (CoglContext *context)
 int
 cogl_context_get_latest_sync_fd (CoglContext *context)
 {
-  CoglRenderer *renderer = context->display->renderer;
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererClass *class = COGL_RENDERER_GET_CLASS (renderer);
 
   if (!class->get_sync_fd)

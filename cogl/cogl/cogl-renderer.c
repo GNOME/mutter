@@ -42,7 +42,6 @@
 
 #include "cogl/cogl-renderer.h"
 #include "cogl/cogl-renderer-private.h"
-#include "cogl/cogl-display-private.h"
 #include "cogl/cogl-driver-private.h"
 #include "cogl/driver/nop/cogl-driver-nop-private.h"
 #include "cogl/winsys/cogl-winsys.h"

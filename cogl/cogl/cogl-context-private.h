@@ -33,7 +33,6 @@
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-flags.h"
 
-#include "cogl/cogl-display-private.h"
 #include "cogl/cogl-clip-stack.h"
 #include "cogl/cogl-matrix-stack.h"
 #include "cogl/cogl-pipeline-private.h"
