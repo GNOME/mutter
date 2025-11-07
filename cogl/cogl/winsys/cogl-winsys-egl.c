@@ -112,6 +112,7 @@ try_create_context (CoglWinsysEGL  *winsys,
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
   CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
+  CoglDisplayEGLClass *display_egl_class = COGL_DISPLAY_EGL_GET_CLASS (winsys);
   EGLConfig config;
   EGLint attribs[11];
   EGLint cfg_attribs[COGL_MAX_EGL_CONFIG_ATTRIBS];
@@ -130,11 +131,10 @@ try_create_context (CoglWinsysEGL  *winsys,
                                       COGL_EGL_WINSYS_FEATURE_NO_CONFIG_CONTEXT) ||
       cogl_renderer_egl_get_needs_config (renderer_egl))
     {
-      if (!egl_class->choose_config (winsys,
-                                     display,
-                                     cfg_attribs,
-                                     &config,
-                                     &config_error))
+      if (!display_egl_class->choose_config (egl_display,
+                                             cfg_attribs,
+                                             &config,
+                                             &config_error))
         {
           g_set_error (error, COGL_WINSYS_ERROR,
                        COGL_WINSYS_ERROR_CREATE_CONTEXT,

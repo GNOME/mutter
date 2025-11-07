@@ -58,7 +58,58 @@ meta_display_egl_add_config_attributes (CoglDisplayEGL *cogl_display_egl,
 
   return i;
 }
-  
+
+static gboolean
+meta_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
+                                EGLint          *attributes,
+                                EGLConfig       *out_config,
+                                GError         **error)
+{
+  CoglRenderer *cogl_renderer =
+    cogl_display_get_renderer (COGL_DISPLAY (cogl_display_egl));
+  MetaRendererNativeGpuData *renderer_gpu_data =
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
+  MetaRendererNative *renderer = renderer_gpu_data->renderer_native;
+  MetaBackend *backend = meta_renderer_get_backend (META_RENDERER (renderer));
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  EGLDisplay egl_display =
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
+
+  switch (renderer_gpu_data->mode)
+    {
+    case META_RENDERER_NATIVE_MODE_GBM:
+      {
+        static const uint32_t formats[] = {
+          GBM_FORMAT_XRGB8888,
+          GBM_FORMAT_ARGB8888,
+        };
+
+        return meta_renderer_native_choose_gbm_format (NULL,
+                                                       egl,
+                                                       egl_display,
+                                                       attributes,
+                                                       formats,
+                                                       G_N_ELEMENTS (formats),
+                                                       "fallback",
+                                                       out_config,
+                                                       error);
+      }
+    case META_RENDERER_NATIVE_MODE_SURFACELESS:
+      *out_config = EGL_NO_CONFIG_KHR;
+      return TRUE;
+#ifdef HAVE_EGL_DEVICE
+    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      return meta_egl_choose_first_config (egl,
+                                           egl_display,
+                                           attributes,
+                                           out_config,
+                                           error);
+#endif
+    }
+
+  return FALSE;
+}
+
 static void
 meta_display_egl_init (MetaDisplayEGL *display_egl)
 {
@@ -70,6 +121,7 @@ meta_display_egl_class_init (MetaDisplayEGLClass *class)
   CoglDisplayEGLClass *egl_class = COGL_DISPLAY_EGL_CLASS (class);
 
   egl_class->add_config_attributes = meta_display_egl_add_config_attributes;
+  egl_class->choose_config = meta_display_egl_choose_config;
 }
 
 MetaDisplayEGL *
