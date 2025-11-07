@@ -35,6 +35,7 @@
 #include "cogl/cogl-util.h"
 #include "cogl/cogl-context.h"
 #include "cogl/cogl-context-private.h"
+#include "cogl/cogl-display-private.h"
 #include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl-onscreen-private.h"
 #include "cogl/cogl-renderer-egl.h"
@@ -81,7 +82,7 @@ void
 cogl_display_egl_determine_attributes (CoglDisplay *display,
                                        EGLint      *attributes)
 {
-  CoglRenderer *renderer = display->renderer;
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
   CoglWinsys *winsys = cogl_renderer_get_winsys (renderer);
   CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
   int i = 0;
@@ -128,8 +129,9 @@ _cogl_winsys_egl_make_current (CoglDisplay *display,
                                EGLContext context)
 {
   CoglDisplayEGL *display_egl = display->winsys;
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
   EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (display->renderer));
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
   EGLBoolean ret;
 
   if (display_egl->current_draw_surface == draw &&
@@ -153,8 +155,9 @@ EGLBoolean
 _cogl_winsys_egl_ensure_current (CoglDisplay *display)
 {
   CoglDisplayEGL *display_egl = display->winsys;
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
   EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (display->renderer));
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
 
   return eglMakeCurrent (egl_display,
                          display_egl->current_draw_surface,
@@ -167,8 +170,9 @@ cleanup_context (CoglWinsysEGL *winsys,
                  CoglDisplay   *display)
 {
   CoglDisplayEGL *display_egl = display->winsys;
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
   EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (display->renderer));
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
   CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
 
   if (display_egl->egl_context != EGL_NO_CONTEXT)
@@ -189,7 +193,7 @@ try_create_context (CoglWinsysEGL  *winsys,
                     CoglDisplay    *display,
                     GError       **error)
 {
-  CoglRenderer *renderer = display->renderer;
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
   CoglDisplayEGL *egl_display = display->winsys;
   CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
@@ -228,7 +232,7 @@ try_create_context (CoglWinsysEGL  *winsys,
       egl_display->egl_config = config;
     }
 
-  if (cogl_renderer_get_driver_id (display->renderer) == COGL_DRIVER_ID_GL3)
+  if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GL3)
     {
       if (!cogl_renderer_egl_has_feature (renderer_egl,
                                           COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT))
@@ -247,7 +251,7 @@ try_create_context (CoglWinsysEGL  *winsys,
       attribs[i++] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
       attribs[i++] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
     }
-  else if (cogl_renderer_get_driver_id (display->renderer) == COGL_DRIVER_ID_GLES2)
+  else if (cogl_renderer_get_driver_id (renderer) == COGL_DRIVER_ID_GLES2)
     {
       attribs[i++] = EGL_CONTEXT_CLIENT_VERSION;
       attribs[i++] = 2;
@@ -321,7 +325,8 @@ static void
 _cogl_winsys_display_destroy (CoglWinsys  *winsys,
                               CoglDisplay *display)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (display->renderer);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
   CoglRendererEglPrivate *priv_renderer =
     cogl_renderer_egl_get_private (renderer_egl);
   EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
@@ -425,5 +430,7 @@ cogl_winsys_egl_init (CoglWinsysEGL *winsys_egl)
 EGLDisplay
 cogl_context_get_egl_display (CoglContext *context)
 {
-  return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (context->display->renderer));
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+
+  return cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
 }

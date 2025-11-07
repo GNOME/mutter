@@ -184,8 +184,10 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
 
   if (!ctx->onscreen_dispatch_idle)
     {
+      CoglRenderer *renderer = cogl_context_get_renderer (ctx);
+
       ctx->onscreen_dispatch_idle =
-        cogl_renderer_add_idle_closure (ctx->display->renderer,
+        cogl_renderer_add_idle_closure (renderer,
                                          (void (*)(void *))_cogl_dispatch_onscreen_cb,
                                         ctx);
     }
