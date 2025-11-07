@@ -110,6 +110,35 @@ meta_display_egl_choose_config (CoglDisplayEGL  *cogl_display_egl,
   return FALSE;
 }
 
+static gboolean
+meta_display_egl_setup (CoglDisplay  *cogl_display,
+                        GError      **error)
+{
+  CoglRenderer *cogl_renderer;
+  MetaRendererNativeGpuData *renderer_gpu_data;
+  MetaRendererNative *renderer_native;
+
+  cogl_renderer = cogl_display_get_renderer (cogl_display);
+  renderer_gpu_data =
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
+  renderer_native = renderer_gpu_data->renderer_native;
+
+#ifdef HAVE_EGL_DEVICE
+  if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
+    cogl_renderer_egl_set_needs_config (COGL_RENDERER_EGL (cogl_renderer),  TRUE);
+#endif
+
+  if (!COGL_DISPLAY_CLASS (meta_display_egl_parent_class)->setup (cogl_display, error))
+    return FALSE;
+
+  /* Force a full modeset / drmModeSetCrtc on
+   * the first swap buffers call.
+   */
+  meta_renderer_native_queue_modes_reset (renderer_native);
+
+  return TRUE;
+}
+
 static void
 meta_display_egl_init (MetaDisplayEGL *display_egl)
 {
@@ -119,9 +148,12 @@ static void
 meta_display_egl_class_init (MetaDisplayEGLClass *class)
 {
   CoglDisplayEGLClass *egl_class = COGL_DISPLAY_EGL_CLASS (class);
+  CoglDisplayClass *display_class = COGL_DISPLAY_CLASS (class);
 
   egl_class->add_config_attributes = meta_display_egl_add_config_attributes;
   egl_class->choose_config = meta_display_egl_choose_config;
+
+  display_class->setup = meta_display_egl_setup;
 }
 
 MetaDisplayEGL *

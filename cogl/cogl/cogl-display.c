@@ -109,10 +109,9 @@ cogl_display_dispose (GObject *object)
 
   if (priv->setup)
     {
-      CoglWinsys *winsys = cogl_renderer_get_winsys (priv->renderer);
-      CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+      CoglDisplayClass *class = COGL_DISPLAY_GET_CLASS (display);
 
-      winsys_class->display_destroy (winsys, display);
+      class->destroy (display);
       priv->setup = FALSE;
     }
 
@@ -175,13 +174,12 @@ cogl_display_setup (CoglDisplay *display,
                     GError **error)
 {
   CoglDisplayPrivate *priv = cogl_display_get_instance_private (display);
-  CoglWinsys *winsys = cogl_renderer_get_winsys (priv->renderer);
-  CoglWinsysClass *winsys_class = COGL_WINSYS_GET_CLASS (winsys);
+  CoglDisplayClass *class = COGL_DISPLAY_GET_CLASS (display);
 
   if (priv->setup)
     return TRUE;
 
-  if (!winsys_class->display_setup (winsys, display, error))
+  if (!class->setup (display, error))
     return FALSE;
 
   priv->setup = TRUE;

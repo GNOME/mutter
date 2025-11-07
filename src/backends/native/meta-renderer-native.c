@@ -148,9 +148,6 @@ meta_renderer_native_ensure_gpu_data (MetaRendererNative  *renderer_native,
                                       GError             **error);
 
 static void
-meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
-
-static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
   MetaGpuKms *gpu_kms = renderer_gpu_data->gpu_kms;
@@ -427,42 +424,6 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
   return FALSE;
 }
 
-static gboolean
-meta_renderer_native_setup_egl_display (CoglWinsys   *winsys,
-                                        CoglDisplay  *cogl_display,
-                                        GError      **error)
-{
-  CoglRenderer *cogl_renderer;
-  MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaRendererNative *renderer_native;
-
-  cogl_renderer = cogl_display_get_renderer (cogl_display);
-  renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  renderer_native = renderer_gpu_data->renderer_native;
-
-#ifdef HAVE_EGL_DEVICE
-  if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
-    cogl_renderer_egl_set_needs_config (COGL_RENDERER_EGL (cogl_renderer),  TRUE);
-#endif
-
-  if (!COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->display_setup (winsys, cogl_display, error))
-    return FALSE;
-
-  /* Force a full modeset / drmModeSetCrtc on
-   * the first swap buffers call.
-   */
-  meta_renderer_native_queue_modes_reset (renderer_native);
-
-  return TRUE;
-}
-
-static void
-meta_renderer_native_destroy_egl_display (CoglWinsys  *winsys,
-                                          CoglDisplay *cogl_display)
-{
-  COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->display_destroy (winsys, cogl_display);
-}
 
 static EGLSurface
 create_dummy_pbuffer_surface (CoglRenderer  *cogl_renderer,
@@ -973,8 +934,6 @@ meta_winsys_egl_class_init (MetaWinsysEglClass *klass)
   g_object_class_install_properties (object_class, N_WINSYS_EGL_PROPS,
                                      winsys_egl_props);
 
-  winsys_class->display_setup = meta_renderer_native_setup_egl_display;
-  winsys_class->display_destroy = meta_renderer_native_destroy_egl_display;
   winsys_class->context_init = meta_renderer_native_init_egl_context;
 
   winsys_egl_class->context_created = meta_renderer_native_egl_context_created;
@@ -992,7 +951,7 @@ meta_winsys_egl_get_renderer (MetaWinsysEgl *winsys_egl)
   return winsys_egl->renderer;
 }
 
-static void
+void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
