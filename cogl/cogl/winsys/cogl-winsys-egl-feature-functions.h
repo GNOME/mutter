@@ -77,18 +77,6 @@ COGL_WINSYS_FEATURE_FUNCTION (EGLBoolean, eglDestroyImage,
 COGL_WINSYS_FEATURE_END ()
 #endif
 
-#ifdef EGL_WL_bind_wayland_display
-COGL_WINSYS_FEATURE_BEGIN (bind_wayland_display,
-                           "WL\0",
-                           "bind_wayland_display\0",
-                           COGL_EGL_WINSYS_FEATURE_EGL_IMAGE_FROM_WAYLAND_BUFFER)
-COGL_WINSYS_FEATURE_FUNCTION (EGLBoolean, eglQueryWaylandBuffer,
-                              (EGLDisplay dpy,
-                               struct wl_resource *buffer,
-                               EGLint attribute, EGLint *value))
-COGL_WINSYS_FEATURE_END ()
-#endif /* EGL_WL_bind_wayland_display */
-
 COGL_WINSYS_FEATURE_BEGIN (create_context,
                            "KHR\0",
                            "create_context\0",
