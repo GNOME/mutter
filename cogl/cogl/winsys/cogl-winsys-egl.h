@@ -53,12 +53,6 @@ struct _CoglWinsysEGLClass
 
   void (* cleanup_context) (CoglWinsysEGL *winsys,
                             CoglDisplay   *display);
-
-  gboolean (* choose_config) (CoglWinsysEGL  *winsys,
-                              CoglDisplay    *display,
-                              EGLint         *attributes,
-                              EGLConfig      *out_config,
-                              GError        **error);
 };
 
 #define COGL_MAX_EGL_CONFIG_ATTRIBS 30

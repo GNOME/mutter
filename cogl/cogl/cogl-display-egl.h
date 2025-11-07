@@ -50,6 +50,11 @@ struct _CoglDisplayEGLClass
 
   int (* add_config_attributes) (CoglDisplayEGL *display,
                                  EGLint         *attributes);
+
+  gboolean (* choose_config) (CoglDisplayEGL  *display,
+                              EGLint          *attributes,
+                              EGLConfig       *out_config,
+                              GError         **error);
 };
 
 COGL_EXPORT
