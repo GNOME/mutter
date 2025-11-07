@@ -428,58 +428,6 @@ meta_renderer_native_choose_gbm_format (MetaKmsPlane    *kms_plane,
 }
 
 static gboolean
-meta_renderer_native_choose_egl_config (CoglWinsysEGL  *winsys,
-                                        CoglDisplay    *cogl_display,
-                                        EGLint         *attributes,
-                                        EGLConfig      *out_config,
-                                        GError        **error)
-{
-  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  MetaRendererNative *renderer =
-    meta_winsys_egl_get_renderer (META_WINSYS_EGL (winsys));
-  MetaBackend *backend = meta_renderer_get_backend (META_RENDERER (renderer));
-  MetaEgl *egl = meta_backend_get_egl (backend);
-  MetaRendererNativeGpuData *renderer_gpu_data =
-    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
-  EGLDisplay egl_display =
-    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
-
-  switch (renderer_gpu_data->mode)
-    {
-    case META_RENDERER_NATIVE_MODE_GBM:
-      {
-        static const uint32_t formats[] = {
-          GBM_FORMAT_XRGB8888,
-          GBM_FORMAT_ARGB8888,
-        };
-
-        return meta_renderer_native_choose_gbm_format (NULL,
-                                                       egl,
-                                                       egl_display,
-                                                       attributes,
-                                                       formats,
-                                                       G_N_ELEMENTS (formats),
-                                                       "fallback",
-                                                       out_config,
-                                                       error);
-      }
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
-      *out_config = EGL_NO_CONFIG_KHR;
-      return TRUE;
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      return meta_egl_choose_first_config (egl,
-                                           egl_display,
-                                           attributes,
-                                           out_config,
-                                           error);
-#endif
-    }
-
-  return FALSE;
-}
-
-static gboolean
 meta_renderer_native_setup_egl_display (CoglWinsys   *winsys,
                                         CoglDisplay  *cogl_display,
                                         GError      **error)
@@ -1029,7 +977,6 @@ meta_winsys_egl_class_init (MetaWinsysEglClass *klass)
   winsys_class->display_destroy = meta_renderer_native_destroy_egl_display;
   winsys_class->context_init = meta_renderer_native_init_egl_context;
 
-  winsys_egl_class->choose_config = meta_renderer_native_choose_egl_config;
   winsys_egl_class->context_created = meta_renderer_native_egl_context_created;
   winsys_egl_class->cleanup_context = meta_renderer_native_egl_cleanup_context;
 }
