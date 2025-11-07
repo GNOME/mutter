@@ -30,6 +30,7 @@
 
 #include "cogl/cogl-display-egl.h"
 #include "cogl/cogl-display-egl-private.h"
+#include "cogl/cogl-renderer-egl.h"
 #include "cogl/cogl-renderer-private.h"
 #include "cogl/winsys/cogl-winsys-egl.h"
 
@@ -201,4 +202,47 @@ cogl_display_egl_determine_attributes (CoglDisplayEGL *display_egl,
   attributes[i++] = EGL_NONE;
 
   g_assert (i < COGL_MAX_EGL_CONFIG_ATTRIBS);
+}
+
+EGLBoolean
+cogl_display_egl_make_current (CoglDisplayEGL *display_egl,
+                               EGLSurface      draw,
+                               EGLSurface      read,
+                               EGLContext      context)
+{
+  CoglDisplay *display = COGL_DISPLAY (display_egl);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+  EGLDisplay egl_display =
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
+  EGLBoolean ret;
+
+  if (cogl_display_egl_get_current_draw_surface (display_egl) == draw &&
+      cogl_display_egl_get_current_read_surface (display_egl) == read &&
+      cogl_display_egl_get_current_context (display_egl) == context)
+    return EGL_TRUE;
+
+  ret = eglMakeCurrent (egl_display,
+                        draw,
+                        read,
+                        context);
+
+  cogl_display_egl_set_current_draw_surface (display_egl, draw);
+  cogl_display_egl_set_current_read_surface (display_egl, read);
+  cogl_display_egl_set_current_context (display_egl, context);
+
+  return ret;
+}
+
+EGLBoolean
+cogl_display_egl_ensure_current (CoglDisplayEGL *display_egl)
+{
+  CoglDisplay *display = COGL_DISPLAY (display_egl);
+  CoglRenderer *renderer = cogl_display_get_renderer (display);
+  EGLDisplay egl_display =
+    cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (renderer));
+
+  return eglMakeCurrent (egl_display,
+                         cogl_display_egl_get_current_draw_surface (display_egl),
+                         cogl_display_egl_get_current_read_surface (display_egl),
+                         cogl_display_egl_get_current_context (display_egl));
 }

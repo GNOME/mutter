@@ -573,7 +573,7 @@ meta_renderer_native_egl_context_created (CoglWinsysEGL  *winsys,
         return FALSE;
     }
 
-  if (!_cogl_winsys_egl_make_current (cogl_display,
+  if (!cogl_display_egl_make_current (cogl_display_egl,
                                       cogl_display_egl_get_dummy_surface (cogl_display_egl),
                                       cogl_display_egl_get_dummy_surface (cogl_display_egl),
                                       cogl_display_egl_get_egl_context (cogl_display_egl)))
@@ -1380,7 +1380,7 @@ meta_renderer_native_create_view (MetaRenderer        *renderer,
       cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
       onscreen_egl = COGL_ONSCREEN_EGL (framebuffer);
       egl_surface = cogl_onscreen_egl_get_egl_surface (onscreen_egl);
-      _cogl_winsys_egl_make_current (cogl_display,
+      cogl_display_egl_make_current (cogl_display_egl,
                                      egl_surface,
                                      egl_surface,
                                      cogl_display_egl_get_egl_context (cogl_display_egl));
@@ -1867,7 +1867,7 @@ out:
   if (cogl_context)
     {
       cogl_display = cogl_context_get_display (cogl_context);
-      _cogl_winsys_egl_ensure_current (cogl_display);
+      cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
     }
   return ret;
 }
@@ -2111,7 +2111,7 @@ on_gpu_added (MetaBackendNative  *backend_native,
       g_clear_error (&error);
     }
 
-  _cogl_winsys_egl_ensure_current (cogl_display);
+  cogl_display_egl_ensure_current (COGL_DISPLAY_EGL (cogl_display));
 }
 
 static void
