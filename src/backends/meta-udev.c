@@ -121,6 +121,13 @@ meta_is_udev_device_ignore (GUdevDevice *device)
 gboolean
 meta_is_udev_test_device (GUdevDevice *device)
 {
+  const char *devpath;
+
+  devpath = g_udev_device_get_property (device, "DEVPATH");
+  if (devpath &&
+      g_str_has_prefix (devpath, "/devices/faux/vkms/drm/card"))
+    return TRUE;
+
   return g_strcmp0 (g_udev_device_get_property (device, "ID_PATH"),
                     "platform-vkms") == 0;
 }
