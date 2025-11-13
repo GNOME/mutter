@@ -37,6 +37,7 @@
 #include "core/window-private.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
+#include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-color-representation.h"
 #include "wayland/meta-wayland-fractional-scale.h"
 #include "wayland/meta-wayland-gtk-shell.h"
@@ -1763,6 +1764,8 @@ meta_wayland_surface_dispose (GObject *object)
       surface->main_monitor = NULL;
     }
 
+  g_clear_object (&surface->client);
+
   G_OBJECT_CLASS (meta_wayland_surface_parent_class)->dispose (object);
 }
 
@@ -1806,6 +1809,7 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
   MetaWaylandSurface *surface = g_object_new (META_TYPE_WAYLAND_SURFACE, NULL);
   int surface_version;
 
+  g_set_object (&surface->client, meta_get_wayland_client (client));
   surface->compositor = compositor;
   surface->applied_state.scale = 1;
   surface->committed_state.scale = 1;
@@ -2808,4 +2812,10 @@ gboolean
 meta_wayland_surface_has_initial_commit (MetaWaylandSurface *surface)
 {
   return surface->committed_state.is_valid;
+}
+
+MetaWaylandClient *
+meta_wayland_surface_get_client (MetaWaylandSurface *surface)
+{
+  return surface->client;
 }

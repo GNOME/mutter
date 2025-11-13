@@ -180,6 +180,7 @@ struct _MetaWaylandSurface
 
   /* Generic stuff */
   struct wl_resource *resource;
+  MetaWaylandClient *client;
   MetaWaylandCompositor *compositor;
   MetaWaylandSurfaceRole *role;
   MtkRegion *input_region;
@@ -455,6 +456,8 @@ meta_wayland_surface_state_new (void)
 gboolean meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface);
 
 gboolean meta_wayland_surface_has_initial_commit (MetaWaylandSurface *surface);
+
+MetaWaylandClient * meta_wayland_surface_get_client (MetaWaylandSurface *surface);
 
 static inline GNode *
 meta_get_next_subsurface_sibling (GNode *n)
