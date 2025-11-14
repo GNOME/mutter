@@ -21,6 +21,7 @@ mutter_public_headers = [
   'meta-debug-control.h',
   'meta-dnd.h',
   'meta-enums.h',
+  'meta-external-constraint.h',
   'meta-idle-monitor.h',
   'meta-inhibit-shortcuts-dialog.h',
   'meta-launch-context.h',

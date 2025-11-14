@@ -37,3 +37,4 @@ typedef struct _MetaWorkspaceManager MetaWorkspaceManager;
 typedef struct _MetaSelection MetaSelection;
 typedef struct _MetaDebugControl MetaDebugControl;
 typedef struct _MetaWindowConfig MetaWindowConfig;
+typedef struct _MetaExternalConstraint MetaExternalConstraint;
