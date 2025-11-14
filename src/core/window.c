@@ -80,6 +80,7 @@
 #include "core/workspace-private.h"
 #include "meta/meta-cursor-tracker.h"
 #include "meta/meta-enum-types.h"
+#include "meta/meta-external-constraint.h"
 #include "meta/prefs.h"
 #include "meta/meta-window-config.h"
 #include "wayland/meta-wayland-private.h"
@@ -184,6 +185,8 @@ typedef struct _MetaWindowPrivate
   } auto_maximize;
 
   unsigned int mapped_inhibit_count;
+
+  GHashTable *external_constraints;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
@@ -405,6 +408,8 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_menubar_object_path);
   g_free (window->placement.rule);
   g_free (window->tag);
+
+  g_clear_pointer (&priv->external_constraints, g_hash_table_destroy);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
@@ -828,6 +833,8 @@ meta_window_init (MetaWindow *window)
   window->stamp = next_window_stamp++;
   meta_prefs_add_listener (prefs_changed_callback, window);
   window->is_alive = TRUE;
+  priv->external_constraints =
+    g_hash_table_new_full (NULL, NULL, g_object_unref, NULL);
 }
 
 static gboolean
@@ -8713,4 +8720,84 @@ meta_window_is_mapped_inhibited (MetaWindow *window)
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
 
   return priv->mapped_inhibit_count > 0;
+}
+
+/**
+ * meta_window_add_external_constraint:
+ * @window: a #MetaWindow
+ * @constraint: a #MetaExternalConstraint
+ *
+ * Adds an external constraint to the window.
+ *
+ * The constraint object is referenced by the window, so the caller should
+ * release its own reference when no longer needed.
+ */
+void
+meta_window_add_external_constraint (MetaWindow             *window,
+                                     MetaExternalConstraint *constraint)
+{
+  MetaWindowPrivate *priv;
+
+  g_return_if_fail (META_IS_WINDOW (window));
+  g_return_if_fail (META_IS_EXTERNAL_CONSTRAINT (constraint));
+
+  priv = meta_window_get_instance_private (window);
+  if (g_hash_table_contains (priv->external_constraints, constraint))
+    {
+      g_warning ("Not adding external window constraint, already present");
+      return;
+    }
+
+  g_hash_table_add (priv->external_constraints, g_object_ref (constraint));
+}
+
+/**
+ * meta_window_remove_external_constraint:
+ * @window: a #MetaWindow
+ * @constraint: a #MetaExternalConstraint
+ *
+ * Removes a previously added external constraint from the window.
+ */
+void
+meta_window_remove_external_constraint (MetaWindow             *window,
+                                        MetaExternalConstraint *constraint)
+{
+  MetaWindowPrivate *priv;
+
+  g_return_if_fail (META_IS_WINDOW (window));
+  g_return_if_fail (META_IS_EXTERNAL_CONSTRAINT (constraint));
+
+  priv = meta_window_get_instance_private (window);
+  g_hash_table_remove (priv->external_constraints, constraint);
+}
+
+gboolean
+meta_window_apply_external_constraints (MetaWindow                  *window,
+                                        MetaGravity                  resize_gravity,
+                                        MtkRectangle                *constrained_rect,
+                                        MetaExternalConstraintFlags  constraint_flags)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+  GHashTableIter iter;
+  gpointer constraint_ptr;
+  gboolean constraint_satisfied = TRUE;
+
+  g_return_val_if_fail (META_IS_WINDOW (window), TRUE);
+
+  g_hash_table_iter_init (&iter, priv->external_constraints);
+  while (g_hash_table_iter_next (&iter, &constraint_ptr, NULL))
+    {
+      MetaExternalConstraint *constraint = META_EXTERNAL_CONSTRAINT (constraint_ptr);
+      MetaExternalConstraintInfo constraint_info = {
+        .new_rect = constrained_rect,
+        .flags = constraint_flags,
+        .resize_gravity = resize_gravity,
+      };
+
+      constraint_satisfied |= meta_external_constraint_constrain (constraint,
+                                                                  window,
+                                                                  &constraint_info);
+    }
+
+  return constraint_satisfied;
 }

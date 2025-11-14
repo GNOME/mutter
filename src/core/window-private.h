@@ -933,3 +933,8 @@ void meta_window_set_tag (MetaWindow *window,
 
 META_EXPORT_TEST
 GPtrArray * meta_window_get_transient_children (MetaWindow *window);
+
+gboolean meta_window_apply_external_constraints (MetaWindow                  *window,
+                                                 MetaGravity                  resize_gravity,
+                                                 MtkRectangle                *constrained_rect,
+                                                 MetaExternalConstraintFlags  constraint_flags);

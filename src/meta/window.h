@@ -469,3 +469,11 @@ void meta_window_uninhibit_mapped (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_is_mapped_inhibited (MetaWindow *window);
+
+META_EXPORT
+void meta_window_add_external_constraint    (MetaWindow             *window,
+                                             MetaExternalConstraint *constraint);
+
+META_EXPORT
+void meta_window_remove_external_constraint (MetaWindow             *window,
+                                             MetaExternalConstraint *constraint);
