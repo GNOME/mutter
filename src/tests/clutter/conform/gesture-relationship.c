@@ -661,6 +661,91 @@ gesture_relationship_unmap_before_points_added (void)
   g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
 }
 
+static void
+mark_as_recognized (ClutterPressGesture *press_gesture,
+                    gboolean            *recognized)
+{
+  *recognized = TRUE;
+}
+
+static void
+gesture_relationship_unmap_child_on_press_cancels_on_parent (void)
+{
+  ClutterActor *stage = clutter_test_get_stage ();
+  ClutterSeat *seat =
+    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
+  int64_t now_us;
+  ClutterActor *second_actor;
+  ClutterGesture *press_gesture_1, *press_gesture_2;
+  gboolean was_updated;
+  gboolean gesture_1_recognized = FALSE, gesture_2_recognized = FALSE;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
+  now_us = g_get_monotonic_time ();
+
+  second_actor = clutter_actor_new ();
+
+  press_gesture_1 = g_object_new (TEST_TYPE_RECOGNIZE_ON_PRESS_GESTURE,
+                                  "name", "press-gesture-1",
+                                  NULL);
+  press_gesture_2 = g_object_new (TEST_TYPE_RECOGNIZE_ON_PRESS_GESTURE,
+                                  "name", "press-gesture-2",
+                                  NULL);
+
+  clutter_actor_add_action (stage, CLUTTER_ACTION (press_gesture_1));
+
+  clutter_actor_set_size (second_actor, 20, 20);
+  clutter_actor_set_reactive (second_actor, true);
+  clutter_actor_add_child (stage, second_actor);
+  clutter_actor_add_action (second_actor, CLUTTER_ACTION (press_gesture_2));
+
+  g_signal_connect (stage, "after-update", G_CALLBACK (on_after_update),
+                    &was_updated);
+
+  clutter_actor_show (stage);
+  wait_stage_updated (&was_updated);
+
+  /* The the press gesture on the second actor will recognize before the one
+   * on the stage. It should cancel the gesture on the stage even if the
+   * second actor is unmapped.
+   */
+  g_signal_connect (press_gesture_2, "recognize", G_CALLBACK (unmap_second_actor_on_press),
+                    second_actor);
+
+  g_signal_connect (press_gesture_1, "recognize", G_CALLBACK (mark_as_recognized),
+                    &gesture_1_recognized);
+
+  g_signal_connect (press_gesture_2, "recognize", G_CALLBACK (mark_as_recognized),
+                    &gesture_2_recognized);
+
+  clutter_virtual_input_device_notify_touch_down (virtual_pointer, now_us, 0, 15, 15);
+  wait_stage_updated (&was_updated);
+  g_assert_true (!clutter_actor_is_mapped (second_actor));
+  g_assert_false (gesture_1_recognized);
+  g_assert_true (gesture_2_recognized);
+  /* Hiding the actor when gesture 2 was recognized has reset that gesture. */
+  g_assert_cmpint (clutter_gesture_get_n_points (press_gesture_1), ==, 0);
+  g_assert_cmpint (clutter_gesture_get_n_points (press_gesture_2), ==, 0);
+  g_assert_true (clutter_gesture_get_state (press_gesture_1) == CLUTTER_GESTURE_STATE_CANCELLED);
+  g_assert_true (clutter_gesture_get_state (press_gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+
+  gesture_1_recognized = gesture_2_recognized = FALSE;
+
+  clutter_virtual_input_device_notify_touch_up (virtual_pointer, now_us, 0);
+  wait_stage_updated (&was_updated);
+  g_assert_false (gesture_1_recognized);
+  g_assert_false (gesture_2_recognized);
+  g_assert_cmpint (clutter_gesture_get_n_points (press_gesture_1), ==, 0);
+  g_assert_cmpint (clutter_gesture_get_n_points (press_gesture_2), ==, 0);
+  g_assert_true (clutter_gesture_get_state (press_gesture_1) == CLUTTER_GESTURE_STATE_WAITING);
+  g_assert_true (clutter_gesture_get_state (press_gesture_2) == CLUTTER_GESTURE_STATE_WAITING);
+
+  clutter_actor_remove_action (stage, CLUTTER_ACTION (press_gesture_1));
+  clutter_actor_destroy (second_actor);
+  g_signal_handlers_disconnect_by_func (stage, on_after_update, &was_updated);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/gesture/relationship/freed-despite-relationship", gesture_relationship_freed_despite_relationship);
   CLUTTER_TEST_UNIT ("/gesture/relationship/cancel-on-recognize", gesture_relationship_cancel_on_recognize);
@@ -670,4 +755,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/gesture/relationship/claim-new-sequence-while-already-recognizing", gesture_relationship_claim_new_sequence_while_already_recognizing);
   CLUTTER_TEST_UNIT ("/gesture/relationship/claim-new-sequence-while-already-recognizing-2", gesture_relationship_claim_new_sequence_while_already_recognizing_2);
   CLUTTER_TEST_UNIT ("/gesture/relationship/unmap-before-points-added", gesture_relationship_unmap_before_points_added);
+  CLUTTER_TEST_UNIT ("/gesture/relationship/unmap-child-on-press-cancels-on-parent", gesture_relationship_unmap_child_on_press_cancels_on_parent);
 )
