@@ -56,7 +56,7 @@ struct _MetaWaylandPopupGrab
   MetaWaylandSeat *seat;
   MetaWaylandEventHandler *handler;
 
-  struct wl_client       *grab_client;
+  MetaWaylandClient      *grab_client;
   struct wl_list          all_popups;
 };
 
@@ -121,7 +121,7 @@ popup_grab_get_focus_surface (MetaWaylandEventHandler *handler,
 
       if (!meta_wayland_input_is_current_handler (input, handler) ||
           (surface && surface->resource &&
-           wl_resource_get_client (surface->resource) == popup_grab->grab_client))
+           meta_wayland_surface_get_client (surface) == popup_grab->grab_client))
         return surface;
     }
 
@@ -169,7 +169,7 @@ popup_grab_release (MetaWaylandEventHandler *handler,
       surface = meta_wayland_seat_get_current_surface (popup_grab->seat, focus);
 
       if (!surface ||
-          wl_resource_get_client (surface->resource) != popup_grab->grab_client)
+          meta_wayland_surface_get_client (surface) != popup_grab->grab_client)
         {
           meta_wayland_popup_grab_finish (popup_grab);
           return CLUTTER_EVENT_STOP;
@@ -193,13 +193,12 @@ meta_wayland_popup_grab_create (MetaWaylandSeat         *seat,
 {
   MetaWaylandSurface *surface =
     meta_wayland_popup_surface_get_surface (popup_surface);
-  struct wl_client *client = wl_resource_get_client (surface->resource);
   MetaWaylandInput *input = meta_wayland_seat_get_input (seat);
   MetaWaylandPopupGrab *grab;
 
   grab = g_new0 (MetaWaylandPopupGrab, 1);
   grab->seat = seat;
-  grab->grab_client = client;
+  g_set_object (&grab->grab_client, meta_wayland_surface_get_client (surface));
   wl_list_init (&grab->all_popups);
 
   grab->handler =
@@ -238,6 +237,7 @@ meta_wayland_popup_grab_destroy (MetaWaylandPopupGrab *grab)
       grab->handler = NULL;
     }
 
+  g_clear_object (&grab->grab_client);
   g_free (grab);
 }
 
@@ -313,7 +313,7 @@ meta_wayland_popup_create (MetaWaylandPopupSurface *popup_surface,
   MetaWaylandPopup *popup;
 
   /* Don't allow creating popups if the grab has a different client. */
-  if (grab->grab_client != wl_resource_get_client (surface->resource))
+  if (grab->grab_client != meta_wayland_surface_get_client (surface))
     return NULL;
 
   popup = g_new0 (MetaWaylandPopup, 1);
