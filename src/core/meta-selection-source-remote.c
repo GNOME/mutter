@@ -22,13 +22,13 @@
 
 #include <gio/gunixinputstream.h>
 
-#include "backends/meta-remote-desktop-session.h"
+#include "backends/meta-clipboard-session.h"
 
 struct _MetaSelectionSourceRemote
 {
   MetaSelectionSource parent;
 
-  MetaRemoteDesktopSession *session;
+  MetaClipboardSession *session;
   GList *mime_types;
 };
 
@@ -37,8 +37,8 @@ G_DEFINE_TYPE (MetaSelectionSourceRemote,
                META_TYPE_SELECTION_SOURCE)
 
 MetaSelectionSourceRemote *
-meta_selection_source_remote_new (MetaRemoteDesktopSession *session,
-                                  GList                    *mime_types)
+meta_selection_source_remote_new (MetaClipboardSession *session,
+                                  GList                *mime_types)
 {
   MetaSelectionSourceRemote *source_remote;
 
@@ -63,9 +63,9 @@ meta_selection_source_remote_read_async (MetaSelectionSource *source,
   task = g_task_new (source, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_source_remote_read_async);
 
-  meta_remote_desktop_session_request_transfer (source_remote->session,
-                                                mimetype,
-                                                task);
+  meta_clipboard_session_request_transfer (source_remote->session,
+                                           mimetype,
+                                           task);
 }
 
 static GInputStream *

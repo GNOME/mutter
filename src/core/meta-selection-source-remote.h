@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "backends/meta-remote-desktop.h"
+#include "backends/meta-clipboard-session.h"
 #include "meta/meta-selection-source.h"
 
 #define META_TYPE_SELECTION_SOURCE_REMOTE (meta_selection_source_remote_get_type ())
@@ -34,5 +34,5 @@ void meta_selection_source_remote_complete_transfer (MetaSelectionSourceRemote *
 void meta_selection_source_remote_cancel_transfer (MetaSelectionSourceRemote *source_remote,
                                                    GTask                     *task);
 
-MetaSelectionSourceRemote * meta_selection_source_remote_new (MetaRemoteDesktopSession *session,
-                                                              GList                    *mime_types);
+MetaSelectionSourceRemote * meta_selection_source_remote_new (MetaClipboardSession *session,
+                                                              GList                *mime_types);

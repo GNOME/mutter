@@ -469,6 +469,8 @@ endif
 
 if have_remote_desktop
   mutter_sources += [
+    'backends/meta-clipboard-session.c',
+    'backends/meta-clipboard-session.h',
     'backends/meta-eis.c',
     'backends/meta-eis.h',
     'backends/meta-eis-client.c',
@@ -977,6 +979,11 @@ if have_remote_desktop
     {
       'name': 'meta-dbus-screen-cast',
       'interface': 'org.gnome.Mutter.ScreenCast.xml',
+      'prefix': 'org.gnome.Mutter.',
+    },
+    {
+      'name': 'meta-dbus-clipboard',
+      'interface': 'org.gnome.Mutter.Clipboard.xml',
       'prefix': 'org.gnome.Mutter.',
     },
   ]

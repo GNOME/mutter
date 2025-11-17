@@ -49,9 +49,4 @@ void meta_remote_desktop_session_release_mapping_id (MetaRemoteDesktopSession *s
                                                      const char               *mapping_id);
 
 META_EXPORT_TEST
-void meta_remote_desktop_session_request_transfer (MetaRemoteDesktopSession  *session,
-                                                   const char                *mime_type,
-                                                   GTask                     *task);
-
-META_EXPORT_TEST
 MetaEis * meta_remote_desktop_session_get_eis (MetaRemoteDesktopSession *session);
