@@ -26,6 +26,7 @@
 
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-dbus-session-manager.h"
+#include "backends/meta-clipboard-session.h"
 #include "backends/meta-fd-source.h"
 #include "backends/meta-input-capture-private.h"
 #include "backends/meta-monitor-manager-private.h"
@@ -104,6 +105,8 @@ struct _MetaInputCaptureSession
   gboolean cancel_requested;
   unsigned int buttons_pressed;
   unsigned int keys_pressed;
+
+  MetaClipboardSession *clipboard;
 };
 
 static void initable_init_iface (GInitableIface *iface);
@@ -1174,6 +1177,15 @@ meta_input_capture_session_initable_init (GInitable     *initable,
 
   session->connection =
     meta_dbus_session_manager_get_connection (session->session_manager);
+
+  session->clipboard = meta_clipboard_session_new (backend,
+                                                   session->peer_name,
+                                                   session->connection,
+                                                   session->object_path,
+                                                   error);
+  if (!session->clipboard)
+    return FALSE;
+
   if (!g_dbus_interface_skeleton_export (interface_skeleton,
                                          session->connection,
                                          session->object_path,
@@ -1224,6 +1236,8 @@ meta_input_capture_session_finalize (GObject *object)
   g_signal_handlers_disconnect_by_func (backend, on_keymap_changed, session);
 
   g_clear_pointer (&session->barriers, g_hash_table_unref);
+
+  g_clear_object (&session->clipboard);
 
   g_clear_object (&session->handle);
   g_free (session->peer_name);
