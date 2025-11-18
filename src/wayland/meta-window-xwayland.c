@@ -151,11 +151,10 @@ meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow   *window,
 
       if (rects[i].x == win_monitor_rect.x && rects[i].y == win_monitor_rect.y)
         {
-          meta_window_protocol_to_stage_point (window,
-                                               rects[i].width, rects[i].height,
-                                               &fs_monitor_rect->width,
-                                               &fs_monitor_rect->height,
-                                               MTK_ROUNDING_STRATEGY_GROW);
+          meta_window_protocol_to_stage_size (window,
+                                              rects[i].width, rects[i].height,
+                                              &fs_monitor_rect->width,
+                                              &fs_monitor_rect->height);
           break;
         }
     }
@@ -450,6 +449,21 @@ meta_window_xwayland_stage_to_protocol (MetaWindow          *window,
 }
 
 static void
+meta_window_xwayland_stage_to_protocol_size (MetaWindow *window,
+                                             int         stage_w,
+                                             int         stage_h,
+                                             int        *protocol_w,
+                                             int        *protocol_h)
+{
+  meta_window_xwayland_stage_to_protocol (window,
+                                          stage_w,
+                                          stage_h,
+                                          protocol_w,
+                                          protocol_h,
+                                          MTK_ROUNDING_STRATEGY_GROW);
+}
+
+static void
 meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
                                         int                  protocol_x,
                                         int                  protocol_y,
@@ -491,6 +505,21 @@ meta_window_xwayland_protocol_to_stage (MetaWindow          *window,
     }
 }
 
+static void
+meta_window_xwayland_protocol_to_stage_size (MetaWindow *window,
+                                             int         protocol_w,
+                                             int         protocol_h,
+                                             int        *stage_w,
+                                             int        *stage_h)
+{
+  meta_window_xwayland_protocol_to_stage (window,
+                                          protocol_w,
+                                          protocol_h,
+                                          stage_w,
+                                          stage_h,
+                                          MTK_ROUNDING_STRATEGY_GROW);
+}
+
 void
 meta_window_xwayland_viewport_changed (MetaWindow *window)
 {
@@ -514,6 +543,8 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   window_class->get_wayland_surface = meta_window_xwayland_get_wayland_surface;
   window_class->stage_to_protocol = meta_window_xwayland_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_xwayland_protocol_to_stage;
+  window_class->stage_to_protocol_size = meta_window_xwayland_stage_to_protocol_size;
+  window_class->protocol_to_stage_size = meta_window_xwayland_protocol_to_stage_size;
 
   window_x11_class->freeze_commits = meta_window_xwayland_freeze_commits;
   window_x11_class->thaw_commits = meta_window_xwayland_thaw_commits;
