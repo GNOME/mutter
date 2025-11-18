@@ -599,15 +599,19 @@ open_display_sockets (MetaXWaylandManager  *manager,
 {
   g_autofd int abstract_fd = -1, unix_fd = -1;
 
-  abstract_fd = bind_to_abstract_socket (display_index, error);
-  if (abstract_fd < 0)
-    return FALSE;
+  if (abstract_fd_out)
+    {
+      abstract_fd = bind_to_abstract_socket (display_index, error);
+      if (abstract_fd < 0)
+        return FALSE;
+    }
 
   unix_fd = bind_to_unix_socket (display_index, error);
   if (unix_fd < 0)
     return FALSE;
 
-  *abstract_fd_out = g_steal_fd (&abstract_fd);
+  if (abstract_fd_out)
+    *abstract_fd_out = g_steal_fd (&abstract_fd);
   *unix_fd_out = g_steal_fd (&unix_fd);
 
   return TRUE;
@@ -1117,7 +1121,7 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
 
       if (!open_display_sockets (manager,
                                  manager->private_connection.display_index,
-                                 &manager->private_connection.abstract_fd,
+                                 NULL,
                                  &manager->private_connection.unix_fd,
                                  error))
         return FALSE;
