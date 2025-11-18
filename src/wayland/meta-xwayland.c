@@ -597,7 +597,7 @@ open_display_sockets (MetaXWaylandManager  *manager,
                       int                  *unix_fd_out,
                       GError              **error)
 {
-  int abstract_fd, unix_fd;
+  g_autofd int abstract_fd = -1, unix_fd = -1;
 
   abstract_fd = bind_to_abstract_socket (display_index, error);
   if (abstract_fd < 0)
@@ -605,13 +605,10 @@ open_display_sockets (MetaXWaylandManager  *manager,
 
   unix_fd = bind_to_unix_socket (display_index, error);
   if (unix_fd < 0)
-    {
-      close (abstract_fd);
-      return FALSE;
-    }
+    return FALSE;
 
-  *abstract_fd_out = abstract_fd;
-  *unix_fd_out = unix_fd;
+  *abstract_fd_out = g_steal_fd (&abstract_fd);
+  *unix_fd_out = g_steal_fd (&unix_fd);
 
   return TRUE;
 }
