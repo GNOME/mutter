@@ -664,7 +664,6 @@ choose_xdisplay (MetaXWaylandManager     *manager,
   while (1);
 
   connection->display_index = *display;
-  connection->name = g_strdup_printf (":%d", connection->display_index);
   connection->lock_file = lock_file;
 
   return TRUE;
@@ -860,7 +859,7 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
   g_subprocess_launcher_take_fd (launcher,
                                  steal_fd (&displayfd[1]), 6);
   g_subprocess_launcher_take_fd (launcher,
-                                 steal_fd (&manager->private_connection.abstract_fd), 7);
+                                 steal_fd (&manager->private_connection.unix_fd), 7);
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
 
@@ -1097,10 +1096,15 @@ meta_xwayland_init (MetaXWaylandManager    *manager,
     {
       if (!choose_xdisplay (manager, &manager->public_connection, &display, error))
         return FALSE;
+      manager->public_connection.name =
+        g_strdup_printf (":%d", manager->public_connection.display_index);
 
       display++;
       if (!choose_xdisplay (manager, &manager->private_connection, &display, error))
         return FALSE;
+      manager->private_connection.name =
+        g_strdup_printf ("unix:%s%d", X11_TMP_UNIX_PATH,
+                         manager->private_connection.display_index);
 
       if (!prepare_auth_file (manager, error))
         return FALSE;
