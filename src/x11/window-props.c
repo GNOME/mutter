@@ -385,18 +385,16 @@ reload_gtk_frame_extents (MetaWindow    *window,
           int left, right, top, bottom;
           MetaFrameBorder extents;
 
-          meta_window_protocol_to_stage_point (window,
-                                               value->v.cardinal_list.cardinals[0],
-                                               value->v.cardinal_list.cardinals[1],
-                                               &left,
-                                               &right,
-                                               MTK_ROUNDING_STRATEGY_GROW);
-          meta_window_protocol_to_stage_point (window,
-                                               value->v.cardinal_list.cardinals[2],
-                                               value->v.cardinal_list.cardinals[3],
-                                               &top,
-                                               &bottom,
-                                               MTK_ROUNDING_STRATEGY_GROW);
+          meta_window_protocol_to_stage_size (window,
+                                              value->v.cardinal_list.cardinals[0],
+                                              value->v.cardinal_list.cardinals[1],
+                                              &left,
+                                              &right);
+          meta_window_protocol_to_stage_size (window,
+                                              value->v.cardinal_list.cardinals[2],
+                                              value->v.cardinal_list.cardinals[3],
+                                              &top,
+                                              &bottom);
 
           extents.left = left;
           extents.right = right;
@@ -1271,20 +1269,17 @@ scale_size_hints (MetaWindow    *window,
                                        hints->x, hints->y,
                                        &hints->x, &hints->y,
                                        MTK_ROUNDING_STRATEGY_SHRINK);
-  meta_window_protocol_to_stage_point (window,
-                                       hints->width, hints->height,
-                                       &hints->width, &hints->height,
-                                       MTK_ROUNDING_STRATEGY_GROW);
+  meta_window_protocol_to_stage_size (window,
+                                      hints->width, hints->height,
+                                      &hints->width, &hints->height);
 
-  meta_window_protocol_to_stage_point (window,
-                                       hints->min_width, hints->min_height,
-                                       &hints->min_width, &hints->min_height,
-                                       MTK_ROUNDING_STRATEGY_GROW);
+  meta_window_protocol_to_stage_size (window,
+                                      hints->min_width, hints->min_height,
+                                      &hints->min_width, &hints->min_height);
 
-  meta_window_protocol_to_stage_point (window,
-                                       hints->max_width, hints->max_height,
-                                       &hints->max_width, &hints->max_height,
-                                       MTK_ROUNDING_STRATEGY_GROW);
+  meta_window_protocol_to_stage_size (window,
+                                      hints->max_width, hints->max_height,
+                                      &hints->max_width, &hints->max_height);
 
   meta_window_protocol_to_stage_point (window,
                                        hints->width_inc, hints->height_inc,
@@ -1301,10 +1296,9 @@ scale_size_hints (MetaWindow    *window,
                                        &hints->max_aspect.x, &hints->max_aspect.y,
                                        MTK_ROUNDING_STRATEGY_ROUND);
 
-  meta_window_protocol_to_stage_point (window,
-                                       hints->base_width, hints->base_height,
-                                       &hints->base_width, &hints->base_height,
-                                       MTK_ROUNDING_STRATEGY_GROW);
+  meta_window_protocol_to_stage_size (window,
+                                      hints->base_width, hints->base_height,
+                                      &hints->base_width, &hints->base_height);
 }
 
 static void

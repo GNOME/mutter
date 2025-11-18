@@ -8424,10 +8424,9 @@ meta_window_stage_to_protocol_rect (MetaWindow         *window,
                             stage_rect->x, stage_rect->y,
                             &protocol_rect->x, &protocol_rect->y,
                             MTK_ROUNDING_STRATEGY_SHRINK);
-  klass->stage_to_protocol (window,
-                            stage_rect->width, stage_rect->height,
-                            &protocol_rect->width, &protocol_rect->height,
-                            MTK_ROUNDING_STRATEGY_GROW);
+  klass->stage_to_protocol_size (window,
+                                 stage_rect->width, stage_rect->height,
+                                 &protocol_rect->width, &protocol_rect->height);
 }
 
 /**
@@ -8456,6 +8455,30 @@ meta_window_stage_to_protocol_point (MetaWindow *window,
 }
 
 /**
+ * meta_window_stage_to_protocol_size:
+ * @window: A #MetaWindow
+ * @stage_w: width in stage coordinate space
+ * @stage_h: height in stage coordinate space
+ * @protocol_w: (out): width in protocol coordinate space
+ * @protocol_h: (out): height in protocol coordinate space
+ *
+ * Transform the size from stage coordinates to protocol coordinates
+ */
+void
+meta_window_stage_to_protocol_size (MetaWindow *window,
+                                    int         stage_w,
+                                    int         stage_h,
+                                    int        *protocol_w,
+                                    int        *protocol_h)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
+  klass->stage_to_protocol_size (window,
+                                 stage_w, stage_h,
+                                 protocol_w, protocol_h);
+}
+
+/**
  * meta_window_protocol_to_stage_rect:
  * @window: A #MetaWindow
  * @protocol_rect: rectangle in protocol coordinate space
@@ -8475,10 +8498,9 @@ meta_window_protocol_to_stage_rect (MetaWindow         *window,
                             protocol_rect->x, protocol_rect->y,
                             &stage_rect->x, &stage_rect->y,
                             MTK_ROUNDING_STRATEGY_SHRINK);
-  klass->protocol_to_stage (window,
-                            protocol_rect->width, protocol_rect->height,
-                            &stage_rect->width, &stage_rect->height,
-                            MTK_ROUNDING_STRATEGY_GROW);
+  klass->protocol_to_stage_size (window,
+                                 protocol_rect->width, protocol_rect->height,
+                                 &stage_rect->width, &stage_rect->height);
 }
 
 /**
@@ -8506,6 +8528,31 @@ meta_window_protocol_to_stage_point (MetaWindow          *window,
                             protocol_x, protocol_y,
                             stage_x, stage_y,
                             rounding_strategy);
+}
+
+/**
+ * meta_window_protocol_to_stage_size:
+ * @window: A #MetaWindow
+ * @protocol_w: width in protocol coordinate space
+ * @protocol_h: height in protocol coordinate space
+ * @stage_w: (out): width in stage coordinate space
+ * @stage_h: (out): height in stage coordinate space
+ *
+ * Transform the size from protocol coordinates to coordinates expected
+ * by the stage and internal window management logic.
+ */
+void
+meta_window_protocol_to_stage_size (MetaWindow *window,
+                                    int         protocol_w,
+                                    int         protocol_h,
+                                    int        *stage_w,
+                                    int        *stage_h)
+{
+  MetaWindowClass *klass = META_WINDOW_GET_CLASS (window);
+
+  klass->protocol_to_stage_size (window,
+                                 protocol_w, protocol_h,
+                                 stage_w, stage_h);
 }
 
 /**

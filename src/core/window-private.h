@@ -628,6 +628,17 @@ struct _MetaWindowClass
                              int                 *stage_y,
                              MtkRoundingStrategy  rounding_strategy);
 
+  void (*stage_to_protocol_size) (MetaWindow *window,
+                                  int         stage_w,
+                                  int         stage_h,
+                                  int        *protocol_w,
+                                  int        *protocol_h);
+  void (*protocol_to_stage_size) (MetaWindow *window,
+                                  int         protocol_w,
+                                  int         protocol_h,
+                                  int        *stage_w,
+                                  int        *stage_h);
+
   MetaGravity (* get_gravity) (MetaWindow *window);
 
   void (* save_rect) (MetaWindow *window);
@@ -886,12 +897,24 @@ void meta_window_stage_to_protocol_point (MetaWindow *window,
                                           int        *protocol_x,
                                           int        *protocol_y);
 
+void meta_window_stage_to_protocol_size (MetaWindow *window,
+                                         int         stage_w,
+                                         int         stage_h,
+                                         int        *protocol_w,
+                                         int        *protocol_h);
+
 void meta_window_protocol_to_stage_point (MetaWindow          *window,
                                           int                  protocol_x,
                                           int                  protocol_y,
                                           int                 *stage_x,
                                           int                 *stage_y,
                                           MtkRoundingStrategy  rounding_strategy);
+
+void meta_window_protocol_to_stage_size (MetaWindow *window,
+                                         int         protocol_w,
+                                         int         protocol_h,
+                                         int        *stage_w,
+                                         int        *stage_h);
 
 gboolean meta_window_is_tiled_side_by_side (MetaWindow *window);
 

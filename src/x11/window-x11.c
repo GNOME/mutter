@@ -111,6 +111,19 @@ meta_window_x11_get_private (MetaWindowX11 *window_x11)
 }
 
 static void
+meta_window_x11_stage_to_protocol_size (MetaWindow *window,
+                                        int         stage_w,
+                                        int         stage_h,
+                                        int        *protocol_w,
+                                        int        *protocol_h)
+{
+  if (protocol_w)
+    *protocol_w = stage_w;
+  if (protocol_h)
+    *protocol_h = stage_h;
+}
+
+static void
 meta_window_x11_stage_to_protocol (MetaWindow          *window,
                                    int                  stage_x,
                                    int                  stage_y,
@@ -118,10 +131,22 @@ meta_window_x11_stage_to_protocol (MetaWindow          *window,
                                    int                 *protocol_y,
                                    MtkRoundingStrategy  rounding_strategy)
 {
-  if (protocol_x)
-    *protocol_x = stage_x;
-  if (protocol_y)
-    *protocol_y = stage_y;
+  meta_window_x11_stage_to_protocol_size (window,
+                                          stage_x, stage_y,
+                                          protocol_x, protocol_y);
+}
+
+static void
+meta_window_x11_protocol_to_stage_size (MetaWindow *window,
+                                        int         protocol_w,
+                                        int         protocol_h,
+                                        int        *stage_w,
+                                        int        *stage_h)
+{
+  if (stage_w)
+    *stage_w = protocol_w;
+  if (stage_h)
+    *stage_h = protocol_h;
 }
 
 static void
@@ -132,10 +157,9 @@ meta_window_x11_protocol_to_stage (MetaWindow          *window,
                                    int                 *stage_y,
                                    MtkRoundingStrategy  rounding_strategy)
 {
-  if (stage_x)
-    *stage_x = protocol_x;
-  if (stage_y)
-    *stage_y = protocol_y;
+  meta_window_x11_protocol_to_stage_size (window,
+                                          protocol_x, protocol_y,
+                                          stage_x, stage_y);
 }
 
 static MtkRectangle *
@@ -350,14 +374,14 @@ send_configure_notify (MetaWindow *window)
           event.xconfigure.y += dy;
         }
     }
-  meta_window_stage_to_protocol_point (window,
-                                       priv->client_rect.width,
-                                       priv->client_rect.height,
-                                       &event.xconfigure.width,
-                                       &event.xconfigure.height);
-  meta_window_stage_to_protocol_point (window,
-                                       priv->border_width, 0,
-                                       &event.xconfigure.border_width, NULL);
+  meta_window_stage_to_protocol_size (window,
+                                      priv->client_rect.width,
+                                      priv->client_rect.height,
+                                      &event.xconfigure.width,
+                                      &event.xconfigure.height);
+  meta_window_stage_to_protocol_size (window,
+                                      priv->border_width, 0,
+                                      &event.xconfigure.border_width, NULL);
   event.xconfigure.above = None; /* FIXME */
   event.xconfigure.override_redirect = False;
 
@@ -1081,16 +1105,16 @@ update_net_frame_extents (MetaWindow *window)
   Window xwindow = meta_window_x11_get_xwindow (window);
 
   meta_frame_calc_borders (priv->frame, &borders);
-  meta_window_stage_to_protocol_point (window,
-                                       borders.visible.left,
-                                       borders.visible.right,
-                                       &left,
-                                       &right);
-  meta_window_stage_to_protocol_point (window,
-                                       borders.visible.top,
-                                       borders.visible.bottom,
-                                       &top,
-                                       &bottom);
+  meta_window_stage_to_protocol_size (window,
+                                      borders.visible.left,
+                                      borders.visible.right,
+                                      &left,
+                                      &right);
+  meta_window_stage_to_protocol_size (window,
+                                      borders.visible.top,
+                                      borders.visible.bottom,
+                                      &top,
+                                      &bottom);
 
   data[0] = left;
   data[1] = right;
@@ -2106,10 +2130,9 @@ meta_window_x11_constructed (GObject *object)
   window->hidden = FALSE;
   priv->xclient_leader = None;
 
-  meta_window_protocol_to_stage_point (window,
-                                       attrs.border_width, 0,
-                                       &priv->border_width, NULL,
-                                       MTK_ROUNDING_STRATEGY_GROW);
+  meta_window_protocol_to_stage_size (window,
+                                      attrs.border_width, 0,
+                                      &priv->border_width, NULL);
 
   /* O-R windows bypass mutter window-management path, this ensures
    * they get fullscreen checked properly.
@@ -2226,6 +2249,8 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->set_transient_for = meta_window_x11_set_transient_for;
   window_class->stage_to_protocol = meta_window_x11_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_x11_protocol_to_stage;
+  window_class->stage_to_protocol_size = meta_window_x11_stage_to_protocol_size;
+  window_class->protocol_to_stage_size = meta_window_x11_protocol_to_stage_size;
   window_class->get_gravity = meta_window_x11_get_gravity;
   window_class->save_rect = meta_window_x11_save_rect;
 
@@ -2970,10 +2995,9 @@ meta_window_x11_configure_request (MetaWindow *window,
    */
   if (event->xconfigurerequest.value_mask & CWBorderWidth)
     {
-      meta_window_protocol_to_stage_point (window,
-                                           event->xconfigurerequest.border_width, 0,
-                                           &priv->border_width, NULL,
-                                           MTK_ROUNDING_STRATEGY_GROW);
+      meta_window_protocol_to_stage_size (window,
+                                          event->xconfigurerequest.border_width, 0,
+                                          &priv->border_width, NULL);
     }
 
   rect = MTK_RECTANGLE_INIT (event->xconfigurerequest.x, event->xconfigurerequest.y,

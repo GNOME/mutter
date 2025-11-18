@@ -1007,6 +1007,19 @@ meta_window_wayland_set_transient_for (MetaWindow *window,
 }
 
 static void
+meta_window_wayland_stage_to_protocol_size (MetaWindow *window,
+                                            int         stage_w,
+                                            int         stage_h,
+                                            int        *protocol_w,
+                                            int        *protocol_h)
+{
+  if (protocol_w)
+    *protocol_w = stage_w;
+  if (protocol_h)
+    *protocol_h = stage_h;
+}
+
+static void
 meta_window_wayland_stage_to_protocol (MetaWindow          *window,
                                        int                  stage_x,
                                        int                  stage_y,
@@ -1014,10 +1027,22 @@ meta_window_wayland_stage_to_protocol (MetaWindow          *window,
                                        int                 *protocol_y,
                                        MtkRoundingStrategy  rounding_strategy)
 {
-  if (protocol_x)
-    *protocol_x = stage_x;
-  if (protocol_y)
-    *protocol_y = stage_y;
+  meta_window_wayland_stage_to_protocol_size (window,
+                                              stage_x, stage_y,
+                                              protocol_x, protocol_y);
+}
+
+static void
+meta_window_wayland_protocol_to_stage_size (MetaWindow *window,
+                                            int         protocol_w,
+                                            int         protocol_h,
+                                            int        *stage_w,
+                                            int        *stage_h)
+{
+  if (stage_w)
+    *stage_w = protocol_w;
+  if (stage_h)
+    *stage_h = protocol_h;
 }
 
 static void
@@ -1028,10 +1053,9 @@ meta_window_wayland_protocol_to_stage (MetaWindow          *window,
                                        int                 *stage_y,
                                        MtkRoundingStrategy  rounding_strategy)
 {
-  if (stage_x)
-    *stage_x = protocol_x;
-  if (stage_y)
-    *stage_y = protocol_y;
+  meta_window_wayland_protocol_to_stage_size (window,
+                                              protocol_x, protocol_y,
+                                              stage_x, stage_y);
 }
 
 static MetaGravity
@@ -1265,6 +1289,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->set_transient_for = meta_window_wayland_set_transient_for;
   window_class->stage_to_protocol = meta_window_wayland_stage_to_protocol;
   window_class->protocol_to_stage = meta_window_wayland_protocol_to_stage;
+  window_class->stage_to_protocol_size = meta_window_wayland_stage_to_protocol_size;
+  window_class->protocol_to_stage_size = meta_window_wayland_protocol_to_stage_size;
   window_class->get_gravity = meta_window_wayland_get_gravity;
   window_class->save_rect = meta_window_wayland_save_rect;
 
