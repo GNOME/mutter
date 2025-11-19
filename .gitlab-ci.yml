@@ -731,7 +731,8 @@ test-mutter-coverity:
     - ./coverity/cov-analysis-linux64-*/bin/cov-build --dir cov-int meson compile -C coverity-build
     - tar czf cov-int.tar.gz cov-int
     - curl https://scan.coverity.com/builds?project=mutter
-      --form token=$COVERITY_TOKEN --form email=carlosg@gnome.org
+      --form token="$(cat "${COVERITY_TOKEN_FILE}")"
+      --form email=carlosg@gnome.org
       --form file=@cov-int.tar.gz --form version="`git describe --tags`"
       --form description="GitLab CI build"
   cache:
