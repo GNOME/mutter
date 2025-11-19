@@ -3516,7 +3516,6 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
                             graphene_point_t     *coords,
                             ClutterModifierType  *modifiers)
 {
-  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   gboolean retval = FALSE;
   ClutterModifierType mods = 0;
 
@@ -3554,7 +3553,7 @@ meta_seat_impl_query_state (MetaSeatImpl         *seat_impl,
 
       if (device &&
           clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
-        mods = device_native->button_state;
+        mods = META_INPUT_DEVICE_NATIVE (device)->button_state;
       else
         mods = seat_impl->button_state;
 
