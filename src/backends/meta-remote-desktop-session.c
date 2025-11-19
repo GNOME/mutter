@@ -658,7 +658,7 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Already started");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!check_permission (session, invocation))
@@ -666,7 +666,7 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_ACCESS_DENIED,
                                              "Permission denied");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!meta_remote_desktop_session_start (session, &error))
@@ -679,12 +679,12 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
 
       meta_dbus_session_close (META_DBUS_SESSION (session));
 
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   meta_dbus_remote_desktop_session_complete_start (skeleton, invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -698,7 +698,7 @@ handle_stop (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Session not started");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!check_permission (session, invocation))
@@ -706,14 +706,14 @@ handle_stop (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_ACCESS_DENIED,
                                              "Permission denied");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   meta_dbus_session_close (META_DBUS_SESSION (session));
 
   meta_dbus_remote_desktop_session_complete_stop (skeleton, invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -726,7 +726,7 @@ handle_notify_keyboard_keycode (MetaDBusRemoteDesktopSession *skeleton,
   ClutterKeyState state;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (pressed)
     {
@@ -740,7 +740,7 @@ handle_notify_keyboard_keycode (MetaDBusRemoteDesktopSession *skeleton,
           g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                                  G_DBUS_ERROR_FAILED,
                                                  "Invalid key event");
-          return TRUE;
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
 
       state = CLUTTER_KEY_STATE_RELEASED;
@@ -753,7 +753,7 @@ handle_notify_keyboard_keycode (MetaDBusRemoteDesktopSession *skeleton,
 
   meta_dbus_remote_desktop_session_complete_notify_keyboard_keycode (skeleton,
                                                                      invocation);
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -766,7 +766,7 @@ handle_notify_keyboard_keysym (MetaDBusRemoteDesktopSession *skeleton,
   ClutterKeyState state;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (pressed)
     {
@@ -780,7 +780,7 @@ handle_notify_keyboard_keysym (MetaDBusRemoteDesktopSession *skeleton,
           g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                                  G_DBUS_ERROR_FAILED,
                                                  "Invalid key event");
-          return TRUE;
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
 
       state = CLUTTER_KEY_STATE_RELEASED;
@@ -793,7 +793,7 @@ handle_notify_keyboard_keysym (MetaDBusRemoteDesktopSession *skeleton,
 
   meta_dbus_remote_desktop_session_complete_notify_keyboard_keysym (skeleton,
                                                                     invocation);
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -807,7 +807,7 @@ handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
   ClutterButtonState state;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   button = meta_evdev_button_to_clutter (button_code);
 
@@ -823,7 +823,7 @@ handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
           g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                                  G_DBUS_ERROR_FAILED,
                                                  "Invalid button event");
-          return TRUE;
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
 
       state = CLUTTER_BUTTON_STATE_RELEASED;
@@ -837,7 +837,7 @@ handle_notify_pointer_button (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_pointer_button (skeleton,
                                                                    invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -879,14 +879,14 @@ handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
   ClutterScrollSource scroll_source;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (!clutter_scroll_source_from_axis_flags (flags, &scroll_source))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Invalid scroll source");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (flags & META_REMOTE_DESKTOP_NOTIFY_AXIS_FLAGS_FINISH)
@@ -906,7 +906,7 @@ handle_notify_pointer_axis (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_pointer_axis (skeleton,
                                                                  invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static ClutterScrollDirection
@@ -937,14 +937,14 @@ handle_notify_pointer_axis_discrete (MetaDBusRemoteDesktopSession *skeleton,
   int step_count;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (axis > 1)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Invalid axis value");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (steps == 0)
@@ -952,7 +952,7 @@ handle_notify_pointer_axis_discrete (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Invalid axis steps value");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
@@ -973,7 +973,7 @@ handle_notify_pointer_axis_discrete (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_pointer_axis_discrete (skeleton,
                                                                           invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -985,7 +985,7 @@ handle_notify_pointer_motion_relative (MetaDBusRemoteDesktopSession *skeleton,
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
 
@@ -996,7 +996,7 @@ handle_notify_pointer_motion_relative (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_pointer_motion_relative (skeleton,
                                                                             invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1011,15 +1011,14 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
   double abs_x, abs_y;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
-
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (!session->screen_cast_session)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "No screen cast active");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
@@ -1029,7 +1028,7 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Unknown stream");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
@@ -1049,7 +1048,7 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_pointer_motion_absolute (skeleton,
                                                                             invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1065,14 +1064,14 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
   double abs_x, abs_y;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (slot > CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Touch slot out of range");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!session->screen_cast_session)
@@ -1080,7 +1079,7 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "No screen cast active");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
@@ -1090,7 +1089,7 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Unknown stream");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   ensure_virtual_device (session, CLUTTER_TOUCHSCREEN_DEVICE);
@@ -1111,7 +1110,7 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_touch_down (skeleton,
                                                                invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1127,15 +1126,14 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
   double abs_x, abs_y;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
-
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (slot > CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Touch slot out of range");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!session->screen_cast_session)
@@ -1143,7 +1141,7 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "No screen cast active");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
@@ -1153,7 +1151,7 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Unknown stream");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!session->virtual_touchscreen)
@@ -1161,7 +1159,7 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Invalid touch point");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
@@ -1180,7 +1178,7 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_touch_motion (skeleton,
                                                                  invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1191,14 +1189,14 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
-    return TRUE;
+    return G_DBUS_METHOD_INVOCATION_HANDLED;
 
   if (slot > CLUTTER_VIRTUAL_INPUT_DEVICE_MAX_TOUCH_SLOTS)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Touch slot out of range");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!session->virtual_touchscreen)
@@ -1206,7 +1204,7 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Invalid touch point");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   clutter_virtual_input_device_notify_touch_up (session->virtual_touchscreen,
@@ -1216,7 +1214,7 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_notify_touch_up (skeleton,
                                                              invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static MetaSelectionSourceRemote *
@@ -1370,7 +1368,7 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Already enabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   mime_types_variant = g_variant_lookup_value (arg_options,
@@ -1387,7 +1385,7 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
                                                  G_DBUS_ERROR_FAILED,
                                                  "Invalid mime type list: %s",
                                                  error->message);
-          return TRUE;
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
     }
 
@@ -1422,7 +1420,7 @@ handle_enable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_enable_clipboard (skeleton,
                                                               invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1510,7 +1508,7 @@ handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Was not enabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   g_clear_signal_handler (&session->owner_changed_handler_id, selection);
@@ -1520,7 +1518,7 @@ handle_disable_clipboard (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_disable_clipboard (skeleton,
                                                                invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1537,7 +1535,7 @@ handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Clipboard not enabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (session->current_source)
@@ -1564,7 +1562,7 @@ handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
                                                  G_DBUS_ERROR_FAILED,
                                                  "Invalid format list: %s",
                                                  error->message);
-          return TRUE;
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
 
       meta_topic (META_DEBUG_REMOTE_DESKTOP,
@@ -1589,7 +1587,7 @@ handle_set_selection (MetaDBusRemoteDesktopSession *skeleton,
   meta_dbus_remote_desktop_session_complete_set_selection (skeleton,
                                                            invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -1660,7 +1658,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Clipboard not enabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!session->current_source)
@@ -1668,7 +1666,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "No current selection owned");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!g_hash_table_steal_extended (session->transfer_requests,
@@ -1681,7 +1679,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                                              "Transfer serial %u doesn't match "
                                              "any transfer request",
                                              serial);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!g_unix_open_pipe (pipe_fds, FD_CLOEXEC, &error))
@@ -1690,7 +1688,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed open pipe: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
   pipe_in = pipe_fds[0];
   pipe_out = pipe_fds[1];
@@ -1701,7 +1699,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to make pipe non-blocking: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   fd_list = g_unix_fd_list_new ();
@@ -1713,7 +1711,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to append fd to fd list: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
   fd_variant = g_variant_new_handle (fd_idx);
 
@@ -1726,7 +1724,7 @@ handle_selection_write (MetaDBusRemoteDesktopSession *skeleton,
                                                              fd_list,
                                                              fd_variant);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1746,13 +1744,13 @@ handle_selection_write_done (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Clipboard not enabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   meta_dbus_remote_desktop_session_complete_selection_write_done (skeleton,
                                                                   invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -1854,7 +1852,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Clipboard not enabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   source = meta_selection_get_current_owner (selection,
@@ -1864,7 +1862,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FILE_NOT_FOUND,
                                              "No selection owner available");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (is_own_source (session, source))
@@ -1872,7 +1870,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
                                              "Tried to read own selection");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (has_pending_read_operation (session->read_data))
@@ -1880,7 +1878,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_LIMITS_EXCEEDED,
                                              "Tried to read in parallel");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   if (!g_unix_open_pipe (pipe_fds, FD_CLOEXEC, &error))
@@ -1889,7 +1887,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed open pipe: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
   pipe_in = pipe_fds[0];
   pipe_out = pipe_fds[1];
@@ -1900,7 +1898,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to make pipe non-blocking: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   fd_list = g_unix_fd_list_new ();
@@ -1912,7 +1910,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to append fd to fd list: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
   fd_variant = g_variant_new_handle (fd_idx);
 
@@ -1934,7 +1932,7 @@ handle_selection_read (MetaDBusRemoteDesktopSession *skeleton,
                                                             fd_list,
                                                             fd_variant);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static MetaEisDeviceTypes
@@ -2018,7 +2016,7 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
                                              "Failed to append socket fd to "
                                              "fd list: %s",
                                              error->message);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
   fd_variant = g_variant_new_handle (fd_idx);
 
