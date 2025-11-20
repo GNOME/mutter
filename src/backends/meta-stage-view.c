@@ -71,6 +71,7 @@ frame_cb (CoglOnscreen  *onscreen,
         flags |= CLUTTER_FRAME_INFO_FLAG_VSYNC;
 
       clutter_frame_info = (ClutterFrameInfo) {
+        .global_frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
         .view_frame_counter = cogl_frame_info_get_view_frame_counter (frame_info),
         .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
         .presentation_time =
@@ -202,6 +203,7 @@ notify_presented_idle (gpointer user_data)
 
 void
 meta_stage_view_perform_fake_swap (MetaStageView *view,
+                                   int64_t        global_frame_counter,
                                    int64_t        view_frame_counter)
 {
   ClutterStageView *clutter_view = CLUTTER_STAGE_VIEW (view);
@@ -212,6 +214,7 @@ meta_stage_view_perform_fake_swap (MetaStageView *view,
   closure = g_new0 (NotifyPresentedClosure, 1);
   closure->view = clutter_view;
   closure->frame_info = (ClutterFrameInfo) {
+    .global_frame_counter = global_frame_counter,
     .view_frame_counter = view_frame_counter,
     .refresh_rate = clutter_stage_view_get_refresh_rate (clutter_view),
     .presentation_time = g_get_monotonic_time (),
