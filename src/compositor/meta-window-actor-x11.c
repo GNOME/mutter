@@ -1240,8 +1240,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
 
       remove_frame_messages_timer (actor_x11);
       frame = clutter_paint_context_get_frame (paint_context);
-      if (frame)
-        assign_frame_counter_to_frames (actor_x11, frame);
+      assign_frame_counter_to_frames (actor_x11, frame);
     }
 
   window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
