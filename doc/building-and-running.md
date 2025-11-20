@@ -23,7 +23,7 @@ Most dependencies from the `main` branch will be satisfied like this but sometim
 ⬢ cd gnome-desktop
 ⬢ meson setup builddir --prefix=/usr
 ⬢ meson compile -C builddir
-⬢ sudo meson install -C
+⬢ sudo meson install -C builddir
 ```
 
 Note: the above should not be run outside the Toolbx container, it may make your system unusable.
@@ -33,7 +33,7 @@ Note: the above should not be run outside the Toolbx container, it may make your
 When build in a Toolbx container, we can safely install Mutter into the `/usr` prefix as well:
 ```sh
 ⬢ meson configure builddir --prefix=/usr
-⬢ meson compile -C builddir && sudo meson install -C
+⬢ meson compile -C builddir && sudo meson install -C builddir
 ```
 
 Like any meson project, the available build options are in the `meson_options.txt` file. The defaults are usually fine but when developing for the `native backend`, it's a good idea to turn on additional tests:
