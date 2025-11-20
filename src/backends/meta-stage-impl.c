@@ -80,6 +80,16 @@ meta_stage_impl_realize (ClutterStageWindow *stage_window)
   return TRUE;
 }
 
+static int64_t
+meta_stage_impl_get_frame_counter (ClutterStageWindow *stage_window)
+{
+  MetaStageImpl *stage_impl = META_STAGE_IMPL (stage_window);
+  MetaStageImplPrivate *priv =
+    meta_stage_impl_get_instance_private (stage_impl);
+
+  return priv->global_frame_counter;
+}
+
 static void
 meta_stage_impl_show (ClutterStageWindow *stage_window,
                       gboolean            do_raise)
@@ -865,6 +875,7 @@ meta_stage_impl_class_init (MetaStageImplClass *klass)
   window_class->resize = meta_stage_impl_resize;
   window_class->show = meta_stage_impl_show;
   window_class->hide = meta_stage_impl_hide;
+  window_class->get_frame_counter = meta_stage_impl_get_frame_counter;
   window_class->redraw_view = meta_stage_impl_redraw_view;
 
   obj_props[PROP_WRAPPER] =

@@ -127,3 +127,14 @@ _clutter_stage_window_finish_frame (ClutterStageWindow *window,
   if (!clutter_frame_has_result (frame))
     clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
 }
+
+int64_t
+_clutter_stage_window_get_frame_counter (ClutterStageWindow *window)
+{
+  ClutterStageWindowClass *klass = CLUTTER_STAGE_WINDOW_GET_CLASS (window);
+
+  if (klass->get_frame_counter)
+    return klass->get_frame_counter (window);
+  else
+    return 0;
+}
