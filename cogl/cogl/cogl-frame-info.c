@@ -61,12 +61,14 @@ cogl_frame_info_class_init (CoglFrameInfoClass *class)
 
 CoglFrameInfo *
 cogl_frame_info_new (CoglContext *context,
+                     int64_t      global_frame_counter,
                      int64_t      view_frame_counter)
 {
   CoglFrameInfo *info;
 
   info = g_object_new (COGL_TYPE_FRAME_INFO, NULL);
   info->context = context;
+  info->global_frame_counter = global_frame_counter;
   info->view_frame_counter = view_frame_counter;
 
   return info;
@@ -103,6 +105,12 @@ cogl_frame_info_get_refresh_rate (CoglFrameInfo *info)
   g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
 
   return info->refresh_rate;
+}
+
+int64_t
+cogl_frame_info_get_global_frame_counter (CoglFrameInfo *info)
+{
+  return info->global_frame_counter;
 }
 
 int64_t
