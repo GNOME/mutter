@@ -2514,6 +2514,15 @@ clutter_stage_add_to_redraw_clip (ClutterStage       *stage,
   clutter_stage_add_redraw_clip (stage, &stage_clip);
 }
 
+int64_t
+clutter_stage_get_frame_counter (ClutterStage          *stage)
+{
+  ClutterStageWindow *stage_window;
+
+  stage_window = _clutter_stage_get_window (stage);
+  return _clutter_stage_window_get_frame_counter (stage_window);
+}
+
 void
 clutter_stage_presented (ClutterStage     *stage,
                          ClutterStageView *view,
