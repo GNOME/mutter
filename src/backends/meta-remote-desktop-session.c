@@ -1201,7 +1201,7 @@ on_clipboard_owner_changed (MetaClipboardSession     *clipboard_session,
   object_path = g_dbus_interface_skeleton_get_object_path (
     G_DBUS_INTERFACE_SKELETON (session));
   g_dbus_connection_emit_signal (session->connection,
-                                 NULL,
+                                 session->peer_name,
                                  object_path,
                                  "org.gnome.Mutter.RemoteDesktop.Session",
                                  "SelectionOwnerChanged",
@@ -1220,7 +1220,7 @@ on_clipboard_transfer (MetaClipboardSession     *clipboard_session,
   object_path = g_dbus_interface_skeleton_get_object_path (
     G_DBUS_INTERFACE_SKELETON (session));
   g_dbus_connection_emit_signal (session->connection,
-                                 NULL,
+                                 session->peer_name,
                                  object_path,
                                  "org.gnome.Mutter.RemoteDesktop.Session",
                                  "SelectionTransfer",

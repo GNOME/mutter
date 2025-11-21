@@ -220,7 +220,7 @@ emit_owner_changed (MetaClipboardSession *session,
   if (session->object_path)
     {
       g_dbus_connection_emit_signal (session->connection,
-                                     NULL,
+                                     session->peer_name,
                                      session->object_path,
                                      "org.gnome.Mutter.Clipboard",
                                      "SelectionOwnerChanged",
@@ -570,7 +570,7 @@ meta_clipboard_session_request_transfer (MetaClipboardSession *session,
   if (session->object_path)
     {
       g_dbus_connection_emit_signal (session->connection,
-                                     NULL,
+                                     session->peer_name,
                                      session->object_path,
                                      "org.gnome.Mutter.Clipboard",
                                      "SelectionTransfer",
