@@ -173,7 +173,7 @@ generate_owner_changed_variant (char     **mime_types_array,
   if (mime_types_array)
     {
       g_variant_builder_add (&builder, "{sv}", "mime-types",
-                             g_variant_new ("(^as)", mime_types_array));
+                             g_variant_new ("^as", mime_types_array));
       g_variant_builder_add (&builder, "{sv}", "session-is-owner",
                              g_variant_new_boolean (is_own_source));
     }

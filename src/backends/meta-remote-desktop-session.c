@@ -1191,12 +1191,43 @@ handle_notify_touch_up (MetaDBusRemoteDesktopSession *skeleton,
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
+static GVariant *
+pack_mime_types (GVariant *options)
+{
+  GVariantBuilder options_builder;
+  GVariantIter iter;
+  const char *key;
+  GVariant *value;
+
+  g_variant_builder_init (&options_builder, G_VARIANT_TYPE ("a{sv}"));
+
+  g_variant_iter_init (&iter, options);
+  while (g_variant_iter_next (&iter, "{&sv}", &key, &value))
+    {
+      if (g_strcmp0 (key, "mime-types") == 0)
+        {
+          g_variant_builder_add (&options_builder, "{sv}", key,
+                                 g_variant_new_tuple (&value, 1));
+        }
+      else
+        {
+          g_variant_builder_add (&options_builder, "{sv}", key, value);
+        }
+      g_clear_pointer (&value, g_variant_unref);
+    }
+
+  return g_variant_builder_end (&options_builder);
+}
+
 static void
 on_clipboard_owner_changed (MetaClipboardSession     *clipboard_session,
                             GVariant                 *options_variant,
                             MetaRemoteDesktopSession *session)
 {
   const char *object_path;
+  GVariant *options;
+
+  options = pack_mime_types (options_variant);
 
   object_path = g_dbus_interface_skeleton_get_object_path (
     G_DBUS_INTERFACE_SKELETON (session));
@@ -1205,7 +1236,7 @@ on_clipboard_owner_changed (MetaClipboardSession     *clipboard_session,
                                  object_path,
                                  "org.gnome.Mutter.RemoteDesktop.Session",
                                  "SelectionOwnerChanged",
-                                 g_variant_new ("(@a{sv})", options_variant),
+                                 g_variant_new ("(@a{sv})", options),
                                  NULL);
 }
 
