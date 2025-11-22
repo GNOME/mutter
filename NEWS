@@ -1,3 +1,11 @@
+48.7
+====
+* Still constrain fullscreen wayland windows with size limits [Jonas Å.; !4587]
+* Fixed crashes [Jonas, Marco; !4643, !4705]
+
+Contributors:
+  Marco Trevisan, Jonas Ådahl
+
 48.6
 ====
 * Fix DND actions not working reliably in some X11 clients [Jonas; #4288]
