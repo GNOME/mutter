@@ -1,3 +1,22 @@
+49.2
+====
+* Fix delay in applying KMS property changes [Marco; !4723]
+* Handle ignored modifiers when grabbing keys and buttons on X11 [duli; !4744]
+* Improve tiled monitor handling [Rahul; !4685]
+* Improve sticky keys handling [Alessandro; !4728]
+* Fix global shortcut keys getting stuck in Xwayland windows [Carlos; !4737]
+* Fixed crashes [Marco, Jonas, Michel; !4742, !4740, !4761]
+* Misc. bug fixes and cleanups [Jonas, Marco, Michel, Alessandro; !4735, !4717,
+  !4722, !4623, !4749, !4736, !4754, !4764, !4765]
+
+Contributors:
+  Alessandro Astone, Alessandro Bono, duli, Michel Dänzer, Carlos Garnacho,
+  Rahul Rameshbabu, Marco Trevisan (Treviño), Jonas Ådahl
+
+Translators:
+  Efstathios Iosifidis [el], Christian Kirbach [de],
+  Милош Поповић [sr, sr@latin]
+
 49.1.1
 ======
 * Fix broken menus in some Xwayland clients [Carlos; !4729]
