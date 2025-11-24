@@ -362,7 +362,8 @@ get_viewport_scale_x (MetaWaylandSurface *surface)
   else
     buffer_width = meta_wayland_surface_get_buffer_width (surface);
 
-  return (float) surface->viewport.dst_width / buffer_width;
+  return (float) surface->viewport.dst_width * surface->applied_state.scale
+         / buffer_width;
 }
 
 static float
@@ -375,7 +376,8 @@ get_viewport_scale_y (MetaWaylandSurface *surface)
   else
     buffer_height = meta_wayland_surface_get_buffer_height (surface);
 
-  return (float) surface->viewport.dst_height / buffer_height;
+  return (float) surface->viewport.dst_height * surface->applied_state.scale
+         / buffer_height;
 }
 
 static void
