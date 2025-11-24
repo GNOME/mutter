@@ -800,6 +800,17 @@ meta_wayland_surface_apply_viewport (MetaWaylandSurface      *surface,
   if (window && meta_wayland_surface_is_xwayland (surface))
     {
       gboolean has_dst_size = state->viewport_dst_width > 0;
+      int scale = surface->applied_state.scale;
+
+      /* Compensate for rootless Xwayland always calculating viewport based on
+       * buffer scale 1
+       */
+      state->viewport_src_rect.origin.x /= scale;
+      state->viewport_src_rect.origin.y /= scale;
+      state->viewport_src_rect.size.width /= scale;
+      state->viewport_src_rect.size.height /= scale;
+      state->viewport_dst_width /= scale;
+      state->viewport_dst_height /= scale;
 
       if (has_dst_size != surface->viewport.has_dst_size ||
           (has_dst_size &&
@@ -939,31 +950,24 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
   if (state->has_new_buffer_transform)
     surface->buffer_transform = state->buffer_transform;
 
-  if (state->has_new_viewport_src_rect ||
-      state->has_new_viewport_dst_size)
-    meta_wayland_surface_apply_viewport (surface, state);
-
   if (meta_wayland_surface_is_xwayland (surface))
     {
 #ifdef HAVE_XWAYLAND
       MetaXWaylandManager *xwayland_manager =
         &surface->compositor->xwayland_manager;
 
-      if (surface->viewport.has_dst_size)
-        {
-          surface->applied_state.scale = 1;
-        }
-      else
-        {
-          surface->applied_state.scale =
-            meta_xwayland_get_effective_scale (xwayland_manager);
-        }
+      surface->applied_state.scale =
+        meta_xwayland_get_effective_scale (xwayland_manager);
 #endif
     }
   else if (state->scale > 0)
     {
       surface->applied_state.scale = state->scale;
     }
+
+  if (state->has_new_viewport_src_rect ||
+      state->has_new_viewport_dst_size)
+    meta_wayland_surface_apply_viewport (surface, state);
 
   if (surface->resource)
     {
@@ -2607,7 +2611,16 @@ meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
 
   if (surface->viewport.has_src_rect)
     {
+      int buffer_scale = surface->applied_state.scale;
+
       src_rect = surface->viewport.src_rect;
+
+      /* Convert to buffer coordinates */
+      src_rect.origin.x *= buffer_scale;
+      src_rect.origin.y *= buffer_scale;
+      src_rect.size.width *= buffer_scale;
+      src_rect.size.height *= buffer_scale;
+
       src_rect_ptr = &src_rect;
     }
 
