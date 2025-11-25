@@ -631,12 +631,15 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
 
   g_return_val_if_fail (plane, FALSE);
 
-  crtc_modifiers = meta_kms_plane_get_modifiers_for_format (plane, drm_format);
-  if (!crtc_modifiers)
+  if (!meta_kms_plane_is_format_supported (plane, drm_format))
     return FALSE;
 
   if (drm_modifier == DRM_FORMAT_MOD_INVALID)
     return TRUE;
+
+  crtc_modifiers = meta_kms_plane_get_modifiers_for_format (plane, drm_format);
+  if (!crtc_modifiers)
+    return FALSE;
 
   return has_modifier (crtc_modifiers, drm_modifier);
 }
