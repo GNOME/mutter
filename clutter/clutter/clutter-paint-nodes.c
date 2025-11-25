@@ -1225,7 +1225,7 @@ clutter_blit_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  g_warn_if_fail (clutter_color_state_equals (
+  g_warn_if_fail (!clutter_color_state_needs_mapping (
       clutter_paint_context_get_color_state (paint_context),
       clutter_paint_context_get_target_color_state (paint_context)));
 

@@ -968,7 +968,7 @@ load_scaled_and_transformed_cursor_sprite (MetaCursorRendererNative *native,
   if (width != crtc_dst_width || height != crtc_dst_height ||
       !graphene_matrix_is_identity (&matrix) ||
       gbm_format != cursor_renderer_gpu_data->drm_format ||
-      !clutter_color_state_equals (cursor_color_state, target_color_state))
+      clutter_color_state_needs_mapping (cursor_color_state, target_color_state))
     {
       const MetaFormatInfo *format_info;
       g_autoptr (GError) error = NULL;

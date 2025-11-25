@@ -294,11 +294,11 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
         clutter_stage_view_get_output_color_state (CLUTTER_STAGE_VIEW (view));
       surface_color_state =
         clutter_actor_get_color_state (CLUTTER_ACTOR (surface_actor));
-      if (!clutter_color_state_equals (output_color_state, surface_color_state))
+      if (clutter_color_state_needs_mapping (surface_color_state, output_color_state))
         {
           meta_topic (META_DEBUG_RENDER,
                       "No direct scanout candidate: "
-                      "surface color state (%s) doesn't match the output's (%s)",
+                      "surface color state (%s) needs mapping to the output's (%s)",
                       clutter_color_state_to_string (surface_color_state),
                       clutter_color_state_to_string (output_color_state));
           return FALSE;
