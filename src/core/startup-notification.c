@@ -126,7 +126,8 @@ meta_startup_notification_has_pending_sequences (MetaStartupNotification *sn)
 
   for (l = sn->startup_sequences; l; l = l->next)
     {
-      if (!meta_startup_sequence_get_completed (l->data))
+      if (meta_startup_sequence_get_application_id (l->data) &&
+          !meta_startup_sequence_get_completed (l->data))
         return TRUE;
     }
 
