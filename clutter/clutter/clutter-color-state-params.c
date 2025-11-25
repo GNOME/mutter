@@ -1828,11 +1828,11 @@ clutter_luminance_apply_tone_mapping (const ClutterLuminance *lum,
         }
       else
         {
-          float num = luminance - lum->ref;
-          float den = lum->max - lum->ref;
+          float ratio = (luminance - lum->ref) / (lum->max - lum->ref);
+
           luminance = tonemapping_ref_lum +
                       (target_lum->max - tonemapping_ref_lum) *
-                      powf (num / den, 0.5f);
+                      5.0f * ratio / (4.0f * ratio + 1.0f);
         }
       result[0] = clutter_eotf_apply_pq_inv (luminance / target_lum->max);
 
