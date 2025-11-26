@@ -30,10 +30,4 @@ G_DECLARE_FINAL_TYPE (MetaWindowActorX11,
                       META, WINDOW_ACTOR_X11,
                       MetaWindowActor)
 
-void meta_window_actor_x11_process_x11_damage (MetaWindowActorX11 *actor_x11,
-                                               XDamageNotifyEvent *event);
-
 void meta_window_actor_x11_update_shape (MetaWindowActorX11 *actor_x11);
-
-void meta_window_actor_x11_process_damage (MetaWindowActorX11 *actor_x11,
-                                           XDamageNotifyEvent *event);
