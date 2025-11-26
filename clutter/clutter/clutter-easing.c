@@ -525,15 +525,6 @@ static const struct {
   { CLUTTER_ANIMATION_LAST,      NULL, "sentinel" },
 };
 
-ClutterEasingFunc
-clutter_get_easing_func_for_mode (ClutterAnimationMode mode)
-{
-  g_assert (_clutter_animation_modes[mode].mode == mode);
-  g_assert (_clutter_animation_modes[mode].func != NULL);
-
-  return _clutter_animation_modes[mode].func;
-}
-
 const char *
 clutter_get_easing_name_for_mode (ClutterAnimationMode mode)
 {
