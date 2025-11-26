@@ -70,6 +70,9 @@ wayland_test_clients = [
     'name': 'single-pixel-buffer',
   },
   {
+    'name': 'stable-rounding',
+  },
+  {
     'name': 'subsurface-corner-cases',
   },
   {

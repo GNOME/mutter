@@ -948,6 +948,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-stable-rounding',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-stable-rounding-test.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('stable-rounding'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1009,6 +1020,7 @@ wayland_test_cases = [
       test_client_executables.get('service-client'),
       test_client_executables.get('shm-destroy-before-release'),
       test_client_executables.get('single-pixel-buffer'),
+      test_client_executables.get('stable-rounding'),
       test_client_executables.get('subsurface-corner-cases'),
       test_client_executables.get('subsurface-parent-unmapped'),
       test_client_executables.get('subsurface-remap-toplevel'),
