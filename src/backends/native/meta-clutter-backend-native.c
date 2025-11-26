@@ -115,19 +115,22 @@ create_sprite (ClutterBackend     *clutter_backend,
   MetaClutterBackendNative *clutter_backend_native =
     META_CLUTTER_BACKEND_NATIVE (clutter_backend);
   MetaBackend *backend = clutter_backend_native->backend;
-  ClutterInputDevice *sprite_device = NULL;
+  ClutterInputDevice *device, *sprite_device = NULL;
   ClutterEventSequence *sequence = NULL;
   ClutterSpriteRole role;
 
+  device = clutter_event_get_source_device (for_event);
+
   if (clutter_event_get_event_sequence (for_event))
     role = CLUTTER_SPRITE_ROLE_TOUCHPOINT;
-  else if (clutter_event_get_device_tool (for_event))
+  else if (clutter_input_device_get_capabilities (device) ==
+           CLUTTER_INPUT_CAPABILITY_TABLET_TOOL)
     role = CLUTTER_SPRITE_ROLE_TABLET;
   else
     role = CLUTTER_SPRITE_ROLE_POINTER;
 
   if (role == CLUTTER_SPRITE_ROLE_TABLET)
-    sprite_device = clutter_event_get_source_device (for_event);
+    sprite_device = device;
   else if (role == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
     sequence = clutter_event_get_event_sequence (for_event);
 
