@@ -69,8 +69,6 @@ typedef struct _CoglRenderer
 {
   GObject parent_instance;
 
-  CoglDisplay *display;
-
   gboolean connected;
   CoglDriverId driver_override;
   CoglDriver *driver;
@@ -560,19 +558,6 @@ GModule *
 cogl_renderer_get_gl_module (CoglRenderer *renderer)
 {
   return renderer->libgl_module;
-}
-
-CoglDisplay *
-cogl_renderer_get_display (CoglRenderer *renderer)
-{
-  return renderer->display;
-}
-
-void
-cogl_renderer_set_display (CoglRenderer *renderer,
-                           CoglDisplay   *display)
-{
-  renderer->display = display;
 }
 
 void *

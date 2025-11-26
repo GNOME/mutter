@@ -51,8 +51,3 @@ CoglClosure * cogl_renderer_add_idle_closure (CoglRenderer  *renderer,
 CoglList * cogl_renderer_get_idle_closures (CoglRenderer *renderer);
 
 GModule * cogl_renderer_get_gl_module (CoglRenderer *renderer);
-
-void cogl_renderer_set_display (CoglRenderer *renderer,
-                                CoglDisplay   *display);
-
-CoglDisplay * cogl_renderer_get_display (CoglRenderer *renderer);
