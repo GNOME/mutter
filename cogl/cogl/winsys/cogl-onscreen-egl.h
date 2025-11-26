@@ -52,8 +52,3 @@ cogl_onscreen_egl_set_egl_surface (CoglOnscreenEgl *onscreen_egl,
 
 COGL_EXPORT EGLSurface
 cogl_onscreen_egl_get_egl_surface (CoglOnscreenEgl *onscreen_egl);
-
-gboolean
-cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
-                                 EGLConfig        *out_egl_config,
-                                 GError          **error);

@@ -44,39 +44,6 @@ typedef struct _CoglOnscreenEglPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (CoglOnscreenEgl, cogl_onscreen_egl,
                             COGL_TYPE_ONSCREEN)
 
-gboolean
-cogl_onscreen_egl_choose_config (CoglOnscreenEgl  *onscreen_egl,
-                                 EGLConfig        *out_egl_config,
-                                 GError          **error)
-{
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_egl);
-  CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *display = context->display;
-  CoglRenderer *renderer = display->renderer;
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys (renderer);
-  EGLint attributes[MAX_EGL_CONFIG_ATTRIBS];
-  EGLConfig egl_config;
-  EGLint config_count = 0;
-  EGLBoolean status;
-
-  cogl_display_egl_determine_attributes (display, attributes);
-
-  status = eglChooseConfig (egl_renderer->edpy,
-                            attributes,
-                            &egl_config, 1,
-                            &config_count);
-  if (status != EGL_TRUE || config_count == 0)
-    {
-      g_set_error (error, COGL_WINSYS_ERROR,
-                   COGL_WINSYS_ERROR_CREATE_ONSCREEN,
-                   "Failed to find a suitable EGL configuration");
-      return FALSE;
-    }
-
-  *out_egl_config = egl_config;
-  return TRUE;
-}
-
 static void
 cogl_onscreen_egl_dispose (GObject *object)
 {
