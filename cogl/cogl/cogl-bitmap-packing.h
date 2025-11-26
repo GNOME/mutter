@@ -610,6 +610,24 @@ G_PASTE (_cogl_unpack_rg_1616_, component_size) (const uint8_t *src,
 }
 
 inline static void
+G_PASTE (_cogl_unpack_rgbx_16161616_, component_size) (const uint8_t  *src,
+                                                       component_type *dst,
+                                                       int             width)
+{
+  while (width-- > 0)
+    {
+      const uint16_t *v = (const uint16_t *) src;
+
+      dst[0] = UNPACK_16 (v[0]);
+      dst[1] = UNPACK_16 (v[1]);
+      dst[2] = UNPACK_16 (v[2]);
+      dst[3] = UNPACK_BYTE (255);
+      dst += 4;
+      src += 8;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_unpack_rgba_16161616_, component_size) (const uint8_t  *src,
                                                        component_type *dst,
                                                        int             width)
@@ -748,6 +766,9 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
       break;
     case COGL_PIXEL_FORMAT_RG_1616:
       G_PASTE (_cogl_unpack_rg_1616_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
+      G_PASTE (_cogl_unpack_rgbx_16161616_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
@@ -1323,6 +1344,25 @@ G_PASTE (_cogl_pack_rg_1616_, component_size) (const component_type *src,
 }
 
 inline static void
+G_PASTE (_cogl_pack_rgbx_16161616_, component_size) (const component_type *src,
+                                                     uint8_t              *dst,
+                                                     int                   width)
+{
+  while (width-- > 0)
+    {
+      uint16_t *v = (uint16_t *) dst;
+
+      v[0] = PACK_16 (src[0]);
+      v[1] = PACK_16 (src[1]);
+      v[2] = PACK_16 (src[2]);
+      v[3] = PACK_16 (1);
+
+      src += 4;
+      dst += 8;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_pack_rgba_16161616_, component_size) (const component_type *src,
                                                      uint8_t              *dst,
                                                      int                   width)
@@ -1462,6 +1502,9 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
       break;
     case COGL_PIXEL_FORMAT_RG_1616:
       G_PASTE (_cogl_pack_rg_1616_, component_size) (src, dst, width);
+      break;
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
+      G_PASTE (_cogl_pack_rgbx_16161616_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:

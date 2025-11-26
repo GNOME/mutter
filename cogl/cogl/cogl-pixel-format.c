@@ -120,6 +120,13 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .bpp = { 4 },
   },
   {
+    .cogl_format = COGL_PIXEL_FORMAT_RGBX_16161616,
+    .format_str = "RGBX_16161616",
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 8 },
+  },
+  {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_16161616,
     .format_str = "RGBA_16161616",
     .n_planes = 1,

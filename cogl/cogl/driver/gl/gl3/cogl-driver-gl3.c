@@ -321,6 +321,11 @@ cogl_driver_gl3_pixel_format_to_gl (CoglDriverGL    *driver,
       glformat = GL_RG;
       gltype = GL_UNSIGNED_SHORT;
       break;
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
+      glintformat = GL_RGB16;
+      glformat = GL_RGBA;
+      gltype = GL_UNSIGNED_SHORT;
+      break;
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
       glintformat = GL_RGBA16;
@@ -720,6 +725,7 @@ cogl_driver_gl3_format_supports_upload (CoglDriver      *driver,
     case COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE:
     case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
       return TRUE;

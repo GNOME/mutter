@@ -172,6 +172,7 @@ G_BEGIN_DECLS
  * @COGL_PIXEL_FORMAT_RGBA_FP_32323232_PRE: Premultiplied RGBA floating point, 128 bit
  * @COGL_PIXEL_FORMAT_R_16: Single luminance component, 16 bits
  * @COGL_PIXEL_FORMAT_RG_1616: RG, 32 bits
+ * @COGL_PIXEL_FORMAT_RGBX_16161616: RGBX, 64 bits, 16bpc
  * @COGL_PIXEL_FORMAT_RGBA_16161616: RGBA, 64 bits, 16bpc
  *
  * Pixel formats used by Cogl. For the formats with a byte per
@@ -255,6 +256,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 
   COGL_PIXEL_FORMAT_R_16          = 14,
   COGL_PIXEL_FORMAT_RG_1616       = 15,
+  COGL_PIXEL_FORMAT_RGBX_16161616 = 10,
   COGL_PIXEL_FORMAT_RGBA_16161616 = (10 | COGL_A_BIT),
   COGL_PIXEL_FORMAT_RGBA_16161616_PRE = (10 | COGL_A_BIT | COGL_PREMULT_BIT),
 

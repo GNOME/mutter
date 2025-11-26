@@ -252,6 +252,16 @@ cogl_driver_gles2_pixel_format_to_gl (CoglDriverGL    *driver,
         }
       break;
 
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
+      required_format =
+        cogl_driver_gles2_pixel_format_to_gl (driver,
+                                              context,
+                                              COGL_PIXEL_FORMAT_RGBA_16161616_PRE,
+                                              &glintformat,
+                                              &glformat,
+                                              &gltype);
+      break;
+
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
       if (cogl_context_has_feature (context, COGL_FEATURE_ID_TEXTURE_NORM16))
@@ -595,6 +605,7 @@ cogl_driver_gles2_get_read_pixels_format (CoglDriverGL    *driver,
     /* fixed point normalized 16bpc */
     case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
       required_gl_format = GL_RGBA;
@@ -966,6 +977,7 @@ cogl_driver_gles2_format_supports_upload (CoglDriver      *driver,
         return FALSE;
     case COGL_PIXEL_FORMAT_R_16:
     case COGL_PIXEL_FORMAT_RG_1616:
+    case COGL_PIXEL_FORMAT_RGBX_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616:
     case COGL_PIXEL_FORMAT_RGBA_16161616_PRE:
       if (cogl_context_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NORM16))
