@@ -106,8 +106,6 @@ void meta_window_x11_set_client_rect (MetaWindowX11 *window_x11,
 META_EXPORT_TEST
 MetaFrame * meta_window_x11_get_frame (MetaWindow *window);
 
-gboolean meta_window_x11_can_unredirect          (MetaWindowX11 *window_x11);
-
 MetaSyncCounter * meta_window_x11_get_sync_counter (MetaWindow *window);
 
 gboolean meta_window_x11_is_awaiting_sync_response (MetaWindow *window);

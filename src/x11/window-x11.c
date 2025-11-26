@@ -4374,56 +4374,6 @@ meta_window_x11_set_client_rect (MetaWindowX11 *window_x11,
   priv->client_rect = *client_rect;
 }
 
-static gboolean
-has_requested_dont_bypass_compositor (MetaWindowX11 *window_x11)
-{
-  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
-
-  return priv->bypass_compositor == META_BYPASS_COMPOSITOR_HINT_OFF;
-}
-
-gboolean
-meta_window_x11_can_unredirect (MetaWindowX11 *window_x11)
-{
-  MetaWindow *window = META_WINDOW (window_x11);
-  MetaWindowX11Private *priv =
-    meta_window_x11_get_instance_private (window_x11);
-
-  if (has_requested_dont_bypass_compositor (window_x11))
-    return FALSE;
-
-  if (window->opacity != 0xFF)
-    return FALSE;
-
-  if (priv->shape_region != NULL)
-    return FALSE;
-
-  if (!window->monitor)
-    return FALSE;
-
-  if (meta_window_is_fullscreen (window))
-    return TRUE;
-
-  if (meta_window_is_screen_sized (window))
-    return TRUE;
-
-  if (window->override_redirect)
-    {
-      MtkRectangle window_rect;
-      MtkRectangle logical_monitor_layout;
-      MetaLogicalMonitor *logical_monitor = window->monitor;
-
-      meta_window_get_frame_rect (window, &window_rect);
-      logical_monitor_layout =
-        meta_logical_monitor_get_layout (logical_monitor);
-
-      if (mtk_rectangle_equal (&window_rect, &logical_monitor_layout))
-        return TRUE;
-    }
-
-  return FALSE;
-}
-
 MetaSyncCounter *
 meta_window_x11_get_sync_counter (MetaWindow *window)
 {
