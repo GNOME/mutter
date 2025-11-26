@@ -109,25 +109,6 @@ meta_wayland_window_configuration_new_relative (MetaWindow *window,
 }
 
 MetaWaylandWindowConfiguration *
-meta_wayland_window_configuration_new_empty (int bounds_width,
-                                             int bounds_height,
-                                             int scale)
-{
-  MetaWaylandWindowConfiguration *configuration;
-
-  configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
-  *configuration = (MetaWaylandWindowConfiguration) {
-    .ref_count = G_REF_COUNT_INIT,
-    .serial = ++global_serial_counter,
-    .scale = scale,
-    .bounds_width = bounds_width,
-    .bounds_height = bounds_height,
-  };
-
-  return configuration;
-}
-
-MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new_from_other (MetaWaylandWindowConfiguration *other)
 {
   MetaWaylandWindowConfiguration *configuration;
