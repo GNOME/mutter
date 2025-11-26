@@ -2735,27 +2735,6 @@ meta_window_x11_get_gravity_position (MetaWindow  *window,
     *root_y = y;
 }
 
-/* Get geometry for saving in the session; x/y are gravity
- * position, and w/h are in resize inc above the base size.
- */
-void
-meta_window_x11_get_session_geometry (MetaWindow  *window,
-                                      int         *x,
-                                      int         *y,
-                                      int         *width,
-                                      int         *height)
-{
-  meta_window_x11_get_gravity_position (window,
-                                        window->size_hints.win_gravity,
-                                        x, y);
-
-  meta_window_config_get_position (window->config, width, height);
-  *width -= window->size_hints.base_width;
-  *width /= window->size_hints.width_inc;
-  *height -= window->size_hints.base_height;
-  *height /= window->size_hints.height_inc;
-}
-
 static void
 meta_window_move_resize_request (MetaWindow  *window,
                                  guint        value_mask,
