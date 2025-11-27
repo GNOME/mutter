@@ -727,9 +727,26 @@ meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *se
                                                   GDesktopStylusButtonAction  secondary,
                                                   GDesktopStylusButtonAction  tertiary)
 {
-  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_MIDDLE, primary);
-  meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_SECONDARY, secondary);
-  meta_input_device_tool_native_set_button_code_in_impl (tool, 8, tertiary);
+  ClutterInputDeviceToolType tool_type;
+
+  tool_type = clutter_input_device_tool_get_tool_type (tool);
+
+  if (tool_type == CLUTTER_INPUT_DEVICE_TOOL_MOUSE ||
+      tool_type == CLUTTER_INPUT_DEVICE_TOOL_LENS)
+    {
+      /* Mouse/lens tools follow regular mouse mapping. Confusingly for those,
+       * the primary action maps to 'right' by default, and the secondary action
+       * to 'middle' by default, so map them to the expected button by default.
+       */
+      meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_SECONDARY, primary);
+      meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_MIDDLE, secondary);
+    }
+  else
+    {
+      meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_MIDDLE, primary);
+      meta_input_device_tool_native_set_button_code_in_impl (tool, CLUTTER_BUTTON_SECONDARY, secondary);
+      meta_input_device_tool_native_set_button_code_in_impl (tool, 8, tertiary);
+    }
 }
 
 static void
