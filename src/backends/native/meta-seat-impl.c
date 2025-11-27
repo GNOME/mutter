@@ -1159,6 +1159,7 @@ notify_scroll (ClutterInputDevice       *input_device,
 
 static void
 notify_discrete_scroll (ClutterInputDevice     *input_device,
+                        ClutterInputDeviceTool *tool,
                         uint64_t                time_us,
                         ClutterScrollDirection  direction,
                         ClutterScrollSource     scroll_source,
@@ -1194,7 +1195,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
                                        CLUTTER_EVENT_NONE,
                                        time_us,
                                        input_device,
-                                       NULL,
+                                       tool,
                                        modifiers,
                                        priv->pointer_state,
                                        scroll_flags,
@@ -1219,7 +1220,7 @@ check_notify_discrete_scroll (MetaSeatImpl       *seat_impl,
 
   for (i = 0; i < n_xscrolls; i++)
     {
-      notify_discrete_scroll (device, time_us,
+      notify_discrete_scroll (device, NULL, time_us,
                               seat_impl->accum_scroll_dx > 0 ?
                               CLUTTER_SCROLL_RIGHT : CLUTTER_SCROLL_LEFT,
                               scroll_source, TRUE);
@@ -1227,7 +1228,7 @@ check_notify_discrete_scroll (MetaSeatImpl       *seat_impl,
 
   for (i = 0; i < n_yscrolls; i++)
     {
-      notify_discrete_scroll (device, time_us,
+      notify_discrete_scroll (device, NULL, time_us,
                               seat_impl->accum_scroll_dy > 0 ?
                               CLUTTER_SCROLL_DOWN : CLUTTER_SCROLL_UP,
                               scroll_source, TRUE);
@@ -1341,7 +1342,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
       if (low_res_value == 0)
         low_res_value = (dx_value120 > 0) ? 1 : -1;
 
-      notify_discrete_scroll (input_device, time_us,
+      notify_discrete_scroll (input_device, NULL, time_us,
                               discrete_to_direction (low_res_value, 0),
                               scroll_source, FALSE);
       evdev_device->value120.acc_dx -= (low_res_value * 120);
@@ -1353,7 +1354,7 @@ meta_seat_impl_notify_discrete_scroll_in_impl (MetaSeatImpl        *seat_impl,
       if (low_res_value == 0)
         low_res_value = (dy_value120 > 0) ? 1 : -1;
 
-      notify_discrete_scroll (input_device, time_us,
+      notify_discrete_scroll (input_device, NULL, time_us,
                               discrete_to_direction (0, low_res_value),
                               scroll_source, FALSE);
       evdev_device->value120.acc_dy -= (low_res_value * 120);
@@ -2344,6 +2345,21 @@ process_tablet_axis (MetaSeatImpl          *seat_impl,
                                   &stage_width, &stage_height);
 
   time = libinput_event_tablet_tool_get_time_usec (tablet_event);
+
+  if (evdev_device->last_tool &&
+      axes[CLUTTER_INPUT_AXIS_WHEEL] != 0.0)
+    {
+      /* Send down a scroll event as well, so Clutter widgetry does not require
+       * special handling of the wheel axis.
+       */
+      notify_discrete_scroll (device, evdev_device->last_tool,
+                              time,
+                              ((axes[CLUTTER_INPUT_AXIS_WHEEL] > 0.0) ==
+                               meta_input_device_native_has_scroll_inverted (evdev_device)) ?
+                              CLUTTER_SCROLL_UP : CLUTTER_SCROLL_DOWN,
+                              CLUTTER_SCROLL_SOURCE_WHEEL,
+                              FALSE);
+    }
 
   if (meta_input_device_native_get_mapping_mode_in_impl (device) == META_INPUT_DEVICE_MAPPING_RELATIVE ||
       clutter_input_device_tool_get_tool_type (evdev_device->last_tool) == CLUTTER_INPUT_DEVICE_TOOL_MOUSE ||
