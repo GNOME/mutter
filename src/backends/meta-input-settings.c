@@ -1996,38 +1996,77 @@ meta_input_settings_get_tool_button_action (MetaInputSettings       *input_setti
                                             uint32_t                 clutter_button,
                                             char                   **keybinding)
 {
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (input_settings);
   GDesktopStylusButtonAction action;
   GSettings *settings;
   const char *prefix = NULL;
   g_autofree char *key = NULL;
+  ClutterInputDeviceToolType tool_type;
 
   g_return_val_if_fail (META_IS_INPUT_SETTINGS (input_settings), G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT);
 
-  switch (clutter_button)
-    {
-    case CLUTTER_BUTTON_MIDDLE:     /* BTN_STYLUS */
-      prefix = "button";
-      break;
-    case CLUTTER_BUTTON_SECONDARY:  /* BTN_STYLUS2 */
-      prefix = "secondary-button";
-      break;
-    case 8:                         /* BTN_STYLUS3 */
-      prefix = "tertiary-button";
-      break;
+  tool_type = clutter_input_device_tool_get_tool_type (tool);
 
-    /* BUTTON_PRIMARY is tip down and has no mapping */
-    case CLUTTER_BUTTON_PRIMARY:
-    default:
-      return G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT;
+  if (tool_type == CLUTTER_INPUT_DEVICE_TOOL_MOUSE ||
+      tool_type == CLUTTER_INPUT_DEVICE_TOOL_LENS)
+    {
+      gboolean mouse_is_left_handed;
+
+      mouse_is_left_handed =
+        g_settings_get_boolean (priv->mouse_settings, "left-handed");
+
+      /* These tools are mouse-like, thus are not re-mappable and
+       * follow mouse settings
+       */
+      switch (clutter_button)
+        {
+        case CLUTTER_BUTTON_PRIMARY:
+          action = mouse_is_left_handed ?
+            G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT :
+            G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT;
+          break;
+        case CLUTTER_BUTTON_SECONDARY:
+          action = mouse_is_left_handed ?
+            G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT :
+            G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT;
+          break;
+        case CLUTTER_BUTTON_MIDDLE:
+          action = G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE;
+          break;
+        default:
+          action = G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT;
+          break;
+        }
     }
-
-  key = g_strdup_printf ("%s-action", prefix);
-  settings = lookup_tool_settings (tool, device);
-  action = g_settings_get_enum (settings, key);
-  if (keybinding && action == G_DESKTOP_STYLUS_BUTTON_ACTION_KEYBINDING)
+  else
     {
-      g_autofree char *binding_key = g_strdup_printf ("%s-keybinding", prefix);
-      *keybinding = g_settings_get_string (settings, binding_key);
+      switch (clutter_button)
+        {
+        case CLUTTER_BUTTON_MIDDLE:     /* BTN_STYLUS */
+          prefix = "button";
+          break;
+        case CLUTTER_BUTTON_SECONDARY:  /* BTN_STYLUS2 */
+          prefix = "secondary-button";
+          break;
+        case 8:                         /* BTN_STYLUS3 */
+          prefix = "tertiary-button";
+          break;
+
+          /* BUTTON_PRIMARY is tip down and has no mapping */
+        case CLUTTER_BUTTON_PRIMARY:
+        default:
+          return G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT;
+        }
+
+      key = g_strdup_printf ("%s-action", prefix);
+      settings = lookup_tool_settings (tool, device);
+      action = g_settings_get_enum (settings, key);
+      if (keybinding && action == G_DESKTOP_STYLUS_BUTTON_ACTION_KEYBINDING)
+        {
+          g_autofree char *binding_key = g_strdup_printf ("%s-keybinding", prefix);
+          *keybinding = g_settings_get_string (settings, binding_key);
+        }
     }
 
   return action;
