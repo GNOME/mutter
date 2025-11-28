@@ -29,7 +29,7 @@
 G_DECLARE_FINAL_TYPE (MetaCursorXcursor, meta_cursor_xcursor,
                       META, CURSOR_XCURSOR, ClutterCursor)
 
-MetaCursorXcursor * meta_cursor_xcursor_new (ClutterCursorType  cursor_type,
+MetaCursorXcursor * meta_cursor_xcursor_get (ClutterCursorType  cursor_type,
                                              MetaCursorTracker *cursor_tracker);
 
 void meta_cursor_xcursor_set_theme_scale (MetaCursorXcursor *sprite_xcursor,

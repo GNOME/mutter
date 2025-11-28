@@ -29,11 +29,11 @@
 #include "meta/prefs.h"
 #include "meta/util.h"
 
-typedef struct _MetaCursorXcursorKey
+typedef struct _MetaCursorImageData
 {
-  ClutterCursorType cursor;
-  int theme_scale;
-} MetaCursorXcursorKey;
+  int scale;
+  XcursorImages *xcursor_images;
+} MetaCursorImageData;
 
 struct _MetaCursorXcursor
 {
@@ -46,6 +46,8 @@ struct _MetaCursorXcursor
 
   ClutterCursorType cursor;
 
+  GArray *cursor_images;
+
   int current_frame;
   XcursorImages *xcursor_images;
 
@@ -56,30 +58,18 @@ struct _MetaCursorXcursor
 G_DEFINE_TYPE (MetaCursorXcursor, meta_cursor_xcursor,
                CLUTTER_TYPE_CURSOR)
 
-static unsigned int
-cursor_key_hash (gconstpointer data)
+static void
+on_prefs_changed (ClutterCursor *cursor,
+                  gpointer       user_data)
 {
-  const MetaCursorXcursorKey *key = data;
+  GHashTable *cache = user_data;
 
-  return key->cursor << 0  &
-         key->theme_scale << 8;
-}
-
-static gboolean
-cursor_key_equal (gconstpointer data1,
-                  gconstpointer data2)
-{
-  const MetaCursorXcursorKey *key1 = data1;
-  const MetaCursorXcursorKey *key2 = data2;
-
-  return (key1->cursor == key2->cursor &&
-          key1->theme_scale == key2->theme_scale);
+  g_hash_table_remove_all (cache);
 }
 
 static GHashTable *
-ensure_cache (MetaCursorXcursor *cursor_xcursor)
+ensure_cache (MetaCursorTracker *cursor_tracker)
 {
-  MetaCursorTracker *cursor_tracker = cursor_xcursor->cursor_tracker;
   GHashTable *cache;
   static GOnce quark_once = G_ONCE_INIT;
 
@@ -90,25 +80,20 @@ ensure_cache (MetaCursorXcursor *cursor_xcursor)
                               GPOINTER_TO_INT (quark_once.retval));
   if (!cache)
     {
-      cache = g_hash_table_new_full (cursor_key_hash, cursor_key_equal,
-                                     g_free,
-                                     (GDestroyNotify) xcursor_images_destroy);
+      cache = g_hash_table_new_full (NULL, NULL, NULL,
+                                     (GDestroyNotify) g_object_unref);
 
       g_object_set_qdata_full (G_OBJECT (cursor_tracker),
                                GPOINTER_TO_INT (quark_once.retval),
                                cache,
                                (GDestroyNotify) g_hash_table_unref);
+
+      g_signal_connect (cursor_tracker, "cursor-prefs-changed",
+                        G_CALLBACK (on_prefs_changed),
+                        cache);
     }
 
   return cache;
-}
-
-static void
-drop_cache (MetaCursorXcursor *cursor_xcursor)
-{
-  GHashTable *cache = ensure_cache (cursor_xcursor);
-
-  g_hash_table_remove_all (cache);
 }
 
 const char *
@@ -399,6 +384,7 @@ meta_cursor_xcursor_set_theme_scale (MetaCursorXcursor *cursor_xcursor,
 
   cursor_xcursor->theme_scale = theme_scale;
   cursor_xcursor->xcursor_images = NULL;
+  clutter_cursor_invalidate (CLUTTER_CURSOR (cursor_xcursor));
 }
 
 void
@@ -466,24 +452,32 @@ meta_cursor_xcursor_get_current_frame_time (ClutterCursor *cursor)
 static gboolean
 load_cursor_from_theme (MetaCursorXcursor *cursor_xcursor)
 {
-  GHashTable *cache = ensure_cache (cursor_xcursor);
-  XcursorImages *xcursor_images;
-  MetaCursorXcursorKey key = {
-    .cursor = cursor_xcursor->cursor,
-    .theme_scale = cursor_xcursor->theme_scale,
-  };
+  XcursorImages *xcursor_images = NULL;
+  unsigned int i;
 
   g_assert (cursor_xcursor->cursor != CLUTTER_CURSOR_INHERIT);
 
-  xcursor_images = g_hash_table_lookup (cache, &key);
+  for (i = 0; i < cursor_xcursor->cursor_images->len; i++)
+    {
+      MetaCursorImageData *image_data;
+
+      image_data = &g_array_index (cursor_xcursor->cursor_images,
+                                   MetaCursorImageData, i);
+      if (image_data->scale == cursor_xcursor->theme_scale)
+        xcursor_images = image_data->xcursor_images;
+    }
+
   if (!xcursor_images)
     {
-      xcursor_images = load_cursor_on_client (cursor_xcursor->cursor,
-                                              cursor_xcursor->theme_scale);
+      MetaCursorImageData new_cursor;
 
-      g_hash_table_insert (cache,
-                           g_memdup2 (&key, sizeof (key)),
-                           xcursor_images);
+      new_cursor.scale = cursor_xcursor->theme_scale;
+      new_cursor.xcursor_images =
+        load_cursor_on_client (cursor_xcursor->cursor,
+                               new_cursor.scale);
+
+      xcursor_images = new_cursor.xcursor_images;
+      g_array_append_val (cursor_xcursor->cursor_images, new_cursor);
     }
 
   if (cursor_xcursor->xcursor_images == xcursor_images)
@@ -501,9 +495,10 @@ meta_cursor_xcursor_realize_texture (ClutterCursor *cursor)
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (cursor);
   gboolean retval = cursor_xcursor->invalidated;
 
-  if (load_cursor_from_theme (cursor_xcursor))
-    retval = TRUE;
+  if (!cursor_xcursor->invalidated)
+    return FALSE;
 
+  retval = load_cursor_from_theme (cursor_xcursor);
   cursor_xcursor->invalidated = FALSE;
 
   return retval;
@@ -563,6 +558,8 @@ meta_cursor_xcursor_prepare_at (ClutterCursor *cursor,
           meta_cursor_xcursor_set_theme_scale (cursor_xcursor,
                                                (int) logical_monitor->scale);
           clutter_cursor_set_texture_scale (cursor, 1.0f);
+
+          clutter_cursor_reset_viewport_dst_size (cursor);
         }
     }
 }
@@ -598,38 +595,33 @@ ensure_xcursor_color_state (MetaCursorTracker *cursor_tracker)
   return color_state;
 }
 
-static void
-on_prefs_changed (ClutterCursor *cursor,
-                  gpointer       user_data)
-{
-  MetaCursorXcursor *cursor_xcursor =
-    META_CURSOR_XCURSOR (user_data);
-
-  drop_cache (cursor_xcursor);
-  cursor_xcursor->xcursor_images = NULL;
-}
-
 MetaCursorXcursor *
-meta_cursor_xcursor_new (ClutterCursorType  cursor_type,
+meta_cursor_xcursor_get (ClutterCursorType  cursor_type,
                          MetaCursorTracker *cursor_tracker)
 {
   MetaCursorXcursor *cursor_xcursor;
   ClutterColorState *color_state;
+  GHashTable *cache;
 
-  color_state = ensure_xcursor_color_state (cursor_tracker);
+  cache = ensure_cache (cursor_tracker);
 
-  cursor_xcursor = g_object_new (META_TYPE_CURSOR_XCURSOR,
-                                 "color-state", color_state,
-                                 NULL);
-  cursor_xcursor->cursor = cursor_type;
-  cursor_xcursor->cursor_tracker = cursor_tracker;
+  cursor_xcursor = g_hash_table_lookup (cache, GUINT_TO_POINTER (cursor_type));
 
-  g_signal_connect_object (cursor_tracker, "cursor-prefs-changed",
-                           G_CALLBACK (on_prefs_changed),
-                           cursor_xcursor,
-                           G_CONNECT_DEFAULT);
+  if (!cursor_xcursor)
+    {
+      color_state = ensure_xcursor_color_state (cursor_tracker);
 
-  return cursor_xcursor;
+      cursor_xcursor = g_object_new (META_TYPE_CURSOR_XCURSOR,
+                                     "color-state", color_state,
+                                     NULL);
+      cursor_xcursor->cursor = cursor_type;
+      cursor_xcursor->cursor_tracker = cursor_tracker;
+
+      g_hash_table_insert (cache, GUINT_TO_POINTER (cursor_type),
+                           cursor_xcursor);
+    }
+
+  return g_object_ref (cursor_xcursor);
 }
 
 static CoglTexture *
@@ -653,14 +645,26 @@ meta_cursor_xcursor_finalize (GObject *object)
   MetaCursorXcursor *cursor_xcursor = META_CURSOR_XCURSOR (object);
 
   g_clear_object (&cursor_xcursor->texture);
+  g_clear_pointer (&cursor_xcursor->cursor_images, g_array_unref);
 
   G_OBJECT_CLASS (meta_cursor_xcursor_parent_class)->finalize (object);
 }
 
 static void
+clear_cursor_image_data (MetaCursorImageData *data)
+{
+  g_clear_pointer (&data->xcursor_images, xcursor_images_destroy);
+}
+
+static void
 meta_cursor_xcursor_init (MetaCursorXcursor *cursor_xcursor)
 {
+  cursor_xcursor->invalidated = TRUE;
   cursor_xcursor->theme_scale = 1;
+  cursor_xcursor->cursor_images =
+    g_array_new (FALSE, FALSE, sizeof (MetaCursorImageData));
+  g_array_set_clear_func (cursor_xcursor->cursor_images,
+                          (GDestroyNotify) clear_cursor_image_data);
 }
 
 static void

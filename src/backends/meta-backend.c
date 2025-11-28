@@ -2193,5 +2193,5 @@ meta_backend_get_cursor (MetaBackend       *backend,
   if (global_cursor != CLUTTER_CURSOR_INHERIT)
     cursor_type = global_cursor;
 
-  return CLUTTER_CURSOR (meta_cursor_xcursor_new (cursor_type, cursor_tracker));
+  return CLUTTER_CURSOR (meta_cursor_xcursor_get (cursor_type, cursor_tracker));
 }
