@@ -34,8 +34,6 @@ struct _MetaCursorTrackerClass
 void     meta_cursor_tracker_set_window_cursor   (MetaCursorTracker *tracker,
                                                   ClutterCursor     *cursor);
 void     meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker);
-void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker *tracker,
-                                                  ClutterCursor     *cursor);
 
 void     meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker);
 

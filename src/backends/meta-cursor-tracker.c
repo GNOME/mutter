@@ -72,8 +72,6 @@ typedef struct _MetaCursorTrackerPrivate
    */
   gboolean has_window_cursor;
   ClutterCursor *window_cursor;
-
-  ClutterCursor *root_cursor;
 } MetaCursorTrackerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
@@ -114,8 +112,6 @@ update_displayed_cursor (MetaCursorTracker *tracker)
 
   if (display && !meta_display_is_grabbed (display) && priv->has_window_cursor)
     cursor = priv->window_cursor;
-  else
-    cursor = priv->root_cursor;
 
   if (priv->displayed_cursor == cursor)
     return FALSE;
@@ -280,7 +276,6 @@ meta_cursor_tracker_dispose (GObject *object)
   g_clear_object (&priv->effective_cursor);
   g_clear_object (&priv->displayed_cursor);
   g_clear_object (&priv->window_cursor);
-  g_clear_object (&priv->root_cursor);
 
   G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->dispose (object);
 }
@@ -470,25 +465,6 @@ void
 meta_cursor_tracker_unset_window_cursor (MetaCursorTracker *tracker)
 {
   set_window_cursor (tracker, FALSE, NULL);
-}
-
-/**
- * meta_cursor_tracker_set_root_cursor:
- * @tracker: a #MetaCursorTracker object.
- * @cursor: (transfer none) (nullable): the new root cursor
- *
- * Sets the root cursor (the cursor that is shown if not modified by a window).
- * The #MetaCursorTracker will take a strong reference to the sprite.
- */
-void
-meta_cursor_tracker_set_root_cursor (MetaCursorTracker *tracker,
-                                     ClutterCursor     *cursor)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  if (g_set_object (&priv->root_cursor, cursor))
-    sync_cursor (tracker);
 }
 
 void
