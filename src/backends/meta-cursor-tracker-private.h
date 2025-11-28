@@ -28,8 +28,6 @@ struct _MetaCursorTrackerClass
 {
   GObjectClass parent_class;
 
-  void (* set_force_track_position) (MetaCursorTracker *tracker,
-                                     gboolean           is_enabled);
   ClutterCursor * (* get_sprite) (MetaCursorTracker *tracker);
 };
 
@@ -43,10 +41,6 @@ void     meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker);
 
 META_EXPORT_TEST
 gboolean meta_cursor_tracker_has_window_cursor (MetaCursorTracker *tracker);
-
-void meta_cursor_tracker_track_position (MetaCursorTracker *tracker);
-
-void meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker);
 
 MetaBackend * meta_cursor_tracker_get_backend (MetaCursorTracker *tracker);
 

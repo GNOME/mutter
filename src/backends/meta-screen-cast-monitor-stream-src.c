@@ -501,13 +501,11 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
         g_signal_connect_after (stage, "prepare-frame",
                                 G_CALLBACK (on_prepare_frame),
                                 monitor_src);
-      meta_cursor_tracker_track_position (cursor_tracker);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
       inhibit_hw_cursor (monitor_src);
-      meta_cursor_tracker_track_position (cursor_tracker);
       break;
     }
 
@@ -524,7 +522,6 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = get_backend (monitor_src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterStage *stage;
@@ -553,16 +550,6 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
                           stage);
 
   g_clear_handle_id (&monitor_src->maybe_record_idle_id, g_source_remove);
-
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
-    {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      meta_cursor_tracker_untrack_position (cursor_tracker);
-      break;
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      break;
-    }
 }
 
 static gboolean

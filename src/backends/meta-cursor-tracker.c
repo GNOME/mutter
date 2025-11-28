@@ -59,8 +59,6 @@ typedef struct _MetaCursorTrackerPrivate
 
   int cursor_visibility_inhibitors;
 
-  int track_position_count;
-
   float x;
   float y;
 
@@ -198,12 +196,6 @@ set_pointer_visible (MetaCursorTracker *tracker,
   g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
 }
 
-static void
-meta_cursor_tracker_real_set_force_track_position (MetaCursorTracker *tracker,
-                                                   gboolean           is_enabled)
-{
-}
-
 static ClutterCursor *
 meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
 {
@@ -331,8 +323,6 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
   object_class->finalize = meta_cursor_tracker_finalize;
   object_class->constructed = meta_cursor_tracker_constructed;
 
-  klass->set_force_track_position =
-    meta_cursor_tracker_real_set_force_track_position;
   klass->get_sprite =
     meta_cursor_tracker_real_get_sprite;
 
@@ -526,40 +516,6 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
 
   clutter_seat_query_state (seat, NULL, coords, mods);
-}
-
-void
-meta_cursor_tracker_track_position (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  priv->track_position_count++;
-  if (priv->track_position_count == 1)
-    {
-      MetaCursorTrackerClass *klass =
-        META_CURSOR_TRACKER_GET_CLASS (tracker);
-
-      klass->set_force_track_position (tracker, TRUE);
-    }
-}
-
-void
-meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  g_return_if_fail (priv->track_position_count > 0);
-
-  priv->track_position_count--;
-  if (priv->track_position_count == 0)
-    {
-      MetaCursorTrackerClass *klass =
-        META_CURSOR_TRACKER_GET_CLASS (tracker);
-
-      klass->set_force_track_position (tracker, FALSE);
-    }
 }
 
 gboolean

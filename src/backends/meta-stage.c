@@ -288,25 +288,7 @@ meta_stage_paint (ClutterActor        *actor,
                                 META_STAGE_WATCH_AFTER_ACTOR_PAINT);
     }
 
-  if ((clutter_paint_context_get_paint_flags (paint_context) &
-       CLUTTER_PAINT_FLAG_FORCE_CURSORS))
-    {
-      MetaCursorTracker *cursor_tracker =
-        meta_backend_get_cursor_tracker (stage->backend);
-
-      meta_cursor_tracker_track_position (cursor_tracker);
-    }
-
   g_list_foreach (stage->overlays, (GFunc) meta_overlay_paint, paint_context);
-
-  if ((clutter_paint_context_get_paint_flags (paint_context) &
-       CLUTTER_PAINT_FLAG_FORCE_CURSORS))
-    {
-      MetaCursorTracker *cursor_tracker =
-        meta_backend_get_cursor_tracker (stage->backend);
-
-      meta_cursor_tracker_untrack_position (cursor_tracker);
-    }
 
   if (view)
     {

@@ -298,7 +298,6 @@ setup_cursor_handling (MetaScreenCastVirtualStreamSrc *virtual_src)
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-      meta_cursor_tracker_track_position (cursor_tracker);
       virtual_src->position_invalidated_handler_id =
         g_signal_connect_after (cursor_tracker, "position-invalidated",
                                 G_CALLBACK (pointer_position_invalidated),
@@ -309,8 +308,6 @@ setup_cursor_handling (MetaScreenCastVirtualStreamSrc *virtual_src)
                                 virtual_src);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      meta_cursor_tracker_track_position (cursor_tracker);
-      break;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       break;
     }
@@ -352,7 +349,6 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastVirtualStreamSrc *virtual_src =
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = backend_from_src (src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   MetaMonitorManager *monitor_manager =
@@ -380,16 +376,6 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
 
   g_clear_signal_handler (&virtual_src->monitors_changed_handler_id,
                           monitor_manager);
-
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
-    {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      meta_cursor_tracker_untrack_position (cursor_tracker);
-      break;
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      break;
-    }
 }
 
 static gboolean
