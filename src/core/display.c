@@ -901,8 +901,6 @@ meta_display_new (MetaContext  *context,
 
   display->compositor = create_compositor (display);
 
-  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
-
   display->stack = meta_stack_new (display);
   display->stack_tracker = meta_stack_tracker_new (display->stack);
 

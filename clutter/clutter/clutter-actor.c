@@ -5675,7 +5675,7 @@ clutter_actor_real_get_cursor_for_sprite (ClutterActor  *self,
       if (priv->parent)
         return clutter_actor_get_cursor_for_sprite (priv->parent, sprite);
       else
-        return NULL;
+        return clutter_backend_get_cursor (backend, CLUTTER_CURSOR_DEFAULT);
     }
 
   return clutter_backend_get_cursor (backend, priv->cursor_type);
