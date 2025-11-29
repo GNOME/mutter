@@ -381,8 +381,8 @@ static void
 meta_test_native_cursor_scaling (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaDisplay *display = meta_context_get_display (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  ClutterActor *stage = meta_backend_get_stage (backend);
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   ClutterActor *overlay_actor;
   ClutterStageView *view;
@@ -421,7 +421,7 @@ meta_test_native_cursor_scaling (void)
   int i;
 
   cursor = CLUTTER_CURSOR_MOVE;
-  meta_display_set_cursor (display, cursor);
+  clutter_actor_set_cursor_type (stage, cursor);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
   overlay_actor = create_overlay_actor ();
@@ -479,7 +479,7 @@ static void
 meta_test_native_cursor_cropping (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaDisplay *display = meta_context_get_display (test_context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   ClutterActor *overlay_actor;
@@ -517,7 +517,7 @@ meta_test_native_cursor_cropping (void)
   };
   int i;
 
-  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
+  clutter_actor_set_cursor_type (stage, CLUTTER_CURSOR_DEFAULT);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
   overlay_actor = create_overlay_actor ();
@@ -555,7 +555,7 @@ static void
 meta_test_native_cursor_transform (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaDisplay *display = meta_context_get_display (test_context);
+  ClutterActor *stage = meta_backend_get_stage (backend);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   ClutterActor *overlay_actor;
@@ -599,7 +599,7 @@ meta_test_native_cursor_transform (void)
   };
   int i;
 
-  meta_display_set_cursor (display, CLUTTER_CURSOR_DEFAULT);
+  clutter_actor_set_cursor_type (stage, CLUTTER_CURSOR_DEFAULT);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
   overlay_actor = create_overlay_actor ();
