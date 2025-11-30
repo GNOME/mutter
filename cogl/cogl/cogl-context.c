@@ -102,10 +102,6 @@ cogl_context_dispose (GObject *object)
   if (context->current_projection_entry)
     cogl_matrix_entry_unref (context->current_projection_entry);
 
-  _cogl_pipeline_cache_free (context->pipeline_cache);
-
-  _cogl_sampler_cache_free (context->sampler_cache);
-
   g_ptr_array_free (context->uniform_names, TRUE);
   g_hash_table_destroy (context->uniform_name_hash);
 
@@ -114,10 +110,13 @@ cogl_context_dispose (GObject *object)
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
 
-  g_object_unref (context->display);
-
   g_hash_table_remove_all (context->named_pipelines);
   g_hash_table_destroy (context->named_pipelines);
+
+  _cogl_pipeline_cache_free (context->pipeline_cache);
+  _cogl_sampler_cache_free (context->sampler_cache);
+
+  g_object_unref (context->display);
 
   G_OBJECT_CLASS (cogl_context_parent_class)->dispose (object);
 }
