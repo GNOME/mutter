@@ -277,7 +277,7 @@ meta_context_test_get_session_manager (MetaContext *context)
   return priv->session_manager;
 }
 
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
 static gboolean
 meta_context_test_is_x11_sync (MetaContext *context)
 {
@@ -445,7 +445,7 @@ meta_context_test_class_init (MetaContextTestClass *klass)
   context_class->setup = meta_context_test_setup;
   context_class->create_backend = meta_context_test_create_backend;
   context_class->notify_ready = meta_context_test_notify_ready;
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
   context_class->is_x11_sync = meta_context_test_is_x11_sync;
 #endif
   context_class->get_session_manager = meta_context_test_get_session_manager;

@@ -331,7 +331,7 @@ meta_context_get_x11_display_policy (MetaContext *context)
   return META_CONTEXT_GET_CLASS (context)->get_x11_display_policy (context);
 }
 
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
 gboolean
 meta_context_is_x11_sync (MetaContext *context)
 {

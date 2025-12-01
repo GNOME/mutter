@@ -54,7 +54,7 @@ struct _MetaContextClass
 
   void (* notify_ready) (MetaContext *context);
 
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
   gboolean (* is_x11_sync) (MetaContext *context);
 #endif
 
@@ -79,7 +79,7 @@ MetaServiceChannel * meta_context_get_service_channel (MetaContext *context);
 
 MetaX11DisplayPolicy meta_context_get_x11_display_policy (MetaContext *context);
 
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
 META_EXPORT_TEST
 gboolean meta_context_is_x11_sync (MetaContext *context);
 #endif

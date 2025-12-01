@@ -1432,9 +1432,7 @@ meta_x11_display_new (MetaDisplay  *display,
   if (!xdisplay)
     return NULL;
 
-#ifdef HAVE_X11
   XSynchronize (xdisplay, meta_context_is_x11_sync (context));
-#endif
 
 #ifdef HAVE_XWAYLAND
   if (meta_is_wayland_compositor ())

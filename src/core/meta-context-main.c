@@ -560,7 +560,7 @@ meta_context_main_notify_ready (MetaContext *context)
     g_critical ("Could not create session manager: %s", error->message);
 }
 
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
 static gboolean
 meta_context_main_is_x11_sync (MetaContext *context)
 {
@@ -790,7 +790,7 @@ meta_context_main_class_init (MetaContextMainClass *klass)
   context_class->setup = meta_context_main_setup;
   context_class->create_backend = meta_context_main_create_backend;
   context_class->notify_ready = meta_context_main_notify_ready;
-#ifdef HAVE_X11
+#ifdef HAVE_X11_CLIENT
   context_class->is_x11_sync = meta_context_main_is_x11_sync;
 #endif
   context_class->get_session_manager = meta_context_main_get_session_manager;
