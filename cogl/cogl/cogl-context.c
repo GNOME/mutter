@@ -58,65 +58,51 @@ cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
 
-  if (context->default_gl_texture_2d_tex)
-    g_object_unref (context->default_gl_texture_2d_tex);
+  g_clear_object (&context->default_gl_texture_2d_tex);
 
-  if (context->opaque_color_pipeline)
-    g_object_unref (context->opaque_color_pipeline);
+  g_clear_object (&context->opaque_color_pipeline);
+  g_clear_object (&context->blit_texture_pipeline);
 
-  if (context->blit_texture_pipeline)
-    g_object_unref (context->blit_texture_pipeline);
+  g_clear_pointer (&context->journal_flush_attributes_array, g_array_unref);
+  g_clear_pointer (&context->journal_clip_bounds, g_array_unref);
 
-  if (context->journal_flush_attributes_array)
-    g_array_free (context->journal_flush_attributes_array, TRUE);
-  if (context->journal_clip_bounds)
-    g_array_free (context->journal_clip_bounds, TRUE);
+  g_clear_object (&context->rectangle_byte_indices);
+  g_clear_object (&context->rectangle_short_indices);
 
-  if (context->rectangle_byte_indices)
-    g_object_unref (context->rectangle_byte_indices);
-  if (context->rectangle_short_indices)
-    g_object_unref (context->rectangle_short_indices);
+  g_clear_object (&context->default_pipeline);
 
-  if (context->default_pipeline)
-    g_object_unref (context->default_pipeline);
-
-  if (context->dummy_layer_dependant)
-    g_object_unref (context->dummy_layer_dependant);
-  if (context->default_layer_n)
-    g_object_unref (context->default_layer_n);
-  if (context->default_layer_0)
-    g_object_unref (context->default_layer_0);
+  g_clear_object (&context->dummy_layer_dependant);
+  g_clear_object (&context->default_layer_n);
+  g_clear_object (&context->default_layer_0);
 
   if (context->current_clip_stack_valid)
-    _cogl_clip_stack_unref (context->current_clip_stack);
+    g_clear_pointer (&context->current_clip_stack, _cogl_clip_stack_unref);
 
-  g_slist_free (context->atlases);
+  g_clear_slist (&context->atlases, NULL);
   g_hook_list_clear (&context->atlas_reorganize_callbacks);
 
   _cogl_bitmask_destroy (&context->enabled_custom_attributes);
   _cogl_bitmask_destroy (&context->enable_custom_attributes_tmp);
   _cogl_bitmask_destroy (&context->changed_bits_tmp);
 
-  if (context->current_modelview_entry)
-    cogl_matrix_entry_unref (context->current_modelview_entry);
-  if (context->current_projection_entry)
-    cogl_matrix_entry_unref (context->current_projection_entry);
+  g_clear_pointer (&context->current_modelview_entry, cogl_matrix_entry_unref);
+  g_clear_pointer (&context->current_projection_entry, cogl_matrix_entry_unref);
 
-  g_ptr_array_free (context->uniform_names, TRUE);
-  g_hash_table_destroy (context->uniform_name_hash);
+  g_clear_pointer (&context->uniform_names, g_ptr_array_unref);
+  g_clear_pointer (&context->uniform_name_hash, g_hash_table_destroy);
 
-  g_hash_table_destroy (context->attribute_name_states_hash);
-  g_array_free (context->attribute_name_index_map, TRUE);
+  g_clear_pointer (&context->attribute_name_states_hash,
+                   g_hash_table_destroy);
+  g_clear_pointer (&context->attribute_name_index_map, g_array_unref);
 
-  g_byte_array_free (context->buffer_map_fallback_array, TRUE);
+  g_clear_pointer (&context->buffer_map_fallback_array, g_byte_array_unref);
 
-  g_hash_table_remove_all (context->named_pipelines);
-  g_hash_table_destroy (context->named_pipelines);
+  g_clear_pointer (&context->named_pipelines, g_hash_table_destroy);
 
-  _cogl_pipeline_cache_free (context->pipeline_cache);
-  _cogl_sampler_cache_free (context->sampler_cache);
+  g_clear_pointer (&context->pipeline_cache, _cogl_pipeline_cache_free);
+  g_clear_pointer (&context->sampler_cache, _cogl_sampler_cache_free);
 
-  g_object_unref (context->display);
+  g_clear_object (&context->display);
 
   G_OBJECT_CLASS (cogl_context_parent_class)->dispose (object);
 }
