@@ -49,7 +49,6 @@ meta_test_cursor_hotplug (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaCursorRenderer *cursor_renderer = meta_backend_get_cursor_renderer (backend);
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (test_context);
   MetaWaylandSeat *wayland_seat = wayland_compositor->seat;
@@ -101,18 +100,13 @@ meta_test_cursor_hotplug (void)
       g_main_context_iteration (NULL, TRUE);
     }
 
+  cursor = meta_get_current_cursor (test_context);
+
   meta_window_move_frame (window, FALSE, 0, 0);
   meta_wait_for_paint (test_context);
+  meta_wait_for_cursor_change (test_context, cursor);
 
-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
-
-  while (TRUE)
-    {
-      cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
-      if (cursor)
-        break;
-      g_main_context_iteration (NULL, TRUE);
-    }
+  cursor = meta_get_current_cursor (test_context);
   g_assert_true (META_IS_CURSOR_WAYLAND (cursor));
 
   /*

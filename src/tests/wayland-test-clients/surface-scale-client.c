@@ -118,6 +118,8 @@ on_pointer_enter (WaylandSurface    *surface,
   wl_surface_commit (cursor_surface->wl_surface);
 
   wl_cursor_theme_destroy (cursor_theme);
+
+  test_driver_sync_point (display->test_driver, 1, NULL);
 }
 
 static void

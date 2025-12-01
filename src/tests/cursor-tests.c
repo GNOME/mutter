@@ -334,8 +334,11 @@ test_client_cursor (ClutterStageView    *view,
   MetaWaylandTestClient *test_client;
   MetaWindow *window;
   MetaWindowActor *window_actor;
+  ClutterCursor *current_cursor;
 
   g_debug ("Testing cursor with client using %s", scale_method);
+
+  current_cursor = meta_get_current_cursor (test_context);
 
   cursor_name = meta_cursor_get_name (cursor);
   transform_name = mtk_monitor_transform_to_string (transform);
@@ -354,7 +357,7 @@ test_client_cursor (ClutterStageView    *view,
   meta_wait_for_window_shown (window);
   window_actor = meta_window_actor_from_window (window);
   g_assert_nonnull (window_actor);
-  meta_wait_for_window_cursor (test_context);
+  meta_wait_for_cursor_change (test_context, current_cursor);
 
   meta_ref_test_verify_view (view,
                              ref_test_name,
@@ -421,7 +424,6 @@ meta_test_native_cursor_scaling (void)
   int i;
 
   cursor = CLUTTER_CURSOR_MOVE;
-  clutter_actor_set_cursor_type (stage, cursor);
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
   overlay_actor = create_overlay_actor ();
@@ -429,6 +431,8 @@ meta_test_native_cursor_scaling (void)
   for (i = 0; i < G_N_ELEMENTS (test_cases); i++)
     {
       g_autofree char *ref_test_name = NULL;
+
+      clutter_actor_set_cursor_type (stage, cursor);
 
       g_debug ("Testing monitor resolution %dx%d with scale %f and "
                "%s layout mode",
@@ -451,6 +455,8 @@ meta_test_native_cursor_scaling (void)
                                   META_SCREEN_CAST_CURSOR_MODE_EMBEDDED);
       verify_screen_cast_content (ref_test_name, 0,
                                   META_SCREEN_CAST_CURSOR_MODE_METADATA);
+
+      clutter_actor_set_cursor_type (stage, CLUTTER_CURSOR_DEFAULT);
 
       test_client_cursor (view,
                           CURSOR_SCALE_METHOD_BUFFER_SCALE,

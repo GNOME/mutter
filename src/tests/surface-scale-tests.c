@@ -23,6 +23,7 @@
 #include "tests/meta-test/meta-context-test.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
+#include "wayland/meta-cursor-wayland.h"
 
 static MetaContext *test_context;
 
@@ -81,6 +82,7 @@ meta_test_wayland_surface_scales (void)
   MetaWaylandTestClient *wayland_test_client;
   MonitorTestCaseSetup test_case_setup = test_case_base_setup;
   MetaMonitorTestSetup *test_setup;
+  ClutterCursor *cursor;
   float scale;
 
   virtual_pointer = clutter_seat_create_virtual_device (seat,
@@ -101,9 +103,16 @@ meta_test_wayland_surface_scales (void)
                                                MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
+  cursor = meta_get_current_cursor (test_context);
+
   wayland_test_client = meta_wayland_test_client_new (test_context,
                                                       "surface-scale-client");
-  meta_wait_for_window_cursor (test_context);
+
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, 1);
+  meta_wait_for_cursor_change (test_context, cursor);
+  cursor = meta_get_current_cursor (test_context);
+  g_assert_true (META_IS_CURSOR_WAYLAND (cursor));
+
   meta_wayland_test_driver_emit_sync_event (test_driver,
                                             (uint32_t) (scale * 120.0f));
   meta_wayland_test_driver_wait_for_sync_point (test_driver, 0);
