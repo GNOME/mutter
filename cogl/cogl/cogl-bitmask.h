@@ -232,7 +232,10 @@ static inline void
 _cogl_bitmask_destroy (CoglBitmask *bitmask)
 {
   if (_cogl_bitmask_has_array (bitmask))
-    g_array_free ((GArray *) *bitmask, TRUE);
+    {
+      g_array_free ((GArray *) *bitmask, TRUE);
+      _cogl_bitmask_init (bitmask);
+    }
 }
 
 /*
