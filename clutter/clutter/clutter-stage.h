@@ -223,6 +223,17 @@ ClutterGrab * clutter_stage_grab_inactive (ClutterStage *stage,
 CLUTTER_EXPORT
 ClutterActor * clutter_stage_get_grab_actor (ClutterStage *stage);
 
+CLUTTER_EXPORT
+GList * clutter_stage_get_actors_bypass_grab (ClutterStage *stage);
+
+CLUTTER_EXPORT
+void clutter_stage_add_actor_to_bypass_grab (ClutterStage *stage,
+                                             ClutterActor *actor);
+
+CLUTTER_EXPORT
+void clutter_stage_remove_actor_from_bypass_grab (ClutterStage *stage,
+                                                  ClutterActor *actor);
+
 /**
  * ClutterStageInputForeachFunc:
  * @stage: the stage

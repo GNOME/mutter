@@ -114,6 +114,8 @@ typedef struct _ClutterStagePrivate
 
   GPtrArray *all_active_gestures;
 
+  GList *bypass_grab_actors;
+
   guint actor_needs_immediate_relayout : 1;
   gboolean is_active;
 } ClutterStagePrivate;
@@ -1307,6 +1309,15 @@ clutter_stage_get_property (GObject    *gobject,
 }
 
 static void
+on_bypass_grab_actor_destroyed (ClutterStage *stage,
+                                ClutterActor *actor)
+{
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
+
+  priv->bypass_grab_actors = g_list_remove (priv->bypass_grab_actors, actor);
+}
+
+static void
 clutter_stage_dispose (GObject *object)
 {
   ClutterStage        *stage = CLUTTER_STAGE (object);
@@ -1334,6 +1345,16 @@ clutter_stage_dispose (GObject *object)
   g_slist_free_full (priv->pending_relayouts,
                      (GDestroyNotify) g_object_unref);
   priv->pending_relayouts = NULL;
+
+  while (priv->bypass_grab_actors)
+    {
+      ClutterActor *actor = priv->bypass_grab_actors->data;
+      g_object_weak_unref (G_OBJECT (actor),
+                           (GWeakNotify) on_bypass_grab_actor_destroyed,
+                           stage);
+      priv->bypass_grab_actors = g_list_delete_link (priv->bypass_grab_actors,
+                                                     priv->bypass_grab_actors);
+    }
 
   /* this will release the reference on the stage */
   context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
@@ -3297,6 +3318,83 @@ clutter_stage_get_grab_actor (ClutterStage *stage)
 
   /* Return active grab */
   return priv->topmost_grab->actor;
+}
+
+/**
+ * clutter_stage_get_actors_bypass_grab:
+ * @stage: a #ClutterStage
+ *
+ * Gets the list of actors that bypass stage grabs.
+ *
+ * Returns: (transfer none) (element-type ClutterActor): The list of actors that bypass grabs
+ **/
+GList *
+clutter_stage_get_actors_bypass_grab (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
+
+  return priv->bypass_grab_actors;
+}
+
+/**
+ * clutter_stage_add_actor_to_bypass_grab:
+ * @stage: a #ClutterStage
+ * @actor: a #ClutterActor to bypass grabs
+ *
+ * Adds an actor to the list of actors that bypass stage grabs.
+ * Actors in this list will receive events even when a grab is active
+ * on the stage.
+ *
+ * The actor will be automatically removed from the list when it is
+ * destroyed.
+ **/
+void
+clutter_stage_add_actor_to_bypass_grab (ClutterStage *stage,
+                                        ClutterActor *actor)
+{
+  ClutterStagePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  priv = clutter_stage_get_instance_private (stage);
+
+  if (g_list_find (priv->bypass_grab_actors, actor))
+    return;
+
+  priv->bypass_grab_actors = g_list_prepend (priv->bypass_grab_actors, actor);
+
+  g_object_weak_ref (G_OBJECT (actor),
+                     (GWeakNotify) on_bypass_grab_actor_destroyed,
+                     stage);
+}
+
+/**
+ * clutter_stage_remove_actor_from_bypass_grab:
+ * @stage: a #ClutterStage
+ * @actor: a #ClutterActor to remove from bypass list
+ *
+ * Removes an actor from the list of actors that bypass stage grabs.
+ **/
+void
+clutter_stage_remove_actor_from_bypass_grab (ClutterStage *stage,
+                                             ClutterActor *actor)
+{
+  ClutterStagePrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  priv = clutter_stage_get_instance_private (stage);
+
+  if (!g_list_find (priv->bypass_grab_actors, actor))
+    return;
+
+  g_object_weak_unref (G_OBJECT (actor),
+                       (GWeakNotify) on_bypass_grab_actor_destroyed,
+                       stage);
+
+  priv->bypass_grab_actors = g_list_remove (priv->bypass_grab_actors, actor);
 }
 
 /**
