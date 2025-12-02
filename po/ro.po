@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-09-15 01:04+0000\n"
-"PO-Revision-Date: 2025-09-15 15:50+0200\n"
+"POT-Creation-Date: 2025-11-26 19:35+0000\n"
+"PO-Revision-Date: 2025-12-02 11:54+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -477,7 +477,7 @@ msgstr "Schimbă configurarea monitorului"
 
 #: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
-msgstr "Treci la următoarea configurare integrată a monitorului"
+msgstr "Treci la următoarea configurare a monitorului integrat"
 
 #: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
@@ -867,7 +867,7 @@ msgstr "Afișează versiunea"
 msgid "Mutter plugin to use"
 msgstr "Extensia Mutter de utilizat"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
@@ -885,7 +885,7 @@ msgstr "Spațiu de lucru schimbat"
 msgid "Mode Switch: Mode %d"
 msgstr "Comutator de mod: modul %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:844
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -895,19 +895,19 @@ msgstr ""
 "opțiunea --replace (înlocuiește) pentru a înlocui administratorul de "
 "ferestre actual."
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1229
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window\""
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1462
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecranul %d cu afișajul „%s” este greșit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2790
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
