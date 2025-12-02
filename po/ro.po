@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
 "POT-Creation-Date: 2025-11-26 19:35+0000\n"
-"PO-Revision-Date: 2025-12-02 11:54+0100\n"
+"PO-Revision-Date: 2025-12-02 14:08+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -898,7 +898,7 @@ msgstr ""
 #: src/x11/meta-x11-display.c:1229
 #, c-format
 msgid "Failed to open X Window System display “%s”"
-msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window\""
+msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window"
 
 #: src/x11/meta-x11-display.c:1462
 #, c-format
