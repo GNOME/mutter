@@ -793,7 +793,7 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
     {
       ClutterEvent *event;
       ClutterEvent *next_event;
-      ClutterSprite *sprite;
+      ClutterSprite *sprite = NULL;
       ClutterSprite *next_sprite = NULL;
       gboolean check_sprite = FALSE;
 
@@ -804,10 +804,15 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
                                "Clutter::Stage::process_queued_events#event()");
       COGL_TRACE_DESCRIBE (ProcessEvent, clutter_event_get_name (event));
 
-      sprite = clutter_backend_get_sprite (backend, stage, event);
+      if (clutter_event_type (event) == CLUTTER_MOTION ||
+          clutter_event_type (event) == CLUTTER_TOUCH_UPDATE)
+        {
+          sprite = clutter_backend_get_sprite (backend, stage, event);
 
-      if (next_event != NULL)
-        next_sprite = clutter_backend_get_sprite (backend, stage, next_event);
+          if (next_event != NULL &&
+              (clutter_event_type (event) == clutter_event_type (next_event)))
+            next_sprite = clutter_backend_get_sprite (backend, stage, next_event);
+        }
 
       if (sprite != NULL && next_sprite != NULL)
         check_sprite = TRUE;
