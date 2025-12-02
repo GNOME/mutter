@@ -108,25 +108,60 @@ meta_wayland_input_new (MetaWaylandSeat *seat)
   return input;
 }
 
+static gboolean
+is_surface_actor_bypassing_grab (MetaWaylandSurface *surface,
+                                 GList              *bypass_actors)
+{
+  MetaSurfaceActor *surface_actor;
+  ClutterActor *actor;
+
+  if (!surface || !bypass_actors)
+    return FALSE;
+
+  surface_actor = meta_wayland_surface_get_actor (surface);
+  if (!surface_actor)
+    return FALSE;
+
+  actor = CLUTTER_ACTOR (surface_actor);
+  while (actor)
+    {
+      if (g_list_find (bypass_actors, actor))
+        return TRUE;
+
+      actor = clutter_actor_get_parent (actor);
+    }
+
+  return FALSE;
+}
+
 static void
 meta_wayland_event_handler_invalidate_focus (MetaWaylandEventHandler *handler,
                                              ClutterFocus            *focus)
 {
   MetaWaylandInput *input = handler->input;
   MetaWaylandSurface *surface = NULL;
+  MetaWaylandSurface *focus_surface;
+  GList *actors_bypass_grab;
 
   if (!focus || !handler->iface->focus)
     return;
+
+  actors_bypass_grab = clutter_stage_get_actors_bypass_grab (input->stage);
 
   if (handler->iface->get_focus_surface &&
       /* Only the first handler can focus other than a NULL surface */
       meta_wayland_input_is_current_handler (input, handler) &&
       /* Stage should either be ungrabbed, or grabbed to self */
       (!clutter_stage_get_grab_actor (input->stage) ||
-       (input->grab && !clutter_grab_is_revoked (input->grab))))
+       (input->grab && !clutter_grab_is_revoked (input->grab)) ||
+       actors_bypass_grab))
     {
-      surface = handler->iface->get_focus_surface (handler, focus,
-                                                   handler->user_data);
+      focus_surface = handler->iface->get_focus_surface (handler, focus,
+                                                         handler->user_data);
+
+      if (!actors_bypass_grab ||
+          is_surface_actor_bypassing_grab (focus_surface, actors_bypass_grab))
+        surface = focus_surface;
     }
 
   handler->iface->focus (handler,
