@@ -121,9 +121,10 @@ static const struct xdg_surface_listener xdg_surface_listener = {
   handle_xdg_surface_configure,
 };
 
-static void handle_preferred_scale (void                          *data,
-                                    struct wp_fractional_scale_v1 *fractional_scale,
-                                    uint32_t                       wire_scale)
+static void
+handle_preferred_scale (void                          *data,
+                        struct wp_fractional_scale_v1 *fractional_scale,
+                        uint32_t                       wire_scale)
 {
   WaylandDisplay *display = data;
   float new_fractional_buffer_scale;
