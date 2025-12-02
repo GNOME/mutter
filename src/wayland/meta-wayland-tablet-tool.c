@@ -953,10 +953,10 @@ meta_wayland_tablet_tool_handle_event (MetaWaylandTabletTool *tool,
        * wait until the first motion event so we have both coordinates
        * and tool.
        */
-      break;
+      return CLUTTER_EVENT_PROPAGATE;
     case CLUTTER_PROXIMITY_OUT:
       meta_wayland_tablet_tool_set_focus (tool, NULL, event);
-      break;
+      return CLUTTER_EVENT_PROPAGATE;
     case CLUTTER_MOTION:
       handle_motion_event (tool, event);
       break;
