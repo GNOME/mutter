@@ -3450,6 +3450,13 @@ clutter_stage_emit_event (ClutterStage       *self,
     focus = CLUTTER_FOCUS (clutter_backend_get_key_focus (backend, self));
 
   clutter_focus_propagate_event (focus, event);
+
+  if (clutter_event_type (event) == CLUTTER_PROXIMITY_OUT)
+    {
+      clutter_focus_set_current_actor (focus, NULL,
+                                       clutter_event_get_source_device (event),
+                                       clutter_event_get_time (event));
+    }
 }
 
 static gboolean
