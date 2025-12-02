@@ -325,7 +325,7 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsCursorManager *kms_cursor_manager = meta_kms_get_cursor_manager (kms);
-  gboolean cursor_changed;
+  gboolean cursor_changed, cursor_hw_managed = FALSE;
   GList *views;
   GList *l;
 
@@ -397,11 +397,6 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
 
       if (cursor_stage_view->has_hw_cursor != has_hw_cursor)
         {
-          if (has_hw_cursor)
-            meta_stage_view_inhibit_cursor_overlay (view);
-          else
-            meta_stage_view_uninhibit_cursor_overlay (view);
-
           cursor_stage_view->has_hw_cursor = has_hw_cursor;
 
           if (!has_hw_cursor)
@@ -416,6 +411,8 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
                                                      NULL);
             }
         }
+
+      cursor_hw_managed |= cursor_stage_view->has_hw_cursor;
     }
 
   if (cursor_changed)
@@ -440,7 +437,9 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *cursor_renderer,
   maybe_schedule_cursor_sprite_animation_frame (native, cursor,
                                                 cursor_changed);
 
-  return cursor && clutter_cursor_get_texture (cursor, NULL, NULL);
+  return (!cursor_hw_managed &&
+          cursor &&
+          clutter_cursor_get_texture (cursor, NULL, NULL));
 }
 
 static void
