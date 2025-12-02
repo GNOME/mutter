@@ -38,16 +38,10 @@ void                    meta_wayland_compositor_prepare_shutdown (MetaWaylandCom
 void                    meta_wayland_compositor_update          (MetaWaylandCompositor *compositor,
                                                                  const ClutterEvent    *event);
 
-gboolean                meta_wayland_compositor_handle_event    (MetaWaylandCompositor *compositor,
-                                                                 const ClutterEvent    *event);
-
 void                    meta_wayland_compositor_update_key_state (MetaWaylandCompositor *compositor,
                                                                  char                  *key_vector,
                                                                   int                    key_vector_len,
                                                                   int                    offset);
-
-void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
-                                                                 MetaWindow            *window);
 
 void                    meta_wayland_compositor_paint_finished  (MetaWaylandCompositor *compositor);
 

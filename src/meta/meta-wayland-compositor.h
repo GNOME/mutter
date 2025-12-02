@@ -37,4 +37,12 @@ MetaWaylandCompositor *meta_context_get_wayland_compositor (MetaContext *context
 META_EXPORT
 struct wl_display *meta_wayland_compositor_get_wayland_display (MetaWaylandCompositor *compositor);
 
+META_EXPORT
+gboolean                meta_wayland_compositor_handle_event    (MetaWaylandCompositor *compositor,
+                                                                 const ClutterEvent    *event);
+
+META_EXPORT
+void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
+                                                                 MetaWindow            *window);
+
 G_END_DECLS
