@@ -1190,9 +1190,11 @@ process_selection_request (MetaX11Display *x11_display,
         reply.property = event->xselectionrequest.property;
     }
 
+  mtk_x11_error_trap_push (x11_display->xdisplay);
   XSendEvent (x11_display->xdisplay,
               event->xselectionrequest.requestor,
               False, 0L, (XEvent*)&reply);
+  mtk_x11_error_trap_pop (x11_display->xdisplay);
 
   meta_topic (META_DEBUG_X11, "Handled selection request");
 }

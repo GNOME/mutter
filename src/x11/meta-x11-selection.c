@@ -21,6 +21,7 @@
 
 #include "core/meta-selection-private.h"
 #include "meta/meta-selection-source-memory.h"
+#include "mtk/mtk-x11.h"
 #include "x11/meta-selection-source-x11-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/meta-x11-selection-private.h"
@@ -136,8 +137,10 @@ send_selection_notify (MetaX11Display         *x11_display,
   event.target = request_event->target;
   event.property = accepted ? request_event->property : None;
 
+  mtk_x11_error_trap_push (xdisplay);
   XSendEvent (xdisplay, request_event->requestor,
               False, NoEventMask, (XEvent *) &event);
+  mtk_x11_error_trap_pop (xdisplay);
 }
 
 static void
