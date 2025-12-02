@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-09-15 01:04+0000\n"
-"PO-Revision-Date: 2025-09-15 15:50+0200\n"
+"POT-Creation-Date: 2025-12-02 10:17+0000\n"
+"PO-Revision-Date: 2025-12-02 14:09+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -477,7 +477,7 @@ msgstr "Schimbă configurarea monitorului"
 
 #: data/org.gnome.mutter.gschema.xml.in:202
 msgid "Rotates the built-in monitor configuration"
-msgstr "Treci la următoarea configurare integrată a monitorului"
+msgstr "Treci la următoarea configurare a monitorului integrat"
 
 #: data/org.gnome.mutter.gschema.xml.in:207
 msgid "Cancel any active input capture session"
@@ -763,74 +763,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
-#: src/core/display.c:742
+#: src/core/display.c:657
 msgid "Privacy Screen Enabled"
 msgstr "Ecran de confidențialitate activat"
 
-#: src/core/display.c:743
+#: src/core/display.c:658
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Înlocuiește administratorul de ferestre actual"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Afișajul X ce va fi folosit"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "Fă sincrone apelurile către X"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:359
 msgid "Run as a wayland compositor"
 msgstr "Execută ca un compozitor Wayland"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Execută ca un compozitor integrat"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:366
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Pornește compozitorul Wayland fără a porni Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:373
 msgid "Specify Wayland display name to use"
 msgstr "Numele afișajului Wayland de utilizat"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:380
 msgid "Run as a full display server, rather than nested"
 msgstr "Funcționează ca server de afișare, iar nu ca server integrat"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:385
 msgid "Run as a headless display server"
 msgstr "Funcționează ca server fără ecran"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:390
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitorul virtual persistent (WxH sau WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:397
 msgid "Run development kit"
 msgstr "Pornește setul de dezvoltare"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Funcționează cu backend X11"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:408
 msgid "Profile performance using trace instrumentation"
 msgstr "Înregistrează performanța folosind un instrument de urmărire"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:414
 msgid "Enable debug control D-Bus interface"
 msgstr "Activează interfața D-Bus a controlului depanării"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Comutator de mod (grupul %d)"
@@ -838,7 +818,7 @@ msgstr "Comutator de mod (grupul %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Comutator de mod"
@@ -846,11 +826,11 @@ msgstr "Comutator de mod"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Schimbă monitorul"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Arată ajutorul virtual"
 
@@ -867,12 +847,12 @@ msgstr "Afișează versiunea"
 msgid "Mutter plugin to use"
 msgstr "Extensia Mutter de utilizat"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter a fost compilat fără opțiunea de a afișa informații detaliate."
 
@@ -885,29 +865,24 @@ msgstr "Spațiu de lucru schimbat"
 msgid "Mode Switch: Mode %d"
 msgstr "Comutator de mod: modul %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:771
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Afișajul „%s” are deja un administrator de ferestre; se poate folosi "
-"opțiunea --replace (înlocuiește) pentru a înlocui administratorul de "
-"ferestre actual."
+msgid "Display “%s” already has a window manager"
+msgstr "Afișajul „%s” are deja un administrator de ferestre"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1134
 #, c-format
 msgid "Failed to open X Window System display “%s”"
-msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window\""
+msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1306
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecranul %d cu afișajul „%s” este greșit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2489
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -920,7 +895,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Formatul %s nu este acceptat"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
