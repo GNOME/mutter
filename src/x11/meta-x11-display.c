@@ -1291,6 +1291,8 @@ meta_x11_display_new (MetaDisplay  *display,
   if (!xdisplay)
     return NULL;
 
+  XSynchronize (xdisplay, !!g_getenv ("MUTTER_SYNC"));
+
   meta_xwayland_setup_xdisplay (&compositor->xwayland_manager, xdisplay);
 
   number = DefaultScreen (xdisplay);
