@@ -4551,6 +4551,41 @@ meta_window_move_resize_frame (MetaWindow  *window,
 }
 
 /**
+ * meta_window_configure:
+ * @window: a #MetaWindow
+ * @x: x position in logical pixels
+ * @y: y position in logical pixels
+ * @width: width in logical pixels
+ * @height: height in logical pixels
+ *
+ * Configures the position and size of a window. This is primarily intended
+ * for use with Wayland windows where it sends a configure event to the client.
+ * For Wayland windows, this preserves the window's current state (maximized,
+ * fullscreen, tiled, etc.) and only updates position and size.
+ *
+ * This is intended to be called by gnome-shell when embedding windows.
+ */
+void
+meta_window_configure (MetaWindow *window,
+                       int         x,
+                       int         y,
+                       int         width,
+                       int         height)
+{
+  g_autoptr (MetaWindowConfig) config = NULL;
+  MetaMoveResizeFlags flags;
+  MtkRectangle rect = { x, y, width, height };
+
+  g_return_if_fail (META_IS_WINDOW (window));
+  g_return_if_fail (width > 0 && height > 0);
+
+  flags = (META_MOVE_RESIZE_MOVE_ACTION |
+           META_MOVE_RESIZE_RESIZE_ACTION);
+
+  meta_window_move_resize (window, flags, rect);
+}
+
+/**
  * meta_window_move_to_monitor:
  * @window: a #MetaWindow
  * @monitor: desired monitor index

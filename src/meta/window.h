@@ -210,6 +210,13 @@ META_EXPORT
 void meta_window_move_resize_frame (MetaWindow *window, gboolean user_op, int root_x_nw, int root_y_nw, int w, int h);
 
 META_EXPORT
+void meta_window_configure (MetaWindow *window,
+                            int         x,
+                            int         y,
+                            int         width,
+                            int         height);
+
+META_EXPORT
 void meta_window_move_to_monitor (MetaWindow *window, int monitor);
 
 META_EXPORT
