@@ -1084,6 +1084,24 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
   return buffer;
 }
 
+static void
+meta_screen_cast_stream_src_accumulate_redraw_clip (MetaScreenCastStreamSrc *src,
+                                                    const MtkRegion         *redraw_clip)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (!redraw_clip)
+    return;
+
+  /* Accumulate the damaged region since we might not schedule a frame capture
+   * eventually but once we do, we should report all the previous damaged areas.
+   */
+  if (priv->redraw_clip)
+    mtk_region_union (priv->redraw_clip, redraw_clip);
+  else
+    priv->redraw_clip = mtk_region_copy (redraw_clip);
+}
 
 MetaScreenCastRecordResult
 meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
@@ -1241,16 +1259,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
       return record_result;
     }
 
-  /* Accumulate the damaged region since we might not schedule a frame capture
-   * eventually but once we do, we should report all the previous damaged areas.
-   */
-  if (redraw_clip)
-    {
-      if (priv->redraw_clip)
-        mtk_region_union (priv->redraw_clip, redraw_clip);
-      else
-        priv->redraw_clip = mtk_region_copy (redraw_clip);
-    }
+  meta_screen_cast_stream_src_accumulate_redraw_clip (src, redraw_clip);
 
   if (priv->buffer_count == 0)
     {
