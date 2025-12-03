@@ -1087,15 +1087,31 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
 }
 
 static void
-meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc *src,
-                                               const MtkRegion         *redraw_clip)
+meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
+                                               MetaScreenCastRecordFlag  flags,
+                                               const MtkRegion          *redraw_clip)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   MtkRectangle *layout = &priv->layout;
 
   if (!redraw_clip)
-    return;
+    {
+      if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
+        {
+          MtkRectangle rect;
+
+          g_clear_pointer (&priv->damage, mtk_region_unref);
+
+          /* Damage full stream area */
+          rect.x = rect.y = 0;
+          rect.width = priv->video_format.size.width;
+          rect.height = priv->video_format.size.height;
+          priv->damage = mtk_region_create_rectangle (&rect);
+        }
+
+      return;
+    }
 
   /* Accumulate the damaged region since we might not schedule a frame capture
    * eventually but once we do, we should report all the previous damaged areas.
@@ -1153,7 +1169,7 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
   if (!priv->pipewire_stream)
     return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
 
-  meta_screen_cast_stream_src_accumulate_damage (src, redraw_clip);
+  meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
 
   meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
               flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY ?
@@ -1298,7 +1314,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
                   priv->node_id);
 
       priv->needs_follow_up_with_buffers = TRUE;
-      meta_screen_cast_stream_src_accumulate_damage (src, redraw_clip);
+      meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
       return record_result;
     }
 
@@ -1322,7 +1338,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
-          meta_screen_cast_stream_src_accumulate_damage (src, redraw_clip);
+          meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
           return record_result;
         }
     }
@@ -2367,11 +2383,12 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
       layout = g_value_get_boxed (value);
       if (!mtk_rectangle_equal (&priv->layout, layout))
         {
+          MetaScreenCastRecordFlag flag = META_SCREEN_CAST_RECORD_FLAG_NONE;
           g_autoptr (MtkRegion) region = NULL;
 
           priv->layout = *layout;
           region = mtk_region_create_rectangle (layout);
-          meta_screen_cast_stream_src_accumulate_damage (src, region);
+          meta_screen_cast_stream_src_accumulate_damage (src, flag, region);
         }
       break;
     default:
