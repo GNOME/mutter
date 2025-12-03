@@ -57,4 +57,6 @@ void meta_eis_remove_all_viewports (MetaEis *eis);
 
 GList * meta_eis_peek_viewports (MetaEis *eis);
 
+void meta_eis_enable_monitor_viewports (MetaEis *eis);
+
 MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);

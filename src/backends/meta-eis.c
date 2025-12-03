@@ -24,6 +24,7 @@
 
 #include "backends/meta-eis.h"
 #include "backends/meta-eis-client.h"
+#include "backends/meta-eis-monitor-viewport.h"
 #include "clutter/clutter-mutter.h"
 #include "meta/util.h"
 
@@ -61,6 +62,8 @@ struct _MetaEis
   MetaEisDeviceTypes device_types;
 
   GList *viewports;
+
+  gulong monitors_changed_handler_id;
 
   GHashTable *eis_clients; /* eis_client => MetaEisClient */
 
@@ -349,6 +352,8 @@ static void
 meta_eis_dispose (GObject *object)
 {
   MetaEis *eis = META_EIS (object);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (eis->backend);
 
   g_cancellable_cancel (eis->cancellable);
   g_clear_object (&eis->cancellable);
@@ -356,6 +361,8 @@ meta_eis_dispose (GObject *object)
   g_clear_pointer (&eis->event_source, meta_event_source_free);
   g_clear_pointer (&eis->eis_clients, g_hash_table_destroy);
   g_clear_pointer (&eis->eis, eis_unref);
+  g_clear_signal_handler (&eis->monitors_changed_handler_id,
+                          monitor_manager);
 
   G_OBJECT_CLASS (meta_eis_parent_class)->dispose (object);
 }
@@ -447,4 +454,51 @@ GList *
 meta_eis_peek_viewports (MetaEis *eis)
 {
   return eis->viewports;
+}
+
+static void
+add_logical_monitor_viewports (MetaEis *eis)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (eis->backend);
+  GList *logical_monitors;
+  GList *l;
+  GList *viewports = NULL;
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      MetaEisMonitorViewport *eis_monitor_viewport;
+
+      eis_monitor_viewport =
+        meta_eis_monitor_viewport_new (logical_monitor);
+      viewports = g_list_append (viewports, eis_monitor_viewport);
+    }
+
+  meta_eis_remove_all_viewports (eis);
+  meta_eis_take_viewports (eis, viewports);
+}
+
+static void
+on_monitors_changed (MetaMonitorManager *monitor_manager,
+                     MetaEis            *eis)
+{
+  add_logical_monitor_viewports (eis);
+}
+
+void
+meta_eis_enable_monitor_viewports (MetaEis *eis)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (eis->backend);
+
+  if (eis->monitors_changed_handler_id)
+    return;
+
+  add_logical_monitor_viewports (eis);
+  eis->monitors_changed_handler_id =
+    g_signal_connect (monitor_manager, "monitors-changed",
+                      G_CALLBACK (on_monitors_changed), eis);
 }

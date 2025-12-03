@@ -34,7 +34,6 @@
 #include "backends/meta-clipboard-session.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-dbus-session-manager.h"
-#include "backends/meta-eis-monitor-viewport.h"
 #include "backends/meta-eis.h"
 #include "backends/meta-keymap-description-private.h"
 #include "backends/meta-logical-monitor-private.h"
@@ -106,7 +105,6 @@ struct _MetaRemoteDesktopSession
 
   GHashTable *mapping_ids;
 
-  gulong monitors_changed_handler_id;
   gulong keymap_changed_handler_id;
   gulong keymap_layout_group_changed_handler_id;
   gulong keymap_state_changed_handler_id;
@@ -248,40 +246,6 @@ on_stream_removed (MetaScreenCastSession    *screen_cast_session,
 }
 
 static void
-add_logical_monitor_viewports (MetaRemoteDesktopSession *session)
-{
-  MetaBackend *backend =
-    meta_dbus_session_manager_get_backend (session->session_manager);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  GList *logical_monitors;
-  GList *l;
-  GList *viewports = NULL;
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      MetaEisMonitorViewport *eis_monitor_viewport;
-
-      eis_monitor_viewport =
-        meta_eis_monitor_viewport_new (logical_monitor);
-      viewports = g_list_append (viewports, eis_monitor_viewport);
-    }
-
-  meta_eis_remove_all_viewports (session->eis);
-  meta_eis_take_viewports (session->eis, viewports);
-}
-
-static void
-on_monitors_changed (MetaMonitorManager       *monitor_manager,
-                     MetaRemoteDesktopSession *session)
-{
-  add_logical_monitor_viewports (session);
-}
-
-static void
 initialize_viewports (MetaRemoteDesktopSession *session)
 {
   if (session->screen_cast_session)
@@ -317,15 +281,7 @@ initialize_viewports (MetaRemoteDesktopSession *session)
     }
   else
     {
-      MetaBackend *backend =
-        meta_dbus_session_manager_get_backend (session->session_manager);
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
-
-      add_logical_monitor_viewports (session);
-      session->monitors_changed_handler_id =
-        g_signal_connect (monitor_manager, "monitors-changed",
-                          G_CALLBACK (on_monitors_changed), session);
+      meta_eis_enable_monitor_viewports (session->eis);
     }
 }
 
@@ -359,8 +315,6 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
     META_DBUS_REMOTE_DESKTOP_SESSION (session);
   MetaBackend *backend =
     meta_dbus_session_manager_get_backend (session->session_manager);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
 
@@ -377,8 +331,6 @@ meta_remote_desktop_session_close (MetaDbusSession *dbus_session)
       session->screen_cast_session = NULL;
     }
 
-  g_clear_signal_handler (&session->monitors_changed_handler_id,
-                          monitor_manager);
   g_clear_signal_handler (&session->keymap_changed_handler_id,
                           backend);
   g_clear_signal_handler (&session->keymap_layout_group_changed_handler_id,
