@@ -1230,12 +1230,12 @@ meta_keyboard_a11y_process_event_in_impl (MetaKeyboardA11y  *keyboard_a11y,
       if (event_type == CLUTTER_KEY_PRESS)
         {
           *out_event = handle_stickykeys_press (event, keyboard_a11y);
-          return out_event != NULL;
+          return *out_event != NULL;
         }
       else if (event_type == CLUTTER_KEY_RELEASE)
         {
           *out_event = handle_stickykeys_release (event, keyboard_a11y);
-          return out_event != NULL;
+          return *out_event != NULL;
         }
     }
 
