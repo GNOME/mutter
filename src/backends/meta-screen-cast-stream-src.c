@@ -1124,6 +1124,8 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
   if (!priv->pipewire_stream)
     return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
 
+  meta_screen_cast_stream_src_accumulate_redraw_clip (src, redraw_clip);
+
   meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
               flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY ?
               "cursor" : "full",
@@ -1259,8 +1261,6 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
       return record_result;
     }
 
-  meta_screen_cast_stream_src_accumulate_redraw_clip (src, redraw_clip);
-
   if (priv->buffer_count == 0)
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
@@ -1269,6 +1269,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
                   priv->node_id);
 
       priv->needs_follow_up_with_buffers = TRUE;
+      meta_screen_cast_stream_src_accumulate_redraw_clip (src, redraw_clip);
       return record_result;
     }
 
@@ -1292,6 +1293,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
+          meta_screen_cast_stream_src_accumulate_redraw_clip (src, redraw_clip);
           return record_result;
         }
     }
