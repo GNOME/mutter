@@ -123,3 +123,9 @@ SCRIPTS_DIR="$(dirname $0)"
 #      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
 #      1.44
 #fi
+
+./$SCRIPTS_DIR/install-meson-project.sh \
+    "${OPTIONS[@]}" \
+    --commit=8723146fca06edd5584d0a9e16668356af6ce308 \
+    https://gitlab.gnome.org/GNOME/gtk.git \
+    gtk-3-24
