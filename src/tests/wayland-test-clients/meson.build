@@ -94,6 +94,9 @@ wayland_test_clients = [
     'name': 'xdg-activation-no-serial',
   },
   {
+    'name': 'xdg-activation-before-mapped',
+  },
+  {
     'name': 'xdg-apply-limits',
   },
   {
@@ -135,9 +138,6 @@ wayland_test_clients = [
     'extra_deps': [
       wayland_cursor_dep,
     ],
-  },
-  {
-    'name': 'xdg-activation-before-mapped',
   },
   {
     'name': 'fixed-size-client',
