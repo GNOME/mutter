@@ -27,6 +27,8 @@ typedef enum _WaylandDisplayCapabilities
   WAYLAND_DISPLAY_CAPABILITY_CURSOR_SHAPE_V2 = 1 << 3,
 } WaylandDisplayCapabilities;
 
+typedef struct _WaylandSurface WaylandSurface;
+
 typedef struct _DmaBufFormat
 {
   uint32_t format;
@@ -62,6 +64,9 @@ typedef struct _WaylandDisplay
   struct wl_keyboard *wl_keyboard;
   struct test_driver *test_driver;
 
+  WaylandSurface *pointer_focus;
+  WaylandSurface *keyboard_focus;
+
   gboolean needs_roundtrip;
 
   uint32_t sync_event_serial_next;
@@ -82,7 +87,7 @@ G_DECLARE_FINAL_TYPE (WaylandDisplay, wayland_display,
                       WAYLAND, DISPLAY,
                       GObject)
 
-typedef struct _WaylandSurface
+struct _WaylandSurface
 {
   GObject parent;
 
@@ -109,7 +114,7 @@ typedef struct _WaylandSurface
 
   gboolean manual_paint;
   gboolean has_alpha;
-} WaylandSurface;
+};
 
 #define WAYLAND_TYPE_SURFACE (wayland_surface_get_type ())
 G_DECLARE_FINAL_TYPE (WaylandSurface, wayland_surface,

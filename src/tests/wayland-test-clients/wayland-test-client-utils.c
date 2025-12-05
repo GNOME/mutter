@@ -243,7 +243,10 @@ pointer_handle_enter (void              *user_data,
                       wl_fixed_t         sx,
                       wl_fixed_t         sy)
 {
+  WaylandDisplay *display = user_data;
   WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  display->pointer_focus = surface;
 
   g_signal_emit (surface, surface_signals[SURFACE_POINTER_ENTER],
                  0, pointer, serial);
@@ -253,8 +256,13 @@ static void
 pointer_handle_leave (void              *user_data,
                       struct wl_pointer *pointer,
                       uint32_t           serial,
-                      struct wl_surface *surface)
+                      struct wl_surface *surface_resource)
 {
+  WaylandDisplay *display = user_data;
+  WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  if (display->pointer_focus == surface)
+    display->pointer_focus = NULL;
 }
 
 static void
@@ -309,7 +317,10 @@ wl_keyboard_enter (void               *user_data,
                    struct wl_surface  *surface_resource,
                    struct wl_array    *keys)
 {
+  WaylandDisplay *display = user_data;
   WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  display->keyboard_focus = surface;
 
   g_signal_emit (surface, surface_signals[SURFACE_KEYBOARD_ENTER],
                  0, keyboard, serial);
@@ -319,8 +330,13 @@ static void
 wl_keyboard_leave (void               *user_data,
                    struct wl_keyboard *wl_keyboard,
                    uint32_t            serial,
-                   struct wl_surface  *surface)
+                   struct wl_surface  *surface_resource)
 {
+  WaylandDisplay *display = user_data;
+  WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  if (display->keyboard_focus == surface)
+    display->keyboard_focus = NULL;
 }
 
 static void
