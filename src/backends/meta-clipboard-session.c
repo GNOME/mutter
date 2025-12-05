@@ -243,15 +243,52 @@ on_selection_owner_changed (MetaSelection        *selection,
   emit_owner_changed (session, owner);
 }
 
+static gboolean
+maybe_set_initial_selection (MetaClipboardSession *session,
+                             GVariant             *arg_options)
+{
+  MetaDisplay *display = display_from_session (session);
+  MetaSelection *selection = meta_display_get_selection (display);
+  g_autoptr (GVariant) mime_types_variant = NULL;
+  g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
+  g_autoptr (GError) error = NULL;
+
+  if (!session)
+    return FALSE;
+
+  mime_types_variant = g_variant_lookup_value (arg_options,
+                                               "mime-types",
+                                               G_VARIANT_TYPE_STRING_ARRAY);
+  if (!mime_types_variant)
+    return FALSE;
+
+  source_remote = create_selection_source (session,
+                                           mime_types_variant,
+                                           &error);
+  if (!source_remote)
+    {
+      g_warning ("Invalid mime type list: %s", error->message);
+      return FALSE;
+    }
+
+  meta_topic (META_DEBUG_BACKEND,
+              "Setting remote desktop clipboard source: %p from %s",
+              source_remote, session->peer_name);
+
+  g_set_object (&session->current_source, source_remote);
+  meta_selection_set_owner (selection,
+                            META_SELECTION_CLIPBOARD,
+                            META_SELECTION_SOURCE (source_remote));
+  return TRUE;
+}
+
 gboolean
 meta_clipboard_session_enable (MetaClipboardSession  *session,
                                GVariant              *arg_options,
                                GError               **error)
 {
-  GVariant *mime_types_variant;
   MetaDisplay *display = display_from_session (session);
   MetaSelection *selection = meta_display_get_selection (display);
-  g_autoptr (MetaSelectionSourceRemote) source_remote = NULL;
 
   if (session->is_clipboard_enabled)
     {
@@ -263,33 +300,7 @@ meta_clipboard_session_enable (MetaClipboardSession  *session,
   meta_topic (META_DEBUG_BACKEND, "Enable clipboard for %s",
               session->peer_name);
 
-  mime_types_variant = g_variant_lookup_value (arg_options,
-                                               "mime-types",
-                                               G_VARIANT_TYPE_STRING_ARRAY);
-  if (mime_types_variant)
-    {
-      source_remote = create_selection_source (session,
-                                               mime_types_variant,
-                                               error);
-      if (!source_remote)
-        {
-          g_prefix_error (error, "Invalid mime type list: ");
-          return FALSE;
-        }
-    }
-
-  if (source_remote)
-    {
-      meta_topic (META_DEBUG_BACKEND,
-                  "Setting remote desktop clipboard source: %p from %s",
-                  source_remote, session->peer_name);
-
-      g_set_object (&session->current_source, source_remote);
-      meta_selection_set_owner (selection,
-                                META_SELECTION_CLIPBOARD,
-                                META_SELECTION_SOURCE (source_remote));
-    }
-  else
+  if (!maybe_set_initial_selection (session, arg_options))
     {
       MetaSelectionSource *owner;
 
