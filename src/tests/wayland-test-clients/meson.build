@@ -97,6 +97,9 @@ wayland_test_clients = [
     'name': 'xdg-activation-before-mapped',
   },
   {
+    'name': 'xdg-activation-serial',
+  },
+  {
     'name': 'xdg-apply-limits',
   },
   {
