@@ -88,7 +88,7 @@ wayland_test_clients = [
     'name': 'toplevel-show-states',
   },
   {
-    'name': 'xdg-activation',
+    'name': 'xdg-activation-no-serial',
   },
   {
     'name': 'xdg-apply-limits',
