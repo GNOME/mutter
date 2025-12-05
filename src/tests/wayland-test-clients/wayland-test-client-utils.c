@@ -49,6 +49,8 @@ enum
   SURFACE_CONFIGURE,
   SURFACE_POINTER_ENTER,
   SURFACE_KEYBOARD_ENTER,
+  SURFACE_BUTTON_EVENT,
+  SURFACE_KEY_EVENT,
   N_SURFACE_SIGNALS
 };
 
@@ -282,6 +284,10 @@ pointer_handle_button (void              *user_data,
                        uint32_t           button,
                        uint32_t           state)
 {
+  WaylandDisplay *display = user_data;
+
+  g_signal_emit (display->pointer_focus, surface_signals[SURFACE_BUTTON_EVENT],
+                 0, wl_pointer, serial, button, !!state);
 }
 
 static void
@@ -347,6 +353,10 @@ wl_keyboard_key (void               *user_data,
                  uint32_t            key,
                  uint32_t            state)
 {
+  WaylandDisplay *display = user_data;
+
+  g_signal_emit (display->keyboard_focus, surface_signals[SURFACE_KEY_EVENT],
+                 0, wl_keyboard, serial, key, !!state);
 }
 
 static void
@@ -1065,6 +1075,28 @@ wayland_surface_class_init (WaylandSurfaceClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_POINTER,
                   G_TYPE_UINT);
+  surface_signals[SURFACE_BUTTON_EVENT] =
+    g_signal_new ("button-event",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 4,
+                  G_TYPE_POINTER,
+                  G_TYPE_UINT,
+                  G_TYPE_UINT,
+                  G_TYPE_BOOLEAN);
+  surface_signals[SURFACE_KEY_EVENT] =
+    g_signal_new ("key-event",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 4,
+                  G_TYPE_POINTER,
+                  G_TYPE_UINT,
+                  G_TYPE_UINT,
+                  G_TYPE_BOOLEAN);
 }
 
 static void
