@@ -1445,7 +1445,8 @@ meta_wayland_pointer_can_grab_surface (MetaWaylandPointer *pointer,
                                        MetaWaylandSurface *surface,
                                        uint32_t            serial)
 {
-  return (pointer->grab_serial == serial &&
+  return ((pointer->grab_serial == serial ||
+           pointer->click_serial == serial) &&
           pointer_can_grab_surface (pointer, surface));
 }
 
