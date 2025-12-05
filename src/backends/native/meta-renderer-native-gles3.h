@@ -25,14 +25,16 @@
 
 #include "backends/meta-egl.h"
 #include "backends/meta-gles3.h"
+#include "mtk/mtk.h"
 
-gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
-                                                    MetaGles3      *gles3,
-                                                    EGLDisplay      egl_display,
-                                                    EGLContext      egl_context,
-                                                    EGLImageKHR     egl_image,
-                                                    struct gbm_bo  *shared_bo,
-                                                    GError        **error);
+gboolean meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
+                                                    MetaGles3        *gles3,
+                                                    EGLDisplay        egl_display,
+                                                    EGLContext        egl_context,
+                                                    EGLImageKHR       egl_image,
+                                                    struct gbm_bo    *shared_bo,
+                                                    const MtkRegion  *region,
+                                                    GError          **error);
 
 void meta_renderer_native_gles3_forget_context (MetaGles3  *gles3,
                                                 EGLContext  egl_context);

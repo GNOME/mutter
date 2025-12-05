@@ -57,6 +57,20 @@
 #include "cogl/cogl-frame-info-private.h"
 #include "common/meta-cogl-drm-formats.h"
 #include "common/meta-drm-format-helpers.h"
+#include "mtk/mtk.h"
+
+/*
+ * The maximum amount of damage rectangles to maintain. At a certain point there
+ * are so many damage rectangles that individually processing them isn't worth
+ * the time they save based on a full redraw, which is determined by this
+ * number.
+ */
+#define MAX_DAMAGE_RECTANGLES 16
+
+/*
+ * The maximum supported buffer age for secondary GPU surfaces.
+ */
+#define MAX_SECONDARY_GPU_BUFFER_AGE 4
 
 typedef enum _MetaSharedFramebufferImportStatus
 {
@@ -83,6 +97,9 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
     MetaDrmBufferDumb *current_dumb_fb;
     MetaDrmBufferDumb *dumb_fbs[3];
   } cpu;
+
+  MtkRegion *damage_regions[MAX_SECONDARY_GPU_BUFFER_AGE];
+  int damage_region_index;
 
   gboolean noted_primary_gpu_copy_ok;
   gboolean noted_primary_gpu_copy_failed;
@@ -856,6 +873,7 @@ secondary_gpu_release_dumb (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_s
 static void
 secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
+  unsigned int i;
   MetaGpu *gpu = META_GPU (secondary_gpu_state->gpu_kms);
   MetaBackend *backend = meta_gpu_get_backend (gpu);
   MetaEgl *egl = meta_backend_get_egl (backend);
@@ -873,6 +891,12 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
                                 egl_display,
                                 secondary_gpu_state->egl_surface,
                                 NULL);
+    }
+
+  for (i = 0; i < MAX_SECONDARY_GPU_BUFFER_AGE; i++)
+    {
+      g_clear_pointer (&secondary_gpu_state->damage_regions[i],
+                       mtk_region_unref);
     }
 
   g_clear_pointer (&secondary_gpu_state->gbm.surface, gbm_surface_destroy);
@@ -919,11 +943,116 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
   return imported_buffer;
 }
 
+static MtkRegion *
+build_bo_full_damage_rectangle (struct gbm_bo *bo)
+{
+  return mtk_region_create_rectangle (&MTK_RECTANGLE_INIT (0, 0,
+                                                           gbm_bo_get_width (bo),
+                                                           gbm_bo_get_height (bo)));
+}
+
+static void
+push_secondary_gpu_damage_rectangles (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
+                                      struct gbm_bo                       *bo,
+                                      const MtkRegion                     *region)
+{
+  MtkRegion *region_to_store = NULL;
+  int write_index = secondary_gpu_state->damage_region_index;
+
+  if (mtk_region_num_rectangles (region) > 0)
+    region_to_store = mtk_region_copy (region);
+  else
+    region_to_store = build_bo_full_damage_rectangle (bo);
+
+  if (secondary_gpu_state->damage_regions[write_index] != NULL)
+    mtk_region_unref (secondary_gpu_state->damage_regions[write_index]);
+
+  secondary_gpu_state->damage_regions[write_index] = region_to_store;
+  secondary_gpu_state->damage_region_index =
+    (secondary_gpu_state->damage_region_index + 1) % MAX_SECONDARY_GPU_BUFFER_AGE;
+}
+
+static MtkRegion *
+build_secondary_gpu_damage_region (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
+                                   struct gbm_bo                       *bo,
+                                   int                                  age)
+{
+  int i, damage_region_index;
+  g_autoptr (MtkRegion) region = NULL;
+
+  if (age == 0)
+    return build_bo_full_damage_rectangle (bo);
+
+  region = mtk_region_create ();
+
+  for (i = 1; i <= age; ++i)
+    {
+      MtkRegion *damage_region;
+
+      damage_region_index = ((secondary_gpu_state->damage_region_index - i) %
+                             MAX_SECONDARY_GPU_BUFFER_AGE);
+
+      if (damage_region_index < 0)
+        damage_region_index += MAX_SECONDARY_GPU_BUFFER_AGE;
+
+      damage_region =
+        secondary_gpu_state->damage_regions[damage_region_index];
+
+      if (damage_region != NULL)
+        mtk_region_union (region, damage_region);
+    }
+
+  if (mtk_region_num_rectangles (region) > MAX_DAMAGE_RECTANGLES)
+    return build_bo_full_damage_rectangle (bo);
+
+  return g_steal_pointer (&region);
+}
+
+static int
+get_secondary_gpu_buffer_age (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
+                              MetaRendererNativeGpuData           *renderer_gpu_data)
+{
+  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
+  MetaRenderDevice *render_device;
+  EGLDisplay egl_display;
+  int buffer_age;
+  g_autoptr (GError) error = NULL;
+
+  render_device = renderer_gpu_data->render_device;
+  egl_display = meta_render_device_get_egl_display (render_device);
+
+  if (!meta_egl_query_surface (egl, egl_display,
+                               secondary_gpu_state->egl_surface,
+                               EGL_BUFFER_AGE_EXT, &buffer_age,
+                               &error))
+    {
+      g_warning ("Failed to query age of surface, ignoring damage "
+                 "rectangles and fully redrawing, which may cause increased "
+                 "GPU power consumption: %s", error->message);
+
+      return 0;
+    }
+
+  if (buffer_age > MAX_SECONDARY_GPU_BUFFER_AGE)
+    {
+      g_warning ("Secondary GPU provides buffers of age %i, which is "
+                 "older than supported; ignoring damage rectangles and fully "
+                 "redrawing which may cause increased GPU power consumption",
+                 buffer_age);
+
+      return 0;
+    }
+
+  return buffer_age;
+}
+
 static MetaDrmBuffer *
 copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
                              MetaOnscreenNativeSecondaryGpuState  *secondary_gpu_state,
                              MetaRendererNativeGpuData            *renderer_gpu_data,
                              MetaDrmBuffer                        *primary_gpu_fb,
+                             const MtkRegion                      *region,
                              GError                              **error)
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
@@ -942,6 +1071,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   EGLSync egl_sync = EGL_NO_SYNC;
   g_autofd int sync_fd = -1;
   EGLImageKHR egl_image;
+  int buffer_age = 0;
+  g_autoptr (MtkRegion) blit_region = NULL;
+  g_autoptr (MtkRegion) region_to_push = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
                            "copy_shared_framebuffer_gpu()");
@@ -1003,12 +1135,20 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
       goto done;
     }
 
+  push_secondary_gpu_damage_rectangles (secondary_gpu_state, bo, region);
+
+  buffer_age = get_secondary_gpu_buffer_age (secondary_gpu_state,
+                                             renderer_gpu_data);
+  blit_region = build_secondary_gpu_damage_region (secondary_gpu_state,
+                                                   bo, buffer_age);
+
   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
                                                   gles3,
                                                   egl_display,
                                                   renderer_gpu_data->secondary.egl_context,
                                                   egl_image,
                                                   bo,
+                                                  blit_region,
                                                   error))
     {
       g_prefix_error (error, "Failed to blit shared framebuffer: ");
@@ -1160,11 +1300,9 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
                   error->message);
       return NULL;
     }
-  /* Limit the number of individual copies to 16 */
-#define MAX_RECTS 16
 
   n_rectangles = mtk_region_num_rectangles (region);
-  if (n_rectangles == 0 || n_rectangles > MAX_RECTS)
+  if (n_rectangles == 0 || n_rectangles > MAX_DAMAGE_RECTANGLES)
     {
       if (!cogl_framebuffer_blit (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
                                   0, 0, 0, 0,
@@ -1330,10 +1468,11 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen    *onscreen,
 }
 
 static MetaDrmBuffer *
-acquire_front_buffer (CoglOnscreen   *onscreen,
-                      MetaDrmBuffer  *primary_gpu_fb,
-                      MetaDrmBuffer  *secondary_gpu_fb,
-                      GError        **error)
+acquire_front_buffer (CoglOnscreen     *onscreen,
+                      MetaDrmBuffer    *primary_gpu_fb,
+                      MetaDrmBuffer    *secondary_gpu_fb,
+                      const MtkRegion  *region,
+                      GError          **error)
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
@@ -1378,6 +1517,7 @@ acquire_front_buffer (CoglOnscreen   *onscreen,
                                           secondary_gpu_state,
                                           renderer_gpu_data,
                                           primary_gpu_fb,
+                                          region,
                                           error);
     }
 
@@ -1552,6 +1692,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
       buffer = acquire_front_buffer (onscreen,
                                      primary_gpu_fb,
                                      secondary_gpu_fb,
+                                     region,
                                      &error);
       if (buffer == NULL)
         {
