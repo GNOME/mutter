@@ -469,6 +469,8 @@ meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
       time = clutter_event_get_time (event);
       serial = meta_wayland_input_device_next_serial (input_device);
 
+      pointer->click_serial = serial;
+
       wl_resource_for_each (resource, &pointer->focus_client->pointer_resources)
         {
           wl_pointer_send_button (resource, serial,
