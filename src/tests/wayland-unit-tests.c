@@ -889,12 +889,12 @@ toplevel_invalid_geometry_subsurface (void)
 }
 
 static void
-toplevel_activation (void)
+toplevel_activation_no_serial (void)
 {
   MetaWaylandTestClient *wayland_test_client;
 
   wayland_test_client =
-    meta_wayland_test_client_new (test_context, "xdg-activation");
+    meta_wayland_test_client_new (test_context, "xdg-activation-no-serial");
   meta_wayland_test_client_finish (wayland_test_client);
 }
 
@@ -2182,8 +2182,8 @@ init_tests (void)
                    toplevel_invalid_geometry_basic);
   g_test_add_func ("/wayland/toplevel/invalid-geometry/subsurface",
                    toplevel_invalid_geometry_subsurface);
-  g_test_add_func ("/wayland/toplevel/activation",
-                   toplevel_activation);
+  g_test_add_func ("/wayland/toplevel/activation/no-serial",
+                   toplevel_activation_no_serial);
   g_test_add_func ("/wayland/toplevel/sessions/basic",
                    toplevel_sessions_basic);
   g_test_add_func ("/wayland/toplevel/sessions/replace",
