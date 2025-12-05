@@ -59,14 +59,17 @@ meta_output_virtual_new (uint64_t                      id,
   output_info->product = g_strdup (info->product);
   output_info->serial = g_strdup (info->serial);
 
-  output_info->modes = g_new0 (MetaCrtcMode *, g_list_length (modes));
-  for (l = modes; l; l = l->next)
+  if (modes)
     {
-      g_set_object (&output_info->modes[output_info->n_modes],
-                    META_CRTC_MODE (l->data));
-      output_info->n_modes++;
+      output_info->modes = g_new0 (MetaCrtcMode *, g_list_length (modes));
+      for (l = modes; l; l = l->next)
+        {
+          g_set_object (&output_info->modes[output_info->n_modes],
+                        META_CRTC_MODE (l->data));
+          output_info->n_modes++;
+        }
+      output_info->preferred_mode = output_info->modes[0];
     }
-  output_info->preferred_mode = output_info->modes[0];
 
   return g_object_new (META_TYPE_OUTPUT_VIRTUAL,
                        "id", META_OUTPUT_VIRTUAL_ID_BIT | id,

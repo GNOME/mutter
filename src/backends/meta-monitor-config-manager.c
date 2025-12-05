@@ -568,6 +568,9 @@ find_monitors (MetaMonitorManager *monitor_manager,
     {
       MetaMonitor *monitor = l->data;
 
+      if (!meta_monitor_get_modes (monitor))
+        continue;
+
       if (not_this_one && monitor == not_this_one)
         continue;
 

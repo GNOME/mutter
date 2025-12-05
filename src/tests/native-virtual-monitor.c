@@ -127,12 +127,123 @@ meta_test_virtual_monitor_create (void)
 }
 
 static void
+meta_test_virtual_monitor_create_no_mode (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaVirtualMonitor *virtual_monitor;
+  g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
+  GError *error = NULL;
+  GList *monitors;
+  MetaMonitor *monitor;
+  g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
+  MetaMonitorsConfig *monitors_config;
+  GList *logical_monitors;
+  GList *logical_monitor_monitors;
+  GList *views;
+  int i;
+  ClutterActor *actor;
+
+  g_assert_null (meta_monitor_config_manager_get_current (config_manager));
+  g_assert_null (meta_monitor_manager_get_logical_monitors (monitor_manager));
+  g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
+  g_assert_null (meta_renderer_get_views (renderer));
+
+  monitor_info =
+    meta_virtual_monitor_info_new_inactive ("MetaTestVendor",
+                                            "MetaVirtualMonitor",
+                                            "0x12345");
+  virtual_monitor = meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                                 monitor_info,
+                                                                 &error);
+  if (!virtual_monitor)
+    g_error ("Failed to create virtual monitor: %s", error->message);
+
+  meta_monitor_manager_reload (monitor_manager);
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  g_assert_cmpint (g_list_length (monitors), ==, 1);
+  monitor = META_MONITOR (monitors->data);
+  g_assert_cmpstr (meta_monitor_get_vendor (monitor), ==, "MetaTestVendor");
+  g_assert_cmpstr (meta_monitor_get_product (monitor), ==, "MetaVirtualMonitor");
+  g_assert_cmpstr (meta_monitor_get_serial (monitor), ==, "0x12345");
+  g_assert_true (meta_monitor_get_main_output (monitor) ==
+                 meta_virtual_monitor_get_output (virtual_monitor));
+  g_assert_false (meta_monitor_is_active (monitor));
+
+  g_assert_null (meta_monitor_manager_ensure_configured (monitor_manager));
+  g_assert_null (meta_monitor_manager_get_logical_monitors (monitor_manager));
+  g_assert_null (meta_renderer_get_views (renderer));
+
+  mode_infos = g_list_append (mode_infos,
+                              meta_virtual_mode_info_new (80, 60, 60.0f));
+  meta_virtual_monitor_set_modes (virtual_monitor, mode_infos);
+
+  monitors_config = meta_monitor_manager_ensure_configured (monitor_manager);
+  g_assert_nonnull (monitors_config);
+  g_assert_cmpint (g_list_length (monitors_config->logical_monitor_configs),
+                   ==,
+                   1);
+
+  g_assert_cmpint (g_list_length (monitors_config->disabled_monitor_specs),
+                   ==,
+                   0);
+  g_assert_true (meta_monitor_is_active (monitor));
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor_monitors =
+    meta_logical_monitor_get_monitors (logical_monitors->data);
+  g_assert_cmpint (g_list_length (logical_monitor_monitors), ==, 1);
+  g_assert_true (logical_monitor_monitors->data == monitor);
+
+  views = meta_renderer_get_views (renderer);
+  g_assert_cmpint (g_list_length (views), ==, 1);
+
+  for (i = 0; i < 5; i++)
+    {
+      meta_ref_test_verify_view (CLUTTER_STAGE_VIEW (views->data),
+                                 g_test_get_path (), 0,
+                                 meta_ref_test_determine_ref_test_flag ());
+    }
+
+  actor = clutter_actor_new ();
+  clutter_actor_set_position (actor, 10, 10);
+  clutter_actor_set_size (actor, 40, 40);
+  clutter_actor_set_background_color (actor, &COGL_COLOR_INIT (114, 159, 207, 255));
+  clutter_actor_add_child (meta_backend_get_stage (backend), actor);
+
+  for (i = 0; i < 5; i++)
+    {
+      meta_ref_test_verify_view (CLUTTER_STAGE_VIEW (views->data),
+                                 g_test_get_path (), 1,
+                                 meta_ref_test_determine_ref_test_flag ());
+    }
+
+  g_object_unref (virtual_monitor);
+  meta_monitor_manager_reload (monitor_manager);
+
+  g_assert_null (meta_monitor_manager_ensure_configured (monitor_manager));
+  g_assert_null (meta_monitor_manager_get_logical_monitors (monitor_manager));
+  g_assert_null (meta_monitor_manager_get_monitors (monitor_manager));
+  g_assert_null (meta_renderer_get_views (renderer));
+
+  clutter_actor_destroy (actor);
+}
+
+static void
 init_tests (MetaContext *context)
 {
   test_context = context;
 
   g_test_add_func ("/backends/native/virtual-monitor/create",
                    meta_test_virtual_monitor_create);
+  g_test_add_func ("/backends/native/virtual-monitor/create-no-mode",
+                   meta_test_virtual_monitor_create_no_mode);
 }
 
 int

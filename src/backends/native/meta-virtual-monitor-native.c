@@ -20,6 +20,7 @@
 
 #include "backends/native/meta-virtual-monitor-native.h"
 
+#include "backends/meta-monitor-private.h"
 #include "backends/native/meta-crtc-mode-virtual.h"
 #include "backends/native/meta-crtc-virtual.h"
 #include "backends/native/meta-output-virtual.h"
@@ -55,6 +56,8 @@ meta_virtual_monitor_native_set_modes (MetaVirtualMonitor *virtual_monitor,
     }
 
   meta_output_update_modes (output, modes[0], modes, n_modes);
+
+  meta_monitor_update_outputs (meta_output_get_monitor (output));
 }
 
 uint64_t

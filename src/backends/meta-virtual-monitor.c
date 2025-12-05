@@ -127,6 +127,21 @@ meta_virtual_monitor_info_new_simple (int         width,
   return meta_virtual_monitor_info_new (vendor, product, serial, mode_infos);
 }
 
+MetaVirtualMonitorInfo *
+meta_virtual_monitor_info_new_inactive (const char *vendor,
+                                        const char *product,
+                                        const char *serial)
+{
+  MetaVirtualMonitorInfo *info;
+
+  info = g_new0 (MetaVirtualMonitorInfo, 1);
+  info->vendor = g_strdup (vendor);
+  info->product = g_strdup (product);
+  info->serial = g_strdup (serial);
+
+  return info;
+}
+
 void
 meta_virtual_monitor_info_free (MetaVirtualMonitorInfo *info)
 {

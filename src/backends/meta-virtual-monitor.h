@@ -81,6 +81,17 @@ MetaVirtualMonitorInfo * meta_virtual_monitor_info_new_simple (int         width
                                                                const char *serial);
 
 META_EXPORT_TEST
+MetaVirtualMonitorInfo * meta_virtual_monitor_info_new_inactive (const char *vendor,
+                                                                 const char *product,
+                                                                 const char *serial);
+
+static inline gboolean
+meta_virtual_mode_info_is_valid (const MetaVirtualModeInfo *mode_info)
+{
+  return mode_info->width > 0 && mode_info->height > 0;
+}
+
+META_EXPORT_TEST
 void meta_virtual_monitor_info_free (MetaVirtualMonitorInfo *info);
 
 MetaCrtc * meta_virtual_monitor_get_crtc (MetaVirtualMonitor *virtual_monitor);

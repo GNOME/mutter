@@ -377,6 +377,9 @@ meta_monitor_is_available (MetaMonitor *monitor)
 {
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
+  if (!priv->modes)
+    return FALSE;
+
   if (meta_monitor_is_builtin (monitor) &&
       meta_backend_is_lid_closed (priv->backend))
     return FALSE;
@@ -954,6 +957,10 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 
   output = meta_monitor_get_main_output (monitor);
   output_info = meta_output_get_info (output);
+
+  if (!output_info->modes)
+    return;
+
   preferred_mode = output_info->preferred_mode;
   preferred_mode_flags = meta_crtc_mode_get_info (preferred_mode)->flags;
 
@@ -1032,7 +1039,6 @@ reset_normal_monitor (MetaMonitorNormal *monitor_normal,
   monitor_priv->preferred_mode = NULL;
   monitor_priv->current_mode = NULL;
   meta_monitor_normal_generate_modes (monitor_normal);
-  g_assert (monitor_priv->preferred_mode);
 
   g_clear_list (&monitor_priv->color_modes, NULL);
   meta_monitor_init_supported_color_modes (monitor);
