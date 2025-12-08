@@ -397,7 +397,8 @@ on_stream_param_changed (void                 *user_data,
   MdkStream *stream = MDK_STREAM (user_data);
   uint8_t params_buffer[1024];
   struct spa_pod_builder pod_builder;
-  const struct spa_pod *params[3];
+  const struct spa_pod *params[4];
+  const size_t meta_region_size = sizeof (struct spa_meta_region);
   int result;
 
   if (!format || id != SPA_PARAM_Format)
@@ -451,6 +452,15 @@ on_stream_param_changed (void                 *user_data,
     SPA_PARAM_META_size, SPA_POD_CHOICE_RANGE_Int (CURSOR_META_SIZE (384, 384),
                                                    CURSOR_META_SIZE (1,1),
                                                    CURSOR_META_SIZE (384, 384)),
+    0);
+
+  params[3] = spa_pod_builder_add_object (
+    &pod_builder,
+    SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
+    SPA_PARAM_META_type, SPA_POD_Id (SPA_META_VideoDamage),
+    SPA_PARAM_META_size, SPA_POD_CHOICE_RANGE_Int (meta_region_size * 32,
+                                                   meta_region_size * 1,
+                                                   meta_region_size * 32),
     0);
 
   pw_stream_update_params (stream->pipewire_stream,
@@ -546,6 +556,60 @@ read_cursor_metadata (MdkStream         *stream,
     }
 }
 
+static cairo_region_t *
+read_damage_metadata (MdkStream         *stream,
+                      struct spa_buffer *spa_buffer)
+{
+  struct spa_meta *video_damage;
+  struct spa_meta_region *meta_region;
+  g_autofree cairo_rectangle_int_t *cairo_rects = NULL;
+  int num_rects = 0;
+
+  video_damage = spa_buffer_find_meta (spa_buffer, SPA_META_VideoDamage);
+  if (!video_damage)
+    return NULL;
+
+  meta_region = spa_meta_first (video_damage);
+  if (!meta_region)
+    return NULL;
+
+  spa_meta_for_each (meta_region, video_damage)
+    {
+      if (!spa_meta_region_is_valid (meta_region))
+        break;
+
+      num_rects++;
+    }
+
+  if (!num_rects)
+    return NULL;
+
+  g_debug ("Stream has damage with %d rectangles", num_rects);
+
+  cairo_rects = g_new (cairo_rectangle_int_t, num_rects);
+  num_rects = 0;
+  spa_meta_for_each (meta_region, video_damage)
+    {
+      if (!spa_meta_region_is_valid (meta_region))
+        break;
+
+      g_debug ("Stream damage rectangle %d: %ux%u +%d+%d",
+               num_rects,
+               meta_region->region.size.width,
+               meta_region->region.size.height,
+               meta_region->region.position.x,
+               meta_region->region.position.y);
+
+      cairo_rects[num_rects].x = meta_region->region.position.x;
+      cairo_rects[num_rects].y = meta_region->region.position.y;
+      cairo_rects[num_rects].width = meta_region->region.size.width;
+      cairo_rects[num_rects].height = meta_region->region.size.height;
+      num_rects++;
+    }
+
+  return cairo_region_create_rectangles (cairo_rects, num_rects);
+}
+
 static void
 on_stream_process (void *user_data)
 {
@@ -554,6 +618,7 @@ on_stream_process (void *user_data)
   struct pw_buffer *buffer = NULL;
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *spa_header;
+  cairo_region_t *damage_region = NULL;
   gboolean hold_buffer = FALSE;
   gboolean has_buffer;
   uint32_t drm_format;
@@ -578,11 +643,13 @@ on_stream_process (void *user_data)
   if (!has_buffer)
     goto read_metadata;
 
+  damage_region = read_damage_metadata (stream, spa_buffer);
+
   if (spa_buffer->datas[0].type == SPA_DATA_DmaBuf)
     {
       g_autoptr (GdkDmabufTextureBuilder) builder = NULL;
-      unsigned int i;
       g_autoptr (GError) error = NULL;
+      unsigned int i;
 
       if (!spa_pixel_format_to_drm_format (stream->format.info.raw.format,
                                            &drm_format))
@@ -613,6 +680,13 @@ on_stream_process (void *user_data)
           gdk_dmabuf_texture_builder_set_stride (builder, i, spa_buffer->datas[i].chunk->stride);
         }
 
+      if (GDK_IS_TEXTURE (stream->paintable))
+        {
+          gdk_dmabuf_texture_builder_set_update_region (builder, damage_region);
+          gdk_dmabuf_texture_builder_set_update_texture (builder,
+                                                         GDK_TEXTURE (stream->paintable));
+        }
+
       g_clear_object (&stream->paintable);
       stream->paintable =
         GDK_PAINTABLE (gdk_dmabuf_texture_builder_build (builder,
@@ -638,9 +712,10 @@ on_stream_process (void *user_data)
     }
   else
     {
-      g_autoptr (GdkTexture) texture = NULL;
+      g_autoptr (GdkMemoryTextureBuilder) builder = NULL;
       g_autoptr (GBytes) bytes = NULL;
       GdkMemoryFormat gdk_format;
+      unsigned int i;
       uint8_t *map;
       void *data;
       uint32_t bpp;
@@ -655,6 +730,29 @@ on_stream_process (void *user_data)
           goto read_metadata;
         }
 
+      builder = gdk_memory_texture_builder_new ();
+      gdk_memory_texture_builder_set_width (builder,
+                                            stream->format.info.raw.size.width);
+      gdk_memory_texture_builder_set_height (builder,
+                                             stream->format.info.raw.size.height);
+      gdk_memory_texture_builder_set_format (builder,
+                                             gdk_format);
+
+      for (i = 0; i < spa_buffer->n_datas; i++)
+        {
+          gdk_memory_texture_builder_set_offset (builder, i,
+                                                 spa_buffer->datas[i].chunk->offset);
+          gdk_memory_texture_builder_set_stride_for_plane (builder, i,
+                                                           spa_buffer->datas[i].chunk->stride);
+        }
+
+      if (GDK_IS_TEXTURE (stream->paintable))
+        {
+          gdk_memory_texture_builder_set_update_region (builder, damage_region);
+          gdk_memory_texture_builder_set_update_texture (builder,
+                                                         GDK_TEXTURE (stream->paintable));
+        }
+
       size = spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset;
 
       map = mmap (NULL, size, PROT_READ, MAP_PRIVATE, spa_buffer->datas[0].fd, 0);
@@ -667,12 +765,11 @@ on_stream_process (void *user_data)
 
       bytes = g_bytes_new (data, size);
 
-      texture = gdk_memory_texture_new (stream->format.info.raw.size.width,
-                                        stream->format.info.raw.size.height,
-                                        gdk_format,
-                                        bytes,
-                                        spa_buffer->datas[0].chunk->stride);
-      g_set_object (&stream->paintable, GDK_PAINTABLE (texture));
+      gdk_memory_texture_builder_set_bytes (builder, bytes);
+
+      g_clear_object (&stream->paintable);
+      stream->paintable =
+        GDK_PAINTABLE (gdk_memory_texture_builder_build (builder));
 
       munmap (map, size);
     }
@@ -701,6 +798,8 @@ read_metadata:
 
   if (!pw_stream_is_driving (stream->pipewire_stream))
     gdk_paintable_invalidate_contents (GDK_PAINTABLE (stream));
+
+  g_clear_pointer (&damage_region, cairo_region_destroy);
 }
 
 static void
