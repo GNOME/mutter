@@ -51,11 +51,11 @@ typedef enum _MetaScreenCastPaintPhase
   META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER,
 } MetaScreenCastPaintPhase;
 
-typedef struct _MetaTagEntry
+typedef struct _MetaSpaDictEntry
 {
   char *key;
   char *value;
-} MetaTagEntry;
+} MetaSpaDictEntry;
 
 typedef struct _MetaScreenCastFormat
 {

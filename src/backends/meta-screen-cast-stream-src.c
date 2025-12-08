@@ -209,10 +209,10 @@ syncobj_data_from_buffer (struct spa_buffer *spa_buffer,
 #endif /* HAVE_NATIVE_BACKEND */
 
 static void
-meta_tag_entry_clear (MetaTagEntry *tag_entry)
+meta_spa_dict_entry_clear (MetaSpaDictEntry *dict_entry)
 {
-  g_free (tag_entry->key);
-  g_free (tag_entry->value);
+  g_free (dict_entry->key);
+  g_free (dict_entry->value);
 }
 
 static gboolean
@@ -1604,11 +1604,11 @@ build_tag_params (MetaScreenCastStreamSrc *src,
   struct spa_dict_item *items;
   g_autoptr (GArray) tags = NULL;
   const char *mapping_id;
-  MetaTagEntry mapping_id_tag_entry;
+  MetaSpaDictEntry mapping_id_tag_entry;
   size_t i;
 
-  tags = g_array_new (FALSE, FALSE, sizeof (MetaTagEntry));
-  g_array_set_clear_func (tags, (GDestroyNotify) meta_tag_entry_clear);
+  tags = g_array_new (FALSE, FALSE, sizeof (MetaSpaDictEntry));
+  g_array_set_clear_func (tags, (GDestroyNotify) meta_spa_dict_entry_clear);
 
   if (klass->append_tags)
     klass->append_tags (src, tags);
@@ -1621,9 +1621,9 @@ build_tag_params (MetaScreenCastStreamSrc *src,
   items = g_alloca (sizeof (struct spa_dict_item) * tags->len);
   for (i = 0; i < tags->len; i++)
     {
-      MetaTagEntry *tag_entry = &g_array_index (tags, MetaTagEntry, i);
+      MetaSpaDictEntry *dict_entry = &g_array_index (tags, MetaSpaDictEntry, i);
 
-      items[i] = SPA_DICT_ITEM_INIT (tag_entry->key, tag_entry->value);
+      items[i] = SPA_DICT_ITEM_INIT (dict_entry->key, dict_entry->value);
     }
 
   append_pod_offset (pod_offsets, pod_builder);

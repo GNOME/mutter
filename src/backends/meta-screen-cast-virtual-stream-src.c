@@ -813,19 +813,19 @@ meta_screen_cast_virtual_stream_src_append_tags (MetaScreenCastStreamSrc *src,
   MetaScreenCastVirtualStreamSrc *virtual_src =
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
   MetaLogicalMonitor *logical_monitor;
-  MetaTagEntry tag_entry;
+  MetaSpaDictEntry dict_entry;
 
   logical_monitor =
     meta_screen_cast_virtual_stream_src_logical_monitor (virtual_src);
   if (!logical_monitor)
     return;
 
-  tag_entry.key = g_strdup ("org.gnome.scale");
-  tag_entry.value = g_new0 (char, G_ASCII_DTOSTR_BUF_SIZE);
-  g_ascii_dtostr (tag_entry.value, G_ASCII_DTOSTR_BUF_SIZE,
+  dict_entry.key = g_strdup ("org.gnome.scale");
+  dict_entry.value = g_new0 (char, G_ASCII_DTOSTR_BUF_SIZE);
+  g_ascii_dtostr (dict_entry.value, G_ASCII_DTOSTR_BUF_SIZE,
                   meta_logical_monitor_get_scale (logical_monitor));
 
-  g_array_append_val (tags, tag_entry);
+  g_array_append_val (tags, dict_entry);
 }
 
 static void
