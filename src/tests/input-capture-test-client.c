@@ -920,11 +920,11 @@ test_events (void)
 
   input_capture_session_enable (session);
 
-  write_state (session, "1");
-
   set_expected_events (session,
                        expected_events,
                        G_N_ELEMENTS (expected_events));
+
+  write_state (session, "1");
 
   while (session->next_event < session->n_expected_events)
     g_main_context_iteration (NULL, TRUE);
