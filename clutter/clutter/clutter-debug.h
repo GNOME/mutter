@@ -6,8 +6,6 @@
 
 G_BEGIN_DECLS
 
-#ifdef CLUTTER_ENABLE_DEBUG
-
 #define CLUTTER_HAS_DEBUG(type)         ((clutter_debug_flags & CLUTTER_DEBUG_##type) != FALSE)
 
 #ifdef __GNUC__
@@ -30,13 +28,6 @@ G_BEGIN_DECLS
           g_free (_fmt);                                                 \
         }                                               } G_STMT_END
 #endif
-
-#else /* !CLUTTER_ENABLE_DEBUG */
-
-#define CLUTTER_NOTE(type,...)         G_STMT_START { } G_STMT_END
-#define CLUTTER_HAS_DEBUG(type)        FALSE
-
-#endif /* CLUTTER_ENABLE_DEBUG */
 
 extern guint clutter_debug_flags;
 extern guint clutter_pick_debug_flags;

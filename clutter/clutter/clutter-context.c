@@ -40,7 +40,6 @@
 static gboolean clutter_show_fps = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;
 
-#ifdef CLUTTER_ENABLE_DEBUG
 static const GDebugKey clutter_debug_keys[] = {
   { "misc", CLUTTER_DEBUG_MISC },
   { "actor", CLUTTER_DEBUG_ACTOR },
@@ -63,7 +62,6 @@ static const GDebugKey clutter_debug_keys[] = {
   { "frame-clock", CLUTTER_DEBUG_FRAME_CLOCK },
   { "gestures", CLUTTER_DEBUG_GESTURES },
 };
-#endif /* CLUTTER_ENABLE_DEBUG */
 
 static const GDebugKey clutter_pick_debug_keys[] = {
   { "nop-picking", CLUTTER_DEBUG_NOP_PICKING },
@@ -225,7 +223,6 @@ init_clutter_debug (ClutterContext *context)
 {
   const char *env_string;
 
-#ifdef CLUTTER_ENABLE_DEBUG
   env_string = g_getenv ("CLUTTER_DEBUG");
   if (env_string != NULL)
     {
@@ -235,7 +232,6 @@ init_clutter_debug (ClutterContext *context)
                               G_N_ELEMENTS (clutter_debug_keys));
       env_string = NULL;
     }
-#endif /* CLUTTER_ENABLE_DEBUG */
 
   env_string = g_getenv ("CLUTTER_PICK");
   if (env_string != NULL)

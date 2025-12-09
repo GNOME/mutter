@@ -173,7 +173,6 @@ static void
 clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                            int64_t            target_us);
 
-#ifdef CLUTTER_ENABLE_DEBUG
 static const char *
 clutter_frame_clock_state_to_string (ClutterFrameClockState state)
 {
@@ -202,7 +201,6 @@ clutter_frame_clock_state_to_string (ClutterFrameClockState state)
     }
   g_assert_not_reached ();
 }
-#endif
 
 static void
 clutter_frame_clock_set_state (ClutterFrameClock      *frame_clock,
@@ -425,11 +423,10 @@ maybe_update_longterm_max_duration_us (ClutterFrameClock *frame_clock,
   if (frame_clock->longterm_max_update_duration_us >
       frame_clock->shortterm_max_update_duration_us)
     {
-#ifdef CLUTTER_ENABLE_DEBUG
       int64_t old_duration_us;
 
       old_duration_us = frame_clock->longterm_max_update_duration_us;
-#endif
+
       /* Exponential drop-off toward the short-term max */
       frame_clock->longterm_max_update_duration_us -=
         (frame_clock->longterm_max_update_duration_us -
@@ -462,11 +459,9 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
 {
   Frame *presented_frame;
-#ifdef CLUTTER_ENABLE_DEBUG
   const char *debug_state =
     frame_clock->state == CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO ?
     "Triple buffering" : "Double buffering";
-#endif
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
                            "Clutter::FrameClock::presented()");
@@ -1481,9 +1476,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   int64_t ideal_dispatch_time_us, lateness_us;
   Frame *this_dispatch;
   int64_t prev_dispatch_time_us = 0;
-#ifdef CLUTTER_ENABLE_DEBUG
   int64_t prev_dispatch_interval_us = 0;
-#endif
   int64_t prev_dispatch_lateness_us = 0;
 
 #ifdef HAVE_PROFILER
@@ -1532,9 +1525,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   if (frame_clock->prev_dispatch)
     {
       prev_dispatch_time_us = frame_clock->prev_dispatch->dispatch_time_us;
-#ifdef CLUTTER_ENABLE_DEBUG
       prev_dispatch_interval_us = frame_clock->prev_dispatch->dispatch_interval_us;
-#endif
       prev_dispatch_lateness_us = frame_clock->prev_dispatch->dispatch_lateness_us;
     }
 
@@ -1566,7 +1557,6 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   else
     this_dispatch->dispatch_lateness_us = lateness_us;
 
-#ifdef CLUTTER_ENABLE_DEBUG
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
     {
       int64_t dispatch_interval_us, jitter_us;
@@ -1580,7 +1570,6 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
                     jitter_us,
                     jitter_us * 100 / frame_clock->refresh_interval_us);
     }
-#endif
 
   this_dispatch->dispatch_time_us = time_us;
 

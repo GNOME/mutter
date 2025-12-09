@@ -300,7 +300,6 @@ clutter_keyframe_transition_compute_value (ClutterTransition *transition,
   /* normalize the progress and apply the easing mode */
   real_progress = clutter_easing_for_mode ( cur_frame->mode, (p - cur_frame->start), (cur_frame->end - cur_frame->start));
 
-#ifdef CLUTTER_ENABLE_DEBUG
   if (CLUTTER_HAS_DEBUG (ANIMATION))
     {
       char *from, *to;
@@ -326,7 +325,6 @@ clutter_keyframe_transition_compute_value (ClutterTransition *transition,
       g_free (from);
       g_free (to);
     }
-#endif /* CLUTTER_ENABLE_DEBUG */
 
 out:
   parent_class =

@@ -3590,7 +3590,6 @@ clutter_actor_paint (ClutterActor        *self,
           root_node = g_steal_pointer (&transform_node);
         }
 
-#ifdef CLUTTER_ENABLE_DEBUG
       /* Catch when out-of-band transforms have been made by actors not as part
        * of an apply_transform vfunc... */
       if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_OOB_TRANSFORMS))
@@ -3624,7 +3623,6 @@ clutter_actor_paint (ClutterActor        *self,
                          buf->str);
             }
         }
-#endif /* CLUTTER_ENABLE_DEBUG */
     }
 
   /* We check whether we need to add the flatten effect before
@@ -8693,7 +8691,6 @@ clutter_actor_adjust_allocation (ClutterActor    *self,
         clutter_content_get_preferred_size (self->priv->content, &nat_width, &nat_height);
     }
 
-#ifdef CLUTTER_ENABLE_DEBUG
   /* warn about underallocations */
   if (_clutter_diagnostic_enabled () &&
       (floorf (min_width - alloc_width) > 0 ||
@@ -8718,7 +8715,6 @@ clutter_actor_adjust_allocation (ClutterActor    *self,
                      min_width, min_height);
         }
     }
-#endif
 
   clutter_actor_adjust_width (self,
                               &min_width,
@@ -16726,7 +16722,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
       clutter_timeline_set_duration (timeline, info->cur_state->easing_duration);
       clutter_timeline_set_progress_mode (timeline, info->cur_state->easing_mode);
 
-#ifdef CLUTTER_ENABLE_DEBUG
       if (CLUTTER_HAS_DEBUG (ANIMATION))
         {
           g_autofree char *initial_v = NULL;
@@ -16746,7 +16741,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
                         info->cur_state->easing_delay,
                         initial_v, final_v);
         }
-#endif /* CLUTTER_ENABLE_DEBUG */
 
       /* this will start the transition as well */
       clutter_actor_add_transition_internal (actor, pspec->name, res);
