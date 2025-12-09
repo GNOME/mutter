@@ -1804,6 +1804,21 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
   return supported != 0;
 }
 
+static gboolean
+did_video_format_changed_for_log (MetaScreenCastStreamSrc   *src,
+                                  struct spa_video_info_raw *video_format)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return (video_format->size.width != priv->video_format.size.width ||
+          video_format->size.height != priv->video_format.size.height ||
+          video_format->framerate.num != priv->video_format.framerate.num ||
+          video_format->framerate.denom != priv->video_format.framerate.denom ||
+          video_format->max_framerate.num != priv->video_format.max_framerate.num ||
+          video_format->max_framerate.denom != priv->video_format.max_framerate.denom);
+}
+
 static void
 update_color_state (MetaScreenCastStreamSrc *src)
 {
@@ -1865,6 +1880,7 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
     meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  struct spa_video_info_raw video_format = {};
   struct spa_pod_dynamic_builder pod_builder;
   struct spa_pod_frame pod_frame;
   g_autoptr (GArray) pod_offsets = NULL;
@@ -1876,8 +1892,22 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
   pod_offsets = g_array_new (FALSE, TRUE, sizeof (uint32_t));
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
 
-  spa_format_video_raw_parse (format,
-                              &priv->video_format);
+  spa_format_video_raw_parse (format, &video_format);
+
+  if (meta_is_topic_enabled (META_DEBUG_SCREEN_CAST) &&
+      did_video_format_changed_for_log (src, &video_format))
+    {
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Video format changed to %dx%d (framerate: %d/%d (max: %d/%d))",
+                  video_format.size.width,
+                  video_format.size.height,
+                  video_format.framerate.num,
+                  video_format.framerate.denom,
+                  video_format.max_framerate.num,
+                  video_format.max_framerate.denom);
+    }
+
+  priv->video_format = video_format;
 
   meta_topic (META_DEBUG_SCREEN_CAST,
               "Updated PipeWire stream format, "
