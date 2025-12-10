@@ -174,6 +174,8 @@ typedef struct _ClutterTextPrivate
 
   CoglColor selected_text_color;
 
+  CoglColor error_color;
+
   gunichar password_char;
 
   guint password_hint_id;
@@ -206,6 +208,7 @@ typedef struct _ClutterTextPrivate
   guint activatable             : 1;
   guint selectable              : 1;
   guint selection_color_set     : 1;
+  guint error_color_set         : 1;
   guint cursor_color_set        : 1;
   guint preedit_set             : 1;
   guint is_default_font         : 1;
@@ -236,6 +239,8 @@ enum
   PROP_SELECTION_BOUND,
   PROP_SELECTION_COLOR,
   PROP_SELECTION_COLOR_SET,
+  PROP_ERROR_COLOR,
+  PROP_ERROR_COLOR_SET,
   PROP_CURSOR_VISIBLE,
   PROP_CURSOR_COLOR,
   PROP_CURSOR_COLOR_SET,
@@ -277,6 +282,7 @@ static ClutterTextBuffer *get_buffer (ClutterText *self);
 
 static const CoglColor default_cursor_color    = {   0,   0,   0, 255 };
 static const CoglColor default_selection_color = {   0,   0,   0, 255 };
+static const CoglColor default_error_color     = { 255,   0,   0, 255 };
 static const CoglColor default_text_color      = {   0,   0,   0, 255 };
 static const CoglColor default_selected_text_color = {   0,   0,   0, 255 };
 
@@ -386,6 +392,86 @@ clutter_text_input_focus_commit_text (ClutterInputFocus *focus,
     }
 }
 
+static PangoAttrList *
+translate_preedit_attributes (ClutterText             *clutter_text,
+                              ClutterPreeditAttribute *style_hints,
+                              unsigned int             n_style_hints)
+{
+  PangoAttrList *attr_list;
+  unsigned int i;
+
+  if (!style_hints || n_style_hints == 0)
+    return NULL;
+
+  attr_list = pango_attr_list_new ();
+
+  for (i = 0; i < n_style_hints; i++)
+    {
+      ClutterPreeditAttribute *preedit_attr = &style_hints[i];
+      PangoAttribute *attr1 = NULL, *attr2 = NULL;
+      CoglColor color;
+
+      switch (preedit_attr->hint)
+        {
+        case CLUTTER_PREEDIT_STYLE_NONE:
+          break;
+        case CLUTTER_PREEDIT_STYLE_WHOLE:
+          attr1 = pango_attr_underline_new (PANGO_UNDERLINE_SINGLE);
+          break;
+        case CLUTTER_PREEDIT_STYLE_SELECTION:
+          clutter_text_get_selection_color (clutter_text, &color);
+          attr1 = pango_attr_background_new (color.red * 256,
+                                             color.green * 256,
+                                             color.blue * 256);
+
+          clutter_text_get_selected_text_color (clutter_text, &color);
+          attr2 = pango_attr_foreground_new (color.red * 256,
+                                             color.green * 256,
+                                             color.blue * 256);
+          break;
+        case CLUTTER_PREEDIT_STYLE_PREDICTION:
+          attr1 = pango_attr_foreground_alpha_new (65535 / 2);
+          break;
+        case CLUTTER_PREEDIT_STYLE_PREFIX:
+          attr1 = pango_attr_weight_new (PANGO_WEIGHT_SEMIBOLD);
+          break;
+        case CLUTTER_PREEDIT_STYLE_SUFFIX:
+          attr1 = pango_attr_weight_new (PANGO_WEIGHT_SEMILIGHT);
+          break;
+        case CLUTTER_PREEDIT_STYLE_SPELLING_ERROR:
+          clutter_text_get_error_color (clutter_text, &color);
+          attr1 = pango_attr_underline_new (PANGO_UNDERLINE_ERROR_LINE);
+          attr2 = pango_attr_underline_color_new (color.red * 256,
+                                                  color.green * 256,
+                                                  color.blue * 256);
+          break;
+        case CLUTTER_PREEDIT_STYLE_COMPOSE_ERROR:
+          clutter_text_get_selection_color (clutter_text, &color);
+          attr1 = pango_attr_underline_new (PANGO_UNDERLINE_ERROR_LINE);
+          attr2 = pango_attr_underline_color_new (color.red * 256,
+                                                  color.green * 256,
+                                                  color.blue * 256);
+          break;
+        }
+
+      if (attr1)
+        {
+          attr1->start_index = preedit_attr->start;
+          attr1->end_index = preedit_attr->end;
+          pango_attr_list_insert (attr_list, attr1);
+        }
+
+      if (attr2)
+        {
+          attr2->start_index = preedit_attr->start;
+          attr2->end_index = preedit_attr->end;
+          pango_attr_list_insert (attr_list, attr2);
+        }
+    }
+
+  return attr_list;
+}
+
 static void
 clutter_text_input_focus_set_preedit_text (ClutterInputFocus       *focus,
                                            const gchar             *preedit_text,
@@ -398,14 +484,12 @@ clutter_text_input_focus_set_preedit_text (ClutterInputFocus       *focus,
 
   if (clutter_text_get_editable (clutter_text))
     {
-      PangoAttrList *list;
+      g_autoptr (PangoAttrList) attr_list = NULL;
 
-      list = pango_attr_list_new ();
-      pango_attr_list_insert (list, pango_attr_underline_new (PANGO_UNDERLINE_SINGLE));
-      clutter_text_set_preedit_string (clutter_text,
-                                       preedit_text, list,
-                                       cursor_pos);
-      pango_attr_list_unref (list);
+      attr_list = translate_preedit_attributes (clutter_text,
+                                                style_hints, n_style_hints);
+      clutter_text_set_preedit_string (clutter_text, preedit_text,
+                                       attr_list, cursor_pos);
     }
 }
 
@@ -1604,6 +1688,10 @@ clutter_text_set_property (GObject      *gobject,
       clutter_text_set_selection_color (self, g_value_get_boxed (value));
       break;
 
+    case PROP_ERROR_COLOR:
+      clutter_text_set_error_color (self, g_value_get_boxed (value));
+      break;
+
     case PROP_CURSOR_VISIBLE:
       clutter_text_set_cursor_visible (self, g_value_get_boolean (value));
       break;
@@ -1730,6 +1818,14 @@ clutter_text_get_property (GObject    *gobject,
 
     case PROP_SELECTION_COLOR_SET:
       g_value_set_boolean (value, priv->selection_color_set);
+      break;
+
+    case PROP_ERROR_COLOR:
+      cogl_value_set_color (value, &priv->error_color);
+      break;
+
+    case PROP_ERROR_COLOR_SET:
+      g_value_set_boolean (value, priv->error_color_set);
       break;
 
     case PROP_ACTIVATABLE:
@@ -3531,6 +3627,12 @@ clutter_text_set_color_internal (ClutterText     *self,
       other = obj_props[PROP_SELECTED_TEXT_COLOR_SET];
       break;
 
+    case PROP_ERROR_COLOR:
+      if (color)
+        priv->error_color = *color;
+      priv->error_color_set = color != NULL;
+      break;
+
     default:
       g_assert_not_reached ();
       break;
@@ -3614,6 +3716,11 @@ clutter_text_set_color_animated (ClutterText     *self,
                                    &priv->selected_text_color);
       break;
 
+    case PROP_ERROR_COLOR:
+      clutter_transition_set_from (transition, COGL_TYPE_COLOR,
+                                   &priv->error_color);
+      break;
+
     default:
       g_assert_not_reached ();
     }
@@ -3661,6 +3768,13 @@ clutter_text_set_final_state (ClutterAnimatable *animatable,
       const CoglColor *color = cogl_value_get_color (value);
       clutter_text_set_color_internal (CLUTTER_TEXT (animatable),
                                        obj_props[PROP_SELECTION_COLOR],
+                                       color);
+    }
+  else if (strcmp (property_name, "error-color") == 0)
+    {
+      const CoglColor *color = cogl_value_get_color (value);
+      clutter_text_set_color_internal (CLUTTER_TEXT (animatable),
+                                       obj_props[PROP_ERROR_COLOR],
                                        color);
     }
   else
@@ -3916,6 +4030,31 @@ clutter_text_class_init (ClutterTextClass *klass)
                                 G_PARAM_STATIC_STRINGS);
   obj_props[PROP_SELECTION_COLOR_SET] = pspec;
   g_object_class_install_property (gobject_class, PROP_SELECTION_COLOR_SET, pspec);
+
+  /**
+   * ClutterText:error-color:
+   *
+   * The color used to highlight errors.
+   */
+  pspec = cogl_param_spec_color ("error-color", NULL, NULL,
+                                 &default_error_color,
+                                 G_PARAM_READWRITE |
+                                 G_PARAM_STATIC_STRINGS |
+                                 CLUTTER_PARAM_ANIMATABLE);
+  obj_props[PROP_ERROR_COLOR] = pspec;
+  g_object_class_install_property (gobject_class, PROP_ERROR_COLOR, pspec);
+
+  /**
+   * ClutterText:error-color-set:
+   *
+   * Will be set to %TRUE if [property@Text:error-color] has been set.
+   */
+  pspec = g_param_spec_boolean ("error-color-set", NULL, NULL,
+                                FALSE,
+                                G_PARAM_READABLE |
+                                G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_ERROR_COLOR_SET] = pspec;
+  g_object_class_install_property (gobject_class, PROP_ERROR_COLOR_SET, pspec);
 
   /**
    * ClutterText:attributes:
@@ -4403,6 +4542,7 @@ clutter_text_init (ClutterText *self)
   priv->cursor_color = default_cursor_color;
   priv->selection_color = default_selection_color;
   priv->selected_text_color = default_selected_text_color;
+  priv->error_color = default_error_color;
 
   priv->is_default_font = TRUE;
 
@@ -4417,6 +4557,7 @@ clutter_text_init (ClutterText *self)
   priv->selection_color_set = FALSE;
   priv->cursor_color_set = FALSE;
   priv->selected_text_color_set = FALSE;
+  priv->error_color_set = FALSE;
   priv->preedit_set = FALSE;
 
   priv->password_char = 0;
@@ -5264,6 +5405,48 @@ clutter_text_get_selected_text_color (ClutterText *self,
   priv = clutter_text_get_instance_private (self);
 
   *color = priv->selected_text_color;
+}
+
+/**
+ * clutter_text_set_error_color:
+ * @self: a #ClutterText
+ * @color: (nullable): the color used to highlight errors, or %NULL to unset it
+ *
+ * Sets the color used to highlight errors on a #ClutterText actor.
+ *
+ * If @color is %NULL, the selection color will be the same as the
+ * cursor color, or if no cursor color is set either then it will be
+ * the same as the text color.
+ */
+void
+clutter_text_set_error_color (ClutterText     *self,
+                              const CoglColor *color)
+{
+  g_return_if_fail (CLUTTER_IS_TEXT (self));
+
+  clutter_text_set_color_animated (self, obj_props[PROP_ERROR_COLOR],
+                                   color);
+}
+
+/**
+ * clutter_text_get_error_color:
+ * @self: a #ClutterText
+ * @color: (out caller-allocates): return location for a #CoglColor
+ *
+ * Retrieves the color used to highlight errors on a #ClutterText actor.
+ */
+void
+clutter_text_get_error_color (ClutterText  *self,
+                              CoglColor    *color)
+{
+  ClutterTextPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_TEXT (self));
+  g_return_if_fail (color != NULL);
+
+  priv = clutter_text_get_instance_private (self);
+
+  *color = priv->error_color;
 }
 
 /**
@@ -6512,7 +6695,6 @@ clutter_text_set_preedit_string (ClutterText   *self,
 
   clutter_text_queue_redraw_or_relayout (self);
 }
-
 
 /**
  * clutter_text_get_layout_offsets:
