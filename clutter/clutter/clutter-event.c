@@ -31,6 +31,7 @@
 #include "clutter/clutter-event-private.h"
 #include "clutter/clutter-keysyms.h"
 #include "clutter/clutter-input-device-tool.h"
+#include "clutter/clutter-input-focus.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-seat-private.h"
 
@@ -271,6 +272,9 @@ struct _ClutterIMEvent
   ClutterInputDevice *source_device;
 
   char *text;
+  ClutterPreeditAttribute *preedit_hints;
+  unsigned int n_preedit_hints;
+
   int32_t offset;
   int32_t anchor;
   uint32_t len;
@@ -864,6 +868,9 @@ clutter_event_copy (const ClutterEvent *event)
     case CLUTTER_IM_COMMIT:
     case CLUTTER_IM_PREEDIT:
       new_event->im.text = g_strdup (event->im.text);
+      new_event->im.preedit_hints =
+        g_memdup2 (event->im.preedit_hints,
+                   sizeof (ClutterPreeditAttribute) * event->im.n_preedit_hints);
       break;
 
     default:
@@ -911,6 +918,7 @@ clutter_event_free (ClutterEvent *event)
         case CLUTTER_IM_COMMIT:
         case CLUTTER_IM_PREEDIT:
           g_free (event->im.text);
+          g_clear_pointer (&event->im.preedit_hints, g_free);
           break;
 
         default:
@@ -1763,6 +1771,25 @@ clutter_event_get_im_preedit_reset_mode (const ClutterEvent *event)
   return event->im.mode;
 }
 
+gboolean
+clutter_event_get_im_preedit_hints (const ClutterEvent       *event,
+                                    ClutterPreeditAttribute **preedit_hints,
+                                    unsigned int             *n_preedit_hints)
+{
+  g_return_val_if_fail (event != NULL, FALSE);
+  g_return_val_if_fail (event->type == CLUTTER_IM_PREEDIT, FALSE);
+
+  if (!event->im.preedit_hints || event->im.n_preedit_hints == 0)
+    return FALSE;
+
+  if (preedit_hints)
+    *preedit_hints = event->im.preedit_hints;
+  if (n_preedit_hints)
+    *n_preedit_hints = event->im.n_preedit_hints;
+
+  return TRUE;
+}
+
 const char *
 clutter_event_get_name (const ClutterEvent *event)
 {
@@ -2372,7 +2399,9 @@ clutter_event_im_new (ClutterEventType         type,
                       int32_t                  offset,
                       int32_t                  anchor,
                       uint32_t                 len,
-                      ClutterPreeditResetMode  mode)
+                      ClutterPreeditResetMode  mode,
+                      ClutterPreeditAttribute *preedit_hints,
+                      unsigned int             n_preedit_hints)
 {
   ClutterEvent *event;
 
@@ -2389,6 +2418,10 @@ clutter_event_im_new (ClutterEventType         type,
   event->im.anchor = anchor;
   event->im.len = len;
   event->im.mode = mode;
+
+  event->im.preedit_hints =
+    g_memdup2 (preedit_hints, sizeof (ClutterPreeditAttribute) * n_preedit_hints);
+  event->im.n_preedit_hints = n_preedit_hints;
 
   return event;
 }

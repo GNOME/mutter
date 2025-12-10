@@ -178,7 +178,9 @@ ClutterEvent * clutter_event_im_new (ClutterEventType         type,
                                      int32_t                  offset,
                                      int32_t                  anchor,
                                      uint32_t                 len,
-                                     ClutterPreeditResetMode  mode);
+                                     ClutterPreeditResetMode  mode,
+                                     ClutterPreeditAttribute *preedit_hints,
+                                     unsigned int             n_preedit_hints);
 
 /* Reinjecting queued events for processing */
 CLUTTER_EXPORT

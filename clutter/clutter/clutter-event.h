@@ -296,4 +296,9 @@ uint32_t clutter_event_get_im_delete_length (const ClutterEvent  *event);
 CLUTTER_EXPORT
 ClutterPreeditResetMode clutter_event_get_im_preedit_reset_mode (const ClutterEvent *event);
 
+CLUTTER_EXPORT
+gboolean clutter_event_get_im_preedit_hints (const ClutterEvent       *event,
+                                             ClutterPreeditAttribute **preedit_hints,
+                                             unsigned int             *n_preedit_hints);
+
 G_END_DECLS
