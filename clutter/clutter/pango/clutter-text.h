@@ -242,6 +242,13 @@ void                  clutter_text_get_selected_text_color  (ClutterText        
                                                              CoglColor            *color);
 
 CLUTTER_EXPORT
+void                  clutter_text_set_error_color  (ClutterText          *self,
+                                                     const CoglColor      *color);
+CLUTTER_EXPORT
+void                  clutter_text_get_error_color  (ClutterText          *self,
+                                                     CoglColor            *color);
+
+CLUTTER_EXPORT
 gboolean              clutter_text_activate             (ClutterText          *self);
 CLUTTER_EXPORT
 gint                  clutter_text_coords_to_position   (ClutterText          *self,
