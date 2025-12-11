@@ -986,13 +986,13 @@ void
 meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
                                       ClutterInputDevice *input_device,
                                       uint64_t            time_us,
-                                      uint32_t            button,
+                                      uint32_t            evdev_button,
                                       uint32_t            state)
 {
   MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterEvent *event = NULL;
   ClutterModifierType modifiers, *button_state;
-  int button_nr = 0;
+  uint32_t clutter_button = 0;
   graphene_point_t coords;
   static int maskmap[8] =
     {
@@ -1002,49 +1002,49 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
   int button_count;
 
   /* Drop any repeated button press (for example from virtual devices. */
-  button_count = update_button_count (seat_impl, button, state);
+  button_count = update_button_count (seat_impl, evdev_button, state);
   if ((state && button_count > 1) ||
       (!state && button_count != 0))
     {
       meta_topic (META_DEBUG_INPUT,
                   "Dropping repeated %s of button 0x%x, count %d",
-                  state ? "press" : "release", button, button_count);
+                  state ? "press" : "release", evdev_button, button_count);
       return;
     }
 
   if (device_native->last_tool)
     {
       GDesktopStylusButtonAction action;
-      int tool_button_nr = meta_evdev_tool_button_to_clutter (button);
+      int tool_button_nr = meta_evdev_tool_button_to_clutter (evdev_button);
 
       /* Apply the button event code as per the tool mapping */
       action = meta_input_device_tool_native_get_button_code_in_impl (device_native->last_tool, tool_button_nr);
       switch (action)
         {
         case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:
-          button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_PRIMARY);
-          button_nr = meta_evdev_tool_button_to_clutter (button);
+          evdev_button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_PRIMARY);
+          clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_MIDDLE:
-          button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_MIDDLE);
-          button_nr = meta_evdev_tool_button_to_clutter (button);
+          evdev_button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_MIDDLE);
+          clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_RIGHT:
-          button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_SECONDARY);
-          button_nr = meta_evdev_tool_button_to_clutter (button);
+          evdev_button = meta_clutter_tool_button_to_evdev (CLUTTER_BUTTON_SECONDARY);
+          clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_BACK:
-          button = BTN_BACK;
-          button_nr = meta_evdev_tool_button_to_clutter (button);
+          evdev_button = BTN_BACK;
+          clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_FORWARD:
-          button = BTN_FORWARD;
-          button_nr = meta_evdev_tool_button_to_clutter (button);
+          evdev_button = BTN_FORWARD;
+          clutter_button = meta_evdev_tool_button_to_clutter (evdev_button);
           break;
         case G_DESKTOP_STYLUS_BUTTON_ACTION_SWITCH_MONITOR:
         case G_DESKTOP_STYLUS_BUTTON_ACTION_KEYBINDING:
           // button evdev code left as-is, i.e. BTN_STYLUS or whatever
-          button_nr = 0;
+          clutter_button = 0;
           break;
         default:
           g_warn_if_reached ();
@@ -1052,10 +1052,10 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
     }
   else
     {
-      button_nr = meta_evdev_button_to_clutter (button);
-      if (button_nr < 1 || button_nr > 12)
+      clutter_button = meta_evdev_button_to_clutter (evdev_button);
+      if (clutter_button < 1 || clutter_button > 12)
         {
-          g_warning ("Unhandled button event 0x%x", button);
+          g_warning ("Unhandled evdev_button event 0x%x", evdev_button);
           return;
         }
     }
@@ -1065,13 +1065,13 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
   else
     button_state = &seat_impl->button_state;
 
-  if (button_nr > 0 && button_nr < G_N_ELEMENTS (maskmap))
+  if (clutter_button > 0 && clutter_button < G_N_ELEMENTS (maskmap))
     {
       /* Update the modifiers */
       if (state)
-        *button_state |= maskmap[button_nr - 1];
+        *button_state |= maskmap[clutter_button - 1];
       else
-        *button_state &= ~maskmap[button_nr - 1];
+        *button_state &= ~maskmap[clutter_button - 1];
     }
 
   meta_seat_impl_get_onscreen_coords_for_source_device (seat_impl,
@@ -1092,8 +1092,8 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
                               device_native->last_tool,
                               modifiers,
                               coords,
-                              button_nr,
-                              button,
+                              clutter_button,
+                              evdev_button,
                               NULL);
 
   queue_event (seat_impl, event);
