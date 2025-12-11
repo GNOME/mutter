@@ -328,8 +328,6 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                                  flags,
                                                  error);
 
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
-
   if (!cogl_tex)
     {
       result = FALSE;
