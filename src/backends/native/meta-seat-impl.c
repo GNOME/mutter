@@ -60,10 +60,6 @@
 
 #define DISCRETE_SCROLL_STEP 10.0
 
-#ifndef BTN_STYLUS3
-#define BTN_STYLUS3 0x149 /* Linux 4.15 */
-#endif
-
 struct _MetaEventSource
 {
   GSource source;
