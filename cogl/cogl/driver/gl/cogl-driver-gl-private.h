@@ -229,10 +229,6 @@ cogl_gl_error_to_string (GLenum error_code)
   CoglDriverGLPrivate *_driver_gl_private = cogl_driver_gl_get_private (_driver_gl);   \
   ret = (_driver_gl_private)->x;                                       \
                                    } G_STMT_END
-
-#define GE(driver, x) (COGL_DRIVER_GL (driver)->x)
-#define GE_RET(ret, driver, x) (ret = (COGL_DRIVER_GL (driver)->x))
-
 #endif /* COGL_ENABLE_DEBUG */
 
 static inline void *
