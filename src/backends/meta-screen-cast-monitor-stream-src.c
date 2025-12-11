@@ -144,12 +144,18 @@ maybe_record_frame_on_idle (gpointer user_data)
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
   MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
+  MtkRectangle empty_rect;
+  MtkRegion *empty_region;
 
   monitor_src->maybe_record_idle_id = 0;
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
   paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags, paint_phase, NULL);
+  empty_rect.x = empty_rect.y = 0;
+  empty_rect.width = empty_rect.height = 0;
+  empty_region = mtk_region_create_rectangle (&empty_rect);
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags, paint_phase,
+                                                  empty_region);
 }
 
 static void
@@ -162,6 +168,7 @@ stage_painted (MetaStage        *stage,
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastRecordFlag flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
   MetaScreenCastRecordResult record_result =
     META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
   int64_t presentation_time_us;
@@ -174,7 +181,6 @@ stage_painted (MetaStage        *stage,
 
   if (meta_screen_cast_stream_src_uses_dma_bufs (src))
     {
-      MetaScreenCastRecordFlag flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
       MetaScreenCastPaintPhase paint_phase =
         META_SCREEN_CAST_PAINT_PHASE_PRE_SWAP_BUFFER;
 
@@ -182,12 +188,15 @@ stage_painted (MetaStage        *stage,
         meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
                                                                        flags,
                                                                        paint_phase,
-                                                                       NULL,
+                                                                       redraw_clip,
                                                                        presentation_time_us);
     }
 
   if (!(record_result & META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME))
     {
+      meta_screen_cast_stream_src_accumulate_damage (src,
+                                                     flags,
+                                                     redraw_clip);
       monitor_src->maybe_record_idle_id = g_idle_add_once (maybe_record_frame_on_idle,
                                                            src);
       g_source_set_name_by_id (monitor_src->maybe_record_idle_id,
@@ -226,7 +235,7 @@ before_stage_painted (MetaStage        *stage,
   meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
                                                                  flags,
                                                                  paint_phase,
-                                                                 NULL,
+                                                                 redraw_clip,
                                                                  presentation_time_us);
 }
 
