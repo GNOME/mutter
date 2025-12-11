@@ -1091,7 +1091,7 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
   return buffer;
 }
 
-static void
+void
 meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
                                                MetaScreenCastRecordFlag  flags,
                                                const MtkRegion          *redraw_clip)
