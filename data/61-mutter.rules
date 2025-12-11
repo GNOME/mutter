@@ -114,3 +114,4 @@ DRIVERS=="i915", SUBSYSTEM=="drm", ATTRS{vendor}=="0x8086", ATTRS{device}=="0x9b
 DRIVERS=="i915", SUBSYSTEM=="drm", ATTRS{vendor}=="0x8086", ATTRS{device}=="0x9be6", TAG+="mutter-device-disable-kms-modifiers"
 DRIVERS=="i915", SUBSYSTEM=="drm", ATTRS{vendor}=="0x8086", ATTRS{device}=="0x9bf6", TAG+="mutter-device-disable-kms-modifiers"
 ENV{ID_PATH}=="platform-vkms", TAG+="mutter-device-ignore"
+ENV{DEVPATH}=="/devices/faux/vkms/drm/card[0-9]*", TAG+="mutter-device-ignore"
