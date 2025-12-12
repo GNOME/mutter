@@ -270,8 +270,6 @@ meta_drm_buffer_gbm_new_take (MetaDeviceFile      *device_file,
 static gboolean
 meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                          CoglFramebuffer  *framebuffer,
-                                         int               x,
-                                         int               y,
                                          GError          **error)
 {
   CoglScanoutBuffer *scanout_buffer = cogl_scanout_get_buffer (scanout);
@@ -335,7 +333,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   return cogl_framebuffer_blit (COGL_FRAMEBUFFER (cogl_fbo),
                                 framebuffer,
                                 0, 0,
-                                x, y,
+                                0, 0,
                                 width, height,
                                 error);
 }

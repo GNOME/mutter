@@ -61,14 +61,12 @@ cogl_scanout_buffer_default_init (CoglScanoutBufferInterface *iface)
 gboolean
 cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
                                   CoglFramebuffer  *framebuffer,
-                                  int               x,
-                                  int               y,
                                   GError          **error)
 {
   CoglScanoutBufferInterface *iface =
     COGL_SCANOUT_BUFFER_GET_IFACE (scanout->scanout_buffer);
 
-  return iface->blit_to_framebuffer (scanout, framebuffer, x, y, error);
+  return iface->blit_to_framebuffer (scanout, framebuffer, error);
 }
 
 int
