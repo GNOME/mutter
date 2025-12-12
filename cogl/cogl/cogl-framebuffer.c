@@ -1410,6 +1410,20 @@ cogl_framebuffer_is_y_flipped (CoglFramebuffer *framebuffer)
 }
 
 gboolean
+cogl_can_blit_between_formats (CoglPixelFormat src_format,
+                               CoglPixelFormat dst_format)
+{
+
+  /* The buffers must use the same premult convention */
+  if (((src_format & COGL_PREMULT_BIT) !=
+       (dst_format & COGL_PREMULT_BIT)) &&
+      dst_format & COGL_A_BIT)
+    return FALSE;
+  else
+    return TRUE;
+}
+
+gboolean
 cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
                        CoglFramebuffer *dst,
                        int src_x,
@@ -1437,10 +1451,8 @@ cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
       return FALSE;
     }
 
-  /* The buffers must use the same premult convention */
-  if (((priv->internal_format & COGL_PREMULT_BIT) !=
-       (dst_priv->internal_format & COGL_PREMULT_BIT)) &&
-      dst_priv->internal_format & COGL_A_BIT)
+  if (!cogl_can_blit_between_formats (priv->internal_format,
+                                      dst_priv->internal_format))
     {
       g_set_error_literal (error, COGL_SYSTEM_ERROR,
                            COGL_SYSTEM_ERROR_UNSUPPORTED,

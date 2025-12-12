@@ -1034,6 +1034,20 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
 } CoglFramebufferError;
 
 /**
+ * cogl_can_blit_between_formats:
+ * @src_format: The #CoglPixelFormat to blit from
+ * @dst_format: The #CoglPixelFormat to blit to
+ *
+ * Checks whether the preconditions for blitting between the formats are met.
+ * This does not imply that blitting will definitely succeed.
+ *
+ * @return TRUE if the preconditions for blitting between the formats are met.
+ */
+COGL_EXPORT gboolean
+cogl_can_blit_between_formats (CoglPixelFormat src_format,
+                               CoglPixelFormat dst_format);
+
+/**
  * cogl_framebuffer_blit:
  * @framebuffer: The source #CoglFramebuffer
  * @dst: The destination #CoglFramebuffer
