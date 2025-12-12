@@ -267,7 +267,7 @@ meta_drm_buffer_gbm_new_take (MetaDeviceFile      *device_file,
 }
 
 static gboolean
-meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
+meta_drm_buffer_gbm_copy_to_framebuffer (CoglScanout      *scanout,
                                          CoglFramebuffer  *framebuffer,
                                          GError          **error)
 {
@@ -288,6 +288,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   EGLDisplay egl_display = cogl_renderer_egl->edpy;
   EGLImageKHR egl_image;
   CoglPixelFormat cogl_format;
+  CoglPixelFormat dst_format;
   CoglEglImageFlags flags;
   g_autoptr (CoglOffscreen) cogl_fbo = NULL;
   g_autoptr (CoglTexture) cogl_tex = NULL;
@@ -295,6 +296,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   uint32_t height;
   uint32_t format;
   const MetaFormatInfo *format_info;
+  g_autoptr (CoglPipeline) pipeline = NULL;
 
   egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
                                                 egl_display,
@@ -329,12 +331,40 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
     return FALSE;
 
-  return cogl_framebuffer_blit (COGL_FRAMEBUFFER (cogl_fbo),
-                                framebuffer,
-                                0, 0,
-                                0, 0,
-                                width, height,
-                                error);
+  dst_format = cogl_framebuffer_get_internal_format (framebuffer);
+
+  if (cogl_can_blit_between_formats (cogl_format, dst_format))
+    {
+      g_autoptr (GError) local_error = NULL;
+
+      if (cogl_framebuffer_blit (COGL_FRAMEBUFFER (cogl_fbo),
+                                 framebuffer,
+                                 0, 0,
+                                 0, 0,
+                                 width, height,
+                                 &local_error))
+        return TRUE;
+
+      g_warning ("Failed to blit scanout buffer: %s", local_error->message);
+    }
+
+  pipeline = cogl_pipeline_new (cogl_context);
+  cogl_pipeline_set_layer_texture (pipeline, 0, cogl_tex);
+  cogl_pipeline_set_layer_filters (pipeline, 0,
+                                   COGL_PIPELINE_FILTER_NEAREST,
+                                   COGL_PIPELINE_FILTER_NEAREST);
+  if (cogl_format & COGL_A_BIT)
+    {
+      CoglColor clear_color;
+
+      cogl_color_init_from_4f (&clear_color, 0.0, 0.0, 0.0, 0.0);
+      cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR,
+                              &clear_color);
+    }
+
+  cogl_framebuffer_draw_rectangle (framebuffer, pipeline, -1, 1, 1, -1);
+
+  return TRUE;
 }
 
 static int
@@ -356,7 +386,7 @@ meta_drm_buffer_gbm_scanout_get_height (CoglScanoutBuffer *scanout_buffer)
 static void
 cogl_scanout_buffer_iface_init (CoglScanoutBufferInterface *iface)
 {
-  iface->blit_to_framebuffer = meta_drm_buffer_gbm_blit_to_framebuffer;
+  iface->copy_to_framebuffer = meta_drm_buffer_gbm_copy_to_framebuffer;
   iface->get_width = meta_drm_buffer_gbm_scanout_get_width;
   iface->get_height = meta_drm_buffer_gbm_scanout_get_height;
 }

@@ -48,7 +48,7 @@ struct _CoglScanoutBufferInterface
 {
   GTypeInterface parent_iface;
 
-  gboolean (*blit_to_framebuffer) (CoglScanout      *scanout,
+  gboolean (*copy_to_framebuffer) (CoglScanout      *scanout,
                                    CoglFramebuffer  *framebuffer,
                                    GError          **error);
 
@@ -57,7 +57,7 @@ struct _CoglScanoutBufferInterface
 };
 
 COGL_EXPORT
-gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
+gboolean cogl_scanout_copy_to_framebuffer (CoglScanout      *scanout,
                                            CoglFramebuffer  *framebuffer,
                                            GError          **error);
 

@@ -651,7 +651,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 
         if (scanout)
           {
-            cogl_scanout_blit_to_framebuffer (scanout,
+            cogl_scanout_copy_to_framebuffer (scanout,
                                               framebuffer,
                                               &local_error);
             cogl_framebuffer_flush (framebuffer);
