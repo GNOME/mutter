@@ -292,12 +292,11 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
   EGLImageKHR egl_image;
   CoglPixelFormat cogl_format;
   CoglEglImageFlags flags;
-  CoglOffscreen *cogl_fbo = NULL;
-  CoglTexture *cogl_tex;
+  g_autoptr (CoglOffscreen) cogl_fbo = NULL;
+  g_autoptr (CoglTexture) cogl_tex = NULL;
   uint32_t width;
   uint32_t height;
   uint32_t format;
-  gboolean result;
   const MetaFormatInfo *format_info;
 
   egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
@@ -306,10 +305,7 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                                 error);
 
   if (egl_image == EGL_NO_IMAGE_KHR)
-    {
-      result = FALSE;
-      goto out;
-    }
+    return FALSE;
 
   width = gbm_bo_get_width (buffer_gbm->bo);
   height = gbm_bo_get_height (buffer_gbm->bo);
@@ -329,31 +325,19 @@ meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
                                                  error);
 
   if (!cogl_tex)
-    {
-      result = FALSE;
-      goto out;
-    }
+    return FALSE;
 
   cogl_fbo = cogl_offscreen_new_with_texture (cogl_tex);
-  g_object_unref (cogl_tex);
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
-    {
-      result = FALSE;
-      goto out;
-    }
+    return FALSE;
 
-  result = cogl_framebuffer_blit (COGL_FRAMEBUFFER (cogl_fbo),
-                                  framebuffer,
-                                  0, 0,
-                                  x, y,
-                                  width, height,
-                                  error);
-
-out:
-  g_clear_object (&cogl_fbo);
-
-  return result;
+  return cogl_framebuffer_blit (COGL_FRAMEBUFFER (cogl_fbo),
+                                framebuffer,
+                                0, 0,
+                                x, y,
+                                width, height,
+                                error);
 }
 
 static int
