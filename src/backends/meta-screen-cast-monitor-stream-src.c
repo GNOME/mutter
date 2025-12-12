@@ -618,7 +618,6 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   gboolean do_stage_paint = TRUE;
   float view_scale;
   GList *outputs;
-  int x, y;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
@@ -644,9 +643,6 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   view = CLUTTER_STAGE_VIEW (renderer_view);
   clutter_stage_view_get_layout (view, &view_layout);
 
-  x = (int) roundf ((view_layout.x - logical_monitor_layout.x) * view_scale);
-  y = (int) roundf ((view_layout.y - logical_monitor_layout.y) * view_scale);
-
   switch (paint_phase)
     {
     case META_SCREEN_CAST_PAINT_PHASE_PRE_PAINT:
@@ -657,7 +653,6 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
           {
             cogl_scanout_blit_to_framebuffer (scanout,
                                               framebuffer,
-                                              x, y,
                                               &local_error);
             cogl_framebuffer_flush (framebuffer);
           }
@@ -672,7 +667,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
         cogl_framebuffer_blit (view_framebuffer,
                                framebuffer,
                                0, 0,
-                               x, y,
+                               0, 0,
                                cogl_framebuffer_get_width (view_framebuffer),
                                cogl_framebuffer_get_height (view_framebuffer),
                                &local_error);

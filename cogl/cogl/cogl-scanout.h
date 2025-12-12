@@ -50,8 +50,6 @@ struct _CoglScanoutBufferInterface
 
   gboolean (*blit_to_framebuffer) (CoglScanout      *scanout,
                                    CoglFramebuffer  *framebuffer,
-                                   int               x,
-                                   int               y,
                                    GError          **error);
 
   int (*get_width) (CoglScanoutBuffer *scanout_buffer);
@@ -61,8 +59,6 @@ struct _CoglScanoutBufferInterface
 COGL_EXPORT
 gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
                                            CoglFramebuffer  *framebuffer,
-                                           int               x,
-                                           int               y,
                                            GError          **error);
 
 int cogl_scanout_buffer_get_width (CoglScanoutBuffer *scanout_buffer);
