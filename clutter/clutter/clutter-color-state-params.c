@@ -562,7 +562,20 @@ static gboolean
 needs_tone_mapping (const ClutterLuminance *lum,
                     const ClutterLuminance *target_lum)
 {
-  return lum->mastering_max > target_lum->mastering_max;
+  float ratio, target_ratio;
+
+  /* Common trivial case */
+  if (lum->ref >= lum->mastering_max &&
+      target_lum->ref <= target_lum->mastering_max)
+    return FALSE;
+
+  ratio = (float) lum->mastering_max / lum->ref;
+  target_ratio = (float) target_lum->mastering_max / target_lum->ref;
+
+  if (G_APPROX_VALUE (ratio, target_ratio, 0.1f))
+    return FALSE;
+
+  return ratio > target_ratio;
 }
 
 static gboolean
@@ -2153,7 +2166,8 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
     {
       blending_luminance = *clutter_eotf_get_default_luminance (blending_eotf);
       blending_luminance.type = CLUTTER_LUMINANCE_TYPE_EXPLICIT;
-      blending_luminance.mastering_max = luminance.mastering_max;
+      blending_luminance.mastering_max = blending_luminance.ref *
+        luminance.mastering_max / luminance.ref;
     }
 
   g_object_get (G_OBJECT (color_state), "context", &context, NULL);
