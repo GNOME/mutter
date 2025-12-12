@@ -11,18 +11,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-11-07 17:27+0000\n"
-"PO-Revision-Date: 2025-11-08 15:33+0100\n"
+"POT-Creation-Date: 2025-12-12 15:57+0000\n"
+"PO-Revision-Date: 2025-12-12 22:57+0100\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
-"%100==4 ? 3 : 0);\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
+"n%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 3.8\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -311,8 +311,8 @@ msgstr "Število delovnih površin je spremenljivo"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Možnost določa ali je število delovnih površin spremenljivo ali pa je to "
 "število stalno (določenih s ključem števila delovnih površin med možnostmi v "
@@ -544,13 +544,13 @@ msgid ""
 msgstr ""
 "Upošteva zajeme s tipkovnico, ki jih sprožijo programi s preusmeritvijo "
 "»override redirect« X11, zagnani v okolju Xwayland. Možnost je namenjena "
-"podpori odjemalcem X11, ki preslikajo okno s to »preglasitvijo "
-"preusmeritve« (program ne prenese žarišča na tipkovnico) in vsili dogodke "
-"tipkovnice v to okno. Možnost se uporablja redko ne vpliva na običajna okna "
-"X11, ki lahko v običajnih okoliščinah pridobijo žarišča. Da bo zajem X11 "
-"upoštevan v okolju Waylandu, mora odjemalec poslati tudi določeno sporočilo "
-"odjemalcu X11 v korensko okno ali pa mora biti med programi na belem seznamu "
-"v ključu \"xwayland-grab-access-rules\"."
+"podpori odjemalcem X11, ki preslikajo okno s to »preglasitvijo preusmeritve« "
+"(program ne prenese žarišča na tipkovnico) in vsili dogodke tipkovnice v to "
+"okno. Možnost se uporablja redko ne vpliva na običajna okna X11, ki lahko v "
+"običajnih okoliščinah pridobijo žarišča. Da bo zajem X11 upoštevan v okolju "
+"Waylandu, mora odjemalec poslati tudi določeno sporočilo odjemalcu X11 v "
+"korensko okno ali pa mora biti med programi na belem seznamu v ključu "
+"\"xwayland-grab-access-rules\"."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -678,22 +678,30 @@ msgid "_Inhibit system shortcuts"
 msgstr "_Onemogoči sistemske bližnjice"
 
 #: mdk/mdk-main-window.ui:20
+msgid "_Monitors"
+msgstr "_Zasloni"
+
+#: mdk/mdk-main-window.ui:22
+msgid "_Resizable"
+msgstr "_Prilagodljiva velikost"
+
+#: mdk/mdk-main-window.ui:29
 msgid "_Launchers"
 msgstr "_Zaganjalniki"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:33
 msgid "_Edit launchers"
 msgstr "_Uredi zaganjalnike"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:40
 msgid "_About Mutter Development Kit"
 msgstr "_O Razvojnem kompletu Mutter"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Razvojni komplet Mutter"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:56
 msgid "Main Menu"
 msgstr "Glavni meni"
 
@@ -709,7 +717,7 @@ msgstr "Komplet za razvoj programske opreme Mutter"
 msgid "About Mutter Development Kit"
 msgstr "O razvojnem kompletu Mutter"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "Ustvarjanje zaslona ni uspelo"
 
@@ -791,7 +799,7 @@ msgstr "Omogoči vmesnik razhroščevalnika vodila D-Bus"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Preklop načina (skupina %d)"
@@ -799,7 +807,7 @@ msgstr "Preklop načina (skupina %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Preklop načina"
@@ -807,11 +815,11 @@ msgstr "Preklop načina"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Nadzornik preklopa"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Pokaži zaslonsko pomoč"
 
@@ -820,11 +828,11 @@ msgstr "Pokaži zaslonsko pomoč"
 msgid "Compositor"
 msgstr "Sestavljalnik"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Izpiši različico"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Vstavek Mutter za uporabo"
 
@@ -859,14 +867,14 @@ msgstr "Zaslon »%s« že ima upravljalnika oken"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Odpiranje zaslona »%s« okenskega sistema X je spodletelo"
 
-#: src/x11/meta-x11-display.c:1306
+#: src/x11/meta-x11-display.c:1308
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Zaslon %d na prikazu »%s« ni veljaven"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2489
+#: src/x11/meta-x11-display.c:2491
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -878,7 +886,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Zapis %s ni podprt"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
