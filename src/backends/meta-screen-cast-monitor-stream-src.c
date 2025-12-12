@@ -607,7 +607,6 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   MetaBackend *backend = get_backend (monitor_src);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterStage *stage = get_stage (monitor_src);
-  g_autoptr (GError) local_error = NULL;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   MetaRendererView *renderer_view;
@@ -651,10 +650,20 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 
         if (scanout)
           {
-            cogl_scanout_copy_to_framebuffer (scanout,
-                                              framebuffer,
-                                              &local_error);
-            cogl_framebuffer_flush (framebuffer);
+            g_autoptr (GError) local_error = NULL;
+
+            if (cogl_scanout_copy_to_framebuffer (scanout,
+                                                  framebuffer,
+                                                  &local_error))
+              {
+                cogl_framebuffer_flush (framebuffer);
+                do_stage_paint = FALSE;
+              }
+            else
+              {
+                g_warning ("Error copying to screencast framebuffer: %s",
+                           local_error->message);
+              }
           }
       }
       break;
@@ -663,29 +672,36 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
       {
         CoglFramebuffer *view_framebuffer =
           clutter_stage_view_get_framebuffer (view);
+        CoglContext *cogl_context =
+          cogl_framebuffer_get_context (view_framebuffer);
 
-        cogl_framebuffer_blit (view_framebuffer,
-                               framebuffer,
-                               0, 0,
-                               0, 0,
-                               cogl_framebuffer_get_width (view_framebuffer),
-                               cogl_framebuffer_get_height (view_framebuffer),
-                               &local_error);
-        cogl_framebuffer_flush (framebuffer);
+        if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
+          {
+            g_autoptr (GError) local_error = NULL;
+
+            if (cogl_framebuffer_blit (view_framebuffer,
+                                       framebuffer,
+                                       0, 0,
+                                       0, 0,
+                                       cogl_framebuffer_get_width (view_framebuffer),
+                                       cogl_framebuffer_get_height (view_framebuffer),
+                                       &local_error))
+              {
+                cogl_framebuffer_flush (framebuffer);
+                do_stage_paint = FALSE;
+              }
+            else
+              {
+                g_warning ("Failed to blit view framebuffer: %s",
+                           local_error->message);
+              }
+          }
       }
       break;
 
     case META_SCREEN_CAST_PAINT_PHASE_DETACHED:
       g_assert_not_reached ();
     }
-
-  if (local_error)
-    {
-      g_warning ("Error blitting to screencast framebuffer: %s",
-                 local_error->message);
-    }
-
-  do_stage_paint = local_error != NULL;
 
 stage_paint:
   if (do_stage_paint)
