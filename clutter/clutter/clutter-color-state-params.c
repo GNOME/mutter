@@ -560,7 +560,20 @@ static gboolean
 needs_tone_mapping (const ClutterLuminance *lum,
                     const ClutterLuminance *target_lum)
 {
-  return lum->max > target_lum->max;
+  float ratio, target_ratio;
+
+  /* Common trivial case */
+  if (lum->ref >= lum->max &&
+      target_lum->ref <= target_lum->max)
+    return FALSE;
+
+  ratio = (float) lum->max / lum->ref;
+  target_ratio = (float) target_lum->max / target_lum->ref;
+
+  if (G_APPROX_VALUE (ratio, target_ratio, 0.1f))
+    return FALSE;
+
+  return ratio > target_ratio;
 }
 
 static gboolean
