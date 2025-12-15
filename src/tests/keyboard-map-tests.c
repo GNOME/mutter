@@ -297,7 +297,7 @@ meta_test_native_keyboard_map_set_layout_index (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  keymap = xkb_keymap_ref (meta_backend_get_keymap (backend));
+  keymap = meta_backend_get_keymap (backend);
   g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
   g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
                    ==,
