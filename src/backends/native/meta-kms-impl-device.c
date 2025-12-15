@@ -68,6 +68,7 @@ typedef struct _CrtcDeadline
   MetaKmsUpdate *pending_update;
   gboolean await_flush;
   gboolean pending_page_flip;
+  int64_t kms_ready_time_us;
 
   struct {
     int timer_fd;
@@ -1619,9 +1620,20 @@ do_process (MetaKmsImplDevice *impl_device,
 
   feedback = klass->process_update (impl_device, update, flags);
 
-  if (meta_kms_feedback_get_result (feedback) != META_KMS_FEEDBACK_PASSED &&
-      crtc_frame)
-    crtc_frame->pending_page_flip = FALSE;
+  if (crtc_frame)
+    {
+      if (meta_kms_feedback_get_result (feedback) == META_KMS_FEEDBACK_PASSED)
+        {
+          meta_kms_feedback_set_ready_time_us (feedback,
+                                               crtc_frame->kms_ready_time_us);
+        }
+      else
+        {
+          crtc_frame->pending_page_flip = FALSE;
+        }
+
+      crtc_frame->kms_ready_time_us = 0;
+    }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
     changes = meta_kms_impl_device_predict_states (impl_device, update);
@@ -1888,6 +1900,25 @@ meta_kms_impl_device_do_process_update (MetaKmsImplDevice *impl_device,
   meta_kms_feedback_unref (feedback);
 }
 
+static void
+maybe_set_kms_ready_time (CrtcFrame     *crtc_frame,
+                          MetaKmsUpdate *update)
+{
+  if (meta_kms_update_get_sync_fd (update) < 0)
+    {
+      MetaKmsPlaneAssignment *assignment;
+
+      assignment =
+        meta_kms_update_get_primary_plane_assignment (update, crtc_frame->crtc);
+      if (!assignment ||
+          !(assignment->flags &
+            META_KMS_ASSIGN_PLANE_FLAG_DISABLE_IMPLICIT_SYNC))
+        return;
+    }
+
+  crtc_frame->kms_ready_time_us = g_get_monotonic_time ();
+}
+
 static gpointer
 meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
                                    gpointer         user_data,
@@ -1922,6 +1953,8 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
     !vrr_enabled &&
     !crtc_frame->await_flush &&
     is_using_deadline_timer (impl_device);
+
+  maybe_set_kms_ready_time (crtc_frame, update);
 
   if ((want_deadline_timer || crtc_frame->pending_page_flip) &&
       !meta_kms_update_get_mode_sets (update))

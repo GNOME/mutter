@@ -52,6 +52,7 @@ typedef struct _MetaKmsFeedback
   gatomicrefcount ref_count;
 
   MetaKmsFeedbackResult result;
+  int64_t ready_time_us;
 
   GList *failed_planes;
   GError *error;

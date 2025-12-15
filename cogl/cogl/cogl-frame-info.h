@@ -151,4 +151,7 @@ int64_t cogl_frame_info_get_rendering_duration_ns (CoglFrameInfo *info);
 COGL_EXPORT
 int64_t cogl_frame_info_get_time_before_buffer_swap_us (CoglFrameInfo *info);
 
+COGL_EXPORT
+int64_t cogl_frame_info_get_kms_ready_time_us (CoglFrameInfo *info);
+
 G_END_DECLS

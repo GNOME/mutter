@@ -133,6 +133,7 @@ struct _ClutterFrameInfo
   gboolean has_valid_gpu_rendering_duration;
   int64_t gpu_rendering_duration_ns;
   int64_t cpu_time_before_buffer_swap_us;
+  int64_t kms_ready_time_us;
 };
 
 CLUTTER_EXPORT

@@ -186,3 +186,9 @@ cogl_frame_info_set_target_presentation_time (CoglFrameInfo *info,
   info->has_target_presentation_time = TRUE;
   info->target_presentation_time_us = presentation_time_us;
 }
+
+int64_t
+cogl_frame_info_get_kms_ready_time_us (CoglFrameInfo *info)
+{
+  return info->kms_ready_time_us;
+}

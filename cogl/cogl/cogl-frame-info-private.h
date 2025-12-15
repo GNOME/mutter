@@ -64,6 +64,7 @@ struct _CoglFrameInfo
   CoglContext *context;
 
   int64_t frame_counter;
+  int64_t kms_ready_time_us;
   int64_t presentation_time_us; /* CLOCK_MONOTONIC */
   float refresh_rate;
 

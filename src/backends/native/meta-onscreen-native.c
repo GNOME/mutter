@@ -1567,9 +1567,19 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
    * the frame clock, emit a symbolic flip.
    */
 
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
-    return;
+    {
+      if (frame_info)
+        {
+          frame_info->kms_ready_time_us =
+            meta_kms_feedback_get_ready_time_us (kms_feedback);
+        }
+
+      return;
+    }
 
   if (!g_error_matches (error,
                         META_KMS_ERROR,
@@ -1578,8 +1588,6 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                         G_IO_ERROR,
                         G_IO_ERROR_PERMISSION_DENIED))
     g_warning ("Page flip failed: %s", error->message);
-
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
 
   /* After resuming from suspend, clear_superseded_frame might have done this
    * already and emptied the frame_info queue.
@@ -1970,9 +1978,15 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
   const GError *error;
   CoglFrameInfo *frame_info;
 
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
-    return;
+    {
+      frame_info->kms_ready_time_us =
+        meta_kms_feedback_get_ready_time_us (kms_feedback);
+      return;
+    }
 
   if (!g_error_matches (error,
                         G_IO_ERROR,
@@ -1995,7 +2009,6 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
         }
     }
 
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   frame_info->flags |= COGL_FRAME_INFO_FLAG_SYMBOLIC;
 
   meta_onscreen_native_notify_frame_complete (onscreen);
@@ -2204,9 +2217,19 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
   const GError *error;
   CoglFrameInfo *frame_info;
 
+  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
+
   error = meta_kms_feedback_get_error (kms_feedback);
   if (!error)
-    return;
+    {
+      if (frame_info)
+        {
+          frame_info->kms_ready_time_us =
+            meta_kms_feedback_get_ready_time_us (kms_feedback);
+        }
+
+      return;
+    }
 
   if (!g_error_matches (error,
                         G_IO_ERROR,
@@ -2216,7 +2239,6 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
                         META_KMS_ERROR_EMPTY_UPDATE))
     g_warning ("Cursor update failed: %s", error->message);
 
-  frame_info = cogl_onscreen_peek_head_frame_info (onscreen);
   if (!frame_info)
     {
       g_warning ("The feedback callback was called, but there was no frame info");

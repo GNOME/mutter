@@ -167,6 +167,19 @@ meta_kms_feedback_get_error (const MetaKmsFeedback *feedback)
   return feedback->error;
 }
 
+int64_t
+meta_kms_feedback_get_ready_time_us (const MetaKmsFeedback *feedback)
+{
+  return feedback->ready_time_us;
+}
+
+void
+meta_kms_feedback_set_ready_time_us (MetaKmsFeedback *feedback,
+                                     int64_t          ready_time_us)
+{
+  feedback->ready_time_us = ready_time_us;
+}
+
 void
 meta_kms_feedback_dispatch_result (MetaKmsFeedback *feedback,
                                    MetaKms         *kms,

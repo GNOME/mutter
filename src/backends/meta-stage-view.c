@@ -86,6 +86,8 @@ frame_cb (CoglOnscreen  *onscreen,
           cogl_frame_info_get_rendering_duration_ns (frame_info),
         .cpu_time_before_buffer_swap_us =
           cogl_frame_info_get_time_before_buffer_swap_us (frame_info),
+        .kms_ready_time_us =
+          cogl_frame_info_get_kms_ready_time_us (frame_info),
       };
       clutter_stage_view_notify_presented (view, &clutter_frame_info);
     }
