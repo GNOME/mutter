@@ -1642,13 +1642,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaDeviceFile *render_device_file;
   ClutterFrame *frame = user_data;
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
   CoglOnscreenClass *parent_class;
-  gboolean secondary_gpu_used = FALSE;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferFlags buffer_flags;
   MetaDrmBufferGbm *buffer_gbm;
@@ -1662,22 +1660,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 
   secondary_gpu_fb =
     update_secondary_gpu_state_pre_swap_buffers (onscreen, region);
-
-  secondary_gpu_state = onscreen_native->secondary_gpu_state;
-  if (secondary_gpu_state)
-    {
-      MetaRendererNativeGpuData *secondary_gpu_data;
-
-      secondary_gpu_data =
-        meta_renderer_native_get_gpu_data (renderer_native,
-                                           secondary_gpu_state->gpu_kms);
-      secondary_gpu_used =
-        secondary_gpu_data->secondary.copy_mode ==
-        META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU;
-    }
-
-  if (!secondary_gpu_used)
-    cogl_onscreen_egl_maybe_create_timestamp_query (onscreen, frame_info);
 
   parent_class = COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
   parent_class->swap_buffers_with_damage (onscreen,

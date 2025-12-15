@@ -538,14 +538,14 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
             }
         }
 
-      if (frame_info->gpu_rendering_duration_ns != 0)
+      if (frame_info->kms_ready_time_us != 0)
         {
           if (description->len > 0)
             g_string_append (description, ", ");
 
           g_string_append_printf (description,
-                                  "buffer swap to GPU done: %ld µs",
-                                  ns2us (frame_info->gpu_rendering_duration_ns));
+                                  "KMS update ready at %ld µs",
+                                  frame_info->kms_ready_time_us);
         }
 
       COGL_TRACE_DESCRIBE (ClutterFrameClockNotifyPresented, description->str);
@@ -561,36 +561,34 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   presented_frame->got_measurements = FALSE;
   dispatch_time_us = presented_frame->dispatch_time_us;
 
-  if ((frame_info->cpu_time_before_buffer_swap_us != 0 &&
-       frame_info->has_valid_gpu_rendering_duration) ||
+  if (frame_info->kms_ready_time_us ||
       frame_clock->ever_got_measurements)
     {
-      int64_t to_swap_us = 0, to_flip_us, to_render_done_us = 0;
+      int64_t to_flip_us, to_kms_ready_us = 0;
+      int64_t kms_ready_time_us = frame_info->kms_ready_time_us;
       int64_t max_duration_us;
-
-      if (frame_info->cpu_time_before_buffer_swap_us)
-        {
-          to_swap_us = frame_info->cpu_time_before_buffer_swap_us -
-                       dispatch_time_us;
-          to_render_done_us = to_swap_us +
-                              frame_info->gpu_rendering_duration_ns / 1000;
-        }
+      const char *ready_name = "(no ready time)";
 
       to_flip_us = presented_frame->flip_time_us - dispatch_time_us;
 
+      if (kms_ready_time_us)
+        {
+          to_kms_ready_us = kms_ready_time_us - dispatch_time_us;
+          ready_name = "to KMS ready";
+        }
+
       CLUTTER_NOTE (FRAME_TIMINGS,
-                    "%s: Dispatch %ld%+04ld µs, %3ld µs to swap / %3ld µs to flip / "
-                    "%4ld µs to render done",
+                    "%s: Dispatch %ld%+04ld µs, %3ld µs to flip / %4ld µs %s",
                     debug_state,
                     dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us,
-                    to_swap_us, to_flip_us, to_render_done_us);
+                    to_flip_us, to_kms_ready_us, ready_name);
 
       max_duration_us = get_max_update_duration_us (frame_clock);
 
       frame_clock->shortterm_max_update_duration_us =
         CLAMP (presented_frame->dispatch_lateness_us +
-               MAX (to_render_done_us, to_flip_us) +
+               MAX (to_kms_ready_us, to_flip_us) +
                frame_clock->deadline_evasion_us,
                frame_clock->shortterm_max_update_duration_us,
                2 * frame_clock->refresh_interval_us);
