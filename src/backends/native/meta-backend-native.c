@@ -384,54 +384,6 @@ meta_backend_native_get_keymap_layout_group (MetaBackend *backend)
   return meta_seat_native_get_keyboard_layout_index (META_SEAT_NATIVE (seat));
 }
 
-static void
-set_layout_index_cb (GObject      *source_object,
-                     GAsyncResult *result,
-                     gpointer      user_data)
-{
-  MetaSeatNative *seat_native = META_SEAT_NATIVE (source_object);
-  g_autoptr (GTask) task = G_TASK (user_data);
-  MetaBackend *backend = META_BACKEND (g_task_get_source_object (task));
-  g_autoptr (GError) error = NULL;
-  gboolean index_changed;
-
-  index_changed =
-    meta_seat_native_set_keyboard_layout_index_finish (seat_native,
-                                                       result,
-                                                       &error);
-  if (error)
-    {
-      g_task_return_error (task, g_steal_pointer (&error));
-      return;
-    }
-
-  if (index_changed)
-    {
-      xkb_layout_index_t idx;
-
-      idx = meta_seat_native_get_keyboard_layout_index (seat_native);
-      meta_backend_notify_keymap_layout_group_changed (backend, idx);
-    }
-
-  g_task_return_boolean (task, TRUE);
-}
-
-static void
-meta_backend_native_set_keymap_layout_group_async (MetaBackend        *backend,
-                                                   xkb_layout_index_t  idx,
-                                                   GTask              *task)
-{
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat;
-
-  seat = clutter_backend_get_default_seat (clutter_backend);
-  meta_seat_native_set_keyboard_layout_index_async (META_SEAT_NATIVE (seat),
-                                                    idx,
-                                                    g_task_get_cancellable (task),
-                                                    set_layout_index_cb,
-                                                    task);
-}
-
 static gboolean
 meta_backend_native_is_headless (MetaBackend *backend)
 {
@@ -954,7 +906,6 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_keymap = meta_backend_native_get_keymap;
   backend_class->get_keymap_description = meta_backend_native_get_keymap_description;
   backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
-  backend_class->set_keymap_layout_group_async = meta_backend_native_set_keymap_layout_group_async;
   backend_class->update_stage = meta_backend_native_update_stage;
 
   backend_class->set_pointer_constraint = meta_backend_native_set_pointer_constraint;

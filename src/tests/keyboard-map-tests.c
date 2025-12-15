@@ -275,12 +275,16 @@ set_keymap_layout_group_cb (GObject      *source_object,
   gboolean *done = user_data;
   g_autoptr (GError) error = NULL;
 
-  g_assert_true (meta_backend_set_keymap_layout_group_finish (backend,
-                                                              result,
-                                                              &error));
+  g_assert_true (meta_backend_set_keymap_finish (backend, result, &error));
   g_assert_no_error (error);
 
   *done = TRUE;
+}
+
+static void
+trigger_error (const char *message)
+{
+  g_error ("%s", message);
 }
 
 static void
@@ -290,6 +294,7 @@ meta_test_native_keyboard_map_set_layout_index (void)
   g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   gboolean done = FALSE;
   struct xkb_keymap *keymap;
+  gulong keymap_changed_handler_id;
 
   keymap_description =
     meta_keymap_description_new_from_rules (NULL,
@@ -303,10 +308,15 @@ meta_test_native_keyboard_map_set_layout_index (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
+  keymap_changed_handler_id =
+    g_signal_connect_swapped (backend,
+                              "keymap-changed",
+                              G_CALLBACK (trigger_error),
+                              (gpointer) "Unexpected keymap-changed emission");
+
   done = FALSE;
-  meta_backend_set_keymap_layout_group_async (backend, 0, NULL,
-                                              set_keymap_layout_group_cb,
-                                              &done);
+  meta_backend_set_keymap_async (backend, keymap_description, 0,
+                                 NULL, set_keymap_layout_group_cb, &done);
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
@@ -321,13 +331,14 @@ meta_test_native_keyboard_map_set_layout_index (void)
 
   g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
   done = FALSE;
-  meta_backend_set_keymap_layout_group_async (backend, 1, NULL,
-                                              set_keymap_layout_group_cb,
-                                              &done);
+  meta_backend_set_keymap_async (backend, keymap_description, 1,
+                                 NULL, set_keymap_layout_group_cb, &done);
   g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 0);
   while (!done)
     g_main_context_iteration (NULL, TRUE);
   g_assert_cmpuint (meta_backend_get_keymap_layout_group (backend), ==, 1);
+
+  g_signal_handler_disconnect (backend, keymap_changed_handler_id);
 }
 
 static void

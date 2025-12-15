@@ -99,10 +99,6 @@ struct _MetaBackendClass
 
   xkb_layout_index_t (* get_keymap_layout_group) (MetaBackend *backend);
 
-  void (* set_keymap_layout_group_async) (MetaBackend        *backend,
-                                          xkb_layout_index_t  idx,
-                                          GTask              *task);
-
   void (* update_stage) (MetaBackend *backend);
 
   void (* set_pointer_constraint) (MetaBackend           *backend,
