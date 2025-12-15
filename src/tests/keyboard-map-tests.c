@@ -73,6 +73,36 @@ set_keymap_expect_error_cb (GObject      *source_object,
 }
 
 static void
+reset_keymap_cb (GObject      *source_object,
+                 GAsyncResult *result,
+                 gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  gboolean *done = user_data;
+  g_autoptr (GError) error = NULL;
+
+  g_assert_true (meta_backend_reset_keymap_finish (backend, result, &error));
+  g_assert_no_error (error);
+
+  *done = TRUE;
+}
+
+static void
+reset_keymap_expect_error_cb (GObject      *source_object,
+                              GAsyncResult *result,
+                              gpointer      user_data)
+{
+  MetaBackend *backend = META_BACKEND (source_object);
+  gboolean *done = user_data;
+  g_autoptr (GError) error = NULL;
+
+  g_assert_false (meta_backend_reset_keymap_finish (backend, result, &error));
+  g_assert_error (error, G_IO_ERROR, G_IO_ERROR_FAILED);
+
+  *done = TRUE;
+}
+
+static void
 await_mod_mask (MetaKeymapNative  *keymap_native,
                 ModMaskTuple     **awaited_mod_mask)
 {
@@ -504,6 +534,97 @@ meta_test_native_keyboard_map_lock_layout (void)
   meta_keymap_description_owner_unref (owner);
 }
 
+static MetaKeymapDescription *
+on_reset_keymap_description (MetaBackend           *backend,
+                             MetaKeymapDescription *keymap_description)
+{
+  return meta_keymap_description_ref (keymap_description);
+}
+
+static void
+meta_test_native_keyboard_map_lock_layout_reset (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  g_autoptr (MetaKeymapDescription) keymap_description1 = NULL;
+  g_autoptr (MetaKeymapDescription) keymap_description2 = NULL;
+  MetaKeymapDescriptionOwner *owner;
+  MetaKeymapDescriptionOwner *other_owner;
+  gboolean done = FALSE;
+  gboolean was_signalled = FALSE;
+  gulong keymap_changed_handler_id;
+  gulong reset_keymap_handler_id;
+
+  owner = meta_keymap_description_owner_new ();
+  other_owner = meta_keymap_description_owner_new ();
+
+  keymap_description1 =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "us,se",
+                                            "dvorak-alt-intl,svdvorak",
+                                            NULL,
+                                            NULL,
+                                            NULL);
+  meta_keymap_description_lock (keymap_description1, owner);
+  meta_backend_set_keymap_async (backend, keymap_description1, 0,
+                                 NULL, set_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  keymap_changed_handler_id =
+    g_signal_connect_swapped (backend,
+                              "keymap-changed",
+                              G_CALLBACK (trigger_error),
+                              (gpointer) "Unexpected keymap-changed emission");
+
+  keymap_description2 =
+    meta_keymap_description_new_from_rules (NULL,
+                                            "se,us",
+                                            "svdvorak,dvorak-alt-intl",
+                                            NULL,
+                                            NULL,
+                                            NULL);
+  done = FALSE;
+  meta_backend_set_keymap_async (backend, keymap_description2, 0,
+                                 NULL, set_keymap_expect_error_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  reset_keymap_handler_id =
+    g_signal_connect (backend,
+                      "reset-keymap-description",
+                      G_CALLBACK (on_reset_keymap_description),
+                      keymap_description2);
+
+  done = FALSE;
+  meta_backend_reset_keymap_async (backend, other_owner,
+                                   NULL, reset_keymap_expect_error_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (backend, keymap_changed_handler_id);
+  keymap_changed_handler_id =
+    g_signal_connect_swapped (backend,
+                              "keymap-changed",
+                              G_CALLBACK (set_true_cb),
+                              &was_signalled);
+
+  done = FALSE;
+  meta_backend_reset_keymap_async (backend, owner,
+                                   NULL, reset_keymap_cb, &done);
+  while (!done)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_assert_true (meta_backend_get_keymap_description (backend) ==
+                 keymap_description2);
+
+  g_assert_true (was_signalled);
+
+  g_signal_handler_disconnect (backend, keymap_changed_handler_id);
+  g_signal_handler_disconnect (backend, reset_keymap_handler_id);
+  meta_keymap_description_owner_unref (owner);
+  meta_keymap_description_owner_unref (other_owner);
+}
+
 static void
 record_modifier_state (ClutterKeymap  *keymap,
                        ModMaskTuple  **expected_mods)
@@ -625,6 +746,8 @@ init_tests (void)
                    meta_test_native_keyboard_map_set_layout_index);
   g_test_add_func ("/backends/native/keyboard-map/lock-layout",
                    meta_test_native_keyboard_map_lock_layout);
+  g_test_add_func ("/backends/native/keyboard-map/lock-layout-reset",
+                   meta_test_native_keyboard_map_lock_layout_reset);
   g_test_add_func ("/backends/native/keyboard-map/modifiers",
                    meta_test_native_keyboard_map_modifiers);
 }

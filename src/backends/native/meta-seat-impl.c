@@ -3868,6 +3868,8 @@ set_keyboard_map (GTask *task)
         {
           if (meta_keymap_description_is_locked (priv->keymap_description) &&
               meta_keymap_description_get_owner (keymap_description) !=
+              meta_keymap_description_get_owner (priv->keymap_description) &&
+              meta_keymap_description_resets_owner (keymap_description) !=
               meta_keymap_description_get_owner (priv->keymap_description))
             {
               g_task_return_new_error (task, G_IO_ERROR, G_IO_ERROR_FAILED,

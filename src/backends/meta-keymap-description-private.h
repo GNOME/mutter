@@ -57,4 +57,9 @@ META_EXPORT_TEST
 void meta_keymap_description_unlock (MetaKeymapDescription      *keymap_description,
                                      MetaKeymapDescriptionOwner *owner);
 
+void meta_keymap_description_reset_owner (MetaKeymapDescription      *keymap_description,
+                                          MetaKeymapDescriptionOwner *owner);
+
 MetaKeymapDescriptionOwner * meta_keymap_description_get_owner (MetaKeymapDescription *keymap_description);
+
+MetaKeymapDescriptionOwner * meta_keymap_description_resets_owner (MetaKeymapDescription *keymap_description);

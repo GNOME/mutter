@@ -39,6 +39,7 @@ struct _MetaKeymapDescription
 
   gboolean is_locked;
   MetaKeymapDescriptionOwner *owner;
+  MetaKeymapDescriptionOwner *resets_owner;
 
   union {
     struct {
@@ -162,6 +163,8 @@ meta_keymap_description_unref (MetaKeymapDescription *keymap_description)
         }
 
       g_clear_pointer (&keymap_description->owner,
+                       meta_keymap_description_owner_unref);
+      g_clear_pointer (&keymap_description->resets_owner,
                        meta_keymap_description_owner_unref);
 
       g_free (keymap_description);
@@ -350,6 +353,15 @@ meta_keymap_description_unlock (MetaKeymapDescription      *keymap_description,
   keymap_description->owner = meta_keymap_description_owner_ref (owner);
 }
 
+void
+meta_keymap_description_reset_owner (MetaKeymapDescription      *keymap_description,
+                                     MetaKeymapDescriptionOwner *owner)
+{
+  g_clear_pointer (&keymap_description->resets_owner,
+                   meta_keymap_description_owner_unref);
+  keymap_description->resets_owner = meta_keymap_description_owner_ref (owner);
+}
+
 gboolean
 meta_keymap_description_is_locked (MetaKeymapDescription *keymap_description)
 {
@@ -360,4 +372,10 @@ MetaKeymapDescriptionOwner *
 meta_keymap_description_get_owner (MetaKeymapDescription *keymap_description)
 {
   return keymap_description->owner;
+}
+
+MetaKeymapDescriptionOwner *
+meta_keymap_description_resets_owner (MetaKeymapDescription *keymap_description)
+{
+  return keymap_description->resets_owner;
 }

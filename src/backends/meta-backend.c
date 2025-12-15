@@ -1756,10 +1756,11 @@ meta_backend_reset_keymap_finish (MetaBackend   *backend,
 }
 
 void
-meta_backend_reset_keymap_async (MetaBackend         *backend,
-                                 GCancellable        *cancellable,
-                                 GAsyncReadyCallback  callback,
-                                 gpointer             user_data)
+meta_backend_reset_keymap_async (MetaBackend                *backend,
+                                 MetaKeymapDescriptionOwner *owner,
+                                 GCancellable               *cancellable,
+                                 GAsyncReadyCallback         callback,
+                                 gpointer                    user_data)
 {
   g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   uint32_t layout_index = 0;
@@ -1785,6 +1786,8 @@ meta_backend_reset_keymap_async (MetaBackend         *backend,
                                                 NULL);
       layout_index = 0;
     }
+
+  meta_keymap_description_reset_owner (keymap_description, owner);
 
   task = g_task_new (G_OBJECT (backend), cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_backend_reset_keymap_async);
