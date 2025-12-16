@@ -549,7 +549,10 @@ meta_renderer_native_setup_egl_display (CoglWinsys   *winsys,
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaRendererNative *renderer_native;
 
-  COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->display_setup (winsys, cogl_display, error);
+  if (!COGL_WINSYS_CLASS (meta_winsys_egl_parent_class)->display_setup (winsys,
+                                                                        cogl_display,
+                                                                        error))
+    return FALSE;
 
   cogl_display_egl = cogl_display->winsys;
   cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_display->renderer);
