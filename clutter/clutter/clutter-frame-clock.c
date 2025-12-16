@@ -809,7 +809,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
   int64_t last_presentation_time_us;
   int64_t now_us;
   int64_t refresh_interval_us;
-  int64_t min_render_time_allowed_us;
   int64_t max_update_time_estimate_us;
   int64_t next_presentation_time_us;
   int64_t next_smooth_presentation_time_us = 0;
@@ -841,11 +840,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       *out_next_frame_deadline_us = 0;
       return;
     }
-
-  min_render_time_allowed_us = refresh_interval_us / 2;
-
-  if (min_render_time_allowed_us > max_update_time_estimate_us)
-    min_render_time_allowed_us = max_update_time_estimate_us;
 
   /*
    * The common case is that the next presentation happens 1 refresh interval
@@ -907,11 +901,10 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                          next_smooth_presentation_time_us))
     {
       next_update_time_us = now_us;
-      min_render_time_allowed_us = 0;
     }
   else
     {
-      while (next_presentation_time_us - min_render_time_allowed_us < now_us)
+      while (next_presentation_time_us - max_update_time_estimate_us < now_us)
         next_presentation_time_us += refresh_interval_us;
 
       next_update_time_us = next_presentation_time_us - max_update_time_estimate_us;
