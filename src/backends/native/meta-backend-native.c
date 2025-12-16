@@ -1072,17 +1072,6 @@ meta_backend_native_resume (MetaBackend *backend)
   clutter_seat_ensure_a11y_state (CLUTTER_SEAT (seat));
 }
 
-static MetaRenderDevice *
-meta_backend_native_create_render_device (MetaBackendNative  *backend_native,
-                                          const char         *device_path,
-                                          GError            **error)
-{
-  g_autoptr (MetaRenderDevice) render_device = NULL;
-
-  render_device = create_render_device (backend_native, device_path, error);
-  return g_steal_pointer (&render_device);
-}
-
 MetaRenderDevice *
 meta_backend_native_take_render_device (MetaBackendNative  *backend_native,
                                         const char         *device_path,
@@ -1103,7 +1092,6 @@ meta_backend_native_take_render_device (MetaBackendNative  *backend_native,
     }
   else
     {
-      return meta_backend_native_create_render_device (backend_native,
-                                                       device_path, error);
+      return create_render_device (backend_native, device_path, error);
     }
 }
