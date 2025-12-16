@@ -1072,10 +1072,18 @@ meta_backend_native_resume (MetaBackend *backend)
   clutter_seat_ensure_a11y_state (CLUTTER_SEAT (seat));
 }
 
+/**
+ * meta_backend_native_get_render_device:
+ * @backend_native: A #MetaBackendNative
+ * @device_path: a file path to a device
+ * @error: a pointer to a #GError
+ *
+ * Returns: (transfer full): A render device, or %NULL if error.
+ */
 MetaRenderDevice *
-meta_backend_native_take_render_device (MetaBackendNative  *backend_native,
-                                        const char         *device_path,
-                                        GError            **error)
+meta_backend_native_get_render_device (MetaBackendNative  *backend_native,
+                                       const char         *device_path,
+                                       GError            **error)
 {
   MetaBackendNativePrivate *priv =
     meta_backend_native_get_instance_private (backend_native);
