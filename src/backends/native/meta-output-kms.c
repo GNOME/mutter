@@ -415,9 +415,33 @@ meta_output_kms_create_backlight (MetaOutput  *output,
    */
   if (color_mode == META_COLOR_MODE_BT2100)
     {
-      return META_BACKLIGHT (meta_backlight_ref_white_new (backend,
-                                                           monitor,
-                                                           orig_ref_white));
+      g_autoptr (MetaBacklightRefWhite) backlight_ref_white = NULL;
+
+      backlight_ref_white = meta_backlight_ref_white_new (backend,
+                                                          monitor,
+                                                          orig_ref_white);
+
+      /* Even more unfortunately, this also means we have to reset the sysfs
+       * based backlight to 100% because in case it actually does work, we could
+       * never reach 100% with the ref-white alone.
+       */
+      backlight_sysfs = meta_backlight_sysfs_new (backend, output_info, NULL);
+      if (backlight_sysfs)
+        {
+          MetaBacklight *bl = META_BACKLIGHT (backlight_sysfs);
+          int brightness_max;
+
+          meta_backlight_get_brightness_info (bl, NULL, &brightness_max);
+          meta_backlight_set_brightness (bl, brightness_max);
+
+          /* and because this is all async, we need to keep it alive */
+          g_object_set_data_full (G_OBJECT (backlight_ref_white),
+                                  "-mutter-output-kms-sysfs",
+                                  g_steal_pointer (&backlight_sysfs),
+                                  g_object_unref);
+        }
+
+      return META_BACKLIGHT (g_steal_pointer (&backlight_ref_white));
     }
 
   meta_color_device_set_reference_luminance_factor (color_device,
