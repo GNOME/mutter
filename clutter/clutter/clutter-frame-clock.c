@@ -776,6 +776,10 @@ should_update_now (ClutterFrameClock *frame_clock,
                    int64_t            next_presentation_time_us,
                    int64_t            next_smooth_presentation_time_us)
 {
+  /* There's no "idle period" if a frame was dispatched but not presented yet */
+  if (frame_clock->state >= CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE)
+    return FALSE;
+
   /* Next check is meaningful only for a page flip with timestamp */
   if (!(frame_clock->prev_presentation->presentation_flags &
         CLUTTER_FRAME_INFO_FLAG_VSYNC))
