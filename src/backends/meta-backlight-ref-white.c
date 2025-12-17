@@ -103,7 +103,7 @@ meta_backlight_ref_white_set_brightness (MetaBacklight       *backlight,
    * the shell in a frame clock dispatch, and changing the ColorDevice
    * reference white invalidates the onscreen. */
   backlight_ref_white->change_ref_white_handle_id =
-    g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+    g_idle_add_full (CLUTTER_PRIORITY_REDRAW - 1,
                      on_change_ref_white,
                      g_steal_pointer (&task),
                      g_object_unref);
