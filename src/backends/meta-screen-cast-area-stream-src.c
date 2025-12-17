@@ -712,8 +712,11 @@ MetaScreenCastAreaStreamSrc *
 meta_screen_cast_area_stream_src_new (MetaScreenCastAreaStream  *area_stream,
                                       GError                   **error)
 {
+  MtkRectangle *area = meta_screen_cast_area_stream_get_area (area_stream);
+
   return g_initable_new (META_TYPE_SCREEN_CAST_AREA_STREAM_SRC, NULL, error,
                          "stream", area_stream,
+                         "layout", area,
                          NULL);
 }
 

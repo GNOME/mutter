@@ -59,6 +59,7 @@ struct _MetaScreenCastVirtualStreamSrc
 
   MetaStageWatch *paint_watch;
   MetaStageWatch *skipped_watch;
+  GBinding *layout_binding;
 
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
@@ -256,6 +257,10 @@ setup_view (MetaScreenCastVirtualStreamSrc *virtual_src,
                            on_skipped_paint,
                            virtual_src);
 
+  virtual_src->layout_binding = g_object_bind_property (view, "layout",
+                                                        src, "layout",
+                                                        G_BINDING_SYNC_CREATE);
+
   if (meta_screen_cast_stream_src_is_enabled (src) &&
       !meta_screen_cast_stream_src_is_driving (src))
     make_frame_clock_passive (virtual_src, view);
@@ -365,6 +370,8 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
       meta_stage_remove_watch (META_STAGE (stage), virtual_src->skipped_watch);
       virtual_src->skipped_watch = NULL;
     }
+
+  g_clear_object (&virtual_src->layout_binding);
 
   g_clear_signal_handler (&virtual_src->position_invalidated_handler_id,
                           cursor_tracker);
