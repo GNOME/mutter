@@ -44,6 +44,9 @@ META_EXPORT
 const char * meta_monitor_get_serial (MetaMonitor *monitor);
 
 META_EXPORT
+const char * meta_monitor_get_color_mode_string (MetaMonitor *monitor);
+
+META_EXPORT
 gboolean meta_monitor_is_primary (MetaMonitor *monitor);
 
 META_EXPORT

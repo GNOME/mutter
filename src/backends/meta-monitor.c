@@ -2839,6 +2839,29 @@ meta_monitor_get_color_mode (MetaMonitor *monitor)
   return meta_output_get_color_mode (output);
 }
 
+/**
+ * meta_monitor_get_color_mode_string:
+ * @monitor: A #MetaMonitor object
+ *
+ * Get the color mode of the monitor as a string.
+ *
+ * Returns: The color mode of the monitor.
+ */
+const char *
+meta_monitor_get_color_mode_string (MetaMonitor *monitor)
+{
+  switch (meta_monitor_get_color_mode (monitor))
+    {
+    case META_COLOR_MODE_DEFAULT:
+      return "default";
+    case META_COLOR_MODE_BT2100:
+      return "bt2100";
+    case META_COLOR_MODE_SDR_NATIVE:
+      return "sdr-native";
+    }
+  g_assert_not_reached ();
+}
+
 gboolean
 meta_parse_monitor_mode (const char *string,
                          int        *out_width,
