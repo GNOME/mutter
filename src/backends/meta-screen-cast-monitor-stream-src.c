@@ -449,6 +449,17 @@ static void
 on_monitors_changed (MetaMonitorManager             *monitor_manager,
                      MetaScreenCastMonitorStreamSrc *monitor_src)
 {
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastMonitorStream *monitor_stream =
+    META_SCREEN_CAST_MONITOR_STREAM (stream);
+  MetaMonitor *monitor =
+    meta_screen_cast_monitor_stream_get_monitor (monitor_stream);
+  MetaLogicalMonitor *logical_monitor =
+    meta_monitor_get_logical_monitor (monitor);
+  MtkRectangle layout = meta_logical_monitor_get_layout (logical_monitor);
+
+  g_object_set (G_OBJECT (src), "layout", &layout, NULL);
   reattach_watches (monitor_src);
 }
 
@@ -909,8 +920,15 @@ MetaScreenCastMonitorStreamSrc *
 meta_screen_cast_monitor_stream_src_new (MetaScreenCastMonitorStream  *monitor_stream,
                                          GError                      **error)
 {
+  MetaMonitor *monitor =
+    meta_screen_cast_monitor_stream_get_monitor (monitor_stream);
+  MetaLogicalMonitor *logical_monitor =
+    meta_monitor_get_logical_monitor (monitor);
+  MtkRectangle layout = meta_logical_monitor_get_layout (logical_monitor);
+
   return g_initable_new (META_TYPE_SCREEN_CAST_MONITOR_STREAM_SRC, NULL, error,
                          "stream", monitor_stream,
+                         "layout", &layout,
                          NULL);
 }
 

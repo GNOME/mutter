@@ -80,6 +80,7 @@ enum
 
   PROP_STREAM,
   PROP_MUST_DRIVE,
+  PROP_LAYOUT,
 
   N_PROPS
 };
@@ -146,6 +147,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
    */
   GList *dequeued_buffers;
 
+  MtkRectangle layout;
   MtkRegion *redraw_clip;
 
   GHashTable *modifiers;
@@ -2324,6 +2326,7 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (object);
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MtkRectangle *layout;
 
   switch (prop_id)
     {
@@ -2332,6 +2335,17 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
       break;
     case PROP_MUST_DRIVE:
       priv->must_drive = g_value_get_boolean (value);
+      break;
+    case PROP_LAYOUT:
+      layout = g_value_get_boxed (value);
+      if (!mtk_rectangle_equal (&priv->layout, layout))
+        {
+          g_autoptr (MtkRegion) region = NULL;
+
+          priv->layout = *layout;
+          region = mtk_region_create_rectangle (layout);
+          meta_screen_cast_stream_src_accumulate_redraw_clip (src, region);
+        }
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2406,6 +2420,11 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
                           G_PARAM_WRITABLE |
                           G_PARAM_CONSTRUCT_ONLY |
                           G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_LAYOUT] =
+    g_param_spec_boxed ("layout", NULL, NULL,
+                        MTK_TYPE_RECTANGLE,
+                        G_PARAM_WRITABLE |
+                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class,
                                      N_PROPS,
                                      obj_props);
