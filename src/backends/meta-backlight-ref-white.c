@@ -31,7 +31,6 @@ struct _MetaBacklightRefWhite
   MetaBacklight parent;
 
   MetaMonitor *monitor;
-  float original_ref_white;
   guint change_ref_white_handle_id;
 };
 
@@ -151,8 +150,7 @@ meta_backlight_ref_white_init (MetaBacklightRefWhite *backlight)
 
 MetaBacklightRefWhite *
 meta_backlight_ref_white_new (MetaBackend *backend,
-                              MetaMonitor *monitor,
-                              float        original_ref_white)
+                              MetaMonitor *monitor)
 {
   g_autoptr (MetaBacklightRefWhite) backlight = NULL;
 
@@ -163,16 +161,9 @@ meta_backlight_ref_white_new (MetaBackend *backend,
                             "brightness-max", 210,
                             NULL);
   backlight->monitor = monitor;
-  backlight->original_ref_white = original_ref_white;
 
   meta_backlight_update_brightness_target (META_BACKLIGHT (backlight),
                                            (int)(get_factor (backlight) * 100));
 
   return g_steal_pointer (&backlight);
-}
-
-float
-meta_backlight_ref_white_get_original_ref_white (MetaBacklightRefWhite *backlight)
-{
-  return backlight->original_ref_white;
 }

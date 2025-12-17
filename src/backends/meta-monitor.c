@@ -909,6 +909,8 @@ meta_monitor_create_backlight (MetaMonitor *monitor)
   g_autoptr (MetaBacklight) backlight = NULL;
   g_autoptr (GError) error = NULL;
 
+  g_clear_object (&priv->backlight);
+
   backlight = meta_output_create_backlight (main_output, &error);
   if (!backlight)
     {

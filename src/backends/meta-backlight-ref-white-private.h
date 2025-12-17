@@ -30,7 +30,4 @@ G_DECLARE_FINAL_TYPE (MetaBacklightRefWhite,
                       MetaBacklight)
 
 MetaBacklightRefWhite * meta_backlight_ref_white_new (MetaBackend *backend,
-                                                      MetaMonitor *monitor,
-                                                      float        original_ref_white);
-
-float meta_backlight_ref_white_get_original_ref_white (MetaBacklightRefWhite *backlight);
+                                                      MetaMonitor *monitor);

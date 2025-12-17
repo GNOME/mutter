@@ -392,21 +392,10 @@ meta_output_kms_create_backlight (MetaOutput  *output,
     meta_color_manager_get_color_device (color_manager, monitor);
   const MetaOutputInfo *output_info = meta_output_get_info (output);
   MetaColorMode color_mode = meta_output_get_color_mode (output);
-  MetaBacklight *old_backlight = meta_monitor_get_backlight (monitor);
-  float orig_ref_white;
   g_autoptr (MetaBacklightSysfs) backlight_sysfs = NULL;
   g_autoptr (GError) local_error = NULL;
 
-  if (META_IS_BACKLIGHT_REF_WHITE (old_backlight))
-    {
-      orig_ref_white = meta_backlight_ref_white_get_original_ref_white (
-        META_BACKLIGHT_REF_WHITE (old_backlight));
-    }
-  else
-    {
-      orig_ref_white =
-        meta_color_device_get_reference_luminance_factor (color_device);
-    }
+  meta_color_device_set_reference_luminance_factor (color_device, 1.0);
 
   /* Unfortunately we don't know if a sysfs backlight actually works in
    * HDR modes. Ideally a new KMS backlight API would allow us to get this
@@ -417,9 +406,7 @@ meta_output_kms_create_backlight (MetaOutput  *output,
     {
       g_autoptr (MetaBacklightRefWhite) backlight_ref_white = NULL;
 
-      backlight_ref_white = meta_backlight_ref_white_new (backend,
-                                                          monitor,
-                                                          orig_ref_white);
+      backlight_ref_white = meta_backlight_ref_white_new (backend, monitor);
 
       /* Even more unfortunately, this also means we have to reset the sysfs
        * based backlight to 100% because in case it actually does work, we could
@@ -443,9 +430,6 @@ meta_output_kms_create_backlight (MetaOutput  *output,
 
       return META_BACKLIGHT (g_steal_pointer (&backlight_ref_white));
     }
-
-  meta_color_device_set_reference_luminance_factor (color_device,
-                                                    orig_ref_white);
 
   backlight_sysfs = meta_backlight_sysfs_new (backend,
                                               output_info,
