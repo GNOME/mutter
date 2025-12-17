@@ -105,8 +105,8 @@ struct _MdkStream
 };
 
 #define CURSOR_META_SIZE(width, height) \
-  (sizeof(struct spa_meta_cursor) + \
-   sizeof(struct spa_meta_bitmap) + width * height * 4)
+  (sizeof (struct spa_meta_cursor) + \
+   sizeof (struct spa_meta_bitmap) + width * height * 4)
 
 static const struct
 {
@@ -444,7 +444,7 @@ on_stream_param_changed (void                 *user_data,
     SPA_PARAM_META_size, SPA_POD_Int (sizeof (struct spa_meta_header)),
     0);
 
-  params[2] = spa_pod_builder_add_object(
+  params[2] = spa_pod_builder_add_object (
     &pod_builder,
     SPA_TYPE_OBJECT_ParamMeta, SPA_PARAM_Meta,
     SPA_PARAM_META_type, SPA_POD_Id (SPA_META_Cursor),
