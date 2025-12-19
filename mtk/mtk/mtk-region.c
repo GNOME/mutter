@@ -388,10 +388,13 @@ mtk_region_scale (MtkRegion *region,
   MtkRectangle *rects;
   MtkRegion *scaled_region;
 
+  n_rects = mtk_region_num_rectangles (region);
+  if (!n_rects)
+    return mtk_region_create ();
+
   if (scale == 1)
     return mtk_region_copy (region);
 
-  n_rects = mtk_region_num_rectangles (region);
   MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
@@ -417,6 +420,10 @@ mtk_region_crop_and_scale (MtkRegion       *region,
   MtkRectangle *rects;
   MtkRegion *viewport_region;
 
+  n_rects = mtk_region_num_rectangles (region);
+  if (!n_rects)
+    return mtk_region_create ();
+
   if (G_APPROX_VALUE (src_rect->size.width, dst_width, FLT_EPSILON) &&
       G_APPROX_VALUE (src_rect->size.height, dst_height, FLT_EPSILON) &&
       G_APPROX_VALUE (roundf (src_rect->origin.x),
@@ -437,7 +444,6 @@ mtk_region_crop_and_scale (MtkRegion       *region,
       return viewport_region;
     }
 
-  n_rects = mtk_region_num_rectangles (region);
   MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
@@ -463,10 +469,13 @@ mtk_region_apply_matrix_transform_expand (const MtkRegion   *region,
   MtkRectangle *rects;
   int n_rects, i;
 
+  n_rects = mtk_region_num_rectangles (region);
+  if (!n_rects)
+    return mtk_region_create ();
+
   if (graphene_matrix_is_identity (transform))
     return mtk_region_copy (region);
 
-  n_rects = mtk_region_num_rectangles (region);
   MTK_RECTANGLE_CREATE_ARRAY_SCOPED (n_rects, rects);
   for (i = 0; i < n_rects; i++)
     {
