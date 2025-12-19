@@ -111,7 +111,7 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 43
-    BASE_TAG: '2025-12-03.0'
+    BASE_TAG: '2025-12-20.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -174,6 +174,7 @@ variables:
       dnf builddep -y kernel --setopt=install_weak_deps=False
       dnf builddep -y gi-docgen --setopt=install_weak_deps=False
       dnf builddep -y wayland --setopt=install_weak_deps=False
+      dnf builddep -y gtk4 --setopt=install_weak_deps=False
 
       if [[ x"$(uname -m )" = "xx86_64" ]] ; then
         # deprecated header no longer included in openssl-devel

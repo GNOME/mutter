@@ -73,6 +73,24 @@ check_gsettings_key() {
   return $rv
 }
 
+gjs_require_symbol() {
+  local lib=$1
+  local ver=$2
+  local symbol=$3
+
+  local rv=0
+
+  for destdir in "${DESTDIRS[@]}"; do
+    ENV=(GI_TYPELIB_PATH=$destdir/usr/lib64/girepository-1.0)
+    if ! env "${ENV[@]}" gjs -c "imports.package.requireSymbol('$lib', '$ver', '$symbol')" 2>/dev/null
+    then
+      rv=1
+    fi
+  done
+
+  return $rv
+}
+
 TEMP=$(getopt \
   --name=$(basename $0) \
   --options='h' \
@@ -123,3 +141,12 @@ SCRIPTS_DIR="$(dirname $0)"
 #      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
 #      1.44
 #fi
+
+ if ! gjs_require_symbol Gtk 4.0 Application.support_save
+ then
+    ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      -Dintrospection=enabled \
+      https://gitlab.gnome.org/GNOME/gtk.git \
+      main
+fi
