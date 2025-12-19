@@ -199,6 +199,11 @@ variables:
         https://gitlab.gnome.org/GNOME/glib.git \
         main
 
+      ./.gitlab-ci/install-meson-project.sh \
+        --commit=8723146fca06edd5584d0a9e16668356af6ce308 \
+        https://gitlab.gnome.org/GNOME/gtk.git \
+        gtk-3-24
+
       ./.gitlab-ci/install-common-dependencies.sh
 
       # Work-around for podman-push aborting on permission issue
