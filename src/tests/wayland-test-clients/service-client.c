@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <glib/gstdio.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <wayland-client.h>
@@ -51,7 +52,7 @@ main (int    argc,
   g_autoptr (WaylandDisplay) display = NULL;
   g_autoptr (WaylandSurface) surface = NULL;
 
-  int fd;
+  g_autofd int fd = -1;
   struct wl_display *wayland_display;
   uint32_t last_sync_event = UINT32_MAX;
 
@@ -76,7 +77,7 @@ main (int    argc,
   fd = g_unix_fd_list_get (fd_list, g_variant_get_handle (fd_variant), &error);
   g_assert_cmpint (fd, >=, 0);
 
-  wayland_display = wl_display_connect_to_fd (fd);
+  wayland_display = wl_display_connect_to_fd (g_steal_fd (&fd));
 
   display = wayland_display_new_full (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER,
                                       wayland_display);
