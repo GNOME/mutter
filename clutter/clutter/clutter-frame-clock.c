@@ -1121,6 +1121,11 @@ want_triple_buffering (ClutterFrameClock *frame_clock)
       return FALSE;
     };
 
+  if (frame_clock->prev_presentation &&
+      frame_clock->prev_presentation->presentation_flags &
+      CLUTTER_FRAME_INFO_FLAG_ZERO_COPY)
+    return FALSE;
+
   if (clutter_frame_clock_estimate_max_update_time_us (frame_clock,
                                                        &max_update_time_estimate_us) &&
       max_update_time_estimate_us < frame_clock->refresh_interval_us)
