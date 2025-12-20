@@ -756,6 +756,7 @@ maybe_update_deadline_evasion (MetaKmsCrtc *crtc,
 
 gboolean
 meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
+                                  int64_t       target_presentation_time_us,
                                   int64_t      *out_next_deadline_us,
                                   int64_t      *out_next_presentation_us,
                                   GError      **error)
@@ -841,10 +842,14 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
         {
           if (vrr_enabled)
             {
-              meta_topic (META_DEBUG_KMS_DEADLINE,
-                          "Missed deadline by %3"G_GINT64_FORMAT "µs, "
-                          "starting ASAP for VRR",
-                          now_us - next_deadline_us);
+              if (target_presentation_time_us &&
+                  target_presentation_time_us < next_presentation_us)
+                {
+                  meta_topic (META_DEBUG_KMS_DEADLINE,
+                              "Missed deadline by %3"G_GINT64_FORMAT "µs, "
+                              "starting ASAP for VRR",
+                              now_us - next_deadline_us);
+                }
 
               /* Extrapolate assuming dispatch starts now */
               next_presentation_us += now_us - next_deadline_us;
@@ -860,7 +865,12 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                                                         refresh_interval_us) -
                 next_deadline_us;
 
-              if (meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
+              if (target_presentation_time_us &&
+                  meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE) &&
+                  mtk_find_nearest_interval_boundary (next_presentation_us,
+                                                      target_presentation_time_us,
+                                                      refresh_interval_us) ==
+                  next_presentation_us)
                 {
                   meta_topic (META_DEBUG_KMS_DEADLINE,
                               "Missed deadline by %3"G_GINT64_FORMAT "µs, "

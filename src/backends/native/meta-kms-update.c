@@ -55,6 +55,8 @@ struct _MetaKmsUpdate
   MetaKmsImplDevice *impl_device;
 
   int sync_fd;
+
+  int64_t target_presentation_time_us;
 };
 
 void
@@ -1221,6 +1223,9 @@ meta_kms_update_merge_from (MetaKmsUpdate *update,
   merge_result_listeners_from (update, other_update);
 
   meta_kms_update_set_sync_fd (update, g_steal_fd (&other_update->sync_fd));
+  update->target_presentation_time_us =
+    MAX (update->target_presentation_time_us,
+         other_update->target_presentation_time_us);
 }
 
 gboolean
@@ -1291,6 +1296,21 @@ int
 meta_kms_update_get_sync_fd (MetaKmsUpdate *update)
 {
   return update->sync_fd;
+}
+
+int64_t
+meta_kms_update_get_target_presentation_time (MetaKmsUpdate *update)
+{
+  return update->target_presentation_time_us;
+}
+
+void
+meta_kms_update_set_target_presentation_time (MetaKmsUpdate *update,
+                                              int64_t        target_presentation_time_us)
+{
+  g_return_if_fail (update->target_presentation_time_us == 0);
+
+  update->target_presentation_time_us = target_presentation_time_us;
 }
 
 void

@@ -177,6 +177,11 @@ void
 meta_kms_update_set_sync_fd (MetaKmsUpdate *update,
                              int            sync_fd);
 
+int64_t meta_kms_update_get_target_presentation_time (MetaKmsUpdate *update);
+
+void meta_kms_update_set_target_presentation_time (MetaKmsUpdate *update,
+                                                   int64_t        target_presentation_time_us);
+
 void meta_kms_plane_assignment_set_fb_damage (MetaKmsPlaneAssignment *plane_assignment,
                                               const MtkRegion        *region);
 

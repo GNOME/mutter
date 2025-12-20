@@ -1900,6 +1900,12 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   if (sync_fd >= 0)
     meta_kms_update_set_sync_fd (kms_update, g_steal_fd (&sync_fd));
 
+  if (frame->is_target_presentation_time)
+    {
+      meta_kms_update_set_target_presentation_time (kms_update,
+                                                    frame->expected_presentation_time_us);
+    }
+
   meta_kms_device_post_update (kms_device, kms_update,
                                META_KMS_UPDATE_FLAG_NONE);
 }

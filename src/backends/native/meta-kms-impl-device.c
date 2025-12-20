@@ -1383,8 +1383,8 @@ static gboolean
 ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
                              CrtcFrame         *crtc_frame)
 {
-  int64_t next_deadline_us;
-  int64_t next_presentation_us;
+  int64_t next_deadline_us, next_presentation_us, target_presentation_us = 0;
+  MetaKmsUpdate *kms_update;
   g_autoptr (GError) local_error = NULL;
 
   if (crtc_frame->deadline.armed)
@@ -1393,7 +1393,15 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   if (!meta_kms_crtc_get_current_state (crtc_frame->crtc)->is_drm_mode_valid)
     return FALSE;
 
+  kms_update = crtc_frame->pending_update;
+  if (kms_update)
+    {
+      target_presentation_us =
+        meta_kms_update_get_target_presentation_time (kms_update);
+    }
+
   if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
+                                         target_presentation_us,
                                          &next_deadline_us,
                                          &next_presentation_us,
                                          &local_error))
