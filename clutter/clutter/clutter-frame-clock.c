@@ -462,6 +462,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   const char *debug_state =
     frame_clock->state == CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO ?
     "Triple buffering" : "Double buffering";
+  int64_t dispatch_time_us;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
                            "Clutter::FrameClock::presented()");
@@ -558,47 +559,38 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
 
   presented_frame->got_measurements = FALSE;
+  dispatch_time_us = presented_frame->dispatch_time_us;
 
   if ((frame_info->cpu_time_before_buffer_swap_us != 0 &&
        frame_info->has_valid_gpu_rendering_duration) ||
       frame_clock->ever_got_measurements)
     {
-      int64_t dispatch_to_swap_us, swap_to_rendering_done_us, swap_to_flip_us;
-      int64_t dispatch_time_us = presented_frame->dispatch_time_us;
-      int64_t flip_time_us = presented_frame->flip_time_us;
+      int64_t to_swap_us = 0, to_flip_us, to_render_done_us = 0;
       int64_t max_duration_us;
 
-      if (frame_info->cpu_time_before_buffer_swap_us == 0)
+      if (frame_info->cpu_time_before_buffer_swap_us)
         {
-          /* User thread cursor-only updates with no "swap": we do know
-           * the combined time from dispatch to flip at least.
-           */
-          dispatch_to_swap_us = 0;
-          swap_to_flip_us = flip_time_us - dispatch_time_us;
+          to_swap_us = frame_info->cpu_time_before_buffer_swap_us -
+                       dispatch_time_us;
+          to_render_done_us = to_swap_us +
+                              frame_info->gpu_rendering_duration_ns / 1000;
         }
-      else
-        {
-          dispatch_to_swap_us = frame_info->cpu_time_before_buffer_swap_us -
-                                dispatch_time_us;
-          swap_to_flip_us = flip_time_us -
-                            frame_info->cpu_time_before_buffer_swap_us;
-        }
-      swap_to_rendering_done_us =
-        frame_info->gpu_rendering_duration_ns / 1000;
+
+      to_flip_us = presented_frame->flip_time_us - dispatch_time_us;
 
       CLUTTER_NOTE (FRAME_TIMINGS,
-                    "%s: update2dispatch %ld µs, dispatch2swap %ld µs, swap2render %ld µs, swap2flip %ld µs",
+                    "%s: Dispatch %ld%+04ld µs, %3ld µs to swap / %3ld µs to flip / "
+                    "%4ld µs to render done",
                     debug_state,
+                    dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us,
-                    dispatch_to_swap_us,
-                    swap_to_rendering_done_us,
-                    swap_to_flip_us);
+                    to_swap_us, to_flip_us, to_render_done_us);
 
       max_duration_us = get_max_update_duration_us (frame_clock);
 
       frame_clock->shortterm_max_update_duration_us =
-        CLAMP (presented_frame->dispatch_lateness_us + dispatch_to_swap_us +
-               MAX (swap_to_rendering_done_us, swap_to_flip_us) +
+        CLAMP (presented_frame->dispatch_lateness_us +
+               MAX (to_render_done_us, to_flip_us) +
                frame_clock->deadline_evasion_us,
                frame_clock->shortterm_max_update_duration_us,
                2 * frame_clock->refresh_interval_us);
@@ -618,8 +610,9 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
   else
     {
-      CLUTTER_NOTE (FRAME_TIMINGS, "%s: update2dispatch %ld µs",
+      CLUTTER_NOTE (FRAME_TIMINGS, "%s: Dispatch %ld%+04ld µs",
                     debug_state,
+                    dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us);
     }
 
@@ -638,7 +631,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       if (n_missed_cycles)
         {
           CLUTTER_NOTE (FRAME_TIMINGS,
-                        "Frame presented %" G_GINT64_FORMAT "µs "
+                        "Frame presented %5" G_GINT64_FORMAT "µs "
                         "(%d refresh cycle%s) %s",
                         (int64_t)llabs (diff_us), n_missed_cycles,
                         n_missed_cycles > 1 ? "s" : "",
