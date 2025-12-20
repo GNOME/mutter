@@ -731,16 +731,39 @@ clutter_frame_clock_notify_ready (ClutterFrameClock *frame_clock)
 }
 
 static gboolean
+maybe_want_triple_buffering (ClutterFrameClock *frame_clock)
+{
+  if (G_UNLIKELY (clutter_paint_debug_flags &
+                  CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING))
+    return FALSE;
+
+  switch (frame_clock->mode)
+    {
+    case CLUTTER_FRAME_CLOCK_MODE_FIXED:
+    case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
+      break;
+    case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
+      return FALSE;
+    };
+
+  if (frame_clock->prev_presentation &&
+      frame_clock->prev_presentation->presentation_flags &
+      CLUTTER_FRAME_INFO_FLAG_ZERO_COPY)
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
 clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
                                                  int64_t           *max_update_time_estimate_us)
 {
   int64_t maximum_us;
 
-  if (G_UNLIKELY (clutter_paint_debug_flags &
-                  CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING))
-    maximum_us = frame_clock->refresh_interval_us;
-  else
+  if (maybe_want_triple_buffering (frame_clock))
     maximum_us = 2 * frame_clock->refresh_interval_us;
+  else
+    maximum_us = frame_clock->refresh_interval_us;
 
   if (!frame_clock->ever_got_measurements ||
       G_UNLIKELY (clutter_paint_debug_flags &
@@ -1108,22 +1131,7 @@ want_triple_buffering (ClutterFrameClock *frame_clock)
 {
   int64_t max_update_time_estimate_us;
 
-  if (G_UNLIKELY (clutter_paint_debug_flags &
-                  CLUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING))
-    return FALSE;
-
-  switch (frame_clock->mode)
-    {
-    case CLUTTER_FRAME_CLOCK_MODE_FIXED:
-    case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
-      break;
-    case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
-      return FALSE;
-    };
-
-  if (frame_clock->prev_presentation &&
-      frame_clock->prev_presentation->presentation_flags &
-      CLUTTER_FRAME_INFO_FLAG_ZERO_COPY)
+  if (!maybe_want_triple_buffering (frame_clock))
     return FALSE;
 
   if (clutter_frame_clock_estimate_max_update_time_us (frame_clock,
