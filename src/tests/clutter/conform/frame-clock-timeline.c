@@ -17,8 +17,8 @@ timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
     .sequence = 0,
   };
 
-  if (!clutter_frame_get_target_presentation_time (frame,
-                                                   &frame_info.presentation_time))
+  if (!clutter_frame_get_expected_presentation_time (frame,
+                                                     &frame_info.presentation_time))
     frame_info.presentation_time = g_get_monotonic_time ();
 
   clutter_frame_clock_notify_presented (frame_clock, &frame_info);

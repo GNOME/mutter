@@ -176,7 +176,8 @@ stage_painted (MetaStage        *stage,
   if (monitor_src->maybe_record_idle_id)
     return;
 
-  if (!clutter_frame_get_target_presentation_time (frame, &presentation_time_us))
+  if (!clutter_frame_get_expected_presentation_time (frame,
+                                                     &presentation_time_us))
     presentation_time_us = g_get_monotonic_time ();
 
   if (meta_screen_cast_stream_src_uses_dma_bufs (src))
@@ -227,7 +228,8 @@ before_stage_painted (MetaStage        *stage,
   if (!clutter_stage_view_peek_scanout (view))
     return;
 
-  if (!clutter_frame_get_target_presentation_time (frame, &presentation_time_us))
+  if (!clutter_frame_get_expected_presentation_time (frame,
+                                                     &presentation_time_us))
     presentation_time_us = g_get_monotonic_time ();
 
   flags = META_SCREEN_CAST_RECORD_FLAG_NONE;

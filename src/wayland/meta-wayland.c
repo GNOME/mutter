@@ -364,20 +364,24 @@ ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
 }
 #endif /* HAVE_NATIVE_BACKEND */
 
-static void
+static gboolean
 clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compositor,
                                                     ClutterStageView      *stage_view,
                                                     int64_t                target_time_us)
 {
   MetaWaylandTransaction *transaction;
+  gboolean cleared = FALSE;
 
   while ((transaction = g_queue_peek_head (compositor->timed_transactions)))
     {
-      if (meta_wayland_transaction_unblock_timed (transaction, target_time_us))
-        g_queue_pop_head (compositor->timed_transactions);
-      else
+      if (!meta_wayland_transaction_unblock_timed (transaction, target_time_us))
         break;
+
+      g_queue_pop_head (compositor->timed_transactions);
+      cleared = TRUE;
     }
+
+  return cleared;
 }
 
 static void
@@ -416,12 +420,16 @@ on_before_update (ClutterStage          *stage,
                   ClutterFrame          *frame,
                   MetaWaylandCompositor *compositor)
 {
-  int64_t target_time_us;
+  int64_t expected_presentation_time_us;
 
-  if (!clutter_frame_get_target_presentation_time (frame, &target_time_us))
-    target_time_us = g_get_monotonic_time ();
+  if (!clutter_frame_get_expected_presentation_time (frame,
+                                                     &expected_presentation_time_us))
+    expected_presentation_time_us = g_get_monotonic_time ();
 
-  clear_time_constraints_for_stage_view_transactions (compositor, stage_view, target_time_us);
+  if (clear_time_constraints_for_stage_view_transactions (compositor,
+                                                          stage_view,
+                                                          expected_presentation_time_us))
+    frame->is_target_presentation_time = TRUE;
 }
 
 static void

@@ -129,6 +129,7 @@ struct _ClutterFrameClock
   Frame *prev_presentation;
 
   gboolean is_next_presentation_time_valid;
+  gboolean is_target_presentation_time;
   int64_t next_presentation_time_us;
 
   gboolean has_next_frame_deadline;
@@ -801,6 +802,7 @@ static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                int64_t           *out_next_update_time_us,
                                int64_t           *out_next_presentation_time_us,
+                               gboolean          *out_is_target_presentation_time,
                                int64_t           *out_next_frame_deadline_us)
 {
   const Frame *last_presentation = frame_clock->prev_presentation;
@@ -898,7 +900,11 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                          next_presentation_time_us,
                          next_smooth_presentation_time_us))
     {
-      next_update_time_us = now_us;
+      *out_next_update_time_us = now_us;
+      *out_next_presentation_time_us = next_presentation_time_us;
+      if (out_is_target_presentation_time)
+        *out_is_target_presentation_time = FALSE;
+      *out_next_frame_deadline_us = 0;
     }
   else
     {
@@ -908,11 +914,14 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       next_update_time_us = next_presentation_time_us - max_update_time_estimate_us;
       if (next_update_time_us < now_us)
         next_update_time_us = now_us;
-    }
 
-  *out_next_update_time_us = next_update_time_us;
-  *out_next_presentation_time_us = next_presentation_time_us;
-  *out_next_frame_deadline_us = next_presentation_time_us - frame_clock->vblank_duration_us;
+      *out_next_update_time_us = next_update_time_us;
+      *out_next_presentation_time_us = next_presentation_time_us;
+      if (out_is_target_presentation_time)
+        *out_is_target_presentation_time = TRUE;
+      *out_next_frame_deadline_us =
+        next_presentation_time_us - frame_clock->vblank_duration_us;
+    }
 }
 
 static void
@@ -1144,6 +1153,7 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
     case CLUTTER_FRAME_CLOCK_MODE_FIXED:
       next_update_time_us = g_get_monotonic_time ();
       frame_clock->is_next_presentation_time_valid = FALSE;
+      frame_clock->is_target_presentation_time = FALSE;
       frame_clock->has_next_frame_deadline = FALSE;
       break;
     case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
@@ -1153,6 +1163,7 @@ clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
                                               &frame_clock->next_frame_deadline_us);
       frame_clock->is_next_presentation_time_valid =
         (frame_clock->next_presentation_time_us != 0);
+      frame_clock->is_target_presentation_time = FALSE;
       frame_clock->has_next_frame_deadline =
         (frame_clock->next_frame_deadline_us != 0);
       break;
@@ -1227,6 +1238,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
       calculate_next_update_time_us (frame_clock,
                                      &next_update_time_us,
                                      &frame_clock->next_presentation_time_us,
+                                     &frame_clock->is_target_presentation_time,
                                      &frame_clock->next_frame_deadline_us);
       frame_clock->is_next_presentation_time_valid =
         (frame_clock->next_presentation_time_us != 0);
@@ -1237,6 +1249,7 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
       calculate_next_variable_update_timeout_us (frame_clock,
                                                  &next_update_time_us);
       frame_clock->is_next_presentation_time_valid = FALSE;
+      frame_clock->is_target_presentation_time = FALSE;
       frame_clock->has_next_frame_deadline = FALSE;
       break;
     case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
@@ -1312,6 +1325,7 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
       calculate_next_update_time_us (frame_clock,
                                      &next_update_time_us,
                                      &next_presentation_time_us,
+                                     NULL,
                                      &next_frame_deadline_us);
       break;
     case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
@@ -1563,13 +1577,22 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
     frame = clutter_frame_new (ClutterFrame, NULL);
 
   frame->frame_count = frame_count;
-  frame->has_target_presentation_time = frame_clock->is_next_presentation_time_valid;
-  frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
+  frame->has_expected_presentation_time =
+    frame_clock->is_next_presentation_time_valid;
+  frame->expected_presentation_time_us =
+    frame_clock->next_presentation_time_us;
+  frame->is_target_presentation_time =
+    frame_clock->is_target_presentation_time;
 
-  if (frame->has_target_presentation_time)
-    this_dispatch->target_presentation_time_us = frame->target_presentation_time_us;
+  if (frame->is_target_presentation_time)
+    {
+      this_dispatch->target_presentation_time_us =
+        frame->expected_presentation_time_us;
+    }
   else
-    this_dispatch->target_presentation_time_us = 0;
+    {
+      this_dispatch->target_presentation_time_us = 0;
+    }
 
   frame->has_frame_deadline = frame_clock->has_next_frame_deadline;
   frame->frame_deadline_us = frame_clock->next_frame_deadline_us;
@@ -1900,6 +1923,7 @@ clutter_frame_clock_set_passive (ClutterFrameClock       *frame_clock,
                 frame_clock->output_name);
   frame_clock->mode = CLUTTER_FRAME_CLOCK_MODE_PASSIVE;
   frame_clock->is_next_presentation_time_valid = FALSE;
+  frame_clock->is_target_presentation_time = FALSE;
   frame_clock->has_next_frame_deadline = FALSE;
 
   g_set_object (&frame_clock->driver, driver);

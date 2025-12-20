@@ -63,12 +63,12 @@ clutter_frame_get_count (ClutterFrame *frame)
 }
 
 gboolean
-clutter_frame_get_target_presentation_time (ClutterFrame *frame,
-                                            int64_t      *target_presentation_time_us)
+clutter_frame_get_expected_presentation_time (ClutterFrame *frame,
+                                              int64_t      *expected_presentation_time_us)
 {
-  if (frame->has_target_presentation_time)
+  if (frame->has_expected_presentation_time)
     {
-      *target_presentation_time_us = frame->target_presentation_time_us;
+      *expected_presentation_time_us = frame->expected_presentation_time_us;
       return TRUE;
     }
   else

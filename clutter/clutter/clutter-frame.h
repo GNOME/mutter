@@ -40,8 +40,8 @@ CLUTTER_EXPORT
 int64_t clutter_frame_get_count (ClutterFrame *frame);
 
 CLUTTER_EXPORT
-gboolean clutter_frame_get_target_presentation_time (ClutterFrame *frame,
-                                                     int64_t      *target_presentation_time_us);
+gboolean clutter_frame_get_expected_presentation_time (ClutterFrame *frame,
+                                                       int64_t      *expected_presentation_time_us);
 
 CLUTTER_EXPORT
 gboolean clutter_frame_get_frame_deadline (ClutterFrame *frame,
