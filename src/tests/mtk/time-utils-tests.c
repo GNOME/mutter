@@ -31,25 +31,27 @@ test_extrapolate_interval_boundary (void)
   now_us = g_get_monotonic_time ();
 
   next_interval_boundary_us =
-    mtk_extrapolate_next_interval_boundary (now_us - 1, interval_us);
+    mtk_extrapolate_next_interval_boundary (now_us - 1, now_us, interval_us);
   g_assert_cmpint (next_interval_boundary_us, ==, now_us + interval_us - 1);
 
   next_interval_boundary_us =
     mtk_extrapolate_next_interval_boundary (now_us - interval_us - 1,
+                                            now_us,
                                             interval_us);
   g_assert_cmpint (next_interval_boundary_us, ==, now_us + interval_us - 1);
 
   next_interval_boundary_us =
-    mtk_extrapolate_next_interval_boundary (now_us, interval_us);
+    mtk_extrapolate_next_interval_boundary (now_us, now_us + 1, interval_us);
   g_assert_cmpint (next_interval_boundary_us, ==, now_us + interval_us);
 
   next_interval_boundary_us =
     mtk_extrapolate_next_interval_boundary (now_us + interval_us - 1,
+                                            now_us,
                                             interval_us);
   g_assert_cmpint (next_interval_boundary_us, ==, now_us + interval_us - 1);
 
   next_interval_boundary_us =
-    mtk_extrapolate_next_interval_boundary (0, interval_us);
+    mtk_extrapolate_next_interval_boundary (0, now_us, interval_us);
   g_assert_cmpint (next_interval_boundary_us, >=, now_us);
 }
 

@@ -24,13 +24,13 @@
 #include "mtk-time-utils.h"
 
 int64_t
-mtk_extrapolate_next_interval_boundary (int64_t base_us,
+mtk_extrapolate_next_interval_boundary (int64_t boundary_us,
+                                        int64_t reference_us,
                                         int64_t interval_us)
 {
-  int64_t now_us;
   int64_t num_intervals;
 
-  now_us = g_get_monotonic_time ();
-  num_intervals = MAX ((now_us - base_us + interval_us - 1) / interval_us, 0);
-  return base_us + num_intervals * interval_us;
+  num_intervals = MAX ((reference_us - boundary_us + interval_us - 1) /
+                       interval_us, 0);
+  return boundary_us + num_intervals * interval_us;
 }

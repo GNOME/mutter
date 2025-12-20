@@ -941,6 +941,7 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
    */
   next_presentation_time_us =
     mtk_extrapolate_next_interval_boundary (next_smooth_presentation_time_us,
+                                            now_us,
                                             refresh_interval_us);
 
   if (should_update_now (frame_clock,

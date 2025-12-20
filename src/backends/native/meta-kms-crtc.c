@@ -856,6 +856,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 
               skip_us =
                 mtk_extrapolate_next_interval_boundary (next_deadline_us,
+                                                        now_us,
                                                         refresh_interval_us) -
                 next_deadline_us;
 
