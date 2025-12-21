@@ -1432,6 +1432,14 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   return TRUE;
 }
 
+static gboolean
+rearm_deadline_timer (MetaKmsImplDevice *impl_device,
+                      CrtcFrame         *crtc_frame)
+{
+  crtc_frame->deadline.armed = FALSE;
+  return ensure_deadline_timer_armed (impl_device, crtc_frame);
+}
+
 static void
 notify_crtc_frame_ready (CrtcFrame *crtc_frame)
 {
@@ -1602,15 +1610,7 @@ do_process (MetaKmsImplDevice *impl_device,
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
     {
       if (latch_crtc)
-        {
-          crtc_frame = get_crtc_frame (impl_device, latch_crtc);
-          if (crtc_frame && crtc_frame->pending_update)
-            {
-              meta_kms_update_merge_from (crtc_frame->pending_update, update);
-              meta_kms_update_free (update);
-              update = g_steal_pointer (&crtc_frame->pending_update);
-            }
-        }
+        crtc_frame = get_crtc_frame (impl_device, latch_crtc);
 
       if (crtc_frame)
         {
@@ -1639,8 +1639,6 @@ do_process (MetaKmsImplDevice *impl_device,
         {
           crtc_frame->pending_page_flip = FALSE;
         }
-
-      crtc_frame->kms_ready_time_us = 0;
     }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
@@ -1681,7 +1679,10 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
   MetaKmsCrtc *crtc = crtc_frame->crtc;
   MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
   g_autoptr (MetaKmsFeedback) feedback = NULL;
+  int64_t target_presentation_time_us = 0;
+  MetaKmsUpdate *update = NULL;
   uint64_t timer_value;
   ssize_t ret;
   int64_t dispatch_time_us = 0, update_done_time_us, interval_us;
@@ -1705,10 +1706,54 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
       return GINT_TO_POINTER (FALSE);
     }
 
-  feedback = filter_and_process (impl_device,
-                                 crtc_frame->crtc,
-                                 g_steal_pointer (&crtc_frame->pending_update),
-                                 META_KMS_UPDATE_FLAG_NONE);
+  if (crtc_frame->pending_update)
+    {
+      target_presentation_time_us =
+        meta_kms_update_get_target_presentation_time (crtc_frame->pending_update);
+
+      if (target_presentation_time_us &&
+          crtc_frame->deadline.has_expected_presentation_time &&
+          mtk_find_nearest_interval_boundary (crtc_frame->deadline.expected_presentation_time_us,
+                                              target_presentation_time_us,
+                                              us (1000)) >
+          crtc_frame->deadline.expected_presentation_time_us)
+        {
+          meta_topic (META_DEBUG_KMS_DEADLINE,
+                      "Deferring update targeted %ld µs after expected presentation"
+                      " time %ld",
+                      target_presentation_time_us -
+                      crtc_frame->deadline.expected_presentation_time_us,
+                      crtc_frame->deadline.expected_presentation_time_us);
+        }
+      else
+        {
+          update = g_steal_pointer (&crtc_frame->pending_update);
+        }
+    }
+
+  update = meta_kms_impl_filter_update (impl,
+                                        crtc_frame->crtc,
+                                        update,
+                                        META_KMS_UPDATE_FLAG_NONE);
+
+  if (!update)
+    {
+      if (!crtc_frame->pending_update)
+        {
+          disarm_crtc_frame_deadline_timer (crtc_frame);
+          return GINT_TO_POINTER (TRUE);
+        }
+
+      if (rearm_deadline_timer (impl_device, crtc_frame))
+        return GINT_TO_POINTER (TRUE);
+
+      update = g_steal_pointer (&crtc_frame->pending_update);
+    }
+
+  feedback = do_process (impl_device,
+                         crtc_frame->crtc,
+                         update,
+                         META_KMS_UPDATE_FLAG_NONE);
 
   update_done_time_us = g_get_monotonic_time ();
   /* Calculate how long after the planned start of deadline dispatch it finished */
@@ -1924,6 +1969,8 @@ static void
 maybe_set_kms_ready_time (CrtcFrame     *crtc_frame,
                           MetaKmsUpdate *update)
 {
+  crtc_frame->kms_ready_time_us = 0;
+
   if (meta_kms_update_get_sync_fd (update) < 0)
     {
       MetaKmsPlaneAssignment *assignment;
