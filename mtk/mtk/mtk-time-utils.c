@@ -20,6 +20,7 @@
  */
 
 #include <glib.h>
+#include <math.h>
 
 #include "mtk-time-utils.h"
 
@@ -32,5 +33,17 @@ mtk_extrapolate_next_interval_boundary (int64_t boundary_us,
 
   num_intervals = MAX ((reference_us - boundary_us + interval_us - 1) /
                        interval_us, 0);
+  return boundary_us + num_intervals * interval_us;
+}
+
+int64_t
+mtk_find_nearest_interval_boundary (int64_t boundary_us,
+                                    int64_t reference_us,
+                                    int64_t interval_us)
+{
+  int64_t num_intervals;
+
+  num_intervals = (int64_t) round ((double) (reference_us - boundary_us) /
+                                   interval_us);
   return boundary_us + num_intervals * interval_us;
 }
