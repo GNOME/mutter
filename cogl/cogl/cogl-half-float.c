@@ -221,7 +221,9 @@ uint8_t cogl_half_to_unorm8 (uint16_t val)
 {
   const int m = val & 0x3ff;
   const int e = (val >> 10) & 0x1f;
+#ifndef G_DISABLE_ASSERT
   const int s = (val >> 15) & 0x1;
+#endif
 
   /* v = round_to_nearest (1.mmmmmmmmmm * 2^(e-15) * 255)
    *   = round_to_nearest ((1.mmmmmmmmmm * 255) * 2^(e-15))

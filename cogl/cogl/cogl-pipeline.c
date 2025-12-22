@@ -1677,7 +1677,8 @@ _cogl_pipeline_get_layer_with_flags (CoglPipeline *pipeline,
     layer = _cogl_pipeline_layer_copy (ctx->default_layer_0);
   else
     {
-      CoglPipelineLayer *new;
+      G_GNUC_UNUSED CoglPipelineLayer *new;
+
       layer = _cogl_pipeline_layer_copy (ctx->default_layer_n);
       new = _cogl_pipeline_set_layer_unit (NULL, layer, unit_index);
       /* Since we passed a newly allocated layer we wouldn't expect

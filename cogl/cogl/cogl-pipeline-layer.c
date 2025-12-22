@@ -763,7 +763,7 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx)
   CoglPipelineLayer *layer = g_object_new (COGL_TYPE_PIPELINE_LAYER, NULL);
   CoglPipelineLayerBigState *big_state =
     g_new0 (CoglPipelineLayerBigState, 1);
-  CoglPipelineLayer *new;
+  G_GNUC_UNUSED CoglPipelineLayer *new;
 
   layer->index = 0;
 
