@@ -289,11 +289,13 @@ display_from_session (MetaRemoteDesktopSession *session)
   return meta_context_get_display (context);
 }
 
+#ifndef G_DISABLE_ASSERT
 static gboolean
 meta_remote_desktop_session_is_running (MetaRemoteDesktopSession *session)
 {
   return !!session->started;
 }
+#endif
 
 static void
 init_remote_access_handle (MetaRemoteDesktopSession *session)

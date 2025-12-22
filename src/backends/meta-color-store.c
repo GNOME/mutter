@@ -738,10 +738,12 @@ meta_color_store_ensure_colord_profile_finish (MetaColorStore  *color_store,
                                                GAsyncResult    *res,
                                                GError         **error)
 {
+#ifndef G_DISABLE_ASSERT
   GTask *task = G_TASK (res);
 
   g_assert (g_task_get_source_tag (task) ==
             meta_color_store_ensure_colord_profile);
+#endif
 
   return g_task_propagate_pointer (G_TASK (res), error);
 }

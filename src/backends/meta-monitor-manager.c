@@ -401,12 +401,16 @@ meta_monitor_manager_update_logical_monitors_derived (MetaMonitorManager *manage
   int monitor_number;
   MetaLogicalMonitor *primary_logical_monitor = NULL;
   float global_scale;
+#ifndef G_DISABLE_ASSERT
   MetaMonitorManagerCapability capabilities;
+#endif
 
   monitor_number = 0;
 
+#ifndef G_DISABLE_ASSERT
   capabilities = meta_monitor_manager_get_capabilities (manager);
   g_assert (capabilities & META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED);
+#endif
 
   if (config)
     global_scale = derive_configured_global_scale (manager, config);

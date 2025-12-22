@@ -944,7 +944,9 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
     {
       MetaMonitor *monitor = l->data;
       MetaLogicalMonitorConfig *logical_monitor_config;
+#ifndef G_DISABLE_ASSERT
       gboolean has_suggested_position;
+#endif
       MetaColorMode color_mode;
 
       switch (positioning)
@@ -952,9 +954,11 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
         case MONITOR_POSITIONING_LINEAR:
           break;
         case MONITOR_POSITIONING_SUGGESTED:
+#ifndef G_DISABLE_ASSERT
           has_suggested_position =
             meta_monitor_get_suggested_position (monitor, &x, &y);
           g_assert (has_suggested_position);
+#endif
           break;
         }
 
