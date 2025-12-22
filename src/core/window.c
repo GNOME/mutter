@@ -1505,7 +1505,9 @@ meta_window_unmanage (MetaWindow  *window,
 {
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+#ifndef G_DISABLE_ASSERT
   GList *tmp;
+#endif
 
   meta_topic (META_DEBUG_WINDOW_STATE, "Unmanaging %s", window->desc);
   window->unmanaging = TRUE;
@@ -1627,7 +1629,7 @@ meta_window_unmanage (MetaWindow  *window,
 
   g_assert (window->workspace == NULL);
 
-#ifndef G_DISABLE_CHECKS
+#ifndef G_DISABLE_ASSERT
   tmp = workspace_manager->workspaces;
   while (tmp != NULL)
     {
@@ -4038,10 +4040,12 @@ meta_window_find_monitor_from_id (MetaWindow *window)
 void
 meta_window_update_for_monitors_changed (MetaWindow *window)
 {
+#ifndef G_DISABLE_ASSERT
   MetaContext *context = meta_display_get_context (window->display);
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+#endif
   const MetaLogicalMonitor *old, *new;
 
   if (meta_window_has_fullscreen_monitors (window))

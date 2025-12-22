@@ -285,12 +285,14 @@ workspace_free_builtin_struts (MetaWorkspace *workspace)
 static void
 assert_workspace_empty (MetaWorkspace *workspace)
 {
+#ifndef G_DISABLE_ASSERT
   GList *l;
   for (l = workspace->windows; l != NULL; l = l->next)
     {
       MetaWindow *window = l->data;
       g_assert (window->on_all_workspaces);
     }
+#endif
 }
 
 void
