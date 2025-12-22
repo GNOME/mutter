@@ -639,7 +639,7 @@ set_state (ClutterGesture      *self,
 
   if (new_state == CLUTTER_GESTURE_STATE_WAITING)
     {
-      gboolean removed;
+      G_GNUC_UNUSED gboolean removed;
       GHashTableIter iter;
       ClutterGesture *other_gesture;
 
@@ -1232,7 +1232,7 @@ clutter_gesture_finalize (GObject *gobject)
 
   if (priv->state != CLUTTER_GESTURE_STATE_WAITING)
     {
-      gboolean removed;
+      G_GNUC_UNUSED gboolean removed;
 
       g_warning ("gesture <%s> [<%s>:%p]: Finalizing while in active state (%s), "
                  "implementation didn't move the gesture to an end state.",

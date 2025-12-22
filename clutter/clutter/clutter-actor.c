@@ -1206,9 +1206,11 @@ static void
 clutter_actor_update_map_state (ClutterActor  *self,
                                 MapStateChange change)
 {
+#ifndef G_DISABLE_ASSERT
   gboolean was_mapped;
 
   was_mapped = clutter_actor_is_mapped (self);
+#endif
 
   if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
     {
@@ -11573,7 +11575,9 @@ clutter_actor_destroy_all_children (ClutterActor *self)
 
   while (self->priv->first_child != NULL)
     {
+#ifndef G_DISABLE_ASSERT
       gint prev_n_children = self->priv->n_children;
+#endif
 
       clutter_actor_destroy (self->priv->first_child);
 
