@@ -127,7 +127,9 @@ static void
 touch_handle_surface_destroy (struct wl_listener *listener, void *data)
 {
   MetaWaylandTouchSurface *touch_surface = wl_container_of (listener, touch_surface, surface_destroy_listener);
+#ifndef G_DISABLE_ASSERT
   MetaWaylandSurface *surface = touch_surface->surface;
+#endif
   MetaWaylandTouch *touch = touch_surface->touch;
   MetaWaylandTouchInfo *touch_info;
   GHashTableIter iter;
@@ -145,7 +147,7 @@ touch_handle_surface_destroy (struct wl_listener *listener, void *data)
     }
 
   /* Ensure the surface no longer exists */
-  g_assert (g_hash_table_remove (touch->touch_surfaces, surface) == FALSE);
+  g_assert (!g_hash_table_contains (touch->touch_surfaces, surface));
 }
 
 static MetaWaylandTouchSurface *
