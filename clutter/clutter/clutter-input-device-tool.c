@@ -32,6 +32,8 @@ typedef struct _ClutterInputDeviceToolPrivate
   guint64 serial;
   guint64 id;
   ClutterInputAxisFlags axes;
+  gboolean has_eraser_button;
+  unsigned int eraser_button;
 } ClutterInputDeviceToolPrivate;
 
 enum
@@ -41,6 +43,8 @@ enum
   PROP_SERIAL,
   PROP_ID,
   PROP_AXES,
+  PROP_HAS_ERASER_BUTTON,
+  PROP_ERASER_BUTTON,
   PROP_LAST
 };
 
@@ -73,6 +77,12 @@ clutter_input_device_tool_set_property (GObject      *object,
     case PROP_AXES:
       priv->axes = g_value_get_flags (value);
       break;
+    case PROP_HAS_ERASER_BUTTON:
+      priv->has_eraser_button = g_value_get_boolean (value);
+      break;
+    case PROP_ERASER_BUTTON:
+      priv->eraser_button = g_value_get_uint (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -102,6 +112,12 @@ clutter_input_device_tool_get_property (GObject    *object,
       break;
     case PROP_AXES:
       g_value_set_flags (value, priv->axes);
+      break;
+    case PROP_HAS_ERASER_BUTTON:
+      g_value_set_boolean (value, priv->has_eraser_button);
+      break;
+    case PROP_ERASER_BUTTON:
+      g_value_set_uint (value, priv->eraser_button);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -142,6 +158,18 @@ clutter_input_device_tool_class_init (ClutterInputDeviceToolClass *klass)
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_HAS_ERASER_BUTTON] =
+    g_param_spec_boolean ("has-eraser-button", NULL, NULL,
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_STATIC_STRINGS |
+                          G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_ERASER_BUTTON] =
+    g_param_spec_uint ("eraser-button", NULL, NULL,
+                       0, G_MAXUINT, 0,
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS |
+                       G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, props);
 }
@@ -224,4 +252,43 @@ clutter_input_device_tool_get_axes (ClutterInputDeviceTool *tool)
   priv = clutter_input_device_tool_get_instance_private (tool);
 
   return priv->axes;
+}
+
+/**
+ * clutter_input_device_tool_has_eraser_button:
+ * @tool: a #ClutterInputDeviceTool
+ *
+ * Returns: %TRUE if the tool has an eraser button that may be configured
+ **/
+gboolean
+clutter_input_device_tool_has_eraser_button (ClutterInputDeviceTool *tool)
+{
+  ClutterInputDeviceToolPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), FALSE);
+
+  priv = clutter_input_device_tool_get_instance_private (tool);
+
+  return priv->has_eraser_button;
+}
+
+/**
+ * clutter_input_device_tool_get_eraser_button:
+ * @tool: a #ClutterInputDeviceTool
+ *
+ * Returns: the evdev button code for the eraser button
+ **/
+unsigned int
+clutter_input_device_tool_get_eraser_button (ClutterInputDeviceTool *tool)
+{
+  ClutterInputDeviceToolPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), FALSE);
+
+  if (!clutter_input_device_tool_has_eraser_button (tool))
+    return 0;
+
+  priv = clutter_input_device_tool_get_instance_private (tool);
+
+  return priv->eraser_button;
 }

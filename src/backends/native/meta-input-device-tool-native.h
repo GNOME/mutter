@@ -59,4 +59,10 @@ void                     meta_input_device_tool_native_set_button_code_in_impl (
                                                                                 uint32_t                    button,
                                                                                 GDesktopStylusButtonAction  evcode);
 
+GDesktopStylusButtonAction meta_input_device_tool_native_get_eraser_button_code_in_impl (ClutterInputDeviceTool *tool);
+
+void                       meta_input_device_tool_native_set_eraser_button_action_in_impl (ClutterInputDeviceTool         *tool,
+                                                                                           GDesktopStylusEraserButtonMode  mode,
+                                                                                           GDesktopStylusButtonAction      action);
+
 G_END_DECLS

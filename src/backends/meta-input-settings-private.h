@@ -151,6 +151,12 @@ struct _MetaInputSettingsClass
                                   GDesktopStylusButtonAction  secondary,
                                   GDesktopStylusButtonAction  tertiary);
 
+  void (* set_eraser_button_action) (MetaInputSettings              *settings,
+                                     ClutterInputDevice             *device,
+                                     ClutterInputDeviceTool         *tool,
+                                     GDesktopStylusEraserButtonMode  mode,
+                                     GDesktopStylusButtonAction      button);
+
   void (* set_mouse_middle_click_emulation) (MetaInputSettings  *settings,
                                              ClutterInputDevice *device,
                                              gboolean            enabled);
@@ -202,3 +208,8 @@ GDesktopStylusButtonAction meta_input_settings_get_tool_button_action (MetaInput
                                                                        ClutterInputDeviceTool  *tool,
                                                                        uint32_t                 clutter_button,
                                                                        char                   **keybinding);
+
+GDesktopStylusButtonAction meta_input_settings_get_eraser_button_action (MetaInputSettings       *input_settings,
+                                                                         ClutterInputDevice      *device,
+                                                                         ClutterInputDeviceTool  *tool,
+                                                                         char                   **keybinding);

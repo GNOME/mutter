@@ -103,8 +103,16 @@ meta_tool_action_mapper_handle_button (MetaToolActionMapper *mapper,
   button = meta_evdev_tool_button_to_clutter (evcode);
   is_press = clutter_event_type (event) == CLUTTER_BUTTON_PRESS;
 
-  action = meta_input_settings_get_tool_button_action (mapper->input_settings,
-                                                       device, tool, button, &accel);
+  if (clutter_input_device_tool_get_eraser_button (tool) == evcode)
+    {
+      action = meta_input_settings_get_eraser_button_action (mapper->input_settings,
+                                                             device, tool, &accel);
+    }
+  else
+    {
+      action = meta_input_settings_get_tool_button_action (mapper->input_settings,
+                                                           device, tool, button, &accel);
+    }
   switch (action)
     {
     case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:

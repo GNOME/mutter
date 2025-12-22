@@ -28,6 +28,7 @@ struct _MetaInputDeviceToolNative
   GHashTable *button_map;
   graphene_point_t pressure_curve[2];
   MetaBezier *bezier;
+  GDesktopStylusButtonAction eraser_button_action;
 };
 
 G_DEFINE_FINAL_TYPE (MetaInputDeviceToolNative, meta_input_device_tool_native,
@@ -100,12 +101,22 @@ meta_input_device_tool_native_new (struct libinput_tablet_tool *tool,
                                    ClutterInputDeviceToolType   type)
 {
   MetaInputDeviceToolNative *evdev_tool;
+  uint32_t modes;
+  gboolean has_eraser_button;
 
+  modes = libinput_tablet_tool_config_eraser_button_get_modes (tool);
+  has_eraser_button = modes & LIBINPUT_CONFIG_ERASER_BUTTON_BUTTON;
+
+  /* For libinput < 1.32 we hardcode BTN_STYLUS3, in the future
+   * we can map this to some other button so we can disambiguate
+   * between a real BTN_STYLUS3 and eraser-button */
   evdev_tool = g_object_new (META_TYPE_INPUT_DEVICE_TOOL_NATIVE,
                              "type", type,
                              "serial", serial,
                              "id", libinput_tablet_tool_get_tool_id (tool),
                              "axes", translate_axes (tool),
+                             "has-eraser-button", has_eraser_button,
+                             "eraser-button", BTN_STYLUS3,
                              NULL);
 
   evdev_tool->tool = libinput_tablet_tool_ref (tool);
@@ -168,6 +179,34 @@ meta_input_device_tool_native_set_button_code_in_impl (ClutterInputDeviceTool   
     }
 }
 
+void
+meta_input_device_tool_native_set_eraser_button_action_in_impl (ClutterInputDeviceTool         *tool,
+                                                                GDesktopStylusEraserButtonMode  mode,
+                                                                GDesktopStylusButtonAction      action)
+{
+  MetaInputDeviceToolNative *evdev_tool;
+  enum libinput_config_eraser_button_mode libinput_mode;
+  unsigned int eraser_button;
+
+  switch (mode)
+    {
+    case G_DESKTOP_STYLUS_ERASER_BUTTON_MODE_DEFAULT:
+      libinput_mode = LIBINPUT_CONFIG_ERASER_BUTTON_DEFAULT;
+      break;
+    case G_DESKTOP_STYLUS_ERASER_BUTTON_MODE_BUTTON:
+      libinput_mode = LIBINPUT_CONFIG_ERASER_BUTTON_BUTTON;
+      break;
+    default:
+      g_return_if_reached ();
+    }
+
+  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
+  evdev_tool->eraser_button_action = action;
+  eraser_button = clutter_input_device_tool_get_eraser_button (tool);
+  libinput_tablet_tool_config_eraser_button_set_mode (evdev_tool->tool, libinput_mode);
+  libinput_tablet_tool_config_eraser_button_set_button (evdev_tool->tool, eraser_button);
+}
+
 double
 meta_input_device_tool_native_translate_pressure_in_impl (ClutterInputDeviceTool *tool,
                                                           double                  pressure)
@@ -197,4 +236,16 @@ meta_input_device_tool_native_get_button_code_in_impl (ClutterInputDeviceTool *t
 
   return GPOINTER_TO_UINT (g_hash_table_lookup (evdev_tool->button_map,
                                                 GUINT_TO_POINTER (button)));
+}
+
+GDesktopStylusButtonAction
+meta_input_device_tool_native_get_eraser_button_code_in_impl (ClutterInputDeviceTool *tool)
+{
+  MetaInputDeviceToolNative *evdev_tool;
+
+  g_return_val_if_fail (META_IS_INPUT_DEVICE_TOOL_NATIVE (tool), 0);
+
+  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
+
+  return evdev_tool->eraser_button_action;
 }

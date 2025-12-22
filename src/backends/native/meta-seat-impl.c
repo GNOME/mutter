@@ -1027,10 +1027,19 @@ meta_seat_impl_notify_button_in_impl (MetaSeatImpl       *seat_impl,
   if (device_native->last_tool)
     {
       GDesktopStylusButtonAction action;
-      int tool_button_nr = meta_evdev_tool_button_to_clutter (evdev_button);
+      ClutterInputDeviceTool *tool = device_native->last_tool;
 
-      /* Apply the button event code as per the tool mapping */
-      action = meta_input_device_tool_native_get_button_code_in_impl (device_native->last_tool, tool_button_nr);
+      if (clutter_input_device_tool_get_eraser_button (tool) == evdev_button)
+        {
+          action = meta_input_device_tool_native_get_eraser_button_code_in_impl (tool);
+        }
+      else
+        {
+          int tool_button_nr = meta_evdev_tool_button_to_clutter (evdev_button);
+
+          /* Apply the button event code as per the tool mapping */
+          action = meta_input_device_tool_native_get_button_code_in_impl (tool, tool_button_nr);
+        }
       switch (action)
         {
         case G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT:

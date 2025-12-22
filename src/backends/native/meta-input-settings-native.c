@@ -766,6 +766,19 @@ meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *se
 }
 
 static void
+meta_input_settings_native_set_eraser_button_action (MetaInputSettings              *settings,
+                                                     ClutterInputDevice             *device,
+                                                     ClutterInputDeviceTool         *tool,
+                                                     GDesktopStylusEraserButtonMode  mode,
+                                                     GDesktopStylusButtonAction      action)
+{
+  if (!clutter_input_device_tool_has_eraser_button (tool))
+    return;
+
+  meta_input_device_tool_native_set_eraser_button_action_in_impl (tool, mode, action);
+}
+
+static void
 meta_input_settings_native_set_mouse_middle_click_emulation (MetaInputSettings  *settings,
                                                              ClutterInputDevice *device,
                                                              gboolean            enabled)
@@ -866,6 +879,7 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
 
   input_settings_class->set_stylus_pressure = meta_input_settings_native_set_stylus_pressure;
   input_settings_class->set_stylus_button_map = meta_input_settings_native_set_stylus_button_map;
+  input_settings_class->set_eraser_button_action = meta_input_settings_native_set_eraser_button_action;
 
   input_settings_class->set_mouse_middle_click_emulation = meta_input_settings_native_set_mouse_middle_click_emulation;
   input_settings_class->set_touchpad_middle_click_emulation = meta_input_settings_native_set_touchpad_middle_click_emulation;

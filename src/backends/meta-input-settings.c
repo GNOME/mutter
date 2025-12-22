@@ -1679,12 +1679,40 @@ update_stylus_buttonmap (MetaInputSettings      *input_settings,
 }
 
 static void
+update_stylus_eraserbutton (MetaInputSettings      *input_settings,
+                            ClutterInputDevice     *device,
+                            ClutterInputDeviceTool *tool)
+{
+  MetaInputSettingsClass *input_settings_class;
+  GDesktopStylusEraserButtonMode mode;
+  GDesktopStylusButtonAction action;
+  GSettings *tool_settings;
+
+  if ((clutter_input_device_get_capabilities (device) &
+       CLUTTER_INPUT_CAPABILITY_TABLET_TOOL) == 0)
+    return;
+
+  if (!tool || !clutter_input_device_tool_has_eraser_button (tool))
+    return;
+
+  tool_settings = lookup_tool_settings (tool, device);
+
+  mode = g_settings_get_enum (tool_settings, "eraser-button-mode");
+  action = g_settings_get_enum (tool_settings, "eraser-button-action");
+
+  input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
+  input_settings_class->set_eraser_button_action (input_settings, device, tool,
+                                                  mode, action);
+}
+
+static void
 apply_stylus_settings (MetaInputSettings      *input_settings,
                        ClutterInputDevice     *device,
                        ClutterInputDeviceTool *tool)
 {
   update_stylus_pressure (input_settings, device, tool);
   update_stylus_buttonmap (input_settings, device, tool);
+  update_stylus_eraserbutton (input_settings, device, tool);
 }
 
 static void
@@ -2109,6 +2137,25 @@ meta_input_settings_get_tool_button_action (MetaInputSettings       *input_setti
           *keybinding = g_settings_get_string (settings, binding_key);
         }
     }
+
+  return action;
+}
+
+GDesktopStylusButtonAction
+meta_input_settings_get_eraser_button_action (MetaInputSettings       *input_settings,
+                                              ClutterInputDevice      *device,
+                                              ClutterInputDeviceTool  *tool,
+                                              char                   **keybinding)
+{
+  GDesktopStylusButtonAction action;
+  GSettings *settings;
+
+  g_return_val_if_fail (META_IS_INPUT_SETTINGS (input_settings), G_DESKTOP_STYLUS_BUTTON_ACTION_DEFAULT);
+
+  settings = lookup_tool_settings (tool, device);
+  action = g_settings_get_enum (settings, "eraser-button-action");
+  if (keybinding && action == G_DESKTOP_STYLUS_BUTTON_ACTION_KEYBINDING)
+    *keybinding = g_settings_get_string (settings, "eraser-button-keybinding");
 
   return action;
 }

@@ -57,4 +57,11 @@ guint64                    clutter_input_device_tool_get_id        (ClutterInput
 CLUTTER_EXPORT
 ClutterInputAxisFlags      clutter_input_device_tool_get_axes      (ClutterInputDeviceTool *tool);
 
+CLUTTER_EXPORT
+gboolean                   clutter_input_device_tool_has_eraser_button (ClutterInputDeviceTool *tool);
+
+CLUTTER_EXPORT
+unsigned int               clutter_input_device_tool_get_eraser_button (ClutterInputDeviceTool *tool);
+
+
 G_END_DECLS
