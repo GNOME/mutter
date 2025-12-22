@@ -58,7 +58,7 @@ impl_func (MetaThreadImpl  *thread_impl,
 {
   gboolean *done = user_data;
 
-  meta_assert_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
+  meta_assert_true_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
 
   *done = TRUE;
   g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "Not a real error");
@@ -72,7 +72,7 @@ callback_func (MetaThread *thread,
 {
   int *state = user_data;
 
-  meta_assert_not_in_thread_impl (thread);
+  meta_assert_false_in_thread_impl (thread);
 
   g_assert_cmpint (*state, ==, 1);
   *state = 2;
@@ -83,7 +83,7 @@ user_data_destroy (gpointer user_data)
 {
   int *state = user_data;
 
-  meta_assert_not_in_thread_impl (test_thread);
+  meta_assert_false_in_thread_impl (test_thread);
 
   g_assert_cmpint (*state, ==, 2);
   *state = 3;
@@ -96,7 +96,7 @@ queue_callback_func (MetaThreadImpl  *thread_impl,
 {
   int *state = user_data;
 
-  meta_assert_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
+  meta_assert_true_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
 
   g_assert_cmpint (*state, ==, 0);
   *state = 1;
@@ -125,7 +125,7 @@ dispatch_pipe (MetaThreadImpl  *thread_impl,
 {
   PipeData *pipe_data = user_data;
 
-  meta_assert_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
+  meta_assert_true_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
 
   g_assert_cmpint (read (pipe_data->fd, &pipe_data->read_value,
                          sizeof (pipe_data->read_value)),
@@ -168,7 +168,7 @@ idle_cb (gpointer user_data)
 {
   IdleData *idle_data = user_data;
 
-  meta_assert_in_thread_impl (test_thread);
+  meta_assert_true_in_thread_impl (test_thread);
 
   if (idle_data->state == 1)
     {
@@ -188,7 +188,7 @@ idle_data_destroy (gpointer user_data)
 
   if (meta_thread_get_thread_type (idle_data->thread) ==
       META_THREAD_TYPE_KERNEL)
-    meta_assert_in_thread_impl (test_thread);
+    meta_assert_true_in_thread_impl (test_thread);
 
   g_assert_cmpint (idle_data->state, ==, 2);
   idle_data->state = 3;
@@ -204,7 +204,7 @@ add_idle_func (MetaThreadImpl  *thread_impl,
   IdleData *idle_data = user_data;
   GSource *source;
 
-  meta_assert_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
+  meta_assert_true_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
 
   source = meta_thread_impl_add_source (thread_impl,
                                         idle_cb,
@@ -231,7 +231,7 @@ async_func (MetaThreadImpl  *thread_impl,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_in_thread_impl (async_data->thread);
+  meta_assert_true_in_thread_impl (async_data->thread);
 
   g_mutex_lock (&async_data->mutex);
   g_assert_cmpint (async_data->state, ==, 0);
@@ -260,7 +260,7 @@ async_feedback_func (gpointer      retval,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_not_in_thread_impl (async_data->thread);
+  meta_assert_false_in_thread_impl (async_data->thread);
 
   g_mutex_lock (&async_data->mutex);
   g_assert_cmpint (async_data->state, ==, 1);
@@ -275,7 +275,7 @@ multiple_async_func1 (MetaThreadImpl  *thread_impl,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_in_thread_impl (async_data->thread);
+  meta_assert_true_in_thread_impl (async_data->thread);
 
   g_mutex_lock (&async_data->mutex);
   g_assert_cmpint (async_data->state, ==, 0);
@@ -293,7 +293,7 @@ multiple_async_feedback_func1 (gpointer      retval,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_not_in_thread_impl (async_data->thread);
+  meta_assert_false_in_thread_impl (async_data->thread);
 
   g_assert_true (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_FAILED));
   g_assert_cmpint (GPOINTER_TO_INT (retval), ==, 1);
@@ -306,7 +306,7 @@ multiple_async_func2 (MetaThreadImpl  *thread_impl,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_in_thread_impl (async_data->thread);
+  meta_assert_true_in_thread_impl (async_data->thread);
 
   g_mutex_lock (&async_data->mutex);
   g_assert_cmpint (async_data->state, ==, 1);
@@ -324,7 +324,7 @@ multiple_async_feedback_func2 (gpointer      retval,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_not_in_thread_impl (async_data->thread);
+  meta_assert_false_in_thread_impl (async_data->thread);
 
   g_assert_true (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED));
   g_assert_cmpint (GPOINTER_TO_INT (retval), ==, 2);
@@ -337,7 +337,7 @@ multiple_async_func3 (MetaThreadImpl  *thread_impl,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_in_thread_impl (async_data->thread);
+  meta_assert_true_in_thread_impl (async_data->thread);
 
   g_mutex_lock (&async_data->mutex);
   g_assert_cmpint (async_data->state, ==, 2);
@@ -355,7 +355,7 @@ multiple_async_feedback_func3 (gpointer      retval,
 {
   AsyncData *async_data = user_data;
 
-  meta_assert_not_in_thread_impl (async_data->thread);
+  meta_assert_false_in_thread_impl (async_data->thread);
 
   g_assert_true (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NOT_CONNECTED));
   g_assert_cmpint (GPOINTER_TO_INT (retval), ==, 3);
@@ -378,7 +378,7 @@ mixed_async_func (MetaThreadImpl  *thread_impl,
 {
   MixedData *mixed_data = user_data;
 
-  meta_assert_in_thread_impl (mixed_data->thread);
+  meta_assert_true_in_thread_impl (mixed_data->thread);
 
   g_mutex_lock (&mixed_data->mutex);
   g_assert_cmpint (mixed_data->state, ==, 0);
@@ -396,7 +396,7 @@ mixed_async_feedback_func (gpointer      retval,
 {
   MixedData *mixed_data = user_data;
 
-  meta_assert_not_in_thread_impl (mixed_data->thread);
+  meta_assert_false_in_thread_impl (mixed_data->thread);
 
   g_assert_true (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED));
   g_assert_cmpint (GPOINTER_TO_INT (retval), ==, 1);
@@ -414,7 +414,7 @@ mixed_sync_func (MetaThreadImpl  *thread_impl,
 {
   MixedData *mixed_data = user_data;
 
-  meta_assert_in_thread_impl (mixed_data->thread);
+  meta_assert_true_in_thread_impl (mixed_data->thread);
 
   g_mutex_lock (&mixed_data->mutex);
   g_assert_cmpint (mixed_data->state, ==, 1);
@@ -564,7 +564,7 @@ queue_non_default_callback_func (MetaThreadImpl  *thread_impl,
 {
   CallbackData *callback_data = user_data;
 
-  meta_assert_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
+  meta_assert_true_in_thread_impl (meta_thread_impl_get_thread (thread_impl));
 
   g_assert_cmpint (callback_data->state, ==, 2);
   callback_data->state = 3;
@@ -653,7 +653,7 @@ run_thread_tests (MetaThread *thread)
   LoopUser loop_user;
   CallbackData callback_data;
 
-  meta_assert_not_in_thread_impl (thread);
+  meta_assert_false_in_thread_impl (thread);
 
   /* Test that sync tasks run correctly. */
   g_debug ("Test synchronous tasks");

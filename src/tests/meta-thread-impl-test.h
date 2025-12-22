@@ -24,3 +24,8 @@
 G_DECLARE_FINAL_TYPE (MetaThreadImplTest, meta_thread_impl_test,
                       META, THREAD_IMPL_TEST,
                       MetaThreadImpl)
+
+#define meta_assert_true_in_thread_impl(thread) \
+  g_assert_true (meta_thread_is_in_impl_task (thread))
+#define meta_assert_false_in_thread_impl(thread) \
+  g_assert_false (meta_thread_is_in_impl_task (thread))
