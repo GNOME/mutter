@@ -529,8 +529,14 @@ if buildtype != 'plain'
     ]
   else
     mutter_c_args += [
-      '-DG_DISABLE_ASSERT',
       '-DG_DISABLE_CAST_CHECKS',
+    ]
+  endif
+
+  if get_option('b_ndebug') == 'true' or \
+     (get_option('buildtype') == 'release' and get_option('b_ndebug') == 'if-release')
+    mutter_c_args += [
+      '-DG_DISABLE_ASSERT',
     ]
   endif
 
