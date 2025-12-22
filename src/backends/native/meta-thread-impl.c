@@ -167,10 +167,12 @@ impl_source_dispatch (GSource     *source,
 {
   MetaThreadImplSource *impl_source = (MetaThreadImplSource *) source;
   MetaThreadImpl *thread_impl = impl_source->thread_impl;
+#ifndef G_DISABLE_ASSERT
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
   g_assert (g_source_get_context (source) == priv->thread_context);
+#endif
 
   meta_thread_impl_dispatch (thread_impl);
 

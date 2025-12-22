@@ -1588,10 +1588,12 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
     meta_backend_get_monitor_manager (backend);
   MetaCursorRendererNative *cursor_renderer_native;
   MetaCursorRendererNativePrivate *priv;
+#ifndef G_DISABLE_ASSERT
   MetaSeatNative *seat =
     META_SEAT_NATIVE (meta_backend_get_default_seat (backend));
 
   g_assert (seat);
+#endif
 
   cursor_renderer_native = g_object_new (META_TYPE_CURSOR_RENDERER_NATIVE,
                                          "backend", backend,

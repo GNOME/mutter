@@ -344,8 +344,10 @@ meta_kms_impl_device_lease_objects (MetaKmsImplDevice  *impl_device,
                                     uint32_t           *out_lessee_id,
                                     GError            **error)
 {
+#ifndef G_DISABLE_ASSERT
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+#endif
   uint32_t *object_ids;
   int n_object_ids;
   GList *l;
@@ -409,8 +411,10 @@ meta_kms_impl_device_revoke_lease (MetaKmsImplDevice  *impl_device,
                                    uint32_t            lessee_id,
                                    GError            **error)
 {
+#ifndef G_DISABLE_ASSERT
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+#endif
   int retval;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
@@ -435,8 +439,10 @@ meta_kms_impl_device_list_lessees (MetaKmsImplDevice  *impl_device,
                                    int                *out_num_lessee_ids,
                                    GError            **error)
 {
+#ifndef G_DISABLE_ASSERT
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+#endif
   g_autofree drmModeLesseeListRes *list = NULL;
   int i;
   uint32_t *lessee_ids;
@@ -2415,11 +2421,13 @@ meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+#ifndef G_DISABLE_ASSERT
   MetaKms *kms = meta_kms_device_get_kms (priv->device);
 
   meta_assert_in_kms_impl (kms);
 
   g_assert (priv->device_file);
+#endif
 
   priv->fd_hold_count++;
 }
@@ -2442,9 +2450,11 @@ meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+#ifndef G_DISABLE_ASSERT
   MetaKms *kms = meta_kms_device_get_kms (priv->device);
 
   meta_assert_in_kms_impl (kms);
+#endif
 
   g_return_if_fail (priv->fd_hold_count > 0);
 

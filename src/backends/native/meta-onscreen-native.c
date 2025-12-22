@@ -608,7 +608,9 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaRendererNativeGpuData *renderer_gpu_data;
+#ifndef G_DISABLE_ASSERT
   MetaGpuKms *gpu_kms;
+#endif
   MetaDrmBuffer *buffer;
   CoglScanout *scanout;
   MetaKmsPlaneAssignment *plane_assignment;
@@ -618,9 +620,11 @@ meta_onscreen_native_flip_crtc (CoglOnscreen           *onscreen,
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
                            "Meta::OnscreenNative::flip_crtc()");
 
+#ifndef G_DISABLE_ASSERT
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
 
   g_assert (meta_gpu_kms_is_crtc_active (gpu_kms, crtc));
+#endif
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -1248,7 +1252,6 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   CoglFramebuffer *dmabuf_fb;
   int dmabuf_fd;
   g_autoptr (GError) error = NULL;
-  const MetaFormatInfo *format_info;
   uint32_t stride;
   uint32_t offset;
   uint32_t drm_format;
@@ -1280,8 +1283,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   g_assert (cogl_framebuffer_get_width (framebuffer) == width);
   g_assert (cogl_framebuffer_get_height (framebuffer) == height);
 
-  format_info = meta_format_info_from_drm_format (drm_format);
-  g_assert (format_info);
+  g_assert (meta_format_info_from_drm_format (drm_format));
 
   dmabuf_fd = meta_drm_buffer_dumb_ensure_dmabuf_fd (buffer_dumb, &error);
   if (dmabuf_fd < 0)

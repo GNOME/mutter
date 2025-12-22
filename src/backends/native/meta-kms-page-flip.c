@@ -189,9 +189,11 @@ meta_kms_page_flip_data_set_timings_in_impl (MetaKmsPageFlipData *page_flip_data
                                              unsigned int         sec,
                                              unsigned int         usec)
 {
+#ifndef G_DISABLE_ASSERT
   MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
 
   meta_assert_in_kms_impl (kms);
+#endif
 
   meta_topic (META_DEBUG_KMS,
               "Setting page flip timings for CRTC (%u, %s), sequence: %u, sec: %u, usec: %u",
