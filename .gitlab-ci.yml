@@ -447,6 +447,17 @@ build-mutter@x86_64:
     - job: build-fedora-container@x86_64
       artifacts: false
 
+build-release@x86_64:
+  extends:
+    - build-mutter@x86_64
+  variables:
+    EXTRA_MESON_OPTIONS:
+      -Dbuildtype=release
+      -Db_ndebug=true
+  artifacts:
+    paths:
+      - build/meson-logs
+
 build-mutter@aarch64:
   extends:
     - .build-mutter
