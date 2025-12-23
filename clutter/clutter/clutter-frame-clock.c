@@ -873,13 +873,37 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED:
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_NOW:
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_ONE_AND_SCHEDULED_LATER:
-      next_smooth_presentation_time_us = last_presentation_time_us +
-                                         2 * refresh_interval_us;
+      if (frame_clock->next_presentation->target_presentation_time_us > 0)
+        {
+          next_smooth_presentation_time_us =
+            frame_clock->next_presentation->target_presentation_time_us +
+            refresh_interval_us;
+        }
+      else
+        {
+          next_smooth_presentation_time_us = last_presentation_time_us +
+                                             2 * refresh_interval_us;
+        }
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO:
       g_warn_if_reached ();  /* quad buffering would be a bug */
-      next_smooth_presentation_time_us = last_presentation_time_us +
-                                         3 * refresh_interval_us;
+      if (frame_clock->next_next_presentation->target_presentation_time_us > 0)
+        {
+          next_smooth_presentation_time_us =
+            frame_clock->next_next_presentation->target_presentation_time_us +
+            refresh_interval_us;
+        }
+      else if (frame_clock->next_presentation->target_presentation_time_us > 0)
+        {
+          next_smooth_presentation_time_us =
+            frame_clock->next_presentation->target_presentation_time_us +
+            2 * refresh_interval_us;
+        }
+      else
+        {
+          next_smooth_presentation_time_us = last_presentation_time_us +
+                                             3 * refresh_interval_us;
+        }
       break;
     }
 
