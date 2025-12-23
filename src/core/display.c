@@ -2845,6 +2845,61 @@ meta_display_queue_workarea_recalc (MetaDisplay *display)
     }
 }
 
+static void
+classify_window_monitor_coverage (MetaWindow  *window,
+                                  GList       *logical_monitors,
+                                  GSList     **obscured_monitors,
+                                  GSList     **fullscreen_monitors)
+{
+  gboolean covers_monitors = FALSE;
+
+  if (window->hidden)
+    return;
+
+  if (meta_window_is_fullscreen (window))
+    {
+      covers_monitors = TRUE;
+    }
+  else if (window->override_redirect)
+    {
+      /* We want to handle the case where an application is creating an
+       * override-redirect window the size of the screen (monitor) and treat
+       * it similarly to a fullscreen window, though it doesn't have fullscreen
+       * window management behavior. (Being O-R, it's not managed at all.)
+       */
+      if (meta_window_is_monitor_sized (window))
+        covers_monitors = TRUE;
+    }
+  else if (meta_window_is_maximized (window))
+    {
+      MetaLogicalMonitor *logical_monitor;
+
+      logical_monitor = meta_window_get_main_logical_monitor (window);
+      if (!g_slist_find (*obscured_monitors, logical_monitor))
+        *obscured_monitors = g_slist_prepend (*obscured_monitors,
+                                              logical_monitor);
+    }
+
+  if (covers_monitors)
+    {
+      MtkRectangle window_rect;
+
+      meta_window_get_frame_rect (window, &window_rect);
+
+      for (GList *l = logical_monitors; l; l = l->next)
+        {
+          MetaLogicalMonitor *logical_monitor = l->data;
+
+          if (mtk_rectangle_overlap (&window_rect,
+                                     &logical_monitor->rect) &&
+              !g_slist_find (*fullscreen_monitors, logical_monitor) &&
+              !g_slist_find (*obscured_monitors, logical_monitor))
+            *fullscreen_monitors = g_slist_prepend (*fullscreen_monitors,
+                                                    logical_monitor);
+        }
+    }
+}
+
 static gboolean
 check_fullscreen_func (gpointer data)
 {
@@ -2857,6 +2912,8 @@ check_fullscreen_func (gpointer data)
   GSList *fullscreen_monitors = NULL;
   GSList *obscured_monitors = NULL;
   gboolean in_fullscreen_changed = FALSE;
+  MetaWindowActor *top_window_group_actor = NULL;
+  MetaWindow *top_window_group_window = NULL;
 
   display->check_fullscreen_later = 0;
 
@@ -2871,53 +2928,19 @@ check_fullscreen_func (gpointer data)
        window;
        window = meta_stack_get_below (display->stack, window, FALSE))
     {
-      gboolean covers_monitors = FALSE;
+      classify_window_monitor_coverage (window,
+                                        logical_monitors,
+                                        &obscured_monitors, &fullscreen_monitors);
+    }
 
-      if (window->hidden)
-        continue;
-
-      if (meta_window_is_fullscreen (window))
-        {
-          covers_monitors = TRUE;
-        }
-      else if (window->override_redirect)
-        {
-          /* We want to handle the case where an application is creating an
-           * override-redirect window the size of the screen (monitor) and treat
-           * it similarly to a fullscreen window, though it doesn't have fullscreen
-           * window management behavior. (Being O-R, it's not managed at all.)
-           */
-          if (meta_window_is_monitor_sized (window))
-            covers_monitors = TRUE;
-        }
-      else if (meta_window_is_maximized (window))
-        {
-          MetaLogicalMonitor *logical_monitor;
-
-          logical_monitor = meta_window_get_main_logical_monitor (window);
-          if (!g_slist_find (obscured_monitors, logical_monitor))
-            obscured_monitors = g_slist_prepend (obscured_monitors,
-                                                 logical_monitor);
-        }
-
-      if (covers_monitors)
-        {
-          MtkRectangle window_rect;
-
-          meta_window_get_frame_rect (window, &window_rect);
-
-          for (l = logical_monitors; l; l = l->next)
-            {
-              MetaLogicalMonitor *logical_monitor = l->data;
-
-              if (mtk_rectangle_overlap (&window_rect,
-                                         &logical_monitor->rect) &&
-                  !g_slist_find (fullscreen_monitors, logical_monitor) &&
-                  !g_slist_find (obscured_monitors, logical_monitor))
-                fullscreen_monitors = g_slist_prepend (fullscreen_monitors,
-                                                       logical_monitor);
-            }
-        }
+  /* Also consider O-R windows which are not part of the stack */
+  top_window_group_actor = meta_compositor_get_top_window_actor (display->compositor);
+  if (top_window_group_actor)
+    {
+      top_window_group_window = meta_window_actor_get_meta_window (top_window_group_actor);
+      classify_window_monitor_coverage (top_window_group_window,
+                                        logical_monitors,
+                                        &obscured_monitors, &fullscreen_monitors);
     }
 
   g_slist_free (obscured_monitors);
