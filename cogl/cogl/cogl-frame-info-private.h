@@ -74,16 +74,9 @@ struct _CoglFrameInfo
   CoglFrameInfoFlag flags;
 
   unsigned int sequence;
-
-  gboolean has_target_presentation_time;
-  int64_t target_presentation_time_us;
 };
 
 COGL_EXPORT
 CoglFrameInfo *cogl_frame_info_new (CoglContext *context,
                                     int64_t      global_frame_counter,
                                     int64_t      view_frame_counter);
-
-COGL_EXPORT
-void cogl_frame_info_set_target_presentation_time (CoglFrameInfo *info,
-                                                   int64_t        presentation_time_us);

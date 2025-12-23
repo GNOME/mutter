@@ -480,21 +480,19 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
   frame_clock->next_presentation =
     g_steal_pointer (&frame_clock->next_next_presentation);
 
-  presented_frame->target_presentation_time_us =
-    frame_info->target_presentation_time;
-
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_CLOCK)))
     {
       int64_t now_us;
 
       if (frame_info->presentation_time > 0 &&
-          frame_info->target_presentation_time > 0 &&
-          frame_info->presentation_time != frame_info->target_presentation_time)
+          presented_frame->target_presentation_time_us > 0 &&
+          frame_info->presentation_time !=
+          presented_frame->target_presentation_time_us)
         {
           int64_t diff_us;
 
           diff_us = llabs (frame_info->presentation_time -
-                           frame_info->target_presentation_time);
+                           presented_frame->target_presentation_time_us);
           frame_clock->n_missed_frames +=
             (int) roundf ((float) diff_us /
                           (float) frame_clock->refresh_interval_us);
@@ -615,14 +613,14 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
 
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_TIMINGS)) &&
-      frame_info->target_presentation_time > 0 &&
+      presented_frame->target_presentation_time_us > 0 &&
       frame_info->presentation_time > 0)
     {
       int64_t diff_us;
       int n_missed_cycles;
 
-      diff_us =
-        frame_info->presentation_time - frame_info->target_presentation_time;
+      diff_us = frame_info->presentation_time -
+                presented_frame->target_presentation_time_us;
       n_missed_cycles = (int) roundf ((float) llabs (diff_us) /
                                       (float) frame_clock->refresh_interval_us);
 
@@ -1568,6 +1566,11 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
   frame->has_target_presentation_time = frame_clock->is_next_presentation_time_valid;
   frame->target_presentation_time_us = frame_clock->next_presentation_time_us;
 
+  if (frame->has_target_presentation_time)
+    this_dispatch->target_presentation_time_us = frame->target_presentation_time_us;
+  else
+    this_dispatch->target_presentation_time_us = 0;
+
   frame->has_frame_deadline = frame_clock->has_next_frame_deadline;
   frame->frame_deadline_us = frame_clock->next_frame_deadline_us;
 
@@ -1897,8 +1900,6 @@ clutter_frame_clock_set_passive (ClutterFrameClock       *frame_clock,
                 frame_clock->output_name);
   frame_clock->mode = CLUTTER_FRAME_CLOCK_MODE_PASSIVE;
   frame_clock->is_next_presentation_time_valid = FALSE;
-  if (frame_clock->prev_presentation)
-    frame_clock->prev_presentation->target_presentation_time_us = 0;
   frame_clock->has_next_frame_deadline = FALSE;
 
   g_set_object (&frame_clock->driver, driver);

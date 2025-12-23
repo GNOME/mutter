@@ -74,17 +74,6 @@ cogl_frame_info_get_presentation_time_us (CoglFrameInfo *info)
   return info->presentation_time_us;
 }
 
-int64_t
-cogl_frame_info_get_target_presentation_time_us (CoglFrameInfo *info)
-{
-  g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
-
-  if (!info->has_target_presentation_time)
-    return 0;
-
-  return info->target_presentation_time_us;
-}
-
 float
 cogl_frame_info_get_refresh_rate (CoglFrameInfo *info)
 {
@@ -135,14 +124,6 @@ cogl_frame_info_get_sequence (CoglFrameInfo *info)
   g_warn_if_fail (!(info->flags & COGL_FRAME_INFO_FLAG_SYMBOLIC));
 
   return info->sequence;
-}
-
-void
-cogl_frame_info_set_target_presentation_time (CoglFrameInfo *info,
-                                              int64_t        presentation_time_us)
-{
-  info->has_target_presentation_time = TRUE;
-  info->target_presentation_time_us = presentation_time_us;
 }
 
 int64_t

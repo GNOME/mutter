@@ -76,8 +76,6 @@ frame_cb (CoglOnscreen  *onscreen,
         .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
         .presentation_time =
           cogl_frame_info_get_presentation_time_us (frame_info),
-        .target_presentation_time =
-          cogl_frame_info_get_target_presentation_time_us (frame_info),
         .flags = flags,
         .sequence = cogl_frame_info_get_sequence (frame_info),
         .kms_ready_time_us =
