@@ -460,9 +460,11 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                       ClutterFrameInfo  *frame_info)
 {
   Frame *presented_frame;
-  const char *debug_state =
+  const char *frr_or_vrr =
+    frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE ? "VRR" : "FRR";
+  const char *double_or_triple =
     frame_clock->state == CLUTTER_FRAME_CLOCK_STATE_DISPATCHED_TWO ?
-    "Triple buffering" : "Double buffering";
+    "triple" : "double";
   int64_t dispatch_time_us;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameClockNotifyPresented,
@@ -577,8 +579,9 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
         }
 
       CLUTTER_NOTE (FRAME_TIMINGS,
-                    "%s: Dispatch %ld%+04ld µs, %3ld µs to flip / %4ld µs %s",
-                    debug_state,
+                    "%s %s buffering: Dispatch %ld%+04ld µs, "
+                    "%3ld µs to flip / %4ld µs %s",
+                    frr_or_vrr, double_or_triple,
                     dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us,
                     to_flip_us, to_kms_ready_us, ready_name);
@@ -607,32 +610,46 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
   else
     {
-      CLUTTER_NOTE (FRAME_TIMINGS, "%s: Dispatch %ld%+04ld µs",
-                    debug_state,
+      CLUTTER_NOTE (FRAME_TIMINGS, "%s %s buffering: Dispatch %ld%+04ld µs",
+                    frr_or_vrr, double_or_triple,
                     dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us);
     }
 
   if (G_UNLIKELY (CLUTTER_HAS_DEBUG (FRAME_TIMINGS)) &&
       presented_frame->target_presentation_time_us > 0 &&
-      frame_info->presentation_time > 0)
+      frame_info->presentation_time > 0 &&
+      presented_frame->target_presentation_time_us !=
+      frame_info->presentation_time)
     {
       int64_t diff_us;
-      int n_missed_cycles;
 
       diff_us = frame_info->presentation_time -
                 presented_frame->target_presentation_time_us;
-      n_missed_cycles = (int) roundf ((float) llabs (diff_us) /
-                                      (float) frame_clock->refresh_interval_us);
 
-      if (n_missed_cycles)
+      if (frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE)
         {
           CLUTTER_NOTE (FRAME_TIMINGS,
-                        "Frame presented %5" G_GINT64_FORMAT "µs "
-                        "(%d refresh cycle%s) %s",
-                        (int64_t)llabs (diff_us), n_missed_cycles,
-                        n_missed_cycles > 1 ? "s" : "",
+                        "Frame presented %4" G_GINT64_FORMAT "µs %s",
+                        (int64_t)llabs (diff_us),
                         diff_us > 0 ? "late" : "early");
+        }
+      else
+        {
+          int n_missed_cycles;
+
+          n_missed_cycles = (int) roundf ((float) llabs (diff_us) /
+                                          (float) frame_clock->refresh_interval_us);
+
+          if (n_missed_cycles)
+            {
+              CLUTTER_NOTE (FRAME_TIMINGS,
+                            "Frame presented %5" G_GINT64_FORMAT "µs "
+                            "(%d refresh cycle%s) %s",
+                            (int64_t)llabs (diff_us), n_missed_cycles,
+                            n_missed_cycles > 1 ? "s" : "",
+                            diff_us > 0 ? "late" : "early");
+            }
         }
     }
 
