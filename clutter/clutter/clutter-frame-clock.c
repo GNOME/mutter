@@ -1382,29 +1382,15 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                      &next_presentation_time_us,
                                      NULL,
                                      &next_frame_deadline_us);
-      break;
-    case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
-      calculate_next_variable_update_time_us (frame_clock,
-                                              &next_update_time_us,
-                                              &next_presentation_time_us,
-                                              &next_frame_deadline_us);
-      break;
-    case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
-      g_assert_not_reached ();
-      break;
-    }
 
-  g_warn_if_fail (next_presentation_time_us != -1);
+      g_warn_if_fail (next_presentation_time_us != -1);
 
-  if (next_presentation_time_us >= target_us)
-    {
-      clutter_frame_clock_schedule_update (frame_clock);
-      return;
-    }
+      if (next_presentation_time_us >= target_us)
+        {
+          clutter_frame_clock_schedule_update (frame_clock);
+          return;
+        }
 
-  switch (frame_clock->mode)
-    {
-    case CLUTTER_FRAME_CLOCK_MODE_FIXED:
       cycles =
         (target_us - next_presentation_time_us +
          frame_clock->refresh_interval_us - 1) /
@@ -1422,6 +1408,9 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
                                                    SYNC_DELAY_FALLBACK_FRACTION);
         }
       ready_time_us = target_us - max_update_time_estimate_us;
+      frame_clock->is_target_presentation_time = TRUE;
+      frame_clock->is_next_presentation_time_valid = TRUE;
+      frame_clock->next_presentation_time_us = target_us;
       break;
     case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
       g_assert_not_reached ();
