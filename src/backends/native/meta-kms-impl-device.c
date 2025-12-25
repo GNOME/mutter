@@ -1360,6 +1360,11 @@ arm_crtc_frame_deadline_timer (CrtcFrame *crtc_frame,
   if (!crtc_frame->deadline.source)
     return;
 
+  if (crtc_frame->deadline.armed &&
+      crtc_frame->deadline.expected_deadline_time_us <=
+      next_deadline_us)
+    return;
+
   meta_topic (META_DEBUG_KMS, "Arming deadline timer for crtc %u (%s): %ld",
               meta_kms_crtc_get_id (crtc_frame->crtc),
               meta_kms_device_get_path (meta_kms_crtc_get_device (crtc_frame->crtc)),
@@ -1387,9 +1392,6 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
   MetaKmsUpdate *kms_update;
   g_autoptr (GError) local_error = NULL;
 
-  if (crtc_frame->deadline.armed)
-    return TRUE;
-
   if (!meta_kms_crtc_get_current_state (crtc_frame->crtc)->is_drm_mode_valid)
     return FALSE;
 
@@ -1401,6 +1403,7 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
     }
 
   if (!meta_kms_crtc_determine_deadline (crtc_frame->crtc,
+                                         kms_update != NULL,
                                          target_presentation_us,
                                          &next_deadline_us,
                                          &next_presentation_us,
@@ -2017,7 +2020,6 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
     }
 
   want_deadline_timer =
-    !vrr_enabled &&
     !crtc_frame->await_flush &&
     is_using_deadline_timer (impl_device);
 

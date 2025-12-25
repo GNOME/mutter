@@ -58,6 +58,7 @@ uint64_t meta_kms_crtc_get_prop_drm_value (MetaKmsCrtc     *crtc,
                                            uint64_t         value);
 
 gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
+                                           gboolean      have_kms_update,
                                            int64_t       target_presentation_time_us,
                                            int64_t      *out_next_deadline_us,
                                            int64_t      *out_next_presentation_us,
