@@ -301,3 +301,7 @@ gboolean meta_egl_wait_sync (MetaEgl     *egl,
                              EGLSync      sync,
                              EGLint       flags,
                              GError     **error);
+
+int meta_egl_create_sync_fd (MetaEgl     *egl,
+                             EGLDisplay   display,
+                             GError     **error);
