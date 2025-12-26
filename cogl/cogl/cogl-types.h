@@ -333,7 +333,6 @@ typedef struct _CoglSubTexture CoglSubTexture;
 typedef struct _CoglTexture CoglTexture;
 typedef struct _CoglTexture2D CoglTexture2D;
 typedef struct _CoglTexture2DSliced CoglTexture2DSliced;
-typedef struct _CoglTimestampQuery CoglTimestampQuery;
 
 #define COGL_SCANOUT_ERROR (cogl_scanout_error_quark ())
 

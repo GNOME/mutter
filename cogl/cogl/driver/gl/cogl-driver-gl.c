@@ -463,70 +463,6 @@ cogl_driver_gl_set_uniform (CoglDriver           *driver,
     }
 }
 
-static CoglTimestampQuery *
-cogl_driver_gl_create_timestamp_query (CoglDriver  *driver,
-                                       CoglContext *context)
-{
-  CoglTimestampQuery *query;
-
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
-                        NULL);
-
-  query = g_new0 (CoglTimestampQuery, 1);
-
-  GE (driver, glGenQueries (1, &query->id));
-  GE (driver, glQueryCounter (query->id, GL_TIMESTAMP));
-
-  /* Flush right away so GL knows about our timestamp query.
-   *
-   * E.g. the direct scanout path doesn't call SwapBuffers or any other
-   * glFlush-inducing operation, and skipping explicit glFlush here results in
-   * the timestamp query being placed at the point of glGetQueryObject much
-   * later, resulting in a GPU timestamp much later on in time.
-   */
-  GE (driver, glFlush ());
-
-  return query;
-}
-
-static void
-cogl_driver_gl_free_timestamp_query (CoglDriver         *driver,
-                                     CoglContext        *context,
-                                     CoglTimestampQuery *query)
-{
-  GE (driver, glDeleteQueries (1, &query->id));
-  g_free (query);
-}
-
-static int64_t
-cogl_driver_gl_timestamp_query_get_time_ns (CoglDriver         *driver,
-                                            CoglContext        *context,
-                                            CoglTimestampQuery *query)
-{
-  int64_t query_time_ns;
-
-  GE (driver, glGetQueryObjecti64v (query->id,
-                                    GL_QUERY_RESULT,
-                                    &query_time_ns));
-
-  return query_time_ns;
-}
-
-static int64_t
-cogl_driver_gl_get_gpu_time_ns (CoglDriver  *driver,
-                                CoglContext *context)
-{
-  int64_t gpu_time_ns;
-
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
-                        0);
-
-  GE (driver, glGetInteger64v (GL_TIMESTAMP, &gpu_time_ns));
-  return gpu_time_ns;
-}
-
 static void
 cogl_driver_gl_class_init (CoglDriverGLClass *klass)
 {
@@ -547,10 +483,6 @@ cogl_driver_gl_class_init (CoglDriverGLClass *klass)
   driver_klass->sampler_init = cogl_driver_gl_sampler_init_init;
   driver_klass->sampler_free = cogl_driver_gl_sampler_free;
   driver_klass->set_uniform = cogl_driver_gl_set_uniform; /* XXX name is weird... */
-  driver_klass->create_timestamp_query = cogl_driver_gl_create_timestamp_query;
-  driver_klass->free_timestamp_query = cogl_driver_gl_free_timestamp_query;
-  driver_klass->timestamp_query_get_time_ns = cogl_driver_gl_timestamp_query_get_time_ns;
-  driver_klass->get_gpu_time_ns = cogl_driver_gl_get_gpu_time_ns;
 }
 
 static void

@@ -58,11 +58,6 @@ typedef struct
   GLubyte c[4];
 } CoglTextureGLVertex;
 
-struct _CoglTimestampQuery
-{
-  unsigned int id;
-};
-
 struct _CoglContext
 {
   GObject parent_instance;

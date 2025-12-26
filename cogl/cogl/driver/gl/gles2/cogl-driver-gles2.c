@@ -883,9 +883,6 @@ cogl_driver_gles2_update_features (CoglDriver   *driver,
                       COGL_PRIVATE_FEATURE_TEXTURE_LOD_BIAS, TRUE);
     }
 
-  if (GE_HAS (driver, glGenQueries) && GE_HAS (driver, glQueryCounter) && GE_HAS (driver, glGetInteger64v))
-    COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
-
   if (!g_strcmp0 (cogl_driver_gl_get_gl_string (COGL_DRIVER_GL (driver), GL_RENDERER), "Mali-400 MP"))
     {
       COGL_FLAGS_SET (private_features,

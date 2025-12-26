@@ -2026,11 +2026,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   meta_frame_native_set_buffer (frame_native,
                                 META_DRM_BUFFER (cogl_scanout_get_buffer (scanout)));
 
-  frame_info->cpu_time_before_buffer_swap_us = g_get_monotonic_time ();
-
-  if (cogl_context_has_feature (cogl_context, COGL_FEATURE_ID_TIMESTAMP_QUERY))
-    frame_info->has_valid_gpu_rendering_duration = TRUE;
-
   clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
 
   maybe_post_next_frame (onscreen);

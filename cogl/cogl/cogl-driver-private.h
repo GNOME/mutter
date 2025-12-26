@@ -116,20 +116,6 @@ struct _CoglDriverClass
                         CoglContext          *ctx,
                         GLint                 location,
                         const CoglBoxedValue *value);
-
-  CoglTimestampQuery * (* create_timestamp_query) (CoglDriver  *driver,
-                                                   CoglContext *context);
-
-  void (* free_timestamp_query) (CoglDriver         *driver,
-                                 CoglContext        *context,
-                                 CoglTimestampQuery *query);
-
-  int64_t (* timestamp_query_get_time_ns) (CoglDriver         *driver,
-                                           CoglContext        *context,
-                                           CoglTimestampQuery *query);
-
-  int64_t (* get_gpu_time_ns) (CoglDriver  *driver,
-                               CoglContext *context);
 };
 
 #define COGL_TYPE_DRIVER (cogl_driver_get_type ())

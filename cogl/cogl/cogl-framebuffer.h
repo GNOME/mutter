@@ -1123,20 +1123,6 @@ COGL_EXPORT void
 cogl_framebuffer_flush (CoglFramebuffer *framebuffer);
 
 /**
- * cogl_framebuffer_create_timestamp_query: (skip)
- *
- * Creates a query for the GPU timestamp that will complete upon completion of
- * all previously submitted GL commands related to this framebuffer. E.g. when
- * the rendering is finished on this framebuffer.
- *
- * This function should only be called if the COGL_FEATURE_ID_TIMESTAMP_QUERY
- * feature is advertised.
- */
-COGL_EXPORT CoglTimestampQuery *
-cogl_framebuffer_create_timestamp_query (CoglFramebuffer *framebuffer);
-
-
-/**
  * cogl_framebuffer_get_internal_format: (skip)
  *
  * Returns the pixel format used internally by the framebuffer.

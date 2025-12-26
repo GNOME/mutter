@@ -75,11 +75,6 @@ struct _CoglFrameInfo
 
   unsigned int sequence;
 
-  CoglTimestampQuery *timestamp_query;
-  gboolean has_valid_gpu_rendering_duration;
-  int64_t gpu_time_before_buffer_swap_ns;
-  int64_t cpu_time_before_buffer_swap_us;
-
   gboolean has_target_presentation_time;
   int64_t target_presentation_time_us;
 };

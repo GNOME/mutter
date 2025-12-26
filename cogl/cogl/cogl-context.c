@@ -485,48 +485,6 @@ cogl_context_get_named_pipeline (CoglContext     *context,
   return g_hash_table_lookup (context->named_pipelines, key);
 }
 
-/**
- * cogl_context_free_timestamp_query:
- * @context: a #CoglContext object
- * @query: (transfer full): the #CoglTimestampQuery to free
- *
- * Free the #CoglTimestampQuery
- */
-void
-cogl_context_free_timestamp_query (CoglContext        *context,
-                                   CoglTimestampQuery *query)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  driver_klass->free_timestamp_query (driver, context, query);
-}
-
-int64_t
-cogl_context_timestamp_query_get_time_ns (CoglContext        *context,
-                                          CoglTimestampQuery *query)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->timestamp_query_get_time_ns (driver, context, query);
-}
-
-int64_t
-cogl_context_get_gpu_time_ns (CoglContext *context)
-{
-  CoglDriver *driver = cogl_context_get_driver (context);
-  CoglDriverClass *driver_klass;
-
-  g_return_val_if_fail (cogl_context_has_feature (context,
-                                                  COGL_FEATURE_ID_TIMESTAMP_QUERY),
-                        0);
-
-  driver_klass = COGL_DRIVER_GET_CLASS (driver);
-
-  return driver_klass->get_gpu_time_ns (driver, context);
-}
-
 /* FIXME: we should distinguish renderer and context features */
 gboolean
 cogl_context_has_winsys_feature (CoglContext       *context,

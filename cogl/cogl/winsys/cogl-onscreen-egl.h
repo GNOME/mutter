@@ -41,10 +41,6 @@ struct _CoglOnscreenEglClass
   CoglOnscreenClass parent_class;
 };
 
-COGL_EXPORT void
-cogl_onscreen_egl_maybe_create_timestamp_query (CoglOnscreen  *onscreen,
-                                                CoglFrameInfo *info);
-
 /**
  * cogl_onscreen_egl_set_egl_surface: (skip)
  */

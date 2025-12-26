@@ -656,9 +656,6 @@ cogl_driver_gl3_update_features (CoglDriver   *driver,
 
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NORM16, TRUE);
 
-  if (GE_HAS (driver, glGenQueries) && GE_HAS (driver, glQueryCounter) && GE_HAS (driver, glGetInteger64v))
-    COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TIMESTAMP_QUERY, TRUE);
-
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     ctx->private_features[i] |= private_features[i];
