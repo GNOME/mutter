@@ -2462,7 +2462,7 @@ clutter_color_state_params_new_from_cicp (ClutterContext     *context,
       return NULL;
     }
 
-  lum.type = CLUTTER_LUMINANCE_TYPE_DERIVED;
+  lum = *clutter_eotf_get_default_luminance (eotf);
 
   return clutter_color_state_params_new_from_primitives (context,
                                                          colorimetry,
