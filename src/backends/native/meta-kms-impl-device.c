@@ -1452,6 +1452,7 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
     {
       struct timeval page_flip_timeval;
       int64_t presentation_time_us;
+      int64_t delta = 0;
 
       page_flip_timeval = (struct timeval) {
         .tv_sec = tv_sec,
@@ -1461,19 +1462,23 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
 
       if (crtc_frame->deadline.has_expected_presentation_time)
         {
+          delta = presentation_time_us -
+                  crtc_frame->deadline.expected_presentation_time_us;
+        }
+
+      if (delta)
+        {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Deadline page flip presentation time: %" G_GINT64_FORMAT " us, "
-                      "expected %" G_GINT64_FORMAT " us "
-                      "(diff: %" G_GINT64_FORMAT ")",
+                      "Presented at %" G_GINT64_FORMAT " µs, %" G_GINT64_FORMAT
+                      " µs %s than expected",
                       presentation_time_us,
-                      crtc_frame->deadline.expected_presentation_time_us,
-                      crtc_frame->deadline.expected_presentation_time_us -
-                      presentation_time_us);
+                      ABS (delta),
+                      delta < 0 ? "earlier" : "later");
         }
       else
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Deadline page flip presentation time: %" G_GINT64_FORMAT " us",
+                      "Presented at %" G_GINT64_FORMAT " µs",
                       presentation_time_us);
         }
     }
@@ -1687,27 +1692,25 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
       if (meta_kms_crtc_get_current_state (crtc)->vrr.enabled)
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "VRR deadline dispatch started %3"G_GINT64_FORMAT "µs %s and "
-                      "completed %3"G_GINT64_FORMAT "µs after that.",
-                      ABS (lateness_us),
-                      lateness_us >= 0 ? "late" : "early",
+                      "VRR dispatch %"G_GINT64_FORMAT "%+04" G_GINT64_FORMAT
+                      " µs, completed %3"G_GINT64_FORMAT " µs later",
+                      dispatch_time_us,
+                      lateness_us,
                       duration_us);
         }
       else
         {
-          int64_t deadline_evasion_us, vblank_delta_us;
+          int64_t vblank_delta_us;
 
-          deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc);
-          vblank_delta_us = deadline_evasion_us - lateness_us - duration_us;
+          vblank_delta_us = meta_kms_crtc_get_deadline_evasion (crtc) -
+                            lateness_us - duration_us;
 
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Deadline evasion %3"G_GINT64_FORMAT "µs, "
-                      "dispatch started %3"G_GINT64_FORMAT "µs %s and "
-                      "completed %3"G_GINT64_FORMAT "µs after that, "
-                      "%3"G_GINT64_FORMAT "µs %s start of vblank.",
-                      deadline_evasion_us,
-                      ABS (lateness_us),
-                      lateness_us >= 0 ? "late" : "early",
+                      "FRR dispatch %"G_GINT64_FORMAT "%+04"G_GINT64_FORMAT
+                      " µs, completed %3"G_GINT64_FORMAT " µs later, %4"
+                      G_GINT64_FORMAT " µs %s start of vblank",
+                      dispatch_time_us,
+                      lateness_us,
                       duration_us,
                       ABS (vblank_delta_us),
                       vblank_delta_us >= 0 ? "before" : "after");
