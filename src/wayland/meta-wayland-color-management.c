@@ -436,6 +436,32 @@ send_information_from_icc_profile (struct wl_resource *info_resource,
 }
 
 static void
+send_primaries (struct wl_resource     *resource,
+                const ClutterPrimaries *primaries)
+{
+  wp_image_description_info_v1_send_primaries (
+    resource,
+    float_to_scaled_uint32_chromaticity (primaries->r_x),
+    float_to_scaled_uint32_chromaticity (primaries->r_y),
+    float_to_scaled_uint32_chromaticity (primaries->g_x),
+    float_to_scaled_uint32_chromaticity (primaries->g_y),
+    float_to_scaled_uint32_chromaticity (primaries->b_x),
+    float_to_scaled_uint32_chromaticity (primaries->b_y),
+    float_to_scaled_uint32_chromaticity (primaries->w_x),
+    float_to_scaled_uint32_chromaticity (primaries->w_y));
+  wp_image_description_info_v1_send_target_primaries (
+    resource,
+    float_to_scaled_uint32_chromaticity (primaries->r_x),
+    float_to_scaled_uint32_chromaticity (primaries->r_y),
+    float_to_scaled_uint32_chromaticity (primaries->g_x),
+    float_to_scaled_uint32_chromaticity (primaries->g_y),
+    float_to_scaled_uint32_chromaticity (primaries->b_x),
+    float_to_scaled_uint32_chromaticity (primaries->b_y),
+    float_to_scaled_uint32_chromaticity (primaries->w_x),
+    float_to_scaled_uint32_chromaticity (primaries->w_y));
+}
+
+static void
 send_information_from_params (struct wl_resource *info_resource,
                               ClutterColorState  *color_state)
 {
@@ -458,28 +484,10 @@ send_information_from_params (struct wl_resource *info_resource,
                                                          primaries_named);
 
       primaries = clutter_colorspace_to_primaries (colorimetry->colorspace);
-      wp_image_description_info_v1_send_primaries (
-        info_resource,
-        float_to_scaled_uint32_chromaticity (primaries->r_x),
-        float_to_scaled_uint32_chromaticity (primaries->r_y),
-        float_to_scaled_uint32_chromaticity (primaries->g_x),
-        float_to_scaled_uint32_chromaticity (primaries->g_y),
-        float_to_scaled_uint32_chromaticity (primaries->b_x),
-        float_to_scaled_uint32_chromaticity (primaries->b_y),
-        float_to_scaled_uint32_chromaticity (primaries->w_x),
-        float_to_scaled_uint32_chromaticity (primaries->w_y));
+      send_primaries (info_resource, primaries);
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      wp_image_description_info_v1_send_primaries (
-        info_resource,
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->r_x),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->r_y),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->g_x),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->g_y),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->b_x),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->b_y),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->w_x),
-        float_to_scaled_uint32_chromaticity (colorimetry->primaries->w_y));
+      send_primaries (info_resource, colorimetry->primaries);
       break;
     }
 
@@ -508,6 +516,9 @@ send_information_from_params (struct wl_resource *info_resource,
                                                 float_to_scaled_uint32 (lum->min),
                                                 (uint32_t) lum->max,
                                                 (uint32_t) lum->ref);
+  wp_image_description_info_v1_send_target_luminance (info_resource,
+                                                      float_to_scaled_uint32 (lum->min),
+                                                      (uint32_t) lum->max);
 }
 
 static void
