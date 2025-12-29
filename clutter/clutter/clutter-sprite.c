@@ -34,7 +34,7 @@
 #include "clutter/clutter-grab.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-seat-private.h"
-#include "clutter/clutter-stage.h"
+#include "clutter/clutter-stage-private.h"
 
 typedef struct _EventReceiver
 {
@@ -808,7 +808,7 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
   ClutterSprite *sprite = CLUTTER_SPRITE (focus);
   ClutterSpritePrivate *priv = clutter_sprite_get_instance_private (sprite);
   ClutterStage *stage = clutter_focus_get_stage (focus);
-  ClutterActor *target_actor = NULL, *seat_grab_actor = NULL;
+  ClutterActor *target_actor = NULL, *seat_grab_actor = NULL, *topmost;
   gboolean is_sequence_begin, is_sequence_end;
   ClutterEventType event_type;
 
@@ -877,8 +877,25 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
     return;
 
   seat_grab_actor = clutter_stage_get_grab_actor (stage);
-  if (!seat_grab_actor)
-    seat_grab_actor = CLUTTER_ACTOR (stage);
+  if (seat_grab_actor)
+    {
+      ClutterActor *grab_chrome_actor;
+
+      grab_chrome_actor = clutter_stage_get_grab_chrome (stage);
+
+      if (!clutter_actor_contains (seat_grab_actor, target_actor) &&
+          grab_chrome_actor &&
+          clutter_actor_contains (grab_chrome_actor, target_actor))
+        topmost = grab_chrome_actor;
+      else
+        topmost = seat_grab_actor;
+    }
+  else
+    {
+      topmost = CLUTTER_ACTOR (stage);
+    }
+
+  g_assert (topmost != NULL);
 
   is_sequence_begin =
     event_type == CLUTTER_BUTTON_PRESS || event_type == CLUTTER_TOUCH_BEGIN;
@@ -892,7 +909,7 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
       priv->implicit_grab_actor = target_actor;
       clutter_actor_set_implicitly_grabbed (priv->implicit_grab_actor, TRUE);
 
-      create_event_emission_chain (sprite, priv->event_emission_chain, seat_grab_actor, target_actor);
+      create_event_emission_chain (sprite, priv->event_emission_chain, topmost, target_actor);
       setup_sequence_actions (sprite, priv->event_emission_chain, event);
     }
 
@@ -907,7 +924,7 @@ clutter_sprite_propagate_event (ClutterFocus       *focus,
     }
   else
     {
-      create_event_emission_chain (sprite, priv->cur_event_emission_chain, seat_grab_actor, target_actor);
+      create_event_emission_chain (sprite, priv->cur_event_emission_chain, topmost, target_actor);
 
       emit_event (event, priv->cur_event_emission_chain);
 

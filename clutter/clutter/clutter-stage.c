@@ -108,6 +108,8 @@ typedef struct _ClutterStagePrivate
 
   GPtrArray *all_active_gestures;
 
+  ClutterActor *chrome_actor;
+
   guint actor_needs_immediate_relayout : 1;
   gboolean is_active;
 } ClutterStagePrivate;
@@ -1317,6 +1319,7 @@ clutter_stage_dispose (GObject *object)
   ClutterStageManager *stage_manager;
 
   clutter_actor_hide (CLUTTER_ACTOR (object));
+  clutter_stage_set_grab_chrome (stage, NULL);
 
   _clutter_clear_events_queue ();
 
@@ -3625,4 +3628,43 @@ clutter_stage_update_devices_in_view (ClutterStage     *stage,
   clutter_stage_foreach_sprite (stage,
                                 update_devices_in_view_foreach_cb,
                                 view);
+}
+
+void
+clutter_stage_set_grab_chrome (ClutterStage *stage,
+                               ClutterActor *actor)
+{
+  ClutterStagePrivate *priv =
+    clutter_stage_get_instance_private (stage);
+
+  g_return_if_fail (CLUTTER_IS_STAGE (stage));
+  g_return_if_fail (!actor || CLUTTER_IS_ACTOR (actor));
+
+  if (priv->chrome_actor == actor)
+    return;
+
+  if (priv->chrome_actor)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (priv->chrome_actor),
+                                    (gpointer *) &priv->chrome_actor);
+    }
+
+  priv->chrome_actor = actor;
+
+  if (actor)
+    {
+      g_object_add_weak_pointer (G_OBJECT (priv->chrome_actor),
+                                 (gpointer *) &priv->chrome_actor);
+    }
+}
+
+ClutterActor *
+clutter_stage_get_grab_chrome (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv =
+    clutter_stage_get_instance_private (stage);
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
+
+  return priv->chrome_actor;
 }

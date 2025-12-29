@@ -150,4 +150,11 @@ void clutter_stage_update_device_for_event (ClutterStage *stage,
 void clutter_stage_update_devices_in_view (ClutterStage     *stage,
                                            ClutterStageView *view);
 
+CLUTTER_EXPORT
+void clutter_stage_set_grab_chrome (ClutterStage *stage,
+                                    ClutterActor *actor);
+
+CLUTTER_EXPORT
+ClutterActor * clutter_stage_get_grab_chrome (ClutterStage *stage);
+
 G_END_DECLS
