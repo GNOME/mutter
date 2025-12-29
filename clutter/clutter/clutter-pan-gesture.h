@@ -112,4 +112,7 @@ CLUTTER_EXPORT
 void clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
                                               unsigned int       required_button);
 
+CLUTTER_EXPORT
+ClutterModifierType clutter_pan_gesture_get_state (ClutterPanGesture *self);
+
 G_END_DECLS

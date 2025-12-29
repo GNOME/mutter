@@ -62,6 +62,8 @@ struct _ClutterPanGesture
   unsigned int use_point;
   unsigned int required_button;
   unsigned int button;
+
+  ClutterModifierType modifier_state;
 };
 
 enum
@@ -286,6 +288,7 @@ clutter_pan_gesture_point_began (ClutterGesture *gesture,
       return;
     }
 
+  self->modifier_state = clutter_event_get_state (event);
   self->threshold_reached = FALSE;
   self->latest_event_time = clutter_event_get_time (event);
 
@@ -325,6 +328,7 @@ clutter_pan_gesture_point_moved (ClutterGesture *gesture,
   if (sequence != self->use_point)
     return;
 
+  self->modifier_state = clutter_event_get_state (event);
   self->latest_event_time = clutter_event_get_time (event);
 
   get_delta_from_points (self, &sequence, 1, &delta);
@@ -398,6 +402,7 @@ clutter_pan_gesture_state_changed (ClutterGesture      *gesture,
       graphene_vec2_init (&self->total_delta, 0, 0);
       self->event_history_begin_index = 0;
       g_array_set_size (self->event_history, 0);
+      self->modifier_state = 0;
     }
 }
 
@@ -1138,4 +1143,20 @@ clutter_pan_gesture_set_required_button (ClutterPanGesture *self,
 
   self->required_button = required_button;
   g_object_notify (G_OBJECT (self), "required-button");
+}
+
+/**
+ * clutter_pan_gesture_get_state:
+ * @self: the `ClutterPanGesture`
+ *
+ * Retrieves the current modifier state of the pan gesture.
+ *
+ * Returns: the modifier state parameter, or 0
+ */
+ClutterModifierType
+clutter_pan_gesture_get_state (ClutterPanGesture *self)
+{
+  g_return_val_if_fail (CLUTTER_IS_PAN_GESTURE (self), 0);
+
+  return self->modifier_state;
 }
