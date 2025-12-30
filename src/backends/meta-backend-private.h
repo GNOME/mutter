@@ -103,14 +103,6 @@ struct _MetaBackendClass
 
   gboolean (* is_lid_closed) (MetaBackend *backend);
 
-  gboolean (* grab_device) (MetaBackend *backend,
-                            int          device_id,
-                            uint32_t     timestamp);
-
-  gboolean (* ungrab_device) (MetaBackend *backend,
-                              int          device_id,
-                              uint32_t     timestamp);
-
   void (* finish_touch_sequence) (MetaBackend          *backend,
                                   ClutterEventSequence *sequence,
                                   MetaSequenceState     state);
@@ -190,13 +182,6 @@ MetaScreenCast * meta_backend_get_screen_cast (MetaBackend *backend);
 MetaInputCapture * meta_backend_get_input_capture (MetaBackend *backend);
 
 MetaA11yManager * meta_backend_get_a11y_manager (MetaBackend *backend);
-
-gboolean meta_backend_grab_device (MetaBackend *backend,
-                                   int          device_id,
-                                   uint32_t     timestamp);
-gboolean meta_backend_ungrab_device (MetaBackend *backend,
-                                     int          device_id,
-                                     uint32_t     timestamp);
 
 void meta_backend_finish_touch_sequence (MetaBackend          *backend,
                                          ClutterEventSequence *sequence,

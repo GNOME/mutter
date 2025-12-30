@@ -582,24 +582,6 @@ on_started (MetaContext *context,
                       determine_hotplug_pointer_visibility (seat));
 }
 
-static gboolean
-meta_backend_real_grab_device (MetaBackend *backend,
-                               int          device_id,
-                               uint32_t     timestamp)
-{
-  /* Do nothing */
-  return TRUE;
-}
-
-static gboolean
-meta_backend_real_ungrab_device (MetaBackend *backend,
-                                 int          device_id,
-                                 uint32_t     timestamp)
-{
-  /* Do nothing */
-  return TRUE;
-}
-
 static void
 meta_backend_real_select_stage_events (MetaBackend *backend)
 {
@@ -849,8 +831,6 @@ meta_backend_class_init (MetaBackendClass *klass)
   object_class->set_property = meta_backend_set_property;
   object_class->get_property = meta_backend_get_property;
 
-  klass->grab_device = meta_backend_real_grab_device;
-  klass->ungrab_device = meta_backend_real_ungrab_device;
   klass->select_stage_events = meta_backend_real_select_stage_events;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
   klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
@@ -1666,14 +1646,6 @@ meta_backend_is_rendering_hardware_accelerated (MetaBackend *backend)
   return meta_renderer_is_hardware_accelerated (renderer);
 }
 
-gboolean
-meta_backend_grab_device (MetaBackend *backend,
-                          int          device_id,
-                          uint32_t     timestamp)
-{
-  return META_BACKEND_GET_CLASS (backend)->grab_device (backend, device_id, timestamp);
-}
-
 /**
  * meta_backend_get_context:
  * @backend: the #MetaBackend
@@ -1686,14 +1658,6 @@ meta_backend_get_context (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   return priv->context;
-}
-
-gboolean
-meta_backend_ungrab_device (MetaBackend *backend,
-                            int          device_id,
-                            uint32_t     timestamp)
-{
-  return META_BACKEND_GET_CLASS (backend)->ungrab_device (backend, device_id, timestamp);
 }
 
 void
