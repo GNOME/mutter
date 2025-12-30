@@ -582,12 +582,6 @@ on_started (MetaContext *context,
                       determine_hotplug_pointer_visibility (seat));
 }
 
-static void
-meta_backend_real_select_stage_events (MetaBackend *backend)
-{
-  /* Do nothing */
-}
-
 static gboolean
 meta_backend_real_is_lid_closed (MetaBackend *backend)
 {
@@ -831,7 +825,6 @@ meta_backend_class_init (MetaBackendClass *klass)
   object_class->set_property = meta_backend_set_property;
   object_class->get_property = meta_backend_get_property;
 
-  klass->select_stage_events = meta_backend_real_select_stage_events;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
   klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
   klass->is_headless = meta_backend_real_is_headless;
@@ -1229,8 +1222,6 @@ init_stage (MetaBackend *backend)
   priv->stage = meta_stage_new (backend);
 
   clutter_actor_realize (priv->stage);
-
-  META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
 }
 
 static void

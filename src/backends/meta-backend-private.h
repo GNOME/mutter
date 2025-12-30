@@ -124,8 +124,6 @@ struct _MetaBackendClass
 
   void (* update_stage) (MetaBackend *backend);
 
-  void (* select_stage_events) (MetaBackend *backend);
-
   void (* set_pointer_constraint) (MetaBackend           *backend,
                                    MetaPointerConstraint *constraint);
 
