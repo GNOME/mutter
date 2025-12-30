@@ -44,14 +44,6 @@
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"
 
-typedef enum
-{
-  META_SEQUENCE_NONE,
-  META_SEQUENCE_ACCEPTED,
-  META_SEQUENCE_REJECTED,
-  META_SEQUENCE_PENDING_END
-} MetaSequenceState;
-
 typedef enum _MetaEventMode
 {
   META_EVENT_MODE_KEEP_FROZEN,

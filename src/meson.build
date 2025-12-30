@@ -348,8 +348,6 @@ mutter_sources = [
   'core/meta-external-constraint.c',
   'core/meta-fraction.c',
   'core/meta-fraction.h',
-  'core/meta-gesture-tracker.c',
-  'core/meta-gesture-tracker-private.h',
   'core/meta-inhibit-shortcuts-dialog.c',
   'core/meta-inhibit-shortcuts-dialog-default.c',
   'core/meta-inhibit-shortcuts-dialog-default-private.h',

@@ -28,6 +28,7 @@
 
 #include "backends/native/meta-seat-native.h"
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-keymap-utils.h"
 #include "backends/native/meta-barrier-native.h"

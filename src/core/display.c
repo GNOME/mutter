@@ -602,24 +602,6 @@ meta_display_cancel_touch (MetaDisplay *display)
 }
 
 static void
-gesture_tracker_state_changed (MetaGestureTracker   *tracker,
-                               ClutterEventSequence *sequence,
-                               MetaSequenceState     state,
-                               MetaDisplay          *display)
-{
-  switch (state)
-    {
-    case META_SEQUENCE_NONE:
-    case META_SEQUENCE_PENDING_END:
-    case META_SEQUENCE_REJECTED:
-      return;
-    case META_SEQUENCE_ACCEPTED:
-      meta_display_cancel_touch (display);
-      break;
-    }
-}
-
-static void
 on_monitor_privacy_screen_changed (MetaDisplay        *display,
                                    MetaLogicalMonitor *logical_monitor,
                                    gboolean            enabled)
@@ -917,11 +899,6 @@ meta_display_new (MetaContext  *context,
     }
 #endif
 
-  /* Set up touch support */
-  display->gesture_tracker = meta_gesture_tracker_new ();
-  g_signal_connect (display->gesture_tracker, "state-changed",
-                    G_CALLBACK (gesture_tracker_state_changed), display);
-
   meta_display_unset_input_focus (display, timestamp);
 
   g_signal_connect (stage, "notify::is-grabbed",
@@ -1067,8 +1044,6 @@ meta_display_close (MetaDisplay *display,
   meta_prefs_remove_listener (prefs_changed_callback, display);
 
   meta_display_remove_autoraise_callback (display);
-
-  g_clear_object (&display->gesture_tracker);
 
   g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
 
@@ -2365,12 +2340,6 @@ void
 meta_display_clear_mouse_mode (MetaDisplay *display)
 {
   display->mouse_mode = FALSE;
-}
-
-MetaGestureTracker *
-meta_display_get_gesture_tracker (MetaDisplay *display)
-{
-  return display->gesture_tracker;
 }
 
 gboolean

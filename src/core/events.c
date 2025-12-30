@@ -124,7 +124,6 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaCompositor *compositor = meta_display_get_compositor (display);
   ClutterInputDevice *source_device;
   MetaWindow *window = NULL;
-  MetaGestureTracker *gesture_tracker;
   ClutterEventType event_type;
   ClutterSeat *seat;
   gboolean has_grab;
@@ -242,13 +241,6 @@ meta_display_handle_event (MetaDisplay        *display,
           meta_display_sanity_check_timestamps (display, display->current_time);
         }
     }
-
-  gesture_tracker = meta_display_get_gesture_tracker (display);
-
-  if (meta_gesture_tracker_handle_event (gesture_tracker,
-                                         stage_from_display (display),
-                                         event))
-    return CLUTTER_EVENT_PROPAGATE;
 
   /* For key events, it's important to enforce single-handling, or
    * we can get into a confused state. So if a keybinding is

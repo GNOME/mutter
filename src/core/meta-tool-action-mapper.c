@@ -26,6 +26,7 @@
 #endif
 
 #include "core/meta-tool-action-mapper.h"
+#include "backends/meta-backend-private.h"
 #include "backends/meta-input-device-private.h"
 #include "core/display-private.h"
 
