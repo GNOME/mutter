@@ -102,7 +102,6 @@ typedef struct _ClutterStagePrivate
   float viewport[4];
 
   ClutterGrab *topmost_grab;
-  ClutterGrabState grab_state;
 
   GQueue *event_queue;
 
@@ -3081,18 +3080,6 @@ clutter_grab_activate (ClutterGrab *grab)
   if (grab->prev || grab->next || priv->topmost_grab == grab)
     return;
 
-  if (!priv->topmost_grab)
-    {
-      ClutterContext *context;
-      ClutterSeat *seat;
-
-      /* First grab in the chain, trigger a backend grab too */
-      context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
-      seat = clutter_backend_get_default_seat (context->backend);
-      priv->grab_state =
-        clutter_seat_grab (seat, clutter_get_current_event_time ());
-    }
-
   grab->prev = NULL;
   grab->next = priv->topmost_grab;
 
@@ -3216,18 +3203,6 @@ clutter_stage_unlink_grab (ClutterStage *stage,
     }
 
   clutter_actor_detach_grab (grab->actor, grab);
-
-  if (!priv->topmost_grab)
-    {
-      ClutterContext *context;
-      ClutterSeat *seat;
-
-      /* This was the last remaining grab, trigger a backend ungrab */
-      context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
-      seat = clutter_backend_get_default_seat (context->backend);
-      clutter_seat_ungrab (seat, clutter_get_current_event_time ());
-      priv->grab_state = CLUTTER_GRAB_STATE_NONE;
-    }
 
   if (was_grabbed != !!priv->topmost_grab)
     g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_IS_GRABBED]);

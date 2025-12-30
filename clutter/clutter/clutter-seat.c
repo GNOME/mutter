@@ -723,30 +723,6 @@ clutter_seat_destroy (ClutterSeat *seat)
   g_object_unref (seat);
 }
 
-ClutterGrabState
-clutter_seat_grab (ClutterSeat *seat,
-                   uint32_t     time)
-{
-  ClutterSeatClass *seat_class;
-
-  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
-  if (seat_class->grab)
-    return seat_class->grab (seat, time);
-  else
-    return CLUTTER_GRAB_STATE_ALL;
-}
-
-void
-clutter_seat_ungrab (ClutterSeat *seat,
-                     uint32_t     time)
-{
-  ClutterSeatClass *seat_class;
-
-  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
-  if (seat_class->ungrab)
-    return seat_class->ungrab (seat, time);
-}
-
 const char *
 clutter_seat_get_name (ClutterSeat *seat)
 {
