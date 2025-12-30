@@ -23,6 +23,10 @@
         <submenu>
           <attribute name="label" translatable="yes">_Monitors</attribute>
           <item>
+            <attribute name="label" translatable="yes">_Add monitor</attribute>
+            <attribute name="action">app.add_monitor</attribute>
+          </item>
+          <item>
             <attribute name="label" translatable="yes">_Emulate monitor modes</attribute>
             <attribute name="action">app.toggle_emulate_monitor_modes</attribute>
           </item>

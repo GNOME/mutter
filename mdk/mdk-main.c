@@ -100,6 +100,26 @@ activate_launch (GSimpleAction *action,
 }
 
 static void
+add_monitor (GSimpleAction *action,
+             GVariant      *parameter,
+             gpointer       user_data)
+{
+  MdkApplication *app = MDK_APPLICATION (user_data);
+  MdkWindow *window;
+  MdkMonitor *monitor;
+
+  window = g_object_new (MDK_TYPE_WINDOW,
+                         "context", app->context,
+                         NULL);
+
+  monitor = mdk_monitor_new (app->context);
+  mdk_window_set_monitor (window, monitor);
+  gtk_widget_set_visible (GTK_WIDGET (window), TRUE);
+
+  gtk_application_add_window (GTK_APPLICATION (app), GTK_WINDOW (window));
+}
+
+static void
 on_context_ready (MdkContext   *context,
                   GApplication *app)
 {
@@ -149,6 +169,8 @@ activate (MdkApplication *app)
                          "context", app->context,
                          NULL);
   gtk_application_add_window (GTK_APPLICATION (app), GTK_WINDOW (window));
+  g_signal_connect_swapped (window, "destroy",
+                            G_CALLBACK (g_application_quit), app);
 
   g_signal_connect (app->context, "ready", G_CALLBACK (on_context_ready), app);
   g_signal_connect (app->context, "error", G_CALLBACK (on_context_error), app);
@@ -240,6 +262,7 @@ main (int    argc,
     { "toggle_emulate_monitor_modes", .state = "false", },
     { "launch", activate_launch, .parameter_type = "i", },
     { "edit_launchers", activate_edit_launchers, },
+    { "add_monitor", add_monitor, },
   };
 
   app = g_object_new (MDK_TYPE_APPLICATION,
