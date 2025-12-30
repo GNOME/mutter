@@ -129,7 +129,6 @@ meta_display_handle_event (MetaDisplay        *display,
   gboolean has_grab;
   gboolean a11y_grabbed;
   MetaTabletActionMapper *mapper;
-  MetaEventMode mode_hint;
   MetaWaylandCompositor *wayland_compositor;
   MetaWaylandTextInput *wayland_text_input = NULL;
   uint32_t time_ms;
@@ -290,16 +289,6 @@ meta_display_handle_event (MetaDisplay        *display,
       if (window->close_dialog &&
           meta_close_dialog_is_visible (window->close_dialog))
         return CLUTTER_EVENT_PROPAGATE;
-
-      /* Now replay the button press event to release our own sync grab. */
-      mode_hint = META_EVENT_MODE_REPLAY;
-    }
-  else
-    {
-      /* We could not match the event with a window, make sure we sync
-       * the pointer to discard the sequence and don't keep events frozen.
-       */
-      mode_hint = META_EVENT_MODE_KEEP_FROZEN;
     }
 
   time_ms = clutter_event_get_time (event);
@@ -310,7 +299,7 @@ meta_display_handle_event (MetaDisplay        *display,
   if (meta_wayland_compositor_handle_event (wayland_compositor, event))
     return CLUTTER_EVENT_STOP;
 
-  return meta_compositor_handle_event (compositor, event, window, mode_hint);
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
 static gboolean

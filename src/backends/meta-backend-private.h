@@ -44,13 +44,6 @@
 #define DEFAULT_XKB_RULES_FILE "evdev"
 #define DEFAULT_XKB_MODEL "pc105+inet"
 
-typedef enum _MetaEventMode
-{
-  META_EVENT_MODE_KEEP_FROZEN,
-  META_EVENT_MODE_THAW,
-  META_EVENT_MODE_REPLAY,
-} MetaEventMode;
-
 struct _MetaBackendClass
 {
   GObjectClass parent_class;

@@ -59,11 +59,6 @@ struct _MetaCompositorClass
   MetaCompositorView * (* create_view) (MetaCompositor   *compositor,
                                         ClutterStageView *stage_view);
 
-  gboolean (* handle_event) (MetaCompositor     *compositor,
-                             const ClutterEvent *event,
-                             MetaWindow         *event_window,
-                             MetaEventMode       mode_hint);
-
   void (* notify_mapping_change) (MetaCompositor   *compositor,
                                   MetaMappingType   type,
                                   MetaMappingState  state);
@@ -188,11 +183,6 @@ void meta_compositor_show_window_menu (MetaCompositor     *compositor,
 				       MetaWindowMenuType  menu,
                                        int                 x,
                                        int                 y);
-
-gboolean meta_compositor_handle_event (MetaCompositor     *compositor,
-                                       const ClutterEvent *event,
-                                       MetaWindow         *event_window,
-                                       MetaEventMode       mode_hint);
 
 void meta_compositor_notify_mapping_change (MetaCompositor   *compositor,
                                             MetaMappingType   type,

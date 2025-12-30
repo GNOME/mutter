@@ -1520,7 +1520,6 @@ process_special_modifier_key (MetaDisplay          *display,
                               GFunc                 trigger_callback)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
-  MetaCompositor *compositor = display->compositor;
   ClutterModifierType modifiers;
   uint32_t hardware_keycode;
 
@@ -1557,8 +1556,6 @@ process_special_modifier_key (MetaDisplay          *display,
             trigger_callback (display, NULL);
         }
 
-      meta_compositor_handle_event (compositor, event, window,
-                                    META_EVENT_MODE_THAW);
       return CLUTTER_EVENT_STOP;
     }
   else if (clutter_event_type (event) == CLUTTER_KEY_PRESS &&
@@ -1566,15 +1563,12 @@ process_special_modifier_key (MetaDisplay          *display,
            resolved_key_combo_has_keycode (resolved_key_combo, hardware_keycode))
     {
       *modifier_press_only = TRUE;
-      /* We keep the keyboard frozen - this allows us to use ReplayKeyboard
-       * on the next event if it's not the release of the modifier key */
-      meta_compositor_handle_event (compositor, event, window,
-                                    META_EVENT_MODE_KEEP_FROZEN);
-
       return CLUTTER_EVENT_PROPAGATE;
     }
   else
-    return CLUTTER_EVENT_PROPAGATE;
+    {
+      return CLUTTER_EVENT_PROPAGATE;
+    }
 }
 
 
@@ -1659,8 +1653,6 @@ process_key_event (MetaDisplay     *display,
                    MetaWindow      *window,
                    ClutterEvent    *event)
 {
-  MetaCompositor *compositor = display->compositor;
-
   if (process_overlay_key (display, event, window))
     return TRUE;
 
@@ -1671,20 +1663,7 @@ process_key_event (MetaDisplay     *display,
     return TRUE;
 
   /* Do the normal keybindings */
-  if (process_event (display, window, event))
-    {
-      meta_compositor_handle_event (compositor, event, window,
-                                    META_EVENT_MODE_THAW);
-      return TRUE;
-    }
-  else
-    {
-      /* Replay the event so it gets delivered to our
-       * per-window key bindings or to the application */
-      meta_compositor_handle_event (compositor, event, window,
-                                    META_EVENT_MODE_REPLAY);
-      return FALSE;
-    }
+  return process_event (display, window, event);
 }
 
 /* Handle a key event. May be called recursively: some key events cause
