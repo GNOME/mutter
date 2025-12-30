@@ -121,8 +121,8 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
   MetaWaylandSurface *subsurface_surface;
 
   geometry = (MtkRectangle) {
-    .x = surface->offset_x + surface->sub.x,
-    .y = surface->offset_y + surface->sub.y,
+    .x = surface->offset_x + surface->sub.x + parent_x,
+    .y = surface->offset_y + surface->sub.y + parent_y,
     .width = meta_wayland_surface_get_width (surface),
     .height = meta_wayland_surface_get_height (surface),
   };
@@ -137,8 +137,8 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
 
       sub_surface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
       meta_wayland_subsurface_union_geometry (sub_surface,
-                                              parent_x + geometry.x,
-                                              parent_y + geometry.y,
+                                              geometry.x,
+                                              geometry.y,
                                               out_geometry);
     }
 }
