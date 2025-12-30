@@ -652,36 +652,6 @@ meta_backend_real_resume (MetaBackend *backend)
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 }
 
-void
-meta_backend_freeze_keyboard (MetaBackend *backend,
-                              uint32_t     timestamp)
-{
-  g_return_if_fail (META_IS_BACKEND (backend));
-
-  if (META_BACKEND_GET_CLASS (backend)->freeze_keyboard)
-    META_BACKEND_GET_CLASS (backend)->freeze_keyboard (backend, timestamp);
-}
-
-void
-meta_backend_unfreeze_keyboard (MetaBackend *backend,
-                                uint32_t     timestamp)
-{
-  g_return_if_fail (META_IS_BACKEND (backend));
-
-  if (META_BACKEND_GET_CLASS (backend)->unfreeze_keyboard)
-    META_BACKEND_GET_CLASS (backend)->unfreeze_keyboard (backend, timestamp);
-}
-
-void
-meta_backend_ungrab_keyboard (MetaBackend *backend,
-                              uint32_t     timestamp)
-{
-  g_return_if_fail (META_IS_BACKEND (backend));
-
-  if (META_BACKEND_GET_CLASS (backend)->ungrab_keyboard)
-    META_BACKEND_GET_CLASS (backend)->ungrab_keyboard (backend, timestamp);
-}
-
 gboolean
 meta_backend_is_lid_closed (MetaBackend *backend)
 {
