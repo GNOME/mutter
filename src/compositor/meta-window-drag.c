@@ -2035,14 +2035,6 @@ meta_window_drag_begin (MetaWindowDrag      *window_drag,
                                                                   window_drag,
                                                                   NULL);
       clutter_grab_activate (window_drag->grab);
-      if ((clutter_grab_get_seat_state (window_drag->grab) &
-           CLUTTER_GRAB_STATE_POINTER) == 0 &&
-          !meta_grab_op_is_keyboard (grab_op))
-        {
-          meta_topic (META_DEBUG_WINDOW_OPS,
-                      "Pointer grab failed on a pointer grab op");
-          return FALSE;
-        }
     }
 
   g_set_object (&window_drag->effective_grab_window, grab_window);

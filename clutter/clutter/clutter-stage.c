@@ -3271,27 +3271,6 @@ clutter_grab_dismiss (ClutterGrab *grab)
 }
 
 /**
- * clutter_grab_get_seat_state:
- * @grab: a Grab handle
- *
- * Returns the windowing-level state of the
- * grab, the devices that are guaranteed to be
- * grabbed.
- *
- * Returns: The state of the grab.
- **/
-ClutterGrabState
-clutter_grab_get_seat_state (ClutterGrab *grab)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_val_if_fail (grab != NULL, CLUTTER_GRAB_STATE_NONE);
-
-  priv = clutter_stage_get_instance_private (grab->stage);
-  return priv->grab_state;
-}
-
-/**
  * clutter_stage_get_grab_actor:
  * @stage: a #ClutterStage
  *
