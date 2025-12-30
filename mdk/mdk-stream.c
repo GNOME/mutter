@@ -88,6 +88,8 @@ struct _MdkStream
   GdkPaintable *paintable;
   GArray *formats;
 
+  char *mapping_id;
+
   uint32_t node_id;
   struct pw_stream *pipewire_stream;
   struct spa_hook pipewire_stream_listener;

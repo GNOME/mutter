@@ -1481,23 +1481,27 @@ build_tag_params (MetaScreenCastStreamSrc *src,
                   struct spa_pod_builder  *pod_builder,
                   GArray                  *pod_offsets)
 {
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
   struct spa_pod_frame tag_frame;
   struct spa_dict_item *items;
   g_autoptr (GArray) tags = NULL;
+  const char *mapping_id;
+  MetaTagEntry mapping_id_tag_entry;
   size_t i;
-
-  if (!klass->append_tags)
-    return;
 
   tags = g_array_new (FALSE, FALSE, sizeof (MetaTagEntry));
   g_array_set_clear_func (tags, (GDestroyNotify) meta_tag_entry_clear);
 
-  klass->append_tags (src, tags);
+  if (klass->append_tags)
+    klass->append_tags (src, tags);
 
-  if (tags->len == 0)
-    return;
+  mapping_id = meta_screen_cast_stream_get_mapping_id (priv->stream);
+  mapping_id_tag_entry.key = g_strdup ("org.gnome.mapping-id");
+  mapping_id_tag_entry.value = g_strdup (mapping_id);
+  g_array_append_val (tags, mapping_id_tag_entry);
 
   items = g_alloca (sizeof (struct spa_dict_item) * tags->len);
   for (i = 0; i < tags->len; i++)
