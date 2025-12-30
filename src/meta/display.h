@@ -171,10 +171,6 @@ META_EXPORT
 void meta_display_clear_mouse_mode (MetaDisplay *display);
 
 META_EXPORT
-gboolean meta_display_is_pointer_emulating_sequence (MetaDisplay          *display,
-                                                     ClutterEventSequence *sequence);
-
-META_EXPORT
 void    meta_display_request_pad_osd      (MetaDisplay        *display,
                                            ClutterInputDevice *pad,
                                            gboolean            edition_mode);

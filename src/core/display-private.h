@@ -130,8 +130,6 @@ struct _MetaDisplay
   MetaCompositor *compositor;
 
   MetaGestureTracker *gesture_tracker;
-  ClutterEventSequence *pointer_emulating_sequence;
-
   ClutterActor *current_pad_osd;
   MetaPadActionMapper *pad_action_mapper;
   MetaToolActionMapper *tool_action_mapper;

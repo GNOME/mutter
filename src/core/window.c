@@ -7645,14 +7645,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
     return CLUTTER_EVENT_PROPAGATE;
 
   if (event_type == CLUTTER_TOUCH_BEGIN)
-    {
-      ClutterEventSequence *sequence;
-
-      button = 1;
-      sequence = clutter_event_get_event_sequence (event);
-      if (!meta_display_is_pointer_emulating_sequence (window->display, sequence))
-        return CLUTTER_EVENT_PROPAGATE;
-    }
+    button = CLUTTER_BUTTON_PRIMARY;
   else
     button = clutter_event_get_button (event);
 
