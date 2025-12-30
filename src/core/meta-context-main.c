@@ -83,13 +83,6 @@ check_configuration (MetaContextMain  *context_main,
                      GError          **error)
 {
 #ifdef HAVE_NATIVE_BACKEND
-  if (context_main->options.headless && context_main->options.devkit)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Can't run in both MDK and headless mode");
-      return FALSE;
-    }
-
   if (context_main->options.display_server &&
       (context_main->options.headless || context_main->options.devkit))
     {
