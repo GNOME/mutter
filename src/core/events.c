@@ -132,6 +132,7 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaEventMode mode_hint;
   MetaWaylandCompositor *wayland_compositor;
   MetaWaylandTextInput *wayland_text_input = NULL;
+  uint32_t time_ms;
 
   wayland_compositor = meta_context_get_wayland_compositor (context);
   wayland_text_input =
@@ -301,15 +302,13 @@ meta_display_handle_event (MetaDisplay        *display,
       mode_hint = META_EVENT_MODE_KEEP_FROZEN;
     }
 
-    uint32_t time_ms;
+  time_ms = clutter_event_get_time (event);
+  if (window && event_type == CLUTTER_MOTION &&
+      time_ms != CLUTTER_CURRENT_TIME)
+    meta_window_check_alive_on_event (window, time_ms);
 
-    time_ms = clutter_event_get_time (event);
-    if (window && event_type == CLUTTER_MOTION &&
-        time_ms != CLUTTER_CURRENT_TIME)
-      meta_window_check_alive_on_event (window, time_ms);
-
-    if (meta_wayland_compositor_handle_event (wayland_compositor, event))
-      return CLUTTER_EVENT_STOP;
+  if (meta_wayland_compositor_handle_event (wayland_compositor, event))
+    return CLUTTER_EVENT_STOP;
 
   return meta_compositor_handle_event (compositor, event, window, mode_hint);
 }
