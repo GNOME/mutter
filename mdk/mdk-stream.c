@@ -589,6 +589,11 @@ on_tag_changed (MdkStream  *stream,
           gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
         }
     }
+  else if (g_strcmp0 (key, "org.gnome.mapping-id") == 0)
+    {
+      if (!stream->mapping_id)
+        stream->mapping_id = g_strdup (value);
+    }
 }
 
 static void
@@ -1466,6 +1471,7 @@ mdk_stream_finalize (GObject *object)
   g_clear_object (&stream->proxy);
   g_clear_pointer (&stream->formats, g_array_unref);
   g_clear_object (&stream->paintable);
+  g_clear_pointer (&stream->mapping_id, g_free);
   g_clear_pointer (&stream->main_context, g_main_context_unref);
 
   G_OBJECT_CLASS (mdk_stream_parent_class)->finalize (object);
@@ -1557,6 +1563,12 @@ const char *
 mdk_stream_get_path (MdkStream *stream)
 {
   return g_dbus_proxy_get_object_path (G_DBUS_PROXY (stream->proxy));
+}
+
+const char *
+mdk_stream_get_mapping_id (MdkStream *stream)
+{
+  return stream->mapping_id;
 }
 
 void
