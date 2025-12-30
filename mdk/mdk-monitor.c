@@ -146,7 +146,7 @@ on_pointer_motion (GtkEventControllerMotion *controller,
 
           touch = get_touch (monitor);
           if (touch)
-            mdk_touch_notify_motion (touch, 0, x, y);
+            mdk_touch_notify_motion (touch, monitor->stream, 0, x, y);
         }
     }
   else
@@ -155,7 +155,7 @@ on_pointer_motion (GtkEventControllerMotion *controller,
 
       pointer = get_pointer (monitor);
       if (pointer)
-        mdk_pointer_notify_motion (pointer, x, y);
+        mdk_pointer_notify_motion (pointer, monitor->stream, x, y);
     }
 }
 
@@ -353,11 +353,11 @@ handle_touch_event (MdkMonitor *monitor,
     {
     case GDK_TOUCH_BEGIN:
       if (calc_event_widget_coordinates (event, &x, &y, GTK_WIDGET (monitor)))
-        mdk_touch_notify_down (touch, slot, x, y);
+        mdk_touch_notify_down (touch, monitor->stream, slot, x, y);
       break;
     case GDK_TOUCH_UPDATE:
       if (calc_event_widget_coordinates (event, &x, &y, GTK_WIDGET (monitor)))
-        mdk_touch_notify_motion (touch, slot, x, y);
+        mdk_touch_notify_motion (touch, monitor->stream, slot, x, y);
       break;
     case GDK_TOUCH_END:
     case GDK_TOUCH_CANCEL:
@@ -410,7 +410,7 @@ handle_button_event (MdkMonitor *monitor,
               touch = get_touch (monitor);
               if (touch)
                 {
-                  mdk_touch_notify_down (touch, 0, x, y);
+                  mdk_touch_notify_down (touch, monitor->stream, 0, x, y);
                   monitor->emulated_touch_down = TRUE;
                 }
             }

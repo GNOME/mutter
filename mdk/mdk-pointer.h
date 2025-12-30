@@ -35,6 +35,7 @@ MdkPointer * mdk_pointer_new (MdkSeat          *seat,
 void mdk_pointer_release_all (MdkPointer *pointer);
 
 void mdk_pointer_notify_motion (MdkPointer *pointer,
+                                MdkStream  *stream,
                                 double      x,
                                 double      y);
 

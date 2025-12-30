@@ -21,6 +21,7 @@
 
 #include <linux/input-event-codes.h>
 
+#include "mdk-input-regions.h"
 #include "mdk-monitor.h"
 #include "mdk-stream.h"
 
@@ -29,9 +30,23 @@ struct _MdkTouch
   MdkDevice parent;
 
   GHashTable *slots;
+
+  GHashTable *regions;
 };
 
 G_DEFINE_FINAL_TYPE (MdkTouch, mdk_touch, MDK_TYPE_DEVICE)
+
+static void
+mdk_touch_constructed (GObject *object)
+{
+  MdkTouch *touch = MDK_TOUCH (object);
+  MdkDevice *device = MDK_DEVICE (touch);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
+
+  touch->regions = mdk_process_regions (ei_device);
+
+  G_OBJECT_CLASS (mdk_touch_parent_class)->constructed (object);
+}
 
 static void
 mdk_touch_finalize (GObject *object)
@@ -39,6 +54,7 @@ mdk_touch_finalize (GObject *object)
   MdkTouch *touch = MDK_TOUCH (object);
 
   g_clear_pointer (&touch->slots, g_hash_table_unref);
+  g_clear_pointer (&touch->regions, g_hash_table_unref);
 
   G_OBJECT_CLASS (mdk_touch_parent_class)->finalize (object);
 }
@@ -48,6 +64,7 @@ mdk_touch_class_init (MdkTouchClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->constructed = mdk_touch_constructed;
   object_class->finalize = mdk_touch_finalize;
 }
 
@@ -93,14 +110,22 @@ mdk_touch_release_all (MdkTouch *touch)
 }
 
 void
-mdk_touch_notify_down (MdkTouch *touch,
-                       int       slot,
-                       double    x,
-                       double    y)
+mdk_touch_notify_down (MdkTouch  *touch,
+                       MdkStream *stream,
+                       int        slot,
+                       double     x,
+                       double     y)
 {
   MdkDevice *device = MDK_DEVICE (touch);
   struct ei_device *ei_device = mdk_device_get_ei_device (device);
   struct ei_touch *ei_touch;
+
+  if (!mdk_transform_stream_position (stream, touch->regions, &x, &y))
+    {
+      g_warning ("Dropping touch down, slot: %d, position: %f, %f",
+                 slot, x, y);
+      return;
+    }
 
   ei_touch = ei_device_touch_new (ei_device);
   g_hash_table_insert (touch->slots, GINT_TO_POINTER (slot), ei_touch);
@@ -112,14 +137,22 @@ mdk_touch_notify_down (MdkTouch *touch,
 }
 
 void
-mdk_touch_notify_motion (MdkTouch *touch,
-                         int       slot,
-                         double    x,
-                         double    y)
+mdk_touch_notify_motion (MdkTouch  *touch,
+                         MdkStream *stream,
+                         int        slot,
+                         double     x,
+                         double     y)
 {
   MdkDevice *device = MDK_DEVICE (touch);
   struct ei_device *ei_device = mdk_device_get_ei_device (device);
   struct ei_touch *ei_touch;
+
+  if (!mdk_transform_stream_position (stream, touch->regions, &x, &y))
+    {
+      g_warning ("Dropping touch motion, slot: %d, position: %f, %f",
+                 slot, x, y);
+      return;
+    }
 
   ei_touch = g_hash_table_lookup (touch->slots, GINT_TO_POINTER (slot));
   if (!ei_touch)

@@ -30,16 +30,18 @@ MdkTouch * mdk_touch_new (MdkSeat          *seat,
 
 void mdk_touch_release_all (MdkTouch *touch);
 
-void mdk_touch_notify_down (MdkTouch *touch,
-                            int       slot,
-                            double    x,
-                            double    y);
+void mdk_touch_notify_down (MdkTouch  *touch,
+                            MdkStream *stream,
+                            int        slot,
+                            double     x,
+                            double     y);
 
 
-void mdk_touch_notify_motion (MdkTouch *touch,
-                              int       slot,
-                              double    x,
-                              double    y);
+void mdk_touch_notify_motion (MdkTouch  *touch,
+                              MdkStream *stream,
+                              int        slot,
+                              double     x,
+                              double     y);
 
 void mdk_touch_notify_up (MdkTouch *touch,
                           int       slot);

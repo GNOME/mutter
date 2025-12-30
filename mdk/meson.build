@@ -7,6 +7,8 @@ mdk_sources = [
   'mdk-device.h',
   'mdk-ei.c',
   'mdk-ei.h',
+  'mdk-input-regions.c',
+  'mdk-input-regions.h',
   'mdk-keyboard.c',
   'mdk-keyboard.h',
   'mdk-launcher-action-item.c',

@@ -21,6 +21,7 @@
 
 #include <linux/input-event-codes.h>
 
+#include "mdk-input-regions.h"
 #include "mdk-monitor.h"
 #include "mdk-stream.h"
 
@@ -32,13 +33,41 @@ struct _MdkPointer
   MdkDevice parent;
 
   gboolean button_pressed[KEY_CNT];
+
+  GHashTable *regions;
 };
 
 G_DEFINE_FINAL_TYPE (MdkPointer, mdk_pointer, MDK_TYPE_DEVICE)
 
 static void
+mdk_pointer_constructed (GObject *object)
+{
+  MdkPointer *pointer = MDK_POINTER (object);
+  MdkDevice *device = MDK_DEVICE (pointer);
+  struct ei_device *ei_device = mdk_device_get_ei_device (device);
+
+  pointer->regions = mdk_process_regions (ei_device);
+
+  G_OBJECT_CLASS (mdk_pointer_parent_class)->constructed (object);
+}
+
+static void
+mdk_pointer_finalize (GObject *object)
+{
+  MdkPointer *pointer = MDK_POINTER (object);
+
+  g_clear_pointer (&pointer->regions, g_hash_table_unref);
+
+  G_OBJECT_CLASS (mdk_pointer_parent_class)->finalize (object);
+}
+
+static void
 mdk_pointer_class_init (MdkPointerClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->constructed = mdk_pointer_constructed;
+  object_class->finalize = mdk_pointer_finalize;
 }
 
 static void
@@ -74,11 +103,18 @@ mdk_pointer_release_all (MdkPointer *pointer)
 
 void
 mdk_pointer_notify_motion (MdkPointer *pointer,
+                           MdkStream  *stream,
                            double      x,
                            double      y)
 {
   MdkDevice *device = MDK_DEVICE (pointer);
   struct ei_device *ei_device = mdk_device_get_ei_device (device);
+
+  if (!mdk_transform_stream_position (stream, pointer->regions, &x, &y))
+    {
+      g_warning ("Dropping pointer motion %f, %f", x, y);
+      return;
+    }
 
   g_debug ("Emit absolute pointer motion %f, %f", x, y);
 
