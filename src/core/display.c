@@ -611,19 +611,11 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
     {
     case META_SEQUENCE_NONE:
     case META_SEQUENCE_PENDING_END:
+    case META_SEQUENCE_REJECTED:
       return;
     case META_SEQUENCE_ACCEPTED:
       meta_display_cancel_touch (display);
-
-      G_GNUC_FALLTHROUGH;
-    case META_SEQUENCE_REJECTED:
-      {
-        MetaBackend *backend;
-
-        backend = backend_from_display (display);
-        meta_backend_finish_touch_sequence (backend, sequence, state);
-        break;
-      }
+      break;
     }
 }
 

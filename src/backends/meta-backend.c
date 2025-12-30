@@ -1651,17 +1651,6 @@ meta_backend_get_context (MetaBackend *backend)
   return priv->context;
 }
 
-void
-meta_backend_finish_touch_sequence (MetaBackend          *backend,
-                                    ClutterEventSequence *sequence,
-                                    MetaSequenceState     state)
-{
-  if (META_BACKEND_GET_CLASS (backend)->finish_touch_sequence)
-    META_BACKEND_GET_CLASS (backend)->finish_touch_sequence (backend,
-                                                             sequence,
-                                                             state);
-}
-
 /**
  * meta_backend_get_current_logical_monitor:
  * @backend: A #MetaBackend

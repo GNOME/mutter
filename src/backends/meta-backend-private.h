@@ -103,10 +103,6 @@ struct _MetaBackendClass
 
   gboolean (* is_lid_closed) (MetaBackend *backend);
 
-  void (* finish_touch_sequence) (MetaBackend          *backend,
-                                  ClutterEventSequence *sequence,
-                                  MetaSequenceState     state);
-
   void (* set_keymap_async) (MetaBackend *backend,
                              const char  *layouts,
                              const char  *variants,
@@ -180,10 +176,6 @@ MetaScreenCast * meta_backend_get_screen_cast (MetaBackend *backend);
 MetaInputCapture * meta_backend_get_input_capture (MetaBackend *backend);
 
 MetaA11yManager * meta_backend_get_a11y_manager (MetaBackend *backend);
-
-void meta_backend_finish_touch_sequence (MetaBackend          *backend,
-                                         ClutterEventSequence *sequence,
-                                         MetaSequenceState     state);
 
 META_EXPORT_TEST
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
