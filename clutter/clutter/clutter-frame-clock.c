@@ -1045,44 +1045,6 @@ calculate_next_variable_update_time_us (ClutterFrameClock *frame_clock,
   *out_next_frame_deadline_us = next_frame_deadline_us;
 }
 
-static void
-calculate_next_variable_update_timeout_us (ClutterFrameClock *frame_clock,
-                                           int64_t           *out_next_update_time_us)
-{
-  const Frame *last_presentation = frame_clock->prev_presentation;
-  int64_t now_us;
-  int64_t next_presentation_time_us;
-  int64_t timeout_interval_us;
-
-  now_us = g_get_monotonic_time ();
-
-  if (now_us - frame_clock->frame_sync_update_time_us >=
-      frame_clock->maximum_refresh_interval_us)
-    timeout_interval_us = frame_clock->refresh_interval_us;
-  else
-    timeout_interval_us = frame_clock->maximum_refresh_interval_us;
-
-  if (!last_presentation || last_presentation->presentation_time_us == 0)
-    {
-      const Frame *last_dispatch = frame_clock->prev_dispatch;
-
-      *out_next_update_time_us =
-        last_dispatch && last_dispatch->dispatch_time_us ?
-        ((last_dispatch->dispatch_time_us -
-          last_dispatch->dispatch_lateness_us) + timeout_interval_us) :
-        now_us;
-      return;
-    }
-
-  next_presentation_time_us = last_presentation->presentation_time_us +
-                              timeout_interval_us;
-
-  while (next_presentation_time_us < now_us)
-    next_presentation_time_us += timeout_interval_us;
-
-  *out_next_update_time_us = next_presentation_time_us;
-}
-
 void
 clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock)
 {
@@ -1301,11 +1263,15 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
         (frame_clock->next_frame_deadline_us != 0);
       break;
     case CLUTTER_FRAME_CLOCK_MODE_VARIABLE:
-      calculate_next_variable_update_timeout_us (frame_clock,
-                                                 &next_update_time_us);
-      frame_clock->is_next_presentation_time_valid = FALSE;
+      calculate_next_variable_update_time_us (frame_clock,
+                                              &next_update_time_us,
+                                              &frame_clock->next_presentation_time_us,
+                                              &frame_clock->next_frame_deadline_us);
+      frame_clock->is_next_presentation_time_valid =
+        (frame_clock->next_presentation_time_us != 0);
       frame_clock->is_target_presentation_time = FALSE;
-      frame_clock->has_next_frame_deadline = FALSE;
+      frame_clock->has_next_frame_deadline =
+        (frame_clock->next_frame_deadline_us != 0);
       break;
     case CLUTTER_FRAME_CLOCK_MODE_PASSIVE:
       g_assert_not_reached ();
