@@ -2088,12 +2088,6 @@ meta_onscreen_native_request_frame_sync (MetaOnscreenNative *onscreen_native,
   onscreen_native->frame_sync_requested = enabled;
 }
 
-gboolean
-meta_onscreen_native_is_frame_sync_enabled (MetaOnscreenNative *onscreen_native)
-{
-  return onscreen_native->frame_sync_enabled;
-}
-
 static void
 maybe_update_frame_sync (MetaOnscreenNative *onscreen_native,
                          ClutterFrame       *frame)

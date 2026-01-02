@@ -70,5 +70,3 @@ void meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native);
 
 void meta_onscreen_native_request_frame_sync (MetaOnscreenNative *onscreen_native,
                                               gboolean            enabled);
-
-gboolean meta_onscreen_native_is_frame_sync_enabled (MetaOnscreenNative *onscreen_native);

@@ -56,11 +56,13 @@ G_DEFINE_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
                META_TYPE_COMPOSITOR_VIEW)
 
 static void
-maybe_schedule_update_now (MetaCompositorViewNative *view_native)
+maybe_set_frame_sync_update_time (MetaSurfaceActor         *surface_actor,
+                                  MetaCompositorViewNative *view_native)
 {
   MetaCompositorView *compositor_view = META_COMPOSITOR_VIEW (view_native);
   ClutterStageView *stage_view;
   CoglFramebuffer *framebuffer;
+  ClutterFrameClock *frame_clock;
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
@@ -68,32 +70,12 @@ maybe_schedule_update_now (MetaCompositorViewNative *view_native)
   if (!META_IS_ONSCREEN_NATIVE (framebuffer))
     return;
 
-  if (meta_onscreen_native_is_frame_sync_enabled (META_ONSCREEN_NATIVE (framebuffer)))
+  frame_clock = clutter_stage_view_get_frame_clock (stage_view);
+  if (frame_clock)
     {
-      ClutterFrameClock *frame_clock;
-
-      frame_clock = clutter_stage_view_get_frame_clock (stage_view);
-      if (!frame_clock)
-        return;
-
       clutter_frame_clock_set_frame_sync_update_time (frame_clock,
                                                       g_get_monotonic_time ());
-      clutter_frame_clock_schedule_update_now (frame_clock);
     }
-}
-
-static void
-on_frame_sync_surface_repaint_scheduled (MetaSurfaceActor         *surface_actor,
-                                         MetaCompositorViewNative *view_native)
-{
-  maybe_schedule_update_now (view_native);
-}
-
-static void
-on_frame_sync_surface_update_scheduled (MetaSurfaceActor         *surface_actor,
-                                        MetaCompositorViewNative *view_native)
-{
-  maybe_schedule_update_now (view_native);
 }
 
 static void
@@ -515,11 +497,11 @@ update_frame_sync_surface (MetaCompositorViewNative *view_native,
     {
       view_native->frame_sync_surface_repaint_scheduled_id =
         g_signal_connect (surface_actor, "repaint-scheduled",
-                          G_CALLBACK (on_frame_sync_surface_repaint_scheduled),
+                          G_CALLBACK (maybe_set_frame_sync_update_time),
                           view_native);
       view_native->frame_sync_surface_update_scheduled_id =
         g_signal_connect (surface_actor, "update-scheduled",
-                          G_CALLBACK (on_frame_sync_surface_update_scheduled),
+                          G_CALLBACK (maybe_set_frame_sync_update_time),
                           view_native);
       view_native->frame_sync_surface_is_frozen_changed_id =
         g_signal_connect (surface_actor,
