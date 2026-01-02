@@ -522,8 +522,8 @@ update_fullscreen_actor (MetaCompositorViewNative *view_native,
   if (!META_IS_ONSCREEN_NATIVE (framebuffer))
     return;
 
-  meta_onscreen_native_request_frame_sync (META_ONSCREEN_NATIVE (framebuffer),
-                                           surface_actor != NULL);
+  meta_onscreen_native_allow_vrr (META_ONSCREEN_NATIVE (framebuffer),
+                                  surface_actor != NULL);
 }
 
 void

@@ -68,5 +68,5 @@ void meta_onscreen_native_invalidate (MetaOnscreenNative *onscreen_native);
 
 void meta_onscreen_native_detach (MetaOnscreenNative *onscreen_native);
 
-void meta_onscreen_native_request_frame_sync (MetaOnscreenNative *onscreen_native,
-                                              gboolean            enabled);
+void meta_onscreen_native_allow_vrr (MetaOnscreenNative *onscreen_native,
+                                     gboolean            allowed);
