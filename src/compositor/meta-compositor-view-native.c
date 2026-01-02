@@ -105,6 +105,102 @@ update_scanout_candidate (MetaCompositorViewNative *view_native,
     }
 }
 
+static MetaSurfaceActor *
+find_candidate (MetaCompositorView *compositor_view,
+                MetaCompositor     *compositor,
+                const char         *topic)
+{
+  ClutterStageView *stage_view =
+    meta_compositor_view_get_stage_view (compositor_view);
+  MetaWindowActor *window_actor;
+  MetaSurfaceActor *surface_actor;
+  MtkRectangle view_rect;
+  ClutterActorBox actor_box;
+
+  if (meta_compositor_is_unredirect_inhibited (compositor))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: unredirect inhibited",
+                  topic);
+      return NULL;
+    }
+
+  window_actor =
+    meta_compositor_view_get_top_window_actor (compositor_view);
+  if (!window_actor)
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: no top window actor",
+                  topic);
+      return NULL;
+    }
+
+  if (meta_window_actor_effect_in_progress (window_actor))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: window-actor effects in progress",
+                  topic);
+      return NULL;
+    }
+
+  if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: window-actor has transition",
+                  topic);
+      return NULL;
+    }
+
+  clutter_stage_view_get_layout (stage_view, &view_rect);
+
+  if (!clutter_actor_get_paint_box (CLUTTER_ACTOR (window_actor),
+                                    &actor_box))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: no window actor paint-box",
+                  topic);
+      return NULL;
+    }
+
+  if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
+                       CLUTTER_COORDINATE_EPSILON) ||
+      !G_APPROX_VALUE (actor_box.y1, view_rect.y,
+                       CLUTTER_COORDINATE_EPSILON) ||
+      !G_APPROX_VALUE (actor_box.x2, view_rect.x + view_rect.width,
+                       CLUTTER_COORDINATE_EPSILON) ||
+      !G_APPROX_VALUE (actor_box.y2, view_rect.y + view_rect.height,
+                       CLUTTER_COORDINATE_EPSILON))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: paint-box (%f,%f,%f,%f) does "
+                  "not match stage-view layout (%d,%d,%d,%d)",
+                  topic,
+                  actor_box.x1, actor_box.y1,
+                  actor_box.x2 - actor_box.x1, actor_box.y2 - actor_box.y1,
+                  view_rect.x, view_rect.y, view_rect.width, view_rect.height);
+      return NULL;
+    }
+
+  surface_actor = meta_window_actor_get_scanout_candidate (window_actor);
+  if (!surface_actor)
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: window-actor has no scanout candidate",
+                  topic);
+      return NULL;
+    }
+
+  if (meta_surface_actor_is_effectively_obscured (surface_actor))
+    {
+      meta_topic (META_DEBUG_RENDER,
+                  "No %s candidate: surface-actor is obscured",
+                  topic);
+      return NULL;
+    }
+
+  return surface_actor;
+}
+
 static gboolean
 find_scanout_candidate (MetaCompositorView  *compositor_view,
                         MetaCompositor      *compositor,
@@ -122,9 +218,7 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   CoglTexture *cursor_sprite;
   MetaCrtc *crtc;
   CoglFramebuffer *framebuffer;
-  MetaWindowActor *window_actor;
   MtkRectangle view_rect;
-  ClutterActorBox actor_box;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
   MetaWaylandSurface *surface;
@@ -132,12 +226,12 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   if (meta_get_debug_paint_flags () & META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT)
     return FALSE;
 
-  if (meta_compositor_is_unredirect_inhibited (compositor))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: unredirect inhibited");
-      return FALSE;
-    }
+
+  surface_actor = find_candidate (compositor_view,
+                                  compositor,
+                                  "direct scanout");
+  if (!surface_actor)
+    return FALSE;
 
   clutter_stage_view_get_layout (stage_view, &view_rect);
 
@@ -199,63 +293,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       return FALSE;
     }
 
-  window_actor = meta_compositor_view_get_top_window_actor (compositor_view);
-  if (!window_actor)
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: no top window actor");
-      return FALSE;
-    }
-
-  if (meta_window_actor_effect_in_progress (window_actor))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: window-actor effects in progress");
-      return FALSE;
-    }
-
-  if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: window-actor has transition");
-      return FALSE;
-    }
-
-  if (!clutter_actor_get_paint_box (CLUTTER_ACTOR (window_actor),
-                                    &actor_box))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: no window actor paint-box");
-      return FALSE;
-    }
-
-  if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
-                       CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.y1, view_rect.y,
-                       CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.x2, view_rect.x + view_rect.width,
-                       CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.y2, view_rect.y + view_rect.height,
-                       CLUTTER_COORDINATE_EPSILON))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: paint-box (%f,%f,%f,%f) does "
-                  "not match stage-view layout (%d,%d,%d,%d)",
-                  actor_box.x1, actor_box.y1,
-                  actor_box.x2 - actor_box.x1, actor_box.y2 - actor_box.y1,
-                  view_rect.x, view_rect.y, view_rect.width, view_rect.height);
-      return FALSE;
-    }
-
-  surface_actor = meta_window_actor_get_scanout_candidate (window_actor);
-  if (!surface_actor)
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: window-actor has no scanout "
-                  "candidate");
-      return FALSE;
-    }
-
   if (!(meta_get_debug_paint_flags () &
         META_DEBUG_PAINT_IGNORE_COLOR_STATE_FOR_DIRECT_SCANOUT))
     {
@@ -275,13 +312,6 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
                       clutter_color_state_to_string (output_color_state));
           return FALSE;
         }
-    }
-
-  if (meta_surface_actor_is_effectively_obscured (surface_actor))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No direct scanout candidate: surface-actor is obscured");
-      return FALSE;
     }
 
   surface_actor_wayland = META_SURFACE_ACTOR_WAYLAND (surface_actor);
@@ -368,87 +398,7 @@ static MetaSurfaceActor *
 find_fullscreen_candidate (MetaCompositorView *compositor_view,
                            MetaCompositor     *compositor)
 {
-  ClutterStageView *stage_view =
-    meta_compositor_view_get_stage_view (compositor_view);
-  MetaWindowActor *window_actor;
-  MetaSurfaceActor *surface_actor;
-  MtkRectangle view_rect;
-  ClutterActorBox actor_box;
-
-  if (meta_compositor_is_unredirect_inhibited (compositor))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: unredirect inhibited");
-      return NULL;
-    }
-
-  window_actor =
-    meta_compositor_view_get_top_window_actor (compositor_view);
-  if (!window_actor)
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: no top window actor");
-      return NULL;
-    }
-
-  if (meta_window_actor_effect_in_progress (window_actor))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: window-actor effects in progress");
-      return NULL;
-    }
-
-  if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: window-actor has transition");
-      return NULL;
-    }
-
-  clutter_stage_view_get_layout (stage_view, &view_rect);
-
-  if (!clutter_actor_get_paint_box (CLUTTER_ACTOR (window_actor),
-                                    &actor_box))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: no window actor paint-box");
-      return NULL;
-    }
-
-  if (!G_APPROX_VALUE (actor_box.x1, view_rect.x,
-                       CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.y1, view_rect.y,
-                       CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.x2, view_rect.x + view_rect.width,
-                       CLUTTER_COORDINATE_EPSILON) ||
-      !G_APPROX_VALUE (actor_box.y2, view_rect.y + view_rect.height,
-                       CLUTTER_COORDINATE_EPSILON))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: paint-box (%f,%f,%f,%f) does "
-                  "not match stage-view layout (%d,%d,%d,%d)",
-                  actor_box.x1, actor_box.y1,
-                  actor_box.x2 - actor_box.x1, actor_box.y2 - actor_box.y1,
-                  view_rect.x, view_rect.y, view_rect.width, view_rect.height);
-      return NULL;
-    }
-
-  surface_actor = meta_window_actor_get_scanout_candidate (window_actor);
-  if (!surface_actor)
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: window-actor has no scanout candidate");
-      return NULL;
-    }
-
-  if (meta_surface_actor_is_effectively_obscured (surface_actor))
-    {
-      meta_topic (META_DEBUG_RENDER,
-                  "No fullscreen candidate: surface-actor is obscured");
-      return NULL;
-    }
-
-  return surface_actor;
+  return find_candidate (compositor_view, compositor, "fullscreen");
 }
 
 static void
