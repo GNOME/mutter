@@ -265,8 +265,9 @@ cogl_renderer_get_proc_address (CoglRenderer *renderer,
                                 const char   *name);
 
 COGL_EXPORT
-void cogl_renderer_set_winsys_data (CoglRenderer *renderer,
-                                    void         *winsys);
+void cogl_renderer_set_winsys_data (CoglRenderer   *renderer,
+                                    void           *winsys,
+                                    GDestroyNotify  destroy);
 
 COGL_EXPORT
 void * cogl_renderer_get_winsys_data (CoglRenderer *renderer);

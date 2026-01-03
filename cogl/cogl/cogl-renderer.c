@@ -80,6 +80,7 @@ typedef struct _CoglRenderer
   GModule *libgl_module;
 
   void *winsys_user_data;
+  GDestroyNotify winsys_user_data_destroy;
 } CoglRenderer;
 
 G_DEFINE_FINAL_TYPE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
@@ -88,6 +89,9 @@ static void
 cogl_renderer_dispose (GObject *object)
 {
   CoglRenderer *renderer = COGL_RENDERER (object);
+
+  g_clear_pointer (&renderer->winsys_user_data,
+                   renderer->winsys_user_data_destroy);
 
   _cogl_closure_list_disconnect_all (&renderer->idle_closures);
 
@@ -505,10 +509,12 @@ cogl_renderer_get_winsys_data (CoglRenderer *renderer)
 }
 
 void
-cogl_renderer_set_winsys_data (CoglRenderer *renderer,
-                               void         *winsys)
+cogl_renderer_set_winsys_data (CoglRenderer   *renderer,
+                               void           *winsys,
+                               GDestroyNotify  destroy)
 {
   renderer->winsys_user_data = winsys;
+  renderer->winsys_user_data_destroy = destroy;
 }
 
 CoglClosure *

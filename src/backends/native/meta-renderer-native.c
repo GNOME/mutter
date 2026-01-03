@@ -332,7 +332,9 @@ meta_renderer_native_connect (CoglWinsys   *winsys,
   MetaRenderDevice *render_device;
   CoglWinsysClass *parent_winsys_class;
 
-  cogl_renderer_set_winsys_data (cogl_renderer, g_new0 (CoglRendererEGL, 1));
+  cogl_renderer_set_winsys_data (cogl_renderer,
+                                 g_new0 (CoglRendererEGL, 1),
+                                 g_free);
   cogl_renderer_egl = cogl_renderer_get_winsys_data (cogl_renderer);
 
   gpu_kms = meta_renderer_native_get_primary_gpu (renderer_native);
