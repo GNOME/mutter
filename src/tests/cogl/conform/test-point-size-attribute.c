@@ -93,6 +93,7 @@ create_primitive (const char *attribute_name)
 
   for (i = 0; i < 2; i++)
     g_object_unref (attributes[i]);
+  g_object_unref (buffer);
 
   return prim;
 }
