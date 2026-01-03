@@ -375,7 +375,7 @@ static void
 text_cursor (void)
 {
   ClutterText *text;
-  ClutterVirtualInputDevice *virtual_keyboard;
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
   ClutterSeat *seat;
   ClutterActor *stage;
   int i;
@@ -433,7 +433,7 @@ static void
 text_event (void)
 {
   ClutterText *text;
-  ClutterVirtualInputDevice *virtual_keyboard;
+  g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
   ClutterActor *stage;
   ClutterSeat *seat;
 
