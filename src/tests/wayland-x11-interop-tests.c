@@ -121,7 +121,7 @@ meta_test_wayland_client_x11_interop_hidden_by_default (void)
     g_main_context_iteration (NULL, TRUE);
 
   g_debug ("Waiting for thread to terminate");
-  g_thread_join (thread);
+  g_thread_join (g_steal_pointer (&thread));
 }
 
 typedef struct
@@ -248,7 +248,7 @@ meta_test_wayland_client_x11_interop_x11_parent (void)
   meta_test_client_destroy (x11_client);
 
   g_debug ("Waiting for thread to terminate");
-  g_thread_join (thread);
+  g_thread_join (g_steal_pointer (&thread));
 }
 
 static void
