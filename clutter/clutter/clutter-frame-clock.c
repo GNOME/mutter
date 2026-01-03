@@ -771,6 +771,30 @@ clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
   return TRUE;
 }
 
+static gboolean
+should_update_now (ClutterFrameClock *frame_clock,
+                   int64_t            next_presentation_time_us,
+                   int64_t            next_smooth_presentation_time_us)
+{
+  /* Next check is meaningful only for a page flip with timestamp */
+  if (!(frame_clock->prev_presentation->presentation_flags &
+        CLUTTER_FRAME_INFO_FLAG_VSYNC))
+    return FALSE;
+
+  /* Do not update now if we may hit the next refresh cycle after the previous
+   * frame
+   */
+  if (next_presentation_time_us == next_smooth_presentation_time_us)
+    return FALSE;
+
+  /* There was an idle period since the last presentation, so there seems
+   * be no constantly updating actor. In this case it's best to start
+   * working on the next update ASAP, this results in lowest average latency
+   * for sporadic user input.
+   */
+  return TRUE;
+}
+
 static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
                                int64_t           *out_next_update_time_us,
@@ -874,14 +898,10 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     mtk_extrapolate_next_interval_boundary (next_smooth_presentation_time_us,
                                             refresh_interval_us);
 
-  if (last_presentation->presentation_flags & CLUTTER_FRAME_INFO_FLAG_VSYNC &&
-      next_presentation_time_us != next_smooth_presentation_time_us)
+  if (should_update_now (frame_clock,
+                         next_presentation_time_us,
+                         next_smooth_presentation_time_us))
     {
-      /* There was an idle period since the last presentation, so there seems
-       * be no constantly updating actor. In this case it's best to start
-       * working on the next update ASAP, this results in lowest average latency
-       * for sporadic user input.
-       */
       next_update_time_us = now_us;
       min_render_time_allowed_us = 0;
     }
