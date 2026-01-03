@@ -193,11 +193,23 @@ key_group_paint (ClutterActor        *actor,
 }
 
 static void
+key_group_finalize (GObject *object)
+{
+  KeyGroup *key_group = KEY_GROUP (object);
+
+  g_clear_object (&key_group->keyboard);
+
+  G_OBJECT_CLASS (key_group_parent_class)->finalize (object);
+}
+
+static void
 key_group_class_init (KeyGroupClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
   ClutterBindingPool *binding_pool;
+
+  gobject_class->finalize = key_group_finalize;
 
   actor_class->paint = key_group_paint;
   actor_class->key_press_event = key_group_key_press;
