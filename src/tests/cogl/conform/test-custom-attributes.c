@@ -220,6 +220,7 @@ test_short_verts (TestState *state, int offset_x, int offset_y)
   cogl_framebuffer_pop_matrix (test_fb);
 
   g_object_unref (attributes[0]);
+  g_object_unref (attributes[1]);
 
   /* Test again treating the attribute as unsigned */
   attributes[0] = cogl_attribute_new (buffer,
