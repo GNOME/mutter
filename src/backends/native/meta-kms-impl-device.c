@@ -1581,8 +1581,6 @@ do_process (MetaKmsImplDevice *impl_device,
   COGL_TRACE_BEGIN_SCOPED (MetaKmsImplDeviceProcess,
                            "Meta::KmsImplDevice::do_process()");
 
-  update = meta_kms_impl_filter_update (impl, latch_crtc, update, flags);
-
   if (!update || meta_kms_update_is_empty (update))
     {
       GError *error;
@@ -1662,6 +1660,18 @@ do_process (MetaKmsImplDevice *impl_device,
   return feedback;
 }
 
+static MetaKmsFeedback *
+filter_and_process (MetaKmsImplDevice *impl_device,
+                    MetaKmsCrtc       *latch_crtc,
+                    MetaKmsUpdate     *update,
+                    MetaKmsUpdateFlag  flags)
+{
+  MetaKmsImpl *impl = meta_kms_impl_device_get_impl (impl_device);
+
+  update = meta_kms_impl_filter_update (impl, latch_crtc, update, flags);
+  return do_process (impl_device, latch_crtc, update, flags);
+}
+
 static gpointer
 crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
                               gpointer         user_data,
@@ -1695,10 +1705,10 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
       return GINT_TO_POINTER (FALSE);
     }
 
-  feedback = do_process (impl_device,
-                         crtc_frame->crtc,
-                         g_steal_pointer (&crtc_frame->pending_update),
-                         META_KMS_UPDATE_FLAG_NONE);
+  feedback = filter_and_process (impl_device,
+                                 crtc_frame->crtc,
+                                 g_steal_pointer (&crtc_frame->pending_update),
+                                 META_KMS_UPDATE_FLAG_NONE);
 
   update_done_time_us = g_get_monotonic_time ();
   /* Calculate how long after the planned start of deadline dispatch it finished */
@@ -1901,7 +1911,7 @@ meta_kms_impl_device_do_process_update (MetaKmsImplDevice *impl_device,
 
   meta_kms_device_handle_flush (priv->device, latch_crtc);
 
-  feedback = do_process (impl_device, latch_crtc, update, flags);
+  feedback = filter_and_process (impl_device, latch_crtc, update, flags);
 
   if (meta_kms_feedback_did_pass (feedback) &&
       crtc_frame->deadline.armed)
@@ -2260,7 +2270,7 @@ process_mode_set_update (MetaKmsImplDevice *impl_device,
   disarm_all_frame_sources (impl_device);
 
   meta_thread_inhibit_realtime_in_impl (thread);
-  feedback = do_process (impl_device, NULL, update, flags);
+  feedback = filter_and_process (impl_device, NULL, update, flags);
   meta_thread_uninhibit_realtime_in_impl (thread);
 
   if (priv->realtime_inhibited_pending_mode_set)
@@ -2294,9 +2304,9 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
 
   if (flags & META_KMS_UPDATE_FLAG_TEST_ONLY)
     {
-      return do_process (impl_device,
-                         meta_kms_update_get_latch_crtc (update),
-                         update, flags);
+      return filter_and_process (impl_device,
+                                 meta_kms_update_get_latch_crtc (update),
+                                 update, flags);
     }
   else if (flags & META_KMS_UPDATE_FLAG_MODE_SET)
     {
