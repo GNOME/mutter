@@ -431,3 +431,6 @@ MetaLogicalMonitorLayoutMode meta_monitor_manager_get_layout_mode (MetaMonitorMa
 
 MetaOutput * meta_monitor_manager_find_output (MetaMonitorManager *monitor_manager,
                                                MetaOutput         *old_output);
+
+float meta_monitor_manager_derive_configured_global_scale (MetaMonitorManager *manager,
+                                                           MetaMonitorsConfig *config);

@@ -295,23 +295,6 @@ meta_monitor_manager_update_logical_monitors (MetaMonitorManager *manager,
 }
 
 static float
-derive_configured_global_scale (MetaMonitorManager *manager,
-                                MetaMonitorsConfig *config)
-{
-  GList *l;
-
-  for (l = config->logical_monitor_configs; l; l = l->next)
-    {
-      MetaLogicalMonitorConfig *monitor_config = l->data;
-
-      if (is_global_scale_matching_in_config (config, monitor_config->scale))
-        return monitor_config->scale;
-    }
-
-  return 1.0;
-}
-
-static float
 calculate_monitor_scale (MetaMonitorManager *manager,
                          MetaMonitor        *monitor)
 {
@@ -405,7 +388,7 @@ meta_monitor_manager_update_logical_monitors_derived (MetaMonitorManager *manage
   g_assert (capabilities & META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED);
 
   if (config)
-    global_scale = derive_configured_global_scale (manager, config);
+    global_scale = meta_monitor_manager_derive_configured_global_scale (manager, config);
   else
     global_scale = derive_calculated_global_scale (manager);
 
@@ -4710,4 +4693,21 @@ meta_monitor_manager_find_output (MetaMonitorManager *monitor_manager,
     }
 
   return NULL;
+}
+
+float
+meta_monitor_manager_derive_configured_global_scale (MetaMonitorManager *manager,
+                                                     MetaMonitorsConfig *config)
+{
+  GList *l;
+
+  for (l = config->logical_monitor_configs; l; l = l->next)
+    {
+      MetaLogicalMonitorConfig *monitor_config = l->data;
+
+      if (is_global_scale_matching_in_config (config, monitor_config->scale))
+        return monitor_config->scale;
+    }
+
+  return 1.0;
 }

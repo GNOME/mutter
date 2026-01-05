@@ -379,6 +379,30 @@ is_assignments_changed (MetaMonitorManager    *manager,
   return FALSE;
 }
 
+static gboolean
+is_scaling_changed (MetaMonitorManager  *manager,
+                    MetaMonitorsConfig  *config)
+{
+  GList *l;
+  float global_scale;
+  MetaMonitorManagerCapability capabilities;
+
+  capabilities = meta_monitor_manager_get_capabilities (manager);
+  g_assert (capabilities & META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED);
+
+  global_scale = meta_monitor_manager_derive_configured_global_scale (manager, config);
+
+  for (l = manager->logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+
+      if (global_scale != logical_monitor->scale)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 apply_crtc_assignments (MetaMonitorManager    *manager,
                         gboolean               save_timestamp,
@@ -650,7 +674,8 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
                                   (MetaOutputAssignment **) output_assignments->pdata,
                                   output_assignments->len);
         }
-      else
+
+      if (is_scaling_changed (manager, config))
         {
           meta_monitor_manager_rebuild_derived (manager, config);
         }
