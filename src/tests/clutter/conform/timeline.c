@@ -196,6 +196,8 @@ timeline_base (void)
   guint delay_tag;
 
   stage = clutter_test_get_stage ();
+  clutter_actor_show (stage);
+  while (g_main_context_iteration (NULL, FALSE));
 
   timeline_data_init (&data_1, 1);
   timeline_1 = clutter_timeline_new_for_actor (stage, FRAME_COUNT * 1000 / FPS);
@@ -266,7 +268,6 @@ timeline_base (void)
                     "completed", G_CALLBACK (timeline_complete_cb),
                     &data_3);
 
-  clutter_actor_show (stage);
 
   g_printerr ("Without delay...\n");
 
