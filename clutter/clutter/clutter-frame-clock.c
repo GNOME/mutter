@@ -1031,10 +1031,10 @@ calculate_next_variable_update_time_us (ClutterFrameClock *frame_clock,
 
   next_update_time_us = next_presentation_time_us - max_update_time_estimate_us;
   if (next_update_time_us < now_us)
-    next_update_time_us = now_us;
-
-  if (next_presentation_time_us < next_update_time_us)
-    next_presentation_time_us = 0;
+    {
+      next_presentation_time_us = now_us + max_update_time_estimate_us;
+      next_update_time_us = now_us;
+    }
 
   next_frame_deadline_us = next_update_time_us;
   if (next_frame_deadline_us == now_us)
