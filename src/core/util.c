@@ -429,6 +429,14 @@ meta_is_topic_enabled (MetaDebugTopic topic)
 
   return !!(verbose_topics & topic);
 }
+
+#else /* WITH_VERBOSE_MODE */
+
+gboolean
+meta_is_topic_enabled (MetaDebugTopic topic)
+{
+  return FALSE;
+}
 #endif /* WITH_VERBOSE_MODE */
 
 void

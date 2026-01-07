@@ -114,9 +114,9 @@ void meta_log (const char *format, ...) G_GNUC_PRINTF (1, 2);
 #else
 
 #  ifdef G_HAVE_ISO_VARARGS
-#    define meta_topic(...)
+#    define meta_topic(...) ((void) 0)
 #  elif defined(G_HAVE_GNUC_VARARGS)
-#    define meta_topic(format...)
+#    define meta_topic(format...) ((void) 0)
 #  else
 #    error "This compiler does not support varargs macros and thus verbose mode can't be disabled meaningfully"
 #  endif
