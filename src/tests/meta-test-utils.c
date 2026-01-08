@@ -980,7 +980,7 @@ meta_launch_test_executable (GSubprocessFlags  subprocess_flags,
   const char *arg;
   va_list ap;
   g_autofree char *test_client_path = NULL;
-  GSubprocessLauncher *launcher;
+  g_autoptr (GSubprocessLauncher) launcher = NULL;
   GSubprocess *subprocess;
   GError *error = NULL;
 
