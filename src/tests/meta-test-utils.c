@@ -1150,7 +1150,7 @@ test_client_exited (GObject      *source_object,
 void
 meta_wait_test_process (GSubprocess *subprocess)
 {
-  GMainLoop *loop;
+  g_autoptr (GMainLoop) loop = NULL;
 
   loop = g_main_loop_new (NULL, FALSE);
   g_subprocess_wait_check_async (subprocess,
