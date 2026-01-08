@@ -1143,7 +1143,7 @@ on_monitors_changed (MetaMonitorManager      *monitor_manager,
 {
   MetaDBusInputCaptureSession *skeleton =
     META_DBUS_INPUT_CAPTURE_SESSION (session);
-  MetaViewportInfo *viewports;
+  g_autoptr (MetaViewportInfo) viewports = NULL;
 
   viewports = meta_monitor_manager_get_viewports (monitor_manager);
   meta_input_capture_session_set_viewports (session, viewports);
@@ -1164,8 +1164,7 @@ meta_input_capture_session_initable_init (GInitable     *initable,
     meta_dbus_session_manager_get_backend (session->session_manager);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaViewportInfo *viewports =
-    meta_monitor_manager_get_viewports (monitor_manager);
+  g_autoptr (MetaViewportInfo) viewports = NULL;
 
   session->connection =
     meta_dbus_session_manager_get_connection (session->session_manager);
@@ -1175,6 +1174,7 @@ meta_input_capture_session_initable_init (GInitable     *initable,
                                          error))
     return FALSE;
 
+  viewports = meta_monitor_manager_get_viewports (monitor_manager);
   meta_input_capture_session_set_viewports (session, viewports);
   g_signal_connect_object (monitor_manager, "monitors-changed",
                            G_CALLBACK (on_monitors_changed),
