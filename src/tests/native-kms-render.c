@@ -617,7 +617,7 @@ meta_test_kms_render_client_scanout_hotplug (void)
 
   before_paint_handler_id =
     g_signal_connect (stage, "before-paint",
-                      G_CALLBACK (on_scanout_before_paint), &test);
+                      G_CALLBACK (set_updates_inhibited_before_paint), &test);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 
@@ -628,6 +628,8 @@ meta_test_kms_render_client_scanout_hotplug (void)
   while (!test.scanout.fb_id)
     g_main_context_iteration (NULL, TRUE);
 
+  g_signal_handler_disconnect (stage, before_paint_handler_id);
+
   did_signal = FALSE;
   monitors_changed_handler_id =
     g_signal_connect_swapped (monitor_manager, "monitors-changed",
@@ -635,6 +637,8 @@ meta_test_kms_render_client_scanout_hotplug (void)
   meta_monitor_manager_reload (monitor_manager);
   g_assert_true (did_signal);
   g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
+
+  meta_inhibit_kms_updates (kms_device, FALSE);
 
   did_signal = FALSE;
   presented_handler_id =
@@ -645,7 +649,6 @@ meta_test_kms_render_client_scanout_hotplug (void)
 
   g_test_assert_expected_messages ();
 
-  g_signal_handler_disconnect (stage, before_paint_handler_id);
   g_signal_handler_disconnect (stage, presented_handler_id);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
