@@ -226,7 +226,6 @@ meta_thread_impl_finalize (GObject *object)
   MetaThreadImplPrivate *priv =
     meta_thread_impl_get_instance_private (thread_impl);
 
-  g_clear_pointer (&priv->loop, g_main_loop_unref);
   g_clear_pointer (&priv->impl_source, g_source_destroy);
   g_clear_pointer (&priv->task_queue, g_async_queue_unref);
 
@@ -589,6 +588,7 @@ meta_thread_impl_run (MetaThreadImpl         *thread_impl,
   priv->loop = g_main_loop_new (priv->thread_context, FALSE);
   priv->scheduling_priority = scheduling_priority;
   g_main_loop_run (priv->loop);
+  g_clear_pointer (&priv->loop, g_main_loop_unref);
 }
 
 void
