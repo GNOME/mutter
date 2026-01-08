@@ -776,7 +776,7 @@ test_case_clear_struts (TestCase  *test,
 
               if (strut->side == side)
                 {
-                  struts = g_slist_remove_link (struts, old);
+                  struts = g_slist_delete_link (struts, old);
                   g_clear_pointer (&strut, g_free);
                 }
             }
