@@ -207,7 +207,8 @@ window_add_x11_event_handler (GtkWidget     *window,
                            (GDestroyNotify) unref_and_maybe_destroy_gsource);
 
   handlers = g_list_append (handlers, handler);
-  g_object_set_qdata (G_OBJECT (window), event_handlers_quark, handlers);
+  g_object_set_qdata_full (G_OBJECT (window), event_handlers_quark,
+                           handlers, (GDestroyNotify) g_list_free);
 }
 
 static void
@@ -222,7 +223,8 @@ window_remove_x11_event_handler (GtkWidget     *window,
   g_object_set_qdata (G_OBJECT (window), event_source_quark, NULL);
 
   handlers = g_list_remove (handlers, handler);
-  g_object_set_qdata (G_OBJECT (window), event_handlers_quark, handlers);
+  g_object_set_qdata_full (G_OBJECT (window), event_handlers_quark,
+                           handlers, (GDestroyNotify) g_list_free);
 }
 
 static void
