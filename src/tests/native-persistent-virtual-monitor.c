@@ -35,7 +35,7 @@ wait_for_paint (gpointer user_data)
   ClutterActor *stage = meta_backend_get_stage (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  GMainLoop *loop;
+  g_autoptr (GMainLoop) loop = NULL;
   GList *monitors;
   GList *logical_monitors;
   MetaLogicalMonitor *logical_monitor;
