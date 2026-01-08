@@ -551,6 +551,10 @@ thread_impl_func (gpointer user_data)
 
   meta_thread_impl_run (impl, effective_scheduling_priority);
 
+  g_clear_object (&priv->kernel.rtkit_proxy);
+  while (g_main_context_iteration (thread_context, FALSE))
+    ;
+
 #ifdef HAVE_PROFILER
   meta_profiler_unregister_thread (profiler, thread_context);
 #endif
@@ -778,8 +782,6 @@ finalize_thread_kernel (MetaThread *thread)
   g_thread_join (priv->kernel.thread);
   priv->kernel.thread = NULL;
   priv->kernel.thread_id = 0;
-
-  g_clear_object (&priv->kernel.rtkit_proxy);
 
   g_mutex_clear (&priv->kernel.init_mutex);
 }
