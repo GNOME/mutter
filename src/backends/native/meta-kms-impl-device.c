@@ -126,6 +126,8 @@ typedef struct _MetaKmsImplDevicePrivate
 
   gboolean sync_file_retrieved;
   int sync_file;
+
+  gboolean updates_inhibited;
 } MetaKmsImplDevicePrivate;
 
 static void
@@ -2054,6 +2056,31 @@ do_handle_update (MetaKmsImplDevice *impl_device,
 }
 
 void
+meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice *impl_device,
+                                            gboolean           inhibited)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  GHashTableIter iter;
+  CrtcFrame *crtc_frame;
+
+  if (priv->updates_inhibited == inhibited)
+    return;
+
+  priv->updates_inhibited = inhibited;
+
+  if (inhibited || !priv->crtc_frames)
+    return;
+
+  g_hash_table_iter_init (&iter, priv->crtc_frames);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
+    {
+      if (crtc_frame->submitted_update.kms_update)
+        do_handle_update (impl_device, crtc_frame);
+    }
+}
+
+void
 meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
                                     MetaKmsUpdate     *update,
                                     MetaKmsUpdateFlag  flags)
@@ -2098,7 +2125,9 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
   crtc_frame->submitted_update.flags = flags;
   crtc_frame->submitted_update.latch_crtc = latch_crtc;
 
-  do_handle_update (impl_device, crtc_frame);
+  if (!priv->updates_inhibited)
+    do_handle_update (impl_device, crtc_frame);
+
   return;
 
 err:
