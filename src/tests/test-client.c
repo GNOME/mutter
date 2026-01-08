@@ -32,6 +32,7 @@
 #include "core/events.h"
 
 const char *client_id = "0";
+const char *script_path = NULL;
 static gboolean wayland;
 static gboolean dont_exit_on_eof;
 static gboolean verbose;
@@ -1393,6 +1394,12 @@ const GOptionEntry options[] = {
     "CLIENT_ID",
   },
   {
+    "script", 0, 0, G_OPTION_ARG_STRING,
+    &script_path,
+    "Test script to run",
+    "SCRIPT",
+  },
+  {
     "verbose", 'v', 0, G_OPTION_ARG_NONE,
     &verbose,
     "Verbose",
@@ -1462,7 +1469,24 @@ main(int    argc,
   event_handlers_quark = g_quark_from_static_string ("event-handlers");
   can_take_focus_quark = g_quark_from_static_string ("can-take-focus");
 
-  raw_in = g_unix_input_stream_new (0, FALSE);
+  if (script_path)
+    {
+      g_autoptr (GFile) file = NULL;
+
+      file = g_file_new_for_path (script_path);
+      raw_in = G_INPUT_STREAM (g_file_read (file, NULL, &error));
+      if (!raw_in)
+        {
+          g_printerr ("Failed to read file '%s': %s\n",
+                      script_path, error->message);
+          return 1;
+        }
+    }
+  else
+    {
+      raw_in = g_unix_input_stream_new (0, FALSE);
+    }
+
   in = g_data_input_stream_new (raw_in);
 
   read_next_line (in);
