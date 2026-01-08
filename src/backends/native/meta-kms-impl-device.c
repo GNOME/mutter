@@ -1998,55 +1998,19 @@ is_fd_readable (int fd)
   return (poll_fd.revents & (G_IO_IN | G_IO_NVAL)) != 0;
 }
 
-void
-meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
-                                    MetaKmsUpdate     *update,
-                                    MetaKmsUpdateFlag  flags)
+static void
+do_handle_update (MetaKmsImplDevice *impl_device,
+                  CrtcFrame         *crtc_frame)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
   MetaKmsImpl *kms_impl = meta_kms_impl_device_get_impl (impl_device);
+  MetaKmsCrtc *latch_crtc = crtc_frame->submitted_update.latch_crtc;
+  MetaKmsUpdate *update = crtc_frame->submitted_update.kms_update;
   MetaThreadImpl *thread_impl = META_THREAD_IMPL (kms_impl);
-  g_autoptr (GError) error = NULL;
-  MetaKmsCrtc *latch_crtc;
-  CrtcFrame *crtc_frame;
-  MetaKmsFeedback *feedback;
+  int sync_fd = -1;
   g_autoptr (GSource) source = NULL;
   g_autofree char *name = NULL;
-  int sync_fd = -1;
-
-  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
-
-  latch_crtc = meta_kms_update_get_latch_crtc (update);
-  if (!latch_crtc)
-    {
-      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
-                   "Only single-CRTC updates supported");
-      goto err;
-    }
-
-  if (!priv->crtc_frames)
-    {
-      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_CLOSED, "Shutting down");
-      goto err;
-    }
-
-  if (!ensure_device_file (impl_device, &error))
-    goto err;
-
-  crtc_frame = ensure_crtc_frame (impl_device, latch_crtc);
-
-  if (crtc_frame->submitted_update.kms_update)
-    {
-      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_PENDING,
-                   "Previously-submitted update wasn't ready yet");
-      goto err;
-    }
-
-  crtc_frame->await_flush = FALSE;
-  crtc_frame->submitted_update.kms_update = update;
-  crtc_frame->submitted_update.flags = flags;
-  crtc_frame->submitted_update.latch_crtc = latch_crtc;
 
   if (is_using_deadline_timer (impl_device))
     sync_fd = meta_kms_update_get_sync_fd (update);
@@ -2086,6 +2050,55 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
   g_source_set_ready_time (source, -1);
 
   crtc_frame->submitted_update.source = source;
+  return;
+}
+
+void
+meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
+                                    MetaKmsUpdate     *update,
+                                    MetaKmsUpdateFlag  flags)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  g_autoptr (GError) error = NULL;
+  MetaKmsCrtc *latch_crtc;
+  CrtcFrame *crtc_frame;
+  MetaKmsFeedback *feedback;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  latch_crtc = meta_kms_update_get_latch_crtc (update);
+  if (!latch_crtc)
+    {
+      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
+                   "Only single-CRTC updates supported");
+      goto err;
+    }
+
+  if (!priv->crtc_frames)
+    {
+      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_CLOSED, "Shutting down");
+      goto err;
+    }
+
+  if (!ensure_device_file (impl_device, &error))
+    goto err;
+
+  crtc_frame = ensure_crtc_frame (impl_device, latch_crtc);
+
+  if (crtc_frame->submitted_update.kms_update)
+    {
+      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_PENDING,
+                   "Previously-submitted update wasn't ready yet");
+      goto err;
+    }
+
+  crtc_frame->await_flush = FALSE;
+  crtc_frame->submitted_update.kms_update = update;
+  crtc_frame->submitted_update.flags = flags;
+  crtc_frame->submitted_update.latch_crtc = latch_crtc;
+
+  do_handle_update (impl_device, crtc_frame);
   return;
 
 err:
