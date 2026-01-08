@@ -173,6 +173,7 @@ input_capture_test_client_finish (InputCaptureTestClient *test_client)
 
   g_main_loop_unref (test_client->main_loop);
   g_object_unref (test_client->line_reader);
+  g_object_unref (test_client->line_writer);
   g_object_unref (test_client->subprocess);
   g_free (test_client);
 }
