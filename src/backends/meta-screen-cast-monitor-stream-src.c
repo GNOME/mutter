@@ -145,7 +145,7 @@ maybe_record_frame_on_idle (gpointer user_data)
   MetaScreenCastPaintPhase paint_phase;
   MetaScreenCastRecordFlag flags;
   MtkRectangle empty_rect;
-  MtkRegion *empty_region;
+  g_autoptr (MtkRegion) empty_region = NULL;
 
   monitor_src->maybe_record_idle_id = 0;
 
