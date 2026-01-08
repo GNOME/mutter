@@ -105,6 +105,7 @@ send_command (const char *command,
   va_list vap;
   g_autofree char *response = NULL;
   g_autoptr (GError) error = NULL;
+  g_autofree char *command_line = NULL;
 
   args_builder = g_strv_builder_new ();
   g_strv_builder_add (args_builder, command);
@@ -123,9 +124,9 @@ send_command (const char *command,
   va_end (vap);
 
   args = g_strv_builder_end (args_builder);
-  command = g_strjoinv (" ", args);
+  command_line = g_strjoinv (" ", args);
 
-  fprintf (stdout, "%s\n", command);
+  fprintf (stdout, "%s\n", command_line);
   fflush (stdout);
 
   response = g_data_input_stream_read_line (stdin_stream, NULL, NULL, &error);
@@ -188,6 +189,8 @@ change_viewport_test (void)
 
   ei_device_pointer_motion_absolute (old_pointer, 10.0, 10.0);
   ei_device_frame (old_pointer, g_get_monotonic_time ());
+
+  ei_device_unref (old_pointer);
 }
 
 static void
