@@ -92,15 +92,17 @@ ping_mutter (InputCaptureSession *session)
 {
   GDBusProxy *proxy = G_DBUS_PROXY (session->proxy);
   GError *error = NULL;
+  g_autoptr (GVariant) reply = NULL;
 
-  if (!g_dbus_connection_call_sync (g_dbus_proxy_get_connection (proxy),
-                                    "org.gnome.Mutter.InputCapture",
-                                    g_dbus_proxy_get_object_path (proxy),
-                                    "org.freedesktop.DBus.Peer",
-                                    "Ping",
-                                    NULL,
-                                    NULL, G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
-                                    NULL, &error))
+  reply = g_dbus_connection_call_sync (g_dbus_proxy_get_connection (proxy),
+                                       "org.gnome.Mutter.InputCapture",
+                                       g_dbus_proxy_get_object_path (proxy),
+                                       "org.freedesktop.DBus.Peer",
+                                       "Ping",
+                                       NULL,
+                                       NULL, G_DBUS_CALL_FLAGS_NO_AUTO_START, -1,
+                                       NULL, &error);
+  if (!reply)
     g_error ("Failed to ping D-Bus peer: %s", error->message);
 }
 
@@ -179,6 +181,13 @@ input_capture_new (void)
     g_error ("Failed to acquire proxy: %s", error->message);
 
   return input_capture;
+}
+
+static void
+input_capture_free (InputCapture *input_capture)
+{
+  g_clear_object (&input_capture->proxy);
+  g_free (input_capture);
 }
 
 static InputCaptureSession *
@@ -583,6 +592,8 @@ test_sanity (void)
   g_test_assert_expected_messages ();
 
   input_capture_session_close (session);
+
+  input_capture_free (input_capture);
 }
 
 static void
@@ -654,6 +665,7 @@ test_zones (void)
   g_clear_list (&zones, g_free);
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 typedef struct
@@ -799,6 +811,7 @@ test_barriers (void)
   write_state (session, "3");
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 static void
@@ -831,6 +844,7 @@ test_clear_barriers (void)
   wait_for_state (session, "1");
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 static void
@@ -851,6 +865,7 @@ test_cancel_keybinding (void)
   wait_for_state (session, "1");
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 static void
@@ -930,6 +945,7 @@ test_events (void)
     g_main_context_iteration (NULL, TRUE);
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 static void
@@ -1000,6 +1016,7 @@ test_a11y (void)
   wait_for_state (session, "1");
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 static void
@@ -1070,6 +1087,7 @@ test_disconnect (void)
   write_state (session, "2");
 
   input_capture_session_close (session);
+  input_capture_free (input_capture);
 }
 
 static const struct
