@@ -330,7 +330,7 @@ on_overlay_key (MetaDisplay   *display,
     }
   else
     {
-      g_clear_pointer (&test_shell->overview.grab, clutter_grab_dismiss);
+      g_clear_object (&test_shell->overview.grab);
       clutter_stage_set_key_focus (stage,
                                    g_steal_pointer (&test_shell->overview.prev_focus));
     }
@@ -862,6 +862,7 @@ meta_test_shell_finalize (GObject *object)
 {
   MetaTestShell *test_shell = META_TEST_SHELL (object);
 
+  g_clear_object (&test_shell->overview.grab);
   g_clear_pointer (&test_shell->background_color, cogl_color_free);
 
   G_OBJECT_CLASS (meta_test_shell_parent_class)->finalize (object);
