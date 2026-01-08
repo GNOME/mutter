@@ -411,8 +411,8 @@ test_case_check_xserver_stacking (TestCase *test,
                                   GError  **error)
 {
   MetaDisplay *display = meta_context_get_display (test->context);
-  GString *local_string = g_string_new (NULL);
-  GString *x11_string = g_string_new (NULL);
+  g_autoptr (GString) local_string = NULL;
+  g_autoptr (GString) x11_string = NULL;
   int i;
 
   if (!display->x11_display)
@@ -421,6 +421,9 @@ test_case_check_xserver_stacking (TestCase *test,
   guint64 *windows;
   int n_windows;
   meta_stack_tracker_get_stack (display->stack_tracker, &windows, &n_windows);
+
+  local_string = g_string_new (NULL);
+  x11_string = g_string_new (NULL);
 
   for (i = 0; i < n_windows; i++)
     {
@@ -457,9 +460,6 @@ test_case_check_xserver_stacking (TestCase *test,
                  x11_string->str, local_string->str);
 
   XFree (children);
-
-  g_string_free (local_string, TRUE);
-  g_string_free (x11_string, TRUE);
 
   return *error == NULL;
 }
@@ -3116,6 +3116,7 @@ test_case_destroy (TestCase *test,
   g_object_unref (test->pointer);
   g_object_unref (test->keyboard);
   g_clear_pointer (&test->popups, g_hash_table_unref);
+  g_main_loop_unref (test->loop);
   g_free (test);
 
   return TRUE;
