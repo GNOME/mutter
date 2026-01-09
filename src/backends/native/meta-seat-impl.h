@@ -117,7 +117,7 @@ void meta_seat_impl_setup (MetaSeatImpl *seat_impl);
 
 void meta_seat_impl_start (MetaSeatImpl *seat_impl);
 
-void meta_seat_impl_destroy (MetaSeatImpl *seat_impl);
+void meta_seat_impl_prepare_shutdown (MetaSeatImpl *seat_impl);
 
 META_EXPORT_TEST
 void meta_seat_impl_run_input_task (MetaSeatImpl *seat_impl,

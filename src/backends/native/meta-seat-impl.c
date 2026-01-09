@@ -3316,7 +3316,7 @@ meta_seat_impl_get_property (GObject    *object,
 }
 
 static gboolean
-destroy_in_impl (GTask *task)
+prepare_shutdown_in_impl (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
   MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
@@ -3359,7 +3359,7 @@ destroy_in_impl (GTask *task)
 }
 
 void
-meta_seat_impl_destroy (MetaSeatImpl *seat_impl)
+meta_seat_impl_prepare_shutdown (MetaSeatImpl *seat_impl)
 {
   if (seat_impl->input_thread)
     {
@@ -3367,15 +3367,13 @@ meta_seat_impl_destroy (MetaSeatImpl *seat_impl)
 
       task = g_task_new (seat_impl, NULL, NULL, NULL);
       meta_seat_impl_run_input_task (seat_impl, task,
-                                     (GSourceFunc) destroy_in_impl);
+                                     (GSourceFunc) prepare_shutdown_in_impl);
       g_object_unref (task);
 
       g_thread_join (seat_impl->input_thread);
       seat_impl->input_thread = NULL;
       g_assert (!seat_impl->libinput);
     }
-
-  g_object_unref (seat_impl);
 }
 
 static void

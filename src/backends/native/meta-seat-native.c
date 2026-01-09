@@ -167,6 +167,13 @@ drop_cursor_renderer (gpointer user_data)
 }
 
 static void
+on_prepare_shutdown (MetaBackend    *backend,
+                     MetaSeatNative *seat_native)
+{
+  meta_seat_impl_prepare_shutdown (seat_native->impl);
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
@@ -190,6 +197,9 @@ meta_seat_native_constructed (GObject *object)
 
   seat->secondary_cursor_renderers = g_hash_table_new_full (NULL, NULL, NULL,
                                                             drop_cursor_renderer);
+
+  g_signal_connect_after (seat->backend, "prepare-shutdown",
+                          G_CALLBACK (on_prepare_shutdown), seat);
 
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
@@ -253,8 +263,8 @@ meta_seat_native_dispose (GObject *object)
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
 
   g_clear_pointer (&seat->xkb_keymap, xkb_keymap_unref);
-  g_clear_pointer (&seat->impl, meta_seat_impl_destroy);
   g_list_free_full (g_steal_pointer (&seat->devices), g_object_unref);
+  g_clear_object (&seat->impl);
   g_clear_pointer (&seat->reserved_virtual_slots, g_hash_table_destroy);
   g_clear_pointer (&seat->secondary_cursor_renderers, g_hash_table_unref);
   g_clear_object (&seat->cursor_renderer);
