@@ -494,9 +494,7 @@ meta_test_kms_render_client_scanout_hotplug (void)
   KmsRenderingTest test;
   MetaWaylandTestClient *wayland_test_client;
   g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
-  gulong before_update_handler_id;
   gulong before_paint_handler_id;
-  gulong paint_view_handler_id;
   gulong presented_handler_id;
   MtkRectangle view_rect;
   gulong monitors_changed_handler_id;
@@ -530,12 +528,6 @@ meta_test_kms_render_client_scanout_hotplug (void)
   clutter_stage_view_get_layout (clutter_stage_peek_stage_views (stage)->data,
                                  &view_rect);
 
-  paint_view_handler_id =
-    g_signal_connect (stage, "paint-view",
-                      G_CALLBACK (on_scanout_paint_view), &test);
-  before_update_handler_id =
-    g_signal_connect (stage, "before-update",
-                      G_CALLBACK (on_scanout_before_update), &test);
   before_paint_handler_id =
     g_signal_connect (stage, "before-paint",
                       G_CALLBACK (on_scanout_before_paint), &test);
@@ -566,9 +558,7 @@ meta_test_kms_render_client_scanout_hotplug (void)
 
   g_test_assert_expected_messages ();
 
-  g_signal_handler_disconnect (stage, before_update_handler_id);
   g_signal_handler_disconnect (stage, before_paint_handler_id);
-  g_signal_handler_disconnect (stage, paint_view_handler_id);
   g_signal_handler_disconnect (stage, presented_handler_id);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
