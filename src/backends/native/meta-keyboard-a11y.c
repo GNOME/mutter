@@ -1073,6 +1073,7 @@ meta_keyboard_a11y_finalize (GObject *object)
   stop_bounce_keys (keyboard_a11y);
   stop_toggle_slowkeys (keyboard_a11y);
   stop_mousekeys_move (keyboard_a11y);
+  g_clear_object (&keyboard_a11y->mousekeys_pointer);
 
   G_OBJECT_CLASS (meta_keyboard_a11y_parent_class)->finalize (object);
 }
