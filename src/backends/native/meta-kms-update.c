@@ -1165,6 +1165,8 @@ merge_connector_updates_from (MetaKmsUpdate *update,
             {
               connector_update->hdr = other_connector_update->hdr;
             }
+
+          g_list_free_full (l, g_free);
         }
       else
         {
