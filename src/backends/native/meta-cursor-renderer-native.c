@@ -1608,7 +1608,7 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
                     "started",
                     G_CALLBACK (on_started),
                     cursor_renderer_native);
-  g_signal_connect (meta_backend_get_context (backend),
+  g_signal_connect (backend,
                     "prepare-shutdown",
                     G_CALLBACK (on_prepare_shutdown),
                     cursor_renderer_native);
