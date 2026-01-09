@@ -2518,6 +2518,8 @@ meta_kms_impl_device_finalize (GObject *object)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
+  g_clear_pointer (&priv->crtc_frames, g_hash_table_unref);
+
   if (priv->realtime_inhibited_pending_mode_set)
     {
       MetaThreadImpl *thread_impl = META_THREAD_IMPL (priv->impl);
@@ -2604,15 +2606,13 @@ meta_kms_impl_device_resume (MetaKmsImplDevice *impl_device)
 void
 meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device)
 {
-  MetaKmsImplDevicePrivate *priv =
-    meta_kms_impl_device_get_instance_private (impl_device);
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
 
   if (klass->prepare_shutdown)
     klass->prepare_shutdown (impl_device);
 
   clear_fd_source (impl_device);
-  g_clear_pointer (&priv->crtc_frames, g_hash_table_unref);
+  disarm_all_frame_sources (impl_device);
 }
 
 static gboolean
