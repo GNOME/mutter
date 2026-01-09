@@ -1,3 +1,5 @@
+default_test_timeout = 60
+
 mutter_test_sources = [
   'meta-backend-test.c',
   'meta-backend-test.h',
@@ -1261,7 +1263,7 @@ foreach test_case: test_cases
     env: test_env,
     depends: test_depends,
     is_parallel: false,
-    timeout: test_case.get('timeout', 60),
+    timeout: test_case.get('timeout', default_test_timeout),
   )
 endforeach
 
@@ -1365,7 +1367,7 @@ foreach stacking_test: stacking_tests
       files('stacking' / stacking_test + '.metatest'),
     ],
     is_parallel: false,
-    timeout: 60,
+    timeout: default_test_timeout,
     should_fail: stacking_test.startswith('fixme-'),
   )
 endforeach
@@ -1428,7 +1430,7 @@ if have_kvm_tests or have_tty_tests
         suite: ['core', 'mutter/tty', 'mutter/tty/' + test_case['suite']],
         env: test_case['env'],
         is_parallel: false,
-        timeout: 60,
+        timeout: default_test_timeout,
       )
     endforeach
   endif
@@ -1451,7 +1453,7 @@ test('get-state-tool-gio', mutter,
   suite: ['tools'],
   env: tools_test_env,
   is_parallel: false,
-  timeout: 60,
+  timeout: default_test_timeout,
 )
 
 test('get-state-tool-gdbus', mutter,
@@ -1470,7 +1472,7 @@ test('get-state-tool-gdbus', mutter,
   suite: ['tools'],
   env: tools_test_env,
   is_parallel: false,
-  timeout: 60,
+  timeout: default_test_timeout,
 )
 
 # Installed tests

@@ -58,6 +58,6 @@ foreach test_case: privileged_tests
       test_case['executable'].full_path(),
     ],
     is_parallel: false,
-    timeout: 60,
+    timeout: default_test_timeout,
   )
 endforeach
