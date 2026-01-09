@@ -337,9 +337,9 @@ wp_drm_lease_request_destructor (struct wl_resource *resource)
     wl_resource_get_user_data (resource);
 
   meta_wayland_drm_lease_device_release (lease_request->lease_device);
-  g_list_foreach (lease_request->lease_connectors,
-                  (GFunc) meta_wayland_drm_lease_connector_release,
-                  NULL);
+  g_clear_list (&lease_request->lease_connectors,
+                (GDestroyNotify) meta_wayland_drm_lease_connector_release);
+
   g_free (lease_request);
 }
 
