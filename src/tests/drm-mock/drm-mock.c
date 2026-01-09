@@ -46,7 +46,7 @@ maybe_mock_error (DrmMockCall call)
       int error_number =
         GPOINTER_TO_INT (queued_errors[call]->data);
 
-      queued_errors[call] = g_list_remove_link (queued_errors[call],
+      queued_errors[call] = g_list_delete_link (queued_errors[call],
                                                 queued_errors[call]);
 
       errno = error_number;
