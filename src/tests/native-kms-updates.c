@@ -847,6 +847,8 @@ meta_test_kms_update_feedback (void)
   g_main_context_unref (data.thread_main_context);
   g_mutex_clear (&data.init_mutex);
   g_cond_clear (&data.init_cond);
+
+  g_main_loop_unref (data.main_thread_loop);
 }
 
 static void
