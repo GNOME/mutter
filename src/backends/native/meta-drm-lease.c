@@ -395,8 +395,10 @@ mark_revoked (MetaDrmLease *lease)
 {
   meta_drm_lease_unassign (lease);
 
+  g_object_ref (lease);
   g_signal_emit (lease, signals_lease[LEASE_REVOKED], 0);
   lease->lessee_id = 0;
+  g_object_unref (lease);
 }
 
 void
