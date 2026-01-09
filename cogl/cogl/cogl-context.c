@@ -53,10 +53,29 @@
 
 G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
 
+void
+cogl_context_clear_onscreen_dirty_queue (CoglContext *context)
+{
+  while (!_cogl_list_empty (&context->onscreen_dirty_queue))
+    {
+      CoglOnscreenQueuedDirty *qe =
+        _cogl_container_of (context->onscreen_dirty_queue.next,
+                            CoglOnscreenQueuedDirty,
+                            link);
+
+      _cogl_list_remove (&qe->link);
+      g_object_unref (qe->onscreen);
+
+      g_free (qe);
+    }
+}
+
 static void
 cogl_context_dispose (GObject *object)
 {
   CoglContext *context = COGL_CONTEXT (object);
+
+  cogl_context_clear_onscreen_dirty_queue (context);
 
   g_clear_object (&context->default_gl_texture_2d_tex);
 
