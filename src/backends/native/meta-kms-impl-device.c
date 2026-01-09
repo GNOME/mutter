@@ -437,7 +437,7 @@ meta_kms_impl_device_list_lessees (MetaKmsImplDevice  *impl_device,
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
-  drmModeLesseeListRes *list;
+  g_autofree drmModeLesseeListRes *list = NULL;
   int i;
   uint32_t *lessee_ids;
 
