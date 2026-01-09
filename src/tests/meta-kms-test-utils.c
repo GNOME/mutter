@@ -28,8 +28,11 @@
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-device-private.h"
+#include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms.h"
@@ -189,4 +192,39 @@ meta_get_test_udev_device (MetaUdev *udev)
 
   g_assert_nonnull (test_device);
   return test_device;
+}
+
+typedef struct
+{
+  MetaKmsImplDevice *impl_device;
+  gboolean inhibited;
+} SetUpdatesInhibitedData;
+
+static gpointer
+process_set_updates_inhibited_in_impl (MetaThreadImpl  *thread_impl,
+                                       gpointer         user_data,
+                                       GError         **error)
+{
+  SetUpdatesInhibitedData *data = user_data;
+
+  meta_kms_impl_device_set_updates_inhibited (data->impl_device,
+                                              data->inhibited);
+
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_inhibit_kms_updates (MetaKmsDevice *device,
+                          gboolean       inhibited)
+{
+  MetaKms *kms = meta_kms_device_get_kms (device);
+  SetUpdatesInhibitedData data;
+
+  data.impl_device = meta_kms_device_get_impl_device (device);
+  data.inhibited = inhibited;
+
+  meta_kms_run_impl_task_sync (kms,
+                               process_set_updates_inhibited_in_impl,
+                               &data,
+                               NULL);
 }

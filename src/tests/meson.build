@@ -799,6 +799,8 @@ kms_test_cases = [
     'name': 'kms-render',
     'suite': 'backends/native/kms',
     'sources': [
+      'meta-kms-test-utils.c',
+      'meta-kms-test-utils.h',
       'native-kms-render.c',
       wayland_test_utils,
     ],

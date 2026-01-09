@@ -35,6 +35,7 @@
 #include "meta/meta-backend.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
+#include "tests/meta-kms-test-utils.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-utils.h"
@@ -481,6 +482,92 @@ mark_as_signalled (gboolean *did_signal)
 }
 
 static void
+set_updates_inhibited_before_paint (ClutterStage     *stage,
+                                    ClutterStageView *stage_view,
+                                    ClutterFrame     *frame,
+                                    KmsRenderingTest *test)
+{
+  MetaBackend *backend;
+  MetaKms *kms;
+  MetaKmsDevice *kms_device;
+
+  on_scanout_before_paint (stage, stage_view, frame, test);
+
+  if (!test->scanout.fb_id)
+    return;
+
+  backend = meta_context_get_backend (test_context);
+  kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  kms_device = meta_kms_get_devices (kms)->data;
+  meta_inhibit_kms_updates (kms_device, TRUE);
+}
+
+static void
+meta_test_kms_render_client_scanout_inhibit (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaWaylandCompositor *wayland_compositor =
+    meta_context_get_wayland_compositor (test_context);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
+  MetaKmsDevice *kms_device = meta_kms_get_devices (kms)->data;
+  KmsRenderingTest test;
+  MetaWaylandTestClient *wayland_test_client;
+  g_autoptr (MetaWaylandTestDriver) test_driver = NULL;
+  gulong before_paint_handler_id;
+  gulong presented_handler_id;
+  MtkRectangle view_rect;
+  gboolean presented;
+
+  test_driver = meta_wayland_test_driver_new (wayland_compositor);
+  meta_wayland_test_driver_set_property (test_driver,
+                                         "gpu-path",
+                                         meta_kms_device_get_path (kms_device));
+
+  wayland_test_client =
+    meta_wayland_test_client_new (test_context, "dma-buf-scanout");
+  g_assert_nonnull (wayland_test_client);
+
+  test = (KmsRenderingTest) {
+    .loop = g_main_loop_new (NULL, FALSE),
+    .wait_for_scanout = TRUE,
+  };
+
+  g_assert_cmpuint (g_list_length (clutter_stage_peek_stage_views (stage)),
+                    ==,
+                    1);
+  clutter_stage_view_get_layout (clutter_stage_peek_stage_views (stage)->data,
+                                 &view_rect);
+
+  before_paint_handler_id =
+    g_signal_connect (stage, "before-paint",
+                      G_CALLBACK (set_updates_inhibited_before_paint), &test);
+
+  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+
+  g_assert_cmpuint (test.scanout.fb_id, ==, 0);
+  while (!test.scanout.fb_id)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (stage, before_paint_handler_id);
+  g_usleep (ms2us (100));
+  meta_inhibit_kms_updates (kms_device, FALSE);
+
+  presented = FALSE;
+  presented_handler_id =
+    g_signal_connect_swapped (stage, "presented",
+                              G_CALLBACK (mark_as_signalled), &presented);
+  while (!presented)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (stage, presented_handler_id);
+
+  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
+  meta_wayland_test_client_finish (wayland_test_client);
+  g_main_loop_unref (test.loop);
+}
+
+static void
 meta_test_kms_render_client_scanout_hotplug (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
@@ -605,6 +692,8 @@ init_tests (void)
                    meta_test_kms_render_client_scanout_fallback);
   g_test_add_func ("/backends/native/kms/render/client-scanout-hotplug",
                    meta_test_kms_render_client_scanout_hotplug);
+  g_test_add_func ("/backends/native/kms/render/client-scanout-inhibit",
+                   meta_test_kms_render_client_scanout_inhibit);
   g_test_add_func ("/backends/native/kms/render/empty-config",
                    meta_test_kms_render_empty_config);
 }

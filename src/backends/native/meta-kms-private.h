@@ -33,6 +33,7 @@ void meta_kms_queue_callback (MetaKms            *kms,
 void meta_kms_queue_result_callback (MetaKms               *kms,
                                      MetaKmsResultListener *listener);
 
+META_EXPORT_TEST
 gpointer meta_kms_run_impl_task_sync (MetaKms             *kms,
                                       MetaThreadTaskFunc   func,
                                       gpointer             user_data,
