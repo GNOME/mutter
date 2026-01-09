@@ -199,8 +199,9 @@ _cogl_onscreen_queue_dirty (CoglOnscreen       *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
-  CoglOnscreenQueuedDirty *qe = g_new0 (CoglOnscreenQueuedDirty, 1);
+  CoglOnscreenQueuedDirty *qe;
 
+  qe = g_new0 (CoglOnscreenQueuedDirty, 1);
   qe->onscreen = g_object_ref (onscreen);
   qe->info = *info;
   _cogl_list_insert (ctx->onscreen_dirty_queue.prev, &qe->link);
