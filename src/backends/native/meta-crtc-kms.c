@@ -260,10 +260,27 @@ is_plane_assigned (MetaKmsPlane     *plane,
   return FALSE;
 }
 
+static MetaKmsPlane *
+crtc_assigned_plane (MetaCrtcKms      *crtc_kms,
+                     MetaKmsPlaneType  kms_plane_type)
+{
+  switch (kms_plane_type)
+    {
+    case META_KMS_PLANE_TYPE_PRIMARY:
+      return crtc_kms->assigned_primary_plane;
+    case META_KMS_PLANE_TYPE_CURSOR:
+      return crtc_kms->assigned_cursor_plane;
+    case META_KMS_PLANE_TYPE_OVERLAY:
+    default:
+      g_assert_not_reached ();
+    }
+}
+
 static gboolean
-is_plane_leased (MetaKmsDevice *kms_device,
+is_plane_active (MetaKmsDevice *kms_device,
                  MetaKmsPlane  *kms_plane)
 {
+  MetaKmsPlaneType kms_plane_type = meta_kms_plane_get_plane_type (kms_plane);
   GList *l;
 
   for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
@@ -271,9 +288,15 @@ is_plane_leased (MetaKmsDevice *kms_device,
       MetaKmsCrtc *kms_crtc = l->data;
       MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
 
-      if (meta_kms_crtc_is_leased (kms_crtc) &&
-          crtc_kms->assigned_primary_plane == kms_plane)
-        return TRUE;
+      if (crtc_assigned_plane (crtc_kms, kms_plane_type) == kms_plane)
+        {
+          meta_topic (META_DEBUG_KMS,
+                      "Plane %u is currently active as %s for CRTC %u\n",
+                      meta_kms_plane_get_id (kms_plane),
+                      meta_kms_plane_type_to_string(kms_plane_type),
+                      meta_kms_crtc_get_id (kms_crtc));
+          return TRUE;
+        }
     }
 
   return FALSE;
@@ -286,7 +309,17 @@ find_unassigned_plane (MetaCrtcKms      *crtc_kms,
 {
   MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  MetaKmsPlane *assigned_plane = crtc_assigned_plane (crtc_kms, kms_plane_type);
   GList *l;
+
+  if (assigned_plane)
+    {
+      meta_topic (META_DEBUG_KMS, "Reusing assigned %s plane %u for CRTC %u\n",
+                  meta_kms_plane_type_to_string (kms_plane_type),
+                  meta_kms_plane_get_id (assigned_plane),
+                  meta_kms_crtc_get_id (kms_crtc));
+      return assigned_plane;
+    }
 
   for (l = meta_kms_device_get_planes (kms_device); l; l = l->next)
     {
@@ -302,8 +335,14 @@ find_unassigned_plane (MetaCrtcKms      *crtc_kms,
                              crtc_assignments))
         continue;
 
-      if (is_plane_leased (kms_device, kms_plane))
+      if (is_plane_active (kms_device, kms_plane))
         continue;
+
+      meta_topic (META_DEBUG_KMS,
+                  "Plane %u is unassigned and can be used as %s for CRTC %u\n",
+                  meta_kms_plane_get_id (kms_plane),
+                  meta_kms_plane_type_to_string (kms_plane_type),
+                  meta_kms_crtc_get_id (kms_crtc));
 
       return kms_plane;
     }
