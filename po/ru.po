@@ -15,8 +15,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity ru\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-11-14 13:43+0000\n"
-"PO-Revision-Date: 2025-11-16 19:54+0300\n"
+"POT-Creation-Date: 2025-12-16 21:32+0000\n"
+"PO-Revision-Date: 2025-12-17 19:43+0300\n"
 "Last-Translator: Artur So <arturios2005@mail.ru>\n"
 "Language-Team: Русский <gnome-cyr@gnome.org>\n"
 "Language: ru\n"
@@ -691,22 +691,30 @@ msgid "_Inhibit system shortcuts"
 msgstr "_Блокировка системных комбинаций клавиш"
 
 #: mdk/mdk-main-window.ui:20
+msgid "_Monitors"
+msgstr "_Мониторы"
+
+#: mdk/mdk-main-window.ui:22
+msgid "_Resizable"
+msgstr "Изменяемый _размер"
+
+#: mdk/mdk-main-window.ui:29
 msgid "_Launchers"
 msgstr "_Ярлыки"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:33
 msgid "_Edit launchers"
 msgstr "_Изменить ярлыки"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:40
 msgid "_About Mutter Development Kit"
 msgstr "_О приложении"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Набор для разработки Mutter"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:56
 msgid "Main Menu"
 msgstr "Главное меню"
 
@@ -722,7 +730,7 @@ msgstr "Набор для разработки программного обес
 msgid "About Mutter Development Kit"
 msgstr "О приложении"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "Не удалось создать монитор"
 
@@ -804,7 +812,7 @@ msgstr "Включить управление отладкой интерфей�
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Переключатель режима: группа %d"
@@ -812,7 +820,7 @@ msgstr "Переключатель режима: группа %d"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Переключатель режима"
@@ -820,11 +828,11 @@ msgstr "Переключатель режима"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Переключить монитор"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Показать справку на экране"
 
@@ -833,11 +841,11 @@ msgstr "Показать справку на экране"
 msgid "Compositor"
 msgstr "Композитор"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Вывести версию"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Использовать модуль mutter"
 
@@ -869,14 +877,14 @@ msgstr "Дисплей «%s» уже имеет оконный менеджер"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не удалось открыть дисплей X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1306
+#: src/x11/meta-x11-display.c:1308
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Экран %d на дисплее «%s» недействителен"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2489
+#: src/x11/meta-x11-display.c:2491
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -887,7 +895,7 @@ msgstr "На экране %i дисплея «%s» уже запущен дру�
 msgid "Format %s not supported"
 msgstr "Формат %s не поддерживается"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
