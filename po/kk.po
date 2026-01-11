@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-12-03 15:57+0000\n"
-"PO-Revision-Date: 2026-01-11 12:54+0500\n"
+"POT-Creation-Date: 2025-12-30 22:16+0000\n"
+"PO-Revision-Date: 2026-01-11 12:59+0500\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh <kk@li.org>\n"
 "Language: kk\n"
@@ -685,22 +685,30 @@ msgid "_Inhibit system shortcuts"
 msgstr "Жүйелік жарлықтарды _бөгеу"
 
 #: mdk/mdk-main-window.ui:20
+msgid "_Monitors"
+msgstr "_Мониторлар"
+
+#: mdk/mdk-main-window.ui:22
+msgid "_Resizable"
+msgstr "Ө_лшемі өзгерілетін"
+
+#: mdk/mdk-main-window.ui:29
 msgid "_Launchers"
 msgstr "_Жібергіштер"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:33
 msgid "_Edit launchers"
 msgstr "Жібергіштерді _түзету"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:40
 msgid "_About Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы _туралы"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:56
 msgid "Main Menu"
 msgstr "Бас мәзір"
 
@@ -716,7 +724,7 @@ msgstr "Mutter бағдарламалық қамтаманы әзірлеу жи
 msgid "About Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы туралы"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "Мониторды жасау сәтсіз аяқталды"
 
@@ -751,91 +759,74 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Қоңырау оқиғасы"
 
-#: src/core/display.c:742
+#: src/core/display.c:657
 msgid "Privacy Screen Enabled"
 msgstr "Жекелік экраны іске қосылған"
 
-#: src/core/display.c:743
+#: src/core/display.c:658
 msgid "Privacy Screen Disabled"
 msgstr "Жекелік экраны сөндірілген"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Орындалып тұрған терезелер менеджерін алмастыру"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Қолданылатын X дисплейі"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "X сервер шақыруларын синхронды қылу"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:352
 msgid "Run as a wayland compositor"
 msgstr "Wayland композиторы ретінде орындау"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Кірістірілген композитор ретінде орындау"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:359
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland композиторын Xwayland-ты іске қоспай орындау"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:366
 msgid "Specify Wayland display name to use"
 msgstr "Қолданылатын Wayland дисплейінің атын көрсету"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:373
 msgid "Run as a full display server, rather than nested"
 msgstr "Кірістірілген емес, толық дисплей сервері ретінде орындау"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:378
 msgid "Run as a headless display server"
 msgstr "Дисплейсіз көрсету сервері ретінде орындау"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:383
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Тұрақты виртуалды мониторды қосу (WxH немесе WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:390
 msgid "Run development kit"
 msgstr "Әзірлеу жиынтығын орындау"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "X11 бэкендімен орындау"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:401
 msgid "Profile performance using trace instrumentation"
 msgstr "Трассировка құралдарының көмегімен өнімділікті профильдеу"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:407
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus жөндеуді басқару интерфейсін іске қосу"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
-#: src/core/meta-pad-action-mapper.c:615
+#.
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Режимді ауыстыру (%d тобы)"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
-#: src/core/meta-pad-action-mapper.c:622
+#.
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Режимді ауыстыру"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
-#: src/core/meta-pad-action-mapper.c:645
+#.
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Мониторды ауыстыру"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Экрандағы көмекті көрсету"
 
@@ -844,11 +835,11 @@ msgstr "Экрандағы көмекті көрсету"
 msgid "Compositor"
 msgstr "Композитор"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Нұсқа ақпаратын шығару"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Қолданылатын Mutter плагині"
 
@@ -857,7 +848,7 @@ msgstr "Қолданылатын Mutter плагині"
 msgid "Workspace %d"
 msgstr "Жұмыс орны %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter егжей-тегжейлі режимді қолдаусыз жинақталған"
 
@@ -870,28 +861,24 @@ msgstr "Жұмыс орны ауыстырылды"
 msgid "Mode Switch: Mode %d"
 msgstr "Режимді ауыстыру: %d режимі"
 
-#: src/x11/meta-x11-display.c:844
+#: src/x11/meta-x11-display.c:771
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"“%s” дисплейінде терезелер менеджері бар; ағымдағы терезелер менеджерін "
-"алмастыру үшін --replace опциясын қолданып көріңіз."
+msgid "Display “%s” already has a window manager"
+msgstr "\"%s\" дисплейінде терезе менеджері бар"
 
-#: src/x11/meta-x11-display.c:1229
+#: src/x11/meta-x11-display.c:1134
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "“%s” X Window System дисплейін ашу мүмкін емес"
 
-#: src/x11/meta-x11-display.c:1460
+#: src/x11/meta-x11-display.c:1308
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "%d экраны “%s” дисплейінде жарамсыз"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2788
+#: src/x11/meta-x11-display.c:2491
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -902,10 +889,33 @@ msgstr "Басқа композиттік менеджер %i экранында
 msgid "Format %s not supported"
 msgstr "%s пішіміне қолдау жоқ"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s жерінде)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "Орындалып тұрған терезелер менеджерін алмастыру"
+
+#~ msgid "X Display to use"
+#~ msgstr "Қолданылатын X дисплейі"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "X сервер шақыруларын синхронды қылу"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Кірістірілген композитор ретінде орындау"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "X11 бэкендімен орындау"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "“%s” дисплейінде терезелер менеджері бар; ағымдағы терезелер менеджерін "
+#~ "алмастыру үшін --replace опциясын қолданып көріңіз."
 
 #~ msgid "Disable connection to session manager"
 #~ msgstr "Сессиялар менеджеріне байланыстарды сөндіру"
@@ -977,9 +987,6 @@ msgstr "%s (%s жерінде)"
 
 #~ msgid "_Move"
 #~ msgstr "Жы_лжыту"
-
-#~ msgid "_Resize"
-#~ msgstr "Ө_лшемін өзгерту"
 
 #~ msgid "Always on _Top"
 #~ msgstr "Әрқа_шан үстінде"
