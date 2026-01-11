@@ -160,7 +160,7 @@ struct _ClutterFrameClock
   int64_t missed_frame_report_time_us;
 
   int64_t deadline_evasion_us;
-  int64_t frame_sync_update_time_us;
+  int64_t fullscreen_update_time_us;
 
   char *output_name;
 
@@ -1407,7 +1407,7 @@ clutter_frame_clock_schedule_flush_update (ClutterFrameClock *frame_clock)
     }
 
   now_us = g_get_monotonic_time ();
-  if (now_us - frame_clock->frame_sync_update_time_us >=
+  if (now_us - frame_clock->fullscreen_update_time_us >=
       frame_clock->maximum_refresh_interval_us)
     timeout_interval_us = frame_clock->refresh_interval_us;
   else
@@ -1435,10 +1435,10 @@ clutter_frame_clock_schedule_flush_update (ClutterFrameClock *frame_clock)
 }
 
 void
-clutter_frame_clock_set_frame_sync_update_time (ClutterFrameClock *frame_clock,
+clutter_frame_clock_set_fullscreen_update_time (ClutterFrameClock *frame_clock,
                                                 int64_t            update_time_us)
 {
-  frame_clock->frame_sync_update_time_us = update_time_us;
+  frame_clock->fullscreen_update_time_us = update_time_us;
 }
 
 static int

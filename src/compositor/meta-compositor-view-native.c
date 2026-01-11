@@ -35,8 +35,8 @@
 #include "core/window-private.h"
 #include "wayland/meta-wayland-surface-private.h"
 
-static void update_frame_sync_surface (MetaCompositorViewNative *view_native,
-                                       MetaSurfaceActor         *surface_actor);
+static void update_fullscreen_actor (MetaCompositorViewNative *view_native,
+                                     MetaSurfaceActor         *fullscreen_actor);
 
 struct _MetaCompositorViewNative
 {
@@ -44,19 +44,19 @@ struct _MetaCompositorViewNative
 
   MetaWaylandSurface *scanout_candidate;
 
-  MetaSurfaceActor *frame_sync_surface;
+  MetaSurfaceActor *fullscreen_actor;
 
-  gulong frame_sync_surface_repaint_scheduled_id;
-  gulong frame_sync_surface_update_scheduled_id;
-  gulong frame_sync_surface_is_frozen_changed_id;
-  gulong frame_sync_surface_destroy_id;
+  gulong fullscreen_surface_repaint_scheduled_id;
+  gulong fullscreen_surface_update_scheduled_id;
+  gulong fullscreen_actor_is_frozen_changed_id;
+  gulong fullscreen_actor_destroy_id;
 };
 
 G_DEFINE_TYPE (MetaCompositorViewNative, meta_compositor_view_native,
                META_TYPE_COMPOSITOR_VIEW)
 
 static void
-maybe_set_frame_sync_update_time (MetaSurfaceActor         *surface_actor,
+maybe_set_fullscreen_update_time (MetaSurfaceActor         *surface_actor,
                                   MetaCompositorViewNative *view_native)
 {
   MetaCompositorView *compositor_view = META_COMPOSITOR_VIEW (view_native);
@@ -73,25 +73,25 @@ maybe_set_frame_sync_update_time (MetaSurfaceActor         *surface_actor,
   frame_clock = clutter_stage_view_get_frame_clock (stage_view);
   if (frame_clock)
     {
-      clutter_frame_clock_set_frame_sync_update_time (frame_clock,
+      clutter_frame_clock_set_fullscreen_update_time (frame_clock,
                                                       g_get_monotonic_time ());
     }
 }
 
 static void
-on_frame_sync_surface_is_frozen_changed (MetaSurfaceActor         *surface_actor,
-                                         GParamSpec               *pspec,
-                                         MetaCompositorViewNative *view_native)
+on_fullscreen_actor_is_frozen_changed (MetaSurfaceActor         *surface_actor,
+                                       GParamSpec               *pspec,
+                                       MetaCompositorViewNative *view_native)
 {
   if (meta_surface_actor_is_frozen (surface_actor))
-    update_frame_sync_surface (view_native, NULL);
+    update_fullscreen_actor (view_native, NULL);
 }
 
 static void
-on_frame_sync_surface_destroyed (MetaSurfaceActor         *surface_actor,
-                                 MetaCompositorViewNative *view_native)
+on_fullscreen_actor_destroyed (MetaSurfaceActor         *surface_actor,
+                               MetaCompositorViewNative *view_native)
 {
-  update_frame_sync_surface (view_native, NULL);
+  update_fullscreen_actor (view_native, NULL);
 }
 
 static void
@@ -375,7 +375,7 @@ meta_compositor_view_native_maybe_assign_scanout (MetaCompositorViewNative *view
 }
 
 static MetaSurfaceActor *
-find_frame_sync_candidate (MetaCompositorView *compositor_view,
+find_fullscreen_candidate (MetaCompositorView *compositor_view,
                            MetaCompositor     *compositor)
 {
   ClutterStageView *stage_view =
@@ -388,7 +388,7 @@ find_frame_sync_candidate (MetaCompositorView *compositor_view,
   if (meta_compositor_is_unredirect_inhibited (compositor))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: unredirect inhibited");
+                  "No fullscreen candidate: unredirect inhibited");
       return NULL;
     }
 
@@ -397,28 +397,28 @@ find_frame_sync_candidate (MetaCompositorView *compositor_view,
   if (!window_actor)
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: no top window actor");
+                  "No fullscreen candidate: no top window actor");
       return NULL;
     }
 
   if (meta_window_actor_is_frozen (window_actor))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: window-actor is frozen");
+                  "No fullscreen candidate: window-actor is frozen");
       return NULL;
     }
 
   if (meta_window_actor_effect_in_progress (window_actor))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: window-actor effects in progress");
+                  "No fullscreen candidate: window-actor effects in progress");
       return NULL;
     }
 
   if (clutter_actor_has_transitions (CLUTTER_ACTOR (window_actor)))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: window-actor has transition");
+                  "No fullscreen candidate: window-actor has transition");
       return NULL;
     }
 
@@ -428,7 +428,7 @@ find_frame_sync_candidate (MetaCompositorView *compositor_view,
                                     &actor_box))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: no window actor paint-box");
+                  "No fullscreen candidate: no window actor paint-box");
       return NULL;
     }
 
@@ -442,7 +442,7 @@ find_frame_sync_candidate (MetaCompositorView *compositor_view,
                        CLUTTER_COORDINATE_EPSILON))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: paint-box (%f,%f,%f,%f) does "
+                  "No fullscreen candidate: paint-box (%f,%f,%f,%f) does "
                   "not match stage-view layout (%d,%d,%d,%d)",
                   actor_box.x1, actor_box.y1,
                   actor_box.x2 - actor_box.x1, actor_box.y2 - actor_box.y1,
@@ -454,21 +454,21 @@ find_frame_sync_candidate (MetaCompositorView *compositor_view,
   if (!surface_actor)
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: window-actor has no scanout candidate");
+                  "No fullscreen candidate: window-actor has no scanout candidate");
       return NULL;
     }
 
   if (meta_surface_actor_is_effectively_obscured (surface_actor))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: surface-actor is obscured");
+                  "No fullscreen candidate: surface-actor is obscured");
       return NULL;
     }
 
   if (meta_surface_actor_is_frozen (surface_actor))
     {
       meta_topic (META_DEBUG_RENDER,
-                  "No frame sync candidate: surface-actor is frozen");
+                  "No fullscreen candidate: surface-actor is frozen");
       return NULL;
     }
 
@@ -476,45 +476,45 @@ find_frame_sync_candidate (MetaCompositorView *compositor_view,
 }
 
 static void
-update_frame_sync_surface (MetaCompositorViewNative *view_native,
-                           MetaSurfaceActor         *surface_actor)
+update_fullscreen_actor (MetaCompositorViewNative *view_native,
+                         MetaSurfaceActor         *surface_actor)
 {
   MetaCompositorView *compositor_view =
     META_COMPOSITOR_VIEW (view_native);
   ClutterStageView *stage_view;
   CoglFramebuffer *framebuffer;
 
-  g_clear_signal_handler (&view_native->frame_sync_surface_repaint_scheduled_id,
-                          view_native->frame_sync_surface);
-  g_clear_signal_handler (&view_native->frame_sync_surface_update_scheduled_id,
-                          view_native->frame_sync_surface);
-  g_clear_signal_handler (&view_native->frame_sync_surface_is_frozen_changed_id,
-                          view_native->frame_sync_surface);
-  g_clear_signal_handler (&view_native->frame_sync_surface_destroy_id,
-                          view_native->frame_sync_surface);
+  g_clear_signal_handler (&view_native->fullscreen_surface_repaint_scheduled_id,
+                          view_native->fullscreen_actor);
+  g_clear_signal_handler (&view_native->fullscreen_surface_update_scheduled_id,
+                          view_native->fullscreen_actor);
+  g_clear_signal_handler (&view_native->fullscreen_actor_is_frozen_changed_id,
+                          view_native->fullscreen_actor);
+  g_clear_signal_handler (&view_native->fullscreen_actor_destroy_id,
+                          view_native->fullscreen_actor);
 
   if (surface_actor)
     {
-      view_native->frame_sync_surface_repaint_scheduled_id =
+      view_native->fullscreen_surface_repaint_scheduled_id =
         g_signal_connect (surface_actor, "repaint-scheduled",
-                          G_CALLBACK (maybe_set_frame_sync_update_time),
+                          G_CALLBACK (maybe_set_fullscreen_update_time),
                           view_native);
-      view_native->frame_sync_surface_update_scheduled_id =
+      view_native->fullscreen_surface_update_scheduled_id =
         g_signal_connect (surface_actor, "update-scheduled",
-                          G_CALLBACK (maybe_set_frame_sync_update_time),
+                          G_CALLBACK (maybe_set_fullscreen_update_time),
                           view_native);
-      view_native->frame_sync_surface_is_frozen_changed_id =
+      view_native->fullscreen_actor_is_frozen_changed_id =
         g_signal_connect (surface_actor,
                           "notify::is-frozen",
-                          G_CALLBACK (on_frame_sync_surface_is_frozen_changed),
+                          G_CALLBACK (on_fullscreen_actor_is_frozen_changed),
                           view_native);
-      view_native->frame_sync_surface_destroy_id =
+      view_native->fullscreen_actor_destroy_id =
         g_signal_connect (surface_actor, "destroy",
-                          G_CALLBACK (on_frame_sync_surface_destroyed),
+                          G_CALLBACK (on_fullscreen_actor_destroyed),
                           view_native);
     }
 
-  view_native->frame_sync_surface = surface_actor;
+  view_native->fullscreen_actor = surface_actor;
 
   stage_view = meta_compositor_view_get_stage_view (compositor_view);
 
@@ -527,20 +527,18 @@ update_frame_sync_surface (MetaCompositorViewNative *view_native,
 }
 
 void
-meta_compositor_view_native_maybe_update_frame_sync_surface (MetaCompositorViewNative *view_native,
-                                                             MetaCompositor           *compositor)
+meta_compositor_view_native_maybe_update_fullscreen_actor (MetaCompositorViewNative *view_native,
+                                                           MetaCompositor           *compositor)
 {
   MetaCompositorView *compositor_view = META_COMPOSITOR_VIEW (view_native);
-  MetaSurfaceActor *surface_actor;
+  MetaSurfaceActor *fullscreen_actor;
 
-  surface_actor = find_frame_sync_candidate (compositor_view,
-                                             compositor);
+  fullscreen_actor = find_fullscreen_candidate (compositor_view, compositor);
 
-  if (G_LIKELY (surface_actor == view_native->frame_sync_surface))
+  if (G_LIKELY (fullscreen_actor == view_native->fullscreen_actor))
     return;
 
-  update_frame_sync_surface (view_native,
-                             surface_actor);
+  update_fullscreen_actor (view_native, fullscreen_actor);
 }
 
 MetaCompositorViewNative *
@@ -558,15 +556,15 @@ meta_compositor_view_native_dispose (GObject *object)
 {
   MetaCompositorViewNative *view_native = META_COMPOSITOR_VIEW_NATIVE (object);
 
-  g_clear_signal_handler (&view_native->frame_sync_surface_repaint_scheduled_id,
-                          view_native->frame_sync_surface);
-  g_clear_signal_handler (&view_native->frame_sync_surface_update_scheduled_id,
-                          view_native->frame_sync_surface);
-  g_clear_signal_handler (&view_native->frame_sync_surface_destroy_id,
-                          view_native->frame_sync_surface);
-  g_clear_signal_handler (&view_native->frame_sync_surface_is_frozen_changed_id,
-                          view_native->frame_sync_surface);
-  view_native->frame_sync_surface = NULL;
+  g_clear_signal_handler (&view_native->fullscreen_surface_repaint_scheduled_id,
+                          view_native->fullscreen_actor);
+  g_clear_signal_handler (&view_native->fullscreen_surface_update_scheduled_id,
+                          view_native->fullscreen_actor);
+  g_clear_signal_handler (&view_native->fullscreen_actor_destroy_id,
+                          view_native->fullscreen_actor);
+  g_clear_signal_handler (&view_native->fullscreen_actor_is_frozen_changed_id,
+                          view_native->fullscreen_actor);
+  view_native->fullscreen_actor = NULL;
 
   G_OBJECT_CLASS (meta_compositor_view_native_parent_class)->dispose (object);
 }

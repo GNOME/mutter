@@ -35,5 +35,5 @@ MetaCompositorViewNative *meta_compositor_view_native_new (ClutterStageView *sta
 void meta_compositor_view_native_maybe_assign_scanout (MetaCompositorViewNative *view_native,
                                                        MetaCompositor           *compositor);
 
-void meta_compositor_view_native_maybe_update_frame_sync_surface (MetaCompositorViewNative *view_native,
-                                                                  MetaCompositor           *compositor);
+void meta_compositor_view_native_maybe_update_fullscreen_actor (MetaCompositorViewNative *view_native,
+                                                                MetaCompositor           *compositor);
