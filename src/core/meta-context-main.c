@@ -104,15 +104,18 @@ meta_context_main_configure (MetaContext   *context,
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
   MetaContextClass *context_class =
     META_CONTEXT_CLASS (meta_context_main_parent_class);
+  g_autofree char *wayland_display = NULL;
 
   if (!context_class->configure (context, argc, argv, error))
     return FALSE;
 
+  wayland_display = g_steal_pointer (&context_main->options.wayland_display);
+
   if (!check_configuration (context_main, error))
     return FALSE;
 
-  if (context_main->options.wayland_display)
-    meta_wayland_override_display_name (context_main->options.wayland_display);
+  if (wayland_display)
+    meta_wayland_override_display_name (wayland_display);
 
 #ifdef HAVE_PROFILER
   meta_context_set_trace_file (context, context_main->options.trace_file);
