@@ -568,7 +568,10 @@ drop_x11_windows (MetaDisplay      *display,
       GList *next = l->next;
 
       if (META_STACK_ID_IS_X11 (op->any.window))
-        g_queue_remove (tracker->unverified_predictions, op);
+        {
+          g_queue_remove (tracker->unverified_predictions, op);
+          meta_stack_op_free (op);
+        }
 
       l = next;
     }
