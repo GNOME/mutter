@@ -550,6 +550,9 @@ clutter_sprite_set_current_actor (ClutterFocus       *focus,
   if (!source_device)
     source_device = get_source_device_for_crossing (sprite);
 
+  if (!source_device)
+    return TRUE;
+
   grab_actor = clutter_stage_get_grab_actor (stage);
 
   /* If the common root is outside the currently effective grab,
