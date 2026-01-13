@@ -1,3 +1,56 @@
+50.alpha
+========
+* Fix delay in applying KMS property changes [Marco; !4610]
+* Fix broken menus in some Xwayland clients [Carlos; !4729]
+* Avoid processing the same key event twice during keybindings [Carlos; !4724]
+* Drop the X11 backend [Bilal; !4505]
+* Improve tiled monitor handling [Rahul; !4685]
+* Improve sticky keys handling [Alessandro A.; !4728]
+* Fix global shortcut keys getting stuck in Xwayland windows [Carlos; !4737]
+* Drop logical devices from Clutter [Carlos; !4644]
+* Fix hang with libxcb without support for abstract sockets [Michel; !4762]
+* Fix some backlights not being detected [Will; !4763]
+* Add support for RGBA16, RGBX16 and XB48 formats [Mario; !4773, !4775]
+* Fix Xwayland clients becoming unresponsive on 2nd monitor [Michel; !4766]
+* Improve native Xwayland scaling support [Michel; !4731]
+* Improve support for tablet devices [Carlos, Peter; !4781, !4601]
+* Add support for external window constraints [Olivier; !4692]
+* Initialize libinput plugin system [Peter; !4739]
+* Do not spin cursor for startup sequences with no app ID [Sebastian K; !4774]
+* Let gestures influence other gesture before state change [Sebastian K.; !4760]
+* Improve secondary GPU blitting path performance [Gert-dev; !4073]
+* Fix activation or popup from button release events [Jonas; !4792]
+* Make devkit window optionally resizable [Jonas; !4621]
+* Fix cases of spurious tone mapping [Michel; !4804]
+* Introduce support for CRTC KMS color properties [Naveen; !4558]
+* Fix reporing damage region in pipewire streams [Michel; !4793]
+* Initialize all luminance fields for CICP [Michel; !4824]
+* Fix subsurface geometry calculation [Julian; !4826]
+* Send color management image description target volume events [Michel; !4823]
+* Use KMS ready time for frame clock update duration [Daniel, Michel; !4825]
+* Fixed crashes [Michel, Marco, Jonas; !4720, !4742, !4740, !4761, !4801, !4810]
+* Plugged leak [Lukáš; !4684]
+* Misc. bug fixes and cleanups [Florian, Marco, Carlos, Jonas, Michel, Bilal,
+  Fraetor, Joan, Alessandro B., Alessandro A., Serhii, Daniel, Sebastian W.,
+  Robert, Peter; !4718, !4717, !4670, !4722, !4726, !4623, !4735, !4750, !4749,
+  !4753, !4736, !4754, !4752, !4669, !4764, !4765, !4730, !4666, !4779, !4707,
+  !4646, !4759, !4782, !4783, !4778, !4788, !4748, !4790, !4785, !4616, !4559,
+  !4802, !4600, !4797, !4803, !4805, !4813, !4827, !4808, !4817, !3882, !4837,
+  !4842]
+
+Contributors:
+  Alessandro Astone, Alessandro Bono, Michel Dänzer, Bilal Elmoussaoui,
+  Will Fancher, Olivier Fourdan, Fraetor, Carlos Garnacho, Gert-dev,
+  Peter Hutterer, Sebastian Keller, Mario Kleiner, Naveen Kumar, Robert Mader,
+  Florian Müllner, Julian Orth, Rahul Rameshbabu, Serhii Tereshchenko,
+  Joan Torres Lopez, Marco Trevisan (Treviño), Lukáš Tyrychtr,
+  Daniel van Vugt, Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Quentin PAGÈS [oc], Efstathios Iosifidis [el], Милош Поповић [sr,
+  sr@latin], Martin [sl], Artur S0 [ru], Antonio Marin [ro],
+  Kjartan Maraas [nb], Baurzhan Muftakhidinov [kk]
+
 49.1
 ====
 * Fix various glitches during resize/move drags [Jonas; !4607]
