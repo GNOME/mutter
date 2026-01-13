@@ -1036,10 +1036,11 @@ get_secondary_gpu_buffer_age (MetaOnscreenNativeSecondaryGpuState *secondary_gpu
 
   if (buffer_age > MAX_SECONDARY_GPU_BUFFER_AGE)
     {
-      g_warning ("Secondary GPU provides buffers of age %i, which is "
-                 "older than supported; ignoring damage rectangles and fully "
-                 "redrawing which may cause increased GPU power consumption",
-                 buffer_age);
+      meta_topic (META_DEBUG_KMS,
+                  "Secondary GPU provides buffers of age %i, which is "
+                  "older than supported; ignoring damage rectangles and fully "
+                  "redrawing which may cause increased GPU power consumption",
+                  buffer_age);
 
       return 0;
     }
