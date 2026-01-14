@@ -1,3 +1,29 @@
+49.3
+====
+* Fix direct scanout on drivers without explicit modifiers [Mario; !4776]
+* Fix cases of spurious tone mapping [Michel; !4804]
+* Fix reporing damage region in pipewire streams [Michel; !4793]
+* Initialize all luminance fields for CICP [Michel; !4824]
+* Fix subsurface geometry calculation [Julian; !4826]
+* Fix Xwayland clients becoming unresponsive on 2nd monitor [Michel; !4766]
+* Improve native Xwayland scaling support [Michel; !4731]
+* Send color management image description target volume events [Michel; !4823]
+* Improve support for tablet devices [Carlos, Peter; !4781, !4601]
+* Do not spin cursor for startup sequences with no app ID [Sebastian K; !4774]
+* Let gestures influence other gesture before state change [Sebastian K.; !4760]
+* Fixed crash [Michel; !4801]
+* Plugged leak [Lukáš; !4684]
+* Misc. bug fixes and cleanups [Michel, mohansur, Robert, Jonas, Daniel,
+  Sebastian W.; !4789, !4757, !4803, !4805, !4759, !4559, !4832]
+
+Contributors:
+  Michel Dänzer, Carlos Garnacho, Peter Hutterer, Sebastian Keller,
+  Mario Kleiner, Robert Mader, mohansur, Julian Orth, Lukáš Tyrychtr,
+  Daniel van Vugt, Sebastian Wick, Jonas Ådahl
+
+Translators:
+  Antonio Marin [ro], Kjartan Maraas [nb], Baurzhan Muftakhidinov [kk]
+
 49.2
 ====
 * Fix delay in applying KMS property changes [Marco; !4723]
