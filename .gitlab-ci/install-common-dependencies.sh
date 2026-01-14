@@ -150,3 +150,11 @@ SCRIPTS_DIR="$(dirname $0)"
       https://gitlab.gnome.org/GNOME/gtk.git \
       main
 fi
+
+if ! check_gsettings_key org.gnome.desktop.calendar week-start-day
+then
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+      "${OPTIONS[@]}" \
+      https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas \
+      50.alpha
+fi
