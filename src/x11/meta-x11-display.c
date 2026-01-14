@@ -1495,6 +1495,21 @@ meta_x11_display_new (MetaDisplay  *display,
   meta_x11_startup_notification_init (x11_display);
   meta_x11_selection_init (x11_display);
 
+  g_snprintf (buf, sizeof (buf), "_NET_WM_CM_S%d", number);
+  wm_cm_atom = XInternAtom (x11_display->xdisplay, buf, False);
+
+  x11_display->wm_cm_selection_window =
+    take_manager_selection (x11_display, xroot, wm_cm_atom, timestamp);
+
+  if (x11_display->wm_cm_selection_window == None)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to acquire compositor ownership");
+
+      g_object_run_dispose (G_OBJECT (x11_display));
+      return NULL;
+    }
+
   sprintf (buf, "WM_S%d", number);
 
   wm_sn_atom = XInternAtom (xdisplay, buf, False);
@@ -1514,21 +1529,6 @@ meta_x11_display_new (MetaDisplay  *display,
   x11_display->wm_sn_selection_window = new_wm_sn_owner;
   x11_display->wm_sn_atom = wm_sn_atom;
   x11_display->wm_sn_timestamp = timestamp;
-
-  g_snprintf (buf, sizeof (buf), "_NET_WM_CM_S%d", number);
-  wm_cm_atom = XInternAtom (x11_display->xdisplay, buf, False);
-
-  x11_display->wm_cm_selection_window =
-    take_manager_selection (x11_display, xroot, wm_cm_atom, timestamp);
-
-  if (x11_display->wm_cm_selection_window == None)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to acquire compositor ownership");
-
-      g_object_run_dispose (G_OBJECT (x11_display));
-      return NULL;
-    }
 
   init_event_masks (x11_display);
 
