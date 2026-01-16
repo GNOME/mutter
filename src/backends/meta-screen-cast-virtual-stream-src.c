@@ -314,15 +314,19 @@ on_monitors_changed (MetaMonitorManager             *monitor_manager,
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   ClutterStageView *view;
 
-  meta_stage_remove_watch (stage, virtual_src->paint_watch);
-  virtual_src->paint_watch = NULL;
-  meta_stage_remove_watch (stage, virtual_src->skipped_watch);
-  virtual_src->skipped_watch = NULL;
+  if (meta_screen_cast_stream_src_is_enabled (src))
+    {
+      meta_stage_remove_watch (stage, virtual_src->paint_watch);
+      virtual_src->paint_watch = NULL;
+      meta_stage_remove_watch (stage, virtual_src->skipped_watch);
+      virtual_src->skipped_watch = NULL;
 
-  view = view_from_src (src);
-  setup_view (virtual_src, view);
+      view = view_from_src (src);
+      setup_view (virtual_src, view);
 
-  meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
+      meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
+    }
+
   meta_screen_cast_stream_src_renegotiate (src);
 }
 
@@ -359,9 +363,6 @@ meta_screen_cast_virtual_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaScreenCastVirtualStreamSrc *virtual_src =
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaBackend *backend = backend_from_src (src);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   ClutterStageView *view;
 
   view = view_from_src (src);
@@ -375,11 +376,6 @@ meta_screen_cast_virtual_stream_src_enable (MetaScreenCastStreamSrc *src)
   else
     meta_eis_viewport_notify_changed (META_EIS_VIEWPORT (stream));
 
-  virtual_src->monitors_changed_handler_id =
-    g_signal_connect (monitor_manager, "monitors-changed-internal",
-                      G_CALLBACK (on_monitors_changed),
-                      virtual_src);
-
   clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage_from_src (src)),
                                         NULL);
 }
@@ -391,8 +387,6 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (src);
   MetaBackend *backend = backend_from_src (src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   ClutterStage *stage = stage_from_src (src);
 
   if (virtual_src->paint_watch)
@@ -413,9 +407,6 @@ meta_screen_cast_virtual_stream_src_disable (MetaScreenCastStreamSrc *src)
                           cursor_tracker);
   g_clear_signal_handler (&virtual_src->cursor_changed_handler_id,
                           cursor_tracker);
-
-  g_clear_signal_handler (&virtual_src->monitors_changed_handler_id,
-                          monitor_manager);
 }
 
 static gboolean
@@ -810,13 +801,13 @@ meta_screen_cast_virtual_stream_src_initable_init (GInitable     *initable,
 {
   MetaScreenCastVirtualStreamSrc *virtual_src =
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (initable);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  MetaBackend *backend = backend_from_src (src);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
   if (virtual_src->mode_infos)
     {
-      MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
-      MetaBackend *backend = backend_from_src (src);
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
       g_autofree char *serial = NULL;
       g_autoptr (MetaVirtualMonitorInfo) info = NULL;
       MetaVirtualMonitor *virtual_monitor;
@@ -836,6 +827,11 @@ meta_screen_cast_virtual_stream_src_initable_init (GInitable     *initable,
       virtual_src->virtual_monitor = virtual_monitor;
       meta_monitor_manager_reload (monitor_manager);
     }
+
+  virtual_src->monitors_changed_handler_id =
+    g_signal_connect (monitor_manager, "monitors-changed-internal",
+                      G_CALLBACK (on_monitors_changed),
+                      virtual_src);
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
@@ -894,10 +890,17 @@ meta_screen_cast_virtual_stream_src_dispose (GObject *object)
 {
   MetaScreenCastVirtualStreamSrc *virtual_src =
     META_SCREEN_CAST_VIRTUAL_STREAM_SRC (object);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (virtual_src);
+  MetaBackend *backend = backend_from_src (src);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   GObjectClass *parent_class =
     G_OBJECT_CLASS (meta_screen_cast_virtual_stream_src_parent_class);
 
   update_frame_clock_driver (virtual_src, NULL);
+
+  g_clear_signal_handler (&virtual_src->monitors_changed_handler_id,
+                          monitor_manager);
 
   parent_class->dispose (object);
 
