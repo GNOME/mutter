@@ -1413,14 +1413,33 @@ gboolean
 cogl_can_blit_between_formats (CoglPixelFormat src_format,
                                CoglPixelFormat dst_format)
 {
+  gboolean dst_has_alpha, src_is_premult, dst_is_premult;
 
-  /* The buffers must use the same premult convention */
-  if (((src_format & COGL_PREMULT_BIT) !=
-       (dst_format & COGL_PREMULT_BIT)) &&
-      dst_format & COGL_A_BIT)
-    return FALSE;
-  else
+  /* If the source format has no alpha, the resulting alpha is always 1.0, in
+   * which case the RGB values are the same regardless of premultiplication.
+   */
+  if (!(src_format & COGL_A_BIT))
     return TRUE;
+
+  src_is_premult = !!(src_format & COGL_PREMULT_BIT);
+  dst_has_alpha = !!(dst_format & COGL_A_BIT);
+
+  /* If the destination format has no alpha, the information from a
+   * non-premultiplied source alpha channel would be lost.
+   */
+  if (!dst_has_alpha &&
+      !src_is_premult)
+    return FALSE;
+
+  dst_is_premult = dst_has_alpha &&
+                   !!(dst_format & COGL_PREMULT_BIT);
+
+  /* If both formats have alpha, their premultiplication status must match */
+  if (dst_has_alpha &&
+      src_is_premult != dst_is_premult)
+    return FALSE;
+
+  return TRUE;
 }
 
 gboolean
