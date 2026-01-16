@@ -156,9 +156,9 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
   /* We can only blit between FBOs if both textures have the same
      premult convention and the blit framebuffer extension is
      supported. */
-  if ((cogl_texture_get_format (data->src_tex) & COGL_PREMULT_BIT) !=
-      (cogl_texture_get_format (data->dst_tex) & COGL_PREMULT_BIT) ||
-      !cogl_context_has_feature (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
+  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_BLIT_FRAMEBUFFER) ||
+      !cogl_can_blit_between_formats (cogl_texture_get_format (data->src_tex),
+                                      cogl_texture_get_format (data->dst_tex)))
     return FALSE;
 
   dst_offscreen = _cogl_offscreen_new_with_texture_full
