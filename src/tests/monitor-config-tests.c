@@ -17,6 +17,8 @@
 
 #include "config.h"
 
+#include "backends/meta-monitor-config-manager.h"
+#include "backends/meta-monitor-config-utils.h"
 #include "tests/meta-backend-test.h"
 #include "tests/monitor-tests-common.h"
 
@@ -3712,6 +3714,18 @@ meta_test_monitor_remember_scale_hotplug (void)
 
   meta_monitor_manager_switch_config (monitor_manager,
                                       META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  /* Also trigger a hotplug, to make sure unrelated changes still keep the
+   * scale intact.
+   */
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));

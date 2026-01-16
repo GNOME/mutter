@@ -857,6 +857,10 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
   MetaMonitorsConfigMethod method;
   MetaMonitorsConfigMethod fallback_method =
     META_MONITORS_CONFIG_METHOD_TEMPORARY;
+  MetaMonitorsConfig *current_config;
+  MetaMonitorsConfig *previous_config;
+  g_autoptr (GList) existing_configs = NULL;
+  GList *l;
 
   use_stored_config = should_use_stored_config (manager);
   if (use_stored_config)
@@ -906,34 +910,58 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
         }
     }
 
-  if (manager->panel_orientation_managed)
-    {
-      MetaMonitorsConfig *current_config =
-        meta_monitor_config_manager_get_current (manager->config_manager);
+  current_config =
+    meta_monitor_config_manager_get_current (manager->config_manager);
+  previous_config =
+    meta_monitor_config_manager_get_previous (manager->config_manager);
 
-      if (current_config)
+  if (current_config)
+    existing_configs = g_list_append (existing_configs, current_config);
+  if (previous_config)
+    existing_configs = g_list_append (existing_configs, previous_config);
+
+  for (l = existing_configs; l; l = l->next)
+    {
+      MetaMonitorsConfig *existing_config = l->data;
+      g_autoptr (MetaMonitorsConfig) potential_config = NULL;
+
+      g_set_object (&potential_config, existing_config);
+
+      if (manager->panel_orientation_managed)
         {
-          config = meta_monitor_config_manager_create_for_builtin_orientation (
-            manager->config_manager, current_config);
+          g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
+
+          oriented_config =
+            meta_monitor_config_manager_create_for_builtin_orientation (
+              manager->config_manager, potential_config);
+
+          if (oriented_config)
+            g_set_object (&potential_config, oriented_config);
         }
-    }
 
-  if (config)
-    {
-      if (meta_monitor_manager_is_config_complete (manager, config))
+      if (meta_monitor_manager_is_config_complete (manager, potential_config))
         {
+          if (is_monitors_config_amend_needed (manager, potential_config))
+            {
+              g_autoptr (MetaMonitorsConfig) amended_config = NULL;
+
+              amended_config = meta_monitors_config_copy (potential_config);
+              amend_monitors_config (manager, amended_config, potential_config);
+              g_set_object (&potential_config, amended_config);
+            }
+
           if (!meta_monitor_manager_apply_monitors_config (manager,
-                                                           config,
+                                                           potential_config,
                                                            method,
                                                            &error))
             {
-              g_clear_object (&config);
-              g_warning ("Failed to use current monitor configuration: %s",
+              g_warning ("Failed to use existing monitor configuration: %s",
                          error->message);
               g_clear_error (&error);
             }
           else
             {
+              g_set_object (&config, potential_config);
               goto done;
             }
         }
@@ -955,53 +983,6 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       else
         {
           goto done;
-        }
-    }
-
-  config = meta_monitor_config_manager_get_previous (manager->config_manager);
-  if (config)
-    {
-      g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
-      g_autoptr (MetaMonitorsConfig) amended_config = NULL;
-
-      if (manager->panel_orientation_managed)
-        {
-          oriented_config =
-            meta_monitor_config_manager_create_for_builtin_orientation (
-              manager->config_manager, config);
-
-          if (oriented_config)
-            config = oriented_config;
-        }
-
-      if (meta_monitor_manager_is_config_complete (manager, config))
-        {
-          if (is_monitors_config_amend_needed (manager, config))
-            {
-              amended_config = meta_monitors_config_copy (config);
-              amend_monitors_config (manager, amended_config, config);
-              config = amended_config;
-            }
-
-          if (!meta_monitor_manager_apply_monitors_config (manager,
-                                                           config,
-                                                           method,
-                                                           &error))
-            {
-              config = NULL;
-              g_warning ("Failed to use suggested monitor configuration: %s",
-                         error->message);
-              g_clear_error (&error);
-            }
-          else
-            {
-              config = g_object_ref (config);
-              goto done;
-            }
-        }
-      else
-        {
-          config = NULL;
         }
     }
 
