@@ -1422,6 +1422,7 @@ main(int    argc,
   g_autoptr (GDataInputStream) in = NULL;
   GHashTableIter iter;
   gpointer key, value;
+  GdkDisplay *display;
 
   g_log_writer_default_set_use_stderr (TRUE);
 
@@ -1499,7 +1500,9 @@ main(int    argc,
   while (g_hash_table_iter_next (&iter, &key, &value))
     gtk_widget_destroy (value);
 
-  gdk_display_close (gdk_display_get_default ());
+  display = gdk_display_get_default ();
+  gdk_display_sync (display);
+  gdk_display_close (display);
 
   return 0;
 }
