@@ -939,6 +939,8 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
             }
           else
             {
+              meta_topic (META_DEBUG_BACKEND,
+                          "Applied stored monitor configuration");
               g_object_ref (config);
               goto done;
             }
@@ -996,6 +998,9 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
             }
           else
             {
+              meta_topic (META_DEBUG_BACKEND,
+                          "Applied %s based monitor configuration",
+                          existing_config == current_config ? "current" : "previous");
               g_set_object (&config, potential_config);
               goto done;
             }
@@ -1017,6 +1022,8 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
         }
       else
         {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Applied suggested monitor configuration");
           goto done;
         }
     }
@@ -1036,6 +1043,8 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
         }
       else
         {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Applied linear monitor configuration");
           goto done;
         }
     }
@@ -1055,6 +1064,8 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
         }
       else
         {
+          meta_topic (META_DEBUG_BACKEND,
+                      "Applied fallback monitor configuration");
           goto done;
         }
     }
