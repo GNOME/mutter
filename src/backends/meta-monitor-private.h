@@ -330,4 +330,12 @@ gboolean meta_monitor_is_for_lease (MetaMonitor *monitor);
 
 gboolean meta_monitor_update_outputs (MetaMonitor *monitor);
 
+void meta_monitor_set_default_scale (MetaMonitor     *monitor,
+                                     MetaMonitorMode *monitor_mode,
+                                     float            scale);
+
+gboolean meta_monitor_get_default_scale (MetaMonitor     *monitor,
+                                         MetaMonitorMode *monitor_mode,
+                                         float           *out_scale);
+
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaMonitorSpec, meta_monitor_spec_free)

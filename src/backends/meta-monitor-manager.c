@@ -585,36 +585,11 @@ meta_monitor_manager_is_headless (MetaMonitorManager *manager)
 }
 
 static gboolean
-get_preferred_scale_for_crtc_mode (MetaMonitor         *monitor,
-                                   MetaMonitorMode     *mode,
-                                   MetaMonitorCrtcMode *monitor_crtc_mode,
-                                   gpointer             user_data,
-                                   GError             **error)
+get_default_scale_for_monitor (MetaMonitor     *monitor,
+                               MetaMonitorMode *monitor_mode,
+                               float           *out_scale)
 {
-  const MetaCrtcModeInfo *mode_info =
-    meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
-
-  if (mode_info->has_preferred_scale)
-    {
-      float *preferred_scale = user_data;
-
-      *preferred_scale = mode_info->preferred_scale;
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static gboolean
-get_preferred_scale_for_monitor (MetaMonitor     *monitor,
-                                 MetaMonitorMode *monitor_mode,
-                                 float           *out_scale)
-{
-  return !meta_monitor_mode_foreach_crtc (monitor,
-                                          monitor_mode,
-                                          get_preferred_scale_for_crtc_mode,
-                                          out_scale,
-                                          NULL);
+  return meta_monitor_get_default_scale (monitor, monitor_mode, out_scale);
 }
 
 float
@@ -627,7 +602,7 @@ meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager           
     META_MONITOR_MANAGER_GET_CLASS (manager);
   float scale;
 
-  if (get_preferred_scale_for_monitor (monitor, monitor_mode, &scale))
+  if (get_default_scale_for_monitor (monitor, monitor_mode, &scale))
     return scale;
 
   return manager_class->calculate_monitor_mode_scale (manager,
@@ -755,6 +730,23 @@ meta_monitor_manager_ensure_initial_config (MetaMonitorManager *manager)
   META_MONITOR_MANAGER_GET_CLASS (manager)->ensure_initial_config (manager);
 }
 
+static void
+update_current_monitor_mode_scale (MetaMonitor *monitor)
+{
+  MetaMonitorMode *monitor_mode;
+  MetaLogicalMonitor *logical_monitor;
+  float scale;
+
+  monitor_mode = meta_monitor_get_current_mode (monitor);
+  if (!monitor_mode)
+    return;
+
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  scale = meta_logical_monitor_get_scale (logical_monitor);
+
+  meta_monitor_set_default_scale (monitor, monitor_mode, scale);
+}
+
 gboolean
 meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
                                             MetaMonitorsConfig      *config,
@@ -770,6 +762,12 @@ meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
   g_list_foreach (manager->monitors,
                   (GFunc) meta_monitor_update_current_mode,
                   NULL);
+  if (!manager->in_init)
+    {
+      g_list_foreach (manager->monitors,
+                      (GFunc) update_current_monitor_mode_scale,
+                      NULL);
+    }
 
   switch (method)
     {
