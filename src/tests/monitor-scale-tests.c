@@ -813,11 +813,11 @@ meta_test_monitor_calculate_mode_scale (void)
 static void
 init_scale_tests (void)
 {
-  meta_add_monitor_test ("/backends/monitor/suppported_scales/integer",
+  meta_add_monitor_test ("/backends/monitor/suppported-scales/integer",
                          meta_test_monitor_supported_integer_scales);
-  meta_add_monitor_test ("/backends/monitor/suppported_scales/fractional",
+  meta_add_monitor_test ("/backends/monitor/suppported-scales/fractional",
                          meta_test_monitor_supported_fractional_scales);
-  meta_add_monitor_test ("/backends/monitor/default_scale",
+  meta_add_monitor_test ("/backends/monitor/default-scale",
                          meta_test_monitor_calculate_mode_scale);
 }
 
