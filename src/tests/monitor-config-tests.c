@@ -3514,6 +3514,251 @@ meta_test_monitor_switch_config_remember_scale (void)
   meta_check_monitor_test_clients_state ();
 }
 
+static MetaMonitorsConfig *
+create_config_with_scale (MetaMonitorManager *monitor_manager,
+                          float               scale)
+{
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaMonitorsConfig *current_config;
+  MetaMonitorsConfig *new_config;
+  MetaLogicalMonitorConfig *logical_monitor_config;
+
+  current_config = meta_monitor_config_manager_get_current (config_manager);
+  new_config = meta_monitors_config_copy (current_config);
+
+  g_assert_cmpuint (g_list_length (new_config->logical_monitor_configs),
+                    ==,
+                    1);
+  logical_monitor_config = new_config->logical_monitor_configs->data;
+  logical_monitor_config->layout.width =
+    (int) roundf ((logical_monitor_config->layout.width *
+                   logical_monitor_config->scale) /
+                  scale);
+  logical_monitor_config->layout.height =
+    (int) round ((logical_monitor_config->layout.height *
+                  logical_monitor_config->scale) /
+                 scale);
+  logical_monitor_config->scale = scale;
+
+  return new_config;
+}
+
+static void
+meta_test_monitor_remember_scale_hotplug (void)
+{
+  MonitorTestCaseOutput output1 = {
+    .width_mm = 290,
+    .height_mm = 180,
+    .modes = { 0 },
+    .n_modes = 1,
+    .preferred_mode = 0,
+    .possible_crtcs = { 0 },
+    .n_possible_crtcs = 1,
+    .serial = "remember-scale-1",
+    .dynamic_scale = TRUE,
+  };
+  MonitorTestCaseMonitor monitor1 = {
+    .outputs = { 0, },
+    .n_outputs = 1,
+    .modes = {
+      {
+        .width = 3840,
+        .height = 2400,
+        .refresh_rate = 60.0,
+        .crtc_modes = {
+          {
+            .output = 0,
+            .crtc_mode = 0
+          },
+        }
+      },
+    },
+    .n_modes = 1,
+    .current_mode = 0,
+    .width_mm = 290,
+    .height_mm = 180,
+  };
+  MonitorTestCaseOutput output2 = {
+    .width_mm = 310,
+    .height_mm = 200,
+    .modes = { 1 },
+    .n_modes = 1,
+    .preferred_mode = 1,
+    .possible_crtcs = { 0 },
+    .n_possible_crtcs = 1,
+    .serial = "remember-scale-2",
+    .dynamic_scale = TRUE,
+  };
+  MonitorTestCaseMonitor monitor2 = {
+    .outputs = { 0, },
+    .n_outputs = 1,
+    .modes = {
+      {
+        .width = 1920,
+        .height = 1080,
+        .refresh_rate = 60.0,
+        .crtc_modes = {
+          {
+            .output = 0,
+            .crtc_mode = 1
+          },
+        }
+      },
+    },
+    .n_modes = 1,
+    .current_mode = 0,
+    .width_mm = 310,
+    .height_mm = 200,
+  };
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 3840,
+          .height = 2400,
+          .refresh_rate = 60.0,
+        },
+        {
+          .width = 1920,
+          .height = 1080,
+          .refresh_rate = 60.0,
+        },
+      },
+      .n_modes = 2,
+      .outputs = {
+        output1,
+      },
+      .n_outputs = 1,
+      .n_crtcs = 1,
+    },
+
+    .expect = {
+      .monitors = {
+        monitor1,
+      },
+      .n_monitors = 1,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1536, .height = 960 },
+          .scale = 2.5f,
+        },
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        },
+      },
+      .n_crtcs = 1,
+      .screen_width = 1536,
+      .screen_height = 960,
+    }
+  };
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager =
+    meta_monitor_manager_get_config_manager (monitor_manager);
+  MetaMonitorTestSetup *test_setup;
+  MetaMonitorsConfig *new_config;
+  gboolean ret;
+  GError *error = NULL;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  /* Change the scale to 2.0. */
+
+  test_case.expect.logical_monitors[0].scale = 2.0f;
+  test_case.expect.logical_monitors[0].layout =
+    (MtkRectangle) { .x = 0, .y = 0, .width = 1920, .height = 1200 };
+  test_case.expect.screen_width = 1920;
+  test_case.expect.screen_height = 1200;
+
+  new_config = create_config_with_scale (monitor_manager, 2.0f);
+  ret = meta_monitor_manager_apply_monitors_config (monitor_manager,
+                                                    new_config,
+                                                    META_MONITORS_CONFIG_METHOD_TEMPORARY,
+                                                    &error);
+  g_assert_no_error (error);
+  g_assert_true (ret);
+
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  /* Trigger unrelated monitor configurations, and verify the scale remains
+   * 2.0.
+   */
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_ALL_MIRROR);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  meta_monitor_manager_switch_config (monitor_manager,
+                                      META_MONITOR_SWITCH_CONFIG_ALL_LINEAR);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  /* Plug in another monitor and reconfigure, to make sure the previous config
+   * isn't later restored. */
+
+  test_case.setup.outputs[0] = output2;
+  test_case.expect.monitors[0] = monitor2;
+  test_case.expect.crtcs[0].current_mode = 1;
+  test_case.expect.logical_monitors[0].scale = 1.0f;
+  test_case.expect.logical_monitors[0].layout =
+    (MtkRectangle){ .x = 0, .y = 0, .width = 1920, .height = 1080 };
+  test_case.expect.screen_width = 1920;
+  test_case.expect.screen_height = 1080;
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  /* Clear history to pretend time passed since we last plugged in monitor1. */
+  meta_monitor_config_manager_clear_history (config_manager);
+
+  test_case.setup.outputs[0] = output1;
+  test_case.expect.monitors[0] = monitor1;
+  test_case.expect.logical_monitors[0].scale = 2.5f;
+  test_case.expect.logical_monitors[0].layout =
+    (MtkRectangle) { .x = 0, .y = 0, .width = 1536, .height = 960 };
+  test_case.expect.n_logical_monitors = 1;
+  test_case.expect.crtcs[0].current_mode = 0;
+  test_case.expect.screen_width = 1536;
+  test_case.expect.screen_height = 960;
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+}
+
 static void
 init_config_tests (void)
 {
@@ -3571,6 +3816,8 @@ init_config_tests (void)
                          meta_test_monitor_switch_external_without_external);
   meta_add_monitor_test ("/backends/monitor/switch-config-remember-scale",
                          meta_test_monitor_switch_config_remember_scale);
+  meta_add_monitor_test ("/backends/monitor/remember-scale-hotplug",
+                         meta_test_monitor_remember_scale_hotplug);
 }
 
 int
