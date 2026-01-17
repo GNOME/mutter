@@ -760,6 +760,62 @@ maybe_update_deadline_evasion (MetaKmsCrtc *crtc,
   crtc->deadline_evasion_update_time_us = next_presentation_time_us;
 }
 
+typedef struct
+{
+  MetaKmsCrtc *crtc;
+  int32_t min_refresh_rate;
+} SetMinRefreshRateData;
+
+static gpointer
+meta_kms_crtc_set_min_refresh_rate_in_impl (MetaThreadImpl  *thread_impl,
+                                            gpointer         user_data,
+                                            GError         **error)
+{
+  SetMinRefreshRateData *data = user_data;
+
+  if (data->min_refresh_rate)
+    {
+      data->crtc->current_state.vrr.max_refresh_interval_us =
+        G_USEC_PER_SEC / data->min_refresh_rate;
+    }
+  else
+    {
+      data->crtc->current_state.vrr.max_refresh_interval_us = 0;
+    }
+
+  return GINT_TO_POINTER (TRUE);
+}
+
+void
+meta_kms_crtc_set_min_refresh_rate (MetaKmsCrtc *crtc,
+                                    int32_t      min_refresh_rate)
+{
+  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
+  MetaKms *kms = META_KMS (meta_kms_device_get_kms (device));
+  SetMinRefreshRateData *data;
+
+  data = g_new0 (SetMinRefreshRateData, 1);
+  *data = (SetMinRefreshRateData) {
+    .crtc = crtc,
+    .min_refresh_rate = min_refresh_rate,
+  };
+
+  meta_thread_post_impl_task (META_THREAD (kms),
+                              meta_kms_crtc_set_min_refresh_rate_in_impl,
+                              data, g_free,
+                              NULL, NULL);
+}
+
+static int64_t
+get_max_refresh_interval (MetaKmsCrtc *crtc)
+{
+  if (crtc->current_state.vrr.max_refresh_interval_us == 0)
+    return MAXIMUM_REFRESH_INTERVAL_US;
+
+  return MIN (crtc->current_state.vrr.max_refresh_interval_us,
+              MAXIMUM_REFRESH_INTERVAL_US);
+}
+
 gboolean
 meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                                   gboolean      have_kms_update,
@@ -831,10 +887,13 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   if (vrr_enabled)
     {
       struct _VRR *vrr = &crtc->vrr;
+      int32_t max_refresh_interval_us;
+
+      max_refresh_interval_us = get_max_refresh_interval (crtc);
 
       if (!have_kms_update &&
           next_presentation_us - vrr->last_presentation_us <
-          vrr->min_present_interval_us + MAXIMUM_REFRESH_INTERVAL_US)
+          vrr->min_present_interval_us + max_refresh_interval_us)
         {
           int64_t min_interval_us;
 
@@ -843,8 +902,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 
           if (min_interval_us < 2 * refresh_interval_us)
             {
-              next_presentation_us =
-                vblank_time_us + MAXIMUM_REFRESH_INTERVAL_US;
+              next_presentation_us = vblank_time_us + max_refresh_interval_us;
               next_deadline_us = next_presentation_us - deadline_evasion_us;
             }
           else
@@ -864,8 +922,8 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
               if (next_deadline_us >= vblank_time_us - deadline_evasion_us +
                   available_refreshes * refresh_interval_us)
                 {
-                  next_presentation_us = vblank_time_us +
-                    MAXIMUM_REFRESH_INTERVAL_US;
+                  next_presentation_us =
+                    vblank_time_us + max_refresh_interval_us;
                   next_deadline_us = next_presentation_us - deadline_evasion_us;
                 }
               else

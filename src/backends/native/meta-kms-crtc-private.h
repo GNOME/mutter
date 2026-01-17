@@ -57,6 +57,9 @@ uint64_t meta_kms_crtc_get_prop_drm_value (MetaKmsCrtc     *crtc,
                                            MetaKmsCrtcProp  prop,
                                            uint64_t         value);
 
+void meta_kms_crtc_set_min_refresh_rate (MetaKmsCrtc *crtc,
+                                         int32_t      min_refresh_rate);
+
 gboolean meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                                            gboolean      have_kms_update,
                                            int64_t       target_presentation_time_us,

@@ -37,6 +37,7 @@ typedef struct _MetaKmsCrtcState
   struct {
     gboolean enabled;
     gboolean supported;
+    int32_t max_refresh_interval_us;
   } vrr;
 
   struct {
