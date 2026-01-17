@@ -37,6 +37,7 @@
 #include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update.h"
@@ -616,6 +617,21 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
                   };
                 }
               meta_output_assign_crtc (output, crtc, &output_assignment);
+
+              if (connector_state->edid_data)
+                {
+                  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+                  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+                  int32_t min_refresh_rate;
+
+                  if (!meta_output_info_get_min_refresh_rate (output_info,
+                                                              &min_refresh_rate))
+                    min_refresh_rate = 0;
+
+                  meta_kms_crtc_set_min_refresh_rate (kms_crtc,
+                                                      min_refresh_rate);
+                }
+
               break;
             }
         }
