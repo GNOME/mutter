@@ -952,6 +952,7 @@ meta_window_x11_focus (MetaWindow *window,
   MetaWindowX11Private *priv =
     meta_window_x11_get_instance_private (window_x11);
   gboolean is_output_only_with_frame;
+  MetaWindow *previous_focus_window = window->display->focus_window;
 
   is_output_only_with_frame =
     priv->frame && !meta_window_is_focusable (window);
@@ -977,10 +978,6 @@ meta_window_x11_focus (MetaWindow *window,
 
   if (priv->wm_take_focus)
     {
-      meta_topic (META_DEBUG_FOCUS,
-                  "Sending WM_TAKE_FOCUS to %s since take_focus = true",
-                  window->desc);
-
       if (!window->input)
         {
           /* The "Globally Active Input" window case, where the window
@@ -1003,7 +1000,13 @@ meta_window_x11_focus (MetaWindow *window,
             }
         }
 
-      request_take_focus (window, timestamp);
+      if (previous_focus_window != window)
+        {
+          meta_topic (META_DEBUG_FOCUS,
+                      "Sending WM_TAKE_FOCUS to %s since take_focus = true",
+                      window->desc);
+          request_take_focus (window, timestamp);
+        }
     }
 }
 
