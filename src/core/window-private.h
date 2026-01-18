@@ -812,6 +812,10 @@ void meta_window_move_resize_internal (MetaWindow          *window,
                                        MtkRectangle         frame_rect,
                                        MtkRectangle        *result_rect);
 
+void meta_window_move_to_monitor_internal (MetaWindow          *window,
+                                           MetaMoveResizeFlags  flags,
+                                           int                  monitor);
+
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);
 void meta_window_grab_op_ended (MetaWindow *window, MetaGrabOp op);
 

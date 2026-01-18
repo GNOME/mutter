@@ -1482,15 +1482,18 @@ update_move (MetaWindowDrag          *window_drag,
 
                   if (meta_window_is_maximized (window))
                     {
-
-                      meta_window_move_to_monitor (window, monitor);
+                      meta_window_move_to_monitor_internal (window,
+                                                            META_MOVE_RESIZE_USER_ACTION,
+                                                            monitor);
                     }
                   else
                     {
                       meta_window_maximize_internal (window,
                                                      META_MAXIMIZE_BOTH,
                                                      &window->saved_rect);
-                      meta_window_move_to_monitor (window, monitor);
+                      meta_window_move_to_monitor_internal (window,
+                                                            META_MOVE_RESIZE_USER_ACTION,
+                                                            monitor);
                     }
 
                   window_drag->target_monitor_number = monitor;

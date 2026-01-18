@@ -2370,7 +2370,9 @@ handle_move_to_monitor (MetaDisplay           *display,
   if (new == NULL)
     return;
 
-  meta_window_move_to_monitor (window, new->number);
+  meta_window_move_to_monitor_internal (window,
+                                        META_MOVE_RESIZE_USER_ACTION,
+                                        new->number);
 }
 
 static void

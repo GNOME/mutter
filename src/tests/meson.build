@@ -1211,6 +1211,7 @@ stacking_tests = [
   'partially-maximized',
   'move-to-monitor',
   'keyboard-resize',
+  'move-to-smaller-monitor',
 ]
 
 foreach stacking_test: stacking_tests

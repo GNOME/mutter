@@ -4550,17 +4550,10 @@ meta_window_move_resize_frame (MetaWindow  *window,
   meta_window_move_resize (window, flags, rect);
 }
 
-/**
- * meta_window_move_to_monitor:
- * @window: a #MetaWindow
- * @monitor: desired monitor index
- *
- * Moves the window to the monitor with index @monitor, keeping
- * the relative position of the window's top left corner.
- */
 void
-meta_window_move_to_monitor (MetaWindow  *window,
-                             int          monitor)
+meta_window_move_to_monitor_internal (MetaWindow          *window,
+                                      MetaMoveResizeFlags  flags,
+                                      int                  monitor)
 {
   MtkRectangle old_area, new_area;
 
@@ -4576,7 +4569,7 @@ meta_window_move_to_monitor (MetaWindow  *window,
 
   if (meta_window_is_hidden (window))
     {
-      meta_window_move_between_rects (window, 0, NULL, &new_area);
+      meta_window_move_between_rects (window, flags, NULL, &new_area);
     }
   else
     {
@@ -4592,7 +4585,7 @@ meta_window_move_to_monitor (MetaWindow  *window,
                                           META_SIZE_CHANGE_MONITOR_MOVE,
                                           &old_frame_rect, &old_buffer_rect);
 
-      meta_window_move_between_rects (window, 0, &old_area, &new_area);
+      meta_window_move_between_rects (window, flags, &old_area, &new_area);
     }
 
   g_clear_pointer (&window->preferred_logical_monitor,
@@ -4602,6 +4595,21 @@ meta_window_move_to_monitor (MetaWindow  *window,
 
   if (meta_window_is_fullscreen (window) || window->override_redirect)
     meta_display_queue_check_fullscreen (window->display);
+}
+
+/**
+ * meta_window_move_to_monitor:
+ * @window: a #MetaWindow
+ * @monitor: desired monitor index
+ *
+ * Moves the window to the monitor with index @monitor, keeping
+ * the relative position of the window's top left corner.
+ */
+void
+meta_window_move_to_monitor (MetaWindow  *window,
+                             int          monitor)
+{
+  meta_window_move_to_monitor_internal (window, 0, monitor);
 }
 
 void

@@ -1,0 +1,23 @@
+resize_monitor default 800 600
+add_monitor secondary 800 600
+set_strut 0 0 800 50 top default
+
+new_client w wayland
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+
+move w/1 820 10
+resize w/1 200 580
+
+# Press keybinding for move-to-monitor-left
+key_press KEY_LEFTMETA
+key_press KEY_LEFTSHIFT
+key_press KEY_LEFT
+key_release KEY_LEFT
+key_release KEY_LEFTSHIFT
+key_release KEY_LEFTMETA
+
+wait_reconfigure w/1
+assert_position w/1 20 35
