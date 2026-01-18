@@ -1474,19 +1474,27 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
                                  gpointer      user_data)
 {
   CrtcFrame *crtc_frame = user_data;
+  struct timeval page_flip_timeval;
+  int64_t presentation_time_us;
+
+  page_flip_timeval = (struct timeval) {
+    .tv_sec = tv_sec,
+    .tv_usec = tv_usec,
+  };
+  presentation_time_us = meta_timeval_to_microseconds (&page_flip_timeval);
+
+  if (crtc_frame->kms_ready_time_us &&
+      !crtc_frame->pending_update &&
+      meta_kms_crtc_get_current_state (crtc)->vrr.enabled)
+    {
+      meta_kms_crtc_set_vrr_presentation_time (crtc, presentation_time_us);
+      crtc_frame->kms_ready_time_us = 0;
+    }
 
   if (crtc_frame->deadline.is_deadline_page_flip &&
       meta_is_topic_enabled (META_DEBUG_KMS_DEADLINE))
     {
-      struct timeval page_flip_timeval;
-      int64_t presentation_time_us;
       int64_t delta = 0;
-
-      page_flip_timeval = (struct timeval) {
-        .tv_sec = tv_sec,
-        .tv_usec = tv_usec,
-      };
-      presentation_time_us = meta_timeval_to_microseconds (&page_flip_timeval);
 
       if (crtc_frame->deadline.has_expected_presentation_time)
         {

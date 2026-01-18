@@ -55,7 +55,14 @@ struct _MetaKmsCrtc
   int64_t shortterm_max_dispatch_duration_us;
   int64_t deadline_evasion_us;
   int64_t deadline_evasion_update_time_us;
-  int64_t vrr_update_time_us;
+
+  struct _VRR {
+    int64_t interval_us[4];
+    int idx;
+    int64_t last_presentation_us;
+    int64_t last_update_time_us;
+    int64_t min_present_interval_us;
+  } vrr;
 };
 
 G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
@@ -805,7 +812,7 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 
   if (vrr_enabled &&
       !have_kms_update &&
-      now_us - crtc->vrr_update_time_us < MAXIMUM_REFRESH_INTERVAL_US)
+      now_us - crtc->vrr.last_update_time_us < MAXIMUM_REFRESH_INTERVAL_US)
     {
       refresh_interval_us = MAXIMUM_REFRESH_INTERVAL_US;
     }
@@ -895,10 +902,48 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 }
 
 void
+meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
+                                         int64_t      presentation_us)
+{
+  struct _VRR *vrr = &crtc->vrr;
+  int64_t interval_us;
+  int idx = vrr->idx;
+
+  if (presentation_us <= 0)
+    return;
+
+  interval_us = presentation_us - vrr->last_presentation_us;
+  if (interval_us <= 0)
+    return;
+
+  vrr->idx = (idx + 1) & 3;
+  vrr->interval_us[idx] = interval_us;
+
+  /* Wait for at least 4 samples */
+  if (vrr->interval_us[3])
+    {
+      vrr->min_present_interval_us =
+        MIN ( MIN (vrr->interval_us[0], vrr->interval_us[1]),
+              MIN (vrr->interval_us[2], vrr->interval_us[3]));
+
+      meta_topic (META_DEBUG_KMS_DEADLINE,
+                  "VRR present intervals { %ld, %ld, %ld, %ld }"
+                  " → minimum = %ld µs",
+                  vrr->interval_us[(idx + 1) & 3],
+                  vrr->interval_us[(idx + 2) & 3],
+                  vrr->interval_us[(idx + 3) & 3],
+                  interval_us,
+                  vrr->min_present_interval_us);
+    }
+
+  vrr->last_presentation_us = MAX (vrr->last_presentation_us, presentation_us);
+}
+
+void
 meta_kms_crtc_set_vrr_update_time (MetaKmsCrtc *crtc,
                                    int64_t      vrr_update_time_us)
 {
-  crtc->vrr_update_time_us = vrr_update_time_us;
+  crtc->vrr.last_update_time_us = vrr_update_time_us;
 }
 
 void

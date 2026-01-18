@@ -79,6 +79,9 @@ gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
 
 gboolean meta_kms_crtc_is_leased (MetaKmsCrtc *crtc);
 
+void meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
+                                              int64_t      presentation_us);
+
 void meta_kms_crtc_set_vrr_update_time (MetaKmsCrtc *crtc,
                                         int64_t      vrr_update_time_us);
 
