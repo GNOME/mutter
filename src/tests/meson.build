@@ -1202,6 +1202,7 @@ stacking_tests = [
   'move-to-monitor-minimized',
   'fullscreen-after-tiled',
   'shake-loose-and-insta-maximize',
+  'move-maximized-to-monitor',
 ]
 
 foreach stacking_test: stacking_tests

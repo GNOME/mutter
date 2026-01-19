@@ -267,12 +267,20 @@ surface_state_changed (MetaWindow *window)
     last_acked_configuration->serial == last_sent_configuration->serial;
 
   if (is_configuration_up_to_date &&
-      last_sent_configuration->config &&
-      meta_window_config_is_floating (last_sent_configuration->config))
+      last_sent_configuration->config)
     {
-      configuration->has_position = FALSE;
-      configuration->x = 0;
-      configuration->y = 0;
+      if (meta_window_config_is_floating (last_sent_configuration->config))
+        {
+          configuration->has_position = FALSE;
+          configuration->x = 0;
+          configuration->y = 0;
+        }
+      else if (configuration->has_position)
+        {
+          meta_window_config_get_position (window->config,
+                                           &configuration->x,
+                                           &configuration->y);
+        }
     }
 
   window_drag =
