@@ -774,8 +774,8 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   drmVBlank vblank;
   int ret;
   drmModeModeInfo *drm_mode;
-  int64_t vblank_duration_us;
-  int64_t refresh_interval_us;
+  int64_t vblank_duration_us, deadline_evasion_us;
+  int64_t vblank_time_us, refresh_interval_us;
   int64_t next_presentation_us;
   int64_t next_deadline_us;
   gboolean vrr_enabled;
@@ -807,41 +807,80 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
 
   drm_mode = &crtc->current_state.drm_mode;
   vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
+  deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc) +
+                        vblank_duration_us;
   vrr_enabled = crtc->current_state.vrr.enabled;
   now_us = g_get_monotonic_time ();
 
-  if (vrr_enabled &&
-      !have_kms_update &&
-      now_us - crtc->vrr.last_update_time_us < MAXIMUM_REFRESH_INTERVAL_US)
-    {
-      refresh_interval_us = MAXIMUM_REFRESH_INTERVAL_US;
-    }
-  else
-    {
-      refresh_interval_us =
-        (int64_t) (0.5 + G_USEC_PER_SEC /
-                   meta_calculate_drm_mode_refresh_rate (&crtc->current_state.drm_mode));
-
-      /*
-       *                         1
-       * time per pixel = -----------------
-       *                   Pixel clock (Hz)
-       *
-       * number of pixels = vdisplay * htotal
-       *
-       * time spent scanning out = time per pixel * number of pixels
-       *
-       */
-    }
-
-  next_presentation_us =
-    s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec + refresh_interval_us;
-  next_deadline_us =
-    next_presentation_us -
-    (vblank_duration_us + meta_kms_crtc_get_deadline_evasion (crtc));
+  /*
+   *                         1
+   * time per pixel = -----------------
+   *                   Pixel clock (Hz)
+   *
+   * number of pixels = vdisplay * htotal
+   *
+   * time spent scanning out = time per pixel * number of pixels
+   *
+   */
+  refresh_interval_us =
+    (int64_t) (0.5 + G_USEC_PER_SEC /
+               meta_calculate_drm_mode_refresh_rate (drm_mode));
+  vblank_time_us = s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec;
+  next_presentation_us = vblank_time_us + refresh_interval_us;
+  next_deadline_us = next_presentation_us - deadline_evasion_us;
 
   if (vrr_enabled)
     {
+      struct _VRR *vrr = &crtc->vrr;
+
+      if (!have_kms_update &&
+          next_presentation_us - vrr->last_presentation_us <
+          vrr->min_present_interval_us + MAXIMUM_REFRESH_INTERVAL_US)
+        {
+          int64_t min_interval_us;
+
+          min_interval_us = vrr->last_presentation_us +
+                            vrr->min_present_interval_us - vblank_time_us;
+
+          if (min_interval_us < 2 * refresh_interval_us)
+            {
+              next_presentation_us =
+                vblank_time_us + MAXIMUM_REFRESH_INTERVAL_US;
+              next_deadline_us = next_presentation_us - deadline_evasion_us;
+            }
+          else
+            {
+              int64_t available_refreshes;
+
+              /* Attempt a cursor-only update without delaying the next expected
+               * VRR actor update
+               */
+              available_refreshes = min_interval_us / refresh_interval_us;
+              refresh_interval_us = min_interval_us / available_refreshes;
+              next_deadline_us =
+                mtk_extrapolate_next_interval_boundary (vblank_time_us -
+                                                        deadline_evasion_us,
+                                                        now_us,
+                                                        refresh_interval_us);
+              if (next_deadline_us >= vblank_time_us - deadline_evasion_us +
+                  available_refreshes * refresh_interval_us)
+                {
+                  next_presentation_us = vblank_time_us +
+                    MAXIMUM_REFRESH_INTERVAL_US;
+                  next_deadline_us = next_presentation_us - deadline_evasion_us;
+                }
+              else
+                {
+                  next_presentation_us = next_deadline_us + deadline_evasion_us;
+                  meta_topic (META_DEBUG_KMS_DEADLINE,
+                              "Attempting cursor-only update at %ld µs, "
+                              "VRR update expected not before %ld µs",
+                              next_presentation_us,
+                              vrr->last_presentation_us + vrr->min_present_interval_us);
+                }
+            }
+        }
+
       if (target_presentation_time_us > next_presentation_us)
         {
           next_presentation_us = target_presentation_time_us;

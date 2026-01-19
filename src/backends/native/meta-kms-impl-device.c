@@ -1367,6 +1367,7 @@ arm_crtc_frame_deadline_timer (CrtcFrame *crtc_frame,
     return;
 
   if (crtc_frame->deadline.armed &&
+      !crtc_frame->pending_update &&
       crtc_frame->deadline.expected_deadline_time_us <=
       next_deadline_us)
     return;
