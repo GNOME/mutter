@@ -1,0 +1,39 @@
+resize_monitor default 1000 1000
+add_monitor second 1000 1000
+add_monitor third 1000 1000
+
+new_client 2 wayland
+create 2/1
+show 2/1
+move 2/1 2001 1
+resize 2/1 500 500
+wait_reconfigure 2/1
+
+new_client 1 wayland
+create 1/1
+show 1/1
+move 1/1 1001 1
+wait_reconfigure 1/1
+assert_position 1/1 1001 1
+
+maximize 1/1
+wait_reconfigure 1/1
+assert_position 1/1 1000 0
+
+# Press keybinding for move-to-monitor-left
+key_press KEY_LEFTMETA
+key_press KEY_LEFTSHIFT
+key_press KEY_LEFT
+key_release KEY_LEFT
+key_release KEY_LEFTSHIFT
+key_release KEY_LEFTMETA
+
+wait_reconfigure 1/1
+assert_position 1/1 0 0
+
+move_cursor_to 2050 50
+click
+wait_reconfigure 1/1 2/1
+
+assert_focused 2/1
+assert_position 1/1 0 0
