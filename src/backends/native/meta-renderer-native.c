@@ -2223,7 +2223,12 @@ on_crtc_needs_flush (MetaKmsDevice *kms_device,
 
   view = meta_renderer_get_view_for_crtc (renderer, crtc);
   if (view)
-    clutter_stage_view_schedule_update (CLUTTER_STAGE_VIEW (view));
+    {
+      ClutterFrameClock *frame_clock =
+        clutter_stage_view_get_frame_clock (CLUTTER_STAGE_VIEW (view));
+
+      clutter_frame_clock_schedule_flush_update (frame_clock);
+    }
 }
 
 static MetaRendererNativeGpuData *

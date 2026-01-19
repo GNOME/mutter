@@ -1423,6 +1423,52 @@ clutter_frame_clock_schedule_update_later (ClutterFrameClock *frame_clock,
 }
 
 void
+clutter_frame_clock_schedule_flush_update (ClutterFrameClock *frame_clock)
+{
+  const Frame *last_presentation = frame_clock->prev_presentation;
+  int64_t now_us, timeout_interval_us, target_time_us;
+
+  if (frame_clock->mode != CLUTTER_FRAME_CLOCK_MODE_VARIABLE)
+    {
+      clutter_frame_clock_schedule_update (frame_clock);
+      return;
+    }
+
+  if (frame_clock->inhibit_count > 0)
+    {
+      frame_clock->pending_reschedule = TRUE;
+      return;
+    }
+
+  now_us = g_get_monotonic_time ();
+  if (now_us - frame_clock->frame_sync_update_time_us >=
+      frame_clock->maximum_refresh_interval_us)
+    timeout_interval_us = frame_clock->refresh_interval_us;
+  else
+    timeout_interval_us = frame_clock->maximum_refresh_interval_us;
+
+  if (!last_presentation || last_presentation->presentation_time_us == 0)
+    {
+      const Frame *last_dispatch = frame_clock->prev_dispatch;
+
+      target_time_us =
+        last_dispatch && last_dispatch->dispatch_time_us ?
+        ((last_dispatch->dispatch_time_us -
+          last_dispatch->dispatch_lateness_us) + timeout_interval_us) :
+        now_us;
+    }
+  else
+    {
+      target_time_us =
+        mtk_extrapolate_next_interval_boundary (last_presentation->presentation_time_us,
+                                                now_us,
+                                                timeout_interval_us);
+    }
+
+  clutter_frame_clock_schedule_update_later (frame_clock, target_time_us);
+}
+
+void
 clutter_frame_clock_set_frame_sync_update_time (ClutterFrameClock *frame_clock,
                                                 int64_t            update_time_us)
 {
