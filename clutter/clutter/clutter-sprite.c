@@ -394,7 +394,7 @@ create_event_emission_chain (ClutterSprite *sprite,
       add_actor_to_event_emission_chain (chain, actor, CLUTTER_PHASE_CAPTURE);
     }
 
-  for (l = clutter_actor_peek_actions (topmost); l; l = l->next)
+  for (l = clutter_actor_peek_actions (deepmost); l; l = l->next)
     {
       ClutterAction *action = l->data;
 
