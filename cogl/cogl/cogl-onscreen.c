@@ -79,14 +79,12 @@ cogl_onscreen_allocate (CoglFramebuffer  *framebuffer,
                         GError          **error)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
   /* If the winsys doesn't support dirty events then we'll report
    * one on allocation so that if the application only paints in
    * response to dirty events then it will at least paint once to
    * start */
-  if (!cogl_context_has_feature (ctx, COGL_FEATURE_ID_DIRTY_EVENTS))
-    _cogl_onscreen_queue_full_dirty (onscreen);
+  _cogl_onscreen_queue_full_dirty (onscreen);
 
   return TRUE;
 }
@@ -193,7 +191,7 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
     }
 }
 
-void
+static void
 _cogl_onscreen_queue_dirty (CoglOnscreen       *onscreen,
                             const MtkRectangle *info)
 {
@@ -489,9 +487,7 @@ _cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
 
   cogl_framebuffer_update_size (framebuffer, width, height);
 
-  if (!cogl_context_has_feature (cogl_framebuffer_get_context (framebuffer),
-                                  COGL_FEATURE_ID_DIRTY_EVENTS))
-    _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
+  _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
 }
 
 int64_t
