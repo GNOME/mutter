@@ -1631,23 +1631,17 @@ do_process (MetaKmsImplDevice *impl_device,
                                                   &crtc_page_flip_listener_vtable,
                                                   thread_context,
                                                   crtc_frame, NULL);
-          crtc_frame->pending_page_flip = TRUE;
         }
     }
 
   feedback = klass->process_update (impl_device, update, flags);
 
-  if (crtc_frame)
+  if (crtc_frame &&
+      meta_kms_feedback_get_result (feedback) == META_KMS_FEEDBACK_PASSED)
     {
-      if (meta_kms_feedback_get_result (feedback) == META_KMS_FEEDBACK_PASSED)
-        {
-          meta_kms_feedback_set_ready_time_us (feedback,
-                                               crtc_frame->kms_ready_time_us);
-        }
-      else
-        {
-          crtc_frame->pending_page_flip = FALSE;
-        }
+      crtc_frame->pending_page_flip = TRUE;
+      meta_kms_feedback_set_ready_time_us (feedback,
+                                           crtc_frame->kms_ready_time_us);
     }
 
   if (!(flags & META_KMS_UPDATE_FLAG_TEST_ONLY))
