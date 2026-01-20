@@ -220,33 +220,9 @@ typedef enum /*< prefix=COGL_RENDERER_ERROR >*/
 
 typedef enum _CoglWinsysFeature
 {
-  /* Available if its possible to query a counter that
-   * increments at each vblank. */
-  COGL_WINSYS_FEATURE_VBLANK_COUNTER,
-
-  /* Available if its possible to wait until the next vertical
-   * blank period */
-  COGL_WINSYS_FEATURE_VBLANK_WAIT,
-
-  /* Available if the window system supports mapping native
-   * pixmaps to textures. */
-  COGL_WINSYS_FEATURE_TEXTURE_FROM_PIXMAP,
-
-  /* Available if the window system supports reporting an event
-   * for swap buffer completions. */
-  COGL_WINSYS_FEATURE_SWAP_BUFFERS_EVENT,
-
   /* Available if it's possible to swap a list of sub rectangles
    * from the back buffer to the front buffer */
   COGL_WINSYS_FEATURE_SWAP_REGION,
-
-  /* Available if swap_region requests can be automatically throttled
-   * to the vblank frequency. */
-  COGL_WINSYS_FEATURE_SWAP_REGION_THROTTLE,
-
-  /* Available if the swap region implementation won't tear and thus
-   * only needs to be throttled to the framerate */
-  COGL_WINSYS_FEATURE_SWAP_REGION_SYNCHRONIZED,
 
   /* Available if the age of the back buffer can be queried */
   COGL_WINSYS_FEATURE_BUFFER_AGE,

@@ -484,8 +484,6 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
     {
       COGL_FLAGS_SET (context->winsys_features,
                       COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
-      COGL_FLAGS_SET (context->winsys_features,
-                      COGL_WINSYS_FEATURE_SWAP_REGION_THROTTLE, TRUE);
     }
 
   if ((egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_FENCE_SYNC) &&

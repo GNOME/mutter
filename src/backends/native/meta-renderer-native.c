@@ -1212,9 +1212,6 @@ meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
 #endif
 
   COGL_FLAGS_SET (cogl_context->winsys_features,
-                  COGL_WINSYS_FEATURE_SWAP_BUFFERS_EVENT,
-                  TRUE);
-  COGL_FLAGS_SET (cogl_context->winsys_features,
                   COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT,
                   TRUE);
 
