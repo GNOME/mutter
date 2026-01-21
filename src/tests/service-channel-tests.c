@@ -142,7 +142,7 @@ service_client_thread_func (gpointer user_data)
   g_assert_nonnull (display);
 
   surface = wayland_surface_new (display, "test-tagged-window",
-                  100, 100, 0xffabcdff);
+                                 100, 100, 0xffabcdff);
   g_assert_nonnull (surface);
 
   wl_surface_commit (surface->wl_surface);
