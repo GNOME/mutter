@@ -73,6 +73,8 @@ typedef struct _WaylandDisplay
 
   GHashTable *properties;
 
+  GHashTable *buffers;
+
   struct gbm_device *gbm_device;
 
   /* format to DmaBufFormat mapping */

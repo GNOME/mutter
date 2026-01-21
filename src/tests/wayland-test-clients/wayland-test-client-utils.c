@@ -840,6 +840,32 @@ wayland_display_dispatch (WaylandDisplay *display)
 }
 
 static void
+wayland_display_dispose (GObject *object)
+{
+  WaylandDisplay *display = WAYLAND_DISPLAY (object);
+  GHashTableIter iter;
+  gpointer key;
+
+  if (display->buffers)
+    {
+      g_hash_table_iter_init (&iter, display->buffers);
+      while (g_hash_table_iter_next (&iter, &key, NULL))
+        {
+          WaylandBuffer *buffer = key;
+          WaylandBufferPrivate *buffer_priv =
+            wayland_buffer_get_instance_private (buffer);
+
+          g_clear_pointer (&buffer_priv->buffer, wl_buffer_destroy);
+          g_hash_table_iter_remove (&iter);
+          g_object_unref (buffer);
+        }
+      g_clear_pointer (&display->buffers, g_hash_table_unref);
+    }
+
+  G_OBJECT_CLASS (wayland_display_parent_class)->dispose (object);
+}
+
+static void
 wayland_display_finalize (GObject *object)
 {
   WaylandDisplay *display = WAYLAND_DISPLAY (object);
@@ -858,6 +884,7 @@ wayland_display_class_init (WaylandDisplayClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->dispose = wayland_display_dispose;
   object_class->finalize = wayland_display_finalize;
 
   signals[SYNC_EVENT] =
@@ -884,6 +911,7 @@ wayland_display_class_init (WaylandDisplayClass *klass)
 static void
 wayland_display_init (WaylandDisplay *display)
 {
+  display->buffers = g_hash_table_new (NULL, NULL);
 }
 
 void
@@ -1464,7 +1492,8 @@ wayland_buffer_dispose (GObject *object)
   WaylandBuffer *buffer = WAYLAND_BUFFER (object);
   WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
 
-  g_clear_object (&priv->display);
+  if (priv->display)
+    g_hash_table_remove (priv->display->buffers, buffer);
 
   G_OBJECT_CLASS (wayland_buffer_parent_class)->dispose (object);
 }
@@ -1487,8 +1516,9 @@ handle_buffer_release (void             *user_data,
                        struct wl_buffer *buffer_resource)
 {
   WaylandBuffer *buffer = WAYLAND_BUFFER (user_data);
+  WaylandBufferPrivate *priv = wayland_buffer_get_instance_private (buffer);
 
-  wl_buffer_destroy (buffer_resource);
+  g_clear_pointer (&priv->buffer, wl_buffer_destroy);
   g_object_unref (buffer);
 }
 
@@ -1519,7 +1549,8 @@ wayland_buffer_create (WaylandDisplay                  *display,
     }
 
   priv = wayland_buffer_get_instance_private (buffer);
-  priv->display = g_object_ref (display);
+  priv->display = display;
+  g_hash_table_add (priv->display->buffers, buffer);
   priv->format = format;
   priv->width = width;
   priv->height = height;
