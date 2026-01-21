@@ -134,7 +134,7 @@ service_client_thread_func (gpointer user_data)
   g_assert_cmpint (fd, >=, 0);
 
   /* Test that we can connect to the Wayland display */
-  wayland_display = wl_display_connect_to_fd (fd);
+  wayland_display = wl_display_connect_to_fd (g_steal_fd (&fd));
   g_assert_nonnull (wayland_display);
 
   display = wayland_display_new_full (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER,
