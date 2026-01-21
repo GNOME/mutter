@@ -86,8 +86,8 @@ service_client_thread_func (gpointer user_data)
   g_autoptr (GVariant) result = NULL;
   g_autoptr (GVariant) fd_variant = NULL;
   g_autoptr (GUnixFDList) fd_list = NULL;
-  g_autoptr (WaylandDisplay) display = NULL;
-  g_autoptr (WaylandSurface) surface = NULL;
+  WaylandDisplay *display;
+  WaylandSurface *surface;
   g_auto(GVariantBuilder) options_builder =
     G_VARIANT_BUILDER_INIT (G_VARIANT_TYPE_VARDICT);
   g_autofd int fd = -1;
@@ -140,6 +140,7 @@ service_client_thread_func (gpointer user_data)
   display = wayland_display_new_full (WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER,
                                       wayland_display);
   g_assert_nonnull (display);
+  g_object_add_weak_pointer (G_OBJECT (display), (gpointer *) &display);
 
   surface = wayland_surface_new (display, "test-tagged-window",
                                  100, 100, 0xffabcdff);
@@ -147,7 +148,10 @@ service_client_thread_func (gpointer user_data)
 
   wl_surface_commit (surface->wl_surface);
   wait_for_sync_event (display, 0);
+
+  g_object_unref (surface);
   g_object_unref (display);
+  g_assert_null (display);
 
   g_atomic_int_set (&testdata->client_terminated, TRUE);
 
