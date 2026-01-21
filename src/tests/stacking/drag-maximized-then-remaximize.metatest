@@ -1,0 +1,41 @@
+resize_monitor default 800 600
+set_pref center-new-windows true
+set_pref edge-tiling true
+new_client w wayland
+
+# Map as floating
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+assert_size w/1 200 200
+assert_position w/1 300 200
+
+# Maximize to save current state
+
+maximize w/1
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 0 0
+
+# Drag to unmaximize, but instead re-maximize
+
+wait_for_effects w/1
+move_cursor_to 400 10
+click_and_hold
+move_cursor_to 400 300 500ms
+wait_reconfigure w/1
+assert_size w/1 200 200
+
+move_cursor_to 400 0 500ms
+release_click
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 0 0
+
+# Unmaximize and restore to original position
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_size w/1 200 200
+assert_position w/1 300 200
