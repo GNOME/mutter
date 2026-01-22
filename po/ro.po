@@ -5,14 +5,14 @@
 # Adi Roiban https://launchpad.net/~adiroiban, 2008, 2009
 # Lucian Adrian Grijincu <lucian.grijincu@gmail.com>, 2011.
 # Daniel Șerbănescu <daniel [at] serbanescu [dot] dk>, 2015, 2018.
-# Antonio Marin <gnmer.6qxyg@slmail.me>, 2025.
+# Antonio Marin <gnmer.6qxyg@slmail.me>, 2025-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-11-26 19:35+0000\n"
-"PO-Revision-Date: 2025-12-02 14:08+0100\n"
+"POT-Creation-Date: 2026-01-14 16:17+0000\n"
+"PO-Revision-Date: 2026-01-22 11:31+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -293,8 +293,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
-msgstr ""
-"Activează plasarea pe margine la așezarea ferestrei pe marginea ecranului"
+msgstr "Activează redimensionarea ferestrei la atingerea marginilor ecranului"
 
 #: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
@@ -377,14 +376,15 @@ msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
-msgstr "Plasează ferestre noi în centru"
+msgstr "Așează ferestrele noi în centru"
 
 #: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
-"Când este adevărat, ferestrele noi vor fi plasate în centrul ecranului activ."
+"Când este „true” (adevărat), ferestrele noi vor fi așezate în centrul "
+"ecranului activ."
 
 #: data/org.gnome.mutter.gschema.xml.in:108
 msgid "Enable experimental features"
@@ -702,7 +702,7 @@ msgstr "_Lansatoare"
 
 #: mdk/mdk-main-window.ui:24
 msgid "_Edit launchers"
-msgstr "_Modifică lansatoare"
+msgstr "Modifică lansatoar_e"
 
 #: mdk/mdk-main-window.ui:31
 msgid "_About Mutter Development Kit"
@@ -900,14 +900,14 @@ msgstr ""
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window"
 
-#: src/x11/meta-x11-display.c:1462
+#: src/x11/meta-x11-display.c:1460
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecranul %d cu afișajul „%s” este greșit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2790
+#: src/x11/meta-x11-display.c:2788
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -920,7 +920,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Formatul %s nu este acceptat"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
