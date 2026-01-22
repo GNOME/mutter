@@ -151,7 +151,7 @@ typedef struct
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
 
-  xkb_layout_index_t locked_layout_group;
+  xkb_layout_index_t effective_layout_group;
 } UpdateLockedModifierStateData;
 
 static gboolean
@@ -174,7 +174,7 @@ update_state_in_main (gpointer user_data)
   clutter_keymap_update_state (CLUTTER_KEYMAP (keymap_native),
                                caps_lock_state,
                                num_lock_state,
-                               data->locked_layout_group,
+                               data->effective_layout_group,
                                data->depressed_mods,
                                data->latched_mods,
                                data->locked_mods);
@@ -198,8 +198,8 @@ meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
   data->locked_mods =
     xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
 
-  data->locked_layout_group =
-    xkb_state_serialize_layout (xkb_state, XKB_STATE_LAYOUT_LOCKED);
+  data->effective_layout_group =
+    xkb_state_serialize_layout (xkb_state, XKB_STATE_LAYOUT_EFFECTIVE);
 
   meta_seat_impl_queue_main_thread_idle (keymap_native->impl.seat_impl,
                                          update_state_in_main,
