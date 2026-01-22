@@ -2008,7 +2008,7 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
-  gboolean want_deadline_timer, vrr_enabled;
+  gboolean want_deadline_timer;
   MetaKmsUpdate *update;
   MetaKmsCrtc *latch_crtc;
 
@@ -2020,13 +2020,6 @@ meta_kms_impl_device_update_ready (MetaThreadImpl  *impl,
   meta_kms_update_realize (update, impl_device);
 
   latch_crtc = g_steal_pointer (&crtc_frame->submitted_update.latch_crtc);
-
-  vrr_enabled = meta_kms_crtc_get_current_state (crtc_frame->crtc)->vrr.enabled;
-  if (vrr_enabled)
-    {
-      meta_kms_crtc_set_vrr_update_time (crtc_frame->crtc,
-                                         g_get_monotonic_time ());
-    }
 
   want_deadline_timer =
     !crtc_frame->await_flush &&

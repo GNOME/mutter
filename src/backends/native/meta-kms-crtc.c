@@ -60,7 +60,6 @@ struct _MetaKmsCrtc
     int64_t interval_us[4];
     int idx;
     int64_t last_presentation_us;
-    int64_t last_update_time_us;
     int64_t min_present_interval_us;
   } vrr;
 };
@@ -976,13 +975,6 @@ meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
     }
 
   vrr->last_presentation_us = MAX (vrr->last_presentation_us, presentation_us);
-}
-
-void
-meta_kms_crtc_set_vrr_update_time (MetaKmsCrtc *crtc,
-                                   int64_t      vrr_update_time_us)
-{
-  crtc->vrr.last_update_time_us = vrr_update_time_us;
 }
 
 void
