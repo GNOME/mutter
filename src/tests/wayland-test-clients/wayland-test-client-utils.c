@@ -2052,6 +2052,8 @@ wayland_buffer_dmabuf_dispose (GObject *object)
 
   for (i = 0; i < dmabuf->n_planes; i++)
     g_clear_fd (&dmabuf->fd[i], NULL);
+
+  G_OBJECT_CLASS (wayland_buffer_dmabuf_parent_class)->dispose (object);
 }
 
 static void
