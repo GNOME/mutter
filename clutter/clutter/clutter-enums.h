@@ -1218,4 +1218,23 @@ typedef enum
   CLUTTER_CURSOR_ALL_RESIZE, /* not css */
 } ClutterCursorType;
 
+/**
+ * ClutterScrollControllerFlags:
+ * @CLUTTER_SCROLL_CONTROLLER_FLAG_NONE: No flags
+ * @CLUTTER_SCROLL_CONTROLLER_FLAG_SCROLL_VERTICAL: Handle vertical scroll
+ * @CLUTTER_SCROLL_CONTROLLER_FLAG_SCROLL_HORIZONTAL: Handle horizontal scroll
+ * @CLUTTER_SCROLL_CONTROLLER_FLAG_DISCRETE: Handle continuous scroll as
+ *   discrete steps
+ * @CLUTTER_SCROLL_CONTROLLER_FLAG_PHYSICAL_DIRECTION: Prefer the physical
+ *   direction of the scroll events, if known
+ */
+typedef enum
+{
+  CLUTTER_SCROLL_CONTROLLER_FLAG_NONE = 0,
+  CLUTTER_SCROLL_CONTROLLER_FLAG_SCROLL_VERTICAL = 1 << 0,
+  CLUTTER_SCROLL_CONTROLLER_FLAG_SCROLL_HORIZONTAL = 1 << 1,
+  CLUTTER_SCROLL_CONTROLLER_FLAG_DISCRETE = 1 << 2,
+  CLUTTER_SCROLL_CONTROLLER_FLAG_PHYSICAL_DIRECTION = 1 << 3,
+} ClutterScrollControllerFlags;
+
 G_END_DECLS

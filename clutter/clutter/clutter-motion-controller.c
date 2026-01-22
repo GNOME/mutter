@@ -92,7 +92,7 @@ clutter_motion_controller_class_init (ClutterMotionControllerClass *klass)
    * @x: the position in the X axis, in actor-relative coordinates
    * @y: the position in the Y axis, in actor-relative coordinates
    *
-   * Emitted when @sprite enters into the actor
+   * Emitted when @sprite enters into the actor.
    */
   signals[ENTER] =
     g_signal_new ("enter",
