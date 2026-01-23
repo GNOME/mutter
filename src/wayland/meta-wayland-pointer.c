@@ -1223,12 +1223,16 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
           cursor = clutter_backend_get_cursor (clutter_backend,
                                                pointer->cursor_shape);
         }
+      else
+        {
+          cursor = clutter_backend_get_cursor (clutter_backend,
+                                               CLUTTER_CURSOR_NONE);
+        }
     }
-
-  if (!cursor)
+  else
     {
       cursor = clutter_backend_get_cursor (clutter_backend,
-                                           CLUTTER_CURSOR_NONE);
+                                           CLUTTER_CURSOR_DEFAULT);
     }
 
   g_set_object (&pointer->cursor, cursor);

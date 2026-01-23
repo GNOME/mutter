@@ -136,12 +136,16 @@ meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
           cursor = clutter_backend_get_cursor (clutter_backend,
                                                tool->cursor_shape);
         }
+      else
+        {
+          cursor = clutter_backend_get_cursor (clutter_backend,
+                                               CLUTTER_CURSOR_NONE);
+        }
     }
-
-  if (!cursor)
+  else if (!tool->current)
     {
       cursor = clutter_backend_get_cursor (clutter_backend,
-                                           CLUTTER_CURSOR_NONE);
+                                           CLUTTER_CURSOR_DEFAULT);
     }
 
   if (g_set_object (&tool->cursor, cursor))
