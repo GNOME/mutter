@@ -27,6 +27,8 @@
  * MetaIdleMonitorWatchFlags:
  * @META_IDLE_MONITOR_WATCH_FLAGS_NONE: No flag set
  * @META_IDLE_MONITOR_WATCH_FLAGS_UNINHIBITABLE: Ignore inhibitors
+ * @META_IDLE_MONITOR_WATCH_FLAGS_START_NOW: Start idle timer now and ignore any
+ *   previous idle time
  *
  * Flags affecting the behavior of the idle watch created by
  * meta_idle_monitor_add_idle_watch_full().
@@ -35,6 +37,7 @@ typedef enum
 {
   META_IDLE_MONITOR_WATCH_FLAGS_NONE = 0,
   META_IDLE_MONITOR_WATCH_FLAGS_UNINHIBITABLE = 1 << 0,
+  META_IDLE_MONITOR_WATCH_FLAGS_START_NOW = 1 << 1,
 } MetaIdleMonitorWatchFlags;
 
 #define META_TYPE_IDLE_MONITOR (meta_idle_monitor_get_type ())
