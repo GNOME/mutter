@@ -262,6 +262,7 @@ make_watch (MetaIdleMonitor           *monitor,
             MetaIdleMonitorWatchFlags  flags)
 {
   MetaIdleMonitorWatch *watch;
+  gboolean start_now = !!(flags & META_IDLE_MONITOR_WATCH_FLAGS_START_NOW);
 
   watch = g_new0 (MetaIdleMonitorWatch, 1);
 
@@ -282,9 +283,10 @@ make_watch (MetaIdleMonitor           *monitor,
       g_source_set_callback (source, NULL, watch, NULL);
       if (!watch->inhibitable || !monitor->inhibited)
         {
-          g_source_set_ready_time (source,
-                                   monitor->last_event_time +
-                                   timeout_msec * 1000);
+          int64_t start_time =
+            start_now ? g_get_monotonic_time () : monitor->last_event_time;
+
+          g_source_set_ready_time (source, start_time + timeout_msec * 1000);
         }
       g_source_attach (source, NULL);
       g_source_unref (source);
