@@ -19,6 +19,8 @@
 
 #include <glib-object.h>
 
+#include "meta/types.h"
+
 #define META_TYPE_MONITOR (meta_monitor_get_type ())
 META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaMonitor, meta_monitor, META, MONITOR, GObject)
