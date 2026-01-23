@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "core/util-private.h"
 #include "meta/meta-backlight.h"
 
 #include <glib-object.h>

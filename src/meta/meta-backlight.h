@@ -20,8 +20,7 @@
 #include <glib-object.h>
 #include <gio/gio.h>
 
-#include "backends/meta-backend-types.h"
-#include "core/util-private.h"
+#include "meta/common.h"
 
 #define META_TYPE_BACKLIGHT (meta_backlight_get_type ())
 META_EXPORT
