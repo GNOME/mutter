@@ -9,10 +9,10 @@
 # Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017-2024.
 msgid ""
 msgstr ""
-"Project-Id-Version: mutter master\n"
+"Project-Id-Version: mutter gnome-49\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-03-11 00:58+0000\n"
-"PO-Revision-Date: 2025-03-12 14:59+0700\n"
+"POT-Creation-Date: 2025-12-03 15:57+0000\n"
+"PO-Revision-Date: 2026-01-23 19:01+0700\n"
 "Last-Translator: Andika Triwidada <andika@gmail.com>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -309,12 +309,12 @@ msgstr "Ruang kerja dikelola secara dinamis"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Menentukan apakah ruang kerja dikelola secara dinamis atau apakah ada "
-"sejumlah tetap ruang kerja (ditentukan oleh kunci num-workspaces dalam org."
-"gnome.desktop.wm.preferences)."
+"sejumlah tetap ruang kerja (ditentukan oleh kunci num-workspaces dalam "
+"org.gnome.desktop.wm.preferences)."
 
 #: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
@@ -626,26 +626,118 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients untuk mengontrol pengaturan "
 "tersebut. Xwayland perlu dimulai ulang agar pengaturan ini berlaku."
 
-#: src/backends/meta-monitor.c:266
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "Aplikasi"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Executable"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Tambahkan Peluncur"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Peluncur"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Tipe"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Tambah"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Jalankan"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Hapus"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Aksi"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Sunting Peluncur"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Peluncur"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_Masukan"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_Emulasikan sentuhan"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "Cegah p_intasan sistem"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "Pe_luncur"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "Sunting p_eluncur"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "Tent_ang Kit Pengembangan Mutter"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "Kit Pengembangan Mutter"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "Menu Utama"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "Tim Mutter"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "Kit pengembangan perangkat lunak Mutter"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "Tentang Kit Pengembangan Mutter"
+
+#: mdk/mdk-monitor.c:674
+msgid "Failed to create monitor"
+msgstr "Gagal membuat pemantau"
+
+#: src/backends/meta-monitor.c:274
 msgid "Built-in display"
 msgstr "Tampilan bawaan"
 
-#: src/backends/meta-monitor.c:293
+#: src/backends/meta-monitor.c:301
 msgid "Unknown"
 msgstr "Tak Dikenal"
 
-#: src/backends/meta-monitor.c:295
+#: src/backends/meta-monitor.c:303
 msgid "Unknown Display"
 msgstr "Tampilan Tak Dikenal"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:311
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:319
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -653,69 +745,61 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Bel peristiwa"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Layar Privasi Diaktifkan"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Layar Privasi Dinonaktifkan"
 
-#: src/core/meta-context-main.c:621
+#: src/core/meta-context-main.c:630
 msgid "Replace the running window manager"
 msgstr "Mengganti manajer jendela yang tengah berjalan"
 
-#: src/core/meta-context-main.c:627
+#: src/core/meta-context-main.c:636
 msgid "X Display to use"
 msgstr "Tampilan X yang digunakna"
 
-#: src/core/meta-context-main.c:633
-msgid "Disable connection to session manager"
-msgstr "Menonaktifkan koneksi ke manajer sesi"
-
-#: src/core/meta-context-main.c:639
-msgid "Specify session management ID"
-msgstr "Tentukan kode pengaturan sesi"
-
-#: src/core/meta-context-main.c:645
-msgid "Initialize session from savefile"
-msgstr "Aktifkan sesi dari berkas simpanan"
-
-#: src/core/meta-context-main.c:651
+#: src/core/meta-context-main.c:642
 msgid "Make X calls synchronous"
 msgstr "Buat panggilan X selaras"
 
-#: src/core/meta-context-main.c:659
+#: src/core/meta-context-main.c:650
 msgid "Run as a wayland compositor"
 msgstr "Jalankan sebagai kompositor wayland"
 
-#: src/core/meta-context-main.c:666
+#: src/core/meta-context-main.c:657
 msgid "Run as a nested compositor"
 msgstr "Jalankan sebagai kompositor bersarang"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:665
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Jalankan kompositor wayland tanpa memmulai Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:672
 msgid "Specify Wayland display name to use"
 msgstr "Tentukan nama tampilan Wayland yang akan digunakan"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:680
 msgid "Run as a full display server, rather than nested"
 msgstr "Jalankan sebagai peladen tampilan penuh, ketimbang tampilan bersarang"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:685
 msgid "Run as a headless display server"
 msgstr "Jalankan sebagai peladen tampilan tanpa kepala (headless)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:690
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Tambah monitor virtual persisten (WxH atau WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "Jalankan kit pengembangan"
 
 #: src/core/meta-context-main.c:709
 msgid "Run with X11 backend"
@@ -732,7 +816,7 @@ msgstr "Aktifkan antarmuka D-Bus kontrol awakutu"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:552
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Beralih Mode: (Grup %d)"
@@ -740,7 +824,7 @@ msgstr "Beralih Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:559
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
 msgid "Mode Switch"
 msgstr "Beralih Mode"
@@ -748,11 +832,11 @@ msgstr "Beralih Mode"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:582
+#: src/core/meta-pad-action-mapper.c:645
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/core/meta-pad-action-mapper.c:584
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
 
@@ -769,12 +853,12 @@ msgstr "Cetak versi"
 msgid "Mutter plugin to use"
 msgstr "Pengaya Mutter yang dipakai"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Area kerja %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:150
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Muter dikompilasi tanpa dukungan mode riuh"
 
@@ -782,12 +866,12 @@ msgstr "Muter dikompilasi tanpa dukungan mode riuh"
 msgid "Workspace switched"
 msgstr "Area kerja dialihkan"
 
-#: src/wayland/meta-wayland-tablet-pad.c:532
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:844
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -796,19 +880,19 @@ msgstr ""
 "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
 "replace untuk mengganti manajer jendela saat ini."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1229
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Gagal membuka tampilan X Window System \"%s\""
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1460
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2788
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -820,7 +904,7 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Format %s tidak didukung"
 
-#: src/x11/window-props.c:555
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pada %s)"
