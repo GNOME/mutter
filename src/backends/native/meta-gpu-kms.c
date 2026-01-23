@@ -134,15 +134,7 @@ meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
 gboolean
 meta_gpu_kms_disable_vrr (MetaGpuKms *gpu_kms)
 {
-  MetaGpu *gpu = META_GPU (gpu_kms);
-  MetaBackend *backend = meta_gpu_get_backend (gpu);
-  MetaSettings *settings = meta_backend_get_settings (backend);
   MetaKmsDeviceFlag flags;
-
-  if (!meta_settings_is_experimental_feature_enabled (
-        settings,
-        META_EXPERIMENTAL_FEATURE_VARIABLE_REFRESH_RATE))
-    return TRUE;
 
   flags = meta_kms_device_get_flags (gpu_kms->kms_device);
   return !!(flags & META_KMS_DEVICE_FLAG_DISABLE_VRR);

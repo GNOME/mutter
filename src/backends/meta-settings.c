@@ -47,7 +47,6 @@ static GDebugKey experimental_feature_keys[] = {
   { "scale-monitor-framebuffer", META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER },
   { "kms-modifiers", META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS },
   { "autoclose-xwayland", META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND },
-  { "variable-refresh-rate", META_EXPERIMENTAL_FEATURE_VARIABLE_REFRESH_RATE },
   { "xwayland-native-scaling", META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING },
 };
 
@@ -306,8 +305,6 @@ experimental_features_handler (GVariant *features_variant,
         feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
       else if (g_str_equal (feature_str, "autoclose-xwayland"))
         feature = META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND;
-      else if (g_str_equal (feature_str, "variable-refresh-rate"))
-        feature = META_EXPERIMENTAL_FEATURE_VARIABLE_REFRESH_RATE;
       else if (g_str_equal (feature_str, "xwayland-native-scaling"))
         feature = META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING;
 
