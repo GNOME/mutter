@@ -24,20 +24,20 @@
 #include "core/util-private.h"
 
 #define META_TYPE_BACKLIGHT (meta_backlight_get_type ())
-META_EXPORT_TEST
+META_EXPORT
 G_DECLARE_DERIVABLE_TYPE (MetaBacklight,
                           meta_backlight,
                           META, BACKLIGHT,
                           GObject)
 
-META_EXPORT_TEST
+META_EXPORT
 void meta_backlight_get_brightness_info (MetaBacklight *backlight,
                                          int           *brightness_min_out,
                                          int           *brightness_max_out);
 
-META_EXPORT_TEST
+META_EXPORT
 int meta_backlight_get_brightness (MetaBacklight *backlight);
 
-META_EXPORT_TEST
+META_EXPORT
 void meta_backlight_set_brightness (MetaBacklight *backlight,
                                     int            brightness);
