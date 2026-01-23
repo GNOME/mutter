@@ -479,8 +479,7 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
   output_info->connector_type =
     meta_kms_connector_type_from_drm (drm_connector_type);
 
-  output_info->supports_vrr = connector_state->vrr_capable &&
-                              !meta_gpu_kms_disable_vrr (gpu_kms);
+  output_info->supports_vrr = connector_state->vrr_capable;
 
   crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc *));
 

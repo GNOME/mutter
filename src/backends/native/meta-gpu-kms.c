@@ -131,15 +131,6 @@ meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
   return !!(flags & META_KMS_DEVICE_FLAG_PLATFORM_DEVICE);
 }
 
-gboolean
-meta_gpu_kms_disable_vrr (MetaGpuKms *gpu_kms)
-{
-  MetaKmsDeviceFlag flags;
-
-  flags = meta_kms_device_get_flags (gpu_kms->kms_device);
-  return !!(flags & META_KMS_DEVICE_FLAG_DISABLE_VRR);
-}
-
 static int
 compare_outputs (gconstpointer one,
                  gconstpointer two)
@@ -255,7 +246,7 @@ update_modes (MetaGpuKms *gpu_kms)
       if (!state)
         continue;
 
-      if (state->vrr_capable && !meta_gpu_kms_disable_vrr (gpu_kms))
+      if (state->vrr_capable)
         vrr_capable = TRUE;
 
       for (l_mode = state->modes; l_mode; l_mode = l_mode->next)

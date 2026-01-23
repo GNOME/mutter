@@ -38,8 +38,6 @@ gboolean meta_is_udev_device_boot_vga (GUdevDevice *device);
 
 gboolean meta_is_udev_device_disable_modifiers (GUdevDevice *device);
 
-gboolean meta_is_udev_device_disable_vrr (GUdevDevice *device);
-
 gboolean meta_is_udev_device_ignore (GUdevDevice *device);
 
 META_EXPORT_TEST

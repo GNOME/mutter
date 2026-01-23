@@ -556,9 +556,6 @@ add_drm_device (MetaBackendNative  *backend_native,
   if (meta_is_udev_device_disable_modifiers (device))
     flags |= META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS;
 
-  if (meta_is_udev_device_disable_vrr (device))
-    flags |= META_KMS_DEVICE_FLAG_DISABLE_VRR;
-
   if (meta_is_udev_device_preferred_primary (device))
     flags |= META_KMS_DEVICE_FLAG_PREFERRED_PRIMARY;
 
