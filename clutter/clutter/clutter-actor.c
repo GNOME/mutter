@@ -18795,6 +18795,23 @@ clutter_actor_notify_transform_invalid (ClutterActor *self)
     clutter_actor_queue_redraw (self);
 }
 
+
+/**
+ * clutter_actor_class_get_binding_pool:
+ * @actor_class: A #ClutterActor class
+ *
+ * Gets the [class@Clutter.BindingPool] for the actor type
+ *
+ * Returns: (transfer none): A binding pool for this class/type
+ **/
+ClutterBindingPool *
+clutter_actor_class_get_binding_pool (ClutterActorClass *actor_class)
+{
+  g_return_val_if_fail (CLUTTER_IS_ACTOR_CLASS (actor_class), NULL);
+
+  return clutter_binding_pool_get_for_class (actor_class);
+}
+
 /**
  * clutter_actor_class_set_layout_manager_type
  * @actor_class: A #ClutterActor class

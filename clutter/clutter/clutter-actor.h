@@ -36,6 +36,7 @@
 #include "cogl/cogl.h"
 
 #include "clutter/clutter-types.h"
+#include "clutter/clutter-binding-pool.h"
 #include "clutter/clutter-cursor.h"
 #include "clutter/clutter-enums.h"
 #include "clutter/clutter-event.h"
@@ -893,6 +894,9 @@ void clutter_actor_invalidate_transform (ClutterActor *self);
 
 CLUTTER_EXPORT
 void clutter_actor_invalidate_paint_volume (ClutterActor *self);
+
+CLUTTER_EXPORT
+ClutterBindingPool * clutter_actor_class_get_binding_pool (ClutterActorClass *actor_class);
 
 CLUTTER_EXPORT
 void clutter_actor_class_set_layout_manager_type (ClutterActorClass *actor_class,
