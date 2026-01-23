@@ -1414,6 +1414,7 @@ generate_tiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
   GList *tiled_modes = NULL;
   unsigned int i;
   MetaMonitorMode *best_mode = NULL;
+  MetaCrtcRefreshRateMode best_refresh_rate_mode;
   float best_refresh_rate;
   GList *l;
 
@@ -1460,6 +1461,8 @@ generate_tiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
             {
               best_mode = mode;
               best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+              best_refresh_rate_mode =
+                meta_monitor_mode_get_refresh_rate_mode (mode);
               continue;
             }
 
@@ -1467,14 +1470,18 @@ generate_tiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
             {
               best_mode = mode;
               best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+              best_refresh_rate_mode =
+                meta_monitor_mode_get_refresh_rate_mode (mode);
               continue;
             }
 
           if (mode_priv->spec.refresh_rate == best_refresh_rate &&
-              mode_priv->spec.refresh_rate_mode > best_refresh_rate)
+              mode_priv->spec.refresh_rate_mode > best_refresh_rate_mode)
             {
               best_mode = mode;
               best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+              best_refresh_rate_mode =
+                meta_monitor_mode_get_refresh_rate_mode (mode);
               continue;
             }
         }
@@ -1651,6 +1658,7 @@ find_best_mode (MetaMonitor *monitor)
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
   MetaMonitorMode *best_mode = NULL;
+  MetaCrtcRefreshRateMode best_refresh_rate_mode;
   float best_refresh_rate;
   GList *l;
 
@@ -1675,6 +1683,8 @@ find_best_mode (MetaMonitor *monitor)
         {
           best_mode = mode;
           best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+          best_refresh_rate_mode =
+            meta_monitor_mode_get_refresh_rate_mode (mode);
           continue;
         }
 
@@ -1682,14 +1692,18 @@ find_best_mode (MetaMonitor *monitor)
         {
           best_mode = mode;
           best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+          best_refresh_rate_mode =
+            meta_monitor_mode_get_refresh_rate_mode (mode);
           continue;
         }
 
       if (mode_priv->spec.refresh_rate == best_refresh_rate &&
-          mode_priv->spec.refresh_rate_mode > best_refresh_rate)
+          mode_priv->spec.refresh_rate_mode > best_refresh_rate_mode)
         {
           best_mode = mode;
           best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+          best_refresh_rate_mode =
+            meta_monitor_mode_get_refresh_rate_mode (mode);
           continue;
         }
     }
