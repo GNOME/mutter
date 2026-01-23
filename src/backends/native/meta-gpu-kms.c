@@ -243,6 +243,7 @@ update_modes (MetaGpuKms *gpu_kms)
   GHashTable *modes_table;
   GList *l;
   GList *modes;
+  gboolean vrr_capable = FALSE;
   GHashTableIter iter;
   gpointer value;
   uint64_t mode_id;
@@ -261,6 +262,9 @@ update_modes (MetaGpuKms *gpu_kms)
       state = meta_kms_connector_get_current_state (kms_connector);
       if (!state)
         continue;
+
+      if (state->vrr_capable && !meta_gpu_kms_disable_vrr (gpu_kms))
+        vrr_capable = TRUE;
 
       for (l_mode = state->modes; l_mode; l_mode = l_mode->next)
         {
@@ -286,7 +290,7 @@ update_modes (MetaGpuKms *gpu_kms)
       MetaKmsMode *kms_mode = value;
       MetaCrtcModeKms *mode;
 
-      if (!meta_gpu_kms_disable_vrr (gpu_kms))
+      if (vrr_capable)
         {
           mode = meta_crtc_mode_kms_new (kms_mode,
                                          META_CRTC_REFRESH_RATE_MODE_VARIABLE,
