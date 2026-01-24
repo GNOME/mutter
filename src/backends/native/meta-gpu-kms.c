@@ -290,6 +290,13 @@ update_modes (MetaGpuKms *gpu_kms)
       MetaKmsMode *kms_mode = value;
       MetaCrtcModeKms *mode;
 
+      mode = meta_crtc_mode_kms_new (kms_mode,
+                                     META_CRTC_REFRESH_RATE_MODE_FIXED,
+                                     mode_id);
+      modes = g_list_append (modes, mode);
+
+      mode_id++;
+
       if (vrr_capable)
         {
           mode = meta_crtc_mode_kms_new (kms_mode,
@@ -299,13 +306,6 @@ update_modes (MetaGpuKms *gpu_kms)
 
           mode_id++;
         }
-
-      mode = meta_crtc_mode_kms_new (kms_mode,
-                                     META_CRTC_REFRESH_RATE_MODE_FIXED,
-                                     mode_id);
-      modes = g_list_append (modes, mode);
-
-      mode_id++;
     }
 
   g_hash_table_destroy (modes_table);

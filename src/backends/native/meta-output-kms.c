@@ -209,6 +209,11 @@ add_common_modes (MetaOutputInfo *output_info,
       if (is_duplicate)
         continue;
 
+      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
+                                                       fallback_mode,
+                                                       META_CRTC_REFRESH_RATE_MODE_FIXED);
+      g_ptr_array_add (array, g_object_ref (crtc_mode));
+
       if (add_vrr_modes)
         {
           crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
@@ -216,11 +221,6 @@ add_common_modes (MetaOutputInfo *output_info,
                                                            META_CRTC_REFRESH_RATE_MODE_VARIABLE);
           g_ptr_array_add (array, g_object_ref (crtc_mode));
         }
-
-      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
-                                                       fallback_mode,
-                                                       META_CRTC_REFRESH_RATE_MODE_FIXED);
-      g_ptr_array_add (array, g_object_ref (crtc_mode));
     }
 
   output_info->modes = g_renew (MetaCrtcMode *, output_info->modes,
@@ -252,7 +252,7 @@ compare_modes (const void *one,
             ? -1 : 1);
   if (crtc_mode_info_one->refresh_rate_mode != crtc_mode_info_two->refresh_rate_mode)
     return (crtc_mode_info_one->refresh_rate_mode >
-            crtc_mode_info_two->refresh_rate_mode) ? -1 : 1;
+            crtc_mode_info_two->refresh_rate_mode) ? 1 : -1;
 
   return g_strcmp0 (meta_crtc_mode_get_name (crtc_mode_one),
                     meta_crtc_mode_get_name (crtc_mode_two));
@@ -332,6 +332,13 @@ init_output_modes (MetaOutputInfo    *output_info,
       MetaKmsMode *kms_mode = l->data;
       MetaCrtcMode *crtc_mode;
 
+      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
+                                                       kms_mode,
+                                                       META_CRTC_REFRESH_RATE_MODE_FIXED);
+      output_info->modes[i++] = g_object_ref (crtc_mode);
+      if (!output_info->preferred_mode && kms_mode == kms_preferred_mode)
+        output_info->preferred_mode = crtc_mode;
+
       if (add_vrr_modes)
         {
           crtc_mode =
@@ -342,13 +349,6 @@ init_output_modes (MetaOutputInfo    *output_info,
           if (!output_info->preferred_mode && kms_mode == kms_preferred_mode)
             output_info->preferred_mode = crtc_mode;
         }
-
-      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms,
-                                                       kms_mode,
-                                                       META_CRTC_REFRESH_RATE_MODE_FIXED);
-      output_info->modes[i++] = g_object_ref (crtc_mode);
-      if (!output_info->preferred_mode && kms_mode == kms_preferred_mode)
-        output_info->preferred_mode = crtc_mode;
     }
 
   maybe_add_fallback_modes (connector_state,

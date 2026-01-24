@@ -1476,7 +1476,7 @@ generate_tiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
             }
 
           if (mode_priv->spec.refresh_rate == best_refresh_rate &&
-              mode_priv->spec.refresh_rate_mode > best_refresh_rate_mode)
+              mode_priv->spec.refresh_rate_mode < best_refresh_rate_mode)
             {
               best_mode = mode;
               best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
@@ -1698,7 +1698,7 @@ find_best_mode (MetaMonitor *monitor)
         }
 
       if (mode_priv->spec.refresh_rate == best_refresh_rate &&
-          mode_priv->spec.refresh_rate_mode > best_refresh_rate_mode)
+          mode_priv->spec.refresh_rate_mode < best_refresh_rate_mode)
         {
           best_mode = mode;
           best_refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
