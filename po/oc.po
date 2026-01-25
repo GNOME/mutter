@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-10-16 16:08+0000\n"
-"PO-Revision-Date: 2025-10-22 20:02+0200\n"
+"POT-Creation-Date: 2026-01-21 14:49+0000\n"
+"PO-Revision-Date: 2026-01-25 18:28+0100\n"
 "Last-Translator: Quentin PAGÈS\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -690,22 +690,30 @@ msgid "_Inhibit system shortcuts"
 msgstr "_Inibir los acorchis de clavièr sistèma"
 
 #: mdk/mdk-main-window.ui:20
+msgid "_Monitors"
+msgstr "_Ecrans"
+
+#: mdk/mdk-main-window.ui:22
+msgid "_Resizable"
+msgstr "_Redimensionable"
+
+#: mdk/mdk-main-window.ui:29
 msgid "_Launchers"
 msgstr "_Aviadors"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:33
 msgid "_Edit launchers"
 msgstr "_Modificar los aviadors"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:40
 msgid "_About Mutter Development Kit"
 msgstr "_A prepaus del kit de desvolopament Mutter"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Kit de desvolopament Mutter"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:56
 msgid "Main Menu"
 msgstr "Menú principal"
 
@@ -721,7 +729,7 @@ msgstr "Kit de desvolopament logicial Mutter"
 msgid "About Mutter Development Kit"
 msgstr "A prepaus del kit de desvolopament Mutter"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "Impossible de crear lo monitor"
 
@@ -756,74 +764,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Eveniment sonòr"
 
-#: src/core/display.c:742
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "Ecran de confidencialitat activat"
 
-#: src/core/display.c:743
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidencialitat desactivat"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Remplaçar lo gestionari de fenèstras en cors de foncionament"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Afichatge X d'utilizar"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "Rendre sincròns los apèls a X"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:355
 msgid "Run as a wayland compositor"
 msgstr "Aviar coma un compositor wayland"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Executar coma un compositor imbricat"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:362
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar lo compositor wayland sens aviar Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:369
 msgid "Specify Wayland display name to use"
 msgstr "Indicar lo nom d'afichar per Wayland"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:376
 msgid "Run as a full display server, rather than nested"
 msgstr "Aviar coma un servidor d'afichatge complet, puslèu qu'imbricat"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:381
 msgid "Run as a headless display server"
 msgstr "Aviar coma un servidor sens afichatge"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:386
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Apondre un monitor virtual persistant (WxH o WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:393
 msgid "Run development kit"
 msgstr "Lançar lo kit de desvolopament"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Lançar amb lo motor X11"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:404
 msgid "Profile performance using trace instrumentation"
 msgstr "Perfilar las performanças en utilizant las instruccions de traçatge"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:410
 msgid "Enable debug control D-Bus interface"
 msgstr "Activar lo contraròtle de desbugatge de l’interfàcia D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambiament de mòde (grop %d)"
@@ -831,7 +819,7 @@ msgstr "Cambiament de mòde (grop %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Cambiar de mòde"
@@ -839,11 +827,11 @@ msgstr "Cambiar de mòde"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Cambiar de monitor"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Afichar l’ajuda a l’ecran"
 
@@ -852,11 +840,11 @@ msgstr "Afichar l’ajuda a l’ecran"
 msgid "Compositor"
 msgstr "Compositor"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Imprimir la version"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Empeuton de Mutter d'utilizar"
 
@@ -865,7 +853,7 @@ msgstr "Empeuton de Mutter d'utilizar"
 msgid "Workspace %d"
 msgstr "Espaci de trabalh %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter es estat compilat sens la presa en carga del mòde verbós"
 
@@ -878,28 +866,24 @@ msgstr "Espaci de trabalh cambiat"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiament de mòde : mòde %d"
 
-#: src/x11/meta-x11-display.c:844
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"L'afichatge « %s » a ja un gestionari de fenèstras ; ensajatz d'utilizar "
-"l'opcion --replace per remplaçar lo gestionari de fenèstras actual."
+msgid "Display “%s” already has a window manager"
+msgstr "L'ecran « %s » a ja un gestionari de fenèstras"
 
-#: src/x11/meta-x11-display.c:1229
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Impossible de dobrir l'afichatge « %s » del sistèma X Window"
 
-#: src/x11/meta-x11-display.c:1462
+#: src/x11/meta-x11-display.c:1320
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "L'ecran %d sus l'afichatge « %s » es pas valid"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2790
+#: src/x11/meta-x11-display.c:2509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -912,10 +896,33 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Lo format %s es pas pres en carga"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (sus %s)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "Remplaçar lo gestionari de fenèstras en cors de foncionament"
+
+#~ msgid "X Display to use"
+#~ msgstr "Afichatge X d'utilizar"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "Rendre sincròns los apèls a X"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Executar coma un compositor imbricat"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "Lançar amb lo motor X11"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "L'afichatge « %s » a ja un gestionari de fenèstras ; ensajatz d'utilizar "
+#~ "l'opcion --replace per remplaçar lo gestionari de fenèstras actual."
 
 #~ msgid "Disable connection to session manager"
 #~ msgstr "Desactivar la connexion al gestionari de sessions"
