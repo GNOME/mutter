@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-08-31 20:24+0000\n"
-"PO-Revision-Date: 2025-09-04 19:30+0300\n"
+"POT-Creation-Date: 2026-01-21 14:49+0000\n"
+"PO-Revision-Date: 2026-01-25 05:54+0300\n"
 "Last-Translator: Sabri Ünal <yakushabb@gmail.com>\n"
 "Language-Team: Türkçe <takim@gnome.org.tr>\n"
 "Language: tr\n"
@@ -25,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.8\n"
 "X-DamnedLies-Scope: partial\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -689,22 +689,30 @@ msgid "_Inhibit system shortcuts"
 msgstr "Sistem kısayollarını _engelle"
 
 #: mdk/mdk-main-window.ui:20
+msgid "_Monitors"
+msgstr "_Monitörler"
+
+#: mdk/mdk-main-window.ui:22
+msgid "_Resizable"
+msgstr "_Yeniden boyutlandırılabilir"
+
+#: mdk/mdk-main-window.ui:29
 msgid "_Launchers"
 msgstr "_Başlatıcılar"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:33
 msgid "_Edit launchers"
 msgstr "Başlatıcıları _düzenle"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:40
 msgid "_About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı _Hakkında"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:56
 msgid "Main Menu"
 msgstr "Ana Menü"
 
@@ -720,7 +728,7 @@ msgstr "Mutter yazılım geliştirme takımı"
 msgid "About Mutter Development Kit"
 msgstr "Mutter Geliştirme Takımı Hakkında"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "Monitör oluşturulamadı"
 
@@ -755,74 +763,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Etkinlik zili"
 
-#: src/core/display.c:742
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "Gizlilik Ekranı Etkin"
 
-#: src/core/display.c:743
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "Gizlilik Ekranı Devre Dışı"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Çalışan pencere yöneticisinin yerini al"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Kullanılacak X Ekranı"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "X çağrılarını eşzamanlı yap"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:355
 msgid "Run as a wayland compositor"
 msgstr "Wayland dizgici olarak çalıştır"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Yuvalanmış dizgici olarak çalıştır"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:362
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:369
 msgid "Specify Wayland display name to use"
 msgstr "Kullanılacak Wayland monitör adını belirt"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:376
 msgid "Run as a full display server, rather than nested"
 msgstr "İç içe değil, tam monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:381
 msgid "Run as a headless display server"
 msgstr "Başsız monitör sunucusu olarak çalıştır"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:386
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Kalıcı sanal monitör ekle (GxY veya GxY@O)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:393
 msgid "Run development kit"
 msgstr "Geliştirme takımını çalıştır"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "X11 arkayüzüyle çalıştır"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:404
 msgid "Profile performance using trace instrumentation"
 msgstr "İzleme araçları kullanarak başarımı profille"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:410
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus arayüzü için hata ayıklama denetimini etkinleştir"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Kip Anahtarı (Küme %d)"
@@ -830,7 +818,7 @@ msgstr "Kip Anahtarı (Küme %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Kip Değiştir"
@@ -838,11 +826,11 @@ msgstr "Kip Değiştir"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Monitör değiştir"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Ekranda yardımı göster"
 
@@ -851,20 +839,20 @@ msgstr "Ekranda yardımı göster"
 msgid "Compositor"
 msgstr "Dizgici"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Sürümü yazdır"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Kullanılacak Mutter eklentisi"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş"
 
@@ -877,29 +865,24 @@ msgstr "Çalışma alanı değiştirildi"
 msgid "Mode Switch: Mode %d"
 msgstr "Kip Anahtarı: Kip %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"“%s” monitörünün halihazırda pencere yöneticisi var; geçerli pencere "
-"yöneticisinin yerine başkasını koymak için --replace seçeneğini kullanmayı "
-"deneyin."
+msgid "Display “%s” already has a window manager"
+msgstr "“%s” ekranının zaten pencere yöneticisi var"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Pencere Sistemi monitörü “%s” açılamadı"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1320
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "“%2$s” monitöründeki %1$d ekranı geçersiz"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -912,7 +895,31 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "%s biçimi desteklenmiyor"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "Çalışan pencere yöneticisinin yerini al"
+
+#~ msgid "X Display to use"
+#~ msgstr "Kullanılacak X Ekranı"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "X çağrılarını eşzamanlı yap"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Yuvalanmış dizgici olarak çalıştır"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "X11 arkayüzüyle çalıştır"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "“%s” monitörünün halihazırda pencere yöneticisi var; geçerli pencere "
+#~ "yöneticisinin yerine başkasını koymak için --replace seçeneğini "
+#~ "kullanmayı deneyin."
