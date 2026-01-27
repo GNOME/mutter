@@ -3061,6 +3061,9 @@ test_case_do (TestCase    *test,
         return FALSE;
 
       g_hash_table_remove (test->popups, argv[1]);
+
+      if (!test_case_wait (test, error))
+        return FALSE;
     }
   else
     {
