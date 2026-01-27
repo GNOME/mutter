@@ -427,14 +427,6 @@ cogl_onscreen_peek_head_frame_info (CoglOnscreen *onscreen)
 }
 
 CoglFrameInfo *
-cogl_onscreen_peek_tail_frame_info (CoglOnscreen *onscreen)
-{
-  CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
-
-  return g_queue_peek_tail (&priv->pending_frame_infos);
-}
-
-CoglFrameInfo *
 cogl_onscreen_pop_head_frame_info (CoglOnscreen *onscreen)
 {
   CoglOnscreenPrivate *priv = cogl_onscreen_get_instance_private (onscreen);
@@ -475,19 +467,6 @@ void
 _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info)
 {
   notify_event (onscreen, COGL_FRAME_EVENT_COMPLETE, info);
-}
-
-void
-_cogl_framebuffer_winsys_update_size (CoglFramebuffer *framebuffer,
-                                      int width, int height)
-{
-  if (cogl_framebuffer_get_width (framebuffer) == width &&
-      cogl_framebuffer_get_height (framebuffer) == height)
-    return;
-
-  cogl_framebuffer_update_size (framebuffer, width, height);
-
-  _cogl_onscreen_queue_full_dirty (COGL_ONSCREEN (framebuffer));
 }
 
 int64_t
