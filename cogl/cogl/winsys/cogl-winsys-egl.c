@@ -191,7 +191,7 @@ try_create_context (CoglWinsysEGL  *winsys,
 {
   CoglRenderer *renderer = display->renderer;
   CoglDisplayEGL *egl_display = display->winsys;
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
   CoglWinsysEGLClass *egl_class = COGL_WINSYS_EGL_GET_CLASS (winsys);
   EGLConfig config;
@@ -321,8 +321,8 @@ static void
 _cogl_winsys_display_destroy (CoglWinsys  *winsys,
                               CoglDisplay *display)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (display->renderer);
-  CoglRendererEglPrivate *priv_renderer =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (display->renderer);
+  CoglRendererEGLPrivate *priv_renderer =
     cogl_renderer_egl_get_private (renderer_egl);
   EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
@@ -369,7 +369,7 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
   CoglRenderer *renderer = context->display->renderer;
   CoglDriver *driver = cogl_renderer_get_driver (renderer);
   CoglDisplayEGL *egl_display = context->display->winsys;
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
 
   g_return_val_if_fail (egl_display->egl_context, FALSE);
 
@@ -413,8 +413,8 @@ static int
 _cogl_winsys_get_sync_fd (CoglWinsys  *winsys,
                           CoglContext *context)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_private (renderer_egl);
   EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
@@ -434,8 +434,8 @@ static void
 _cogl_winsys_update_sync (CoglWinsys  *winsys,
                           CoglContext *context)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (context->display->renderer);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_private (renderer_egl);
   EGLSyncKHR sync = cogl_renderer_egl_get_sync (renderer_egl);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);

@@ -28,7 +28,7 @@ typedef struct _MetaRendererNativeGpuData MetaRendererNativeGpuData;
 G_DECLARE_FINAL_TYPE (MetaRendererEgl,
                       meta_renderer_egl,
                       META, RENDERER_EGL,
-                      CoglRendererEgl)
+                      CoglRendererEGL)
 
 MetaRendererEgl *meta_renderer_egl_new (MetaRendererNativeGpuData * renderer_gpu_data);
 
