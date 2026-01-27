@@ -49,11 +49,7 @@ G_BEGIN_DECLS
  * A #CoglRenderer represents a means to render. It encapsulates the
  * selection of an underlying driver, such as OpenGL or OpenGL-ES.
  *
- * A #CoglRenderer has two states, "unconnected" and "connected". When
- * a renderer is first instantiated using cogl_renderer_new() it is
- * unconnected so that it can be configured and constraints can be
- * specified for how the backend driver and window system should be
- * chosen.
+ * A #CoglRenderer has two states, "unconnected" and "connected".
  *
  * After configuration a #CoglRenderer can (optionally) be explicitly
  * connected using cogl_renderer_connect() which allows for the
@@ -142,35 +138,6 @@ G_DECLARE_DERIVABLE_TYPE (CoglRenderer,
                           COGL,
                           RENDERER,
                           GObject)
-
-
-/**
- * cogl_renderer_new:
- *
- * Instantiates a new (unconnected) #CoglRenderer object. A
- * #CoglRenderer represents a means to render. It encapsulates the
- * selection of an underlying driver, such as OpenGL or OpenGL-ES and
- * a selection of a window system binding API such as EGL.
- *
- * Once the renderer has been configured, then it may (optionally) be
- * explicitly connected using cogl_renderer_connect() which allows
- * errors to be handled gracefully and potentially fallback
- * configurations can be tried out if there are initial failures.
- *
- * If a renderer is not explicitly connected then cogl_display_new()
- * will automatically connect the renderer for you. If you don't
- * have any code to deal with error/fallback situations then its fine
- * to just let Cogl do the connection for you.
- *
- * Once you have setup your renderer then the next step is to create a
- * #CoglDisplay using cogl_display_new().
- *
- * Return value: (transfer full): A newly created #CoglRenderer.
- */
-COGL_EXPORT CoglRenderer *
-cogl_renderer_new (void);
-
-/* optional configuration APIs */
 
 /* Final connection API */
 
