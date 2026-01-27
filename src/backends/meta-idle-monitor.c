@@ -317,6 +317,11 @@ make_watch (MetaIdleMonitor           *monitor,
  * meta_idle_monitor_remove_watch(), or can be used to tell idle time
  * watches apart if you have more than one.
  *
+ * The idle watch is affected by idle inhibitors and takes into account
+ * the idle time from before the watch was added.
+ * meta_idle_monitor_add_idle_watch_full() allows creating idle watches
+ * with different behavior.
+ *
  * Also note that this function will only care about positive transitions
  * (user's idle time exceeding a certain time). If you want to know about
  * when the user has become active, use
