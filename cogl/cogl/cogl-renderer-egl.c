@@ -42,13 +42,13 @@
 
 #include "cogl/cogl-renderer-egl-private.h"
 
-G_DEFINE_TYPE_WITH_PRIVATE (CoglRendererEgl, cogl_renderer_egl, COGL_TYPE_RENDERER)
+G_DEFINE_TYPE_WITH_PRIVATE (CoglRendererEGL, cogl_renderer_egl, COGL_TYPE_RENDERER)
 
 static void
 cogl_renderer_egl_dispose (GObject *object)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (object);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (object);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
 
   if (priv->libgl_module)
@@ -71,8 +71,8 @@ cogl_renderer_egl_load_driver (CoglRenderer  *renderer,
                                CoglDriverId   driver_id,
                                GError       **error)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
   const char *libgl_name = NULL;
   CoglDriver *driver = NULL;
@@ -120,8 +120,8 @@ static GCallback
 cogl_renderer_egl_get_proc_address (CoglRenderer *renderer,
                                     const char   *name)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
   GCallback result = eglGetProcAddress (name);
 
@@ -136,8 +136,8 @@ cogl_renderer_egl_get_proc_address (CoglRenderer *renderer,
 void
 cogl_renderer_egl_check_extensions (CoglRenderer *renderer)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
   const char *egl_extensions;
   char **split_extensions;
@@ -167,8 +167,8 @@ static gboolean
 cogl_renderer_egl_connect (CoglRenderer   *renderer,
                            GError        **error)
 {
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (renderer);
-  CoglRendererEglPrivate *priv =
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
+  CoglRendererEGLPrivate *priv =
     cogl_renderer_egl_get_instance_private (renderer_egl);
 
   if (!eglInitialize (priv->edisplay,
@@ -187,7 +187,7 @@ cogl_renderer_egl_connect (CoglRenderer   *renderer,
 }
 
 static void
-cogl_renderer_egl_class_init (CoglRendererEglClass *class)
+cogl_renderer_egl_class_init (CoglRendererEGLClass *class)
 {
   CoglRendererClass *renderer_class =
     COGL_RENDERER_CLASS (class);
@@ -202,27 +202,27 @@ cogl_renderer_egl_class_init (CoglRendererEglClass *class)
 }
 
 static void
-cogl_renderer_egl_init (CoglRendererEgl *renderer_egl)
+cogl_renderer_egl_init (CoglRendererEGL *renderer_egl)
 {
 }
 
-CoglRendererEgl *
+CoglRendererEGL *
 cogl_renderer_egl_new (void)
 {
   return g_object_new (COGL_TYPE_RENDERER_EGL, NULL);
 }
 
-CoglRendererEglPrivate *
-cogl_renderer_egl_get_private (CoglRendererEgl *renderer_egl)
+CoglRendererEGLPrivate *
+cogl_renderer_egl_get_private (CoglRendererEGL *renderer_egl)
 {
   return cogl_renderer_egl_get_instance_private (renderer_egl);
 }
 
 void
-cogl_renderer_egl_set_edisplay (CoglRendererEgl *renderer_egl,
+cogl_renderer_egl_set_edisplay (CoglRendererEGL *renderer_egl,
                                 EGLDisplay       edisplay)
 {
-  CoglRendererEglPrivate *priv;
+  CoglRendererEGLPrivate *priv;
 
   g_return_if_fail (COGL_IS_RENDERER_EGL (renderer_egl));
 
@@ -231,9 +231,9 @@ cogl_renderer_egl_set_edisplay (CoglRendererEgl *renderer_egl,
 }
 
 EGLDisplay
-cogl_renderer_egl_get_edisplay (CoglRendererEgl *renderer_egl)
+cogl_renderer_egl_get_edisplay (CoglRendererEGL *renderer_egl)
 {
-  CoglRendererEglPrivate *priv;
+  CoglRendererEGLPrivate *priv;
 
   g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), EGL_NO_DISPLAY);
 
@@ -242,10 +242,10 @@ cogl_renderer_egl_get_edisplay (CoglRendererEgl *renderer_egl)
 }
 
 void
-cogl_renderer_egl_set_needs_config (CoglRendererEgl *renderer_egl,
+cogl_renderer_egl_set_needs_config (CoglRendererEGL *renderer_egl,
                                     gboolean         needs_config)
 {
-  CoglRendererEglPrivate *priv;
+  CoglRendererEGLPrivate *priv;
 
   g_return_if_fail (COGL_IS_RENDERER_EGL (renderer_egl));
 
@@ -254,9 +254,9 @@ cogl_renderer_egl_set_needs_config (CoglRendererEgl *renderer_egl,
 }
 
 gboolean
-cogl_renderer_egl_get_needs_config (CoglRendererEgl *renderer_egl)
+cogl_renderer_egl_get_needs_config (CoglRendererEGL *renderer_egl)
 {
-  CoglRendererEglPrivate *priv;
+  CoglRendererEGLPrivate *priv;
 
   g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
 
@@ -265,9 +265,9 @@ cogl_renderer_egl_get_needs_config (CoglRendererEgl *renderer_egl)
 }
 
 EGLSyncKHR
-cogl_renderer_egl_get_sync (CoglRendererEgl *renderer_egl)
+cogl_renderer_egl_get_sync (CoglRendererEGL *renderer_egl)
 {
-  CoglRendererEglPrivate *priv;
+  CoglRendererEGLPrivate *priv;
 
   g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), 0);
 
@@ -276,10 +276,10 @@ cogl_renderer_egl_get_sync (CoglRendererEgl *renderer_egl)
 }
 
 gboolean
-cogl_renderer_egl_has_feature (CoglRendererEgl      *renderer_egl,
+cogl_renderer_egl_has_feature (CoglRendererEGL      *renderer_egl,
                                CoglEGLWinsysFeature  feature)
 {
-  CoglRendererEglPrivate *priv;
+  CoglRendererEGLPrivate *priv;
 
   g_return_val_if_fail (COGL_IS_RENDERER_EGL (renderer_egl), FALSE);
 

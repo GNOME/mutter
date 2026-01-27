@@ -64,7 +64,7 @@ G_BEGIN_DECLS
 struct wl_resource;
 #endif
 
-typedef struct _CoglRendererEglPrivate
+typedef struct _CoglRendererEGLPrivate
 {
   GModule *libgl_module;
 
@@ -96,7 +96,7 @@ typedef struct _CoglRendererEglPrivate
 #undef COGL_WINSYS_FEATURE_BEGIN
 #undef COGL_WINSYS_FEATURE_FUNCTION
 #undef COGL_WINSYS_FEATURE_END
-} CoglRendererEglPrivate;
+} CoglRendererEGLPrivate;
 
 /* Define a set of arrays containing the functions required from GL
    for each winsys feature */
@@ -105,7 +105,7 @@ typedef struct _CoglRendererEglPrivate
   static const CoglFeatureFunction                                      \
   cogl_egl_feature_ ## name ## _funcs[] = {
 #define COGL_WINSYS_FEATURE_FUNCTION(ret, name, args)                   \
-  { G_STRINGIFY (name), G_STRUCT_OFFSET (struct _CoglRendererEglPrivate, pf_ ## name) },
+  { G_STRINGIFY (name), G_STRUCT_OFFSET (struct _CoglRendererEGLPrivate, pf_ ## name) },
 #define COGL_WINSYS_FEATURE_END()               \
   { NULL, 0 },                                  \
     };
@@ -129,7 +129,7 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "cogl/winsys/cogl-winsys-egl-feature-functions.h"
   };
 
-CoglRendererEglPrivate * cogl_renderer_egl_get_private (CoglRendererEgl *renderer_egl);
+CoglRendererEGLPrivate * cogl_renderer_egl_get_private (CoglRendererEGL *renderer_egl);
 
 void cogl_renderer_egl_check_extensions (CoglRenderer *renderer);
 

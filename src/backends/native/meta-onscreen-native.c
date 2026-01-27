@@ -2563,7 +2563,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   CoglDisplay *cogl_display = cogl_context->display;
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
   CoglRenderer *cogl_renderer = cogl_display->renderer;
-  CoglRendererEgl *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
+  CoglRendererEGL *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (cogl_renderer_egl);
