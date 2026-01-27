@@ -590,7 +590,7 @@ meta_renderer_native_egl_context_created (CoglWinsysEGL  *winsys,
 {
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
   CoglRenderer *cogl_renderer = cogl_display->renderer;
-  CoglRendererEgl *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
+  CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (renderer_egl);
 

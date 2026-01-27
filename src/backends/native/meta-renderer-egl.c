@@ -26,7 +26,7 @@
 
 struct _MetaRendererEgl
 {
-  CoglRendererEgl parent_instance;
+  CoglRendererEGL parent_instance;
 
   MetaRendererNativeGpuData *renderer_gpu_data;
 };
