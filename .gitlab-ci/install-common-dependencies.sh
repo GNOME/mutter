@@ -147,6 +147,7 @@ SCRIPTS_DIR="$(dirname $0)"
     ./$SCRIPTS_DIR/install-meson-project.sh \
       "${OPTIONS[@]}" \
       -Dintrospection=enabled \
+      --commit 9295bfb522c7f14026d8c94ac0c6bfe5a9ef8d64 \
       https://gitlab.gnome.org/GNOME/gtk.git \
       main
 fi
