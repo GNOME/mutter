@@ -76,7 +76,7 @@ typedef struct _CoglRendererPrivate
   GDestroyNotify winsys_user_data_destroy;
 } CoglRendererPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglRenderer, cogl_renderer, G_TYPE_OBJECT);
 
 enum
 {
@@ -180,14 +180,6 @@ uint32_t
 cogl_renderer_error_quark (void)
 {
   return g_quark_from_static_string ("cogl-renderer-error-quark");
-}
-
-CoglRenderer *
-cogl_renderer_new (void)
-{
-  CoglRenderer *renderer = g_object_new (COGL_TYPE_RENDERER, NULL);
-
-  return renderer;
 }
 
 typedef gboolean (*CoglDriverCallback) (CoglDriverId  driver_id,
