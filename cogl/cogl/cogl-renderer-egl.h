@@ -56,49 +56,49 @@ typedef enum _CoglEGLWinsysFeature
 
 #define COGL_TYPE_RENDERER_EGL (cogl_renderer_egl_get_type ())
 
-struct _CoglRendererEglClass
+struct _CoglRendererEGLClass
 {
   CoglRendererClass parent_class;
 };
 
 COGL_EXPORT
-G_DECLARE_DERIVABLE_TYPE (CoglRendererEgl,
+G_DECLARE_DERIVABLE_TYPE (CoglRendererEGL,
                           cogl_renderer_egl,
                           COGL,
                           RENDERER_EGL,
                           CoglRenderer)
 
 COGL_EXPORT
-CoglRendererEgl *cogl_renderer_egl_new (void);
+CoglRendererEGL *cogl_renderer_egl_new (void);
 
 /**
  * cogl_renderer_egl_set_edisplay: (skip)
  */
 COGL_EXPORT
-void cogl_renderer_egl_set_edisplay (CoglRendererEgl *renderer_egl,
+void cogl_renderer_egl_set_edisplay (CoglRendererEGL *renderer_egl,
                                      EGLDisplay       edisplay);
 
 /**
  * cogl_renderer_egl_get_edisplay: (skip)
  */
 COGL_EXPORT
-EGLDisplay cogl_renderer_egl_get_edisplay (CoglRendererEgl *renderer_egl);
+EGLDisplay cogl_renderer_egl_get_edisplay (CoglRendererEGL *renderer_egl);
 
 COGL_EXPORT
-void cogl_renderer_egl_set_needs_config (CoglRendererEgl *renderer_egl,
+void cogl_renderer_egl_set_needs_config (CoglRendererEGL *renderer_egl,
                                          gboolean         needs_config);
 
 COGL_EXPORT
-gboolean cogl_renderer_egl_get_needs_config (CoglRendererEgl *renderer_egl);
+gboolean cogl_renderer_egl_get_needs_config (CoglRendererEGL *renderer_egl);
 
 /**
  * cogl_renderer_egl_get_sync: (skip)
  */
 COGL_EXPORT
-EGLSyncKHR cogl_renderer_egl_get_sync (CoglRendererEgl *renderer_egl);
+EGLSyncKHR cogl_renderer_egl_get_sync (CoglRendererEGL *renderer_egl);
 
 COGL_EXPORT
-gboolean cogl_renderer_egl_has_feature (CoglRendererEgl      *renderer_egl,
+gboolean cogl_renderer_egl_has_feature (CoglRendererEGL      *renderer_egl,
                                         CoglEGLWinsysFeature  feature);
 
 G_END_DECLS
