@@ -257,9 +257,10 @@ setup_view (MetaScreenCastVirtualStreamSrc *virtual_src,
                            on_skipped_paint,
                            virtual_src);
 
-  virtual_src->layout_binding = g_object_bind_property (view, "layout",
-                                                        src, "layout",
-                                                        G_BINDING_SYNC_CREATE);
+  g_set_object (&virtual_src->layout_binding,
+                g_object_bind_property (view, "layout",
+                                        src, "layout",
+                                        G_BINDING_SYNC_CREATE));
 
   if (meta_screen_cast_stream_src_is_enabled (src) &&
       !meta_screen_cast_stream_src_is_driving (src))
