@@ -185,16 +185,16 @@ void  meta_seat_impl_reclaim_devices (MetaSeatImpl *seat_impl);
 
 struct xkb_state * meta_seat_impl_get_xkb_state_in_impl (MetaSeatImpl *seat_impl);
 
-gboolean meta_seat_impl_set_keyboard_map_finish (MetaSeatImpl  *seat_impl,
-                                                 GAsyncResult  *result,
-                                                 GError       **error);
+gboolean meta_seat_impl_set_keymap_finish (MetaSeatImpl  *seat_impl,
+                                           GAsyncResult  *result,
+                                           GError       **error);
 
-void meta_seat_impl_set_keyboard_map_async (MetaSeatImpl          *seat_impl,
-                                            MetaKeymapDescription *keymap_description,
-                                            xkb_layout_index_t     layout_index,
-                                            GCancellable          *cancellable,
-                                            GAsyncReadyCallback    callback,
-                                            gpointer               user_data);
+void meta_seat_impl_set_keymap_async (MetaSeatImpl          *seat_impl,
+                                      MetaKeymapDescription *keymap_description,
+                                      xkb_layout_index_t     layout_index,
+                                      GCancellable          *cancellable,
+                                      GAsyncReadyCallback    callback,
+                                      gpointer               user_data);
 
 void meta_seat_impl_set_keyboard_repeat_in_impl (MetaSeatImpl *seat_impl,
                                                  gboolean      repeat,

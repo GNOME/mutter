@@ -99,21 +99,21 @@ void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callba
 void  meta_seat_native_release_devices (MetaSeatNative *seat);
 void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
 
-void meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
-                                              MetaKeymapDescription *description,
-                                              xkb_layout_index_t     layout_index,
-                                              GCancellable          *cancellable,
-                                              GAsyncReadyCallback    callback,
-                                              gpointer               user_data);
+void meta_seat_native_set_keymap_async (MetaSeatNative        *seat,
+                                        MetaKeymapDescription *description,
+                                        xkb_layout_index_t     layout_index,
+                                        GCancellable          *cancellable,
+                                        GAsyncReadyCallback    callback,
+                                        gpointer               user_data);
 
-gboolean meta_seat_native_set_keyboard_map_finish (MetaSeatNative  *seat_native,
-                                                   GAsyncResult    *result,
-                                                   GError         **error);
+gboolean meta_seat_native_set_keymap_finish (MetaSeatNative  *seat_native,
+                                             GAsyncResult    *result,
+                                             GError         **error);
 
 META_EXPORT_TEST
-struct xkb_keymap * meta_seat_native_get_keyboard_map (MetaSeatNative *seat);
+struct xkb_keymap * meta_seat_native_get_xkb_keymap (MetaSeatNative *seat);
 
-MetaKeymapDescription * meta_seat_native_get_keyboard_map_description (MetaSeatNative *seat_native);
+MetaKeymapDescription * meta_seat_native_get_keymap_description (MetaSeatNative *seat_native);
 
 xkb_layout_index_t meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat);
 

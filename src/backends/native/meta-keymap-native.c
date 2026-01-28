@@ -242,13 +242,13 @@ update_keymap_in_main (gpointer user_data)
 }
 
 void
-meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
-                                             MetaSeatImpl          *seat_impl,
-                                             MetaKeymapDescription *keymap_description,
-                                             struct xkb_keymap     *xkb_keymap,
-                                             struct xkb_state      *xkb_state,
-                                             GStrv                  display_names,
-                                             GStrv                  short_names)
+meta_keymap_native_set_keymap_in_impl (MetaKeymapNative      *keymap,
+                                       MetaSeatImpl          *seat_impl,
+                                       MetaKeymapDescription *keymap_description,
+                                       struct xkb_keymap     *xkb_keymap,
+                                       struct xkb_state      *xkb_state,
+                                       GStrv                  display_names,
+                                       GStrv                  short_names)
 {
   UpdateKeymapData *data;
 
@@ -270,7 +270,7 @@ meta_keymap_native_set_keyboard_map_in_impl (MetaKeymapNative      *keymap,
 }
 
 struct xkb_keymap *
-meta_keymap_native_get_keyboard_map_in_impl (MetaKeymapNative *keymap)
+meta_keymap_native_get_xkb_keymap_in_impl (MetaKeymapNative *keymap)
 {
   return keymap->impl.keymap;
 }

@@ -318,15 +318,15 @@ meta_backend_native_get_current_logical_monitor (MetaBackend *backend)
 }
 
 static void
-set_keyboard_map_cb (GObject      *source_object,
-                     GAsyncResult *result,
-                     gpointer      user_data)
+set_keymap_cb (GObject      *source_object,
+               GAsyncResult *result,
+               gpointer      user_data)
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (source_object);
   g_autoptr (GTask) task = G_TASK (user_data);
   g_autoptr (GError) error = NULL;
 
-  if (!meta_seat_native_set_keyboard_map_finish (seat_native, result, &error))
+  if (!meta_seat_native_set_keymap_finish (seat_native, result, &error))
     {
       g_task_return_error (task, g_steal_pointer (&error));
       return;
@@ -345,12 +345,12 @@ meta_backend_native_set_keymap_async (MetaBackend           *backend,
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_backend);
-  meta_seat_native_set_keyboard_map_async (META_SEAT_NATIVE (seat),
-                                           description,
-                                           layout_index,
-                                           g_task_get_cancellable (task),
-                                           set_keyboard_map_cb,
-                                           task);
+  meta_seat_native_set_keymap_async (META_SEAT_NATIVE (seat),
+                                     description,
+                                     layout_index,
+                                     g_task_get_cancellable (task),
+                                     set_keymap_cb,
+                                     task);
 
 }
 
@@ -361,7 +361,7 @@ meta_backend_native_get_keymap (MetaBackend *backend)
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_backend);
-  return meta_seat_native_get_keyboard_map (META_SEAT_NATIVE (seat));
+  return meta_seat_native_get_xkb_keymap (META_SEAT_NATIVE (seat));
 }
 
 static MetaKeymapDescription *
@@ -371,7 +371,7 @@ meta_backend_native_get_keymap_description (MetaBackend *backend)
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_backend);
-  return meta_seat_native_get_keyboard_map_description (META_SEAT_NATIVE (seat));
+  return meta_seat_native_get_keymap_description (META_SEAT_NATIVE (seat));
 }
 
 static xkb_layout_index_t

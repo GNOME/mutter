@@ -67,11 +67,11 @@ static guint signals[N_SIGNALS];
 
 G_DEFINE_TYPE (MetaSeatNative, meta_seat_native, CLUTTER_TYPE_SEAT)
 
-static gboolean meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
-                                                        MetaKeymapDescription  *description,
-                                                        xkb_layout_index_t      layout_index,
-                                                        GCancellable           *cancellable,
-                                                        GError                **error);
+static gboolean meta_seat_native_set_keymap_sync (MetaSeatNative         *seat_native,
+                                                  MetaKeymapDescription  *description,
+                                                  xkb_layout_index_t      layout_index,
+                                                  GCancellable           *cancellable,
+                                                  GError                **error);
 
 static gboolean
 meta_seat_native_handle_event_post (ClutterSeat        *seat,
@@ -245,9 +245,9 @@ meta_seat_native_constructed (GObject *object)
                                                                NULL,
                                                                NULL,
                                                                NULL);
-  if (!meta_seat_native_set_keyboard_map_sync (seat,
-                                               keymap_description, 0,
-                                               NULL, &error))
+  if (!meta_seat_native_set_keymap_sync (seat,
+                                         keymap_description, 0,
+                                         NULL, &error))
     g_warning ("Failed to set keyboard map: %s", error->message);
 
   seat->secondary_cursor_renderers = g_hash_table_new_full (NULL, NULL, NULL,
@@ -622,15 +622,15 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
 }
 
 gboolean
-meta_seat_native_set_keyboard_map_finish (MetaSeatNative  *seat_native,
-                                          GAsyncResult    *result,
-                                          GError         **error)
+meta_seat_native_set_keymap_finish (MetaSeatNative  *seat_native,
+                                    GAsyncResult    *result,
+                                    GError         **error)
 {
   GTask *task = G_TASK (result);
 
   g_return_val_if_fail (g_task_is_valid (result, seat_native), FALSE);
   g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
-                        meta_seat_native_set_keyboard_map_async, FALSE);
+                        meta_seat_native_set_keymap_async, FALSE);
 
   return g_task_propagate_boolean (task, error);
 }
@@ -644,7 +644,7 @@ set_impl_keyboard_map_cb (GObject      *source_object,
   g_autoptr (GTask) task = G_TASK (user_data);
   g_autoptr (GError) error = NULL;
 
-  if (!meta_seat_impl_set_keyboard_map_finish (seat_impl, result, &error))
+  if (!meta_seat_impl_set_keymap_finish (seat_impl, result, &error))
     {
       g_task_return_error (task, g_steal_pointer (&error));
       return;
@@ -654,7 +654,7 @@ set_impl_keyboard_map_cb (GObject      *source_object,
 }
 
 /**
- * meta_seat_native_set_keyboard_map_async: (skip)
+ * meta_seat_native_set_keymap_async: (skip)
  * @seat: the #ClutterSeat created by the evdev backend
  * @keymap: the new keymap
  *
@@ -664,24 +664,24 @@ set_impl_keyboard_map_cb (GObject      *source_object,
  * is pressed when calling this function.
  */
 void
-meta_seat_native_set_keyboard_map_async (MetaSeatNative        *seat,
-                                         MetaKeymapDescription *description,
-                                         xkb_layout_index_t     layout_index,
-                                         GCancellable          *cancellable,
-                                         GAsyncReadyCallback    callback,
-                                         gpointer               user_data)
+meta_seat_native_set_keymap_async (MetaSeatNative        *seat,
+                                   MetaKeymapDescription *description,
+                                   xkb_layout_index_t     layout_index,
+                                   GCancellable          *cancellable,
+                                   GAsyncReadyCallback    callback,
+                                   gpointer               user_data)
 {
   g_autoptr (GTask) task = NULL;
 
   task = g_task_new (G_OBJECT (seat), cancellable, callback, user_data);
-  g_task_set_source_tag (task, meta_seat_native_set_keyboard_map_async);
+  g_task_set_source_tag (task, meta_seat_native_set_keymap_async);
 
-  meta_seat_impl_set_keyboard_map_async (seat->impl,
-                                         description,
-                                         layout_index,
-                                         cancellable,
-                                         set_impl_keyboard_map_cb,
-                                         g_object_ref (task));
+  meta_seat_impl_set_keymap_async (seat->impl,
+                                   description,
+                                   layout_index,
+                                   cancellable,
+                                   set_impl_keyboard_map_cb,
+                                   g_object_ref (task));
 }
 
 static void
@@ -694,7 +694,7 @@ sync_set_impl_keyboard_map_cb (GObject      *source_object,
   GTask *task = G_TASK (user_data);
   GMainLoop *main_loop = g_task_get_task_data (task);
 
-  if (!meta_seat_impl_set_keyboard_map_finish (seat_impl, result, &error))
+  if (!meta_seat_impl_set_keymap_finish (seat_impl, result, &error))
     {
       g_task_return_error (task, g_steal_pointer (&error));
       g_main_loop_quit (main_loop);
@@ -706,11 +706,11 @@ sync_set_impl_keyboard_map_cb (GObject      *source_object,
 }
 
 static gboolean
-meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
-                                        MetaKeymapDescription  *description,
-                                        xkb_layout_index_t      layout_index,
-                                        GCancellable           *cancellable,
-                                        GError                **error)
+meta_seat_native_set_keymap_sync (MetaSeatNative         *seat_native,
+                                  MetaKeymapDescription  *description,
+                                  xkb_layout_index_t      layout_index,
+                                  GCancellable           *cancellable,
+                                  GError                **error)
 {
   g_autoptr (GMainContext) main_context = NULL;
   g_autoptr (GMainLoop) main_loop = NULL;
@@ -724,12 +724,12 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
   task = g_task_new (NULL, NULL, NULL, NULL);
   g_task_set_task_data (task, main_loop, NULL);
 
-  meta_seat_impl_set_keyboard_map_async (seat_native->impl,
-                                         description,
-                                         layout_index,
-                                         cancellable,
-                                         sync_set_impl_keyboard_map_cb,
-                                         task);
+  meta_seat_impl_set_keymap_async (seat_native->impl,
+                                   description,
+                                   layout_index,
+                                   cancellable,
+                                   sync_set_impl_keyboard_map_cb,
+                                   task);
   g_main_loop_run (main_loop);
   g_main_context_pop_thread_default (main_context);
 
@@ -755,7 +755,7 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
 }
 
 /**
- * meta_seat_native_get_keyboard_map: (skip)
+ * meta_seat_native_get_keymap: (skip)
  * @seat: the #ClutterSeat created by the evdev backend
  *
  * Retrieves the #xkb_keymap in use by the evdev backend.
@@ -763,7 +763,7 @@ meta_seat_native_set_keyboard_map_sync (MetaSeatNative         *seat_native,
  * Return value: the #xkb_keymap.
  */
 struct xkb_keymap *
-meta_seat_native_get_keyboard_map (MetaSeatNative *seat)
+meta_seat_native_get_xkb_keymap (MetaSeatNative *seat)
 {
   g_return_val_if_fail (META_IS_SEAT_NATIVE (seat), NULL);
 
@@ -771,7 +771,7 @@ meta_seat_native_get_keyboard_map (MetaSeatNative *seat)
 }
 
 MetaKeymapDescription *
-meta_seat_native_get_keyboard_map_description (MetaSeatNative *seat_native)
+meta_seat_native_get_keymap_description (MetaSeatNative *seat_native)
 {
   g_return_val_if_fail (seat_native->keymap_description, NULL);
 

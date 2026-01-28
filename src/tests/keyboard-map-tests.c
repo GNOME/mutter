@@ -670,7 +670,7 @@ meta_test_native_keyboard_map_modifiers (void)
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
   struct xkb_keymap *xkb_keymap =
-    meta_seat_native_get_keyboard_map (seat_native);
+    meta_seat_native_get_xkb_keymap (seat_native);
   xkb_mod_mask_t shift_mask =
     1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_SHIFT);
   xkb_mod_mask_t alt_mask =

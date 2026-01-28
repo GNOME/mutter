@@ -3013,7 +3013,7 @@ meta_seat_impl_set_keyboard_numlock_in_impl (MetaSeatImpl *seat_impl,
   MetaKeymapNative *keymap;
 
   keymap = seat_impl->keymap;
-  xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (keymap);
+  xkb_keymap = meta_keymap_native_get_xkb_keymap_in_impl (keymap);
 
   numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
 
@@ -3153,7 +3153,7 @@ update_keyboard_leds (MetaSeatImpl *seat_impl)
 
   G_STATIC_ASSERT (G_N_ELEMENTS (led_map) == N_KEYBOARD_LEDS);
 
-  xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (seat_impl->keymap);
+  xkb_keymap = meta_keymap_native_get_xkb_keymap_in_impl (seat_impl->keymap);
   if (!xkb_keymap)
     return;
 
@@ -3196,7 +3196,7 @@ input_thread (MetaSeatImpl *seat_impl)
 
   seat_impl->keymap = meta_keymap_native_new (seat_impl);
 
-  xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (seat_impl->keymap);
+  xkb_keymap = meta_keymap_native_get_xkb_keymap_in_impl (seat_impl->keymap);
 
   if (xkb_keymap)
     {
@@ -3683,7 +3683,7 @@ meta_seat_impl_update_xkb_state_in_impl (MetaSeatImpl *seat_impl)
 
   g_rw_lock_writer_lock (&seat_impl->state_lock);
 
-  xkb_keymap = meta_keymap_native_get_keyboard_map_in_impl (seat_impl->keymap);
+  xkb_keymap = meta_keymap_native_get_xkb_keymap_in_impl (seat_impl->keymap);
   meta_seat_impl_update_xkb_state_in_impl_unlocked (seat_impl,
                                                     xkb_keymap,
                                                     seat_impl->layout_idx);
@@ -3787,15 +3787,15 @@ meta_seat_impl_reclaim_devices (MetaSeatImpl *seat_impl)
 }
 
 gboolean
-meta_seat_impl_set_keyboard_map_finish (MetaSeatImpl  *seat_impl,
-                                        GAsyncResult  *result,
-                                        GError       **error)
+meta_seat_impl_set_keymap_finish (MetaSeatImpl  *seat_impl,
+                                  GAsyncResult  *result,
+                                  GError       **error)
 {
   GTask *task = G_TASK (result);
 
   g_return_val_if_fail (g_task_is_valid (result, seat_impl), FALSE);
   g_return_val_if_fail (g_task_get_source_tag (G_TASK (result)) ==
-                        meta_seat_impl_set_keyboard_map_async, FALSE);
+                        meta_seat_impl_set_keymap_async, FALSE);
 
   return g_task_propagate_boolean (task, error);
 }
@@ -3844,7 +3844,7 @@ update_layout_index_unlocked (MetaSeatImpl       *seat_impl,
 }
 
 static gboolean
-set_keyboard_map (GTask *task)
+set_keymap (GTask *task)
 {
   MetaSeatImpl *seat_impl = g_task_get_source_object (task);
   MetaSeatImplPrivate *priv =
@@ -3902,13 +3902,13 @@ set_keyboard_map (GTask *task)
                                                         data->layout_index);
 
       keymap = seat_impl->keymap;
-      meta_keymap_native_set_keyboard_map_in_impl (keymap,
-                                                   seat_impl,
-                                                   keymap_description,
-                                                   xkb_keymap,
-                                                   seat_impl->xkb,
-                                                   g_steal_pointer (&display_names),
-                                                   g_steal_pointer (&short_names));
+      meta_keymap_native_set_keymap_in_impl (keymap,
+                                             seat_impl,
+                                             keymap_description,
+                                             xkb_keymap,
+                                             seat_impl->xkb,
+                                             g_steal_pointer (&display_names),
+                                             g_steal_pointer (&short_names));
       xkb_keymap_unref (xkb_keymap);
     }
   else
@@ -3924,7 +3924,7 @@ set_keyboard_map (GTask *task)
 }
 
 /**
- * meta_seat_impl_set_keyboard_map_async: (skip)
+ * meta_seat_impl_set_keymap_async: (skip)
  * @seat_impl: the #ClutterSeat created by the evdev backend
  * @keymap: the new keymap
  * @cancellable: a #GCancellable
@@ -3937,12 +3937,12 @@ set_keyboard_map (GTask *task)
  * is pressed when calling this function.
  */
 void
-meta_seat_impl_set_keyboard_map_async (MetaSeatImpl          *seat_impl,
-                                       MetaKeymapDescription *keymap_description,
-                                       xkb_layout_index_t     layout_index,
-                                       GCancellable          *cancellable,
-                                       GAsyncReadyCallback    callback,
-                                       gpointer               user_data)
+meta_seat_impl_set_keymap_async (MetaSeatImpl          *seat_impl,
+                                 MetaKeymapDescription *keymap_description,
+                                 xkb_layout_index_t     layout_index,
+                                 GCancellable          *cancellable,
+                                 GAsyncReadyCallback    callback,
+                                 gpointer               user_data)
 {
   GTask *task;
   SetKeymapData *data;
@@ -3951,13 +3951,13 @@ meta_seat_impl_set_keyboard_map_async (MetaSeatImpl          *seat_impl,
   g_return_if_fail (keymap_description);
 
   task = g_task_new (seat_impl, cancellable, callback, user_data);
-  g_task_set_source_tag (task, meta_seat_impl_set_keyboard_map_async);
+  g_task_set_source_tag (task, meta_seat_impl_set_keymap_async);
 
   data = g_new0 (SetKeymapData, 1);
   data->keymap_description = meta_keymap_description_ref (keymap_description);
   data->layout_index = layout_index;
   g_task_set_task_data (task, data, set_keymap_data_free);
-  meta_seat_impl_run_input_task (seat_impl, task, (GSourceFunc) set_keyboard_map);
+  meta_seat_impl_run_input_task (seat_impl, task, (GSourceFunc) set_keymap);
   g_object_unref (task);
 }
 
