@@ -239,7 +239,7 @@ key_combo_key (MetaResolvedKeyCombo *resolved_combo,
 static void
 reload_modmap (MetaKeyBindingManager *keys)
 {
-  struct xkb_keymap *keymap = meta_backend_get_keymap (keys->backend);
+  struct xkb_keymap *keymap = meta_backend_get_xkb_keymap (keys->backend);
   struct xkb_state *scratch_state;
   xkb_mod_mask_t scroll_lock_mask;
   xkb_mod_mask_t dummy_mask;
@@ -800,7 +800,7 @@ reload_active_keyboard_layouts (MetaKeyBindingManager *keys)
 
   clear_active_keyboard_layouts (keys);
 
-  keymap = meta_backend_get_keymap (keys->backend);
+  keymap = meta_backend_get_xkb_keymap (keys->backend);
   layout_index = meta_backend_get_keymap_layout_group (keys->backend);
   primary_layout = (MetaKeyBindingKeyboardLayout) {
     .keymap = xkb_keymap_ref (keymap),

@@ -165,7 +165,7 @@ meta_test_native_keyboard_map_set_async (void)
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
-  struct xkb_keymap *xkb_keymap = meta_backend_get_keymap (backend);
+  struct xkb_keymap *xkb_keymap = meta_backend_get_xkb_keymap (backend);
   xkb_mod_mask_t alt_mask =
     1 << xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_ALT);
   ModMaskTuple expected_mods = { alt_mask, 0, 0 };
@@ -234,12 +234,12 @@ meta_test_native_keyboard_map_set_async (void)
   meta_backend_set_keymap_async (backend, keymap_description, 0,
                                  NULL, set_keymap_cb, &done);
 
-  g_assert_true (xkb_keymap == meta_backend_get_keymap (backend));
+  g_assert_true (xkb_keymap == meta_backend_get_xkb_keymap (backend));
 
   while (!done || expected_next_handler)
     g_main_context_iteration (NULL, TRUE);
 
-  new_xkb_keymap = meta_backend_get_keymap (backend);
+  new_xkb_keymap = meta_backend_get_xkb_keymap (backend);
   g_assert_true (new_xkb_keymap != xkb_keymap);
   g_assert_cmpuint (xkb_keymap_num_layouts (new_xkb_keymap), ==, 1);
   g_assert_cmpstr (xkb_keymap_layout_get_name (new_xkb_keymap, 0),
@@ -266,7 +266,7 @@ meta_test_native_keyboard_map_change_layout (void)
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
   g_autoptr (ClutterVirtualInputDevice) virtual_keyboard = NULL;
-  struct xkb_keymap *xkb_keymap = meta_backend_get_keymap (backend);
+  struct xkb_keymap *xkb_keymap = meta_backend_get_xkb_keymap (backend);
   g_autoptr (MetaKeymapDescription) keymap_description = NULL;
   struct xkb_keymap *new_xkb_keymap;
   gboolean done = FALSE;
@@ -289,7 +289,7 @@ meta_test_native_keyboard_map_change_layout (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  new_xkb_keymap = meta_backend_get_keymap (backend);
+  new_xkb_keymap = meta_backend_get_xkb_keymap (backend);
   g_assert_true (new_xkb_keymap != xkb_keymap);
   g_assert_cmpuint (xkb_keymap_num_layouts (new_xkb_keymap), ==, 2);
   g_assert_cmpstr (xkb_keymap_layout_get_name (new_xkb_keymap, 0),
@@ -389,7 +389,7 @@ meta_test_native_keyboard_map_set_layout_index (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  keymap = meta_backend_get_keymap (backend);
+  keymap = meta_backend_get_xkb_keymap (backend);
   g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
   g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
                    ==,
@@ -443,7 +443,7 @@ meta_test_native_keyboard_map_lock_layout (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  keymap = xkb_keymap_ref (meta_backend_get_keymap (backend));
+  keymap = xkb_keymap_ref (meta_backend_get_xkb_keymap (backend));
   g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
   g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
                    ==,
@@ -477,7 +477,7 @@ meta_test_native_keyboard_map_lock_layout (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  g_assert_true (keymap == meta_backend_get_keymap (backend));
+  g_assert_true (keymap == meta_backend_get_xkb_keymap (backend));
 
   /*
    * Set the same keymap with a different layout index. Should take effect.
@@ -521,7 +521,7 @@ meta_test_native_keyboard_map_lock_layout (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  keymap = meta_backend_get_keymap (backend);
+  keymap = meta_backend_get_xkb_keymap (backend);
   g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 1);
   g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
                    ==,
@@ -538,7 +538,7 @@ meta_test_native_keyboard_map_lock_layout (void)
   while (!done)
     g_main_context_iteration (NULL, TRUE);
 
-  keymap = meta_backend_get_keymap (backend);
+  keymap = meta_backend_get_xkb_keymap (backend);
   g_assert_cmpuint (xkb_keymap_num_layouts (keymap), ==, 2);
   g_assert_cmpstr (xkb_keymap_layout_get_name (keymap, 0),
                    ==,

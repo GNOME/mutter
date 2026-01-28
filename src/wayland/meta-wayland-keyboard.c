@@ -209,7 +209,8 @@ on_keymap_changed (MetaBackend *backend,
 {
   MetaWaylandKeyboard *keyboard = data;
 
-  meta_wayland_keyboard_take_keymap (keyboard, meta_backend_get_keymap (backend));
+  meta_wayland_keyboard_take_keymap (keyboard,
+                                     meta_backend_get_xkb_keymap (backend));
 }
 
 static void
@@ -454,7 +455,8 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
   g_signal_connect (backend, "keymap-layout-group-changed",
                     G_CALLBACK (on_keymap_layout_group_changed), keyboard);
 
-  meta_wayland_keyboard_take_keymap (keyboard, meta_backend_get_keymap (backend));
+  meta_wayland_keyboard_take_keymap (keyboard,
+                                     meta_backend_get_xkb_keymap (backend));
 
   meta_wayland_keyboard_set_focus (keyboard, seat->input_focus);
 }

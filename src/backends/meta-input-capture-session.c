@@ -244,7 +244,7 @@ ensure_xkb_keymap_file (MetaInputCaptureSession  *session,
   if (session->keymap_file)
     return session->keymap_file;
 
-  keymap = meta_backend_get_keymap (backend);
+  keymap = meta_backend_get_xkb_keymap (backend);
   if (!keymap)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,

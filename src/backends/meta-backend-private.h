@@ -94,7 +94,7 @@ struct _MetaBackendClass
                              xkb_layout_index_t     layout_index,
                              GTask                 *task);
 
-  struct xkb_keymap * (* get_keymap) (MetaBackend *backend);
+  struct xkb_keymap * (* get_xkb_keymap) (MetaBackend *backend);
 
   MetaKeymapDescription * (* get_keymap_description) (MetaBackend *backend);
 
@@ -160,7 +160,7 @@ MetaInputCapture * meta_backend_get_input_capture (MetaBackend *backend);
 MetaA11yManager * meta_backend_get_a11y_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
-struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
+struct xkb_keymap * meta_backend_get_xkb_keymap (MetaBackend *backend);
 
 META_EXPORT_TEST
 xkb_layout_index_t meta_backend_get_keymap_layout_group (MetaBackend *backend);

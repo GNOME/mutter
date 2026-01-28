@@ -355,7 +355,7 @@ meta_backend_native_set_keymap_async (MetaBackend           *backend,
 }
 
 static struct xkb_keymap *
-meta_backend_native_get_keymap (MetaBackend *backend)
+meta_backend_native_get_xkb_keymap (MetaBackend *backend)
 {
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
@@ -903,7 +903,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_current_logical_monitor = meta_backend_native_get_current_logical_monitor;
 
   backend_class->set_keymap_async = meta_backend_native_set_keymap_async;
-  backend_class->get_keymap = meta_backend_native_get_keymap;
+  backend_class->get_xkb_keymap = meta_backend_native_get_xkb_keymap;
   backend_class->get_keymap_description = meta_backend_native_get_keymap_description;
   backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
   backend_class->update_stage = meta_backend_native_update_stage;

@@ -1715,9 +1715,9 @@ meta_backend_set_keymap_async (MetaBackend           *backend,
 }
 
 struct xkb_keymap *
-meta_backend_get_keymap (MetaBackend *backend)
+meta_backend_get_xkb_keymap (MetaBackend *backend)
 {
-  return META_BACKEND_GET_CLASS (backend)->get_keymap (backend);
+  return META_BACKEND_GET_CLASS (backend)->get_xkb_keymap (backend);
 }
 
 /**

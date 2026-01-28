@@ -242,7 +242,7 @@ configure_keyboard (MetaEisClient     *client,
   eis_device_configure_capability (eis_device, EIS_DEVICE_CAP_KEYBOARD);
 
   xkb_keymap =
-    meta_backend_get_keymap (meta_eis_get_backend (client->eis));
+    meta_backend_get_xkb_keymap (meta_eis_get_backend (client->eis));
   if (!xkb_keymap)
     return;
 
