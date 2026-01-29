@@ -159,3 +159,11 @@ then
       https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas \
       50.alpha
 fi
+
+if ! pkgconf --atleast-version 1.87.1 gjs-1.0
+then
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+    "${OPTIONS[@]}" \
+    https://gitlab.gnome.org/GNOME/gjs.git \
+    1.87.1
+fi
