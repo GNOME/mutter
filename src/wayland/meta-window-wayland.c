@@ -789,12 +789,7 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
 
   geometry_scale = meta_window_wayland_get_geometry_scale (window);
 
-  /* This function makes sure that window geometry, window actor geometry and
-   * surface actor geometry gets set according the old and current main monitor
-   * scale. If there either is no past or current main monitor, or if the scale
-   * didn't change, there is nothing to do. */
-  if (old == NULL ||
-      window->monitor == NULL ||
+  if (!window->monitor ||
       old_geometry_scale == geometry_scale)
     return;
 
