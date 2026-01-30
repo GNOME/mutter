@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-21 14:49+0000\n"
-"PO-Revision-Date: 2026-01-25 10:55+0100\n"
+"POT-Creation-Date: 2026-01-29 14:21+0000\n"
+"PO-Revision-Date: 2026-01-30 05:05+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -684,31 +684,35 @@ msgstr "შეხების _ემულაცია"
 msgid "_Inhibit system shortcuts"
 msgstr "სისტემური მალსახმობებ_ის გამორთვა"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "host _keymap-ის გამოყენება"
+
+#: mdk/mdk-main-window.ui:24
 msgid "_Monitors"
 msgstr "_ეკრანები"
 
-#: mdk/mdk-main-window.ui:22
+#: mdk/mdk-main-window.ui:26
 msgid "_Resizable"
 msgstr "შეცვლადი _ზომით"
 
-#: mdk/mdk-main-window.ui:29
+#: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
 msgstr "გამშვებე_ბი"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Edit launchers"
 msgstr "გამშვებ_ების ჩასწორება"
 
-#: mdk/mdk-main-window.ui:40
+#: mdk/mdk-main-window.ui:44
 msgid "_About Mutter Development Kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრების შეს_ახებ"
 
-#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრები"
 
-#: mdk/mdk-main-window.ui:56
+#: mdk/mdk-main-window.ui:60
 msgid "Main Menu"
 msgstr "მთავარი მენიუ"
 
