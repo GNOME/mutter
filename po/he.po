@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-08-29 20:59+0000\n"
-"PO-Revision-Date: 2025-08-30 19:18+0300\n"
+"POT-Creation-Date: 2026-01-29 14:21+0000\n"
+"PO-Revision-Date: 2026-01-30 12:06+0200\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n==2 ? 1 : n>10 && n%10==0 ? "
 "2 : 3);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.8\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -672,23 +672,35 @@ msgstr "ה_דמיית נגיעה"
 msgid "_Inhibit system shortcuts"
 msgstr "מ_ניעת קיצורי מקשים של המערכת"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "להשתמש במפת המקשים של המ_ארח"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_צגים"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Resizable"
+msgstr "_גמיש"
+
+#: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
 msgstr "מ_שגרים"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:37
 msgid "_Edit launchers"
 msgstr "_עריכת משגרים"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:44
 msgid "_About Mutter Development Kit"
 msgstr "_על ערכת הפיתוח Mutter"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "ערכת הפיתוח של Mutter"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:60
 msgid "Main Menu"
 msgstr "תפריט ראשי"
 
@@ -704,7 +716,7 @@ msgstr "ערכת פיתוח התוכנה Mutter"
 msgid "About Mutter Development Kit"
 msgstr "על ערכת הפיתוח Mutter"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "יצירת צג נכשלה"
 
@@ -739,74 +751,54 @@ msgstr "‏%s ‏%s"
 msgid "Bell event"
 msgstr "אירוע פעמון"
 
-#: src/core/display.c:742
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "מסך פרטי מופעל"
 
-#: src/core/display.c:743
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "מסך פרטי מושבת"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "החלפת מנהל החלונות הפעיל"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "תצוגת X לשימוש"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "להפוך את הקריאות ל־X לסינכרוניות"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:355
 msgid "Run as a wayland compositor"
 msgstr "הרצה כמנהל חלונאי של wayland"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "הרצה כמנהל חלונאי מקונן"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:362
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Run wayland compositor without starting Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:369
 msgid "Specify Wayland display name to use"
 msgstr "נא לציין שם תצוגת Wayland לשימוש"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:376
 msgid "Run as a full display server, rather than nested"
 msgstr "הרצה כשרת תצוגה מלא, במקום מקונן"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:381
 msgid "Run as a headless display server"
 msgstr "הרצה כשרת תצוגה ללא פלט מסך"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:386
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "הוספת צג וירטואלי קבוע (WxH או WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:393
 msgid "Run development kit"
 msgstr "הרצת ערכת פיתוח"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "הפעלה עם מנגנון X11"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:404
 msgid "Profile performance using trace instrumentation"
 msgstr "ניתוח ביצועים באמצעות תזמור של דיווחי מעקב"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:410
 msgid "Enable debug control D-Bus interface"
 msgstr "הפעלת מנשק D-Bus לבקרת ניפוי שגיאות"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "מצב העברה (קבוצה %d)"
@@ -814,7 +806,7 @@ msgstr "מצב העברה (קבוצה %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "מצב העברה"
@@ -822,11 +814,11 @@ msgstr "מצב העברה"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "החלפה בין צגים"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "הצגת עזרה על המסך"
 
@@ -835,20 +827,20 @@ msgstr "הצגת עזרה על המסך"
 msgid "Compositor"
 msgstr "תצוגת חלונות"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "הצגת הגרסה"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "תוסף ה־mutter לשימוש"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "מרחב עבודה %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter הודר ללא תמיכה במצב מפורט"
 
@@ -861,28 +853,24 @@ msgstr "מרחב עבודה מתחלף"
 msgid "Mode Switch: Mode %d"
 msgstr "מצב העברה: מצב %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
+msgid "Display “%s” already has a window manager"
+msgstr "לתצוגה „%s” כבר יש מנהל חלונות"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "פתיחת התצוגה של מערכת החלונות X בשם „%s” נכשלה"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1320
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "מסך %d בתצוגה „%s” הוא שגוי"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -893,10 +881,33 @@ msgstr "מנהל תצוגת חלונות אחר כבר פועל במסך %i בת
 msgid "Format %s not supported"
 msgstr "אין תמיכה בתסדיר %s"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (מעל %s)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "החלפת מנהל החלונות הפעיל"
+
+#~ msgid "X Display to use"
+#~ msgstr "תצוגת X לשימוש"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "להפוך את הקריאות ל־X לסינכרוניות"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "הרצה כמנהל חלונאי מקונן"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "הפעלה עם מנגנון X11"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
 
 #~ msgid "Disable connection to session manager"
 #~ msgstr "השבתת החיבור למנהל ההפעלות"
@@ -998,9 +1009,6 @@ msgstr "%s (מעל %s)"
 #~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
 #~ msgstr ""
 #~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr "Screen %d on display \"%s\" already has a window manager\n"
 
 #~ msgid "%d x %d"
 #~ msgstr "%d x %d"
@@ -1477,9 +1485,6 @@ msgstr "%s (מעל %s)"
 
 #~ msgid "_Move"
 #~ msgstr "ה_זזה"
-
-#~ msgid "_Resize"
-#~ msgstr "_שינוי גודל"
 
 #~ msgid "Move Titlebar On_screen"
 #~ msgstr "הזזת שורת הכותרת אל המ_סך"
