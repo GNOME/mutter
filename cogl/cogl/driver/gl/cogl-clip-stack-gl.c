@@ -61,11 +61,13 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   /* NB: This can be called while flushing the journal so we need
    * to be very conservative with what state we change.
    */
-  old_projection_entry = g_steal_pointer (&ctx->current_projection_entry);
-  old_modelview_entry = g_steal_pointer (&ctx->current_modelview_entry);
+  old_projection_entry = cogl_context_get_current_projection_entry (ctx);
+  cogl_context_set_current_projection_entry (ctx, NULL);
+  old_modelview_entry = cogl_context_get_current_modelview_entry (ctx);
+  cogl_context_set_current_modelview_entry (ctx, NULL);
 
-  ctx->current_projection_entry = projection_stack->last_entry;
-  ctx->current_modelview_entry = modelview_entry;
+  cogl_context_set_current_projection_entry (ctx, projection_stack->last_entry);
+  cogl_context_set_current_modelview_entry (ctx, modelview_entry);
 
   GE (driver, glColorMask (FALSE, FALSE, FALSE, FALSE));
   GE (driver, glDepthMask (FALSE));
@@ -78,7 +80,7 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
       GE (driver, glStencilFunc (GL_NEVER, 0x1, 0x3));
       GE (driver, glStencilOp (GL_INCR, GL_INCR, GL_INCR));
       _cogl_rectangle_immediate (framebuffer,
-                                 ctx->stencil_pipeline,
+                                 cogl_context_get_stencil_pipeline (ctx),
                                  x_1, y_1, x_2, y_2);
 
       /* Subtract one from all pixels in the stencil buffer so that
@@ -86,11 +88,13 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
 	 rectangle are set will be valid */
       GE (driver, glStencilOp (GL_DECR, GL_DECR, GL_DECR));
 
-      ctx->current_projection_entry = &ctx->identity_entry;
-      ctx->current_modelview_entry = &ctx->identity_entry;
+      cogl_context_set_current_projection_entry (ctx,
+                                                 cogl_context_get_identity_entry (ctx));
+      cogl_context_set_current_modelview_entry (ctx,
+                                                cogl_context_get_identity_entry (ctx));
 
       _cogl_rectangle_immediate (framebuffer,
-                                 ctx->stencil_pipeline,
+                                 cogl_context_get_stencil_pipeline (ctx),
                                  -1.0, -1.0, 1.0, 1.0);
     }
   else
@@ -105,12 +109,12 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
       GE (driver, glStencilFunc (GL_ALWAYS, 0x1, 0x1));
       GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE));
       _cogl_rectangle_immediate (framebuffer,
-                                 ctx->stencil_pipeline,
+                                 cogl_context_get_stencil_pipeline (ctx),
                                  x_1, y_1, x_2, y_2);
     }
 
-  ctx->current_projection_entry = old_projection_entry;
-  ctx->current_modelview_entry = old_modelview_entry;
+  cogl_context_set_current_projection_entry (ctx, old_projection_entry);
+  cogl_context_set_current_modelview_entry (ctx, old_modelview_entry);
 
   /* Restore the stencil mode */
   GE (driver, glDepthMask (TRUE));
@@ -137,11 +141,15 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   /* NB: This can be called while flushing the journal so we need
    * to be very conservative with what state we change.
    */
-  old_projection_entry = g_steal_pointer (&ctx->current_projection_entry);
-  old_modelview_entry = g_steal_pointer (&ctx->current_modelview_entry);
+  old_projection_entry = cogl_context_get_current_projection_entry (ctx);
+  cogl_context_set_current_projection_entry (ctx, NULL);
+  old_modelview_entry = cogl_context_get_current_modelview_entry (ctx);
+  cogl_context_set_current_modelview_entry (ctx, NULL);
 
-  ctx->current_projection_entry = &ctx->identity_entry;
-  ctx->current_modelview_entry = &ctx->identity_entry;
+  cogl_context_set_current_projection_entry (ctx,
+                                             cogl_context_get_identity_entry (ctx));
+  cogl_context_set_current_modelview_entry (ctx,
+                                            cogl_context_get_identity_entry (ctx));
 
   /* The coordinates in the region are meant to be window coordinates,
    * make a matrix that translates those across the viewport, and into
@@ -220,7 +228,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
     }
 
   cogl_2d_primitives_immediate (framebuffer,
-                                ctx->stencil_pipeline,
+                                cogl_context_get_stencil_pipeline (ctx),
                                 COGL_VERTICES_MODE_TRIANGLES,
                                 vertices,
                                 6 * num_rectangles);
@@ -233,12 +241,12 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
        */
       GE (driver, glStencilOp (GL_KEEP, GL_KEEP, GL_DECR));
       _cogl_rectangle_immediate (framebuffer,
-                                 ctx->stencil_pipeline,
+                                 cogl_context_get_stencil_pipeline (ctx),
                                  -1.0, -1.0, 1.0, 1.0);
     }
 
-  ctx->current_projection_entry = old_projection_entry;
-  ctx->current_modelview_entry = old_modelview_entry;
+  cogl_context_set_current_projection_entry (ctx, old_projection_entry);
+  cogl_context_set_current_modelview_entry (ctx, old_modelview_entry);
 
   /* Restore the stencil mode */
   GE (driver, glDepthMask (TRUE));
@@ -264,16 +272,16 @@ _cogl_clip_stack_gl_flush (CoglDriver      *driver,
 
   /* If we have already flushed this state then we don't need to do
      anything */
-  if (ctx->current_clip_stack_valid)
+  if (cogl_context_get_current_clip_stack_valid (ctx))
     {
-      if (ctx->current_clip_stack == stack)
+      if (cogl_context_get_current_clip_stack (ctx) == stack)
         return;
 
-      _cogl_clip_stack_unref (ctx->current_clip_stack);
+      _cogl_clip_stack_unref (cogl_context_get_current_clip_stack (ctx));
     }
 
-  ctx->current_clip_stack_valid = TRUE;
-  ctx->current_clip_stack = _cogl_clip_stack_ref (stack);
+  cogl_context_set_current_clip_stack_valid (ctx, TRUE);
+  cogl_context_set_current_clip_stack (ctx, _cogl_clip_stack_ref (stack));
 
   GE (driver, glDisable (GL_STENCIL_TEST));
 

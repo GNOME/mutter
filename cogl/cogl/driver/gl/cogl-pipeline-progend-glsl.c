@@ -1167,8 +1167,8 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
 
   program_state = get_program_state (pipeline);
 
-  projection_entry = ctx->current_projection_entry;
-  modelview_entry = ctx->current_modelview_entry;
+  projection_entry = cogl_context_get_current_projection_entry (ctx);
+  modelview_entry = cogl_context_get_current_modelview_entry (ctx);
 
   /* An initial pipeline is flushed while creating the context. At
      this point there are no matrices selected so we can't do
@@ -1214,7 +1214,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
               graphene_matrix_t tmp_matrix;
               cogl_matrix_entry_get (projection_entry, &tmp_matrix);
               graphene_matrix_multiply (&tmp_matrix,
-                                        &ctx->y_flip_matrix,
+                                        cogl_context_get_y_flip_matrix (ctx),
                                         &projection);
             }
           else

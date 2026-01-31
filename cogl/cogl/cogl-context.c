@@ -603,3 +603,73 @@ cogl_context_set_current_gl_dither_enabled (CoglContext *context,
 {
   context->current_gl_dither_enabled = enabled;
 }
+
+CoglClipStack *
+cogl_context_get_current_clip_stack (CoglContext *context)
+{
+  return context->current_clip_stack;
+}
+
+void
+cogl_context_set_current_clip_stack (CoglContext   *context,
+                                     CoglClipStack *stack)
+{
+  context->current_clip_stack = stack;
+}
+
+gboolean
+cogl_context_get_current_clip_stack_valid (CoglContext *context)
+{
+  return context->current_clip_stack_valid;
+}
+
+void
+cogl_context_set_current_clip_stack_valid (CoglContext *context,
+                                           gboolean     valid)
+{
+  context->current_clip_stack_valid = valid;
+}
+
+CoglMatrixEntry *
+cogl_context_get_current_projection_entry (CoglContext *context)
+{
+  return context->current_projection_entry;
+}
+
+void
+cogl_context_set_current_projection_entry (CoglContext     *context,
+                                           CoglMatrixEntry *entry)
+{
+  context->current_projection_entry = entry;
+}
+
+CoglMatrixEntry *
+cogl_context_get_current_modelview_entry (CoglContext *context)
+{
+  return context->current_modelview_entry;
+}
+
+void
+cogl_context_set_current_modelview_entry (CoglContext     *context,
+                                          CoglMatrixEntry *entry)
+{
+  context->current_modelview_entry = entry;
+}
+
+CoglMatrixEntry *
+cogl_context_get_identity_entry (CoglContext *context)
+{
+  return &context->identity_entry;
+}
+
+CoglPipeline *
+cogl_context_get_stencil_pipeline (CoglContext *context)
+{
+  return context->stencil_pipeline;
+}
+
+graphene_matrix_t *
+cogl_context_get_y_flip_matrix (CoglContext *context)
+{
+  return &context->y_flip_matrix;
+}
