@@ -690,6 +690,8 @@ update_top_window_actor (MetaCompositor *compositor)
                           G_CALLBACK (on_top_window_actor_destroyed),
                           compositor);
     }
+
+  meta_display_queue_check_fullscreen (priv->display);
 }
 
 static void
