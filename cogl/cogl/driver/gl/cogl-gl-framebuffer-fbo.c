@@ -447,13 +447,13 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
                          allocate_flags = 0,
                          gl_fbo)) ||
 
-      (context->have_last_offscreen_allocate_flags &&
+      (cogl_context_get_have_last_offscreen_allocate_flags (context) &&
        try_creating_fbo (context,
                          texture,
                          texture_level,
                          level_width,
                          level_height,
-                         allocate_flags = context->last_offscreen_allocate_flags,
+                         allocate_flags = cogl_context_get_last_offscreen_allocate_flags (context),
                          gl_fbo)) ||
 
       (
@@ -508,8 +508,8 @@ cogl_gl_framebuffer_fbo_new (CoglFramebuffer                    *framebuffer,
         {
           /* Record that the last set of flags succeeded so that we can
              try that set first next time */
-          context->last_offscreen_allocate_flags = allocate_flags;
-          context->have_last_offscreen_allocate_flags = TRUE;
+          cogl_context_set_last_offscreen_allocate_flags (context, allocate_flags);
+          cogl_context_set_have_last_offscreen_allocate_flags (context, TRUE);
         }
 
       return gl_framebuffer_fbo;

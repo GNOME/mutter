@@ -441,7 +441,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
       GLenum gl_target;
 
       if (texture == NULL)
-        texture = ctx->default_gl_texture_2d_tex;
+        texture = cogl_context_get_default_gl_texture_2d_tex (ctx);
 
       cogl_texture_get_gl_texture (texture,
                                    &gl_texture,

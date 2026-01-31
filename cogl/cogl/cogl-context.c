@@ -738,3 +738,48 @@ cogl_context_set_depth_range_far_cache (CoglContext *context,
 {
   context->depth_range_far_cache = far_val;
 }
+
+gboolean
+cogl_context_get_was_bound_to_onscreen (CoglContext *context)
+{
+  return context->was_bound_to_onscreen;
+}
+
+void
+cogl_context_set_was_bound_to_onscreen (CoglContext *context,
+                                        gboolean     bound)
+{
+  context->was_bound_to_onscreen = bound;
+}
+
+gboolean
+cogl_context_get_have_last_offscreen_allocate_flags (CoglContext *context)
+{
+  return context->have_last_offscreen_allocate_flags;
+}
+
+void
+cogl_context_set_have_last_offscreen_allocate_flags (CoglContext *context,
+                                                     gboolean     have_flags)
+{
+  context->have_last_offscreen_allocate_flags = have_flags;
+}
+
+CoglOffscreenAllocateFlags
+cogl_context_get_last_offscreen_allocate_flags (CoglContext *context)
+{
+  return context->last_offscreen_allocate_flags;
+}
+
+void
+cogl_context_set_last_offscreen_allocate_flags (CoglContext                *context,
+                                                CoglOffscreenAllocateFlags  flags)
+{
+  context->last_offscreen_allocate_flags = flags;
+}
+
+CoglTexture *
+cogl_context_get_default_gl_texture_2d_tex (CoglContext *context)
+{
+  return context->default_gl_texture_2d_tex;
+}
