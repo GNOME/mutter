@@ -322,3 +322,40 @@ cogl_context_get_current_gl_dither_enabled (CoglContext *context);
 void
 cogl_context_set_current_gl_dither_enabled (CoglContext *context,
                                             gboolean     enabled);
+
+CoglClipStack *
+cogl_context_get_current_clip_stack (CoglContext *context);
+
+void
+cogl_context_set_current_clip_stack (CoglContext   *context,
+                                     CoglClipStack *stack);
+
+gboolean
+cogl_context_get_current_clip_stack_valid (CoglContext *context);
+
+void
+cogl_context_set_current_clip_stack_valid (CoglContext *context,
+                                           gboolean     valid);
+
+CoglMatrixEntry *
+cogl_context_get_current_projection_entry (CoglContext *context);
+
+void
+cogl_context_set_current_projection_entry (CoglContext     *context,
+                                           CoglMatrixEntry *entry);
+
+CoglMatrixEntry *
+cogl_context_get_current_modelview_entry (CoglContext *context);
+
+void
+cogl_context_set_current_modelview_entry (CoglContext     *context,
+                                          CoglMatrixEntry *entry);
+
+CoglMatrixEntry *
+cogl_context_get_identity_entry (CoglContext *context);
+
+CoglPipeline *
+cogl_context_get_stencil_pipeline (CoglContext *context);
+
+graphene_matrix_t *
+cogl_context_get_y_flip_matrix (CoglContext *context);
