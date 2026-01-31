@@ -275,11 +275,11 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *fb_driver,
 
       is_depth_writing_enabled =
         cogl_framebuffer_get_depth_write_enabled (framebuffer);
-      if (ctx->depth_writing_enabled_cache != is_depth_writing_enabled)
+      if (cogl_context_get_depth_writing_enabled_cache (ctx) != is_depth_writing_enabled)
         {
           GE (driver, glDepthMask (is_depth_writing_enabled));
 
-          ctx->depth_writing_enabled_cache = is_depth_writing_enabled;
+          cogl_context_set_depth_writing_enabled_cache (ctx, is_depth_writing_enabled);
 
           /* Make sure the DepthMask is updated when the next primitive is drawn */
           cogl_context_add_current_pipeline_changes_since_flush (ctx, COGL_PIPELINE_STATE_DEPTH);
