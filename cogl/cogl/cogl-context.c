@@ -564,3 +564,42 @@ cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
 {
   context->current_draw_buffer_changes &= ~changes;
 }
+
+GLuint
+cogl_context_get_current_gl_program (CoglContext *context)
+{
+  return context->current_gl_program;
+}
+
+void
+cogl_context_set_current_gl_program (CoglContext *context,
+                                     GLuint       program)
+{
+  context->current_gl_program = program;
+}
+
+gboolean
+cogl_context_get_gl_blend_enable_cache (CoglContext *context)
+{
+  return context->gl_blend_enable_cache;
+}
+
+void
+cogl_context_set_gl_blend_enable_cache (CoglContext *context,
+                                        gboolean     enabled)
+{
+  context->gl_blend_enable_cache = enabled;
+}
+
+gboolean
+cogl_context_get_current_gl_dither_enabled (CoglContext *context)
+{
+  return context->current_gl_dither_enabled;
+}
+
+void
+cogl_context_set_current_gl_dither_enabled (CoglContext *context,
+                                            gboolean     enabled)
+{
+  context->current_gl_dither_enabled = enabled;
+}

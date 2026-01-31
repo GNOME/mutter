@@ -304,3 +304,21 @@ cogl_context_add_current_draw_buffer_changes (CoglContext   *context,
 void
 cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
                                                 unsigned long  changes);
+
+GLuint
+cogl_context_get_current_gl_program (CoglContext *context);
+
+void
+cogl_context_set_current_gl_program (CoglContext *context,
+                                     GLuint       program);
+
+void
+cogl_context_set_gl_blend_enable_cache (CoglContext *context,
+                                        gboolean     enabled);
+
+gboolean
+cogl_context_get_current_gl_dither_enabled (CoglContext *context);
+
+void
+cogl_context_set_current_gl_dither_enabled (CoglContext *context,
+                                            gboolean     enabled);
