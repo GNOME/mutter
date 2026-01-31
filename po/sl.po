@@ -11,18 +11,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-29 14:21+0000\n"
-"PO-Revision-Date: 2026-01-29 21:18+0100\n"
+"POT-Creation-Date: 2026-01-31 09:20+0000\n"
+"PO-Revision-Date: 2026-01-31 14:22+0100\n"
 "Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
-"n%100==4 ? 3 : 0);\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
+"%100==4 ? 3 : 0);\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 3.8\n"
+"X-Generator: Poedit 2.2.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -253,19 +253,19 @@ msgstr "Razpni okno navpično"
 msgid "Maximize window horizontally"
 msgstr "Razpni okno vodoravno"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
 msgid "View split on left"
 msgstr "Poglej razdelek na levi"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
 msgid "View split on right"
 msgstr "Poglej razdelek na desni"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Spremenilnik, ki naj se uporabi za upravljanje oken"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -277,11 +277,11 @@ msgstr ""
 "opremi računalnika. Pričakovano je, da je vrednost določena privzeto ali pa "
 "ni določena."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Pripni modalna pogovorna okna"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -290,11 +290,11 @@ msgstr ""
 "Izbrana možnost omogoči, da je namesto samostojnih nazivnih vrstic, na to "
 "mesto pripeto modalno pogovorno okno, ki se premika z nadrejenim oknom."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Omogoči prilagajanje velikosti okna ob dotiku robov zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -304,25 +304,25 @@ msgstr ""
 "razpeta po navpični osi in razširjena na polovično širino. Dotik vrhnjega "
 "roba razpne okno čez cel zaslon."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Število delovnih površin je spremenljivo"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in "
-"org.gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
 msgstr ""
 "Možnost določa ali je število delovnih površin spremenljivo ali pa je to "
 "število stalno (določenih s ključem števila delovnih površin med možnostmi v "
 "org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Delovne površine le na prvem zaslonu"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -330,11 +330,11 @@ msgstr ""
 "Določa ali naj se delovne površine preklapljajo na vseh zaslonih ali le na "
 "prvem, glavnem zaslonu."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Zamakni spremembe žarišča, dokler se kazalnik še premika"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -344,11 +344,11 @@ msgstr ""
 "ali »miška«, ne spremeni takoj ob izbiri okna. Žarišče se spremeni, ko se "
 "kazalnik preneha premikati."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Prilagodljiva obroba pravokotnika"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -356,11 +356,11 @@ msgstr ""
 "Delež skupne prilagodljive obrobe. V kolikor vidni robovi teme niso dovolj, "
 "so dodane nevidne obrobe za dodatno prilagajanje."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Samodejno razpni okna, ki so skoraj enaka velikosti zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -368,22 +368,22 @@ msgstr ""
 "Izbrana možnost omogoča, da bodo okna, ki so skoraj tako velika, kot je "
 "velik zaslon, med preslikavo samodejno razpeta."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Postavi novo okno v središče"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 msgstr ""
 "Izbrana možnost določa, da bo novo okno vedno v središču dejavnega zaslona."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Omogoči preizkusne možnosti"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -396,46 +396,41 @@ msgid ""
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
 "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
+"native scaling support. If scaling is not supported by client, the client "
+"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
+"is enabled as well."
 msgstr ""
-"Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
-"ključev. Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je "
-"odvisno od posamezne možnosti. Te možnosti niso zahtevane niti nastavljive, "
-"najverjetneje niti ne bodo. Ni mogoče pričakovati, da se bodo podobne "
-"rešitve pojavljale tudi v prihodnje. Trenutno so na voljo ključne besede: • "
-"»scale-monitor-framebuffer« – določi privzeto rabo sistema mutter za logične "
-"zaslone v logičnem točkovnem koordinatnem prostoru, pri čemer prilagaja "
-"predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. Možnost ne "
-"zahteva ponovnega zagona. •»kms-modifiers« – zahteva dodeljevanje "
+"Za omogočanje preizkusnih možnosti je treba dodati ključne besede "
+"funkcionalnosti na seznam. Ali vpisana možnost zahteva ponovni zagon "
+"sestavljalnika, je odvisno od posamezne možnosti. Te možnosti niso zahtevane "
+"niti nastavljive, najverjetneje niti ne bodo. Ni mogoče pričakovati, da se "
+"bodo podobne rešitve pojavljale tudi v prihodnje. Trenutno so na voljo "
+"ključne besede: • »scale-monitor-framebuffer« – določi privzeto rabo sistema "
+"mutter za logične zaslone v logičnem točkovnem koordinatnem prostoru, pri "
+"čemer prilagaja predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. "
+"Možnost ne zahteva ponovnega zagona. •»kms-modifiers« – zahteva dodeljevanje "
 "medpomnilnika s spremenilniki, če to podpirajo uporabljeni gonilniki. "
-"Možnost zahteva ponovni zagon. • »autoclose-xwayland« – samodejno konča "
+"Možnost zahteva ponovni zagon; • »autoclose-xwayland« – samodejno konča "
 "okolje Xwayland, če ni razpoložljivega okolja X11. Prav tako zahteva ponoven "
-"zagon. • »variable-refresh-rate« — omogoči dinamično prilagajanje hitrosti "
-"osveževanja zaslona, če ta to podpira in če rešitev podpirata gonilnika GPE "
-"in DRM. Možnost je nastavljiva in zahteva ponovni zagon. • »xwayland-native-"
-"scaling« — dovoli odjemalcem Xwayland uporabljati njihovo domorodno podporo "
-"za spreminjanje velikosti. Če odjemalec ne podpira spreminjanja velikosti, "
-"bo odjemalec brez njega. Nastavitev učinkuje le, če je ob tem omogočena še "
-"možnost »scale-monitor-framebuffer«."
+"zagon; • »xwayland-native-scaling« — dovoli odjemalcem Xwayland uporabljati "
+"njihovo domorodno podporo za spreminjanje velikosti. Če odjemalec ne podpira "
+"spreminjanja velikosti, bo odjemalec brez njega. Nastavitev učinkuje le, če "
+"je ob tem omogočena še možnost »scale-monitor-framebuffer«."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "Spremenilnik, ki naj se uporabi za določanje mesta kazalnika"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ključ začne dejanje »zaznavanja kazalnika«."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "Časovni zamik za preverjanje delovanja z ukazom ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -446,11 +441,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:164
 msgid "Per output luminance settings"
 msgstr "Nastavitve svetilnosti na izhod"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -462,15 +457,15 @@ msgstr ""
 "načinom ter povezane vrednosti s plavajočo vejico, ki predstavlja izhodno "
 "svetilnost v odstotkih (%). Privzeta vrednost, če ni določena, je 100 %."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:190
 msgid "Switch monitor configurations"
 msgstr "Nastavitve nadzornika preklopa"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:195
 msgid "Rotates the built-in monitor configuration"
 msgstr "Zavrti vgrajene nastavitve zaslona"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:200
 msgid "Cancel any active input capture session"
 msgstr "Prekliči vse dejavne seje zajemanja"
 
@@ -544,13 +539,13 @@ msgid ""
 msgstr ""
 "Upošteva zajeme s tipkovnico, ki jih sprožijo programi s preusmeritvijo "
 "»override redirect« X11, zagnani v okolju Xwayland. Možnost je namenjena "
-"podpori odjemalcem X11, ki preslikajo okno s to »preglasitvijo preusmeritve« "
-"(program ne prenese žarišča na tipkovnico) in vsili dogodke tipkovnice v to "
-"okno. Možnost se uporablja redko ne vpliva na običajna okna X11, ki lahko v "
-"običajnih okoliščinah pridobijo žarišča. Da bo zajem X11 upoštevan v okolju "
-"Waylandu, mora odjemalec poslati tudi določeno sporočilo odjemalcu X11 v "
-"korensko okno ali pa mora biti med programi na belem seznamu v ključu "
-"\"xwayland-grab-access-rules\"."
+"podpori odjemalcem X11, ki preslikajo okno s to »preglasitvijo "
+"preusmeritve« (program ne prenese žarišča na tipkovnico) in vsili dogodke "
+"tipkovnice v to okno. Možnost se uporablja redko ne vpliva na običajna okna "
+"X11, ki lahko v običajnih okoliščinah pridobijo žarišča. Da bo zajem X11 "
+"upoštevan v okolju Waylandu, mora odjemalec poslati tudi določeno sporočilo "
+"odjemalcu X11 v korensko okno ali pa mora biti med programi na belem seznamu "
+"v ključu \"xwayland-grab-access-rules\"."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
