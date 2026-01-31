@@ -416,7 +416,7 @@ cogl_texture_driver_gl_texture_2d_copy_from_framebuffer (CoglTextureDriver *tex_
    * flush the clip state here since we aren't going to draw to the
    * framebuffer. */
   cogl_context_flush_framebuffer_state (ctx,
-                                        ctx->current_draw_buffer,
+                                        cogl_context_get_current_draw_buffer (ctx),
                                         src_fb,
                                         (COGL_FRAMEBUFFER_STATE_ALL &
                                          ~COGL_FRAMEBUFFER_STATE_CLIP));

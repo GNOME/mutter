@@ -720,7 +720,7 @@ _cogl_journal_flush_clip_stacks_and_entries (CoglJournalEntry *batch_start,
    * make sure that the clip state gets updated the next time we flush
    * framebuffer state by marking the current framebuffer's clip state
    * as changed. */
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
+  cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_CLIP);
 
   /* If we have transformed all our quads at log time then we ensure
    * no further model transform is applied by loading the identity
@@ -1057,7 +1057,7 @@ _cogl_journal_flush_dither_and_entries (CoglJournalEntry *batch_start,
     g_print ("BATCHING:  dither batch len = %d\n", batch_len);
 
   cogl_framebuffer_set_dither_enabled (framebuffer, batch_start->dither_enabled);
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_DITHER;
+  cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_DITHER);
 
   cogl_context_flush_framebuffer_state (ctx,
                                         framebuffer,
@@ -1101,7 +1101,7 @@ _cogl_journal_flush_viewport_and_entries (CoglJournalEntry *batch_start,
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_BATCHING)))
     g_print ("BATCHING:  viewport batch len = %d\n", batch_len);
 
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
+  cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_VIEWPORT);
 
   cogl_framebuffer_get_viewport4fv (framebuffer, current_viewport);
   cogl_framebuffer_set_viewport4fv (framebuffer, batch_start->viewport);
@@ -1408,7 +1408,7 @@ _cogl_journal_flush (CoglJournal *journal)
 
   /* We need to mark the current modelview state of the framebuffer as
    * dirty because we are going to manually replace it */
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_MODELVIEW;
+  cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_MODELVIEW);
 
   state.ctx = ctx;
   state.journal = journal;
