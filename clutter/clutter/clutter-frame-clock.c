@@ -596,7 +596,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                MAX (to_kms_ready_us, to_flip_us) +
                frame_clock->deadline_evasion_us,
                frame_clock->shortterm_max_update_duration_us,
-               2 * frame_clock->refresh_interval_us);
+               3 * frame_clock->refresh_interval_us);
 
       if (frame_clock->shortterm_max_update_duration_us > max_duration_us)
         {
@@ -799,9 +799,9 @@ clutter_frame_clock_estimate_max_update_time_us (ClutterFrameClock *frame_clock,
   int64_t maximum_us;
 
   if (maybe_want_triple_buffering (frame_clock))
-    maximum_us = 2 * frame_clock->refresh_interval_us;
+    maximum_us = 3 * frame_clock->refresh_interval_us;
   else
-    maximum_us = frame_clock->refresh_interval_us;
+    maximum_us = 2 * frame_clock->refresh_interval_us;
 
   if (!frame_clock->ever_got_measurements ||
       G_UNLIKELY (clutter_paint_debug_flags &
