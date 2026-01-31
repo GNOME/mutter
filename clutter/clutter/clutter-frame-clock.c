@@ -996,8 +996,21 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
     }
   else
     {
-      while (next_presentation_time_us - max_update_time_estimate_us < now_us)
-        next_presentation_time_us += refresh_interval_us;
+      if (next_presentation_time_us - max_update_time_estimate_us < now_us)
+        {
+          int64_t min_update_time_estimate_us =
+            (int64_t) (refresh_interval_us * SYNC_DELAY_FALLBACK_FRACTION);
+
+          if (maybe_want_triple_buffering (frame_clock))
+            min_update_time_estimate_us += refresh_interval_us;
+
+          if (min_update_time_estimate_us > max_update_time_estimate_us)
+            min_update_time_estimate_us = max_update_time_estimate_us;
+
+          while (next_presentation_time_us - min_update_time_estimate_us <
+                 now_us)
+            next_presentation_time_us += refresh_interval_us;
+        }
 
       next_update_time_us = next_presentation_time_us - max_update_time_estimate_us;
       if (next_update_time_us < now_us)
