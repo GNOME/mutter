@@ -14,14 +14,14 @@ test_pipeline_opengl_blend_enable (void)
   pipeline = cogl_pipeline_new (test_ctx);
 
   /* By default blending should be disabled */
-  g_assert_cmpint (test_ctx->gl_blend_enable_cache, ==, 0);
+  g_assert_cmpint (cogl_context_get_gl_blend_enable_cache (test_ctx), ==, 0);
 
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 0, 0, 1, 1);
   _cogl_framebuffer_flush_journal (test_fb);
 
   /* After drawing an opaque rectangle blending should still be
    * disabled */
-  g_assert_cmpint (test_ctx->gl_blend_enable_cache, ==, 0);
+  g_assert_cmpint (cogl_context_get_gl_blend_enable_cache (test_ctx), ==, 0);
 
   cogl_color_init_from_4f (&color, 0.0, 0.0, 0.0, 0.0);
   cogl_pipeline_set_color (pipeline, &color);
@@ -29,7 +29,7 @@ test_pipeline_opengl_blend_enable (void)
   _cogl_framebuffer_flush_journal (test_fb);
 
   /* After drawing a transparent rectangle blending should be enabled */
-  g_assert_cmpint (test_ctx->gl_blend_enable_cache, ==, 1);
+  g_assert_cmpint (cogl_context_get_gl_blend_enable_cache (test_ctx), ==, 1);
 
   cogl_pipeline_set_blend (pipeline, "RGBA=ADD(SRC_COLOR, 0)", NULL);
   cogl_framebuffer_draw_rectangle (test_fb, pipeline, 0, 0, 1, 1);
@@ -37,7 +37,7 @@ test_pipeline_opengl_blend_enable (void)
 
   /* After setting a blend string that effectively disables blending
    * then blending should be disabled */
-  g_assert_cmpint (test_ctx->gl_blend_enable_cache, ==, 0);
+  g_assert_cmpint (cogl_context_get_gl_blend_enable_cache (test_ctx), ==, 0);
 
   g_object_unref (pipeline);
 }

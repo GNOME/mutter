@@ -124,13 +124,13 @@ cogl_gl_framebuffer_flush_dither_state (CoglGlFramebuffer *gl_framebuffer)
   gboolean is_dither_enabled;
 
   is_dither_enabled = cogl_framebuffer_get_dither_enabled (framebuffer);
-  if (ctx->current_gl_dither_enabled != is_dither_enabled)
+  if (cogl_context_get_current_gl_dither_enabled (ctx) != is_dither_enabled)
     {
       if (is_dither_enabled)
         GE (driver, glEnable (GL_DITHER));
       else
         GE (driver, glDisable (GL_DITHER));
-      ctx->current_gl_dither_enabled = is_dither_enabled;
+      cogl_context_set_current_gl_dither_enabled (ctx, is_dither_enabled);
     }
 }
 
