@@ -264,3 +264,43 @@ cogl_context_set_current_pipeline_unknown_color_alpha (CoglContext *context,
 
 COGL_EXPORT_TEST
 CoglPipelineCache * cogl_context_get_pipeline_cache (CoglContext *context);
+
+CoglFramebuffer *
+cogl_context_get_current_draw_buffer (CoglContext *context);
+
+void
+cogl_context_set_current_draw_buffer (CoglContext     *context,
+                                      CoglFramebuffer *framebuffer);
+
+CoglFramebuffer *
+cogl_context_get_current_read_buffer (CoglContext *context);
+
+void
+cogl_context_set_current_read_buffer (CoglContext     *context,
+                                      CoglFramebuffer *framebuffer);
+
+unsigned long
+cogl_context_get_current_draw_buffer_state_flushed (CoglContext *context);
+
+void
+cogl_context_set_current_draw_buffer_state_flushed (CoglContext   *context,
+                                                    unsigned long  state);
+
+void
+cogl_context_add_current_draw_buffer_state_flushed (CoglContext   *context,
+                                                    unsigned long  state);
+
+unsigned long
+cogl_context_get_current_draw_buffer_changes (CoglContext *context);
+
+void
+cogl_context_set_current_draw_buffer_changes (CoglContext   *context,
+                                              unsigned long  changes);
+
+void
+cogl_context_add_current_draw_buffer_changes (CoglContext   *context,
+                                              unsigned long  changes);
+
+void
+cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
+                                                unsigned long  changes);

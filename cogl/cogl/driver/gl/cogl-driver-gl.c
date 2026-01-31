@@ -204,52 +204,54 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
                                         CoglFramebuffer      *read_buffer,
                                         CoglFramebufferState  state)
 {
+  CoglFramebuffer *current_draw_buffer =
+    cogl_context_get_current_draw_buffer (ctx);
   CoglGlFramebuffer *draw_gl_framebuffer;
   CoglGlFramebuffer *read_gl_framebuffer;
   unsigned long differences;
 
   /* We can assume that any state that has changed for the current
    * framebuffer is different to the currently flushed value. */
-  differences = ctx->current_draw_buffer_changes;
+  differences = cogl_context_get_current_draw_buffer_changes (ctx);
 
   /* Any state of the current framebuffer that hasn't already been
    * flushed is assumed to be unknown so we will always flush that
    * state if asked. */
-  differences |= ~ctx->current_draw_buffer_state_flushed;
+  differences |= ~cogl_context_get_current_draw_buffer_state_flushed (ctx);
 
   /* We only need to consider the state we've been asked to flush */
   differences &= state;
 
-  if (ctx->current_draw_buffer != draw_buffer)
+  if (current_draw_buffer != draw_buffer)
     {
       /* If the previous draw buffer is NULL then we'll assume
          everything has changed. This can happen if a framebuffer is
          destroyed while it is the last flushed draw buffer. In that
          case the framebuffer destructor will set
-         ctx->current_draw_buffer to NULL */
-      if (ctx->current_draw_buffer == NULL)
+         current_draw_buffer to NULL */
+      if (current_draw_buffer == NULL)
         differences |= state;
       else
         /* NB: we only need to compare the state we're being asked to flush
          * and we don't need to compare the state we've already decided
          * we will definitely flush... */
-        differences |= _cogl_framebuffer_compare (ctx->current_draw_buffer,
+        differences |= _cogl_framebuffer_compare (current_draw_buffer,
                                                   draw_buffer,
                                                   state & ~differences);
 
       /* NB: we don't take a reference here, to avoid a circular
        * reference. */
-      ctx->current_draw_buffer = draw_buffer;
-      ctx->current_draw_buffer_state_flushed = 0;
+      cogl_context_set_current_draw_buffer (ctx, draw_buffer);
+      cogl_context_set_current_draw_buffer_state_flushed (ctx, 0);
     }
 
-  if (ctx->current_read_buffer != read_buffer &&
+  if (cogl_context_get_current_read_buffer (ctx) != read_buffer &&
       state & COGL_FRAMEBUFFER_STATE_BIND)
     {
       differences |= COGL_FRAMEBUFFER_STATE_BIND;
       /* NB: we don't take a reference here, to avoid a circular
        * reference. */
-      ctx->current_read_buffer = read_buffer;
+      cogl_context_set_current_read_buffer (ctx, read_buffer);
     }
 
   if (!differences)
@@ -292,8 +294,8 @@ cogl_driver_gl_flush_framebuffer_state (CoglDriver           *driver,
   cogl_gl_framebuffer_flush_state_differences (draw_gl_framebuffer,
                                                differences);
 
-  ctx->current_draw_buffer_state_flushed |= state;
-  ctx->current_draw_buffer_changes &= ~state;
+  cogl_context_add_current_draw_buffer_state_flushed (ctx, state);
+  cogl_context_clear_current_draw_buffer_changes (ctx, state);
 }
 
 static CoglBufferImpl *
