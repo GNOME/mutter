@@ -498,3 +498,69 @@ cogl_context_get_pipeline_cache (CoglContext *context)
 {
   return context->pipeline_cache;
 }
+
+CoglFramebuffer *
+cogl_context_get_current_draw_buffer (CoglContext *context)
+{
+  return context->current_draw_buffer;
+}
+
+void
+cogl_context_set_current_draw_buffer (CoglContext     *context,
+                                      CoglFramebuffer *framebuffer)
+{
+  context->current_draw_buffer = framebuffer;
+}
+
+CoglFramebuffer *
+cogl_context_get_current_read_buffer (CoglContext *context)
+{
+  return context->current_read_buffer;
+}
+
+void
+cogl_context_set_current_read_buffer (CoglContext     *context,
+                                      CoglFramebuffer *framebuffer)
+{
+  context->current_read_buffer = framebuffer;
+}
+
+unsigned long
+cogl_context_get_current_draw_buffer_state_flushed (CoglContext *context)
+{
+  return context->current_draw_buffer_state_flushed;
+}
+
+void
+cogl_context_set_current_draw_buffer_state_flushed (CoglContext   *context,
+                                                    unsigned long  state)
+{
+  context->current_draw_buffer_state_flushed = state;
+}
+
+void
+cogl_context_add_current_draw_buffer_state_flushed (CoglContext   *context,
+                                                    unsigned long  state)
+{
+  context->current_draw_buffer_state_flushed |= state;
+}
+
+unsigned long
+cogl_context_get_current_draw_buffer_changes (CoglContext *context)
+{
+  return context->current_draw_buffer_changes;
+}
+
+void
+cogl_context_add_current_draw_buffer_changes (CoglContext   *context,
+                                              unsigned long  changes)
+{
+  context->current_draw_buffer_changes |= changes;
+}
+
+void
+cogl_context_clear_current_draw_buffer_changes (CoglContext   *context,
+                                                unsigned long  changes)
+{
+  context->current_draw_buffer_changes &= ~changes;
+}

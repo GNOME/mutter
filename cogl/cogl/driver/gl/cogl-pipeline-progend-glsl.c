@@ -1176,7 +1176,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
   if (modelview_entry == NULL || projection_entry == NULL)
     return;
 
-  needs_flip = cogl_framebuffer_is_y_flipped (ctx->current_draw_buffer);
+  needs_flip = cogl_framebuffer_is_y_flipped (cogl_context_get_current_draw_buffer (ctx));
 
   projection_changed =
     _cogl_matrix_entry_cache_maybe_update (&program_state->projection_cache,

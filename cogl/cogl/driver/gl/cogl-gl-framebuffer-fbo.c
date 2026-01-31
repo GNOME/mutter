@@ -348,7 +348,7 @@ try_creating_fbo (CoglContext                 *ctx,
   /* We are about to generate and bind a new fbo, so we pretend to
    * change framebuffer state so that the old framebuffer will be
    * rebound again before drawing. */
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_BIND;
+  cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_BIND);
 
   /* Generate framebuffer */
   GE (driver, glGenFramebuffers (1, &gl_fbo->fbo_handle));

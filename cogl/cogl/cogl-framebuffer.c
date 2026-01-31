@@ -311,10 +311,10 @@ cogl_framebuffer_dispose (GObject *object)
 
   ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
 
-  if (ctx->current_draw_buffer == framebuffer)
-    ctx->current_draw_buffer = NULL;
-  if (ctx->current_read_buffer == framebuffer)
-    ctx->current_read_buffer = NULL;
+  if (cogl_context_get_current_draw_buffer (ctx) == framebuffer)
+    cogl_context_set_current_draw_buffer (ctx, NULL);
+  if (cogl_context_get_current_read_buffer (ctx) == framebuffer)
+    cogl_context_set_current_read_buffer (ctx, NULL);
 
   g_clear_object (&priv->driver);
 
@@ -1169,9 +1169,9 @@ cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
 
   priv->depth_writing_enabled = depth_write_enabled;
 
-  if (priv->context->current_draw_buffer == framebuffer)
-    priv->context->current_draw_buffer_changes |=
-      COGL_FRAMEBUFFER_STATE_DEPTH_WRITE;
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
+    cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                  COGL_FRAMEBUFFER_STATE_DEPTH_WRITE);
 }
 
 gboolean
@@ -1501,7 +1501,7 @@ cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
    * make sure that the clip state gets updated the next time we flush
    * framebuffer state by marking the current framebuffer's clip state
    * as changed */
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
+  cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_CLIP);
 
   /* Offscreens we do the normal way, onscreens need an y-flip. Even if
    * we consider offscreens to be rendered upside-down, the offscreen
@@ -1589,10 +1589,10 @@ cogl_framebuffer_push_matrix (CoglFramebuffer *framebuffer)
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_push (modelview_stack);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1605,10 +1605,10 @@ cogl_framebuffer_pop_matrix (CoglFramebuffer *framebuffer)
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_pop (modelview_stack);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1624,10 +1624,10 @@ cogl_framebuffer_scale (CoglFramebuffer *framebuffer,
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_scale (modelview_stack, x, y, z);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1643,10 +1643,10 @@ cogl_framebuffer_translate (CoglFramebuffer *framebuffer,
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_translate (modelview_stack, x, y, z);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1663,10 +1663,10 @@ cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_rotate (modelview_stack, angle, x, y, z);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1680,10 +1680,10 @@ cogl_framebuffer_transform (CoglFramebuffer         *framebuffer,
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_multiply (modelview_stack, matrix);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1706,10 +1706,10 @@ cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
                             z_near,
                             z_far);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_PROJECTION;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_PROJECTION);
     }
 }
 
@@ -1741,10 +1741,10 @@ cogl_framebuffer_frustum (CoglFramebuffer *framebuffer,
                              z_near,
                              z_far);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_PROJECTION;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_PROJECTION);
     }
 }
 
@@ -1770,10 +1770,10 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
   graphene_matrix_init_ortho (&ortho, x_1, x_2, y_2, y_1, near, far);
   cogl_matrix_stack_set (projection_stack, &ortho);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_PROJECTION;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_PROJECTION);
     }
 }
 
@@ -1797,10 +1797,10 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
     _cogl_framebuffer_get_modelview_stack (framebuffer);
   cogl_matrix_stack_set (modelview_stack, matrix);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_MODELVIEW;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_MODELVIEW);
     }
 }
 
@@ -1829,10 +1829,10 @@ cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
 
   cogl_matrix_stack_set (projection_stack, matrix);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_PROJECTION;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_PROJECTION);
     }
 }
 
@@ -1865,10 +1865,10 @@ cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
                                      projection_entry,
                                      viewport);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_CLIP;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_CLIP);
     }
 }
 
@@ -1883,10 +1883,10 @@ cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
     cogl_clip_stack_push_region (priv->clip_stack,
                                  region);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_CLIP;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_CLIP);
     }
 }
 
@@ -1898,10 +1898,10 @@ cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer)
 
   priv->clip_stack = _cogl_clip_stack_pop (priv->clip_stack);
 
-  if (priv->context->current_draw_buffer == framebuffer)
+  if (cogl_context_get_current_draw_buffer (priv->context) == framebuffer)
     {
-      priv->context->current_draw_buffer_changes |=
-        COGL_FRAMEBUFFER_STATE_CLIP;
+      cogl_context_add_current_draw_buffer_changes (priv->context,
+                                                    COGL_FRAMEBUFFER_STATE_CLIP);
     }
 }
 
