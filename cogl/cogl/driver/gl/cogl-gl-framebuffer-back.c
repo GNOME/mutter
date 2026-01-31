@@ -198,7 +198,7 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
    * default draw buffer will be GL_NONE so we need to correct
    * that. We can't do it any earlier because binding GL_BACK when
    * there is no default framebuffer won't work */
-  if (!ctx->was_bound_to_onscreen)
+  if (!cogl_context_get_was_bound_to_onscreen (ctx))
     {
       if (GE_HAS (driver, glDrawBuffer))
         {
@@ -218,7 +218,7 @@ cogl_gl_framebuffer_back_bind (CoglGlFramebuffer *gl_framebuffer,
           GE (driver, glDrawBuffers (G_N_ELEMENTS (buffers), buffers));
         }
 
-      ctx->was_bound_to_onscreen = TRUE;
+      cogl_context_set_was_bound_to_onscreen (ctx, TRUE);
     }
 }
 
