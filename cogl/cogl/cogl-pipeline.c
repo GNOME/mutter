@@ -1311,8 +1311,8 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
    * minimize redundant OpenGL calls if the same pipeline is flushed
    * again.
    */
-  if (ctx->current_pipeline == pipeline)
-    ctx->current_pipeline_changes_since_flush |= change;
+  if (cogl_context_get_current_pipeline (ctx) == pipeline)
+    cogl_context_add_current_pipeline_changes_since_flush (ctx, change);
 }
 
 
