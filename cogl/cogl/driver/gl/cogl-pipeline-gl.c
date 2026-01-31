@@ -774,7 +774,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
                                gboolean with_color_attrib,
                                gboolean unknown_color_alpha)
 {
-  CoglPipeline *current_pipeline = ctx->current_pipeline;
+  CoglPipeline *current_pipeline = cogl_context_get_current_pipeline (ctx);
   CoglDriver *driver = cogl_context_get_driver (ctx);
   unsigned long pipelines_difference;
   int n_layers;
@@ -793,9 +793,9 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
   /* Bail out asap if we've been asked to re-flush the already current
    * pipeline and we can see the pipeline hasn't changed */
   if (current_pipeline == pipeline &&
-      ctx->current_pipeline_age == pipeline->age &&
-      ctx->current_pipeline_with_color_attrib == with_color_attrib &&
-      ctx->current_pipeline_unknown_color_alpha == unknown_color_alpha)
+      cogl_context_get_current_pipeline_age (ctx) == pipeline->age &&
+      cogl_context_get_current_pipeline_with_color_attrib (ctx) == with_color_attrib &&
+      cogl_context_get_current_pipeline_unknown_color_alpha (ctx) == unknown_color_alpha)
     goto done;
   else
     {
@@ -810,7 +810,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
 
       if (current_pipeline == pipeline)
         {
-          pipelines_difference = ctx->current_pipeline_changes_since_flush;
+          pipelines_difference = cogl_context_get_current_pipeline_changes_since_flush (ctx);
 
           if (pipelines_difference & COGL_PIPELINE_STATE_AFFECTS_BLENDING ||
               pipeline->unknown_color_alpha != unknown_color_alpha)
@@ -826,13 +826,13 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
         }
       else if (current_pipeline)
         {
-          pipelines_difference = ctx->current_pipeline_changes_since_flush;
+          pipelines_difference = cogl_context_get_current_pipeline_changes_since_flush (ctx);
 
           _cogl_pipeline_update_real_blend_enable (pipeline,
                                                    unknown_color_alpha);
 
           pipelines_difference |=
-            _cogl_pipeline_compare_differences (ctx->current_pipeline,
+            _cogl_pipeline_compare_differences (current_pipeline,
                                                 pipeline);
         }
       else
@@ -976,13 +976,11 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
    * weak pipelines for overrides.
    */
   g_object_ref (pipeline);
-  if (ctx->current_pipeline != NULL)
-    g_object_unref (ctx->current_pipeline);
-  ctx->current_pipeline = pipeline;
-  ctx->current_pipeline_changes_since_flush = 0;
-  ctx->current_pipeline_with_color_attrib = with_color_attrib;
-  ctx->current_pipeline_unknown_color_alpha = unknown_color_alpha;
-  ctx->current_pipeline_age = pipeline->age;
+  cogl_context_set_current_pipeline (ctx, pipeline);
+  cogl_context_set_current_pipeline_changes_since_flush (ctx, 0);
+  cogl_context_set_current_pipeline_with_color_attrib (ctx, with_color_attrib);
+  cogl_context_set_current_pipeline_unknown_color_alpha (ctx, unknown_color_alpha);
+  cogl_context_set_current_pipeline_age (ctx, pipeline->age);
 
 done:
 

@@ -219,3 +219,48 @@ void
 _cogl_context_update_sync (CoglContext *context);
 
 void cogl_context_clear_onscreen_dirty_queue (CoglContext *context);
+
+CoglPipeline *
+cogl_context_get_current_pipeline (CoglContext *context);
+
+void
+cogl_context_set_current_pipeline (CoglContext  *context,
+                                   CoglPipeline *pipeline);
+
+unsigned long
+cogl_context_get_current_pipeline_age (CoglContext *context);
+
+void
+cogl_context_set_current_pipeline_age (CoglContext   *context,
+                                       unsigned long  age);
+
+void
+cogl_context_decrement_current_pipeline_age (CoglContext *context);
+
+unsigned long
+cogl_context_get_current_pipeline_changes_since_flush (CoglContext *context);
+
+void
+cogl_context_set_current_pipeline_changes_since_flush (CoglContext   *context,
+                                                       unsigned long  changes);
+
+void
+cogl_context_add_current_pipeline_changes_since_flush (CoglContext   *context,
+                                                       unsigned long  changes);
+
+gboolean
+cogl_context_get_current_pipeline_with_color_attrib (CoglContext *context);
+
+void
+cogl_context_set_current_pipeline_with_color_attrib (CoglContext *context,
+                                                     gboolean     with_color_attrib);
+
+gboolean
+cogl_context_get_current_pipeline_unknown_color_alpha (CoglContext *context);
+
+void
+cogl_context_set_current_pipeline_unknown_color_alpha (CoglContext *context,
+                                                       gboolean     unknown_color_alpha);
+
+COGL_EXPORT_TEST
+CoglPipelineCache * cogl_context_get_pipeline_cache (CoglContext *context);

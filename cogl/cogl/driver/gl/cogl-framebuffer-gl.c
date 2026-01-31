@@ -167,6 +167,7 @@ cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_frameb
   CoglFramebuffer *framebuffer =
     cogl_framebuffer_driver_get_framebuffer (driver);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  CoglPipeline *current_pipeline = cogl_context_get_current_pipeline (context);
   CoglPipelineCullFaceMode mode;
 
   /* NB: The face winding state is actually owned by the current
@@ -175,10 +176,10 @@ cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_frameb
    * If we don't have a current pipeline then we can just assume that
    * when we later do flush a pipeline we will check the current
    * framebuffer to know how to setup the winding */
-  if (!context->current_pipeline)
+  if (!current_pipeline)
     return;
 
-  mode = cogl_pipeline_get_cull_face_mode (context->current_pipeline);
+  mode = cogl_pipeline_get_cull_face_mode (current_pipeline);
 
   /* If the current CoglPipeline has a culling mode that doesn't care
    * about the winding we can avoid forcing an update of the state and
@@ -190,9 +191,9 @@ cogl_gl_framebuffer_flush_front_face_winding_state (CoglGlFramebuffer *gl_frameb
   /* Since the winding state is really owned by the current pipeline
    * the way we "flush" an updated winding is to dirty the pipeline
    * state... */
-  context->current_pipeline_changes_since_flush |=
-    COGL_PIPELINE_STATE_CULL_FACE;
-  context->current_pipeline_age--;
+  cogl_context_add_current_pipeline_changes_since_flush (context,
+                                                         COGL_PIPELINE_STATE_CULL_FACE);
+  cogl_context_decrement_current_pipeline_age (context);
 }
 
 void
@@ -281,9 +282,8 @@ cogl_gl_framebuffer_clear (CoglFramebufferDriver *fb_driver,
           ctx->depth_writing_enabled_cache = is_depth_writing_enabled;
 
           /* Make sure the DepthMask is updated when the next primitive is drawn */
-          ctx->current_pipeline_changes_since_flush |=
-            COGL_PIPELINE_STATE_DEPTH;
-          ctx->current_pipeline_age--;
+          cogl_context_add_current_pipeline_changes_since_flush (ctx, COGL_PIPELINE_STATE_DEPTH);
+          cogl_context_decrement_current_pipeline_age (ctx);
         }
     }
 
