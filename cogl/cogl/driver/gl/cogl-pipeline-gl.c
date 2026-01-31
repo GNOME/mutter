@@ -234,13 +234,15 @@ static void
 flush_depth_state (CoglContext *ctx,
                    CoglDepthState *depth_state)
 {
+  CoglFramebuffer *current_draw_buffer =
+    cogl_context_get_current_draw_buffer (ctx);
   gboolean depth_writing_enabled = depth_state->write_enabled;
   CoglDriver *driver = cogl_context_get_driver (ctx);
 
-  if (ctx->current_draw_buffer)
+  if (current_draw_buffer)
     {
       depth_writing_enabled &=
-        cogl_framebuffer_get_depth_write_enabled (ctx->current_draw_buffer);
+        cogl_framebuffer_get_depth_write_enabled (current_draw_buffer);
     }
 
   if (ctx->depth_test_enabled_cache != depth_state->test_enabled)
@@ -248,8 +250,8 @@ flush_depth_state (CoglContext *ctx,
       if (depth_state->test_enabled == TRUE)
         {
           GE (driver, glEnable (GL_DEPTH_TEST));
-          if (ctx->current_draw_buffer)
-            cogl_framebuffer_set_depth_buffer_clear_needed (ctx->current_draw_buffer);
+          if (current_draw_buffer)
+            cogl_framebuffer_set_depth_buffer_clear_needed (current_draw_buffer);
         }
       else
         GE (driver, glDisable (GL_DEPTH_TEST));
@@ -370,7 +372,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
             }
 
           invert_winding =
-            cogl_framebuffer_is_y_flipped (ctx->current_draw_buffer);
+            cogl_framebuffer_is_y_flipped (cogl_context_get_current_draw_buffer (ctx));
 
           switch (cull_face_state->front_winding)
             {
