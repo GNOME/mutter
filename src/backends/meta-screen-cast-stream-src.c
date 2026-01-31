@@ -131,6 +131,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
 
   int64_t last_frame_timestamp_us;
 
+  uint64_t buffer_age_counter;
   uint64_t buffer_sequence_counter;
 
   gboolean device_negotiation_supported;
@@ -156,12 +157,18 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   CoglFramebuffer *framebuffer;
   MtkRectangle layout;
   MtkRegion *damage;
+  ClutterDamageHistory *damage_history;
 
   GHashTable *modifiers;
 
   gboolean must_drive;
   gboolean pending_process;
 } MetaScreenCastStreamSrcPrivate;
+
+typedef struct _MetaScreenCastStreamBuffer
+{
+  uint64_t age_sequence;
+} MetaScreenCastStreamBuffer;
 
 static void meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface);
 
@@ -217,6 +224,34 @@ meta_spa_dict_entry_clear (MetaSpaDictEntry *dict_entry)
 {
   g_free (dict_entry->key);
   g_free (dict_entry->value);
+}
+
+static void
+destroy_stream_buffer (MetaScreenCastStreamBuffer *stream_buffer)
+{
+  g_free (stream_buffer);
+}
+
+static MetaScreenCastStreamBuffer *
+ensure_stream_buffer (struct pw_buffer *buffer)
+{
+  if (!buffer->user_data)
+    buffer->user_data = g_new0 (MetaScreenCastStreamBuffer, 1);
+
+  return buffer->user_data;
+}
+
+static int64_t
+get_stream_buffer_age (MetaScreenCastStreamSrc    *src,
+                       MetaScreenCastStreamBuffer *stream_buffer)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (!stream_buffer->age_sequence)
+    return 0;
+
+  return priv->buffer_age_counter - stream_buffer->age_sequence;
 }
 
 static gboolean
@@ -971,12 +1006,53 @@ static gboolean
 do_record_frame (MetaScreenCastStreamSrc   *src,
                  MetaScreenCastRecordFlag   flags,
                  MetaScreenCastPaintPhase   paint_phase,
-                 struct spa_buffer         *spa_buffer,
+                 struct pw_buffer          *buffer,
+                 MtkRegion                 *original_damage,
                  GError                   **error)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
+  MetaScreenCastStreamBuffer *stream_buffer;
+  g_autoptr (MtkRegion) damage = NULL;
+  int buffer_age;
+
+  stream_buffer = ensure_stream_buffer (buffer);
+  buffer_age = get_stream_buffer_age (src, stream_buffer);
+  clutter_damage_history_record (priv->damage_history, original_damage);
+
+  if (clutter_damage_history_is_age_valid (priv->damage_history, buffer_age))
+    {
+      int age;
+
+      damage = mtk_region_copy (original_damage);
+
+      for (age = 1; age <= buffer_age; age++)
+        {
+          const MtkRegion *old_damage;
+
+          old_damage =
+            clutter_damage_history_lookup (priv->damage_history, age);
+          mtk_region_union (damage, old_damage);
+        }
+
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Reusing buffer(age=%d) - repairing region: num rects: %d",
+                  buffer_age,
+                  mtk_region_num_rectangles (damage));
+    }
+  else
+    {
+      MtkRectangle full_rect;
+
+      full_rect.x = full_rect.y = 0;
+      full_rect.width = priv->video_format.size.width;
+      full_rect.height = priv->video_format.size.height;
+      damage = mtk_region_create_rectangle (&full_rect);
+    }
+
+  clutter_damage_history_step (priv->damage_history);
 
   if (spa_data->data || spa_data->type == SPA_DATA_MemFd)
     {
@@ -994,7 +1070,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
                                                            height,
                                                            stride,
                                                            spa_data->data,
-                                                           NULL,
+                                                           damage,
                                                            error);
     }
   else if (spa_data->type == SPA_DATA_DmaBuf)
@@ -1012,7 +1088,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
       result = meta_screen_cast_stream_src_record_to_framebuffer (src,
                                                                   paint_phase,
                                                                   dmabuf_fbo,
-                                                                  NULL,
+                                                                  damage,
                                                                   error);
 
       if (result)
@@ -1235,6 +1311,20 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
   return buffer;
 }
 
+static void
+queue_pw_buffer (MetaScreenCastStreamSrc *src,
+                 struct pw_buffer        *buffer)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStreamBuffer *stream_buffer;
+
+  stream_buffer = ensure_stream_buffer (buffer);
+  stream_buffer->age_sequence = priv->buffer_age_counter++;
+
+  pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+}
+
 void
 meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
                                                MetaScreenCastRecordFlag  flags,
@@ -1352,30 +1442,28 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
       if (header)
         header->flags = SPA_META_HEADER_FLAG_CORRUPTED;
 
-      pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+      queue_pw_buffer (src, buffer);
       return record_result;
     }
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
-      if (do_record_frame (src, flags, paint_phase, spa_buffer, &error))
+      if (priv->damage)
+        damage = mtk_region_ref (priv->damage);
+
+      if (!damage)
+        {
+          MtkRectangle full_rect;
+
+          full_rect.x = full_rect.y = 0;
+          full_rect.width = priv->video_format.size.width;
+          full_rect.height = priv->video_format.size.height;
+          damage = mtk_region_create_rectangle (&full_rect);
+        }
+
+      if (do_record_frame (src, flags, paint_phase, buffer, damage, &error))
         {
           struct spa_meta_region *spa_meta_video_crop;
-
-          if (priv->damage)
-            {
-              damage = mtk_region_ref (priv->damage);
-              g_clear_pointer (&priv->damage, mtk_region_unref);
-            }
-          else
-            {
-              MtkRectangle full_rect;
-
-              full_rect.x = full_rect.y = 0;
-              full_rect.width = priv->video_format.size.width;
-              full_rect.height = priv->video_format.size.height;
-              damage = mtk_region_create_rectangle (&full_rect);
-            }
 
           maybe_add_damaged_regions_metadata (src, spa_buffer, damage);
 
@@ -1425,6 +1513,14 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
       spa_data->chunk->flags = SPA_CHUNK_FLAG_CORRUPTED;
     }
 
+  if (spa_data->chunk->flags == SPA_CHUNK_FLAG_CORRUPTED)
+    {
+      g_clear_pointer (&damage, mtk_region_unref);
+      damage = mtk_region_create ();
+      do_record_frame (src, flags, paint_phase, buffer, damage, &error);
+      maybe_add_damaged_regions_metadata (src, spa_buffer, damage);
+    }
+
   record_result |= maybe_record_cursor (src, spa_buffer);
 
   priv->last_frame_timestamp_us = frame_timestamp_us;
@@ -1444,7 +1540,7 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
       meta_topic (META_DEBUG_SCREEN_CAST, "Queuing unsequenced PipeWire buffer");
     }
 
-  pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+  queue_pw_buffer (src, buffer);
 
   return record_result;
 }
@@ -2690,6 +2786,8 @@ on_stream_remove_buffer (void             *data,
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
 
+  g_clear_pointer (&buffer->user_data, destroy_stream_buffer);
+
   if (spa_data->type == SPA_DATA_DmaBuf)
     {
       maybe_remove_syncobj (src, buffer);
@@ -2919,6 +3017,7 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
   if (!priv->pipewire_stream)
     return FALSE;
 
+  priv->damage_history = clutter_damage_history_new ();
   return TRUE;
 }
 
@@ -2978,6 +3077,7 @@ meta_screen_cast_stream_src_dispose (GObject *object)
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
   g_clear_pointer (&priv->pipewire_source, g_source_destroy);
   g_clear_pointer (&priv->damage, mtk_region_unref);
+  g_clear_pointer (&priv->damage_history, clutter_damage_history_free);
   g_clear_object (&priv->color_state);
   g_clear_object (&priv->framebuffer);
 
@@ -3173,7 +3273,7 @@ meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src)
                   buffer->buffer);
     }
 
-  pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+  queue_pw_buffer (src, buffer);
 }
 
 ClutterColorState *
