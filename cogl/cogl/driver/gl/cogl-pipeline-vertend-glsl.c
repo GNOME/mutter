@@ -456,7 +456,7 @@ _cogl_pipeline_vertend_glsl_start (CoglPipeline *pipeline,
                           (COGL_DEBUG_DISABLE_PROGRAM_CACHES))))
             {
               cache_entry =
-                _cogl_pipeline_cache_get_vertex_template (ctx->pipeline_cache,
+                _cogl_pipeline_cache_get_vertex_template (cogl_context_get_pipeline_cache (ctx),
                                                           authority);
 
               shader_state = get_shader_state (cache_entry->pipeline);
