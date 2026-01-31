@@ -412,3 +412,89 @@ cogl_context_get_driver (CoglContext *context)
 
   return cogl_renderer_get_driver (renderer);
 }
+
+CoglPipeline *
+cogl_context_get_current_pipeline (CoglContext *context)
+{
+  return context->current_pipeline;
+}
+
+void
+cogl_context_set_current_pipeline (CoglContext  *context,
+                                   CoglPipeline *pipeline)
+{
+  if (context->current_pipeline != NULL)
+    g_object_unref (context->current_pipeline);
+  context->current_pipeline = pipeline;
+}
+
+unsigned long
+cogl_context_get_current_pipeline_age (CoglContext *context)
+{
+  return context->current_pipeline_age;
+}
+
+void
+cogl_context_set_current_pipeline_age (CoglContext   *context,
+                                       unsigned long  age)
+{
+  context->current_pipeline_age = age;
+}
+
+void
+cogl_context_decrement_current_pipeline_age (CoglContext *context)
+{
+  context->current_pipeline_age--;
+}
+
+unsigned long
+cogl_context_get_current_pipeline_changes_since_flush (CoglContext *context)
+{
+  return context->current_pipeline_changes_since_flush;
+}
+
+void
+cogl_context_set_current_pipeline_changes_since_flush (CoglContext   *context,
+                                                       unsigned long  changes)
+{
+  context->current_pipeline_changes_since_flush = changes;
+}
+
+void
+cogl_context_add_current_pipeline_changes_since_flush (CoglContext   *context,
+                                                       unsigned long  changes)
+{
+  context->current_pipeline_changes_since_flush |= changes;
+}
+
+gboolean
+cogl_context_get_current_pipeline_with_color_attrib (CoglContext *context)
+{
+  return context->current_pipeline_with_color_attrib;
+}
+
+void
+cogl_context_set_current_pipeline_with_color_attrib (CoglContext *context,
+                                                     gboolean     with_color_attrib)
+{
+  context->current_pipeline_with_color_attrib = with_color_attrib;
+}
+
+gboolean
+cogl_context_get_current_pipeline_unknown_color_alpha (CoglContext *context)
+{
+  return context->current_pipeline_unknown_color_alpha;
+}
+
+void
+cogl_context_set_current_pipeline_unknown_color_alpha (CoglContext *context,
+                                                       gboolean     unknown_color_alpha)
+{
+  context->current_pipeline_unknown_color_alpha = unknown_color_alpha;
+}
+
+CoglPipelineCache *
+cogl_context_get_pipeline_cache (CoglContext *context)
+{
+  return context->pipeline_cache;
+}

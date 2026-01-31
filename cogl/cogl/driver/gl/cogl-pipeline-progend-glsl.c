@@ -911,7 +911,7 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
                           (COGL_DEBUG_DISABLE_PROGRAM_CACHES))))
             {
               cache_entry =
-                _cogl_pipeline_cache_get_combined_template (ctx->pipeline_cache,
+                _cogl_pipeline_cache_get_combined_template (cogl_context_get_pipeline_cache (ctx),
                                                             authority);
 
               program_state = get_program_state (cache_entry->pipeline);
