@@ -988,16 +988,16 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
 
   gl_program = program_state->program;
 
-  if (ctx->current_gl_program != gl_program)
+  if (cogl_context_get_current_gl_program (ctx) != gl_program)
     {
       cogl_driver_gl_clear_gl_errors (COGL_DRIVER_GL (driver));
       GE (driver, glUseProgram (gl_program));
       if (cogl_driver_gl_get_gl_error (COGL_DRIVER_GL (driver)) == GL_NO_ERROR)
-        ctx->current_gl_program = gl_program;
+        cogl_context_set_current_gl_program (ctx, gl_program);
       else
         {
           GE (driver, glUseProgram (0));
-          ctx->current_gl_program = 0;
+          cogl_context_set_current_gl_program (ctx, 0);
         }
     }
 
