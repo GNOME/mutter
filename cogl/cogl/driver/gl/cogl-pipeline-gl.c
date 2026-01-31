@@ -387,7 +387,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
         }
     }
 
-  if (pipeline->real_blend_enable != ctx->gl_blend_enable_cache)
+  if (pipeline->real_blend_enable != cogl_context_get_gl_blend_enable_cache (ctx))
     {
       if (pipeline->real_blend_enable)
         GE (driver, glEnable (GL_BLEND));
@@ -395,7 +395,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
         GE (driver, glDisable (GL_BLEND));
       /* XXX: we shouldn't update any other blend state if blending
        * is disabled! */
-      ctx->gl_blend_enable_cache = pipeline->real_blend_enable;
+      cogl_context_set_gl_blend_enable_cache (ctx, pipeline->real_blend_enable);
     }
 }
 
