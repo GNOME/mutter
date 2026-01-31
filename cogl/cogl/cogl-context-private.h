@@ -359,3 +359,38 @@ cogl_context_get_stencil_pipeline (CoglContext *context);
 
 graphene_matrix_t *
 cogl_context_get_y_flip_matrix (CoglContext *context);
+
+gboolean
+cogl_context_get_depth_test_enabled_cache (CoglContext *context);
+
+void
+cogl_context_set_depth_test_enabled_cache (CoglContext *context,
+                                           gboolean     enabled);
+
+CoglDepthTestFunction
+cogl_context_get_depth_test_function_cache (CoglContext *context);
+
+void
+cogl_context_set_depth_test_function_cache (CoglContext           *context,
+                                            CoglDepthTestFunction  function);
+
+gboolean
+cogl_context_get_depth_writing_enabled_cache (CoglContext *context);
+
+void
+cogl_context_set_depth_writing_enabled_cache (CoglContext *context,
+                                              gboolean     enabled);
+
+float
+cogl_context_get_depth_range_near_cache (CoglContext *context);
+
+void
+cogl_context_set_depth_range_near_cache (CoglContext *context,
+                                         float        near_val);
+
+float
+cogl_context_get_depth_range_far_cache (CoglContext *context);
+
+void
+cogl_context_set_depth_range_far_cache (CoglContext *context,
+                                        float        far_val);

@@ -245,7 +245,7 @@ flush_depth_state (CoglContext *ctx,
         cogl_framebuffer_get_depth_write_enabled (current_draw_buffer);
     }
 
-  if (ctx->depth_test_enabled_cache != depth_state->test_enabled)
+  if (cogl_context_get_depth_test_enabled_cache (ctx) != depth_state->test_enabled)
     {
       if (depth_state->test_enabled == TRUE)
         {
@@ -255,25 +255,25 @@ flush_depth_state (CoglContext *ctx,
         }
       else
         GE (driver, glDisable (GL_DEPTH_TEST));
-      ctx->depth_test_enabled_cache = depth_state->test_enabled;
+      cogl_context_set_depth_test_enabled_cache (ctx, depth_state->test_enabled);
     }
 
-  if (ctx->depth_test_function_cache != depth_state->test_function &&
+  if (cogl_context_get_depth_test_function_cache (ctx) != depth_state->test_function &&
       depth_state->test_enabled == TRUE)
     {
       GE (driver, glDepthFunc (depth_state->test_function));
-      ctx->depth_test_function_cache = depth_state->test_function;
+      cogl_context_set_depth_test_function_cache (ctx, depth_state->test_function);
     }
 
-  if (ctx->depth_writing_enabled_cache != depth_writing_enabled)
+  if (cogl_context_get_depth_writing_enabled_cache (ctx) != depth_writing_enabled)
     {
       GE (driver, glDepthMask (depth_writing_enabled ?
                                GL_TRUE : GL_FALSE));
-      ctx->depth_writing_enabled_cache = depth_writing_enabled;
+      cogl_context_set_depth_writing_enabled_cache (ctx, depth_writing_enabled);
     }
 
-  if ((ctx->depth_range_near_cache != depth_state->range_near ||
-       ctx->depth_range_far_cache != depth_state->range_far))
+  if ((cogl_context_get_depth_range_near_cache (ctx) != depth_state->range_near ||
+       cogl_context_get_depth_range_far_cache (ctx) != depth_state->range_far))
     {
       CoglRenderer *renderer = cogl_context_get_renderer (ctx);
 
@@ -284,8 +284,8 @@ flush_depth_state (CoglContext *ctx,
         GE (driver, glDepthRange (depth_state->range_near,
                                   depth_state->range_far));
 
-      ctx->depth_range_near_cache = depth_state->range_near;
-      ctx->depth_range_far_cache = depth_state->range_far;
+      cogl_context_set_depth_range_near_cache (ctx, depth_state->range_near);
+      cogl_context_set_depth_range_far_cache (ctx, depth_state->range_far);
     }
 }
 
