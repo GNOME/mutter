@@ -191,14 +191,14 @@ cogl_buffer_impl_gl_bind_no_create (CoglBufferImplGL     *gl_impl,
   g_return_val_if_fail (buffer != NULL, NULL);
 
   /* Don't allow binding the buffer to multiple targets at the same time */
-  g_return_val_if_fail (ctx->current_buffer[buffer->last_target] != buffer,
+  g_return_val_if_fail (cogl_context_get_current_buffer (ctx, buffer->last_target) != buffer,
                         NULL);
 
   /* Don't allow nesting binds to the same target */
-  g_return_val_if_fail (ctx->current_buffer[target] == NULL, NULL);
+  g_return_val_if_fail (cogl_context_get_current_buffer (ctx, target) == NULL, NULL);
 
   buffer->last_target = target;
-  ctx->current_buffer[target] = buffer;
+  cogl_context_set_current_buffer (ctx, target, buffer);
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {
@@ -446,7 +446,7 @@ _cogl_buffer_gl_unbind (CoglBuffer *buffer)
   g_return_if_fail (buffer != NULL);
 
   /* the unbind should pair up with a previous bind */
-  g_return_if_fail (ctx->current_buffer[buffer->last_target] == buffer);
+  g_return_if_fail (cogl_context_get_current_buffer (ctx, buffer->last_target) == buffer);
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {
@@ -457,7 +457,7 @@ _cogl_buffer_gl_unbind (CoglBuffer *buffer)
       GE (driver, glBindBuffer (gl_target, 0));
     }
 
-  ctx->current_buffer[buffer->last_target] = NULL;
+  cogl_context_set_current_buffer (ctx, buffer->last_target, NULL);
 }
 
 static void
