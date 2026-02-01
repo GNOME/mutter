@@ -50,6 +50,162 @@
 #include <string.h>
 #include <stdlib.h>
 
+struct _CoglContext
+{
+  GObject parent_instance;
+
+  CoglDisplay *display;
+
+  CoglPipeline *default_pipeline;
+  CoglPipelineLayer *default_layer_0;
+  CoglPipelineLayer *default_layer_n;
+  CoglPipelineLayer *dummy_layer_dependant;
+
+  GHashTable *attribute_name_states_hash;
+  GArray *attribute_name_index_map;
+  int n_attribute_names;
+
+  CoglBitmask enabled_custom_attributes;
+
+  /* These are temporary bitmasks that are used when disabling
+   * builtin and custom attribute arrays. They are here just
+   * to avoid allocating new ones each time */
+  CoglBitmask enable_custom_attributes_tmp;
+  CoglBitmask changed_bits_tmp;
+
+  /* A few handy matrix constants */
+  graphene_matrix_t identity_matrix;
+  graphene_matrix_t y_flip_matrix;
+
+  /* The matrix stack entries that should be flushed during the next
+   * pipeline state flush */
+  CoglMatrixEntry *current_projection_entry;
+  CoglMatrixEntry *current_modelview_entry;
+
+  CoglMatrixEntry identity_entry;
+
+  /* Only used for comparing other pipelines when reading pixels. */
+  CoglPipeline *opaque_color_pipeline;
+
+  GString *codegen_header_buffer;
+  GString *codegen_source_buffer;
+
+  CoglPipelineCache *pipeline_cache;
+
+  /* Textures */
+  CoglTexture *default_gl_texture_2d_tex;
+
+  /* Central list of all framebuffers so all journals can be flushed
+   * at any time. */
+  GList *framebuffers;
+
+  /* Global journal buffers */
+  GArray *journal_flush_attributes_array;
+  GArray *journal_clip_bounds;
+
+  /* Some simple caching, to minimize state changes... */
+  CoglPipeline *current_pipeline;
+  unsigned long current_pipeline_changes_since_flush;
+  gboolean current_pipeline_with_color_attrib;
+  gboolean current_pipeline_unknown_color_alpha;
+  unsigned long current_pipeline_age;
+
+  gboolean gl_blend_enable_cache;
+
+  gboolean depth_test_enabled_cache;
+  CoglDepthTestFunction depth_test_function_cache;
+  gboolean depth_writing_enabled_cache;
+  float depth_range_near_cache;
+  float depth_range_far_cache;
+
+  CoglBuffer *current_buffer[COGL_BUFFER_BIND_TARGET_COUNT];
+
+  /* Framebuffers */
+  unsigned long current_draw_buffer_state_flushed;
+  unsigned long current_draw_buffer_changes;
+  CoglFramebuffer *current_draw_buffer;
+  CoglFramebuffer *current_read_buffer;
+
+  gboolean have_last_offscreen_allocate_flags;
+  CoglOffscreenAllocateFlags last_offscreen_allocate_flags;
+
+  CoglList onscreen_events_queue;
+  CoglList onscreen_dirty_queue;
+  CoglClosure *onscreen_dispatch_idle;
+
+  /* This becomes TRUE the first time the context is bound to an
+   * onscreen buffer. This is used by cogl-framebuffer-gl to determine
+   * when to initialise the glDrawBuffer state */
+  gboolean was_bound_to_onscreen;
+
+  /* Primitives */
+  CoglPipeline *stencil_pipeline;
+
+  CoglIndices *rectangle_byte_indices;
+  CoglIndices *rectangle_short_indices;
+  int rectangle_short_indices_len;
+
+  CoglPipeline *blit_texture_pipeline;
+
+  GSList *atlases;
+  GHookList atlas_reorganize_callbacks;
+
+  /* This debugging variable is used to pick a colour for visually
+     displaying the quad batches. It needs to be global so that it can
+     be reset by cogl_clear. It needs to be reset to increase the
+     chances of getting the same colour during an animation */
+  uint8_t journal_rectangles_color;
+
+  /* Fragment processing programs */
+  GLuint current_gl_program;
+
+  gboolean current_gl_dither_enabled;
+
+  /* Clipping */
+  /* TRUE if we have a valid clipping stack flushed. In that case
+     current_clip_stack will describe what the current state is. If
+     this is FALSE then the current clip stack is completely unknown
+     so it will need to be reflushed. In that case current_clip_stack
+     doesn't need to be a valid pointer. We can't just use NULL in
+     current_clip_stack to mark a dirty state because NULL is a valid
+     stack (meaning no clipping) */
+  gboolean current_clip_stack_valid;
+  /* The clip state that was flushed. This isn't intended to be used
+     as a stack to push and pop new entries. Instead the current stack
+     that the user wants is part of the framebuffer state. This is
+     just used to record the flush state so we can avoid flushing the
+     same state multiple times. When the clip state is flushed this
+     will hold a reference */
+  CoglClipStack *current_clip_stack;
+
+  /* This is used as a temporary buffer to fill a CoglBuffer when
+     cogl_buffer_map fails and we only want to map to fill it with new
+     data */
+  GByteArray *buffer_map_fallback_array;
+  gboolean buffer_map_fallback_in_use;
+  size_t buffer_map_fallback_offset;
+
+  CoglSamplerCache *sampler_cache;
+
+  unsigned long winsys_features
+  [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_WINSYS_FEATURE_N_FEATURES)];
+
+  /* Array of names of uniforms. These are used like quarks to give a
+     unique number to each uniform name except that we ensure that
+     they increase sequentially so that we can use the id as an index
+     into a bitfield representing the uniforms that a pipeline
+     overrides from its parent. */
+  GPtrArray *uniform_names;
+  /* A hash table to quickly get an index given an existing name. The
+     name strings are owned by the uniform_names array. The values are
+     the uniform location cast to a pointer. */
+  GHashTable *uniform_name_hash;
+  int n_uniform_names;
+
+  GHashTable *named_pipelines;
+};
+
+
 G_DEFINE_FINAL_TYPE (CoglContext, cogl_context, G_TYPE_OBJECT);
 
 void
