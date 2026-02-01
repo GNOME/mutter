@@ -763,7 +763,7 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx)
   CoglPipelineLayer *layer = g_object_new (COGL_TYPE_PIPELINE_LAYER, NULL);
   CoglPipelineLayerBigState *big_state =
     g_new0 (CoglPipelineLayerBigState, 1);
-  CoglPipelineLayer *new;
+  CoglPipelineLayer *new, *default_layer_n;
 
   layer->index = 0;
 
@@ -774,7 +774,7 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx)
   layer->texture = NULL;
 
   layer->sampler_cache_entry =
-    _cogl_sampler_cache_get_default_entry (ctx->sampler_cache);
+    _cogl_sampler_cache_get_default_entry (cogl_context_get_sampler_cache (ctx));
 
   layer->big_state = big_state;
   layer->has_big_state = TRUE;
@@ -806,7 +806,7 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx)
 
   graphene_matrix_init_identity (&big_state->matrix);
 
-  ctx->default_layer_0 = layer;
+  cogl_context_set_default_layer_0 (ctx, layer);
 
   /* TODO: we should make default_layer_n comprise of two
    * descendants of default_layer_0:
@@ -826,9 +826,10 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx)
    * optimizations for flattening the ancestry when we make
    * the second descendant which reverts the state.
    */
-  ctx->default_layer_n = _cogl_pipeline_layer_copy (layer);
-  new = _cogl_pipeline_set_layer_unit (NULL, ctx->default_layer_n, 1);
-  g_assert (new == ctx->default_layer_n);
+  default_layer_n = _cogl_pipeline_layer_copy (layer);
+  cogl_context_set_default_layer_n (ctx, default_layer_n);
+  new = _cogl_pipeline_set_layer_unit (NULL, default_layer_n, 1);
+  g_assert (new == default_layer_n);
   /* Since we passed a newly allocated layer we don't expect that
    * _set_layer_unit() will have to allocate *another* layer. */
 
@@ -836,8 +837,8 @@ _cogl_pipeline_init_default_layers (CoglContext *ctx)
    * effectively ensures that ->default_layer_n and ->default_layer_0
    * remain immutable.
    */
-  ctx->dummy_layer_dependant =
-    _cogl_pipeline_layer_copy (ctx->default_layer_n);
+  cogl_context_set_dummy_layer_dependant (ctx,
+                                          _cogl_pipeline_layer_copy (default_layer_n));
 }
 
 void

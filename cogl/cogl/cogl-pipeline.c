@@ -283,7 +283,7 @@ _cogl_pipeline_init_default_pipeline (CoglContext *context)
   pipeline->has_static_breadcrumb = TRUE;
 #endif
 
-  context->default_pipeline = pipeline;
+  cogl_context_set_default_pipeline (context, pipeline);
 
   /* Take this opportunity to setup the backends... */
   _cogl_pipeline_fragend = &_cogl_pipeline_glsl_fragend;
@@ -447,7 +447,8 @@ _cogl_pipeline_weak_copy (CoglPipeline *pipeline,
 CoglPipeline *
 cogl_pipeline_new (CoglContext *context)
 {
-  CoglPipeline *new = cogl_pipeline_copy (context->default_pipeline);
+  CoglPipeline *default_pipeline = cogl_context_get_default_pipeline (context);
+  CoglPipeline *new = cogl_pipeline_copy (default_pipeline);
 
 #ifdef COGL_ENABLE_DEBUG
   _cogl_pipeline_set_static_breadcrumb (new, "new");
@@ -1674,11 +1675,13 @@ _cogl_pipeline_get_layer_with_flags (CoglPipeline *pipeline,
 
   unit_index = layer_info.insert_after + 1;
   if (unit_index == 0)
-    layer = _cogl_pipeline_layer_copy (ctx->default_layer_0);
+    layer = _cogl_pipeline_layer_copy (cogl_context_get_default_layer_0 (ctx));
   else
     {
-      CoglPipelineLayer *new;
-      layer = _cogl_pipeline_layer_copy (ctx->default_layer_n);
+      CoglPipelineLayer *new, *default_layer_n;
+
+      default_layer_n = cogl_context_get_default_layer_n (ctx);
+      layer = _cogl_pipeline_layer_copy (default_layer_n);
       new = _cogl_pipeline_set_layer_unit (NULL, layer, unit_index);
       /* Since we passed a newly allocated layer we wouldn't expect
        * _set_layer_unit() to have to allocate *another* layer. */
@@ -2614,8 +2617,8 @@ deep_copy_layer_cb (CoglPipelineLayer *src_layer,
 
   dst_layer = _cogl_pipeline_get_layer (data->dst_pipeline, src_layer->index);
 
-  while (src_layer != data->context->default_layer_n &&
-         src_layer != data->context->default_layer_0 &&
+  while (src_layer != cogl_context_get_default_layer_n (data->context) &&
+         src_layer != cogl_context_get_default_layer_0 (data->context) &&
          differences)
     {
       unsigned long to_copy = differences & src_layer->differences;
@@ -2652,7 +2655,7 @@ _cogl_pipeline_deep_copy (CoglPipeline *pipeline,
   new = cogl_pipeline_new (ctx);
 
   for (authority = pipeline;
-       authority != ctx->default_pipeline && differences;
+       authority != cogl_context_get_default_pipeline (ctx) && differences;
        authority = authority->parent)
     {
       unsigned long to_copy = differences & authority->differences;
@@ -2845,6 +2848,7 @@ cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
 {
   CoglContext *ctx = pipeline->context;
   int n_uniform_names = cogl_context_get_n_uniform_names (ctx);
+  GHashTable *uniform_name_hash = cogl_context_get_uniform_name_hash (ctx);
   void *location_ptr;
   char *uniform_name_copy;
 
@@ -2856,7 +2860,7 @@ cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
      be. */
 
   /* Look for an existing uniform with this name */
-  if (g_hash_table_lookup_extended (ctx->uniform_name_hash,
+  if (g_hash_table_lookup_extended (uniform_name_hash,
                                     uniform_name,
                                     NULL,
                                     &location_ptr))
@@ -2864,7 +2868,7 @@ cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
 
   uniform_name_copy = g_strdup (uniform_name);
   g_ptr_array_add (cogl_context_get_uniform_names (ctx), uniform_name_copy);
-  g_hash_table_insert (ctx->uniform_name_hash,
+  g_hash_table_insert (uniform_name_hash,
                        uniform_name_copy,
                        GINT_TO_POINTER (n_uniform_names));
 

@@ -154,11 +154,14 @@ _cogl_dispatch_onscreen_cb (CoglContext *context)
    * To make sure this loop will only dispatch one set of events we'll
    * steal the queue and iterate that separately */
   _cogl_list_init (&queue);
-  _cogl_list_insert_list (&queue, &context->onscreen_events_queue);
-  _cogl_list_init (&context->onscreen_events_queue);
+  _cogl_list_insert_list (&queue, cogl_context_get_onscreen_events_queue (context));
+  _cogl_list_init (cogl_context_get_onscreen_events_queue (context));
 
-  g_clear_pointer (&context->onscreen_dispatch_idle,
-                   _cogl_closure_disconnect);
+  if (cogl_context_get_onscreen_dispatch_idle (context))
+    {
+      _cogl_closure_disconnect (cogl_context_get_onscreen_dispatch_idle (context));
+      cogl_context_set_onscreen_dispatch_idle (context, NULL);
+    }
 
   _cogl_list_for_each_safe (event, tmp, &queue, link)
     {
@@ -182,12 +185,16 @@ _cogl_onscreen_queue_dispatch_idle (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
 
-  if (!ctx->onscreen_dispatch_idle)
+  if (!cogl_context_get_onscreen_dispatch_idle (ctx))
     {
-      ctx->onscreen_dispatch_idle =
-        cogl_renderer_add_idle_closure (ctx->display->renderer,
+      CoglDisplay *display = cogl_context_get_display (ctx);
+      CoglRenderer *renderer = cogl_display_get_renderer (display);
+      CoglClosure *onscreen_dispatch_idle =
+        cogl_renderer_add_idle_closure (renderer,
                                          (void (*)(void *))_cogl_dispatch_onscreen_cb,
                                         ctx);
+
+      cogl_context_set_onscreen_dispatch_idle (ctx, onscreen_dispatch_idle);
     }
 }
 
@@ -202,7 +209,7 @@ _cogl_onscreen_queue_dirty (CoglOnscreen       *onscreen,
   qe = g_new0 (CoglOnscreenQueuedDirty, 1);
   qe->onscreen = g_object_ref (onscreen);
   qe->info = *info;
-  _cogl_list_insert (ctx->onscreen_dirty_queue.prev, &qe->link);
+  _cogl_list_insert (cogl_context_get_onscreen_dirty_queue (ctx)->prev, &qe->link);
 
   _cogl_onscreen_queue_dispatch_idle (onscreen);
 }
@@ -235,7 +242,7 @@ _cogl_onscreen_queue_event (CoglOnscreen *onscreen,
   event->info = g_object_ref (info);
   event->type = type;
 
-  _cogl_list_insert (ctx->onscreen_events_queue.prev, &event->link);
+  _cogl_list_insert (cogl_context_get_onscreen_events_queue (ctx)->prev, &event->link);
 
   _cogl_onscreen_queue_dispatch_idle (onscreen);
 }

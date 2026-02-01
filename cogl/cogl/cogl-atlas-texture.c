@@ -199,7 +199,7 @@ _cogl_atlas_texture_post_reorganize_cb (void *user_data)
     }
 
   /* Notify any listeners that an atlas has changed */
-  g_hook_list_invoke (&atlas->context->atlas_reorganize_callbacks, FALSE);
+  g_hook_list_invoke (cogl_context_get_atlas_reorganize_callbacks (atlas->context), FALSE);
 }
 
 static CoglAtlas *
@@ -214,7 +214,7 @@ _cogl_atlas_texture_create_atlas (CoglContext *ctx)
                                       _cogl_atlas_texture_post_reorganize_cb,
                                       atlas);
 
-  ctx->atlases = g_slist_prepend (ctx->atlases, atlas);
+  cogl_context_prepend_atlas (ctx, atlas);
   return atlas;
 }
 
@@ -634,7 +634,7 @@ allocate_space (CoglAtlasTexture *atlas_tex,
     }
 
   /* Look for an existing atlas that can hold the texture */
-  for (l = ctx->atlases; l; l = l->next)
+  for (l = cogl_context_get_atlases (ctx); l; l = l->next)
     {
       /* We need to take a reference on the atlas before trying to
        * reserve space because in some circumstances atlas migration
@@ -896,10 +896,11 @@ cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
                                             GHookFunc callback,
                                             void *user_data)
 {
-  GHook *hook = g_hook_alloc (&ctx->atlas_reorganize_callbacks);
+  GHookList *hook_list = cogl_context_get_atlas_reorganize_callbacks (ctx);
+  GHook *hook = g_hook_alloc (hook_list);
   hook->func = callback;
   hook->data = user_data;
-  g_hook_prepend (&ctx->atlas_reorganize_callbacks, hook);
+  g_hook_prepend (hook_list, hook);
 }
 
 void
@@ -907,11 +908,12 @@ cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
                                                 GHookFunc callback,
                                                 void *user_data)
 {
-  GHook *hook = g_hook_find_func_data (&ctx->atlas_reorganize_callbacks,
+  GHookList *hook_list = cogl_context_get_atlas_reorganize_callbacks (ctx);
+  GHook *hook = g_hook_find_func_data (hook_list,
                                        FALSE,
                                        callback,
                                        user_data);
 
   if (hook)
-    g_hook_destroy_link (&ctx->atlas_reorganize_callbacks, hook);
+    g_hook_destroy_link (hook_list, hook);
 }

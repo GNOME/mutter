@@ -466,14 +466,13 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
                            CoglContext *context,
                            GError     **error)
 {
-  CoglRenderer *renderer = context->display->renderer;
-  CoglDisplayEGL *egl_display = context->display->winsys;
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+  CoglDisplayEGL *egl_display = display->winsys;
   CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
   CoglDriver *driver = cogl_context_get_driver (context);
 
   g_return_val_if_fail (egl_display->egl_context, FALSE);
-
-  memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   check_egl_extensions (renderer);
 
@@ -482,8 +481,9 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_SWAP_REGION)
     {
-      COGL_FLAGS_SET (context->winsys_features,
-                      COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
+      cogl_context_set_winsys_feature (context,
+                                       COGL_WINSYS_FEATURE_SWAP_REGION,
+                                       TRUE);
     }
 
   if ((egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_FENCE_SYNC) &&
@@ -491,13 +491,13 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
     cogl_driver_set_feature (driver, COGL_FEATURE_ID_FENCE, TRUE);
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_NATIVE_FENCE_SYNC)
-    COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SYNC_FD, TRUE);
+    cogl_context_set_winsys_feature (context, COGL_WINSYS_FEATURE_SYNC_FD, TRUE);
 
   if (egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_BUFFER_AGE)
     {
-      COGL_FLAGS_SET (context->winsys_features,
-                      COGL_WINSYS_FEATURE_BUFFER_AGE,
-                      TRUE);
+      cogl_context_set_winsys_feature (context,
+                                       COGL_WINSYS_FEATURE_BUFFER_AGE,
+                                       TRUE);
     }
 
   return TRUE;
@@ -509,7 +509,8 @@ static int
 _cogl_winsys_get_sync_fd (CoglWinsys  *winsys,
                           CoglContext *context)
 {
-  CoglRendererEGL *renderer = cogl_renderer_get_winsys_data (context->display->renderer);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
+  CoglRendererEGL *renderer = cogl_renderer_get_winsys_data (cogl_renderer);
   int fd;
 
   if (!renderer->pf_eglDupNativeFenceFD)
@@ -526,7 +527,8 @@ static void
 _cogl_winsys_update_sync (CoglWinsys  *winsys,
                           CoglContext *context)
 {
-  CoglRendererEGL *renderer = cogl_renderer_get_winsys_data (context->display->renderer);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (context);
+  CoglRendererEGL *renderer = cogl_renderer_get_winsys_data (cogl_renderer);
 
   if (!renderer->pf_eglDestroySync || !renderer->pf_eglCreateSync)
     return;
@@ -567,7 +569,8 @@ cogl_winsys_egl_init (CoglWinsysEGL *winsys_egl)
 EGLDisplay
 cogl_context_get_egl_display (CoglContext *context)
 {
-  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (context->display->renderer);
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+  CoglRendererEGL *egl_renderer = cogl_renderer_get_winsys_data (renderer);
 
   return egl_renderer->edpy;
 }

@@ -266,8 +266,7 @@ cogl_framebuffer_constructed (GObject *object)
    * we don't have to worry about retaining references to OpenGL
    * texture coordinates that may later become invalid.
    */
-  priv->context->framebuffers = g_list_prepend (priv->context->framebuffers,
-                                                framebuffer);
+  cogl_context_prepend_framebuffer (priv->context, framebuffer);
 }
 
 void
@@ -309,7 +308,7 @@ cogl_framebuffer_dispose (GObject *object)
   g_clear_object (&priv->projection_stack);
   g_clear_object (&priv->journal);
 
-  ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
+  cogl_context_remove_framebuffer (ctx, framebuffer);
 
   if (cogl_context_get_current_draw_buffer (ctx) == framebuffer)
     cogl_context_set_current_draw_buffer (ctx, NULL);
@@ -562,7 +561,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_RECTANGLES)) &&
       buffers & COGL_BUFFER_BIT_COLOR)
     {
-      priv->context->journal_rectangles_color = 1;
+      cogl_context_set_journal_rectangles_color (priv->context, 1);
     }
 
   COGL_NOTE (DRAW, "Clear end");
