@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lt\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-09-05 19:40+0000\n"
-"PO-Revision-Date: 2025-09-05 22:58+0300\n"
-"Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
+"POT-Creation-Date: 2026-01-31 09:20+0000\n"
+"PO-Revision-Date: 2026-02-02 00:01+0200\n"
+"Last-Translator: Aurimas Černius <aurimas.cernius@mailo.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.8\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -253,19 +253,19 @@ msgstr "Išdidinti langą vertikaliai"
 msgid "Maximize window horizontally"
 msgstr "Išdidinti langą horizontaliai"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
 msgid "View split on left"
 msgstr "Rodyti skyrimą kairėje"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
 msgid "View split on right"
 msgstr "Rodyti skyrimą dešinėje"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Klavišas, naudojamas kartu su specialiomis lango tvarkymo operacijomis"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -276,11 +276,11 @@ msgstr ""
 "paleidimo sistemos kombinacija. Numatytasis nustatymas – „Windows klavišas“. "
 "Tikimasi, kad šis susiejimas bus arba numatytasis, arba nustatytas į tuščią."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Prikabinti modalinius dialogus"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -290,11 +290,11 @@ msgstr ""
 "pasirodys prikabinti prie tėvinio lango antraštės ir yra perkialiami kartu "
 "su tėviniu langu."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Įjungti kraštų uždengimą numetant langus ekrano kraštuose"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -304,11 +304,11 @@ msgstr ""
 "vertikaliai ir pakeičia dydį horizontaliai taip, kad užimtų pusę esamos "
 "vietos. Langų numetimas ekrano viršuje juos visiškai išdidina."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Darbo sritys tvarkomos dinamiškai"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -318,11 +318,11 @@ msgstr ""
 "sričių skaičius (nusakomas raktu num-workspaces schemoje "
 "org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Darbo sritys tik pagrindiniame"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -330,11 +330,11 @@ msgstr ""
 "Nusako, ar darbo sričių perjungimas turi įvykti langams visuose "
 "monitoriuose, ar tik langams pagrindiniame monitoriuje."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Atidėti aktyvavimo pakeitimus iki žymiklis nustaja judėti"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -344,11 +344,11 @@ msgstr ""
 "tuomet aktyvavimas nebus pakeistas nedelsiant įėjus į langą, bet tik pelės "
 "žymikliui nustojus judėti."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Tempiamos paraštės prolis"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -356,11 +356,11 @@ msgstr ""
 "Bendros tempiamos paraštės dydis. Jei temos matomos paraštės yra "
 "nepakankamos, bus pridėtos nematomos paraštės."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Automatiškai išdidinti beveik monitoriaus dydžio langus"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -368,11 +368,11 @@ msgstr ""
 "Jei įjungta, nauji langai, kurių pradinis dydis yra monitoriaus dydžio yra "
 "automatiškai išdidinami."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Patalpinti naujus langus centre"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -380,11 +380,11 @@ msgstr ""
 "Kai teigiama, nauji langai bus visada patalpinti aktyvaus monitoriaus ekrano "
 "viduryje."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Įjungti eksperimentines savybes"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -397,12 +397,10 @@ msgid ""
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
 "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
+"native scaling support. If scaling is not supported by client, the client "
+"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
+"is enabled as well."
 msgstr ""
 "Norėdami įjungti eksperimentines savybes, pridėkite į sąrašą raktinį žodį. "
 "Ar savybė reikalauja kompozitoriaus paleidimo iš naujo priklauso nuo "
@@ -419,24 +417,24 @@ msgstr ""
 "paleisti iš naujo. • „variable-refresh-rate“ — priverčia mutter dinamiškai "
 "pritaikyti atnaujinimo dažnį, kai tai tinka ir palaikoma monitoriaus, GPU "
 "bei DRM tvarkyklių. Konfigūruojama Nustatymuose. Reikalauja paleisti iš "
-"naujo. • „xwayland-native-scaling“ — leidžia Xwayland kleintams naudto jų "
+"naujo. • „xwayland-native-scaling“ — leidžia Xwayland klientams naudoti jų "
 "gimtąjį ištempimo palaikymą. Jei ištempimas nepalaikomas kliento, kliento "
 "mastelis liks nepakeistas. Nuostata galio tik kai „scale-monitor-"
 "framebuffer“ taip pat yra įjungta."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "Pakaitos klavišas, naudojamas žymękliui surasti"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Šis klavišas paleisti veiksmą „surasti žymeklį“."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "Baigėsi check-alive ping laiko limitas"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -446,11 +444,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:164
 msgid "Per output luminance settings"
 msgstr "Apšvietimo nuostatos išvesčiai"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -462,15 +460,15 @@ msgstr ""
 "veiksena, taip pat susietu slankaus kablelio skaičiumi, nurodančiu išvesties "
 "apšvietimą procentais (%). Kai nenurodyta, numatyta 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:190
 msgid "Switch monitor configurations"
 msgstr "Perjungti monitorių konfigūracijas"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:195
 msgid "Rotates the built-in monitor configuration"
 msgstr "Suka integruotas monitorių konfigūracijas"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:200
 msgid "Cancel any active input capture session"
 msgstr "Nutraukti bet kokią aktyvų įvesties sekimo seansą"
 
@@ -677,23 +675,35 @@ msgstr "_Emuliuoti leitimą"
 msgid "_Inhibit system shortcuts"
 msgstr "Pr_istabdyti sistemos trumpinius"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Naudoti serverio _klavišų lentelę"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_Monitoriai"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Resizable"
+msgstr "_Didinamas"
+
+#: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
 msgstr "_Leistukai"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:37
 msgid "_Edit launchers"
 msgstr "K_eisti leistukus"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:44
 msgid "_About Mutter Development Kit"
 msgstr "_Apie Mutter kūrimo rinkinį"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter kūrimo rinkinys"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:60
 msgid "Main Menu"
 msgstr "Pagrindinis meniu"
 
@@ -709,7 +719,7 @@ msgstr "Mutter programos kūrimo rinkinys"
 msgid "About Mutter Development Kit"
 msgstr "Apie Mutter kūrimo rinkinį"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:792
 msgid "Failed to create monitor"
 msgstr "Nepavyko sukurti monitoriaus"
 
@@ -744,74 +754,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Skambučio įvykis"
 
-#: src/core/display.c:742
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "Privatus ekranas įjungtas"
 
-#: src/core/display.c:743
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "Privatus ekranas išjungtas"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Pakeisti veikiančią langų tvarkytuvę"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Naudotinas X ekranas"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "Sinchronizuoti X iškvietimus"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:355
 msgid "Run as a wayland compositor"
 msgstr "Vykdyti kaip wayland kompozitorių"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Vykdyti kaip įdėtinį kompozitorių"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:362
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Paleisti wayland kompozitorių nepaleidžiant Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:369
 msgid "Specify Wayland display name to use"
 msgstr "Nurodo naudotiną Waylant vaizduoklio pavadinimą"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:376
 msgid "Run as a full display server, rather than nested"
 msgstr "Vykdyti kaip visą vaizduoklio serverį, o ne įdėtinį"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:381
 msgid "Run as a headless display server"
 msgstr "Vykdyti kaip vaizduoklio serverį be vaizdo"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:386
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Pridėti nuolatinį virtualų monitorių (WxH arba WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:393
 msgid "Run development kit"
 msgstr "Paleisti kūrimo rinkinį"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Paleisti su X11 realizacija"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:404
 msgid "Profile performance using trace instrumentation"
 msgstr "Profiliuoti našumą naudojant trace instrumentus"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:410
 msgid "Enable debug control D-Bus interface"
 msgstr "Įjungti derinimo valdymo D-Bus sąsają"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Veiksenos perjungimas (Grupė %d)"
@@ -819,7 +809,7 @@ msgstr "Veiksenos perjungimas (Grupė %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Veiksenos perjungimas"
@@ -827,11 +817,11 @@ msgstr "Veiksenos perjungimas"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Perjungti monitorių"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Rodyti pagalbą ekrane"
 
@@ -840,20 +830,20 @@ msgstr "Rodyti pagalbą ekrane"
 msgid "Compositor"
 msgstr "Komponuotojas"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Parodyti versiją"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Naudojamas Mutter įskiepis"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Darbo sritis %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter buvo sukompiliuota be išsamaus veikimo veiksenos"
 
@@ -866,28 +856,24 @@ msgstr "Darbo sritis pakeista"
 msgid "Mode Switch: Mode %d"
 msgstr "Veiksenos perjungimas: veiksena %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Vaizduoklis „%s“ jau turi langų tvarkytuvę; pabandykite pakeisti esamą langų "
-"tvarkytuvę, naudodami parametrą --replace."
+msgid "Display “%s” already has a window manager"
+msgstr "Vaizduoklis „%s“ jau turi langų valdyklę"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nepavyko atverti X Window sistemos vaizduoklio „%s“"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1320
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ekranas %d vaizduoklyje „%s“ yra netinkamas"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -898,10 +884,33 @@ msgstr "Kita kompozicijos tvarkytuvė jau veikia ekrane %i vaizduoklyje „%s“
 msgid "Format %s not supported"
 msgstr "Formatas %s nepalaikomas"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (kompiuteryje %s)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "Pakeisti veikiančią langų tvarkytuvę"
+
+#~ msgid "X Display to use"
+#~ msgstr "Naudotinas X ekranas"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "Sinchronizuoti X iškvietimus"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Vykdyti kaip įdėtinį kompozitorių"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "Paleisti su X11 realizacija"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "Vaizduoklis „%s“ jau turi langų tvarkytuvę; pabandykite pakeisti esamą "
+#~ "langų tvarkytuvę, naudodami parametrą --replace."
 
 #~ msgid "Disable connection to session manager"
 #~ msgstr "Išjungti susijungimą su sesijos tvarkytuve"
@@ -1001,9 +1010,6 @@ msgstr "%s (kompiuteryje %s)"
 #~ msgstr ""
 #~ "Nepavyko rasti temos! Įsitikinkite, kad %s egzistuoja ir kad ten yra "
 #~ "įprastos temos.\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr "Ekranas %d vaizduoklyje „%s“ jau turi langų valdyklę\n"
 
 #~ msgid "%d x %d"
 #~ msgstr "%d x %d"
