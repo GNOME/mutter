@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-29 14:21+0000\n"
-"PO-Revision-Date: 2026-01-30 05:05+0100\n"
+"POT-Creation-Date: 2026-01-31 09:20+0000\n"
+"PO-Revision-Date: 2026-02-01 02:38+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -248,19 +248,19 @@ msgstr "ფანჯრის ვერტიკალურად მაქს�
 msgid "Maximize window horizontally"
 msgstr "ფანჯრის ჰორიზონტალურად გაშლა"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
 msgid "View split on left"
 msgstr "ხედის მარცხნივ გაყოფა"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
 msgid "View split on right"
 msgstr "ხედის მარჯვნივ გაყოფა"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "ფანჯრების მართვის დამატებითი ოპერაციების მოდიფიკატორი"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -271,11 +271,11 @@ msgstr ""
 "გაშვების სისტემის კომბინაციაა. ნაგულისხმევად, PC-ზე, \"Windows\"-ის ღილაკი "
 "გამოიყენება. ითვლება, რომ ამ ღილაკზე მბმა ცარიელი ან ნაგულისხმევია."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "მოდალური ფანჯრების მიბმა"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -285,11 +285,11 @@ msgstr ""
 "მშობელი ფანჯრის სათაურის ზოლთან მიმაგრებული დაიხატება და მშობელ ფანჯარასთან "
 "ერთად გადაადგილდება."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "წიბოს გადაფარვა, როცა ფანჯრებს ეკრანის წიბოებზე დააგდებთ"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -299,11 +299,11 @@ msgstr ""
 "გაშლის ვერტიკალურად და ზომას შეუცვლის ჰორიზონტალურად, რათა, მათ, ზუსტად "
 "ნახევარი ეკრანი დაიკავონ. ფანჯრის ზედა წიბოზე დაყრა მათ სრულად გაადიდებს."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "სამუშაო სივრცეები დინამიკურად იმართება"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -313,11 +313,11 @@ msgstr ""
 "სტატიკური რაოდენობა (განისაზღვრება org.gnome.desktop.wm.preferences-ში num-"
 "workspaces-ით მნიშვნელობით)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "სამუშაო სივრცეები მხოლოდ აქტიურ ეკრანზე"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -326,11 +326,11 @@ msgstr ""
 "რომლებიც ყველა მონიტორზე ჩანს, თუ მხოლოდ ძირითად ეკრანზე მდებარე "
 "ფანჯრებისთვის."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "ფოკუსის შეცვლის მაჩვენებლის მოძრაობის შეწყვეტამდე დაყოვნება"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -340,11 +340,11 @@ msgstr ""
 "ფოკუსი ფანჯარაზე გადასვლისას დაუყოვნებლივ კი არ შეიცვლება, არამედ მაშინ, "
 "როცა თაგუნას კურსორი მოძრაობას შეწყვეტს."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "გადათრევადი საზღვრის სიგანე"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -352,11 +352,11 @@ msgstr ""
 "გადათრევადი საზღრების ჯამური რაოდენობა. თუ თემის ხილული საზღვრები საკმარისი "
 "არაა, ამ მნიშვნელობამდე მისაღწევად უჩინარი საზღვრები დაემატება."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "თუ ფანჯარა თითქმის მთელ ეკრანზეა, მისი სრულ ეკრანზე გაშლა"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -364,11 +364,11 @@ msgstr ""
 "თუ ჩართულია, ახალი ფანჯრები, რომლებსაც თავიდანვე ეკრანის ზომა აქვთ, მთელ "
 "ეკრანზე გაიშლებიან."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "ახალი ფანჯრის ცენტრში მოთავსება"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -376,11 +376,11 @@ msgstr ""
 "თუ ჩართულია, ახალი ფანჯრები, ყოველთვის, მონიტორის აქტიური ეკრანის შუაში "
 "გამოჩნდება."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "ექსპერიმენტალური თვისებების ჩართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -393,48 +393,42 @@ msgid ""
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
 "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
+"native scaling support. If scaling is not supported by client, the client "
+"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
+"is enabled as well."
 msgstr ""
 "ექსპერიმენტული ფუნქციების ჩასართავად დაამატეთ ფუნქციის საკვანძო სიტყვა სიას. "
 "მოითხოვს თუ არა ფუნქცია კომპოზიტორის გადატვირთვას, დამოკიდებულია მოცემულ "
 "ფუნქციაზე. ნებისმიერი ექსპერიმენტული ფუნქცია არ არის საჭირო, რომ კვლავ "
-"ხელმისაწვდომი იყოს ან კონფიგურირებადი იყოს. ნუ ელით, რომ ამ პარამეტრში "
-"რაიმეს დამატება იქნება სამომავლო მტკიცებულება. ამჟამად შესაძლო საკვანძო "
-"სიტყვები: • „scale-monitor-framebuffer“ — ხდის mutter-ის ნაგულისხმევად "
-"განლაგებას ლოგიკური მონიტორების განლაგებისთვის ლოგიკურ პიქსელის კოორდინატთა "
-"სივრცეში, ხოლო მონიტორის ჩარჩო ბუფერების მასშტაბირება ფანჯრის შინაარსის "
-"ნაცვლად, HiDPI მონიტორების სამართავად. არ საჭიროებს გადატვირთვას. • „kms-"
-"modifiers“ — ხდის mutter-ს ყოველთვის გამოყოს სკანაუტური ბუფერები აშკარა "
-"მოდიფიკატორებით, თუ მხარდაჭერილია დრაივერის მიერ. საჭიროებს გადატვირთვას. • "
-"„rt-scheduler“ — ხდის mutter მოთხოვნას რეალურ დროში დაბალ პრიორიტეტულ "
-"განრიგად. საჭიროებს გადატვირთვას. • „autoclose-xwayland“ — ავტომატურად "
-"წყვეტს Xwayland-ს, თუ ყველა შესაბამისი X11 კლიენტი გაქრება. საჭიროებს "
-"გადატვირთვას. • “variable-refresh-rate” — აიძულებ mutter-ს, დინამიკურად "
-"მოირგოს ეკრანის განახლების სიხშირე, როცა ეს მხარდაჭერილია ეკრანის, GPU-ისა "
-"და DRM-ის დრაივერის მიერ. მორგებადია მორგების ფანჯარაში. საჭიროებს "
-"გადატვირთვას. • “xwayland-native-scaling” — საშუალებას აძლევს Xwayland-ის "
-"კლენტებს, საკუთარი დამაშტაბების მხარდაჭერა გამოიყენონ. თუ კლიენტს "
-"დამასშტაბების მხარდაჭერა არ აქვს, ისინი მის გარეშე იმუშავებენ. ძალაში, "
-"მხოლოდ, მაშინ შედის, თუ ასევე ჩართულია პარამეტრი “scale-monitor-framebuffer”."
+"ხელმისაწვდომი, ან კონფიგურირებადი იყოს. ნუ ელით, რომ ამ პარამეტრში რაიმეს "
+"დამატება მომავალშიც იმუშავებს. ამჟამად შესაძლო საკვანძო სიტყვები: • „scale-"
+"monitor-framebuffer“ — ხდის mutter-ის ნაგულისხმევად განლაგებას ლოგიკური "
+"მონიტორების განლაგებისთვის ლოგიკურ პიქსელის კოორდინატთა სივრცეში, ხოლო "
+"მონიტორის ჩარჩო ბუფერების მასშტაბირება ფანჯრის შინაარსის ნაცვლად, HiDPI "
+"მონიტორების სამართავად. არ საჭიროებს გადატვირთვას. • „kms-modifiers“ — ხდის "
+"mutter-ს ყოველთვის გამოყოს scanout ბუფერები აშკარა მოდიფიკატორებით, თუ "
+"მხარდაჭერილია დრაივერის მიერ. საჭიროებს გადატვირთვას. • „autoclose-xwayland“ "
+"— ავტომატურად წყვეტს Xwayland-ს, თუ ყველა შესაბამისი X11 კლიენტი გაქრება. "
+"საჭიროებს გადატვირთვას. • “xwayland-native-scaling” — საშუალებას აძლევს "
+"Xwayland-ის კლენტებს, საკუთარი დამაშტაბების მხარდაჭერა გამოიყენონ. თუ "
+"კლიენტს დამასშტაბების მხარდაჭერა არ აქვს, ისინი მის გარეშე იმუშავებენ. "
+"ძალაში, მხოლოდ, მაშინ შედის, თუ ასევე ჩართულია პარამეტრი “scale-monitor-"
+"framebuffer”."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "მაჩვენებლის მოსაძებნი მოდიფიკატორი"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "მალსახმობი \"მაჩვენებლის მოძებნის\" ქმედებას გაუშვებს."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "სიცოცხლის შემოწმების ვადა გავიდა"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -444,11 +438,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:164
 msgid "Per output luminance settings"
 msgstr "თითოეული გამოტანის განათების პარამეტრები"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -461,15 +455,15 @@ msgstr ""
 "განათების მნიშვნელობაა პროცენტებში (%). ნაგულისხმევი, როცა მითითებული არაა, "
 "არის 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:190
 msgid "Switch monitor configurations"
 msgstr "ეკრანის კონფიგურაციის გადართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:195
 msgid "Rotates the built-in monitor configuration"
 msgstr "ეკრანის ჩაშენებული კონფიგურაციის შემობრუნება"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:200
 msgid "Cancel any active input capture session"
 msgstr "ყველა არსებული ეკრანის ჩაჭერის სესიის გაუქმება"
 
