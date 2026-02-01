@@ -129,8 +129,11 @@ cogl_context_get_rectangle_indices (CoglContext *ctx,
   /* Check if the largest index required will fit in a byte array... */
   if (n_indices <= 256 / 4 * 6)
     {
+      CoglIndices *rectangle_byte_indices =
+        cogl_context_get_rectangle_byte_indices (ctx);
+
       /* Generate the byte array if we haven't already */
-      if (ctx->rectangle_byte_indices == NULL)
+      if (rectangle_byte_indices == NULL)
         {
           uint8_t *byte_array = g_malloc (256 / 4 * 6 * sizeof (uint8_t));
           uint8_t *p = byte_array;
@@ -147,40 +150,46 @@ cogl_context_get_rectangle_indices (CoglContext *ctx,
               vert_num += 4;
             }
 
-          ctx->rectangle_byte_indices
+          rectangle_byte_indices
             = cogl_indices_new (ctx,
                                 COGL_INDICES_TYPE_UNSIGNED_BYTE,
                                 byte_array,
                                 256 / 4 * 6);
 
+          cogl_context_set_rectangle_byte_indices (ctx, rectangle_byte_indices);
+
           g_free (byte_array);
         }
 
-      return ctx->rectangle_byte_indices;
+      return rectangle_byte_indices;
     }
   else
     {
-      if (ctx->rectangle_short_indices_len < n_indices)
+      int rectangle_short_indices_len =
+        cogl_context_get_rectangle_short_indices_len (ctx);
+
+      if (rectangle_short_indices_len < n_indices)
         {
           uint16_t *short_array;
           uint16_t *p;
           int i, vert_num = 0;
+          CoglIndices *old_indices = cogl_context_get_rectangle_short_indices (ctx);
 
-          if (ctx->rectangle_short_indices != NULL)
-            g_object_unref (ctx->rectangle_short_indices);
+          if (old_indices != NULL)
+            g_object_unref (old_indices);
           /* Pick a power of two >= MAX (512, n_indices) */
-          if (ctx->rectangle_short_indices_len == 0)
-            ctx->rectangle_short_indices_len = 512;
-          while (ctx->rectangle_short_indices_len < n_indices)
-            ctx->rectangle_short_indices_len *= 2;
+          if (rectangle_short_indices_len == 0)
+            rectangle_short_indices_len = 512;
+          while (rectangle_short_indices_len < n_indices)
+            rectangle_short_indices_len *= 2;
 
           /* Over-allocate to generate a whole number of quads */
-          p = short_array = g_malloc ((ctx->rectangle_short_indices_len
+          p = short_array = g_malloc ((rectangle_short_indices_len
                                        + 5) / 6 * 6
                                       * sizeof (uint16_t));
 
           /* Fill in the complete quads */
-          for (i = 0; i < ctx->rectangle_short_indices_len; i += 6)
+          for (i = 0; i < rectangle_short_indices_len; i += 6)
             {
               *(p++) = vert_num + 0;
               *(p++) = vert_num + 1;
@@ -191,15 +200,18 @@ cogl_context_get_rectangle_indices (CoglContext *ctx,
               vert_num += 4;
             }
 
-          ctx->rectangle_short_indices
-            = cogl_indices_new (ctx,
-                                COGL_INDICES_TYPE_UNSIGNED_SHORT,
-                                short_array,
-                                ctx->rectangle_short_indices_len);
+          CoglIndices *new_indices = cogl_indices_new (ctx,
+                                                       COGL_INDICES_TYPE_UNSIGNED_SHORT,
+                                                       short_array,
+                                                       rectangle_short_indices_len);
+          cogl_context_set_rectangle_short_indices (ctx, new_indices);
 
           g_free (short_array);
         }
 
-      return ctx->rectangle_short_indices;
+      cogl_context_set_rectangle_short_indices_len (ctx,
+                                                    rectangle_short_indices_len);
+
+      return cogl_context_get_rectangle_short_indices (ctx);
     }
 }

@@ -457,4 +457,150 @@ CoglBitmask *
 cogl_context_get_enable_custom_attributes_tmp (CoglContext *context);
 
 CoglBitmask *
-cogl_context_get_changed_bits_tmp (CoglContext *context);
+cogl_context_get_changed_bits_tmp (CoglContext * context);
+
+CoglPipeline *
+cogl_context_get_default_pipeline (CoglContext *context);
+
+void
+cogl_context_set_default_pipeline (CoglContext  *context,
+                                   CoglPipeline *pipeline);
+
+CoglPipelineLayer *
+cogl_context_get_default_layer_0 (CoglContext *context);
+
+void
+cogl_context_set_default_layer_0 (CoglContext       *context,
+                                  CoglPipelineLayer *layer);
+
+CoglPipelineLayer *
+cogl_context_get_default_layer_n (CoglContext *context);
+
+void
+cogl_context_set_default_layer_n (CoglContext       *context,
+                                  CoglPipelineLayer *layer);
+
+CoglPipelineLayer *
+cogl_context_get_dummy_layer_dependant (CoglContext *context);
+
+void
+cogl_context_set_dummy_layer_dependant (CoglContext       *context,
+                                        CoglPipelineLayer *layer);
+
+GHashTable *
+cogl_context_get_attribute_name_states_hash (CoglContext *context);
+
+GHashTable *
+cogl_context_get_uniform_name_hash (CoglContext *context);
+
+int
+cogl_context_get_n_attribute_names (CoglContext *context);
+
+int
+cogl_context_increment_n_attribute_names (CoglContext *context);
+
+CoglSamplerCache *
+cogl_context_get_sampler_cache (CoglContext *context);
+
+GList *
+cogl_context_get_framebuffers (CoglContext *context);
+
+void
+cogl_context_prepend_framebuffer (CoglContext     *context,
+                                  CoglFramebuffer *framebuffer);
+
+void
+cogl_context_remove_framebuffer (CoglContext     *context,
+                                 CoglFramebuffer *framebuffer);
+
+GArray *
+cogl_context_get_journal_flush_attributes_array (CoglContext *context);
+
+GArray *
+cogl_context_get_journal_clip_bounds (CoglContext *context);
+
+void
+cogl_context_set_journal_clip_bounds (CoglContext *context,
+                                      GArray      *array);
+
+uint8_t
+cogl_context_get_journal_rectangles_color (CoglContext *context);
+
+void
+cogl_context_set_journal_rectangles_color (CoglContext *context,
+                                           uint8_t      color);
+
+CoglPipeline *
+cogl_context_get_opaque_color_pipeline (CoglContext *context);
+
+CoglPipeline *
+cogl_context_get_blit_texture_pipeline (CoglContext *context);
+
+void
+cogl_context_set_blit_texture_pipeline (CoglContext  *context,
+                                        CoglPipeline *pipeline);
+
+GSList *
+cogl_context_get_atlases (CoglContext *context);
+
+void
+cogl_context_prepend_atlas (CoglContext *context,
+                            CoglAtlas   *atlas);
+
+void
+cogl_context_remove_atlas (CoglContext *context,
+                           CoglAtlas   *atlas);
+
+GHookList *
+cogl_context_get_atlas_reorganize_callbacks (CoglContext *context);
+
+CoglList *
+cogl_context_get_onscreen_events_queue (CoglContext *context);
+
+CoglList *
+cogl_context_get_onscreen_dirty_queue (CoglContext *context);
+
+CoglClosure *
+cogl_context_get_onscreen_dispatch_idle (CoglContext *context);
+
+void
+cogl_context_set_onscreen_dispatch_idle (CoglContext *context,
+                                         CoglClosure *closure);
+
+CoglIndices *
+cogl_context_get_rectangle_byte_indices (CoglContext *context);
+
+void
+cogl_context_set_rectangle_byte_indices (CoglContext *context,
+                                         CoglIndices *indices);
+
+CoglIndices *
+cogl_context_get_rectangle_short_indices (CoglContext *context);
+
+void
+cogl_context_set_rectangle_short_indices (CoglContext *context,
+                                          CoglIndices *indices);
+
+int
+cogl_context_get_rectangle_short_indices_len (CoglContext *context);
+
+void
+cogl_context_set_rectangle_short_indices_len (CoglContext *context,
+                                              int          len);
+
+GByteArray *
+cogl_context_get_buffer_map_fallback_array (CoglContext *context);
+
+gboolean
+cogl_context_get_buffer_map_fallback_in_use (CoglContext *context);
+
+void
+cogl_context_set_buffer_map_fallback_in_use (CoglContext *context,
+                                             gboolean     in_use);
+
+size_t
+cogl_context_get_buffer_map_fallback_offset (CoglContext *context);
+
+void
+cogl_context_set_buffer_map_fallback_offset (CoglContext *context,
+                                             size_t       offset);
