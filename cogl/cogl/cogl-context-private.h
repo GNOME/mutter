@@ -444,6 +444,12 @@ cogl_context_get_n_uniform_names (CoglContext *context);
 int
 cogl_context_increment_n_uniform_names (CoglContext *context);
 
+GString *
+cogl_context_get_codegen_header_buffer (CoglContext *context);
+
+GString *
+cogl_context_get_codegen_source_buffer (CoglContext *context);
+
 CoglBitmask *
 cogl_context_get_enabled_custom_attributes (CoglContext *context);
 
