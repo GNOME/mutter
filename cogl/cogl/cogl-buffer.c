@@ -350,12 +350,14 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
                                              size_t size)
 {
   CoglContext *ctx = buffer->context;
+  GByteArray *buffer_map_fallback =
+    cogl_context_get_buffer_map_fallback_array (ctx);
   void *ret;
   GError *ignore_error = NULL;
 
-  g_return_val_if_fail (!ctx->buffer_map_fallback_in_use, NULL);
+  g_return_val_if_fail (!cogl_context_get_buffer_map_fallback_in_use (ctx), NULL);
 
-  ctx->buffer_map_fallback_in_use = TRUE;
+  cogl_context_set_buffer_map_fallback_in_use (ctx, TRUE);
 
   ret = cogl_buffer_map_range (buffer,
                                offset,
@@ -373,22 +375,24 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
      the data and then upload it using cogl_buffer_set_data when
      the buffer is unmapped. The temporary buffer is shared to
      avoid reallocating it every time */
-  g_byte_array_set_size (ctx->buffer_map_fallback_array, size);
-  ctx->buffer_map_fallback_offset = offset;
+  g_byte_array_set_size (buffer_map_fallback, size);
+  cogl_context_set_buffer_map_fallback_offset (ctx, offset);
 
   buffer->flags |= COGL_BUFFER_FLAG_MAPPED_FALLBACK;
 
-  return ctx->buffer_map_fallback_array->data;
+  return buffer_map_fallback->data;
 }
 
 void
 _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer)
 {
   CoglContext *ctx = buffer->context;
+  GByteArray *buffer_map_fallback =
+    cogl_context_get_buffer_map_fallback_array (ctx);
 
-  g_return_if_fail (ctx->buffer_map_fallback_in_use);
+  g_return_if_fail (cogl_context_get_buffer_map_fallback_in_use (ctx));
 
-  ctx->buffer_map_fallback_in_use = FALSE;
+  cogl_context_set_buffer_map_fallback_in_use (ctx, FALSE);
 
   if ((buffer->flags & COGL_BUFFER_FLAG_MAPPED_FALLBACK))
     {
@@ -407,9 +411,9 @@ _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer)
        * deferred renderers.
        */
       cogl_buffer_set_data (buffer,
-                            ctx->buffer_map_fallback_offset,
-                            ctx->buffer_map_fallback_array->data,
-                            ctx->buffer_map_fallback_array->len);
+                            cogl_context_get_buffer_map_fallback_offset (ctx),
+                            buffer_map_fallback->data,
+                            buffer_map_fallback->len);
       buffer->flags &= ~COGL_BUFFER_FLAG_MAPPED_FALLBACK;
     }
   else
