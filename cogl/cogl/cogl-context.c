@@ -830,6 +830,18 @@ cogl_context_increment_n_uniform_names (CoglContext *context)
   return context->n_uniform_names++;
 }
 
+GString *
+cogl_context_get_codegen_header_buffer (CoglContext *context)
+{
+  return context->codegen_header_buffer;
+}
+
+GString *
+cogl_context_get_codegen_source_buffer (CoglContext *context)
+{
+  return context->codegen_source_buffer;
+}
+
 CoglBitmask *
 cogl_context_get_enabled_custom_attributes (CoglContext *context)
 {
