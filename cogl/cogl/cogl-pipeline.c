@@ -2844,6 +2844,7 @@ cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
                                     const char *uniform_name)
 {
   CoglContext *ctx = pipeline->context;
+  int n_uniform_names = cogl_context_get_n_uniform_names (ctx);
   void *location_ptr;
   char *uniform_name_copy;
 
@@ -2862,12 +2863,12 @@ cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
     return GPOINTER_TO_INT (location_ptr);
 
   uniform_name_copy = g_strdup (uniform_name);
-  g_ptr_array_add (ctx->uniform_names, uniform_name_copy);
+  g_ptr_array_add (cogl_context_get_uniform_names (ctx), uniform_name_copy);
   g_hash_table_insert (ctx->uniform_name_hash,
                        uniform_name_copy,
-                       GINT_TO_POINTER (ctx->n_uniform_names));
+                       GINT_TO_POINTER (n_uniform_names));
 
-  return ctx->n_uniform_names++;
+  return cogl_context_increment_n_uniform_names (ctx);
 }
 
 typedef struct

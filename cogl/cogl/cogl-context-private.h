@@ -418,3 +418,37 @@ cogl_context_set_last_offscreen_allocate_flags (CoglContext                *cont
 
 CoglTexture *
 cogl_context_get_default_gl_texture_2d_tex (CoglContext *context);
+
+CoglBuffer *
+cogl_context_get_current_buffer (CoglContext         *context,
+                                 CoglBufferBindTarget target);
+
+void
+cogl_context_set_current_buffer (CoglContext         *context,
+                                 CoglBufferBindTarget target,
+                                 CoglBuffer          *buffer);
+
+GArray *
+cogl_context_get_attribute_name_index_map (CoglContext *context);
+
+void
+cogl_context_set_attribute_name_index_map (CoglContext *context,
+                                           GArray      *array);
+
+GPtrArray *
+cogl_context_get_uniform_names (CoglContext *context);
+
+int
+cogl_context_get_n_uniform_names (CoglContext *context);
+
+int
+cogl_context_increment_n_uniform_names (CoglContext *context);
+
+CoglBitmask *
+cogl_context_get_enabled_custom_attributes (CoglContext *context);
+
+CoglBitmask *
+cogl_context_get_enable_custom_attributes_tmp (CoglContext *context);
+
+CoglBitmask *
+cogl_context_get_changed_bits_tmp (CoglContext *context);

@@ -216,7 +216,7 @@ _cogl_pipeline_progend_glsl_get_attrib_location (CoglPipeline *pipeline,
   if (locations[name_index] == ATTRIBUTE_LOCATION_UNKNOWN)
     {
       CoglAttributeNameState *name_state =
-        g_array_index (ctx->attribute_name_index_map,
+        g_array_index (cogl_context_get_attribute_name_index_map (ctx),
                        CoglAttributeNameState *, name_index);
 
       g_return_val_if_fail (name_state != NULL, 0);
@@ -525,7 +525,7 @@ static gboolean
 flush_uniform_cb (int uniform_num, void *user_data)
 {
   FlushUniformsClosure *data = user_data;
-  char *uniform_name = g_ptr_array_index (data->ctx->uniform_names,
+  char *uniform_name = g_ptr_array_index (cogl_context_get_uniform_names (data->ctx),
                                           uniform_num);
 
   if (COGL_FLAGS_GET (data->uniform_differences, uniform_num))
@@ -631,7 +631,7 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
   data.program_state = program_state;
   data.ctx = ctx;
 
-  n_uniform_longs = COGL_FLAGS_N_LONGS_FOR_SIZE (ctx->n_uniform_names);
+  n_uniform_longs = COGL_FLAGS_N_LONGS_FOR_SIZE (cogl_context_get_n_uniform_names (ctx));
 
   data.uniform_differences = g_newa (unsigned long, n_uniform_longs);
 

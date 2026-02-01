@@ -216,9 +216,10 @@ _cogl_pipeline_get_all_uniform_values (CoglPipeline *pipeline,
 {
   GetUniformsClosure data;
   CoglContext *ctx = pipeline->context;
+  int n_uniform_names = cogl_context_get_n_uniform_names (ctx);
 
   memset (values, 0,
-          sizeof (const CoglBoxedValue *) * ctx->n_uniform_names);
+          sizeof (const CoglBoxedValue *) * n_uniform_names);
 
   data.dst_values = values;
 
@@ -250,14 +251,15 @@ _cogl_pipeline_uniforms_state_equal (CoglPipeline *authority0,
   int n_longs;
   int i;
   CoglContext *ctx = authority0->context;
+  int n_uniform_names = cogl_context_get_n_uniform_names (ctx);
 
   if (authority0 == authority1)
     return TRUE;
 
-  values0 = g_alloca (sizeof (const CoglBoxedValue *) * ctx->n_uniform_names);
-  values1 = g_alloca (sizeof (const CoglBoxedValue *) * ctx->n_uniform_names);
+  values0 = g_alloca (sizeof (const CoglBoxedValue *) * n_uniform_names);
+  values1 = g_alloca (sizeof (const CoglBoxedValue *) * n_uniform_names);
 
-  n_longs = COGL_FLAGS_N_LONGS_FOR_SIZE (ctx->n_uniform_names);
+  n_longs = COGL_FLAGS_N_LONGS_FOR_SIZE (n_uniform_names);
   differences = g_alloca (n_longs * sizeof (unsigned long));
   memset (differences, 0, sizeof (unsigned long) * n_longs);
   _cogl_pipeline_compare_uniform_differences (differences,
@@ -984,10 +986,13 @@ _cogl_pipeline_override_uniform (CoglPipeline *pipeline,
   CoglPipelineState state = COGL_PIPELINE_STATE_UNIFORMS;
   CoglPipelineUniformsState *uniforms_state;
   int override_index;
+  int n_uniform_names;
 
   g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), NULL);
   g_return_val_if_fail (location >= 0, NULL);
-  g_return_val_if_fail (location < pipeline->context->n_uniform_names, NULL);
+
+  n_uniform_names = cogl_context_get_n_uniform_names (pipeline->context);
+  g_return_val_if_fail (location < n_uniform_names, NULL);
 
   /* - Flush journal primitives referencing the current state.
    * - Make sure the pipeline has no dependants so it may be modified.
