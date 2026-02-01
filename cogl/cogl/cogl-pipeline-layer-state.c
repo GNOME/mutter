@@ -320,7 +320,7 @@ cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline *pipeline,
   authority = _cogl_pipeline_layer_get_authority (layer, change);
 
   sampler_state =
-    _cogl_sampler_cache_update_wrap_modes (ctx->sampler_cache,
+    _cogl_sampler_cache_update_wrap_modes (cogl_context_get_sampler_cache (ctx),
                                            authority->sampler_cache_entry,
                                            internal_mode,
                                            authority->sampler_cache_entry->
@@ -361,7 +361,7 @@ cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline *pipeline,
   authority = _cogl_pipeline_layer_get_authority (layer, change);
 
   sampler_state =
-    _cogl_sampler_cache_update_wrap_modes (ctx->sampler_cache,
+    _cogl_sampler_cache_update_wrap_modes (cogl_context_get_sampler_cache (ctx),
                                            authority->sampler_cache_entry,
                                            authority->sampler_cache_entry->
                                            wrap_mode_s,
@@ -401,7 +401,7 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline *pipeline,
   authority = _cogl_pipeline_layer_get_authority (layer, change);
 
   sampler_state =
-    _cogl_sampler_cache_update_wrap_modes (ctx->sampler_cache,
+    _cogl_sampler_cache_update_wrap_modes (cogl_context_get_sampler_cache (ctx),
                                            authority->sampler_cache_entry,
                                            internal_mode,
                                            internal_mode);
@@ -1287,7 +1287,7 @@ cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
   authority = _cogl_pipeline_layer_get_authority (layer, state);
 
   sampler_state =
-    _cogl_sampler_cache_update_filters (ctx->sampler_cache,
+    _cogl_sampler_cache_update_filters (cogl_context_get_sampler_cache (ctx),
                                         authority->sampler_cache_entry,
                                         min_filter,
                                         mag_filter);

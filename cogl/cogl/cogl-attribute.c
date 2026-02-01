@@ -132,7 +132,7 @@ _cogl_attribute_register_attribute_name (CoglContext *context,
                                          const char *name)
 {
   CoglAttributeNameState *name_state = g_new (CoglAttributeNameState, 1);
-  int name_index = context->n_attribute_names++;
+  int name_index = cogl_context_increment_n_attribute_names (context);
   char *name_copy = g_strdup (name);
 
   name_state->name = NULL;
@@ -156,7 +156,7 @@ _cogl_attribute_register_attribute_name (CoglContext *context,
   if (name_state->name == NULL)
     name_state->name = name_copy;
 
-  g_hash_table_insert (context->attribute_name_states_hash,
+  g_hash_table_insert (cogl_context_get_attribute_name_states_hash (context),
                        name_copy, name_state);
 
   if (G_UNLIKELY (cogl_context_get_attribute_name_index_map (context) == NULL))
@@ -213,7 +213,7 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
   CoglContext *ctx = buffer->context;
 
   attribute->name_state =
-    g_hash_table_lookup (ctx->attribute_name_states_hash, name);
+    g_hash_table_lookup (cogl_context_get_attribute_name_states_hash (ctx), name);
   if (!attribute->name_state)
     {
       CoglAttributeNameState *name_state =

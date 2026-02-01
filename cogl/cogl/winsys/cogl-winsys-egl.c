@@ -86,12 +86,11 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
 {
   CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglDriver *driver = cogl_renderer_get_driver (renderer);
-  CoglDisplayEGL *egl_display = COGL_DISPLAY_EGL (context->display);
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglDisplayEGL *egl_display = COGL_DISPLAY_EGL (display);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
 
   g_return_val_if_fail (cogl_display_egl_get_egl_context (egl_display), FALSE);
-
-  memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   cogl_renderer_egl_check_extensions (renderer);
 
@@ -101,8 +100,9 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
   if (cogl_renderer_egl_has_feature (renderer_egl,
                                      COGL_EGL_WINSYS_FEATURE_SWAP_REGION))
     {
-      COGL_FLAGS_SET (context->winsys_features,
-                      COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
+      cogl_context_set_winsys_feature (context,
+                                       COGL_WINSYS_FEATURE_SWAP_REGION,
+                                       TRUE);
     }
 
   if ((cogl_renderer_egl_has_feature (renderer_egl,
@@ -117,9 +117,9 @@ _cogl_winsys_context_init (CoglWinsys  *winsys,
   if (cogl_renderer_egl_has_feature (renderer_egl,
                                      COGL_EGL_WINSYS_FEATURE_BUFFER_AGE))
     {
-      COGL_FLAGS_SET (context->winsys_features,
-                      COGL_WINSYS_FEATURE_BUFFER_AGE,
-                      TRUE);
+      cogl_context_set_winsys_feature (context,
+                                       COGL_WINSYS_FEATURE_BUFFER_AGE,
+                                       TRUE);
     }
 
   return TRUE;

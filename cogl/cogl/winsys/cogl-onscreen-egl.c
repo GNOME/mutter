@@ -57,7 +57,8 @@ cogl_onscreen_egl_dispose (GObject *object)
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (context->display);
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
   CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
@@ -98,8 +99,9 @@ bind_onscreen_with_context (CoglOnscreen *onscreen,
     cogl_onscreen_egl_get_instance_private (onscreen_egl);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
+  CoglDisplay *display = cogl_context_get_display (context);
 
-  gboolean status = cogl_display_egl_make_current (COGL_DISPLAY_EGL (context->display),
+  gboolean status = cogl_display_egl_make_current (COGL_DISPLAY_EGL (display),
                                                    priv->egl_surface,
                                                    priv->egl_surface,
                                                    egl_context);
@@ -131,7 +133,8 @@ cogl_onscreen_egl_bind (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (context->display);
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
 
   bind_onscreen_with_context (onscreen,
                               cogl_display_egl_get_egl_context (display_egl));
@@ -152,7 +155,8 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
   CoglRenderer *renderer = cogl_context_get_renderer (context);
   CoglRendererEGL *renderer_egl = COGL_RENDERER_EGL (renderer);
   EGLDisplay edpy = cogl_renderer_egl_get_edisplay (renderer_egl);
-  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (context->display);
+  CoglDisplay *display = cogl_context_get_display (context);
+  CoglDisplayEGL *display_egl = COGL_DISPLAY_EGL (display);
   EGLSurface surface = priv->egl_surface;
   static gboolean warned = FALSE;
   int age = 0;

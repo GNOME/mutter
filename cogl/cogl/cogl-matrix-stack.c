@@ -493,8 +493,8 @@ cogl_matrix_stack_new (CoglContext *ctx)
   stack->context = ctx;
   stack->last_entry = NULL;
 
-  cogl_matrix_entry_ref (&ctx->identity_entry);
-  _cogl_matrix_stack_push_entry (stack, &ctx->identity_entry);
+  cogl_matrix_entry_ref (cogl_context_get_identity_entry (ctx));
+  _cogl_matrix_stack_push_entry (stack, cogl_context_get_identity_entry (ctx));
 
   return stack;
 }

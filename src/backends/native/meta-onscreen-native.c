@@ -2244,7 +2244,8 @@ meta_onscreen_native_get_window_handles (CoglOnscreen *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_context->display);
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
   gpointer window = NULL;
 
   if (onscreen_native->gbm.surface)
@@ -2682,7 +2683,7 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *cogl_display = cogl_context->display;
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
@@ -2758,7 +2759,7 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *cogl_display = cogl_context->display;
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   CoglRendererEGL *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
@@ -2873,7 +2874,7 @@ create_surfaces_egl_device (CoglOnscreen  *onscreen,
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  CoglDisplay *cogl_display = cogl_context->display;
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   MetaRendererNativeGpuData *renderer_gpu_data =

@@ -48,6 +48,8 @@ static gboolean
 _cogl_blit_texture_render_begin (CoglBlitData *data)
 {
   CoglContext *ctx = cogl_texture_get_context (data->src_tex);
+  CoglPipeline *texture_blit_pipeline =
+    cogl_context_get_blit_texture_pipeline (ctx);
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
   CoglPipeline *pipeline;
@@ -79,23 +81,24 @@ _cogl_blit_texture_render_begin (CoglBlitData *data)
   /* We cache a pipeline used for migrating on to the context so
      that it doesn't have to continuously regenerate a shader
      program */
-  if (ctx->blit_texture_pipeline == NULL)
+  if (texture_blit_pipeline == NULL)
     {
-      ctx->blit_texture_pipeline = cogl_pipeline_new (ctx);
-      cogl_pipeline_set_static_name (ctx->blit_texture_pipeline, "CoglBlit");
+      texture_blit_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_static_name (texture_blit_pipeline, "CoglBlit");
 
-      cogl_pipeline_set_layer_filters (ctx->blit_texture_pipeline, 0,
+      cogl_pipeline_set_layer_filters (texture_blit_pipeline, 0,
                                        COGL_PIPELINE_FILTER_NEAREST,
                                        COGL_PIPELINE_FILTER_NEAREST);
 
       /* Disable blending by just directly taking the contents of the
          source texture */
-      cogl_pipeline_set_blend (ctx->blit_texture_pipeline,
+      cogl_pipeline_set_blend (texture_blit_pipeline,
                                "RGBA = ADD(SRC_COLOR, 0)",
                                NULL);
+      cogl_context_set_blit_texture_pipeline (ctx, texture_blit_pipeline);
     }
 
-  pipeline = ctx->blit_texture_pipeline;
+  pipeline = texture_blit_pipeline;
 
   cogl_pipeline_set_layer_texture (pipeline, 0, data->src_tex);
 
@@ -139,7 +142,7 @@ _cogl_blit_texture_render_end (CoglBlitData *data)
      dummy 1x1 textures for each texture target that we could bind
      instead. This would also be useful when using a pipeline as a
      hash table key such as for the ARBfp program cache. */
-  cogl_pipeline_set_layer_texture (ctx->blit_texture_pipeline, 0,
+  cogl_pipeline_set_layer_texture (cogl_context_get_blit_texture_pipeline (ctx), 0,
                                    data->dst_tex);
 
   g_object_unref (data->dest_fb);

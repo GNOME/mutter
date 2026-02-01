@@ -57,7 +57,8 @@ cogl_atlas_dispose (GObject *object)
   COGL_NOTE (ATLAS, "%p: Atlas destroyed", atlas);
 
   /* Remove the atlas from the global list */
-  atlas->context->atlases = g_slist_remove (atlas->context->atlases, atlas);
+
+  cogl_context_remove_atlas (atlas->context, atlas);
 
   g_clear_object (&atlas->texture);
   g_clear_object (&atlas->context);

@@ -547,7 +547,7 @@ meta_renderer_native_create_dma_buf_framebuffer (MetaRendererNative  *renderer_n
 {
   CoglContext *cogl_context =
     cogl_context_from_renderer_native (renderer_native);
-  CoglDisplay *cogl_display = cogl_context->display;
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
   EGLDisplay egl_display =
     cogl_renderer_egl_get_edisplay (COGL_RENDERER_EGL (cogl_renderer));
@@ -863,9 +863,9 @@ meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
 #endif
 
-  COGL_FLAGS_SET (cogl_context->winsys_features,
-                  COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT,
-                  TRUE);
+  cogl_context_set_winsys_feature (cogl_context,
+                                   COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT,
+                                   TRUE);
 
 #ifdef HAVE_EGL_DEVICE
   if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
