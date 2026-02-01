@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-29 14:21+0000\n"
-"PO-Revision-Date: 2026-01-30 12:06+0200\n"
+"POT-Creation-Date: 2026-01-31 09:20+0000\n"
+"PO-Revision-Date: 2026-02-01 08:41+0200\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <yoseforb@gmail.com>\n"
 "Language: he\n"
@@ -250,19 +250,19 @@ msgstr "הגדלת החלון אנכית"
 msgid "Maximize window horizontally"
 msgstr "הגדלת החלון אופקית"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
 msgid "View split on left"
 msgstr "פיצול הצפייה משמאל"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
 msgid "View split on right"
 msgstr "פיצול הצפייה מימין"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Modifier to use for extended window management operations"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -274,11 +274,11 @@ msgstr ""
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Attach modal dialogs"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -288,11 +288,11 @@ msgstr ""
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Enable edge tiling when dropping windows on screen edges"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -302,11 +302,11 @@ msgstr ""
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Workspaces are managed dynamically"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -316,11 +316,11 @@ msgstr ""
 "static number of workspaces (determined by the num-workspaces key in "
 "org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Workspaces only on primary"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -328,11 +328,11 @@ msgstr ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Delay focus changes until the pointer stops moving"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -342,11 +342,11 @@ msgstr ""
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Draggable border width"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -354,11 +354,11 @@ msgstr ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Auto maximize nearly monitor sized windows"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -366,11 +366,11 @@ msgstr ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Place new windows in the center"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -378,11 +378,11 @@ msgstr ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Enable experimental features"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -395,12 +395,10 @@ msgid ""
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
 "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
+"native scaling support. If scaling is not supported by client, the client "
+"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
+"is enabled as well."
 msgstr ""
 "כדי להפעיל יכולות ניסיוניות, יש להוסיף את מילת המפתח של היכולת לרשימה. "
 "ההחלטה האם היכולת דורשת הפעלת ניהול חלונאי מחדש תלויה ביכולת עצמה. יכולת "
@@ -408,30 +406,27 @@ msgstr ""
 "להגדרה הזאת ישרדו בעתיד. מילות מפתח אפשריות כרגע: • „scale-monitor-"
 "framebuffer” — הופך את ברירת המחדל של mutter לפרוס את הצגים הלוגיים במרחב "
 "נקודות ציון פיקסלים לוגי, תוך שינוי גודל מכלאי החוזי של הצג במקום את תוכן "
-"החלון, לניהול צגי HiDPI (רזולוציה גבוהה במיוחד). לא דורש הפעלה מחדש. • “kms-"
+"החלון, לניהול צגי HiDPI (רזולוציה גבוהה במיוחד). לא דורש הפעלה מחדש. • „kms-"
 "modifiers” — גורם ל־mutter תמיד להקצות את חוצצי סריקת הפלט (scanout), אם "
 "מנהל ההתקן תומך. דורש הפעלה מחדש. • „autoclose-xwayland” — משמיד את Xwayland "
-"אוטומטית אם כל לקוחות ה־X11 אינם עוד. דורש הפעלה מחדש. • „variable-refresh-"
-"rate” — גורם ל־mutter להתאים את קצב הרענון של הצד באופן דינמי כאשר ניתן "
-"כתלות בתמיכת הצג, המעבד הגרפי ומנהל התקן ה־DRM. אפשר להגדיר בהגדרות. דורש "
-"הפעלה מחדש. • „xwayland-native-scaling” — מאפשר ללקוחות Xwayland להשתמש "
-"בתמיכה המובנית שלהם בשינוי קנה מידה.אם אין תמיכה בשינוי קנה מידה מצד הלקוח, "
-"הלקוח יאבד את שינוי קנה המידה. ההגדרה תקפה רק כאשר „scale-monitor-"
-"framebuffer” פעיל גם כן."
+"אוטומטית אם כל לקוחות ה־X11 אינם עוד. דורש הפעלה מחדש. • „xwayland-native-"
+"scaling” — מאפשר ללקוחות Xwayland להשתמש בתמיכה המובנית שלהם בשינוי קנה "
+"מידה.אם אין תמיכה בשינוי קנה מידה מצד הלקוח, הלקוח יאבד את שינוי קנה המידה. "
+"ההגדרה תקפה רק כאשר „scale-monitor-framebuffer” פעיל גם כן."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifier to use to locate the pointer"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "This key will initiate the “locate pointer” action."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "Timeout for check-alive ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -441,11 +436,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:164
 msgid "Per output luminance settings"
 msgstr "הגדרות תאורה לפי פלט"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -456,15 +451,15 @@ msgstr ""
 "סידורי ומצב צבע לצד שבר עשרוני שמייצג את תאורת הפלט באחוזים (%). ברירת המחדל "
 "כשלא צוין ערך היא 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:190
 msgid "Switch monitor configurations"
 msgstr "החלפה בין תצורות צגים"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:195
 msgid "Rotates the built-in monitor configuration"
 msgstr "מסובב את הגדרות הצג המובנה"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:200
 msgid "Cancel any active input capture session"
 msgstr "ביטול כל לכידת קלט פעילה"
 
