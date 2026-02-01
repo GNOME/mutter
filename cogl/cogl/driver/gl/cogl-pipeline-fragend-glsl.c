@@ -301,6 +301,8 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
   CoglPipelineCacheEntry *cache_entry = NULL;
   CoglProgram *user_program = cogl_pipeline_get_user_program (pipeline);
   CoglContext *ctx = pipeline->context;
+  GString *header_buffer = cogl_context_get_codegen_header_buffer (ctx);
+  GString *source_buffer = cogl_context_get_codegen_source_buffer (ctx);
   int i;
 
   /* Now lookup our glsl backend private state */
@@ -390,10 +392,10 @@ _cogl_pipeline_fragend_glsl_start (CoglPipeline *pipeline,
      other contains the main function. We need two strings
      because we need to dynamically declare attributes as the
      add_layer callback is invoked */
-  g_string_set_size (ctx->codegen_header_buffer, 0);
-  g_string_set_size (ctx->codegen_source_buffer, 0);
-  shader_state->header = ctx->codegen_header_buffer;
-  shader_state->source = ctx->codegen_source_buffer;
+  g_string_set_size (header_buffer, 0);
+  g_string_set_size (source_buffer, 0);
+  shader_state->header = header_buffer;
+  shader_state->source = source_buffer;
   _cogl_list_init (&shader_state->layers);
 
   add_layer_declarations (pipeline, shader_state);
