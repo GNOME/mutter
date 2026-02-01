@@ -159,13 +159,13 @@ _cogl_attribute_register_attribute_name (CoglContext *context,
   g_hash_table_insert (context->attribute_name_states_hash,
                        name_copy, name_state);
 
-  if (G_UNLIKELY (context->attribute_name_index_map == NULL))
-    context->attribute_name_index_map =
-      g_array_new (FALSE, FALSE, sizeof (void *));
+  if (G_UNLIKELY (cogl_context_get_attribute_name_index_map (context) == NULL))
+    cogl_context_set_attribute_name_index_map (context,
+      g_array_new (FALSE, FALSE, sizeof (void *)));
 
-  g_array_set_size (context->attribute_name_index_map, name_index + 1);
+  g_array_set_size (cogl_context_get_attribute_name_index_map (context), name_index + 1);
 
-  g_array_index (context->attribute_name_index_map,
+  g_array_index (cogl_context_get_attribute_name_index_map (context),
                  CoglAttributeNameState *, name_index) = name_state;
 
   return name_state;

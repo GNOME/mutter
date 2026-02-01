@@ -783,3 +783,67 @@ cogl_context_get_default_gl_texture_2d_tex (CoglContext *context)
 {
   return context->default_gl_texture_2d_tex;
 }
+
+CoglBuffer *
+cogl_context_get_current_buffer (CoglContext         *context,
+                                 CoglBufferBindTarget target)
+{
+  return context->current_buffer[target];
+}
+
+void
+cogl_context_set_current_buffer (CoglContext         *context,
+                                 CoglBufferBindTarget target,
+                                 CoglBuffer          *buffer)
+{
+  context->current_buffer[target] = buffer;
+}
+
+GArray *
+cogl_context_get_attribute_name_index_map (CoglContext *context)
+{
+  return context->attribute_name_index_map;
+}
+
+void
+cogl_context_set_attribute_name_index_map (CoglContext *context,
+                                           GArray      *array)
+{
+  context->attribute_name_index_map = array;
+}
+
+GPtrArray *
+cogl_context_get_uniform_names (CoglContext *context)
+{
+  return context->uniform_names;
+}
+
+int
+cogl_context_get_n_uniform_names (CoglContext *context)
+{
+  return context->n_uniform_names;
+}
+
+int
+cogl_context_increment_n_uniform_names (CoglContext *context)
+{
+  return context->n_uniform_names++;
+}
+
+CoglBitmask *
+cogl_context_get_enabled_custom_attributes (CoglContext *context)
+{
+  return &context->enabled_custom_attributes;
+}
+
+CoglBitmask *
+cogl_context_get_enable_custom_attributes_tmp (CoglContext *context)
+{
+  return &context->enable_custom_attributes_tmp;
+}
+
+CoglBitmask *
+cogl_context_get_changed_bits_tmp (CoglContext *context)
+{
+  return &context->changed_bits_tmp;
+}
