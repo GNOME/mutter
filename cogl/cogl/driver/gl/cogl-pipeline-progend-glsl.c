@@ -406,16 +406,17 @@ get_uniform_cb (CoglPipeline *pipeline,
   GLint uniform_location;
   CoglContext *ctx = pipeline->context;
   CoglDriver *driver = cogl_context_get_driver (ctx);
+  GString *source_buffer = cogl_context_get_codegen_source_buffer (ctx);
 
   /* We can reuse the source buffer to create the uniform name because
      the program has now been linked */
-  g_string_set_size (ctx->codegen_source_buffer, 0);
-  g_string_append_printf (ctx->codegen_source_buffer,
+  g_string_set_size (source_buffer, 0);
+  g_string_append_printf (source_buffer,
                           "cogl_sampler%i", layer_index);
 
   GE_RET (uniform_location,
           driver, glGetUniformLocation (state->gl_program,
-                                        ctx->codegen_source_buffer->str));
+                                        source_buffer->str));
 
   /* We can set the uniform immediately because the samplers are the
      unit index not the texture object number so it will never
@@ -424,23 +425,23 @@ get_uniform_cb (CoglPipeline *pipeline,
   if (uniform_location != -1)
     GE (driver, glUniform1i (uniform_location, state->unit));
 
-  g_string_set_size (ctx->codegen_source_buffer, 0);
-  g_string_append_printf (ctx->codegen_source_buffer,
+  g_string_set_size (source_buffer, 0);
+  g_string_append_printf (source_buffer,
                           "_cogl_layer_constant_%i", layer_index);
 
   GE_RET (uniform_location,
           driver, glGetUniformLocation (state->gl_program,
-                                        ctx->codegen_source_buffer->str));
+                                        source_buffer->str));
 
   unit_state->combine_constant_uniform = uniform_location;
 
-  g_string_set_size (ctx->codegen_source_buffer, 0);
-  g_string_append_printf (ctx->codegen_source_buffer,
+  g_string_set_size (source_buffer, 0);
+  g_string_append_printf (source_buffer,
                           "cogl_texture_matrix[%i]", layer_index);
 
   GE_RET (uniform_location,
           driver, glGetUniformLocation (state->gl_program,
-                                        ctx->codegen_source_buffer->str));
+                                        source_buffer->str));
 
   unit_state->texture_matrix_uniform = uniform_location;
 
