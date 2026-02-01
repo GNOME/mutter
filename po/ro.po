@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-19 15:34+0000\n"
-"PO-Revision-Date: 2026-01-21 12:01+0100\n"
+"POT-Creation-Date: 2026-01-31 09:20+0000\n"
+"PO-Revision-Date: 2026-02-01 12:53+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -253,19 +253,19 @@ msgstr "Maximizează fereastra pe verticală"
 msgid "Maximize window horizontally"
 msgstr "Maximizează fereastra pe orizontală"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
 msgid "View split on left"
 msgstr "Împarte în stânga"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
 msgid "View split on right"
 msgstr "Împarte în dreapta"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Tasta de utilizat pentru o gestionare avansată a ferestrelor"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -277,11 +277,11 @@ msgstr ""
 "Prestabilit este tasta „Windows” de pe tastatura calculatorului. Este de "
 "așteptat ca această scurtătură să fie cea prestabilită sau să fie un șir gol."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Atașează ferestrele de confirmare"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -291,11 +291,11 @@ msgstr ""
 "confirmare apar atașate la banda de sus a ferestrei părinte și sunt mutate "
 "împreună cu fereastra părinte."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Activează redimensionarea ferestrei la atingerea marginilor ecranului"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -306,11 +306,11 @@ msgstr ""
 "pentru a acoperi jumătate din suprafața disponibilă a ecranului. Așezarea "
 "ferestrelor pe marginea de sus a ecranului le maximizează complet."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Spațiile de lucru sunt gestionate în mod dinamic"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -320,11 +320,11 @@ msgstr ""
 "număr fix de spații de lucru (determinat de tasta num-workspaces din "
 "org.gnome.desktop.wm.preferences)"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Spații de lucru doar pe ecranul principal"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -333,13 +333,13 @@ msgstr ""
 "ferestrele de pe toate monitoarele sau doar pentru ferestrele de pe "
 "monitorul principal."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr ""
 "Întârzie schimbările de focalizare până când indicatorul încetează să se "
 "miște"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -349,11 +349,11 @@ msgstr ""
 "ori „maus”, atunci focalizarea nu va fi schimbată imediat la intrarea într-o "
 "fereastră, ci doar după ce indicatorul nu se mai mișcă."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Grosimea chenarului ferestrei care poate fi tras"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -362,11 +362,11 @@ msgstr ""
 "chenarului (specifică aspectului sistemului) nu este suficientă, va fi "
 "adăugată o parte invizibilă pentru a ajunge la valoarea totală."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Maximizează automat ferestrele care ocupă aproape tot ecranul"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -374,11 +374,11 @@ msgstr ""
 "Dacă este activată, ferestrele noi care ocupă aproape tot ecranul vor fi "
 "maximizate automat."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Așează ferestrele noi în centru"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -386,11 +386,11 @@ msgstr ""
 "Când este „true” (adevărat), ferestrele noi vor fi așezate în centrul "
 "ecranului activ."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Activează caracteristicile experimentale"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -403,12 +403,10 @@ msgid ""
 "mutter always allocate scanout buffers with explicit modifiers, if supported "
 "by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
 "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
+"native scaling support. If scaling is not supported by client, the client "
+"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
+"is enabled as well."
 msgstr ""
 "Pentru a activa caracteristicile experimentale, trebuie adăugat în listă "
 "cuvântul cheie al caracteristicii. În funcție de caracteristică, poate fi "
@@ -422,28 +420,25 @@ msgstr ""
 "repornire. • „kms-modifiers” — face ca mutter să aloce mereu tampoane de "
 "scanare cu modificatori expliciți, dacă este permis de driver. Necesită "
 "repornire. • „autoclose-xwayland” — închide automat Xwayland dacă toate "
-"aplicațiile X11 relevante au dispărut. Necesită repornire. • „variable-"
-"refresh-rate” — face ca mutter să regleze dinamic frecvența de actualizare a "
-"monitorului, când este cazul, dacă lucrul acesta este acceptat de monitor, "
-"GPU și driverul DRM. Reglabil în Configurări. Necesită repornire. • "
-"“xwayland-native-scaling” — permite aplicațiilor Xwayland să utilizeze "
-"scalarea lor nativă. Dacă scalarea nu este implementată în aplicație, "
-"scalarea nu va fi efectuată. Acest lucru se aplică numai dacă este activată "
-"și opțiunea „scale-monitor-framebuffer”."
+"aplicațiile X11 relevante au dispărut. Necesită repornire. • “xwayland-"
+"native-scaling” — permite aplicațiilor Xwayland să utilizeze scalarea lor "
+"nativă. Dacă scalarea nu este implementată în aplicație, scalarea nu va fi "
+"efectuată. Acest lucru se aplică numai dacă este activată și opțiunea „scale-"
+"monitor-framebuffer”."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:144
 msgid "Modifier to use to locate the pointer"
 msgstr "Tasta de utilizat pentru localizarea indicatorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Această tastă va iniția acțiunea „localizează indicatorul”."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:152
 msgid "Timeout for check-alive ping"
 msgstr "Timp de așteptare pentru verificarea activității"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -454,11 +449,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:164
 msgid "Per output luminance settings"
 msgstr "Reglări de luminanță per ieșire"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -471,15 +466,15 @@ msgstr ""
 "nivelul de luminanță la ieșire, exprimat în procente (%). Când nu se "
 "specifică altceva, se utilizează o valoare prestabilită de 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:190
 msgid "Switch monitor configurations"
 msgstr "Schimbă configurarea monitorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:195
 msgid "Rotates the built-in monitor configuration"
 msgstr "Treci la următoarea configurare a monitorului integrat"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:200
 msgid "Cancel any active input capture session"
 msgstr "Anulează toate sesiunile active de introducere a datelor"
 
@@ -696,31 +691,35 @@ msgstr "Simul_ează atingerea"
 msgid "_Inhibit system shortcuts"
 msgstr "Dezact_ivează scurtăturile de sistem"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Folosește _tastatura gazdei"
+
+#: mdk/mdk-main-window.ui:24
 msgid "_Monitors"
 msgstr "_Monitoare"
 
-#: mdk/mdk-main-window.ui:22
+#: mdk/mdk-main-window.ui:26
 msgid "_Resizable"
 msgstr "_Redimensionabil"
 
-#: mdk/mdk-main-window.ui:29
+#: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
 msgstr "_Lansatoare"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Edit launchers"
 msgstr "Modifică lansatoar_e"
 
-#: mdk/mdk-main-window.ui:40
+#: mdk/mdk-main-window.ui:44
 msgid "_About Mutter Development Kit"
 msgstr "_Despre Mutter Development Kit"
 
-#: mdk/mdk-main-window.ui:46 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter Development Kit"
 
-#: mdk/mdk-main-window.ui:56
+#: mdk/mdk-main-window.ui:60
 msgid "Main Menu"
 msgstr "Opțiuni"
 
@@ -779,39 +778,39 @@ msgstr "Ecran de confidențialitate activat"
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
-#: src/core/meta-context-main.c:352
+#: src/core/meta-context-main.c:355
 msgid "Run as a wayland compositor"
 msgstr "Execută ca un compozitor Wayland"
 
-#: src/core/meta-context-main.c:359
+#: src/core/meta-context-main.c:362
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Pornește compozitorul Wayland fără a porni Xwayland"
 
-#: src/core/meta-context-main.c:366
+#: src/core/meta-context-main.c:369
 msgid "Specify Wayland display name to use"
 msgstr "Numele afișajului Wayland de utilizat"
 
-#: src/core/meta-context-main.c:373
+#: src/core/meta-context-main.c:376
 msgid "Run as a full display server, rather than nested"
 msgstr "Funcționează ca server de afișare, iar nu ca server integrat"
 
-#: src/core/meta-context-main.c:378
+#: src/core/meta-context-main.c:381
 msgid "Run as a headless display server"
 msgstr "Funcționează ca server fără ecran"
 
-#: src/core/meta-context-main.c:383
+#: src/core/meta-context-main.c:386
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitorul virtual persistent (WxH sau WxH@R)"
 
-#: src/core/meta-context-main.c:390
+#: src/core/meta-context-main.c:393
 msgid "Run development kit"
 msgstr "Pornește setul de dezvoltare"
 
-#: src/core/meta-context-main.c:401
+#: src/core/meta-context-main.c:404
 msgid "Profile performance using trace instrumentation"
 msgstr "Înregistrează performanța folosind un instrument de urmărire"
 
-#: src/core/meta-context-main.c:407
+#: src/core/meta-context-main.c:410
 msgid "Enable debug control D-Bus interface"
 msgstr "Activează interfața D-Bus a controlului depanării"
 
