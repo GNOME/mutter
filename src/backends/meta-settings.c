@@ -44,10 +44,8 @@ enum
 };
 
 static GDebugKey experimental_feature_keys[] = {
-  { "scale-monitor-framebuffer", META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER },
   { "kms-modifiers", META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS },
   { "autoclose-xwayland", META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND },
-  { "xwayland-native-scaling", META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING },
 };
 
 static guint signals[N_SIGNALS];
@@ -299,14 +297,10 @@ experimental_features_handler (GVariant *features_variant,
     {
       MetaExperimentalFeature feature = META_EXPERIMENTAL_FEATURE_NONE;
 
-      if (g_str_equal (feature_str, "scale-monitor-framebuffer"))
-        feature = META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
-      else if (g_str_equal (feature_str, "kms-modifiers"))
+      if (g_str_equal (feature_str, "kms-modifiers"))
         feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
       else if (g_str_equal (feature_str, "autoclose-xwayland"))
         feature = META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND;
-      else if (g_str_equal (feature_str, "xwayland-native-scaling"))
-        feature = META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING;
 
       if (feature)
         g_message ("Enabling experimental feature '%s'", feature_str);

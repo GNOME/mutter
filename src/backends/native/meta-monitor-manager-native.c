@@ -467,17 +467,8 @@ meta_monitor_manager_native_calculate_supported_scales (MetaMonitorManager      
 static MetaMonitorManagerCapability
 meta_monitor_manager_native_get_capabilities (MetaMonitorManager *manager)
 {
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaSettings *settings = meta_backend_get_settings (backend);
-  MetaMonitorManagerCapability capabilities =
-    META_MONITOR_MANAGER_CAPABILITY_NONE;
-
-  if (meta_settings_is_experimental_feature_enabled (
-        settings,
-        META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER))
-    capabilities |= META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE;
-
-  return capabilities;
+  return (META_MONITOR_MANAGER_CAPABILITY_NONE |
+          META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE);
 }
 
 static gboolean
@@ -491,15 +482,7 @@ meta_monitor_manager_native_get_max_screen_size (MetaMonitorManager *manager,
 static MetaLogicalMonitorLayoutMode
 meta_monitor_manager_native_get_default_layout_mode (MetaMonitorManager *manager)
 {
-  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaSettings *settings = meta_backend_get_settings (backend);
-
-  if (meta_settings_is_experimental_feature_enabled (
-        settings,
-        META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER))
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
-  else
-    return META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL;
+  return META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
 }
 
 static MetaVirtualMonitorNative *

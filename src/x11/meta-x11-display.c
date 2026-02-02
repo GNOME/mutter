@@ -1218,42 +1218,6 @@ initialize_dbus_interface (MetaX11Display *x11_display)
 }
 
 static void
-experimental_features_changed (MetaSettings           *settings,
-                               MetaExperimentalFeature old_experimental_features,
-                               MetaX11Display         *x11_display)
-{
-  gboolean was_xwayland_native_scaling;
-  gboolean was_stage_views_scaled;
-  gboolean is_xwayland_native_scaling;
-  gboolean is_stage_views_scaled;
-
-  was_xwayland_native_scaling =
-    !!(old_experimental_features &
-       META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING);
-  was_stage_views_scaled =
-    !!(old_experimental_features &
-       META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-
-  is_xwayland_native_scaling =
-    meta_settings_is_experimental_feature_enabled (
-      settings,
-      META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING);
-  is_stage_views_scaled =
-    meta_settings_is_experimental_feature_enabled (
-      settings,
-      META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-
-  if (is_xwayland_native_scaling != was_xwayland_native_scaling ||
-      is_stage_views_scaled != was_stage_views_scaled)
-    {
-      update_ui_scaling_factor (x11_display);
-      set_desktop_geometry_hint (x11_display);
-      set_work_area_hint (x11_display->display, x11_display);
-      update_cursor_theme (x11_display);
-    }
-}
-
-static void
 ui_scaling_factor_changed (MetaX11Display *x11_display)
 {
   update_cursor_theme (x11_display);
@@ -1485,10 +1449,6 @@ meta_x11_display_new (MetaDisplay  *display,
 
   meta_prefs_add_listener (prefs_changed_callback, x11_display);
 
-  g_signal_connect_object (settings,
-                           "experimental-features-changed",
-                           G_CALLBACK (experimental_features_changed),
-                           x11_display, 0);
   g_signal_connect_swapped (settings,
                             "ui-scaling-factor-changed",
                             G_CALLBACK (ui_scaling_factor_changed),

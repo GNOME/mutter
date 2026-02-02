@@ -1352,22 +1352,16 @@ meta_xwayland_get_effective_scale (MetaXWaylandManager *manager)
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaSettings *settings = meta_backend_get_settings (backend);
 
   switch (meta_monitor_manager_get_layout_mode (monitor_manager))
     {
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
-      break;
-
+      return 1;
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      if (meta_settings_is_experimental_feature_enabled (settings,
-                                                         META_EXPERIMENTAL_FEATURE_XWAYLAND_NATIVE_SCALING) &&
-          meta_settings_is_experimental_feature_enabled (settings,
-                                                         META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER))
-        return (int) ceil (manager->highest_monitor_scale);
+      return (int) ceil (manager->highest_monitor_scale);
     }
 
-  return 1;
+  g_assert_not_reached ();
 }
 
 int

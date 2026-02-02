@@ -1208,32 +1208,6 @@ orientation_changed (MetaMonitorManager *manager)
   handle_orientation_change (orientation_manager, manager);
 }
 
-static void
-experimental_features_changed (MetaSettings           *settings,
-                               MetaExperimentalFeature old_experimental_features,
-                               MetaMonitorManager     *manager)
-{
-  gboolean was_stage_views_scaled;
-  gboolean is_stage_views_scaled;
-  gboolean should_reconfigure = FALSE;
-
-  was_stage_views_scaled =
-    !!(old_experimental_features &
-       META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-  is_stage_views_scaled =
-    meta_settings_is_experimental_feature_enabled (
-      settings,
-      META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
-
-  if (is_stage_views_scaled != was_stage_views_scaled)
-    should_reconfigure = TRUE;
-
-  if (should_reconfigure)
-    meta_monitor_manager_reconfigure (manager);
-
-  meta_settings_update_ui_scaling_factor (settings);
-}
-
 static gboolean
 ensure_privacy_screen_settings (MetaMonitorManager *manager)
 {
@@ -1580,11 +1554,6 @@ meta_monitor_manager_constructed (GObject *object)
   MetaSettings *settings = meta_backend_get_settings (backend);
 
   manager->display_config = meta_dbus_display_config_skeleton_new ();
-
-  g_signal_connect_object (settings,
-                           "experimental-features-changed",
-                           G_CALLBACK (experimental_features_changed),
-                           manager, G_CONNECT_DEFAULT);
 
   g_signal_connect_object (settings,
                            "privacy-screen-changed",

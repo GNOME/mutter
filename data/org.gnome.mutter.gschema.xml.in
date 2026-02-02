@@ -114,13 +114,6 @@
 
         Currently possible keywords:
 
-        • “scale-monitor-framebuffer” — makes mutter default to layout logical
-                                        monitors in a logical pixel coordinate
-                                        space, while scaling monitor
-                                        framebuffers instead of window content,
-                                        to manage HiDPI monitors. Does not
-                                        require a restart.
-
         • “kms-modifiers”             — makes mutter always allocate scanout
                                         buffers with explicit modifiers, if
                                         supported by the driver. Requires a
@@ -129,13 +122,6 @@
         • “autoclose-xwayland”        — automatically terminates Xwayland if all
                                         relevant X11 clients are gone.
                                         Requires a restart.
-
-        • “xwayland-native-scaling”   — lets Xwayland clients use their native
-                                        scaling support. If scaling is not
-                                        supported by client, the client will
-                                        be unscaled. Setting only takes effect
-                                        when “scale-monitor-framebuffer” is
-                                        enabled as well.
       </description>
     </key>
 

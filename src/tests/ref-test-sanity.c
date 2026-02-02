@@ -31,18 +31,12 @@ static void
 setup_test_environment (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaSettings *settings = meta_backend_get_settings (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   g_autoptr (MetaVirtualMonitorInfo) monitor_info = NULL;
   GError *error = NULL;
   GList *views;
-
-  meta_settings_override_experimental_features (settings);
-  meta_settings_enable_experimental_feature (
-    settings,
-    META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
 
   monitor_info = meta_virtual_monitor_info_new_simple (100, 100, 60.0,
                                                        "MetaTestVendor",
