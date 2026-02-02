@@ -1048,6 +1048,63 @@ cogl_can_blit_between_formats (CoglPixelFormat src_format,
                                CoglPixelFormat dst_format);
 
 /**
+ * cogl_framebuffer_blit_region:
+ * @framebuffer: The source #CoglFramebuffer
+ * @dst: The destination #CoglFramebuffer
+ * @src_region: Source region
+ * @dst_x_offset: Destination x offset
+ * @dst_y_offset: Destination y offset
+ * @error: optional error object
+ *
+ * @return FALSE for an immediately detected error, TRUE otherwise.
+ *
+ * This blits a region of the color buffer of the source buffer
+ * to the destination buffer. This function should only be
+ * called if the COGL_FEATURE_ID_BLIT_FRAMEBUFFER feature is
+ * advertised.
+ *
+ * The source region and destination offsets are defined in offscreen
+ * framebuffer orientation. When copying between an offscreen and
+ * onscreen framebuffers, the image is y-flipped accordingly.
+ *
+ * The two buffers must have the same value types (e.g. floating-point,
+ * unsigned int, signed int, or fixed-point), but color formats do not
+ * need to match. This limitation comes from OpenGL ES 3.0 definition
+ * of glBlitFramebuffer.
+ *
+ * Note that this function differs a lot from the glBlitFramebuffer
+ * function provided by the GL_EXT_framebuffer_blit extension. Notably
+ * it doesn't support having different sizes for the source and
+ * destination region. This doesn't seem
+ * like a particularly useful feature. If the application wanted to
+ * scale the results it may make more sense to draw a primitive
+ * instead.
+ *
+ * The GL function is documented to be affected by the scissor. This
+ * function therefore ensure that an empty clip stack is flushed
+ * before performing the blit which means the scissor is effectively
+ * ignored.
+ *
+ * The function also doesn't support specifying the buffers to copy
+ * and instead only the color buffer is copied. When copying the depth
+ * or stencil buffers the extension on GLES2.0 only supports copying
+ * the full buffer which would be awkward to document with this
+ * API. If we wanted to support that feature it may be better to have
+ * a separate function to copy the entire buffer for a given mask.
+ *
+ * The @c error argument is optional, it can be NULL. If it is not NULL
+ * and this function returns FALSE, an error object with a code from
+ * COGL_SYSTEM_ERROR will be created.
+ */
+COGL_EXPORT gboolean
+cogl_framebuffer_blit_region (CoglFramebuffer  *framebuffer,
+                              CoglFramebuffer  *dst,
+                              const MtkRegion  *src_region,
+                              int               dst_x_offset,
+                              int               dst_y_offset,
+                              GError          **error);
+
+/**
  * cogl_framebuffer_blit:
  * @framebuffer: The source #CoglFramebuffer
  * @dst: The destination #CoglFramebuffer

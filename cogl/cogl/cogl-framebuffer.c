@@ -1441,16 +1441,10 @@ cogl_can_blit_between_formats (CoglPixelFormat src_format,
   return TRUE;
 }
 
-gboolean
-cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
-                       CoglFramebuffer *dst,
-                       int src_x,
-                       int src_y,
-                       int dst_x,
-                       int dst_y,
-                       int width,
-                       int height,
-                       GError **error)
+static gboolean
+cogl_framebuffer_blit_setup (CoglFramebuffer  *framebuffer,
+                             CoglFramebuffer  *dst,
+                             GError          **error)
 {
   CoglFramebufferPrivate *priv =
     cogl_framebuffer_get_instance_private (framebuffer);
@@ -1458,8 +1452,6 @@ cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
     cogl_framebuffer_get_instance_private (dst);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglDriver *driver = cogl_context_get_driver (ctx);
-  int src_x1, src_y1, src_x2, src_y2;
-  int dst_x1, dst_y1, dst_x2, dst_y2;
 
   if (!cogl_driver_has_feature (driver, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     {
@@ -1503,44 +1495,108 @@ cogl_framebuffer_blit (CoglFramebuffer *framebuffer,
    * as changed */
   cogl_context_add_current_draw_buffer_changes (ctx, COGL_FRAMEBUFFER_STATE_CLIP);
 
+  return TRUE;
+}
+
+static void
+cogl_framebuffer_blit_box (CoglFramebuffer *framebuffer,
+                           CoglFramebuffer *dst,
+                           int              src_x1,
+                           int              src_y1,
+                           int              src_x2,
+                           int              src_y2,
+                           int              dst_x_offset,
+                           int              dst_y_offset)
+{
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  int dst_x1, dst_y1, dst_x2, dst_y2;
+
+  dst_x1 = src_x1 + dst_x_offset;
+  dst_x2 = src_x2 + dst_x_offset;
+
   /* Offscreens we do the normal way, onscreens need an y-flip. Even if
    * we consider offscreens to be rendered upside-down, the offscreen
    * orientation is in this function's API. */
-  if (cogl_framebuffer_is_y_flipped (framebuffer))
-    {
-      src_x1 = src_x;
-      src_y1 = src_y;
-      src_x2 = src_x + width;
-      src_y2 = src_y + height;
-    }
-  else
-    {
-      src_x1 = src_x;
-      src_y1 = cogl_framebuffer_get_height (framebuffer) - src_y;
-      src_x2 = src_x + width;
-      src_y2 = src_y1 - height;
-    }
-
   if (cogl_framebuffer_is_y_flipped (dst))
     {
-      dst_x1 = dst_x;
-      dst_y1 = dst_y;
-      dst_x2 = dst_x + width;
-      dst_y2 = dst_y + height;
+      dst_y1 = src_y1 + dst_y_offset;
+      dst_y2 = src_y2 + dst_y_offset;
     }
   else
     {
-      dst_x1 = dst_x;
-      dst_y1 = cogl_framebuffer_get_height (dst) - dst_y;
-      dst_x2 = dst_x + width;
-      dst_y2 = dst_y1 - height;
+      dst_y1 = cogl_framebuffer_get_height (dst) - src_y1 - dst_y_offset;
+      dst_y2 = dst_y1 - (src_y2 - src_y1);
+    }
+
+  if (!cogl_framebuffer_is_y_flipped (framebuffer))
+    {
+      src_y1 = cogl_framebuffer_get_height (framebuffer) - src_y1;
+      src_y2 = src_y1 - (dst_y2 - dst_y1);
     }
 
   GE (driver, glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
                                  dst_x1, dst_y1, dst_x2, dst_y2,
                                  GL_COLOR_BUFFER_BIT,
                                  GL_NEAREST));
+}
 
+gboolean
+cogl_framebuffer_blit_region (CoglFramebuffer  *framebuffer,
+                              CoglFramebuffer  *dst,
+                              const MtkRegion  *src_region,
+                              int               dst_x_offset,
+                              int               dst_y_offset,
+                              GError          **error)
+{
+  int num_rects, i;
+
+  if (!cogl_framebuffer_blit_setup (framebuffer, dst, error))
+    return FALSE;
+
+  num_rects = mtk_region_num_rectangles (src_region);
+  for (i = 0; i < num_rects; i++)
+    {
+      int x1, y1, x2, y2;
+
+      mtk_region_get_box (src_region, i, &x1, &y1, &x2, &y2);
+      cogl_framebuffer_blit_box (framebuffer,
+                                 dst,
+                                 x1,
+                                 y1,
+                                 x2,
+                                 y2,
+                                 dst_x_offset,
+                                 dst_y_offset);
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_framebuffer_blit (CoglFramebuffer  *framebuffer,
+                       CoglFramebuffer  *dst,
+                       int               src_x,
+                       int               src_y,
+                       int               dst_x,
+                       int               dst_y,
+                       int               width,
+                       int               height,
+                       GError          **error)
+{
+  g_autoptr (MtkRegion) src_region = NULL;
+
+  if (!cogl_framebuffer_blit_setup (framebuffer, dst, error))
+    return FALSE;
+
+  cogl_framebuffer_blit_box (framebuffer,
+                             dst,
+                             src_x,
+                             src_y,
+                             src_x + width,
+                             src_y + height,
+                             dst_x - src_x,
+                             dst_y - src_y);
   return TRUE;
 }
 

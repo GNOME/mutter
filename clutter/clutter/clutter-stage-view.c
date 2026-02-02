@@ -538,8 +538,9 @@ copy_shadowfb_to_onscreen (ClutterStageView *view,
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  CoglFramebuffer *shadowfb = COGL_FRAMEBUFFER (priv->shadow.framebuffer);
   g_autoptr (MtkRegion) damage_region = NULL;
-  int i;
+  g_autoptr (GError) error = NULL;
 
   if (mtk_region_is_empty (swap_region))
     {
@@ -554,25 +555,12 @@ copy_shadowfb_to_onscreen (ClutterStageView *view,
       damage_region = mtk_region_copy (swap_region);
     }
 
-  for (i = 0; i < mtk_region_num_rectangles (damage_region); i++)
-    {
-      CoglFramebuffer *shadowfb = COGL_FRAMEBUFFER (priv->shadow.framebuffer);
-      g_autoptr (GError) error = NULL;
-      MtkRectangle rect;
-
-      rect = mtk_region_get_rectangle (damage_region, i);
-
-      if (!cogl_framebuffer_blit (shadowfb,
-                                  priv->framebuffer,
-                                  rect.x, rect.y,
-                                  rect.x, rect.y,
-                                  rect.width, rect.height,
-                                  &error))
-        {
-          g_warning ("Failed to blit shadow buffer: %s", error->message);
-          return;
-        }
-    }
+  if (!cogl_framebuffer_blit_region (shadowfb,
+                                     priv->framebuffer,
+                                     damage_region,
+                                     0, 0,
+                                     &error))
+    g_warning ("Failed to blit shadow buffer: %s", error->message);
 }
 
 void
