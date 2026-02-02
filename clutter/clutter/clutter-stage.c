@@ -2614,16 +2614,17 @@ clutter_stage_get_capture_final_size (ClutterStage *stage,
 }
 
 void
-clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
-                                    CoglFramebuffer    *framebuffer,
-                                    const MtkRectangle *rect,
-                                    float               scale,
-                                    ClutterColorState  *color_state,
-                                    ClutterPaintFlag    paint_flags)
+clutter_stage_paint_to_framebuffer_clipped (ClutterStage       *stage,
+                                            CoglFramebuffer    *framebuffer,
+                                            const MtkRectangle *rect,
+                                            float               scale,
+                                            ClutterColorState  *color_state,
+                                            const MtkRegion    *redraw_clip,
+                                            ClutterPaintFlag    paint_flags)
 {
   ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
   ClutterPaintContext *paint_context;
-  g_autoptr (MtkRegion) redraw_clip = NULL;
+  g_autoptr (MtkRegion) intersection = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (PaintToFramebuffer,
                            "Clutter::Stage::paint_to_framebuffer()");
@@ -2636,14 +2637,17 @@ clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
       cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
     }
 
-  redraw_clip = mtk_region_create_rectangle (rect);
+  intersection = mtk_region_create_rectangle (rect);
+
+  if (redraw_clip)
+    mtk_region_intersect (intersection, redraw_clip);
 
   if (!color_state)
     color_state = clutter_actor_get_color_state (CLUTTER_ACTOR (stage));
 
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer,
-                                               redraw_clip,
+                                               intersection,
                                                paint_flags,
                                                color_state);
 
@@ -2660,6 +2664,23 @@ clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
   clutter_paint_context_destroy (paint_context);
 
   cogl_framebuffer_flush (framebuffer);
+}
+
+void
+clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
+                                    CoglFramebuffer    *framebuffer,
+                                    const MtkRectangle *rect,
+                                    float               scale,
+                                    ClutterColorState  *color_state,
+                                    ClutterPaintFlag    paint_flags)
+{
+  clutter_stage_paint_to_framebuffer_clipped (stage,
+                                              framebuffer,
+                                              rect,
+                                              scale,
+                                              color_state,
+                                              NULL,
+                                              paint_flags);
 }
 
 /**

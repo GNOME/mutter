@@ -174,6 +174,15 @@ gboolean clutter_stage_get_capture_final_size (ClutterStage *stage,
                                                float        *out_scale);
 
 CLUTTER_EXPORT
+void clutter_stage_paint_to_framebuffer_clipped (ClutterStage       *stage,
+                                                 CoglFramebuffer    *framebuffer,
+                                                 const MtkRectangle *rect,
+                                                 float               scale,
+                                                 ClutterColorState  *color_state,
+                                                 const MtkRegion    *redraw_clip,
+                                                 ClutterPaintFlag    paint_flags);
+
+CLUTTER_EXPORT
 void clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
                                          CoglFramebuffer    *framebuffer,
                                          const MtkRectangle *rect,
