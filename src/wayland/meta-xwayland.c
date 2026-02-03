@@ -1358,7 +1358,16 @@ meta_xwayland_get_effective_scale (MetaXWaylandManager *manager)
     case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
       return 1;
     case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
-      return (int) ceil (manager->highest_monitor_scale);
+      {
+        MetaSettings *settings = meta_backend_get_settings (backend);
+        float scaling_factor;
+
+        if (meta_settings_get_xwayland_scaling_factor (settings,
+                                                       &scaling_factor))
+          return (int) roundf (scaling_factor);
+        else
+          return (int) ceil (manager->highest_monitor_scale);
+      }
     }
 
   g_assert_not_reached ();

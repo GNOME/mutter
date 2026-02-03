@@ -1559,6 +1559,10 @@ meta_monitor_manager_constructed (GObject *object)
                            "privacy-screen-changed",
                            G_CALLBACK (apply_privacy_screen_settings),
                            manager, G_CONNECT_SWAPPED);
+  g_signal_connect_object (settings,
+                           "xwayland-scaling-factor-changed",
+                           G_CALLBACK (meta_monitor_manager_reconfigure),
+                           manager, G_CONNECT_SWAPPED);
 
   monitor_manager_setup_dbus_config_handlers (manager);
 

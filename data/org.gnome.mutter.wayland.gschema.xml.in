@@ -149,6 +149,18 @@
       </description>
     </key>
 
+    <key name="xwayland-scaling-factor" type="d">
+      <default>0</default>
+      <summary>Configure the Xwayland scaling factor</summary>
+      <description>
+        Scale the Xwayland coordinate space according to this factor. This will
+        affect what scale HiDPI capable X11 clients will present themselves as,
+        and how the compositor scales X11 client windows. Setting the scale to 0
+        means the scale will be automatically calculated. The scale will as of
+        now be rounded to the closest integer.
+      </description>
+    </key>
+
     <child name="keybindings" schema="org.gnome.mutter.wayland.keybindings"/>
   </schema>
 

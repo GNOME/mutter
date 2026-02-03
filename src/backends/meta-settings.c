@@ -39,6 +39,7 @@ enum
   FONT_DPI_CHANGED,
   EXPERIMENTAL_FEATURES_CHANGED,
   PRIVACY_SCREEN_CHANGED,
+  XWAYLAND_SCALING_FACTOR_CHANGED,
 
   N_SIGNALS
 };
@@ -80,6 +81,8 @@ struct _MetaSettings
 
   /* Whether Xwayland should allow X11 clients from different endianness */
   gboolean xwayland_allow_byte_swapped_clients;
+
+  float xwayland_scaling_factor;
 };
 
 G_DEFINE_TYPE (MetaSettings, meta_settings, G_TYPE_OBJECT)
@@ -443,6 +446,14 @@ update_xwayland_allow_byte_swapped_clients (MetaSettings *settings)
 }
 
 static void
+update_xwayland_scaling_factor (MetaSettings *settings)
+{
+  settings->xwayland_scaling_factor =
+    (float) g_settings_get_double (settings->wayland_settings,
+                                   "xwayland-scaling-factor");
+}
+
+static void
 wayland_settings_changed (GSettings    *wayland_settings,
                           gchar        *key,
                           MetaSettings *settings)
@@ -463,6 +474,11 @@ wayland_settings_changed (GSettings    *wayland_settings,
   else if (g_str_equal (key, "xwayland-allow-byte-swapped-clients"))
     {
       update_xwayland_allow_byte_swapped_clients (settings);
+    }
+  else if (g_str_equal (key, "xwayland-scaling-factor"))
+    {
+      update_xwayland_scaling_factor (settings);
+      g_signal_emit (settings, signals[XWAYLAND_SCALING_FACTOR_CHANGED], 0);
     }
 }
 
@@ -491,6 +507,21 @@ gboolean
 meta_settings_are_xwayland_byte_swapped_clients_allowed (MetaSettings *settings)
 {
   return settings->xwayland_allow_byte_swapped_clients;
+}
+
+gboolean
+meta_settings_get_xwayland_scaling_factor (MetaSettings *settings,
+                                           float        *scaling_factor)
+{
+  if (G_APPROX_VALUE (settings->xwayland_scaling_factor, 0.0f, FLT_EPSILON))
+    {
+      return FALSE;
+    }
+  else
+    {
+      *scaling_factor = settings->xwayland_scaling_factor;
+      return TRUE;
+    }
 }
 
 gboolean
@@ -589,6 +620,7 @@ meta_settings_init (MetaSettings *settings)
   update_xwayland_disable_extensions (settings);
   update_privacy_settings (settings);
   update_xwayland_allow_byte_swapped_clients (settings);
+  update_xwayland_scaling_factor (settings);
 }
 
 static void
@@ -653,6 +685,14 @@ meta_settings_class_init (MetaSettingsClass *klass)
 
   signals[PRIVACY_SCREEN_CHANGED] =
     g_signal_new ("privacy-screen-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  signals[XWAYLAND_SCALING_FACTOR_CHANGED] =
+    g_signal_new ("xwayland-scaling-factor-changed",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
