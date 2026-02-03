@@ -70,7 +70,7 @@
 /*
  * The maximum supported buffer age for secondary GPU surfaces.
  */
-#define MAX_SECONDARY_GPU_BUFFER_AGE 4
+#define MAX_SECONDARY_GPU_BUFFER_AGE 2
 
 typedef enum _MetaSharedFramebufferImportStatus
 {
@@ -1241,11 +1241,10 @@ get_secondary_gpu_buffer_age (MetaOnscreenNativeSecondaryGpuState *secondary_gpu
 
   if (buffer_age > MAX_SECONDARY_GPU_BUFFER_AGE)
     {
-      meta_topic (META_DEBUG_KMS,
-                  "Secondary GPU provides buffers of age %i, which is "
-                  "older than supported; ignoring damage rectangles and fully "
-                  "redrawing which may cause increased GPU power consumption",
-                  buffer_age);
+      g_warning ("Secondary GPU provides buffers of age %i, which is "
+                 "older than supported; ignoring damage rectangles and fully "
+                 "redrawing which may cause increased GPU power consumption",
+                 buffer_age);
 
       return 0;
     }
