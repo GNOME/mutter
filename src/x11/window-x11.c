@@ -2087,7 +2087,6 @@ static void
 meta_window_x11_constructed (GObject *object)
 {
   MetaWindow *window = META_WINDOW (object);
-  MetaDisplay *display = window->display;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (object);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
   XWindowAttributes attrs = priv->attributes;
@@ -2133,12 +2132,6 @@ meta_window_x11_constructed (GObject *object)
   meta_window_protocol_to_stage_size (window,
                                       attrs.border_width, 0,
                                       &priv->border_width, NULL);
-
-  /* O-R windows bypass mutter window-management path, this ensures
-   * they get fullscreen checked properly.
-   */
-  if (window->override_redirect)
-    meta_display_queue_check_fullscreen (display);
 
   g_signal_connect (window, "notify::decorated",
                     G_CALLBACK (meta_window_x11_update_input_region),
