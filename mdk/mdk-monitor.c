@@ -664,7 +664,7 @@ mdk_monitor_measure (GtkWidget      *widget,
       break;
     }
 
-  *minimum = size;
+  *minimum = monitor->is_resizable ? 1 : size;
   *natural = size;
   *minimum_baseline = -1;
   *natural_baseline = -1;
