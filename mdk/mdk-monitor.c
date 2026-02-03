@@ -652,6 +652,9 @@ mdk_monitor_measure (GtkWidget      *widget,
   if (!monitor->stream)
     init_stream (monitor);
 
+  gtk_widget_measure (monitor->box, orientation, for_size,
+                      NULL, NULL, NULL, NULL);
+
   paintable = GDK_PAINTABLE (monitor->stream);
 
   switch (orientation)
