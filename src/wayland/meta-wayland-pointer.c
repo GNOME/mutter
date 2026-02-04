@@ -85,6 +85,13 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
+typedef enum
+{
+  CURSOR_SOURCE_UNSET,
+  CURSOR_SOURCE_SHAPE,
+  CURSOR_SOURCE_SURFACE,
+} CursorSource;
+
 struct _MetaWaylandPointer
 {
   MetaWaylandInputDevice parent;
@@ -101,6 +108,7 @@ struct _MetaWaylandPointer
 
   MetaWaylandSurface *cursor_surface;
   gulong cursor_surface_destroy_id;
+  CursorSource cursor_source;
 
   ClutterCursorType cursor_shape;
   ClutterCursor *cursor;
@@ -596,6 +604,7 @@ meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
     {
       meta_wayland_pointer_set_cursor_surface (pointer, NULL);
       pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
+      pointer->cursor_source = CURSOR_SOURCE_UNSET;
       g_clear_object (&pointer->cursor);
     }
 }
@@ -1216,26 +1225,33 @@ meta_wayland_pointer_update_cursor (MetaWaylandPointer *pointer)
 
   if (surface)
     {
-      if (pointer->cursor_surface)
+      switch (pointer->cursor_source)
         {
-          MetaWaylandCursorSurface *cursor_surface =
-            META_WAYLAND_CURSOR_SURFACE (pointer->cursor_surface->role);
+        case CURSOR_SOURCE_SURFACE:
+          if (pointer->cursor_surface)
+            {
+              MetaWaylandCursorSurface *cursor_surface =
+                META_WAYLAND_CURSOR_SURFACE (pointer->cursor_surface->role);
 
-          g_set_object (&cursor,
-                        meta_wayland_cursor_surface_get_cursor (cursor_surface));
-        }
-      else if (pointer->cursor_shape != CLUTTER_CURSOR_INHERIT)
-        {
+              g_set_object (&cursor,
+                            meta_wayland_cursor_surface_get_cursor (cursor_surface));
+            }
+          else
+            {
+              cursor = clutter_backend_get_cursor (clutter_backend,
+                                                   CLUTTER_CURSOR_NONE);
+            }
+          break;
+        case CURSOR_SOURCE_SHAPE:
           cursor = clutter_backend_get_cursor (clutter_backend,
                                                pointer->cursor_shape);
-        }
-      else
-        {
-          cursor = clutter_backend_get_cursor (clutter_backend,
-                                               CLUTTER_CURSOR_NONE);
+          break;
+        case CURSOR_SOURCE_UNSET:
+          cursor = NULL;
+          break;
         }
     }
-  else
+  else if (pointer->current)
     {
       cursor = clutter_backend_get_cursor (clutter_backend,
                                            CLUTTER_CURSOR_DEFAULT);
@@ -1268,7 +1284,6 @@ meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
     return;
 
   pointer->cursor_surface = cursor_surface;
-  g_clear_object (&pointer->cursor);
 
   if (prev_cursor_surface)
     {
@@ -1295,6 +1310,7 @@ meta_wayland_pointer_set_cursor_shape (MetaWaylandPointer *pointer,
 
   meta_wayland_pointer_set_cursor_surface (pointer, NULL);
   pointer->cursor_shape = shape;
+  pointer->cursor_source = CURSOR_SOURCE_SHAPE;
   meta_wayland_pointer_update_cursor (pointer);
 }
 
@@ -1366,6 +1382,7 @@ pointer_set_cursor (struct wl_client *client,
       clutter_cursor_invalidate (cursor);
     }
 
+  pointer->cursor_source = CURSOR_SOURCE_SURFACE;
   pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
   meta_wayland_pointer_set_cursor_surface (pointer, surface);
   meta_wayland_pointer_update_cursor (pointer);
