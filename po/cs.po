@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-02-27 12:47+0000\n"
-"PO-Revision-Date: 2025-02-28 12:56+0100\n"
+"POT-Creation-Date: 2025-10-15 07:46+0000\n"
+"PO-Revision-Date: 2026-02-05 00:24+0100\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -312,8 +312,8 @@ msgstr "Pracovní plochy jsou spravovány dynamicky"
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in org."
-"gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
 msgstr ""
 "Určuje, zda jsou pracovní plochy spravovány dynamicky nebo jich je pevný "
 "počet (daný klíčem num-workspaces v org.gnome.desktop.wm.preferences)."
@@ -415,7 +415,7 @@ msgstr ""
 "restart. • „kms-modifiers“ – přiměje mutter, aby umožnil alokování "
 "výstupních vyrovnávacích pamětí s výslovně určenými modifikátory, pokud to "
 "podporuje ovladač. Vyžaduje restart. • „autoclose-xwayland“ – automaticky "
-"ukončí Xwayland, když se ukončí všichny související klienti X11. Vyžaduje "
+"ukončí Xwayland, když se ukončí všichni související klienti X11. Vyžaduje "
 "restart. • „variable-refresh-rate“ – přiměje mutter, aby v případě potřeby "
 "umožnil dynamicky upravovat obnovovací frekvenci monitoru, pokud je to "
 "podporováno monitorem, GPU a ovladačem DRM. Konfigurovatelné v Nastavení. "
@@ -652,7 +652,7 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Událost zvonku"
 
@@ -696,35 +696,35 @@ msgstr "Spustit jako kompozitor protokolu Wayland"
 msgid "Run as a nested compositor"
 msgstr "Spustit jako podkladový kompozitor"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:674
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Spustit kompozitor wayland bez spuštění Xwayland"
 
-#: src/core/meta-context-main.c:679
+#: src/core/meta-context-main.c:681
 msgid "Specify Wayland display name to use"
 msgstr "Určit název displeje Wayland, který se má používat"
 
-#: src/core/meta-context-main.c:687
+#: src/core/meta-context-main.c:689
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustit jako plnohodnotný server displeje, nikoliv vnořeně"
 
-#: src/core/meta-context-main.c:692
+#: src/core/meta-context-main.c:694
 msgid "Run as a headless display server"
 msgstr "Spustit jako server displeje bez monitoru"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:699
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Přidat trvalý virtuální monitor (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:709
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
 msgstr "Spustit se serverem X11"
 
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:717
 msgid "Profile performance using trace instrumentation"
 msgstr "Profilovat výkon pomocí instrumentace trasování"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:723
 msgid "Enable debug control D-Bus interface"
 msgstr "Povolit rozhraní D-Bus pro ovládání ladění"
 
@@ -768,7 +768,7 @@ msgstr "Vypsat verzi"
 msgid "Mutter plugin to use"
 msgstr "Zásuvný modul Mutter, který se má použít"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Plocha %d"
@@ -786,7 +786,7 @@ msgstr "Přepnuta plocha"
 msgid "Mode Switch: Mode %d"
 msgstr "Přepínač režimu: režim %d"
 
-#: src/x11/meta-x11-display.c:858
+#: src/x11/meta-x11-display.c:847
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -795,19 +795,19 @@ msgstr ""
 "Displej „%s“ již správce oken má; zkuste prosím nahradit aktuálního správce "
 "oken pomocí přepínače --replace."
 
-#: src/x11/meta-x11-display.c:1243
+#: src/x11/meta-x11-display.c:1232
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1476
+#: src/x11/meta-x11-display.c:1465
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka %d na displeji „%s“ je neplatná"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2799
+#: src/x11/meta-x11-display.c:2796
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
