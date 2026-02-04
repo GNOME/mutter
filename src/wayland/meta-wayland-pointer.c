@@ -667,7 +667,8 @@ repick_for_event (MetaWaylandPointer *pointer,
   meta_wayland_pointer_set_current (pointer, surface);
 
   sync_focus_surface (pointer);
-  meta_wayland_pointer_update_cursor_surface (pointer);
+
+  clutter_sprite_invalidate_cursor (sprite);
 }
 
 void
@@ -1164,8 +1165,6 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                                 pointer->focus_surface);
         }
     }
-
-  meta_wayland_pointer_update_cursor_surface (pointer);
 
   g_signal_emit (pointer, signals[FOCUS_SURFACE_CHANGED], 0);
 }

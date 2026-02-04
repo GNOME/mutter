@@ -387,8 +387,6 @@ meta_wayland_tablet_tool_set_focus (MetaWaylandTabletTool *tool,
           broadcast_frame (tool, event);
         }
     }
-
-  meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
 
 static void
@@ -644,7 +642,7 @@ repick_for_event (MetaWaylandTabletTool *tool,
     surface = NULL;
 
   meta_wayland_tablet_tool_set_current_surface (tool, surface);
-  meta_wayland_tablet_tool_update_cursor_surface (tool);
+  clutter_sprite_invalidate_cursor (sprite);
 }
 
 static void
