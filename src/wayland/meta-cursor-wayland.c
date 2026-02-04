@@ -182,6 +182,7 @@ meta_cursor_wayland_finalize (GObject *object)
   MetaCursorWayland *cursor_wayland = META_CURSOR_WAYLAND (object);
 
   g_clear_object (&cursor_wayland->texture);
+  g_clear_object (&cursor_wayland->surface);
 
   G_OBJECT_CLASS (meta_cursor_wayland_parent_class)->finalize (object);
 }
@@ -229,7 +230,7 @@ meta_cursor_wayland_new (MetaWaylandSurface *surface,
   cursor_wayland = g_object_new (META_TYPE_CURSOR_WAYLAND,
                                  "color-state", color_state,
                                  NULL);
-  cursor_wayland->surface = surface;
+  g_set_object (&cursor_wayland->surface, surface);
   cursor_wayland->cursor_tracker = cursor_tracker;
 
   return cursor_wayland;
