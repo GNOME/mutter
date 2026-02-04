@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-31 09:20+0000\n"
-"PO-Revision-Date: 2026-02-01 12:53+0100\n"
+"POT-Creation-Date: 2026-02-03 22:56+0000\n"
+"PO-Revision-Date: 2026-02-04 13:24+0100\n"
 "Last-Translator: Antonio Marin <gnmer.6qxyg@slmail.me>\n"
 "Language-Team: Romanian <gnomero-list@lists.sourceforge.net>\n"
 "Language: ro\n"
@@ -253,11 +253,11 @@ msgstr "Maximizează fereastra pe verticală"
 msgid "Maximize window horizontally"
 msgstr "Maximizează fereastra pe orizontală"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Împarte în stânga"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Împarte în dreapta"
 
@@ -396,49 +396,34 @@ msgid ""
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
-"native scaling support. If scaling is not supported by client, the client "
-"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
-"is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Pentru a activa caracteristicile experimentale, trebuie adăugat în listă "
 "cuvântul cheie al caracteristicii. În funcție de caracteristică, poate fi "
 "necesară repornirea compozitorului. Este posibil ca o caracteristică "
 "experimentală să dispară sau să nu mai poată fi configurată. Este posibil ca "
 "această configurație să nu fie stabilă în timp. Cuvintele cheie disponibile "
-"în prezent sunt: • „scale-monitor-framebuffer” — face ca mutter să "
-"distribuie în mod automat monitoarele logice într-un spațiu logic de "
-"coordonate pixel, în timp ce scalează framebufferele monitorului în loc de "
-"conținutul ferestrei, pentru a gestiona monitoarele HiDPI. Nu necesită "
-"repornire. • „kms-modifiers” — face ca mutter să aloce mereu tampoane de "
-"scanare cu modificatori expliciți, dacă este permis de driver. Necesită "
+"în prezent sunt: • „kms-modifiers” — face ca mutter să aloce mereu tampoane "
+"de scanare cu modificatori expliciți, dacă este permis de driver. Necesită "
 "repornire. • „autoclose-xwayland” — închide automat Xwayland dacă toate "
-"aplicațiile X11 relevante au dispărut. Necesită repornire. • “xwayland-"
-"native-scaling” — permite aplicațiilor Xwayland să utilizeze scalarea lor "
-"nativă. Dacă scalarea nu este implementată în aplicație, scalarea nu va fi "
-"efectuată. Acest lucru se aplică numai dacă este activată și opțiunea „scale-"
-"monitor-framebuffer”."
+"aplicațiile X11 relevante au dispărut. Necesită repornire."
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Tasta de utilizat pentru localizarea indicatorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Această tastă va iniția acțiunea „localizează indicatorul”."
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Timp de așteptare pentru verificarea activității"
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -449,11 +434,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Reglări de luminanță per ieșire"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -466,15 +451,15 @@ msgstr ""
 "nivelul de luminanță la ieșire, exprimat în procente (%). Când nu se "
 "specifică altceva, se utilizează o valoare prestabilită de 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:190
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Schimbă configurarea monitorului"
 
-#: data/org.gnome.mutter.gschema.xml.in:195
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Treci la următoarea configurare a monitorului integrat"
 
-#: data/org.gnome.mutter.gschema.xml.in:200
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Anulează toate sesiunile active de introducere a datelor"
 
@@ -635,6 +620,24 @@ msgstr ""
 "+byteswappedclients/-byteswappedclients pentru a controla această reglare. "
 "Xwayland trebuie repornit pentru ca această reglare să aibă efect."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Redimensionare Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Redimensionează coordonatele Xwayland în funcție de acest factor. Acest "
+"lucru va afecta scara la care se vor prezenta aplicațiile X11 compatibile cu "
+"HiDPI și modul în care compozitorul redimensionează ferestrele aplicațiilor "
+"X11. Stabilirea valorii la 0 înseamnă că scara va fi calculată automat. "
+"Scara va fi rotunjită de acum înainte la cel mai apropiat număr întreg."
+
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
 msgstr "Aplicație"
@@ -700,8 +703,8 @@ msgid "_Monitors"
 msgstr "_Monitoare"
 
 #: mdk/mdk-main-window.ui:26
-msgid "_Resizable"
-msgstr "_Redimensionabil"
+msgid "_Emulate monitor modes"
+msgstr "Simul_ează monitorul"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -735,30 +738,30 @@ msgstr "Set de dezvoltare a programelor pentru Mutter"
 msgid "About Mutter Development Kit"
 msgstr "Despre Mutter Development Kit"
 
-#: mdk/mdk-monitor.c:792
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "Nu s-a putut crea monitorul"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Ecranul integrat"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Ecran necunoscut"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -778,39 +781,39 @@ msgstr "Ecran de confidențialitate activat"
 msgid "Privacy Screen Disabled"
 msgstr "Ecran de confidențialitate dezactivat"
 
-#: src/core/meta-context-main.c:355
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Execută ca un compozitor Wayland"
 
-#: src/core/meta-context-main.c:362
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Pornește compozitorul Wayland fără a porni Xwayland"
 
-#: src/core/meta-context-main.c:369
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Numele afișajului Wayland de utilizat"
 
-#: src/core/meta-context-main.c:376
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Funcționează ca server de afișare, iar nu ca server integrat"
 
-#: src/core/meta-context-main.c:381
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Funcționează ca server fără ecran"
 
-#: src/core/meta-context-main.c:386
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adaugă monitorul virtual persistent (WxH sau WxH@R)"
 
-#: src/core/meta-context-main.c:393
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Pornește setul de dezvoltare"
 
-#: src/core/meta-context-main.c:404
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Înregistrează performanța folosind un instrument de urmărire"
 
-#: src/core/meta-context-main.c:410
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Activează interfața D-Bus a controlului depanării"
 
@@ -882,14 +885,14 @@ msgstr "Afișajul „%s” are deja un administrator de ferestre"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Nu s-a putut deschide afișajul „%s” al sistemului X Window"
 
-#: src/x11/meta-x11-display.c:1320
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ecranul %d cu afișajul „%s” este greșit"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2509
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
