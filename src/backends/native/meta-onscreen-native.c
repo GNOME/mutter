@@ -87,10 +87,9 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   MetaGpuKms *gpu_kms;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  EGLSurface egl_surface;
-
   struct {
-    struct gbm_surface *surface;
+    MetaDrmBufferGbm *buffer_gbm[2];
+    int buffer_index;
   } gbm;
 
   struct {
@@ -1077,34 +1076,16 @@ static void
 secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
   unsigned int i;
-  MetaGpu *gpu = META_GPU (secondary_gpu_state->gpu_kms);
-  MetaBackend *backend = meta_gpu_get_backend (gpu);
-  MetaEgl *egl = meta_backend_get_egl (backend);
 
+  g_clear_object (&secondary_gpu_state->gbm.buffer_gbm[0]);
+  g_clear_object (&secondary_gpu_state->gbm.buffer_gbm[1]);
   g_clear_object (&secondary_gpu_state->source_framebuffer);
-
-  if (secondary_gpu_state->egl_surface != EGL_NO_SURFACE)
-    {
-      MetaRendererNativeGpuData *renderer_gpu_data;
-      MetaRenderDevice *render_device;
-      EGLDisplay egl_display;
-
-      renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
-      render_device = renderer_gpu_data->render_device;
-      egl_display = meta_render_device_get_egl_display (render_device);
-      meta_egl_destroy_surface (egl,
-                                egl_display,
-                                secondary_gpu_state->egl_surface,
-                                NULL);
-    }
 
   for (i = 0; i < MAX_SECONDARY_GPU_BUFFER_AGE; i++)
     {
       g_clear_pointer (&secondary_gpu_state->damage_regions[i],
                        mtk_region_unref);
     }
-
-  g_clear_pointer (&secondary_gpu_state->gbm.surface, gbm_surface_destroy);
 
   secondary_gpu_release_dumb (secondary_gpu_state);
 
@@ -1213,43 +1194,25 @@ build_secondary_gpu_damage_region (MetaOnscreenNativeSecondaryGpuState *secondar
   return g_steal_pointer (&region);
 }
 
-static int
-get_secondary_gpu_buffer_age (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
-                              MetaRendererNativeGpuData           *renderer_gpu_data)
+static MetaDrmBufferGbm *
+get_secondary_gpu_buffer_and_age (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
+                                  int                                 *out_buffer_age)
 {
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  MetaRenderDevice *render_device;
-  EGLDisplay egl_display;
-  int buffer_age;
-  g_autoptr (GError) error = NULL;
+  int buffer_index = secondary_gpu_state->gbm.buffer_index;
 
-  render_device = renderer_gpu_data->render_device;
-  egl_display = meta_render_device_get_egl_display (render_device);
-
-  if (!meta_egl_query_surface (egl, egl_display,
-                               secondary_gpu_state->egl_surface,
-                               EGL_BUFFER_AGE_EXT, &buffer_age,
-                               &error))
+  if (buffer_index < 0)
     {
-      g_warning ("Failed to query age of surface, ignoring damage "
-                 "rectangles and fully redrawing, which may cause increased "
-                 "GPU power consumption: %s", error->message);
-
-      return 0;
+      buffer_index += 2;
+      secondary_gpu_state->gbm.buffer_index++;
+      *out_buffer_age = 0;
+    }
+  else
+    {
+      secondary_gpu_state->gbm.buffer_index = 1 - buffer_index;
+      *out_buffer_age = 2;
     }
 
-  if (buffer_age > MAX_SECONDARY_GPU_BUFFER_AGE)
-    {
-      g_warning ("Secondary GPU provides buffers of age %i, which is "
-                 "older than supported; ignoring damage rectangles and fully "
-                 "redrawing which may cause increased GPU power consumption",
-                 buffer_age);
-
-      return 0;
-    }
-
-  return buffer_age;
+  return g_object_ref (secondary_gpu_state->gbm.buffer_gbm[buffer_index]);
 }
 
 static MetaDrmBuffer *
@@ -1269,15 +1232,12 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   MetaRenderDevice *render_device;
   EGLDisplay egl_display;
-  gboolean use_modifiers;
-  MetaDeviceFile *device_file;
-  MetaDrmBufferFlags flags;
-  MetaDrmBufferGbm *buffer_gbm = NULL;
-  struct gbm_bo *bo;
+  MetaDrmBufferGbm *dst_buffer_gbm = NULL, *src_buffer_gbm;
+  struct gbm_bo *dst_bo, *src_bo;
   EGLSync egl_sync = EGL_NO_SYNC;
   g_autofd int sync_fd = -1;
-  EGLImageKHR egl_image;
-  int buffer_age = 0;
+  EGLImageKHR dst_egl_image, src_egl_image;
+  int buffer_age;
   g_autoptr (MtkRegion) blit_region = NULL;
   g_autoptr (MtkRegion) region_to_push = NULL;
 
@@ -1292,8 +1252,8 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
 
   if (!meta_egl_make_current (egl,
                               egl_display,
-                              secondary_gpu_state->egl_surface,
-                              secondary_gpu_state->egl_surface,
+                              EGL_NO_SURFACE,
+                              EGL_NO_SURFACE,
                               renderer_gpu_data->secondary.egl_context,
                               error))
     {
@@ -1331,42 +1291,41 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
         }
     }
 
-  buffer_gbm = META_DRM_BUFFER_GBM (primary_gpu_fb);
-  bo = meta_drm_buffer_gbm_get_bo (buffer_gbm);
-  egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, bo, error);
+  src_buffer_gbm = META_DRM_BUFFER_GBM (primary_gpu_fb);
+  src_bo = meta_drm_buffer_gbm_get_bo (src_buffer_gbm);
+  src_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, src_bo, error);
 
-  if (!egl_image)
+  if (!src_egl_image)
     {
       g_prefix_error (error, "Failed to create EGL image from buffer object for secondary GPU: ");
       goto done;
     }
 
-  push_secondary_gpu_damage_rectangles (secondary_gpu_state, bo, region);
+  dst_buffer_gbm = get_secondary_gpu_buffer_and_age (secondary_gpu_state,
+                                                     &buffer_age);
+  dst_bo = meta_drm_buffer_gbm_get_bo (dst_buffer_gbm);
+  dst_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, dst_bo, error);
+  if (!dst_egl_image)
+    {
+      g_prefix_error (error, "Failed to create EGL image from buffer object for secondary GPU: ");
+      goto done;
+    }
 
-  buffer_age = get_secondary_gpu_buffer_age (secondary_gpu_state,
-                                             renderer_gpu_data);
+  push_secondary_gpu_damage_rectangles (secondary_gpu_state, src_bo, region);
   blit_region = build_secondary_gpu_damage_region (secondary_gpu_state,
-                                                   bo, buffer_age);
+                                                   src_bo, buffer_age);
 
   if (!meta_renderer_native_gles3_blit_shared_bo (egl,
                                                   gles3,
                                                   egl_display,
                                                   renderer_gpu_data->secondary.egl_context,
-                                                  egl_image,
-                                                  bo,
+                                                  dst_egl_image,
+                                                  src_egl_image,
+                                                  src_bo,
                                                   blit_region,
                                                   error))
     {
       g_prefix_error (error, "Failed to blit shared framebuffer: ");
-      goto done;
-    }
-
-  if (!meta_egl_swap_buffers (egl,
-                              egl_display,
-                              secondary_gpu_state->egl_surface,
-                              error))
-    {
-      g_prefix_error (error, "Failed to swap buffers: ");
       goto done;
     }
 
@@ -1378,24 +1337,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
     }
 
   meta_frame_native_set_sync_fd (frame_native, g_steal_fd (&sync_fd));
-
-  use_modifiers = meta_renderer_native_use_modifiers (renderer_native);
-  device_file = meta_render_device_get_device_file (render_device);
-
-  flags = META_DRM_BUFFER_FLAG_NONE;
-  if (!use_modifiers)
-    flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
-
-  buffer_gbm =
-    meta_drm_buffer_gbm_new_lock_front (device_file,
-                                        secondary_gpu_state->gbm.surface,
-                                        flags,
-                                        error);
-  if (!buffer_gbm)
-    {
-      g_prefix_error (error, "meta_drm_buffer_gbm_new_lock_front failed: ");
-      goto done;
-    }
 
 done:
   if (egl_sync != EGL_NO_SYNC)
@@ -1411,7 +1352,7 @@ done:
 
   _cogl_winsys_egl_ensure_current (cogl_display);
 
-  return buffer_gbm ? META_DRM_BUFFER (buffer_gbm) : NULL;
+  return dst_buffer_gbm ? META_DRM_BUFFER (dst_buffer_gbm) : NULL;
 }
 
 static MetaDrmBufferDumb *
@@ -3116,18 +3057,19 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
   MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   MetaRenderDevice *render_device;
+  MetaDeviceFile *device_file;
   MetaRenderDeviceGbm *render_device_gbm;
   struct gbm_device *gbm_device;
   EGLDisplay egl_display;
   int width, height;
-  EGLNativeWindowType egl_native_window;
-  struct gbm_surface *gbm_surface;
-  EGLSurface egl_surface;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
+  MetaDrmBufferFlags flags = META_DRM_BUFFER_FLAG_NONE;
   MetaGpuKms *gpu_kms;
   uint32_t format;
+  int i;
 
   render_device = renderer_gpu_data->render_device;
+  device_file = meta_render_device_get_device_file (render_device);
   egl_display = meta_render_device_get_egl_display (render_device);
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
@@ -3137,47 +3079,47 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
 
   render_device_gbm = META_RENDER_DEVICE_GBM (render_device);
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
-  gbm_surface = gbm_surface_create (gbm_device,
-                                    width, height,
-                                    format,
-                                    GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
-
-  if (!gbm_surface)
-    {
-      gbm_surface = gbm_surface_create (gbm_device,
-                                        width, height,
-                                        format,
-                                        0);
-    }
-
-  if (!gbm_surface)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Failed to create gbm_surface: %s", g_strerror (errno));
-      return FALSE;
-    }
-
-  egl_native_window = (EGLNativeWindowType) gbm_surface;
-  egl_surface =
-    meta_egl_create_window_surface (egl,
-                                    egl_display,
-                                    renderer_gpu_data->secondary.egl_config,
-                                    egl_native_window,
-                                    NULL,
-                                    error);
-  if (egl_surface == EGL_NO_SURFACE)
-    {
-      gbm_surface_destroy (gbm_surface);
-      return FALSE;
-    }
 
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
   secondary_gpu_state->gpu_kms = gpu_kms;
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
-  secondary_gpu_state->gbm.surface = gbm_surface;
-  secondary_gpu_state->egl_surface = egl_surface;
+  secondary_gpu_state->gbm.buffer_index = -2;
+
+  if (!meta_renderer_native_use_modifiers (renderer_native))
+    flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
+  for (i = 0; i < 2; i++)
+    {
+      struct gbm_bo *gbm_bo;
+
+      gbm_bo = gbm_bo_create (gbm_device,
+                              width,
+                              height,
+                              format,
+                              GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+      if (!gbm_bo)
+        {
+          gbm_bo_destroy (gbm_bo);
+          g_free (secondary_gpu_state);
+          g_set_error (error,  G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "gbm_bo_create failed for secondary GPU: %s",
+                       strerror (errno));
+          return FALSE;
+        }
+
+      secondary_gpu_state->gbm.buffer_gbm[i] =
+        meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, error);
+      if (!secondary_gpu_state->gbm.buffer_gbm[i])
+        {
+          gbm_bo_destroy (gbm_bo);
+          g_free (secondary_gpu_state);
+          g_prefix_error (error,
+                          "meta_drm_buffer_gbm_new_take failed for secondary GPU: ");
+          return FALSE;
+        }
+    }
 
   onscreen_native->secondary_gpu_state = secondary_gpu_state;
 
@@ -3282,7 +3224,6 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
   secondary_gpu_state->gpu_kms = gpu_kms;
-  secondary_gpu_state->egl_surface = EGL_NO_SURFACE;
 
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
     {

@@ -293,26 +293,20 @@ blit_egl_image (MetaGles3        *gles3,
   GLBAS (gles3, glFramebufferTexture2D, (GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                          GL_TEXTURE_2D, texture, 0));
 
-  GLBAS (gles3, glBindFramebuffer, (GL_READ_FRAMEBUFFER, framebuffer));
-
   for (i = 0; i < n_rectangles; ++i)
     {
       MtkRectangle rectangle;
       GLint x1, y1, x2, y2;
-      GLint src_y1, src_y2;
 
       rectangle = mtk_region_get_rectangle (region, i);
 
       x1 = rectangle.x;
-      y1 = height - rectangle.y - rectangle.height;
+      y1 = rectangle.y;
       x2 = x1 + rectangle.width;
       y2 = y1 + rectangle.height;
 
-      src_y1 = rectangle.y;
-      src_y2 = src_y1 + rectangle.height;
-
-      GLBAS (gles3, glBlitFramebuffer, (x1, src_y2, x2, src_y1,
-                                        x1, height - rectangle.y - rectangle.height, x2, y2,
+      GLBAS (gles3, glBlitFramebuffer, (x1, y1, x2, y2,
+                                        x1, y1, x2, y2,
                                         GL_COLOR_BUFFER_BIT,
                                         GL_NEAREST));
     }
@@ -347,7 +341,6 @@ paint_egl_image (ContextData      *context_data,
 
   for (i = 0; i < n_rectangles; ++i)
     {
-      int reversed_rect_y;
       GLint x1, y1, x2, y2;
       GLint u1, v1, u2, v2;
       MtkRectangle rectangle;
@@ -355,12 +348,11 @@ paint_egl_image (ContextData      *context_data,
 
       rectangle = mtk_region_get_rectangle (region, i);
       rectangle_vertices = &vertices[i * COMPONENTS_PER_RECTANGLE];
-      reversed_rect_y = height - rectangle.y - rectangle.height;
 
       x1 = rectangle.x;
-      y1 = reversed_rect_y;
+      y1 = rectangle.y;
       x2 = rectangle.x + rectangle.width;
-      y2 = reversed_rect_y + rectangle.height;
+      y2 = rectangle.y + rectangle.height;
 
       u1 = rectangle.x;
       v1 = rectangle.y;
@@ -368,32 +360,32 @@ paint_egl_image (ContextData      *context_data,
       v2 = rectangle.y + rectangle.height;
 
       rectangle_vertices[0] = x1;
-      rectangle_vertices[1] = y2;
+      rectangle_vertices[1] = y1;
       rectangle_vertices[2] = u1;
       rectangle_vertices[3] = v1;
 
       rectangle_vertices[4] = x2;
-      rectangle_vertices[5] = y2;
+      rectangle_vertices[5] = y1;
       rectangle_vertices[6] = u2;
       rectangle_vertices[7] = v1;
 
       rectangle_vertices[8] = x1;
-      rectangle_vertices[9] = y1;
+      rectangle_vertices[9] = y2;
       rectangle_vertices[10] = u1;
       rectangle_vertices[11] = v2;
 
       rectangle_vertices[12] = x1;
-      rectangle_vertices[13] = y1;
+      rectangle_vertices[13] = y2;
       rectangle_vertices[14] = u1;
       rectangle_vertices[15] = v2;
 
       rectangle_vertices[16] = x2;
-      rectangle_vertices[17] = y2;
+      rectangle_vertices[17] = y1;
       rectangle_vertices[18] = u2;
       rectangle_vertices[19] = v1;
 
       rectangle_vertices[20] = x2;
-      rectangle_vertices[21] = y1;
+      rectangle_vertices[21] = y2;
       rectangle_vertices[22] = u2;
       rectangle_vertices[23] = v2;
     }
@@ -471,7 +463,8 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
                                            MetaGles3        *gles3,
                                            EGLDisplay        egl_display,
                                            EGLContext        egl_context,
-                                           EGLImageKHR       egl_image,
+                                           EGLImageKHR       dst_egl_image,
+                                           EGLImageKHR       src_egl_image,
                                            struct gbm_bo    *shared_bo,
                                            const MtkRegion  *region,
                                            GError          **error)
@@ -480,6 +473,7 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
   unsigned int height;
   GQuark context_data_quark;
   ContextData *context_data;
+  GLuint dst_texture, dst_framebuffer;
   gboolean can_blit;
 
   context_data_quark = get_quark_for_egl_context (egl_context);
@@ -504,11 +498,22 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl          *egl,
   width = gbm_bo_get_width (shared_bo);
   height = gbm_bo_get_height (shared_bo);
 
-  if (can_blit)
-    blit_egl_image (gles3, egl_image, width, height, region);
-  else
-    paint_egl_image (context_data, gles3, egl_image, width, height, region);
+  GLBAS (gles3, glGenFramebuffers, (1, &dst_framebuffer));
+  GLBAS (gles3, glBindFramebuffer, (GL_DRAW_FRAMEBUFFER, dst_framebuffer));
+  GLBAS (gles3, glActiveTexture, (GL_TEXTURE0));
+  GLBAS (gles3, glGenTextures, (1, &dst_texture));
+  GLBAS (gles3, glBindTexture, (GL_TEXTURE_2D, dst_texture));
+  GLEXT (gles3, glEGLImageTargetTexture2DOES, (GL_TEXTURE_2D, dst_egl_image));
+  GLBAS (gles3, glFramebufferTexture2D, (GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                                         GL_TEXTURE_2D, dst_texture, 0));
 
+  if (can_blit)
+    blit_egl_image (gles3, src_egl_image, width, height, region);
+  else
+    paint_egl_image (context_data, gles3, src_egl_image, width, height, region);
+
+  GLBAS (gles3, glDeleteTextures, (1, &dst_texture));
+  GLBAS (gles3, glDeleteFramebuffers, (1, &dst_framebuffer));
   return TRUE;
 }
 
