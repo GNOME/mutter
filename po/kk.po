@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-29 14:21+0000\n"
-"PO-Revision-Date: 2026-01-30 07:08+0500\n"
+"POT-Creation-Date: 2026-02-03 22:56+0000\n"
+"PO-Revision-Date: 2026-02-04 21:41+0500\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh <kk@li.org>\n"
 "Language: kk\n"
@@ -247,20 +247,20 @@ msgstr "Терезені вертикалды жазық қылу"
 msgid "Maximize window horizontally"
 msgstr "Терезені горизонталды жазық қылу"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Көріністі сол жаққа бөлу"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Көріністі оң жаққа бөлу"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr ""
 "Терезені басқарудың кеңейтілген операциялары үшін қолданылатын модификатор"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -272,11 +272,11 @@ msgstr ""
 "жабдығындағы «Windows пернесі» болып табылады. Бұл байланыстыру әдепкі "
 "бойынша қалады немесе бос жол ретінде орнатылады деп күтіледі."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Модальды диалогтарды жалғау"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -286,13 +286,13 @@ msgstr ""
 "терезелері аталық терезенің тақырыптамасына бекітілген түрде пайда болады "
 "және аталық тереземен бірге жылжытылады."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
 "Терезелерді экран шеттеріне апарған кезде олардың өлшемдерін өзгертуді іске "
 "қосу"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -303,11 +303,11 @@ msgstr ""
 "үшін горизонталды түрде өлшемі өзгереді. Терезелерді экранның жоғарғы "
 "жиегіне тастаған кезде олар толығымен жайылады."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Жұмыс орындары динамикалы түрде басқарылады"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -317,11 +317,11 @@ msgstr ""
 "саны статикалық болатынын анықтайды (org.gnome.desktop.wm.preferences "
 "ішіндегі num-workspaces кілті арқылы анықталады)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Жұмыс орындары тек негізгі мониторда"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -329,11 +329,11 @@ msgstr ""
 "Жұмыс орындарын ауыстыру барлық мониторлардағы терезелер үшін немесе тек "
 "негізгі монитордағы терезелер үшін орындалуын анықтайды."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Курсор қозғалысы тоқтағанға дейін фокус өзгеруін кешіктіру"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -343,11 +343,11 @@ msgstr ""
 "терезеге кіргенде фокус бірден өзгермейді, тек курсор қозғалысы тоқтағаннан "
 "кейін ғана өзгереді."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Сүйрелетін жиектің ені"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -355,11 +355,11 @@ msgstr ""
 "Жалпы сүйрелетін жиектердің мөлшері. Егер тақырыптың көрінетін жиектері "
 "жеткіліксіз болса, осы мәнге жету үшін көрінбейтін жиектер қосылады."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Өлшемі мониторға жуық терезелерді автоматты түрде жаю"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -367,11 +367,11 @@ msgstr ""
 "Іске қосылған болса, бастапқы өлшемі монитор өлшеміндей болатын жаңа "
 "терезелер автоматты түрде жайылады."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Жаңа терезелерді ортаға орналастыру"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -379,65 +379,46 @@ msgstr ""
 "Егер ақиқат болса, жаңа терезелер әрқашан монитордың белсенді экранының "
 "ортасына қойылады."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Эксперименталды мүмкіндіктерді іске қосу"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
-"Эксперименталды мүмкіндіктерді іске қосу үшін тізімге мүмкіндік кілт сөзін "
-"қосыңыз. Мүмкіндіктің композиторды қайта іске қосуды талап етуі берілген "
-"мүмкіндікке байланысты. Кез келген эксперименталды мүмкіндіктің қолжетімді "
-"болып қалуы немесе бапталуы міндетті емес. Бұл параметрдегі кез келген "
-"нәрсенің болашақта сақталатынына сенбеңіз. Қазіргі уақытта мүмкін болатын "
-"кілт сөздер: • “scale-monitor-framebuffer” — HiDPI мониторларын басқару үшін "
-"терезе мазмұнын масштабтау орнына монитордың фреймбуферлерін масштабтай "
-"отырып, mutter бағдарламасын логикалық мониторларды логикалық пиксельдік "
-"координаталар кеңістігінде орналастыруға мәжбүр етеді. Қайта іске қосуды "
-"талап етпейді. • “kms-modifiers” — егер драйвер қолдаса, mutter "
-"бағдарламасын әрқашан айқын модификаторлары бар сканерлеу буферлерін бөлуге "
-"мәжбүр етеді. Қайта іске қосуды талап етеді. • “autoclose-xwayland” — барлық "
-"тиісті X11 клиенттері жоқ болса, Xwayland жұмысын автоматты түрде тоқтатады. "
-"Қайта іске қосуды талап етеді. • “variable-refresh-rate” — егер монитор, GPU "
-"және DRM драйвері қолдаса, mutter бағдарламасына монитордың жаңару жиілігін "
-"динамикалық түрде реттеуге мүмкіндік береді. Баптаулар ішінде теңшеуге "
-"болады. Қайта іске қосуды талап етеді. • “xwayland-native-scaling” — "
-"Xwayland клиенттеріне өздерінің масштабтауды қолдау мүмкіндігін пайдалануға "
-"мүмкіндік береді. Егер масштабтау клиент тарапынан қолдау көрсетілмесе, "
-"клиент масштабталмайды. Параметр тек “scale-monitor-framebuffer” іске "
-"қосылғанда ғана күшіне енеді."
+"Сынақ сатысындағы мүмкіндіктерді қосу үшін мүмкіндіктің кілт сөзін тізімге "
+"қосыңыз. Мүмкіндікті іске қосу үшін композиторды қайта жүктеу қажеттілігі "
+"таңдалған мүмкіндікке байланысты. Кез келген эксперименталды мүмкіндіктің "
+"болашақта қолжетімді болуы немесе баптауға келуі міндетті емес. Бұл "
+"параметрге кез келген нәрсені қосудың болашақта өзгеріссіз қалатынына "
+"сенбеңіз. Қазіргі уақытта қолжетімді кілт сөздер: • “kms-modifiers” — егер "
+"драйвер қолдайтын болса, mutter терезе менеджеріне сканерлеу буферлерін "
+"(scanout buffers) әрқашан нақты модификаторлармен бөлуге мәжбүрлейді. Жүйені "
+"қайта жүктеуді қажет етеді. • “autoclose-xwayland” — егер барлық тиісті X11 "
+"клиенттері жабылса, Xwayland жұмысын автоматты түрде тоқтатады. Жүйені қайта "
+"жүктеуді қажет етеді."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Курсорды табу үшін қолданылатын модификатор"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Бұл перне «курсорды табу» әрекетін іске қосады."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Тірі екенін тексеру (ping) үшін күту уақыты"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -448,11 +429,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Әр шығыс үшін жарықтық параметрлері"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -464,15 +445,15 @@ msgstr ""
 "пайызбен (%) берілген шығыс жарықтығын білдіретін жылжымалы нүктелі мәннен "
 "тұрады. Көрсетілмеген жағдайда әдепкі мән - 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Монитор баптауларын ауыстыру"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Кірістірілген монитор конфигурациясын бұрады"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Кез келген белсенді енгізуді қармау сессиясынан бас тарту"
 
@@ -628,6 +609,24 @@ msgstr ""
 "көрсетпесе, бұл опцияның әсері болмайды. Бұл параметр күшіне енуі үшін "
 "Xwayland бағдарламасын қайта іске қосу керек."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Xwayland масштабтау коэффициентін баптау"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Xwayland координаталық кеңістігін осы коэффициентке сәйкес масштабтаңыз. Бұл "
+"HiDPI қолдайтын X11 клиенттерінің қалай көрінетініне және композитордың X11 "
+"терезелерін қалай масштабтайтынына әсер етеді. Масштабты 0 деп орнату оның "
+"автоматты түрде есептелетінін білдіреді. Қазіргі уақытта масштаб мәні ең "
+"жақын бүтін санға дейін дөңгелектенеді."
+
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
 msgstr "Қолданба"
@@ -693,8 +692,8 @@ msgid "_Monitors"
 msgstr "_Мониторлар"
 
 #: mdk/mdk-main-window.ui:26
-msgid "_Resizable"
-msgstr "Ө_лшемі өзгерілетін"
+msgid "_Emulate monitor modes"
+msgstr "Монитор режимдерін _эмуляциялау"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -728,30 +727,30 @@ msgstr "Mutter бағдарламалық қамтаманы әзірлеу жи
 msgid "About Mutter Development Kit"
 msgstr "Mutter әзірлеу жиынтығы туралы"
 
-#: mdk/mdk-monitor.c:792
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "Мониторды жасау сәтсіз аяқталды"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Құрамындағы экран"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Белгісіз"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Белгісіз дисплей"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -771,39 +770,39 @@ msgstr "Жекелік экраны іске қосылған"
 msgid "Privacy Screen Disabled"
 msgstr "Жекелік экраны сөндірілген"
 
-#: src/core/meta-context-main.c:355
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Wayland композиторы ретінде орындау"
 
-#: src/core/meta-context-main.c:362
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland композиторын Xwayland-ты іске қоспай орындау"
 
-#: src/core/meta-context-main.c:369
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Қолданылатын Wayland дисплейінің атын көрсету"
 
-#: src/core/meta-context-main.c:376
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Кірістірілген емес, толық дисплей сервері ретінде орындау"
 
-#: src/core/meta-context-main.c:381
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Дисплейсіз көрсету сервері ретінде орындау"
 
-#: src/core/meta-context-main.c:386
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Тұрақты виртуалды мониторды қосу (WxH немесе WxH@R)"
 
-#: src/core/meta-context-main.c:393
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Әзірлеу жиынтығын орындау"
 
-#: src/core/meta-context-main.c:404
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Трассировка құралдарының көмегімен өнімділікті профильдеу"
 
-#: src/core/meta-context-main.c:410
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "D-Bus жөндеуді басқару интерфейсін іске қосу"
 
@@ -875,14 +874,14 @@ msgstr "\"%s\" дисплейінде терезе менеджері бар"
 msgid "Failed to open X Window System display “%s”"
 msgstr "“%s” X Window System дисплейін ашу мүмкін емес"
 
-#: src/x11/meta-x11-display.c:1320
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "%d экраны “%s” дисплейінде жарамсыз"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2509
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -897,6 +896,9 @@ msgstr "%s пішіміне қолдау жоқ"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s жерінде)"
+
+#~ msgid "_Resizable"
+#~ msgstr "Ө_лшемі өзгерілетін"
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "Орындалып тұрған терезелер менеджерін алмастыру"
