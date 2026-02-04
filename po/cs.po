@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-08-21 19:45+0000\n"
-"PO-Revision-Date: 2025-08-22 11:56+0200\n"
+"POT-Creation-Date: 2026-01-14 16:17+0000\n"
+"PO-Revision-Date: 2026-02-05 00:18+0100\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.8\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -415,7 +415,7 @@ msgstr ""
 "restart. • „kms-modifiers“ – přiměje mutter, aby umožnil alokování "
 "výstupních vyrovnávacích pamětí s výslovně určenými modifikátory, pokud to "
 "podporuje ovladač. Vyžaduje restart. • „autoclose-xwayland“ – automaticky "
-"ukončí Xwayland, když se ukončí všichny související klienti X11. Vyžaduje "
+"ukončí Xwayland, když se ukončí všichni související klienti X11. Vyžaduje "
 "restart. • „variable-refresh-rate“ – přiměje mutter, aby v případě potřeby "
 "umožnil dynamicky upravovat obnovovací frekvenci monitoru, pokud je to "
 "podporováno monitorem, GPU a ovladačem DRM. Konfigurovatelné v Nastavení. "
@@ -713,7 +713,7 @@ msgstr "Vývojové prostředí softwaru Mutteru"
 msgid "About Mutter Development Kit"
 msgstr "O aplikaci Vývojové prostředí Mutteru"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:674
 msgid "Failed to create monitor"
 msgstr "Selhalo vytvoření monitoru"
 
@@ -748,11 +748,11 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Událost zvonku"
 
-#: src/core/display.c:741
+#: src/core/display.c:742
 msgid "Privacy Screen Enabled"
 msgstr "Soukromí obrazovky zapnuto"
 
-#: src/core/display.c:742
+#: src/core/display.c:743
 msgid "Privacy Screen Disabled"
 msgstr "Soukromí obrazovky vypnuto"
 
@@ -852,7 +852,7 @@ msgstr "Vypsat verzi"
 msgid "Mutter plugin to use"
 msgstr "Zásuvný modul Mutter, který se má použít"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Plocha %d"
@@ -870,7 +870,7 @@ msgstr "Přepnuta plocha"
 msgid "Mode Switch: Mode %d"
 msgstr "Přepínač režimu: režim %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:844
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -879,19 +879,19 @@ msgstr ""
 "Displej „%s“ již správce oken má; zkuste prosím nahradit aktuálního správce "
 "oken pomocí přepínače --replace."
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1229
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Selhalo otevření systémového displeje X Window „%s“"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1460
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka %d na displeji „%s“ je neplatná"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2788
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -902,7 +902,7 @@ msgstr "Jiný kompozitní správce již běží na obrazovce %i displeje „%s�
 msgid "Format %s not supported"
 msgstr "Formát %s není podporován"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
