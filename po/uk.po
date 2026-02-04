@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-31 09:20+0000\n"
-"PO-Revision-Date: 2026-02-03 05:49+0200\n"
+"POT-Creation-Date: 2026-02-03 22:56+0000\n"
+"PO-Revision-Date: 2026-02-04 22:16+0200\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
 "Language: uk\n"
@@ -249,11 +249,11 @@ msgstr "Розгорнути вікно на весь екран вертика�
 msgid "Maximize window horizontally"
 msgstr "Розгорнути вікно на весь екран горизонтально"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Перегляд розділити ліворуч"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Перегляд розділити праворуч"
 
@@ -392,29 +392,19 @@ msgstr "Увімкнути експериментальні можливості
 #| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
 #| "with explicit modifiers, if supported by the driver. Requires a restart. "
 #| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
-#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
-#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
-#| "when applicable if supported by the monitor, GPU and DRM driver. "
-#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
-#| "— lets Xwayland clients use their native scaling support. If scaling is "
-#| "not supported by client, the client will be unscaled. Setting only takes "
-#| "effect when “scale-monitor-framebuffer” is enabled as well."
+#| "relevant X11 clients are gone. Requires a restart. • “xwayland-native-"
+#| "scaling” — lets Xwayland clients use their native scaling support. If "
+#| "scaling is not supported by client, the client will be unscaled. Setting "
+#| "only takes effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
-"native scaling support. If scaling is not supported by client, the client "
-"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
-"is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Щоб увімкнути експериментальну можливість, додайте до списку ключове слово "
 "можливості. Те, чи потребуватиме вмикання можливості перезапуску "
@@ -422,34 +412,26 @@ msgstr ""
 "обов'язково завжди доступні чи придатні до налаштовування. Не слід "
 "очікувати, що у майбутніх версіях обов'язково буде збережено якусь із "
 "експериментальних можливостей. У поточній версії передбачено такі ключові "
-"слова: • «scale-monitor-framebuffer» — наказує mutter типово розташовувати "
-"логічні монітори у координатному просторі логічних пікселів, масштабуючи "
-"буфери кадрів моніторів, замість вмісту вікон. Призначено для роботи із "
-"моніторами із високою роздільною здатністю. Не потребує перезапуску. • «kms-"
-"modifiers» — наказує mutter завжди отримувати буфери сканування із явними "
+"слова: • «kms-modifiers» — наказує mutter завжди отримувати буфери"
+" сканування із явними "
 "модифікаторами, якщо у драйвері передбачено підтримку відповідних дій. "
 "Потребує перезапуску композитора. • «autoclose-xwayland» — автоматично "
 "перериває роботу Xwayland, якщо завершать роботу усі відповідні клієнти X11. "
-"Потребує перезапуску композитора. • «xwayland-native-scaling» — надає"
-" клієнтам "
-"Xwayland змогу використовувати вбудовану в них підтримку масштабування. Якщо "
-"у клієнті не передбачено підтримки масштабування, клієнт лишиться "
-"немасштабованим. Встановлення працює лише якщо також увімкнено «scale-"
-"monitor-framebuffer»."
+"Потребує перезапуску композитора."
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Модифікатор для пошуку вказівника"
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ця комбінація ініціює дію «встановити розташування вказівника»"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Інтервал між послідовними перевірками працездатності"
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -460,11 +442,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Окремі параметри для освітленості виведеного"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -477,15 +459,15 @@ msgstr ""
 "що відповідає освітленості результату у відсотках (%). Типовим значенням, "
 "якщо не задано, є 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:190
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Перемкнути налаштування монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:195
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Зміна конфігурації вбудованого монітора"
 
-#: data/org.gnome.mutter.gschema.xml.in:200
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Скасувати усі активні сеанси перехоплення введення"
 
@@ -646,6 +628,24 @@ msgstr ""
 "byteswappedclients для керування відповідною обробкою. Щоб значення цього "
 "параметра набуло чинності, Xwayland слід перезапустити."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Налаштувати коефіцієнт масштабування Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Масштабувати координатний простір Xwayland відповідно до цього коефіцієнта."
+" Це вплине на те, в якому масштабі буде показано клієнтів X11 з підтримкою"
+" HiDPI, а також на те, як композитор масштабуватиме вікна клієнтів X11."
+" Встановлення нульового масштабу означає, що масштаб буде розраховано"
+" автоматично. Поки масштаб буде округлено до найближчого цілого числа."
+
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
 msgstr "Програма"
@@ -711,8 +711,8 @@ msgid "_Monitors"
 msgstr "_Монітори"
 
 #: mdk/mdk-main-window.ui:26
-msgid "_Resizable"
-msgstr "З_мінні розміри"
+msgid "_Emulate monitor modes"
+msgstr "_Імітувати режими монітора"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -746,30 +746,30 @@ msgstr "Набір для розробки програмного забезпе
 msgid "About Mutter Development Kit"
 msgstr "Про «Інструменти для розробників Mutter»"
 
-#: mdk/mdk-monitor.c:792
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "Не вдалося створити монітор"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Вбудований екран"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Невідомо"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Невідомий екран"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -789,39 +789,39 @@ msgstr "Конфіденційний екран увімкнено"
 msgid "Privacy Screen Disabled"
 msgstr "Конфіденційний екран вимкнено"
 
-#: src/core/meta-context-main.c:355
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
-#: src/core/meta-context-main.c:362
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Запустити композитор wayland без запуску Xwayland"
 
-#: src/core/meta-context-main.c:369
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Вказати назву дисплея Wayland, якою слід скористатися"
 
-#: src/core/meta-context-main.c:376
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Запустити як повноцінний сервер, а не вкладений"
 
-#: src/core/meta-context-main.c:381
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Запустити у форматі сервера без дисплея"
 
-#: src/core/meta-context-main.c:386
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Додати сталий віртуальний монітор (ШxВ або ШxВ@Ч)"
 
-#: src/core/meta-context-main.c:393
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Запустити інструменти для розробників"
 
-#: src/core/meta-context-main.c:404
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Профілювання швидкодії з використанням засобів трасування"
 
-#: src/core/meta-context-main.c:410
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Увімкнути інтерфейс D-Bus керування діагностикою"
 
@@ -893,14 +893,14 @@ msgstr "У дисплея «%s» вже є засіб керування вік�
 msgid "Failed to open X Window System display “%s”"
 msgstr "Не вдалося відкрити дисплей віконної системи X «%s»"
 
-#: src/x11/meta-x11-display.c:1320
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Екран %d на дисплеї «%s» є некоректним"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2509
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -916,6 +916,9 @@ msgstr "Підтримки формату %s не передбачено"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
+
+#~ msgid "_Resizable"
+#~ msgstr "З_мінні розміри"
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "Замінити запущений віконний менеджер"
