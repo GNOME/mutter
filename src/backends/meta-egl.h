@@ -154,11 +154,6 @@ gboolean meta_egl_make_current (MetaEgl   *egl,
                                 EGLContext context,
                                 GError   **error);
 
-gboolean meta_egl_swap_buffers (MetaEgl   *egl,
-                                EGLDisplay display,
-                                EGLSurface surface,
-                                GError   **error);
-
 gboolean meta_egl_bind_wayland_display (MetaEgl            *egl,
                                         EGLDisplay          display,
                                         struct wl_display  *wayland_display,
@@ -270,13 +265,6 @@ gboolean meta_egl_query_dma_buf_modifiers (MetaEgl      *egl,
                                            EGLBoolean   *external_only,
                                            EGLint       *num_formats,
                                            GError      **error);
-
-gboolean meta_egl_query_surface (MetaEgl     *egl,
-                                 EGLDisplay   display,
-                                 EGLSurface   surface,
-                                 EGLint       attribute,
-                                 EGLint      *value,
-                                 GError     **error);
 
 gboolean meta_egl_query_display_attrib (MetaEgl     *egl,
                                         EGLDisplay   display,
