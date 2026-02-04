@@ -57,7 +57,6 @@ struct _MetaEgl
   PFNEGLQUERYDEVICESTRINGEXTPROC eglQueryDeviceStringEXT;
 
   PFNEGLGETOUTPUTLAYERSEXTPROC eglGetOutputLayersEXT;
-  PFNEGLQUERYOUTPUTLAYERATTRIBEXTPROC eglQueryOutputLayerAttribEXT;
 
   PFNEGLCREATESTREAMKHRPROC eglCreateStreamKHR;
   PFNEGLDESTROYSTREAMKHRPROC eglDestroyStreamKHR;
@@ -888,27 +887,6 @@ meta_egl_get_output_layers (MetaEgl           *egl,
   return TRUE;
 }
 
-gboolean
-meta_egl_query_output_layer_attrib (MetaEgl          *egl,
-                                    EGLDisplay        display,
-                                    EGLOutputLayerEXT layer,
-                                    EGLint            attribute,
-                                    EGLAttrib        *value,
-                                    GError          **error)
-{
-  if (!is_egl_proc_valid (egl->eglQueryOutputLayerAttribEXT, error))
-    return FALSE;
-
-  if (!egl->eglQueryOutputLayerAttribEXT (display, layer,
-                                          attribute, value))
-    {
-      set_egl_error (error);
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
 EGLStreamKHR
 meta_egl_create_stream (MetaEgl      *egl,
                         EGLDisplay    display,
@@ -1266,7 +1244,6 @@ meta_egl_constructed (GObject *object)
   GET_EGL_PROC_ADDR (eglQueryDeviceStringEXT);
 
   GET_EGL_PROC_ADDR (eglGetOutputLayersEXT);
-  GET_EGL_PROC_ADDR (eglQueryOutputLayerAttribEXT);
 
   GET_EGL_PROC_ADDR (eglCreateStreamKHR);
   GET_EGL_PROC_ADDR (eglDestroyStreamKHR);

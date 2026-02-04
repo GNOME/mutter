@@ -192,13 +192,6 @@ gboolean meta_egl_get_output_layers (MetaEgl           *egl,
                                      EGLint            *num_layers,
                                      GError           **error);
 
-gboolean meta_egl_query_output_layer_attrib (MetaEgl          *egl,
-                                             EGLDisplay        display,
-                                             EGLOutputLayerEXT layer,
-                                             EGLint            attribute,
-                                             EGLAttrib        *value,
-                                             GError          **error);
-
 EGLStreamKHR meta_egl_create_stream (MetaEgl      *egl,
                                      EGLDisplay    display,
                                      const EGLint *attrib_list,
