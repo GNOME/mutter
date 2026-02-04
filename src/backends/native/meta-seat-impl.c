@@ -521,9 +521,10 @@ static gboolean
 is_a11y_modifier_first_click (MetaSeatImpl *seat_impl,
                               uint32_t      keysym,
                               uint32_t      event_time,
-                              gboolean      is_press)
+                              uint32_t      state)
 {
   MetaSeatImplPrivate *priv = meta_seat_impl_get_instance_private (seat_impl);
+  gboolean is_press = state == 1;
   gboolean is_same_keysym = keysym == priv->a11y.last_keysym;
   gboolean event_soon_enough =
     event_time - priv->a11y.last_keysym_time < seat_impl->repeat_delay;
@@ -615,10 +616,13 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
   keycode = meta_xkb_evdev_to_keycode (key);
   keysym = xkb_state_key_get_one_sym (seat_impl->xkb, keycode);
 
-  should_ignore = is_a11y_modifier_first_click (seat_impl,
-                                                keysym,
-                                                time_us / 1000,
-                                                state);
+  if (state == AUTOREPEAT_VALUE)
+    should_ignore = FALSE; /* We're never ignoring autorepeat events because of the a11y double click logic */
+  else
+    should_ignore = is_a11y_modifier_first_click (seat_impl,
+                                                  keysym,
+                                                  time_us / 1000,
+                                                  state);
   if (should_ignore)
     flags |= CLUTTER_EVENT_FLAG_A11Y_MODIFIER_FIRST_CLICK;
 
