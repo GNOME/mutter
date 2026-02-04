@@ -170,8 +170,6 @@ struct _MetaOnscreenNative
 G_DEFINE_TYPE (MetaOnscreenNative, meta_onscreen_native,
                COGL_TYPE_ONSCREEN_EGL)
 
-static GQuark blit_source_quark = 0;
-
 static void
 maybe_post_next_frame (CoglOnscreen *onscreen);
 
@@ -1400,11 +1398,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
       goto done;
     }
 
-  g_object_set_qdata_full (G_OBJECT (buffer_gbm),
-                           blit_source_quark,
-                           g_object_ref (primary_gpu_fb),
-                           g_object_unref);
-
 done:
   if (egl_sync != EGL_NO_SYNC)
     {
@@ -1548,11 +1541,6 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
             }
         }
     }
-
-  g_object_set_qdata_full (G_OBJECT (buffer),
-                           blit_source_quark,
-                           g_steal_pointer (&dmabuf_fb),
-                           g_object_unref);
 
   secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 
@@ -3545,8 +3533,6 @@ meta_onscreen_native_class_init (MetaOnscreenNativeClass *klass)
     meta_onscreen_native_swap_buffers_with_damage;
   onscreen_class->direct_scanout = meta_onscreen_native_direct_scanout;
   onscreen_class->get_window_handles = meta_onscreen_native_get_window_handles;
-
-  blit_source_quark = g_quark_from_static_string ("Blit source");
 }
 
 MetaCrtc *
