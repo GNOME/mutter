@@ -19069,20 +19069,3 @@ clutter_actor_get_cursor_for_sprite (ClutterActor  *actor,
 {
   return CLUTTER_ACTOR_GET_CLASS (actor)->get_cursor_for_sprite (actor, sprite);
 }
-
-void
-clutter_actor_invalidate_sprite_cursor (ClutterActor  *actor,
-                                        ClutterSprite *sprite)
-{
-  ClutterActor *sprite_focus;
-
-  if (!clutter_actor_has_pointer (actor))
-    return;
-
-  sprite_focus = clutter_focus_get_current_actor (CLUTTER_FOCUS (sprite));
-  if (!sprite_focus)
-    return;
-
-  if (sprite_focus == actor || clutter_actor_contains (actor, sprite_focus))
-    clutter_sprite_invalidate_cursor (sprite);
-}

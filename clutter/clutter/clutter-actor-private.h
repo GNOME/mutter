@@ -305,7 +305,4 @@ AtkStateSet * clutter_actor_get_accessible_state (ClutterActor *actor);
 ClutterCursor * clutter_actor_get_cursor_for_sprite (ClutterActor  *actor,
                                                      ClutterSprite *sprite);
 
-void clutter_actor_invalidate_sprite_cursor (ClutterActor  *actor,
-                                             ClutterSprite *sprite);
-
 G_END_DECLS
