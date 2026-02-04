@@ -1220,6 +1220,10 @@ clutter_sprite_invalidate_cursor (ClutterSprite *sprite)
 
   cursor = clutter_actor_get_cursor_for_sprite (actor, sprite);
 
+  /* Delay cursor updates if no cursor is given */
+  if (!cursor)
+    return;
+
  out:
   if (g_set_object (&priv->cursor, cursor))
     {
