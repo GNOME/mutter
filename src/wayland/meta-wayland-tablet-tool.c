@@ -608,6 +608,12 @@ meta_wayland_tablet_tool_set_current_surface (MetaWaylandTabletTool *tool,
                           G_CALLBACK (current_surface_destroyed),
                           tool);
     }
+  else
+    {
+      meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
+      tool->cursor_shape = CLUTTER_CURSOR_INHERIT;
+      g_clear_object (&tool->cursor);
+    }
 
   tablet_seat = tool->seat;
   input = meta_wayland_seat_get_input (tablet_seat->seat);

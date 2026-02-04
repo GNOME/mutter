@@ -133,6 +133,9 @@ static void
 meta_wayland_pointer_set_implicit_grab_surface (MetaWaylandPointer *pointer,
                                                 MetaWaylandSurface *surface);
 
+static void meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
+                                                     MetaWaylandSurface *cursor_surface);
+
 static MetaBackend *
 backend_from_pointer (MetaWaylandPointer *pointer)
 {
@@ -589,8 +592,12 @@ meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
                           G_CALLBACK (current_surface_destroyed),
                           pointer);
     }
-
-  meta_wayland_pointer_update_cursor_surface (pointer);
+  else
+    {
+      meta_wayland_pointer_set_cursor_surface (pointer, NULL);
+      pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
+      g_clear_object (&pointer->cursor);
+    }
 }
 
 static void
