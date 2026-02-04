@@ -114,7 +114,7 @@ move_resources_for_client (struct wl_list   *destination,
 }
 
 static void
-meta_wayland_tablet_tool_update_cursor_surface (MetaWaylandTabletTool *tool)
+meta_wayland_tablet_tool_update_cursor (MetaWaylandTabletTool *tool)
 {
   MetaBackend *backend = backend_from_tool (tool);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
@@ -192,7 +192,7 @@ meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
 
   meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
   tool->cursor_shape = shape;
-  meta_wayland_tablet_tool_update_cursor_surface (tool);
+  meta_wayland_tablet_tool_update_cursor (tool);
 }
 
 static enum zwp_tablet_tool_v2_type
@@ -495,7 +495,7 @@ tool_set_cursor (struct wl_client   *client,
 
   tool->cursor_shape = CLUTTER_CURSOR_INHERIT;
   meta_wayland_tablet_tool_set_cursor_surface (tool, surface);
-  meta_wayland_tablet_tool_update_cursor_surface (tool);
+  meta_wayland_tablet_tool_update_cursor (tool);
 }
 
 static void
@@ -900,7 +900,7 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
       tool->current_tablet = NULL;
       meta_wayland_tablet_tool_set_current_surface (tool, NULL);
       meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
-      meta_wayland_tablet_tool_update_cursor_surface (tool);
+      meta_wayland_tablet_tool_update_cursor (tool);
       break;
     default:
       break;

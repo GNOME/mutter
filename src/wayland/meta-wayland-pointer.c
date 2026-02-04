@@ -1205,7 +1205,7 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
 }
 
 static void
-meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
+meta_wayland_pointer_update_cursor (MetaWaylandPointer *pointer)
 {
   MetaBackend *backend = backend_from_pointer (pointer);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
@@ -1246,14 +1246,14 @@ meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 }
 
 static void
-ensure_update_cursor_surface (MetaWaylandPointer *pointer,
-                              MetaWaylandSurface *surface)
+ensure_update_cursor (MetaWaylandPointer *pointer,
+                      MetaWaylandSurface *surface)
 {
   if (pointer->cursor_surface != surface)
     return;
 
   pointer->cursor_surface = NULL;
-  meta_wayland_pointer_update_cursor_surface (pointer);
+  meta_wayland_pointer_update_cursor (pointer);
 }
 
 static void
@@ -1281,7 +1281,7 @@ meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
     {
       pointer->cursor_surface_destroy_id =
         g_signal_connect_swapped (cursor_surface, "destroy",
-                                  G_CALLBACK (ensure_update_cursor_surface),
+                                  G_CALLBACK (ensure_update_cursor),
                                   pointer);
     }
 }
@@ -1295,7 +1295,7 @@ meta_wayland_pointer_set_cursor_shape (MetaWaylandPointer *pointer,
 
   meta_wayland_pointer_set_cursor_surface (pointer, NULL);
   pointer->cursor_shape = shape;
-  meta_wayland_pointer_update_cursor_surface (pointer);
+  meta_wayland_pointer_update_cursor (pointer);
 }
 
 static void
@@ -1368,7 +1368,7 @@ pointer_set_cursor (struct wl_client *client,
 
   pointer->cursor_shape = CLUTTER_CURSOR_INHERIT;
   meta_wayland_pointer_set_cursor_surface (pointer, surface);
-  meta_wayland_pointer_update_cursor_surface (pointer);
+  meta_wayland_pointer_update_cursor (pointer);
 }
 
 static void
