@@ -174,7 +174,6 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
     }
 
   tool->cursor_surface = surface;
-  tool->cursor_shape = CLUTTER_CURSOR_INHERIT;
 
   if (tool->cursor_surface)
     {
@@ -182,32 +181,17 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
       wl_resource_add_destroy_listener (tool->cursor_surface->resource,
                                         &tool->cursor_surface_destroy_listener);
     }
-
-  meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
 
 void
 meta_wayland_tablet_tool_set_cursor_shape (MetaWaylandTabletTool *tool,
                                            ClutterCursorType      shape)
 {
-  if (tool->cursor_surface)
-    {
-      MetaWaylandCursorSurface *cursor_surface;
+  if (tool->cursor_shape == shape)
+    return;
 
-      cursor_surface = META_WAYLAND_CURSOR_SURFACE (tool->cursor_surface->role);
-      meta_wayland_cursor_surface_set_renderer (cursor_surface, NULL);
-
-      meta_wayland_surface_update_outputs (tool->cursor_surface);
-      wl_list_remove (&tool->cursor_surface_destroy_listener.link);
-    }
-  else if (tool->cursor_shape == shape)
-    {
-      return;
-    }
-
-  tool->cursor_surface = NULL;
+  meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
   tool->cursor_shape = shape;
-
   meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
 
@@ -511,7 +495,9 @@ tool_set_cursor (struct wl_client   *client,
                                                hotspot_x, hotspot_y);
     }
 
+  tool->cursor_shape = CLUTTER_CURSOR_INHERIT;
   meta_wayland_tablet_tool_set_cursor_surface (tool, surface);
+  meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
 
 static void
