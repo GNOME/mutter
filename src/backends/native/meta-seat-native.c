@@ -209,7 +209,7 @@ on_keymap_changed (MetaKeymapNative      *keymap_native,
     meta_keymap_description_ref (keymap_description);
 
   g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
-  seat_native->xkb_keymap = xkb_keymap;
+  seat_native->xkb_keymap = g_steal_pointer (&xkb_keymap);
   seat_native->xkb_layout_index =
     clutter_keymap_get_layout_index (CLUTTER_KEYMAP (keymap_native));
 
@@ -744,7 +744,7 @@ meta_seat_native_set_keymap_sync (MetaSeatNative         *seat_native,
     return FALSE;
 
   g_clear_pointer (&seat_native->xkb_keymap, xkb_keymap_unref);
-  seat_native->xkb_keymap = xkb_keymap_ref (xkb_keymap);
+  seat_native->xkb_keymap = g_steal_pointer (&xkb_keymap);
   seat_native->xkb_layout_index = layout_index;
 
   g_clear_pointer (&seat_native->keymap_description,
