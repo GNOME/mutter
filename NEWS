@@ -1,3 +1,36 @@
+50.beta
+=======
+* Fix moving windows to smaller monitors [Jonas; !4851]
+* Make the HW cursor plane able to move between devices [Carlos; !4745]
+* Consider override-redirect windows for monitor fullscreen [mohansur; !4820]
+* Improve frame scheduling [Michel; !4821]
+* Add "target" event propagation phase [Carlos; !4830, !4854]
+* Fix keyboard layout switching with grp:caps_switch [Sebastian; !4858]
+* Don't use invisible cursor for unfocusable windows [Carlos; !4860]
+* Support PanGesture with non-primary buttons [Carlos; !4831]
+* Allow creating uninhibitable idle watches [Sebastian; !4422]
+* Allow remote desktop to set active keyboard layout [Jonas; !4699]
+* Make VRR and fractional scaling non-experimental [Michel, Jonas; !4863, !4877]
+* Add HiDPI and monitor mode emulation for screencasts/devkit [Jonas; !4727]
+* Plugged leaks [Jonas; !4843]
+* Misc. bug fixes and cleanups [Jonas, Michel, Daniel, Xi, Carlos, Olivier,
+  Bilal, Florian, Robert; !4832, !4845, !4844, !4847, !4848, !4835, !4829,
+  !4857, !4839, !4861, !4639, !4865, !4849, !4869, !4870, !4878, !4880,
+  !4867]
+
+Contributors:
+  Michel Dänzer, Bilal Elmoussaoui, Olivier Fourdan, Carlos Garnacho,
+  Sebastian Keller, Robert Mader, mohansur, Florian Müllner, Xi Ruoyao,
+  Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Antonio Marin [ro], Andika Triwidada [id], Ekaterine Papava [ka],
+  Quentin PAGÈS [oc], Juliano de Souza Camargo [pt_BR], Yuri Chornoivan [uk],
+  Abduqadir Abliz [ug], Sabri Ünal [tr], Martin [sl],
+  Baurzhan Muftakhidinov [kk], Yaron Shahrabani [he], Álvaro Burns [pt_BR],
+  Victor Dargallo [ca], Aurimas Aurimas Černius [lt], Artur S0 [ru],
+  Fran Diéguez [gl], twlvnn kraftwerk [bg], Alexander Alexandrov Shopov [bg]
+
 50.alpha
 ========
 * Fix delay in applying KMS property changes [Marco; !4610]
