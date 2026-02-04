@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-31 09:20+0000\n"
-"PO-Revision-Date: 2026-02-01 02:38+0100\n"
+"POT-Creation-Date: 2026-02-03 22:56+0000\n"
+"PO-Revision-Date: 2026-02-04 04:39+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
 "Language: ka\n"
@@ -248,11 +248,11 @@ msgstr "ფანჯრის ვერტიკალურად მაქს�
 msgid "Maximize window horizontally"
 msgstr "ფანჯრის ჰორიზონტალურად გაშლა"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "ხედის მარცხნივ გაყოფა"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "ხედის მარჯვნივ გაყოფა"
 
@@ -386,49 +386,34 @@ msgid ""
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
-"native scaling support. If scaling is not supported by client, the client "
-"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
-"is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "ექსპერიმენტული ფუნქციების ჩასართავად დაამატეთ ფუნქციის საკვანძო სიტყვა სიას. "
 "მოითხოვს თუ არა ფუნქცია კომპოზიტორის გადატვირთვას, დამოკიდებულია მოცემულ "
 "ფუნქციაზე. ნებისმიერი ექსპერიმენტული ფუნქცია არ არის საჭირო, რომ კვლავ "
 "ხელმისაწვდომი, ან კონფიგურირებადი იყოს. ნუ ელით, რომ ამ პარამეტრში რაიმეს "
-"დამატება მომავალშიც იმუშავებს. ამჟამად შესაძლო საკვანძო სიტყვები: • „scale-"
-"monitor-framebuffer“ — ხდის mutter-ის ნაგულისხმევად განლაგებას ლოგიკური "
-"მონიტორების განლაგებისთვის ლოგიკურ პიქსელის კოორდინატთა სივრცეში, ხოლო "
-"მონიტორის ჩარჩო ბუფერების მასშტაბირება ფანჯრის შინაარსის ნაცვლად, HiDPI "
-"მონიტორების სამართავად. არ საჭიროებს გადატვირთვას. • „kms-modifiers“ — ხდის "
-"mutter-ს ყოველთვის გამოყოს scanout ბუფერები აშკარა მოდიფიკატორებით, თუ "
-"მხარდაჭერილია დრაივერის მიერ. საჭიროებს გადატვირთვას. • „autoclose-xwayland“ "
-"— ავტომატურად წყვეტს Xwayland-ს, თუ ყველა შესაბამისი X11 კლიენტი გაქრება. "
-"საჭიროებს გადატვირთვას. • “xwayland-native-scaling” — საშუალებას აძლევს "
-"Xwayland-ის კლენტებს, საკუთარი დამაშტაბების მხარდაჭერა გამოიყენონ. თუ "
-"კლიენტს დამასშტაბების მხარდაჭერა არ აქვს, ისინი მის გარეშე იმუშავებენ. "
-"ძალაში, მხოლოდ, მაშინ შედის, თუ ასევე ჩართულია პარამეტრი “scale-monitor-"
-"framebuffer”."
+"დამატება მომავალშიც იმუშავებს. ამჟამად შესაძლო საკვანძო სიტყვები: • „kms-"
+"modifiers“ — ხდის mutter-ს ყოველთვის გამოყოს scanout ბუფერები აშკარა "
+"მოდიფიკატორებით, თუ მხარდაჭერილია დრაივერის მიერ. საჭიროებს გადატვირთვას. • "
+"„autoclose-xwayland“ — ავტომატურად წყვეტს Xwayland-ს, თუ ყველა შესაბამისი "
+"X11 კლიენტი გაქრება. საჭიროებს გადატვირთვას."
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "მაჩვენებლის მოსაძებნი მოდიფიკატორი"
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "მალსახმობი \"მაჩვენებლის მოძებნის\" ქმედებას გაუშვებს."
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "სიცოცხლის შემოწმების ვადა გავიდა"
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -438,11 +423,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "თითოეული გამოტანის განათების პარამეტრები"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -455,15 +440,15 @@ msgstr ""
 "განათების მნიშვნელობაა პროცენტებში (%). ნაგულისხმევი, როცა მითითებული არაა, "
 "არის 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:190
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "ეკრანის კონფიგურაციის გადართვა"
 
-#: data/org.gnome.mutter.gschema.xml.in:195
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "ეკრანის ჩაშენებული კონფიგურაციის შემობრუნება"
 
-#: data/org.gnome.mutter.gschema.xml.in:200
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "ყველა არსებული ეკრანის ჩაჭერის სესიის გაუქმება"
 
@@ -622,6 +607,24 @@ msgstr ""
 "byteswappedclients ამ პარამეტრის გასაკონტროლებლად. Xwayland უნდა განახლდეს, "
 "რომ ეს პარამეტრი ამოქმედდეს."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Xwayland-ის მასშტაბის ფაქტორის მორგება"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Xwayland-ის კოორდინატების სივრცის მასშტაბი ამ კოეფიციენტზე დამოკიდებულებით. "
+"ამას გავლენა ექნება HiDPI-ის მხარდაჭერის მქონე X11-ის კლიენტის წარმოდგენაზე "
+"და როგორ მოახდენს კომპოზიტორი X11-ის კლიენტის ფანჯრების მასშტაბირებას. ამ "
+"პარამეტრის დაყენება 0-ზე ნიშნავს, რომ მასშტაბის გამოთვლა ავტომატურად "
+"მოხდება. მასშტაბი დამრგვალდება უახლოეს მთელ რიცხვამდე."
+
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
 msgstr "პროგრამა"
@@ -687,8 +690,8 @@ msgid "_Monitors"
 msgstr "_ეკრანები"
 
 #: mdk/mdk-main-window.ui:26
-msgid "_Resizable"
-msgstr "შეცვლადი _ზომით"
+msgid "_Emulate monitor modes"
+msgstr "_ეკრანის რეჟიმების ემულაცია"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -722,30 +725,30 @@ msgstr "Mutter-ის პროგრამისტების ნაკრე
 msgid "About Mutter Development Kit"
 msgstr "Mutter-ის პროგრამისტების ნაკრების შესახებ"
 
-#: mdk/mdk-monitor.c:792
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "მონიტორის შექმნა ჩავარდა"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "ჩაშენებული ეკრანი"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "უცნობია"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "უცნობი ეკრანი"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -765,39 +768,39 @@ msgstr "კონფიდენციალური ეკრანი ჩა�
 msgid "Privacy Screen Disabled"
 msgstr "კონფიდენციალური ეკრანი გამორთულია"
 
-#: src/core/meta-context-main.c:355
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Wayland-ის კომპოზიტორად გაშვება"
 
-#: src/core/meta-context-main.c:362
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Wayland კომპოზიტორის Xwayland-ის შესრულებს გარეშე გაშვება"
 
-#: src/core/meta-context-main.c:369
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "მიუთითეთ Wayland-ის ეკრანის სახელი"
 
-#: src/core/meta-context-main.c:376
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "ჩადგმულის მაგიერ ეკრანის სრულ სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:381
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "უთავო ეკრანის სერვერად გაშვება"
 
-#: src/core/meta-context-main.c:386
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "მუდმინი ვირტუალური ეკრანის დამატება (WxH or WxH@R)"
 
-#: src/core/meta-context-main.c:393
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "პროგრამისტების ნაკრების გაშვება"
 
-#: src/core/meta-context-main.c:404
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "წარმადობის პროფილირება ტრეისის ინსტრუმენტებით"
 
-#: src/core/meta-context-main.c:410
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "გამართვის კონტროლის D-Bus-ის ინტერფეისის ჩართვა"
 
@@ -869,14 +872,14 @@ msgstr "ეკრანს \"%s\" უკვე აქვს ფანჯრე�
 msgid "Failed to open X Window System display “%s”"
 msgstr "ფანჯრების X სისტემის ეკრანის (%s) გახსნის შეცდომა"
 
-#: src/x11/meta-x11-display.c:1320
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "ასლი \"%d\" ეკრანზე \"%s\" არასწორია"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2509
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -892,6 +895,9 @@ msgstr "ფორმატი მხარდაუჭერელია: %s"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s-ზე)"
+
+#~ msgid "_Resizable"
+#~ msgstr "შეცვლადი _ზომით"
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "ფანჯრების გაშვებული მმართველის შეცვლა"
