@@ -1204,7 +1204,7 @@ meta_wayland_pointer_get_relative_coordinates (MetaWaylandPointer *pointer,
   meta_wayland_surface_get_relative_coordinates (surface, pos.x, pos.y, x, y);
 }
 
-void
+static void
 meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer)
 {
   MetaBackend *backend = backend_from_pointer (pointer);

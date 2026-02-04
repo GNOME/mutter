@@ -94,8 +94,6 @@ void meta_wayland_relative_pointer_init (MetaWaylandCompositor *compositor);
 
 MetaWaylandSeat *meta_wayland_pointer_get_seat (MetaWaylandPointer *pointer);
 
-void meta_wayland_pointer_update_cursor_surface (MetaWaylandPointer *pointer);
-
 MetaWaylandSurface * meta_wayland_pointer_get_current_surface (MetaWaylandPointer *pointer);
 
 META_EXPORT_TEST
