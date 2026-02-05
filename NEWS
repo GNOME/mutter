@@ -1,3 +1,19 @@
+49.4
+====
+* Fix applying initial display scaling on xorg [mohansur; !4834, !4876]
+* Disable tone mapping with HDR [Michel; !4902]
+* Allow creating uninhibitable idle watches [Sebastian; !4422]
+* Fix screen sharing of monitors with no framerate [Jonas; !4881]
+* Fixed crashes [Jonas, Carlos; !4843, !4886]
+* Misc. bug fixes and cleanups [Robert; !4878]
+
+Contributors:
+  Michel Dänzer, Carlos Garnacho, Sebastian Keller, Robert Mader, mohansur,
+  Jonas Ådahl
+
+Translators:
+  Antonio Marin [ro], Andika Triwidada [id], Daniel Rusek [cs]
+
 49.3
 ====
 * Fix direct scanout on drivers without explicit modifiers [Mario; !4776]
