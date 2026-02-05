@@ -37,7 +37,7 @@ struct _MetaWaylandPopupSurfaceInterface
 
   void (*done) (MetaWaylandPopupSurface *popup_surface);
   void (*dismiss) (MetaWaylandPopupSurface *popup_surface);
-  void (*finish) (MetaWaylandPopupSurface *popup_surface);
+  gboolean (*finish) (MetaWaylandPopupSurface *popup_surface);
   MetaWaylandSurface *(*get_surface) (MetaWaylandPopupSurface *popup_surface);
 };
 
