@@ -220,7 +220,9 @@ meta_wayland_popup_grab_finish (MetaWaylandPopupGrab *grab)
 
       meta_wayland_popup_surface_done (popup_surface);
       meta_wayland_popup_destroy (popup);
-      meta_wayland_popup_surface_finish (popup_surface);
+
+      if (meta_wayland_popup_surface_finish (popup_surface))
+        break;
     }
 }
 
@@ -292,9 +294,7 @@ meta_wayland_popup_dismiss (MetaWaylandPopup *popup)
 
   meta_wayland_popup_destroy (popup);
 
-  if (wl_list_empty (&popup_grab->all_popups))
-    meta_wayland_popup_surface_finish (popup_surface);
-  else
+  if (!meta_wayland_popup_surface_finish (popup_surface))
     meta_wayland_popup_grab_repick_keyboard_focus (popup_grab);
 }
 
