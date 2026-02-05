@@ -1711,7 +1711,7 @@ meta_wayland_xdg_popup_dismiss (MetaWaylandPopupSurface *popup_surface)
   meta_wayland_xdg_popup_unmap (xdg_popup);
 }
 
-static void
+static gboolean
 meta_wayland_xdg_popup_finish (MetaWaylandPopupSurface *popup_surface)
 {
   MetaWaylandXdgPopup *xdg_popup = META_WAYLAND_XDG_POPUP (popup_surface);
@@ -1725,7 +1725,10 @@ meta_wayland_xdg_popup_finish (MetaWaylandPopupSurface *popup_surface)
     {
       meta_wayland_popup_grab_destroy (xdg_shell_client->popup_grab);
       xdg_shell_client->popup_grab = NULL;
+      return TRUE;
     }
+
+  return FALSE;
 }
 
 static MetaWaylandSurface *

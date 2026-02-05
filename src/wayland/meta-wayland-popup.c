@@ -86,10 +86,10 @@ meta_wayland_popup_surface_dismiss (MetaWaylandPopupSurface *popup_surface)
   META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->dismiss (popup_surface);
 }
 
-static void
+static gboolean
 meta_wayland_popup_surface_finish (MetaWaylandPopupSurface *popup_surface)
 {
-  META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->finish (popup_surface);
+  return META_WAYLAND_POPUP_SURFACE_GET_IFACE (popup_surface)->finish (popup_surface);
 }
 
 static MetaWaylandSurface *
