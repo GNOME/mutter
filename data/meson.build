@@ -56,6 +56,13 @@ schema_xmls += configure_file(
   install_dir: schemadir
 )
 
+schema_xmls += configure_file(
+  input: 'org.gnome.mutter.experimental.gschema.xml.in',
+  output: 'org.gnome.mutter.experimental.gschema.xml',
+  configuration: gschema_config,
+  install_dir: schemadir
+)
+
 locally_compiled_schemas_dir = meson.current_build_dir()
 
 locally_compiled_schemas = custom_target(

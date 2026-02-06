@@ -1,0 +1,26 @@
+<schemalist>
+  <schema id="org.gnome.mutter.experimental" path="/org/gnome/mutter/experimental/"
+          gettext-domain="@GETTEXT_DOMAIN@">
+
+    <key name="kms-modifiers" type="b">
+      <default>false</default>
+      <summary>Always allocate scanout buffers with explicit modifiers</summary>
+      <description>
+        When true, mutter will always allocate scanout buffers with explicit
+        modifiers, if supported by the driver.
+        This option requires a restart.
+      </description>
+    </key>
+
+    <key name="autoclose-xwayland" type="b">
+      <default>false</default>
+      <summary>Automatically terminate Xwayland after last client is gone</summary>
+      <description>
+        When true, mutter will automatically terminate Xwayland after the last
+        relevant client is gone.
+        This option requires a restart.
+      </description>
+    </key>
+
+  </schema>
+</schemalist>

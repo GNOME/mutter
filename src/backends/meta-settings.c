@@ -22,6 +22,7 @@
 #include "backends/meta-settings-private.h"
 
 #include <gio/gio.h>
+#include <gio/gsettingsschema.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor-private.h"
@@ -58,9 +59,9 @@ struct _MetaSettings
   MetaBackend *backend;
 
   GSettings *interface_settings;
-  GSettings *mutter_settings;
   GSettings *privacy_settings;
   GSettings *wayland_settings;
+  GSettings *experimental_settings;
 
   int ui_scaling_factor;
   int global_scaling_factor;
@@ -279,76 +280,49 @@ meta_settings_enable_experimental_feature (MetaSettings           *settings,
   settings->experimental_features |= feature;
 }
 
-static gboolean
-experimental_features_handler (GVariant *features_variant,
-                               gpointer *result,
-                               gpointer  data)
+static void
+update_experimental_feature (MetaSettings *settings,
+                             const char   *key)
 {
-  MetaSettings *settings = data;
-  GVariantIter features_iter;
-  char *feature_str;
-  MetaExperimentalFeature features = META_EXPERIMENTAL_FEATURE_NONE;
+  GSettings *experimental_settings = settings->experimental_settings;
+  MetaExperimentalFeature feature = META_EXPERIMENTAL_FEATURE_NONE;
+  gboolean enabled;
 
   if (settings->experimental_features_overridden)
+    return;
+
+  if (g_str_equal (key, "kms-modifiers"))
+    feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
+  else if (g_str_equal (key, "autoclose-xwayland"))
+    feature = META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND;
+
+  if (!feature)
     {
-      *result = GINT_TO_POINTER (FALSE);
-      return TRUE;
+      g_warning ("Unknown experimental feature '%s'", key);
+      return;
     }
 
-  g_variant_iter_init (&features_iter, features_variant);
-  while (g_variant_iter_loop (&features_iter, "s", &feature_str))
-    {
-      MetaExperimentalFeature feature = META_EXPERIMENTAL_FEATURE_NONE;
-
-      if (g_str_equal (feature_str, "kms-modifiers"))
-        feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
-      else if (g_str_equal (feature_str, "autoclose-xwayland"))
-        feature = META_EXPERIMENTAL_FEATURE_AUTOCLOSE_XWAYLAND;
-
-      if (feature)
-        g_message ("Enabling experimental feature '%s'", feature_str);
-      else
-        g_warning ("Unknown experimental feature '%s'", feature_str);
-
-      features |= feature;
-    }
-
-  if (features != settings->experimental_features)
-    {
-      settings->experimental_features = features;
-      *result = GINT_TO_POINTER (TRUE);
-    }
+  enabled = g_settings_get_boolean (experimental_settings, key);
+  if (enabled)
+    settings->experimental_features |= feature;
   else
-    {
-      *result = GINT_TO_POINTER (FALSE);
-    }
-
-  return TRUE;
-}
-
-static gboolean
-update_experimental_features (MetaSettings *settings)
-{
-  return GPOINTER_TO_INT (g_settings_get_mapped (settings->mutter_settings,
-                                                 "experimental-features",
-                                                 experimental_features_handler,
-                                                 settings));
+    settings->experimental_features &= ~feature;
 }
 
 static void
-mutter_settings_changed (GSettings    *mutter_settings,
-                         gchar        *key,
-                         MetaSettings *settings)
+experimental_settings_changed (GSettings    *experimental_settings,
+                               const char   *key,
+                               MetaSettings *settings)
 {
-  if (g_str_equal (key, "experimental-features"))
-    {
-      MetaExperimentalFeature old_experimental_features;
+  MetaExperimentalFeature old_experimental_features;
 
-      old_experimental_features = settings->experimental_features;
-      if (update_experimental_features (settings))
-        g_signal_emit (settings, signals[EXPERIMENTAL_FEATURES_CHANGED], 0,
-                       (unsigned int) old_experimental_features);
-    }
+  old_experimental_features = settings->experimental_features;
+
+  update_experimental_feature (settings, key);
+
+  if (settings->experimental_features != old_experimental_features)
+    g_signal_emit (settings, signals[EXPERIMENTAL_FEATURES_CHANGED], 0,
+                   (unsigned int) old_experimental_features);
 }
 
 static void
@@ -558,10 +532,10 @@ meta_settings_dispose (GObject *object)
 {
   MetaSettings *settings = META_SETTINGS (object);
 
-  g_clear_object (&settings->mutter_settings);
   g_clear_object (&settings->interface_settings);
   g_clear_object (&settings->privacy_settings);
   g_clear_object (&settings->wayland_settings);
+  g_clear_object (&settings->experimental_settings);
   g_clear_pointer (&settings->xwayland_grab_allow_list_patterns,
                    g_ptr_array_unref);
   g_clear_pointer (&settings->xwayland_grab_deny_list_patterns,
@@ -573,7 +547,10 @@ meta_settings_dispose (GObject *object)
 static void
 meta_settings_init (MetaSettings *settings)
 {
+  g_autoptr (GSettingsSchema) experimental_schema = NULL;
+  g_auto (GStrv) experimental_keys = NULL;
   const char *experimental_features_env;
+  int i;
 
   settings->interface_settings = g_settings_new ("org.gnome.desktop.interface");
   g_signal_connect (settings->interface_settings, "changed",
@@ -583,13 +560,17 @@ meta_settings_init (MetaSettings *settings)
   g_signal_connect (settings->privacy_settings, "changed",
                     G_CALLBACK (privacy_settings_changed),
                     settings);
-  settings->mutter_settings = g_settings_new ("org.gnome.mutter");
-  g_signal_connect (settings->mutter_settings, "changed",
-                    G_CALLBACK (mutter_settings_changed),
-                    settings);
   settings->wayland_settings = g_settings_new ("org.gnome.mutter.wayland");
   g_signal_connect (settings->wayland_settings, "changed",
                     G_CALLBACK (wayland_settings_changed),
+                    settings);
+  experimental_schema =
+    g_settings_schema_source_lookup (g_settings_schema_source_get_default (),
+                                     "org.gnome.mutter.experimental", TRUE);
+  settings->experimental_settings =
+    g_settings_new_full (experimental_schema, NULL, NULL);
+  g_signal_connect (settings->experimental_settings, "changed",
+                    G_CALLBACK (experimental_settings_changed),
                     settings);
 
   /* Chain up inter-dependent settings. */
@@ -613,8 +594,11 @@ meta_settings_init (MetaSettings *settings)
                                                  experimental_features);
     }
 
+  experimental_keys = g_settings_schema_list_keys (experimental_schema);
+  for (i = 0; experimental_keys[i]; i++)
+    update_experimental_feature (settings, experimental_keys[i]);
+
   update_global_scaling_factor (settings);
-  update_experimental_features (settings);
   update_xwayland_grab_access_rules (settings);
   update_xwayland_allow_grabs (settings);
   update_xwayland_disable_extensions (settings);

@@ -4,6 +4,7 @@ data/50-mutter-navigation.xml
 data/50-mutter-system.xml
 data/50-mutter-wayland.xml
 data/50-mutter-windows.xml
+data/org.gnome.mutter.experimental.gschema.xml.in
 data/org.gnome.mutter.gschema.xml.in
 data/org.gnome.mutter.wayland.gschema.xml.in
 mdk/mdk-launcher-adder.c

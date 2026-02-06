@@ -101,30 +101,6 @@
       </description>
     </key>
 
-    <key name="experimental-features"
-        flags='org.gnome.mutter.MetaExperimentalFeature'>
-      <default>[]</default>
-      <summary>Enable experimental features</summary>
-      <description>
-        To enable experimental features, add the feature keyword to the list.
-        Whether the feature requires restarting the compositor depends on the
-        given feature. Any experimental feature is not required to still be
-        available, or configurable. Don’t expect adding anything in this
-        setting to be future proof.
-
-        Currently possible keywords:
-
-        • “kms-modifiers”             — makes mutter always allocate scanout
-                                        buffers with explicit modifiers, if
-                                        supported by the driver. Requires a
-                                        restart.
-
-        • “autoclose-xwayland”        — automatically terminates Xwayland if all
-                                        relevant X11 clients are gone.
-                                        Requires a restart.
-      </description>
-    </key>
-
     <key name="locate-pointer-key" type="s">
       <default>'Control_L'</default>
       <summary>Modifier to use to locate the pointer</summary>
