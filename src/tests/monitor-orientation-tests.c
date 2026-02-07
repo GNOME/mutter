@@ -1391,6 +1391,9 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
                                         touch_device);
   g_clear_object (&touch_device);
 
+  g_set_object (&initial_config,
+                meta_monitor_config_manager_get_current (config_manager));
+
   meta_sensors_proxy_mock_wait_accelerometer_claimed (orientation_mock, FALSE);
 
   for (i = META_N_ORIENTATIONS - 1; i > META_ORIENTATION_UNDEFINED; i--)
@@ -1401,9 +1404,10 @@ meta_test_monitor_orientation_changes_for_transformed_panel (void)
       n_monitors_changed = 0;
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
 
+      /* Panel rotation means the logical normal orientation is left-up. */
       META_TEST_LOG_CALL ("Checking configuration per orientation",
                           check_monitor_configuration_per_orientation (
-                            &test_case, 0, META_ORIENTATION_NORMAL,
+                            &test_case, 0, META_ORIENTATION_LEFT_UP,
                             1024, 768));
 
       current = meta_monitor_config_manager_get_current (config_manager);
