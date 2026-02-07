@@ -563,6 +563,10 @@ needs_tone_mapping (const ClutterLuminance *lum,
       target_lum->ref <= target_lum->max)
     return FALSE;
 
+  /* No tone mapping with HDR enabled for now */
+  if (target_lum->max > target_lum->ref)
+    return FALSE;
+
   ratio = (float) lum->max / lum->ref;
   target_ratio = (float) target_lum->max / target_lum->ref;
 
