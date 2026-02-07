@@ -1143,17 +1143,19 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
   MetaOrientationManager *orientation_manager;
   ClutterBackend *clutter_backend;
   ClutterSeat *seat;
+  MetaMonitor *builtin_monitor;
   gboolean panel_orientation_managed;
 
   clutter_backend = meta_backend_get_clutter_backend (manager->backend);
   seat = clutter_backend_get_default_seat (clutter_backend);
 
   orientation_manager = meta_backend_get_orientation_manager (manager->backend);
+  builtin_monitor = meta_monitor_manager_get_builtin_monitor (manager);
 
   panel_orientation_managed =
     (clutter_seat_get_touch_mode (seat) &&
      meta_orientation_manager_has_accelerometer (orientation_manager) &&
-     meta_monitor_manager_get_builtin_monitor (manager));
+     builtin_monitor);
 
   if (manager->panel_orientation_managed == panel_orientation_managed)
     return;
@@ -1179,13 +1181,16 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
 
       if (current_config)
         {
+          MtkMonitorTransform transform = MTK_MONITOR_TRANSFORM_NORMAL;
           g_autoptr (MetaMonitorsConfig) config = NULL;
           g_autoptr (GError) error = NULL;
 
+          if (builtin_monitor)
+            transform = meta_monitor_logical_to_crtc_transform (builtin_monitor, transform);
+
           config =
             meta_monitor_config_manager_create_for_orientation (manager->config_manager,
-                                                                current_config,
-                                                                MTK_MONITOR_TRANSFORM_NORMAL);
+                                                                current_config, transform);
 
           if (config)
             {
