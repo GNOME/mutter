@@ -541,6 +541,7 @@ meta_output_get_color_metadata (MetaOutput            *output,
   switch (priv->color_mode)
     {
     case META_COLOR_MODE_DEFAULT:
+    case META_COLOR_MODE_SDR_NATIVE:
       *hdr_metadata = (MetaOutputHdrMetadata) {
         .active = FALSE
       };

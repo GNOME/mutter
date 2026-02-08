@@ -103,12 +103,14 @@ class LayoutMode(NamedEnum):
 class ColorMode(NamedEnum):
     DEFAULT = 0
     BT2100 = 1
+    SDR_NATIVE = 2
 
     @classmethod
     def enum_names(cls):
         return [
             (ColorMode.DEFAULT, "default"),
             (ColorMode.BT2100, "bt2100"),
+            (ColorMode.SDR_NATIVE, "sdr-native"),
         ]
 
 

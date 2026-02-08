@@ -224,6 +224,16 @@ meta_monitor_init_supported_color_modes (MetaMonitor *monitor)
   priv->color_modes =
     g_list_append (NULL, GINT_TO_POINTER (META_COLOR_MODE_DEFAULT));
 
+  if (output_info->edid_info &&
+      output_info->edid_info->default_gamma > 0.0 &&
+      output_info->edid_info->default_color_primaries.has_primaries &&
+      output_info->edid_info->default_color_primaries.has_default_white_point)
+    {
+      priv->color_modes =
+        g_list_append (priv->color_modes,
+                       GINT_TO_POINTER (META_COLOR_MODE_SDR_NATIVE));
+    }
+
   if ((output_info->supported_color_spaces &
        (1 << META_OUTPUT_COLORSPACE_BT2020)) &&
       (output_info->supported_hdr_eotfs &

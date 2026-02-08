@@ -2072,6 +2072,11 @@ handle_text (GMarkupParseContext *context,
             parser->current_monitor_config->color_mode =
               META_COLOR_MODE_DEFAULT;
           }
+        else if (text_equals (text, text_len, "sdr-native"))
+          {
+            parser->current_monitor_config->color_mode =
+              META_COLOR_MODE_SDR_NATIVE;
+          }
         else if (text_equals (text, text_len, "bt2100"))
           {
             parser->current_monitor_config->color_mode =
@@ -2271,6 +2276,9 @@ append_color_mode (GString       *buffer,
     case META_COLOR_MODE_DEFAULT:
     default:
       return;
+    case META_COLOR_MODE_SDR_NATIVE:
+      color_mode_str = "sdr-native";
+      break;
     }
 
   g_string_append_printf (buffer, "%s<colormode>%s</colormode>\n",

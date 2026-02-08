@@ -144,8 +144,8 @@ MONITOR OPTIONS
 
 ``--color-mode COLOR-MODE``, ``-c COLOR-MODE``
 
-  Set the color mode of the monitor. Available color modes are ``default`` and
-  ``bt2100``.
+  Set the color mode of the monitor. Available color modes are ``default``,
+  ``sdr-native`` and ``bt2100``.
 
 
 ``--rgb-range RGB-RANGE``, ``-r RGB-RANGE``

@@ -46,6 +46,7 @@ enum _MetaColorMode
 {
   META_COLOR_MODE_DEFAULT = 0,
   META_COLOR_MODE_BT2100 = 1,
+  META_COLOR_MODE_SDR_NATIVE = 2,
 };
 
 typedef enum _MetaOutputRGBRange
