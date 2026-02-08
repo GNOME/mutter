@@ -475,21 +475,18 @@ chromaticity_equal (float x1,
 }
 
 static gboolean
-colorimetry_equal (ClutterColorStateParams *color_state_params,
-                   ClutterColorStateParams *other_color_state_params)
+colorimetry_equal (const ClutterColorimetry *colorimetry,
+                   const ClutterColorimetry *other_colorimetry)
 {
   const ClutterPrimaries *primaries;
   const ClutterPrimaries *other_primaries;
 
-  if (color_state_params->colorimetry.type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE &&
-      other_color_state_params->colorimetry.type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE)
-    {
-      return color_state_params->colorimetry.colorspace ==
-             other_color_state_params->colorimetry.colorspace;
-    }
+  if (colorimetry->type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE &&
+      other_colorimetry->type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE)
+    return colorimetry->colorspace == other_colorimetry->colorspace;
 
-  primaries = get_primaries (&color_state_params->colorimetry);
-  other_primaries = get_primaries (&other_color_state_params->colorimetry);
+  primaries = get_primaries (colorimetry);
+  other_primaries = get_primaries (other_colorimetry);
 
   return chromaticity_equal (primaries->r_x, primaries->r_y,
                              other_primaries->r_x, other_primaries->r_y) &&
@@ -605,8 +602,9 @@ clutter_color_state_params_init_color_transform_key (ClutterColorState          
   key->source_eotf_bits = get_eotf_key (color_state_params->eotf);
   key->target_eotf_bits = get_eotf_key (target_color_state_params->eotf);
   key->luminance_bit = needs_lum_mapping (lum, target_lum) ? 1 : 0;
-  key->color_trans_bit = colorimetry_equal (color_state_params,
-                                            target_color_state_params) ? 0 : 1;
+  key->color_trans_bit =
+    colorimetry_equal (&color_state_params->colorimetry,
+                       &target_color_state_params->colorimetry) ? 0 : 1;
   key->tone_mapping_bit = needs_tone_mapping (lum, target_lum) ? 1 : 0;
   key->lut_3d = 0;
   key->opaque_bit = !!(flags & CLUTTER_COLOR_STATE_TRANSFORM_OPAQUE);
@@ -1014,7 +1012,8 @@ get_color_space_mapping_snippet (ClutterColorStateParams      *color_state_param
                                  ClutterColorStateParams      *target_color_state_params,
                                  const ClutterColorOpSnippet **color_space_mapping_snippet)
 {
-  if (colorimetry_equal (color_state_params, target_color_state_params))
+  if (colorimetry_equal (&color_state_params->colorimetry,
+                         &target_color_state_params->colorimetry))
     return;
 
   *color_space_mapping_snippet = &color_space_mapping;
@@ -1588,7 +1587,8 @@ update_color_space_mapping_uniforms (ClutterColorStateParams *color_state_params
   float matrix[16];
   int uniform_location_color_space_mapping;
 
-  if (colorimetry_equal (color_state_params, target_color_state_params))
+  if (colorimetry_equal (&color_state_params->colorimetry,
+                         &target_color_state_params->colorimetry))
     return;
 
   clutter_color_state_params_get_color_space_mapping (color_state_params,
@@ -2033,7 +2033,8 @@ clutter_color_state_params_equals (ClutterColorState *color_state,
     CLUTTER_COLOR_STATE_PARAMS (other_color_state);
   const ClutterLuminance *lum, *target_lum;
 
-  if (!colorimetry_equal (color_state_params, other_color_state_params) ||
+  if (!colorimetry_equal (&color_state_params->colorimetry,
+                          &other_color_state_params->colorimetry) ||
       !eotf_equal (&color_state_params->eotf, &other_color_state_params->eotf))
     return FALSE;
 
@@ -2054,7 +2055,8 @@ clutter_color_state_params_needs_mapping (ClutterColorState *color_state,
     CLUTTER_COLOR_STATE_PARAMS (target_color_state);
   const ClutterLuminance *lum, *target_lum;
 
-  if (!colorimetry_equal (color_state_params, target_color_state_params) ||
+  if (!colorimetry_equal (&color_state_params->colorimetry,
+                          &target_color_state_params->colorimetry) ||
       !eotf_equal (&color_state_params->eotf, &target_color_state_params->eotf))
     return TRUE;
 
