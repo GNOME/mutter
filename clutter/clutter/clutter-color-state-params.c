@@ -504,23 +504,16 @@ colorimetry_equal (ClutterColorStateParams *color_state_params,
 }
 
 static gboolean
-eotf_equal (ClutterColorStateParams *color_state_params,
-            ClutterColorStateParams *other_color_state_params)
+eotf_equal (const ClutterEOTF *eotf,
+            const ClutterEOTF *other_eotf)
 {
-  if (color_state_params->eotf.type == CLUTTER_EOTF_TYPE_NAMED &&
-      other_color_state_params->eotf.type == CLUTTER_EOTF_TYPE_NAMED)
-    {
-      return color_state_params->eotf.tf_name ==
-             other_color_state_params->eotf.tf_name;
-    }
+  if (eotf->type == CLUTTER_EOTF_TYPE_NAMED &&
+      other_eotf->type == CLUTTER_EOTF_TYPE_NAMED)
+    return eotf->tf_name == other_eotf->tf_name;
 
-  if (color_state_params->eotf.type == CLUTTER_EOTF_TYPE_GAMMA &&
-      other_color_state_params->eotf.type == CLUTTER_EOTF_TYPE_GAMMA)
-    {
-      return G_APPROX_VALUE (color_state_params->eotf.gamma_exp,
-                             other_color_state_params->eotf.gamma_exp,
-                             0.0001f);
-    }
+  if (eotf->type == CLUTTER_EOTF_TYPE_GAMMA &&
+      other_eotf->type == CLUTTER_EOTF_TYPE_GAMMA)
+    return G_APPROX_VALUE (eotf->gamma_exp, other_eotf->gamma_exp, 0.0001f);
 
   return FALSE;
 }
@@ -2038,7 +2031,7 @@ clutter_color_state_params_equals (ClutterColorState *color_state,
   const ClutterLuminance *lum, *target_lum;
 
   if (!colorimetry_equal (color_state_params, other_color_state_params) ||
-      !eotf_equal (color_state_params, other_color_state_params))
+      !eotf_equal (&color_state_params->eotf, &other_color_state_params->eotf))
     return FALSE;
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
@@ -2059,7 +2052,7 @@ clutter_color_state_params_needs_mapping (ClutterColorState *color_state,
   const ClutterLuminance *lum, *target_lum;
 
   if (!colorimetry_equal (color_state_params, target_color_state_params) ||
-      !eotf_equal (color_state_params, target_color_state_params))
+      !eotf_equal (&color_state_params->eotf, &target_color_state_params->eotf))
     return TRUE;
 
   lum = clutter_color_state_params_get_luminance (color_state_params);
