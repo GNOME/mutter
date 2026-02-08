@@ -2150,22 +2150,25 @@ clutter_color_state_params_get_blending (ClutterColorState *color_state,
   ClutterEOTF blending_eotf;
   ClutterLuminance luminance, blending_luminance;
 
-  blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
+  blending_colorimetry = color_state_params->colorimetry;
+  blending_eotf = color_state_params->eotf;
 
   if (force_linear)
     {
-      blending_colorimetry = color_state_params->colorimetry;
+      blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
       blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
     }
-  else
+  else if (blending_eotf.type == CLUTTER_EOTF_TYPE_NAMED &&
+           blending_eotf.tf_name == CLUTTER_TRANSFER_FUNCTION_PQ)
     {
-      blending_colorimetry.type = CLUTTER_COLORIMETRY_TYPE_COLORSPACE;
       blending_colorimetry.colorspace = CLUTTER_COLORSPACE_SRGB;
+      blending_eotf.type = CLUTTER_EOTF_TYPE_NAMED;
       blending_eotf.tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
     }
 
-  if (color_state_params->eotf.type == CLUTTER_EOTF_TYPE_NAMED &&
-      color_state_params->eotf.tf_name == blending_eotf.tf_name)
+  if (eotf_equal (&blending_eotf, &color_state_params->eotf) &&
+      colorimetry_equal (&blending_colorimetry,
+                         &color_state_params->colorimetry))
     return g_object_ref (color_state);
 
   luminance = *clutter_color_state_params_get_luminance (color_state_params);
