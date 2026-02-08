@@ -447,16 +447,14 @@ clutter_color_state_params_finalize (GObject *object)
 }
 
 static const ClutterPrimaries *
-get_primaries (ClutterColorStateParams *color_state_params)
+get_primaries (const ClutterColorimetry *colorimetry)
 {
-  ClutterColorimetry colorimetry = color_state_params->colorimetry;
-
-  switch (colorimetry.type)
+  switch (colorimetry->type)
     {
     case CLUTTER_COLORIMETRY_TYPE_COLORSPACE:
-      return clutter_colorspace_to_primaries (colorimetry.colorspace);
+      return clutter_colorspace_to_primaries (colorimetry->colorspace);
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
-      return colorimetry.primaries;
+      return colorimetry->primaries;
     }
 
   g_warning ("Unhandled colorimetry when getting primaries");
@@ -490,8 +488,8 @@ colorimetry_equal (ClutterColorStateParams *color_state_params,
              other_color_state_params->colorimetry.colorspace;
     }
 
-  primaries = get_primaries (color_state_params);
-  other_primaries = get_primaries (other_color_state_params);
+  primaries = get_primaries (&color_state_params->colorimetry);
+  other_primaries = get_primaries (&other_color_state_params->colorimetry);
 
   return chromaticity_equal (primaries->r_x, primaries->r_y,
                              other_primaries->r_x, other_primaries->r_y) &&
@@ -1203,7 +1201,8 @@ static void
 get_to_XYZ (ClutterColorStateParams *color_state_params,
             graphene_matrix_t       *to_XYZ)
 {
-  const ClutterPrimaries *primaries = get_primaries (color_state_params);
+  const ClutterPrimaries *primaries =
+    get_primaries (&color_state_params->colorimetry);
   graphene_matrix_t coefficients_mat;
   graphene_matrix_t inv_primaries_mat;
   graphene_matrix_t primaries_mat;
@@ -1333,7 +1332,8 @@ get_to_D50 (ClutterColorStateParams *color_state_params,
 {
   graphene_vec3_t D50_XYZ;
   graphene_vec3_t white_point_XYZ;
-  const ClutterPrimaries *primaries = get_primaries (color_state_params);
+  const ClutterPrimaries *primaries =
+    get_primaries (&color_state_params->colorimetry);
 
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
   graphene_vec3_init (&D50_XYZ, D50_X, D50_Y, D50_Z);
@@ -1347,7 +1347,8 @@ get_from_D50 (ClutterColorStateParams *color_state_params,
 {
   graphene_vec3_t D50_XYZ;
   graphene_vec3_t white_point_XYZ;
-  const ClutterPrimaries *primaries = get_primaries (color_state_params);
+  const ClutterPrimaries *primaries =
+    get_primaries (&color_state_params->colorimetry);
 
   graphene_vec3_init (&D50_XYZ, D50_X, D50_Y, D50_Z);
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
@@ -1361,7 +1362,8 @@ get_to_D65 (ClutterColorStateParams *color_state_params,
 {
   graphene_vec3_t D65_XYZ;
   graphene_vec3_t white_point_XYZ;
-  const ClutterPrimaries *primaries = get_primaries (color_state_params);
+  const ClutterPrimaries *primaries =
+    get_primaries (&color_state_params->colorimetry);
 
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
   graphene_vec3_init (&D65_XYZ, D65_X, D65_Y, D65_Z);
@@ -1375,7 +1377,8 @@ get_from_D65 (ClutterColorStateParams *color_state_params,
 {
   graphene_vec3_t D65_XYZ;
   graphene_vec3_t white_point_XYZ;
-  const ClutterPrimaries *primaries = get_primaries (color_state_params);
+  const ClutterPrimaries *primaries =
+    get_primaries (&color_state_params->colorimetry);
 
   graphene_vec3_init (&D65_XYZ, D65_X, D65_Y, D65_Z);
   xyY_to_XYZ (primaries->w_x, primaries->w_y, 1.0f, &white_point_XYZ);
