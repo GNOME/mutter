@@ -475,6 +475,20 @@ chromaticity_equal (float x1,
 }
 
 static gboolean
+primaries_equal (const ClutterPrimaries *primaries,
+                 const ClutterPrimaries *other_primaries)
+{
+  return chromaticity_equal (primaries->r_x, primaries->r_y,
+                             other_primaries->r_x, other_primaries->r_y) &&
+         chromaticity_equal (primaries->g_x, primaries->g_y,
+                             other_primaries->g_x, other_primaries->g_y) &&
+         chromaticity_equal (primaries->b_x, primaries->b_y,
+                             other_primaries->b_x, other_primaries->b_y) &&
+         chromaticity_equal (primaries->w_x, primaries->w_y,
+                             other_primaries->w_x, other_primaries->w_y);
+}
+
+static gboolean
 colorimetry_equal (const ClutterColorimetry *colorimetry,
                    const ClutterColorimetry *other_colorimetry)
 {
@@ -487,15 +501,7 @@ colorimetry_equal (const ClutterColorimetry *colorimetry,
 
   primaries = get_primaries (colorimetry);
   other_primaries = get_primaries (other_colorimetry);
-
-  return chromaticity_equal (primaries->r_x, primaries->r_y,
-                             other_primaries->r_x, other_primaries->r_y) &&
-         chromaticity_equal (primaries->g_x, primaries->g_y,
-                             other_primaries->g_x, other_primaries->g_y) &&
-         chromaticity_equal (primaries->b_x, primaries->b_y,
-                             other_primaries->b_x, other_primaries->b_y) &&
-         chromaticity_equal (primaries->w_x, primaries->w_y,
-                             other_primaries->w_x, other_primaries->w_y);
+  return primaries_equal (primaries, other_primaries);
 }
 
 static gboolean
@@ -2312,7 +2318,7 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
                                                 ClutterLuminance    luminance)
 {
   ClutterColorspace colorspace;
-  ClutterPrimaries *primaries;
+  ClutterPrimaries *primaries = NULL;
   ClutterTransferFunction tf_name;
   float gamma_exp;
 
@@ -2324,7 +2330,8 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
       break;
     case CLUTTER_COLORIMETRY_TYPE_PRIMARIES:
       colorspace = CLUTTER_COLORSPACE_SRGB;
-      primaries = colorimetry.primaries;
+      if (!primaries_equal (colorimetry.primaries, &srgb_primaries))
+        primaries = colorimetry.primaries;
       break;
     }
 
