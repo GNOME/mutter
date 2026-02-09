@@ -434,7 +434,8 @@ maybe_update_longterm_max_duration_us (ClutterFrameClock *frame_clock,
          frame_clock->shortterm_max_update_duration_us) / 2;
 
       CLUTTER_NOTE (FRAME_TIMINGS,
-                    "Maximum update duration estimate updated: %ldµs → %ldµs",
+                    "%s maximum update duration updated: %ldµs → %ldµs",
+                    frame_clock->output_name,
                     old_duration_us,
                     frame_clock->longterm_max_update_duration_us);
     }
@@ -579,9 +580,11 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
         }
 
       CLUTTER_NOTE (FRAME_TIMINGS,
-                    "%s %s buffering: Dispatch %ld%+04ld µs, "
+                    "%s %s %s buffering: Frame %ld dispatch %ld%+04ld µs, "
                     "%3ld µs to flip / %4ld µs %s",
+                    frame_clock->output_name,
                     frr_or_vrr, double_or_triple,
+                    frame_info->view_frame_counter,
                     dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us,
                     to_flip_us, to_kms_ready_us, ready_name);
@@ -598,7 +601,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       if (frame_clock->shortterm_max_update_duration_us > max_duration_us)
         {
           CLUTTER_NOTE (FRAME_TIMINGS,
-                        "Maximum update duration estimate updated: %ldµs → %ldµs",
+                        "%s maximum update duration updated: %ldµs → %ldµs",
+                        frame_clock->output_name,
                         max_duration_us,
                         frame_clock->shortterm_max_update_duration_us);
         }
@@ -610,8 +614,11 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     }
   else
     {
-      CLUTTER_NOTE (FRAME_TIMINGS, "%s %s buffering: Dispatch %ld%+04ld µs",
+      CLUTTER_NOTE (FRAME_TIMINGS,
+                    "%s %s %s buffering: Frame %ld dispatch %ld%+04ld µs",
+                    frame_clock->output_name,
                     frr_or_vrr, double_or_triple,
+                    frame_info->view_frame_counter,
                     dispatch_time_us - presented_frame->dispatch_lateness_us,
                     presented_frame->dispatch_lateness_us);
     }
@@ -630,7 +637,10 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       if (frame_clock->mode == CLUTTER_FRAME_CLOCK_MODE_VARIABLE)
         {
           CLUTTER_NOTE (FRAME_TIMINGS,
-                        "Frame presented %4" G_GINT64_FORMAT "µs %s",
+                        "%s frame %ld presented at %ld, %4" G_GINT64_FORMAT "µs %s",
+                        frame_clock->output_name,
+                        frame_info->view_frame_counter,
+                        frame_info->presentation_time,
                         (int64_t)llabs (diff_us),
                         diff_us > 0 ? "late" : "early");
         }
@@ -644,13 +654,24 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
           if (n_missed_cycles)
             {
               CLUTTER_NOTE (FRAME_TIMINGS,
-                            "Frame presented %5" G_GINT64_FORMAT "µs "
+                            "%s frame %ld presented at %ld, %5" G_GINT64_FORMAT "µs "
                             "(%d refresh cycle%s) %s",
+                            frame_clock->output_name,
+                            frame_info->view_frame_counter,
+                            frame_info->presentation_time,
                             (int64_t)llabs (diff_us), n_missed_cycles,
                             n_missed_cycles > 1 ? "s" : "",
                             diff_us > 0 ? "late" : "early");
             }
         }
+    }
+  else if (frame_info->presentation_time > 0)
+    {
+      CLUTTER_NOTE (FRAME_TIMINGS,
+                    "%s frame %ld presented at %ld",
+                    frame_clock->output_name,
+                    frame_info->view_frame_counter,
+                    frame_info->presentation_time);
     }
 
   if (frame_info->refresh_rate > 1.0)
