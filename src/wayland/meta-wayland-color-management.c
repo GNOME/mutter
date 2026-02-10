@@ -1755,6 +1755,17 @@ color_manager_create_windows_scrgb (struct wl_client   *client,
 }
 
 static void
+color_manager_get_image_description (struct wl_client   *client,
+                                     struct wl_resource *resource,
+                                     uint32_t            image_description,
+                                     struct wl_resource *reference)
+{
+  /* We do not support any other protocol which creates objects of the
+   * wp_image_description_reference_v1 interface, so this won't be reached */
+  g_assert_not_reached ();
+}
+
+static void
 color_manager_send_supported_events (struct wl_resource *resource)
 {
   wp_color_manager_v1_send_supported_intent (resource,
@@ -1816,6 +1827,7 @@ static const struct wp_color_manager_v1_interface
   color_manager_create_icc_creator,
   color_manager_create_parametric_creator,
   color_manager_create_windows_scrgb,
+  color_manager_get_image_description,
 };
 
 static void
