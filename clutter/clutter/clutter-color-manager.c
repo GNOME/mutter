@@ -46,7 +46,7 @@ struct _ClutterColorManager
   ClutterContext *context;
 
   GHashTable *snippet_cache;
-  unsigned int id_counter;
+  uint64_t id_counter;
   ClutterColorState *default_color_state;
 };
 
@@ -138,7 +138,7 @@ clutter_color_manager_init (ClutterColorManager *color_manager)
                            g_object_unref);
 }
 
-unsigned int
+uint64_t
 clutter_color_manager_get_next_id (ClutterColorManager *color_manager)
 {
   return ++color_manager->id_counter;

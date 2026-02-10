@@ -101,7 +101,7 @@ CLUTTER_EXPORT
 char * clutter_color_state_to_string (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
-unsigned int clutter_color_state_get_id (ClutterColorState *color_state);
+uint64_t clutter_color_state_get_id (ClutterColorState *color_state);
 
 CLUTTER_EXPORT
 void clutter_color_state_add_pipeline_transform (ClutterColorState               *color_state,

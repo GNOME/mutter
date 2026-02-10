@@ -2082,14 +2082,14 @@ clutter_color_state_params_to_string (ClutterColorState *color_state)
   g_autofree char *primaries_name = NULL;
   const char *transfer_function_name;
   const ClutterLuminance *lum;
-  unsigned int id;
+  uint64_t id;
 
   id = clutter_color_state_get_id (color_state);
   primaries_name = clutter_colorimetry_to_string (color_state_params->colorimetry);
   transfer_function_name = clutter_eotf_to_string (color_state_params->eotf);
   lum = clutter_color_state_params_get_luminance (color_state_params);
 
-  return g_strdup_printf ("ClutterColorState %d "
+  return g_strdup_printf ("ClutterColorState %" G_GUINT64_FORMAT " "
                           "(primaries: %s, transfer function: %s, "
                           "min lum: %f, max lum: %f, ref lum: %f, "
                           "mastering max lum: %f)",

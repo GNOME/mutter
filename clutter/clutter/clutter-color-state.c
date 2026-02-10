@@ -80,7 +80,7 @@ typedef struct _ClutterColorStatePrivate
 {
   ClutterContext *context;
 
-  unsigned int id;
+  uint64_t id;
 } ClutterColorStatePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterColorState,
@@ -159,7 +159,7 @@ clutter_color_transform_key_init (ClutterColorTransformKey        *key,
                                                key);
 }
 
-unsigned int
+uint64_t
 clutter_color_state_get_id (ClutterColorState *color_state)
 {
   ClutterColorStatePrivate *priv;
