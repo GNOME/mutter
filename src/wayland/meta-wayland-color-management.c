@@ -380,6 +380,23 @@ meta_wayland_image_description_new_failed (MetaWaylandColorManager            *c
   return image_desc;
 }
 
+static void
+meta_wayland_image_description_send_ready (MetaWaylandImageDescription *image_desc)
+{
+  uint64_t id = clutter_color_state_get_id (image_desc->color_state);
+
+  if (wl_resource_get_version (image_desc->resource) >= 2)
+    {
+      wp_image_description_v1_send_ready2 (image_desc->resource,
+                                           (uint32_t) (id >> 32),
+                                           (uint32_t) (id));
+    }
+  else
+    {
+      wp_image_description_v1_send_ready (image_desc->resource, id);
+    }
+}
+
 static MetaWaylandImageDescription *
 meta_wayland_image_description_new_color_state (MetaWaylandColorManager          *color_manager,
                                                 struct wl_resource               *resource,
@@ -392,8 +409,7 @@ meta_wayland_image_description_new_color_state (MetaWaylandColorManager         
   image_desc->state = META_WAYLAND_IMAGE_DESCRIPTION_STATE_READY;
   image_desc->has_info = !!(flags & META_WAYLAND_IMAGE_DESCRIPTION_FLAGS_ALLOW_INFO);
   image_desc->color_state = g_object_ref (color_state);
-  wp_image_description_v1_send_ready (resource,
-                                      clutter_color_state_get_id (color_state));
+  meta_wayland_image_description_send_ready (image_desc);
 
   return image_desc;
 }
@@ -605,6 +621,7 @@ update_preferred_color_state (MetaWaylandColorManagementSurface *cm_surface)
   ClutterColorState *color_state = NULL;
   GList *l;
   gboolean initial = !cm_surface->preferred_color_state;
+  uint64_t id;
 
   g_return_if_fail (surface != NULL);
 
@@ -637,12 +654,22 @@ update_preferred_color_state (MetaWaylandColorManagementSurface *cm_surface)
   if (initial)
     return;
 
+  id = clutter_color_state_get_id (color_state);
+
   for (l = cm_surface->feedback_resources; l; l = l->next)
     {
       struct wl_resource *resource = l->data;
 
-      wp_color_management_surface_feedback_v1_send_preferred_changed (resource,
-                                                                      clutter_color_state_get_id (color_state));
+      if (wl_resource_get_version (resource) >= 2)
+        {
+          wp_color_management_surface_feedback_v1_send_preferred_changed2 (resource,
+                                                                           (uint32_t) (id >> 32),
+                                                                           (uint32_t) (id));
+        }
+      else
+        {
+          wp_color_management_surface_feedback_v1_send_preferred_changed (resource, id);
+        }
     }
 }
 
