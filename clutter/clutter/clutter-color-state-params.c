@@ -231,7 +231,7 @@ clutter_eotf_apply_gamma22_inv (float input)
 }
 
 static float
-clutter_eotf_do_apply_srgb (float input)
+clutter_eotf_apply_srgb (float input)
 {
   if (input <= 0.04045f)
     return input / 12.92f;
@@ -240,30 +240,12 @@ clutter_eotf_do_apply_srgb (float input)
 }
 
 static float
-clutter_eotf_apply_srgb (float input)
-{
-  if (input < 0.0f)
-    return -clutter_eotf_do_apply_srgb (-input);
-
-  return clutter_eotf_do_apply_srgb (input);
-}
-
-static float
-clutter_eotf_do_apply_srgb_inv (float input)
+clutter_eotf_apply_srgb_inv (float input)
 {
   if (input <= 0.0031308f)
     return input * 12.92f;
   else
     return powf (input, (5.0f / 12.0f)) * 1.055f - 0.055f;
-}
-
-static float
-clutter_eotf_apply_srgb_inv (float input)
-{
-  if (input < 0.0f)
-    return -clutter_eotf_do_apply_srgb_inv (-input);
-
-  return clutter_eotf_do_apply_srgb_inv (input);
 }
 
 static float
@@ -675,12 +657,10 @@ static const char srgb_eotf_source[] =
   "// Returns: Normalized tristimulus values ([0,1])\n"
   "vec3 srgb_eotf (vec3 color)\n"
   "{\n"
-  "  vec3 vsign = sign (color);\n"
-  "  color = abs (color);\n"
   "  vec3 is_low = vec3 (lessThanEqual (color, vec3 (0.04045)));\n"
   "  vec3 lo_part = color / 12.92;\n"
   "  vec3 hi_part = pow ((color + 0.055) / 1.055, vec3 (12.0 / 5.0));\n"
-  "  return vsign * mix (hi_part, lo_part, is_low);\n"
+  "  return mix (hi_part, lo_part, is_low);\n"
   "}\n"
   "\n"
   "vec4 srgb_eotf (vec4 color)\n"
@@ -694,13 +674,11 @@ static const char srgb_inv_eotf_source[] =
   "// Returns: Normalized ([0,1]) electrical signal value\n"
   "vec3 srgb_inv_eotf (vec3 color)\n"
   "{\n"
-  "  vec3 vsign = sign (color);\n"
-  "  color = abs (color);\n"
   "  vec3 is_lo = vec3 (lessThanEqual (color, vec3 (0.0031308)));\n"
   "\n"
   "  vec3 lo_part = color * 12.92;\n"
   "  vec3 hi_part = pow (color, vec3 (5.0 / 12.0)) * 1.055 - 0.055;\n"
-  "  return vsign * mix (hi_part, lo_part, is_lo);\n"
+  "  return mix (hi_part, lo_part, is_lo);\n"
   "}\n"
   "\n"
   "vec4 srgb_inv_eotf (vec4 color)\n"
