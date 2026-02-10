@@ -111,8 +111,8 @@ clutter_eotf_to_string (ClutterEOTF eotf)
     case CLUTTER_EOTF_TYPE_NAMED:
       switch (eotf.tf_name)
         {
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
-          return "sRGB";
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
+          return "sRGB piece-wise";
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return "gamma 2.2";
         case CLUTTER_TRANSFER_FUNCTION_PQ:
@@ -195,7 +195,7 @@ clutter_eotf_get_default_luminance (ClutterEOTF eotf)
     case CLUTTER_EOTF_TYPE_NAMED:
       switch (eotf.tf_name)
         {
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
         case CLUTTER_TRANSFER_FUNCTION_LINEAR:
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return &sdr_default_luminance;
@@ -231,7 +231,7 @@ clutter_eotf_apply_gamma22_inv (float input)
 }
 
 static float
-clutter_eotf_apply_srgb (float input)
+clutter_eotf_apply_srgb_piecewise (float input)
 {
   if (input <= 0.04045f)
     return input / 12.92f;
@@ -240,7 +240,7 @@ clutter_eotf_apply_srgb (float input)
 }
 
 static float
-clutter_eotf_apply_srgb_inv (float input)
+clutter_eotf_apply_srgb_piecewise_inv (float input)
 {
   if (input <= 0.0031308f)
     return input * 12.92f;
@@ -316,8 +316,8 @@ clutter_eotf_apply (ClutterEOTF eotf,
         {
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return clutter_eotf_apply_gamma22 (input);
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
-          return clutter_eotf_apply_srgb (input);
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
+          return clutter_eotf_apply_srgb_piecewise (input);
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return clutter_eotf_apply_pq (input);
         case CLUTTER_TRANSFER_FUNCTION_BT1886:
@@ -346,8 +346,8 @@ clutter_eotf_apply_inv (ClutterEOTF eotf,
         {
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return clutter_eotf_apply_gamma22_inv (input);
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
-          return clutter_eotf_apply_srgb_inv (input);
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
+          return clutter_eotf_apply_srgb_piecewise_inv (input);
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return clutter_eotf_apply_pq_inv (input);
         case CLUTTER_TRANSFER_FUNCTION_BT1886:
@@ -651,11 +651,11 @@ static const char gamma22_inv_eotf_source[] =
   "  return vec4 (gamma22_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
-static const char srgb_eotf_source[] =
-  "// srgb_eotf:\n"
+static const char srgb_piecewise_eotf_source[] =
+  "// srgb_piecewise_eotf:\n"
   "// @color: Normalized ([0,1]) electrical signal value.\n"
   "// Returns: Normalized tristimulus values ([0,1])\n"
-  "vec3 srgb_eotf (vec3 color)\n"
+  "vec3 srgb_piecewise_eotf (vec3 color)\n"
   "{\n"
   "  vec3 is_low = vec3 (lessThanEqual (color, vec3 (0.04045)));\n"
   "  vec3 lo_part = color / 12.92;\n"
@@ -663,16 +663,16 @@ static const char srgb_eotf_source[] =
   "  return mix (hi_part, lo_part, is_low);\n"
   "}\n"
   "\n"
-  "vec4 srgb_eotf (vec4 color)\n"
+  "vec4 srgb_piecewise_eotf (vec4 color)\n"
   "{\n"
-  "  return vec4 (srgb_eotf (color.rgb), color.a);\n"
+  "  return vec4 (srgb_piecewise_eotf (color.rgb), color.a);\n"
   "}\n";
 
-static const char srgb_inv_eotf_source[] =
-  "// srgb_inv_eotf:\n"
+static const char srgb_piecewise_inv_eotf_source[] =
+  "// srgb_piecewise_inv_eotf:\n"
   "// @color: Normalized ([0,1]) tristimulus values\n"
   "// Returns: Normalized ([0,1]) electrical signal value\n"
-  "vec3 srgb_inv_eotf (vec3 color)\n"
+  "vec3 srgb_piecewise_inv_eotf (vec3 color)\n"
   "{\n"
   "  vec3 is_lo = vec3 (lessThanEqual (color, vec3 (0.0031308)));\n"
   "\n"
@@ -681,9 +681,9 @@ static const char srgb_inv_eotf_source[] =
   "  return mix (hi_part, lo_part, is_lo);\n"
   "}\n"
   "\n"
-  "vec4 srgb_inv_eotf (vec4 color)\n"
+  "vec4 srgb_piecewise_inv_eotf (vec4 color)\n"
   "{\n"
-  "  return vec4 (srgb_inv_eotf (color.rgb), color.a);\n"
+  "  return vec4 (srgb_piecewise_inv_eotf (color.rgb), color.a);\n"
   "}\n";
 
 static const char pq_eotf_source[] =
@@ -811,14 +811,14 @@ static const ClutterColorOpSnippet gamma22_inv_eotf = {
   .name = "gamma22_inv_eotf",
 };
 
-static const ClutterColorOpSnippet srgb_eotf = {
-  .source = srgb_eotf_source,
-  .name = "srgb_eotf",
+static const ClutterColorOpSnippet srgb_piecewise_eotf = {
+  .source = srgb_piecewise_eotf_source,
+  .name = "srgb_piecewise_eotf",
 };
 
-static const ClutterColorOpSnippet srgb_inv_eotf = {
-  .source = srgb_inv_eotf_source,
-  .name = "srgb_inv_eotf",
+static const ClutterColorOpSnippet srgb_piecewise_inv_eotf = {
+  .source = srgb_piecewise_inv_eotf_source,
+  .name = "srgb_piecewise_inv_eotf",
 };
 
 static const ClutterColorOpSnippet pq_eotf = {
@@ -861,8 +861,8 @@ get_eotf_snippet (ClutterColorStateParams *color_state_params)
         {
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return &gamma22_eotf;
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
-          return &srgb_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
+          return &srgb_piecewise_eotf;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_eotf;
         case CLUTTER_TRANSFER_FUNCTION_BT1886:
@@ -890,8 +890,8 @@ get_inv_eotf_snippet (ClutterColorStateParams *color_state_params)
         {
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return &gamma22_inv_eotf;
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
-          return &srgb_inv_eotf;
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
+          return &srgb_piecewise_inv_eotf;
         case CLUTTER_TRANSFER_FUNCTION_PQ:
           return &pq_inv_eotf;
         case CLUTTER_TRANSFER_FUNCTION_BT1886:
@@ -2165,7 +2165,7 @@ clutter_color_state_params_required_format (ClutterColorState *color_state)
     case CLUTTER_EOTF_TYPE_NAMED:
       switch (color_state_params->eotf.tf_name)
         {
-        case CLUTTER_TRANSFER_FUNCTION_SRGB:
+        case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
         case CLUTTER_TRANSFER_FUNCTION_BT1886:
         case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
           return CLUTTER_ENCODING_REQUIRED_FORMAT_UINT8;
@@ -2391,7 +2391,7 @@ clutter_color_state_params_new_from_primitives (ClutterContext     *context,
       gamma_exp = -1.0f;
       break;
     case CLUTTER_EOTF_TYPE_GAMMA:
-      tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE;
       gamma_exp = eotf.gamma_exp;
       break;
     }
@@ -2471,7 +2471,7 @@ cicp_transfer_to_clutter (ClutterCicpTransfer   transfer,
       return TRUE;
     case CLUTTER_CICP_TRANSFER_SRGB:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
-      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE;
       return TRUE;
     case CLUTTER_CICP_TRANSFER_PQ:
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;

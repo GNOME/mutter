@@ -251,7 +251,7 @@ wayland_tf_to_clutter (struct wl_resource                         *resource,
       if (wl_resource_get_version (resource) < 2)
         return FALSE;
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
-      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE;
       return TRUE;
     default:
       return FALSE;
@@ -266,7 +266,7 @@ clutter_tf_to_wayland (struct wl_resource      *resource,
     {
     case CLUTTER_TRANSFER_FUNCTION_GAMMA22:
       return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA22;
-    case CLUTTER_TRANSFER_FUNCTION_SRGB:
+    case CLUTTER_TRANSFER_FUNCTION_SRGB_PIECEWISE:
       /* We defined the wl sRGB TF as the piece-wise (which arguably is wrong),
        * which is defined in the v2 by the less ambiguous compound power 2.4
        */
