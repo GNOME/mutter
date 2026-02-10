@@ -206,7 +206,8 @@ float_to_scaled_uint32 (float value)
 }
 
 static gboolean
-wayland_tf_to_clutter (enum wp_color_manager_v1_transfer_function  tf,
+wayland_tf_to_clutter (struct wl_resource                         *resource,
+                       enum wp_color_manager_v1_transfer_function  tf,
                        ClutterEOTF                                *eotf)
 {
   switch (tf)
@@ -220,6 +221,9 @@ wayland_tf_to_clutter (enum wp_color_manager_v1_transfer_function  tf,
       eotf->gamma_exp = 2.8f;
       return TRUE;
     case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB:
+      /* Deprecated in v2 */
+      if (wl_resource_get_version (resource) >= 2)
+        return FALSE;
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
       return TRUE;
@@ -235,18 +239,31 @@ wayland_tf_to_clutter (enum wp_color_manager_v1_transfer_function  tf,
       eotf->type = CLUTTER_EOTF_TYPE_NAMED;
       eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_LINEAR;
       return TRUE;
+    case WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4:
+      if (wl_resource_get_version (resource) < 2)
+        return FALSE;
+      eotf->type = CLUTTER_EOTF_TYPE_NAMED;
+      eotf->tf_name = CLUTTER_TRANSFER_FUNCTION_SRGB;
+      return TRUE;
     default:
       return FALSE;
     }
 }
 
 static enum wp_color_manager_v1_transfer_function
-clutter_tf_to_wayland (ClutterTransferFunction tf)
+clutter_tf_to_wayland (struct wl_resource      *resource,
+                       ClutterTransferFunction  tf)
 {
   switch (tf)
     {
     case CLUTTER_TRANSFER_FUNCTION_SRGB:
-      return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB;
+      /* We defined the wl sRGB TF as the piece-wise (which arguably is wrong),
+       * which is defined in the v2 by the less ambiguous compound power 2.4
+       */
+      if (wl_resource_get_version (resource) >= 2)
+        return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4;
+      else
+        return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB;
     case CLUTTER_TRANSFER_FUNCTION_PQ:
       return WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ;
     case CLUTTER_TRANSFER_FUNCTION_BT1886:
@@ -495,7 +512,7 @@ send_information_from_params (struct wl_resource *info_resource,
   switch (eotf->type)
     {
     case CLUTTER_EOTF_TYPE_NAMED:
-      tf = clutter_tf_to_wayland (eotf->tf_name);
+      tf = clutter_tf_to_wayland (info_resource, eotf->tf_name);
       wp_image_description_info_v1_send_tf_named (info_resource, tf);
       break;
     case CLUTTER_EOTF_TYPE_GAMMA:
@@ -1249,7 +1266,7 @@ creator_params_set_tf_named (struct wl_client   *client,
       return;
     }
 
-  if (!wayland_tf_to_clutter (tf, &eotf))
+  if (!wayland_tf_to_clutter (resource, tf, &eotf))
     {
       wl_resource_post_error (resource,
                               WP_IMAGE_DESCRIPTION_CREATOR_PARAMS_V1_ERROR_INVALID_TF,
@@ -1757,8 +1774,6 @@ color_manager_send_supported_events (struct wl_resource *resource)
   wp_color_manager_v1_send_supported_tf_named (resource,
                                                WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_GAMMA28);
   wp_color_manager_v1_send_supported_tf_named (resource,
-                                               WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB);
-  wp_color_manager_v1_send_supported_tf_named (resource,
                                                WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_ST2084_PQ);
   wp_color_manager_v1_send_supported_tf_named (resource,
                                                WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_BT1886);
@@ -1774,6 +1789,20 @@ color_manager_send_supported_events (struct wl_resource *resource)
                                                       WP_COLOR_MANAGER_V1_PRIMARIES_PAL);
   wp_color_manager_v1_send_supported_primaries_named (resource,
                                                       WP_COLOR_MANAGER_V1_PRIMARIES_DISPLAY_P3);
+
+  if (wl_resource_get_version (resource) < 2)
+    {
+      /* Deprecated in the protocol v2, supported by us in v1 */
+      wp_color_manager_v1_send_supported_tf_named (resource,
+                                                   WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_SRGB);
+    }
+  else
+    {
+      /* This replaces what we used to call sRGB in v1 */
+      wp_color_manager_v1_send_supported_tf_named (resource,
+                                                   WP_COLOR_MANAGER_V1_TRANSFER_FUNCTION_COMPOUND_POWER_2_4);
+    }
+
   wp_color_manager_v1_send_done (resource);
 }
 
