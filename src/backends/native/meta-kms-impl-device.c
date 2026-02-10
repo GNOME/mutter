@@ -1506,8 +1506,9 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
       if (delta)
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Presented at %" G_GINT64_FORMAT " µs, %" G_GINT64_FORMAT
-                      " µs %s than expected",
+                      "CRTC %d presented at %" G_GINT64_FORMAT " µs, "
+                      "%" G_GINT64_FORMAT "µs %s than expected",
+                      meta_kms_crtc_get_id (crtc),
                       presentation_time_us,
                       ABS (delta),
                       delta < 0 ? "earlier" : "later");
@@ -1515,7 +1516,8 @@ crtc_page_flip_feedback_flipped (MetaKmsCrtc  *crtc,
       else
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Presented at %" G_GINT64_FORMAT " µs",
+                      "CRTC %d presented at %" G_GINT64_FORMAT " µs",
+                      meta_kms_crtc_get_id (crtc),
                       presentation_time_us);
         }
     }
@@ -1731,8 +1733,9 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
           crtc_frame->deadline.expected_presentation_time_us)
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Deferring update targeted %ld µs after expected presentation"
-                      " time %ld",
+                      "CRTC %d deferring update targeted %ld µs after "
+                      "expected presentation time %ld",
+                      meta_kms_crtc_get_id (crtc),
                       target_presentation_time_us -
                       crtc_frame->deadline.expected_presentation_time_us,
                       crtc_frame->deadline.expected_presentation_time_us);
@@ -1781,8 +1784,10 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
       if (meta_kms_crtc_get_current_state (crtc)->vrr.enabled)
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "VRR dispatch %"G_GINT64_FORMAT "%+04" G_GINT64_FORMAT
-                      " µs, completed %3"G_GINT64_FORMAT " µs later",
+                      "CRTC %d VRR dispatch %"G_GINT64_FORMAT
+                      "%+04" G_GINT64_FORMAT " µs, completed "
+                      "%3"G_GINT64_FORMAT " µs later",
+                      meta_kms_crtc_get_id (crtc),
                       dispatch_time_us,
                       lateness_us,
                       duration_us);
@@ -1795,9 +1800,10 @@ crtc_frame_deadline_dispatch (MetaThreadImpl  *thread_impl,
                             lateness_us - duration_us;
 
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "FRR dispatch %"G_GINT64_FORMAT "%+04"G_GINT64_FORMAT
-                      " µs, completed %3"G_GINT64_FORMAT " µs later, %4"
-                      G_GINT64_FORMAT " µs %s start of vblank",
+                      "CRTC %d FRR dispatch %"G_GINT64_FORMAT
+                      "%+04"G_GINT64_FORMAT " µs, completed %3"G_GINT64_FORMAT
+                      " µs later, %4" G_GINT64_FORMAT " µs %s start of vblank",
+                      meta_kms_crtc_get_id (crtc),
                       dispatch_time_us,
                       lateness_us,
                       duration_us,

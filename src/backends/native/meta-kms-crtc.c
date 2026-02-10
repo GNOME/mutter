@@ -930,8 +930,9 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                 {
                   next_presentation_us = next_deadline_us + deadline_evasion_us;
                   meta_topic (META_DEBUG_KMS_DEADLINE,
-                              "Attempting cursor-only update at %ld µs, "
-                              "VRR update expected not before %ld µs",
+                              "CRTC %d attempting cursor-only update at %ld µs,"
+                              " VRR update expected not before %ld µs",
+                              meta_kms_crtc_get_id (crtc),
                               next_presentation_us,
                               vrr->last_presentation_us + vrr->min_present_interval_us);
                 }
@@ -951,8 +952,9 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
               target_presentation_time_us - vblank_duration_us)
             {
               meta_topic (META_DEBUG_KMS_DEADLINE,
-                          "Missed deadline by %3"G_GINT64_FORMAT "µs, "
+                          "CRTC %d missed deadline by %3"G_GINT64_FORMAT "µs, "
                           "starting ASAP for VRR",
+                          meta_kms_crtc_get_id (crtc),
                           now_us - next_deadline_us);
             }
 
@@ -979,8 +981,9 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
           next_presentation_us)
         {
           meta_topic (META_DEBUG_KMS_DEADLINE,
-                      "Missed deadline by %3"G_GINT64_FORMAT "µs, "
+                      "CRTC %d missed deadline by %3"G_GINT64_FORMAT "µs, "
                       "skipping by %"G_GINT64_FORMAT "µs",
+                      meta_kms_crtc_get_id (crtc),
                       now_us - next_deadline_us,
                       skip_us);
         }
@@ -1023,8 +1026,9 @@ meta_kms_crtc_set_vrr_presentation_time (MetaKmsCrtc *crtc,
               MIN (vrr->interval_us[2], vrr->interval_us[3]));
 
       meta_topic (META_DEBUG_KMS_DEADLINE,
-                  "VRR present intervals { %ld, %ld, %ld, %ld }"
+                  "CRTC %d VRR present intervals { %ld, %ld, %ld, %ld }"
                   " → minimum = %ld µs",
+                  meta_kms_crtc_get_id (crtc),
                   vrr->interval_us[(idx + 1) & 3],
                   vrr->interval_us[(idx + 2) & 3],
                   vrr->interval_us[(idx + 3) & 3],
