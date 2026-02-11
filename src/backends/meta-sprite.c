@@ -151,3 +151,12 @@ meta_sprite_get_backend (MetaSprite *sprite)
 
   return priv->backend;
 }
+
+void
+meta_sprite_sync_cursor (MetaSprite *sprite)
+{
+  ClutterCursor *cursor;
+
+  cursor = clutter_sprite_get_cursor (CLUTTER_SPRITE (sprite));
+  meta_sprite_update_cursor (CLUTTER_SPRITE (sprite), cursor);
+}

@@ -34,3 +34,5 @@ struct _MetaSpriteClass
 };
 
 MetaBackend * meta_sprite_get_backend (MetaSprite *sprite);
+
+void meta_sprite_sync_cursor (MetaSprite *sprite);
