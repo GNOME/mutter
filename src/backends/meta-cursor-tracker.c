@@ -158,21 +158,17 @@ set_pointer_visible (MetaCursorTracker *tracker,
 static ClutterCursor *
 meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  MetaCursorRenderer *cursor_renderer;
 
-  if (clutter_seat_is_unfocus_inhibited (seat))
+  if (!clutter_seat_is_unfocus_inhibited (seat))
     return NULL;
 
-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
-
-  if (!cursor_renderer)
-    return NULL;
-
-  return meta_cursor_renderer_get_cursor (cursor_renderer);
+  return priv->current_cursor;
 }
 
 static void
