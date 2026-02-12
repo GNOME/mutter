@@ -65,7 +65,6 @@ typedef struct _MetaRendererNativeGpuData
 
     /* For GPU blit mode */
     EGLContext egl_context;
-    EGLConfig egl_config;
   } secondary;
 
   gulong crtc_needs_flush_handler_id;

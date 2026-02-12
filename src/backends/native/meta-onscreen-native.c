@@ -3048,6 +3048,151 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
 }
 
 static gboolean
+all_primary_planes_support_format (MetaCrtcKms *crtc_kms,
+                                   uint32_t     drm_format)
+{
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+  gboolean supported = FALSE;
+  GList *l;
+
+  for (l = meta_kms_device_get_planes (kms_device); l; l = l->next)
+    {
+      MetaKmsPlane *kms_plane = l->data;
+
+      if (meta_kms_plane_get_plane_type (kms_plane) !=
+          META_KMS_PLANE_TYPE_PRIMARY)
+        continue;
+
+      if (!meta_kms_plane_is_usable_with (kms_plane, kms_crtc))
+        continue;
+
+      supported = TRUE;
+
+      if (!meta_kms_plane_is_format_supported (kms_plane, drm_format))
+        return FALSE;
+    }
+
+  return supported;
+}
+
+static gboolean
+all_crtcs_support_format (MetaGpuKms *gpu_kms,
+                          uint32_t    drm_format)
+{
+  GList *l;
+
+  for (l = meta_gpu_get_crtcs (META_GPU (gpu_kms)); l; l = l->next)
+    {
+      MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
+
+      if (!all_primary_planes_support_format (crtc_kms, drm_format))
+        break;
+    }
+
+  return l == NULL;
+}
+
+static MetaDrmBufferGbm *
+create_secondary_gpu_buffer (struct gbm_device   *gbm_device,
+                             MetaDeviceFile      *device_file,
+                             int                  width,
+                             int                  height,
+                             uint32_t             format,
+                             MetaDrmBufferFlags   flags,
+                             GError             **error)
+{
+  struct gbm_bo *gbm_bo;
+  MetaDrmBufferGbm *buffer_gbm;
+
+  gbm_bo = gbm_bo_create (gbm_device,
+                          width,
+                          height,
+                          format,
+                          GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+  if (!gbm_bo)
+    {
+      g_set_error (error,  G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "gbm_bo_create failed for secondary GPU: %s",
+                   strerror (errno));
+      return NULL;
+    }
+
+  buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, error);
+  if (!buffer_gbm)
+    {
+      gbm_bo_destroy (gbm_bo);
+      g_prefix_error (error,
+                      "meta_drm_buffer_gbm_new_take failed for secondary GPU: ");
+    }
+
+  return buffer_gbm;
+}
+
+static gboolean
+create_secondary_gpu_buffers (MetaRendererNative                   *renderer_native,
+                              MetaRendererNativeGpuData            *renderer_gpu_data,
+                              MetaOnscreenNativeSecondaryGpuState  *secondary_gpu_state,
+                              int                                   width,
+                              int                                   height,
+                              GError                              **error)
+{
+  MetaDrmBufferFlags flags = META_DRM_BUFFER_FLAG_NONE;
+  MetaRenderDevice *render_device = renderer_gpu_data->render_device;
+  MetaRenderDeviceGbm *render_device_gbm =
+    META_RENDER_DEVICE_GBM (render_device);
+  struct gbm_device *gbm_device;
+  MetaDeviceFile *device_file;
+  static const uint32_t gles3_formats[] = {
+    GBM_FORMAT_ARGB2101010,
+    GBM_FORMAT_ABGR2101010,
+    GBM_FORMAT_RGBA1010102,
+    GBM_FORMAT_BGRA1010102,
+    GBM_FORMAT_XRGB8888,
+    GBM_FORMAT_ARGB8888,
+  };
+  uint32_t format;
+  int i;
+
+  gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
+  device_file = meta_render_device_get_device_file (render_device);
+
+  if (!meta_renderer_native_use_modifiers (renderer_native))
+    flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
+  for (i = 0; i < G_N_ELEMENTS (gles3_formats); i++)
+    {
+      format = gles3_formats[i];
+      g_clear_error (error);
+
+      if (!all_crtcs_support_format (secondary_gpu_state->gpu_kms, format))
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "KMS CRTC doesn't support GBM format");
+          continue;
+        }
+
+      secondary_gpu_state->gbm.buffer_gbm[0] =
+        create_secondary_gpu_buffer (gbm_device, device_file,
+                                     width, height, format, flags,
+                                     error);
+      if (!secondary_gpu_state->gbm.buffer_gbm[0])
+        continue;
+
+      secondary_gpu_state->gbm.buffer_gbm[1] =
+        create_secondary_gpu_buffer (gbm_device, device_file,
+                                     width, height, format, flags,
+                                     error);
+      if (secondary_gpu_state->gbm.buffer_gbm[1])
+        break;
+
+      g_clear_object (&secondary_gpu_state->gbm.buffer_gbm[0]);
+    }
+
+  return secondary_gpu_state->gbm.buffer_gbm[0] != NULL;
+}
+
+static gboolean
 init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_native,
                                         CoglOnscreen               *onscreen,
                                         MetaRendererNativeGpuData  *renderer_gpu_data,
@@ -3055,30 +3200,8 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
-  MetaRenderDevice *render_device;
-  MetaDeviceFile *device_file;
-  MetaRenderDeviceGbm *render_device_gbm;
-  struct gbm_device *gbm_device;
-  EGLDisplay egl_display;
-  int width, height;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
-  MetaDrmBufferFlags flags = META_DRM_BUFFER_FLAG_NONE;
   MetaGpuKms *gpu_kms;
-  uint32_t format;
-  int i;
-
-  render_device = renderer_gpu_data->render_device;
-  device_file = meta_render_device_get_device_file (render_device);
-  egl_display = meta_render_device_get_egl_display (render_device);
-  width = cogl_framebuffer_get_width (framebuffer);
-  height = cogl_framebuffer_get_height (framebuffer);
-  format = get_gbm_format_from_egl (egl,
-                                    egl_display,
-                                    renderer_gpu_data->secondary.egl_config);
-
-  render_device_gbm = META_RENDER_DEVICE_GBM (render_device);
-  gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
 
   secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
 
@@ -3087,38 +3210,15 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
   secondary_gpu_state->gbm.buffer_index = -2;
 
-  if (!meta_renderer_native_use_modifiers (renderer_native))
-    flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
-
-  for (i = 0; i < 2; i++)
+  if (!create_secondary_gpu_buffers (renderer_native,
+                                     renderer_gpu_data,
+                                     secondary_gpu_state,
+                                     cogl_framebuffer_get_width (framebuffer),
+                                     cogl_framebuffer_get_height (framebuffer),
+                                     error))
     {
-      struct gbm_bo *gbm_bo;
-
-      gbm_bo = gbm_bo_create (gbm_device,
-                              width,
-                              height,
-                              format,
-                              GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
-      if (!gbm_bo)
-        {
-          gbm_bo_destroy (gbm_bo);
-          g_free (secondary_gpu_state);
-          g_set_error (error,  G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "gbm_bo_create failed for secondary GPU: %s",
-                       strerror (errno));
-          return FALSE;
-        }
-
-      secondary_gpu_state->gbm.buffer_gbm[i] =
-        meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, error);
-      if (!secondary_gpu_state->gbm.buffer_gbm[i])
-        {
-          gbm_bo_destroy (gbm_bo);
-          g_free (secondary_gpu_state);
-          g_prefix_error (error,
-                          "meta_drm_buffer_gbm_new_take failed for secondary GPU: ");
-          return FALSE;
-        }
+      g_free (secondary_gpu_state);
+      return FALSE;
     }
 
   onscreen_native->secondary_gpu_state = secondary_gpu_state;

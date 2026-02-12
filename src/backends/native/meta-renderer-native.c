@@ -1787,36 +1787,6 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native,
 }
 
 static gboolean
-all_primary_planes_support_format (MetaCrtcKms *crtc_kms,
-                                   uint32_t     drm_format)
-{
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
-  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
-  gboolean supported = FALSE;
-  GList *l;
-
-  for (l = meta_kms_device_get_planes (kms_device); l; l = l->next)
-    {
-      MetaKmsPlane *kms_plane = l->data;
-
-      if (meta_kms_plane_get_plane_type (kms_plane) !=
-          META_KMS_PLANE_TYPE_PRIMARY)
-        continue;
-
-      if (!meta_kms_plane_is_usable_with (kms_plane, kms_crtc))
-        continue;
-
-      supported = TRUE;
-
-      if (!meta_kms_plane_is_format_supported (kms_plane, drm_format))
-        return FALSE;
-    }
-
-  return supported;
-}
-
-
-static gboolean
 create_secondary_egl_config (MetaEgl                    *egl,
                              MetaRendererNativeGpuData  *renderer_gpu_data,
                              EGLDisplay                  egl_display,
@@ -1834,79 +1804,11 @@ create_secondary_egl_config (MetaEgl                    *egl,
     EGL_NONE
   };
 
-  switch (renderer_gpu_data->mode)
-    {
-    case META_RENDERER_NATIVE_MODE_GBM:
-    case META_RENDERER_NATIVE_MODE_SURFACELESS:
-      {
-        MetaGpuKms *gpu_kms = renderer_gpu_data->gpu_kms;
-        static const uint32_t gles3_formats[] = {
-          GBM_FORMAT_ARGB2101010,
-          GBM_FORMAT_ABGR2101010,
-          GBM_FORMAT_RGBA1010102,
-          GBM_FORMAT_BGRA1010102,
-          GBM_FORMAT_XRGB8888,
-          GBM_FORMAT_ARGB8888,
-        };
-        int i;
-
-        for (i = 0; i < G_N_ELEMENTS (gles3_formats); i++)
-          {
-            g_clear_error (error);
-
-            if (gpu_kms)
-              {
-                GList *l;
-
-                for (l = meta_gpu_get_crtcs (META_GPU (gpu_kms)); l; l = l->next)
-                  {
-                    MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
-
-                    if (!all_primary_planes_support_format (crtc_kms,
-                                                            gles3_formats[i]))
-                      break;
-                  }
-
-                /* If any CRTC doesn't support the format, we can't use it */
-                if (l)
-                  {
-                    g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                                 "KMS CRTC doesn't support GBM format");
-                    continue;
-                  }
-              }
-
-            if (choose_egl_config_from_gbm_format (egl,
-                                                   egl_display,
-                                                   attributes,
-                                                   gles3_formats[i],
-                                                   egl_config,
-                                                   error))
-              {
-                MetaDrmFormatBuf format_string;
-
-                meta_drm_format_to_string (&format_string, gles3_formats[i]);
-                meta_topic (META_DEBUG_KMS,
-                            "Using GBM format %s for secondary GPU EGL",
-                            format_string.s);
-
-                return TRUE;
-              }
-          }
-
-        return FALSE;
-      }
-#ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      return meta_egl_choose_first_config (egl,
-                                           egl_display,
-                                           attributes,
-                                           egl_config,
-                                           error);
-#endif
-    }
-
-  return FALSE;
+  return meta_egl_choose_first_config (egl,
+                                       egl_display,
+                                       attributes,
+                                       egl_config,
+                                       error);
 }
 
 static const char *
@@ -2102,7 +2004,6 @@ init_secondary_gpu_data_gpu (MetaRendererNativeGpuData *renderer_gpu_data,
     }
 
   renderer_gpu_data->secondary.egl_context = egl_context;
-  renderer_gpu_data->secondary.egl_config = egl_config;
 
   set_copy_mode (renderer_gpu_data,
                  META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU);
