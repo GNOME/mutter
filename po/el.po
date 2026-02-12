@@ -19,16 +19,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.gnome-2-26\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-10-22 20:31+0000\n"
-"PO-Revision-Date: 2024-01-15 00:21+0200\n"
-"Last-Translator: Efstathios Iosifidis <eiosifidis@gnome.org>\n"
+"POT-Creation-Date: 2026-02-06 22:05+0000\n"
+"PO-Revision-Date: 2026-02-12 22:52+0200\n"
+"Last-Translator: Efstathios Iosifidis <eiosifidis@gmail.com>\n"
 "Language-Team: Greek, Modern (1453-) <opensuse-translation-el@opensuse.org>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.4\n"
+"X-Generator: Poedit 3.4.2\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -259,19 +259,19 @@ msgstr "Μεγιστοποίηση παραθύρου κάθετα"
 msgid "Maximize window horizontally"
 msgstr "Μεγιστοποίηση παραθύρου οριζόντια"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Μεγιστοποίηση στα αριστερά"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Μεγιστοποίηση στα δεξιά"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Μετατροπέας για χρήση στις εκτεταμένες ενέργειες διαχείρισης παραθύρων"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -283,11 +283,11 @@ msgstr ""
 "είναι το «πλήκτρο Windows» σε μηχανήματα PC. Αναμένεται ότι αυτή η "
 "αντιστοίχιση θα είναι είτε η προεπιλογή ή θα ορίζεται στην κενή συμβολοσειρά."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Επισύναψη σχηματικών διαλόγων"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -297,13 +297,13 @@ msgstr ""
 "εμφανίζονται στην μπάρα τίτλου του γονικού παραθύρου και μετακινούνται μαζί "
 "με το γονικό παράθυρο."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr ""
 "Ενεργοποίηση της παράθεσης παραθύρων όταν τα μετακινείτε στις άκρες της "
 "οθόνης"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -314,25 +314,25 @@ msgstr ""
 "καλύψουν το μισό της οθόνης. Το σύρσιμο των παραθύρων στο πάνω μέρος της "
 "οθόνης τα μεγιστοποιεί ολοκληρωτικά."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Οι χώροι εργασίας διαχειρίζονται δυναμικά"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
-"static number of workspaces (determined by the num-workspaces key in "
-"org.gnome.desktop.wm.preferences)."
+"static number of workspaces (determined by the num-workspaces key in org."
+"gnome.desktop.wm.preferences)."
 msgstr ""
 "Καθορίζει εάν οι χώροι εργασίας διαχειρίζονται δυναμικά ή υπάρχει ένας "
 "στατικός αριθμός χώρων εργασίας (καθορίζεται από το κλειδί num-workspaces "
 "στο org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Χώροι εργασίας μόνο στην κύρια"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -340,12 +340,12 @@ msgstr ""
 "Καθορίζει εάν η εναλλαγή των χώρων εργασίας θα συμβαίνει για τα παράθυρα σε "
 "όλες τις οθόνες ή μόνο για τα παράθυρα της κύριας οθόνης."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr ""
 "Η καθυστέρηση της εστίασης αλλάζει μέχρι ο δείκτης να σταματήσει να κινείται"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -355,11 +355,11 @@ msgstr ""
 "τότε η εστίαση δεν θα αλλάξει αμέσως όταν ανοίγετε ένα παράθυρο, αλλά μόνο "
 "όταν ο δείκτης σταματήσει να κινείται."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Συρόμενο πλάτος περιγράμματος"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -368,13 +368,13 @@ msgstr ""
 "θέματος δεν είναι αρκετά, θα προστεθούν αόρατα περιγράμματα για την κάλυψη "
 "αυτής της τιμής."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr ""
 "Αυτόματη μεγιστοποίηση των παραθύρων των οποίων το μέγεθος είναι κοντά με το "
 "μέγεθος της οθόνης"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -382,11 +382,11 @@ msgstr ""
 "Εάν ενεργοποιηθεί, τα νέα παράθυρα που είναι αρχικά στο μέγεθος της οθόνης "
 "μεγιστοποιούνται αυτόματα."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Τοποθέτηση νέων παραθύρων στο κέντρο"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -394,80 +394,45 @@ msgstr ""
 "Αν είναι αληθές, τα νέα παράθυρα θα είναι πάντα τοποθετημένα στο κέντρο της "
 "κύριας οθόνης."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Ενεργοποίηση πειραματικών χαρακτηριστικών"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “rt-scheduler” — makes mutter request a low priority real-time "
-#| "scheduling. Requires a restart. • “autoclose-xwayland” — automatically "
-#| "terminates Xwayland if all relevant X11 clients are gone. Requires a "
-#| "restart."
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
-"Για να ενεργοποιήσετε πειραματικές λειτουργίες, προσθέστε τη λέξη-κλειδί "
-"της λειτουργίας στη λίστα. Το αν η λειτουργία απαιτεί επανεκκίνηση του "
-"συνθέτη εξαρτάται από τη συγκεκριμένη λειτουργία. Δεν απαιτείται κάποια "
-"πειραματική λειτουργία να εξακολουθεί να είναι διαθέσιμη ή ρυθμίσιμη. Μην "
-"αναμένετε ότι οτιδήποτε προσθέτετε σε αυτή τη ρύθμιση θα είναι συμβατό στο "
-"μέλλον. Τρέχουσες πιθανές λέξεις-κλειδιά: • «scale-monitor-framebuffer» — "
-"κάνει το mutter να χρησιμοποιεί από προεπιλογή λογικές οθόνες σε λογικό "
-"χώρο συντεταγμένων pixel, κλιμακώνοντας τα framebuffers οθονών αντί του "
-"περιεχομένου παραθύρων, για διαχείριση οθονών HiDPI. Δεν απαιτεί επανεκκίνηση. "
-"• «kms-modifiers» — κάνει το mutter να διαθέτει πάντα buffers σάρωσης με "
-"σαφείς τροποποιητές, εάν υποστηρίζεται από το πρόγραμμα οδήγησης. Απαιτεί "
-"επανεκκίνηση. • «autoclose-xwayland» — τερματίζει αυτόματα το Xwayland εάν "
-"όλοι οι σχετικοί πελάτες X11 λείπουν. Απαιτεί επανεκκίνηση. • «variable-"
-"refresh-rate» — κάνει το mutter να προσαρμόζει δυναμικά τον ρυθμό "
-"ανανέωσης της οθόνης όταν είναι εφαρμόσιμο, εάν υποστηρίζεται από την οθόνη, "
-"την GPU και το πρόγραμμα οδήγησης DRM. Ρυθμίσιμο στις Ρυθμίσεις. Απαιτεί "
-"επανεκκίνηση. • «xwayland-native-scaling» — επιτρέπει στους πελάτες "
-"Xwayland να χρησιμοποιούν την εγγενή υποστήριξη κλιμάκωσης. Εάν η κλιμάκωση "
-"δεν υποστηρίζεται από τον πελάτη, ο πελάτης δεν θα κλιμακωθεί. Η ρύθμιση "
-"ενεργοποιείται μόνο όταν είναι ενεργοποιημένη και η «scale-monitor-"
-"framebuffer»."
+"Για να ενεργοποιήσετε πειραματικές λειτουργίες, προσθέστε τη λέξη-κλειδί της "
+"λειτουργίας στη λίστα. Το αν η λειτουργία απαιτεί επανεκκίνηση του συνθέτη "
+"εξαρτάται από τη συγκεκριμένη λειτουργία. Δεν απαιτείται να είναι διαθέσιμες "
+"ή να μπορούν να διαμορφωθούν όλες οι πειραματικές λειτουργίες. Μην "
+"περιμένετε ότι η προσθήκη οτιδήποτε σε αυτή τη ρύθμιση θα είναι μελλοντικά "
+"ασφαλής. Τρέχουσες πιθανές λέξεις-κλειδιά: • «kms-modifiers» — κάνει το "
+"mutter να εκχωρεί πάντα buffer scanout με ρητούς τροποποιητές, εάν "
+"υποστηρίζεται από τον οδηγό. Απαιτεί επανεκκίνηση. • «autoclose-xwayland» — "
+"τερματίζει αυτόματα το Xwayland εάν όλοι οι σχετικοί πελάτες X11 έχουν "
+"εξαφανιστεί. Απαιτεί επανεκκίνηση."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Τροποποιητής που θα χρησιμοποιηθεί για τον εντοπισμό του δείκτη"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Αυτό το κλειδί θα ξεκινήσει τη δράση «εντοπισμός δείκτη»."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Χρονικό όριο για τον έλεγχο αν είναι ενεργό"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -478,11 +443,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Ρυθμίσεις φωτεινότητας ανά έξοδο"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -495,15 +460,15 @@ msgstr ""
 "που αντιπροσωπεύει τη φωτεινότητα εξόδου σε ποσοστό (%). Η προεπιλογή όταν "
 "δεν καθορίζεται είναι 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Εναλλαγή ρυθμίσεων οθόνης"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Περιστρέφει την ενσωματωμένη ρύθμιση της οθόνης"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Ακύρωση οποιασδήποτε ενεργής συνεδρίας καταγραφής εισόδου"
 
@@ -561,7 +526,9 @@ msgstr "Επανενεργοποίηση συντομεύσεων"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
-msgstr "Να επιτρέπεται στα X11 grabs να κλειδώνουν την εστίαση πληκτρολογίου με Xwayland"
+msgstr ""
+"Να επιτρέπεται στα X11 grabs να κλειδώνουν την εστίαση πληκτρολογίου με "
+"Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
@@ -576,16 +543,16 @@ msgid ""
 "allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Να επιτρέπεται η δρομολόγηση όλων των γεγονότων πληκτρολογίου σε παράθυρα "
-"X11 «override redirect» με grab όταν εκτελείται στο Xwayland. Αυτή η "
-"επιλογή είναι για την υποστήριξη πελατών X11 που δημιουργούν ένα παράθυρο "
-"«override redirect» (που δεν λαμβάνει εστίαση πληκτρολογίου) και εκδίδουν "
-"ένα grab πληκτρολογίου για να αναγκάσουν όλα τα γεγονότα πληκτρολογίου σε "
-"αυτό το παράθυρο. Αυτή η επιλογή χρησιμοποιείται σπάνια και δεν έχει "
-"επίδραση σε κανονικά παράθυρα X11 που μπορούν να λάβουν εστίαση "
-"πληκτρολογίου υπό κανονικές συνθήκες. Για να ληφθεί υπόψη ένα grab X11 στο "
-"Wayland, ο πελάτης πρέπει επίσης είτε να στείλει ένα συγκεκριμένο "
-"ClientMessage X11 στο βασικό παράθυρο είτε να είναι μεταξύ των εφαρμογών που "
-"επιτρέπονται στο κλειδί «xwayland-grab-access-rules»."
+"X11 «override redirect» με grab όταν εκτελείται στο Xwayland. Αυτή η επιλογή "
+"είναι για την υποστήριξη πελατών X11 που δημιουργούν ένα παράθυρο «override "
+"redirect» (που δεν λαμβάνει εστίαση πληκτρολογίου) και εκδίδουν ένα grab "
+"πληκτρολογίου για να αναγκάσουν όλα τα γεγονότα πληκτρολογίου σε αυτό το "
+"παράθυρο. Αυτή η επιλογή χρησιμοποιείται σπάνια και δεν έχει επίδραση σε "
+"κανονικά παράθυρα X11 που μπορούν να λάβουν εστίαση πληκτρολογίου υπό "
+"κανονικές συνθήκες. Για να ληφθεί υπόψη ένα grab X11 στο Wayland, ο πελάτης "
+"πρέπει επίσης είτε να στείλει ένα συγκεκριμένο ClientMessage X11 στο βασικό "
+"παράθυρο είτε να είναι μεταξύ των εφαρμογών που επιτρέπονται στο κλειδί "
+"«xwayland-grab-access-rules»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -635,7 +602,9 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
-msgstr "Να επιτρέπονται πελάτες X11 με διαφορετική endianness να συνδέονται στο Xwayland"
+msgstr ""
+"Να επιτρέπονται πελάτες X11 με διαφορετική endianness να συνδέονται στο "
+"Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
 msgid ""
@@ -651,14 +620,34 @@ msgid ""
 msgstr ""
 "Να επιτρέπονται συνδέσεις από πελάτες με endianness διαφορετική από αυτή του "
 "Xwayland. Ο κώδικας byte-swapping του διακομιστή X είναι μια τεράστια "
-"επιφάνεια επίθεσης, μεγάλο μέρος αυτού του κώδικα στο Xwayland είναι επιρρεπές "
-"σε προβλήματα ασφαλείας. Η περίπτωση χρήσης πελατών με byte-swapping είναι "
-"πολύ εξειδικευμένη και απενεργοποιημένη από προεπιλογή στο Xwayland. "
-"Ενεργοποιήστε αυτήν την επιλογή για να οδηγήσετε το Xwayland να αποδεχτεί "
-"συνδέσεις από πελάτες X11 με διαφορετική endianness. Αυτή η επιλογή δεν έχει "
-"αποτέλεσμα εάν το Xwayland δεν υποστηρίζει την επιλογή γραμμής εντολών "
-"+byteswappedclients/-byteswappedclients για τον έλεγχο αυτής της ρύθμισης. "
-"Το Xwayland πρέπει να επανεκκινηθεί για να αποτελέσει αυτή η ρύθμιση."
+"επιφάνεια επίθεσης, μεγάλο μέρος αυτού του κώδικα στο Xwayland είναι "
+"επιρρεπές σε προβλήματα ασφαλείας. Η περίπτωση χρήσης πελατών με byte-"
+"swapping είναι πολύ εξειδικευμένη και απενεργοποιημένη από προεπιλογή στο "
+"Xwayland. Ενεργοποιήστε αυτήν την επιλογή για να οδηγήσετε το Xwayland να "
+"αποδεχτεί συνδέσεις από πελάτες X11 με διαφορετική endianness. Αυτή η "
+"επιλογή δεν έχει αποτέλεσμα εάν το Xwayland δεν υποστηρίζει την επιλογή "
+"γραμμής εντολών +byteswappedclients/-byteswappedclients για τον έλεγχο αυτής "
+"της ρύθμισης. Το Xwayland πρέπει να επανεκκινηθεί για να αποτελέσει αυτή η "
+"ρύθμιση."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Διαμόρφωση του συντελεστή κλιμάκωσης Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Κλιμακώστε τον χώρο συντεταγμένων Xwayland σύμφωνα με αυτόν τον συντελεστή. "
+"Αυτό θα επηρεάσει τον τρόπο με τον οποίο θα εμφανίζονται οι πελάτες X11 με "
+"δυνατότητα HiDPI και τον τρόπο με τον οποίο ο συνθέτης κλιμακώνει τα "
+"παράθυρα των πελατών X11. Η ρύθμιση της κλίμακας στο 0 σημαίνει ότι η "
+"κλίμακα θα υπολογιστεί αυτόματα. Η κλίμακα θα στρογγυλοποιείται στον "
+"πλησιέστερο ακέραιο αριθμό."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -716,23 +705,35 @@ msgstr "_Προσομοίωση αφής"
 msgid "_Inhibit system shortcuts"
 msgstr "_Αναστολή συστημικών συντομεύσεων"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Χρήση host _keymap"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_Οθόνες"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Emulate monitor modes"
+msgstr "_Εξομοίωση λειτουργιών οθόνης"
+
+#: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
 msgstr "_Εκκινητές"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:37
 msgid "_Edit launchers"
 msgstr "_Επεξεργασία εκκινητών"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:44
 msgid "_About Mutter Development Kit"
 msgstr "_Περί του Mutter Development Kit"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter Development Kit"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:60
 msgid "Main Menu"
 msgstr "Κύριο Μενού"
 
@@ -748,30 +749,30 @@ msgstr "Σετ ανάπτυξης λογισμικού Mutter"
 msgid "About Mutter Development Kit"
 msgstr "Περί του Mutter Development Kit"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "Αποτυχία δημιουργίας παρακολούθησης"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "Ενσωματωμένη οθόνη"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
 msgstr "Άγνωστη"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
 msgstr "Άγνωστη οθόνη"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -783,74 +784,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Ηχητικό συμβάν κουδουνιού"
 
-#: src/core/display.c:742
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "Η οθόνη απορρήτου είναι ενεργοποιημέν"
 
-#: src/core/display.c:743
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "Η οθόνη απορρήτου είναι απενεργοποιημένη"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Αντικατάσταση του τρέχοντος διαχειριστή παραθύρων"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "Εμφάνιση Χ για χρήση"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "Να καταστούν σύγχρονες οι κλήσεις του X"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Εκτέλεση ως wayland compositor"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Εκτέλεση ως ενσωματωμένος compositor"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Εκτέλεση Wayland compositor χωρίς εκκίνηση Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Καθορισμός ονόματος οθόνης Wayland προς χρήση"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Εκτέλεση ως διακομιστής πλήρους οθόνης, αντί ενσωματωμένης"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Εκτέλεση ως διακομιστής οθόνης χωρίς οθόνη"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Προσθήκη μόνιμης εικονικής οθόνης (WxH ή WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Εκτέλεση σετ ανάπτυξης"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Εκτέλεση με X11 backend"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Προφίλ απόδοσης χρησιμοποιώντας instrumentation ιχνηλάτησης"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Ενεργοποίηση διεπαφής ελέγχου αποσφαλμάτωσης D-Bus"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Λειτουργία διακόπτη (ομάδα %d)"
@@ -858,7 +839,7 @@ msgstr "Λειτουργία διακόπτη (ομάδα %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Εναλλαγή λειτουργίας"
@@ -866,11 +847,11 @@ msgstr "Εναλλαγή λειτουργίας"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Εναλλαγή οθόνης"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Εμφάνιση βοήθειας στην οθόνη"
 
@@ -879,11 +860,11 @@ msgstr "Εμφάνιση βοήθειας στην οθόνη"
 msgid "Compositor"
 msgstr "Compositor"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Εμφάνιση έκδοσης"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Πρόσθετα του Mutter για χρήση"
 
@@ -892,11 +873,13 @@ msgstr "Πρόσθετα του Mutter για χρήση"
 msgid "Workspace %d"
 msgstr "Χώρος εργασίας %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
-msgstr "Το Mutter έχει μεταγλωττιστεί χωρίς υποστήριξη για λειτουργία εμφάνισης λεπτομερειών"
+msgstr ""
+"Το Mutter έχει μεταγλωττιστεί χωρίς υποστήριξη για λειτουργία εμφάνισης "
+"λεπτομερειών"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Ο Χώρος Εργασίας άλλαξε"
 
@@ -905,30 +888,25 @@ msgstr "Ο Χώρος Εργασίας άλλαξε"
 msgid "Mode Switch: Mode %d"
 msgstr "Λειτουργία διακόπτη: Λειτουργία %d"
 
-#: src/x11/meta-x11-display.c:844
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Η προβολή «%s» έχει ήδη ένα διαχειριστή παραθύρων· προσπαθήστε να "
-"χρησιμοποιήσετε την επιλογή --replace για να αντικαταστήσετε τον τρέχων "
-"διαχειριστή παραθύρων."
+msgid "Display “%s” already has a window manager"
+msgstr "Η οθόνη «%s» διαθέτει ήδη ένα πρόγραμμα διαχείρισης παραθύρων."
 
 # gconf/gconf-internals.c:2416
-#: src/x11/meta-x11-display.c:1229
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Αποτυχία ανοίγματος της οθόνης του X Window System «%s»"
 
-#: src/x11/meta-x11-display.c:1462
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Δεν είναι έγκυρη η οθόνη %d στην οθόνη «%s»"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2790
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -941,10 +919,34 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "Μη υποστηριζόμενη μορφή %s"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (σε %s)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "Αντικατάσταση του τρέχοντος διαχειριστή παραθύρων"
+
+#~ msgid "X Display to use"
+#~ msgstr "Εμφάνιση Χ για χρήση"
+
+#~ msgid "Make X calls synchronous"
+#~ msgstr "Να καταστούν σύγχρονες οι κλήσεις του X"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Εκτέλεση ως ενσωματωμένος compositor"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "Εκτέλεση με X11 backend"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "Η προβολή «%s» έχει ήδη ένα διαχειριστή παραθύρων· προσπαθήστε να "
+#~ "χρησιμοποιήσετε την επιλογή --replace για να αντικαταστήσετε τον τρέχων "
+#~ "διαχειριστή παραθύρων."
 
 #~ msgid "Disable connection to session manager"
 #~ msgstr "Απενεργοποίηση σύνδεσης στο διαχειριστή συνεδρίας"
@@ -1047,9 +1049,6 @@ msgstr "%s (σε %s)"
 #~ "Δεν είναι δυνατή η εύρεση θέματος! Βεβαιωθείτε ότι το %s υπάρχει και "
 #~ "περιέχει τα συνήθη θέματα.\n"
 
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr "Η οθόνη %d στην προβολή \"%s\" έχει ήδη ένα διαχειριστή παραθύρων\n"
-
 #
 #~ msgid "%d x %d"
 #~ msgstr "%d x %d"
@@ -1106,8 +1105,8 @@ msgstr "%s (σε %s)"
 #~ "ταιριάζει στον τύπο"
 
 #~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. "
-#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
+#~ "GTK color specification must have the state in brackets, e.g. gtk:"
+#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
 #~ msgstr ""
 #~ "Ο καθορισμός χρώματος GTK θα πρέπει να έχει τη κατάσταση σε αγκύλες, π.χ "
 #~ "gtk:fg[NORMAL] όπου NORMAL είναι η κατάσταση· αδυναμία ανάλυσης \"%s\""
@@ -1318,8 +1317,8 @@ msgstr "%s (σε %s)"
 #~ "ορατό), ήταν %g\n"
 
 #~ msgid ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-"
-#~ "small,small,medium,large,x-large,xx-large)\n"
+#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
+#~ "large,x-large,xx-large)\n"
 #~ msgstr ""
 #~ "Μή έγκυρη κλίμακα τίτλου \"%s\" (θα πρέπει να είναι ενα από xx-small,x-"
 #~ "small,small,medium,large,x-large,xx-large)\n"
@@ -1490,8 +1489,8 @@ msgstr "%s (σε %s)"
 #~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
 #~ "theme-2.xml"
 #~ msgstr ""
-#~ "Η ιδιότητα \"version\" δεν μπορεί να χρησιμοποιηθεί στο metacity-"
-#~ "theme-1.xml ή στο metacity-theme-2.xml"
+#~ "Η ιδιότητα \"version\" δεν μπορεί να χρησιμοποιηθεί στο metacity-theme-1."
+#~ "xml ή στο metacity-theme-2.xml"
 
 #~ msgid ""
 #~ "Theme requires version %s but latest supported theme version is %d.%d"
