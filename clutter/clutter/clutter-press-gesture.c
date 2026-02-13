@@ -133,6 +133,14 @@ reset_n_presses (ClutterPressGesture *self)
     clutter_press_gesture_get_instance_private (self);
 
   priv->n_presses_happened = 0;
+}
+
+static void
+reset_button_state (ClutterPressGesture *self)
+{
+  ClutterPressGesturePrivate *priv =
+    clutter_press_gesture_get_instance_private (self);
+
   priv->press_coords.x = 0;
   priv->press_coords.y = 0;
   priv->press_button = 0;
@@ -357,6 +365,7 @@ clutter_press_gesture_state_changed (ClutterGesture      *gesture,
     {
       g_clear_handle_id (&priv->next_press_timeout_id, g_source_remove);
       reset_n_presses (self);
+      reset_button_state (self);
     }
 
   if (new_state == CLUTTER_GESTURE_STATE_WAITING)
