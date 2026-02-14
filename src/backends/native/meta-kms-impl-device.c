@@ -2077,9 +2077,7 @@ do_handle_update (MetaKmsImplDevice *impl_device,
   g_autoptr (GSource) source = NULL;
   g_autofree char *name = NULL;
 
-  if (is_using_deadline_timer (impl_device))
-    sync_fd = meta_kms_update_get_sync_fd (update);
-
+  sync_fd = meta_kms_update_get_sync_fd (update);
   if (sync_fd >= 0)
     {
       GList *l;
