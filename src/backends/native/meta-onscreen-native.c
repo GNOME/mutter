@@ -144,6 +144,15 @@ struct _MetaOnscreenNative
 
   struct {
     struct gbm_surface *surface;
+
+    struct {
+      struct gbm_bo *gbm;
+      MetaDrmBufferGbm *buffer_gbm;
+      CoglTexture *cogl_tex;
+      CoglOffscreen *cogl_fbo;
+      CoglFrameInfo  *frame_info;
+      uint32_t age;
+    } bos[3], *scanout, *front, *back;
   } gbm;
 
   gboolean needs_flush;
@@ -415,6 +424,24 @@ static void
 notify_frame_info_complete (CoglFrameInfo *info)
 {
   CoglOnscreen *onscreen = cogl_frame_info_get_onscreen (info);
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  int i;
+
+  if (!onscreen_native->gbm.surface)
+    {
+      for (i = 0; i < G_N_ELEMENTS (onscreen_native->gbm.bos); i++)
+        {
+          if (onscreen_native->gbm.bos[i].frame_info != info)
+            continue;
+
+          onscreen_native->gbm.bos[i].frame_info = NULL;
+
+          if (onscreen_native->gbm.front == &onscreen_native->gbm.bos[i])
+            onscreen_native->gbm.front = NULL;
+
+          break;
+        }
+    }
 
   _cogl_onscreen_notify_frame_sync (onscreen, info);
   _cogl_onscreen_notify_complete (onscreen, info);
@@ -447,6 +474,21 @@ notify_crtc_presented (MetaKmsCrtc      *kms_crtc,
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_us, flags, sequence);
+
+  if (!onscreen_native->gbm.surface)
+    {
+      int i;
+
+      for (i = 0; i < G_N_ELEMENTS (onscreen_native->gbm.bos); i++)
+        {
+          if (onscreen_native->gbm.bos[i].frame_info != frame_info)
+            continue;
+
+          onscreen_native->gbm.scanout = &onscreen_native->gbm.bos[i];
+          onscreen_native->gbm.scanout->frame_info = NULL;
+          break;
+        }
+    }
 
   notify_frame_info_complete (frame_info);
 
@@ -1626,6 +1668,94 @@ static const MetaKmsResultListenerVtable scanout_result_listener_vtable = {
   .feedback = scanout_result_feedback,
 };
 
+static void
+meta_onscreen_native_queue_damage_region (CoglOnscreen    *onscreen,
+                                          const MtkRegion *region)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  CoglOnscreenClass *parent_class =
+    COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
+
+  if (!onscreen_native->gbm.surface)
+    return;
+
+  parent_class->queue_damage_region (onscreen, region);
+}
+
+static gboolean
+swap_buffers_with_damage (CoglOnscreen    *onscreen,
+                          const MtkRegion *region,
+                          CoglFrameInfo   *frame_info,
+                          gpointer         user_data)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+
+  if (onscreen_native->gbm.surface)
+    {
+      CoglOnscreenClass *parent_class =
+        COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
+
+      return parent_class->swap_buffers_with_damage (onscreen,
+                                                     region,
+                                                     frame_info,
+                                                     user_data);
+    }
+  else
+    {
+      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+      int i;
+
+      /* Update latest sync object */
+      cogl_framebuffer_flush (framebuffer);
+
+      for (i = 0; i < G_N_ELEMENTS (onscreen_native->gbm.bos); i++)
+        {
+          if (onscreen_native->gbm.bos[i].age)
+            onscreen_native->gbm.bos[i].age++;
+        }
+
+      onscreen_native->gbm.front = g_steal_pointer (&onscreen_native->gbm.back);
+      onscreen_native->gbm.front->frame_info = frame_info;
+      onscreen_native->gbm.front->age = 1;
+      return TRUE;
+    }
+}
+
+static MetaDrmBufferGbm *
+lock_front_buffer (MetaOnscreenNative  *onscreen_native,
+                   GError             **error)
+{
+  if (onscreen_native->gbm.surface)
+    {
+      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+      CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+      CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+      CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
+      MetaRendererNativeGpuData *renderer_gpu_data =
+        meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
+      MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+      MetaDrmBufferFlags buffer_flags = META_DRM_BUFFER_FLAG_NONE;
+      MetaDeviceFile *render_device_file;
+
+      if (!meta_renderer_native_use_modifiers (renderer_native))
+        buffer_flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
+      render_device_file =
+        meta_render_device_get_device_file (renderer_gpu_data->render_device);
+      return meta_drm_buffer_gbm_new_lock_front (render_device_file,
+                                                 onscreen_native->gbm.surface,
+                                                 buffer_flags,
+                                                 error);
+    }
+  else
+    {
+      MetaDrmBufferGbm *buffer_gbm;
+
+      buffer_gbm = g_steal_pointer (&onscreen_native->gbm.front)->buffer_gbm;
+      return g_object_ref (buffer_gbm);
+    }
+}
+
 static gboolean
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                                const MtkRegion *region,
@@ -1639,7 +1769,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   ClutterFrame *frame = user_data;
   MetaFrameNative *frame_native = meta_frame_native_from_frame (frame);
-  CoglOnscreenClass *parent_class;
   g_autoptr (MetaDrmBuffer) secondary_gpu_fb = NULL;
   g_autofd int sync_fd = -1;
 
@@ -1659,11 +1788,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
         g_steal_pointer (&secondary_gpu_fb);
     }
 
-  parent_class = COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
-  if (!parent_class->swap_buffers_with_damage (onscreen,
-                                               region,
-                                               frame_info,
-                                               user_data))
+  if (!swap_buffers_with_damage (onscreen, region, frame_info, user_data))
     {
       g_warning ("%s failed. Frame aborted.", __func__);
       g_clear_pointer (&onscreen_native->next_frame, clutter_frame_unref);
@@ -1840,7 +1965,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       g_autoptr (MetaDrmBuffer) secondary_gpu_fb = NULL;
       g_autoptr (MetaDrmBuffer) buffer = NULL;
       g_autoptr (GError) error = NULL;
-      MetaDrmBufferFlags buffer_flags;
       MetaDrmBufferGbm *buffer_gbm;
       MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
       MetaDeviceFile *render_device_file =
@@ -1859,10 +1983,6 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       switch (renderer_gpu_data->mode)
         {
         case META_RENDERER_NATIVE_MODE_GBM:
-          buffer_flags = META_DRM_BUFFER_FLAG_NONE;
-          if (!meta_renderer_native_use_modifiers (renderer_native))
-            buffer_flags |= META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
-
           /* We might end up here with the wrong EGLSurface being current when
            * being notified about being presented, results in glitches in some
            * drivers. Strictly there shouldn't be a need for this, but make
@@ -1870,11 +1990,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
            */
           cogl_onscreen_bind (onscreen);
 
-          buffer_gbm =
-            meta_drm_buffer_gbm_new_lock_front (render_device_file,
-                                                onscreen_native->gbm.surface,
-                                                buffer_flags,
-                                                &error);
+          buffer_gbm = lock_front_buffer (onscreen_native, &error);
           if (!buffer_gbm)
             {
               g_warning ("Failed to lock front buffer on %s: %s",
@@ -1919,6 +2035,14 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode != META_POWER_SAVE_ON)
     {
+      if (!onscreen_native->gbm.surface)
+        {
+          onscreen_native->gbm.scanout = NULL;
+          onscreen_native->gbm.bos[0].age = 0;
+          onscreen_native->gbm.bos[1].age = 0;
+          onscreen_native->gbm.bos[2].age = 0;
+        }
+
       meta_renderer_native_queue_power_save_page_flip (renderer_native,
                                                        onscreen);
     }
@@ -2151,6 +2275,93 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   maybe_post_next_frame (onscreen);
   return TRUE;
+}
+
+static void
+ensure_back_bo (MetaOnscreenNative *onscreen_native)
+{
+  uint32_t best_age = ~0U;
+  int i;
+
+  if (onscreen_native->gbm.back)
+    return;
+
+  for (i = 0; i < G_N_ELEMENTS (onscreen_native->gbm.bos); i++)
+    {
+      uint32_t age = onscreen_native->gbm.bos[i].age;
+
+      /* Can't use front / scanout BO */
+      if (onscreen_native->gbm.bos[i].frame_info ||
+          onscreen_native->gbm.scanout == &onscreen_native->gbm.bos[i])
+        continue;
+
+      if (age < best_age)
+        {
+          if (age)
+            best_age = age;
+
+          if (age || !onscreen_native->gbm.back)
+            onscreen_native->gbm.back = &onscreen_native->gbm.bos[i];
+        }
+    }
+}
+
+static void
+meta_onscreen_native_flush_state (CoglContext          *ctx,
+                                  CoglFramebuffer      *draw_buffer,
+                                  CoglFramebuffer      *read_buffer,
+                                  CoglFramebufferState  state)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (draw_buffer);
+  CoglFramebufferClass *framebuffer_class =
+    COGL_FRAMEBUFFER_CLASS (meta_onscreen_native_parent_class);
+
+  COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeFlushState,
+                           "Meta::OnscreenNative::flush_state()");
+
+  if (onscreen_native->gbm.surface)
+    {
+      framebuffer_class->flush_state (ctx, draw_buffer, read_buffer, state);
+      return;
+    }
+
+  /* First bind the back buffer FBO */
+  if (state & COGL_FRAMEBUFFER_STATE_BIND)
+    {
+      CoglFramebuffer *bind_fbo;
+
+      ensure_back_bo (onscreen_native);
+      bind_fbo = COGL_FRAMEBUFFER (onscreen_native->gbm.back->cogl_fbo);
+      framebuffer_class->flush_state (ctx,
+                                      bind_fbo, bind_fbo,
+                                      COGL_FRAMEBUFFER_STATE_BIND);
+    }
+
+  /* Then flush the remaining state, which synchronizes the FBO state to the
+   * MetaOnscreenNative ancestor CoglFramebuffer's state.
+   */
+  state &= ~COGL_FRAMEBUFFER_STATE_BIND;
+  if (state)
+    framebuffer_class->flush_state (ctx, draw_buffer, read_buffer, state);
+}
+
+static int
+meta_onscreen_native_get_buffer_age (CoglOnscreen *onscreen)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeGetBufferAge,
+                           "Meta::OnscreenNative::get_buffer_age()");
+
+  if (onscreen_native->gbm.surface)
+    {
+      CoglOnscreenClass *parent_class =
+        COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
+
+      return parent_class->get_buffer_age (onscreen);
+    }
+
+  ensure_back_bo (onscreen_native);
+  return onscreen_native->gbm.back->age;
 }
 
 static gboolean
@@ -2659,6 +2870,175 @@ get_modifiers (CoglOnscreen *onscreen,
   return modifiers;
 }
 
+static void
+dispose_bos_gbm (MetaOnscreenNative *onscreen_native)
+{
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (onscreen_native->gbm.bos); i++)
+    {
+      g_clear_object (&onscreen_native->gbm.bos[i].cogl_fbo);
+      g_clear_object (&onscreen_native->gbm.bos[i].cogl_tex);
+      g_clear_object (&onscreen_native->gbm.bos[i].buffer_gbm);
+      g_clear_pointer (&onscreen_native->gbm.bos[i].gbm, gbm_bo_destroy);
+    }
+}
+
+static gboolean
+create_bos_gbm (CoglOnscreen  *onscreen,
+                int            width,
+                int            height,
+                GError       **error)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglRenderbuffers *renderbuffers = NULL;
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
+  CoglRendererEGL *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
+  EGLDisplay edpy = cogl_renderer_egl_get_edisplay (cogl_renderer_egl);
+  MetaRendererNativeGpuData *renderer_gpu_data =
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
+  uint32_t gbm_flags = GBM_BO_USE_RENDERING;
+  size_t num_bos = G_N_ELEMENTS (onscreen_native->gbm.bos);
+  MetaRenderDevice *render_device;
+  MetaRenderDeviceGbm *render_device_gbm;
+  struct gbm_device *gbm_device;
+  MetaDeviceFile *device_file;
+  gboolean should_be_sharable;
+  EGLDisplay egl_display;
+  EGLConfig egl_config;
+  const MetaFormatInfo *format_info;
+  GArray *modifiers = NULL;
+  uint32_t gbm_format;
+  int i;
+
+  should_be_sharable = should_surface_be_sharable (onscreen);
+  if (!should_be_sharable)
+    gbm_flags |= GBM_BO_USE_SCANOUT;
+
+  if (!choose_onscreen_egl_config (onscreen, &egl_config, error))
+    return FALSE;
+
+  gbm_format = get_gbm_format_from_egl (egl, edpy, egl_config);
+  format_info = meta_format_info_from_drm_format (gbm_format);
+  renderer_gpu_data =
+    meta_renderer_native_get_gpu_data (renderer_native,
+                                       onscreen_native->render_gpu);
+  render_device = renderer_gpu_data->render_device;
+  device_file = meta_render_device_get_device_file (render_device);
+  egl_display = meta_render_device_get_egl_display (render_device);
+  render_device_gbm = META_RENDER_DEVICE_GBM (render_device);
+  gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
+
+  if (meta_renderer_native_use_modifiers (renderer_native))
+    modifiers = get_modifiers (onscreen, gbm_format, should_be_sharable);
+
+  if (modifiers)
+    {
+      for (i = 0; i < num_bos; i++)
+        {
+          onscreen_native->gbm.bos[i].gbm =
+            gbm_bo_create_with_modifiers2 (gbm_device,
+                                           width, height, gbm_format,
+                                           (uint64_t *) modifiers->data,
+                                           modifiers->len,
+                                           gbm_flags);
+          if (!onscreen_native->gbm.bos[i].gbm)
+            break;
+        }
+
+      g_array_free (modifiers, TRUE);
+    }
+
+  if (!onscreen_native->gbm.bos[num_bos - 1].gbm)
+    {
+      modifiers = NULL;
+
+      if (should_be_sharable)
+        gbm_flags |= GBM_BO_USE_LINEAR;
+
+      for (i = 0; i < num_bos; i++)
+        {
+          g_clear_pointer (&onscreen_native->gbm.bos[i].gbm, gbm_bo_destroy);
+          onscreen_native->gbm.bos[i].gbm = gbm_bo_create (gbm_device,
+                                                           width, height,
+                                                           gbm_format,
+                                                           gbm_flags);
+          if (!onscreen_native->gbm.bos[i].gbm)
+            break;
+        }
+    }
+
+  if (onscreen_native->gbm.bos[num_bos - 1].gbm)
+    {
+      MetaDrmBufferFlags flags = META_DRM_BUFFER_FLAG_NONE;
+      EGLImageKHR egl_image;
+
+      if (!modifiers)
+        flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+
+      for (i = 0; i < num_bos; i++)
+        {
+          onscreen_native->gbm.bos[i].buffer_gbm =
+            meta_drm_buffer_gbm_new_take (device_file,
+                                          onscreen_native->gbm.bos[i].gbm,
+                                          flags,
+                                          error);
+          if (!onscreen_native->gbm.bos[i].buffer_gbm)
+            break;
+
+          egl_image =
+            meta_egl_ensure_gbm_bo_egl_image (egl,
+                                              egl_display,
+                                              g_steal_pointer (&onscreen_native->gbm.bos[i].gbm),
+                                              META_EGL_GPU_PRIMARY,
+                                              error);
+          if (egl_image == EGL_NO_IMAGE_KHR)
+            break;
+
+          onscreen_native->gbm.bos[i].cogl_tex =
+            cogl_texture_2d_new_from_egl_image (cogl_context,
+                                                width, height,
+                                                format_info->cogl_format,
+                                                egl_image,
+                                                COGL_EGL_IMAGE_FLAG_NO_GET_DATA,
+                                                error);
+          if (!onscreen_native->gbm.bos[i].cogl_tex)
+            break;
+
+          onscreen_native->gbm.bos[i].cogl_fbo =
+            cogl_offscreen_new_with_texture (onscreen_native->gbm.bos[i].cogl_tex);
+          framebuffer = COGL_FRAMEBUFFER (onscreen_native->gbm.bos[i].cogl_fbo);
+          if (!cogl_framebuffer_allocate (framebuffer, error))
+            {
+              g_clear_object (&onscreen_native->gbm.bos[i].cogl_fbo);
+              break;
+            }
+
+          if (!renderbuffers)
+            renderbuffers = cogl_framebuffer_peek_renderbuffers (framebuffer);
+          else
+            cogl_framebuffer_bind_renderbuffers (framebuffer, renderbuffers);
+        }
+
+      if (onscreen_native->gbm.bos[num_bos - 1].cogl_fbo)
+        return TRUE;
+    }
+  else
+    {
+      g_set_error (error, COGL_WINSYS_ERROR,
+                   COGL_WINSYS_ERROR_CREATE_ONSCREEN,
+                   "Failed to allocate GBM BOs");
+    }
+
+  dispose_bos_gbm (onscreen_native);
+  return FALSE;
+}
+
 static gboolean
 create_surfaces_gbm (CoglOnscreen        *onscreen,
                      int                  width,
@@ -2771,6 +3151,75 @@ meta_onscreen_native_set_view (CoglOnscreen     *onscreen,
 }
 
 static gboolean
+meta_onscreen_native_is_nvidia (MetaOnscreenNative *onscreen_native)
+{
+  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  const char *egl_vendor;
+
+  egl_vendor = meta_egl_query_string (egl, egl_display, EGL_VENDOR);
+  return g_strcmp0 (egl_vendor, "NVIDIA") == 0;
+}
+
+static gboolean
+should_try_fbos (CoglOnscreen *onscreen)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen_native);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
+  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
+  gboolean is_nvidia, has_partial_updates;
+  const char *use_fbos;
+
+  use_fbos = getenv ("MUTTER_DEBUG_USE_FBOS");
+  if (use_fbos)
+    {
+      gboolean try;
+
+      try = g_strcmp0 (use_fbos, "1") == 0;
+      meta_topic (META_DEBUG_KMS,
+                  "%srying FBO path per MUTTER_DEBUG_USE_FBOS=%s",
+                  try ? "T" : "Not t",
+                  use_fbos);
+      return try;
+    }
+
+  is_nvidia = meta_onscreen_native_is_nvidia (onscreen_native);
+
+  /* The Mesa Gallium HUD can only work with a surface */
+  if (!is_nvidia &&
+      getenv ("GALLIUM_HUD"))
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Not trying FBO path because GALLIUM_HUD is set");
+      return FALSE;
+    }
+
+  if (is_nvidia &&
+      !should_surface_be_sharable (onscreen))
+    {
+      meta_topic (META_DEBUG_KMS,
+                  "Trying FBO path for nvidia primary scanout");
+      return TRUE;
+    }
+
+  has_partial_updates = meta_egl_has_extensions (egl,
+                                                 egl_display,
+                                                 NULL,
+                                                 "EGL_KHR_partial_update",
+                                                 NULL);
+
+  meta_topic (META_DEBUG_KMS,
+              "%srying FBO path because EGL_KHR_partial_update %ssupported",
+              has_partial_updates ? "Not t" : "T",
+              has_partial_updates ? "" : "not ");
+  return !has_partial_updates;
+}
+
+static gboolean
 meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
                                GError          **error)
 {
@@ -2800,17 +3249,36 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
                                        onscreen_native->render_gpu);
   switch (renderer_gpu_data->mode)
     {
-    case META_RENDERER_NATIVE_MODE_GBM:
-      if (!create_surfaces_gbm (onscreen,
-                                width, height,
-                                &gbm_surface,
-                                &egl_surface,
-                                error))
-        return FALSE;
+      gboolean create_surfaces;
 
-      onscreen_native->gbm.surface = gbm_surface;
-      cogl_onscreen_egl_set_egl_surface (onscreen_egl, egl_surface);
-      maybe_init_render_source (onscreen_native);
+    case META_RENDERER_NATIVE_MODE_GBM:
+      create_surfaces = !should_try_fbos (onscreen);
+      if (!create_surfaces)
+        {
+          g_autoptr (GError) local_error = NULL;
+
+          if (!create_bos_gbm (onscreen, width, height, &local_error))
+            {
+              meta_topic (META_DEBUG_KMS,
+                          "Failed to create GBM BOs, falling back to surface: %s",
+                          local_error->message);
+              create_surfaces = TRUE;
+            }
+        }
+
+      if (create_surfaces)
+        {
+          if (!create_surfaces_gbm (onscreen,
+                                    width, height,
+                                    &gbm_surface,
+                                    &egl_surface,
+                                    error))
+            return FALSE;
+
+          onscreen_native->gbm.surface = gbm_surface;
+          cogl_onscreen_egl_set_egl_surface (onscreen_egl, egl_surface);
+          maybe_init_render_source (onscreen_native);
+        }
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
@@ -2995,6 +3463,14 @@ create_secondary_gpu_buffers (CoglOnscreen                         *onscreen,
     }
 
   return secondary_gpu_state->gbm.buffer_gbm[0] != NULL;
+}
+
+static gboolean
+meta_onscreen_native_is_y_flipped (CoglFramebuffer *framebuffer)
+{
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (framebuffer);
+
+  return onscreen_native->gbm.surface == NULL;
 }
 
 static gboolean
@@ -3322,6 +3798,7 @@ meta_onscreen_native_dispose (GObject *object)
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      dispose_bos_gbm (onscreen_native);
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
@@ -3353,11 +3830,16 @@ meta_onscreen_native_class_init (MetaOnscreenNativeClass *klass)
   object_class->dispose = meta_onscreen_native_dispose;
 
   framebuffer_class->allocate = meta_onscreen_native_allocate;
+  framebuffer_class->flush_state = meta_onscreen_native_flush_state;
+  framebuffer_class->is_y_flipped = meta_onscreen_native_is_y_flipped;
 
+  onscreen_class->queue_damage_region =
+    meta_onscreen_native_queue_damage_region;
   onscreen_class->swap_buffers_with_damage =
     meta_onscreen_native_swap_buffers_with_damage;
   onscreen_class->direct_scanout = meta_onscreen_native_direct_scanout;
   onscreen_class->get_window_handles = meta_onscreen_native_get_window_handles;
+  onscreen_class->get_buffer_age = meta_onscreen_native_get_buffer_age;
 }
 
 MetaCrtc *
