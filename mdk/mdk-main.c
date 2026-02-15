@@ -224,6 +224,10 @@ bind_menu_action_to_property (MdkApplication *app,
                                NULL,
                                g_param_spec_ref (pspec),
                                (GDestroyNotify) g_param_spec_unref);
+  g_signal_connect_data (action, "notify::state",
+                         G_CALLBACK (focus_monitor_widget),
+                         app, NULL,
+                         G_CONNECT_SWAPPED | G_CONNECT_AFTER);
 }
 
 static void
