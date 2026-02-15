@@ -2268,7 +2268,8 @@ meta_kms_impl_device_schedule_process (MetaKmsImplDevice *impl_device,
                       crtc_frame->pending_update, priv->deadline_timer_state);
     }
 
-  meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
+  if (!crtc_frame->submitted_update.kms_update)
+    meta_kms_device_set_needs_flush (meta_kms_crtc_get_device (crtc), crtc);
 }
 
 static void
