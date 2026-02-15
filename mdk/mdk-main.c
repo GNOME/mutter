@@ -84,19 +84,26 @@ activate_edit_launchers (GSimpleAction *action,
 }
 
 static void
+focus_monitor_widget (MdkApplication *app)
+{
+  GtkWindow *window;
+
+  window = gtk_application_get_active_window (GTK_APPLICATION (app));
+  gtk_window_set_focus (window, gtk_window_get_child (window));
+}
+
+static void
 activate_launch (GSimpleAction *action,
                  GVariant      *parameter,
                  gpointer       user_data)
 {
   MdkApplication *app = MDK_APPLICATION (user_data);
   int id;
-  GtkWindow *window;
 
   id = g_variant_get_int32 (parameter);
   mdk_context_activate_launcher (app->context, id);
 
-  window = gtk_application_get_active_window (GTK_APPLICATION (app));
-  gtk_window_set_focus (window, gtk_window_get_child (window));
+  focus_monitor_widget (app);
 }
 
 static void
