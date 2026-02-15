@@ -56,6 +56,8 @@ struct _MetaKmsCrtc
   int64_t deadline_evasion_us;
   int64_t deadline_evasion_update_time_us;
 
+  int64_t last_vblank_time_us;
+
   struct _VRR {
     int64_t interval_us[4];
     int idx;
@@ -825,8 +827,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
                                   GError      **error)
 {
   MetaKmsImplDevice *impl_device;
-  int fd;
-  drmVBlank vblank;
   int ret;
   drmModeModeInfo *drm_mode;
   int64_t vblank_duration_us, deadline_evasion_us;
@@ -844,28 +844,6 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
     }
 
   impl_device = meta_kms_device_get_impl_device (crtc->device);
-  fd = meta_kms_impl_device_get_fd (impl_device);
-
-  vblank = (drmVBlank) {
-    .request.type = DRM_VBLANK_RELATIVE | get_crtc_type_bitmask (crtc),
-    .request.sequence = 0,
-    .request.signal = 0,
-  };
-
-  ret = drmWaitVBlank (fd, &vblank);
-  if (ret != 0)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "drmWaitVBlank failed: %s", g_strerror (-ret));
-      return FALSE;
-    }
-
-  drm_mode = &crtc->current_state.drm_mode;
-  vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
-  deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc) +
-                        vblank_duration_us;
-  vrr_enabled = crtc->current_state.vrr.enabled;
-  now_us = g_get_monotonic_time ();
 
   /*
    *                         1
@@ -877,10 +855,44 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
    * time spent scanning out = time per pixel * number of pixels
    *
    */
+  drm_mode = &crtc->current_state.drm_mode;
   refresh_interval_us =
     (int64_t) (0.5 + G_USEC_PER_SEC /
                meta_calculate_drm_mode_refresh_rate (drm_mode));
-  vblank_time_us = s2us (vblank.reply.tval_sec) + vblank.reply.tval_usec;
+
+  now_us = g_get_monotonic_time ();
+  if (now_us - crtc->last_vblank_time_us > refresh_interval_us)
+    {
+      drmVBlank vblank;
+      int fd;
+
+      fd = meta_kms_impl_device_get_fd (impl_device);
+
+      vblank = (drmVBlank) {
+        .request.type = DRM_VBLANK_RELATIVE | get_crtc_type_bitmask (crtc),
+        .request.sequence = 0,
+        .request.signal = 0,
+      };
+
+      ret = drmWaitVBlank (fd, &vblank);
+      if (ret != 0)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                       "drmWaitVBlank failed: %s", g_strerror (-ret));
+          return FALSE;
+        }
+
+      crtc->last_vblank_time_us = MAX (crtc->last_vblank_time_us,
+                                       s2us (vblank.reply.tval_sec) +
+                                       vblank.reply.tval_usec);
+    }
+
+  vblank_time_us = crtc->last_vblank_time_us;
+  vblank_duration_us = meta_calculate_drm_mode_vblank_duration_us (drm_mode);
+  deadline_evasion_us = meta_kms_crtc_get_deadline_evasion (crtc) +
+                        vblank_duration_us;
+  vrr_enabled = crtc->current_state.vrr.enabled;
+
   next_presentation_us = vblank_time_us + refresh_interval_us;
   next_deadline_us = next_presentation_us - deadline_evasion_us;
 
@@ -998,6 +1010,13 @@ meta_kms_crtc_determine_deadline (MetaKmsCrtc  *crtc,
   *out_next_deadline_us = next_deadline_us;
 
   return TRUE;
+}
+
+void
+meta_kms_crtc_set_presentation_time (MetaKmsCrtc *crtc,
+                                     int64_t      presentation_us)
+{
+  crtc->last_vblank_time_us = MAX (crtc->last_vblank_time_us, presentation_us);
 }
 
 void
