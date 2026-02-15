@@ -267,23 +267,10 @@ static void
 #define meta_kms_update_resources(kms, hotplug_event, changes) \
   (meta_kms_update_resources) ((kms), (hotplug_event), (changes), G_STRFUNC);
 
-static gpointer
-resume_in_impl (MetaThreadImpl  *thread_impl,
-                gpointer         user_data,
-                GError         **error)
-{
-  MetaKmsImpl *impl = META_KMS_IMPL (thread_impl);
-
-  meta_kms_impl_resume (impl);
-  return GINT_TO_POINTER (TRUE);
-}
-
 void
 meta_kms_resume (MetaKms *kms)
 {
   meta_kms_update_resources (kms, NULL, META_KMS_RESOURCE_CHANGE_FULL);
-
-  meta_kms_run_impl_task_sync (kms, resume_in_impl, NULL, NULL);
 }
 
 static char *

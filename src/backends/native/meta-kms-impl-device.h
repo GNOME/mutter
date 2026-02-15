@@ -222,8 +222,6 @@ void meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_de
 gboolean meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
                                                  GError            **error);
 
-void meta_kms_impl_device_resume (MetaKmsImplDevice *impl_device);
-
 void meta_kms_impl_device_prepare_shutdown (MetaKmsImplDevice *impl_device);
 
 uint64_t meta_kms_prop_convert_value (MetaKmsProp *prop,
