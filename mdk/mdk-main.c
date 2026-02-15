@@ -198,10 +198,10 @@ transform_action_state_to (GBinding     *binding,
 }
 
 static void
-bind_action_to_property (MdkApplication *app,
-                         const char     *action_name,
-                         gpointer        object,
-                         const char     *property)
+bind_menu_action_to_property (MdkApplication *app,
+                              const char     *action_name,
+                              gpointer        object,
+                              const char     *property)
 {
   GAction *action;
   GParamSpec *pspec;
@@ -277,14 +277,14 @@ main (int    argc,
 
   g_application_set_version (G_APPLICATION (app), VERSION);
 
-  bind_action_to_property (app, "toggle_emulate_touch",
-                           app->context, "emulate-touch");
-  bind_action_to_property (app, "toggle_inhibit_system_shortcuts",
-                           app->context, "inhibit-system-shortcuts");
-  bind_action_to_property (app, "toggle_host_keymap",
-                           app->context, "use-host-keymap");
-  bind_action_to_property (app, "toggle_emulate_monitor_modes",
-                           app->context, "emulate-monitor-modes");
+  bind_menu_action_to_property (app, "toggle_emulate_touch",
+                                app->context, "emulate-touch");
+  bind_menu_action_to_property (app, "toggle_inhibit_system_shortcuts",
+                                app->context, "inhibit-system-shortcuts");
+  bind_menu_action_to_property (app, "toggle_host_keymap",
+                                app->context, "use-host-keymap");
+  bind_menu_action_to_property (app, "toggle_emulate_monitor_modes",
+                                app->context, "emulate-monitor-modes");
 
   g_signal_connect (app, "startup", G_CALLBACK (startup), NULL);
   g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
