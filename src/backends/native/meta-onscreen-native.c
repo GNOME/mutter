@@ -2155,16 +2155,9 @@ meta_onscreen_native_get_window_handles (CoglOnscreen *onscreen,
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl = COGL_DISPLAY_EGL (cogl_display);
-  gpointer window = NULL;
-
-  if (onscreen_native->gbm.surface)
-    window = onscreen_native->gbm.surface;
-
-  if (!window)
-    return FALSE;
 
   *device_out = cogl_display_egl_get_egl_context (cogl_display_egl);
-  *window_out = window;
+  *window_out = onscreen_native;
   return TRUE;
 }
 
