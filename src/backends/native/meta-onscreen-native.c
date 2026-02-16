@@ -2635,6 +2635,22 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   return FALSE;
 }
 
+static GArray *
+get_modifiers (CoglOnscreen *onscreen,
+               uint32_t      format,
+               gboolean      should_be_sharable)
+{
+  const uint64_t mod_linear = DRM_FORMAT_MOD_LINEAR;
+  GArray *modifiers;
+
+  if (!should_be_sharable)
+    return get_supported_modifiers (onscreen, format);
+
+  modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t), 1);
+  g_array_append_val (modifiers, mod_linear);
+  return modifiers;
+}
+
 static gboolean
 create_surfaces_gbm (CoglOnscreen        *onscreen,
                      int                  width,
@@ -2663,7 +2679,6 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
   EGLSurface new_egl_surface;
   EGLConfig egl_config;
   uint32_t format;
-  GArray *modifiers;
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
@@ -2684,30 +2699,18 @@ create_surfaces_gbm (CoglOnscreen        *onscreen,
 
   if (meta_renderer_native_use_modifiers (renderer_native))
     {
-      if (should_be_sharable)
-        {
-          modifiers = g_array_sized_new (FALSE, FALSE, sizeof (uint64_t), 1);
-          g_array_set_size (modifiers, 1);
-          ((uint64_t *) modifiers->data)[0] = DRM_FORMAT_MOD_LINEAR;
-        }
-      else
-        {
-          modifiers = get_supported_modifiers (onscreen, format);
-        }
-    }
-  else
-    {
-      modifiers = NULL;
-    }
+      GArray *modifiers;
 
-  if (modifiers)
-    {
-      new_gbm_surface =
-        gbm_surface_create_with_modifiers (gbm_device,
-                                           width, height, format,
-                                           (uint64_t *) modifiers->data,
-                                           modifiers->len);
-      g_array_free (modifiers, TRUE);
+      modifiers = get_modifiers (onscreen, format, should_be_sharable);
+      if (modifiers)
+        {
+          new_gbm_surface =
+            gbm_surface_create_with_modifiers (gbm_device,
+                                               width, height, format,
+                                               (uint64_t *) modifiers->data,
+                                               modifiers->len);
+          g_array_free (modifiers, TRUE);
+        }
     }
 
   if (!new_gbm_surface)
