@@ -925,6 +925,27 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
                                   unsigned long buffers);
 
 /**
+ * cogl_framebuffer_bind_renderbuffers:
+ * @framebuffer: A #CoglFramebuffer
+ * @renderbuffers: A #CoglRenderbuffers
+ *
+ * Binds the depth/stencil @renderbuffers to @framebuffer.
+ */
+COGL_EXPORT void
+cogl_framebuffer_bind_renderbuffers (CoglFramebuffer   *framebuffer,
+                                     CoglRenderbuffers *renderbuffers);
+
+/**
+ * cogl_framebuffer_peek_renderbuffers:
+ * @framebuffer: A #CoglFramebuffer
+ *
+ * Return value: (transfer none): A #CoglRenderbuffers which references the
+ * depth/stencil renderbuffers bound to @framebuffer, or NULL if none.
+ */
+COGL_EXPORT CoglRenderbuffers *
+cogl_framebuffer_peek_renderbuffers (CoglFramebuffer *framebuffer);
+
+/**
  * cogl_framebuffer_finish:
  * @framebuffer: A #CoglFramebuffer pointer
  *

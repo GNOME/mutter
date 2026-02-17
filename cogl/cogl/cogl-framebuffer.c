@@ -1605,6 +1605,25 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
 }
 
 void
+cogl_framebuffer_bind_renderbuffers (CoglFramebuffer   *framebuffer,
+                                     CoglRenderbuffers *renderbuffers)
+{
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+
+  cogl_framebuffer_driver_bind_renderbuffers (priv->driver, renderbuffers);
+}
+
+CoglRenderbuffers *
+cogl_framebuffer_peek_renderbuffers (CoglFramebuffer *framebuffer)
+{
+  CoglFramebufferPrivate *priv =
+    cogl_framebuffer_get_instance_private (framebuffer);
+
+  return cogl_framebuffer_driver_peek_renderbuffers (priv->driver);
+}
+
+void
 cogl_framebuffer_finish (CoglFramebuffer *framebuffer)
 {
   CoglFramebufferPrivate *priv =

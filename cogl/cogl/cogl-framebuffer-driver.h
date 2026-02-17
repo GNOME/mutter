@@ -92,6 +92,11 @@ struct _CoglFramebufferDriverClass
                                         CoglReadPixelsFlags     source,
                                         CoglBitmap             *bitmap,
                                         GError                **error);
+
+  void (* bind_renderbuffers) (CoglFramebufferDriver *driver,
+                               CoglRenderbuffers     *renderbuffers);
+
+  CoglRenderbuffers * (* peek_renderbuffers) (CoglFramebufferDriver *driver);
 };
 
 CoglFramebuffer *
@@ -147,3 +152,10 @@ cogl_framebuffer_driver_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
                                                  CoglReadPixelsFlags     source,
                                                  CoglBitmap             *bitmap,
                                                  GError                **error);
+
+CoglRenderbuffers *
+cogl_framebuffer_driver_peek_renderbuffers (CoglFramebufferDriver *driver);
+
+void
+cogl_framebuffer_driver_bind_renderbuffers (CoglFramebufferDriver *driver,
+                                            CoglRenderbuffers     *renderbuffers);

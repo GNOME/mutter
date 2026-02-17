@@ -160,6 +160,25 @@ cogl_framebuffer_driver_read_pixels_into_bitmap (CoglFramebufferDriver  *driver,
   return klass->read_pixels_into_bitmap (driver, x, y, source, bitmap, error);
 }
 
+CoglRenderbuffers *
+cogl_framebuffer_driver_peek_renderbuffers (CoglFramebufferDriver *driver)
+{
+  CoglFramebufferDriverClass *klass =
+    COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver);
+
+  return klass->peek_renderbuffers (driver);
+}
+
+void
+cogl_framebuffer_driver_bind_renderbuffers (CoglFramebufferDriver *driver,
+                                            CoglRenderbuffers     *renderbuffers)
+{
+  CoglFramebufferDriverClass *klass =
+    COGL_FRAMEBUFFER_DRIVER_GET_CLASS (driver);
+
+  klass->bind_renderbuffers (driver, renderbuffers);
+}
+
 static void
 cogl_framebuffer_driver_get_property (GObject    *object,
                                       guint       prop_id,
@@ -269,6 +288,18 @@ cogl_framebuffer_real_read_pixels_into_bitmap (CoglFramebufferDriver  *framebuff
   return TRUE;
 }
 
+static CoglRenderbuffers *
+cogl_framebuffer_real_peek_renderbuffers (CoglFramebufferDriver *driver)
+{
+  return NULL;
+}
+
+static void
+cogl_framebuffer_real_bind_renderbuffers (CoglFramebufferDriver *driver,
+                                          CoglRenderbuffers     *renderbuffers)
+{
+}
+
 static void
 cogl_framebuffer_driver_init (CoglFramebufferDriver *driver)
 {
@@ -300,4 +331,6 @@ cogl_framebuffer_driver_class_init (CoglFramebufferDriverClass *klass)
     cogl_framebuffer_real_draw_indexed_attributes;
   klass->read_pixels_into_bitmap =
     cogl_framebuffer_real_read_pixels_into_bitmap;
+  klass->bind_renderbuffers = cogl_framebuffer_real_bind_renderbuffers;
+  klass->peek_renderbuffers = cogl_framebuffer_real_peek_renderbuffers;
 }
