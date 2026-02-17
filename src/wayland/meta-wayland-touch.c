@@ -265,7 +265,8 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
     return;
 
   if ((event_type == CLUTTER_TOUCH_UPDATE ||
-       event_type == CLUTTER_TOUCH_END) &&
+       event_type == CLUTTER_TOUCH_END ||
+       event_type == CLUTTER_LEAVE) &&
       !touch_info->begin_delivered)
     {
       g_hash_table_remove (touch->touches, sequence);
