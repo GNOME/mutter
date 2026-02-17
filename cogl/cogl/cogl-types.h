@@ -289,6 +289,7 @@ typedef struct _CoglParamSpecColor CoglParamSpecColor;
 typedef struct _CoglPipeline CoglPipeline;
 typedef struct _CoglPixelBuffer CoglPixelBuffer;
 typedef struct _CoglPrimitive CoglPrimitive;
+typedef struct _CoglRenderbuffers CoglRenderbuffers;
 typedef struct _CoglRenderer CoglRenderer;
 typedef struct _CoglScanout CoglScanout;
 typedef struct _CoglScanoutBuffer CoglScanoutBuffer;
