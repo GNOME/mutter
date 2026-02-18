@@ -2617,11 +2617,11 @@ clutter_stage_get_capture_final_size (ClutterStage *stage,
 }
 
 void
-clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
-                                    CoglFramebuffer             *framebuffer,
-                                    const MtkRectangle          *rect,
-                                    float                        scale,
-                                    ClutterPaintFlag             paint_flags)
+clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
+                                    CoglFramebuffer    *framebuffer,
+                                    const MtkRectangle *rect,
+                                    float               scale,
+                                    ClutterPaintFlag    paint_flags)
 {
   ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
   ClutterPaintContext *paint_context;
