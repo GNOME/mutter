@@ -594,6 +594,7 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
                                       data,
                                       stride,
                                       COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                      NULL,
                                       paint_flags,
                                       error))
     return FALSE;
@@ -732,6 +733,7 @@ stage_paint:
                                           framebuffer,
                                           &logical_monitor_layout,
                                           view_scale,
+                                          NULL,
                                           paint_flags);
     }
 

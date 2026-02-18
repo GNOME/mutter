@@ -2621,12 +2621,12 @@ clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
                                     CoglFramebuffer    *framebuffer,
                                     const MtkRectangle *rect,
                                     float               scale,
+                                    ClutterColorState  *color_state,
                                     ClutterPaintFlag    paint_flags)
 {
   ClutterStagePrivate *priv = clutter_stage_get_instance_private (stage);
   ClutterPaintContext *paint_context;
   g_autoptr (MtkRegion) redraw_clip = NULL;
-  ClutterColorState *color_state;
 
   COGL_TRACE_BEGIN_SCOPED (PaintToFramebuffer,
                            "Clutter::Stage::paint_to_framebuffer()");
@@ -2640,8 +2640,10 @@ clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
     }
 
   redraw_clip = mtk_region_create_rectangle (rect);
-  color_state =
-    clutter_actor_get_color_state (CLUTTER_ACTOR (stage));
+
+  if (!color_state)
+    color_state = clutter_actor_get_color_state (CLUTTER_ACTOR (stage));
+
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer,
                                                redraw_clip,
@@ -2685,6 +2687,7 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
                                uint8_t             *data,
                                int                  stride,
                                CoglPixelFormat      format,
+                               ClutterColorState   *color_state,
                                ClutterPaintFlag     paint_flags,
                                GError             **error)
 {
@@ -2721,7 +2724,9 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
     return FALSE;
 
   clutter_stage_paint_to_framebuffer (stage, framebuffer,
-                                      rect, scale, paint_flags);
+                                      rect, scale,
+                                      color_state,
+                                      paint_flags);
 
   bitmap = cogl_bitmap_new_for_data (cogl_context,
                                      texture_width, texture_height,
@@ -2756,6 +2761,7 @@ ClutterContent *
 clutter_stage_paint_to_content (ClutterStage        *stage,
                                 const MtkRectangle  *rect,
                                 float                scale,
+                                ClutterColorState   *color_state,
                                 ClutterPaintFlag     paint_flags,
                                 GError             **error)
 {
@@ -2791,7 +2797,9 @@ clutter_stage_paint_to_content (ClutterStage        *stage,
     return NULL;
 
   clutter_stage_paint_to_framebuffer (stage, framebuffer,
-                                      rect, scale, paint_flags);
+                                      rect, scale,
+                                      color_state,
+                                      paint_flags);
 
   return clutter_texture_content_new_from_texture (cogl_offscreen_get_texture (offscreen),
                                                    NULL);

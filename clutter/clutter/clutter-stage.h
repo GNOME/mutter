@@ -182,6 +182,7 @@ void clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
                                          CoglFramebuffer    *framebuffer,
                                          const MtkRectangle *rect,
                                          float               scale,
+                                         ClutterColorState  *color_state,
                                          ClutterPaintFlag    paint_flags);
 
 CLUTTER_EXPORT
@@ -191,6 +192,7 @@ gboolean clutter_stage_paint_to_buffer (ClutterStage        *stage,
                                         uint8_t             *data,
                                         int                  stride,
                                         CoglPixelFormat      format,
+                                        ClutterColorState   *color_state,
                                         ClutterPaintFlag     paint_flags,
                                         GError             **error);
 
@@ -198,6 +200,7 @@ CLUTTER_EXPORT
 ClutterContent * clutter_stage_paint_to_content (ClutterStage        *stage,
                                                  const MtkRectangle  *rect,
                                                  float                scale,
+                                                 ClutterColorState   *color_state,
                                                  ClutterPaintFlag     paint_flags,
                                                  GError             **error);
 

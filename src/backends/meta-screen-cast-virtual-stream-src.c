@@ -450,6 +450,7 @@ meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
                                       data,
                                       stride,
                                       COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                      NULL,
                                       paint_flags,
                                       error))
     return FALSE;

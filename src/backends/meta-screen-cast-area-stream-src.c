@@ -487,6 +487,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *sr
                                       data,
                                       stride,
                                       COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                      NULL,
                                       paint_flags,
                                       error))
     return FALSE;
@@ -526,6 +527,7 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
     }
   clutter_stage_paint_to_framebuffer (stage, framebuffer,
                                       area, scale,
+                                      NULL,
                                       paint_flags);
 
   return TRUE;
