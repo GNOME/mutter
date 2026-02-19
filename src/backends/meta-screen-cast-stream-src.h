@@ -57,6 +57,11 @@ typedef struct _MetaTagEntry
   char *value;
 } MetaTagEntry;
 
+typedef struct _MetaScreenCastFormat
+{
+  CoglPixelFormat format;
+} MetaScreenCastFormat;
+
 /* Declare some SPA types to avoid including the headers in too many places. */
 struct spa_meta_cursor;
 struct spa_video_info_raw;
@@ -100,7 +105,7 @@ struct _MetaScreenCastStreamSrcClass
   void (* notify_params_updated) (MetaScreenCastStreamSrc   *src,
                                   struct spa_video_info_raw *video_format);
 
-  CoglPixelFormat (* get_preferred_format) (MetaScreenCastStreamSrc *src);
+  const MetaScreenCastFormat * (* get_formats) (MetaScreenCastStreamSrc *src);
 
   void (* dispatch) (MetaScreenCastStreamSrc *src);
 
@@ -177,8 +182,7 @@ void meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStrea
 
 gboolean meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src);
 
-CoglPixelFormat
-meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src);
+const MetaScreenCastFormat * meta_screen_cast_stream_src_get_formats (MetaScreenCastStreamSrc *src);
 
 void meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src);
 

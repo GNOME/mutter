@@ -67,8 +67,6 @@
 #define MIN_FRAME_RATE SPA_FRACTION (0, 1)
 #define MAX_FRAME_RATE SPA_FRACTION (1000, 1)
 
-#define DEFAULT_COGL_PIXEL_FORMAT COGL_PIXEL_FORMAT_BGRX_8888
-
 #define PARAMS_BUFFER_SIZE 1024
 
 enum
@@ -161,7 +159,7 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStreamSrc,
 static const struct {
   CoglPixelFormat cogl_format;
   enum spa_video_format spa_video_format;
-} supported_formats[] = {
+} cogl_spa_format_table[] = {
   { COGL_PIXEL_FORMAT_BGRX_8888, SPA_VIDEO_FORMAT_BGRx },
   { COGL_PIXEL_FORMAT_BGRA_8888_PRE, SPA_VIDEO_FORMAT_BGRA },
 };
@@ -211,12 +209,12 @@ spa_video_format_from_cogl_pixel_format (CoglPixelFormat        cogl_format,
 {
   size_t i;
 
-  for (i = 0; i < G_N_ELEMENTS (supported_formats); i++)
+  for (i = 0; i < G_N_ELEMENTS (cogl_spa_format_table); i++)
     {
-      if (supported_formats[i].cogl_format == cogl_format)
+      if (cogl_spa_format_table[i].cogl_format == cogl_format)
         {
           if (out_spa_format)
-            *out_spa_format = supported_formats[i].spa_video_format;
+            *out_spa_format = cogl_spa_format_table[i].spa_video_format;
           return TRUE;
         }
     }
@@ -230,12 +228,12 @@ cogl_pixel_format_from_spa_video_format (enum spa_video_format  spa_format,
 {
   size_t i;
 
-  for (i = 0; i < G_N_ELEMENTS (supported_formats); i++)
+  for (i = 0; i < G_N_ELEMENTS (cogl_spa_format_table); i++)
     {
-      if (supported_formats[i].spa_video_format == spa_format)
+      if (cogl_spa_format_table[i].spa_video_format == spa_format)
         {
           if (out_cogl_format)
-            *out_cogl_format = supported_formats[i].cogl_format;
+            *out_cogl_format = cogl_spa_format_table[i].cogl_format;
           return TRUE;
         }
     }
@@ -1370,71 +1368,61 @@ meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src)
   priv->emit_closed_after_dispatch = TRUE;
 }
 
-static void
-build_format_params (MetaScreenCastStreamSrc *src,
-                     struct spa_pod_builder  *pod_builder,
-                     GArray                  *pod_offsets)
+typedef struct _MetaScreenCastSpec
 {
-  MetaScreenCastStream *stream =
-    meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session =
-    meta_screen_cast_stream_get_session (stream);
+  int width;
+  int height;
+  float frame_rate;
+} MetaScreenCastSpec;
+
+static void
+add_format_param (MetaScreenCastStreamSrc    *src,
+                  struct spa_pod_builder     *pod_builder,
+                  GArray                     *pod_offsets,
+                  const MetaScreenCastFormat *format,
+                  MetaScreenCastSpec         *spec,
+                  gboolean                    with_modifiers)
+{
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session =
+    meta_screen_cast_stream_get_session (stream);
   MetaScreenCast *screen_cast =
     meta_screen_cast_session_get_screen_cast (session);
-  GArray *modifiers;
-  CoglPixelFormat preferred_cogl_format;
-  enum spa_video_format preferred_spa_video_format = 0;
-  enum spa_video_format spa_video_formats[G_N_ELEMENTS (supported_formats)];
-  int n_spa_video_formats = 0;
   struct spa_rectangle default_size = DEFAULT_SIZE;
   struct spa_rectangle min_size = MIN_SIZE;
   struct spa_rectangle max_size = MAX_SIZE;
   struct spa_fraction default_framerate = DEFAULT_FRAME_RATE;
   struct spa_fraction min_framerate = MIN_FRAME_RATE;
   struct spa_fraction max_framerate = MAX_FRAME_RATE;
-  int width;
-  int height;
-  float frame_rate;
-  uint32_t i;
+  CoglPixelFormat cogl_format = format->format;
+  enum spa_video_format spa_format;
 
-  if (meta_screen_cast_stream_src_get_specs (src, &width, &height, &frame_rate))
+  if (spec)
     {
       MetaFraction frame_rate_fraction;
 
-      frame_rate_fraction = meta_fraction_from_double (frame_rate);
+      frame_rate_fraction = meta_fraction_from_double (spec->frame_rate);
 
       min_framerate = SPA_FRACTION (1, 1);
       max_framerate = SPA_FRACTION (frame_rate_fraction.num,
                                     frame_rate_fraction.denom);
       default_framerate = max_framerate;
-      min_size = max_size = default_size = SPA_RECTANGLE (width, height);
+      min_size = max_size = default_size = SPA_RECTANGLE (spec->width,
+                                                          spec->height);
     }
 
-  preferred_cogl_format = meta_screen_cast_stream_src_get_preferred_format (src);
-  if (spa_video_format_from_cogl_pixel_format (preferred_cogl_format,
-                                               &preferred_spa_video_format))
-    spa_video_formats[n_spa_video_formats++] = preferred_spa_video_format;
+  if (!spa_video_format_from_cogl_pixel_format (cogl_format, &spa_format))
+    g_return_if_reached ();
 
-  for (i = 0; i < G_N_ELEMENTS (supported_formats); i++)
+  if (with_modifiers)
     {
-      if (supported_formats[i].spa_video_format != preferred_spa_video_format)
-        spa_video_formats[n_spa_video_formats++] = supported_formats[i].spa_video_format;
-    }
-
-  g_assert (n_spa_video_formats > 0 &&
-            n_spa_video_formats <= G_N_ELEMENTS (spa_video_formats));
-
-  for (i = 0; i < n_spa_video_formats; i++)
-    {
-      CoglPixelFormat cogl_format;
-      if (!cogl_pixel_format_from_spa_video_format (spa_video_formats[i], &cogl_format))
-        continue;
+      GArray *modifiers;
 
       modifiers = g_hash_table_lookup (priv->modifiers,
                                        GINT_TO_POINTER (cogl_format));
-      if (modifiers == NULL)
+      if (!modifiers)
         {
           modifiers = meta_screen_cast_query_modifiers (screen_cast, cogl_format);
           g_hash_table_insert (priv->modifiers,
@@ -1442,12 +1430,18 @@ build_format_params (MetaScreenCastStreamSrc *src,
                                modifiers);
         }
       if (modifiers->len == 0)
-        continue;
+        {
+          meta_topic (META_DEBUG_SCREEN_CAST,
+                      "Not advertising support for format %s with modifiers",
+                      cogl_pixel_format_to_string (cogl_format));
+          return;
+        }
 
       push_format_object (
         pod_builder,
         pod_offsets,
-        spa_video_formats[i], (uint64_t *) modifiers->data, modifiers->len, FALSE,
+        spa_format,
+        (uint64_t *) modifiers->data, modifiers->len, FALSE,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&default_size,
                                                                &min_size,
                                                                &max_size),
@@ -1458,12 +1452,12 @@ build_format_params (MetaScreenCastStreamSrc *src,
                                        &max_framerate),
         0);
     }
-  for (i = 0; i < n_spa_video_formats; i++)
+  else
     {
       push_format_object (
         pod_builder,
         pod_offsets,
-        spa_video_formats[i], NULL, 0, FALSE,
+        spa_format, NULL, 0, FALSE,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&default_size,
                                                                &min_size,
                                                                &max_size),
@@ -1473,6 +1467,40 @@ build_format_params (MetaScreenCastStreamSrc *src,
                                        &min_framerate,
                                        &max_framerate),
         0);
+    }
+}
+
+static void
+build_format_params (MetaScreenCastStreamSrc *src,
+                     struct spa_pod_builder  *pod_builder,
+                     GArray                  *pod_offsets)
+{
+  MetaScreenCastSpec spec;
+  MetaScreenCastSpec *spec_ptr = NULL;
+  const MetaScreenCastFormat *formats;
+  const MetaScreenCastFormat *format;
+
+  if (meta_screen_cast_stream_src_get_specs (src, &spec.width, &spec.height, &spec.frame_rate))
+    spec_ptr = &spec;
+
+  formats = meta_screen_cast_stream_src_get_formats (src);
+  for (format = formats; format->format; format++)
+    {
+      add_format_param (src,
+                        pod_builder,
+                        pod_offsets,
+                        format,
+                        spec_ptr,
+                        TRUE);
+    }
+  for (format = formats; format->format; format++)
+    {
+      add_format_param (src,
+                        pod_builder,
+                        pod_offsets,
+                        format,
+                        spec_ptr,
+                        FALSE);
     }
 }
 
@@ -2422,10 +2450,20 @@ meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src)
   return priv->stream;
 }
 
-static CoglPixelFormat
-meta_screen_cast_stream_src_default_get_preferred_format (MetaScreenCastStreamSrc *src)
+static const MetaScreenCastFormat *
+meta_screen_cast_stream_src_default_get_formats (MetaScreenCastStreamSrc *src)
 {
-  return DEFAULT_COGL_PIXEL_FORMAT;
+  static MetaScreenCastFormat formats[] = {
+    {
+      .format = COGL_PIXEL_FORMAT_BGRX_8888,
+    },
+    {
+      .format = COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+    },
+    {},
+  };
+
+  return formats;
 }
 
 static void
@@ -2548,8 +2586,8 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
   object_class->set_property = meta_screen_cast_stream_src_set_property;
   object_class->get_property = meta_screen_cast_stream_src_get_property;
 
-  klass->get_preferred_format =
-    meta_screen_cast_stream_src_default_get_preferred_format;
+  klass->get_formats =
+    meta_screen_cast_stream_src_default_get_formats;
 
   obj_props[PROP_STREAM] =
     g_param_spec_object ("stream", NULL, NULL,
@@ -2596,13 +2634,13 @@ meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src)
   return priv->uses_dma_bufs;
 }
 
-CoglPixelFormat
-meta_screen_cast_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src)
+const MetaScreenCastFormat *
+meta_screen_cast_stream_src_get_formats (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->get_preferred_format (src);
+  return klass->get_formats (src);
 }
 
 void

@@ -808,10 +808,20 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
     }
 }
 
-static CoglPixelFormat
-meta_screen_cast_window_stream_src_get_preferred_format (MetaScreenCastStreamSrc *src)
+static const MetaScreenCastFormat *
+meta_screen_cast_window_stream_src_get_formats (MetaScreenCastStreamSrc *src)
 {
-  return COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+  static MetaScreenCastFormat formats[] = {
+    {
+      .format = COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+    },
+    {
+      .format = COGL_PIXEL_FORMAT_BGRX_8888,
+    },
+    {},
+  };
+
+  return formats;
 }
 
 MetaScreenCastWindowStreamSrc *
@@ -886,6 +896,6 @@ meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClas
   src_class->is_cursor_metadata_valid =
     meta_screen_cast_window_stream_src_is_cursor_metadata_valid;
   src_class->set_cursor_metadata = meta_screen_cast_window_stream_src_set_cursor_metadata;
-  src_class->get_preferred_format =
-    meta_screen_cast_window_stream_src_get_preferred_format;
+  src_class->get_formats =
+    meta_screen_cast_window_stream_src_get_formats;
 }
