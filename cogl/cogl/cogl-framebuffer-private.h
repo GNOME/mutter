@@ -70,7 +70,7 @@ typedef enum _CoglFramebufferStateIndex
   COGL_FRAMEBUFFER_STATE_INDEX_MAX                = 8
 } CoglFramebufferStateIndex;
 
-typedef enum _CoglFramebufferState
+enum _CoglFramebufferState
 {
   COGL_FRAMEBUFFER_STATE_BIND               = 1<<0,
   COGL_FRAMEBUFFER_STATE_VIEWPORT           = 1<<1,
@@ -80,7 +80,7 @@ typedef enum _CoglFramebufferState
   COGL_FRAMEBUFFER_STATE_PROJECTION         = 1<<5,
   COGL_FRAMEBUFFER_STATE_FRONT_FACE_WINDING = 1<<6,
   COGL_FRAMEBUFFER_STATE_DEPTH_WRITE        = 1<<7,
-} CoglFramebufferState;
+};
 
 #define COGL_FRAMEBUFFER_STATE_ALL ((1<<COGL_FRAMEBUFFER_STATE_INDEX_MAX) - 1)
 

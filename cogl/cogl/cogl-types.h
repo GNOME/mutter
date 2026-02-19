@@ -274,6 +274,8 @@ typedef enum /*< prefix=COGL_READ_PIXELS >*/
   COGL_READ_PIXELS_COLOR_BUFFER = 1L << 0
 } CoglReadPixelsFlags;
 
+typedef enum _CoglFramebufferState CoglFramebufferState;
+
 typedef struct _CoglAttribute CoglAttribute;
 typedef struct _CoglAttributeBuffer CoglAttributeBuffer;
 typedef struct _CoglAtlas CoglAtlas;
