@@ -288,6 +288,25 @@ cogl_framebuffer_get_internal_format (CoglFramebuffer *framebuffer)
 }
 
 static void
+cogl_real_flush_framebuffer_state (CoglContext          *ctx,
+                                   CoglFramebuffer      *draw_buffer,
+                                   CoglFramebuffer      *read_buffer,
+                                   CoglFramebufferState  state)
+{
+  CoglDriver *driver = cogl_context_get_driver (ctx);
+  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
+
+  if (driver_klass->flush_framebuffer_state)
+    {
+      driver_klass->flush_framebuffer_state (driver,
+                                             ctx,
+                                             draw_buffer,
+                                             read_buffer,
+                                             state);
+    }
+}
+
+static void
 cogl_framebuffer_dispose (GObject *object)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (object);
@@ -373,6 +392,8 @@ cogl_framebuffer_class_init (CoglFramebufferClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE,
                   0);
+
+  klass->flush_state = cogl_real_flush_framebuffer_state;
 }
 
 /* This version of cogl_clear can be used internally as an alternative
@@ -1078,17 +1099,13 @@ cogl_context_flush_framebuffer_state (CoglContext          *ctx,
                                       CoglFramebuffer      *read_buffer,
                                       CoglFramebufferState  state)
 {
-  CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglDriverClass *driver_klass = COGL_DRIVER_GET_CLASS (driver);
+  CoglFramebufferClass *framebuffer_klass =
+    COGL_FRAMEBUFFER_GET_CLASS (draw_buffer);
 
-  if (driver_klass->flush_framebuffer_state)
-    {
-      driver_klass->flush_framebuffer_state (driver,
-                                             ctx,
-                                             draw_buffer,
-                                             read_buffer,
-                                             state);
-    }
+  framebuffer_klass->flush_state (ctx,
+                                  draw_buffer,
+                                  read_buffer,
+                                  state);
 }
 
 static void
