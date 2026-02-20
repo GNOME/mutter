@@ -215,10 +215,10 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   MetaBackend *backend = meta_compositor_get_backend (compositor);
   MetaCursorTracker *cursor_tracker =
     meta_backend_get_cursor_tracker (backend);
-  CoglTexture *cursor_sprite;
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
   MetaCrtc *crtc;
   CoglFramebuffer *framebuffer;
-  MtkRectangle view_rect;
   MetaSurfaceActor *surface_actor;
   MetaSurfaceActorWayland *surface_actor_wayland;
   MetaWaylandSurface *surface;
@@ -233,13 +233,12 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
   if (!surface_actor)
     return FALSE;
 
-  clutter_stage_view_get_layout (stage_view, &view_rect);
-
-  cursor_sprite = meta_cursor_tracker_get_sprite (cursor_tracker);
-  if (cursor_sprite &&
-      meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
-      !meta_stage_view_is_cursor_overlay_inhibited (view))
+  if (meta_cursor_renderer_needs_overlay (cursor_renderer) &&
+      !meta_stage_view_is_cursor_overlay_inhibited (view) &&
+      meta_cursor_tracker_get_pointer_visible (cursor_tracker))
     {
+      CoglTexture *cursor_sprite;
+      MtkRectangle view_rect;
       graphene_rect_t graphene_view_rect;
       graphene_rect_t cursor_rect;
       graphene_point_t position;
@@ -253,12 +252,16 @@ find_scanout_candidate (MetaCompositorView  *compositor_view,
       scale = (clutter_stage_view_get_scale (stage_view) *
                meta_cursor_tracker_get_scale (cursor_tracker));
 
+      cursor_sprite = meta_cursor_tracker_get_sprite (cursor_tracker);
+      g_return_val_if_fail (cursor_sprite != NULL, FALSE);
+
       graphene_rect_init (&cursor_rect,
                           position.x - (hotspot_x * scale),
                           position.y - (hotspot_y * scale),
                           cogl_texture_get_width (cursor_sprite) * scale,
                           cogl_texture_get_height (cursor_sprite) * scale);
 
+      clutter_stage_view_get_layout (stage_view, &view_rect);
       graphene_view_rect = mtk_rectangle_to_graphene_rect (&view_rect);
       if (graphene_rect_intersection (&graphene_view_rect,
                                       &cursor_rect,
