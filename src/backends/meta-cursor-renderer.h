@@ -83,3 +83,5 @@ void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 ClutterCursor      *cursor);
 
 MetaBackend * meta_cursor_renderer_get_backend (MetaCursorRenderer *renderer);
+
+gboolean meta_cursor_renderer_needs_overlay (MetaCursorRenderer *renderer);
