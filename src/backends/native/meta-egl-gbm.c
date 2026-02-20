@@ -104,8 +104,7 @@ create_gbm_bo_egl_image (MetaEgl        *egl,
 }
 
 static void
-free_gbm_bo_egl_image (struct gbm_bo *bo,
-                       void          *data)
+free_gbm_bo_egl_image (void *data)
 {
   GbmBoUserData *user_data = data;
   g_autoptr (GError) error = NULL;
@@ -121,16 +120,40 @@ free_gbm_bo_egl_image (struct gbm_bo *bo,
   g_free (data);
 }
 
-EGLImageKHR
-meta_egl_ensure_gbm_bo_egl_image (MetaEgl        *egl,
-                                  EGLDisplay      egl_display,
-                                  struct gbm_bo  *bo,
-                                  GError        **error)
+static void
+free_gbm_bo_user_datas (struct gbm_bo *bo,
+                        void          *data)
 {
-  GbmBoUserData *bo_user_data = NULL;
+  GbmBoUserData **user_datas = data;
+  int i;
 
-  bo_user_data = gbm_bo_get_user_data (bo);
+  for (i = 0; i < _META_EGL_NUM_GPU_SLOTS; i++)
+    {
+      if (user_datas[i])
+        free_gbm_bo_egl_image (user_datas[i]);
+    }
 
+  g_free (user_datas);
+}
+
+EGLImageKHR
+meta_egl_ensure_gbm_bo_egl_image (MetaEgl         *egl,
+                                  EGLDisplay       egl_display,
+                                  struct gbm_bo   *bo,
+                                  MetaEglGpuSlot   gpu_slot,
+                                  GError         **error)
+{
+  GbmBoUserData **bo_user_datas, *bo_user_data;
+
+  bo_user_datas = gbm_bo_get_user_data (bo);
+  if (!bo_user_datas)
+    {
+      bo_user_datas = g_new0 (GbmBoUserData *, _META_EGL_NUM_GPU_SLOTS);
+
+      gbm_bo_set_user_data (bo, bo_user_datas, free_gbm_bo_user_datas);
+    }
+
+  bo_user_data = bo_user_datas[gpu_slot];
   if (!bo_user_data)
     {
       EGLImageKHR egl_image = EGL_NO_IMAGE;
@@ -148,7 +171,7 @@ meta_egl_ensure_gbm_bo_egl_image (MetaEgl        *egl,
       bo_user_data->egl_display = egl_display;
       bo_user_data->egl_image = egl_image;
 
-      gbm_bo_set_user_data (bo, bo_user_data, free_gbm_bo_egl_image);
+      bo_user_datas[gpu_slot] = bo_user_data;
     }
 
   return bo_user_data->egl_image;

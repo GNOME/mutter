@@ -302,6 +302,7 @@ meta_drm_buffer_gbm_copy_to_framebuffer (CoglScanout      *scanout,
   egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
                                                 egl_display,
                                                 buffer_gbm->bo,
+                                                META_EGL_GPU_PRIMARY,
                                                 error);
 
   if (egl_image == EGL_NO_IMAGE_KHR)

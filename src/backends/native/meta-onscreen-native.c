@@ -1160,7 +1160,11 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
 
   src_buffer_gbm = META_DRM_BUFFER_GBM (primary_gpu_fb);
   src_bo = meta_drm_buffer_gbm_get_bo (src_buffer_gbm);
-  src_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, src_bo, error);
+  src_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
+                                                    egl_display,
+                                                    src_bo,
+                                                    META_EGL_GPU_SECONDARY,
+                                                    error);
 
   if (!src_egl_image)
     {
@@ -1171,7 +1175,11 @@ copy_shared_framebuffer_gpu (CoglOnscreen                         *onscreen,
   dst_buffer_gbm = get_secondary_gpu_buffer_and_age (secondary_gpu_state,
                                                      &buffer_age);
   dst_bo = meta_drm_buffer_gbm_get_bo (dst_buffer_gbm);
-  dst_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl, egl_display, dst_bo, error);
+  dst_egl_image = meta_egl_ensure_gbm_bo_egl_image (egl,
+                                                    egl_display,
+                                                    dst_bo,
+                                                    META_EGL_GPU_SECONDARY,
+                                                    error);
   if (!dst_egl_image)
     {
       g_prefix_error (error, "Failed to create EGL image from buffer object for secondary GPU: ");

@@ -28,7 +28,15 @@
 
 #include "backends/meta-egl.h"
 
-EGLImageKHR meta_egl_ensure_gbm_bo_egl_image (MetaEgl        *egl,
-                                              EGLDisplay      egl_display,
-                                              struct gbm_bo  *shared_bo,
-                                              GError        **error);
+typedef enum _MetaEglGpuSlot
+{
+  META_EGL_GPU_PRIMARY,
+  META_EGL_GPU_SECONDARY,
+  _META_EGL_NUM_GPU_SLOTS
+} MetaEglGpuSlot;
+
+EGLImageKHR meta_egl_ensure_gbm_bo_egl_image (MetaEgl         *egl,
+                                              EGLDisplay       egl_display,
+                                              struct gbm_bo   *shared_bo,
+                                              MetaEglGpuSlot   gpu_slot,
+                                              GError         **error);
