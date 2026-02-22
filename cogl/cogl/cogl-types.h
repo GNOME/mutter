@@ -227,9 +227,6 @@ typedef enum _CoglWinsysFeature
   /* Available if the age of the back buffer can be queried */
   COGL_WINSYS_FEATURE_BUFFER_AGE,
 
-  /* Available if the winsys directly handles _SYNC and _COMPLETE events */
-  COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT,
-
   /* cogl_renderer_get_latest_sync_fd() is supported */
   COGL_WINSYS_FEATURE_SYNC_FD,
 

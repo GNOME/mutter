@@ -863,10 +863,6 @@ meta_renderer_native_init_egl_context (CoglWinsys   *winsys,
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
 #endif
 
-  cogl_context_set_winsys_feature (cogl_context,
-                                   COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT,
-                                   TRUE);
-
 #ifdef HAVE_EGL_DEVICE
   if (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_EGL_DEVICE)
     cogl_driver_set_feature (cogl_context_get_driver (cogl_context),
