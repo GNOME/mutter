@@ -2783,6 +2783,28 @@ get_supported_kms_formats (CoglOnscreen *onscreen)
   return meta_kms_plane_copy_drm_format_list (plane);
 }
 
+static const uint32_t alphaless_10bpc_formats[] = {
+  GBM_FORMAT_XRGB2101010,
+  GBM_FORMAT_XBGR2101010,
+  GBM_FORMAT_RGBX1010102,
+  GBM_FORMAT_BGRX1010102,
+};
+
+static const uint32_t default_formats[] = {
+  GBM_FORMAT_ARGB2101010,
+  GBM_FORMAT_ABGR2101010,
+  GBM_FORMAT_RGBA1010102,
+  GBM_FORMAT_BGRA1010102,
+  GBM_FORMAT_XBGR8888,
+  GBM_FORMAT_ABGR8888,
+  GBM_FORMAT_RGBX8888,
+  GBM_FORMAT_RGBA8888,
+  GBM_FORMAT_BGRX8888,
+  GBM_FORMAT_BGRA8888,
+  GBM_FORMAT_XRGB8888,
+  GBM_FORMAT_ARGB8888,
+};
+
 static gboolean
 choose_onscreen_egl_config (CoglOnscreen  *onscreen,
                             EGLConfig     *out_config,
@@ -2799,26 +2821,6 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaKmsPlane *kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
   EGLint attrs[COGL_MAX_EGL_CONFIG_ATTRIBS];
-  static const uint32_t alphaless_10bpc_formats[] = {
-    GBM_FORMAT_XRGB2101010,
-    GBM_FORMAT_XBGR2101010,
-    GBM_FORMAT_RGBX1010102,
-    GBM_FORMAT_BGRX1010102,
-  };
-  static const uint32_t default_formats[] = {
-    GBM_FORMAT_ARGB2101010,
-    GBM_FORMAT_ABGR2101010,
-    GBM_FORMAT_RGBA1010102,
-    GBM_FORMAT_BGRA1010102,
-    GBM_FORMAT_XBGR8888,
-    GBM_FORMAT_ABGR8888,
-    GBM_FORMAT_RGBX8888,
-    GBM_FORMAT_RGBA8888,
-    GBM_FORMAT_BGRX8888,
-    GBM_FORMAT_BGRA8888,
-    GBM_FORMAT_XRGB8888,
-    GBM_FORMAT_ARGB8888,
-  };
 
   g_return_val_if_fail (META_IS_KMS_PLANE (kms_plane), FALSE);
 
@@ -2850,6 +2852,37 @@ choose_onscreen_egl_config (CoglOnscreen  *onscreen,
                                               out_config,
                                               error))
     return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
+choose_gbm_format (MetaKmsPlane   *kms_plane,
+                   const uint32_t *in_gbm_formats,
+                   size_t          n_formats,
+                   uint32_t       *out_gbm_format)
+{
+  for (int i = 0; i < n_formats; i++)
+    {
+      if (kms_plane &&
+          !meta_kms_plane_is_format_supported (kms_plane, in_gbm_formats[i]))
+        {
+          if (meta_is_topic_enabled (META_DEBUG_RENDER))
+            {
+              MetaDrmFormatBuf format_string;
+
+              meta_drm_format_to_string (&format_string, in_gbm_formats[i]);
+              meta_topic (META_DEBUG_RENDER,
+                          "KMS CRTC doesn't support format %s",
+                          format_string.s);
+            }
+
+          continue;
+        }
+
+      *out_gbm_format = in_gbm_formats[i];
+      return TRUE;
+    }
 
   return FALSE;
 }
@@ -2898,10 +2931,10 @@ create_bos_gbm (CoglOnscreen  *onscreen,
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglRenderer *cogl_renderer = cogl_display_get_renderer (cogl_display);
-  CoglRendererEGL *cogl_renderer_egl = COGL_RENDERER_EGL (cogl_renderer);
-  EGLDisplay edpy = cogl_renderer_egl_get_edisplay (cogl_renderer_egl);
   MetaRendererNativeGpuData *renderer_gpu_data =
     meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaKmsPlane *kms_plane = NULL;
   uint32_t gbm_flags = GBM_BO_USE_RENDERING;
   size_t num_bos = G_N_ELEMENTS (onscreen_native->gbm.bos);
   MetaRenderDevice *render_device;
@@ -2910,20 +2943,37 @@ create_bos_gbm (CoglOnscreen  *onscreen,
   MetaDeviceFile *device_file;
   gboolean should_be_sharable;
   EGLDisplay egl_display;
-  EGLConfig egl_config;
   const MetaFormatInfo *format_info;
   GArray *modifiers = NULL;
-  uint32_t gbm_format;
+  uint32_t gbm_format = 0;
   int i;
 
   should_be_sharable = should_surface_be_sharable (onscreen);
   if (!should_be_sharable)
-    gbm_flags |= GBM_BO_USE_SCANOUT;
+    {
+      kms_plane = meta_crtc_kms_get_assigned_primary_plane (crtc_kms);
+      gbm_flags |= GBM_BO_USE_SCANOUT;
+    }
 
-  if (!choose_onscreen_egl_config (onscreen, &egl_config, error))
-    return FALSE;
+  if (!should_be_sharable)
+    {
+      choose_gbm_format (kms_plane,
+                         alphaless_10bpc_formats,
+                         G_N_ELEMENTS (alphaless_10bpc_formats),
+                         &gbm_format);
+    }
 
-  gbm_format = get_gbm_format_from_egl (egl, edpy, egl_config);
+  if (gbm_format == 0 &&
+      !choose_gbm_format (kms_plane,
+                          default_formats,
+                          G_N_ELEMENTS (default_formats),
+                          &gbm_format))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "No GBM format found");
+      return FALSE;
+    }
+
   format_info = meta_format_info_from_drm_format (gbm_format);
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (renderer_native,
