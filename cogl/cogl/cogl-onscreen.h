@@ -85,30 +85,6 @@ struct _CoglOnscreenClass
 };
 
 /**
- * cogl_onscreen_swap_buffers:
- * @onscreen: A #CoglOnscreen framebuffer
- *
- * Swaps the current back buffer being rendered too, to the front for display.
- *
- * This function also implicitly discards the contents of the color, depth and
- * stencil buffers as if cogl_framebuffer_discard_buffers() were used. The
- * significance of the discard is that you should not expect to be able to
- * start a new frame that incrementally builds on the contents of the previous
- * frame.
- *
- * It is highly recommended that applications use
- * cogl_onscreen_swap_buffers_with_damage() instead whenever possible
- * and also use the cogl_onscreen_get_buffer_age() api so they can
- * perform incremental updates to older buffers instead of having to
- * render a full buffer for every frame.
- */
-COGL_EXPORT void
-cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
-                            CoglFrameInfo *frame_info,
-                            gpointer       user_data);
-
-
-/**
  * cogl_onscreen_get_buffer_age:
  * @onscreen: A #CoglOnscreen framebuffer
  *

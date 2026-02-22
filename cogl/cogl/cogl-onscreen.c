@@ -251,14 +251,6 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 }
 
 void
-cogl_onscreen_swap_buffers (CoglOnscreen  *onscreen,
-                            CoglFrameInfo *info,
-                            gpointer user_data)
-{
-  cogl_onscreen_swap_buffers_with_damage (onscreen, NULL, info, user_data);
-}
-
-void
 cogl_onscreen_swap_region (CoglOnscreen    *onscreen,
                            const MtkRegion *region,
                            CoglFrameInfo   *info,
