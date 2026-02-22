@@ -128,7 +128,6 @@ struct _CoglContext
   gboolean have_last_offscreen_allocate_flags;
   CoglOffscreenAllocateFlags last_offscreen_allocate_flags;
 
-  CoglList onscreen_events_queue;
   CoglList onscreen_dirty_queue;
   CoglClosure *onscreen_dispatch_idle;
 
@@ -407,7 +406,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->current_draw_buffer_changes = COGL_FRAMEBUFFER_STATE_ALL;
 
-  _cogl_list_init (&context->onscreen_events_queue);
   _cogl_list_init (&context->onscreen_dirty_queue);
 
   context->journal_flush_attributes_array =
@@ -1164,12 +1162,6 @@ GHookList *
 cogl_context_get_atlas_reorganize_callbacks (CoglContext *context)
 {
   return &context->atlas_reorganize_callbacks;
-}
-
-CoglList *
-cogl_context_get_onscreen_events_queue (CoglContext *context)
-{
-  return &context->onscreen_events_queue;
 }
 
 CoglList *

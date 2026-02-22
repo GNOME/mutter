@@ -146,34 +146,10 @@ notify_event (CoglOnscreen *onscreen,
 static void
 _cogl_dispatch_onscreen_cb (CoglContext *context)
 {
-  CoglOnscreenEvent *event, *tmp;
-  CoglList queue;
-
-  /* Dispatching the event callback may cause another frame to be
-   * drawn which in may cause another event to be queued immediately.
-   * To make sure this loop will only dispatch one set of events we'll
-   * steal the queue and iterate that separately */
-  _cogl_list_init (&queue);
-  _cogl_list_insert_list (&queue, cogl_context_get_onscreen_events_queue (context));
-  _cogl_list_init (cogl_context_get_onscreen_events_queue (context));
-
   if (cogl_context_get_onscreen_dispatch_idle (context))
     {
       _cogl_closure_disconnect (cogl_context_get_onscreen_dispatch_idle (context));
       cogl_context_set_onscreen_dispatch_idle (context, NULL);
-    }
-
-  _cogl_list_for_each_safe (event, tmp, &queue, link)
-    {
-      CoglOnscreen *onscreen = event->onscreen;
-      CoglFrameInfo *info = event->info;
-
-      notify_event (onscreen, event->type, info);
-
-      g_object_unref (onscreen);
-      g_object_unref (info);
-
-      g_free (event);
     }
 
   cogl_context_clear_onscreen_dirty_queue (context);

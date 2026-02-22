@@ -395,9 +395,6 @@ GHookList *
 cogl_context_get_atlas_reorganize_callbacks (CoglContext *context);
 
 CoglList *
-cogl_context_get_onscreen_events_queue (CoglContext *context);
-
-CoglList *
 cogl_context_get_onscreen_dirty_queue (CoglContext *context);
 
 CoglClosure *
