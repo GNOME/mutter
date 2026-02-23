@@ -536,16 +536,30 @@ meta_screen_cast_area_stream_record_follow_up (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
-  MetaScreenCastPaintPhase paint_phase;
-  MetaScreenCastRecordFlag flags;
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
+  ClutterStage *stage = get_stage (area_src);
+  MtkRectangle *area;
+  GList *l;
 
-  g_clear_handle_id (&area_src->maybe_record_idle_id, g_source_remove);
+  area = meta_screen_cast_area_stream_get_area (area_stream);
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
-                                                  paint_phase,
-                                                  NULL);
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+      MtkRectangle view_layout;
+      MtkRectangle damage;
+
+      clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
+      if (!mtk_rectangle_overlap (area, &view_layout))
+        if (!mtk_rectangle_intersect (&view_layout, area, &damage))
+          continue;
+
+      damage.width = 1;
+      damage.height = 1;
+
+      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &damage);
+    }
 }
 
 static gboolean
