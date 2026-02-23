@@ -65,6 +65,28 @@ meta_surface_actor_wayland_is_opaque (MetaSurfaceActor *actor)
 
 #define UNOBSCURED_THRESHOLD 0.1
 
+static GList *
+calculate_effective_view_list (ClutterActor *actor)
+{
+  ClutterStage *stage;
+  GList *l;
+  GList *views = NULL;
+
+  stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+  if (!stage)
+    return NULL;
+
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      if (clutter_actor_is_effectively_on_stage_view (actor, view))
+        views = g_list_prepend (views, view);
+    }
+
+  return views;
+}
+
 gboolean
 meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
                                             ClutterStageView *stage_view)
@@ -73,70 +95,42 @@ meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
   float highest_priority = 0.0f;
   float biggest_unobscurred_fraction = 0.f;
   MetaWindowActor *window_actor;
+  g_autoptr (GList) effective_view_list = NULL;
   gboolean is_streaming = FALSE;
+  gboolean has_mapped_clones;
   GList *l;
 
   window_actor = meta_window_actor_from_actor (CLUTTER_ACTOR (actor));
   if (window_actor)
     is_streaming = meta_window_actor_is_streaming (window_actor);
-
-  if (clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)) || is_streaming)
-    {
-      ClutterStage *stage;
-      ClutterStageView *fallback_view = NULL;
-      float fallback_refresh_rate = 0.0;
-
-      stage = CLUTTER_STAGE (clutter_actor_get_stage (CLUTTER_ACTOR (actor)));
-      for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
-        {
-          ClutterStageView *view = l->data;
-          float priority;
-
-          priority = clutter_stage_view_get_priority (view);
-
-          if (clutter_actor_is_effectively_on_stage_view (CLUTTER_ACTOR (actor),
-                                                          view))
-            {
-              if (priority > highest_priority)
-                {
-                  current_primary_view = view;
-                  highest_priority = priority;
-                }
-            }
-          else
-            {
-              if (priority > fallback_refresh_rate)
-                {
-                  fallback_view = view;
-                  fallback_refresh_rate = priority;
-                }
-            }
-        }
-
-      if (current_primary_view)
-        return current_primary_view == stage_view;
-      else if (is_streaming)
-        return fallback_view == stage_view;
-    }
+  has_mapped_clones = clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor));
 
   l = clutter_actor_peek_stage_views (CLUTTER_ACTOR (actor));
-  if (!l)
-    return FALSE;
-
-  if (!l->next)
+  if (l && !l->next && !is_streaming && !has_mapped_clones)
     {
       return !meta_surface_actor_is_obscured_on_stage_view (actor,
                                                             stage_view,
                                                             NULL);
     }
+  else if (!l)
+    {
+      effective_view_list =
+        calculate_effective_view_list (CLUTTER_ACTOR (actor));
+      l = effective_view_list;
+    }
+
+  if (!l)
+    return FALSE;
 
   for (; l; l = l->next)
     {
       ClutterStageView *view = l->data;
       float priority;
-      float unobscurred_fraction;
+      float unobscurred_fraction = 1.0f;
 
-      if (meta_surface_actor_is_obscured_on_stage_view (actor,
+      if (!has_mapped_clones &&
+          !is_streaming &&
+          meta_surface_actor_is_obscured_on_stage_view (actor,
                                                         view,
                                                         &unobscurred_fraction))
         continue;
