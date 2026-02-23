@@ -131,9 +131,6 @@ typedef struct _MetaScreenCastStreamSrcPrivate
 
   uint64_t buffer_sequence_counter;
 
-  int buffer_count;
-  gboolean needs_follow_up_with_buffers;
-
   gboolean uses_dma_bufs;
   GHashTable *dmabuf_handles;
 
@@ -1195,8 +1192,11 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
   struct spa_data *spa_data;
   g_autoptr (GError) error = NULL;
 
-  if (!priv->pipewire_stream)
-    return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
+  g_return_val_if_fail (priv->pipewire_stream,
+                        META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING);
+  g_return_val_if_fail (pw_stream_get_state (priv->pipewire_stream, NULL) ==
+                        PW_STREAM_STATE_STREAMING,
+                        META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING);
 
   meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
 
@@ -1332,18 +1332,6 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Dropping cursor-only frame as the cursor didn't change");
-      return record_result;
-    }
-
-  if (priv->buffer_count == 0)
-    {
-      meta_topic (META_DEBUG_SCREEN_CAST,
-                  "Buffers hasn't been added, "
-                  "postponing recording on stream %u",
-                  priv->node_id);
-
-      priv->needs_follow_up_with_buffers = TRUE;
-      meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
       return record_result;
     }
 
@@ -2069,8 +2057,6 @@ on_stream_add_buffer (void             *data,
   struct spa_data *spa_data = &spa_buffer->datas[0];
   int stride;
 
-  priv->buffer_count++;
-
   spa_data->mapoffset = 0;
   spa_data->data = NULL;
 
@@ -2191,12 +2177,6 @@ on_stream_add_buffer (void             *data,
         }
     }
   spa_data->chunk->stride = stride;
-
-  if (priv->buffer_count == 1 && priv->needs_follow_up_with_buffers)
-    {
-      priv->needs_follow_up_with_buffers = FALSE;
-      meta_screen_cast_stream_src_record_follow_up (src);
-    }
 }
 
 static void
@@ -2236,8 +2216,6 @@ on_stream_remove_buffer (void             *data,
     meta_screen_cast_stream_src_get_instance_private (src);
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
-
-  priv->buffer_count--;
 
   if (spa_data->type == SPA_DATA_DmaBuf)
     {
