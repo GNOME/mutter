@@ -114,6 +114,9 @@ G_DEFINE_TYPE (MetaScreenCastSessionHandle,
 static MetaScreenCastSessionHandle *
 meta_screen_cast_session_handle_new (MetaScreenCastSession *session);
 
+static void on_stream_closed (MetaScreenCastStream  *stream,
+                              MetaScreenCastSession *session);
+
 static void
 init_remote_access_handle (MetaScreenCastSession *session)
 {
@@ -162,6 +165,16 @@ meta_screen_cast_session_is_active (MetaScreenCastSession *session)
 }
 
 static void
+dispose_stream (MetaScreenCastStream  *stream,
+                MetaScreenCastSession *session)
+{
+  g_signal_handlers_disconnect_by_func (stream,
+                                        G_CALLBACK (on_stream_closed),
+                                        session);
+  g_object_run_dispose (G_OBJECT (stream));
+}
+
+static void
 meta_screen_cast_session_close (MetaDbusSession *dbus_session)
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (dbus_session);
@@ -169,6 +182,7 @@ meta_screen_cast_session_close (MetaDbusSession *dbus_session)
 
   session->is_active = FALSE;
 
+  g_list_foreach (session->streams, (GFunc) dispose_stream, session);
   g_list_free_full (session->streams, g_object_unref);
 
   meta_dbus_session_notify_closed (META_DBUS_SESSION (session));
