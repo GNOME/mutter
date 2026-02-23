@@ -16,10 +16,6 @@
  *
  */
 
-/* Till https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/4065 is fixed */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-conversion"
-
 #include "config.h"
 
 #include "backends/meta-screen-cast-area-stream-src.h"
@@ -733,5 +729,3 @@ meta_screen_cast_area_stream_src_class_init (MetaScreenCastAreaStreamSrcClass *k
   src_class->set_cursor_metadata =
     meta_screen_cast_area_stream_src_set_cursor_metadata;
 }
-
-#pragma GCC diagnostic pop

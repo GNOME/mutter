@@ -18,12 +18,6 @@
  *
  */
 
-#pragma GCC diagnostic push
-/* Till https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/3915 is fixed */
-#pragma GCC diagnostic ignored "-Wshadow"
-/* Till https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/4065 is fixed */
-#pragma GCC diagnostic ignored "-Wfloat-conversion"
-
 #include "config.h"
 
 #include "backends/meta-screen-cast-stream-src.h"
@@ -2687,5 +2681,3 @@ meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src)
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
-
-#pragma GCC diagnostic pop

@@ -16,10 +16,6 @@
  *
  */
 
-/* Till https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/4065 is fixed */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-conversion"
-
 #include "config.h"
 
 #include <pipewire/pipewire.h>
@@ -891,5 +887,3 @@ main (int    argc,
 
   return EXIT_SUCCESS;
 }
-
-#pragma GCC diagnostic pop
