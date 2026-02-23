@@ -19,16 +19,16 @@
 # Leônidas Araújo <leorusvellt@hotmail.com>, 2022-2023.
 # Rafael Fontenelle <rafaelff@gnome.org>, 2013-2025.
 # Nilton Perim Neto <niltonperimneto@gmail.com>, 2025.
-# Juliano de Souza Camargo <julianosc@pm.me>, 2025-2026.
 # Álvaro Burns <>, 2025-2026.
+# Juliano de Souza Camargo <julianosc@pm.me>, 2025-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-01-31 09:20+0000\n"
-"PO-Revision-Date: 2026-02-01 08:56-0300\n"
-"Last-Translator: Álvaro Burns <>\n"
+"POT-Creation-Date: 2026-02-17 17:44+0000\n"
+"PO-Revision-Date: 2026-02-23 10:11-0300\n"
+"Last-Translator: Juliano de Souza Camargo <julianosc@pm.me>\n"
 "Language-Team: Brazilian Portuguese <https://br.gnome.org/traducao/>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
@@ -275,11 +275,11 @@ msgstr "Maximizar a janela verticalmente"
 msgid "Maximize window horizontally"
 msgstr "Maximizar a janela horizontalmente"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:180
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Visualizar a divisão à esquerda"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:185
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Visualizar a divisão à direita"
 
@@ -417,52 +417,34 @@ msgid ""
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “xwayland-native-scaling” — lets Xwayland clients use their "
-"native scaling support. If scaling is not supported by client, the client "
-"will be unscaled. Setting only takes effect when “scale-monitor-framebuffer” "
-"is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
 "Para habilitar recursos experimentais, adicione a palavra-chave do recurso à "
 "lista. Dependendo do recurso fornecido, será necessário reiniciar o "
 "compositor. Qualquer recurso experimental não precisa ainda estar disponível "
 "ou configurável. Não espere que adicionar nada nesta configuração seja uma "
-"prova futura. Palavras-chave atualmente possíveis: • “scale-monitor-"
-"framebuffer” — torna o mutter padrão para o layout de monitores lógicos em "
-"um espaço lógico de coordenadas de pixel, enquanto dimensiona os "
-"framebuffers do monitor em vez do conteúdo da janela, para gerenciar "
-"monitores HiDPI. Não requer reinicialização. • “kms-modifiers” — faz com que "
-"o mutter sempre aloque buffers de scanout com modificadores explícitos, se "
-"suportado pelo driver. Requer uma reinicialização. • “autoclose-xwayland” – "
-"encerra automaticamente o Xwayland se todos os clientes X11 relevantes "
-"tiverem desaparecido. Requer uma reinicialização. • “variable-refresh-rate” "
-"— faz com que o mutter ajuste dinamicamente a taxa de atualização do monitor "
-"quando aplicável, se suportado pelo monitor, GPU e driver DRM. Configurável "
-"em Configurações. Requer uma reinicialização. • “xwayland-native-scaling” — "
-"permite que os clientes Xwayland usem seu suporte de escala nativo. Se a "
-"escala não for suportada pelo cliente, o cliente não será escalado. A "
-"configuração só entra em vigor quando “scale-monitor-framebuffer” também "
-"estiver habilitado."
+"prova futura. Palavras-chave atualmente possíveis: • “kms-modifiers” — faz "
+"com que o mutter sempre aloque buffers de scanout com modificadores "
+"explícitos, se suportado pelo driver. Requer uma reinicialização. • "
+"“autoclose-xwayland” – encerra automaticamente o Xwayland se todos os "
+"clientes X11 relevantes tiverem desaparecido. Requer uma reinicialização."
 
-#: data/org.gnome.mutter.gschema.xml.in:144
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador para usar ao localizar o ponteiro"
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Essa chave vai iniciar a ação de “localizar ponteiro”."
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Tempo limite para o ping de verificação ativa"
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -473,11 +455,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:164
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Configurações de luminância por saída"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -489,15 +471,15 @@ msgstr ""
 "como um valor de ponto flutuante associado representando a luminância da "
 "saída em porcentagem (%). O padrão, quando não especificado, é 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:190
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Trocar configurações de monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:195
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Gira a configuração de monitor embutido"
 
-#: data/org.gnome.mutter.gschema.xml.in:200
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Cancelar qualquer sessão ativa de captura de entrada"
 
@@ -651,6 +633,24 @@ msgstr ""
 "byteswappedclients para controlar essa configuração. O Xwayland precisa ser "
 "reiniciado para que essa configuração entre em vigor."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Configurar o fator de escala do Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Escale as coordenadas de espaço do Xwayland de acordo com este fator. Isto "
+"irá afetar a escala HiDPI possível de clientes X11 que apresentarão a si "
+"mesmos, e como o compositor escala janelas de clientes X11. Definindo a "
+"escala para 0 significa que a escala será automaticamente calculada. A "
+"escala será a partir de agora arredondada para o inteiro mais próximo."
+
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
 msgstr "Aplicativo"
@@ -716,8 +716,8 @@ msgid "_Monitors"
 msgstr "_Monitores"
 
 #: mdk/mdk-main-window.ui:26
-msgid "_Resizable"
-msgstr "_Redimensionável"
+msgid "_Emulate monitor modes"
+msgstr "_Emular modos do monitor"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -751,30 +751,30 @@ msgstr "Kit de desenvolvimento de software do Mutter"
 msgid "About Mutter Development Kit"
 msgstr "Sobre o Kit de desenvolvimento do Mutter"
 
-#: mdk/mdk-monitor.c:792
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "Falha ao criar monitor"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "Tela embutida"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "Monitor desconhecido"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -794,39 +794,39 @@ msgstr "Tela de privacidade habilitada"
 msgid "Privacy Screen Disabled"
 msgstr "Tela de privacidade desabilitada"
 
-#: src/core/meta-context-main.c:355
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Executa como um compositor wayland"
 
-#: src/core/meta-context-main.c:362
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executa o compositor wayland sem iniciar o Xwayland"
 
-#: src/core/meta-context-main.c:369
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Especifica o nome da tela Wayland para usar"
 
-#: src/core/meta-context-main.c:376
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Executa como um servidor de tela cheia, ao invés de aninhado"
 
-#: src/core/meta-context-main.c:381
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Executa como um servidor de tela sem periféricos"
 
-#: src/core/meta-context-main.c:386
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Adicionar monitor virtual persistente (WxH ou WxH@R)"
 
-#: src/core/meta-context-main.c:393
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Executar kit de desenvolvimento"
 
-#: src/core/meta-context-main.c:404
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Perfila o desempenho usando instrumentação de rastreamento"
 
-#: src/core/meta-context-main.c:410
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Habilitar interface D-Bus do controle de depuração"
 
@@ -879,7 +879,7 @@ msgstr "Espaço de trabalho %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "O Mutter foi compilado sem suporte para modo detalhado"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Espaço de trabalho alterado"
 
@@ -898,14 +898,14 @@ msgstr "Display “%s” já possui um gestor de janela"
 msgid "Failed to open X Window System display “%s”"
 msgstr "Falha ao abrir a exibição “%s” do sistema de janelas X"
 
-#: src/x11/meta-x11-display.c:1320
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "A tela %d na exibição “%s” é inválida"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2509
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -922,6 +922,9 @@ msgstr "Sem suporte ao formato %s"
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (em %s)"
+
+#~ msgid "_Resizable"
+#~ msgstr "_Redimensionável"
 
 #~ msgid "Replace the running window manager"
 #~ msgstr "Substitui o gerenciador de janelas em execução"
