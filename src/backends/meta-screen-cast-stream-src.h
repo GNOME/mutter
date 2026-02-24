@@ -83,7 +83,7 @@ struct _MetaScreenCastStreamSrcClass
                                       MetaScreenCastPaintPhase   paint_phase,
                                       CoglFramebuffer           *framebuffer,
                                       GError                   **error);
-  void (* record_follow_up) (MetaScreenCastStreamSrc *src);
+  void (* queue_follow_up) (MetaScreenCastStreamSrc *src);
 
   gboolean (* get_videocrop) (MetaScreenCastStreamSrc *src,
                               MtkRectangle            *crop_rect);

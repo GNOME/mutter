@@ -372,12 +372,12 @@ meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *sr
 }
 
 static void
-meta_screen_cast_stream_src_record_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_stream_src_queue_follow_up (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  klass->record_follow_up (src);
+  klass->queue_follow_up (src);
 }
 
 static void
@@ -856,7 +856,7 @@ follow_up_frame_cb (gpointer user_data)
     meta_screen_cast_stream_src_get_instance_private (src);
 
   priv->follow_up_frame_source_id = 0;
-  meta_screen_cast_stream_src_record_follow_up (src);
+  meta_screen_cast_stream_src_queue_follow_up (src);
 }
 
 gboolean
@@ -2096,7 +2096,7 @@ on_stream_add_buffer (void             *data,
   if (priv->buffer_count == 1 && priv->needs_follow_up_with_buffers)
     {
       priv->needs_follow_up_with_buffers = FALSE;
-      meta_screen_cast_stream_src_record_follow_up (src);
+      meta_screen_cast_stream_src_queue_follow_up (src);
     }
 }
 
