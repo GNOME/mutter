@@ -1170,6 +1170,7 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Couldn't dequeue a buffer from pipewire stream: %s",
                   error->message);
+      meta_screen_cast_stream_src_queue_follow_up (src, flags);
       return record_result;
     }
 
