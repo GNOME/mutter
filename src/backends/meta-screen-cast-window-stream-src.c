@@ -203,7 +203,6 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                cursor_transform,
                                src_rect);
 
-
   cursor_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                                width, height);
 
