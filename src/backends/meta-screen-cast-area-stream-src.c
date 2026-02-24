@@ -532,7 +532,8 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
 }
 
 static void
-meta_screen_cast_area_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_area_stream_queue_follow_up (MetaScreenCastStreamSrc  *src,
+                                              MetaScreenCastRecordFlag  flags)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -541,6 +542,12 @@ meta_screen_cast_area_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
   ClutterStage *stage = get_stage (area_src);
   MtkRectangle *area;
   GList *l;
+
+  if (flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY)
+    {
+      clutter_stage_schedule_update (stage);
+      return;
+    }
 
   area = meta_screen_cast_area_stream_get_area (area_stream);
 

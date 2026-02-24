@@ -480,6 +480,19 @@ queue_record (MetaScreenCastWindowStreamSrc *window_src)
 }
 
 static void
+queue_record_cursor (MetaScreenCastWindowStreamSrc *window_src)
+{
+  MetaScreenCastRecordFlag flags;
+
+  if (window_src->queue_record_flags == -1)
+    flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
+  else
+    flags = window_src->queue_record_flags;
+
+  queue_record_with_flags (window_src, flags);
+}
+
+static void
 queue_record_now (MetaScreenCastWindowStreamSrc *window_src)
 {
   if (g_source_get_ready_time (window_src->queue_record_source) == 0)
@@ -494,8 +507,6 @@ queue_record_cursor_now (MetaScreenCastWindowStreamSrc *window_src)
 {
   if (window_src->queue_record_flags == -1)
     window_src->queue_record_flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  else
-    window_src->queue_record_flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
 
   g_source_set_ready_time (window_src->queue_record_source, 0);
 }
@@ -673,12 +684,16 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
 }
 
 static void
-meta_screen_cast_window_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_window_stream_queue_follow_up (MetaScreenCastStreamSrc  *src,
+                                                MetaScreenCastRecordFlag  flags)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
 
-  queue_record (window_src);
+  if (flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY)
+    queue_record_cursor (window_src);
+  else
+    queue_record (window_src);
 }
 
 static gboolean
