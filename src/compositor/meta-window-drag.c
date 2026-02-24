@@ -376,6 +376,7 @@ meta_window_drag_update_cursor (MetaWindowDrag *window_drag)
   cursor = meta_cursor_for_grab_op (window_drag->grab_op);
   grab_actor = clutter_stage_get_grab_actor (stage);
   clutter_actor_set_cursor_type (grab_actor, cursor);
+  clutter_sprite_invalidate_cursor (window_drag->leading_sprite);
 }
 
 void
