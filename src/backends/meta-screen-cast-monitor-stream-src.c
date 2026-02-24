@@ -742,7 +742,7 @@ stage_paint:
 }
 
 static void
-meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_monitor_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
@@ -951,8 +951,8 @@ meta_screen_cast_monitor_stream_src_class_init (MetaScreenCastMonitorStreamSrcCl
     meta_screen_cast_monitor_stream_src_record_to_buffer;
   src_class->record_to_framebuffer =
     meta_screen_cast_monitor_stream_src_record_to_framebuffer;
-  src_class->record_follow_up =
-    meta_screen_cast_monitor_stream_record_follow_up;
+  src_class->queue_follow_up =
+    meta_screen_cast_monitor_stream_queue_follow_up;
   src_class->set_cursor_metadata =
     meta_screen_cast_monitor_stream_src_set_cursor_metadata;
 }

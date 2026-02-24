@@ -370,12 +370,12 @@ meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *sr
 }
 
 static void
-meta_screen_cast_stream_src_record_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_stream_src_queue_follow_up (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  klass->record_follow_up (src);
+  klass->queue_follow_up (src);
 }
 
 static void

@@ -532,7 +532,7 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
 }
 
 static void
-meta_screen_cast_area_stream_record_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_area_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -736,8 +736,8 @@ meta_screen_cast_area_stream_src_class_init (MetaScreenCastAreaStreamSrcClass *k
     meta_screen_cast_area_stream_src_record_to_buffer;
   src_class->record_to_framebuffer =
     meta_screen_cast_area_stream_src_record_to_framebuffer;
-  src_class->record_follow_up =
-    meta_screen_cast_area_stream_record_follow_up;
+  src_class->queue_follow_up =
+    meta_screen_cast_area_stream_queue_follow_up;
   src_class->is_cursor_metadata_valid =
     meta_screen_cast_area_stream_src_is_cursor_metadata_valid;
   src_class->set_cursor_metadata =
