@@ -34,6 +34,9 @@ wayland_test_clients = [
     'name': 'drm-lease',
   },
   {
+    'name': 'delayed-cursor',
+  },
+  {
     'name': 'fractional-scale',
   },
   {

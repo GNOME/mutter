@@ -1083,6 +1083,91 @@ mark_later_as_done (gpointer user_data)
 }
 
 static void
+delayed_cursor (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  MetaWaylandTestClient *test_client1, *test_client2;
+  MetaWindow *window;
+
+  virtual_pointer = clutter_seat_create_virtual_device (seat,
+                                                        CLUTTER_POINTER_DEVICE);
+
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       600.0f,
+                                                       0.0f);
+  meta_flush_input (test_context);
+
+  /* FIXME workaround for a bug in native cursor renderer where just trying to
+   * get the cursor on a plane results in no software cursor being rendered */
+  meta_backend_inhibit_hw_cursor (backend);
+
+  test_client1 =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "delayed-cursor",
+                                            "src",
+                                            NULL);
+  meta_wait_for_client_window (test_context, "src");
+  window = find_client_window ("src");
+  g_assert_nonnull (window);
+  meta_wait_for_effects (window);
+  wait_for_sync_point (0);
+  meta_window_move_frame (window, FALSE, 100, 100);
+
+  test_client2 =
+    meta_wayland_test_client_new_with_args (test_context,
+                                            "delayed-cursor",
+                                            "dst",
+                                            NULL);
+  meta_wait_for_client_window (test_context, "dst");
+  window = find_client_window ("dst");
+  g_assert_nonnull (window);
+  meta_wait_for_effects (window);
+  wait_for_sync_point (1);
+  meta_window_move_frame (window, FALSE, 200, 200);
+
+  /* Move into src */
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       150.0f,
+                                                       150.0f);
+  meta_flush_input (test_context);
+
+  wait_for_sync_point (2);
+
+  /* Move into compositor chrome */
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       250.0f,
+                                                       150.0f);
+  meta_flush_input (test_context);
+
+  /* Move into dst */
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       250.0f,
+                                                       250.0f);
+  meta_flush_input (test_context);
+
+  wait_for_sync_point (3);
+
+  /* Move into compositor chrome again */
+  clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
+                                                       g_get_monotonic_time (),
+                                                       150.0f,
+                                                       250.0f);
+  meta_flush_input (test_context);
+
+  emit_sync_event (0);
+
+  meta_wayland_test_client_finish (test_client1);
+  meta_wayland_test_client_finish (test_client2);
+  meta_backend_uninhibit_hw_cursor (backend);
+  g_clear_object (&virtual_pointer);
+}
+
+static void
 wait_until_after_paint (void)
 {
   MetaDisplay *display = meta_context_get_display (test_context);
@@ -2344,6 +2429,8 @@ init_tests (void)
                    toplevel_suspended);
   g_test_add_func ("/wayland/cursor/shape",
                    cursor_shape);
+  g_test_add_func ("/wayland/cursor/delayed",
+                   delayed_cursor);
   g_test_add_func ("/wayland/toplevel/tag",
                    toplevel_tag);
   g_test_add_func ("/wayland/toplevel/fixed-size-fullscreen",
