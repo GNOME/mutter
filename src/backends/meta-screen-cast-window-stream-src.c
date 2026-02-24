@@ -39,6 +39,9 @@ struct _MetaScreenCastWindowStreamSrc
   gulong cursor_changed_handler_id;
   gulong prepare_frame_handler_id;
 
+  MetaScreenCastRecordFlag queue_record_flags;
+  GSource *queue_record_source;
+
   gboolean cursor_bitmap_invalid;
 
   struct {
@@ -359,9 +362,12 @@ meta_screen_cast_window_stream_src_get_specs (MetaScreenCastStreamSrc *src,
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
 
-  *width = get_stream_width (window_src);
-  *height = get_stream_height (window_src);
-  *frame_rate = 60.0f;
+  if (width)
+    *width = get_stream_width (window_src);
+  if (height)
+    *height = get_stream_height (window_src);
+  if (frame_rate)
+    *frame_rate = 60.0f;
 
   return TRUE;
 }
@@ -385,6 +391,13 @@ meta_screen_cast_window_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
   mtk_rectangle_intersect (crop_rect, &stream_rect, crop_rect);
 
   return TRUE;
+}
+
+static void
+unqueue_record (MetaScreenCastWindowStreamSrc *window_src)
+{
+  window_src->queue_record_flags = -1;
+  g_source_set_ready_time (window_src->queue_record_source, -1);
 }
 
 static void
@@ -420,21 +433,94 @@ meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_s
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       break;
     }
+
+  unqueue_record (window_src);
+}
+
+static void
+record_frame (MetaScreenCastWindowStreamSrc *window_src,
+              MetaScreenCastRecordFlag       flags)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
+  MetaScreenCastPaintPhase paint_phase;
+
+  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
+                                                  paint_phase,
+                                                  NULL);
+}
+
+static gboolean
+record_frame_cb (gpointer user_data)
+{
+  MetaScreenCastWindowStreamSrc *window_src =
+    META_SCREEN_CAST_WINDOW_STREAM_SRC (user_data);
+  MetaScreenCastRecordFlag flags;
+
+  g_source_set_ready_time (window_src->queue_record_source, -1);
+
+  flags = window_src->queue_record_flags;
+  window_src->queue_record_flags = -1;
+
+  g_return_val_if_fail (flags != -1, G_SOURCE_CONTINUE);
+
+  record_frame (window_src, flags);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+queue_record_with_flags (MetaScreenCastWindowStreamSrc *window_src,
+                         MetaScreenCastRecordFlag       flags)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
+  float frame_rate;
+  int64_t frame_interval_us;
+
+  window_src->queue_record_flags = flags;
+
+  if (g_source_get_ready_time (window_src->queue_record_source) >= 0)
+    return;
+
+  meta_screen_cast_window_stream_src_get_specs (src, NULL, NULL, &frame_rate);
+  frame_interval_us = (int64_t) (0.5 + G_USEC_PER_SEC / frame_rate);
+
+  g_source_set_ready_time (window_src->queue_record_source,
+                           g_get_monotonic_time () + frame_interval_us);
+}
+
+static void
+queue_record (MetaScreenCastWindowStreamSrc *window_src)
+{
+  queue_record_with_flags (window_src, META_SCREEN_CAST_RECORD_FLAG_NONE);
+}
+
+static void
+queue_record_now (MetaScreenCastWindowStreamSrc *window_src)
+{
+  if (g_source_get_ready_time (window_src->queue_record_source) == 0)
+    return;
+
+  window_src->queue_record_flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  g_source_set_ready_time (window_src->queue_record_source, 0);
+}
+
+static void
+queue_record_cursor_now (MetaScreenCastWindowStreamSrc *window_src)
+{
+  if (window_src->queue_record_flags == -1)
+    window_src->queue_record_flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
+  else
+    window_src->queue_record_flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+
+  g_source_set_ready_time (window_src->queue_record_source, 0);
 }
 
 static void
 screen_cast_window_damaged (MetaWindowActor               *actor,
                             MetaScreenCastWindowStreamSrc *window_src)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
-  MetaScreenCastPaintPhase paint_phase;
-  MetaScreenCastRecordFlag flags;
-
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
-                                                  paint_phase,
-                                                  NULL);
+  queue_record_now (window_src);
 }
 
 static void
@@ -448,18 +534,7 @@ screen_cast_window_destroyed (MetaWindowActor               *actor,
 static void
 sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
-  MetaScreenCastPaintPhase paint_phase;
-  MetaScreenCastRecordFlag flags;
-
-  if (meta_screen_cast_window_has_damage (window_src->screen_cast_window))
-    return;
-
-  flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
-  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
-                                                  paint_phase,
-                                                  NULL);
+  queue_record_cursor_now (window_src);
 }
 
 static void
@@ -496,10 +571,8 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaBackend *backend = get_backend (window_src);
   ClutterStage *stage = get_stage (window_src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  MetaScreenCastPaintPhase paint_phase;
   MetaWindowActor *window_actor;
   MetaScreenCastStream *stream;
-  MetaScreenCastRecordFlag flags;
 
   window_actor = meta_window_actor_from_window (get_window (window_src));
   if (!window_actor)
@@ -542,11 +615,7 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
       break;
     }
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
-                                                  paint_phase,
-                                                  NULL);
+  queue_record_now (window_src);
 }
 
 static void
@@ -570,6 +639,8 @@ meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
 
+  unqueue_record (window_src);
+
   capture_into (window_src, width, height, stride, data);
 
   return TRUE;
@@ -585,6 +656,8 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
   MetaScreenCastStream *stream;
   MtkRectangle stream_rect;
+
+  unqueue_record (window_src);
 
   stream_rect.x = 0;
   stream_rect.y = 0;
@@ -617,16 +690,12 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
 }
 
 static void
-meta_screen_cast_window_stream_record_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_window_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
 {
-  MetaScreenCastPaintPhase paint_phase;
-  MetaScreenCastRecordFlag flags;
+  MetaScreenCastWindowStreamSrc *window_src =
+    META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
-  paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
-  meta_screen_cast_stream_src_maybe_record_frame (src, flags,
-                                                  paint_phase,
-                                                  NULL);
+  queue_record (window_src);
 }
 
 static gboolean
@@ -757,16 +826,54 @@ meta_screen_cast_window_stream_src_new (MetaScreenCastWindowStream  *window_stre
 }
 
 static void
+meta_screen_cast_window_stream_src_finalize (GObject *object)
+{
+  MetaScreenCastWindowStreamSrc *window_src =
+    META_SCREEN_CAST_WINDOW_STREAM_SRC (object);
+
+  g_clear_pointer (&window_src->queue_record_source, g_source_destroy);
+
+  G_OBJECT_CLASS (meta_screen_cast_window_stream_src_parent_class)->finalize (object);
+}
+
+static gboolean
+source_dispatch (GSource     *source,
+                 GSourceFunc  callback,
+                 gpointer     user_data)
+{
+  g_source_set_ready_time (source, -1);
+
+  return callback (user_data);
+}
+
+static GSourceFuncs source_funcs =
+{
+  .dispatch = source_dispatch,
+};
+
+static void
 meta_screen_cast_window_stream_src_init (MetaScreenCastWindowStreamSrc *window_src)
 {
   window_src->cursor_bitmap_invalid = TRUE;
+
+  window_src->queue_record_flags = -1;
+  window_src->queue_record_source = g_source_new (&source_funcs,
+                                                  sizeof (GSource));
+  g_source_set_callback (window_src->queue_record_source,
+                         record_frame_cb, window_src, NULL);
+  g_source_set_ready_time (window_src->queue_record_source, -1);
+  g_source_attach (window_src->queue_record_source, NULL);
+  g_source_unref (window_src->queue_record_source);
 }
 
 static void
 meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaScreenCastStreamSrcClass *src_class =
     META_SCREEN_CAST_STREAM_SRC_CLASS (klass);
+
+  object_class->finalize = meta_screen_cast_window_stream_src_finalize;
 
   src_class->get_specs = meta_screen_cast_window_stream_src_get_specs;
   src_class->enable = meta_screen_cast_window_stream_src_enable;
@@ -776,7 +883,7 @@ meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClas
   src_class->record_to_framebuffer =
     meta_screen_cast_window_stream_src_record_to_framebuffer;
   src_class->record_follow_up =
-    meta_screen_cast_window_stream_record_follow_up;
+    meta_screen_cast_window_stream_queue_follow_up;
   src_class->get_videocrop = meta_screen_cast_window_stream_src_get_videocrop;
   src_class->is_cursor_metadata_valid =
     meta_screen_cast_window_stream_src_is_cursor_metadata_valid;
