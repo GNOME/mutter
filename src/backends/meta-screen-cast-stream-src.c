@@ -371,12 +371,13 @@ meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *sr
 }
 
 static void
-meta_screen_cast_stream_src_queue_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_stream_src_queue_follow_up (MetaScreenCastStreamSrc  *src,
+                                             MetaScreenCastRecordFlag  flags)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  klass->queue_follow_up (src);
+  klass->queue_follow_up (src, flags);
 }
 
 static void
@@ -1320,7 +1321,7 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
-          meta_screen_cast_stream_src_queue_follow_up (src);
+          meta_screen_cast_stream_src_queue_follow_up (src, flags);
           meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
           return record_result;
         }
@@ -2054,7 +2055,8 @@ on_stream_add_buffer (void             *data,
   if (priv->buffer_count == 1 && priv->needs_follow_up_with_buffers)
     {
       priv->needs_follow_up_with_buffers = FALSE;
-      meta_screen_cast_stream_src_queue_follow_up (src);
+      meta_screen_cast_stream_src_queue_follow_up (src,
+                                                   META_SCREEN_CAST_RECORD_FLAG_NONE);
     }
 }
 

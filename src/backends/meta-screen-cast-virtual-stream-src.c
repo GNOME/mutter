@@ -462,16 +462,24 @@ meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 }
 
 static void
-meta_screen_cast_virtual_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_virtual_stream_queue_follow_up (MetaScreenCastStreamSrc  *src,
+                                                 MetaScreenCastRecordFlag  flags)
 {
-  MtkRectangle damage;
+  if (flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY)
+    {
+      clutter_stage_view_schedule_update (view_from_src (src));
+    }
+  else
+    {
+      MtkRectangle damage;
 
-  clutter_stage_view_get_layout (view_from_src (src), &damage);
-  damage.width = 1;
-  damage.height = 1;
+      clutter_stage_view_get_layout (view_from_src (src), &damage);
+      damage.width = 1;
+      damage.height = 1;
 
-  clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage_from_src (src)),
-                                        &damage);
+      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage_from_src (src)),
+                                            &damage);
+    }
 }
 
 static gboolean

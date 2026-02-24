@@ -748,7 +748,8 @@ stage_paint:
 }
 
 static void
-meta_screen_cast_monitor_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
+meta_screen_cast_monitor_stream_queue_follow_up (MetaScreenCastStreamSrc  *src,
+                                                 MetaScreenCastRecordFlag  flags)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
@@ -759,6 +760,13 @@ meta_screen_cast_monitor_stream_queue_follow_up (MetaScreenCastStreamSrc *src)
   MetaLogicalMonitor *logical_monitor;
   MtkRectangle logical_monitor_layout;
   GList *l;
+
+  if (flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY &&
+      !monitor_src->maybe_record_idle_id)
+    {
+      clutter_stage_schedule_update (stage);
+      return;
+    }
 
   g_clear_handle_id (&monitor_src->maybe_record_idle_id, g_source_remove);
 
