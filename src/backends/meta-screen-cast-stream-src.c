@@ -121,7 +121,6 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   struct spa_video_info_raw video_format;
 
   int64_t last_frame_timestamp_us;
-  guint follow_up_frame_source_id;
 
   uint64_t buffer_sequence_counter;
 
@@ -837,26 +836,6 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
 }
 
 gboolean
-meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src)
-{
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-
-  return priv->follow_up_frame_source_id != 0;
-}
-
-static void
-follow_up_frame_cb (gpointer user_data)
-{
-  MetaScreenCastStreamSrc *src = user_data;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-
-  priv->follow_up_frame_source_id = 0;
-  meta_screen_cast_stream_src_record_follow_up (src);
-}
-
-gboolean
 meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src)
 {
   MetaScreenCastStreamSrcPrivate *priv =
@@ -867,21 +846,6 @@ meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src)
                   PW_STREAM_STATE_STREAMING);
 
   return pw_stream_is_driving (priv->pipewire_stream);
-}
-
-static void
-maybe_schedule_follow_up_frame (MetaScreenCastStreamSrc *src,
-                                int64_t                  timeout_us)
-{
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-
-  if (priv->follow_up_frame_source_id)
-    return;
-
-  priv->follow_up_frame_source_id = g_timeout_add_once (us2ms (timeout_us),
-                                                        follow_up_frame_cb,
-                                                        src);
 }
 
 static void
@@ -1227,7 +1191,6 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
-      g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
       if (do_record_frame (src, flags, paint_phase, spa_buffer, &error))
         {
           maybe_add_damaged_regions_metadata (src, spa_buffer);
@@ -1342,13 +1305,10 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
       time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
       if (time_since_last_frame_us < min_interval_us)
         {
-          int64_t timeout_us;
-
-          timeout_us = min_interval_us - time_since_last_frame_us;
-          maybe_schedule_follow_up_frame (src, timeout_us);
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
+          meta_screen_cast_stream_src_queue_follow_up (src);
           meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
           return record_result;
         }
@@ -1393,8 +1353,6 @@ meta_screen_cast_stream_src_disable (MetaScreenCastStreamSrc *src)
     meta_screen_cast_stream_src_get_instance_private (src);
 
   META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src)->disable (src);
-
-  g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
 
   priv->is_enabled = FALSE;
 }
