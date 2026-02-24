@@ -133,8 +133,6 @@ gboolean meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src);
 
 void meta_screen_cast_stream_src_request_process (MetaScreenCastStreamSrc *src);
 
-gboolean meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src);
-
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
 
 gboolean meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,

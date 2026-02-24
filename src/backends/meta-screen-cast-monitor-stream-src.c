@@ -312,9 +312,6 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
   if (is_redraw_queued (monitor_src))
     return;
 
-  if (meta_screen_cast_stream_src_pending_follow_up_frame (src))
-    return;
-
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   paint_phase = META_SCREEN_CAST_PAINT_PHASE_DETACHED;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags,
