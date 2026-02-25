@@ -150,9 +150,20 @@ meta_display_handle_event (MetaDisplay        *display,
 
   if (IS_KEY_EVENT (event_type))
     {
-      a11y_grabbed = meta_a11y_manager_notify_clients (a11y_manager, event);
-      if (a11y_grabbed)
-        return CLUTTER_EVENT_STOP;
+      gboolean should_inhibit_a11y = FALSE;
+
+      if (display->focus_window)
+        {
+          ClutterInputDevice *source = clutter_event_get_source_device (event);
+          should_inhibit_a11y = meta_window_shortcuts_inhibited (display->focus_window, source);
+        }
+
+      if (!should_inhibit_a11y)
+        {
+          a11y_grabbed = meta_a11y_manager_notify_clients (a11y_manager, event);
+          if (a11y_grabbed)
+            return CLUTTER_EVENT_STOP;
+        }
     }
   else if (event_type == CLUTTER_MOTION &&
            !clutter_event_get_device_tool (event))
