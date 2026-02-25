@@ -60,6 +60,7 @@ typedef struct _MetaTagEntry
 typedef struct _MetaScreenCastFormat
 {
   CoglPixelFormat format;
+  ClutterColorState *color_state;
 } MetaScreenCastFormat;
 
 /* Declare some SPA types to avoid including the headers in too many places. */
@@ -187,3 +188,5 @@ const MetaScreenCastFormat * meta_screen_cast_stream_src_get_formats (MetaScreen
 void meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src);
 
 void meta_screen_cast_stream_src_renegotiate (MetaScreenCastStreamSrc *src);
+
+ClutterColorState * meta_screen_cast_stream_src_get_color_state (MetaScreenCastStreamSrc *src);

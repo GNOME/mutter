@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <glib/gstdio.h>
 #include <pipewire/pipewire.h>
+#include <spa/debug/pod.h>
 #include <spa/param/props.h>
 #include <spa/param/format-utils.h>
 #include <spa/param/tag-utils.h>
@@ -117,6 +118,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   uint32_t node_id;
 
   struct spa_video_info_raw video_format;
+  ClutterColorState *color_state;
 
   int64_t last_frame_timestamp_us;
 
@@ -162,6 +164,9 @@ static const struct {
 } cogl_spa_format_table[] = {
   { COGL_PIXEL_FORMAT_BGRX_8888, SPA_VIDEO_FORMAT_BGRx },
   { COGL_PIXEL_FORMAT_BGRA_8888_PRE, SPA_VIDEO_FORMAT_BGRA },
+  { COGL_PIXEL_FORMAT_XRGB_2101010, SPA_VIDEO_FORMAT_xRGB_210LE },
+  { COGL_PIXEL_FORMAT_XBGR_2101010, SPA_VIDEO_FORMAT_xBGR_210LE },
+  { COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE, SPA_VIDEO_FORMAT_RGBA_F16 },
 };
 
 #define meta_pod_builder_add_object(pod_builder, offsets, type, id, ...) \
@@ -249,16 +254,19 @@ append_pod_offset (GArray                 *pod_offsets,
 }
 
 static void
-push_format_object (struct spa_pod_builder *pod_builder,
-                    GArray                 *pod_offsets,
-                    enum spa_video_format   format,
-                    uint64_t               *modifiers,
-                    int                     n_modifiers,
-                    gboolean                fixate_modifier,
+push_format_object (struct spa_pod_builder           *pod_builder,
+                    GArray                           *pod_offsets,
+                    enum spa_video_format             format,
+                    uint64_t                         *modifiers,
+                    int                               n_modifiers,
+                    gboolean                          fixate_modifier,
+                    enum spa_video_color_primaries    spa_color_primaries,
+                    enum spa_video_transfer_function  spa_transfer_function,
                     ...)
 {
   struct spa_pod_frame pod_frame;
   va_list args;
+  uint32_t color_state_flags = 0;
 
   append_pod_offset (pod_offsets, pod_builder);
 
@@ -307,9 +315,23 @@ push_format_object (struct spa_pod_builder *pod_builder,
         }
     }
 
-  va_start (args, fixate_modifier);
+  va_start (args, spa_transfer_function);
   spa_pod_builder_addv (pod_builder, args);
   va_end (args);
+
+  if (spa_color_primaries != SPA_VIDEO_COLOR_PRIMARIES_BT709 ||
+      spa_transfer_function != SPA_VIDEO_TRANSFER_GAMMA22)
+    color_state_flags |= SPA_POD_PROP_FLAG_MANDATORY;
+
+  spa_pod_builder_prop (pod_builder,
+                        SPA_FORMAT_VIDEO_colorPrimaries,
+                        color_state_flags);
+  spa_pod_builder_id (pod_builder, spa_color_primaries);
+  spa_pod_builder_prop (pod_builder,
+                        SPA_FORMAT_VIDEO_transferFunction,
+                        color_state_flags);
+  spa_pod_builder_id (pod_builder, spa_transfer_function);
+
   spa_pod_builder_pop (pod_builder, &pod_frame);
 }
 
@@ -1375,6 +1397,36 @@ typedef struct _MetaScreenCastSpec
   float frame_rate;
 } MetaScreenCastSpec;
 
+static gboolean
+spa_color_state_from_clutter (ClutterColorState                *color_state,
+                              enum spa_video_color_primaries   *spa_color_primaries,
+                              enum spa_video_transfer_function *spa_transfer_function)
+{
+  ClutterColorStateParams *color_state_params;
+  const ClutterColorimetry *colorimetry;
+  const ClutterEOTF *eotf;
+
+  if (!CLUTTER_IS_COLOR_STATE_PARAMS (color_state))
+    return FALSE;
+
+  color_state_params = CLUTTER_COLOR_STATE_PARAMS (color_state);
+
+  colorimetry = clutter_color_state_params_get_colorimetry (color_state_params);
+  eotf = clutter_color_state_params_get_eotf (color_state_params);
+
+  if (colorimetry->type == CLUTTER_COLORIMETRY_TYPE_COLORSPACE &&
+      colorimetry->colorspace == CLUTTER_COLORSPACE_BT2020 &&
+      eotf->type == CLUTTER_EOTF_TYPE_NAMED &&
+      eotf->tf_name == CLUTTER_TRANSFER_FUNCTION_PQ)
+    {
+      *spa_color_primaries = SPA_VIDEO_COLOR_PRIMARIES_BT2020;
+      *spa_transfer_function = SPA_VIDEO_TRANSFER_SMPTE2084;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 add_format_param (MetaScreenCastStreamSrc    *src,
                   struct spa_pod_builder     *pod_builder,
@@ -1398,6 +1450,8 @@ add_format_param (MetaScreenCastStreamSrc    *src,
   struct spa_fraction max_framerate = MAX_FRAME_RATE;
   CoglPixelFormat cogl_format = format->format;
   enum spa_video_format spa_format;
+  enum spa_video_color_primaries spa_color_primaries;
+  enum spa_video_transfer_function spa_transfer_function;
 
   if (spec)
     {
@@ -1415,6 +1469,15 @@ add_format_param (MetaScreenCastStreamSrc    *src,
 
   if (!spa_video_format_from_cogl_pixel_format (cogl_format, &spa_format))
     g_return_if_reached ();
+
+  if (!format->color_state ||
+      !spa_color_state_from_clutter (format->color_state,
+                                     &spa_color_primaries,
+                                     &spa_transfer_function))
+    {
+      spa_color_primaries = SPA_VIDEO_COLOR_PRIMARIES_BT709;
+      spa_transfer_function = SPA_VIDEO_TRANSFER_GAMMA22;
+    }
 
   if (with_modifiers)
     {
@@ -1442,6 +1505,7 @@ add_format_param (MetaScreenCastStreamSrc    *src,
         pod_offsets,
         spa_format,
         (uint64_t *) modifiers->data, modifiers->len, FALSE,
+        spa_color_primaries, spa_transfer_function,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&default_size,
                                                                &min_size,
                                                                &max_size),
@@ -1458,6 +1522,7 @@ add_format_param (MetaScreenCastStreamSrc    *src,
         pod_builder,
         pod_offsets,
         spa_format, NULL, 0, FALSE,
+        spa_color_primaries, spa_transfer_function,
         SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle (&default_size,
                                                                &min_size,
                                                                &max_size),
@@ -1716,6 +1781,59 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
 }
 
 static void
+update_color_state (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session =
+    meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterContext *clutter_context =
+    meta_backend_get_clutter_context (backend);
+  ClutterColorspace colorspace;
+  ClutterTransferFunction transfer_function;
+  g_autoptr (ClutterColorState) color_state = NULL;
+
+  switch (priv->video_format.color_primaries)
+    {
+    case SPA_VIDEO_COLOR_PRIMARIES_BT2020:
+      colorspace = CLUTTER_COLORSPACE_BT2020;
+      break;
+    default:
+      g_warning ("Unhandled color primaries %s",
+                 spa_debug_type_find_name (spa_type_video_color_primaries,
+                                           priv->video_format.color_primaries));
+      G_GNUC_FALLTHROUGH;
+    case SPA_VIDEO_COLOR_PRIMARIES_BT709:
+      colorspace = CLUTTER_COLORSPACE_SRGB;
+      break;
+    }
+
+  switch (priv->video_format.transfer_function)
+    {
+    case SPA_VIDEO_TRANSFER_SMPTE2084:
+      transfer_function = CLUTTER_TRANSFER_FUNCTION_PQ;
+      break;
+    default:
+      g_warning ("Unhandled transfer function %s",
+                 spa_debug_type_find_name (spa_type_video_transfer_function,
+                                           priv->video_format.transfer_function));
+      G_GNUC_FALLTHROUGH;
+    case SPA_VIDEO_TRANSFER_GAMMA22:
+      transfer_function = CLUTTER_TRANSFER_FUNCTION_GAMMA22;
+      break;
+    }
+
+  color_state = clutter_color_state_params_new (clutter_context,
+                                                colorspace,
+                                                transfer_function);
+  g_set_object (&priv->color_state, color_state);
+}
+
+static void
 on_format_param_changed (MetaScreenCastStreamSrc *src,
                          const struct spa_pod    *format)
 {
@@ -1736,6 +1854,8 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
 
   spa_format_video_raw_parse (format,
                               &priv->video_format);
+
+  update_color_state (src);
 
   prop_modifier = spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier);
 
@@ -1800,6 +1920,8 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
             &pod_builder.b,
             pod_offsets,
             priv->video_format.format, &preferred_modifier, 1, TRUE,
+            priv->video_format.color_primaries,
+            priv->video_format.transfer_function,
             SPA_FORMAT_VIDEO_size, SPA_POD_Rectangle (&priv->video_format.size),
             SPA_FORMAT_VIDEO_framerate, SPA_POD_Fraction (&SPA_FRACTION (0, 1)),
             SPA_FORMAT_VIDEO_maxFramerate,
@@ -2491,6 +2613,7 @@ meta_screen_cast_stream_src_dispose (GObject *object)
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
   g_clear_pointer (&priv->pipewire_source, g_source_destroy);
   g_clear_pointer (&priv->damage, mtk_region_unref);
+  g_clear_object (&priv->color_state);
 
   g_warn_if_fail (!priv->dequeued_buffers);
 
@@ -2682,4 +2805,13 @@ meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src)
     }
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
+}
+
+ClutterColorState *
+meta_screen_cast_stream_src_get_color_state (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return priv->color_state;
 }

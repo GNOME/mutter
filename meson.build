@@ -56,7 +56,7 @@ gbm_req = '>= 21.3'
 libdrm_req = '>= 2.4.118'
 
 # screen cast version requirements
-libpipewire_req = '>= 1.2.7'
+libpipewire_req = '>= 1.6.0'
 
 # profiler requirements
 sysprof_req = '>= 3.37.2'
