@@ -194,6 +194,8 @@ clutter_color_state_constructed (GObject *object)
   color_manager = clutter_context_get_color_manager (priv->context);
 
   priv->id = clutter_color_manager_get_next_id (color_manager);
+
+  G_OBJECT_CLASS (clutter_color_state_parent_class)->constructed (object);
 }
 
 static void
