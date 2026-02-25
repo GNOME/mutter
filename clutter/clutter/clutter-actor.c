@@ -904,6 +904,7 @@ enum
   TRANSITIONS_COMPLETED,
   TOUCH_EVENT,
   TRANSITION_STOPPED,
+  TRANSITION_REMOVED,
   STAGE_VIEWS_CHANGED,
   RESOURCE_SCALE_CHANGED,
   CHILD_ADDED,
@@ -922,6 +923,7 @@ typedef struct _TransitionClosure
   ClutterTransition *transition;
   gchar *name;
   gulong completed_id;
+  gboolean is_finished;
 } TransitionClosure;
 
 static void clutter_animatable_iface_init (ClutterAnimatableInterface *iface);
@@ -7435,6 +7437,29 @@ clutter_actor_class_init (ClutterActorClass *klass)
   g_signal_set_va_marshaller (actor_signals[TRANSITION_STOPPED],
                               G_TYPE_FROM_CLASS (object_class),
                               _clutter_marshal_VOID__STRING_BOOLEANv);
+
+  /**
+   * ClutterActor::transition-removed:
+   * @actor: a #ClutterActor
+   * @transition: a #ClutterTransition
+   * @is_finished:  indicates whether the transition completed
+   *   its animation naturally (%TRUE) or was interrupted/removed before
+   *   completion (%FALSE). This allows handlers to distinguish between
+   *   a successful animation and one that was cancelled.
+   *
+   * This signal is particularly useful for handling transitions that
+   * have a delay and are removed before starting, where the
+   * [signal@Timeline::stopped] signal would not be emitted.
+   */
+  actor_signals[TRANSITION_REMOVED] =
+    g_signal_new (I_("transition-removed"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_TRANSITION,
+                  G_TYPE_BOOLEAN);
 
   /**
    * ClutterActor::touch-event:
@@ -16482,6 +16507,10 @@ transition_closure_free (gpointer data)
 
       timeline = CLUTTER_TIMELINE (clos->transition);
 
+      g_signal_emit (clos->actor, actor_signals[TRANSITION_REMOVED], 0,
+                     clos->transition,
+                     clos->is_finished);
+
       /* we disconnect the signal handler before stopping the timeline,
        * so that we don't end up inside on_transition_stopped() from
        * a call to g_hash_table_remove().
@@ -16534,6 +16563,7 @@ on_transition_stopped (ClutterTransition *transition,
        * ClutterTransition, which is RUN_LAST, and thus will
        * be called after this handler
        */
+      clos->is_finished = is_finished;
       g_hash_table_remove (info->transitions, clos->name);
     }
 
