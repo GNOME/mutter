@@ -50,6 +50,8 @@ struct _MetaScreenCastMonitorStreamSrc
 
   GList *watches;
 
+  GArray *formats;
+
   gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
   gulong stage_prepare_frame_handler_id;
@@ -907,6 +909,44 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
     }
 }
 
+static void
+update_formats (MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  MetaMonitor *monitor = get_monitor (monitor_src);
+  MetaBackend *backend = meta_monitor_get_backend (monitor);
+  MetaColorManager *color_manager = meta_backend_get_color_manager (backend);
+  MetaColorDevice *color_device;
+  ClutterColorState *color_state = NULL;
+  int i;
+  const CoglPixelFormat basic_formats[] = {
+    COGL_PIXEL_FORMAT_BGRX_8888,
+    COGL_PIXEL_FORMAT_BGRA_8888_PRE,
+  };
+
+  g_clear_pointer (&monitor_src->formats, g_array_unref);
+  monitor_src->formats = g_array_new (TRUE, TRUE, sizeof (MetaScreenCastFormat));
+
+  for (i = 0; i < G_N_ELEMENTS (basic_formats); i++)
+    {
+      MetaScreenCastFormat format = {
+        .format = basic_formats[i],
+      };
+
+      g_array_append_val (monitor_src->formats, format);
+    }
+}
+
+static const MetaScreenCastFormat *
+meta_screen_cast_monitor_stream_src_get_formats (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
+
+  update_formats (monitor_src);
+
+  return (const MetaScreenCastFormat *) monitor_src->formats->data;
+}
+
 static gboolean
 meta_screen_cast_monitor_stream_src_is_cursor_inhibited (MetaHwCursorInhibitor *inhibitor)
 {
@@ -940,6 +980,17 @@ meta_screen_cast_monitor_stream_src_new (MetaScreenCastMonitorStream  *monitor_s
 }
 
 static void
+meta_screen_cast_monitor_stream_src_finalize (GObject *object)
+{
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (object);
+
+  g_clear_pointer (&monitor_src->formats, g_array_unref);
+
+  G_OBJECT_CLASS (meta_screen_cast_monitor_stream_src_parent_class)->finalize (object);
+}
+
+static void
 meta_screen_cast_monitor_stream_src_init (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   monitor_src->cursor_bitmap_invalid = TRUE;
@@ -948,8 +999,11 @@ meta_screen_cast_monitor_stream_src_init (MetaScreenCastMonitorStreamSrc *monito
 static void
 meta_screen_cast_monitor_stream_src_class_init (MetaScreenCastMonitorStreamSrcClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaScreenCastStreamSrcClass *src_class =
     META_SCREEN_CAST_STREAM_SRC_CLASS (klass);
+
+  object_class->finalize = meta_screen_cast_monitor_stream_src_finalize;
 
   src_class->get_specs = meta_screen_cast_monitor_stream_src_get_specs;
   src_class->enable = meta_screen_cast_monitor_stream_src_enable;
@@ -962,4 +1016,6 @@ meta_screen_cast_monitor_stream_src_class_init (MetaScreenCastMonitorStreamSrcCl
     meta_screen_cast_monitor_stream_queue_follow_up;
   src_class->set_cursor_metadata =
     meta_screen_cast_monitor_stream_src_set_cursor_metadata;
+  src_class->get_formats =
+    meta_screen_cast_monitor_stream_src_get_formats;
 }
