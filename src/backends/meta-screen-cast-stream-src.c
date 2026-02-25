@@ -1855,6 +1855,21 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
   spa_format_video_raw_parse (format,
                               &priv->video_format);
 
+  meta_topic (META_DEBUG_SCREEN_CAST,
+              "Updated PipeWire stream format, "
+              "format: %s, "
+              "size: %dx%d, "
+              "color primaries: %s, "
+              "transfer function: %s",
+              spa_debug_type_find_name (spa_type_video_format,
+                                        priv->video_format.format),
+              priv->video_format.size.width,
+              priv->video_format.size.height,
+              spa_debug_type_find_name (spa_type_video_color_primaries,
+                                        priv->video_format.color_primaries),
+              spa_debug_type_find_name (spa_type_video_transfer_function,
+                                        priv->video_format.transfer_function));
+
   update_color_state (src);
 
   prop_modifier = spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier);
