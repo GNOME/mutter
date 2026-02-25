@@ -167,3 +167,11 @@ then
     https://gitlab.gnome.org/GNOME/gjs.git \
     1.87.1
 fi
+
+if ! pkgconf --atleast-version 1.60.0 libpipewire-0.3
+then
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+    "${OPTIONS[@]}" \
+    https://gitlab.freedesktop.org/pipewire/pipewire.git \
+    1.6.0
+fi
