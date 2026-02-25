@@ -1771,7 +1771,7 @@ on_stream_param_changed (void                 *data,
         SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers);
       spa_pod_builder_add (
         &pod_builder.b,
-        SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
+        SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (8, 2, 8),
         SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (3),
         SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
         SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types),
@@ -1787,7 +1787,7 @@ on_stream_param_changed (void                 *data,
   pod = spa_pod_builder_add_object (
     &pod_builder.b,
     SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
-    SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (16, 2, 16),
+    SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int (8, 2, 8),
     SPA_PARAM_BUFFERS_blocks, SPA_POD_Int (1),
     SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
     SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types));
