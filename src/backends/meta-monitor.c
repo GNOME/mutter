@@ -2308,7 +2308,7 @@ calculate_scale (MetaMonitor                *monitor,
   float diag_inches;
   g_autofree float *scales = NULL;
   int n_scales;
-  float best_scale, physical_dpi, perfect_scale, best_scale_error;
+  float best_scale, physical_dpi, perfect_scale, best_scale_error = 0.0f;
   int target_dpi;
 
   /*
