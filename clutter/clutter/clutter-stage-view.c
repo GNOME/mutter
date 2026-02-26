@@ -167,75 +167,12 @@ clutter_stage_view_get_onscreen (ClutterStageView *view)
   return priv->framebuffer;
 }
 
-static CoglOffscreen *
-create_offscreen (ClutterStageView  *view,
-                  CoglPixelFormat    format,
-                  int                width,
-                  int                height,
-                  GError           **error)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-  CoglContext *cogl_context;
-  g_autoptr (CoglOffscreen) framebuffer = NULL;
-  g_autoptr (CoglTexture) texture = NULL;
-
-  cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
-
-  if (format == COGL_PIXEL_FORMAT_ANY)
-    {
-      texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
-    }
-  else
-    {
-      texture = cogl_texture_2d_new_with_format (cogl_context,
-                                                 width, height, format);
-    }
-
-  cogl_texture_2d_set_auto_mipmap (COGL_TEXTURE_2D (texture), FALSE);
-
-  if (!cogl_texture_allocate (texture, error))
-    return FALSE;
-
-  framebuffer = cogl_offscreen_new_with_texture (texture);
-
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (framebuffer), error))
-    return FALSE;
-
-  return g_steal_pointer (&framebuffer);
-}
-
-static CoglOffscreen *
-create_offscreen_with_formats (ClutterStageView  *view,
-                               CoglPixelFormat   *formats,
-                               size_t             n_formats,
-                               int                width,
-                               int                height,
-                               GError           **error)
-{
-  g_autoptr (GError) local_error = NULL;
-  size_t i;
-
-  for (i = 0; i < n_formats; i++)
-    {
-      CoglOffscreen *offscreen;
-
-      g_clear_error (&local_error);
-
-      offscreen = create_offscreen (view, formats[i], width, height, &local_error);
-      if (offscreen)
-        return offscreen;
-    }
-
-  g_propagate_error (error, g_steal_pointer (&local_error));
-  return NULL;
-}
-
 static void
 ensure_stage_view_offscreen (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
   ClutterEncodingRequiredFormat required_format;
   CoglPixelFormat formats[10];
   size_t n_formats = 0;
@@ -280,12 +217,12 @@ ensure_stage_view_offscreen (ClutterStageView *view)
       offscreen_height = onscreen_height;
     }
 
-  offscreen = create_offscreen_with_formats (view,
-                                             formats,
-                                             n_formats,
-                                             offscreen_width,
-                                             offscreen_height,
-                                             &local_error);
+  offscreen = cogl_offscreen_new_from_formats (cogl_context,
+                                               formats,
+                                               n_formats,
+                                               offscreen_width,
+                                               offscreen_height,
+                                               &local_error);
   if (!offscreen)
     g_error ("Failed to allocate back buffer texture: %s", local_error->message);
 
@@ -537,6 +474,7 @@ init_shadowfb (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  CoglContext *cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
   g_autoptr (GError) error = NULL;
   CoglPixelFormat format;
   int width;
@@ -547,7 +485,10 @@ init_shadowfb (ClutterStageView *view)
   width = cogl_framebuffer_get_width (priv->framebuffer);
   height = cogl_framebuffer_get_height (priv->framebuffer);
 
-  offscreen = create_offscreen (view, format, width, height, &error);
+  offscreen = cogl_offscreen_new_from_formats (cogl_context,
+                                               &format, 1,
+                                               width, height,
+                                               &error);
   if (!offscreen)
     {
       g_warning ("Failed to create shadow framebuffer: %s", error->message);
