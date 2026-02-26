@@ -2,22 +2,22 @@
 # Copyright (C) 2011 Free Software Foundation, Inc.
 # This file is distributed under the same license as the mutter package.
 # Michael MORONI < >, 2011.
-# Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>, 2011-2025.
+# Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>, 2011-2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-09-13 09:44+0000\n"
-"PO-Revision-Date: 2025-09-13 16:00+0200\n"
+"POT-Creation-Date: 2026-02-17 17:44+0000\n"
+"PO-Revision-Date: 2026-02-26 22:03+0100\n"
 "Last-Translator: Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>\n"
 "Language-Team: Esperanto <gnome-eo-list@gnome.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
-"X-Generator: Gtranslator 48.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 49.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -248,64 +248,78 @@ msgstr "Vertikale maksimumigi la fenestron"
 msgid "Maximize window horizontally"
 msgstr "Horizontale maksimumigi la fenestron"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Vidu dividita maldekstre"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Vido disigita dekstre"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Modifilo por uzi por plivastigitaj fenestroadministradaj operacioj"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
-msgstr "Ĉi tiu ŝlosilo iniciatos la «overlay», kiu kombinas fenestran superrigardon kaj sistemon por lanĉi aplikojn. La defaŭlto celas esti la «Windows»-ŝlosilo sur PC-aparataro. Oni atendas, ke ĉi tiu ligilo estu aŭ la defaŭlta, aŭ agordita al la malplena ĉeno."
+msgstr ""
+"Ĉi tiu ŝlosilo iniciatos la «overlay», kiu kombinas fenestran superrigardon "
+"kaj sistemon por lanĉi aplikojn. La defaŭlto celas esti la «Windows»-ŝlosilo "
+"sur PC-aparataro. Oni atendas, ke ĉi tiu ligilo estu aŭ la defaŭlta, aŭ "
+"agordita al la malplena ĉeno."
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Aligi modalajn dialogojn"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
-msgstr "Se vera, anstataŭ havi sendependajn titolbretojn, modalaj dialogoj aperas alkroĉitaj al la titolbreto de la gepatra fenestro kaj estas movataj kune kun la gepatra fenestro."
+msgstr ""
+"Se vera, anstataŭ havi sendependajn titolbretojn, modalaj dialogoj aperas "
+"alkroĉitaj al la titolbreto de la gepatra fenestro kaj estas movataj kune "
+"kun la gepatra fenestro."
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Ebligi randan kahelaron dum faligado de fenestroj sur ekranaj randoj"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
-msgstr "Se ebligita, faligado de fenestroj ĉe vertikalaj randoj de la ekrano maksimumigas ilin vertikale kaj ŝanĝas ilian horizontan grandecon por kovri duonon de la disponebla areo. Faligado de fenestroj ĉe la supra rando de la ekrano maksimumigas ilin tute."
+msgstr ""
+"Se ebligita, faligado de fenestroj ĉe vertikalaj randoj de la ekrano "
+"maksimumigas ilin vertikale kaj ŝanĝas ilian horizontan grandecon por kovri "
+"duonon de la disponebla areo. Faligado de fenestroj ĉe la supra rando de la "
+"ekrano maksimumigas ilin tute."
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Laborejoj estas dinamike administritaj"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
 "org.gnome.desktop.wm.preferences)."
-msgstr "Difinas ĉu laborspacoj estas dinamike administrataj aŭ ĉu ekzistas statika nombro da laborspacoj (determinita per la ŝlosilo num-workspaces en org.gnome.desktop.wm.preferences)."
+msgstr ""
+"Difinas ĉu laborspacoj estas dinamike administrataj aŭ ĉu ekzistas statika "
+"nombro da laborspacoj (determinita per la ŝlosilo num-workspaces en "
+"org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Laborspacoj nur sur primara"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -313,33 +327,37 @@ msgstr ""
 "Determinas ĉu laborspacŝanĝo okazu por fenestroj sur ĉiuj ekranoj aŭ nur por "
 "fenestroj sur la ĉefa ekrano."
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Prokrasta fokuso ŝanĝiĝas ĝis la montrilo ĉesas moviĝi"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
-msgstr "Se agordite al vera kaj la fokuso-reĝimo estas «sloppy» aŭ «mouse», la fokuso ne ŝanĝiĝos tuj kiam oni eniras fenestron, sed nur post kiam la montrilo ĉesas moviĝi."
+msgstr ""
+"Se agordite al vera kaj la fokuso-reĝimo estas «sloppy» aŭ «mouse», la "
+"fokuso ne ŝanĝiĝos tuj kiam oni eniras fenestron, sed nur post kiam la "
+"montrilo ĉesas moviĝi."
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Trenebla randlarĝo"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
-"La kvanto de totalaj treneblaj randoj. Se la videblaj randoj de la temo ne sufiĉas, nevideblaj randoj estos aldonitaj por plenumi ĉi tiun valoron."
+"La kvanto de totalaj treneblaj randoj. Se la videblaj randoj de la temo ne "
+"sufiĉas, nevideblaj randoj estos aldonitaj por plenumi ĉi tiun valoron."
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Aŭtomate maksimumigi preskaŭ ekrangrandajn fenestrojn"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -347,11 +365,11 @@ msgstr ""
 "Se ĝi estas ebligita, novaj fenestroj, kiuj estas komence la grandeco de la "
 "ekrano, aŭtomate estas maksimumigitaj."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Meti novajn fenestrojn en la centron"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -359,44 +377,71 @@ msgstr ""
 "Kiam vera, la novaj fenestroj ĉiam estos metitaj en la centron de la aktiva "
 "ekrano de la monitoro."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Ebligi eksperimentajn funkciojn"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
+#| "with explicit modifiers, if supported by the driver. Requires a restart. "
+#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
+#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
+#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
+#| "when applicable if supported by the monitor, GPU and DRM driver. "
+#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
+#| "— lets Xwayland clients use their native scaling support. If scaling is "
+#| "not supported by client, the client will be unscaled. Setting only takes "
+#| "effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
-msgstr "Por ebligi eksperimentajn funkciojn, aldonu la ŝlosvorton de la funkcio al la listo. Ĉu funkcio postulas restartigon de la kompozitoro dependas de la sama funkcio. Neniu eksperimenta funkcio estas devige daŭre havebla aŭ konfigurita; ne atendu ke aldoni ion ĉi-tien garantiu estontan stabilecon. Nunaj ebloj inkluzivas: • «scale-monitor-framebuffer» — ŝanĝas mutter por aranĝi logikajn monitorojn en logika pikselkoordinata spaco, dum skalas la monitorajn kolordosierojn anstataŭ enhavon de fenestroj por administri HiDPI-monitorojn (ne postulas restartigon). • «kms-modifiers» — igas mutter ĉiam asigni scanout-tubojn kun eksplicitaj modifiloj, se la ŝoforo subtenas ilin (postulas restartigon). • «autoclose-xwayland» — aŭtomate fermas Xwayland se ĉiuj rilataj X11-klientoj malaperis (postulas restartigon). • «variable-refresh-rate» — igas mutter dinamike adapti la frekvencon de la monitoro kiam aplike, se subtenata de monitoro, GPU kaj DRM-ŝoforo (agordebla en Agordoj; postulas restartigon). • «xwayland-native-scaling» — ebligas Xwayland-klientojn uzi siajn denaskajn skalajn kapablojn; se klienta naturskalo ne estas subtenata, la kliento restos neskalita. Ĉi tiu agordo efikas nur kiam «scale-monitor-framebuffer» estas ankaŭ ebligita."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
+msgstr ""
+"Por ebligi eksperimentajn funkciojn, aldonu la ŝlosvorton de la funkcio al "
+"la listo. Ĉu funkcio postulas restartigon de la kompozitoro dependas de la "
+"sama funkcio. Neniu eksperimenta funkcio estas devige daŭre havebla aŭ "
+"konfigurita; ne atendu ke aldoni ion ĉi-tien garantiu estontan stabilecon. "
+"Nunaj ebloj inkluzivas: • «scale-monitor-framebuffer» — ŝanĝas mutter por "
+"aranĝi logikajn monitorojn en logika pikselkoordinata spaco, dum skalas la "
+"monitorajn kolordosierojn anstataŭ enhavon de fenestroj por administri HiDPI-"
+"monitorojn (ne postulas restartigon). • «kms-modifiers» — igas mutter ĉiam "
+"asigni scanout-tubojn kun eksplicitaj modifiloj, se la ŝoforo subtenas ilin "
+"(postulas restartigon). • «autoclose-xwayland» — aŭtomate fermas Xwayland se "
+"ĉiuj rilataj X11-klientoj malaperis (postulas restartigon). • «variable-"
+"refresh-rate» — igas mutter dinamike adapti la frekvencon de la monitoro "
+"kiam aplike, se subtenata de monitoro, GPU kaj DRM-ŝoforo (agordebla en "
+"Agordoj; postulas restartigon). • «xwayland-native-scaling» — ebligas "
+"Xwayland-klientojn uzi siajn denaskajn skalajn kapablojn; se klienta "
+"naturskalo ne estas subtenata, la kliento restos neskalita. Ĉi tiu agordo "
+"efikas nur kiam «scale-monitor-framebuffer» estas ankaŭ ebligita."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifilo por uzi por trovi la montrilon"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ĉi tiu ŝlosilo iniciatos la agon «trovi montrilon»."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Tempo-limo por la kontrol-pingilo"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -406,27 +451,31 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Luminance-agordoj por ĉiu eligo"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
 "associated floating point value representing the output luminance in percent "
 "(%). The default when not specified is 100%."
-msgstr "Luminance-agordo por ĉiu eligo kaj kolora reĝimo. Ĉiu eniro konsistas el tupelo kun konektilo, provizanto, produkto, serio, kaj kolora reĝimo, kune kun asociita valoro (flosanta punkto) reprezenti la eligan luminan en procento (%). La defaŭlto, se ne precizigita, estas 100%."
+msgstr ""
+"Luminance-agordo por ĉiu eligo kaj kolora reĝimo. Ĉiu eniro konsistas el "
+"tupelo kun konektilo, provizanto, produkto, serio, kaj kolora reĝimo, kune "
+"kun asociita valoro (flosanta punkto) reprezenti la eligan luminan en "
+"procento (%). La defaŭlto, se ne precizigita, estas 100%."
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Ŝanĝi ekranajn agordojn"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Turnas la enkonstruitan ekranan agordon"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "Nuligi ajnan aktivan enig-kaptan sesion"
 
@@ -497,7 +546,17 @@ msgid ""
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
 "allowed in key “xwayland-grab-access-rules”."
-msgstr "Permesas, ke ĉiuj klavaraj eventoj estas redirektitaj al X11-«override redirect» fenestroj kun ŝtupo (grab) kiam kuras sub Xwayland. Ĉi tiu opcio subtenas X11-klientojn kiuj mapadas «override redirect»-fenestron (kiuj ne ricevas klavaran fokuson) kaj faras klavaran ŝtupadon por devigi ĉiujn klavarajn eventojn al tiu fenestro. Ĉi tiu opcio estas malofte uzata kaj ne influas ordinarajn X11-fenestrojn kiuj sub normalaj cirkonstancoj povas ricevi klavaran fokuson. Por ke X11-ŝtupo estu konsiderata sub Wayland, la kliento devas aŭ sendi specifan X11 ClientMessage al la radika fenestro aŭ esti en la listo de aplikoj permesitaj en la ŝlosilo «xwayland-grab-access-rules»."
+msgstr ""
+"Permesas, ke ĉiuj klavaraj eventoj estas redirektitaj al X11-«override "
+"redirect» fenestroj kun ŝtupo (grab) kiam kuras sub Xwayland. Ĉi tiu opcio "
+"subtenas X11-klientojn kiuj mapadas «override redirect»-fenestron (kiuj ne "
+"ricevas klavaran fokuson) kaj faras klavaran ŝtupadon por devigi ĉiujn "
+"klavarajn eventojn al tiu fenestro. Ĉi tiu opcio estas malofte uzata kaj ne "
+"influas ordinarajn X11-fenestrojn kiuj sub normalaj cirkonstancoj povas "
+"ricevi klavaran fokuson. Por ke X11-ŝtupo estu konsiderata sub Wayland, la "
+"kliento devas aŭ sendi specifan X11 ClientMessage al la radika fenestro aŭ "
+"esti en la listo de aplikoj permesitaj en la ŝlosilo «xwayland-grab-access-"
+"rules»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -515,7 +574,17 @@ msgid ""
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
-msgstr "Listigu la resursajn nomojn aŭ resursan klason de X11-fenestroj, kiuj estas aŭ ne estas permesitaj fari X11-klavarajn ŝtupojn sub Xwayland. La resursa nomo aŭ klaso de donita X11-fenestro povas esti akirita per la komando «xprop WM_CLASS». Ĝeneralaj simboloj «*» kaj «?» en la valoroj estas subtenataj. Valoroj komencantaj per «!» estas malpermesitaj, kaj tio havas prioritato super permesita listo por revoki aplikojn de la defaŭlta sistemlisto. La defaŭlta sistemlisto inkluzivas la jenajn aplikojn: «@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@». Uzantoj povas rompi ekzistantan ŝtupadon uzante la specifan klavkombinon difinitan per la ŝlosilo «restore-shortcuts»."
+msgstr ""
+"Listigu la resursajn nomojn aŭ resursan klason de X11-fenestroj, kiuj estas "
+"aŭ ne estas permesitaj fari X11-klavarajn ŝtupojn sub Xwayland. La resursa "
+"nomo aŭ klaso de donita X11-fenestro povas esti akirita per la komando "
+"«xprop WM_CLASS». Ĝeneralaj simboloj «*» kaj «?» en la valoroj estas "
+"subtenataj. Valoroj komencantaj per «!» estas malpermesitaj, kaj tio havas "
+"prioritato super permesita listo por revoki aplikojn de la defaŭlta "
+"sistemlisto. La defaŭlta sistemlisto inkluzivas la jenajn aplikojn: "
+"«@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@». Uzantoj povas rompi ekzistantan "
+"ŝtupadon uzante la specifan klavkombinon difinitan per la ŝlosilo «restore-"
+"shortcuts»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:116
 msgid "Disable selected X extensions in Xwayland"
@@ -527,7 +596,11 @@ msgid ""
 "built with support for those X extensions. This option has no effect if "
 "Xwayland was built without support for the selected extensions. Xwayland "
 "needs to be restarted for this setting to take effect."
-msgstr "Ĉi tiu opcio malŝaltas la elektitajn X-etendojn en Xwayland se Xwayland estis konstruita kun subteno por tiuj etendoj. Ĉi tiu opcio ne havas efikon se Xwayland estis konstruita sen subteno por la elektitaj etendoj. Xwayland devas esti restartigita por ke ĉi tiu agordo efiku."
+msgstr ""
+"Ĉi tiu opcio malŝaltas la elektitajn X-etendojn en Xwayland se Xwayland "
+"estis konstruita kun subteno por tiuj etendoj. Ĉi tiu opcio ne havas efikon "
+"se Xwayland estis konstruita sen subteno por la elektitaj etendoj. Xwayland "
+"devas esti restartigita por ke ĉi tiu agordo efiku."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
@@ -544,7 +617,34 @@ msgid ""
 "support the command line option +byteswappedclients/-byteswappedclients to "
 "control that setting. Xwayland needs to be restarted for this setting to "
 "take effect."
-msgstr "Permesi konektojn de klientoj kun alia endianco ol tiu de Xwayland. La X-servila kodo por interŝanĝi bajtojn estas vasta atakkampo, kaj multe de tiu kodo en Xwayland estas sentema al sekurecaj problemoj. La uzo de bajte-interŝanĝis klientoj estas tre speciala kazo kaj estas malŝaltita laŭdefaŭlte en Xwayland. Ebligu ĉi tiun opcion por instrui Xwayland akcepti konektojn de X11-klientoj kun malsama endianco. Ĉi tiu opcio ne havas efikon se Xwayland ne subtenas la linio-argumenton +byteswappedclients/-byteswappedclients por kontroli tiun agordon. Xwayland devas esti restartigita por ke ĉi tiu agordo efiku."
+msgstr ""
+"Permesi konektojn de klientoj kun alia endianco ol tiu de Xwayland. La X-"
+"servila kodo por interŝanĝi bajtojn estas vasta atakkampo, kaj multe de tiu "
+"kodo en Xwayland estas sentema al sekurecaj problemoj. La uzo de bajte-"
+"interŝanĝis klientoj estas tre speciala kazo kaj estas malŝaltita "
+"laŭdefaŭlte en Xwayland. Ebligu ĉi tiun opcion por instrui Xwayland akcepti "
+"konektojn de X11-klientoj kun malsama endianco. Ĉi tiu opcio ne havas efikon "
+"se Xwayland ne subtenas la linio-argumenton +byteswappedclients/-"
+"byteswappedclients por kontroli tiun agordon. Xwayland devas esti "
+"restartigita por ke ĉi tiu agordo efiku."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Agordi la skalfaktoron de Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr ""
+"Skali la koordinatan spacon de Xwayland laŭ ĉi tiu faktoro. Ĉi tio influos "
+"ĉe kiu skalo HiDPI-kapablaj X11-klientoj prezentos sin, kaj kiel la "
+"kompozitoro skaligas X11-klientajn fenestrojn. Agordi la skalon al 0 "
+"signifas ke la skalo estos aŭtomate kalkulita. La skalo estos rondigita al "
+"la plej proksima entjero."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -602,23 +702,36 @@ msgstr "_Imiti tuŝon"
 msgid "_Inhibit system shortcuts"
 msgstr "_Malpermesi sistemajn klavkombinojn"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Uzi gastig_an ŝlosilmapon"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_Monitoroj"
+
+#: mdk/mdk-main-window.ui:26
+#| msgid "_Emulate touch"
+msgid "_Emulate monitor modes"
+msgstr "_Imiti monitorajn reĝimojn"
+
+#: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
 msgstr "_Lanĉiloj"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:37
 msgid "_Edit launchers"
 msgstr "R_edakti Lanĉilojn"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:44
 msgid "_About Mutter Development Kit"
 msgstr "_Pri Mutero Development Kit"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutero Development Kit"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:60
 msgid "Main Menu"
 msgstr "Ĉefa menuo"
 
@@ -634,30 +747,30 @@ msgstr "Mutero programara disvolva komplekso"
 msgid "About Mutter Development Kit"
 msgstr "Pri Mutero Development Kit"
 
-#: mdk/mdk-monitor.c:674
+#: mdk/mdk-monitor.c:556
 msgid "Failed to create monitor"
 msgstr "Malsukcesis krei monitoron"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "Integra vidigo"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "Nekonate"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "Nekonata ekrano"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -669,74 +782,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "Sonoril-evento"
 
-#: src/core/display.c:742
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "Privateca ekrano ebligita"
 
-#: src/core/display.c:743
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "Privateca ekrano malŝaltita"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "Anstataŭigi la nun ruliĝantan fenestromastrumilon"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "X-vidigo uzenda"
-
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "Fari X-vokojn sinkrone"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Ruli kiel Wayland-komponisto"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "Ruli kiel nestita kompostisto"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Ruli Wayland-komponiston sen lanĉi Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Indiki Wayland-montrilan nomon por uzi"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Ruli kiel plena ekranservilo, prefere ol nestigite"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Ruli kiel senkapa ekranservilo"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Aldoni daŭran virtualan monitoron (LxA aŭ LxA@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Ruli disvolvan kompletigon"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Ruli kun X11-malantaŭo"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Profiligi rendimenton uzante trakan instrumentadon"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Ebligi la D-Bus-interfacon por malŝlosi depurajn kontrolojn"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Reĝima ŝaltilo (grupo %d)"
@@ -744,7 +837,7 @@ msgstr "Reĝima ŝaltilo (grupo %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Reĝim-ŝaltilo"
@@ -752,11 +845,11 @@ msgstr "Reĝim-ŝaltilo"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Ŝanĝi ekranon"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Montri ekranhelpon"
 
@@ -765,24 +858,24 @@ msgstr "Montri ekranhelpon"
 msgid "Compositor"
 msgstr "Komponisto"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Motri version"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Mutera kromaĵo por uzi"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Laborspaco %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutero estis kunvenita sen subteno por la detala reĝimo"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Laborspaco ŝanĝiĝis"
 
@@ -791,28 +884,25 @@ msgstr "Laborspaco ŝanĝiĝis"
 msgid "Mode Switch: Mode %d"
 msgstr "Reĝim-ŝaltilo: Reĝimo %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Ekrano “%s” jam havas fenestroadministrilon; provu uzi la opcion --replace "
-"por anstataŭigi la nunan fenestroadministrilon."
+#| msgid "Screen %d on display \"%s\" already has a window manager\n"
+msgid "Display “%s” already has a window manager"
+msgstr "Ekrano “%s” jam havas fenestroadministrilon"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Malsukcesis malfermi X-fenestran sisteman ekranon “%s”"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Ekrano %d en vidigilo “%s” estas nevalida"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -823,538 +913,7 @@ msgstr "Alia kunmetanta administrilo jam rulas sur ekrano %i de montrilo “%s�
 msgid "Format %s not supported"
 msgstr "Formo %s ne estas subtenita"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (ĉe %s)"
-
-#~ msgid "Disable connection to session manager"
-#~ msgstr "Elŝalti konekton al la seancoadministrilo"
-
-#~ msgid "Specify session management ID"
-#~ msgstr "Specifi identigilon de la seancoadministrilo"
-
-#~ msgid "Initialize session from savefile"
-#~ msgstr "Pravalorizi la seancon el konservita dosiero"
-
-#~ msgid "Move to workspace left"
-#~ msgstr "Movi al la maldekstra laborspaco"
-
-#~ msgid "Move to workspace right"
-#~ msgstr "Movi al la dekstra laborspaco"
-
-#~ msgid "Move to workspace above"
-#~ msgstr "Movi al la supra laborspaco"
-
-#~ msgid "Move to workspace below"
-#~ msgstr "Movi al la malsupra laborspaco"
-
-#~ msgid "Mutter"
-#~ msgstr "Mutero"
-
-#, c-format
-#~ msgid "“%s” is not responding."
-#~ msgstr "“%s” ne respondas."
-
-#~ msgid "Application is not responding."
-#~ msgstr "Aplikaĵo ne respondas."
-
-#~ msgid ""
-#~ "You may choose to wait a short while for it to continue or force the "
-#~ "application to quit entirely."
-#~ msgstr ""
-#~ "Vi povas elekti ĉu atendi iomete por la aplikaĵo aŭ perforte ĉesi ĝin."
-
-#~ msgid "_Force Quit"
-#~ msgstr "Per_forta eliro"
-
-#~ msgid "_Wait"
-#~ msgstr "_Atendi"
-
-#, c-format
-#~| msgid ""
-#~| "mutter %s\n"
-#~| "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-#~| "This is free software; see the source for copying conditions.\n"
-#~| "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-#~| "PARTICULAR PURPOSE.\n"
-#~ msgid ""
-#~ "mutter %s\n"
-#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-#~ "This is free software; see the source for copying conditions.\n"
-#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-#~ "PARTICULAR PURPOSE.\n"
-#~ msgstr ""
-#~ "Mutero %s\n"
-#~ "Kopirajto © 2001-%d Havoc PENNIGTON, Red Hat, Inc., kaj aliaj\n"
-#~ "Ĉi tio estas libera programaro; rigardu la fontkodon por kondiĉoj pri "
-#~ "kopiado.\n"
-#~ "Ekzistas NENIU garantio; nek por NEGOCEBLO nek por ADAPTADO AL IU APARTA "
-#~ "CELO.\n"
-
-#~ msgid "Unknown window information request: %d"
-#~ msgstr "Nekonata peto pri fenestra informo: %d"
-
-#~ msgid "Missing %s extension required for compositing"
-#~ msgstr "Aldonaĵo %s necesanta por kompostado mankas"
-
-#~ msgid ""
-#~ "Some other program is already using the key %s with modifiers %x as a "
-#~ "binding\n"
-#~ msgstr ""
-#~ "Iu alia programo jam uzas la klavon %s kun modifiloj %x kiel bindaĵon\n"
-
-#~ msgid "Failed to scan themes directory: %s\n"
-#~ msgstr "Malsukcesis skani etosan dosierujon %s\n"
-
-#~ msgid ""
-#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
-#~ msgstr ""
-#~ "Ne eblis trovi ian etoson! Certigu, ke %s ekzistas kaj enhavas la "
-#~ "ordinarajn etosojn.\n"
-
-#~ msgid ""
-#~ "Workarounds for broken applications disabled. Some applications may not "
-#~ "behave properly.\n"
-#~ msgstr ""
-#~ "Provizoraj solvoj por rompitaj aplikaĵoj estas elŝaltitaj. Kelkaj "
-#~ "aplikaĵoj povus ruli malkorekte.\n"
-
-#~| msgid "Could not parse font description \"%s\" from GConf key %s\n"
-#~ msgid "Could not parse font description \"%s\" from GSettings key %s\n"
-#~ msgstr ""
-#~ "Ne eblis analizi la tiparan priskribon \"%s\" de la GSettings-ŝlosilo %s\n"
-
-#~ msgid ""
-#~ "\"%s\" found in configuration database is not a valid value for mouse "
-#~ "button modifier\n"
-#~ msgstr ""
-#~ "Valoro \"%s\", trovita en la agorda datenbazo, ne estas valida valoro "
-#~ "kiel mus-butona modifilo\n"
-
-#~ msgid ""
-#~ "\"%s\" found in configuration database is not a valid value for "
-#~ "keybinding \"%s\"\n"
-#~ msgstr ""
-#~ "%s trovita en la agordara datumbazo ne estas valida valoro por "
-#~ "klavokombino \"%s\"\n"
-
-#~ msgid ""
-#~ "Could not acquire window manager selection on screen %d display \"%s\"\n"
-#~ msgstr ""
-#~ "Neeblas akiri fenestroadministrilan elekton ĉe ekrano %d, vidigilo “%s”\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr "Ekrano %d sur vidigilo \"%s\" jam havas fenestroadministrilon\n"
-
-#~ msgid "Could not release screen %d on display \"%s\"\n"
-#~ msgstr "Ne eblas liberigi ekranon %d sur ekrano \"%s\"\n"
-
-#~ msgid "Could not create directory '%s': %s\n"
-#~ msgstr "Ne eblis krei dosierujon '%s': %s\n"
-
-#~ msgid "Could not open session file '%s' for writing: %s\n"
-#~ msgstr "Ne eblis malfermi sesian dosieron '%s' por skribado: %s\n"
-
-#~ msgid "Error writing session file '%s': %s\n"
-#~ msgstr "Eraro dum skribado al seanca dosiero '%s': %s\n"
-
-#~ msgid "Error closing session file '%s': %s\n"
-#~ msgstr "Eraro dum fermado de seanca dosiero '%s': %s\n"
-
-#~ msgid "Failed to parse saved session file: %s\n"
-#~ msgstr "Malsuksesis analizi konservitan seancan dosieron: %s\n"
-
-#~ msgid "<mutter_session> attribute seen but we already have the session ID"
-#~ msgstr ""
-#~ "Atributo <mutter_session> aperis sed ni jam havas la seancoidentigilon"
-
-#~ msgid "Unknown attribute %s on <%s> element"
-#~ msgstr "Nekonata atributo %s ĉe elemento <%s>"
-
-#~ msgid "nested <window> tag"
-#~ msgstr "ingita elemento <window>"
-
-#~ msgid "Unknown element %s"
-#~ msgstr "Nekonata elemento %s"
-
-#~ msgid "Window manager: "
-#~ msgstr "Fenestroadministrilo: "
-
-#~ msgid "Bug in window manager: "
-#~ msgstr "Cimo en fenestroadministrilo: "
-
-#~ msgid "Window manager warning: "
-#~ msgstr "Fenestroadministrila atentigo: "
-
-#~ msgid "Window manager error: "
-#~ msgstr "Fenestroadministrila eraro: "
-
-#~ msgid "Property %s on window 0x%lx contained invalid UTF-8\n"
-#~ msgstr "Eco %s ĉe fenestro 0x%lx enhavis nevalidan UTF-8\n"
-
-#~ msgid "Usage: %s\n"
-#~ msgstr "Uzo: %s\n"
-
-#~ msgid "Mi_nimize"
-#~ msgstr "Mi_nimumigi"
-
-#~ msgid "Ma_ximize"
-#~ msgstr "Ma_ksimumigi"
-
-#~ msgid "Unma_ximize"
-#~ msgstr "Nema_ksimumigi"
-
-#~ msgid "Roll _Up"
-#~ msgstr "_Volvi"
-
-#~ msgid "_Unroll"
-#~ msgstr "_Malvolvi"
-
-#~ msgid "_Move"
-#~ msgstr "_Movi"
-
-#~ msgid "_Resize"
-#~ msgstr "_Aligrandigi"
-
-#~ msgid "Always on _Top"
-#~ msgstr "Ĉiam _malfone"
-
-#~ msgid "_Always on Visible Workspace"
-#~ msgstr "Ĉi_am en la videbla laborspaco"
-
-#~ msgid "_Only on This Workspace"
-#~ msgstr "_Nur en ĉi tiu laborspaco"
-
-#~ msgid "Move to Workspace _Left"
-#~ msgstr "Movi al la _maldekstra laborspaco"
-
-#~ msgid "Move to Workspace R_ight"
-#~ msgstr "Movi al la _dekstra laborspaco"
-
-#~ msgid "Move to Workspace _Up"
-#~ msgstr "Movi al la su_pra laborspaco"
-
-#~ msgid "Move to Workspace _Down"
-#~ msgstr "Movi al la su_ba laborspaco"
-
-#~ msgid "_Close"
-#~ msgstr "_Fermi"
-
-#~ msgid "Workspace %d%n"
-#~ msgstr "Laborspaco %d%n"
-
-#~ msgid "Workspace 1_0"
-#~ msgstr "Laborspaco 1_0"
-
-#~ msgid "Move to Another _Workspace"
-#~ msgstr "Movi al alia _laborspaco"
-
-#~ msgid "Shift"
-#~ msgstr "Majuskliga klavo"
-
-#~ msgid "Ctrl"
-#~ msgstr "Stirklavo"
-
-#~ msgid "Alt"
-#~ msgstr "Alt-klavo"
-
-#~ msgid "Meta"
-#~ msgstr "Meta-klavo"
-
-#~ msgid "Super"
-#~ msgstr "Super-klavo"
-
-#~ msgid "%d x %d"
-#~ msgstr "%d x %d"
-
-#~ msgid "top"
-#~ msgstr "supre"
-
-#~ msgid "bottom"
-#~ msgstr "malsupre"
-
-#~ msgid "left"
-#~ msgstr "maldekstre"
-
-#~ msgid "right"
-#~ msgstr "dekstre"
-
-#~ msgid "Gradients should have at least two colors"
-#~ msgstr "Gradientoj havu minimume du kolorojn"
-
-#~ msgid "Could not parse color \"%s\""
-#~ msgstr "Ne eblis analizi koloron \"%s\""
-
-#~ msgid "Failed to load theme \"%s\": %s\n"
-#~ msgstr "Ŝargo de la etoso \"%s\" malsukcesis: %s\n"
-
-#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
-#~ msgstr "Atributo \"%s\" ripetas duoble en la sama elemento <%s>"
-
-#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
-#~ msgstr ""
-#~ "Atributo \"%s\" ne estas valida en elemento <%s> en tiu ĉi kunteksto"
-
-#~ msgid "Could not parse \"%s\" as an integer"
-#~ msgstr "Ne eblis analizi \"%s\" kiel entjeron"
-
-#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
-#~ msgstr "Ne komprenis vostajn signojn \"%s\" en ĉeno \"%s\""
-
-#~ msgid "Unknown type \"%s\" on <%s> element"
-#~ msgstr "Nekonata tipo \"%s\" ĉe elemento <%s>"
-
-#~ msgid "Element <%s> is not allowed below <%s>"
-#~ msgstr "Elemento <%s> ne estas permesita sub <%s>"
-
-#~ msgid "Distance \"%s\" is unknown"
-#~ msgstr "Distanco \"%s\" estas nekonata"
-
-#~ msgid "Aspect ratio \"%s\" is unknown"
-#~ msgstr "Proporcio \"%s\" estas nekonata"
-
-#~ msgid "Border \"%s\" is unknown"
-#~ msgstr "Bordero \"%s\" estas nekonata"
-
-#~ msgid "Unknown function \"%s\" for button"
-#~ msgstr "Nekonata buton-funkcio \"%s\""
-
-#~ msgid "Unknown state \"%s\" for button"
-#~ msgstr "Nekonata buton-stato \"%s\""
-
-#~ msgid "\"%s\" is not a valid value for focus attribute"
-#~ msgstr "»%s« ne estas valida valoro por la atributo »focus«"
-
-#~ msgid "\"%s\" is not a valid value for state attribute"
-#~ msgstr "»%s« ne estas valida valoro por la atributo »state«"
-
-#~ msgid "\"%s\" is not a valid value for resize attribute"
-#~ msgstr "»%s« ne estas valida valoro por la atributo »resize«"
-
-#~ msgid "_Windows"
-#~ msgstr "_Fenestroj"
-
-#~ msgid "_Dialog"
-#~ msgstr "_Dialogo"
-
-#~ msgid "_Utility"
-#~ msgstr "_Ilo"
-
-#~ msgid "_Splashscreen"
-#~ msgstr "_Salutŝildo"
-
-#~ msgid "Des_ktop"
-#~ msgstr "_Labortablo"
-
-#~ msgid "This is a sample message in a sample dialog"
-#~ msgstr "Ĉi tio estas ekzempla mesaĝo en ekzempla dialogo"
-
-#~ msgid "Bar"
-#~ msgstr "Breto"
-
-#~ msgid "Dialog Box"
-#~ msgstr "Dialogujo"
-
-#~ msgid "Utility Palette"
-#~ msgstr "Ilar-palatro"
-
-#~ msgid "Border"
-#~ msgstr "Bordero"
-
-#~ msgid "Error loading theme: %s\n"
-#~ msgstr "Eraro dum ŝargado de etoso: %s\n"
-
-#~ msgid "Loaded theme \"%s\" in %g seconds\n"
-#~ msgstr "Ŝargis etoson \"%s\" post %g sekundoj\n"
-
-#~ msgid "Normal Title Font"
-#~ msgstr "Normala titoltiparo"
-
-#~ msgid "Small Title Font"
-#~ msgstr "Malgranda titoltiparo"
-
-#~ msgid "Large Title Font"
-#~ msgstr "Alta titoltiparo"
-
-#~ msgid "Button Layouts"
-#~ msgstr "Aranĝo de la butonoj"
-
-#~ msgid "Benchmark"
-#~ msgstr "Taksotestado"
-
-#~ msgid "Window Title Goes Here"
-#~ msgstr "Ĉi tie aperos la fenstrotitolo"
-
-#~ msgid "Error was expected but none given"
-#~ msgstr "Eraro %d estas atendita, sed ne estas transdonita"
-
-#~ msgid "Error %d was expected but %d given"
-#~ msgstr "Eraro %d estas atendita, sed %d estas donita"
-
-#~ msgid "x value was %d, %d was expected"
-#~ msgstr "X-valoro estis %d, %d estis atendita"
-
-#~ msgid "y value was %d, %d was expected"
-#~ msgstr "Y-valoro estis %d, %d estis atendita"
-
-#~ msgid "Minimize window"
-#~ msgstr "Minimumigi fenestron"
-
-#~ msgid "Switch to workspace 8"
-#~ msgstr "Ŝalti al laborspaco 8"
-
-#~ msgid "Switch to workspace 9"
-#~ msgstr "Ŝalti al laborspaco 9"
-
-#~ msgid "Switch to workspace 10"
-#~ msgstr "Ŝalti al laborspaco 10"
-
-#~ msgid "Switch to workspace 11"
-#~ msgstr "Ŝalti al laborspaco 11"
-
-#~ msgid "Switch to workspace 12"
-#~ msgstr "Ŝalti al laborspaco 12"
-
-#~ msgid "Switch to workspace on the left of the current workspace"
-#~ msgstr "Ŝalti al la laborspaco maldekstre de la aktuala laborspaco"
-
-#~ msgid "Switch to workspace on the right of the current workspace"
-#~ msgstr "Ŝalti al la laborspaco dekstre de la aktuala laborspaco"
-
-#~ msgid "Switch to workspace above the current workspace"
-#~ msgstr "Ŝalti al laborspaco super la aktuala laborspaco"
-
-#~ msgid "Switch to workspace below the current workspace"
-#~ msgstr "Ŝalti al laborspaco sub la aktuala laborspaco"
-
-#~ msgid "Move between windows of an application, using a popup window"
-#~ msgstr "Moviĝi inter fenestroj de aplikaĵo, uzante ŝprucfenestron"
-
-#~ msgid ""
-#~ "Move backward between windows of an application, using a popup window"
-#~ msgstr ""
-#~ "Moviĝi malantaŭen inter fenestroj de aplikaĵo, uzante ŝprucfenestron"
-
-#~ msgid "Move between windows, using a popup window"
-#~ msgstr "Moviĝi inter fenestroj, uzante ŝprucfenestron"
-
-#~ msgid "Move backward between windows, using a popup window"
-#~ msgstr "Moviĝi malantaŭen inter fenestroj, uzante ŝprucfenestron"
-
-#~ msgid "Move between panels and the desktop, using a popup window"
-#~ msgstr "Moviĝi inter paneloj kaj labortablo, uzante ŝprucfenestron"
-
-#~ msgid "Move backward between panels and the desktop, using a popup window"
-#~ msgstr ""
-#~ "Moviĝi malantaŭen inter paneloj kaj labortablo, uzante ŝprucfenestron"
-
-#~ msgid "Move between windows of an application immediately"
-#~ msgstr "Moviĝi tuj inter fenestroj de aplikaĵo"
-
-#~ msgid "Move backward between windows of an application immediately"
-#~ msgstr "Moviĝi tuj malantaŭen inter fenestroj de aplikaĵo"
-
-#~ msgid "Move between windows immediately"
-#~ msgstr "Moviĝi tuj inter fenestroj"
-
-#~ msgid "Move backward between windows immediately"
-#~ msgstr "Moviĝi tuj malantaŭen inter fenestroj"
-
-#~ msgid "Move between panels and the desktop immediately"
-#~ msgstr "Moviĝi tuj inter paneloj kaj labortablo"
-
-#~ msgid "Move backward between panels and the desktop immediately"
-#~ msgstr "Moviĝi tuj malantaŭen inter paneloj kaj labortablo"
-
-#~ msgid "Hide all normal windows and set focus to the desktop"
-#~ msgstr "Kaŝi ĉiujn normalajn fenestrojn kaj enfokusigi la labortablon"
-
-#~ msgid "Show the panel's main menu"
-#~ msgstr "Montri la ĉefmenuon de la panelo"
-
-#~ msgid "Show the panel's \"Run Application\" dialog box"
-#~ msgstr "Montri la dialogujon \"Ruli aplikaĵon\" de la panelo"
-
-#~ msgid "Take a screenshot"
-#~ msgstr "Fari ekrankopion"
-
-#~ msgid "Take a screenshot of a window"
-#~ msgstr "Ekrankopii fenestron"
-
-#~ msgid "Run a terminal"
-#~ msgstr "Ruli terminalon"
-
-#~ msgid "Move window to workspace 5"
-#~ msgstr "Movi la fenestron al laborspaco 5"
-
-#~ msgid "Move window to workspace 6"
-#~ msgstr "Movi la fenestron al laborspaco 6"
-
-#~ msgid "Move window to workspace 7"
-#~ msgstr "Movi la fenestron al laborspaco 7"
-
-#~ msgid "Move window to workspace 8"
-#~ msgstr "Movi la fenestron al laborspaco 8"
-
-#~ msgid "Move window to workspace 9"
-#~ msgstr "Movi la fenestron al laborspaco 9"
-
-#~ msgid "Move window to workspace 10"
-#~ msgstr "Movi la fenestron al laborspaco 10"
-
-#~ msgid "Move window to workspace 11"
-#~ msgstr "Movi la fenestron al laborspaco 11"
-
-#~ msgid "Move window to workspace 12"
-#~ msgstr "Movi la fenestron al laborspaco 12"
-
-#~ msgid ""
-#~ "There was an error running <tt>%s</tt>:\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "Okazis eraro lanĉante <tt>%s</tt>:\n"
-#~ "\n"
-#~ "%s"
-
-#~ msgid "No command %d has been defined.\n"
-#~ msgstr "Neniu komando %d estis difinita.\n"
-
-#~ msgid "No terminal command has been defined.\n"
-#~ msgstr "Neniu terminala komando estis difinita.\n"
-
-#~ msgid "GConf key '%s' is set to an invalid value\n"
-#~ msgstr "La GConf-ŝlosilo '%s' havas ne-validan valoron.\n"
-
-#~ msgid "%d stored in GConf key %s is out of range %d to %d\n"
-#~ msgstr ""
-#~ "La valoro %d de la GConf-ŝlosilo %s estas ekster intervalo de %d ĝis %d\n"
-
-#~ msgid "GConf key \"%s\" is set to an invalid type\n"
-#~ msgstr "La GConf-ŝlosilo \"%s\" havas nevalidan valoron.\n"
-
-#~ msgid "Error setting number of workspaces to %d: %s\n"
-#~ msgstr "Eraro ŝanĝante la nombron da labortabloj al %d: %s\n"
-
-#~ msgid "Error setting name for workspace %d to \"%s\": %s\n"
-#~ msgstr "Eraro agordante la nomon por la laborspaco %d al \"%s\": %s\n"
-
-#~ msgid "Close Window"
-#~ msgstr "Fermi la fenestron"
-
-#~ msgid "Minimize Window"
-#~ msgstr "Minimumigi la fenestron"
-
-#~ msgid "Maximize Window"
-#~ msgstr "Maksimumigi la fenestron"
-
-#~ msgid "Restore Window"
-#~ msgstr "Restaŭri fenestron"
-
-#~ msgid "Keep Window On Top"
-#~ msgstr "Teni la fenstron malfone"
-
-#~ msgid ""
-#~ "Don't make fullscreen windows that are maximized and have no decorations"
-#~ msgstr "Ne tutekranigi fenestrojn jam grandigitajn kaj sen ornamojn."
