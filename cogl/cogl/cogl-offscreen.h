@@ -90,6 +90,14 @@ G_DECLARE_FINAL_TYPE (CoglOffscreen, cogl_offscreen,
 COGL_EXPORT CoglOffscreen *
 cogl_offscreen_new_with_texture (CoglTexture *texture);
 
+COGL_EXPORT CoglOffscreen *
+cogl_offscreen_new_from_formats (CoglContext      *context,
+                                 CoglPixelFormat  *formats,
+                                 size_t            n_formats,
+                                 int               width,
+                                 int               height,
+                                 GError          **error);
+
 /**
  * cogl_offscreen_get_texture:
  *
