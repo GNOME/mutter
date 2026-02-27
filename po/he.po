@@ -10,17 +10,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.he\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-06 22:05+0000\n"
-"PO-Revision-Date: 2026-02-12 23:02+0200\n"
-"Last-Translator: Yosef Or Boczko <yoseforb@gmail.com>\n"
+"POT-Creation-Date: 2026-02-17 17:44+0000\n"
+"PO-Revision-Date: 2026-02-27 08:20+0200\n"
+"Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew\n"
 "Language: he\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n==1 ? 0 : n==2 ? 1 : n>10 && n%10==0 ? "
-"2 : 3)\n"
-"X-Generator: Gtranslator 49.0\n"
+"2 : 3);\n"
+"X-Generator: Poedit 3.8\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -383,23 +383,6 @@ msgid "Enable experimental features"
 msgstr "Enable experimental features"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
-#| "relevant X11 clients are gone. Requires a restart. • “xwayland-native-"
-#| "scaling” — lets Xwayland clients use their native scaling support. If "
-#| "scaling is not supported by client, the client will be unscaled. Setting "
-#| "only takes effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -413,16 +396,10 @@ msgstr ""
 "כדי להפעיל יכולות ניסיוניות, יש להוסיף את מילת המפתח של היכולת לרשימה. "
 "ההחלטה האם היכולת דורשת הפעלת ניהול חלונאי מחדש תלויה ביכולת עצמה. יכולת "
 "ניסיונית לא חייבת להישאר זמינה או זמינה להגדרה. לא לצפות שדברים שהוספת "
-"להגדרה הזאת ישרדו בעתיד. מילות מפתח אפשריות כרגע: • „scale-monitor-"
-"framebuffer” — הופך את ברירת המחדל של mutter לפרוס את הצגים הלוגיים במרחב "
-"נקודות ציון פיקסלים לוגי, תוך שינוי גודל מכלאי החוזי של הצג במקום את תוכן "
-"החלון, לניהול צגי HiDPI (רזולוציה גבוהה במיוחד). לא דורש הפעלה מחדש. • „kms-"
-"modifiers” — גורם ל־mutter תמיד להקצות את חוצצי סריקת הפלט (scanout), אם "
-"מנהל ההתקן תומך. דורש הפעלה מחדש. • „autoclose-xwayland” — משמיד את Xwayland "
-"אוטומטית אם כל לקוחות ה־X11 אינם עוד. דורש הפעלה מחדש. • „xwayland-native-"
-"scaling” — מאפשר ללקוחות Xwayland להשתמש בתמיכה המובנית שלהם בשינוי קנה "
-"מידה.אם אין תמיכה בשינוי קנה מידה מצד הלקוח, הלקוח יאבד את שינוי קנה המידה. "
-"ההגדרה תקפה רק כאשר „scale-monitor-framebuffer” פעיל גם כן."
+"להגדרה הזאת ישרדו בעתיד. מילות מפתח אפשריות כרגע: • „kms-modifiers” — גורם "
+"ל־mutter תמיד להקצות את חוצצי סריקת הפלט (scanout), אם מנהל ההתקן תומך. דורש "
+"הפעלה מחדש. • „autoclose-xwayland” — משמיד את Xwayland אוטומטית אם כל לקוחות "
+"ה־X11 אינם עוד. דורש הפעלה מחדש."
 
 #: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
@@ -704,10 +681,8 @@ msgid "_Monitors"
 msgstr "_צגים"
 
 #: mdk/mdk-main-window.ui:26
-#, fuzzy
-#| msgid "_Emulate touch"
 msgid "_Emulate monitor modes"
-msgstr "ה_דמיית נגיעה"
+msgstr "ה_דמיית מצבי צג"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -745,26 +720,26 @@ msgstr "על ערכת הפיתוח Mutter"
 msgid "Failed to create monitor"
 msgstr "יצירת צג נכשלה"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "תצוגה מובנית"
 
-#: src/backends/meta-monitor.c:302
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "לא ידוע"
 
-#: src/backends/meta-monitor.c:304
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "תצוגה לא ידועה"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "‏%s ‏%s"
 
-#: src/backends/meta-monitor.c:320
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
