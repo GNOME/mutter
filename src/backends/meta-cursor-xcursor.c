@@ -278,6 +278,7 @@ create_blank_cursor_images (void)
 
   images->images[0]->xhot = 0;
   images->images[0]->yhot = 0;
+  images->nimage = 1;
   memset (images->images[0]->pixels, 0, sizeof(int32_t));
 
   return images;
