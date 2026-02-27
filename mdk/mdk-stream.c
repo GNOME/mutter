@@ -1572,6 +1572,15 @@ mdk_stream_get_mapping_id (MdkStream *stream)
 }
 
 void
+mdk_stream_set_scale (MdkStream *stream,
+                      double     scale)
+{
+  stream->scale = scale;
+  gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
+  mdk_stream_renegotiate (stream);
+}
+
+void
 mdk_stream_resize (MdkStream *stream,
                    int        width,
                    int        height)

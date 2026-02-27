@@ -54,6 +54,7 @@ struct _MdkMonitor
   MdkContext *context;
   MdkStream *stream;
   gulong invalidate_size_handler_id;
+  gulong surface_scale_changed_handler_id;
 
   gboolean emulated_touch_down;
 
@@ -579,6 +580,17 @@ on_stream_size_changed (GdkPaintable *paintable,
 }
 
 static void
+on_surface_scale_changed (GdkSurface *surface,
+                          GParamSpec *pspec,
+                          MdkMonitor *monitor)
+{
+  double scale;
+
+  scale = gdk_surface_get_scale (surface);
+  mdk_stream_set_scale (monitor->stream, scale);
+}
+
+static void
 init_stream (MdkMonitor *monitor)
 {
   MdkSession *session = mdk_context_get_session (monitor->context);
@@ -587,7 +599,7 @@ init_stream (MdkMonitor *monitor)
   double scale;
   g_autoptr (GError) error = NULL;
 
-  scale =  gdk_surface_get_scale (surface);
+  scale = gdk_surface_get_scale (surface);
 
   if (monitor->is_resizable)
     monitor->stream = mdk_stream_new_resizable (session, scale, &error);
@@ -607,6 +619,11 @@ init_stream (MdkMonitor *monitor)
     g_signal_connect (monitor->stream,
                       "invalidate-size",
                       G_CALLBACK (on_stream_size_changed),
+                      monitor);
+
+  monitor->surface_scale_changed_handler_id =
+    g_signal_connect (surface, "notify::scale",
+                      G_CALLBACK (on_surface_scale_changed),
                       monitor);
 }
 
@@ -774,10 +791,15 @@ static void
 mdk_monitor_finalize (GObject *object)
 {
   MdkMonitor *monitor = MDK_MONITOR (object);
+  GtkNative *native = gtk_widget_get_native (GTK_WIDGET (monitor));
+  GdkSurface *surface = gtk_native_get_surface (native);
 
   g_clear_signal_handler (&monitor->invalidate_size_handler_id,
                           monitor->stream);
   g_clear_object (&monitor->stream);
+
+  g_clear_signal_handler (&monitor->surface_scale_changed_handler_id,
+                          surface);
 
   G_OBJECT_CLASS (mdk_monitor_parent_class)->finalize (object);
 }
