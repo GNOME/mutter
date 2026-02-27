@@ -8859,3 +8859,79 @@ meta_window_get_a11y_properties (MetaWindow  *window,
 
   return window->a11y_dbus_name && window->a11y_object_path;
 }
+
+/**
+ * meta_window_get_min_size:
+ * @window: a #MetaWindow
+ * @width: (out) (optional): location to store the minimum width
+ * @height: (out) (optional): location to store the minimum height
+ *
+ * Gets the minimum size allowed for this window, if set by the client
+ * application, or to 0 if not.
+ *
+ * Returns %TRUE if the minimum size is known.
+ */
+gboolean
+meta_window_get_min_size (MetaWindow *window,
+                          int        *width,
+                          int        *height)
+{
+  g_return_val_if_fail (META_IS_WINDOW (window), FALSE);
+
+  if (window->size_hints.flags & META_SIZE_HINTS_PROGRAM_MIN_SIZE)
+    {
+      if (width)
+        *width = window->size_hints.min_width;
+      if (height)
+        *height = window->size_hints.min_height;
+
+      return TRUE;
+    }
+  else
+    {
+      if (width)
+        *width = 0;
+      if (height)
+        *height = 0;
+
+      return FALSE;
+    }
+}
+
+/**
+ * meta_window_get_max_size:
+ * @window: a #MetaWindow
+ * @width: (out) (optional): location to store the maximum width
+ * @height: (out) (optional): location to store the maximum height
+ *
+ * Gets the maximum size allowed for this window, if set by the client
+ * application, or to 0 if not.
+ *
+ * Returns %TRUE if the maximum size is known.
+ */
+gboolean
+meta_window_get_max_size (MetaWindow *window,
+                          int        *width,
+                          int        *height)
+{
+  g_return_val_if_fail (META_IS_WINDOW (window), FALSE);
+
+  if (window->size_hints.flags & META_SIZE_HINTS_PROGRAM_MAX_SIZE)
+    {
+      if (width)
+        *width = window->size_hints.max_width;
+      if (height)
+        *height = window->size_hints.max_height;
+
+      return TRUE;
+    }
+  else
+    {
+      if (width)
+        *width = 0;
+      if (height)
+        *height = 0;
+
+      return FALSE;
+    }
+}

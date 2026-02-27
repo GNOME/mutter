@@ -477,3 +477,13 @@ void meta_window_add_external_constraint    (MetaWindow             *window,
 META_EXPORT
 void meta_window_remove_external_constraint (MetaWindow             *window,
                                              MetaExternalConstraint *constraint);
+
+META_EXPORT
+gboolean meta_window_get_min_size (MetaWindow *window,
+                                   int        *width,
+                                   int        *height);
+
+META_EXPORT
+gboolean meta_window_get_max_size (MetaWindow *window,
+                                   int        *width,
+                                   int        *height);
