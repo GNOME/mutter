@@ -562,6 +562,14 @@ finalize_in_impl (MetaThreadImpl  *thread_impl,
     {
       GPtrArray *crtc_states;
 
+      if (cursor_manager_impl->cursor_query_in_impl_func_user_data &&
+          cursor_manager_impl->cursor_query_in_impl_func_user_data_free)
+        {
+          GDestroyNotify free_func =
+            cursor_manager_impl->cursor_query_in_impl_func_user_data_free;
+          free_func (cursor_manager_impl->cursor_query_in_impl_func_user_data);
+        }
+
       meta_kms_impl_remove_update_filter (impl,
                                           cursor_manager_impl->update_filter);
       crtc_states = g_steal_pointer (&cursor_manager_impl->crtc_states);
