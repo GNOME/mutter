@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-03 22:56+0000\n"
-"PO-Revision-Date: 2026-02-05 00:12+0100\n"
+"POT-Creation-Date: 2026-02-27 08:40+0000\n"
+"PO-Revision-Date: 2026-02-27 14:16+0100\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -689,26 +689,30 @@ msgid "_Monitors"
 msgstr "_Monitory"
 
 #: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "Přid_at monitor"
+
+#: mdk/mdk-main-window.ui:30
 msgid "_Emulate monitor modes"
 msgstr "_Emulovat režimy monitoru"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "_Spouštěče"
 
-#: mdk/mdk-main-window.ui:37
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "_Upravit spouštěče"
 
-#: mdk/mdk-main-window.ui:44
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "O _aplikaci Vývojové prostředí Mutteru"
 
-#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Vývojové prostředí Mutteru"
 
-#: mdk/mdk-main-window.ui:60
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Hlavní nabídka"
 
@@ -728,26 +732,26 @@ msgstr "O aplikaci Vývojové prostředí Mutteru"
 msgid "Failed to create monitor"
 msgstr "Selhalo vytvoření monitoru"
 
-#: src/backends/meta-monitor.c:275
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "Vestavěný displej"
 
-#: src/backends/meta-monitor.c:302
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "Neznámý"
 
-#: src/backends/meta-monitor.c:304
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "Neznámý displej"
 
-#: src/backends/meta-monitor.c:312
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:320
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -852,7 +856,7 @@ msgstr "Plocha %d"
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter byl přeloženo bez podpory podrobného režimu"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Přepnuta plocha"
 
