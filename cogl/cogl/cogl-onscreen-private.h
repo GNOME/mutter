@@ -61,7 +61,7 @@ _cogl_onscreen_notify_frame_sync (CoglOnscreen *onscreen, CoglFrameInfo *info);
 COGL_EXPORT void
 _cogl_onscreen_notify_complete (CoglOnscreen *onscreen, CoglFrameInfo *info);
 
-void
+COGL_EXPORT void
 cogl_onscreen_bind (CoglOnscreen *onscreen);
 
 COGL_EXPORT CoglFrameInfo *
