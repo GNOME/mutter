@@ -44,6 +44,8 @@ const char * mdk_stream_get_path (MdkStream *stream);
 
 const char * mdk_stream_get_mapping_id (MdkStream *stream);
 
+double mdk_stream_get_scale (MdkStream *stream);
+
 void mdk_stream_set_scale (MdkStream *stream,
                            double     scale);
 

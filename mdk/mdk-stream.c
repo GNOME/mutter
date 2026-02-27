@@ -580,16 +580,7 @@ on_tag_changed (MdkStream  *stream,
                 const char *key,
                 const char *value)
 {
-  if (g_strcmp0 (key, "org.gnome.scale") == 0)
-    {
-      double scale = g_ascii_strtod (value, NULL);
-      if (scale != stream->scale)
-        {
-          stream->scale = (float) scale;
-          gdk_paintable_invalidate_size (GDK_PAINTABLE (stream));
-        }
-    }
-  else if (g_strcmp0 (key, "org.gnome.mapping-id") == 0)
+  if (g_strcmp0 (key, "org.gnome.mapping-id") == 0)
     {
       if (!stream->mapping_id)
         stream->mapping_id = g_strdup (value);
@@ -1569,6 +1560,12 @@ const char *
 mdk_stream_get_mapping_id (MdkStream *stream)
 {
   return stream->mapping_id;
+}
+
+double
+mdk_stream_get_scale (MdkStream *stream)
+{
+  return stream->scale;
 }
 
 void

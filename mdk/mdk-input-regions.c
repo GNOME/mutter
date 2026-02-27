@@ -61,14 +61,21 @@ mdk_transform_stream_position (MdkStream  *stream,
                                double     *x,
                                double     *y)
 {
+  double stream_scale;
+  double region_scale;
+  double scale;
   struct ei_region *ei_region;
 
   ei_region = g_hash_table_lookup (regions, mdk_stream_get_mapping_id (stream));
   if (!ei_region)
     return FALSE;
 
-  *x += ei_region_get_x (ei_region);
-  *y += ei_region_get_y (ei_region);
+  stream_scale = mdk_stream_get_scale (stream);
+  region_scale = ei_region_get_physical_scale (ei_region);
+  scale = stream_scale / region_scale;
+
+  *x = ei_region_get_x (ei_region) + *x * scale;
+  *y = ei_region_get_y (ei_region) + *y * scale;
 
   return TRUE;
 }
