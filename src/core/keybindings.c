@@ -1247,6 +1247,9 @@ meta_display_shutdown_keys (MetaDisplay *display)
   g_hash_table_destroy (keys->key_bindings_index);
   g_hash_table_destroy (keys->key_bindings);
 
+  resolved_key_combo_reset (&keys->overlay_resolved_key_combo);
+  resolved_key_combo_reset (&keys->locate_pointer_resolved_key_combo);
+
   clear_active_keyboard_layouts (keys);
 }
 
