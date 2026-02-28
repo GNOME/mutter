@@ -2673,6 +2673,7 @@ clutter_stage_paint_to_framebuffer (ClutterStage       *stage,
  * @data: (array) (element-type guint8): a pointer to the data
  * @stride: stride of the image surface
  * @format: the pixel format
+ * @color_state: (nullable): the #ClutterColorState
  * @paint_flags: the #ClutterPaintFlag
  * @error: the error
  *
@@ -2750,6 +2751,7 @@ clutter_stage_paint_to_buffer (ClutterStage        *stage,
  * @stage: a #ClutterStage actor
  * @rect: a rectangle
  * @scale: the scale
+ * @color_state: (nullable): the #ClutterColorState
  * @paint_flags: the #ClutterPaintFlag
  * @error: the error
  *
