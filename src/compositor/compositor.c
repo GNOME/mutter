@@ -1701,6 +1701,7 @@ meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
     meta_backend_get_clutter_backend (priv->backend);
   ClutterSprite *sprite;
   g_autoptr (GSList) windows = NULL;
+  GVariantBuilder app_data_builder;
   graphene_point_t rel_coords;
   MetaWindow *window;
 
@@ -1709,10 +1710,11 @@ meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
   window = meta_wayland_compositor_get_current_window (wayland_compositor,
                                                        sprite, &rel_coords);
 
+  g_variant_builder_init (&app_data_builder, G_VARIANT_TYPE ("a{sv}"));
+
   if (window)
     {
       const char *dbus_name = NULL, *object_path = NULL;
-      GVariantBuilder app_data_builder;
       int rel_x, rel_y;
       pid_t pid;
 
@@ -1720,8 +1722,6 @@ meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
                                            (int) rel_coords.x,
                                            (int) rel_coords.y,
                                            &rel_x, &rel_y);
-
-      g_variant_builder_init (&app_data_builder, G_VARIANT_TYPE ("a{sv}"));
 
       pid = meta_window_get_pid (window);
 
@@ -1760,11 +1760,14 @@ meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
         }
       else
         {
+          g_variant_builder_clear (&app_data_builder);
+          *data_out = NULL;
           return FALSE;
         }
     }
 
   /* Respond for our own chrome */
+  *data_out = g_variant_builder_end (&app_data_builder);
   clutter_sprite_get_coords (sprite, rel_coords_out);
   return TRUE;
 }
