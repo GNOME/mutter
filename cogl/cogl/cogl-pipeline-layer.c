@@ -88,7 +88,7 @@ cogl_pipeline_layer_dispose (GObject *object)
   if (layer->differences & COGL_PIPELINE_LAYER_STATE_FRAGMENT_SNIPPETS)
     _cogl_pipeline_snippet_list_free (&layer->big_state->fragment_snippets);
 
-  if (layer->differences & COGL_PIPELINE_LAYER_STATE_NEEDS_BIG_STATE)
+  if (layer->has_big_state)
     g_free (layer->big_state);
 
   G_OBJECT_CLASS (cogl_pipeline_layer_parent_class)->dispose (object);
