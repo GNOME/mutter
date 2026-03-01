@@ -177,7 +177,7 @@ update_assigned_profile (MetaColorDevice *color_device)
   MetaColorManager *color_manager = color_device->color_manager;
   MetaColorStore *color_store =
     meta_color_manager_get_color_store (color_manager);
-  CdProfile *default_profile;
+  g_autoptr (CdProfile) default_profile = NULL;
   GCancellable *cancellable;
 
   default_profile = cd_device_get_default_profile (color_device->cd_device);
