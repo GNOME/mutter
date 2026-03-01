@@ -149,7 +149,7 @@
         The "data" argument is a generic container, so far the only handled keys
         are relevant to AT-SPI:
 
-        - "app-dbus_name" (type: s): Application D-Bus name in the a11y D-Bus
+        - "app-dbus-name" (type: s): Application D-Bus name in the a11y D-Bus
         - "toplevel-object-path" (type: o): Object path to the toplevel, in the
           given D-Bus name.
 
