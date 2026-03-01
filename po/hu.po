@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-17 17:44+0000\n"
-"PO-Revision-Date: 2026-02-22 19:39+0100\n"
+"POT-Creation-Date: 2026-02-28 15:06+0000\n"
+"PO-Revision-Date: 2026-03-01 14:13+0100\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
 "Language-Team: Hungarian <openscope at fsf dot hu>\n"
 "Language: hu\n"
@@ -384,25 +384,6 @@ msgid "Enable experimental features"
 msgstr "Kísérleti funkciók engedélyezése"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
-#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
-#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
-#| "when applicable if supported by the monitor, GPU and DRM driver. "
-#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
-#| "— lets Xwayland clients use their native scaling support. If scaling is "
-#| "not supported by client, the client will be unscaled. Setting only takes "
-#| "effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -717,27 +698,31 @@ msgid "_Monitors"
 msgstr "_Monitorok"
 
 #: mdk/mdk-main-window.ui:26
-#| msgid "_Emulate touch"
+#| msgid "_Monitors"
+msgid "_Add monitor"
+msgstr "Monitor _hozzáadása"
+
+#: mdk/mdk-main-window.ui:30
 msgid "_Emulate monitor modes"
 msgstr "Monitormódok _emulálása"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "_Indítók"
 
-#: mdk/mdk-main-window.ui:37
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "Indítók _szerkesztése"
 
-#: mdk/mdk-main-window.ui:44
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "A Mutter fejlesztői készlet _névjegye"
 
-#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter fejlesztői készlet"
 
-#: mdk/mdk-main-window.ui:60
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Főmenü"
 
@@ -753,7 +738,7 @@ msgstr "Mutter szoftverfejlesztői készlet"
 msgid "About Mutter Development Kit"
 msgstr "A Mutter fejlesztői készlet névjegye"
 
-#: mdk/mdk-monitor.c:556
+#: mdk/mdk-monitor.c:557
 msgid "Failed to create monitor"
 msgstr "Nem sikerült létrehozni a monitort"
 
