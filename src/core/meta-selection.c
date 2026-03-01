@@ -319,7 +319,7 @@ read_cb (GInputStream *stream,
 {
   TransferRequest *request;
   GError *error = NULL;
-  GBytes *bytes;
+  g_autoptr (GBytes) bytes = NULL;
 
   bytes = g_input_stream_read_bytes_finish (stream, result, &error);
   if (error)
@@ -354,7 +354,6 @@ read_cb (GInputStream *stream,
                                      g_task_get_cancellable (task),
                                      (GAsyncReadyCallback) write_cb,
                                      task);
-  g_bytes_unref (bytes);
 }
 
 static void
