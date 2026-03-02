@@ -356,8 +356,8 @@ meta_eis_dispose (GObject *object)
   g_clear_object (&eis->cancellable);
   g_clear_pointer (&eis->viewports, g_list_free);
   g_clear_pointer (&eis->event_source, meta_event_source_free);
-  g_clear_pointer (&eis->eis, eis_unref);
   g_clear_pointer (&eis->eis_clients, g_hash_table_destroy);
+  g_clear_pointer (&eis->eis, eis_unref);
 
   G_OBJECT_CLASS (meta_eis_parent_class)->dispose (object);
 }
