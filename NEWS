@@ -1,3 +1,50 @@
+50.rc
+=====
+* Fix monitor state after closing some fullscreen windows [mohansur; !4876]
+* Fix misbehaving cursor when crossing windows [Carlos; !4887]
+* Make wp_commit_timing work with variable refresh rate [Michel; !4836]
+* Disable tone mapping with HDR [Michel; !4897]
+* Add clipboard integration to devkit [Jonas; !4633]
+* Fix re-enabling touchscreen after power save mode [Lorenzo; !4899]
+* Fix cursors when using gnome-shell magnifier [Carlos; !4907]
+* Add "sdr-native" color mode [Michel; !4900]
+* Support wp-color-management v2 [Sebastian W., Joan; !4905]
+* Blend content with gamma 2.2 transfer by default [Michel; !4584]
+* Fix direct scanout when using SW cursors [Robert; !4916]
+* Fix unexpected cursor changes during window drag operations [Carlos; !4922]
+* Add multi monitor support to devkit [Jonas; !4828]
+* Improve performance with nvidia driver by working around driver quirks
+  [Jonas, Daniel; !4725]
+* Use FBOs for secondary GPU rendering [Michel; !4908]
+* Fix touch input being delivered to the wrong surface [Lorenzo; !4914]
+* Add HDR screen sharing support [Jonas; !4928]
+* Implement a11y interface to query pointer position [Carlos; !4542]
+* Prevent directly switching planes across CRTCs [Stephan; !4850]
+* Fix screen sharing of monitors with no framerate [Jonas; !4798]
+* Fixed crash [Carlos; !4886]
+* Plugged leaks [Sebastian K., Carlos; !4885, !4931, !4932, !4937]
+* Misc. bug fixes and cleanups [Jonas, Michel, Carlos, Florian, FeRD,
+  Alessandro, Frank, Sebastian K.; !4891, !4818, !4862, !4906, !4874, !4909,
+  !4910, !4838, !4919, !4882, !4923, !4915, !4930, !4929, !4927, !4913, !4912,
+  !4911, !4933, !4935]
+
+Contributors:
+  FeRD (Frank Dana), Alessandro Astone, Michel Dänzer, Carlos Garnacho,
+  Stephan Gerhold, Lorenzo Ianotto, Sebastian Keller, Robert Mader, mohansur,
+  Florian Müllner, Frank Praznik, Joan Torres, Daniel van Vugt, Sebastian Wick,
+  Jonas Ådahl
+
+Translators:
+  Daniel Rusek [cs], Quentin PAGÈS [oc], Artur S0 [ru],
+  Aurimas Aurimas Černius [lt], Efstathios Iosifidis [el],
+  Yosef Or Boczko [he], Victor Dargallo [ca], luming zh [zh_CN],
+  Asier Saratsua Garmendia [eu], Fran Diéguez [gl], Balázs Úr [hu],
+  Julien Humbert [fr], Juliano de Souza Camargo [pt_BR], Daniel Mustieles [es],
+  Kristjan ESPERANTO [eo], Yaron Shahrabani [he], Anders Jonsson [sv],
+  Antonio Marin [ro], twlvnn kraftwerk [bg], Martin [sl], Ekaterine Papava [ka],
+  Yuri Chornoivan [uk], Hugo Carvalho [pt], 小山田 純 - Oyamada Jun [ja],
+  Abduqadir Abliz [ug], Guillaume Bernard [fr], Ahmed Najmawi [ar]
+
 50.beta
 =======
 * Fix moving windows to smaller monitors [Jonas; !4851]
