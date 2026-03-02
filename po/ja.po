@@ -16,16 +16,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-08-20 21:45+0000\n"
-"PO-Revision-Date: 2025-08-21 07:36+0900\n"
-"Last-Translator: Makoto Sakaguchi <ycco34vx@gmail.com>\n"
+"POT-Creation-Date: 2026-02-28 15:06+0000\n"
+"PO-Revision-Date: 2026-03-02 22:30+0900\n"
+"Last-Translator: 小山田 純 <oyamadajun@outlook.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 3.6\n"
+"X-DamnedLies-Scope: partial\n"
+"X-Generator: Poedit 3.8\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -259,19 +260,19 @@ msgstr "ウィンドウを垂直方向に最大化する"
 msgid "Maximize window horizontally"
 msgstr "ウィンドウを水平方向に最大化する"
 
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "画面左半分に表示する"
 
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "画面右半分に表示する"
 
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "拡張ウィンドウ管理操作で使用する修飾キー"
 
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -283,11 +284,11 @@ msgstr ""
 "ドの [Windows キー] が割り当てられています。このキーバインドはデフォルト値を"
 "使用するか、空文字列に設定することを想定しています。"
 
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "モーダルダイアログを親ウィンドウに結合する"
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
@@ -296,11 +297,11 @@ msgstr ""
 "true にすると、モーダルダイアログは独立したタイトルバーを持たず、親ウィンドウ"
 "のタイトルバーに結合して表示され、親ウィンドウと連動して移動します。"
 
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "ウィンドウを画面端にドロップした際にエッジタイリングを有効化する"
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -310,11 +311,11 @@ msgstr ""
 "れ、水平方向は利用可能領域の半分にリサイズされます。ウィンドウを画面上端にド"
 "ロップした場合は完全に最大化されます。"
 
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "ワークスペースを動的に管理する"
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -324,11 +325,11 @@ msgstr ""
 "(org.gnome.desktop.wm.preferences の num-workspaces キーで指定) にするかを決"
 "定します。"
 
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "プライマリモニターのみワークスペースを切り替える"
 
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -336,11 +337,11 @@ msgstr ""
 "ワークスペース切り替え時にすべてのモニターのウィンドウを対象とするか、プライ"
 "マリモニターのウィンドウのみを対象とするかを決定します。"
 
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "ポインターが停止するまでフォーカス変更を遅延する"
 
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -350,11 +351,11 @@ msgstr ""
 "に入っても即座にフォーカスは変更されず、ポインターが停止した後に変更されま"
 "す。"
 
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "ドラッグ可能な境界の幅"
 
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -362,11 +363,11 @@ msgstr ""
 "ドラッグ可能な境界の総幅。テーマの表示境界が不足している場合、この値に達する"
 "まで非表示境界が追加されます。"
 
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "モニターサイズに近いウィンドウの自動最大化"
 
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -374,11 +375,11 @@ msgstr ""
 "有効にすると、初期サイズがモニターサイズの新しいウィンドウが自動的に最大化さ"
 "れます。"
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "新しいウィンドウを中央に配置する"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -386,62 +387,35 @@ msgstr ""
 "true にすると、新しいウィンドウは常にアクティブなモニターの中央に配置されま"
 "す。"
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "実験的機能を有効にする"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
-"実験的機能を有効にするには、機能キーワードをリストに追加してください。機能が"
-"コンポジターの再起動を必要とするかは機能によって異なります。実験的機能は今後"
-"も利用可能であることや設定可能であることは保証されません。この設定への追加が"
-"将来にわたって動作するとは期待しないでください。\n"
-"現在利用可能なキーワード：\n"
-"• \"scale-monitor-framebuffer\" — HiDPI モニター管理のため、ウィンドウコンテ"
-"ンツではなくモニターフレームバッファーをスケーリングし、論理モニターを論理ピ"
-"クセル座標空間にレイアウトするよう mutter を設定します。再起動不要。\n"
-"• \"kms-modifiers\" — ドライバーがサポートしている場合、mutter が常に明示的修"
-"飾子でスキャンアウトバッファーを割り当てます。再起動が必要。\n"
-"• \"autoclose-xwayland\" — 関連する X11 クライアントがすべて終了した際に、"
-"Xwayland を自動終了します。再起動が必要。\n"
-"• \"variable-refresh-rate\" — モニター、GPU、DRM ドライバーがサポートしている"
-"場合、mutter がモニターのリフレッシュレートを動的に調整します。“設定”で設定可"
-"能。再起動が必要。\n"
-"• \"xwayland-native-scaling\" — Xwayland クライアントでネイティブスケーリング"
-"サポートを有効化します。クライアントがスケーリング非対応の場合はスケーリング"
-"されません。“scale-monitor-framebuffer” も有効な場合のみ効果があります。"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "ポインターを見つけるために使用する修飾キー"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "このキーは「ポインターを見つける」アクションを開始します。"
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "生存確認 ping のタイムアウト"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -451,11 +425,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "出力ごとの輝度設定"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -466,15 +440,15 @@ msgstr ""
 "シリアル、色モードのタプルと、出力輝度をパーセント (%) で表す浮動小数点値で構"
 "成されます。未指定時のデフォルトは 100% です。"
 
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "モニター設定の切り替え"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "内蔵ディスプレイ設定を交代する"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
 msgstr "アクティブな入力キャプチャセッションのキャンセル"
 
@@ -680,23 +654,39 @@ msgstr "タッチエミュレート(_E)"
 msgid "_Inhibit system shortcuts"
 msgstr "システムショートカットを無効化(_I)"
 
-#: mdk/mdk-main-window.ui:20
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "ホストのキーマップを使用(_K)"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "モニター(_M)"
+
+#: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "モニターを追加(_A)"
+
+#: mdk/mdk-main-window.ui:30
+msgid "_Emulate monitor modes"
+msgstr "モニターモードをエミュレート(_E)"
+
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "ランチャー(_L)"
 
-#: mdk/mdk-main-window.ui:24
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "ランチャーを編集(_E)"
 
-#: mdk/mdk-main-window.ui:31
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "Mutter 開発キットについて(_A)"
 
-#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutter 開発キット"
 
-#: mdk/mdk-main-window.ui:47
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "メインメニュー"
 
@@ -712,30 +702,30 @@ msgstr "Mutter ソフトウェア開発キット"
 msgid "About Mutter Development Kit"
 msgstr "Mutter 開発キットについて"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:557
 msgid "Failed to create monitor"
 msgstr "モニターの作成に失敗しました"
 
-#: src/backends/meta-monitor.c:274
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "内蔵ディスプレイ"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "不明"
 
-#: src/backends/meta-monitor.c:303
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "不明なディスプレイ"
 
-#: src/backends/meta-monitor.c:311
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:319
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -747,75 +737,54 @@ msgstr "%s %s"
 msgid "Bell event"
 msgstr "ベルイベント"
 
-#: src/core/display.c:741
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "プライバシースクリーン 有効"
 
-#: src/core/display.c:742
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "プライバシースクリーン 無効"
 
-#: src/core/meta-context-main.c:630
-msgid "Replace the running window manager"
-msgstr "実行中のウィンドウマネージャーを置き換える"
-
-#: src/core/meta-context-main.c:636
-msgid "X Display to use"
-msgstr "使用する X ディスプレイを指定する"
-
-# 'X' という１文字は固有名詞のため大文字にする
-#: src/core/meta-context-main.c:642
-msgid "Make X calls synchronous"
-msgstr "X の呼び出しを同期する"
-
-#: src/core/meta-context-main.c:650
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Wayland コンポジターとして実行する"
 
-#: src/core/meta-context-main.c:657
-msgid "Run as a nested compositor"
-msgstr "ネストされたコンポジターとして実行する"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Xwayland を起動せずに Wayland コンポジターを実行"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "使用する Wayland ディスプレイ名を指定"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "ネストされた環境ではなく、完全なディスプレイサーバーとして実行"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "ヘッドレスディスプレイサーバーとして実行"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "永続仮想モニターを追加 (WxH または WxH@R)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "開発キットを実行"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "X11 バックエンドで実行"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "トレース計装を使用してパフォーマンスをプロファイルする"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "デバッグ制御 D-Bus インターフェースを有効化"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "モード切り替え (グループ %d)"
@@ -823,7 +792,7 @@ msgstr "モード切り替え (グループ %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "モード切り替え"
@@ -831,11 +800,11 @@ msgstr "モード切り替え"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "モニター切り替え"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "オンスクリーンヘルプを表示"
 
@@ -844,24 +813,24 @@ msgstr "オンスクリーンヘルプを表示"
 msgid "Compositor"
 msgstr "コンポジター"
 
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "バージョンを表示する"
 
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "使用する Mutter プラグイン"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "ワークスペース %d"
 
-#: src/core/util.c:150
+#: src/core/util.c:149
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter は詳細モードのサポートなしでコンパイルされました"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "ワークスペースを切り替えました"
 
@@ -870,28 +839,24 @@ msgstr "ワークスペースを切り替えました"
 msgid "Mode Switch: Mode %d"
 msgstr "モード切り替え: モード %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:776
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"ディスプレイ “%s” はすでにウィンドウマネージャーを持っています。現在のウィン"
-"ドウマネージャーを置き換えるには --replace オプションを使用してください。"
+msgid "Display “%s” already has a window manager"
+msgstr "ディスプレイ “%s” はすでにウィンドウマネージャーを使用しています"
 
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1139
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X Window System ディスプレイ “%s” を開けませんでした"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1284
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "ディスプレイ “%2$s” 上のスクリーン %1$d は無効です"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2801
+#: src/x11/meta-x11-display.c:2469
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -904,10 +869,35 @@ msgstr ""
 msgid "Format %s not supported"
 msgstr "フォーマット %s はサポートしていません"
 
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
+
+#~ msgid "Replace the running window manager"
+#~ msgstr "実行中のウィンドウマネージャーを置き換える"
+
+#~ msgid "X Display to use"
+#~ msgstr "使用する X ディスプレイを指定する"
+
+# 'X' という１文字は固有名詞のため大文字にする
+#~ msgid "Make X calls synchronous"
+#~ msgstr "X の呼び出しを同期する"
+
+#~ msgid "Run as a nested compositor"
+#~ msgstr "ネストされたコンポジターとして実行する"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "X11 バックエンドで実行"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "ディスプレイ “%s” はすでにウィンドウマネージャーを持っています。現在のウィ"
+#~ "ンドウマネージャーを置き換えるには --replace オプションを使用してくださ"
+#~ "い。"
 
 #~ msgid "Move to workspace above"
 #~ msgstr "上側のワークスペースへ移動する"
@@ -1042,11 +1032,6 @@ msgstr "%s (%s)"
 #~ msgstr ""
 #~ "ディスプレイ \"%2$s\" 上のスクリーン %1$d でウィンドウマネージャーの選択を"
 #~ "取得できませんでした\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr ""
-#~ "ディスプレイ \"%2$s\" 上のスクリーン %1$d はすでにウィンドウマネージャーを"
-#~ "持っています\n"
 
 #~ msgid "Could not release screen %d on display \"%s\"\n"
 #~ msgstr "ディスプレイ \"%2$s\" 上のスクリーン %1$d を解放できませんでした\n"
