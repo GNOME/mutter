@@ -111,13 +111,14 @@ variables:
     - .skip-git-clone
   variables:
     FDO_DISTRIBUTION_VERSION: 43
-    BASE_TAG: '2026-03-03.0'
+    BASE_TAG: '2026-03-09.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
       clang
       egl-wayland-devel
       gcovr
+      gnome-kiosk
       gnome-shell
       itstool
       python3-docutils
@@ -170,6 +171,7 @@ variables:
       dnf install -y 'dnf-command(builddep)'
 
       dnf builddep -y mutter --setopt=install_weak_deps=False
+      dnf builddep -y gnome-kiosk --setopt=install_weak_deps=False
       dnf builddep -y gnome-shell --setopt=install_weak_deps=False
       dnf builddep -y kernel --setopt=install_weak_deps=False
       dnf builddep -y gi-docgen --setopt=install_weak_deps=False
@@ -183,6 +185,7 @@ variables:
 
       rpm -e --nodeps gnome-bluetooth-libs-devel \
                       mutter mutter-devel \
+                      gnome-kiosk \
                       gnome-shell \
                       $NULL
 
@@ -643,6 +646,30 @@ coverage:
     - test-mutter@x86_64
 #    - test-mutter@aarch64
     - test-mutter-kvm@x86_64
+
+can-run-gnome-kiosk@x86_64:
+  extends:
+    - .mutter.distribution-image
+    - .mutter.fedora@x86_64
+    - .test-setup
+  stage: test
+  needs:
+    - build-mutter@x86_64
+  before_script:
+    - !reference [.mutter.fedora@x86_64, before_script]
+    - sudo meson install --no-rebuild -C build
+  script:
+    - .gitlab-ci/checkout-gnome-kiosk.sh
+    - meson setup gnome-kiosk gnome-kiosk/build --prefix /usr -Dbuildtype=debugoptimized --werror
+    - sudo meson install -C gnome-kiosk/build
+    - mkdir -m 1777 /tmp/.X11-unix
+    - dbus-run-session -- meson test -C gnome-kiosk/build --timeout-multiplier 5
+  artifacts:
+    expire_in: 7 day
+    name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: on_failure
+    paths:
+      - gnome-kiosk/build/meson-logs
 
 can-run-gnome-shell@x86_64:
   extends:
