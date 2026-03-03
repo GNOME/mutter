@@ -1,31 +1,34 @@
-# translation of metacity.HEAD.po to Arabic
-# This file is distributed under the same license as the PACKAGE package.
-# Copyright (C) 2003 THE PACKAGE'S COPYRIGHT HOLDER
+# Arabic translation for mutter
+# This file is distributed under the same license as the mutter package.
+# Copyright (C) 2003-2004, 2006-2015, 2017, 2019, 2022, 2025 mutter's COPYRIGHT HOLDER
 # Arafat Medini <lumina@silverpen.de>, 2003.
 # Abdulaziz Al-Arfaj <alarfaj0@yahoo.com>, 2004.
 # Djihed Afifi <djihed@gmail.com>, 2006.
 # Khaled Hosny <khaledhosny@eglug.org>, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2019.
 # Anas Afif Emad <anas.e87@gmail.com>, 2008.
+# Ali Aljishi <ahj696@hotmail.com>, 2022.
+# Ahmed Najmawi <iramosu@protonmail.com>, 2025.
+#
 msgid ""
 msgstr ""
-"Project-Id-Version: metacity.HEAD\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-15 23:40+0200\n"
-"PO-Revision-Date: 2019-03-15 23:42+0200\n"
-"Last-Translator: Khaled Hosny <khaledhosny@eglug.org>\n"
-"Language-Team: Arabic <doc@arabeyes.org>\n"
+"Project-Id-Version: mutter main\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2025-06-20 13:57+0000\n"
+"PO-Revision-Date: 2025-07-11 17:10+0300\n"
+"Last-Translator: Ahmed Najmawi <iramosu@protonmail.com>\n"
+"Language-Team: Arabic\n"
 "Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
-"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Virtaal 0.7.1\n"
+"Plural-Forms: nplurals=6; plural= n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+"X-Generator: Gtranslator 48.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
-msgstr "الإبحار"
+msgstr "التنقُّل"
 
 #: data/50-mutter-navigation.xml:9
 msgid "Move window to workspace 1"
@@ -48,116 +51,132 @@ msgid "Move window to last workspace"
 msgstr "انقل النافذة إلى مساحة العمل الأخيرة"
 
 #: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "انقل النافذة مساحة عمل واحدة إلى اليسار"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "انقل النافذة مساحة عمل واحدة إلى اليمين"
+
+#: data/50-mutter-navigation.xml:31
 msgid "Move window one workspace up"
 msgstr "انقل النافذة مساحة عمل واحدة إلى الأعلى"
 
-#: data/50-mutter-navigation.xml:27
+#: data/50-mutter-navigation.xml:35
 msgid "Move window one workspace down"
 msgstr "انقل النافذة مساحة عمل واحدة إلى الأسفل"
 
-#: data/50-mutter-navigation.xml:30
+#: data/50-mutter-navigation.xml:38
 msgid "Move window one monitor to the left"
 msgstr "انقل النافذة شاشة واحدة إلى اليسار"
 
-#: data/50-mutter-navigation.xml:33
+#: data/50-mutter-navigation.xml:41
 msgid "Move window one monitor to the right"
 msgstr "انقل النافذة شاشة واحدة إلى اليمين"
 
-#: data/50-mutter-navigation.xml:36
+#: data/50-mutter-navigation.xml:44
 msgid "Move window one monitor up"
 msgstr "انقل النافذة شاشة واحدة إلى الأعلى"
 
-#: data/50-mutter-navigation.xml:39
+#: data/50-mutter-navigation.xml:47
 msgid "Move window one monitor down"
 msgstr "انقل النافذة شاشة واحدة إلى الأسفل"
 
-#: data/50-mutter-navigation.xml:43
+#: data/50-mutter-navigation.xml:51
 msgid "Switch applications"
-msgstr "تنقل بين التطبيقات"
+msgstr "تنقَّل بين التطبيقات"
 
-#: data/50-mutter-navigation.xml:48
+#: data/50-mutter-navigation.xml:56
 msgid "Switch to previous application"
 msgstr "انتقل إلى التطبيق السابق"
 
-#: data/50-mutter-navigation.xml:52
+#: data/50-mutter-navigation.xml:60
 msgid "Switch windows"
-msgstr "تنقل بين النوافذ"
+msgstr "تنقَّل بين النوافذ"
 
-#: data/50-mutter-navigation.xml:57
+#: data/50-mutter-navigation.xml:65
 msgid "Switch to previous window"
 msgstr "انتقل إلى النافذة السابقة"
 
-#: data/50-mutter-navigation.xml:61
+#: data/50-mutter-navigation.xml:69
 msgid "Switch windows of an application"
-msgstr "تنقل بين نوافذ التطبيق"
+msgstr "تنقَّل بين نوافذ التطبيق"
 
-#: data/50-mutter-navigation.xml:66
+#: data/50-mutter-navigation.xml:74
 msgid "Switch to previous window of an application"
 msgstr "انتقل إلى نافذة التطبيق السابقة"
 
-#: data/50-mutter-navigation.xml:70
+#: data/50-mutter-navigation.xml:78
 msgid "Switch system controls"
-msgstr "تنقل بين تحكمات النظام"
+msgstr "تنقَّل بين تحكُّمات النظام"
 
-#: data/50-mutter-navigation.xml:75
+#: data/50-mutter-navigation.xml:83
 msgid "Switch to previous system control"
 msgstr "انتقل إلى تحكم النظام السابق"
 
-#: data/50-mutter-navigation.xml:79
+#: data/50-mutter-navigation.xml:87
 msgid "Switch windows directly"
-msgstr "تنقل مباشرة بين النوافذ"
+msgstr "تنقَّل مباشرة بين النوافذ"
 
-#: data/50-mutter-navigation.xml:84
+#: data/50-mutter-navigation.xml:92
 msgid "Switch directly to previous window"
 msgstr "انتقل مباشرة إلى النافذة السابقة"
 
-#: data/50-mutter-navigation.xml:88
+#: data/50-mutter-navigation.xml:96
 msgid "Switch windows of an app directly"
-msgstr "تنقل مباشرة بين نوافذ التطبيق"
+msgstr "تنقَّل مباشرة بين نوافذ التطبيق"
 
-#: data/50-mutter-navigation.xml:93
+#: data/50-mutter-navigation.xml:101
 msgid "Switch directly to previous window of an app"
 msgstr "انتقل مباشرة إلى نافذة التطبيق السابقة"
 
-#: data/50-mutter-navigation.xml:97
+#: data/50-mutter-navigation.xml:105
 msgid "Switch system controls directly"
-msgstr "تنقل مباشرة بين تحكمات النظام"
+msgstr "تنقَّل مباشرة بين تحكُّمات النظام"
 
-#: data/50-mutter-navigation.xml:102
+#: data/50-mutter-navigation.xml:110
 msgid "Switch directly to previous system control"
 msgstr "انتقل مباشرة إلى تحكم النظام السابق"
 
-#: data/50-mutter-navigation.xml:105
+#: data/50-mutter-navigation.xml:113
 msgid "Hide all normal windows"
 msgstr "أخفِ كل النوافذ العادية"
 
-#: data/50-mutter-navigation.xml:108
+#: data/50-mutter-navigation.xml:116
 msgid "Switch to workspace 1"
 msgstr "انتقل إلى مساحة العمل 1"
 
-#: data/50-mutter-navigation.xml:111
+#: data/50-mutter-navigation.xml:119
 msgid "Switch to workspace 2"
 msgstr "انتقل إلى مساحة العمل 2"
 
-#: data/50-mutter-navigation.xml:114
+#: data/50-mutter-navigation.xml:122
 msgid "Switch to workspace 3"
 msgstr "انتقل إلى مساحة العمل 3"
 
-#: data/50-mutter-navigation.xml:117
+#: data/50-mutter-navigation.xml:125
 msgid "Switch to workspace 4"
 msgstr "انتقل إلى مساحة العمل 4"
 
-#: data/50-mutter-navigation.xml:120
+#: data/50-mutter-navigation.xml:128
 msgid "Switch to last workspace"
 msgstr "انتقل إلى مساحة العمل الأخيرة"
 
-#: data/50-mutter-navigation.xml:123
-msgid "Move to workspace above"
-msgstr "انقل لمساحة العمل أعلى"
+#: data/50-mutter-navigation.xml:131
+msgid "Switch to workspace on the left"
+msgstr "انتقل إلى مساحة العمل اليسرى"
 
-#: data/50-mutter-navigation.xml:126
-msgid "Move to workspace below"
-msgstr "انقل لمساحة العمل أسفل"
+#: data/50-mutter-navigation.xml:134
+msgid "Switch to workspace on the right"
+msgstr "انتقل إلى مساحة العمل اليمنى"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Switch to workspace above"
+msgstr "انتقل إلى مساحة العمل العليا"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Switch to workspace below"
+msgstr "انتقل إلى مساحة العمل الدنيا"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -165,11 +184,7 @@ msgstr "النظام"
 
 #: data/50-mutter-system.xml:8
 msgid "Show the run command prompt"
-msgstr "أظهر محث تشغيل أمر"
-
-#: data/50-mutter-system.xml:10
-msgid "Show the activities overview"
-msgstr "أظهر نظرة عامة على الأنشطة"
+msgstr "أظهِر محث تشغيل أمر"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
@@ -181,47 +196,47 @@ msgstr "النوافذ"
 
 #: data/50-mutter-windows.xml:8
 msgid "Activate the window menu"
-msgstr "فعّل قائمة النافذة"
+msgstr "فعِّل قائمة النافذة"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
-msgstr "بدّل نمط ملء الشاشة"
+msgstr "بدِّل وضع ملء الشاشة"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr "بدّل حالة التكبير"
+msgstr "بدِّل حالة التكبير"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
-msgstr "كبّر النّافذة"
+msgstr "كبِّر النافذة"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr "استعد النّافذة"
+msgstr "استعد النافذة"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
-msgstr "أغلق النّافذة"
+msgstr "أغلِق النافذة"
 
 #: data/50-mutter-windows.xml:20
 msgid "Hide window"
-msgstr "أخفِ النّافذة"
+msgstr "أخفِ النافذة"
 
 #: data/50-mutter-windows.xml:22
 msgid "Move window"
-msgstr "انقل النّافذة"
+msgstr "انقل النافذة"
 
 #: data/50-mutter-windows.xml:24
 msgid "Resize window"
-msgstr "حجّم النّافذة"
+msgstr "حجِّم النافذة"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr "بدّل حالة ظهور النافذة على جميع مساحات العمل أو واحدة منها"
+msgstr "بدِّل حالة ظهور النافذة على جميع مساحات العمل أو واحدة منها"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
-msgstr "ارفع النافذة إذا كانت أخرى تغطيها، أو أخفضها في ما عدا ذلك"
+msgstr "ارفع النافذة إذا كانت أخرى تغطِّيها، أو أخفضها في ما عدا ذلك"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
@@ -233,93 +248,90 @@ msgstr "اخفض النافذة تحت النوافذ الأخرى"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
-msgstr "كبّر النافذة رأسيا"
+msgstr "كبِّر النافذة رأسيًا"
 
 #: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
-msgstr "كبّر النافذة أفقيا"
+msgstr "كبِّر النافذة أفقيًا"
 
-#: data/50-mutter-windows.xml:41
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
 msgid "View split on left"
 msgstr "المنظور مقسوم على اليمين"
 
-#: data/50-mutter-windows.xml:45
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
 msgid "View split on right"
 msgstr "المنظور مقسوم على اليسار"
 
-#: data/mutter.desktop.in:4
-msgid "Mutter"
-msgstr "مَتَر"
-
-#: data/org.gnome.mutter.gschema.xml.in:7
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid "Modifier to use for extended window management operations"
-msgstr "المغير الذي سيُستعمل لتمديد عمليات إدارة النوافذ "
+msgstr "المغيِّر المستعمل لتمديد عمليَّات إدارة النوافذ"
 
-#: data/org.gnome.mutter.gschema.xml.in:8
+#: data/org.gnome.mutter.gschema.xml.in:17
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
 msgstr ""
+"سيبدأ هذا المفتاح «المركَّبة»، وهي تجميعة النظرة العامَّة للنافذة ونظام بدء "
+"التطبيق. يُتوقَّع أن المبدئي سيكون «مفتاح ويندوز» في عتاد الحاسوب. يُتوقَّع أن هذا "
+"الارتباط يستخدم المبدئي أو يُعيَّن سلسلة فارغة."
 
-#: data/org.gnome.mutter.gschema.xml.in:20
-#, fuzzy
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid "Attach modal dialogs"
-msgstr "صندوق حوار سائد"
+msgstr "أرفِق الحوارات المشروطة"
 
-#: data/org.gnome.mutter.gschema.xml.in:21
+#: data/org.gnome.mutter.gschema.xml.in:30
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
+"إن كان صحيحًا، فستظهر الحوارات المشروطة متَّصلة بالنافذة الأصل بدلًا من أن تكون "
+"لها أشرطة عناوين مستقلَّة، وستتحرَّك معها."
 
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid "Enable edge tiling when dropping windows on screen edges"
-msgstr ""
+msgstr "فعِّل الرصف باستخدام الحواف عند إفلات النوافذ قُرب حواف الشاشة"
 
-#: data/org.gnome.mutter.gschema.xml.in:31
+#: data/org.gnome.mutter.gschema.xml.in:40
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
 msgstr ""
+"إن فُعِّل، فسيُكبِّر الإفلات على حوافِّ الشاشة الرأسيَّة النوافذ رأسيًّا ويحجِّمهم بحيث "
+"يستخدمون نصف المساحة المتوفِّرة. يُكبِّر الإفلات على الحافَّة العليا للشاشة النوافذ "
+"كلِّيًّا."
 
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid "Workspaces are managed dynamically"
-msgstr ""
+msgstr "تُدار مساحات العمل ديناميكيًّا"
 
-#: data/org.gnome.mutter.gschema.xml.in:41
+#: data/org.gnome.mutter.gschema.xml.in:50
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
 msgstr ""
+"يُقرِّر ما إذا كانت إدارة مساحات العمل ديناميكيَّة أم يوجد عدد مساحات عمل ثابت "
+"(يُحدَّد هذا باستخدام مفتاح num-workspaces في org.gnome.desktop.wm.preferences)."
 
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid "Workspaces only on primary"
-msgstr ""
+msgstr "مساحات العمل في الرئيس حصرًا"
 
-#: data/org.gnome.mutter.gschema.xml.in:51
+#: data/org.gnome.mutter.gschema.xml.in:60
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:59
-msgid "No tab popup"
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:60
-msgid ""
-"Determines whether the use of popup and highlight frame should be disabled "
-"for window cycling."
-msgstr ""
+"يُقرِّر ما إذا كان يجب أن يؤثِّر تبديل مساحات العمل على كل النوافذ في كل الشاشات "
+"أم على النوافذ في الشاشة الرئيسية فقط."
 
 #: data/org.gnome.mutter.gschema.xml.in:68
 msgid "Delay focus changes until the pointer stops moving"
-msgstr ""
+msgstr "أخِّر تغيُّرات التركيز لحين توقُّف المؤشِّر"
 
 #: data/org.gnome.mutter.gschema.xml.in:69
 msgid ""
@@ -327,42 +339,46 @@ msgid ""
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
+"إن عُيِّن صحيحًا، وكان وضع التركيز «مُوحِل» أو «الفأرة»، فلن يُغيَّر التركيز عند دخول "
+"نافذة فورًا، بل عند توقُّف المؤشِّر."
 
 #: data/org.gnome.mutter.gschema.xml.in:79
 msgid "Draggable border width"
-msgstr ""
+msgstr "عرض حدٍّ يُسحب"
 
 #: data/org.gnome.mutter.gschema.xml.in:80
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
 msgstr ""
+"مقدار الحدود المسحوبة. إن لم تكفِ الحدود الظاهرة للسمة، فستُضاف حدود خفيَّة لتصل "
+"لهذه القيمة."
 
 #: data/org.gnome.mutter.gschema.xml.in:89
 msgid "Auto maximize nearly monitor sized windows"
-msgstr ""
+msgstr "كبِّر النوافذ التي تُقارب حجم الشاشة آليًا"
 
 #: data/org.gnome.mutter.gschema.xml.in:90
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
-msgstr ""
+msgstr "إن فُعِّل، فستُكبَّر النوافذ التي بحجم الشاشة آليًا."
 
 #: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
-msgstr ""
+msgstr "ضع النوافذ الجديدة في الوسط"
 
 #: data/org.gnome.mutter.gschema.xml.in:99
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:107
-msgid "Enable experimental features"
-msgstr ""
+msgstr "إن كان صحيحًا، فستوضع النوافذ الجديدة في وسط الشاشة النشطة دائمًا."
 
 #: data/org.gnome.mutter.gschema.xml.in:108
+msgid "Enable experimental features"
+msgstr "فعّّل المزايا التجريبية"
+
+#: data/org.gnome.mutter.gschema.xml.in:109
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -371,160 +387,284 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
+"native-scaling” — lets Xwayland clients use their native scaling support. If "
+"scaling is not supported by client, the client will be unscaled. Setting "
+"only takes effect when “scale-monitor-framebuffer” is enabled as well."
 msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:141
-msgid "Select window from tab popup"
-msgstr ""
-
-#: data/org.gnome.mutter.gschema.xml.in:146
-msgid "Cancel tab popup"
-msgstr ""
+"أضِف الكلمة المفتاحية للميزة لتُفعِّل الميزة التجريبية. تعتمد الحاجة لإعادة "
+"تشغيل المُركِّب على الميزة. لا يُتطلَّب من أي ميزة تجريبية أن تكون متوفرة أو "
+"مضبوطة. لا تتوقَّع أن إضافة أي شيء في هذا الإعداد ستعمل مستقبلًا. الكلمات "
+"المفتاحية المتوفرة حاليًا هي: • «scale-monitor-framebuffer» — تجعل مَتَر يبتدئ "
+"لتخطيط الشاشات المنطقي في فضاء موقع بكسلات منطقي، بينما يُحجِّم مخزِّنات الإطارات "
+"المؤقتة للشاشة بدلًا من محتوى الشاشة، وذلك لإدارة شاشات HiDPI. لا تتطلَّب إعادة "
+"تشغيل. • «kms-modifiers» — تجعل مَتَر يخصِّص مخزِّنات scanout مؤقتة بمغايير صريحة، "
+"وذلك إن كان المشغِّل يدعمها. تتطلَّب إعادة تشغيل. • «autoclose-xwayland» — تُنهي "
+"«إكس‌وَيلَند» آليًا إذا أُغلِق جميع عملاء إكس11 المتصلين به. تتطلَّب إعادة تشغيل. • "
+"«variable-refresh-rate» — تجعل مَتَر يضبط معدل تحديث الشاشة ديناميكيًا عندما "
+"يكون ذلك ممكنًا ومدعومًا من الشاشة، ومعالج الرسوميَّات، ومشغِّل DRM. يمكن ضبطها من "
+"الإعدادات. تتطلَّب إعادة تشغيل. • «xwayland-native-scaling» — تسمح لعملاء "
+"«إكس‌وَيلَند» باستخدام دعم التحجيم الأصلي الخاص بهم. إذا لم يكن التحجيم مدعومًا "
+"من قِبَل العميل، فلن تُحجَّم نافذته. لا يُطبَّق هذا الإعداد إلا عند تفعيل «scale-"
+"monitor-framebuffer» معه."
 
 #: data/org.gnome.mutter.gschema.xml.in:151
-#, fuzzy
-msgid "Switch monitor configurations"
-msgstr "غيّر الشاشة"
+msgid "Modifier to use to locate the pointer"
+msgstr "المغيِّر المُستخدم لتحديد موقع المؤشِّر"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
-msgid "Rotates the built-in monitor configuration"
+#: data/org.gnome.mutter.gschema.xml.in:152
+msgid "This key will initiate the “locate pointer” action."
+msgstr "سيبدأ هذا المفتاح إجراء «أوجد المؤشِّر»."
+
+#: data/org.gnome.mutter.gschema.xml.in:159
+msgid "Timeout for check-alive ping"
+msgstr "مهلة طرق check-alive"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
+"الزمن المتاح للعميل بالملِّي ثانية ليستجيب لطلب طَرْق وذلك لكي لا يُظنَّ بأنه مجمَّد. "
+"سيُعطِّل استخدام 0 هذا الفحص كلِّيًّا."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
-#, fuzzy
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "حسب إعدادات نُصوع المخرج"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr ""
+"وفقًا لإعدادات نصوع المخرج ووضع اللون، يتكوَّن كل مُدخَل من صف علاقاتي يضم: "
+"الموصِّل، والمُصنِّع، والمُنتَج، والرقم التسلسلي، ووضع اللون؛ بالإضافة إلى قيمة "
+"فاصلة عائمة مرتبطة به تُمثِّل سطوع المَخرَج كنسبة مئوية (%). القيمة المبدئية هي "
+"100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
+msgid "Switch monitor configurations"
+msgstr "بدِّل ضبط الشاشة"
+
+#: data/org.gnome.mutter.gschema.xml.in:202
+msgid "Rotates the built-in monitor configuration"
+msgstr "يُدوِّر ضبط الشاشة المدمجة"
+
+#: data/org.gnome.mutter.gschema.xml.in:207
+msgid "Cancel any active input capture session"
+msgstr "ألغِ أي جلسة تسجيل إدخال نشطة"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "انتقل إلى مساحة العمل 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "انتقل إلى مساحة العمل 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "انتقل إلى مساحة العمل 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "انتقل إلى مساحة العمل 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "انتقل إلى مساحة العمل 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "انتقل إلى مساحة العمل 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "انتقل إلى مساحة العمل 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "انتقل إلى مساحة العمل 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "انتقل إلى مساحة العمل 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "انتقل إلى مساحة العمل 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "انتقل إلى مساحة العمل 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
-#, fuzzy
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "انتقل إلى مساحة العمل 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
-msgstr ""
+msgstr "أعِد تفعيل الاختصارات"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr ""
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "اسمح لقبضات إكس11 بقفل تركيز لوحة المفاتيح في إكس‌وَيلَند"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
+"يسمح لكل أحداث لوحة المفاتيح بأن تُوجَّه لنوافذ «تجاوز إعادة التوجيه» من إكس11 "
+"بقبض عند التشغيل في إكس‌وَيلَند. يدعم هذا الخيار عملاء إكس11 الذين يُعيِّنون نافذة "
+"«تجاوز إعادة التوجيه» (التي لا تستقبل تركيز لوحة المفاتيح) وتصدر قبض لوحة "
+"مفاتيح لتُجبر كل أحداث لوحة المفاتيح للتوجُّه لتلك النافذة. نادرًا ما يستخدم هذا "
+"الخيار، وليس له تأثير على نوافذ إكس11 العادية التي تستطيع استقبال تركيز لوحة "
+"المفاتيح عادة. ليُنظر في قبض إكس11 في وَيلَند، يجب على العميل إما أن يُرسل رسالة "
+"عميل إكس11 محدَّدة للنافذة الجذر أو أن يكون ضمن التطبيقات المسموح لها في "
+"المفتاح «xwayland-grab-access-rules»."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
-msgstr ""
+msgstr "تطبيقات إكس‌وَيلَند التي يسمح لها بطلب لقطات من لوحة المفاتيح"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
+"يسرد أسماء موارد نوافذ إكس11 التي يُسمح لها بإصدار قبض لوحة مفاتيح في "
+"إكس‌وَيلَند أو أصنافها. يمكن الحصول على أسماء أو أصناف نافذة إكس11 باستخدام "
+"الأمر «xprop WM_CLASS». تُدعم الحروف البديلة «*» والمعطِّلات «?» في القيم. تُمنع "
+"القيم البادئة ب‍ «!»، التي لديها أفضلية على قائمة القيم المسموح بها، لسحب "
+"التطبيقات من قائمة النظام المبدئية. تتضمَّن قائمة النظام المبدئية التطبيقات "
+"التالية: «@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@» يُمكن للمستخدمين كسر قبض "
+"موجود باستخدام اختصار لوحة المفاتيح المُعرَّف بالمفتاح «restore-shortcuts»."
 
-#. TRANSLATORS: This string refers to a button that switches between
-#. * different modes.
-#.
-#: src/backends/meta-input-settings.c:2424
-#, c-format
-msgid "Mode Switch (Group %d)"
-msgstr "تغيير الأوضاع (مجموعة %d)"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "عطِّل امتدادات إكس المختارة عند استخدام إكس‌وَيلَند"
 
-#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
-#. * mapping through the available outputs.
-#.
-#: src/backends/meta-input-settings.c:2447
-msgid "Switch monitor"
-msgstr "غيّر الشاشة"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"يعطِّل هذا الخيار امتدادات إكس المحدَّدة عند استخدام إكس‌وَيلَند إن بُنيَ بدعم لها. "
+"ليس لهذا الخيار أي أثر إن بُني إكس‌وَيلَند بدون دعم للإمتدادات المحدَّدة. يجب أن "
+"يُعاد تشغيل إكس‌وَيلَند لتطبيق هذا الخيار."
 
-#: src/backends/meta-input-settings.c:2449
-msgid "Show on-screen help"
-msgstr "اعرض المساعدة على الشاشة"
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "اسمح لعملاء إكس11 ذوي ترتيب بايتات مختلف بالاتِّصال بإكس‌وَيلَند"
 
-#: src/backends/meta-monitor-manager.c:955
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr ""
+"يسمح لعملاء ذوي ترتيب بايتات مختلف بالاتصال بإكس‌وَيلَند. توفِّر شفرة ترتيب "
+"البايتات في خادم إكس مجالًا كبيرًا للهجوم، والكثير من هذه الشفرة في إكس‌وَيلَند "
+"معرَّض لمشاكل أمان. استخدام عملاء ترتيب البايتات دقيق جدًّا، وهو معطَّل مبدئيًّا في "
+"إكس‌وَيلَند. فعِّل هذا الخيار لتسمح لإكس‌وَيلَند بقبول الاتصالات من عملاء إكس11 "
+"بترتيب بايتات مختلف. ليس لهذا الخيار أي أثر حال ما لم يدعم إكس‌وَيلَند خيار سطر "
+"الأوامر «+byteswappedclients/-byteswappedclients» للتحكُّم بذلك الخيار. تجب "
+"إعادة تشغيل إكس‌وَيلَند ليفعَّل هذا الخيار."
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "الإ_دخال"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_حاكِ اللمس"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "أ_ثبِط اختصارات النظام"
+
+#: mdk/mdk-main-window.ui:19
+msgid "_About Mutter Development Kit"
+msgstr "_عَنْ عُدَّة تطوير مَتَر"
+
+#: mdk/mdk-main-window.ui:25 mdk/mdk-main.c:85 mdk/mdk-main.c:100
+msgid "Mutter Development Kit"
+msgstr "عُدَّة تطوير مَتَر"
+
+#: mdk/mdk-main-window.ui:35
+msgid "Main Menu"
+msgstr "القائمة الرئيسية"
+
+#: mdk/mdk-main.c:69
+msgid "The Mutter Team"
+msgstr "فريق مَتَر"
+
+#: mdk/mdk-main.c:91 mdk/mdk-main.c:105
+msgid "Mutter software development kit"
+msgstr "عُدَّة تطوير برمجيات مَتَر"
+
+#: mdk/mdk-main.c:94 mdk/mdk-main.c:108
+msgid "About Mutter Development Kit"
+msgstr "عَنْ عُدَّة تطوير مَتَر"
+
+#: mdk/mdk-monitor.c:672
+msgid "Failed to create monitor"
+msgstr "تعذَّر إنشاء المرقاب"
+
+#: src/backends/meta-monitor.c:275
 msgid "Built-in display"
 msgstr "شاشة مدمجة"
 
-#: src/backends/meta-monitor-manager.c:987
+#: src/backends/meta-monitor.c:302
 msgid "Unknown"
-msgstr "غير معروفة"
+msgstr "مجهولة"
 
-#: src/backends/meta-monitor-manager.c:989
+#: src/backends/meta-monitor.c:304
 msgid "Unknown Display"
-msgstr "شاشة غير معروفة"
+msgstr "شاشة مجهولة"
 
-#: src/backends/meta-monitor-manager.c:997
+#: src/backends/meta-monitor.c:312
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1005
+#: src/backends/meta-monitor.c:320
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -532,163 +672,228 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#. This probably means that a non-WM compositor like xcompmgr is running;
-#. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
-#, c-format
-msgid ""
-"Another compositing manager is already running on screen %i on display “%s”."
-msgstr "يعمل مدير مزج آخر على الشاشة %i و العرض ”%s“."
-
-#: src/core/bell.c:192
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "حدث جرس"
 
-#: src/core/main.c:185
-msgid "Disable connection to session manager"
-msgstr "عطّل الاتصال بمدير الجلسة"
+#: src/core/display.c:741
+msgid "Privacy Screen Enabled"
+msgstr "فُعِّلت شاشة الخصوصية"
 
-#: src/core/main.c:191
+#: src/core/display.c:742
+msgid "Privacy Screen Disabled"
+msgstr "عُطِّلت شاشة الخصوصية"
+
+#: src/core/meta-context-main.c:632
 msgid "Replace the running window manager"
-msgstr "استبدل بمدير النوافذ الذي يعمل"
+msgstr "استبدل مدير النوافذ العامل"
 
-#: src/core/main.c:197
-msgid "Specify session management ID"
-msgstr "حدّد رقم هويّة إدارة الجلسة"
-
-#: src/core/main.c:202
+#: src/core/meta-context-main.c:638
 msgid "X Display to use"
-msgstr "معراض س الذي سيستعمل"
+msgstr "جهاز عرض إكس الذي سيستعمل"
 
-#: src/core/main.c:208
-msgid "Initialize session from savefile"
-msgstr "ابدأ الجلسة من ملف محفوظ"
-
-#: src/core/main.c:214
+#: src/core/meta-context-main.c:644
 msgid "Make X calls synchronous"
-msgstr "اجعل نداءات س متزامنة"
+msgstr "زامِن نداءات إكس"
 
-#: src/core/main.c:221
+#: src/core/meta-context-main.c:652
 msgid "Run as a wayland compositor"
-msgstr ""
+msgstr "شغِّل بصفته مُركِّب وَيلَند"
 
-#: src/core/main.c:227
+#: src/core/meta-context-main.c:659
 msgid "Run as a nested compositor"
-msgstr ""
+msgstr "شغِّل بصفته مُركِّبًّا تداخليًّا"
 
-#: src/core/main.c:233
+#: src/core/meta-context-main.c:667
 msgid "Run wayland compositor without starting Xwayland"
-msgstr ""
+msgstr "شغِّل مُركِّب وَيلَند بدون بدء إكس‌وَيلَند"
 
-#: src/core/main.c:241
+#: src/core/meta-context-main.c:674
+msgid "Specify Wayland display name to use"
+msgstr "حدِّد اسم عرض وَيلَند ليُستخدم"
+
+#: src/core/meta-context-main.c:682
 msgid "Run as a full display server, rather than nested"
-msgstr ""
+msgstr "شغِّل بصفته خادوم عرض كامل، لا متداخل"
 
-#: src/core/main.c:247
+#: src/core/meta-context-main.c:687
+msgid "Run as a headless display server"
+msgstr "شغِّل بصفته خادوم عرض بلا واجهة رسومية"
+
+#: src/core/meta-context-main.c:692
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "أضِف شاشة ظاهريَّة دائمة (WxH أو WxH @R)"
+
+#: src/core/meta-context-main.c:699
+msgid "Run development kit"
+msgstr "شغِّل عُدَّة التطوير"
+
+#: src/core/meta-context-main.c:711
 msgid "Run with X11 backend"
-msgstr ""
+msgstr "شغِّل بخلفيَّة إكس11"
 
-#. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:151
+#: src/core/meta-context-main.c:717
+msgid "Profile performance using trace instrumentation"
+msgstr "أداء اللاحة باستعمال آليات التتبع"
+
+#: src/core/meta-context-main.c:723
+msgid "Enable debug control D-Bus interface"
+msgstr "فعِّل واجهة تحكم التنقيح دي–بَس"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes in that button group.
+#.
+#: src/core/meta-pad-action-mapper.c:615
 #, c-format
-msgid "“%s” is not responding."
-msgstr "”‏%s“ لا يستجيب."
+msgid "Mode Switch (Group %d)"
+msgstr "تغيير الأوضاع (مجموعة %d)"
 
-#: src/core/meta-close-dialog-default.c:153
-msgid "Application is not responding."
-msgstr "لا يستجيب التطبيق"
-
-#: src/core/meta-close-dialog-default.c:158
-msgid ""
-"You may choose to wait a short while for it to continue or force the "
-"application to quit entirely."
-msgstr "ربما ترغب في الانتظار قليلا ليُكمِل أو إجبار التطبيق على الإنهاء كُلّية."
-
-#: src/core/meta-close-dialog-default.c:165
-msgid "_Force Quit"
-msgstr "أ_جبر الإنهاء"
-
-#: src/core/meta-close-dialog-default.c:165
-msgid "_Wait"
-msgstr "ا_نتظر"
-
-#: src/core/mutter.c:38
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:622
 #, c-format
-msgid ""
-"mutter %s\n"
-"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-"This is free software; see the source for copying conditions.\n"
-"There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-"PARTICULAR PURPOSE.\n"
-msgstr ""
-"مَتَر %s\n"
-"حقوق النشر © 2001-%d هاڤوك بِنَِنجتون، شركة ردهات، وآخرون\n"
-"هذا برنامج حر، راجع المصدر لشروط النسخ.\n"
-"لا يوجد أي ضمان: و لا حتى ضمان قابلية التسويق أو المناسبة لأي هدف.\n"
+msgid "Mode Switch"
+msgstr "تغيير الأوضاع"
 
-#: src/core/mutter.c:52
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:645
+msgid "Switch monitor"
+msgstr "غيِّر الشاشة"
+
+#: src/core/meta-pad-action-mapper.c:647
+msgid "Show on-screen help"
+msgstr "اعرض المساعدة على الشاشة"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+msgid "Compositor"
+msgstr "المركِّب"
+
+#: src/core/mutter.c:74
 msgid "Print version"
-msgstr "اطبع الإصدارة"
+msgstr "اطبع الإصدار"
 
-#: src/core/mutter.c:58
+#: src/core/mutter.c:80
 msgid "Mutter plugin to use"
 msgstr "ملحق مَتَر الذي سيُستخدم"
 
-#: src/core/prefs.c:1786
+#: src/core/prefs.c:1869
 #, c-format
 msgid "Workspace %d"
 msgstr "مساحة العمل %d"
 
-#: src/core/util.c:121
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "جُمِّع مَتَر دون دعم للنمط المطنب\n"
+#: src/core/util.c:140
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "جُمِّع مَتَر دون دعم للوضع المطنب"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/core/workspace.c:508
+msgid "Workspace switched"
+msgstr "بُدِّلت مساحة العمل"
+
+#: src/wayland/meta-wayland-tablet-pad.c:558
 #, c-format
 msgid "Mode Switch: Mode %d"
-msgstr ""
+msgstr "تغيير الأوضاع: الوضع %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:855
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"الشاشة ”%s“ لها مدير نوافذ بالفعل، حاول استعمال خيار التبديل --replace لتحُلّ "
-"محلّ مدير النوافذ الحالي."
+"للشاشة «%s» مدير نوافذ بالفعل، حاول استعمال خيار التبديل --replace لتغيِّر "
+"مدير النوافذ الحالي."
 
-#: src/x11/meta-x11-display.c:1008
-msgid "Failed to initialize GDK\n"
-msgstr ""
-
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1240
 #, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "فشل فتح عرض نظام نوافذ إكس ”%s“\n"
+msgid "Failed to open X Window System display “%s”"
+msgstr "تعذَّر فتح جهاز عرض نظام نوافذ إكس «%s»"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1473
 #, c-format
-msgid "Screen %d on display “%s” is invalid\n"
-msgstr "الشاشة %d على العرض ”%s“ غير صحيحة\n"
+msgid "Screen %d on display “%s” is invalid"
+msgstr "الشاشة %d على جهاز العرض «%s» غير صالحة"
 
-#: src/x11/session.c:1821
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2801
+#, c-format
 msgid ""
-"These windows do not support “save current setup” and will have to be "
-"restarted manually next time you log in."
-msgstr ""
-"هذه النوافذ لا تدعم ” الضبط الحالي&quot; إعادة تشغيلها يدويا عند الولوج "
-"المرة القادمة."
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "يعمل مدير تركيب آخر على الشاشة %i وجهاز العرض «%s»."
 
-#: src/x11/window-props.c:569
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "النسق %s غير مدعوم"
+
+#: src/x11/window-props.c:564
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (على %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "انقل النافذة مساحة عمل واحدة إلى اليسار"
+#~ msgid "Move to workspace above"
+#~ msgstr "انقل لمساحة العمل أعلى"
 
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "انقل النافذة مساحة عمل واحدة إلى اليمين"
+#~ msgid "Move to workspace below"
+#~ msgstr "انقل لمساحة العمل أسفل"
+
+#~ msgid "Show the activities overview"
+#~ msgstr "أظهر نظرة عامة على الأنشطة"
+
+#~ msgid "Mutter"
+#~ msgstr "مَتَر"
+
+#~ msgid "Disable connection to session manager"
+#~ msgstr "عطّل الاتصال بمدير الجلسة"
+
+#~ msgid "Specify session management ID"
+#~ msgstr "حدّد رقم هويّة إدارة الجلسة"
+
+#~ msgid "Initialize session from savefile"
+#~ msgstr "ابدأ الجلسة من ملف محفوظ"
+
+#, c-format
+#~ msgid "“%s” is not responding."
+#~ msgstr "”‏%s“ لا يستجيب."
+
+#~ msgid "Application is not responding."
+#~ msgstr "لا يستجيب التطبيق"
+
+#~ msgid ""
+#~ "You may choose to wait a short while for it to continue or force the "
+#~ "application to quit entirely."
+#~ msgstr ""
+#~ "ربما ترغب في الانتظار قليلا ليُكمِل أو إجبار التطبيق على الإنهاء كُلّية."
+
+#~ msgid "_Force Quit"
+#~ msgstr "أ_جبر الإنهاء"
+
+#~ msgid "_Wait"
+#~ msgstr "ا_نتظر"
+
+#, c-format
+#~ msgid ""
+#~ "mutter %s\n"
+#~ "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+#~ "This is free software; see the source for copying conditions.\n"
+#~ "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
+#~ "PARTICULAR PURPOSE.\n"
+#~ msgstr ""
+#~ "مَتَر %s\n"
+#~ "حقوق النشر © 2001-%d هاڤوك بِنَِنجتون، شركة ردهات، وآخرون\n"
+#~ "هذا برنامج حر، راجع المصدر لشروط النسخ.\n"
+#~ "لا يوجد أي ضمان: و لا حتى ضمان قابلية التسويق أو المناسبة لأي هدف.\n"
+
+#~ msgid ""
+#~ "These windows do not support “save current setup” and will have to be "
+#~ "restarted manually next time you log in."
+#~ msgstr ""
+#~ "هذه النوافذ لا تدعم ” الضبط الحالي&quot; إعادة تشغيلها يدويا عند الولوج "
+#~ "المرة القادمة."
 
 #~ msgid "Move to workspace left"
 #~ msgstr "انقل لمساحة العمل على اليسار"
@@ -901,9 +1106,6 @@ msgstr "%s (على %s)"
 
 #~ msgid "Workspace 1_0"
 #~ msgstr "مساحة العمل _10"
-
-#~ msgid "Workspace %s%d"
-#~ msgstr "مساحة العمل %s%d"
 
 #~ msgid "Move to Another _Workspace"
 #~ msgstr "انقل ل_مساحة عمل أخرى"
@@ -1200,8 +1402,8 @@ msgstr "%s (على %s)"
 #~ msgstr "العنصر <%s> غير مسموح به تحت <%s>"
 
 #~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
+#~ "Cannot specify both \"button_width\"/\"button_height\" and "
+#~ "\"aspect_ratio\" for buttons"
 #~ msgstr ""
 #~ "لا يمكن تخصيص \"button_width\"/\"button_height\" و \"aspect_ratio\" "
 #~ "للأزرار"
@@ -1662,9 +1864,6 @@ msgstr "%s (على %s)"
 #~ msgid "Close Window"
 #~ msgstr "أغلق النافذة"
 
-#~ msgid "Window Menu"
-#~ msgstr "قائمة النافذة"
-
 #~ msgid "Minimize Window"
 #~ msgstr "صغّر النافذة"
 
@@ -1692,9 +1891,6 @@ msgstr "%s (على %s)"
 #~ msgid ""
 #~ "Don't make fullscreen windows that are maximized and have no decorations"
 #~ msgstr "لا تنشئ نوافذ تملأ الشاشة وبدون حواف"
-
-#~ msgid "Failed to restart: %s\n"
-#~ msgstr "فشلت إعادة التشغيل: %s\n"
 
 #~ msgid "Error setting clutter plugin list: %s\n"
 #~ msgstr "خطأ عند تحديد قائمة ملحقات كلتر: %s\n"
