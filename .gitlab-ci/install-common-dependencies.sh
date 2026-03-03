@@ -168,10 +168,11 @@ then
     1.87.1
 fi
 
-if ! pkgconf --atleast-version 1.60.0 libpipewire-0.3
+if ! pkgconf --atleast-version 1.6.1 libpipewire-0.3
 then
   ./$SCRIPTS_DIR/install-meson-project.sh \
     "${OPTIONS[@]}" \
+    --commit 5cd734e8c097680eca0bfe7b46e4f93747b04fc3 \
     https://gitlab.freedesktop.org/pipewire/pipewire.git \
-    1.6.0
+    1.6
 fi
