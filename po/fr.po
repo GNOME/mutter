@@ -18,13 +18,14 @@
 # Simon Elst <kirmaha@duck.com>, 2022.
 # Irénée THIRION <irenee.thirion@e.email>, 2024.
 # Julien Humbert <julroy67@gmail.com>, 2025.
+# Lucien Ouoba <luiz01luciano04@gmail.com>, 2026.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
 "POT-Creation-Date: 2026-02-17 17:44+0000\n"
-"PO-Revision-Date: 2025-09-11 13:35+0900\n"
+"PO-Revision-Date: 2026-02-24 17:08+0000\n"
 "Last-Translator: Julien Humbert <julroy67@gmail.com>\n"
 "Language-Team: French <gnomefr@traduc.org>\n"
 "Language: fr\n"
@@ -32,7 +33,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Gtranslator 48.0\n"
+"X-Generator: Poedit 3.8\n"
+"X-DamnedLies-Scope: partial\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -401,26 +403,6 @@ msgid "Enable experimental features"
 msgstr "Activer les fonctionnalités expérimentales"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
-#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
-#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
-#| "when applicable if supported by the monitor, GPU and DRM driver. "
-#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
-#| "— lets Xwayland clients use their native scaling support. If scaling is "
-#| "not supported by client, the client will be unscaled. Setting only takes "
-#| "effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -431,28 +413,16 @@ msgid ""
 "driver. Requires a restart. • “autoclose-xwayland” — automatically "
 "terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
-"Pour activer les fonctionnalités expérimentales, ajoutez le mot-clé de la "
-"fonctionnalité dans la liste. Selon la fonctionnalité, il peut être "
-"nécessaire de redémarrer le compositeur. Chaque fonctionnalité expérimentale "
-"peut disparaître ou ne plus être configurable. Ne vous attendez pas à ce que "
-"le contenu de ce réglage soit stable dans le temps. Les mots-clés "
-"actuellement possibles sont : • « scale-monitor-framebuffer » — demande à "
-"mutter d’utiliser par défaut une disposition par moniteur logique dans un "
-"espace de coordonnées de pixels logique, tout en mettant à l’échelle les "
-"« framebuffers » de moniteur au lieu des contenus de fenêtre pour pouvoir "
-"gérer les moniteurs à haute densité. Cela ne nécessite pas de redémarrage. • "
-"« kms-modifiers » — indique à mutter de toujours allouer les tampons "
-"d’analyse avec des modificateurs explicites, si le pilote prend cette "
-"fonction en charge. Nécessite un redémarrage. • « autoclose-xwayland » — "
-"ferme automatiquement Xwayland si tous les clients X11 concernés ont "
-"disparu. Nécessite un redémarrage. • « variable-refresh-rate » — indique à "
-"mutter d’ajuster le taux de rafraîchissement du moniteur, le cas échéant, si "
-"le moniteur, le GPU et pilote DRM le prennent en charge. Nécessite un "
-"redémarrage. • « variable-refresh-rate » — permet aux clients Xwayland "
-"d’utiliser leur mise à l’échelle native. Si la mise à l’échelle n’est pas "
-"prise en charge par le client, le client n’est pas mis à l’échelle. Ce "
-"paramètre n’est appliqué que si « scale-monitor-framebuffer » est également "
-"activé."
+"Pour activer des fonctionnalités expérimentales, ajoutez le mot-clé "
+"correspondant à la liste. Selon la fonctionnalité, un redémarrage du "
+"compositeur peut être nécessaire. Les fonctionnalités expérimentales peuvent "
+"être supprimées ou devenir non configurables à tout moment. Ne comptez pas "
+"sur la pérennité des valeurs ajoutées à ce paramètre. Mots-clés actuellement "
+"disponibles : • « kms-modifiers » — force Mutter à toujours allouer les "
+"tampons d'affichage avec des modificateurs explicites, si le pilote le "
+"permet. Nécessite un redémarrage. • « autoclose-xwayland » — termine "
+"automatiquement Xwayland lorsque tous les clients X11 pertinents ont "
+"disparu. Nécessite un redémarrage."
 
 #: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
@@ -662,19 +632,6 @@ msgstr ""
 "+byteswappedclients ou -byteswappedclients pour contrôler ce paramètre. "
 "Xwayland doit être redémarré pour que ce paramètre prenne effet."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:154
-msgid "Configure the Xwayland scaling factor"
-msgstr ""
-
-#: data/org.gnome.mutter.wayland.gschema.xml.in:155
-msgid ""
-"Scale the Xwayland coordinate space according to this factor. This will "
-"affect what scale HiDPI capable X11 clients will present themselves as, and "
-"how the compositor scales X11 client windows. Setting the scale to 0 means "
-"the scale will be automatically calculated. The scale will as of now be "
-"rounded to the closest integer."
-msgstr ""
-
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
 msgstr "Application"
@@ -733,17 +690,15 @@ msgstr "_Inhiber les raccourcis du système"
 
 #: mdk/mdk-main-window.ui:17
 msgid "Use host _keymap"
-msgstr ""
+msgstr "Utiliser la _disposition du système"
 
 #: mdk/mdk-main-window.ui:24
 msgid "_Monitors"
-msgstr ""
+msgstr "_Moniteurs"
 
 #: mdk/mdk-main-window.ui:26
-#, fuzzy
-#| msgid "_Emulate touch"
 msgid "_Emulate monitor modes"
-msgstr "_Émuler le toucher"
+msgstr "_Émuler les modes de moniteurs"
 
 #: mdk/mdk-main-window.ui:33
 msgid "_Launchers"
@@ -917,7 +872,7 @@ msgstr "Changement de mode : mode %d"
 #: src/x11/meta-x11-display.c:776
 #, c-format
 msgid "Display “%s” already has a window manager"
-msgstr ""
+msgstr "L’écran « %s » dispose déjà d’un gestionnaire de fenêtres"
 
 #: src/x11/meta-x11-display.c:1139
 #, c-format
