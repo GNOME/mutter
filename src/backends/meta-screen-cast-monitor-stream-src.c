@@ -427,12 +427,15 @@ add_view_watches (MetaScreenCastMonitorStreamSrc *monitor_src,
 }
 
 static void
-reattach_watches (MetaScreenCastMonitorStreamSrc *monitor_src)
+maybe_reattach_watches (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
   MetaScreenCastStream *stream;
   ClutterStage *stage;
   GList *l;
+
+  if (!meta_screen_cast_stream_src_is_enabled (src))
+    return;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
   stage = get_stage (monitor_src);
@@ -476,7 +479,7 @@ on_monitors_changed (MetaMonitorManager             *monitor_manager,
   MtkRectangle layout = meta_logical_monitor_get_layout (logical_monitor);
 
   g_object_set (G_OBJECT (src), "layout", &layout, NULL);
-  reattach_watches (monitor_src);
+  maybe_reattach_watches (monitor_src);
 }
 
 static void
@@ -516,7 +519,7 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
       break;
     }
 
-  reattach_watches (monitor_src);
+  maybe_reattach_watches (monitor_src);
   g_signal_connect_object (monitor_manager, "monitors-changed-internal",
                            G_CALLBACK (on_monitors_changed),
                            monitor_src, 0);

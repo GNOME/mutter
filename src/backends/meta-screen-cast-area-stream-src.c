@@ -358,8 +358,12 @@ static void
 on_monitors_changed (MetaMonitorManager          *monitor_manager,
                      MetaScreenCastAreaStreamSrc *area_src)
 {
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
   MetaStage *stage = META_STAGE (get_stage (area_src));
   GList *l;
+
+  if (!meta_screen_cast_stream_src_is_enabled (src))
+    return;
 
   for (l = area_src->watches; l; l = l->next)
     meta_stage_remove_watch (stage, l->data);
