@@ -122,10 +122,11 @@ meta_display_handle_event (MetaDisplay        *display,
   MetaBackend *backend = meta_context_get_backend (context);
   MetaA11yManager *a11y_manager = meta_backend_get_a11y_manager (backend);
   MetaCompositor *compositor = meta_display_get_compositor (display);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   ClutterInputDevice *source_device;
   MetaWindow *window = NULL;
   ClutterEventType event_type;
-  ClutterSeat *seat;
   gboolean has_grab;
   gboolean a11y_grabbed;
   MetaTabletActionMapper *mapper;
@@ -162,7 +163,6 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 
   source_device = clutter_event_get_source_device (event);
-  seat = clutter_input_device_get_seat (clutter_event_get_source_device (event));
   clutter_seat_a11y_update (seat, event);
 
   if (wayland_text_input &&
