@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-17 17:44+0000\n"
-"PO-Revision-Date: 2026-02-18 00:23+0100\n"
+"POT-Creation-Date: 2026-02-28 15:06+0000\n"
+"PO-Revision-Date: 2026-03-06 09:15+0100\n"
 "Last-Translator: Fran Dieguez <fran.dieguez@gnome.org>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -702,26 +702,30 @@ msgid "_Monitors"
 msgstr "_Monitores"
 
 #: mdk/mdk-main-window.ui:26
+msgid "_Add monitor"
+msgstr "_Engadir monitor"
+
+#: mdk/mdk-main-window.ui:30
 msgid "_Emulate monitor modes"
 msgstr "_Simular modos de monitor"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "_Iniciadores"
 
-#: mdk/mdk-main-window.ui:37
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "_Editar iniciadores"
 
-#: mdk/mdk-main-window.ui:44
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "_Sobre o Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-main-window.ui:60
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Menú principal"
 
@@ -737,7 +741,7 @@ msgstr "O Kit de Desenvolvemento de Mutter"
 msgid "About Mutter Development Kit"
 msgstr "Sobre o Kit de Desenvolvemento de Mutter"
 
-#: mdk/mdk-monitor.c:556
+#: mdk/mdk-monitor.c:557
 msgid "Failed to create monitor"
 msgstr "Produciuse un fallo ao crear o monitor"
 
