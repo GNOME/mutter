@@ -397,6 +397,9 @@ is_tablet_event (MetaWaylandSeat    *seat,
   ClutterInputCapabilities capabilities;
 
   device = clutter_event_get_source_device (event);
+  if (device == NULL)
+    return FALSE;
+
   capabilities = clutter_input_device_get_capabilities (device);
 
   if (capabilities & CLUTTER_INPUT_CAPABILITY_TABLET_TOOL)
