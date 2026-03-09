@@ -992,7 +992,6 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       *out_next_presentation_time_us = next_presentation_time_us;
       if (out_is_target_presentation_time)
         *out_is_target_presentation_time = FALSE;
-      *out_next_frame_deadline_us = 0;
     }
   else
     {
@@ -1020,9 +1019,10 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       *out_next_presentation_time_us = next_presentation_time_us;
       if (out_is_target_presentation_time)
         *out_is_target_presentation_time = TRUE;
-      *out_next_frame_deadline_us =
-        next_presentation_time_us - frame_clock->vblank_duration_us;
     }
+
+  *out_next_frame_deadline_us =
+    next_presentation_time_us - frame_clock->vblank_duration_us;
 }
 
 static void
