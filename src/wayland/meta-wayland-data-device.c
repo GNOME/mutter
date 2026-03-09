@@ -240,6 +240,7 @@ meta_wayland_drag_grab_set_cursor (MetaWaylandDragGrab *drag_grab,
 
   grab_actor = clutter_stage_get_grab_actor (stage);
   clutter_actor_set_cursor_type (grab_actor, cursor_type);
+  clutter_sprite_invalidate_cursor (drag_grab->sprite);
 }
 
 static void
