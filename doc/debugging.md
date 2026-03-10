@@ -69,7 +69,22 @@ The way gdb starts the target also involves another process, so use `gdb -ex 'se
 
 Apitraces can help by capturing multiple frames. The mutter invocation can be wrapped with `apitrace trace --api=egl` to capture a trace which can be replay with `eglretrace`. Apitrace can also be captured by renderdoc to select a single frame to investigate further.
 
-## Reproducing CI test failures locally
+## Reproducing CI test failures using helper scripts
+
+1. Use `./.gitlab-ci/prepare-build-in-container.sh` to create and enter a
+   container with a volume prepared with a build of mutter.
+
+   ```sh
+   ./.gitlab-ci/prepare-build-in-container.sh
+   ```
+
+2. Run the specific test case in entered container.
+
+   ```sh
+   meson test -C build failing-test-case
+   ```
+
+## Reproducing CI test failures locally manually
 
 1. Create a podman that can run gdb locally using the same image used in CI. The example below uses the tag `x86_64-2022-01-20` but this will depend on the image used by the failed CI job. The Fedora version may also differ.
 
