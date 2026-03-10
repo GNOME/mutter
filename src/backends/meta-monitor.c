@@ -189,11 +189,11 @@ meta_monitor_get_main_output_info (MetaMonitor *monitor)
 }
 
 static void
-meta_monitor_generate_spec (MetaMonitor *monitor)
+meta_monitor_generate_spec (MetaMonitor *monitor,
+                            MetaOutput  *main_output)
 {
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-  const MetaOutputInfo *output_info =
-    meta_monitor_get_main_output_info (monitor);
+  const MetaOutputInfo *output_info = meta_output_get_info (main_output);
   MetaMonitorSpec *monitor_spec;
   const char *vendor;
   const char *product;
@@ -1050,7 +1050,7 @@ meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
 
   reset_normal_monitor (monitor_normal, output);
 
-  meta_monitor_generate_spec (monitor);
+  meta_monitor_generate_spec (monitor, output);
   monitor_priv->display_name = meta_monitor_make_display_name (monitor);
 
   return monitor_normal;
@@ -1939,7 +1939,7 @@ meta_monitor_tiled_new (MetaMonitorManager  *monitor_manager,
   reset_tiled_monitor (monitor_tiled, g_steal_pointer (&outputs),
                        origin_output, main_output);
 
-  meta_monitor_generate_spec (monitor);
+  meta_monitor_generate_spec (monitor, main_output);
   monitor_priv->display_name = meta_monitor_make_display_name (monitor);
   meta_monitor_manager_tiled_monitor_added (monitor_manager,
                                             META_MONITOR (monitor_tiled));
