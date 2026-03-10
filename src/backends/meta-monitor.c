@@ -1005,9 +1005,9 @@ meta_monitor_normal_new (MetaMonitorManager *monitor_manager,
 
   monitor_priv->backend = meta_monitor_manager_get_backend (monitor_manager);
 
+  meta_monitor_generate_spec (monitor, output);
   reset_normal_monitor (monitor_normal, output);
 
-  meta_monitor_generate_spec (monitor, output);
   monitor_priv->display_name = meta_monitor_make_display_name (monitor);
 
   return monitor_normal;
@@ -1878,11 +1878,11 @@ meta_monitor_tiled_new (MetaMonitorManager  *monitor_manager,
     }
 
   main_output = find_untiled_output (origin_output, outputs);
+  meta_monitor_generate_spec (monitor, main_output);
 
   reset_tiled_monitor (monitor_tiled, g_steal_pointer (&outputs),
                        origin_output, main_output);
 
-  meta_monitor_generate_spec (monitor, main_output);
   monitor_priv->display_name = meta_monitor_make_display_name (monitor);
   meta_monitor_manager_tiled_monitor_added (monitor_manager,
                                             META_MONITOR (monitor_tiled));
