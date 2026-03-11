@@ -1415,34 +1415,31 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
                                 uint8_t              *data)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
-  cairo_surface_t *image;
-  uint8_t *cr_data;
-  int cr_stride;
-  int cr_width;
-  int cr_height;
+  uint8_t *image_data;
+  int image_width, image_height, image_stride;
   int bpp = 4;
 
   if (meta_window_actor_is_destroyed (window_actor))
     return;
 
-  image = meta_window_actor_get_image (window_actor, bounds);
-  cr_data = cairo_image_surface_get_data (image);
-  cr_width = cairo_image_surface_get_width (image);
-  cr_height = cairo_image_surface_get_height (image);
-  cr_stride = cairo_image_surface_get_stride (image);
+  if (!meta_window_actor_get_image (window_actor, bounds,
+                                    COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                    &image_width, &image_height,
+                                    &image_stride, &image_data))
+    return;
 
-  if (cr_width == bounds->width && cr_height == bounds->height)
+  if (image_width == bounds->width && image_height == bounds->height)
     {
-      memcpy (data, cr_data, cr_height * cr_stride);
+      memcpy (data, image_data, image_height * image_stride);
     }
   else
     {
-      int width = MIN (bounds->width, cr_width);
-      int height = MIN (bounds->height, cr_height);
+      int width = MIN (bounds->width, image_width);
+      int height = MIN (bounds->height, image_height);
       int stride = width * bpp;
       uint8_t *src, *dst;
 
-      src = cr_data;
+      src = image_data;
       dst = data;
 
       for (int i = 0; i < height; i++)
@@ -1451,7 +1448,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
           if (width < bounds->width)
             memset (dst + stride, 0, (bounds->width * bpp) - stride);
 
-          src += cr_stride;
+          src += image_stride;
           dst += bounds->width * bpp;
         }
 
@@ -1462,7 +1459,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
         }
     }
 
-  cairo_surface_destroy (image);
+  g_free (image_data);
 }
 
 static gboolean
@@ -1695,28 +1692,45 @@ meta_window_actor_is_single_surface_actor (MetaWindowActor *self)
  * @clip: (nullable): A clipping rectangle, to help prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the actor, the rectangle will be clipped.
+ * @format: The pixel format for the image data
+ * @width: (out): Width of the image in pixels
+ * @height: (out): Height of the image in pixels
+ * @stride: (out): Row stride of the image data in bytes
+ * @data: (out) (array) (transfer full): Image pixel data, must be freed with g_free()
  *
- * Flattens the layers of @self into one ARGB32 image by alpha blending
- * the images, and returns the flattened image.
+ * Flattens the layers of @self into an image buffer by alpha blending
+ * the layers, and returns the pixel data in the specified format.
  *
- * Returns: (nullable) (transfer full): a new cairo surface to be freed with
- * cairo_surface_destroy().
+ * Returns: %TRUE on success, %FALSE otherwise
  */
-cairo_surface_t *
+gboolean
 meta_window_actor_get_image (MetaWindowActor *self,
-                             MtkRectangle    *clip)
+                             MtkRectangle    *clip,
+                             CoglPixelFormat  format,
+                             int             *width,
+                             int             *height,
+                             int             *stride,
+                             uint8_t        **data)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
   MetaShapedTexture *stex;
-  cairo_surface_t *surface = NULL;
+  gboolean result = FALSE;
   CoglFramebuffer *framebuffer;
   MtkRectangle framebuffer_clip;
   float resource_scale;
-  float x, y, width, height;
+  float x, y, actor_width, actor_height;
+  int bytes_per_pixel;
+  int img_width, img_height, row_stride;
+  uint8_t *buffer;
+
+  g_return_val_if_fail (width != NULL, FALSE);
+  g_return_val_if_fail (height != NULL, FALSE);
+  g_return_val_if_fail (stride != NULL, FALSE);
+  g_return_val_if_fail (data != NULL, FALSE);
 
   if (!priv->surface)
-    return NULL;
+    return FALSE;
 
   clutter_actor_inhibit_culling (actor);
 
@@ -1740,21 +1754,23 @@ meta_window_actor_get_image (MetaWindowActor *self,
           surface_clip->height = clip->height / geometry_scale;
         }
 
-      surface = meta_shaped_texture_get_image (stex, surface_clip);
+      result = meta_shaped_texture_get_image (stex, surface_clip,
+                                              format, width, height,
+                                              stride, data);
       goto out;
     }
 
   clutter_actor_get_position (actor, &x, &y);
-  clutter_actor_get_size (actor, &width, &height);
+  clutter_actor_get_size (actor, &actor_width, &actor_height);
 
-  if (width == 0 || height == 0)
+  if (actor_width == 0 || actor_height == 0)
     goto out;
 
   framebuffer_clip = (MtkRectangle) {
     .x = (int) floorf (x),
     .y = (int) floorf (y),
-    .width = (int) ceilf (width),
-    .height = (int) ceilf (height),
+    .width = (int) ceilf (actor_width),
+    .height = (int) ceilf (actor_height),
   };
 
   if (clip)
@@ -1780,25 +1796,30 @@ meta_window_actor_get_image (MetaWindowActor *self,
     goto out;
 
   resource_scale = clutter_actor_get_resource_scale (actor);
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        (int) (framebuffer_clip.width *
-                                               resource_scale),
-                                        (int) (framebuffer_clip.height *
-                                               resource_scale));
+  img_width = (int) (framebuffer_clip.width * resource_scale);
+  img_height = (int) (framebuffer_clip.height * resource_scale);
+  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (format, 0);
+  row_stride = img_width * bytes_per_pixel;
+
+  buffer = g_malloc (row_stride * img_height);
+
   cogl_framebuffer_read_pixels (framebuffer,
                                 0, 0,
-                                (int) (framebuffer_clip.width * resource_scale),
-                                (int) (framebuffer_clip.height * resource_scale),
-                                COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                cairo_image_surface_get_data (surface));
+                                img_width, img_height,
+                                format,
+                                buffer);
 
   g_object_unref (framebuffer);
 
-  cairo_surface_mark_dirty (surface);
+  *width = img_width;
+  *height = img_height;
+  *stride = row_stride;
+  *data = buffer;
+  result = TRUE;
 
 out:
   clutter_actor_uninhibit_culling (actor);
-  return surface;
+  return result;
 }
 
 /**

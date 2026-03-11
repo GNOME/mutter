@@ -23,9 +23,8 @@
 
 #pragma once
 
-#include <cairo/cairo.h>
-
 #include "clutter/clutter.h"
+#include "cogl/cogl.h"
 #include "meta/common.h"
 #include "meta/meta-multi-texture.h"
 
@@ -52,7 +51,12 @@ void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
                                            CoglTexture       *mask_texture);
 
 META_EXPORT
-cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture *stex,
-                                                 MtkRectangle      *clip);
+gboolean meta_shaped_texture_get_image (MetaShapedTexture  *stex,
+                                        MtkRectangle       *clip,
+                                        CoglPixelFormat     format,
+                                        int                *width,
+                                        int                *height,
+                                        int                *stride,
+                                        uint8_t           **data);
 
 G_END_DECLS
