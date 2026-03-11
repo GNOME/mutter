@@ -47,8 +47,9 @@ META_EXPORT
 gboolean       meta_window_actor_is_destroyed (MetaWindowActor *self);
 
 META_EXPORT
-cairo_surface_t * meta_window_actor_get_image (MetaWindowActor *self,
-                                               MtkRectangle    *clip);
+CoglBitmap * meta_window_actor_paint_to_bitmap (MetaWindowActor *self,
+                                                MtkRectangle    *clip,
+                                                CoglPixelFormat  format);
 
 META_EXPORT
 ClutterContent * meta_window_actor_paint_to_content (MetaWindowActor  *self,
