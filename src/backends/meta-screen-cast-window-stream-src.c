@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include <pixman.h>
+
 #include "backends/meta-screen-cast-window-stream-src.h"
 
 #include "backends/meta-backend-private.h"
@@ -116,6 +118,43 @@ get_stream_height (MetaScreenCastWindowStreamSrc *window_src)
 }
 
 static void
+composite_cursor_onto_stream (uint8_t *stream_data,
+                              int      stream_width,
+                              int      stream_height,
+                              uint8_t *cursor_data,
+                              int      cursor_width,
+                              int      cursor_height,
+                              int      cursor_x,
+                              int      cursor_y,
+                              int      bytes_per_pixel)
+{
+  pixman_image_t *cursor_image;
+  pixman_image_t *stream_image;
+
+  cursor_image = pixman_image_create_bits (PIXMAN_a8r8g8b8,
+                                           cursor_width, cursor_height,
+                                           (uint32_t *) cursor_data,
+                                           cursor_width * bytes_per_pixel);
+
+  stream_image = pixman_image_create_bits (PIXMAN_a8r8g8b8,
+                                           stream_width, stream_height,
+                                           (uint32_t *) stream_data,
+                                           stream_width * bytes_per_pixel);
+
+  pixman_image_composite32 (PIXMAN_OP_OVER,
+                            cursor_image,/* src */
+                            NULL, /* mask */
+                            stream_image,/* dest */
+                            0, 0,/* src_x, src_y */
+                            0, 0,/* mask_x, mask_y */
+                            cursor_x, cursor_y,/* dest_x, dest_y */
+                            cursor_width, cursor_height);
+
+  pixman_image_unref (cursor_image);
+  pixman_image_unref (stream_image);
+}
+
+static void
 maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                           uint8_t                       *data,
                           MtkRectangle                  *stream_rect)
@@ -131,10 +170,8 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   MetaScreenCastWindow *screen_cast_window;
   graphene_point_t cursor_position;
   graphene_point_t relative_cursor_position;
-  cairo_surface_t *cursor_surface;
-  uint8_t *cursor_surface_data;
+  g_autofree uint8_t *cursor_data = NULL;
   GError *error = NULL;
-  cairo_surface_t *stream_surface;
   int width, height;
   int texture_width, texture_height;
   float scale, view_scale, cursor_scale;
@@ -142,7 +179,8 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   const graphene_rect_t *src_rect;
   graphene_matrix_t matrix;
   int hotspot_x, hotspot_y;
-  cairo_t *cr;
+  int cursor_x, cursor_y;
+  int bytes_per_pixel;
 
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
   if (!cursor)
@@ -203,40 +241,34 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                cursor_transform,
                                src_rect);
 
-  cursor_surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                               width, height);
+  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT, 0);
+  cursor_data = g_malloc (width * height * bytes_per_pixel);
 
-  cursor_surface_data = cairo_image_surface_get_data (cursor_surface);
   if (!meta_screen_cast_stream_src_draw_cursor_into (src,
                                                      cursor_texture,
                                                      width,
                                                      height,
                                                      &matrix,
-                                                     cursor_surface_data,
+                                                     cursor_data,
                                                      &error))
     {
       g_warning ("Failed to draw cursor: %s", error->message);
       g_error_free (error);
-      cairo_surface_destroy (cursor_surface);
       return;
     }
 
-  stream_surface =
-    cairo_image_surface_create_for_data (data, CAIRO_FORMAT_ARGB32,
-                                         stream_rect->width,
-                                         stream_rect->height,
-                                         stream_rect->width * 4);
+  cursor_x = (int) (relative_cursor_position.x - hotspot_x * scale);
+  cursor_y = (int) (relative_cursor_position.y - hotspot_y * scale);
 
-  cr = cairo_create (stream_surface);
-  cairo_surface_mark_dirty (cursor_surface);
-  cairo_surface_flush (cursor_surface);
-  cairo_set_source_surface (cr, cursor_surface,
-                            relative_cursor_position.x - hotspot_x * scale,
-                            relative_cursor_position.y - hotspot_y * scale);
-  cairo_paint (cr);
-  cairo_destroy (cr);
-  cairo_surface_destroy (stream_surface);
-  cairo_surface_destroy (cursor_surface);
+  composite_cursor_onto_stream (data,
+                                stream_rect->width,
+                                stream_rect->height,
+                                cursor_data,
+                                width,
+                                height,
+                                cursor_x,
+                                cursor_y,
+                                bytes_per_pixel);
 }
 
 static void
