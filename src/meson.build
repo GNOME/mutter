@@ -20,7 +20,6 @@ mutter_pkg_deps = [
 ]
 
 mutter_pkg_private_deps = [
-  cairo_dep,
   colord_dep,
   lcms2_dep,
   gmodule_no_export_dep,
@@ -103,6 +102,7 @@ if have_xwayland
   ]
 
   mutter_pkg_private_deps += [
+    cairo_dep,
     xrandr_dep,
     xinerama_dep,
     xext_dep,
