@@ -1621,38 +1621,53 @@ meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
  * @clip: (nullable): A clipping rectangle, to help prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the texture, the rectangle will be clipped.
+ * @format: The pixel format for the image data
+ * @width: (out): Width of the image in pixels
+ * @height: (out): Height of the image in pixels
+ * @stride: (out): Row stride of the image data in bytes
+ * @data: (out) (array) (transfer full): Image pixel data, must be freed with g_free()
  *
- * Flattens the two layers of the shaped texture into one ARGB32
- * image by alpha blending the two images, and returns the flattened
- * image.
+ * Captures the shaped texture contents as a pixel buffer in the specified format.
  *
- * Returns: (nullable) (transfer full): a new cairo surface to be freed with
- * cairo_surface_destroy().
+ * Returns: %TRUE on success, %FALSE otherwise
  */
-cairo_surface_t *
-meta_shaped_texture_get_image (MetaShapedTexture *stex,
-                               MtkRectangle      *clip)
+gboolean
+meta_shaped_texture_get_image (MetaShapedTexture  *stex,
+                               MtkRectangle       *clip,
+                               CoglPixelFormat     format,
+                               int                *width,
+                               int                *height,
+                               int                *stride,
+                               uint8_t           **data)
 {
   MtkRectangle *image_clip = NULL;
   CoglTexture *texture;
-  ClutterBackend *clutter_backend =
-    clutter_context_get_backend (stex->clutter_context);
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  cairo_surface_t *surface;
+  ClutterBackend *clutter_backend;
+  CoglContext *cogl_context;
+  int tex_width, tex_height;
+  int bytes_per_pixel;
+  int row_stride;
+  uint8_t *buffer;
 
-  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), FALSE);
+  g_return_val_if_fail (width != NULL, FALSE);
+  g_return_val_if_fail (height != NULL, FALSE);
+  g_return_val_if_fail (stride != NULL, FALSE);
+  g_return_val_if_fail (data != NULL, FALSE);
 
   if (stex->texture == NULL)
-    return NULL;
+    return FALSE;
 
   if (meta_shaped_texture_should_get_via_offscreen (stex))
-    return NULL;
+    return FALSE;
 
   meta_shaped_texture_ensure_size_valid (stex);
 
   if (stex->dst_width == 0 || stex->dst_height == 0)
-    return NULL;
+    return FALSE;
+
+  clutter_backend = clutter_context_get_backend (stex->clutter_context);
+  cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
   if (clip != NULL)
     {
@@ -1666,7 +1681,7 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
 
       if (!mtk_rectangle_intersect (&dst_rect, clip,
                                     image_clip))
-        return NULL;
+        return FALSE;
 
       *image_clip = (MtkRectangle) {
         .x = image_clip->x * stex->buffer_scale,
@@ -1687,20 +1702,24 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                     image_clip->width,
                                     image_clip->height);
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        cogl_texture_get_width (texture),
-                                        cogl_texture_get_height (texture));
+  tex_width = cogl_texture_get_width (texture);
+  tex_height = cogl_texture_get_height (texture);
+  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (format, 0);
+  row_stride = tex_width * bytes_per_pixel;
 
-  cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                         cairo_image_surface_get_stride (surface),
-                         cairo_image_surface_get_data (surface));
+  buffer = g_malloc (row_stride * tex_height);
 
-  cairo_surface_mark_dirty (surface);
+  cogl_texture_get_data (texture, format, row_stride, buffer);
 
   if (image_clip)
     g_object_unref (texture);
 
-  return surface;
+  *width = tex_width;
+  *height = tex_height;
+  *stride = row_stride;
+  *data = buffer;
+
+  return TRUE;
 }
 
 void
