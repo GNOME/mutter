@@ -1587,30 +1587,30 @@ meta_shaped_texture_should_get_via_offscreen (MetaShapedTexture *stex)
 }
 
 /**
- * meta_shaped_texture_get_image:
+ * meta_shaped_texture_paint_to_bitmap:
  * @stex: A #MetaShapedTexture
  * @clip: (nullable): A clipping rectangle, to help prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the texture, the rectangle will be clipped.
+ * @format: The pixel format for the image data
  *
- * Flattens the two layers of the shaped texture into one ARGB32
- * image by alpha blending the two images, and returns the flattened
- * image.
+ * Captures the shaped texture contents as a [class@Cogl.Bitmap] in the
+ * specified format.
  *
- * Returns: (nullable) (transfer full): a new cairo surface to be freed with
- * cairo_surface_destroy().
+ * Returns: (nullable) (transfer full): a new [class@Cogl.Bitmap]
  */
-cairo_surface_t *
-meta_shaped_texture_get_image (MetaShapedTexture *stex,
-                               MtkRectangle      *clip)
+CoglBitmap *
+meta_shaped_texture_paint_to_bitmap (MetaShapedTexture *stex,
+                                     MtkRectangle      *clip,
+                                     CoglPixelFormat    format)
 {
   MtkRectangle *image_clip = NULL;
+  CoglBitmap *bitmap;
   CoglTexture *texture;
-  ClutterBackend *clutter_backend =
-    clutter_context_get_backend (stex->clutter_context);
-  CoglContext *cogl_context =
-    clutter_backend_get_cogl_context (clutter_backend);
-  cairo_surface_t *surface;
+  ClutterBackend *clutter_backend;
+  CoglContext *cogl_context;
+  int tex_width, tex_height;
+  uint8_t *buffer;
 
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
 
@@ -1624,6 +1624,9 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
 
   if (stex->dst_width == 0 || stex->dst_height == 0)
     return NULL;
+
+  clutter_backend = clutter_context_get_backend (stex->clutter_context);
+  cogl_context = clutter_backend_get_cogl_context (clutter_backend);
 
   if (clip != NULL)
     {
@@ -1658,20 +1661,32 @@ meta_shaped_texture_get_image (MetaShapedTexture *stex,
                                     image_clip->width,
                                     image_clip->height);
 
-  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
-                                        cogl_texture_get_width (texture),
-                                        cogl_texture_get_height (texture));
+  tex_width = cogl_texture_get_width (texture);
+  tex_height = cogl_texture_get_height (texture);
 
-  cogl_texture_get_data (texture, COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                         cairo_image_surface_get_stride (surface),
-                         cairo_image_surface_get_data (surface));
+  bitmap = cogl_bitmap_new_with_malloc_buffer (cogl_context,
+                                               tex_width, tex_height,
+                                               format,
+                                               NULL);
+  if (!bitmap)
+    {
+      if (image_clip)
+        g_object_unref (texture);
+      return NULL;
+    }
 
-  cairo_surface_mark_dirty (surface);
+  buffer = cogl_bitmap_map (bitmap,
+                            COGL_BUFFER_ACCESS_WRITE, 0,
+                            NULL);
+  cogl_texture_get_data (texture, format,
+                         cogl_bitmap_get_rowstride (bitmap),
+                         buffer);
+  cogl_bitmap_unmap (bitmap);
 
   if (image_clip)
     g_object_unref (texture);
 
-  return surface;
+  return bitmap;
 }
 
 MetaShapedTexture *
