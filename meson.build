@@ -118,7 +118,6 @@ subproject('gvdb')
 m_dep = cc.find_library('m', required: true)
 graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
 glycin_dep = dependency('glycin-2', version: glycin_req)
-cairo_dep = dependency('cairo', version: cairo_req)
 pixman_dep = dependency('pixman-1', version: pixman_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
                                            version: gsettings_desktop_schemas_req)
@@ -150,9 +149,6 @@ if have_fonts
   pango_dep = dependency('pango', version: pango_req)
   pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
   harfbuzz_dep = dependency('harfbuzz', version: harfbuzz_req)
-endif
-
-if have_fonts
   fribidi_dep = dependency('fribidi', version: fribidi_req)
 endif
 
@@ -368,6 +364,10 @@ have_kvm_tests = false
 have_tty_tests = false
 have_installed_tests = false
 have_bash_completion = get_option('bash_completion')
+
+if have_fonts or have_xwayland or have_tests
+  cairo_dep = dependency('cairo', version: cairo_req)
+endif
 
 if have_tests
   gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
