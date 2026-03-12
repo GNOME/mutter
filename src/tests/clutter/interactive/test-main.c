@@ -59,7 +59,7 @@ get_unit_name_description (const char *unit_name,
   if (max_len > 0 && strlen (description) >= max_len)
     {
       GString *buf = g_string_sized_new (max_len);
-      char *newline;
+      const char *newline;
 
       newline = strchr (description, '\n');
       if (newline != NULL)
