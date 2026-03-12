@@ -1038,6 +1038,136 @@ meta_test_monitor_rebuild_mirror (void)
 }
 
 static void
+meta_test_monitor_rebuild_reuse_logical (void)
+{
+  /* 1. Start with a tiled monitor
+   * 2. Trigger a hotplug event having lost the non-main tile, but
+   *    with the main tile still available, with the default monitor
+   *    resolution stayig the same.
+   * 3. Check that the logical monitor after the second hotplug contains
+   *    the replaced monitor.
+   */
+
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorManager *monitor_manager = meta_backend_get_monitor_manager (backend);
+  MetaMonitorTestSetup *test_setup;
+  MonitorTestCaseSetup test_case_setup = {
+    .modes = {
+      {
+        .width = 1920,
+        .height = 1080,
+        .refresh_rate = 30.0
+      },
+      {
+        .width = 960,
+        .height = 1080,
+        .refresh_rate = 60.0
+      },
+    },
+    .n_modes = 2,
+    .outputs = {
+      {
+        .crtc = 0,
+        .modes = { 0, 1 },
+        .n_modes = 2,
+        .preferred_mode = 1,
+        .possible_crtcs = { 0 },
+        .n_possible_crtcs = 1,
+        .width_mm = 150,
+        .height_mm = 85,
+        .serial = "0x10000",
+        .tile_info = {
+          .group_id = 1,
+          .max_h_tiles = 2,
+          .max_v_tiles = 1,
+          .loc_h_tile = 0,
+          .loc_v_tile = 0,
+          .tile_w = 960,
+          .tile_h = 1080
+        }
+      },
+      {
+        .crtc = 1,
+        .modes = { 1 },
+        .n_modes = 1,
+        .preferred_mode = 1,
+        .possible_crtcs = { 0 },
+        .n_possible_crtcs = 1,
+        .width_mm = 150,
+        .height_mm = 85,
+        .serial = "0x10001",
+        .tile_info = {
+          .group_id = 1,
+          .max_h_tiles = 2,
+          .max_v_tiles = 1,
+          .loc_h_tile = 1,
+          .loc_v_tile = 0,
+          .tile_w = 960,
+          .tile_h = 1080
+        }
+      },
+    },
+    .n_outputs = 2,
+    .n_crtcs = 2
+  };
+  GList *logical_monitors;
+  GList *monitors;
+  g_autoptr (MetaMonitor) monitor1 = NULL;
+  g_autoptr (MetaMonitor) monitor2 = NULL;
+  GList *logical_monitor_monitors;
+  g_autoptr (MetaLogicalMonitor) logical_monitor1 = NULL;
+  g_autoptr (MetaLogicalMonitor) logical_monitor2 = NULL;
+  MetaMonitor *logical_monitor_monitor;
+
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (monitors), ==, 1);
+  monitor1 = g_object_ref (META_MONITOR (monitors->data));
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor1 = g_object_ref (META_LOGICAL_MONITOR (logical_monitors->data));
+
+  logical_monitor_monitors = meta_logical_monitor_get_monitors (logical_monitor1);
+  g_assert_cmpuint (g_list_length (logical_monitor_monitors), ==, 1);
+  logical_monitor_monitor = META_MONITOR (logical_monitor_monitors->data);
+  g_assert_true (logical_monitor_monitor == monitor1);
+  g_assert_true (meta_monitor_get_logical_monitor (monitor1) == logical_monitor1);
+
+  test_case_setup.n_modes = 1;
+  test_case_setup.n_outputs = 1;
+  test_case_setup.outputs[0].n_modes = 1;
+  test_case_setup.outputs[0].preferred_mode = 0;
+  test_case_setup.outputs[0].tile_info.group_id = 0;
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case_setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+  meta_emulate_hotplug (test_setup);
+
+  monitors = meta_monitor_manager_get_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (monitors), ==, 1);
+  monitor2 = g_object_ref (META_MONITOR (monitors->data));
+  g_assert_true (monitor1 != monitor2);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
+  logical_monitor2 = g_object_ref (META_LOGICAL_MONITOR (logical_monitors->data));
+  g_assert_true (logical_monitor1 == logical_monitor2);
+
+  logical_monitor_monitors = meta_logical_monitor_get_monitors (logical_monitor2);
+  g_assert_cmpuint (g_list_length (logical_monitor_monitors), ==, 1);
+  logical_monitor_monitor = META_MONITOR (logical_monitor_monitors->data);
+  g_assert_true (logical_monitor_monitor == monitor2);
+  g_assert_true (meta_monitor_get_logical_monitor (monitor2) == logical_monitor2);
+}
+
+static void
 init_abstraction_tests (void)
 {
   meta_add_monitor_test ("/backends/monitor/rebuild/normal",
@@ -1058,6 +1188,8 @@ init_abstraction_tests (void)
                          meta_test_monitor_rebuild_changed_connector);
   meta_add_monitor_test ("/backends/monitor/rebuild/mirror",
                          meta_test_monitor_rebuild_mirror);
+  meta_add_monitor_test ("/backends/monitor/rebuild/reuse-logical",
+                         meta_test_monitor_rebuild_reuse_logical);
 }
 
 int

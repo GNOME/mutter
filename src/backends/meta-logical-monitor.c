@@ -451,11 +451,22 @@ meta_logical_monitor_get_monitor_manager (MetaLogicalMonitor *logical_monitor)
   return priv->monitor_manager;
 }
 
+static void
+add_monitor_cb (MetaMonitor        *monitor,
+                MetaLogicalMonitor *logical_monitor)
+{
+  meta_logical_monitor_add_monitor (logical_monitor, monitor);
+}
+
 gboolean
 meta_logical_monitor_update (MetaLogicalMonitor       *logical_monitor,
                              MetaLogicalMonitorConfig *logical_monitor_config,
                              int                       number)
 {
+  MetaLogicalMonitorPrivate *priv =
+    meta_logical_monitor_get_instance_private (logical_monitor);
+  g_autolist (MetaMonitor) old_monitors = NULL;
+  g_autolist (MetaMonitor) new_monitors = NULL;
   GList *l;
 
   if (logical_monitor->number != number)
@@ -485,8 +496,24 @@ meta_logical_monitor_update (MetaLogicalMonitor       *logical_monitor,
         return FALSE;
     }
 
-  g_list_foreach (logical_monitor->monitors,
-                  (GFunc) meta_monitor_set_logical_monitor,
+  old_monitors = g_steal_pointer (&logical_monitor->monitors);
+  for (l = old_monitors; l; l = l->next)
+    {
+      MetaMonitor *old_monitor = META_MONITOR (l->data);
+      MetaMonitor *new_monitor;
+
+      new_monitor =
+        meta_monitor_manager_find_monitor (priv->monitor_manager,
+                                           old_monitor);
+      if (!new_monitor)
+        return FALSE;
+
+      new_monitors = g_list_prepend (new_monitors, g_object_ref (new_monitor));
+    }
+  new_monitors = g_list_reverse (new_monitors);
+
+  g_list_foreach (new_monitors,
+                  (GFunc) add_monitor_cb,
                   logical_monitor);
 
   return TRUE;
