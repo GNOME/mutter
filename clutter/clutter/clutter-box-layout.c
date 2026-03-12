@@ -222,7 +222,6 @@ get_base_size_for_opposite_orientation (ClutterBoxLayout   *self,
     clutter_box_layout_get_instance_private (self);
   ClutterActorIter iter;
   ClutterActor *child;
-  gint n_children = 0;
   gfloat minimum, natural;
   ClutterOrientation opposite_orientation =
     priv->orientation == CLUTTER_ORIENTATION_HORIZONTAL
@@ -238,8 +237,6 @@ get_base_size_for_opposite_orientation (ClutterBoxLayout   *self,
 
       if (!clutter_actor_is_visible (child))
 	continue;
-
-      n_children++;
 
       get_child_size (child, opposite_orientation, -1, &child_min, &child_nat);
 
