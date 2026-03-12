@@ -65,7 +65,6 @@
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor-private.h"
-#include "backends/meta-monitor-manager-dummy.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-renderdoc.h"
 #include "backends/meta-settings-private.h"

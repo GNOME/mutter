@@ -238,8 +238,6 @@ mutter_sources = [
   'backends/meta-monitor-config-utils.h',
   'backends/meta-monitor-private.h',
   'backends/meta-monitor-manager.c',
-  'backends/meta-monitor-manager-dummy.c',
-  'backends/meta-monitor-manager-dummy.h',
   'backends/meta-monitor-manager-private.h',
   'backends/meta-orientation-manager.c',
   'backends/meta-output.c',
