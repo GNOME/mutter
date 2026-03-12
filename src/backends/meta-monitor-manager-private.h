@@ -250,10 +250,6 @@ void                meta_monitor_manager_rebuild (MetaMonitorManager *manager,
                                                   MetaMonitorsConfig *config);
 
 META_EXPORT_TEST
-void                meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
-                                                          MetaMonitorsConfig *config);
-
-META_EXPORT_TEST
 int                 meta_monitor_manager_get_num_logical_monitors (MetaMonitorManager *manager);
 
 MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_from_number (MetaMonitorManager *manager,
@@ -329,11 +325,6 @@ void               meta_monitor_manager_update_logical_state (MetaMonitorManager
 
 void               meta_monitor_manager_update_for_lease_state (MetaMonitorManager *manager,
                                                                 MetaMonitorsConfig *config);
-
-META_EXPORT_TEST
-void               meta_monitor_manager_update_logical_state_derived (MetaMonitorManager *manager,
-                                                                      MetaMonitorsConfig *config,
-                                                                      MtkDisposeBin      *bin);
 
 META_EXPORT_TEST
 void               meta_monitor_manager_lid_is_closed_changed (MetaMonitorManager *manager);

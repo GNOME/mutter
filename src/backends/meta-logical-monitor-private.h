@@ -58,12 +58,6 @@ MetaLogicalMonitor * meta_logical_monitor_new (MetaMonitorManager       *monitor
                                                MetaLogicalMonitorConfig *logical_monitor_config,
                                                int                       monitor_number);
 
-MetaLogicalMonitor * meta_logical_monitor_new_derived (MetaMonitorManager *monitor_manager,
-                                                       MetaMonitor        *monitor,
-                                                       MtkRectangle        layout,
-                                                       float               scale,
-                                                       int                 monitor_number);
-
 void meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
                                        MetaMonitor        *monitor);
 
@@ -104,9 +98,5 @@ MetaMonitorManager * meta_logical_monitor_get_monitor_manager (MetaLogicalMonito
 gboolean meta_logical_monitor_update (MetaLogicalMonitor       *logical_monitor,
                                       MetaLogicalMonitorConfig *logical_monitor_config,
                                       int                       number);
-
-gboolean meta_logical_monitor_update_derived (MetaLogicalMonitor *logical_monitor,
-                                              int                 number,
-                                              float               global_scale);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaLogicalMonitorId, meta_logical_monitor_id_free)
