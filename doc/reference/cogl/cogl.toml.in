@@ -8,7 +8,7 @@ logo_url = "logo.svg"
 authors = "Mutter Development Team"
 license = "GPL-2.0-or-later"
 description = "A Low Level GPU Graphics and Utilities API"
-dependencies = [ "GObject-2.0", "Graphene-1.0", "cairo-1.0" ]
+dependencies = [ "GObject-2.0", "Graphene-1.0"]
 devhelp = true
 search_index = true
 
@@ -21,11 +21,6 @@ search_index = true
   name = "Graphene"
   description = "A thin layer of mathematical types for 3D libraries"
   docs_url = "https://ebassi.github.io/graphene/docs"
-
-  [dependencies."cairo-1.0"]
-  name = "cairo"
-  description = "A 2D graphics library with support for multiple output devices"
-  docs_url = "https://www.cairographics.org/manual/"
 
 [theme]
 name = "basic"
@@ -43,4 +38,3 @@ content_images = [
   "logo.svg",
 ]
 urlmap_file = "urlmap.js"
-
