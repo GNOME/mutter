@@ -364,7 +364,7 @@ _XcursorBuildThemeDir (const char *dir,
 static const char *
 _XcursorNextPath (const char *path)
 {
-  char *colon = strchr (path, ':');
+  const char *colon = strchr (path, ':');
 
   if (!colon)
     return NULL;
