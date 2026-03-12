@@ -4711,3 +4711,20 @@ meta_monitor_manager_derive_configured_global_scale (MetaMonitorManager *manager
 
   return 1.0;
 }
+
+MetaMonitor *
+meta_monitor_manager_find_monitor (MetaMonitorManager *monitor_manager,
+                                   MetaMonitor        *old_monitor)
+{
+  GList *l;
+
+  for (l = monitor_manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+
+      if (meta_monitor_is_same_as (monitor, old_monitor))
+        return monitor;
+    }
+
+  return NULL;
+}

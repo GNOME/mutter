@@ -434,3 +434,6 @@ MetaOutput * meta_monitor_manager_find_output (MetaMonitorManager *monitor_manag
 
 float meta_monitor_manager_derive_configured_global_scale (MetaMonitorManager *manager,
                                                            MetaMonitorsConfig *config);
+
+MetaMonitor * meta_monitor_manager_find_monitor (MetaMonitorManager *monitor_manager,
+                                                 MetaMonitor        *old_monitor);
