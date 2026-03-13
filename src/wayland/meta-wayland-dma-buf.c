@@ -295,6 +295,9 @@ meta_wayland_dma_buf_feedback_send_format_table (MetaWaylandDmaBufFeedback *feed
 
   fd = mtk_anonymous_file_open_fd (dma_buf_manager->format_table_file,
                                    MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  if (fd < 0)
+    return;
+
   size = mtk_anonymous_file_size (dma_buf_manager->format_table_file);
   zwp_linux_dmabuf_feedback_v1_send_format_table (resource, fd, size);
   mtk_anonymous_file_close_fd (fd);
