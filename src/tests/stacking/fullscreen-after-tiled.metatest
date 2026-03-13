@@ -1,0 +1,49 @@
+resize_monitor default 800 600
+add_monitor secondary 800 600
+set_pref edge-tiling true
+
+new_client w wayland
+create w/1 csd
+resize w/1 400 400
+show w/1
+wait
+move w/1 700 100
+
+fullscreen w/1
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 800 0
+
+unfullscreen w/1
+wait_reconfigure w/1
+assert_size w/1 400 400
+assert_position w/1 700 100
+
+wait_for_effects w/1
+move_cursor_to 710 110
+
+# Trigger move grab that tiles it on the default monitor's right edge
+key_press KEY_LEFTMETA
+click_and_hold
+move_cursor_to 799 110 1s
+release_click
+key_release KEY_LEFTMETA
+
+wait_reconfigure w/1
+assert_size w/1 400 600
+assert_position w/1 400 0
+
+fullscreen w/1
+wait_reconfigure w/1
+assert_size w/1 800 600
+assert_position w/1 0 0
+
+unfullscreen w/1
+wait_reconfigure w/1
+assert_size w/1 400 600
+assert_position w/1 400 0
+
+untile w/1
+wait_reconfigure w/1
+assert_size w/1 400 400
+assert_position w/1 700 100
