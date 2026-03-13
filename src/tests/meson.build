@@ -1183,6 +1183,7 @@ stacking_tests = [
   'move-to-monitor',
   'keyboard-resize',
   'move-to-monitor-minimized',
+  'fullscreen-after-tiled',
 ]
 
 foreach stacking_test: stacking_tests
