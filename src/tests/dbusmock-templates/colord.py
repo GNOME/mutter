@@ -141,8 +141,8 @@ def DeleteProfile(self, profile_path):
 
 @dbus.service.method(MAIN_IFACE, in_signature='s', out_signature='o')
 def FindProfileById(self, profile_id):
-    if profile_id in self.devices:
-        return self.devices[profile_id]
+    if profile_id in self.profiles:
+        return self.profiles[profile_id]
     else:
         raise ColordNotFoundException()
 
