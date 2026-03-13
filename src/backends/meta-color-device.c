@@ -1183,18 +1183,20 @@ create_icc_profile_from_edid (MetaColorDevice     *color_device,
 }
 
 static void
-create_device_profile_from_edid (MetaColorDevice *color_device,
-                                 GTask           *task)
+create_device_icc_profile (MetaColorDevice *color_device,
+                           GTask           *task)
 {
   const MetaEdidInfo *edid_info =
     meta_monitor_get_edid_info (color_device->monitor);
+  const char *edid_checksum_md5 =
+    meta_monitor_get_edid_checksum_md5 (color_device->monitor);
   GenerateProfileData *data = g_task_get_task_data (task);
   g_autoptr (CdIcc) cd_icc = NULL;
   g_autoptr (GBytes) bytes = NULL;
   g_autofree char *file_md5_checksum = NULL;
   g_autoptr (GError) error = NULL;
 
-  if (edid_info)
+  if (edid_info && edid_checksum_md5)
     {
       meta_topic (META_DEBUG_COLOR,
                   "Generating ICC profile for '%s' from EDID",
@@ -1215,7 +1217,17 @@ create_device_profile_from_edid (MetaColorDevice *color_device,
       if (!cd_icc_create_default_full (cd_icc,
                                        CD_ICC_LOAD_FLAGS_PRIMARIES,
                                        &error))
-        g_clear_object (&cd_icc);
+        {
+          g_clear_object (&cd_icc);
+        }
+      else
+        {
+          cd_icc_add_metadata (cd_icc, CD_PROFILE_PROPERTY_FILENAME,
+                               data->file_path);
+          cd_icc_add_metadata (cd_icc,
+                               CD_PROFILE_METADATA_MAPPING_DEVICE_ID,
+                               color_device->cd_device_id);
+        }
     }
 
   if (!cd_icc)
@@ -1364,7 +1376,7 @@ on_efi_panel_color_info_loaded (GObject      *source_object,
     }
 
 out:
-  create_device_profile_from_edid (color_device, g_steal_pointer (&task));
+  create_device_icc_profile (color_device, g_steal_pointer (&task));
 }
 
 void
@@ -1424,7 +1436,7 @@ meta_color_device_generate_profile (MetaColorDevice     *color_device,
     }
   else
     {
-      create_device_profile_from_edid (color_device, task);
+      create_device_icc_profile (color_device, task);
     }
 }
 
