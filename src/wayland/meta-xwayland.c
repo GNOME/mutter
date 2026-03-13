@@ -631,9 +631,10 @@ choose_xdisplay (MetaXWaylandManager     *manager,
   do
     {
       g_autoptr (GError) local_error = NULL;
+      g_autofree char *file = NULL;
 
-      lock_file = create_lock_file (*display, display, &local_error);
-      if (!lock_file)
+      file = create_lock_file (*display, display, &local_error);
+      if (!file)
         {
           g_prefix_error (&local_error, "Failed to create an X lock file: ");
           g_propagate_error (error, g_steal_pointer (&local_error));
@@ -645,19 +646,20 @@ choose_xdisplay (MetaXWaylandManager     *manager,
                                  &connection->unix_fd,
                                  &local_error))
         {
-          unlink (lock_file);
+          unlink (file);
 
           if (++number_of_tries >= 50)
             {
               g_prefix_error (&local_error, "Failed to bind X11 socket: ");
               g_propagate_error (error, g_steal_pointer (&local_error));
-              g_free (lock_file);
               return FALSE;
             }
 
           (*display)++;
           continue;
         }
+
+      lock_file = g_steal_pointer (&file);
 
       break;
     }
