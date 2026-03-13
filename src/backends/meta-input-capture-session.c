@@ -284,12 +284,18 @@ ensure_eis_keyboard (MetaInputCaptureSession *session)
       return;
     }
 
+  keymap_fd = mtk_anonymous_file_open_fd (keymap_file,
+                                          MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
+  if (keymap_fd < 0)
+    {
+      g_warning ("Failed to open anonymous keymap file: %m");
+      return;
+    }
+
   eis_keyboard = eis_seat_new_device (session->eis_seat);
   eis_device_configure_name (eis_keyboard, "captured keyboard");
   eis_device_configure_capability (eis_keyboard, EIS_DEVICE_CAP_KEYBOARD);
 
-  keymap_fd = mtk_anonymous_file_open_fd (keymap_file,
-                                          MTK_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   keymap_size = mtk_anonymous_file_size (keymap_file);
   eis_keymap = eis_device_new_keymap (eis_keyboard,
                                       EIS_KEYMAP_TYPE_XKB,
