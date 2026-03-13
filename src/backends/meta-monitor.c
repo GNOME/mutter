@@ -33,7 +33,7 @@
 #define MAX_DENOMINATOR 4
 #define MIN_INTEGER_SCALE 1
 #define MAX_INTEGER_SCALE 4
-#define MINIMUM_LOGICAL_AREA (800 * 480)
+#define MINIMUM_LOGICAL_AREA (600 * 600)
 #define MAXIMUM_REFRESH_RATE_DIFF 0.001f
 
 typedef struct _MetaMonitorModePrivate

@@ -25,7 +25,7 @@ meta_test_monitor_supported_integer_scales (void)
 {
   MonitorTestCase test_case = {
     .setup = {
-      .n_modes = 21,
+      .n_modes = 22,
       .modes = {
         {
           .width = 800,
@@ -36,6 +36,11 @@ meta_test_monitor_supported_integer_scales (void)
           .width = 1024,
           .height = 768,
           .refresh_rate = 60.0
+        },
+        {
+          .width = 1224,
+          .height = 2700,
+          .refresh_rate = 60.0,
         },
         {
           .width = 1280,
@@ -137,9 +142,9 @@ meta_test_monitor_supported_integer_scales (void)
         {
           .crtc = -1,
           .modes = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                     17, 18, 19, 20 },
-          .n_modes = 21,
-          .preferred_mode = 5,
+                     17, 18, 19, 20, 21 },
+          .n_modes = 22,
+          .preferred_mode = 6,
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
@@ -159,7 +164,7 @@ meta_test_monitor_supported_integer_scales (void)
       .n_monitors = 1,
       .monitors = {
         {
-          .n_modes = 21,
+          .n_modes = 22,
           .modes = {
             {
               .width = 800,
@@ -172,6 +177,12 @@ meta_test_monitor_supported_integer_scales (void)
               .height = 768,
               .n_scales = 1,
               .scales = { 1.0 },
+            },
+            {
+              .width = 1224,
+              .height = 2700,
+              .n_scales = 3,
+              .scales = { 1.0, 2.0, 3.0 },
             },
             {
               .width = 1280,
@@ -206,14 +217,14 @@ meta_test_monitor_supported_integer_scales (void)
             {
               .width = 1400,
               .height = 1050,
-              .n_scales = 1,
-              .scales = { 1.0 },
+              .n_scales = 2,
+              .scales = { 1.0, 2.0 },
             },
             {
               .width = 1600,
               .height = 900,
-              .n_scales = 1,
-              .scales = { 1.0 },
+              .n_scales = 2,
+              .scales = { 1.0, 2.0 },
             },
             {
               .width = 1920,
@@ -242,8 +253,8 @@ meta_test_monitor_supported_integer_scales (void)
             {
               .width = 3200,
               .height = 1800,
-              .n_scales = 2,
-              .scales = { 1.0, 2.0 },
+              .n_scales = 3,
+              .scales = { 1.0, 2.0, 4.0 },
             },
             {
               .width = 3200,
@@ -310,7 +321,7 @@ meta_test_monitor_supported_fractional_scales (void)
 {
   MonitorTestCase test_case = {
     .setup = {
-      .n_modes = 21,
+      .n_modes = 22,
       .modes = {
         {
           .width = 800,
@@ -321,6 +332,11 @@ meta_test_monitor_supported_fractional_scales (void)
           .width = 1024,
           .height = 768,
           .refresh_rate = 60.0
+        },
+        {
+          .width = 1224,
+          .height = 2700,
+          .refresh_rate = 60.0,
         },
         {
           .width = 1280,
@@ -422,9 +438,9 @@ meta_test_monitor_supported_fractional_scales (void)
         {
           .crtc = -1,
           .modes = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                     17, 18, 19, 20 },
-          .n_modes = 21,
-          .preferred_mode = 5,
+                     17, 18, 19, 20, 21 },
+          .n_modes = 22,
+          .preferred_mode = 6,
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
@@ -444,7 +460,7 @@ meta_test_monitor_supported_fractional_scales (void)
       .n_monitors = 1,
       .monitors = {
         {
-          .n_modes = 21,
+          .n_modes = 22,
           .modes = {
             {
               .width = 800,
@@ -459,6 +475,13 @@ meta_test_monitor_supported_fractional_scales (void)
               .scales = { 1.000000f, 1.333333f },
             },
             {
+              .width = 1224,
+              .height = 2700,
+              .n_scales = 6,
+              .scales = { 1.000000f, 1.333333f, 1.500000f, 2.000000f, 2.250000f,
+                          3.000000f },
+            },
+            {
               .width = 1280,
               .height = 720,
               .n_scales = 3,
@@ -467,8 +490,8 @@ meta_test_monitor_supported_fractional_scales (void)
             {
               .width = 1280,
               .height = 800,
-              .n_scales = 3,
-              .scales = { 1.000000f, 1.250000f, 1.333333f },
+              .n_scales = 4,
+              .scales = { 1.000000f, 1.250000f, 1.333333f, 1.666667f },
             },
             {
               .width = 1280,
@@ -491,14 +514,14 @@ meta_test_monitor_supported_fractional_scales (void)
             {
               .width = 1400,
               .height = 1050,
-              .n_scales = 4,
-              .scales = { 1.000000f, 1.250000f, 1.666666f, 1.750000f },
+              .n_scales = 5,
+              .scales = { 1.000000f, 1.250000f, 1.666666f, 1.750000f, 2.000000f },
             },
             {
               .width = 1600,
               .height = 900,
-              .n_scales = 4,
-              .scales = { 1.000000f, 1.250000f, 1.333333f, 1.666666f },
+              .n_scales = 5,
+              .scales = { 1.000000f, 1.250000f, 1.333333f, 1.666666f, 2.000000f },
             },
             {
               .width = 1920,
@@ -510,9 +533,9 @@ meta_test_monitor_supported_fractional_scales (void)
             {
               .width = 1920,
               .height = 1200,
-              .n_scales = 6,
+              .n_scales = 7,
               .scales = { 1.000000f, 1.250000f, 1.333333f, 1.500000f, 1.666666f,
-                          2.000000f },
+                          2.000000f, 2.500000f },
             },
             {
               .width = 2650,
@@ -523,17 +546,17 @@ meta_test_monitor_supported_fractional_scales (void)
             {
               .width = 2880,
               .height = 1800,
-              .n_scales = 11,
+              .n_scales = 12,
               .scales = { 1.000000f, 1.250000f, 1.333333f, 1.500000f, 1.666666f,
                           2.000000f, 2.250000f, 2.500000f, 2.666666f, 3.000000f,
-                          3.333333f },
+                          3.333333f, 3.750000f },
             },
             {
               .width = 3200,
               .height = 1800,
-              .n_scales = 8,
+              .n_scales = 9,
               .scales = { 1.000000f, 1.250000f, 1.333333f, 1.666666f, 2.000000f,
-                          2.500000f, 2.666666f, 3.333333f },
+                          2.500000f, 2.666666f, 3.333333f, 4.000000f },
             },
             {
               .width = 3200,
