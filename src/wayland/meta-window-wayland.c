@@ -1105,7 +1105,7 @@ maybe_save_rect (MetaWindow                     *window,
         }
       if (configuration)
         {
-          if (configuration->has_position)
+          if (configuration->has_size)
             window->saved_rect.width = configuration->width;
         }
       else
