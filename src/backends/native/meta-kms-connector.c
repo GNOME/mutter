@@ -1226,13 +1226,6 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
                                           connector->prop_table.props,
                                           META_KMS_CONNECTOR_N_PROPS);
 
-  if (!drm_connector)
-    {
-      if (current_state)
-        changes = META_KMS_RESOURCE_CHANGE_FULL;
-      goto out;
-    }
-
   if (drm_connector->connection == DRM_MODE_DISCONNECTED)
     {
       if (drm_connector->connection != connector->connection)
