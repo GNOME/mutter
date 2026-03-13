@@ -195,6 +195,7 @@ emit_frame_callbacks_for_stage_view (MetaWaylandCompositor *compositor,
       MetaWaylandSurface *surface = l->data;
       MetaSurfaceActor *actor;
       MetaWaylandActorSurface *actor_surface;
+      gboolean should_flush_frame_callbacks;
 
       l = l->next;
 
@@ -202,7 +203,11 @@ emit_frame_callbacks_for_stage_view (MetaWaylandCompositor *compositor,
       if (!actor)
         continue;
 
-      if (!meta_surface_actor_wayland_is_view_primary (actor,
+      should_flush_frame_callbacks =
+        meta_wayland_surface_flush_frame_callbacks (surface);
+
+      if (!should_flush_frame_callbacks &&
+          !meta_surface_actor_wayland_is_view_primary (actor,
                                                        stage_view))
         continue;
 
