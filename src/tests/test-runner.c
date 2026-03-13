@@ -2256,6 +2256,33 @@ test_case_do (TestCase    *test,
           return FALSE;
         }
     }
+  else if (strcmp (argv[0], "assert_minimized") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      gboolean is_minimized = FALSE;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      g_object_get (window, "minimized", &is_minimized, NULL);
+      if (!is_minimized)
+        {
+          g_set_error (error,
+                       META_TEST_CLIENT_ERROR,
+                       META_TEST_CLIENT_ERROR_ASSERTION_FAILED,
+                       "Expected window to be minimized");
+          return FALSE;
+        }
+    }
   else if (strcmp (argv[0], "stop_after_next") == 0 ||
            strcmp (argv[0], "continue") == 0)
     {
