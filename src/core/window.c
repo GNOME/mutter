@@ -4547,7 +4547,6 @@ meta_window_move_between_rects (MetaWindow          *window,
                                 const MtkRectangle  *new_area)
 {
   move_rect_between_rects (&window->unconstrained_rect, old_area, new_area);
-  window->unconstrained_rect_valid = TRUE;
 
   meta_window_move_resize (window,
                            (move_resize_flags |
