@@ -2939,9 +2939,8 @@ meta_window_set_maximize_flags (MetaWindow        *window,
       flags = (META_MOVE_RESIZE_MOVE_ACTION |
                META_MOVE_RESIZE_RESIZE_ACTION |
                META_MOVE_RESIZE_STATE_CHANGED |
-               META_MOVE_RESIZE_CONSTRAIN);
-      if (!window->unconstrained_rect_valid)
-        flags |= META_MOVE_RESIZE_RECT_INVALID;
+               META_MOVE_RESIZE_CONSTRAIN |
+               META_MOVE_RESIZE_RECT_INVALID);
 
       meta_window_move_resize (window, flags, window->unconstrained_rect);
     }
@@ -3686,9 +3685,8 @@ meta_window_make_fullscreen (MetaWindow  *window)
       flags = (META_MOVE_RESIZE_MOVE_ACTION |
                META_MOVE_RESIZE_RESIZE_ACTION |
                META_MOVE_RESIZE_STATE_CHANGED |
-               META_MOVE_RESIZE_CONSTRAIN);
-      if (!window->unconstrained_rect_valid)
-        flags |= META_MOVE_RESIZE_RECT_INVALID;
+               META_MOVE_RESIZE_CONSTRAIN |
+               META_MOVE_RESIZE_RECT_INVALID);
       meta_window_move_resize (window, flags, window->unconstrained_rect);
     }
 }
