@@ -303,6 +303,8 @@ struct _MetaWaylandSurface
   ClutterColorState *color_state;
 
   gboolean fifo_barrier;
+
+  gboolean flush_frame_callbacks;
 };
 
 void                meta_wayland_shell_init     (MetaWaylandCompositor *compositor);
@@ -458,6 +460,10 @@ gboolean meta_wayland_surface_is_xwayland (MetaWaylandSurface *surface);
 gboolean meta_wayland_surface_has_initial_commit (MetaWaylandSurface *surface);
 
 MetaWaylandClient * meta_wayland_surface_get_client (MetaWaylandSurface *surface);
+
+void meta_wayland_surface_queue_flush_frame_callbacks (MetaWaylandSurface *surface);
+
+gboolean meta_wayland_surface_flush_frame_callbacks (MetaWaylandSurface *surface);
 
 static inline GNode *
 meta_get_next_subsurface_sibling (GNode *n)

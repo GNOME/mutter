@@ -2853,3 +2853,20 @@ meta_wayland_surface_get_client (MetaWaylandSurface *surface)
 {
   return surface->client;
 }
+
+void
+meta_wayland_surface_queue_flush_frame_callbacks (MetaWaylandSurface *surface)
+{
+  surface->flush_frame_callbacks = TRUE;
+}
+
+gboolean
+meta_wayland_surface_flush_frame_callbacks (MetaWaylandSurface *surface)
+{
+  gboolean flush_frame_callbacks;
+
+  flush_frame_callbacks = surface->flush_frame_callbacks;
+  surface->flush_frame_callbacks = FALSE;
+
+  return flush_frame_callbacks;
+}
