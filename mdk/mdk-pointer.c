@@ -130,7 +130,7 @@ mdk_pointer_notify_button (MdkPointer *pointer,
   MdkDevice *device = MDK_DEVICE (pointer);
   struct ei_device *ei_device = mdk_device_get_ei_device (device);
 
-  if (button > G_N_ELEMENTS (pointer->button_pressed))
+  if (button >= G_N_ELEMENTS (pointer->button_pressed))
     {
       g_warning ("Unknown button key code 0x%x, ignoring", button);
       return;

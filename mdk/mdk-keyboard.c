@@ -76,7 +76,7 @@ mdk_keyboard_notify_key (MdkKeyboard *keyboard,
   MdkDevice *device = MDK_DEVICE (keyboard);
   struct ei_device *ei_device = mdk_device_get_ei_device (device);
 
-  if (key > G_N_ELEMENTS (keyboard->key_pressed))
+  if (key >= G_N_ELEMENTS (keyboard->key_pressed))
     {
       g_warning ("Unknown key code 0x%x, ignoring", key);
       return;
