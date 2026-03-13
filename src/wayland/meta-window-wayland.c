@@ -219,6 +219,12 @@ meta_window_wayland_configure (MetaWindowWayland              *wl_window,
                    meta_wayland_window_configuration_unref);
   wl_window->last_sent_configuration =
     meta_wayland_window_configuration_ref (configuration);
+
+  /* Clients might be waiting for frame callbacks before updating, so to
+   * unblock them even if we're not normally sending them e.g. due to being
+   * hidden, force flush any pending ones after having sent the configuration.
+   */
+  meta_wayland_surface_queue_flush_frame_callbacks (wl_window->surface);
 }
 
 static gboolean
