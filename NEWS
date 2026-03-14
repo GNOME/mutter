@@ -1,3 +1,25 @@
+50.0
+====
+* Ensure DnD cursor offset is applied correctly [Carlos; !4947]
+* Introduce API to get window min/max sizes [Cleo; !4917]
+* Add simple "controller" API for common patterns [Carlos; !4943]
+* Fixed crashes [Michel, Sebastian, cong, Jonas; !4941, !4945, !4950,
+  !4938, !4918, !4956]
+* Misc. bug fixes and cleanups [Carlos, Sebastian, Michel, Nicolas, Jonas;
+  !4944, !4942, !4939, !4948, !4936, !4954, !4957, !4959, !4969]
+
+Contributors:
+  cong, Michel Dänzer, Nicolas Fella, Carlos Garnacho, Sebastian Keller,
+  Cleo Menezes Jr., Jonas Ådahl
+
+Translators:
+  Baurzhan Muftakhidinov [kk], Rafael Fontenelle [pt_BR],
+  Francisco Diéguez Souto [gl], Seong-ho Cho [ko],
+  Asier Saratsua Garmendia [eu], Victor Dargallo [ca], Victoria [pl],
+  Guillaume Bernard [fr], Yaron Shahrabani [he], Efstathios Iosifidis [el],
+  Ask Hjorth Larsen [da], Bruce Cowan [en_GB], Sabri Ünal [tr],
+  Emin Tufan Çetin [tr]
+
 50.rc
 =====
 * Fix monitor state after closing some fullscreen windows [mohansur; !4876]
