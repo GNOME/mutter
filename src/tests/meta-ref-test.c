@@ -79,7 +79,7 @@ capture_view_into (ClutterStageView *view,
   bitmap = cogl_bitmap_new_for_data (context,
                                      (int) texture_width,
                                      (int) texture_height,
-                                     COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                     COGL_PIXEL_FORMAT_ARGB32_NATIVE,
                                      stride,
                                      buffer);
 

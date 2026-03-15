@@ -474,7 +474,7 @@ meta_stream_source_area_record_to_buffer (MetaStreamSource      *source,
                                              &area, scale,
                                              width, height, stride,
                                              data,
-                                             COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                             COGL_PIXEL_FORMAT_ARGB32_NATIVE,
                                              damage,
                                              error);
 

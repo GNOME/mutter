@@ -408,7 +408,7 @@ meta_stream_source_virtual_record_to_buffer (MetaStreamSource      *source,
                                              framebuffer,
                                              &view_rect, scale,
                                              width, height, stride, data,
-                                             COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                             COGL_PIXEL_FORMAT_ARGB32_NATIVE,
                                              damage,
                                              error);
 }

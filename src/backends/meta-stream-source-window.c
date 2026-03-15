@@ -239,7 +239,7 @@ maybe_draw_cursor_sprite (MetaStreamSourceWindow *source_window,
                                cursor_transform,
                                src_rect);
 
-  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT, 0);
+  bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel (COGL_PIXEL_FORMAT_ARGB32_NATIVE, 0);
   cursor_data = g_malloc (width * height * bytes_per_pixel);
 
   if (!meta_stream_source_draw_cursor_into (source,

@@ -1426,7 +1426,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
     return;
 
   bitmap = meta_window_actor_paint_to_bitmap (window_actor, bounds,
-                                              COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT);
+                                              COGL_PIXEL_FORMAT_ARGB32_NATIVE);
   if (!bitmap)
     return;
 
