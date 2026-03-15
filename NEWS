@@ -1,3 +1,20 @@
+48.8
+====
+* Fix direct scanout on drivers without explicit modifiers [Mario; !4777]
+* Allow creating uninhibitable idle watches [Sebastian; !4422]
+* Fix touch input being delivered to the wrong surface [Lorenzo; !4914]
+* Prevent directly switching planes across CRTCs [Stephan; !4850]
+* Fixed crashes [Michel, Sebastian; !4941, !4938]
+* Plugged leaks [Sebastian; !4932, !4937]
+* Misc. bug fixes and cleanups [Michel, Alessandro, Carlos; !4838, !4927, !4959]
+
+Contributors:
+  Alessandro Astone, Michel Dänzer, Carlos Garnacho, Stephan Gerhold,
+  Lorenzo Ianotto, Sebastian Keller, Mario Kleiner
+
+Translators:
+  Antonio Marin [ro], Daniel Rusek [cs], Baurzhan Muftakhidinov [kk]
+
 48.7
 ====
 * Still constrain fullscreen wayland windows with size limits [Jonas Å.; !4587]
