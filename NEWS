@@ -1,3 +1,17 @@
+49.5
+====
+* Fix re-enabling touchscreen after power save mode [Lorenzo; !4899]
+* Fix touch input being delivered to the wrong surface [Lorenzo; !4914]
+* Prevent directly switching planes across CRTCs [Stephan; !4850]
+* Fixed crashes [Michel, Sebastian, Jonas; !4941, !4945, !4950, !4938, !4956]
+* Plugged leaks [Sebastian; !4932, !4937]
+* Misc. bug fixes and cleanups [Michel, Jonas, Alessandro, Frnak, Carlos;
+  !4838, !4923, !4915, !4927, !4913, !4928, !4959]
+
+Contributors:
+  Alessandro Astone, Michel Dänzer, Carlos Garnacho, Stephan Gerhold,
+  Lorenzo Ianotto, Sebastian Keller, Frank Praznik, Jonas Ådahl
+
 49.4
 ====
 * Fix applying initial display scaling on xorg [mohansur; !4834, !4876]
