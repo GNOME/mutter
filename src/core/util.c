@@ -74,6 +74,13 @@ static const GDebugKey meta_debug_keys[] = {
   { "workspaces", META_DEBUG_WORKSPACES },
 };
 
+static const GDebugKey meta_paint_debug_keys[] = {
+  { "opaque-region", META_DEBUG_PAINT_OPAQUE_REGION },
+  { "sync-cursor-primary", META_DEBUG_PAINT_SYNC_CURSOR_PRIMARY },
+  { "disable-direct-scanout", META_DEBUG_PAINT_DISABLE_DIRECT_SCANOUT },
+  { "ignore-color-state-for-direct-scanout", META_DEBUG_PAINT_IGNORE_COLOR_STATE_FOR_DIRECT_SCANOUT },
+};
+
 typedef struct _MetaReadBytesContext
 {
   int fd;
@@ -219,6 +226,17 @@ meta_init_debug_utils (void)
                                      meta_debug_keys,
                                      G_N_ELEMENTS (meta_debug_keys));
       meta_add_verbose_topic (topics);
+    }
+
+  debug_env = g_getenv ("MUTTER_DEBUG_PAINT");
+  if (debug_env)
+    {
+      MetaDebugPaintFlag flags;
+
+      flags = g_parse_debug_string (debug_env,
+                                    meta_paint_debug_keys,
+                                    G_N_ELEMENTS (meta_paint_debug_keys));
+      meta_add_debug_paint_flag (flags);
     }
 
   if (g_test_initialized ())
