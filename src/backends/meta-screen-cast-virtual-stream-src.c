@@ -442,7 +442,7 @@ meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
                                                       height,
                                                       stride,
                                                       data,
-                                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                                      COGL_PIXEL_FORMAT_ARGB32_NATIVE,
                                                       damage,
                                                       error);
 }
