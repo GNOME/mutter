@@ -490,7 +490,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *sr
   if (!clutter_stage_paint_to_buffer (stage, area, scale,
                                       data,
                                       stride,
-                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                      COGL_PIXEL_FORMAT_ARGB32_NATIVE,
                                       NULL,
                                       paint_flags,
                                       error))
