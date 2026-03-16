@@ -370,9 +370,9 @@ MetaCtm *
 meta_ctm_copy (const MetaCtm *src_ctm)
 {
   MetaCtm *dst_ctm;
+
   g_return_val_if_fail (src_ctm != NULL, NULL);
 
-  dst_ctm = g_new (MetaCtm, 1);
   dst_ctm = g_memdup2 (src_ctm, sizeof (*src_ctm));
 
   return dst_ctm;
