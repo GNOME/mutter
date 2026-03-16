@@ -449,7 +449,6 @@ set_launch_env (MdkContext *context,
 {
   g_auto (GStrv) launch_env = NULL;
   GVariantIter iter;
-  g_autoptr (GStrvBuilder) strv_builder = NULL;
   char *name;
   char *value;
 
