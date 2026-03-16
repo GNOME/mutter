@@ -30,9 +30,10 @@ G_DECLARE_FINAL_TYPE (MdkStream, mdk_stream,
                       MDK, STREAM,
                       GtkMediaStream)
 
-MdkStream * mdk_stream_new_resizable (MdkSession  *session,
-                                      double       scale,
-                                      GError     **error);
+MdkStream * mdk_stream_new_resizable (MdkSession     *session,
+                                      double          scale,
+                                      const MdkSize  *default_size,
+                                      GError        **error);
 
 MdkStream * mdk_stream_new_with_modes (MdkSession  *session,
                                        double       scale,

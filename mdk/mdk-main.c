@@ -25,12 +25,16 @@
 #include "mdk-launchers-editor.h"
 #include "mdk-main-window.h"
 #include "mdk-monitor.h"
+#include "mdk-utils.h"
 
 struct _MdkApplication
 {
   AdwApplication parent;
 
   MdkContext *context;
+
+  GArray *monitor_sizes;
+  int extra_monitors_count;
 };
 
 #define MDK_TYPE_APPLICATION (mdk_application_get_type ())
@@ -106,12 +110,27 @@ activate_launch (GSimpleAction *action,
   focus_monitor_widget (app);
 }
 
-static void
-add_monitor (GSimpleAction *action,
-             GVariant      *parameter,
-             gpointer       user_data)
+static MdkSize *
+take_monitor_size (MdkApplication *app)
 {
-  MdkApplication *app = MDK_APPLICATION (user_data);
+  MdkSize default_size;
+
+  if (!app->monitor_sizes)
+    return NULL;
+
+  if (app->monitor_sizes->len == 0)
+    return NULL;
+
+  default_size = g_array_index (app->monitor_sizes, MdkSize, 0);
+  g_array_remove_index (app->monitor_sizes, 0);
+
+  return mdk_size_copy (&default_size);
+}
+
+static void
+mdk_application_add_monitor (MdkApplication *app,
+                             MdkSize        *default_size)
+{
   MdkWindow *window;
   MdkMonitor *monitor;
 
@@ -119,11 +138,35 @@ add_monitor (GSimpleAction *action,
                          "context", app->context,
                          NULL);
 
-  monitor = mdk_monitor_new (app->context);
+  monitor = mdk_monitor_new (app->context, default_size);
   mdk_window_set_monitor (window, monitor);
   gtk_widget_set_visible (GTK_WIDGET (window), TRUE);
 
   gtk_application_add_window (GTK_APPLICATION (app), GTK_WINDOW (window));
+}
+
+static void
+add_monitor (GSimpleAction *action,
+             GVariant      *parameter,
+             gpointer       user_data)
+{
+  MdkApplication *app = MDK_APPLICATION (user_data);
+
+  mdk_application_add_monitor (app, NULL);
+}
+
+static void
+add_extra_monitors (MdkApplication *app)
+{
+  int i;
+
+  for (i = 0; i < app->extra_monitors_count; i++)
+    {
+      g_autoptr (MdkSize) monitor_size = NULL;
+
+      monitor_size = take_monitor_size (app);
+      mdk_application_add_monitor (app, monitor_size);
+    }
 }
 
 static void
@@ -132,6 +175,7 @@ on_context_ready (MdkContext   *context,
 {
   GList *windows;
   MdkWindow *window;
+  g_autoptr (MdkSize) monitor_size = NULL;
   MdkMonitor *monitor;
 
   windows = gtk_application_get_windows (GTK_APPLICATION (app));
@@ -141,8 +185,11 @@ on_context_ready (MdkContext   *context,
 
   gtk_widget_set_visible (GTK_WIDGET (window), TRUE);
 
-  monitor = mdk_monitor_new (context);
+  monitor_size = take_monitor_size (MDK_APPLICATION (app));
+  monitor = mdk_monitor_new (context, monitor_size);
   mdk_window_set_monitor (window, monitor);
+
+  add_extra_monitors (MDK_APPLICATION (app));
 }
 
 static void
@@ -260,6 +307,49 @@ mdk_application_init (MdkApplication *app)
 {
 }
 
+static gboolean
+monitor_size_cb (const char  *option_name,
+                 const char  *value,
+                 gpointer     user_data,
+                 GError     **error)
+{
+  MdkApplication *app = MDK_APPLICATION (user_data);
+  MdkSize size;
+
+  if (sscanf (value, "%dx%d", &size.width, &size.height) != 2)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
+                   "Invalid size string");
+      return FALSE;
+    }
+
+  if (mdk_size_is_empty (&size))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT,
+                   "Size empty");
+      return FALSE;
+    }
+
+  if (!app->monitor_sizes)
+    app->monitor_sizes = g_array_new (FALSE, FALSE, sizeof (MdkSize));
+  g_array_append_val (app->monitor_sizes, size);
+
+  return TRUE;
+}
+
+static gboolean
+add_monitor_cb (const char  *option_name,
+                const char  *value,
+                gpointer     user_data,
+                GError     **error)
+{
+  MdkApplication *app = MDK_APPLICATION (user_data);
+
+  app->extra_monitors_count++;
+
+  return TRUE;
+}
+
 int
 main (int    argc,
       char **argv)
@@ -275,6 +365,23 @@ main (int    argc,
     { "edit_launchers", activate_edit_launchers, },
     { "add_monitor", add_monitor, },
   };
+  GOptionEntry option_entries[] = {
+    {
+      .long_name = "monitor-size",
+      .short_name = 's',
+      .arg = G_OPTION_ARG_CALLBACK,
+      .arg_data = &monitor_size_cb,
+    },
+    {
+      .long_name = "add-monitor",
+      .short_name = 'M',
+      .flags = G_OPTION_FLAG_NO_ARG,
+      .arg = G_OPTION_ARG_CALLBACK,
+      .arg_data = add_monitor_cb,
+    },
+    {},
+  };
+  GOptionGroup *option_group;
 
   app = g_object_new (MDK_TYPE_APPLICATION,
                       "application-id", "org.gnome.Mutter.Mdk",
@@ -285,6 +392,13 @@ main (int    argc,
   g_action_map_add_action_entries (G_ACTION_MAP (app),
                                    app_entries, G_N_ELEMENTS (app_entries),
                                    app);
+
+  option_group = g_option_group_new ("Devkit",
+                                     _("Devkit options"),
+                                     _("Devkit options"),
+                                     app, NULL);
+  g_option_group_add_entries (option_group, option_entries);
+  g_application_add_option_group (G_APPLICATION (app), option_group);
 
   g_application_set_version (G_APPLICATION (app), VERSION);
 

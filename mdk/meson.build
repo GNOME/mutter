@@ -41,6 +41,8 @@ mdk_sources = [
   'mdk-touch.c',
   'mdk-touch.h',
   'mdk-types.h',
+  'mdk-utils.c',
+  'mdk-utils.h',
   'mdk-window.c',
   'mdk-window.h',
 ]

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2026 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,18 +15,26 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "config.h"
 
-#include <glib-object.h>
+#include "mdk-utils.h"
 
-#include <gtk/gtk.h>
+G_DEFINE_BOXED_TYPE (MdkSize, mdk_size, mdk_size_copy, mdk_size_free)
 
-#include "mdk-types.h"
+MdkSize *
+mdk_size_copy (MdkSize *size)
+{
+  return g_memdup2 (size, sizeof (*size));
+}
 
-#define MDK_TYPE_MONITOR (mdk_monitor_get_type ())
-G_DECLARE_FINAL_TYPE (MdkMonitor, mdk_monitor,
-                      MDK, MONITOR,
-                      GtkWidget)
+void
+mdk_size_free (MdkSize *size)
+{
+  g_free (size);
+}
 
-MdkMonitor * mdk_monitor_new (MdkContext *context,
-                              MdkSize    *default_size);
+gboolean
+mdk_size_is_empty (MdkSize *size)
+{
+  return size->width == 0 || size->height == 0;
+}

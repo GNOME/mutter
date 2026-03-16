@@ -47,6 +47,7 @@
 #include "mdk-context.h"
 #include "mdk-pipewire.h"
 #include "mdk-session.h"
+#include "mdk-utils.h"
 
 #include "mdk-dbus-screen-cast.h"
 
@@ -1519,16 +1520,30 @@ mdk_stream_init (MdkStream *stream)
 }
 
 MdkStream *
-mdk_stream_new_resizable (MdkSession  *session,
-                          double       scale,
-                          GError     **error)
+mdk_stream_new_resizable (MdkSession     *session,
+                          double          scale,
+                          const MdkSize  *default_size,
+                          GError        **error)
 {
+  int default_width, default_height;
+
+  if (default_size)
+    {
+      default_width = default_size->width;
+      default_height = default_size->height;
+    }
+  else
+    {
+      default_width = (int) round (DEFAULT_MONITOR_WIDTH * scale);
+      default_height = (int) round (DEFAULT_MONITOR_HEIGHT * scale);
+    }
+
   return g_initable_new (MDK_TYPE_STREAM, NULL, error,
                          "session", session,
                          "scale", scale,
                          "is-resizable", TRUE,
-                         "default-width", (int) round (DEFAULT_MONITOR_WIDTH * scale),
-                         "default-height", (int) round (DEFAULT_MONITOR_HEIGHT * scale),
+                         "default-width", default_width,
+                         "default-height", default_height,
                          NULL);
 }
 

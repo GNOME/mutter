@@ -28,5 +28,6 @@ typedef struct _MdkPointer MdkPointer;
 typedef struct _MdkSession MdkSession;
 typedef struct _MdkStream MdkStream;
 typedef struct _MdkTouch MdkTouch;
+typedef struct _MdkSize MdkSize;
 
 typedef enum _MdkLauncherType MdkLauncherType;

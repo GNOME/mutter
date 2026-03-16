@@ -30,6 +30,7 @@
 #include "mdk-session.h"
 #include "mdk-stream.h"
 #include "mdk-touch.h"
+#include "mdk-utils.h"
 
 #define BUTTON_BASE (BTN_LEFT - 1)
 
@@ -38,6 +39,7 @@ enum
   PROP_0,
 
   PROP_IS_RESIZABLE,
+  PROP_DEFAULT_SIZE,
 
   N_PROPS
 };
@@ -59,6 +61,8 @@ struct _MdkMonitor
   gboolean emulated_touch_down;
 
   gboolean is_resizable;
+
+  MdkSize *default_size;
 };
 
 G_DEFINE_FINAL_TYPE (MdkMonitor, mdk_monitor, GTK_TYPE_WIDGET)
@@ -602,9 +606,16 @@ init_stream (MdkMonitor *monitor)
   scale = gdk_surface_get_scale (surface);
 
   if (monitor->is_resizable)
-    monitor->stream = mdk_stream_new_resizable (session, scale, &error);
+    {
+      monitor->stream = mdk_stream_new_resizable (session,
+                                                  scale,
+                                                  monitor->default_size,
+                                                  &error);
+    }
   else
-    monitor->stream = mdk_stream_new_with_modes (session, scale, &error);
+    {
+      monitor->stream = mdk_stream_new_with_modes (session, scale, &error);
+    }
 
   if (!monitor->stream)
     {
@@ -754,6 +765,9 @@ mdk_monitor_set_property (GObject      *object,
           }
         break;
       }
+    case PROP_DEFAULT_SIZE:
+      monitor->default_size = g_value_dup_boxed (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -772,6 +786,9 @@ mdk_monitor_get_property (GObject    *object,
     {
     case PROP_IS_RESIZABLE:
       g_value_set_boolean (value, monitor->is_resizable);
+      break;
+    case PROP_DEFAULT_SIZE:
+      g_value_set_boxed (value, monitor->default_size);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -829,6 +846,12 @@ mdk_monitor_class_init (MdkMonitorClass *klass)
                           FALSE,
                           G_PARAM_READWRITE |
                           G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEFAULT_SIZE] =
+    g_param_spec_boxed ("default-size", NULL, NULL,
+                        MDK_TYPE_SIZE,
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_READWRITE |
+                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   gtk_widget_class_bind_template_child (widget_class, MdkMonitor, box);
@@ -887,11 +910,14 @@ mdk_monitor_init (MdkMonitor *monitor)
 }
 
 MdkMonitor *
-mdk_monitor_new (MdkContext *context)
+mdk_monitor_new (MdkContext *context,
+                 MdkSize    *default_size)
 {
   MdkMonitor *monitor;
 
-  monitor = g_object_new (MDK_TYPE_MONITOR, NULL);
+  monitor = g_object_new (MDK_TYPE_MONITOR,
+                          "default-size", default_size,
+                          NULL);
   monitor->context = context;
 
   update_cursor (monitor);

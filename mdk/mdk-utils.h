@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Red Hat Inc.
+ * Copyright (C) 2026 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,20 @@
 
 #include <glib-object.h>
 
-#include <gtk/gtk.h>
+typedef struct _MdkSize
+{
+  int width;
+  int height;
+} MdkSize;
 
-#include "mdk-types.h"
+#define MDK_TYPE_SIZE (mdk_size_get_type ())
 
-#define MDK_TYPE_MONITOR (mdk_monitor_get_type ())
-G_DECLARE_FINAL_TYPE (MdkMonitor, mdk_monitor,
-                      MDK, MONITOR,
-                      GtkWidget)
+GType mdk_size_get_type (void);
 
-MdkMonitor * mdk_monitor_new (MdkContext *context,
-                              MdkSize    *default_size);
+MdkSize * mdk_size_copy (MdkSize *size);
+
+void mdk_size_free (MdkSize *size);
+
+gboolean mdk_size_is_empty (MdkSize *size);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MdkSize, mdk_size_free)
