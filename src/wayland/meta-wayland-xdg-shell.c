@@ -1140,11 +1140,18 @@ meta_wayland_xdg_toplevel_configure (MetaWaylandShellSurface        *shell_surfa
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_toplevel);
   MetaWaylandXdgSurfacePrivate *xdg_surface_priv =
     meta_wayland_xdg_surface_get_instance_private (xdg_surface);
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (xdg_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
 
   if (!xdg_surface_priv->resource)
     return;
 
   if (!xdg_toplevel->resource)
+    return;
+
+  if (!surface->resource)
     return;
 
   meta_wayland_xdg_toplevel_send_configure (xdg_toplevel, configuration);
@@ -1591,10 +1598,16 @@ meta_wayland_xdg_popup_configure (MetaWaylandShellSurface        *shell_surface,
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_popup);
   MetaWindow *parent_window =
     meta_wayland_surface_get_window (xdg_popup->parent_surface);
+  MetaWaylandSurfaceRole *surface_role = META_WAYLAND_SURFACE_ROLE (xdg_popup);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
   int geometry_scale;
   int x, y;
 
   if (!xdg_popup->resource)
+    return;
+
+  if (!surface->resource)
     return;
 
   /* If the parent surface was destroyed, its window will be destroyed
@@ -1610,11 +1623,6 @@ meta_wayland_xdg_popup_configure (MetaWaylandShellSurface        *shell_surface,
 
   if (meta_is_topic_enabled (META_DEBUG_WAYLAND))
     {
-      MetaWaylandSurfaceRole *surface_role =
-        META_WAYLAND_SURFACE_ROLE (xdg_popup);
-      MetaWaylandSurface *surface =
-        meta_wayland_surface_role_get_surface (surface_role);
-
       meta_topic (META_DEBUG_WAYLAND,
                   "Configuring xdg_popup#%u (wl_surface#%u): "
                   "serial=%u, size=%dx%d, rel-position=%d,%d, repositioned=%s",
