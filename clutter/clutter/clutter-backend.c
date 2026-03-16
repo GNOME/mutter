@@ -420,26 +420,6 @@ _clutter_backend_create_context (ClutterBackend  *backend,
 }
 
 /**
- * clutter_get_default_backend:
- *
- * Retrieves the default #ClutterBackend used by Clutter. The
- * #ClutterBackend holds backend-specific configuration options.
- *
- * Return value: (transfer none): the default backend. You should
- *   not ref or unref the returned object. Applications should rarely
- *   need to use this.
- */
-ClutterBackend *
-clutter_get_default_backend (void)
-{
-  ClutterContext *clutter_context;
-
-  clutter_context = _clutter_context_get_default ();
-
-  return clutter_context->backend;
-}
-
-/**
  * clutter_backend_get_resolution:
  * @backend: a #ClutterBackend
  *
