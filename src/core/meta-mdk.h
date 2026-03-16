@@ -35,6 +35,7 @@ G_DECLARE_FINAL_TYPE (MetaMdk, meta_mdk, META, MDK, GObject)
 
 MetaMdk * meta_mdk_new (MetaContext  *context,
                         MetaMdkFlag   flags,
+                        const char   *args,
                         GError      **error);
 
 MetaContext * meta_mdk_get_context (MetaMdk *mdk);

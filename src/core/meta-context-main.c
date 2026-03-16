@@ -49,6 +49,7 @@ typedef struct _MetaContextMainOptions
   gboolean display_server;
   gboolean headless;
   gboolean devkit;
+  char *devkit_args;
   GList *virtual_monitor_infos;
   char *trace_file;
   gboolean debug_control;
@@ -184,6 +185,7 @@ add_persistent_virtual_monitors (MetaContextMain  *context_main,
 #ifdef HAVE_DEVKIT
 static gboolean
 initialize_mdk (MetaContext  *context,
+                const char   *args,
                 GError      **error)
 {
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
@@ -193,7 +195,7 @@ initialize_mdk (MetaContext  *context,
     flags = META_MDK_FLAG_NONE;
   else
     flags = META_MDK_FLAG_LAUNCH_VIEWER;
-  context_main->mdk = meta_mdk_new (context, flags, error);
+  context_main->mdk = meta_mdk_new (context, flags, args, error);
   if (!context_main->mdk)
     return FALSE;
 
@@ -219,8 +221,16 @@ meta_context_main_setup (MetaContext  *context,
 #ifdef HAVE_DEVKIT
   if (context_main->options.devkit)
     {
-      if (!initialize_mdk (context, error))
+      g_autofree char *args = NULL;
+
+      args = g_steal_pointer (&context_main->options.devkit_args);
+      if (!initialize_mdk (context, args, error))
         return FALSE;
+    }
+  else if (context_main->options.devkit_args)
+    {
+      g_clear_pointer (&context_main->options.devkit_args, g_free);
+      g_warning ("Passed --devkit-args but not --devkit");
     }
 #endif
 
@@ -368,6 +378,11 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       "devkit", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.devkit,
       N_("Run development kit")
+    },
+    {
+      "devkit-args", 0, 0, G_OPTION_ARG_STRING,
+      &context_main->options.devkit_args,
+      N_("Development kit arguments")
     },
 #endif
     {

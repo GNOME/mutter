@@ -44,6 +44,8 @@ struct _MetaMdk
   char *external_wayland_display;
   char *external_x11_display;
 
+  char *devkit_args;
+
   MetaDBusDevkit *api;
   guint dbus_name_id;
 
@@ -62,6 +64,7 @@ meta_mdk_finalize (GObject *object)
   g_clear_object (&mdk->api);
   g_clear_pointer (&mdk->external_wayland_display, g_free);
   g_clear_pointer (&mdk->external_x11_display, g_free);
+  g_clear_pointer (&mdk->devkit_args, g_free);
   g_cancellable_cancel (mdk->devkit_process_cancellable);
   g_clear_object (&mdk->devkit_process_cancellable);
   g_clear_object (&mdk->devkit_process);
@@ -111,10 +114,24 @@ maybe_launch_devkit (gpointer  dependency,
   g_autoptr (GSubprocessLauncher) launcher = NULL;
   g_autoptr (GSubprocess) subprocess = NULL;
   g_autoptr (GError) error = NULL;
+  g_auto (GStrv) devkit_args = NULL;
+  g_autoptr (GStrvBuilder) args_builder = NULL;
+  g_auto (GStrv) args = NULL;
 
   if (!meta_remote_desktop_is_enabled (remote_desktop) ||
       !meta_screen_cast_is_enabled (screen_cast))
     return;
+
+  if (mdk->devkit_args)
+    {
+      if (!g_shell_parse_argv (mdk->devkit_args,
+                               NULL, &devkit_args,
+                               &error))
+        {
+          g_warning ("Failed to parse devkit arguments, ignoring");
+          g_clear_error (&error);
+        }
+    }
 
   launcher = g_subprocess_launcher_new (G_SUBPROCESS_FLAGS_NONE);
 
@@ -142,10 +159,16 @@ maybe_launch_devkit (gpointer  dependency,
       g_subprocess_launcher_unsetenv (launcher, "DISPLAY");
     }
 
-  subprocess = g_subprocess_launcher_spawn (launcher,
-                                            &error,
-                                            devkit_path,
-                                            NULL);
+  args_builder = g_strv_builder_new ();
+
+  g_strv_builder_add (args_builder, devkit_path);
+  if (devkit_args)
+    g_strv_builder_addv (args_builder, (const char **) devkit_args);
+  args = g_strv_builder_end (args_builder);
+
+  subprocess = g_subprocess_launcher_spawnv (launcher,
+                                             (const char * const *) args,
+                                             &error);
   if (!subprocess)
     {
       g_warning ("Failed to launch devkit: %s", error->message);
@@ -226,6 +249,7 @@ init_api (MetaMdk *mdk)
 MetaMdk *
 meta_mdk_new (MetaContext  *context,
               MetaMdkFlag   flags,
+              const char   *args,
               GError      **error)
 {
   g_autoptr (MetaMdk) mdk = NULL;
@@ -237,6 +261,7 @@ meta_mdk_new (MetaContext  *context,
   mdk->context = context;
   mdk->external_wayland_display = g_strdup (getenv ("WAYLAND_DISPLAY"));
   mdk->external_x11_display = g_strdup (getenv ("DISPLAY"));
+  mdk->devkit_args = g_strdup (args);
 
   g_signal_connect_object (context, "started",
                            G_CALLBACK (init_api),
