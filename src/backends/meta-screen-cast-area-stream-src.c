@@ -564,9 +564,9 @@ meta_screen_cast_area_stream_queue_follow_up (MetaScreenCastStreamSrc  *src,
       MtkRectangle damage;
 
       clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
-      if (!mtk_rectangle_overlap (area, &view_layout))
-        if (!mtk_rectangle_intersect (&view_layout, area, &damage))
-          continue;
+
+      if (!mtk_rectangle_intersect (&view_layout, area, &damage))
+        continue;
 
       damage.width = 1;
       damage.height = 1;
