@@ -148,6 +148,10 @@ static void
 subsurface_remap_toplevel (void)
 {
   MetaWaylandTestClient *wayland_test_client;
+  GSettings *settings;
+
+  settings = g_settings_new ("org.gnome.mutter");
+  g_assert_true (g_settings_set_boolean (settings, "auto-maximize", FALSE));
 
   wayland_test_client =
     meta_wayland_test_client_new (test_context, "subsurface-remap-toplevel");
