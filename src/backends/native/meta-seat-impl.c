@@ -691,15 +691,25 @@ meta_seat_impl_notify_key_in_impl (MetaSeatImpl       *seat_impl,
       queue_event (seat_impl, state_event);
     }
 
-  if (state == 0 ||             /* key release */
-      !seat_impl->repeat ||
-      !xkb_keymap_key_repeats (xkb_state_get_keymap (seat_impl->xkb),
-                               keycode))
+  if (state == 0)              /* key release */
+    {
+      if (seat_impl->repeat_key == key)
+        {
+          seat_impl->repeat_count = 0;
+          meta_seat_impl_clear_repeat_source (seat_impl);
+        }
+      return;
+    }
+
+  if (!seat_impl->repeat)
     {
       seat_impl->repeat_count = 0;
       meta_seat_impl_clear_repeat_source (seat_impl);
       return;
     }
+
+  if (!xkb_keymap_key_repeats (xkb_state_get_keymap (seat_impl->xkb), keycode))
+    return;
 
   if (state == 1)               /* key press */
     seat_impl->repeat_count = 0;
