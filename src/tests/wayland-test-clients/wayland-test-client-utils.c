@@ -255,6 +255,9 @@ pointer_handle_enter (void              *user_data,
 
   display->pointer_focus = surface;
 
+  if (!surface)
+    return;
+
   g_signal_emit (surface, surface_signals[SURFACE_POINTER_ENTER],
                  0, pointer, serial);
 }
@@ -290,6 +293,9 @@ pointer_handle_button (void              *user_data,
                        uint32_t           state)
 {
   WaylandDisplay *display = user_data;
+
+  if (!display->pointer_focus)
+    return;
 
   g_signal_emit (display->pointer_focus, surface_signals[SURFACE_BUTTON_EVENT],
                  0, wl_pointer, serial, button, !!state);
@@ -334,6 +340,9 @@ wl_keyboard_enter (void               *user_data,
   display->last_input_serial = serial;
   display->keyboard_focus = surface;
 
+  if (!surface)
+    return;
+
   g_signal_emit (surface, surface_signals[SURFACE_KEYBOARD_ENTER],
                  0, keyboard, serial);
 }
@@ -360,6 +369,9 @@ wl_keyboard_key (void               *user_data,
                  uint32_t            state)
 {
   WaylandDisplay *display = user_data;
+
+  if (!display->keyboard_focus)
+    return;
 
   g_signal_emit (display->keyboard_focus, surface_signals[SURFACE_KEY_EVENT],
                  0, wl_keyboard, serial, key, !!state);
