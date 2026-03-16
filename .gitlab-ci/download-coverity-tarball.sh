@@ -11,7 +11,7 @@ mkdir -p coverity
 
 # Download and check MD5 first
 curl https://scan.coverity.com/download/linux64 \
-  --data "token=$(cat '${COVERITY_TOKEN_FILE}')&project=mutter&md5=1" \
+  --data "token=$(cat "${COVERITY_TOKEN_FILE}")&project=mutter&md5=1" \
   --output /tmp/coverity_tool.md5
 
 diff /tmp/coverity_tool.md5 coverity/coverity_tool.md5 >/dev/null 2>&1
@@ -24,7 +24,7 @@ fi
 
 # Download and extract coverity tarball
 curl https://scan.coverity.com/download/linux64 \
-  --data "token=$(cat '${COVERITY_TOKEN_FILE}')&project=mutter" \
+  --data "token=$(cat "${COVERITY_TOKEN_FILE}")&project=mutter" \
   --output /tmp/coverity_tool.tgz
 
 rm -rf ./coverity/cov-analysis*
