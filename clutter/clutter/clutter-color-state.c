@@ -563,13 +563,15 @@ sample_3d_lut_input (float **in,
 }
 
 static void
-encode_3d_lut_output (float            *lut_output,
-                      int               n_samples,
-                      uint8_t         **out_encoded,
-                      CoglPixelFormat  *out_format)
+encode_3d_lut_output (ClutterColorState *state,
+                      float             *lut_output,
+                      int                n_samples,
+                      uint8_t          **out_encoded,
+                      CoglPixelFormat   *out_format)
 {
-  CoglContext *context =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  ClutterContext *clutter_context = clutter_color_state_get_context (state);
+  ClutterBackend *backend = clutter_context_get_backend (clutter_context);
+  CoglContext *context = clutter_backend_get_cogl_context (backend);
   CoglDriver *driver = cogl_context_get_driver (context);
   uint16_t *encoded_output_half;
   uint8_t *encoded_output;
@@ -633,7 +635,8 @@ get_3d_lut (ClutterColorState  *color_state,
                                     data,
                                     n_samples);
 
-  encode_3d_lut_output (data,
+  encode_3d_lut_output (color_state,
+                        data,
                         n_samples,
                         &encoded_lut_output,
                         &lut_format);
@@ -660,14 +663,14 @@ clutter_color_state_update_3d_lut_uniforms (ClutterColorState *color_state,
                                             ClutterColorState *target_color_state,
                                             CoglPipeline      *pipeline)
 {
+  ClutterContext *clutter_context = clutter_color_state_get_context (color_state);
+  ClutterBackend *backend = clutter_context_get_backend (clutter_context);
+  CoglContext *context = clutter_backend_get_cogl_context (backend);
   int rowstride;
   int uniform_location_size;
   g_autoptr (Clutter3DLut) lut_3d = NULL;
   g_autoptr (CoglTexture) lut_texture = NULL;
   g_autoptr (GError) error = NULL;
-  CoglContext *context =
-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
   get_3d_lut (color_state, target_color_state, &lut_3d);
 
   switch (lut_3d->format)
