@@ -60,13 +60,15 @@ void meta_background_set_gradient (MetaBackground            *self,
                                    CoglColor                 *second_color);
 
 META_EXPORT
-void meta_background_set_file     (MetaBackground            *self,
-                                   GFile                     *file,
-                                   GDesktopBackgroundStyle    style);
+void meta_background_set_texture (MetaBackground          *self,
+                                  CoglTexture             *texture,
+                                  GDesktopBackgroundStyle  style,
+                                  ClutterColorState       *color_state);
 
 META_EXPORT
-void meta_background_set_blend    (MetaBackground            *self,
-                                   GFile                     *file1,
-                                   GFile                     *file2,
-                                   double                     blend_factor,
-                                   GDesktopBackgroundStyle    style);
+void meta_background_set_blend_textures (MetaBackground          *self,
+                                         CoglTexture             *texture1,
+                                         CoglTexture             *texture2,
+                                         double                   blend_factor,
+                                         GDesktopBackgroundStyle  style,
+                                         ClutterColorState       *color_state);
