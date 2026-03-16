@@ -12,7 +12,6 @@ mutter_public_headers = [
   'meta-background-actor.h',
   'meta-background-content.h',
   'meta-background-group.h',
-  'meta-background-image.h',
   'meta-backlight.h',
   'meta-close-dialog.h',
   'meta-cursor-tracker.h',

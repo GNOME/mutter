@@ -26,7 +26,6 @@
 #include "backends/meta-backend-private.h"
 #include "clutter/clutter-color-state.h"
 #include "compositor/cogl-utils.h"
-#include "compositor/meta-background-image-private.h"
 #include "meta/compositor.h"
 #include "meta/display.h"
 #include "meta/meta-background.h"
@@ -63,10 +62,9 @@ struct _MetaBackground
   CoglColor                 color;
   CoglColor                 second_color;
 
-  GFile *file1;
-  MetaBackgroundImage *background_image1;
-  GFile *file2;
-  MetaBackgroundImage *background_image2;
+  CoglTexture *texture1;
+  CoglTexture *texture2;
+  ClutterColorState *color_state;
 
   CoglTexture *color_texture;
   CoglTexture *wallpaper_texture;
@@ -191,13 +189,10 @@ meta_background_get_property (GObject      *object,
 static gboolean
 need_prerender (MetaBackground *self)
 {
-  CoglTexture *texture1 = self->background_image1 ? meta_background_image_get_texture (self->background_image1) : NULL;
-  CoglTexture *texture2 = self->background_image2 ? meta_background_image_get_texture (self->background_image2) : NULL;
-
-  if (texture1 == NULL && texture2 == NULL)
+  if (self->texture1 == NULL && self->texture2 == NULL)
     return FALSE;
 
-  if (texture2 == NULL && self->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
+  if (self->texture2 == NULL && self->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
     return FALSE;
 
   return TRUE;
@@ -218,91 +213,25 @@ mark_changed (MetaBackground *self)
 }
 
 static void
-on_background_loaded (MetaBackgroundImage *image,
-                      MetaBackground      *self)
-{
-  mark_changed (self);
-}
-
-static gboolean
-file_equal0 (GFile *file1,
-             GFile *file2)
-{
-  if (file1 == file2)
-    return TRUE;
-
-  if ((file1 == NULL) || (file2 == NULL))
-    return FALSE;
-
-  return g_file_equal (file1, file2);
-}
-
-static void
-set_file (MetaBackground       *self,
-          GFile               **filep,
-          MetaBackgroundImage **imagep,
-          GFile                *file,
-          gboolean              force_reload)
-{
-  if (force_reload || !file_equal0 (*filep, file))
-    {
-      if (*imagep)
-        {
-          g_signal_handlers_disconnect_by_func (*imagep,
-                                                (gpointer)on_background_loaded,
-                                                self);
-          g_clear_object (imagep);
-        }
-
-      g_set_object (filep, file);
-
-      if (file)
-        {
-          MetaBackgroundImageCache *cache = meta_background_image_cache_get_default ();
-
-          *imagep = meta_background_image_cache_load (cache, file);
-          g_signal_connect (*imagep, "loaded",
-                            G_CALLBACK (on_background_loaded), self);
-        }
-    }
-}
-
-static void
 on_gl_video_memory_purged (MetaBackground *self)
 {
-  MetaBackgroundImageCache *cache = meta_background_image_cache_get_default ();
-
-  /* The GPU memory that just got invalidated is the texture inside
-   * self->background_image1,2 and/or its mipmaps. However, to save memory the
-   * original pixbuf isn't kept in RAM so we can't do a simple re-upload. The
-   * only copy of the image was the one in texture memory that got invalidated.
-   * So we need to do a full reload from disk.
+  /* Textures are owned by Shell's cache now, which will reload and call
+   * meta_background_set_texture() again. Just mark as changed.
    */
-  if (self->file1)
-    {
-      meta_background_image_cache_purge (cache, self->file1);
-      set_file (self, &self->file1, &self->background_image1, self->file1, TRUE);
-    }
-
-  if (self->file2)
-    {
-      meta_background_image_cache_purge (cache, self->file2);
-      set_file (self, &self->file2, &self->background_image2, self->file2, TRUE);
-    }
-
   mark_changed (self);
 }
 
 static void
 meta_background_dispose (GObject *object)
 {
-  MetaBackground        *self = META_BACKGROUND (object);
+  MetaBackground *self = META_BACKGROUND (object);
 
   free_color_texture (self);
   free_wallpaper_texture (self);
 
-  set_file (self, &self->file1, &self->background_image1, NULL, FALSE);
-  set_file (self, &self->file2, &self->background_image2, NULL, FALSE);
+  g_clear_object (&self->texture1);
+  g_clear_object (&self->texture2);
+  g_clear_object (&self->color_state);
 
   set_display (self, NULL);
 
@@ -764,7 +693,6 @@ meta_background_get_texture (MetaBackground       *self,
   MetaBackgroundMonitor *monitor;
   MtkRectangle geometry;
   MtkRectangle monitor_area;
-  CoglTexture *texture1, *texture2;
   float monitor_scale;
   MetaContext *context = meta_display_get_context (self->display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -783,10 +711,7 @@ meta_background_get_texture (MetaBackground       *self,
   monitor_area.width = geometry.width;
   monitor_area.height = geometry.height;
 
-  texture1 = self->background_image1 ? meta_background_image_get_texture (self->background_image1) : NULL;
-  texture2 = self->background_image2 ? meta_background_image_get_texture (self->background_image2) : NULL;
-
-  if (texture1 == NULL && texture2 == NULL)
+  if (self->texture1 == NULL && self->texture2 == NULL)
     {
       ensure_color_texture (self);
       if (texture_area)
@@ -796,9 +721,9 @@ meta_background_get_texture (MetaBackground       *self,
       return self->color_texture;
     }
 
-  if (texture2 == NULL && self->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER &&
+  if (self->texture2 == NULL && self->style == G_DESKTOP_BACKGROUND_STYLE_WALLPAPER &&
       self->shading_direction == G_DESKTOP_BACKGROUND_SHADING_SOLID &&
-      ensure_wallpaper_texture (self, texture1))
+      ensure_wallpaper_texture (self, self->texture1))
     {
       if (texture_area)
         get_texture_area (self, &monitor_area, monitor_scale,
@@ -865,13 +790,13 @@ meta_background_get_texture (MetaBackground       *self,
                                      -1.0f,
                                      1.0f);
 
-      if (texture2 != NULL && self->blend_factor != 0.0f)
+      if (self->texture2 != NULL && self->blend_factor != 0.0f)
         {
           CoglPipeline *pipeline = create_pipeline (cogl_context, PIPELINE_REPLACE);
           int mipmap_level;
           CoglColor color;
 
-          mipmap_level = get_best_mipmap_level (texture2,
+          mipmap_level = get_best_mipmap_level (self->texture2,
                                                 texture_width,
                                                 texture_height);
 
@@ -879,13 +804,13 @@ meta_background_get_texture (MetaBackground       *self,
                                    self->blend_factor, self->blend_factor,
                                    self->blend_factor, self->blend_factor);
           cogl_pipeline_set_color (pipeline, &color);
-          cogl_pipeline_set_layer_texture (pipeline, 0, texture2);
+          cogl_pipeline_set_layer_texture (pipeline, 0, self->texture2);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
           cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);
 
           bare_region_visible = draw_texture (self,
                                               monitor->fbo, pipeline,
-                                              texture2, &monitor_area,
+                                              self->texture2, &monitor_area,
                                               monitor_scale);
 
           g_object_unref (pipeline);
@@ -897,13 +822,13 @@ meta_background_get_texture (MetaBackground       *self,
                                     0.0, 0.0, 0.0, 0.0);
         }
 
-      if (texture1 != NULL && self->blend_factor != 1.0)
+      if (self->texture1 != NULL && self->blend_factor != 1.0)
         {
           CoglPipeline *pipeline = create_pipeline (cogl_context, PIPELINE_ADD);
           int mipmap_level;
           CoglColor color;
 
-          mipmap_level = get_best_mipmap_level (texture1,
+          mipmap_level = get_best_mipmap_level (self->texture1,
                                                 texture_width,
                                                 texture_height);
 
@@ -911,13 +836,13 @@ meta_background_get_texture (MetaBackground       *self,
                                    (1 - self->blend_factor), (1 - self->blend_factor),
                                    (1 - self->blend_factor), (1 - self->blend_factor));
           cogl_pipeline_set_color (pipeline, &color);
-          cogl_pipeline_set_layer_texture (pipeline, 0, texture1);
+          cogl_pipeline_set_layer_texture (pipeline, 0, self->texture1);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
           cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);
 
           bare_region_visible = bare_region_visible || draw_texture (self,
                                                                      monitor->fbo, pipeline,
-                                                                     texture1, &monitor_area,
+                                                                     self->texture1, &monitor_area,
                                                                      monitor_scale);
 
           g_object_unref (pipeline);
@@ -989,40 +914,58 @@ meta_background_set_gradient (MetaBackground            *self,
 }
 
 /**
- * meta_background_set_file:
+ * meta_background_set_texture:
  * @self: a #MetaBackground
- * @file: (nullable): a #GFile representing the background file
+ * @texture: (nullable): a #CoglTexture representing the background
  * @style: the background style to apply
+ * @color_state: (nullable): the color state of the texture
  *
- * Set the background to @file
+ * Set the background to a single texture.
  */
 void
-meta_background_set_file (MetaBackground            *self,
-                          GFile                     *file,
-                          GDesktopBackgroundStyle    style)
+meta_background_set_texture (MetaBackground          *self,
+                             CoglTexture             *texture,
+                             GDesktopBackgroundStyle  style,
+                             ClutterColorState       *color_state)
 {
   g_return_if_fail (META_IS_BACKGROUND (self));
 
-  meta_background_set_blend (self, file, NULL, 0.0, style);
+  meta_background_set_blend_textures (self, texture, NULL, 0.0, style, color_state);
 }
 
+/**
+ * meta_background_set_blend_textures:
+ * @self: a #MetaBackground
+ * @texture1: (nullable): first #CoglTexture
+ * @texture2: (nullable): second #CoglTexture
+ * @blend_factor: blend factor between 0.0 and 1.0
+ * @style: the background style to apply
+ * @color_state: (nullable): the color state of the textures
+ *
+ * Set the background to a blend of two textures.
+ */
 void
-meta_background_set_blend (MetaBackground          *self,
-                           GFile                   *file1,
-                           GFile                   *file2,
-                           double                   blend_factor,
-                           GDesktopBackgroundStyle  style)
+meta_background_set_blend_textures (MetaBackground          *self,
+                                    CoglTexture             *texture1,
+                                    CoglTexture             *texture2,
+                                    double                   blend_factor,
+                                    GDesktopBackgroundStyle  style,
+                                    ClutterColorState       *color_state)
 {
   g_return_if_fail (META_IS_BACKGROUND (self));
   g_return_if_fail (blend_factor >= 0.0 && blend_factor <= 1.0);
 
-  set_file (self, &self->file1, &self->background_image1, file1, FALSE);
-  set_file (self, &self->file2, &self->background_image2, file2, FALSE);
+  if (g_set_object (&self->texture1, texture1))
+    free_wallpaper_texture (self);
+
+  if (g_set_object (&self->texture2, texture2))
+    free_wallpaper_texture (self);
+
+  g_set_object (&self->color_state, color_state);
 
   self->blend_factor = (float) blend_factor;
   self->style = style;
 
-  free_wallpaper_texture (self);
   mark_changed (self);
 }
 
@@ -1040,10 +983,5 @@ meta_background_get_color_state (MetaBackground *self)
 {
   g_return_val_if_fail (META_IS_BACKGROUND (self), NULL);
 
-  if (self->background_image1)
-    return meta_background_image_get_color_state (self->background_image1);
-  else if (self->background_image2)
-    return meta_background_image_get_color_state (self->background_image2);
-  else
-    return NULL;
+  return self->color_state;
 }
