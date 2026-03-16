@@ -47,9 +47,6 @@ CLUTTER_EXPORT
 GType clutter_backend_get_type (void);
 
 CLUTTER_EXPORT
-ClutterBackend *                clutter_get_default_backend             (void);
-
-CLUTTER_EXPORT
 gdouble                         clutter_backend_get_resolution          (ClutterBackend             *backend);
 
 CLUTTER_EXPORT
