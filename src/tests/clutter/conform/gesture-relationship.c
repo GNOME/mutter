@@ -594,8 +594,7 @@ static void
 gesture_relationship_unmap_before_points_added (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
-  ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterSeat *seat = clutter_test_get_default_seat ();
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor;
@@ -672,8 +671,7 @@ static void
 gesture_relationship_unmap_child_on_press_cancels_on_parent (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
-  ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterSeat *seat = clutter_test_get_default_seat ();
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor;

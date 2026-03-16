@@ -347,8 +347,7 @@ static void
 gesture_event_order (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
-  ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterSeat *seat = clutter_test_get_default_seat ();
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor;
@@ -416,8 +415,7 @@ static void
 gesture_event_order_2 (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
-  ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterSeat *seat = clutter_test_get_default_seat ();
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterActor *second_actor;
@@ -475,8 +473,7 @@ static void
 gesture_press_gesture_n_presses (void)
 {
   ClutterActor *stage = clutter_test_get_stage ();
-  ClutterSeat *seat =
-    clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterSeat *seat = clutter_test_get_default_seat ();
   g_autoptr (ClutterVirtualInputDevice) virtual_pointer = NULL;
   int64_t now_us;
   ClutterGesture *gesture;
