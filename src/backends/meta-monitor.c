@@ -959,8 +959,7 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
         meta_crtc_mode_get_info (crtc_mode);
       MetaCrtc *crtc;
       g_autoptr (MetaMonitorMode) mode = NULL;
-      MetaMonitorModePrivate *mode_priv =
-        meta_monitor_mode_get_instance_private (mode);
+      MetaMonitorModePrivate *mode_priv;
       gboolean replace;
 
       mode = g_object_new (META_TYPE_MONITOR_MODE, NULL);
