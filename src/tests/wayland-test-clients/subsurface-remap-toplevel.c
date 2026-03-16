@@ -46,7 +46,7 @@ static State state;
 static void
 init_surface (void)
 {
-  xdg_toplevel_set_title (xdg_toplevel, "gradient-test");
+  xdg_toplevel_set_title (xdg_toplevel, "subsurface-remap-toplevel-test");
   wl_surface_commit (surface);
 }
 
