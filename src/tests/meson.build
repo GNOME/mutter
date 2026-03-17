@@ -237,6 +237,8 @@ endif
 wayland_test_utils = [
   'meta-wayland-test-driver.c',
   'meta-wayland-test-driver.h',
+  'meta-wayland-test-runner.c',
+  'meta-wayland-test-runner.h',
   'meta-wayland-test-utils.c',
   'meta-wayland-test-utils.h',
   test_driver_server_header,

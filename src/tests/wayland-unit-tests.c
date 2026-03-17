@@ -23,9 +23,6 @@
 #include <gdesktop-enums.h>
 
 #include "backends/meta-virtual-monitor.h"
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-kms.h"
-#include "backends/native/meta-kms-device.h"
 #include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
 #include "core/meta-workspace-manager-private.h"
@@ -37,6 +34,7 @@
 #include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-ref-test.h"
 #include "tests/meta-wayland-test-driver.h"
+#include "tests/meta-wayland-test-runner.h"
 #include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-filter-manager.h"
@@ -47,9 +45,6 @@
 #include "dummy-client-protocol.h"
 #include "dummy-server-protocol.h"
 
-static MetaContext *test_context;
-static MetaWaylandTestDriver *test_driver;
-static MetaVirtualMonitor *virtual_monitor;
 static ClutterVirtualInputDevice *virtual_pointer;
 
 static void
@@ -2305,43 +2300,6 @@ toplevel_begin_interactive_resize (void)
 }
 
 static void
-on_before_tests (void)
-{
-  MetaWaylandCompositor *compositor =
-    meta_context_get_wayland_compositor (test_context);
-  MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-#ifdef MUTTER_PRIVILEGED_TEST
-  MetaKms *kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
-  MetaKmsDevice *kms_device = meta_kms_get_devices (kms)->data;
-#endif
-
-  test_driver = meta_wayland_test_driver_new (compositor);
-
-#ifdef MUTTER_PRIVILEGED_TEST
-  meta_wayland_test_driver_set_property (test_driver,
-                                         "gpu-path",
-                                         meta_kms_device_get_path (kms_device));
-
-  meta_set_custom_monitor_config_full (backend,
-                                       "vkms-640x480.xml",
-                                       META_MONITORS_CONFIG_FLAG_NONE);
-#else
-  virtual_monitor = meta_create_test_monitor (test_context,
-                                              640, 480, 60.0);
-#endif
-  meta_monitor_manager_reload (monitor_manager);
-}
-
-static void
-on_after_tests (void)
-{
-  g_clear_object (&test_driver);
-  g_clear_object (&virtual_monitor);
-}
-
-static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/color-representation/state",
@@ -2451,38 +2409,7 @@ int
 main (int   argc,
       char *argv[])
 {
-  g_autoptr (MetaContext) context = NULL;
-  MetaTestRunFlags test_run_flags;
-
   g_setenv ("MUTTER_DEBUG_SESSION_MANAGEMENT_PROTOCOL", "1", TRUE);
 
-#ifdef MUTTER_PRIVILEGED_TEST
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_VKMS,
-                                      META_CONTEXT_TEST_FLAG_NO_X11 |
-                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
-#else
-  context = meta_create_test_context (META_CONTEXT_TEST_TYPE_HEADLESS,
-                                      META_CONTEXT_TEST_FLAG_NO_X11 |
-                                      META_CONTEXT_TEST_FLAG_TEST_CLIENT);
-#endif
-  g_assert_true (meta_context_configure (context, &argc, &argv, NULL));
-  meta_context_test_set_background_color (META_CONTEXT_TEST (context),
-                                          COGL_COLOR_INIT (255, 255, 255, 255));
-
-  test_context = context;
-
-  init_tests ();
-
-  g_signal_connect (context, "before-tests",
-                    G_CALLBACK (on_before_tests), NULL);
-  g_signal_connect (context, "after-tests",
-                    G_CALLBACK (on_after_tests), NULL);
-
-#ifdef MUTTER_PRIVILEGED_TEST
-  test_run_flags = META_TEST_RUN_FLAG_CAN_SKIP;
-#else
-  test_run_flags = META_TEST_RUN_FLAG_NONE;
-#endif
-  return meta_context_test_run_tests (META_CONTEXT_TEST (context),
-                                      test_run_flags);
+  meta_run_wayland_tests (argc, argv, init_tests);
 }
