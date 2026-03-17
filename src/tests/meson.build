@@ -974,6 +974,20 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-buffer',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-buffer-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('buffer-transform'),
+      test_client_executables.get('single-pixel-buffer'),
+      test_client_executables.get('ycbcr'),
+      test_client_executables.get('shm-destroy-before-release'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1021,7 +1035,6 @@ wayland_test_cases = [
     ],
     'depends': [
       test_client,
-      test_client_executables.get('buffer-transform'),
       test_client_executables.get('cursor-shape'),
       test_client_executables.get('dma-buf-scanout'),
       test_client_executables.get('fractional-scale'),
@@ -1033,8 +1046,6 @@ wayland_test_cases = [
       test_client_executables.get('invalid-geometry'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
-      test_client_executables.get('shm-destroy-before-release'),
-      test_client_executables.get('single-pixel-buffer'),
       test_client_executables.get('subsurface-corner-cases'),
       test_client_executables.get('subsurface-parent-unmapped'),
       test_client_executables.get('subsurface-remap-toplevel'),
@@ -1047,7 +1058,6 @@ wayland_test_cases = [
       test_client_executables.get('xdg-session-management'),
       test_client_executables.get('xdg-session-management-replace'),
       test_client_executables.get('xdg-toplevel-tag'),
-      test_client_executables.get('ycbcr'),
     ],
   },
 ]
