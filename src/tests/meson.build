@@ -1020,6 +1020,18 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-xdg-activation',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-xdg-activation-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('xdg-activation-no-serial'),
+      test_client_executables.get('xdg-activation-before-mapped'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1074,8 +1086,6 @@ wayland_test_cases = [
       test_client_executables.get('idle-inhibit'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
-      test_client_executables.get('xdg-activation-no-serial'),
-      test_client_executables.get('xdg-activation-before-mapped'),
       test_client_executables.get('xdg-foreign'),
       test_client_executables.get('xdg-session-management'),
       test_client_executables.get('xdg-session-management-replace'),
