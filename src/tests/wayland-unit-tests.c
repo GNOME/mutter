@@ -42,12 +42,6 @@
 #include "dummy-client-protocol.h"
 #include "dummy-server-protocol.h"
 
-static void
-wait_for_sync_point (unsigned int sync_point)
-{
-  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
-}
-
 static MetaWaylandAccess
 dummy_global_filter (const struct wl_client *client,
                      const struct wl_global *global,
@@ -221,30 +215,10 @@ registry_filter (void)
 }
 
 static void
-toplevel_tag (void)
-{
-  MetaWaylandTestClient *wayland_test_client;
-  MetaWindow *window;
-
-  wayland_test_client =
-    meta_wayland_test_client_new (test_context, "xdg-toplevel-tag");
-  window = meta_wait_for_client_window (test_context, "toplevel-tag");
-  g_assert_null (meta_window_get_tag (window));
-
-  wait_for_sync_point (0);
-  g_assert_cmpstr (meta_window_get_tag (window), ==, "topleveltag-test");
-  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
-
-  meta_wayland_test_client_finish (wayland_test_client);
-}
-
-static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/registry/filter",
                    registry_filter);
-  g_test_add_func ("/wayland/toplevel/tag",
-                   toplevel_tag);
 }
 
 int

@@ -1092,6 +1092,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-xdg-toplevel-tag',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-xdg-toplevel-tag-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('xdg-toplevel-tag'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
