@@ -988,6 +988,21 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-subsurface',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-subsurface-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('invalid-subsurfaces'),
+      test_client_executables.get('subsurface-corner-cases'),
+      test_client_executables.get('subsurface-parent-unmapped'),
+      test_client_executables.get('subsurface-remap-toplevel'),
+      test_client_executables.get('subsurface-reparenting'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1041,15 +1056,10 @@ wayland_test_cases = [
       test_client_executables.get('fullscreen'),
       test_client_executables.get('idle-inhibit'),
       test_client_executables.get('invalid-size-limits-on-map-client'),
-      test_client_executables.get('invalid-subsurfaces'),
       test_client_executables.get('invalid-xdg-shell-actions'),
       test_client_executables.get('invalid-geometry'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
-      test_client_executables.get('subsurface-corner-cases'),
-      test_client_executables.get('subsurface-parent-unmapped'),
-      test_client_executables.get('subsurface-remap-toplevel'),
-      test_client_executables.get('subsurface-reparenting'),
       test_client_executables.get('xdg-activation-no-serial'),
       test_client_executables.get('xdg-activation-before-mapped'),
       test_client_executables.get('xdg-apply-limits'),
