@@ -60,14 +60,14 @@ meta_test_cursor_overlay_damage (void)
                                                        50.0f, 50.0f);
 
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        50.0f, 50.0f);
 
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
                                                        g_get_monotonic_time (),

@@ -845,7 +845,7 @@ raise_error (const char *message)
 }
 
 void
-meta_wait_for_paint (MetaContext *context)
+meta_wait_for_presented (MetaContext *context)
 {
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterActor *stage = meta_backend_get_stage (backend);

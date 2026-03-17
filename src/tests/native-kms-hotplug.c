@@ -399,7 +399,7 @@ meta_test_power_save_no_implicit_on (void)
     meta_monitor_manager_get_logical_monitors (monitor_manager);
   g_assert_cmpuint (g_list_length (logical_monitors), ==, 1);
 
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   power_save_handler_id =
     g_signal_connect_swapped (monitor_manager, "power-save-mode-changed",

@@ -282,7 +282,7 @@ meta_test_input_capture_barriers (void)
                                                        -20.0, 10.0);
 
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   assert_pointer_position (backend, 0.0, 15.0);
 
@@ -290,7 +290,7 @@ meta_test_input_capture_barriers (void)
   input_capture_test_client_wait_for_state (test_client, "2");
 
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   assert_pointer_position (backend, 200.0, 150.0);
 
@@ -336,7 +336,7 @@ meta_test_input_capture_clear_barriers (void)
                                                        g_get_monotonic_time (),
                                                        -20.0, 0.0);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   assert_pointer_position (backend, 0.0, 10.0);
 
   input_capture_test_client_wait_for_state (test_client, "2");
@@ -345,7 +345,7 @@ meta_test_input_capture_clear_barriers (void)
                                                        g_get_monotonic_time (),
                                                        10.0, 10.0);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   assert_pointer_position (backend, 10.0, 20.0);
 
   input_capture_test_client_write_state (test_client, "1");
@@ -378,14 +378,14 @@ meta_test_input_capture_cancel_keybinding (void)
                                                        g_get_monotonic_time (),
                                                        -20.0, 0.0);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   assert_pointer_position (backend, 0.0, 10.0);
 
   clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        10.0, 10.0);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   assert_pointer_position (backend, 0.0, 10.0);
 
   clutter_virtual_input_device_notify_key (virtual_keyboard,
@@ -414,14 +414,14 @@ meta_test_input_capture_cancel_keybinding (void)
                                            CLUTTER_KEY_STATE_RELEASED);
 
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   clutter_virtual_input_device_notify_relative_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        10.0, 10.0);
 
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   assert_pointer_position (backend, 10.0, 20.0);
 
   input_capture_test_client_write_state (test_client, "1");
@@ -527,7 +527,7 @@ meta_test_input_capture_a11y (void)
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 1);
   g_assert_cmpint (a11y_key_counter, ==, 2);
 
@@ -537,7 +537,7 @@ meta_test_input_capture_a11y (void)
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 2);
   g_assert_cmpint (a11y_key_counter, ==, 4);
 
@@ -548,7 +548,7 @@ meta_test_input_capture_a11y (void)
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 2);
   g_assert_cmpint (a11y_key_counter, ==, 4);
 
@@ -558,7 +558,7 @@ meta_test_input_capture_a11y (void)
   click_button (virtual_pointer, CLUTTER_BUTTON_PRIMARY);
   press_key (virtual_keyboard, KEY_A);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   g_assert_cmpint (a11y_started_counter, ==, 3);
   g_assert_cmpint (a11y_key_counter, ==, 6);
 
@@ -585,7 +585,7 @@ meta_test_input_capture_disconnect (void)
                                                        g_get_monotonic_time (),
                                                        10.0, 10.0);
   meta_flush_input (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   test_client = input_capture_test_client_new ("disconnect");
 

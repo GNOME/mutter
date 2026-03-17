@@ -69,7 +69,7 @@ meta_test_stage_scheduling_delayed_show (void)
   clutter_actor_show (stage);
   g_debug ("Waiting for paint");
   clutter_actor_queue_redraw (stage);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   clutter_event_remove_filter (filter_id);
 }
 

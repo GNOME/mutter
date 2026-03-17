@@ -79,7 +79,7 @@ meta_test_warp_on_hotplug (void)
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
                                                        g_get_monotonic_time (),
                                                        50, 50);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   meta_cursor_tracker_get_pointer (meta_backend_get_cursor_tracker (backend),
                                    &coords, NULL);
@@ -107,7 +107,7 @@ meta_test_warp_on_hotplug (void)
   run_test_client_command (test_client, "show", "1", NULL);
   run_test_client_command (test_client, "sync", NULL);
 
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   meta_cursor_tracker_get_pointer (meta_backend_get_cursor_tracker (backend),
                                    &coords, NULL);

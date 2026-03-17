@@ -103,7 +103,7 @@ meta_test_cursor_hotplug (void)
   cursor = meta_get_current_cursor (test_context);
 
   meta_window_move_frame (window, FALSE, 0, 0);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
   meta_wait_for_cursor_change (test_context, cursor);
 
   cursor = meta_get_current_cursor (test_context);
@@ -132,14 +132,14 @@ meta_test_cursor_hotplug (void)
   meta_set_custom_monitor_config_full (backend, "kms-cursor-hotplug-on.xml",
                                        META_MONITORS_CONFIG_FLAG_NONE);
   meta_monitor_manager_reload (monitor_manager);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 1);
   meta_wayland_test_client_finish (test_client);
 
   g_clear_object (&virtual_monitor);
   meta_wait_for_monitors_changed (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 }
 
 static void
@@ -178,7 +178,7 @@ meta_test_hotplug_multi_view_invalidation (void)
   g_assert_true (META_IS_CRTC_KMS (meta_renderer_view_get_crtc (views->data)));
   g_assert_true (META_IS_CRTC_VIRTUAL (meta_renderer_view_get_crtc (views->next->data)));
 
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 
   cursor = meta_cursor_renderer_get_cursor (cursor_renderer);
   g_assert_nonnull (cursor);
@@ -201,7 +201,7 @@ meta_test_hotplug_multi_view_invalidation (void)
   g_signal_handler_disconnect (cursor, texture_changed_handler_id);
   g_clear_object (&virtual_monitor);
   meta_wait_for_monitors_changed (test_context);
-  meta_wait_for_paint (test_context);
+  meta_wait_for_presented (test_context);
 }
 
 static void

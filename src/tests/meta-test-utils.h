@@ -130,7 +130,7 @@ META_EXPORT
 void meta_wait_for_monitors_changed (MetaContext *context);
 
 META_EXPORT
-void meta_wait_for_paint (MetaContext *context);
+void meta_wait_for_presented (MetaContext *context);
 
 META_EXPORT
 void meta_wait_for_update (MetaContext *context);
