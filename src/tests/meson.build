@@ -1057,6 +1057,18 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-cursor',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-cursor-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('cursor-shape'),
+      test_client_executables.get('delayed-cursor'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1104,7 +1116,6 @@ wayland_test_cases = [
     ],
     'depends': [
       test_client,
-      test_client_executables.get('cursor-shape'),
       test_client_executables.get('dma-buf-scanout'),
       test_client_executables.get('fractional-scale'),
       test_client_executables.get('fullscreen'),
