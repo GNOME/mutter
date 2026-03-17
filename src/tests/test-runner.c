@@ -2351,6 +2351,18 @@ test_case_do (TestCase    *test,
 
       g_hash_table_insert (test->virtual_monitors, g_strdup (argv[1]), monitor);
     }
+  else if (strcmp (argv[0], "remove_monitor") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <monitor-id>", argv[0]);
+
+      g_hash_table_remove (test->virtual_monitors, g_strdup (argv[1]));
+      meta_monitor_manager_reload (monitor_manager);
+    }
   else if (strcmp (argv[0], "set_monitor_order") == 0)
     {
       MetaBackend *backend = meta_context_get_backend (test->context);
