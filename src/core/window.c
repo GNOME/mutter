@@ -188,6 +188,8 @@ typedef struct _MetaWindowPrivate
   unsigned int mapped_inhibit_count;
 
   GHashTable *external_constraints;
+
+  MetaWindowConfig *pending_config;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
@@ -389,6 +391,7 @@ meta_window_finalize (GObject *object)
   g_clear_object (&window->target_monitor);
   g_clear_object (&window->highest_scale_monitor);
   g_clear_object (&window->config);
+  g_clear_object (&priv->pending_config);
 
   if (priv->transient_children)
     {
@@ -4770,10 +4773,23 @@ void
 meta_window_idle_move_resize (MetaWindow *window)
 {
   MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+  MetaBackend *backend = backend_from_window (window);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaMoveResizeFlags flags;
+
+  if (meta_monitor_manager_is_headless (monitor_manager))
+    return;
 
   if (!meta_window_is_showable (window))
     return;
+
+  if (priv->pending_config)
+    {
+      meta_window_process_config (window, priv->pending_config);
+      g_clear_object (&priv->pending_config);
+      return;
+    }
 
   if (priv->auto_maximize.is_queued)
     {
@@ -8777,11 +8793,30 @@ tile_config_changed (MetaWindow       *window,
   return FALSE;
 }
 
+static void
+meta_window_queue_config (MetaWindow       *window,
+                          MetaWindowConfig *config)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  g_set_object (&priv->pending_config, config);
+}
+
 void
 meta_window_process_config (MetaWindow       *window,
                             MetaWindowConfig *config)
 {
+  MetaBackend *backend = backend_from_window (window);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
   g_return_if_fail (!meta_window_config_has_position (config));
+
+  if (meta_monitor_manager_is_headless (monitor_manager))
+    {
+      meta_window_queue_config (window, config);
+      return;
+    }
 
   if (tile_config_changed (window, config))
     apply_tile_config (window, config);
