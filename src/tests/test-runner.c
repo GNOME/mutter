@@ -3257,11 +3257,24 @@ sanity_check_monitor (MetaWindow *window)
 {
   if (!meta_window_is_hidden (window))
     {
-      MtkRectangle rect;
+      MetaContext *context = meta_display_get_context (window->display);
+      MetaBackend *backend = meta_context_get_backend (context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
 
-      g_assert_nonnull (window->monitor);
-      rect = meta_window_config_get_rect (window->config);
-      g_assert_true (mtk_rectangle_overlap (&rect, &window->monitor->rect));
+      if (meta_monitor_manager_is_headless (monitor_manager))
+        {
+          g_assert_null (window->monitor);
+        }
+      else
+        {
+          MtkRectangle rect;
+
+          g_assert_nonnull (window->monitor);
+
+          rect = meta_window_config_get_rect (window->config);
+          g_assert_true (mtk_rectangle_overlap (&rect, &window->monitor->rect));
+        }
     }
 }
 

@@ -329,6 +329,7 @@ void               meta_monitor_manager_update_for_lease_state (MetaMonitorManag
 META_EXPORT_TEST
 void               meta_monitor_manager_lid_is_closed_changed (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 gboolean           meta_monitor_manager_is_headless (MetaMonitorManager *manager);
 
 float              meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager           *manager,
