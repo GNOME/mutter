@@ -401,32 +401,6 @@ subsurface_invalid_xdg_shell_actions (void)
   g_test_assert_expected_messages ();
 }
 
-static void
-on_after_paint (ClutterStage     *stage,
-                ClutterStageView *view,
-                ClutterFrame     *frame,
-                gboolean         *was_painted)
-{
-  *was_painted = TRUE;
-}
-
-static void
-wait_for_paint (ClutterActor *stage)
-{
-  gboolean was_painted = FALSE;
-  gulong was_painted_id;
-
-  was_painted_id = g_signal_connect (CLUTTER_STAGE (stage),
-                                     "after-paint",
-                                     G_CALLBACK (on_after_paint),
-                                     &was_painted);
-
-  while (!was_painted)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_signal_handler_disconnect (stage, was_painted_id);
-}
-
 static gboolean
 on_effects_completed_idle (gpointer user_data)
 {
@@ -444,7 +418,7 @@ on_effects_completed_idle (gpointer user_data)
   clutter_actor_queue_redraw (stage);
   clutter_stage_schedule_update (CLUTTER_STAGE (stage));
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   meta_window_get_buffer_rect (window, &buffer_rect);
   clutter_virtual_input_device_notify_absolute_motion (virtual_pointer,
@@ -1127,7 +1101,7 @@ toplevel_sessions_restore (void)
     meta_wayland_test_client_new (test_context, "xdg-session-management-restore");
 
   wait_for_sync_point (0);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   window = find_client_window ("toplevel1");
   g_assert_nonnull (window);
@@ -1138,7 +1112,7 @@ toplevel_sessions_restore (void)
   g_assert_cmpint (frame_rect.height, ==, 100);
 
   meta_window_move_resize_frame (window, FALSE, 123, 234, 200, 200);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   meta_wayland_test_driver_emit_sync_event (test_driver, 0);
   meta_wayland_test_client_finish (wayland_test_client);
@@ -1198,7 +1172,7 @@ toplevel_sessions_restore_fullscreen (void)
     meta_wayland_test_client_new (test_context, "xdg-session-management-restore");
 
   wait_for_sync_point (0);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   window = find_client_window ("toplevel1");
   g_assert_nonnull (window);
@@ -1206,7 +1180,7 @@ toplevel_sessions_restore_fullscreen (void)
   /* Move to second monitor */
   meta_window_move_resize_frame (window, FALSE,
                                  monitor_layout.width + 123, 123, 100, 100);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   frame_rect = meta_window_config_get_rect (window->config);
   g_assert_cmpint (frame_rect.x, ==, monitor_layout.width + 123);
@@ -1285,7 +1259,7 @@ toplevel_sessions_restore_maximized (void)
     meta_wayland_test_client_new (test_context, "xdg-session-management-restore");
 
   wait_for_sync_point (0);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   window = find_client_window ("toplevel1");
   g_assert_nonnull (window);
@@ -1293,7 +1267,7 @@ toplevel_sessions_restore_maximized (void)
   /* Move to second monitor */
   meta_window_move_resize_frame (window, FALSE,
                                  monitor_layout.width + 123, 123, 100, 100);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   frame_rect = meta_window_config_get_rect (window->config);
   g_assert_cmpint (frame_rect.x, ==, monitor_layout.width + 123);
@@ -1374,7 +1348,7 @@ toplevel_sessions_restore_tiled (void)
     meta_wayland_test_client_new (test_context, "xdg-session-management-restore");
 
   wait_for_sync_point (0);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   window = find_client_window ("toplevel1");
   g_assert_nonnull (window);
@@ -1382,7 +1356,7 @@ toplevel_sessions_restore_tiled (void)
   /* Move to second monitor */
   meta_window_move_resize_frame (window, FALSE,
                                  monitor_layout.width + 123, 123, 100, 100);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   frame_rect = meta_window_config_get_rect (window->config);
   g_assert_cmpint (frame_rect.x, ==, monitor_layout.width + 123);
@@ -1460,7 +1434,7 @@ toplevel_sessions_restore_fullscreen_monitor_removed (void)
     meta_wayland_test_client_new (test_context, "xdg-session-management-restore");
 
   wait_for_sync_point (0);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   window = find_client_window ("toplevel1");
   g_assert_nonnull (window);
@@ -1486,7 +1460,7 @@ toplevel_sessions_restore_fullscreen_monitor_removed (void)
 
   /* Destroy second monitor */
   g_clear_object (&second_virtual_monitor);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   /* Launch client again, check window moves to first monitor */
   wayland_test_client =
@@ -1496,7 +1470,7 @@ toplevel_sessions_restore_fullscreen_monitor_removed (void)
                                             NULL);
 
   wait_for_sync_point (0);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   window = find_client_window ("toplevel1");
   g_assert_nonnull (window);

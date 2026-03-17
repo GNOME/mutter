@@ -92,37 +92,11 @@ meta_test_stage_views_exist (void)
 }
 
 static void
-on_after_paint (ClutterStage     *stage,
-                ClutterStageView *view,
-                ClutterFrame     *frame,
-                gboolean         *was_painted)
-{
-  *was_painted = TRUE;
-}
-
-static void
-wait_for_paint (ClutterActor *stage)
-{
-  gboolean was_painted = FALSE;
-  gulong was_painted_id;
-
-  was_painted_id = g_signal_connect (CLUTTER_STAGE (stage),
-                                     "after-paint",
-                                     G_CALLBACK (on_after_paint),
-                                     &was_painted);
-
-  while (!was_painted)
-    g_main_context_iteration (NULL, TRUE);
-
-  g_signal_handler_disconnect (stage, was_painted_id);
-}
-
-static void
-wait_for_window_map (ClutterActor *stage,
+wait_for_window_map (ClutterStage *stage,
                      ClutterActor *window_actor)
 {
   while (!clutter_actor_is_mapped (window_actor))
-    wait_for_paint (stage);
+    meta_wait_for_paint (stage);
 }
 
 static void
@@ -185,7 +159,7 @@ meta_test_actor_stage_views (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (container, 1, stage_views->data);
   is_on_stage_views (test_actor, 1, stage_views->data);
@@ -199,7 +173,7 @@ meta_test_actor_stage_views (void)
   /* Move the container to the second stage view */
   clutter_actor_set_x (container, 1040);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (container, 1, stage_views->next->data);
   is_on_stage_views (test_actor, 1, stage_views->next->data);
@@ -215,7 +189,7 @@ meta_test_actor_stage_views (void)
    */
   clutter_actor_set_x (container, 940);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (container, 2, stage_views->data, stage_views->next->data);
   is_on_stage_views (test_actor, 1, stage_views->data);
@@ -259,7 +233,7 @@ meta_test_actor_stage_views_relayout (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
   clutter_actor_set_position (actor, 1000.0, 0.0);
   transition = clutter_actor_get_transition (actor, "position");
   g_signal_connect_after (transition, "new-frame",
@@ -311,7 +285,7 @@ meta_test_actor_stage_views_reparent (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (container, 2, stage_views->data, stage_views->next->data);
   is_on_stage_views (test_actor, 2, stage_views->data, stage_views->next->data);
@@ -338,7 +312,7 @@ meta_test_actor_stage_views_reparent (void)
   clutter_actor_add_child (stage, test_actor);
   g_object_unref (test_actor);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   /* The container is still on both stage views... */
   is_on_stage_views (container, 2, stage_views->data, stage_views->next->data);
@@ -365,7 +339,7 @@ meta_test_actor_stage_views_reparent (void)
   clutter_actor_add_child (container, test_actor);
   g_object_unref (test_actor);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   /* Now both actors are on no stage views */
   is_on_stage_views (container, 0);
@@ -426,7 +400,7 @@ meta_test_actor_stage_views_hide_parent (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   /* The containers and the test_actor are on all on the first view */
   is_on_stage_views (outer_container, 1, stage_views->data);
@@ -447,7 +421,7 @@ meta_test_actor_stage_views_hide_parent (void)
   /* Move the outer_container so it's still on the first view */
   clutter_actor_set_x (outer_container, 1023);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   /* The outer_container is still expanded so it should be on both views */
   is_on_stage_views (outer_container, 2,
@@ -466,7 +440,7 @@ meta_test_actor_stage_views_hide_parent (void)
   /* Show the inner_container again */
   clutter_actor_show (inner_container);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   /* All actors are on both views now */
   is_on_stage_views (outer_container, 2,
@@ -550,7 +524,7 @@ meta_test_actor_stage_views_hot_plug (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (actor_1, 1, stage_views->data);
   is_on_stage_views (actor_2, 1, stage_views->next->data);
@@ -577,7 +551,7 @@ meta_test_actor_stage_views_hot_plug (void)
   is_on_stage_views (actor_1, 0);
   is_on_stage_views (actor_2, 0);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (actor_1, 1, stage_views->data);
   is_on_stage_views (actor_2, 1, stage_views->next->data);
@@ -640,7 +614,7 @@ meta_test_actor_stage_views_frame_clock (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (actor_1, 1, stage_views->data);
   is_on_stage_views (actor_2, 1, stage_views->next->data);
@@ -776,7 +750,7 @@ meta_test_actor_stage_views_timeline (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (actor, 1, stage_views->data);
 
@@ -852,7 +826,7 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
   clutter_actor_add_child (container, test_actor);
 
   clutter_actor_show (stage);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (test_actor, 0);
   is_on_stage_views (container, 1, stage_views->data);
@@ -876,7 +850,7 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
                                                &frame_clock_test_setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
   g_assert_cmpint (g_list_length (stage_views), ==, 1);
@@ -939,7 +913,7 @@ meta_test_actor_stage_views_parent_views_changed (void)
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
   g_assert_cmpint (g_list_length (stage_views), ==, 2);
   clutter_actor_show (stage);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
   g_assert_cmpint (g_list_length (stage_views), ==, 2);
 
@@ -965,7 +939,7 @@ meta_test_actor_stage_views_parent_views_changed (void)
   g_assert_true (timeline_frame_clock == first_view_frame_clock);
 
   clutter_actor_set_x (container, 1200);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
   g_assert_nonnull (timeline_frame_clock);
@@ -1019,7 +993,7 @@ meta_test_actor_stage_views_and_frame_clocks_freed (void)
 
   clutter_actor_show (stage);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   is_on_stage_views (actor_1, 1, first_view);
   is_on_stage_views (actor_2, 1, second_view);
@@ -1159,7 +1133,7 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
                                                &hotplug_test_case_setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
   g_assert_cmpint (g_list_length (clutter_actor_peek_stage_views (stage)),
                    ==,
                    1);
@@ -1171,7 +1145,7 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
   if (!test_window)
     g_error ("Failed to find the window: %s", error->message);
   window_actor = CLUTTER_ACTOR (meta_window_actor_from_window (test_window));
-  wait_for_window_map (stage, window_actor);
+  wait_for_window_map (CLUTTER_STAGE (stage), window_actor);
   g_assert_nonnull (clutter_actor_peek_stage_views (window_actor));
 
   /* Queue an X11 _NET_WM_FRAME_DRAWN event; this will find the frame clock via
@@ -1202,7 +1176,7 @@ meta_test_actor_stage_views_queue_frame_drawn (void)
    * _NET_WM_FRAME_DRAWN event. */
   meta_window_actor_queue_frame_drawn (META_WINDOW_ACTOR (window_actor), TRUE);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   if (!meta_test_client_quit (x11_test_client, &error))
     g_error ("Failed to quit X11 test client: %s", error->message);
@@ -1259,7 +1233,7 @@ meta_test_timeline_actor_destroyed (void)
   g_assert_true (did_stage_views_changed);
   clutter_actor_queue_redraw (persistent_actor);
   clutter_stage_schedule_update (CLUTTER_STAGE (stage));
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
   g_assert_true (did_stage_views_changed);
 
   g_signal_handlers_disconnect_by_func (stage, on_stage_views_changed,
@@ -1286,7 +1260,7 @@ meta_test_timeline_actor_tree_clear (void)
   clutter_actor_set_size (container1, 100, 100);
   clutter_actor_add_child (stage, container1);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   container2 = clutter_actor_new ();
   clutter_actor_set_size (container2, 100, 100);
@@ -1307,7 +1281,7 @@ meta_test_timeline_actor_tree_clear (void)
   is_on_stage_views (container2, 0);
   is_on_stage_views (floating, 0);
 
-  wait_for_paint (stage);
+  meta_wait_for_paint (CLUTTER_STAGE (stage));
 
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
   is_on_stage_views (container1, 1, stage_views->data);

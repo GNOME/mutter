@@ -169,4 +169,7 @@ META_EXPORT
 void meta_wait_for_effects (MetaWindow *window);
 
 META_EXPORT
+void meta_wait_for_paint (ClutterStage *stage);
+
+META_EXPORT
 void meta_wait_wayland_window_reconfigure (MetaWindow *window);

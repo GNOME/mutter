@@ -567,6 +567,32 @@ meta_wait_for_window_shown (MetaWindow *window)
   g_main_loop_unref (data.loop);
 }
 
+static void
+on_after_paint (ClutterStage     *stage,
+                ClutterStageView *view,
+                ClutterFrame     *frame,
+                gboolean         *was_painted)
+{
+  *was_painted = TRUE;
+}
+
+void
+meta_wait_for_paint (ClutterStage *stage)
+{
+  gboolean was_painted = FALSE;
+  gulong was_painted_id;
+
+  was_painted_id = g_signal_connect (stage,
+                                     "after-paint",
+                                     G_CALLBACK (on_after_paint),
+                                     &was_painted);
+
+  while (!was_painted)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_signal_handler_disconnect (stage, was_painted_id);
+}
+
 static gpointer
 spawn_xwayland (gpointer user_data)
 {
