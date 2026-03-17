@@ -48,12 +48,6 @@ wait_for_sync_point (unsigned int sync_point)
   meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
 }
 
-static MetaWindow *
-find_client_window (const char *title)
-{
-  return meta_find_client_window (test_context, title);
-}
-
 static MetaWaylandAccess
 dummy_global_filter (const struct wl_client *client,
                      const struct wl_global *global,
@@ -226,76 +220,6 @@ registry_filter (void)
   g_assert_false (client3_saw_global);
 }
 
-static gboolean
-mark_later_as_done (gpointer user_data)
-{
-  gboolean *done = user_data;
-
-  *done = TRUE;
-
-  return G_SOURCE_REMOVE;
-}
-
-static void
-wait_until_after_paint (void)
-{
-  MetaDisplay *display = meta_context_get_display (test_context);
-  MetaCompositor *compositor = meta_display_get_compositor (display);
-  MetaLaters *laters = meta_compositor_get_laters (compositor);
-  gboolean done;
-
-  done = FALSE;
-  meta_laters_add (laters,
-                   META_LATER_BEFORE_REDRAW,
-                   mark_later_as_done,
-                   &done,
-                   NULL);
-  while (!done)
-    g_main_context_iteration (NULL, FALSE);
-
-  done = FALSE;
-  meta_laters_add (laters,
-                   META_LATER_IDLE,
-                   mark_later_as_done,
-                   &done,
-                   NULL);
-  while (!done)
-    g_main_context_iteration (NULL, FALSE);
-}
-
-static void
-xdg_foreign_set_parent_of (void)
-{
-  MetaWaylandTestClient *wayland_test_client;
-  MetaWindow *window1;
-  MetaWindow *window2;
-  MetaWindow *window3;
-  MetaWindow *window4;
-
-  wayland_test_client =
-    meta_wayland_test_client_new (test_context, "xdg-foreign");
-
-  wait_for_sync_point (0);
-  wait_until_after_paint ();
-
-  window1 = find_client_window ("xdg-foreign-window1");
-  window2 = find_client_window ("xdg-foreign-window2");
-  window3 = find_client_window ("xdg-foreign-window3");
-  window4 = find_client_window ("xdg-foreign-window4");
-
-  g_assert_true (meta_window_get_transient_for (window4) ==
-                 window3);
-  g_assert_true (meta_window_get_transient_for (window3) ==
-                 window2);
-  g_assert_true (meta_window_get_transient_for (window2) ==
-                 window1);
-  g_assert_null (meta_window_get_transient_for (window1));
-
-  meta_wayland_test_driver_emit_sync_event (test_driver, 0);
-
-  meta_wayland_test_client_finish (wayland_test_client);
-}
-
 enum
 {
   XDG_TOPLEVEL_SUSPENDED_COMMAND_NEXT_WORKSPACE = 0,
@@ -444,8 +368,6 @@ init_tests (void)
 {
   g_test_add_func ("/wayland/registry/filter",
                    registry_filter);
-  g_test_add_func ("/wayland/xdg-foreign/set-parent-of",
-                   xdg_foreign_set_parent_of);
   g_test_add_func ("/wayland/toplevel/suspended",
                    toplevel_suspended);
   g_test_add_func ("/wayland/toplevel/tag",

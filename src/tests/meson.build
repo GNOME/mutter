@@ -1069,6 +1069,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-xdg-foreign',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-xdg-foreign-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('xdg-foreign'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1121,7 +1132,6 @@ wayland_test_cases = [
       test_client_executables.get('fullscreen'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
-      test_client_executables.get('xdg-foreign'),
       test_client_executables.get('xdg-toplevel-tag'),
     ],
   },
