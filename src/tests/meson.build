@@ -907,6 +907,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-color-representation',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-color-representation-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('color-representation'),
+    ],
+  },
+  {
     'name': 'wayland-drm-lease',
     'suite': 'wayland',
     'sources': [
