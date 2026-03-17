@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 Red Hat, Inc.
+ * Copyright (C) 2019-2026 Red Hat, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,27 +17,11 @@
 
 #include "config.h"
 
-#include <gio/gio.h>
 #include <wayland-client.h>
-#include <gdesktop-enums.h>
 
-#include "backends/meta-virtual-monitor.h"
-#include "compositor/meta-window-actor-private.h"
-#include "core/display-private.h"
-#include "core/meta-workspace-manager-private.h"
-#include "core/window-private.h"
-#include "meta-test/meta-context-test.h"
-#include "meta/meta-later.h"
-#include "meta/meta-workspace-manager.h"
-#include "tests/meta-test-utils.h"
-#include "tests/meta-monitor-test-utils.h"
-#include "tests/meta-ref-test.h"
-#include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-runner.h"
-#include "tests/meta-wayland-test-utils.h"
 #include "wayland/meta-wayland-client-private.h"
 #include "wayland/meta-wayland-filter-manager.h"
-#include "wayland/meta-wayland-surface-private.h"
 
 #include "dummy-client-protocol.h"
 #include "dummy-server-protocol.h"

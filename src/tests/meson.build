@@ -1103,6 +1103,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-global-filter',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-global-filter-tests.c',
+      dummy_client_header,
+      dummy_server_header,
+      dummy_protocol_code,
+      wayland_test_utils,
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1135,27 +1146,6 @@ wayland_test_cases = [
     ],
     'depends': [
       test_client_executables.get('buffer-less-viewport-client'),
-    ],
-  },
-  {
-    'name': 'wayland-unit',
-    'suite': 'wayland',
-    'timeout': 300,
-    'sources': [
-      'wayland-unit-tests.c',
-      dummy_client_header,
-      dummy_server_header,
-      dummy_protocol_code,
-      wayland_test_utils,
-    ],
-    'depends': [
-      test_client,
-      test_client_executables.get('dma-buf-scanout'),
-      test_client_executables.get('fractional-scale'),
-      test_client_executables.get('fullscreen'),
-      test_client_executables.get('kms-cursor-hotplug-helper'),
-      test_client_executables.get('service-client'),
-      test_client_executables.get('xdg-toplevel-tag'),
     ],
   },
 ]
