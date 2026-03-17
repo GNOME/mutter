@@ -1021,6 +1021,18 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-xdg-toplevel-suspended',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-xdg-toplevel-suspended-tests.c',
+      wayland_test_utils,
+    ],
+    'timeout': 120,
+    'depends': [
+      test_client_executables.get('xdg-toplevel-suspended'),
+    ],
+  },
+  {
     'name': 'wayland-xdg-activation',
     'suite': 'wayland',
     'sources': [
