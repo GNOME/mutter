@@ -115,32 +115,6 @@ cursor_shape (void)
   g_clear_object (&virtual_pointer);
 }
 
-static gboolean
-set_true (gpointer user_data)
-{
-  gboolean *done = user_data;
-
-  *done = TRUE;
-
-  return G_SOURCE_REMOVE;
-}
-
-static void
-idle_inhibit_instant_destroy (void)
-{
-  MetaWaylandTestClient *wayland_test_client;
-  gboolean done;
-
-  wayland_test_client =
-    meta_wayland_test_client_new (test_context, "idle-inhibit");
-  meta_wayland_test_client_finish (wayland_test_client);
-
-  done = FALSE;
-  g_timeout_add_seconds (1, set_true, &done);
-  while (!done)
-    g_main_context_iteration (NULL, TRUE);
-}
-
 static MetaWaylandAccess
 dummy_global_filter (const struct wl_client *client,
                      const struct wl_global *global,
@@ -614,8 +588,6 @@ toplevel_tag (void)
 static void
 init_tests (void)
 {
-  g_test_add_func ("/wayland/idle-inhibit/instant-destroy",
-                   idle_inhibit_instant_destroy);
   g_test_add_func ("/wayland/registry/filter",
                    registry_filter);
   g_test_add_func ("/wayland/xdg-foreign/set-parent-of",

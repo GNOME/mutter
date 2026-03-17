@@ -1046,6 +1046,17 @@ wayland_test_cases = [
     ],
   },
   {
+    'name': 'wayland-idle-inhibit',
+    'suite': 'wayland',
+    'sources': [
+      'wayland-idle-inhibit-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('idle-inhibit'),
+    ],
+  },
+  {
     'name': 'window-config',
     'suite': 'wayland',
     'sources': [
@@ -1097,7 +1108,6 @@ wayland_test_cases = [
       test_client_executables.get('dma-buf-scanout'),
       test_client_executables.get('fractional-scale'),
       test_client_executables.get('fullscreen'),
-      test_client_executables.get('idle-inhibit'),
       test_client_executables.get('kms-cursor-hotplug-helper'),
       test_client_executables.get('service-client'),
       test_client_executables.get('xdg-foreign'),
