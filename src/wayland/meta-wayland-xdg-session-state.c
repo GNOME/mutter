@@ -405,7 +405,6 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     META_WAYLAND_XDG_SESSION_STATE (state);
   MetaWaylandXdgToplevelState *toplevel_state;
   MtkRectangle *rect = NULL;
-  MetaLogicalMonitor *target_monitor = NULL;
 
   toplevel_state = g_hash_table_lookup (xdg_session_state->toplevels, name);
   if (!toplevel_state)
@@ -427,13 +426,16 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     case WINDOW_STATE_TILED_LEFT:
     case WINDOW_STATE_TILED_RIGHT:
       rect = &toplevel_state->tiled.rect;
+      break;
+    }
+
+  if (rect)
+    {
+      MetaLogicalMonitor *target_monitor;
+
       target_monitor = determine_monitor_for_rect (window, rect);
       if (target_monitor)
-        {
-          meta_window_config_set_tile_monitor_number (window->config,
-                                                      target_monitor->number);
-        }
-      break;
+        g_set_object (&window->target_monitor, target_monitor);
     }
 
   if (toplevel_state->workspace_idx >= 0)
@@ -457,39 +459,15 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
                                *rect);
       break;
     case WINDOW_STATE_TILED_LEFT:
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_FORCE_MOVE |
-                                META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
       meta_window_tile (window, META_TILE_LEFT);
       break;
     case WINDOW_STATE_TILED_RIGHT:
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_FORCE_MOVE |
-                                META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
       meta_window_tile (window, META_TILE_RIGHT);
       break;
     case WINDOW_STATE_MAXIMIZED:
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_FORCE_MOVE |
-                                META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
       meta_window_maximize (window);
       break;
     case WINDOW_STATE_FULLSCREEN:
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_FORCE_MOVE |
-                                META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
       meta_window_make_fullscreen (window);
       break;
     }
