@@ -469,8 +469,9 @@ setup_constraint_info (MetaBackend         *backend,
 
       if (!logical_monitor)
         {
-          meta_topic (META_DEBUG_GEOMETRY, "Constraining using window monitor");
-          logical_monitor = window->monitor;
+          meta_topic (META_DEBUG_GEOMETRY,
+                      "Constraining using window target monitor");
+          logical_monitor = window->target_monitor;
         }
     }
 

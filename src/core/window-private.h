@@ -240,6 +240,7 @@ struct _MetaWindow
   uint64_t id;
   guint64 stamp;
   MetaLogicalMonitor *monitor;
+  MetaLogicalMonitor *target_monitor;
   MetaLogicalMonitor *highest_scale_monitor;
   MetaWorkspace *workspace;
   MetaWindowClientType client_type;
@@ -952,3 +953,9 @@ void meta_window_set_a11y_properties (MetaWindow *window,
 gboolean meta_window_get_a11y_properties (MetaWindow  *window,
                                           const char **a11y_dbus_name,
                                           const char **toplevel_object_path);
+
+void meta_window_set_target_monitor (MetaWindow         *window,
+                                     MetaLogicalMonitor *logical_monitor);
+
+void meta_window_set_target_monitor_from_number (MetaWindow *window,
+                                                 int         number);
