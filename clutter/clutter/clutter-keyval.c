@@ -194,8 +194,8 @@ clutter_keyval_name (unsigned int keyval)
     }
 
   found = bsearch (&keyval, clutter_keys_by_keyval,
-		   CLUTTER_NUM_KEYS, sizeof (clutter_key),
-		   clutter_keys_keyval_compare);
+                   CLUTTER_NUM_KEYS, sizeof (clutter_key),
+                   clutter_keys_keyval_compare);
 
   if (found != NULL)
     {
