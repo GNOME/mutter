@@ -387,6 +387,7 @@ meta_window_finalize (GObject *object)
   g_clear_pointer (&window->preferred_logical_monitor,
                    meta_logical_monitor_id_free);
   g_clear_object (&window->monitor);
+  g_clear_object (&window->target_monitor);
   g_clear_object (&window->highest_scale_monitor);
   g_clear_object (&window->config);
 
@@ -1235,6 +1236,7 @@ meta_window_constructed (GObject *object)
       highest_scale_monitor = main_monitor;
     }
   g_set_object (&window->monitor, main_monitor);
+  g_set_object (&window->target_monitor, main_monitor);
   g_set_object (&window->highest_scale_monitor, highest_scale_monitor);
 
   if (window->monitor)
@@ -3285,7 +3287,14 @@ meta_window_tile_internal (MetaWindow   *window,
   else if (meta_window_config_get_tile_monitor_number (window->config) < 0)
     {
       meta_window_config_set_tile_monitor_number (window->config,
-                                                  window->monitor->number);
+                                                  window->target_monitor->number);
+    }
+  else
+    {
+      int number;
+
+      number = meta_window_config_get_tile_monitor_number (window->config);
+      meta_window_set_target_monitor_from_number (window, number);
     }
 
   if (tile_mode == META_TILE_MAXIMIZED)
@@ -4063,7 +4072,7 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
   MetaBackend *backend = meta_context_get_backend (context);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  const MetaLogicalMonitor *old, *new;
+  MetaLogicalMonitor *old, *new;
 
   if (meta_window_has_fullscreen_monitors (window))
     meta_window_clear_fullscreen_monitors (window);
@@ -4090,6 +4099,8 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
       meta_window_config_set_tile_monitor_number (window->config,
                                                   new_monitor_number);
     }
+
+  g_set_object (&window->target_monitor, new);
 
   if (new && old)
     {
@@ -4192,6 +4203,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
    * to the client.
    */
 
+  MetaBackend *backend = backend_from_window (window);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   gboolean did_placement;
   MtkRectangle unconstrained_rect;
@@ -4202,6 +4216,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   int rel_y = 0;
   MetaMoveResizeResultFlags result = 0;
   gboolean moved_or_resized = FALSE;
+  MetaLogicalMonitor *old_monitor;
   MetaWindowUpdateMonitorFlags update_monitor_flags;
   MetaGravity gravity;
 
@@ -4301,9 +4316,6 @@ meta_window_move_resize_internal (MetaWindow          *window,
            !mtk_rectangle_is_empty (&unconstrained_rect) &&
            !meta_window_config_is_floating (window->config))
     {
-      MetaBackend *backend = backend_from_window (window);
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
       MetaLogicalMonitor *from;
       MetaLogicalMonitor *to;
 
@@ -4395,6 +4407,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   if (flags & META_MOVE_RESIZE_FORCE_UPDATE_MONITOR)
     update_monitor_flags |= META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE;
 
+  old_monitor = window->monitor;
   if (window->monitor)
     {
       g_autoptr (MetaLogicalMonitorId) old_id = NULL;
@@ -4417,6 +4430,9 @@ meta_window_move_resize_internal (MetaWindow          *window,
     {
       meta_window_update_monitor (window, update_monitor_flags);
     }
+
+  if (old_monitor != window->monitor)
+    meta_window_set_target_monitor (window, window->monitor);
 
   meta_window_foreach_transient (window, maybe_move_attached_window, NULL);
 
@@ -4584,6 +4600,8 @@ meta_window_move_to_monitor (MetaWindow  *window,
                              int          monitor)
 {
   MtkRectangle old_area, new_area;
+
+  meta_window_set_target_monitor_from_number (window, monitor);
 
   if (meta_window_config_get_tile_mode (window->config) != META_TILE_NONE)
     meta_window_config_set_tile_monitor_number (window->config, monitor);
@@ -8699,4 +8717,27 @@ meta_window_show_in_window_list (MetaWindow *window)
 
   window->skip_from_window_list = FALSE;
   meta_window_recalc_features (window);
+}
+
+void
+meta_window_set_target_monitor (MetaWindow         *window,
+                                MetaLogicalMonitor *logical_monitor)
+{
+  g_return_if_fail (logical_monitor);
+  g_set_object (&window->target_monitor, logical_monitor);
+}
+
+void
+meta_window_set_target_monitor_from_number (MetaWindow *window,
+                                            int         number)
+{
+  MetaBackend *backend = backend_from_window (window);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor;
+
+  logical_monitor =
+    meta_monitor_manager_get_logical_monitor_from_number (monitor_manager,
+                                                          number);
+  meta_window_set_target_monitor (window, logical_monitor);
 }

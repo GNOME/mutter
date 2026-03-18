@@ -240,6 +240,7 @@ struct _MetaWindow
   uint64_t id;
   guint64 stamp;
   MetaLogicalMonitor *monitor;
+  MetaLogicalMonitor *target_monitor;
   MetaLogicalMonitor *highest_scale_monitor;
   MetaWorkspace *workspace;
   MetaWindowClientType client_type;
@@ -937,3 +938,9 @@ void meta_window_set_tag (MetaWindow *window,
 
 META_EXPORT_TEST
 GPtrArray * meta_window_get_transient_children (MetaWindow *window);
+
+void meta_window_set_target_monitor (MetaWindow         *window,
+                                     MetaLogicalMonitor *logical_monitor);
+
+void meta_window_set_target_monitor_from_number (MetaWindow *window,
+                                                 int         number);
