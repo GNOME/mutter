@@ -443,7 +443,6 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
                                              TRUE);
     }
 
-
   switch (toplevel_state->window_state)
     {
     case WINDOW_STATE_NONE:
@@ -497,7 +496,6 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
 
   if (toplevel_state->is_minimized)
     meta_window_minimize (window);
-
 
   if (meta_is_topic_enabled (META_DEBUG_SESSION_MANAGEMENT))
     {
