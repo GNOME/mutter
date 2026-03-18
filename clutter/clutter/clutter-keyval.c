@@ -184,7 +184,7 @@ const char *
 clutter_keyval_name (unsigned int keyval)
 {
   static char buf[100];
-  clutter_key *found;
+  const clutter_key *found;
 
   /* Check for directly encoded 24-bit UCS characters: */
   if ((keyval & 0xff000000) == 0x01000000)
