@@ -2828,7 +2828,7 @@ meta_window_save_rect (MetaWindow *window)
   META_WINDOW_GET_CLASS (window)->save_rect (window);
 }
 
-void
+static void
 meta_window_maximize_internal (MetaWindow        *window,
                                MetaMaximizeFlags  directions,
                                MtkRectangle      *saved_rect)
