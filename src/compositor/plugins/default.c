@@ -43,6 +43,7 @@ typedef enum
   ANIMATION_DESTROY,
   ANIMATION_MINIMIZE,
   ANIMATION_MAP,
+  ANIMATION_SIZE_CHANGE,
   ANIMATION_SWITCH,
 } Animation;
 
@@ -50,6 +51,7 @@ static unsigned int animation_durations[] = {
   100, /* destroy */
   250, /* minimize */
   250, /* map */
+  250, /* size_change */
   500, /* switch */
 };
 
@@ -87,6 +89,13 @@ static void minimize   (MetaPlugin      *plugin,
                         MetaWindowActor *actor);
 static void map        (MetaPlugin      *plugin,
                         MetaWindowActor *actor);
+static void size_change (MetaPlugin      *plugin,
+                         MetaWindowActor *actor,
+                         MetaSizeChange   which_change,
+                         MtkRectangle    *old_frame_rect,
+                         MtkRectangle    *old_buffer_rect);
+static void size_changed (MetaPlugin      *plugin,
+                          MetaWindowActor *actor);
 static void destroy    (MetaPlugin      *plugin,
                         MetaWindowActor *actor);
 
@@ -134,6 +143,10 @@ typedef struct _ActorPrivate
   ClutterTimeline *tml_minimize;
   ClutterTimeline *tml_destroy;
   ClutterTimeline *tml_map;
+  ClutterTimeline *tml_size_changed;
+
+  MtkRectangle old_buffer_rect;
+  ClutterActor *actor_clone;
 } ActorPrivate;
 
 /* callback data for when animations complete */
@@ -172,6 +185,8 @@ meta_default_plugin_class_init (MetaDefaultPluginClass *klass)
   plugin_class->start            = start;
   plugin_class->map              = map;
   plugin_class->minimize         = minimize;
+  plugin_class->size_change      = size_change;
+  plugin_class->size_changed     = size_changed;
   plugin_class->destroy          = destroy;
   plugin_class->switch_workspace = switch_workspace;
   plugin_class->show_tile_preview = show_tile_preview;
@@ -693,6 +708,139 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
     }
   else
     meta_plugin_minimize_completed (plugin, window_actor);
+}
+
+static void
+size_change (MetaPlugin      *plugin,
+             MetaWindowActor *window_actor,
+             MetaSizeChange   which_change,
+             MtkRectangle    *old_frame_rect,
+             MtkRectangle    *old_buffer_rect)
+{
+  MetaWindow *meta_window = meta_window_actor_get_meta_window (window_actor);
+  ActorPrivate *apriv = get_actor_private (window_actor);
+  g_autoptr (ClutterContent) actor_content = NULL;
+  g_autoptr (ClutterActor) actor_clone = NULL;
+  MetaWindowType type;
+
+  type = meta_window_get_window_type (meta_window);
+  if (type != META_WINDOW_NORMAL)
+    {
+      meta_plugin_size_change_completed (plugin, window_actor);
+      return;
+    }
+
+  if (mtk_rectangle_is_empty (old_frame_rect))
+    {
+      meta_plugin_size_change_completed (plugin, window_actor);
+      return;
+    }
+
+  apriv = get_actor_private (window_actor);
+
+  actor_content = meta_window_actor_paint_to_content (window_actor, NULL, NULL);
+  actor_clone = clutter_actor_new ();
+  clutter_actor_set_content (actor_clone, actor_content);
+  clutter_actor_set_offscreen_redirect (actor_clone, CLUTTER_OFFSCREEN_REDIRECT_ALWAYS);
+  clutter_actor_set_position (actor_clone,
+                              old_buffer_rect->x,
+                              old_buffer_rect->y);
+  clutter_actor_set_size (actor_clone,
+                          old_buffer_rect->width,
+                          old_buffer_rect->height);
+  meta_window_actor_freeze (window_actor);
+
+  apriv->old_buffer_rect = *old_buffer_rect;
+  apriv->actor_clone = g_steal_pointer (&actor_clone);
+}
+
+static void
+on_size_changed_effect_stopped (ClutterTimeline    *timeline,
+                                gboolean            is_finished,
+                                EffectCompleteData *data)
+{
+  MetaPlugin *plugin = data->plugin;
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (data->actor);
+  ActorPrivate *apriv = get_actor_private (window_actor);
+
+  apriv->tml_size_changed = NULL;
+  g_clear_pointer (&apriv->actor_clone, clutter_actor_destroy);
+
+  meta_plugin_size_change_completed (plugin, window_actor);
+  g_free (data);
+}
+
+static void
+size_changed (MetaPlugin      *plugin,
+              MetaWindowActor *window_actor)
+{
+  MetaDisplay *display = meta_plugin_get_display (plugin);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  ClutterActor *stage = CLUTTER_ACTOR (meta_compositor_get_stage (compositor));
+  ClutterActor *actor = CLUTTER_ACTOR (window_actor);
+  ActorPrivate *apriv = get_actor_private (window_actor);
+  MtkRectangle rect;
+  MetaWindow *window;
+  float scale_x;
+  float scale_y;
+
+  if (!apriv->actor_clone)
+    return;
+
+  if (clutter_actor_get_parent (apriv->actor_clone))
+    return;
+
+  clutter_actor_add_child (stage, apriv->actor_clone);
+  meta_window_actor_thaw (window_actor);
+
+  window = meta_window_actor_get_meta_window (window_actor);
+  meta_window_get_buffer_rect (window, &rect);
+
+  actor_animate (apriv->actor_clone,
+                 CLUTTER_EASE_OUT_QUAD,
+                 ANIMATION_SIZE_CHANGE,
+                 "x", (float) rect.x,
+                 "y", (float) rect.y,
+                 "width", (float) rect.width,
+                 "height", (float) rect.height,
+                 "opacity", 0,
+                 NULL);
+
+  scale_x = (float) rect.width / apriv->old_buffer_rect.width;
+  scale_y = (float) rect.height / apriv->old_buffer_rect.height;
+  clutter_actor_set_pivot_point (actor, 0.0, 0.0);
+  clutter_actor_set_translation (actor,
+                                 -rect.x + apriv->old_buffer_rect.x,
+                                 -rect.y + apriv->old_buffer_rect.y,
+                                 0.0);
+  clutter_actor_set_scale (actor,
+                           1.0 / scale_x,
+                           1.0 / scale_y);
+
+  apriv->tml_size_changed = actor_animate (actor,
+                                           CLUTTER_EASE_OUT_QUAD,
+                                           ANIMATION_SIZE_CHANGE,
+                                           "scale-x", 1.0,
+                                           "scale-y", 1.0,
+                                           "translation-x", 0.0f,
+                                           "translation-y", 0.0f,
+                                           NULL);
+  if (apriv->tml_size_changed)
+    {
+      EffectCompleteData *data;
+
+      data = g_new0 (EffectCompleteData, 1);
+      data->actor = actor;
+      data->plugin = plugin;
+
+      g_signal_connect (apriv->tml_size_changed, "stopped",
+                        G_CALLBACK (on_size_changed_effect_stopped),
+                        data);
+    }
+  else
+    {
+      meta_plugin_size_change_completed (plugin, window_actor);
+    }
 }
 
 static void
