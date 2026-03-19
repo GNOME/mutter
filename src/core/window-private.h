@@ -662,10 +662,6 @@ void        meta_window_restore_tile       (MetaWindow        *window,
                                             MetaTileMode       mode,
                                             int                width,
                                             int                height);
-void        meta_window_maximize_internal  (MetaWindow        *window,
-                                            MetaMaximizeFlags  directions,
-                                            MtkRectangle      *saved_rect);
-
 void        meta_window_queue_auto_maximize (MetaWindow       *window);
 
 void        meta_window_make_fullscreen_internal (MetaWindow    *window);
