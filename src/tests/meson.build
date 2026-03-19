@@ -1232,7 +1232,6 @@ foreach test_case: test_cases
 
   args = test_case.get('args', [])
 
-  message('test @0@ args: @1@'.format(test_case['name'], args))
   test(test_case['name'], test_executable,
     suite: ['core', 'mutter/' + test_case['suite']],
     args: args,
