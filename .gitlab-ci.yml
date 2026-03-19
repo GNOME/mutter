@@ -110,8 +110,8 @@ variables:
   extends:
     - .skip-git-clone
   variables:
-    FDO_DISTRIBUTION_VERSION: 43
-    BASE_TAG: '2026-03-09.0'
+    FDO_DISTRIBUTION_VERSION: 44
+    BASE_TAG: '2026-03-20.0'
     MUTTER_USER: 'meta-user'
     FDO_DISTRIBUTION_PACKAGES:
       accountsservice-devel
@@ -196,11 +196,6 @@ variables:
 
       ./.gitlab-ci/install-meson-project.sh \
         https://gitlab.gnome.org/GNOME/gi-docgen.git \
-        main
-
-      ./.gitlab-ci/install-meson-project.sh \
-        --commit ed36f4c6427fb1b0db03aaeb81d42f348f79690c \
-        https://gitlab.gnome.org/GNOME/glib.git \
         main
 
       ./.gitlab-ci/install-meson-project.sh \

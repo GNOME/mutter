@@ -141,38 +141,3 @@ SCRIPTS_DIR="$(dirname $0)"
 #      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
 #      1.44
 #fi
-
- if ! gjs_require_symbol Gtk 4.0 Application.support_save
- then
-    ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      -Dintrospection=enabled \
-      --commit 9295bfb522c7f14026d8c94ac0c6bfe5a9ef8d64 \
-      https://gitlab.gnome.org/GNOME/gtk.git \
-      main
-fi
-
-if ! check_gsettings_key org.gnome.desktop.calendar week-start-day
-then
-  ./$SCRIPTS_DIR/install-meson-project.sh \
-      "${OPTIONS[@]}" \
-      https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas \
-      50.alpha
-fi
-
-if ! pkgconf --atleast-version 1.87.1 gjs-1.0
-then
-  ./$SCRIPTS_DIR/install-meson-project.sh \
-    "${OPTIONS[@]}" \
-    https://gitlab.gnome.org/GNOME/gjs.git \
-    1.87.1
-fi
-
-if ! pkgconf --atleast-version 1.6.1 libpipewire-0.3
-then
-  ./$SCRIPTS_DIR/install-meson-project.sh \
-    "${OPTIONS[@]}" \
-    --commit 5cd734e8c097680eca0bfe7b46e4f93747b04fc3 \
-    https://gitlab.freedesktop.org/pipewire/pipewire.git \
-    1.6
-fi
