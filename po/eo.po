@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-02-17 17:44+0000\n"
+"POT-Creation-Date: 2026-03-10 22:23+0000\n"
 "PO-Revision-Date: 2026-02-26 22:03+0100\n"
 "Last-Translator: Kristjan SCHMIDT <kristjan.schmidt@googlemail.com>\n"
 "Language-Team: Esperanto <gnome-eo-list@gnome.org>\n"
@@ -382,25 +382,6 @@ msgid "Enable experimental features"
 msgstr "Ebligi eksperimentajn funkciojn"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
-#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
-#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
-#| "when applicable if supported by the monitor, GPU and DRM driver. "
-#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
-#| "— lets Xwayland clients use their native scaling support. If scaling is "
-#| "not supported by client, the client will be unscaled. Setting only takes "
-#| "effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -711,27 +692,30 @@ msgid "_Monitors"
 msgstr "_Monitoroj"
 
 #: mdk/mdk-main-window.ui:26
-#| msgid "_Emulate touch"
+msgid "_Add monitor"
+msgstr "_Aldoni monitoron"
+
+#: mdk/mdk-main-window.ui:30
 msgid "_Emulate monitor modes"
 msgstr "_Imiti monitorajn reĝimojn"
 
-#: mdk/mdk-main-window.ui:33
+#: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
 msgstr "_Lanĉiloj"
 
-#: mdk/mdk-main-window.ui:37
+#: mdk/mdk-main-window.ui:41
 msgid "_Edit launchers"
 msgstr "R_edakti Lanĉilojn"
 
-#: mdk/mdk-main-window.ui:44
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "_Pri Mutero Development Kit"
 
-#: mdk/mdk-main-window.ui:50 mdk/mdk-main.c:56
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Mutero Development Kit"
 
-#: mdk/mdk-main-window.ui:60
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Ĉefa menuo"
 
@@ -747,7 +731,7 @@ msgstr "Mutero programara disvolva komplekso"
 msgid "About Mutter Development Kit"
 msgstr "Pri Mutero Development Kit"
 
-#: mdk/mdk-monitor.c:556
+#: mdk/mdk-monitor.c:557
 msgid "Failed to create monitor"
 msgstr "Malsukcesis krei monitoron"
 
@@ -886,7 +870,6 @@ msgstr "Reĝim-ŝaltilo: Reĝimo %d"
 
 #: src/x11/meta-x11-display.c:776
 #, c-format
-#| msgid "Screen %d on display \"%s\" already has a window manager\n"
 msgid "Display “%s” already has a window manager"
 msgstr "Ekrano “%s” jam havas fenestroadministrilon"
 
