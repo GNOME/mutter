@@ -660,7 +660,6 @@ void        meta_window_restore_tile       (MetaWindow        *window,
                                             int                height);
 void        meta_window_queue_auto_maximize (MetaWindow       *window);
 
-void        meta_window_make_fullscreen_internal (MetaWindow    *window);
 void        meta_window_update_fullscreen_monitors (MetaWindow         *window,
                                                     MetaLogicalMonitor *top,
                                                     MetaLogicalMonitor *bottom,

@@ -3645,7 +3645,7 @@ meta_window_set_above (MetaWindow *window,
   g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_ABOVE]);
 }
 
-void
+static void
 meta_window_make_fullscreen_internal (MetaWindow  *window)
 {
   if (!meta_window_is_fullscreen (window))

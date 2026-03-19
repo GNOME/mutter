@@ -2898,7 +2898,7 @@ meta_window_move_resize_request (MetaWindow  *window,
                           "Treating resize request of legacy application %s as a "
                           "fullscreen request",
                           window->desc);
-              meta_window_make_fullscreen_internal (window);
+              meta_window_make_fullscreen (window);
             }
         }
 
