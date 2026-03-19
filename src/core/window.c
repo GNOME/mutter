@@ -4671,7 +4671,8 @@ meta_window_idle_move_resize (MetaWindow *window)
   flags = (META_MOVE_RESIZE_MOVE_ACTION |
            META_MOVE_RESIZE_RESIZE_ACTION |
            META_MOVE_RESIZE_CONSTRAIN);
-  if (!window->unconstrained_rect_valid)
+  if (!window->unconstrained_rect_valid ||
+      !meta_window_config_is_floating (window->config))
     flags |= META_MOVE_RESIZE_RECT_INVALID;
   meta_window_move_resize (window, flags, window->unconstrained_rect);
 }
