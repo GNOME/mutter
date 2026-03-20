@@ -1414,9 +1414,9 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
 
   COGL_TRACE_BEGIN_SCOPED (StackTrackerRestackManagedLower,
                            "Meta::StackTracker::restack_managed#lower()");
-  while (new_pos > 0)
+  while (new_pos >= 0)
     {
-      meta_stack_tracker_lower_below (tracker, managed[new_pos], managed[new_pos - 1]);
+      meta_stack_tracker_lower_below (tracker, managed[new_pos], managed[new_pos + 1]);
       new_pos--;
     }
   COGL_TRACE_END (StackTrackerRestackManagedLower);
