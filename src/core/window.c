@@ -149,6 +149,9 @@ static void unminimize_window_and_all_transient_parents (MetaWindow *window);
 
 static void reset_pending_auto_maximize (MetaWindow *window);
 
+static void apply_maximize_config (MetaWindow       *window,
+                                   MetaWindowConfig *config);
+
 static void meta_window_propagate_focus_appearance (MetaWindow *window,
                                                     gboolean    focused);
 static void set_workspace_state (MetaWindow    *window,
@@ -2828,9 +2831,9 @@ meta_window_save_rect (MetaWindow *window)
 }
 
 static void
-meta_window_maximize_internal (MetaWindow        *window,
-                               MetaMaximizeFlags  directions,
-                               MtkRectangle      *saved_rect)
+set_maximize_state (MetaWindow         *window,
+                    MetaMaximizeFlags   directions,
+                    const MtkRectangle *saved_rect)
 {
   /* At least one of the two directions ought to be set */
   gboolean maximize_horizontally, maximize_vertically;
@@ -2883,10 +2886,11 @@ meta_window_maximize_internal (MetaWindow        *window,
   g_object_thaw_notify (G_OBJECT (window));
 }
 
-void
-meta_window_set_maximize_flags (MetaWindow        *window,
-                                MetaMaximizeFlags  directions)
+static void
+maximize_window (MetaWindow       *window,
+                 MetaWindowConfig *config)
 {
+  MetaMaximizeFlags directions = meta_window_config_get_maximize_flags (config);
   MtkRectangle *saved_rect = NULL;
   gboolean maximize_horizontally, maximize_vertically;
   gboolean was_maximized_horizontally, was_maximized_vertically;
@@ -2922,9 +2926,7 @@ meta_window_set_maximize_flags (MetaWindow        *window,
           meta_window_config_set_tile_mode (window->config, META_TILE_NONE);
         }
 
-      meta_window_maximize_internal (window,
-                                     directions,
-                                     saved_rect);
+      set_maximize_state (window, directions, saved_rect);
 
       MtkRectangle old_frame_rect, old_buffer_rect;
 
@@ -2943,6 +2945,20 @@ meta_window_set_maximize_flags (MetaWindow        *window,
 
       meta_window_move_resize (window, flags, window->unconstrained_rect);
     }
+}
+
+void
+meta_window_set_maximize_flags (MetaWindow        *window,
+                                MetaMaximizeFlags  flags)
+{
+  g_autoptr (MetaWindowConfig) config = NULL;
+
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  config = meta_window_config_new_from (window->config);
+  meta_window_config_set_maximize_flags (config, flags);
+
+  meta_window_process_config (window, config);
 }
 
 void
@@ -3114,12 +3130,13 @@ meta_window_is_on_primary_monitor (MetaWindow *window)
 }
 
 static void
-meta_window_get_tile_fraction (MetaWindow   *window,
-                               MetaTileMode  tile_mode,
-                               double       *fraction)
+meta_window_get_tile_fraction_with_mode (MetaWindow       *window,
+                                         MetaWindowConfig *config,
+                                         MetaTileMode      tile_mode,
+                                         double           *fraction)
 {
   double tile_hfraction =
-    meta_window_config_get_tile_hfraction (window->config);
+    meta_window_config_get_tile_hfraction (config);
   MetaWindow *tile_match;
 
   /* Make sure the tile match is up-to-date and matches the
@@ -3144,12 +3161,22 @@ meta_window_get_tile_fraction (MetaWindow   *window,
     *fraction = .5;
 }
 
+static void
+meta_window_get_tile_fraction (MetaWindow       *window,
+                               MetaWindowConfig *config,
+                               double           *fraction)
+{
+  MetaTileMode tile_mode = meta_window_config_get_tile_mode (config);
+
+  meta_window_get_tile_fraction_with_mode (window, config, tile_mode, fraction);
+}
+
 void
 meta_window_update_tile_fraction (MetaWindow *window,
                                   int         new_w,
                                   int         new_h)
 {
-  MetaWindow *tile_match = meta_window_config_get_tile_match (window->config);
+  MetaWindow *tile_match;
   int tile_monitor_number;
   MtkRectangle work_area;
   MetaWindowDrag *window_drag;
@@ -3168,14 +3195,15 @@ meta_window_update_tile_fraction (MetaWindow *window,
   window_drag =
     meta_compositor_get_current_window_drag (window->display->compositor);
 
+  tile_match = meta_window_config_get_tile_match (window->config);
   if (tile_match &&
       window_drag &&
       meta_window_drag_get_window (window_drag) == window)
     {
-      MetaTileMode tile_match_tile_mode =
-        meta_window_config_get_tile_mode (tile_match->config);
+      g_autoptr (MetaWindowConfig) tile_match_config = NULL;
 
-      meta_window_tile (tile_match, tile_match_tile_mode);
+      tile_match_config = meta_window_config_new_from (tile_match->config);
+      meta_window_process_config (tile_match, tile_match_config);
     }
 }
 
@@ -3256,53 +3284,34 @@ meta_window_is_tiled_right (MetaWindow *window)
          meta_window_is_tiled_side_by_side (window);
 }
 
-void
-meta_window_untile (MetaWindow *window)
+static void
+tile_window (MetaWindow       *window,
+             MetaWindowConfig *config)
 {
-  int tile_monitor_number;
-  MetaTileMode tile_mode;
-
-  g_return_if_fail (META_IS_WINDOW (window));
-
-  tile_monitor_number = window->saved_maximize ? window->monitor->number
-                                               : -1;
-  meta_window_config_set_tile_monitor_number (window->config,
-                                              tile_monitor_number);
-
-  tile_mode =
-    window->saved_maximize ? META_TILE_MAXIMIZED
-                           : META_TILE_NONE;
-  meta_window_config_set_tile_mode (window->config, tile_mode);
-
-  if (window->saved_maximize)
-    meta_window_maximize (window);
-  else
-    meta_window_unmaximize (window);
-}
-
-void
-meta_window_tile_internal (MetaWindow   *window,
-                           MetaTileMode  tile_mode,
-                           MtkRectangle *saved_rect)
-{
+  MetaTileMode tile_mode = meta_window_config_get_tile_mode (config);
+  const MtkRectangle *saved_rect = meta_window_config_get_saved_rect (config);
   MetaMaximizeFlags directions;
   MetaWindowDrag *window_drag;
   MetaWindow *tile_match;
-  double tile_hfraction;
+  double old_tile_hfraction;
+  double new_tile_hfraction;
 
   g_return_if_fail (META_IS_WINDOW (window));
 
-  meta_window_get_tile_fraction (window, tile_mode, &tile_hfraction);
-  meta_window_config_set_tile_hfraction (window->config, tile_hfraction);
+  meta_window_get_tile_fraction (window, config, &new_tile_hfraction);
+  old_tile_hfraction = meta_window_config_get_tile_hfraction (window->config);
+  meta_window_config_set_tile_hfraction (window->config, new_tile_hfraction);
+
+  if (tile_mode == meta_window_config_get_tile_mode (window->config) &&
+      meta_window_config_get_tile_monitor_number (window->config) >= 0 &&
+      meta_window_config_get_tile_monitor_number (config) ==
+      meta_window_config_get_tile_monitor_number (window->config) &&
+      old_tile_hfraction == new_tile_hfraction)
+    return;
+
   meta_window_config_set_tile_mode (window->config, tile_mode);
 
-  /* Don't do anything if no tiling is requested */
-  if (tile_mode == META_TILE_NONE)
-    {
-      meta_window_config_set_tile_monitor_number (window->config, -1);
-      return;
-    }
-  else if (meta_window_config_get_tile_monitor_number (window->config) < 0)
+  if (meta_window_config_get_tile_monitor_number (config) < 0)
     {
       meta_window_config_set_tile_monitor_number (window->config,
                                                   window->target_monitor->number);
@@ -3320,7 +3329,7 @@ meta_window_tile_internal (MetaWindow   *window,
   else
     directions = META_MAXIMIZE_VERTICAL;
 
-  meta_window_maximize_internal (window, directions, saved_rect);
+  set_maximize_state (window, directions, saved_rect);
 
   window_drag =
     meta_compositor_get_current_window_drag (window->display->compositor);
@@ -3348,11 +3357,59 @@ meta_window_tile_internal (MetaWindow   *window,
                            window->unconstrained_rect);
 }
 
+static void
+untile_window (MetaWindow       *window,
+               MetaWindowConfig *config)
+{
+  meta_window_config_set_tile_monitor_number (window->config, -1);
+  meta_window_config_set_tile_mode (window->config, META_TILE_NONE);
+  apply_maximize_config (window, config);
+}
+
+static void
+apply_tile_config (MetaWindow       *window,
+                   MetaWindowConfig *config)
+{
+  if (meta_window_config_get_tile_mode (config) != META_TILE_NONE)
+    tile_window (window, config);
+  else
+    untile_window (window, config);
+}
+
 void
 meta_window_tile (MetaWindow   *window,
                   MetaTileMode  tile_mode)
 {
-  meta_window_tile_internal (window, tile_mode, NULL);
+  g_autoptr (MetaWindowConfig) config = NULL;
+
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  config = meta_window_config_new_from (window->config);
+  meta_window_config_set_tile_mode (config, tile_mode);
+
+  meta_window_process_config (window, config);
+}
+
+void
+meta_window_untile (MetaWindow *window)
+{
+  g_autoptr (MetaWindowConfig) config = NULL;
+  MetaTileMode tile_mode;
+
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  config = meta_window_config_new_from (window->config);
+  tile_mode =
+    window->saved_maximize ? META_TILE_MAXIMIZED
+                           : META_TILE_NONE;
+  meta_window_config_set_tile_mode (config, tile_mode);
+
+  if (window->saved_maximize)
+    meta_window_config_set_maximize_flags (config, META_MAXIMIZE_BOTH);
+  else
+    meta_window_config_unset_maximize_flags (config, META_MAXIMIZE_BOTH);
+
+  meta_window_process_config (window, config);
 }
 
 void
@@ -3420,15 +3477,20 @@ meta_window_maybe_apply_size_hints (MetaWindow   *window,
   meta_window_client_rect_to_frame_rect (window, target_rect, target_rect);
 }
 
-void
-meta_window_set_unmaximize_flags (MetaWindow        *window,
-                                  MetaMaximizeFlags  directions)
+static void
+unmaximize_window (MetaWindow       *window,
+                   MetaWindowConfig *config)
 {
+  MetaMaximizeFlags new_flags =
+    meta_window_config_get_maximize_flags (config);
+  MetaMaximizeFlags directions = META_MAXIMIZE_NONE;
   gboolean unmaximize_horizontally, unmaximize_vertically;
   gboolean was_maximized_horizontally, was_maximized_vertically;
 
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
+
+  directions = ~new_flags & META_MAXIMIZE_BOTH;
 
   /* At least one of the two directions ought to be set */
   unmaximize_horizontally = directions & META_MAXIMIZE_HORIZONTAL;
@@ -3604,12 +3666,36 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
 }
 
 void
+meta_window_set_unmaximize_flags (MetaWindow        *window,
+                                  MetaMaximizeFlags  flags)
+{
+  g_autoptr (MetaWindowConfig) config = NULL;
+
+  g_return_if_fail (META_IS_WINDOW (window));
+
+  config = meta_window_config_new_from (window->config);
+  meta_window_config_unset_maximize_flags (config, flags);
+
+  meta_window_process_config (window, config);
+}
+
+void
 meta_window_unmaximize (MetaWindow *window)
 {
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
   meta_window_set_unmaximize_flags (window, META_MAXIMIZE_BOTH);
+}
+
+static void
+apply_maximize_config (MetaWindow       *window,
+                       MetaWindowConfig *config)
+{
+  if (meta_window_config_is_any_maximized (config))
+    maximize_window (window, config);
+  else
+    unmaximize_window (window, config);
 }
 
 void
@@ -3646,7 +3732,7 @@ meta_window_set_above (MetaWindow *window,
 }
 
 static void
-meta_window_make_fullscreen_internal (MetaWindow  *window)
+set_fullscreen_state (MetaWindow  *window)
 {
   if (!meta_window_is_fullscreen (window))
     {
@@ -3672,9 +3758,11 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
     }
 }
 
-void
-meta_window_make_fullscreen (MetaWindow  *window)
+static void
+fullscreen_window (MetaWindow       *window,
+                   MetaWindowConfig *config)
 {
+  g_return_if_fail (meta_window_config_get_is_fullscreen (config));
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
@@ -3690,7 +3778,7 @@ meta_window_make_fullscreen (MetaWindow  *window)
                                           window, META_SIZE_CHANGE_FULLSCREEN,
                                           &old_frame_rect, &old_buffer_rect);
 
-      meta_window_make_fullscreen_internal (window);
+      set_fullscreen_state (window);
 
       flags = (META_MOVE_RESIZE_MOVE_ACTION |
                META_MOVE_RESIZE_RESIZE_ACTION |
@@ -3701,9 +3789,11 @@ meta_window_make_fullscreen (MetaWindow  *window)
     }
 }
 
-void
-meta_window_unmake_fullscreen (MetaWindow  *window)
+static void
+unfullscreen_window (MetaWindow       *window,
+                     MetaWindowConfig *config)
 {
+  g_return_if_fail (!meta_window_config_get_is_fullscreen (config));
   g_return_if_fail (META_IS_WINDOW (window));
   g_return_if_fail (!window->override_redirect);
 
@@ -3769,6 +3859,16 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
 
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_FULLSCREEN]);
     }
+}
+
+static void
+apply_fullscreen_config (MetaWindow       *window,
+                         MetaWindowConfig *config)
+{
+  if (meta_window_config_get_is_fullscreen (config))
+    fullscreen_window (window, config);
+  else
+    unfullscreen_window (window, config);
 }
 
 static void
@@ -6252,7 +6352,10 @@ meta_window_get_tile_area (MetaWindow   *window,
   tile_monitor_number = meta_window_get_current_tile_monitor_number (window);
 
   meta_window_get_work_area_for_monitor (window, tile_monitor_number, &work_area);
-  meta_window_get_tile_fraction (window, tile_mode, &fraction);
+  meta_window_get_tile_fraction_with_mode (window,
+                                           window->config,
+                                           tile_mode,
+                                           &fraction);
 
   *tile_area = work_area;
   tile_area->width = (int) round (tile_area->width * fraction);
@@ -8629,6 +8732,66 @@ meta_window_apply_config (MetaWindow           *window,
                                 META_MOVE_RESIZE_CONSTRAIN),
                                rect);
     }
+}
+
+void
+meta_window_make_fullscreen (MetaWindow *window)
+{
+  g_autoptr (MetaWindowConfig) config = NULL;
+
+  config = meta_window_config_new_from (window->config);
+  meta_window_config_set_is_fullscreen (config, TRUE);
+
+  meta_window_process_config (window, config);
+}
+
+void
+meta_window_unmake_fullscreen (MetaWindow *window)
+{
+  g_autoptr (MetaWindowConfig) config = NULL;
+
+  config = meta_window_config_new_from (window->config);
+  meta_window_config_set_is_fullscreen (config, FALSE);
+
+  meta_window_process_config (window, config);
+}
+
+static gboolean
+tile_config_changed (MetaWindow       *window,
+                     MetaWindowConfig *config)
+{
+  double tile_hfraction;
+
+  if (meta_window_config_get_tile_mode (config) !=
+      meta_window_config_get_tile_mode (window->config))
+    return TRUE;
+
+  if (meta_window_config_get_tile_hfraction (config) !=
+      meta_window_config_get_tile_hfraction (window->config))
+    return TRUE;
+
+  meta_window_get_tile_fraction (window, config, &tile_hfraction);
+  if (tile_hfraction != meta_window_config_get_tile_hfraction (window->config))
+    return TRUE;
+
+  return FALSE;
+}
+
+void
+meta_window_process_config (MetaWindow       *window,
+                            MetaWindowConfig *config)
+{
+  g_return_if_fail (!meta_window_config_has_position (config));
+
+  if (tile_config_changed (window, config))
+    apply_tile_config (window, config);
+  else if (meta_window_config_get_maximize_flags (config) !=
+           meta_window_config_get_maximize_flags (window->config))
+    apply_maximize_config (window, config);
+
+  if (meta_window_config_get_is_fullscreen (config) !=
+      meta_window_config_get_is_fullscreen (window->config))
+    apply_fullscreen_config (window, config);
 }
 
 MetaGravity

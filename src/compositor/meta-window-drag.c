@@ -1825,16 +1825,19 @@ end_grab_op (MetaWindowDrag     *window_drag,
         {
           if (window_drag->preview_tile_mode != META_TILE_NONE)
             {
+              g_autoptr (MetaWindowConfig) config = NULL;
               MetaWindowConfig *initial_window_config =
                 window_drag->initial_window_config;
-              MtkRectangle *saved_rect = NULL;
 
+              config = meta_window_config_new_from (window->config);
+              meta_window_config_set_tile_mode (config,
+                                                window_drag->preview_tile_mode);
               if (meta_window_config_is_floating (initial_window_config))
-                saved_rect = &window_drag->initial_window_pos;
-
-              meta_window_tile_internal (window,
-                                         window_drag->preview_tile_mode,
-                                         saved_rect);
+                {
+                  meta_window_config_set_saved_rect (config,
+                                                     window_drag->initial_window_pos);
+                }
+              meta_window_process_config (window, config);
             }
           else
             {

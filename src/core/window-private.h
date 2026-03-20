@@ -917,6 +917,9 @@ void meta_window_update_tile_fraction (MetaWindow *window,
                                        int         new_w,
                                        int         new_h);
 
+void meta_window_process_config (MetaWindow       *window,
+                                 MetaWindowConfig *config);
+
 void meta_window_apply_config (MetaWindow           *window,
                                MetaWindowConfig     *config,
                                MetaWindowApplyFlags  flags);
