@@ -976,15 +976,20 @@ locked_pointer_set_cursor_position_hint (struct wl_client   *client,
 {
   MetaWaylandPointerConstraint *constraint =
     wl_resource_get_user_data (resource);
+  float sx, sy;
 
   /* Ignore a set cursor hint that was already sent after the constraint
    * was cancelled. */
   if (!constraint || !constraint->resource || constraint->resource != resource)
     return;
 
+  sx = (float) wl_fixed_to_double (surface_x);
+  sy = (float) wl_fixed_to_double (surface_y);
+  maybe_scale_for_xwayland (constraint->surface, &sx, &sy);
+
   constraint->hint_set = TRUE;
-  constraint->x_hint = (float) wl_fixed_to_double (surface_x);
-  constraint->y_hint = (float) wl_fixed_to_double (surface_y);
+  constraint->x_hint = sx;
+  constraint->y_hint = sy;
 }
 
 static void
