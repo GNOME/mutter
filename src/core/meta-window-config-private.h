@@ -39,9 +39,17 @@ gboolean meta_window_config_is_maximized (MetaWindowConfig *config);
 
 gboolean meta_window_config_is_any_maximized (MetaWindowConfig *config);
 
+MetaMaximizeFlags meta_window_config_get_maximize_flags (MetaWindowConfig *config);
+
 gboolean meta_window_config_is_maximized_horizontally (MetaWindowConfig *config);
 
 gboolean meta_window_config_is_maximized_vertically (MetaWindowConfig *config);
+
+void meta_window_config_set_maximize_flags (MetaWindowConfig  *config,
+                                            MetaMaximizeFlags  flags);
+
+void meta_window_config_unset_maximize_flags (MetaWindowConfig  *config,
+                                              MetaMaximizeFlags  flags);
 
 void meta_window_config_set_maximized_directions (MetaWindowConfig *window_config,
                                                   gboolean          horizontally,

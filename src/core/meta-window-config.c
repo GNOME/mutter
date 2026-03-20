@@ -265,6 +265,32 @@ meta_window_config_is_maximized_vertically (MetaWindowConfig *config)
   return !!(config->maximize_flags & META_MAXIMIZE_VERTICAL);
 }
 
+MetaMaximizeFlags
+meta_window_config_get_maximize_flags (MetaWindowConfig *config)
+{
+  g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), META_MAXIMIZE_NONE);
+
+  return config->maximize_flags;
+}
+
+void
+meta_window_config_set_maximize_flags (MetaWindowConfig  *config,
+                                       MetaMaximizeFlags  flags)
+{
+  g_return_if_fail (META_IS_WINDOW_CONFIG (config));
+
+  config->maximize_flags |= flags;
+}
+
+void
+meta_window_config_unset_maximize_flags (MetaWindowConfig  *config,
+                                         MetaMaximizeFlags  flags)
+{
+  g_return_if_fail (META_IS_WINDOW_CONFIG (config));
+
+  config->maximize_flags &= ~flags;
+}
+
 void
 meta_window_config_set_maximized_directions (MetaWindowConfig *config,
                                              gboolean          horizontally,
