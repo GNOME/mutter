@@ -83,3 +83,8 @@ gboolean meta_window_config_is_equivalent (MetaWindowConfig *config,
                                            MetaWindowConfig *other_config);
 
 gboolean meta_window_config_is_tiled_side_by_side (MetaWindowConfig *config);
+
+void meta_window_config_set_saved_rect (MetaWindowConfig *config,
+                                        MtkRectangle      saved_rect);
+
+const MtkRectangle * meta_window_config_get_saved_rect (MetaWindowConfig *config);

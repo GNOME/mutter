@@ -47,6 +47,9 @@ struct _MetaWindowConfig
   int tile_monitor_number;
   double tile_hfraction;
   MetaWindow *tile_match;
+
+  MtkRectangle saved_rect;
+  gboolean has_saved_rect;
 };
 
 G_DEFINE_FINAL_TYPE (MetaWindowConfig, meta_window_config, G_TYPE_OBJECT)
@@ -430,6 +433,8 @@ meta_window_config_new_from (MetaWindowConfig *other_config)
   config->tile_monitor_number = other_config->tile_monitor_number;
   config->tile_hfraction = other_config->tile_hfraction;
   config->tile_match = other_config->tile_match;
+  config->has_saved_rect = other_config->has_saved_rect;
+  config->saved_rect = other_config->saved_rect;
 
   return config;
 }
@@ -454,7 +459,12 @@ meta_window_config_is_equivalent (MetaWindowConfig *config,
           config->maximize_flags == other_config->maximize_flags &&
           config->tile_mode == other_config->tile_mode &&
           config->tile_monitor_number == other_config->tile_monitor_number &&
-          config->tile_hfraction == other_config->tile_hfraction);
+          config->tile_hfraction == other_config->tile_hfraction &&
+          config->has_saved_rect == other_config->has_saved_rect &&
+          (!config->has_saved_rect ||
+           (config->has_saved_rect &&
+            mtk_rectangle_equal (&config->saved_rect,
+                                 &other_config->saved_rect))));
 }
 
 gboolean
@@ -463,4 +473,21 @@ meta_window_config_is_tiled_side_by_side (MetaWindowConfig *config)
   return (meta_window_config_is_maximized_vertically (config) &&
           !meta_window_config_is_maximized_horizontally (config) &&
           meta_window_config_get_tile_mode (config) != META_TILE_NONE);
+}
+
+void
+meta_window_config_set_saved_rect (MetaWindowConfig *config,
+                                   MtkRectangle      rect)
+{
+  config->saved_rect = rect;
+  config->has_saved_rect = TRUE;
+}
+
+const MtkRectangle *
+meta_window_config_get_saved_rect (MetaWindowConfig *config)
+{
+  if (config->has_saved_rect)
+    return &config->saved_rect;
+  else
+    return NULL;
 }
