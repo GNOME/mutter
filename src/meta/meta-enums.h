@@ -344,3 +344,18 @@ typedef enum _MetaExternalConstraintFlags
   META_EXTERNAL_CONSTRAINT_FLAGS_MOVE = 1 << 0,
   META_EXTERNAL_CONSTRAINT_FLAGS_RESIZE = 1 << 1,
 } MetaExternalConstraintFlags;
+
+/**
+ * MetaMaximizeFlags:
+ * @META_MAXIMIZE_NONE: Not maximized
+ * @META_MAXIMIZE_HORIZONTAL: Horizontal
+ * @META_MAXIMIZE_VERTICAL: Vertical
+ * @META_MAXIMIZE_BOTH: Both
+ */
+typedef enum _MetaMaximizeFlags
+{
+  META_MAXIMIZE_NONE       = 0,
+  META_MAXIMIZE_HORIZONTAL = 1 << 0,
+  META_MAXIMIZE_VERTICAL   = 1 << 1,
+  META_MAXIMIZE_BOTH       = (1 << 0 | 1 << 1),
+} MetaMaximizeFlags;
