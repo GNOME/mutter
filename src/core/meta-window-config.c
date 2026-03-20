@@ -41,8 +41,7 @@ struct _MetaWindowConfig
 
   gboolean is_fullscreen;
 
-  gboolean maximized_horizontally;
-  gboolean maximized_vertically;
+  MetaMaximizeFlags maximize_flags;
 
   MetaTileMode tile_mode;
   int tile_monitor_number;
@@ -239,7 +238,7 @@ meta_window_config_is_maximized (MetaWindowConfig *config)
 {
   g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), FALSE);
 
-  return config->maximized_horizontally && config->maximized_vertically;
+  return config->maximize_flags == META_MAXIMIZE_BOTH;
 }
 
 gboolean
@@ -247,7 +246,7 @@ meta_window_config_is_any_maximized (MetaWindowConfig *config)
 {
   g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), FALSE);
 
-  return config->maximized_horizontally || config->maximized_vertically;
+  return !!config->maximize_flags;
 }
 
 gboolean
@@ -255,7 +254,7 @@ meta_window_config_is_maximized_horizontally (MetaWindowConfig *config)
 {
   g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), FALSE);
 
-  return config->maximized_horizontally;
+  return !!(config->maximize_flags & META_MAXIMIZE_HORIZONTAL);
 }
 
 gboolean
@@ -263,7 +262,7 @@ meta_window_config_is_maximized_vertically (MetaWindowConfig *config)
 {
   g_return_val_if_fail (META_IS_WINDOW_CONFIG (config), FALSE);
 
-  return config->maximized_vertically;
+  return !!(config->maximize_flags & META_MAXIMIZE_VERTICAL);
 }
 
 void
@@ -273,8 +272,11 @@ meta_window_config_set_maximized_directions (MetaWindowConfig *config,
 {
   g_return_if_fail (META_IS_WINDOW_CONFIG (config));
 
-  config->maximized_horizontally = horizontally;
-  config->maximized_vertically = vertically;
+  config->maximize_flags = META_MAXIMIZE_NONE;
+  if (horizontally)
+    config->maximize_flags |= META_MAXIMIZE_HORIZONTAL;
+  if (vertically)
+    config->maximize_flags |= META_MAXIMIZE_VERTICAL;
 }
 
 MetaTileMode
@@ -397,8 +399,7 @@ meta_window_config_new_from (MetaWindowConfig *other_config)
   config->is_initial = other_config->is_initial;
   config->rect = meta_window_config_get_rect (other_config);
   config->is_fullscreen = other_config->is_fullscreen;
-  config->maximized_horizontally = other_config->maximized_horizontally;
-  config->maximized_vertically = other_config->maximized_vertically;
+  config->maximize_flags = other_config->maximize_flags;
   config->tile_mode = other_config->tile_mode;
   config->tile_monitor_number = other_config->tile_monitor_number;
   config->tile_hfraction = other_config->tile_hfraction;
@@ -424,8 +425,7 @@ meta_window_config_is_equivalent (MetaWindowConfig *config,
 
   return (mtk_rectangle_equal (&config->rect, &other_config->rect) &&
           config->is_fullscreen == other_config->is_fullscreen &&
-          config->maximized_horizontally == other_config->maximized_horizontally &&
-          config->maximized_vertically == other_config->maximized_vertically &&
+          config->maximize_flags == other_config->maximize_flags &&
           config->tile_mode == other_config->tile_mode &&
           config->tile_monitor_number == other_config->tile_monitor_number &&
           config->tile_hfraction == other_config->tile_hfraction);
