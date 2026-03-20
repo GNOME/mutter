@@ -81,8 +81,8 @@ struct _MetaWindowDrag {
   gulong size_changed_id;
 
   guint tile_preview_timeout_id;
-  guint preview_tile_mode : 2;
-  guint pos_hint_set : 1;
+  MetaTileMode preview_tile_mode;
+  gboolean pos_hint_set;
 };
 
 G_DEFINE_FINAL_TYPE (MetaWindowDrag, meta_window_drag, G_TYPE_OBJECT)
