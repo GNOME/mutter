@@ -66,8 +66,8 @@ keyboard_event_order (void)
                                             "keyboard",
                                             "event-order",
                                             NULL);
-  meta_wait_for_client_window (test_context, "event-order");
   wait_for_sync_point (0);
+  g_assert_nonnull (meta_find_client_window (test_context, "event-order"));
 
   clutter_virtual_input_device_notify_key (virtual_keyboard,
                                            g_get_monotonic_time (),
@@ -101,8 +101,8 @@ keyboard_event_order2 (void)
                                             "keyboard",
                                             "event-order2",
                                             NULL);
-  meta_wait_for_client_window (test_context, "event-order2");
   wait_for_sync_point (0);
+  g_assert_nonnull (meta_find_client_window (test_context, "event-order2"));
 
   clutter_virtual_input_device_notify_key (virtual_keyboard,
                                            g_get_monotonic_time (),
@@ -136,8 +136,8 @@ keyboard_client_shortcut (void)
                                             "keyboard",
                                             "client-shortcut",
                                             NULL);
-  meta_wait_for_client_window (test_context, "client-shortcut");
   wait_for_sync_point (0);
+  g_assert_nonnull (meta_find_client_window (test_context, "client-shortcut"));
 
   clutter_virtual_input_device_notify_key (virtual_keyboard,
                                            g_get_monotonic_time (),
@@ -183,17 +183,16 @@ keyboard_focus_switch (void)
                                             "keyboard",
                                             "focus-switch-dest",
                                             NULL);
-  meta_wait_for_client_window (test_context, "focus-switch-dest");
-
   wait_for_sync_point (0);
+  g_assert_nonnull (meta_find_client_window (test_context, "focus-switch-dest"));
 
   wayland_test_client2 =
     meta_wayland_test_client_new_with_args (test_context,
                                             "keyboard",
                                             "focus-switch-source",
                                             NULL);
-  meta_wait_for_client_window (test_context, "focus-switch-source");
   wait_for_sync_point (100);
+  g_assert_nonnull (meta_find_client_window (test_context, "focus-switch-source"));
 
   clutter_virtual_input_device_notify_key (virtual_keyboard,
                                            g_get_monotonic_time (),
