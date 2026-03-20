@@ -1721,7 +1721,9 @@ clutter_actor_queue_redraw_on_parent (ClutterActor *self)
   if (self->priv->needs_allocation)
     return;
 
-  pv = clutter_actor_get_transformed_paint_volume (self, self->priv->parent);
+  if (clutter_actor_is_mapped (self->priv->parent))
+    pv = clutter_actor_get_transformed_paint_volume (self, self->priv->parent);
+
   _clutter_actor_queue_redraw_full (self->priv->parent, pv, NULL);
 }
 
@@ -7682,6 +7684,14 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
       return;
     }
 
+  /* If our actor is unmapped with mapped clones, it might not be in a
+   * part of the hierarchy that ends up calling finish_layout on it. In
+   * this case next_redraw_clips could grow unbounded with every clipped
+   * redraw until it is mapped again.
+   */
+  if (!clutter_actor_is_mapped (self))
+    g_warn_if_fail (!volume);
+
   /* given the check above we could end up queueing a redraw on an
    * unmapped actor with mapped clones, so we cannot assume that
    * get_stage() will return a Stage
@@ -7859,7 +7869,7 @@ clutter_actor_queue_redraw_with_clip (ClutterActor       *self,
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  if (clip == NULL)
+  if (clip == NULL || !clutter_actor_is_mapped (self))
     {
       clutter_actor_queue_redraw (self);
       return;
