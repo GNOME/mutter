@@ -72,11 +72,9 @@ install_data(['mutter-schemas.convert'],
   install_dir: datadir / 'GConf/gsettings',
 )
 
-if have_libgudev
-  install_data(['61-mutter.rules'],
-    install_dir: udev_dir / 'rules.d',
-  )
-endif
+install_data(['61-mutter.rules'],
+  install_dir: udev_dir / 'rules.d',
+)
 
 subdir('dbus-interfaces')
 

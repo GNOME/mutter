@@ -37,9 +37,6 @@
 /* Defined if EGLStream support is enabled */
 #mesondefine HAVE_WAYLAND_EGLSTREAM
 
-/* Building with gudev for device type detection */
-#mesondefine HAVE_LIBGUDEV
-
 /* Building with libwacom for advanced tablet management */
 #mesondefine HAVE_LIBWACOM
 

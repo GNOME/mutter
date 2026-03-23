@@ -90,10 +90,7 @@
 #include "backends/native/meta-backend-native.h"
 
 #include "backends/meta-launcher.h"
-
-#ifdef HAVE_LIBGUDEV
 #include "backends/meta-udev.h"
-#endif
 
 enum
 {
@@ -149,9 +146,7 @@ struct _MetaBackendPrivate
   MetaRenderer *renderer;
   MetaColorManager *color_manager;
   MetaLauncher *launcher;
-#ifdef HAVE_LIBGUDEV
   MetaUdev *udev;
-#endif
 #ifdef HAVE_EGL
   MetaEgl *egl;
 #endif
@@ -270,10 +265,7 @@ meta_backend_finalize (GObject *object)
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
   g_clear_object (&priv->launcher);
-
-#ifdef HAVE_LIBGUDEV
   g_clear_object (&priv->udev);
-#endif
 
   if (priv->sleep_signal_id)
     {
@@ -601,9 +593,7 @@ meta_backend_real_pause (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   meta_renderer_pause (priv->renderer);
-#ifdef HAVE_LIBGUDEV
   meta_udev_pause (priv->udev);
-#endif
 }
 
 static void
@@ -612,9 +602,7 @@ meta_backend_real_resume (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-#ifdef HAVE_LIBGUDEV
   meta_udev_resume (priv->udev);
-#endif
   meta_renderer_resume (priv->renderer);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 }
@@ -1272,9 +1260,7 @@ meta_backend_initable_init (GInitable     *initable,
   if (!meta_backend_create_launcher (backend, &priv->launcher, error))
       return FALSE;
 
-#ifdef HAVE_LIBGUDEV
   priv->udev = meta_udev_new (backend);
-#endif
 
   priv->settings = meta_settings_new (backend);
 
@@ -1469,7 +1455,6 @@ meta_backend_get_launcher (MetaBackend *backend)
   return priv->launcher;
 }
 
-#ifdef HAVE_LIBGUDEV
 MetaUdev *
 meta_backend_get_udev (MetaBackend *backend)
 {
@@ -1477,7 +1462,6 @@ meta_backend_get_udev (MetaBackend *backend)
 
   return priv->udev;
 }
-#endif
 
 /**
  * meta_backend_get_orientation_manager:

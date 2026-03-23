@@ -238,16 +238,13 @@ if not logind_dep.found()
   error('No logind provider dependency found: tried libsystemd and libelogind')
 endif
 
-have_libgudev = get_option('udev')
-if have_libgudev
-  libudev_dep = dependency('libudev', version: udev_req)
-  gudev_dep = dependency('gudev-1.0', version: gudev_req)
-  udev_dep = dependency('udev')
+libudev_dep = dependency('libudev', version: udev_req)
+gudev_dep = dependency('gudev-1.0', version: gudev_req)
+udev_dep = dependency('udev')
 
-  udev_dir = get_option('udev_dir')
-  if udev_dir == ''
-    udev_dir = udev_dep.get_variable('udevdir')
-  endif
+udev_dir = get_option('udev_dir')
+if udev_dir == ''
+  udev_dir = udev_dep.get_variable('udevdir')
 endif
 
 libgbm_dep = dependency('gbm', version: gbm_req)
@@ -262,9 +259,6 @@ if not have_gles2
   error('The native backend requires GLESv2 to be enabled')
 endif
 
-if not have_libgudev
-  error('The native backend requires udev to be enabled')
-endif
 
 have_drm_plane_size_hint = cc.has_type('struct drm_plane_size_hint',
                                         dependencies: libdrm_dep,
@@ -540,7 +534,6 @@ cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)
 cdata.set('HAVE_SOUND_PLAYER', have_sound_player)
 cdata.set('HAVE_EGL_DEVICE', have_egl_device)
 cdata.set('HAVE_WAYLAND_EGLSTREAM', have_wayland_eglstream)
-cdata.set('HAVE_LIBGUDEV', have_libgudev)
 cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_LIBWACOM_GET_NUM_RINGS', have_libwacom_get_num_rings)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
@@ -727,7 +720,6 @@ summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('Development Kit', have_devkit, section: 'Options')
 summary('libgnome-desktop', have_gnome_desktop, section: 'Options')
 summary('Sound player', have_sound_player, section: 'Options')
-summary('gudev', have_libgudev, section: 'Options')
 summary('Wacom', have_libwacom, section: 'Options')
 summary('Fonts', have_fonts, section: 'Options')
 summary('Startup notification', have_startup_notification, section: 'Options')
