@@ -100,9 +100,7 @@
 #include "wayland/meta-window-xwayland.h"
 #endif
 
-#ifdef HAVE_LOGIND
 #include <systemd/sd-login.h>
-#endif
 
 #include "meta-private-enum-types.h"
 
@@ -7061,7 +7059,6 @@ meta_window_get_pid (MetaWindow *window)
 GFile *
 meta_window_get_unit_cgroup (MetaWindow *window)
 {
-#ifdef HAVE_LOGIND
   g_autofree char *contents = NULL;
   g_autofree char *complete_path = NULL;
   g_autofree char *unit_name = NULL;
@@ -7100,9 +7097,6 @@ meta_window_get_unit_cgroup (MetaWindow *window)
   window->cgroup_path = g_file_new_for_path (complete_path);
 
   return window->cgroup_path;
-#else
-  return NULL;
-#endif
 }
 
 gboolean

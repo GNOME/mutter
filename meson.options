@@ -34,12 +34,6 @@ option('xwayland',
   description: 'Enable Xwayland support'
 )
 
-option('logind',
-  type: 'boolean',
-  value: true,
-  description: 'Enable logind support'
-)
-
 option('remote_desktop',
   type: 'boolean',
   value: true,

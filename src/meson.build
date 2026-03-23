@@ -115,13 +115,8 @@ if have_xwayland
   ]
 endif
 
-if have_logind
-  mutter_pkg_private_deps += [
-    logind_dep,
-  ]
-endif
-
 mutter_pkg_private_deps += [
+  logind_dep,
   libinput_dep,
   libgbm_dep,
   xkbcommon_dep,
@@ -838,12 +833,10 @@ if have_libgudev
   ]
 endif
 
-if have_logind
-  mutter_sources += [
-    'backends/meta-launcher.c',
-    'backends/meta-launcher.h',
-  ]
-endif
+mutter_sources += [
+  'backends/meta-launcher.c',
+  'backends/meta-launcher.h',
+]
 
 mutter_private_enum_sources = [
   'core/window-private.h',

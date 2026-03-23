@@ -46,9 +46,6 @@
 /* libwacom has get_num_rings() */
 #mesondefine HAVE_LIBWACOM_GET_NUM_RINGS
 
-/* Building with logind */
-#mesondefine HAVE_LOGIND
-
 /* Define if you want to enable XWayland support */
 #mesondefine HAVE_XWAYLAND
 
