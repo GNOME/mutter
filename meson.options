@@ -40,12 +40,6 @@ option('logind',
   description: 'Enable logind support'
 )
 
-option('native_backend',
-  type: 'boolean',
-  value: true,
-  description: 'Enable the native backend'
-)
-
 option('remote_desktop',
   type: 'boolean',
   value: true,

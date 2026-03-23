@@ -28,7 +28,6 @@
 #include "backends/meta-remote-desktop-session.h"
 #include "backends/meta-screen-cast-session.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
@@ -36,7 +35,6 @@
 #include "backends/native/meta-renderer-native-private.h"
 
 #include "common/meta-cogl-drm-formats.h"
-#endif
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
@@ -85,7 +83,6 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
                                          int              height,
                                          uint64_t        *preferred_modifier)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend =
     meta_screen_cast_get_backend (screen_cast);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
@@ -178,7 +175,6 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
           return TRUE;
         }
     }
-#endif
 
   g_array_set_size (modifiers, 0);
   return FALSE;
@@ -350,20 +346,16 @@ meta_screen_cast_constructed (GObject *object)
   GDBusInterfaceSkeleton *interface_skeleton =
     meta_dbus_session_manager_get_interface_skeleton (session_manager);
   MetaDBusScreenCast *skeleton = META_DBUS_SCREEN_CAST (interface_skeleton);
-#ifdef HAVE_NATIVE_BACKEND
   MetaRenderDevice *render_device;
-#endif
 
   g_signal_connect (interface_skeleton, "handle-create-session",
                     G_CALLBACK (handle_create_session), screen_cast);
 
   meta_dbus_screen_cast_set_version (skeleton, META_SCREEN_CAST_API_VERSION);
 
-#ifdef HAVE_NATIVE_BACKEND
   render_device = get_render_device (screen_cast);
   if (meta_render_device_is_hardware_accelerated (render_device))
     screen_cast->screen_cast_device = render_device;
-#endif
 
   G_OBJECT_CLASS (meta_screen_cast_parent_class)->constructed (object);
 }

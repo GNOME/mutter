@@ -87,10 +87,7 @@
 #include "backends/meta-screen-cast.h"
 #endif
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#endif
-
 
 #ifdef HAVE_LOGIND
 #include "backends/meta-launcher.h"

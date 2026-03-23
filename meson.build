@@ -257,26 +257,23 @@ if have_libgudev
   endif
 endif
 
-have_native_backend = get_option('native_backend')
-if have_native_backend
-  libgbm_dep = dependency('gbm', version: gbm_req)
-  libinput_dep = dependency('libinput', version: libinput_req)
+libgbm_dep = dependency('gbm', version: gbm_req)
+libinput_dep = dependency('libinput', version: libinput_req)
 
-  if not have_logind
-    error('The native backend requires logind to be enabled')
-  endif
+if not have_logind
+  error('The native backend requires logind to be enabled')
+endif
 
-  if not have_egl
-    error('The native backend requires EGL to be enabled')
-  endif
+if not have_egl
+  error('The native backend requires EGL to be enabled')
+endif
 
-  if not have_gles2
-    error('The native backend requires GLESv2 to be enabled')
-  endif
+if not have_gles2
+  error('The native backend requires GLESv2 to be enabled')
+endif
 
-  if not have_libgudev
-    error('The native backend requires udev to be enabled')
-  endif
+if not have_libgudev
+  error('The native backend requires udev to be enabled')
 endif
 
 have_drm_plane_size_hint = cc.has_type('struct drm_plane_size_hint',
@@ -316,10 +313,9 @@ endif
 have_devkit = get_option('devkit').enable_auto_if(
   gtk4_dep.found() and
   libadwaita_dep.found() and
-  have_native_backend and
   have_remote_desktop
 ).enabled()
-if have_devkit and (not gtk4_dep.found() or not libadwaita_dep.found() or not have_native_backend or not have_remote_desktop)
+if have_devkit and (not gtk4_dep.found() or not libadwaita_dep.found() or not have_remote_desktop)
   error('MDK requires gtk4 @0@, libadwaita, the native backend, and remote desktop'.format(gtk4_req))
 endif
 
@@ -360,7 +356,7 @@ int main (int argc, char ** argv) {
 ''', name : 'timerfd_create(2) system call')
 
 have_documentation = get_option('docs')
-have_tests = get_option('tests').enable_auto_if(have_native_backend).enabled()
+have_tests = get_option('tests').auto()
 have_mutter_tests = false
 have_cogl_tests = false
 have_clutter_tests = false
@@ -375,9 +371,7 @@ if have_tests
   libevdev_dep = dependency('libevdev', required: false)
   umockdev_dep = dependency('umockdev-1.0', version: umockdev_req)
 
-  if not have_native_backend
-    error('Tests require the native backend to be enabled')
-  endif
+
 
   have_mutter_tests = get_option('mutter_tests')
   if have_mutter_tests
@@ -391,19 +385,11 @@ if have_tests
   endif
   have_kvm_tests = get_option('kvm_tests')
   if have_kvm_tests
-    if not have_native_backend
-      error('KVM tests need the native backend tests')
-    endif
     if host_machine.cpu_family() != 'x86_64'
       error('KVM tests are only supported on x86_64')
     endif
   endif
   have_tty_tests = get_option('tty_tests')
-  if have_tty_tests
-    if not have_native_backend
-      error('TTY tests need the native backend tests')
-    endif
-  endif
 
   have_cogl_tests = get_option('cogl_tests')
   have_clutter_tests = get_option('clutter_tests')
@@ -559,7 +545,6 @@ cdata.set('HAVE_GL', have_gl)
 cdata.set('HAVE_GLES2', have_gles2)
 cdata.set('HAVE_XWAYLAND', have_xwayland)
 cdata.set('HAVE_LOGIND', have_logind)
-cdata.set('HAVE_NATIVE_BACKEND', have_native_backend)
 cdata.set('HAVE_REMOTE_DESKTOP', have_remote_desktop)
 cdata.set('HAVE_DEVKIT', have_devkit)
 cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)
@@ -748,7 +733,6 @@ summary('EGL', have_egl, section: 'Rendering APIs')
 
 summary('Wayland EGLStream', have_wayland_eglstream, section: 'Options')
 summary('XWayland', have_xwayland, section: 'Options')
-summary('Native Backend', have_native_backend, section: 'Options')
 summary('EGL Device', have_egl_device, section: 'Options')
 summary('Remote desktop', have_remote_desktop, section: 'Options')
 summary('Development Kit', have_devkit, section: 'Options')
