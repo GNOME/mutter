@@ -31,9 +31,6 @@
 /* Have GLES 2.0 for rendering */
 #mesondefine HAVE_GLES2
 
-/* Building with gudev for device type detection */
-#mesondefine HAVE_LIBGUDEV
-
 /* Building with libwacom for advanced tablet management */
 #mesondefine HAVE_LIBWACOM
 

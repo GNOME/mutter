@@ -63,12 +63,10 @@ if have_egl
   ]
 endif
 
-if have_libgudev
-  mutter_pkg_private_deps += [
-    gudev_dep,
-    libudev_dep,
-  ]
-endif
+mutter_pkg_private_deps += [
+  gudev_dep,
+  libudev_dep,
+]
 
 if have_startup_notification
   mutter_pkg_private_deps += [
@@ -806,18 +804,13 @@ if have_devkit
   ]
 endif
 
-if have_libgudev
-  mutter_sources += [
-    'backends/meta-backlight-sysfs.c',
-    'backends/meta-backlight-sysfs-private.h',
-    'backends/meta-udev.c',
-    'backends/meta-udev.h',
-  ]
-endif
-
 mutter_sources += [
+  'backends/meta-backlight-sysfs.c',
+  'backends/meta-backlight-sysfs-private.h',
   'backends/meta-launcher.c',
   'backends/meta-launcher.h',
+  'backends/meta-udev.c',
+  'backends/meta-udev.h',
 ]
 
 mutter_private_enum_sources = [
