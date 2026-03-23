@@ -49,9 +49,6 @@
 /* Building with logind */
 #mesondefine HAVE_LOGIND
 
-/* Define if you want to enable the native (KMS) backend based on systemd */
-#mesondefine HAVE_NATIVE_BACKEND
-
 /* Define if you want to enable XWayland support */
 #mesondefine HAVE_XWAYLAND
 

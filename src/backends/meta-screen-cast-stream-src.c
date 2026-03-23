@@ -36,21 +36,17 @@
 #include <stdint.h>
 #include <sys/mman.h>
 
-#ifdef HAVE_NATIVE_BACKEND
 #include <drm_fourcc.h>
-#endif
 
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-screen-cast-stream.h"
 #include "core/meta-fraction.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-device-pool.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-drm-timeline.h"
-#endif
 
 #define PRIVATE_OWNER_FROM_FIELD(TypeName, field_ptr, field_name) \
         (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
@@ -188,7 +184,6 @@ static const struct {
     } \
   G_STMT_END
 
-#ifdef HAVE_NATIVE_BACKEND
 
 enum {
   DATA_OFFSET_RELEASE = 1,
@@ -205,8 +200,6 @@ syncobj_data_from_buffer (struct spa_buffer *spa_buffer,
   spa_data = &spa_buffer->datas[spa_buffer->n_datas - offset];
   return spa_data;
 }
-
-#endif /* HAVE_NATIVE_BACKEND */
 
 static void
 meta_tag_entry_clear (MetaTagEntry *tag_entry)
@@ -774,7 +767,6 @@ static void
 maybe_set_sync_points (MetaScreenCastStreamSrc *src,
                        struct spa_buffer       *spa_buffer)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   struct spa_meta_sync_timeline *sync_timeline;
@@ -819,7 +811,6 @@ maybe_set_sync_points (MetaScreenCastStreamSrc *src,
       g_warning_once ("meta_drm_timeline_set_sync_point failed: %s",
                       local_error->message);
     }
-#endif /* HAVE_NATIVE_BACKEND */
 }
 
 static gboolean
@@ -1008,8 +999,6 @@ meta_screen_cast_stream_src_request_process (MetaScreenCastStreamSrc *src)
     }
 }
 
-#ifdef HAVE_NATIVE_BACKEND
-
 static gboolean
 can_reuse_pw_buffer (MetaScreenCastStreamSrcPrivate  *priv,
                      struct pw_buffer                *buffer,
@@ -1052,8 +1041,6 @@ can_reuse_pw_buffer (MetaScreenCastStreamSrcPrivate  *priv,
   return is_signaled;
 }
 
-#endif /* HAVE_NATIVE_BACKEND */
-
 static struct pw_buffer *
 dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
                    GError                  **error)
@@ -1062,7 +1049,6 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
     meta_screen_cast_stream_src_get_instance_private (src);
   struct pw_buffer *buffer = NULL;
 
-#ifdef HAVE_NATIVE_BACKEND
   GError *local_error = NULL;
 
   for (GList *l = priv->dequeued_buffers; l; l = g_list_next (l))
@@ -1095,10 +1081,6 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
       g_propagate_error (error, g_steal_pointer (&local_error));
       return NULL;
     }
-#else /* !HAVE_NATIVE_BACKEND */
-
-  buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
-#endif
 
   if (!buffer)
     {
@@ -1768,7 +1750,6 @@ static gboolean
 explicit_sync_supported (MetaScreenCastStreamSrc *src)
 {
   uint64_t supported = 0;
-#ifdef HAVE_NATIVE_BACKEND
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaScreenCastSession *session =
     meta_screen_cast_stream_get_session (stream);
@@ -1799,7 +1780,6 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
   drm_fd = meta_device_file_get_fd (device_file);
   if (drmGetCap (drm_fd, DRM_CAP_SYNCOBJ_TIMELINE, &supported) != 0)
     return FALSE;
-#endif /* HAVE_NATIVE_BACKEND */
 
   return supported != 0;
 }
@@ -2159,7 +2139,6 @@ static void
 maybe_create_syncobj (MetaScreenCastStreamSrc *src,
                       struct spa_buffer       *spa_buffer)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
@@ -2222,7 +2201,6 @@ maybe_create_syncobj (MetaScreenCastStreamSrc *src,
   g_hash_table_insert (priv->timelines,
                        GINT_TO_POINTER (g_steal_fd (&syncobj_fd)),
                        g_steal_pointer (&timeline));
-#endif /* HAVE_NATIVE_BACKEND */
 }
 
 static void
@@ -2363,7 +2341,6 @@ static void
 maybe_remove_syncobj (MetaScreenCastStreamSrc *src,
                       struct pw_buffer        *buffer)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
   struct spa_buffer *spa_buffer = buffer->buffer;
@@ -2384,7 +2361,6 @@ maybe_remove_syncobj (MetaScreenCastStreamSrc *src,
   acquire_fd = syncobj_data_from_buffer (spa_buffer, DATA_OFFSET_ACQUIRE)->fd;
   if (!g_hash_table_remove (priv->timelines, GINT_TO_POINTER (acquire_fd)))
     g_critical ("Failed to remove DRM timeline syncobj");
-#endif
 }
 
 static void

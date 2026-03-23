@@ -928,7 +928,6 @@ meta_create_test_monitor (MetaContext *context,
   return virtual_monitor;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static GMutex mutex;
 static GCond cond;
 
@@ -943,12 +942,10 @@ queue_callback (GTask *task)
 
   return G_SOURCE_REMOVE;
 }
-#endif
 
 void
 meta_flush_input (MetaContext *context)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_context_get_backend (context);
   ClutterSeat *seat;
   MetaSeatNative *seat_native;
@@ -968,7 +965,6 @@ meta_flush_input (MetaContext *context)
 
   g_cond_wait (&cond, &mutex);
   g_mutex_unlock (&mutex);
-#endif
 }
 
 GSubprocess *

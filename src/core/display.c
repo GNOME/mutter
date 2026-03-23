@@ -80,9 +80,7 @@
 #include "wayland/meta-xwayland-private.h"
 #endif
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#endif
 
 /*
  * Sometimes we want to see whether a window is responding,
@@ -573,10 +571,9 @@ create_compositor (MetaDisplay *display)
 {
   MetaBackend *backend = backend_from_display (display);
 
-#ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
     return META_COMPOSITOR (meta_compositor_native_new (display, backend));
-#endif
+
   g_assert_not_reached ();
 }
 

@@ -42,9 +42,7 @@
 #include "meta/compositor.h"
 #include "meta/prefs.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#endif
 
 #ifdef __linux__
 #include <linux/input.h>
@@ -2431,7 +2429,6 @@ handle_set_spew_mark (MetaDisplay           *display,
   g_message ("-- MARK MARK MARK MARK --");
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static void
 handle_switch_vt (MetaDisplay           *display,
                   MetaWindow            *window,
@@ -2451,7 +2448,6 @@ handle_switch_vt (MetaDisplay           *display,
       g_error_free (error);
     }
 }
-#endif /* HAVE_NATIVE_BACKEND */
 
 static void
 handle_switch_monitor (MetaDisplay           *display,
@@ -2668,7 +2664,6 @@ static BuiltinKeybinding WAYLAND_KEYBINDINGS[] = {
   { "restore-shortcuts", META_KEY_BINDING_NON_MASKABLE, META_KEYBINDING_ACTION_NONE, handle_restore_shortcuts, 0 },
 };
 
-#ifdef HAVE_NATIVE_BACKEND
 static BuiltinKeybinding NATIVE_KEYBINDINGS[] = {
   { "switch-to-session-1", META_KEY_BINDING_NON_MASKABLE, META_KEYBINDING_ACTION_NONE, handle_switch_vt, 1 },
   { "switch-to-session-2", META_KEY_BINDING_NON_MASKABLE, META_KEYBINDING_ACTION_NONE, handle_switch_vt, 2 },
@@ -2683,7 +2678,6 @@ static BuiltinKeybinding NATIVE_KEYBINDINGS[] = {
   { "switch-to-session-11", META_KEY_BINDING_NON_MASKABLE, META_KEYBINDING_ACTION_NONE, handle_switch_vt, 11 },
   { "switch-to-session-12", META_KEY_BINDING_NON_MASKABLE, META_KEYBINDING_ACTION_NONE, handle_switch_vt, 12 },
 };
-#endif
 
 static void
 init_builtin_key_bindings (MetaDisplay *display)
@@ -2699,7 +2693,6 @@ init_builtin_key_bindings (MetaDisplay *display)
   add_builtin_keybindings (display, mutter_wayland_keybindings, WAYLAND_KEYBINDINGS,
                            sizeof (WAYLAND_KEYBINDINGS) / sizeof (WAYLAND_KEYBINDINGS[0]));
 
-#ifdef HAVE_NATIVE_BACKEND
   MetaContext *context = meta_display_get_context (display);
   MetaBackend *backend = meta_context_get_backend (context);
   if (META_IS_BACKEND_NATIVE (backend))
@@ -2707,7 +2700,6 @@ init_builtin_key_bindings (MetaDisplay *display)
       add_builtin_keybindings (display, mutter_wayland_keybindings, NATIVE_KEYBINDINGS,
                                sizeof (NATIVE_KEYBINDINGS) / sizeof (NATIVE_KEYBINDINGS[0]));
     }
-#endif /* HAVE_NATIVE_BACKEND */
 
   g_object_unref (common_keybindings);
   g_object_unref (mutter_keybindings);

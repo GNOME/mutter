@@ -22,9 +22,7 @@
 #include "backends/meta-renderdoc.h"
 #include "backends/meta-monitor-private.h"
 #include "backends/meta-output.h"
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-stage-native.h"
-#endif
 
 #include <dlfcn.h>
 
@@ -103,7 +101,6 @@ meta_renderdoc_capture_start (MetaRenderdoc    *renderdoc,
   if (!g_hash_table_contains (renderdoc->queued_views, stage_view))
     return;
 
-#ifdef HAVE_NATIVE_BACKEND
   if (META_IS_STAGE_NATIVE (stage_window))
     {
       CoglFramebuffer *framebuffer =
@@ -114,7 +111,6 @@ meta_renderdoc_capture_start (MetaRenderdoc    *renderdoc,
                               COGL_ONSCREEN (framebuffer));
     }
   else
-#endif
     {
       g_warning ("capturing stage of type %s is not supported",
                  G_OBJECT_TYPE_NAME (stage_window));
@@ -137,7 +133,6 @@ meta_renderdoc_capture_end (MetaRenderdoc    *renderdoc,
 
   g_hash_table_remove (renderdoc->queued_views, stage_view);
 
-#ifdef HAVE_NATIVE_BACKEND
   if (META_IS_STAGE_NATIVE (stage_window))
     {
       CoglFramebuffer *framebuffer =
@@ -147,7 +142,6 @@ meta_renderdoc_capture_end (MetaRenderdoc    *renderdoc,
                             stage_view,
                             COGL_ONSCREEN (framebuffer));
     }
-#endif
 }
 
 static void

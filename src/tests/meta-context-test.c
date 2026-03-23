@@ -37,9 +37,7 @@
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-xwayland.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#endif
 
 enum
 {
@@ -154,7 +152,6 @@ meta_context_test_get_x11_display_policy (MetaContext *context)
     return META_X11_DISPLAY_POLICY_ON_DEMAND;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static MetaBackend *
 create_headless_backend (MetaContext  *context,
                          GError      **error)
@@ -187,7 +184,6 @@ create_test_headless_backend (MetaContext  *context,
                          "mode", META_BACKEND_NATIVE_MODE_TEST_HEADLESS,
                          NULL);
 }
-#endif /* HAVE_NATIVE_BACKEND */
 
 static MetaBackend *
 meta_context_test_create_backend (MetaContext  *context,
@@ -199,14 +195,12 @@ meta_context_test_create_backend (MetaContext  *context,
 
   switch (priv->type)
     {
-#ifdef HAVE_NATIVE_BACKEND
     case META_CONTEXT_TEST_TYPE_HEADLESS:
       return create_headless_backend (context, error);
     case META_CONTEXT_TEST_TYPE_VKMS:
       return create_test_vkms_backend (context, error);
     case META_CONTEXT_TEST_TYPE_TEST:
       return create_test_headless_backend (context, error);
-#endif /* HAVE_NATIVE_BACKEND */
     }
 
   g_assert_not_reached ();

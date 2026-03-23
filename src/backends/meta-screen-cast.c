@@ -28,13 +28,11 @@
 #include "backends/meta-remote-desktop-session.h"
 #include "backends/meta-screen-cast-session.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-render-device.h"
 #include "backends/native/meta-renderer-native-private.h"
 
 #include "common/meta-cogl-drm-formats.h"
-#endif
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
@@ -64,7 +62,6 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
                                          int              height,
                                          uint64_t        *preferred_modifier)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend =
     meta_screen_cast_get_backend (screen_cast);
   ClutterBackend *clutter_backend =
@@ -169,7 +166,6 @@ meta_screen_cast_get_preferred_modifier (MetaScreenCast  *screen_cast,
           return TRUE;
         }
     }
-#endif
 
   g_array_set_size (modifiers, 0);
   return FALSE;

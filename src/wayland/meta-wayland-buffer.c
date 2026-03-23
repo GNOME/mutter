@@ -63,12 +63,10 @@
 #include "compositor/meta-multi-texture-format-private.h"
 #include "wayland/meta-wayland-linux-drm-syncobj.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-renderer-native.h"
-#endif
 
 #define META_WAYLAND_SHM_MAX_PLANES 4
 
@@ -899,7 +897,6 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer     *buffer,
                                const graphene_rect_t *src_rect,
                                const MtkRectangle    *dst_rect)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaContext *context =
     meta_wayland_compositor_get_context (buffer->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -946,9 +943,6 @@ try_acquire_egl_image_scanout (MetaWaylandBuffer     *buffer,
     return NULL;
 
   return g_steal_pointer (&scanout);
-#else
-  return NULL;
-#endif
 }
 
 static void

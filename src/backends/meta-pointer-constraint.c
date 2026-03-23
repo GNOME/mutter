@@ -37,10 +37,8 @@
 
 #include "backends/meta-pointer-constraint.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-pointer-constraint-native.h"
-#endif
 
 #include <glib-object.h>
 

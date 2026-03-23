@@ -46,6 +46,7 @@
 #include <linux/input.h>
 #include <string.h>
 
+#include "backends/native/meta-backend-native.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
@@ -68,9 +69,6 @@
 #include "wayland/meta-xwayland.h"
 #endif
 
-#ifdef HAVE_NATIVE_BACKEND
-#include "backends/native/meta-backend-native.h"
-#endif
 
 #include "relative-pointer-unstable-v1-server-protocol.h"
 
@@ -1583,15 +1581,11 @@ meta_wayland_relative_pointer_init (MetaWaylandCompositor *compositor)
   /* Relative pointer events are currently only supported by the native backend
    * so lets just advertise the extension when the native backend is used.
    */
-#ifdef HAVE_NATIVE_BACKEND
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
 
   if (!META_IS_BACKEND_NATIVE (backend))
     return;
-#else
-  return;
-#endif
 
   if (!wl_global_create (compositor->wayland_display,
                          &zwp_relative_pointer_manager_v1_interface, 1,

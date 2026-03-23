@@ -76,11 +76,9 @@
 #include "wayland/meta-xwayland.h"
 #endif
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-frame-native.h"
 #include "backends/native/meta-renderer-native.h"
 #include "wayland/meta-wayland-drm-lease.h"
-#endif
 
 enum
 {
@@ -219,8 +217,6 @@ emit_frame_callbacks_for_stage_view (MetaWaylandCompositor *compositor,
         g_list_delete_link (compositor->frame_callback_surfaces, l_cur);
     }
 }
-
-#ifdef HAVE_NATIVE_BACKEND
 
 static gboolean
 frame_callback_source_prepare (GSource *base,
@@ -367,7 +363,6 @@ ensure_source_for_stage_view (MetaWaylandCompositor *compositor,
 
   return source;
 }
-#endif /* HAVE_NATIVE_BACKEND */
 
 static gboolean
 clear_time_constraints_for_stage_view_transactions (MetaWaylandCompositor *compositor,
@@ -443,7 +438,6 @@ on_after_update (ClutterStage          *stage,
                  ClutterFrame          *frame,
                  MetaWaylandCompositor *compositor)
 {
-#if defined(HAVE_NATIVE_BACKEND)
   MetaContext *context = meta_wayland_compositor_get_context (compositor);
   MetaBackend *backend = meta_context_get_backend (context);
   GSource *source;
@@ -480,10 +474,6 @@ on_after_update (ClutterStage          *stage,
     return;
 
   g_source_set_ready_time (source, frame_deadline_us);
-#else
-  clear_barrier_for_stage_view_surfaces (compositor, stage_view);
-  emit_frame_callbacks_for_stage_view (compositor, stage_view);
-#endif
 }
 
 void
@@ -1042,9 +1032,7 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_xdg_session_management_init (compositor);
   meta_wayland_init_system_bell (compositor);
   meta_wayland_xdg_toplevel_tag_init (compositor);
-#ifdef HAVE_NATIVE_BACKEND
   meta_wayland_drm_lease_manager_init (compositor);
-#endif
   meta_wayland_commit_timing_init (compositor);
   meta_wayland_fifo_init (compositor);
   meta_wayland_init_cursor_shape (compositor);
@@ -1054,7 +1042,7 @@ meta_wayland_compositor_new (MetaContext *context)
 #ifdef HAVE_WAYLAND_EGLSTREAM
   {
     gboolean should_enable_eglstream_controller = TRUE;
-#if defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND)
+#ifdef HAVE_EGL_DEVICE
     MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
     if (META_IS_RENDERER_NATIVE (renderer))
@@ -1065,7 +1053,7 @@ meta_wayland_compositor_new (MetaContext *context)
             META_RENDERER_NATIVE_MODE_GBM)
           should_enable_eglstream_controller = FALSE;
       }
-#endif /* defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND) */
+#endif /* HAVE_EGL_DEVICE */
 
     if (should_enable_eglstream_controller)
       meta_wayland_eglstream_controller_init (compositor);
