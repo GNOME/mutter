@@ -34,10 +34,8 @@
 #include "meta/meta-backend.h"
 #include "wayland/meta-wayland.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-backend-native-types.h"
-#endif
 
 #ifdef HAVE_DEVKIT
 #include "core/meta-mdk.h"
@@ -48,12 +46,10 @@ typedef struct _MetaContextMainOptions
   gboolean wayland;
   gboolean no_x11;
   char *wayland_display;
-#ifdef HAVE_NATIVE_BACKEND
   gboolean display_server;
   gboolean headless;
   gboolean devkit;
   GList *virtual_monitor_infos;
-#endif
   char *trace_file;
   gboolean debug_control;
   gboolean unsafe_mode;
@@ -67,9 +63,7 @@ struct _MetaContextMain
 
   MetaSessionManager *session_manager;
 
-#ifdef HAVE_NATIVE_BACKEND
   GList *persistent_virtual_monitors;
-#endif
 
 #ifdef HAVE_DEVKIT
   MetaMdk *mdk;
@@ -82,7 +76,6 @@ static gboolean
 check_configuration (MetaContextMain  *context_main,
                      GError          **error)
 {
-#ifdef HAVE_NATIVE_BACKEND
   if (context_main->options.display_server &&
       (context_main->options.headless || context_main->options.devkit))
     {
@@ -90,7 +83,6 @@ check_configuration (MetaContextMain  *context_main,
                    "Can't run in display server mode headlessly");
       return FALSE;
     }
-#endif /* HAVE_NATIVE_BACKEND */
 
   return TRUE;
 }
@@ -152,7 +144,6 @@ meta_context_main_get_x11_display_policy (MetaContext *context)
   return META_X11_DISPLAY_POLICY_ON_DEMAND;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 add_persistent_virtual_monitors (MetaContextMain  *context_main,
                                  GError          **error)
@@ -193,7 +184,6 @@ add_persistent_virtual_monitors (MetaContextMain  *context_main,
 
   return TRUE;
 }
-#endif
 
 #ifdef HAVE_DEVKIT
 static gboolean
@@ -227,10 +217,8 @@ meta_context_main_setup (MetaContext  *context,
 
   meta_context_set_unsafe_mode (context, context_main->options.unsafe_mode);
 
-#ifdef HAVE_NATIVE_BACKEND
   if (!add_persistent_virtual_monitors (context_main, error))
     return FALSE;
-#endif
 
 #ifdef HAVE_DEVKIT
   if (context_main->options.devkit)
@@ -243,7 +231,6 @@ meta_context_main_setup (MetaContext  *context,
   return TRUE;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static MetaBackend *
 create_headless_backend (MetaContext  *context,
                          GError      **error)
@@ -264,7 +251,6 @@ create_native_backend (MetaContext  *context,
                          "context", context,
                          NULL);
 }
-#endif /* HAVE_NATIVE_BACKEND */
 
 static MetaBackend *
 meta_context_main_create_backend (MetaContext  *context,
@@ -272,13 +258,11 @@ meta_context_main_create_backend (MetaContext  *context,
 {
   MetaContextMain *context_main = META_CONTEXT_MAIN (context);
 
-#ifdef HAVE_NATIVE_BACKEND
   if (context_main->options.headless ||
       context_main->options.devkit)
     return create_headless_backend (context, error);
 
   return create_native_backend (context, error);
-#endif /* HAVE_NATIVE_BACKEND */
 
   g_assert_not_reached ();
 }
@@ -304,7 +288,6 @@ meta_context_main_get_session_manager (MetaContext *context)
   return context_main->session_manager;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 add_virtual_monitor_cb (const char  *option_name,
                         const char  *value,
@@ -343,7 +326,6 @@ add_virtual_monitor_cb (const char  *option_name,
       return FALSE;
     }
 }
-#endif /* HAVE_NATIVE_BACKEND */
 
 static void
 meta_context_main_add_option_entries (MetaContextMain *context_main)
@@ -370,7 +352,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       N_("Specify Wayland display name to use"),
       NULL
     },
-#ifdef HAVE_NATIVE_BACKEND
     {
       "display-server", 0, 0, G_OPTION_ARG_NONE,
       &context_main->options.display_server,
@@ -386,7 +367,6 @@ meta_context_main_add_option_entries (MetaContextMain *context_main)
       add_virtual_monitor_cb,
       N_("Add persistent virtual monitor (WxH or WxH@R)")
     },
-#endif
 #ifdef HAVE_DEVKIT
     {
       "devkit", 0, 0, G_OPTION_ARG_NONE,
@@ -435,7 +415,6 @@ meta_create_context (const char *name)
 static void
 meta_context_main_finalize (GObject *object)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaContextMain *context_main = META_CONTEXT_MAIN (object);
 
   g_list_free_full (context_main->persistent_virtual_monitors, g_object_unref);
@@ -444,7 +423,6 @@ meta_context_main_finalize (GObject *object)
   if (context_main->session_manager)
     meta_session_manager_save_sync (context_main->session_manager, NULL);
   g_clear_object (&context_main->session_manager);
-#endif
 
 #ifdef HAVE_DEVKIT
   g_clear_object (&context_main->mdk);

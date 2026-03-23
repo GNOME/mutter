@@ -58,14 +58,12 @@
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland-linux-drm-syncobj.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-onscreen-native.h"
 #include "backends/native/meta-renderer-native.h"
-#endif
 
 #include "linux-dmabuf-v1-server-protocol.h"
 
@@ -150,7 +148,6 @@ G_DEFINE_TYPE (MetaWaylandDmaBufManager, meta_wayland_dma_buf_manager,
 
 static GQuark quark_dma_buf_surface_feedback;
 
-#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 should_send_modifiers_native (MetaBackend *backend)
 {
@@ -164,7 +161,6 @@ should_send_modifiers_native (MetaBackend *backend)
 
   return meta_renderer_native_send_modifiers (renderer_native);
 }
-#endif
 
 static gboolean
 should_send_modifiers (MetaBackend *backend)
@@ -175,10 +171,8 @@ should_send_modifiers (MetaBackend *backend)
     clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
 
-#ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
     return should_send_modifiers_native (backend);
-#endif
 
   return meta_egl_has_extensions (egl,
                                   egl_display,
@@ -187,7 +181,6 @@ should_send_modifiers (MetaBackend *backend)
                                   NULL);
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 should_send_modifiers_scanout_tranches (MetaBackend *backend)
 {
@@ -199,7 +192,6 @@ should_send_modifiers_scanout_tranches (MetaBackend *backend)
   renderer_native = META_RENDERER_NATIVE (meta_backend_get_renderer (backend));
   return meta_renderer_native_has_addfb2 (renderer_native);
 }
-#endif
 
 static gint
 compare_tranches (gconstpointer a,
@@ -538,7 +530,6 @@ meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
   return TRUE;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static struct gbm_bo *
 import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
                        MetaGpuKms               *gpu_kms,
@@ -614,7 +605,6 @@ import_scanout_gbm_bo (MetaWaylandDmaBufBuffer  *dma_buf,
 
   return gbm_bo;
 }
-#endif
 
 static gboolean
 has_modifier (GArray   *modifiers,
@@ -630,7 +620,6 @@ has_modifier (GArray   *modifiers,
   return FALSE;
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static gboolean
 crtc_supports_modifier (MetaCrtcKms *crtc_kms,
                         uint32_t     drm_format,
@@ -653,7 +642,6 @@ crtc_supports_modifier (MetaCrtcKms *crtc_kms,
 
   return has_modifier (crtc_modifiers, drm_modifier);
 }
-#endif
 
 CoglScanout *
 meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
@@ -662,7 +650,6 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
                                           const graphene_rect_t *src_rect,
                                           const MtkRectangle    *dst_rect)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaWaylandDmaBufBuffer *dma_buf;
   MetaRendererView *renderer_view = META_RENDERER_VIEW (stage_view);
   MetaCrtc *crtc;
@@ -767,9 +754,6 @@ meta_wayland_dma_buf_try_acquire_scanout (MetaWaylandBuffer     *buffer,
     }
 
   return g_steal_pointer (&scanout);
-#else
-  return NULL;
-#endif
 }
 
 static void
@@ -875,7 +859,6 @@ static const struct wl_buffer_interface dma_buf_buffer_impl =
 MetaWaylandDmaBufBuffer *
 meta_wayland_dma_buf_fds_for_wayland_buffer (MetaWaylandBuffer *buffer)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaContext *context =
     meta_wayland_compositor_get_context (buffer->compositor);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -913,9 +896,6 @@ meta_wayland_dma_buf_fds_for_wayland_buffer (MetaWaylandBuffer *buffer)
 
   gbm_bo_destroy (gbm_bo);
   return dma_buf;
-#else
-  return NULL;
-#endif
 }
 
 /**
@@ -1376,7 +1356,6 @@ dma_buf_handle_get_default_feedback (struct wl_client   *client,
                                       feedback_resource);
 }
 
-#ifdef HAVE_NATIVE_BACKEND
 static int
 find_scanout_tranche_func (gconstpointer a,
                            gconstpointer b)
@@ -1508,12 +1487,10 @@ clear_scanout_tranche (MetaWaylandDmaBufSurfaceFeedback *surface_feedback)
   meta_wayland_dma_buf_tranche_free (tranche);
   feedback->tranches = g_list_delete_link (feedback->tranches, el);
 }
-#endif /* HAVE_NATIVE_BACKEND */
 
 static void
 update_surface_feedback_tranches (MetaWaylandDmaBufSurfaceFeedback *surface_feedback)
 {
-#ifdef HAVE_NATIVE_BACKEND
   MetaCrtc *crtc;
 
   crtc = meta_wayland_surface_get_scanout_candidate (surface_feedback->surface);
@@ -1521,7 +1498,6 @@ update_surface_feedback_tranches (MetaWaylandDmaBufSurfaceFeedback *surface_feed
     ensure_scanout_tranche (surface_feedback, crtc);
   else
     clear_scanout_tranche (surface_feedback);
-#endif /* HAVE_NATIVE_BACKEND */
 }
 
 static void

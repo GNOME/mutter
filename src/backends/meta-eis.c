@@ -27,11 +27,9 @@
 #include "clutter/clutter-mutter.h"
 #include "meta/util.h"
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-input-thread.h"
 #include "backends/native/meta-seat-native.h"
-#endif
 
 enum
 {
@@ -97,7 +95,7 @@ meta_eis_add_client (MetaEis           *eis,
                        client);
 }
 
-#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF)
+#ifdef HAVE_EIS_EVENT_REF
 static gboolean
 sync_callback_in_main (gpointer user_data)
 {
@@ -130,7 +128,7 @@ sync_callback_in_impl (GTask *task)
 
   return G_SOURCE_REMOVE;
 }
-#endif /* defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF) */
+#endif /* HAVE_EIS_EVENT_REF */
 
 static void
 process_event (MetaEis          *eis,
@@ -149,7 +147,7 @@ process_event (MetaEis          *eis,
       meta_eis_remove_client (eis, eis_client);
       break;
     case EIS_EVENT_SYNC:
-#if defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF)
+#ifdef HAVE_EIS_EVENT_REF
       if (META_IS_BACKEND_NATIVE (eis->backend))
         {
           ClutterSeat *seat = meta_backend_get_default_seat (eis->backend);
@@ -168,7 +166,7 @@ process_event (MetaEis          *eis,
           meta_seat_impl_run_input_task (seat_native->impl, task,
                                          (GSourceFunc) sync_callback_in_impl);
         }
-#endif /* defined(HAVE_NATIVE_BACKEND) && defined(HAVE_EIS_EVENT_REF) */
+#endif /* HAVE_EIS_EVENT_REF */
       break;
     default:
       client = g_hash_table_lookup (eis->eis_clients, eis_client);

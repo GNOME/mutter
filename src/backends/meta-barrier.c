@@ -17,10 +17,8 @@
 #include "meta/util.h"
 
 
-#ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-barrier-native.h"
-#endif
 
 typedef struct _MetaBarrierPrivate
 {
@@ -241,10 +239,8 @@ init_barrier_impl (MetaBarrier *barrier)
   g_return_if_fail (priv->border.line.b.x >= 0);
   g_return_if_fail (priv->border.line.b.y >= 0);
 
-#if defined(HAVE_NATIVE_BACKEND)
   if (META_IS_BACKEND_NATIVE (priv->backend))
     priv->impl = meta_barrier_impl_native_new (barrier);
-#endif
 
   g_warn_if_fail (priv->impl);
 }
