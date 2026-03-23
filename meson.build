@@ -228,25 +228,18 @@ if not have_egl
   error('Wayland support requires EGL to be enabled')
 endif
 
-have_logind = get_option('logind')
-if have_logind
-  logind_dep = dependency('libsystemd', required: false)
+logind_dep = dependency('libsystemd', required: false)
 
-  if not logind_dep.found()
-    logind_dep = dependency('libelogind', required: false)
-  endif
+if not logind_dep.found()
+  logind_dep = dependency('libelogind', required: false)
+endif
 
-  if not logind_dep.found()
-    error('No logind provider dependency found: tried libsystemd and libelogind')
-  endif
+if not logind_dep.found()
+  error('No logind provider dependency found: tried libsystemd and libelogind')
 endif
 
 have_libgudev = get_option('udev')
 if have_libgudev
-  if not have_logind
-    error('The udev support requires logind')
-  endif
-
   libudev_dep = dependency('libudev', version: udev_req)
   gudev_dep = dependency('gudev-1.0', version: gudev_req)
   udev_dep = dependency('udev')
@@ -260,9 +253,6 @@ endif
 libgbm_dep = dependency('gbm', version: gbm_req)
 libinput_dep = dependency('libinput', version: libinput_req)
 
-if not have_logind
-  error('The native backend requires logind to be enabled')
-endif
 
 if not have_egl
   error('The native backend requires EGL to be enabled')
@@ -544,7 +534,6 @@ cdata.set('HAVE_EGL', have_egl)
 cdata.set('HAVE_GL', have_gl)
 cdata.set('HAVE_GLES2', have_gles2)
 cdata.set('HAVE_XWAYLAND', have_xwayland)
-cdata.set('HAVE_LOGIND', have_logind)
 cdata.set('HAVE_REMOTE_DESKTOP', have_remote_desktop)
 cdata.set('HAVE_DEVKIT', have_devkit)
 cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)

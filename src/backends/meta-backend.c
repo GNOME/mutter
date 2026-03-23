@@ -89,9 +89,7 @@
 
 #include "backends/native/meta-backend-native.h"
 
-#ifdef HAVE_LOGIND
 #include "backends/meta-launcher.h"
-#endif
 
 #ifdef HAVE_LIBGUDEV
 #include "backends/meta-udev.h"
@@ -150,9 +148,7 @@ struct _MetaBackendPrivate
   MetaIdleManager *idle_manager;
   MetaRenderer *renderer;
   MetaColorManager *color_manager;
-#ifdef HAVE_LOGIND
   MetaLauncher *launcher;
-#endif
 #ifdef HAVE_LIBGUDEV
   MetaUdev *udev;
 #endif
@@ -273,10 +269,7 @@ meta_backend_finalize (GObject *object)
 
   g_cancellable_cancel (priv->cancellable);
   g_clear_object (&priv->cancellable);
-
-#ifdef HAVE_LOGIND
   g_clear_object (&priv->launcher);
-#endif
 
 #ifdef HAVE_LIBGUDEV
   g_clear_object (&priv->udev);
@@ -912,7 +905,6 @@ meta_backend_class_init (MetaBackendClass *klass)
                   G_TYPE_UINT, 0);
 }
 
-#ifdef HAVE_LOGIND
 void
 meta_backend_pause (MetaBackend *backend)
 {
@@ -967,7 +959,6 @@ meta_backend_create_launcher (MetaBackend   *backend,
   *launcher_out = g_steal_pointer (&launcher);
   return ret;
 }
-#endif
 
 static MetaMonitorManager *
 meta_backend_create_monitor_manager (MetaBackend *backend,
@@ -1278,10 +1269,8 @@ meta_backend_initable_init (GInitable     *initable,
              system_bus_gotten_cb,
              backend);
 
-#ifdef HAVE_LOGIND
   if (!meta_backend_create_launcher (backend, &priv->launcher, error))
       return FALSE;
-#endif
 
 #ifdef HAVE_LIBGUDEV
   priv->udev = meta_udev_new (backend);
@@ -1472,7 +1461,6 @@ meta_backend_get_color_manager (MetaBackend *backend)
   return priv->color_manager;
 }
 
-#ifdef HAVE_LOGIND
 MetaLauncher *
 meta_backend_get_launcher (MetaBackend *backend)
 {
@@ -1480,7 +1468,6 @@ meta_backend_get_launcher (MetaBackend *backend)
 
   return priv->launcher;
 }
-#endif
 
 #ifdef HAVE_LIBGUDEV
 MetaUdev *
