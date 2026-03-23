@@ -2792,8 +2792,6 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
         return FALSE;
     }
 
-  maybe_init_render_source (onscreen_native);
-
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
 
@@ -2812,6 +2810,7 @@ meta_onscreen_native_allocate (CoglFramebuffer  *framebuffer,
 
       onscreen_native->gbm.surface = gbm_surface;
       cogl_onscreen_egl_set_egl_surface (onscreen_egl, egl_surface);
+      maybe_init_render_source (onscreen_native);
       break;
     case META_RENDERER_NATIVE_MODE_SURFACELESS:
       g_assert_not_reached ();
