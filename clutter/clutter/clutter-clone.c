@@ -202,6 +202,7 @@ clutter_clone_get_paint_volume (ClutterActor       *actor,
     return FALSE;
 
   clutter_paint_volume_init_from_paint_volume (volume, source_volume);
+  clutter_paint_volume_scale (volume, priv->x_scale, priv->y_scale, 1.0f);
   _clutter_paint_volume_set_reference_actor (volume, actor);
 
   return TRUE;
