@@ -229,6 +229,7 @@ clutter_clone_allocate (ClutterActor           *self,
     clutter_clone_get_instance_private (CLUTTER_CLONE (self));
   ClutterActorClass *parent_class;
   ClutterActorBox source_box;
+  float source_width, source_height;
   float x_scale, y_scale;
 
   /* chain up */
@@ -256,10 +257,17 @@ clutter_clone_allocate (ClutterActor           *self,
   /* We need to scale what the clone-source actor paints to fill our own
    * allocation...
    */
-  x_scale = clutter_actor_box_get_width (box)
-          / clutter_actor_box_get_width (&source_box);
-  y_scale = clutter_actor_box_get_height (box)
-          / clutter_actor_box_get_height (&source_box);
+  source_width = clutter_actor_box_get_width (&source_box);
+  if (source_width != 0.0f)
+    x_scale = clutter_actor_box_get_width (box) / source_width;
+  else
+    x_scale = 1.0f;
+
+  source_height = clutter_actor_box_get_height (&source_box);
+  if (source_height != 0.0f)
+    y_scale = clutter_actor_box_get_height (box) / source_height;
+  else
+    y_scale = 1.0f;
 
   if (!G_APPROX_VALUE (priv->x_scale, x_scale, FLT_EPSILON) ||
       !G_APPROX_VALUE (priv->y_scale, y_scale, FLT_EPSILON))
