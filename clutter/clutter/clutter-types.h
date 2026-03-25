@@ -295,6 +295,11 @@ void                clutter_paint_volume_set_depth           (ClutterPaintVolume
 CLUTTER_EXPORT
 gfloat              clutter_paint_volume_get_depth           (const ClutterPaintVolume *pv);
 CLUTTER_EXPORT
+void                clutter_paint_volume_scale               (ClutterPaintVolume       *pv,
+                                                              float                     x_scale,
+                                                              float                     y_scale,
+                                                              float                     z_scale);
+CLUTTER_EXPORT
 void                clutter_paint_volume_union               (ClutterPaintVolume       *pv,
                                                               const ClutterPaintVolume *another_pv);
 CLUTTER_EXPORT

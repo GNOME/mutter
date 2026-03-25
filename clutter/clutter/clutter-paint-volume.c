@@ -441,6 +441,46 @@ clutter_paint_volume_get_depth (const ClutterPaintVolume *pv)
 }
 
 /**
+ * clutter_paint_volume_scale:
+ * @pv: a #ClutterPaintVolume
+ * @x_scale: scaling factor along the x axis
+ * @y_scale: scaling factor along the y axis
+ * @z_scale: scaling factor along the z axis
+ *
+ * Scales the paint volume. The scaling is in the coordinate space
+ * of the associated actor.
+ */
+void
+clutter_paint_volume_scale (ClutterPaintVolume *pv,
+                            float               x_scale,
+                            float               y_scale,
+                            float               z_scale)
+{
+  graphene_point3d_t origin;
+  float width, height, depth;
+
+  g_return_if_fail (pv != NULL);
+  g_return_if_fail (x_scale >= 0.0f);
+  g_return_if_fail (y_scale >= 0.0f);
+  g_return_if_fail (z_scale >= 0.0f);
+
+  clutter_paint_volume_get_origin (pv, &origin);
+  origin.x *= x_scale;
+  origin.y *= y_scale;
+  origin.z *= z_scale;
+  clutter_paint_volume_set_origin (pv, &origin);
+
+  width = clutter_paint_volume_get_width (pv);
+  clutter_paint_volume_set_width (pv, x_scale * width);
+
+  height = clutter_paint_volume_get_height (pv);
+  clutter_paint_volume_set_height (pv, y_scale * height);
+
+  depth = clutter_paint_volume_get_depth (pv);
+  clutter_paint_volume_set_depth (pv, z_scale * depth);
+}
+
+/**
  * clutter_paint_volume_union:
  * @pv: The first #ClutterPaintVolume and destination for resulting
  *      union
