@@ -22,54 +22,30 @@
 
 #include <glib-object.h>
 
-#include "backends/meta-screen-cast-stream-src.h"
 #include "backends/meta-screen-cast.h"
 
 #include "meta-dbus-screen-cast.h"
 
 #define META_TYPE_SCREEN_CAST_STREAM (meta_screen_cast_stream_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaScreenCastStream, meta_screen_cast_stream,
-                          META, SCREEN_CAST_STREAM,
-                          MetaDBusScreenCastStreamSkeleton)
+G_DECLARE_FINAL_TYPE (MetaScreenCastStream, meta_screen_cast_stream,
+                      META, SCREEN_CAST_STREAM,
+                      MetaDBusScreenCastStreamSkeleton)
 
-struct _MetaScreenCastStreamClass
-{
-  MetaDBusScreenCastStreamSkeletonClass parent_class;
+MetaScreenCastSession * meta_screen_cast_stream_get_session (MetaScreenCastStream *screen_cast_stream);
 
-  MetaScreenCastStreamSrc * (* create_src) (MetaScreenCastStream *stream,
-                                            GError              **error);
-  void (* set_parameters) (MetaScreenCastStream *stream,
-                           GVariantBuilder      *parameters_builder);
-  gboolean (* transform_position) (MetaScreenCastStream *stream,
-                                   double                stream_x,
-                                   double                stream_y,
-                                   double               *x,
-                                   double               *y);
-};
-
-MetaScreenCastSession * meta_screen_cast_stream_get_session (MetaScreenCastStream *stream);
-
-gboolean meta_screen_cast_stream_start (MetaScreenCastStream *stream,
+gboolean meta_screen_cast_stream_start (MetaScreenCastStream *screen_cast_stream,
                                         GError              **error);
 
-void meta_screen_cast_stream_close (MetaScreenCastStream *stream);
+void meta_screen_cast_stream_close (MetaScreenCastStream *screen_cast_stream);
 
-char * meta_screen_cast_stream_get_object_path (MetaScreenCastStream *stream);
+char * meta_screen_cast_stream_get_object_path (MetaScreenCastStream *screen_cast_stream);
 
-MetaScreenCastStreamSrc * meta_screen_cast_stream_get_src (MetaScreenCastStream *stream);
+MetaScreenCastFlag meta_screen_cast_stream_get_flags (MetaScreenCastStream *screen_cast_stream);
 
-gboolean meta_screen_cast_stream_transform_position (MetaScreenCastStream *stream,
-                                                     double                stream_x,
-                                                     double                stream_y,
-                                                     double               *x,
-                                                     double               *y);
+MetaScreenCastStream * meta_screen_cast_stream_new (MetaScreenCastSession  *session,
+                                                    GDBusConnection        *connection,
+                                                    MetaStream             *stream,
+                                                    MetaScreenCastFlag      flags,
+                                                    GError                **error);
 
-MetaScreenCastCursorMode meta_screen_cast_stream_get_cursor_mode (MetaScreenCastStream *stream);
-
-MetaScreenCastFlag meta_screen_cast_stream_get_flags (MetaScreenCastStream *stream);
-
-const char * meta_screen_cast_stream_get_mapping_id (MetaScreenCastStream *stream);
-
-gboolean meta_screen_cast_stream_is_configured (MetaScreenCastStream *stream);
-
-void meta_screen_cast_stream_notify_is_configured (MetaScreenCastStream *stream);
+MetaStream * meta_screen_cast_stream_get_stream (MetaScreenCastStream *screen_cast_stream);

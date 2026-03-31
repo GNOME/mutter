@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Red Hat Inc.
+ * Copyright (C) 2017-2026 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,15 +18,15 @@
 
 #pragma once
 
-#include "backends/meta-screen-cast-stream-src.h"
+#include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-stream-monitor.h"
+#include "backends/meta-stream-source.h"
 
-typedef struct _MetaScreenCastAreaStream MetaScreenCastAreaStream;
+#define META_TYPE_STREAM_SOURCE_MONITOR (meta_stream_source_monitor_get_type ())
+G_DECLARE_FINAL_TYPE (MetaStreamSourceMonitor,
+                      meta_stream_source_monitor,
+                      META, STREAM_SOURCE_MONITOR,
+                      MetaStreamSource)
 
-#define META_TYPE_SCREEN_CAST_AREA_STREAM_SRC (meta_screen_cast_area_stream_src_get_type ())
-G_DECLARE_FINAL_TYPE (MetaScreenCastAreaStreamSrc,
-                      meta_screen_cast_area_stream_src,
-                      META, SCREEN_CAST_AREA_STREAM_SRC,
-                      MetaScreenCastStreamSrc)
-
-MetaScreenCastAreaStreamSrc * meta_screen_cast_area_stream_src_new (MetaScreenCastAreaStream  *area_stream,
-                                                                    GError                   **error);
+MetaStreamSourceMonitor * meta_stream_source_monitor_new (MetaStreamMonitor  *stream_monitor,
+                                                          GError            **error);

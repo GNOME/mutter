@@ -27,11 +27,11 @@
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "backends/meta-remote-desktop-session.h"
-#include "backends/meta-screen-cast-area-stream.h"
-#include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-screen-cast-stream.h"
-#include "backends/meta-screen-cast-virtual-stream.h"
-#include "backends/meta-screen-cast-window-stream.h"
+#include "backends/meta-stream-area.h"
+#include "backends/meta-stream-monitor.h"
+#include "backends/meta-stream-virtual.h"
+#include "backends/meta-stream-window.h"
 #include "backends/meta-virtual-monitor.h"
 #include "core/display-private.h"
 
@@ -114,7 +114,7 @@ G_DEFINE_TYPE (MetaScreenCastSessionHandle,
 static MetaScreenCastSessionHandle *
 meta_screen_cast_session_handle_new (MetaScreenCastSession *session);
 
-static void on_stream_closed (MetaScreenCastStream  *stream,
+static void on_stream_closed (MetaScreenCastStream  *screen_cast_stream,
                               MetaScreenCastSession *session);
 
 static void
@@ -145,9 +145,9 @@ meta_screen_cast_session_start (MetaScreenCastSession  *session,
 
   for (l = session->streams; l; l = l->next)
     {
-      MetaScreenCastStream *stream = l->data;
+      MetaScreenCastStream *screen_cast_stream = l->data;
 
-      if (!meta_screen_cast_stream_start (stream, error))
+      if (!meta_screen_cast_stream_start (screen_cast_stream, error))
         return FALSE;
     }
 
@@ -165,13 +165,13 @@ meta_screen_cast_session_is_active (MetaScreenCastSession *session)
 }
 
 static void
-dispose_stream (MetaScreenCastStream  *stream,
+dispose_stream (MetaScreenCastStream  *screen_cast_stream,
                 MetaScreenCastSession *session)
 {
-  g_signal_handlers_disconnect_by_func (stream,
+  g_signal_handlers_disconnect_by_func (screen_cast_stream,
                                         G_CALLBACK (on_stream_closed),
                                         session);
-  g_object_run_dispose (G_OBJECT (stream));
+  g_object_run_dispose (G_OBJECT (screen_cast_stream));
 }
 
 static void
@@ -223,11 +223,11 @@ meta_screen_cast_session_get_stream (MetaScreenCastSession *session,
 
   for (l = session->streams; l; l = l->next)
     {
-      MetaScreenCastStream *stream = l->data;
+      MetaScreenCastStream *screen_cast_stream = l->data;
 
-      if (g_strcmp0 (meta_screen_cast_stream_get_object_path (stream),
+      if (g_strcmp0 (meta_screen_cast_stream_get_object_path (screen_cast_stream),
                      path) == 0)
-        return stream;
+        return screen_cast_stream;
     }
 
   return NULL;
@@ -386,12 +386,12 @@ handle_stop (MetaDBusScreenCastSession *skeleton,
 }
 
 static void
-on_stream_closed (MetaScreenCastStream  *stream,
+on_stream_closed (MetaScreenCastStream  *screen_cast_stream,
                   MetaScreenCastSession *session)
 {
-  session->streams = g_list_remove (session->streams, stream);
-  g_signal_emit (session, signals[STREAM_REMOVED], 0, stream);
-  g_object_unref (stream);
+  session->streams = g_list_remove (session->streams, screen_cast_stream);
+  g_signal_emit (session, signals[STREAM_REMOVED], 0, screen_cast_stream);
+  g_object_unref (screen_cast_stream);
 
   switch (session->session_type)
     {
@@ -419,12 +419,13 @@ is_valid_cursor_mode (MetaScreenCastCursorMode cursor_mode)
 
 static void
 add_stream (MetaScreenCastSession *session,
-            MetaScreenCastStream  *stream)
+            MetaScreenCastStream  *screen_cast_stream)
 {
-  session->streams = g_list_append (session->streams, stream);
-  g_signal_emit (session, signals[STREAM_ADDED], 0, stream);
+  session->streams = g_list_append (session->streams, screen_cast_stream);
+  g_signal_emit (session, signals[STREAM_ADDED], 0, screen_cast_stream);
 
-  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+  g_signal_connect (screen_cast_stream, "closed",
+                    G_CALLBACK (on_stream_closed), session);
 }
 
 static gboolean
@@ -444,10 +445,10 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   MetaScreenCastCursorMode cursor_mode;
   gboolean is_recording;
   MetaScreenCastFlag flags;
-  ClutterStage *stage;
   g_autoptr (GError) error = NULL;
-  MetaScreenCastMonitorStream *monitor_stream;
-  MetaScreenCastStream *stream;
+  MetaStreamMonitor *stream_monitor;
+  g_autoptr (MetaStream) stream = NULL;
+  MetaScreenCastStream *screen_cast_stream;
   char *stream_path;
 
   if (!check_permission (session, invocation))
@@ -493,32 +494,41 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   if (!g_variant_lookup (properties_variant, "is-recording", "b", &is_recording))
     is_recording = FALSE;
 
-  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-
   flags = META_SCREEN_CAST_FLAG_NONE;
   if (is_recording)
     flags |= META_SCREEN_CAST_FLAG_IS_RECORDING;
 
-  monitor_stream = meta_screen_cast_monitor_stream_new (session,
-                                                        connection,
-                                                        monitor,
-                                                        stage,
-                                                        cursor_mode,
-                                                        flags,
-                                                        &error);
-  if (!monitor_stream)
+  stream_monitor = meta_stream_monitor_new (backend,
+                                            monitor,
+                                            (MetaStreamCursorMode) cursor_mode,
+                                            &error);
+  if (!stream_monitor)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
-                                             "Failed to record monitor: %s",
+                                             "Failed to create stream: %s",
+                                             error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+  stream = META_STREAM (stream_monitor);
+
+  screen_cast_stream = meta_screen_cast_stream_new (session,
+                                                    connection,
+                                                    stream,
+                                                    flags,
+                                                    &error);
+  if (!screen_cast_stream)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to create stream object: %s",
                                              error->message);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = META_SCREEN_CAST_STREAM (monitor_stream);
-  stream_path = meta_screen_cast_stream_get_object_path (stream);
+  stream_path = meta_screen_cast_stream_get_object_path (screen_cast_stream);
 
-  add_stream (session, stream);
+  add_stream (session, screen_cast_stream);
 
   meta_dbus_screen_cast_session_complete_record_monitor (skeleton,
                                                          invocation,
@@ -545,8 +555,9 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
   GVariant *window_id_variant = NULL;
-  MetaScreenCastWindowStream *window_stream;
-  MetaScreenCastStream *stream;
+  MetaStreamWindow *stream_window;
+  g_autoptr (MetaStream) stream = NULL;
+  MetaScreenCastStream *screen_cast_stream;
   char *stream_path;
 
   if (!check_permission (session, invocation))
@@ -607,25 +618,36 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   if (is_recording)
     flags |= META_SCREEN_CAST_FLAG_IS_RECORDING;
 
-  window_stream = meta_screen_cast_window_stream_new (session,
-                                                      connection,
-                                                      window,
-                                                      cursor_mode,
-                                                      flags,
-                                                      &error);
-  if (!window_stream)
+  stream_window = meta_stream_window_new (backend, window,
+                                          (MetaStreamCursorMode) cursor_mode,
+                                          &error);
+  if (!stream_window)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
-                                             "Failed to record window: %s",
+                                             "Failed to create stream: %s",
+                                             error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+  stream = META_STREAM (stream_window);
+
+  screen_cast_stream = meta_screen_cast_stream_new (session,
+                                                    connection,
+                                                    stream,
+                                                    flags,
+                                                    &error);
+  if (!screen_cast_stream)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to create stream object: %s",
                                              error->message);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = META_SCREEN_CAST_STREAM (window_stream);
-  stream_path = meta_screen_cast_stream_get_object_path (stream);
+  stream_path = meta_screen_cast_stream_get_object_path (screen_cast_stream);
 
-  add_stream (session, stream);
+  add_stream (session, screen_cast_stream);
 
   meta_dbus_screen_cast_session_complete_record_window (skeleton,
                                                         invocation,
@@ -647,14 +669,14 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
   MetaBackend *backend;
-  ClutterStage *stage;
   MetaScreenCastCursorMode cursor_mode;
   gboolean is_recording;
   MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
   MtkRectangle rect;
-  MetaScreenCastAreaStream *area_stream;
-  MetaScreenCastStream *stream;
+  MetaStreamArea *stream_area;
+  g_autoptr (MetaStream) stream = NULL;
+  MetaScreenCastStream *screen_cast_stream;
   char *stream_path;
 
   if (!check_permission (session, invocation))
@@ -686,7 +708,6 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
   backend = meta_dbus_session_manager_get_backend (session->session_manager);
-  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   flags = META_SCREEN_CAST_FLAG_NONE;
   if (is_recording)
@@ -698,26 +719,37 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
     .width = width,
     .height = height
   };
-  area_stream = meta_screen_cast_area_stream_new (session,
-                                                  connection,
-                                                  &rect,
-                                                  stage,
-                                                  cursor_mode,
-                                                  flags,
-                                                  &error);
-  if (!area_stream)
+
+  stream_area = meta_stream_area_new (backend, &rect,
+                                      (MetaStreamCursorMode) cursor_mode,
+                                      &error);
+  if (!stream_area)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
-                                             "Failed to record area: %s",
+                                             "Failed to create stream: %s",
+                                             error->message);
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
+    }
+  stream = META_STREAM (stream_area);
+
+  screen_cast_stream = meta_screen_cast_stream_new (session,
+                                                    connection,
+                                                    stream,
+                                                    flags,
+                                                    &error);
+  if (!screen_cast_stream)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to create stream object: %s",
                                              error->message);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = META_SCREEN_CAST_STREAM (area_stream);
-  stream_path = meta_screen_cast_stream_get_object_path (stream);
+  stream_path = meta_screen_cast_stream_get_object_path (screen_cast_stream);
 
-  add_stream (session, stream);
+  add_stream (session, screen_cast_stream);
 
   meta_dbus_screen_cast_session_complete_record_area (skeleton,
                                                       invocation,
@@ -805,6 +837,8 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
                        GVariant                  *properties_variant)
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
+  MetaBackend *backend =
+    meta_dbus_session_manager_get_backend (session->session_manager);
   GDBusInterfaceSkeleton *interface_skeleton;
   GDBusConnection *connection;
   MetaScreenCastCursorMode cursor_mode;
@@ -813,8 +847,9 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
   g_autolist (MetaVirtualModeInfo) mode_infos = NULL;
   MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
-  MetaScreenCastVirtualStream *virtual_stream;
-  MetaScreenCastStream *stream;
+  MetaStreamVirtual *stream_virtual;
+  g_autoptr (MetaStream) stream = NULL;
+  MetaScreenCastStream *screen_cast_stream;
   char *stream_path;
 
   if (!check_permission (session, invocation))
@@ -866,25 +901,28 @@ handle_record_virtual (MetaDBusScreenCastSession *skeleton,
   if (is_platform)
     flags |= META_SCREEN_CAST_FLAG_IS_PLATFORM;
 
-  virtual_stream = meta_screen_cast_virtual_stream_new (session,
-                                                        connection,
-                                                        cursor_mode,
-                                                        mode_infos,
-                                                        flags,
-                                                        &error);
-  if (!virtual_stream)
+  stream_virtual = meta_stream_virtual_new (backend,
+                                            (MetaStreamCursorMode) cursor_mode,
+                                            mode_infos);
+  stream = META_STREAM (stream_virtual);
+
+  screen_cast_stream = meta_screen_cast_stream_new (session,
+                                                    connection,
+                                                    stream,
+                                                    flags,
+                                                    &error);
+  if (!screen_cast_stream)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
-                                             "Failed to record virtual: %s",
+                                             "Failed to create stream object: %s",
                                              error->message);
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = META_SCREEN_CAST_STREAM (virtual_stream);
-  stream_path = meta_screen_cast_stream_get_object_path (stream);
+  stream_path = meta_screen_cast_stream_get_object_path (screen_cast_stream);
 
-  add_stream (session, stream);
+  add_stream (session, screen_cast_stream);
 
   meta_dbus_screen_cast_session_complete_record_virtual (skeleton,
                                                          invocation,
@@ -1036,10 +1074,10 @@ meta_screen_cast_session_is_recording (MetaScreenCastSession *session)
 
   for (l = session->streams; l; l = l->next)
     {
-      MetaScreenCastStream *stream = l->data;
+      MetaScreenCastStream *screen_cast_stream = l->data;
       MetaScreenCastFlag flags;
 
-      flags = meta_screen_cast_stream_get_flags (stream);
+      flags = meta_screen_cast_stream_get_flags (screen_cast_stream);
       if (!(flags & META_SCREEN_CAST_FLAG_IS_RECORDING))
         return FALSE;
     }

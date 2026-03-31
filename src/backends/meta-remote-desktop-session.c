@@ -38,6 +38,7 @@
 #include "backends/meta-keymap-description-private.h"
 #include "backends/meta-logical-monitor-private.h"
 #include "backends/meta-screen-cast-session.h"
+#include "backends/meta-stream.h"
 #include "backends/meta-remote-access-controller-private.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
@@ -203,7 +204,7 @@ ensure_virtual_device (MetaRemoteDesktopSession *session,
 }
 
 static void
-on_stream_is_configured (MetaScreenCastStream     *stream,
+on_stream_is_configured (MetaStream               *stream,
                          GParamSpec               *pspec,
                          MetaRemoteDesktopSession *session)
 {
@@ -211,17 +212,19 @@ on_stream_is_configured (MetaScreenCastStream     *stream,
                                         on_stream_is_configured,
                                         session);
 
-  g_return_if_fail (meta_screen_cast_stream_is_configured (stream));
+  g_return_if_fail (meta_stream_is_configured (stream));
 
   meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
 }
 
 static void
 on_stream_added (MetaScreenCastSession    *screen_cast_session,
-                 MetaScreenCastStream     *stream,
+                 MetaScreenCastStream     *screen_cast_stream,
                  MetaRemoteDesktopSession *session)
 {
-  if (meta_screen_cast_stream_is_configured (stream))
+  MetaStream *stream = meta_screen_cast_stream_get_stream (screen_cast_stream);
+
+  if (meta_stream_is_configured (stream))
     {
       meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
     }
@@ -234,9 +237,11 @@ on_stream_added (MetaScreenCastSession    *screen_cast_session,
 
 static void
 on_stream_removed (MetaScreenCastSession    *screen_cast_session,
-                   MetaScreenCastStream     *stream,
+                   MetaScreenCastStream     *screen_cast_stream,
                    MetaRemoteDesktopSession *session)
 {
+  MetaStream *stream = meta_screen_cast_stream_get_stream (screen_cast_stream);
+
   if (g_signal_handlers_disconnect_by_func (stream,
                                             on_stream_is_configured,
                                             session) == 0)
@@ -255,9 +260,12 @@ initialize_viewports (MetaRemoteDesktopSession *session)
         meta_screen_cast_session_peek_streams (session->screen_cast_session);
       for (l = streams; l; l = l->next)
         {
-          MetaScreenCastStream *stream = META_SCREEN_CAST_STREAM (l->data);
+          MetaScreenCastStream *screen_cast_stream =
+            META_SCREEN_CAST_STREAM (l->data);
+          MetaStream *stream =
+            meta_screen_cast_stream_get_stream (screen_cast_stream);
 
-          if (meta_screen_cast_stream_is_configured (stream))
+          if (meta_stream_is_configured (stream))
             {
               meta_eis_add_viewport (session->eis, META_EIS_VIEWPORT (stream));
             }
@@ -790,7 +798,8 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
                                        double                        y)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  MetaScreenCastStream *stream;
+  MetaScreenCastStream *screen_cast_stream;
+  MetaStream *stream;
   double abs_x, abs_y;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
@@ -804,9 +813,10 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
-                                                stream_path);
-  if (!stream)
+  screen_cast_stream =
+    meta_screen_cast_session_get_stream (session->screen_cast_session,
+                                         stream_path);
+  if (!screen_cast_stream)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -816,7 +826,8 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
 
   ensure_virtual_device (session, CLUTTER_POINTER_DEVICE);
 
-  if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
+  stream = meta_screen_cast_stream_get_stream (screen_cast_stream);
+  if (meta_stream_transform_position (stream, x, y, &abs_x, &abs_y))
     {
       clutter_virtual_input_device_notify_absolute_motion (session->virtual_pointer,
                                                            CLUTTER_CURRENT_TIME,
@@ -843,7 +854,8 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
                           double                        y)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  MetaScreenCastStream *stream;
+  MetaScreenCastStream *screen_cast_stream;
+  MetaStream *stream;
   double abs_x, abs_y;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
@@ -865,9 +877,10 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
-                                                stream_path);
-  if (!stream)
+  screen_cast_stream =
+    meta_screen_cast_session_get_stream (session->screen_cast_session,
+                                         stream_path);
+  if (!screen_cast_stream)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -877,7 +890,8 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
 
   ensure_virtual_device (session, CLUTTER_TOUCHSCREEN_DEVICE);
 
-  if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
+  stream = meta_screen_cast_stream_get_stream (screen_cast_stream);
+  if (meta_stream_transform_position (stream, x, y, &abs_x, &abs_y))
     {
       clutter_virtual_input_device_notify_touch_down (session->virtual_touchscreen,
                                                       CLUTTER_CURRENT_TIME,
@@ -905,7 +919,8 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
                             double                        y)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  MetaScreenCastStream *stream;
+  MetaScreenCastStream *screen_cast_stream;
+  MetaStream *stream;
   double abs_x, abs_y;
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
@@ -927,9 +942,10 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
-                                                stream_path);
-  if (!stream)
+  screen_cast_stream =
+    meta_screen_cast_session_get_stream (session->screen_cast_session,
+                                         stream_path);
+  if (!screen_cast_stream)
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_FAILED,
@@ -945,7 +961,8 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
       return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
-  if (meta_screen_cast_stream_transform_position (stream, x, y, &abs_x, &abs_y))
+  stream = meta_screen_cast_stream_get_stream (screen_cast_stream);
+  if (meta_stream_transform_position (stream, x, y, &abs_x, &abs_y))
     {
       clutter_virtual_input_device_notify_touch_motion (session->virtual_touchscreen,
                                                         CLUTTER_CURRENT_TIME,

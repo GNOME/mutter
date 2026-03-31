@@ -1,7 +1,5 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
- * Copyright (C) 2015-2017 Red Hat Inc.
+ * Copyright (C) 2015-2026 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,7 +18,7 @@
 
 #include "config.h"
 
-#include "backends/meta-screen-cast-stream-src.h"
+#include "backends/meta-stream-source.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -43,8 +41,7 @@
 
 #include <drm_fourcc.h>
 
-#include "backends/meta-screen-cast-session.h"
-#include "backends/meta-screen-cast-stream.h"
+#include "backends/meta-stream.h"
 #include "core/meta-fraction.h"
 
 #include "backends/native/meta-device-pool.h"
@@ -54,12 +51,9 @@
 #include "backends/native/meta-renderer-native-private.h"
 #include "common/meta-drm-timeline.h"
 
-#define PRIVATE_OWNER_FROM_FIELD(TypeName, field_ptr, field_name) \
-        (TypeName *)((guint8 *)(field_ptr) - G_PRIVATE_OFFSET (TypeName, field_name))
-
 #define CURSOR_META_SIZE(width, height) \
-        (sizeof (struct spa_meta_cursor) + \
-         sizeof (struct spa_meta_bitmap) + width * height * 4)
+  (sizeof (struct spa_meta_cursor) + \
+   sizeof (struct spa_meta_bitmap) + width * height * 4)
 
 #define NUM_DAMAGED_RECTS 32
 #define DEFAULT_SIZE SPA_RECTANGLE (1280, 720)
@@ -104,15 +98,17 @@ typedef struct _MetaSpaFractionRange
 
 typedef struct _MetaPipeWireSource
 {
-  GSource source;
+  GSource base;
 
-  MetaScreenCastStreamSrc *src;
+  MetaStreamSource *source;
   struct pw_loop *pipewire_loop;
 } MetaPipeWireSource;
 
-typedef struct _MetaScreenCastStreamSrcPrivate
+typedef struct _MetaStreamSourcePrivate
 {
-  MetaScreenCastStream *stream;
+  MetaStream *stream;
+
+  MetaRenderDevice *render_device;
 
   struct pw_context *pipewire_context;
   struct pw_core *pipewire_core;
@@ -163,21 +159,21 @@ typedef struct _MetaScreenCastStreamSrcPrivate
 
   gboolean must_drive;
   gboolean pending_process;
-} MetaScreenCastStreamSrcPrivate;
+} MetaStreamSourcePrivate;
 
-typedef struct _MetaScreenCastStreamBuffer
+typedef struct _MetaStreamBuffer
 {
   uint64_t age_sequence;
-} MetaScreenCastStreamBuffer;
+} MetaStreamBuffer;
 
-static void meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface);
+static void meta_stream_source_init_initable_iface (GInitableIface *iface);
 
-G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStreamSrc,
-                         meta_screen_cast_stream_src,
+G_DEFINE_TYPE_WITH_CODE (MetaStreamSource,
+                         meta_stream_source,
                          G_TYPE_OBJECT,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
-                                                meta_screen_cast_stream_src_init_initable_iface)
-                         G_ADD_PRIVATE (MetaScreenCastStreamSrc))
+                                                meta_stream_source_init_initable_iface)
+                         G_ADD_PRIVATE (MetaStreamSource))
 
 static const struct {
   CoglPixelFormat cogl_format;
@@ -227,26 +223,26 @@ meta_spa_dict_entry_clear (MetaSpaDictEntry *dict_entry)
 }
 
 static void
-destroy_stream_buffer (MetaScreenCastStreamBuffer *stream_buffer)
+destroy_stream_buffer (MetaStreamBuffer *stream_buffer)
 {
   g_free (stream_buffer);
 }
 
-static MetaScreenCastStreamBuffer *
+static MetaStreamBuffer *
 ensure_stream_buffer (struct pw_buffer *buffer)
 {
   if (!buffer->user_data)
-    buffer->user_data = g_new0 (MetaScreenCastStreamBuffer, 1);
+    buffer->user_data = g_new0 (MetaStreamBuffer, 1);
 
   return buffer->user_data;
 }
 
 static int64_t
-get_stream_buffer_age (MetaScreenCastStreamSrc    *src,
-                       MetaScreenCastStreamBuffer *stream_buffer)
+get_stream_buffer_age (MetaStreamSource *source,
+                       MetaStreamBuffer *stream_buffer)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   if (!stream_buffer->age_sequence)
     return 0;
@@ -300,7 +296,7 @@ append_pod_offset (GArray                 *pod_offsets,
 }
 
 static void
-push_format_object (MetaScreenCastStreamSrc          *src,
+push_format_object (MetaStreamSource                 *source,
                     struct spa_pod_builder           *pod_builder,
                     GArray                           *pod_offsets,
                     dev_t                             device_id,
@@ -313,8 +309,8 @@ push_format_object (MetaScreenCastStreamSrc          *src,
                     const MetaSpaFractionRange       *max_framerate,
                     ...)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_pod_frame pod_frame;
   va_list args;
   uint32_t color_state_flags = 0;
@@ -412,39 +408,37 @@ push_format_object (MetaScreenCastStreamSrc          *src,
 }
 
 static gboolean
-meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
-                                       int                     *width,
-                                       int                     *height,
-                                       float                   *frame_rate)
+meta_stream_source_get_specs (MetaStreamSource *source,
+                              int              *width,
+                              int              *height,
+                              float            *frame_rate)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
-  return klass->get_specs (src, width, height, frame_rate);
+  return klass->get_specs (source, width, height, frame_rate);
 }
 
 static gboolean
-meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
-                                           MtkRectangle            *crop_rect)
+meta_stream_source_get_videocrop (MetaStreamSource *source,
+                                  MtkRectangle     *crop_rect)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
   if (klass->get_videocrop)
-    return klass->get_videocrop (src, crop_rect);
+    return klass->get_videocrop (source, crop_rect);
 
   return FALSE;
 }
 
 static CoglFramebuffer *
-ensure_framebuffer (MetaScreenCastStreamSrc *src,
-                    CoglContext             *cogl_context,
-                    int                      width,
-                    int                      height,
-                    GError                 **error)
+ensure_framebuffer (MetaStreamSource *source,
+                    CoglContext      *cogl_context,
+                    int               width,
+                    int               height,
+                    GError          **error)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   if (!priv->framebuffer)
     {
@@ -473,11 +467,11 @@ ensure_framebuffer (MetaScreenCastStreamSrc *src,
 }
 
 static MtkRegion *
-damage_to_redraw_clip (MetaScreenCastStreamSrc *src,
-                       const MtkRegion         *damage)
+damage_to_redraw_clip (MetaStreamSource *source,
+                       const MtkRegion  *damage)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   const MtkRectangle *layout = &priv->layout;
   graphene_rect_t src_rect;
 
@@ -502,24 +496,21 @@ damage_to_redraw_clip (MetaScreenCastStreamSrc *src,
 }
 
 gboolean
-meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
-                                             ClutterColorState         *color_state,
-                                             CoglFramebuffer           *framebuffer,
-                                             MtkRectangle              *area,
-                                             float                      scale,
-                                             int                        width,
-                                             int                        height,
-                                             int                        stride,
-                                             uint8_t                   *data,
-                                             CoglPixelFormat            format,
-                                             MtkRegion                 *damage,
-                                             GError                   **error)
+meta_stream_source_paint_to_buffer (MetaStreamSource   *source,
+                                    ClutterColorState  *color_state,
+                                    CoglFramebuffer    *framebuffer,
+                                    MtkRectangle       *area,
+                                    float               scale,
+                                    int                 width,
+                                    int                 height,
+                                    int                 stride,
+                                    uint8_t            *data,
+                                    CoglPixelFormat     format,
+                                    MtkRegion          *damage,
+                                    GError            **error)
 {
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   ClutterContext *context =
     clutter_actor_get_context (CLUTTER_ACTOR (stage));
@@ -532,13 +523,13 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
   int bpp;
 
   paint_flags = CLUTTER_PAINT_FLAG_NONE;
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+  switch (meta_stream_get_cursor_mode (stream))
     {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+    case META_STREAM_CURSOR_MODE_METADATA:
+    case META_STREAM_CURSOR_MODE_HIDDEN:
       paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
       break;
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+    case META_STREAM_CURSOR_MODE_EMBEDDED:
       paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
       break;
     }
@@ -547,11 +538,11 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
     {
       g_autoptr (MtkRegion) redraw_clip = NULL;
 
-      framebuffer = ensure_framebuffer (src, cogl_context, width, height, error);
+      framebuffer = ensure_framebuffer (source, cogl_context, width, height, error);
       if (!framebuffer)
         return FALSE;
 
-      redraw_clip = damage_to_redraw_clip (src, damage);
+      redraw_clip = damage_to_redraw_clip (source, damage);
       clutter_stage_paint_to_framebuffer_clipped (stage,
                                                   framebuffer,
                                                   area,
@@ -591,60 +582,56 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
-                                              MetaScreenCastRecordFlag   flags,
-                                              MetaScreenCastPaintPhase   paint_phase,
-                                              int                        width,
-                                              int                        height,
-                                              int                        stride,
-                                              uint8_t                   *data,
-                                              MtkRegion                 *damage,
-                                              GError                   **error)
+meta_stream_source_record_to_buffer (MetaStreamSource      *source,
+                                     MetaStreamRecordFlag   flags,
+                                     MetaStreamPaintPhase   paint_phase,
+                                     int                    width,
+                                     int                    height,
+                                     int                    stride,
+                                     uint8_t               *data,
+                                     MtkRegion             *damage,
+                                     GError               **error)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
-  return klass->record_to_buffer (src, flags, paint_phase,
+  return klass->record_to_buffer (source, flags, paint_phase,
                                   width, height, stride, data, damage, error);
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
-                                                   MetaScreenCastPaintPhase   paint_phase,
-                                                   CoglFramebuffer           *framebuffer,
-                                                   MtkRegion                 *damage,
-                                                   GError                   **error)
+meta_stream_source_record_to_framebuffer (MetaStreamSource      *source,
+                                          MetaStreamPaintPhase   paint_phase,
+                                          CoglFramebuffer       *framebuffer,
+                                          MtkRegion             *damage,
+                                          GError               **error)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
-  return klass->record_to_framebuffer (src, paint_phase,
+  return klass->record_to_framebuffer (source, paint_phase,
                                        framebuffer, damage, error);
 }
 
 static void
-meta_screen_cast_stream_src_queue_follow_up (MetaScreenCastStreamSrc  *src,
-                                             MetaScreenCastRecordFlag  flags)
+meta_stream_source_queue_follow_up (MetaStreamSource     *source,
+                                    MetaStreamRecordFlag  flags)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
-  klass->queue_follow_up (src, flags);
+  klass->queue_follow_up (source, flags);
 }
 
 static void
-meta_screen_cast_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
-                                                 struct spa_meta_cursor  *spa_meta_cursor)
+meta_stream_source_set_cursor_metadata (MetaStreamSource       *source,
+                                        struct spa_meta_cursor *spa_meta_cursor)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
   if (klass->set_cursor_metadata)
-    klass->set_cursor_metadata (src, spa_meta_cursor);
+    klass->set_cursor_metadata (source, spa_meta_cursor);
 }
 
 static gboolean
-draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
+draw_cursor_sprite_via_offscreen (MetaStreamSource         *source,
                                   CoglTexture              *cursor_texture,
                                   int                       bitmap_width,
                                   int                       bitmap_height,
@@ -652,11 +639,8 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
                                   uint8_t                  *bitmap_data,
                                   GError                  **error)
 {
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
@@ -709,13 +693,13 @@ draw_cursor_sprite_via_offscreen (MetaScreenCastStreamSrc  *src,
 }
 
 gboolean
-meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
-                                              CoglTexture              *cursor_texture,
-                                              int                       width,
-                                              int                       height,
-                                              const graphene_matrix_t  *matrix,
-                                              uint8_t                  *data,
-                                              GError                  **error)
+meta_stream_source_draw_cursor_into (MetaStreamSource         *source,
+                                     CoglTexture              *cursor_texture,
+                                     int                       width,
+                                     int                       height,
+                                     const graphene_matrix_t  *matrix,
+                                     uint8_t                  *data,
+                                     GError                  **error)
 {
   int texture_width, texture_height;
 
@@ -733,7 +717,7 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
     }
   else
     {
-      if (!draw_cursor_sprite_via_offscreen (src,
+      if (!draw_cursor_sprite_via_offscreen (source,
                                              cursor_texture,
                                              width,
                                              height,
@@ -747,17 +731,17 @@ meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
 }
 
 void
-meta_screen_cast_stream_src_unset_cursor_metadata (MetaScreenCastStreamSrc *src,
-                                                   struct spa_meta_cursor  *spa_meta_cursor)
+meta_stream_source_unset_cursor_metadata (MetaStreamSource       *source,
+                                          struct spa_meta_cursor *spa_meta_cursor)
 {
   spa_meta_cursor->id = 0;
 }
 
 void
-meta_screen_cast_stream_src_set_cursor_position_metadata (MetaScreenCastStreamSrc *src,
-                                                          struct spa_meta_cursor  *spa_meta_cursor,
-                                                          int                      x,
-                                                          int                      y)
+meta_stream_source_set_cursor_position_metadata (MetaStreamSource       *source,
+                                                 struct spa_meta_cursor *spa_meta_cursor,
+                                                 int                     x,
+                                                 int                     y)
 {
   spa_meta_cursor->id = 1;
   spa_meta_cursor->position.x = x;
@@ -768,10 +752,10 @@ meta_screen_cast_stream_src_set_cursor_position_metadata (MetaScreenCastStreamSr
 }
 
 void
-meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
-                                                              struct spa_meta_cursor  *spa_meta_cursor,
-                                                              int                      x,
-                                                              int                      y)
+meta_stream_source_set_empty_cursor_sprite_metadata (MetaStreamSource       *source,
+                                                     struct spa_meta_cursor *spa_meta_cursor,
+                                                     int                     x,
+                                                     int                     y)
 {
   struct spa_meta_bitmap *spa_meta_bitmap;
 
@@ -794,12 +778,12 @@ meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (MetaScreenCastStre
 }
 
 void
-meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc *src,
-                                                        struct spa_meta_cursor  *spa_meta_cursor,
-                                                        ClutterCursor           *cursor,
-                                                        int                      x,
-                                                        int                      y,
-                                                        float                    view_scale)
+meta_stream_source_set_cursor_sprite_metadata (MetaStreamSource       *source,
+                                               struct spa_meta_cursor *spa_meta_cursor,
+                                               ClutterCursor          *cursor,
+                                               int                     x,
+                                               int                     y,
+                                               float                   view_scale)
 {
   CoglTexture *cursor_texture;
   struct spa_meta_bitmap *spa_meta_bitmap;
@@ -817,9 +801,9 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
   if (!cursor_texture)
     {
-      meta_screen_cast_stream_src_set_empty_cursor_sprite_metadata (src,
-                                                                    spa_meta_cursor,
-                                                                    x, y);
+      meta_stream_source_set_empty_cursor_sprite_metadata (source,
+                                                           spa_meta_cursor,
+                                                           x, y);
       return;
     }
 
@@ -909,13 +893,13 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                             spa_meta_bitmap->offset,
                             uint8_t);
 
-  if (!meta_screen_cast_stream_src_draw_cursor_into (src,
-                                                     cursor_texture,
-                                                     bitmap_width,
-                                                     bitmap_height,
-                                                     &matrix,
-                                                     bitmap_data,
-                                                     &error))
+  if (!meta_stream_source_draw_cursor_into (source,
+                                            cursor_texture,
+                                            bitmap_width,
+                                            bitmap_height,
+                                            &matrix,
+                                            bitmap_data,
+                                            &error))
     {
       g_warning ("Failed to draw cursor: %s", error->message);
       spa_meta_cursor->id = 0;
@@ -923,43 +907,43 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
 }
 
 static void
-add_cursor_metadata (MetaScreenCastStreamSrc *src,
-                     struct spa_buffer       *spa_buffer)
+add_cursor_metadata (MetaStreamSource  *source,
+                     struct spa_buffer *spa_buffer)
 {
   struct spa_meta_cursor *spa_meta_cursor;
 
   spa_meta_cursor = spa_buffer_find_meta_data (spa_buffer, SPA_META_Cursor,
                                                sizeof (*spa_meta_cursor));
   if (spa_meta_cursor)
-    meta_screen_cast_stream_src_set_cursor_metadata (src, spa_meta_cursor);
+    meta_stream_source_set_cursor_metadata (source, spa_meta_cursor);
 }
 
-static MetaScreenCastRecordResult
-maybe_record_cursor (MetaScreenCastStreamSrc *src,
-                     struct spa_buffer       *spa_buffer)
+static MetaStreamRecordResult
+maybe_record_cursor (MetaStreamSource  *source,
+                     struct spa_buffer *spa_buffer)
 {
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaStream *stream = meta_stream_source_get_stream (source);
 
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+  switch (meta_stream_get_cursor_mode (stream))
     {
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      return META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      return META_SCREEN_CAST_RECORD_RESULT_RECORDED_CURSOR;
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-      add_cursor_metadata (src, spa_buffer);
-      return META_SCREEN_CAST_RECORD_RESULT_RECORDED_CURSOR;
+    case META_STREAM_CURSOR_MODE_HIDDEN:
+      return META_STREAM_RECORD_RESULT_RECORDED_NOTHING;
+    case META_STREAM_CURSOR_MODE_EMBEDDED:
+      return META_STREAM_RECORD_RESULT_RECORDED_CURSOR;
+    case META_STREAM_CURSOR_MODE_METADATA:
+      add_cursor_metadata (source, spa_buffer);
+      return META_STREAM_RECORD_RESULT_RECORDED_CURSOR;
     }
 
   g_assert_not_reached ();
 }
 
 static int32_t
-meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
-                                              struct spa_data         *spa_data)
+meta_stream_source_calculate_stride (MetaStreamSource *source,
+                                     struct spa_data  *spa_data)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   CoglPixelFormat cogl_format;
   int bpp;
 
@@ -982,21 +966,17 @@ meta_screen_cast_stream_src_calculate_stride (MetaScreenCastStreamSrc *src,
 }
 
 static void
-maybe_set_sync_points (MetaScreenCastStreamSrc *src,
-                       struct spa_buffer       *spa_buffer)
+maybe_set_sync_points (MetaStreamSource  *source,
+                       struct spa_buffer *spa_buffer)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_meta_sync_timeline *sync_timeline;
   int acquire_fd;
   MetaDrmTimeline *timeline;
-  MetaScreenCastStream *stream =
-    meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session =
-    meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaStream *stream =
+    meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
@@ -1034,23 +1014,23 @@ maybe_set_sync_points (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-do_record_frame (MetaScreenCastStreamSrc   *src,
-                 MetaScreenCastRecordFlag   flags,
-                 MetaScreenCastPaintPhase   paint_phase,
-                 struct pw_buffer          *buffer,
-                 MtkRegion                 *original_damage,
-                 GError                   **error)
+do_record_frame (MetaStreamSource      *source,
+                 MetaStreamRecordFlag   flags,
+                 MetaStreamPaintPhase   paint_phase,
+                 struct pw_buffer      *buffer,
+                 MtkRegion             *original_damage,
+                 GError               **error)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
-  MetaScreenCastStreamBuffer *stream_buffer;
+  MetaStreamBuffer *stream_buffer;
   g_autoptr (MtkRegion) damage = NULL;
   int buffer_age;
 
   stream_buffer = ensure_stream_buffer (buffer);
-  buffer_age = get_stream_buffer_age (src, stream_buffer);
+  buffer_age = get_stream_buffer_age (source, stream_buffer);
   clutter_damage_history_record (priv->damage_history, original_damage);
 
   if (clutter_damage_history_is_age_valid (priv->damage_history, buffer_age))
@@ -1089,20 +1069,20 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
     {
       int width = priv->video_format.size.width;
       int height = priv->video_format.size.height;
-      int stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
+      int stride = meta_stream_source_calculate_stride (source, spa_data);
 
       COGL_TRACE_BEGIN_SCOPED (RecordToBuffer,
-                               "Meta::ScreenCastStreamSrc::record_to_buffer()");
+                               "Meta::StreamSource::record_to_buffer()");
 
-      return meta_screen_cast_stream_src_record_to_buffer (src,
-                                                           flags,
-                                                           paint_phase,
-                                                           width,
-                                                           height,
-                                                           stride,
-                                                           spa_data->data,
-                                                           damage,
-                                                           error);
+      return meta_stream_source_record_to_buffer (source,
+                                                  flags,
+                                                  paint_phase,
+                                                  width,
+                                                  height,
+                                                  stride,
+                                                  spa_data->data,
+                                                  damage,
+                                                  error);
     }
   else if (spa_data->type == SPA_DATA_DmaBuf)
     {
@@ -1114,16 +1094,16 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
       gboolean result;
 
       COGL_TRACE_BEGIN_SCOPED (RecordToFramebuffer,
-                               "Meta::ScreenCastStreamSrc::record_to_framebuffer()");
+                               "Meta::StreamSource::record_to_framebuffer()");
 
-      result = meta_screen_cast_stream_src_record_to_framebuffer (src,
-                                                                  paint_phase,
-                                                                  dmabuf_fbo,
-                                                                  damage,
-                                                                  error);
+      result = meta_stream_source_record_to_framebuffer (source,
+                                                         paint_phase,
+                                                         dmabuf_fbo,
+                                                         damage,
+                                                         error);
 
       if (result)
-        maybe_set_sync_points (src, spa_buffer);
+        maybe_set_sync_points (source, spa_buffer);
 
       return result;
     }
@@ -1134,10 +1114,10 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
 }
 
 gboolean
-meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src)
+meta_stream_source_is_driving (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   g_return_val_if_fail (priv->pipewire_stream, FALSE);
   g_warn_if_fail (pw_stream_get_state (priv->pipewire_stream, NULL) ==
@@ -1147,9 +1127,9 @@ meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src)
 }
 
 static void
-maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
-                                    struct spa_buffer       *spa_buffer,
-                                    MtkRegion               *damage)
+maybe_add_damaged_regions_metadata (MetaStreamSource  *source,
+                                    struct spa_buffer *spa_buffer,
+                                    MtkRegion         *damage)
 {
   struct spa_meta *spa_meta_video_damage;
   struct spa_meta_region *meta_region;
@@ -1200,41 +1180,41 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
     meta_region->region = SPA_REGION (0, 0, 0, 0);
 }
 
-MetaScreenCastRecordResult
-meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc  *src,
-                                          MetaScreenCastRecordFlag  flags,
-                                          MetaScreenCastPaintPhase  paint_phase,
-                                          const MtkRegion          *redraw_clip)
+MetaStreamRecordResult
+meta_stream_source_record_frame (MetaStreamSource     *source,
+                                 MetaStreamRecordFlag  flags,
+                                 MetaStreamPaintPhase  paint_phase,
+                                 const MtkRegion      *redraw_clip)
 {
   int64_t now_us = g_get_monotonic_time ();
 
-  return meta_screen_cast_stream_src_record_frame_with_timestamp (src,
-                                                                  flags,
-                                                                  paint_phase,
-                                                                  redraw_clip,
-                                                                  now_us);
+  return meta_stream_source_record_frame_with_timestamp (source,
+                                                         flags,
+                                                         paint_phase,
+                                                         redraw_clip,
+                                                         now_us);
 }
 
-MetaScreenCastRecordResult
-meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
-                                                MetaScreenCastRecordFlag  flags,
-                                                MetaScreenCastPaintPhase  paint_phase,
-                                                const MtkRegion          *redraw_clip)
+MetaStreamRecordResult
+meta_stream_source_maybe_record_frame (MetaStreamSource     *source,
+                                       MetaStreamRecordFlag  flags,
+                                       MetaStreamPaintPhase  paint_phase,
+                                       const MtkRegion      *redraw_clip)
 {
   int64_t now_us = g_get_monotonic_time ();
 
-  return meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (src,
-                                                                        flags,
-                                                                        paint_phase,
-                                                                        redraw_clip,
-                                                                        now_us);
+  return meta_stream_source_maybe_record_frame_with_timestamp (source,
+                                                               flags,
+                                                               paint_phase,
+                                                               redraw_clip,
+                                                               now_us);
 }
 
 void
-meta_screen_cast_stream_src_request_process (MetaScreenCastStreamSrc *src)
+meta_stream_source_request_process (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   if (!priv->pending_process &&
       !pw_stream_is_driving (priv->pipewire_stream))
@@ -1247,9 +1227,9 @@ meta_screen_cast_stream_src_request_process (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-can_reuse_pw_buffer (MetaScreenCastStreamSrcPrivate  *priv,
-                     struct pw_buffer                *buffer,
-                     GError                         **error)
+can_reuse_pw_buffer (MetaStreamSourcePrivate  *priv,
+                     struct pw_buffer         *buffer,
+                     GError                  **error)
 {
   struct spa_buffer *spa_buffer;
   struct spa_data *spa_data;
@@ -1289,11 +1269,11 @@ can_reuse_pw_buffer (MetaScreenCastStreamSrcPrivate  *priv,
 }
 
 static struct pw_buffer *
-dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
-                   GError                  **error)
+dequeue_pw_buffer (MetaStreamSource  *source,
+                   GError           **error)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct pw_buffer *buffer = NULL;
 
   GError *local_error = NULL;
@@ -1343,12 +1323,12 @@ dequeue_pw_buffer (MetaScreenCastStreamSrc  *src,
 }
 
 static void
-queue_pw_buffer (MetaScreenCastStreamSrc *src,
-                 struct pw_buffer        *buffer)
+queue_pw_buffer (MetaStreamSource *source,
+                 struct pw_buffer *buffer)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStreamBuffer *stream_buffer;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStreamBuffer *stream_buffer;
 
   stream_buffer = ensure_stream_buffer (buffer);
   stream_buffer->age_sequence = priv->buffer_age_counter++;
@@ -1357,11 +1337,11 @@ queue_pw_buffer (MetaScreenCastStreamSrc *src,
 }
 
 static MtkRegion *
-redraw_clip_to_damage (MetaScreenCastStreamSrc *src,
-                       const MtkRegion         *redraw_clip)
+redraw_clip_to_damage (MetaStreamSource *source,
+                       const MtkRegion  *redraw_clip)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   const MtkRectangle *layout = &priv->layout;
   graphene_rect_t src_rect;
 
@@ -1385,17 +1365,17 @@ redraw_clip_to_damage (MetaScreenCastStreamSrc *src,
 }
 
 void
-meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
-                                               MetaScreenCastRecordFlag  flags,
-                                               const MtkRegion          *redraw_clip)
+meta_stream_source_accumulate_damage (MetaStreamSource     *source,
+                                      MetaStreamRecordFlag  flags,
+                                      const MtkRegion      *redraw_clip)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   g_autoptr (MtkRegion) damage = NULL;
 
   if (!redraw_clip)
     {
-      if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
+      if (!(flags & META_STREAM_RECORD_FLAG_CURSOR_ONLY))
         {
           MtkRectangle rect;
 
@@ -1414,7 +1394,7 @@ meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
   /* Accumulate the damaged region since we might not schedule a frame capture
    * eventually but once we do, we should report all the previous damaged areas.
    */
-  damage = redraw_clip_to_damage (src, redraw_clip);
+  damage = redraw_clip_to_damage (source, redraw_clip);
 
   if (priv->damage)
     mtk_region_union (priv->damage, damage);
@@ -1422,17 +1402,17 @@ meta_screen_cast_stream_src_accumulate_damage (MetaScreenCastStreamSrc  *src,
     priv->damage = g_steal_pointer (&damage);
 }
 
-MetaScreenCastRecordResult
-meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
-                                                         MetaScreenCastRecordFlag  flags,
-                                                         MetaScreenCastPaintPhase  paint_phase,
-                                                         const MtkRegion          *redraw_clip,
-                                                         int64_t                   frame_timestamp_us)
+MetaStreamRecordResult
+meta_stream_source_record_frame_with_timestamp (MetaStreamSource     *source,
+                                                MetaStreamRecordFlag  flags,
+                                                MetaStreamPaintPhase  paint_phase,
+                                                const MtkRegion      *redraw_clip,
+                                                int64_t               frame_timestamp_us)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastRecordResult record_result =
-    META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStreamRecordResult record_result =
+    META_STREAM_RECORD_RESULT_RECORDED_NOTHING;
   MtkRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
@@ -1442,25 +1422,25 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
   g_autoptr (GError) error = NULL;
 
   g_return_val_if_fail (priv->pipewire_stream,
-                        META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING);
+                        META_STREAM_RECORD_RESULT_RECORDED_NOTHING);
   g_return_val_if_fail (pw_stream_get_state (priv->pipewire_stream, NULL) ==
                         PW_STREAM_STATE_STREAMING,
-                        META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING);
+                        META_STREAM_RECORD_RESULT_RECORDED_NOTHING);
 
-  meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
+  meta_stream_source_accumulate_damage (source, flags, redraw_clip);
 
   meta_topic (META_DEBUG_SCREEN_CAST, "Recording %s frame on stream %u",
-              flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY ?
+              flags & META_STREAM_RECORD_FLAG_CURSOR_ONLY ?
               "cursor" : "full",
               priv->node_id);
 
-  buffer = dequeue_pw_buffer (src, &error);
+  buffer = dequeue_pw_buffer (source, &error);
   if (!buffer)
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Couldn't dequeue a buffer from pipewire stream: %s",
                   error->message);
-      meta_screen_cast_stream_src_queue_follow_up (src, flags);
+      meta_stream_source_queue_follow_up (source, flags);
       return record_result;
     }
 
@@ -1477,11 +1457,11 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
       if (header)
         header->flags = SPA_META_HEADER_FLAG_CORRUPTED;
 
-      queue_pw_buffer (src, buffer);
+      queue_pw_buffer (source, buffer);
       return record_result;
     }
 
-  if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
+  if (!(flags & META_STREAM_RECORD_FLAG_CURSOR_ONLY))
     {
       if (priv->damage)
         damage = mtk_region_ref (priv->damage);
@@ -1496,11 +1476,11 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
           damage = mtk_region_create_rectangle (&full_rect);
         }
 
-      if (do_record_frame (src, flags, paint_phase, buffer, damage, &error))
+      if (do_record_frame (source, flags, paint_phase, buffer, damage, &error))
         {
           struct spa_meta_region *spa_meta_video_crop;
 
-          maybe_add_damaged_regions_metadata (src, spa_buffer, damage);
+          maybe_add_damaged_regions_metadata (source, spa_buffer, damage);
 
           spa_data->chunk->size = spa_data->maxsize;
           spa_data->chunk->flags = SPA_CHUNK_FLAG_NONE;
@@ -1511,7 +1491,7 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
                                        sizeof (*spa_meta_video_crop));
           if (spa_meta_video_crop)
             {
-              if (meta_screen_cast_stream_src_get_videocrop (src, &crop_rect))
+              if (meta_stream_source_get_videocrop (source, &crop_rect))
                 {
                   spa_meta_video_crop->region.position.x = crop_rect.x;
                   spa_meta_video_crop->region.position.y = crop_rect.y;
@@ -1529,13 +1509,14 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
                 }
             }
 
-          record_result |= META_SCREEN_CAST_RECORD_RESULT_RECORDED_FRAME;
+          record_result |= META_STREAM_RECORD_RESULT_RECORDED_FRAME;
         }
       else
         {
           if (error)
             {
-              g_warning ("Failed to record screen cast frame: %s", error->message);
+              g_warning ("Failed to record screen cast frame: %s",
+                         error->message);
               g_clear_error (&error);
             }
           spa_data->chunk->size = 0;
@@ -1552,11 +1533,11 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
     {
       g_clear_pointer (&damage, mtk_region_unref);
       damage = mtk_region_create ();
-      do_record_frame (src, flags, paint_phase, buffer, damage, &error);
-      maybe_add_damaged_regions_metadata (src, spa_buffer, damage);
+      do_record_frame (source, flags, paint_phase, buffer, damage, &error);
+      maybe_add_damaged_regions_metadata (source, spa_buffer, damage);
     }
 
-  record_result |= maybe_record_cursor (src, spa_buffer);
+  record_result |= maybe_record_cursor (source, spa_buffer);
 
   priv->last_frame_timestamp_us = frame_timestamp_us;
 
@@ -1575,31 +1556,30 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
       meta_topic (META_DEBUG_SCREEN_CAST, "Queuing unsequenced PipeWire buffer");
     }
 
-  queue_pw_buffer (src, buffer);
+  queue_pw_buffer (source, buffer);
 
   return record_result;
 }
 
-MetaScreenCastRecordResult
-meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStreamSrc  *src,
-                                                               MetaScreenCastRecordFlag  flags,
-                                                               MetaScreenCastPaintPhase  paint_phase,
-                                                               const MtkRegion          *redraw_clip,
-                                                               int64_t                   frame_timestamp_us)
+MetaStreamRecordResult
+meta_stream_source_maybe_record_frame_with_timestamp (MetaStreamSource     *source,
+                                                      MetaStreamRecordFlag  flags,
+                                                      MetaStreamPaintPhase  paint_phase,
+                                                      const MtkRegion      *redraw_clip,
+                                                      int64_t               frame_timestamp_us)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
-  MetaScreenCastRecordResult record_result =
-    META_SCREEN_CAST_RECORD_RESULT_RECORDED_NOTHING;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
+  MetaStreamRecordResult record_result =
+    META_STREAM_RECORD_RESULT_RECORDED_NOTHING;
 
   COGL_TRACE_BEGIN_SCOPED (MaybeRecordFrame,
-                           "Meta::ScreenCastStreamSrc::maybe_record_frame_with_timestamp()");
+                           "Meta::StreamSource::maybe_record_frame_with_timestamp()");
 
-  if ((flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY) &&
+  if ((flags & META_STREAM_RECORD_FLAG_CURSOR_ONLY) &&
       klass->is_cursor_metadata_valid &&
-      klass->is_cursor_metadata_valid (src))
+      klass->is_cursor_metadata_valid (source))
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Dropping cursor-only frame as the cursor didn't change");
@@ -1616,39 +1596,40 @@ meta_screen_cast_stream_src_maybe_record_frame_with_timestamp (MetaScreenCastStr
         ((G_USEC_PER_SEC * ((int64_t) priv->video_format.max_framerate.denom)) /
          ((int64_t) priv->video_format.max_framerate.num));
 
-      time_since_last_frame_us = frame_timestamp_us - priv->last_frame_timestamp_us;
+      time_since_last_frame_us =
+        frame_timestamp_us - priv->last_frame_timestamp_us;
       if (time_since_last_frame_us < min_interval_us)
         {
           meta_topic (META_DEBUG_SCREEN_CAST,
                       "Skipped recording frame on stream %u, too early",
                       priv->node_id);
-          meta_screen_cast_stream_src_queue_follow_up (src, flags);
-          meta_screen_cast_stream_src_accumulate_damage (src, flags, redraw_clip);
+          meta_stream_source_queue_follow_up (source, flags);
+          meta_stream_source_accumulate_damage (source, flags, redraw_clip);
           return record_result;
         }
     }
 
-  return meta_screen_cast_stream_src_record_frame_with_timestamp (src,
-                                                                  flags,
-                                                                  paint_phase,
-                                                                  redraw_clip,
-                                                                  frame_timestamp_us);
+  return meta_stream_source_record_frame_with_timestamp (source,
+                                                         flags,
+                                                         paint_phase,
+                                                         redraw_clip,
+                                                         frame_timestamp_us);
 }
 
 gboolean
-meta_screen_cast_stream_src_is_enabled (MetaScreenCastStreamSrc *src)
+meta_stream_source_is_enabled (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   return priv->is_enabled;
 }
 
 static void
-meta_screen_cast_stream_src_enable (MetaScreenCastStreamSrc *src)
+meta_stream_source_enable (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   meta_topic (META_DEBUG_SCREEN_CAST,
               "Enabling stream %u (driving: %s)",
@@ -1657,37 +1638,37 @@ meta_screen_cast_stream_src_enable (MetaScreenCastStreamSrc *src)
 
   priv->is_enabled = TRUE;
 
-  META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src)->enable (src);
+  META_STREAM_SOURCE_GET_CLASS (source)->enable (source);
 }
 
 static void
-meta_screen_cast_stream_src_disable (MetaScreenCastStreamSrc *src)
+meta_stream_source_disable (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
-  META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src)->disable (src);
+  META_STREAM_SOURCE_GET_CLASS (source)->disable (source);
 
   priv->is_enabled = FALSE;
 }
 
 void
-meta_screen_cast_stream_src_close (MetaScreenCastStreamSrc *src)
+meta_stream_source_close (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
-  if (meta_screen_cast_stream_src_is_enabled (src))
-    meta_screen_cast_stream_src_disable (src);
+  if (meta_stream_source_is_enabled (source))
+    meta_stream_source_disable (source);
   priv->emit_closed_after_dispatch = TRUE;
 }
 
-typedef struct _MetaScreenCastSpec
+typedef struct _MetaStreamSpec
 {
   int width;
   int height;
   float frame_rate;
-} MetaScreenCastSpec;
+} MetaStreamSpec;
 
 static gboolean
 spa_color_state_from_clutter (ClutterColorState                *color_state,
@@ -1719,21 +1700,34 @@ spa_color_state_from_clutter (ClutterColorState                *color_state,
   return FALSE;
 }
 
-static void
-add_format_param (MetaScreenCastStreamSrc    *src,
-                  struct spa_pod_builder     *pod_builder,
-                  GArray                     *pod_offsets,
-                  const MetaScreenCastFormat *format,
-                  MetaScreenCastSpec         *spec,
-                  gboolean                    with_modifiers)
+static dev_t
+meta_stream_source_get_device_id (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session =
-    meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaDeviceFile *device_file;
+
+  if (!priv->render_device)
+    return DEVICE_ID_INVALID;
+
+  device_file = meta_render_device_get_device_file (priv->render_device);
+  if (device_file)
+    return meta_device_file_get_device_id (device_file);
+  else
+    return DEVICE_ID_INVALID;
+}
+
+static void
+add_format_param (MetaStreamSource       *source,
+                  struct spa_pod_builder *pod_builder,
+                  GArray                 *pod_offsets,
+                  const MetaStreamFormat *format,
+                  MetaStreamSpec         *spec,
+                  gboolean                with_modifiers)
+{
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStream *stream = priv->stream;
   struct spa_rectangle default_size = DEFAULT_SIZE;
   struct spa_rectangle min_size = MIN_SIZE;
   struct spa_rectangle max_size = MAX_SIZE;
@@ -1749,7 +1743,7 @@ add_format_param (MetaScreenCastStreamSrc    *src,
   enum spa_video_transfer_function spa_transfer_function;
   dev_t device_id;
 
-  device_id = meta_screen_cast_get_device_id (screen_cast);
+  device_id = meta_stream_source_get_device_id (source);
 
   if (spec)
     {
@@ -1792,7 +1786,7 @@ add_format_param (MetaScreenCastStreamSrc    *src,
                                        GINT_TO_POINTER (cogl_format));
       if (!modifiers)
         {
-          modifiers = meta_screen_cast_query_modifiers (screen_cast, cogl_format);
+          modifiers = meta_stream_query_modifiers (stream, cogl_format);
           g_hash_table_insert (priv->modifiers,
                                GINT_TO_POINTER (cogl_format),
                                modifiers);
@@ -1806,7 +1800,7 @@ add_format_param (MetaScreenCastStreamSrc    *src,
         }
 
       push_format_object (
-        src,
+        source,
         pod_builder,
         pod_offsets,
         device_id,
@@ -1822,7 +1816,7 @@ add_format_param (MetaScreenCastStreamSrc    *src,
   else
     {
       push_format_object (
-        src,
+        source,
         pod_builder,
         pod_offsets,
         device_id,
@@ -1837,22 +1831,24 @@ add_format_param (MetaScreenCastStreamSrc    *src,
 }
 
 static void
-build_format_params (MetaScreenCastStreamSrc *src,
-                     struct spa_pod_builder  *pod_builder,
-                     GArray                  *pod_offsets)
+build_format_params (MetaStreamSource       *source,
+                     struct spa_pod_builder *pod_builder,
+                     GArray                 *pod_offsets)
 {
-  MetaScreenCastSpec spec;
-  MetaScreenCastSpec *spec_ptr = NULL;
-  const MetaScreenCastFormat *formats;
-  const MetaScreenCastFormat *format;
+  MetaStreamSpec spec;
+  MetaStreamSpec *spec_ptr = NULL;
+  const MetaStreamFormat *formats;
+  const MetaStreamFormat *format;
 
-  if (meta_screen_cast_stream_src_get_specs (src, &spec.width, &spec.height, &spec.frame_rate))
+  if (meta_stream_source_get_specs (source,
+                                    &spec.width, &spec.height,
+                                    &spec.frame_rate))
     spec_ptr = &spec;
 
-  formats = meta_screen_cast_stream_src_get_formats (src);
+  formats = meta_stream_source_get_formats (source);
   for (format = formats; format->format; format++)
     {
-      add_format_param (src,
+      add_format_param (source,
                         pod_builder,
                         pod_offsets,
                         format,
@@ -1861,7 +1857,7 @@ build_format_params (MetaScreenCastStreamSrc *src,
     }
   for (format = formats; format->format; format++)
     {
-      add_format_param (src,
+      add_format_param (source,
                         pod_builder,
                         pod_offsets,
                         format,
@@ -1871,8 +1867,8 @@ build_format_params (MetaScreenCastStreamSrc *src,
 }
 
 static void
-append_capabilities_dict_entry (MetaScreenCast *screen_cast,
-                                GArray         *capabilities)
+append_capabilities_dict_entry (MetaStreamSource *source,
+                                GArray           *capabilities)
 {
   MetaSpaDictEntry dict_entry;
   dev_t device_id;
@@ -1883,7 +1879,7 @@ append_capabilities_dict_entry (MetaScreenCast *screen_cast,
   g_array_append_val (capabilities, dict_entry);
 
   dict_entry.key = g_strdup (PW_CAPABILITY_DEVICE_IDS);
-  device_id = meta_screen_cast_get_device_id (screen_cast);
+  device_id = meta_stream_source_get_device_id (source);
   device_id_encoded = meta_encode_hex (&device_id, sizeof (device_id));
   dict_entry.value = g_strdup_printf ("{\"available-devices:\": [\"%s\"]}",
                                       device_id_encoded);
@@ -1891,14 +1887,13 @@ append_capabilities_dict_entry (MetaScreenCast *screen_cast,
 }
 
 static void
-build_tag_params (MetaScreenCastStreamSrc *src,
-                  struct spa_pod_builder  *pod_builder,
-                  GArray                  *pod_offsets)
+build_tag_params (MetaStreamSource       *source,
+                  struct spa_pod_builder *pod_builder,
+                  GArray                 *pod_offsets)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
   struct spa_pod_frame tag_frame;
   struct spa_dict_item *items;
   g_autoptr (GArray) tags = NULL;
@@ -1910,9 +1905,9 @@ build_tag_params (MetaScreenCastStreamSrc *src,
   g_array_set_clear_func (tags, (GDestroyNotify) meta_spa_dict_entry_clear);
 
   if (klass->append_tags)
-    klass->append_tags (src, tags);
+    klass->append_tags (source, tags);
 
-  mapping_id = meta_screen_cast_stream_get_mapping_id (priv->stream);
+  mapping_id = meta_stream_get_mapping_id (priv->stream);
   mapping_id_tag_entry.key = g_strdup ("org.gnome.mapping-id");
   mapping_id_tag_entry.value = g_strdup (mapping_id);
   g_array_append_val (tags, mapping_id_tag_entry);
@@ -1934,15 +1929,10 @@ build_tag_params (MetaScreenCastStreamSrc *src,
 }
 
 static void
-build_capability_params (MetaScreenCastStreamSrc *src,
-                         struct spa_pod_builder  *pod_builder,
-                         GArray                  *pod_offsets)
+build_capability_params (MetaStreamSource       *source,
+                         struct spa_pod_builder *pod_builder,
+                         GArray                 *pod_offsets)
 {
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session =
-    meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
   struct spa_dict_item *items;
   g_autoptr (GArray) capabilities = NULL;
   size_t i;
@@ -1951,7 +1941,7 @@ build_capability_params (MetaScreenCastStreamSrc *src,
   g_array_set_clear_func (capabilities, (GDestroyNotify)
                           meta_spa_dict_entry_clear);
 
-  append_capabilities_dict_entry (screen_cast, capabilities);
+  append_capabilities_dict_entry (source, capabilities);
 
   items = g_alloca (sizeof (struct spa_dict_item) * capabilities->len);
   for (i = 0; i < capabilities->len; i++)
@@ -1967,13 +1957,13 @@ build_capability_params (MetaScreenCastStreamSrc *src,
 }
 
 static void
-build_stream_params (MetaScreenCastStreamSrc *src,
-                     struct spa_pod_builder  *pod_builder,
-                     GArray                  *pod_offsets)
+build_stream_params (MetaStreamSource       *source,
+                     struct spa_pod_builder *pod_builder,
+                     GArray                 *pod_offsets)
 {
-  build_format_params (src, pod_builder, pod_offsets);
-  build_tag_params (src, pod_builder, pod_offsets);
-  build_capability_params (src, pod_builder, pod_offsets);
+  build_format_params (source, pod_builder, pod_offsets);
+  build_tag_params (source, pod_builder, pod_offsets);
+  build_capability_params (source, pod_builder, pod_offsets);
 }
 
 static GPtrArray *
@@ -1996,10 +1986,10 @@ finish_params (struct spa_pod_builder *pod_builder,
 }
 
 void
-meta_screen_cast_stream_src_renegotiate (MetaScreenCastStreamSrc *src)
+meta_stream_source_renegotiate (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   g_autoptr (GArray) pod_offsets = NULL;
   g_autoptr (GPtrArray) params = NULL;
   struct spa_pod_dynamic_builder pod_builder;
@@ -2007,7 +1997,7 @@ meta_screen_cast_stream_src_renegotiate (MetaScreenCastStreamSrc *src)
   pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
 
-  build_stream_params (src, &pod_builder.b, pod_offsets);
+  build_stream_params (source, &pod_builder.b, pod_offsets);
 
   params = finish_params (&pod_builder.b, pod_offsets);
 
@@ -2021,11 +2011,10 @@ meta_screen_cast_stream_src_renegotiate (MetaScreenCastStreamSrc *src)
 static void
 on_stream_process (void *user_data)
 {
-  MetaScreenCastStreamSrc *src = user_data;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSource *source = user_data;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
   meta_topic (META_DEBUG_SCREEN_CAST, "Processing stream %u",  priv->node_id);
 
@@ -2034,7 +2023,7 @@ on_stream_process (void *user_data)
 
   priv->pending_process = FALSE;
 
-  klass->dispatch (src);
+  klass->dispatch (source);
 }
 
 static void
@@ -2043,9 +2032,9 @@ on_stream_state_changed (void                 *data,
                          enum pw_stream_state  state,
                          const char           *error_message)
 {
-  MetaScreenCastStreamSrc *src = data;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = data;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   meta_topic (META_DEBUG_SCREEN_CAST,
               "Pipewire stream (%u) state changed from %s to %s",
@@ -2056,21 +2045,21 @@ on_stream_state_changed (void                 *data,
   switch (state)
     {
     case PW_STREAM_STATE_ERROR:
-      if (meta_screen_cast_stream_src_is_enabled (src))
-        meta_screen_cast_stream_src_disable (src);
+      if (meta_stream_source_is_enabled (source))
+        meta_stream_source_disable (source);
       break;
     case PW_STREAM_STATE_PAUSED:
       if (priv->node_id == SPA_ID_INVALID && priv->pipewire_stream)
         {
           priv->node_id = pw_stream_get_node_id (priv->pipewire_stream);
-          g_signal_emit (src, signals[READY], 0, (unsigned int) priv->node_id);
+          g_signal_emit (source, signals[READY], 0);
         }
-      if (meta_screen_cast_stream_src_is_enabled (src))
-        meta_screen_cast_stream_src_disable (src);
+      if (meta_stream_source_is_enabled (source))
+        meta_stream_source_disable (source);
       break;
     case PW_STREAM_STATE_STREAMING:
-      if (!meta_screen_cast_stream_src_is_enabled (src))
-        meta_screen_cast_stream_src_enable (src);
+      if (!meta_stream_source_is_enabled (source))
+        meta_stream_source_enable (source);
       break;
     case PW_STREAM_STATE_UNCONNECTED:
     case PW_STREAM_STATE_CONNECTING:
@@ -2096,15 +2085,11 @@ add_video_damage_meta_param (struct spa_pod_builder *pod_builder,
 }
 
 static gboolean
-explicit_sync_supported (MetaScreenCastStreamSrc *src)
+explicit_sync_supported (MetaStreamSource *source)
 {
   uint64_t supported = 0;
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session =
-    meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
@@ -2114,7 +2099,8 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
   MetaDeviceFile *device_file;
   int drm_fd;
 
-  if (!cogl_context_has_winsys_feature (cogl_context, COGL_WINSYS_FEATURE_SYNC_FD))
+  if (!cogl_context_has_winsys_feature (cogl_context,
+                                        COGL_WINSYS_FEATURE_SYNC_FD))
     return FALSE;
 
   cogl_renderer = cogl_context_get_renderer (cogl_context);
@@ -2133,11 +2119,11 @@ explicit_sync_supported (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-did_video_format_changed_for_log (MetaScreenCastStreamSrc   *src,
+did_video_format_changed_for_log (MetaStreamSource          *source,
                                   struct spa_video_info_raw *video_format)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   return (video_format->size.width != priv->video_format.size.width ||
           video_format->size.height != priv->video_format.size.height ||
@@ -2148,16 +2134,12 @@ did_video_format_changed_for_log (MetaScreenCastStreamSrc   *src,
 }
 
 static void
-update_color_state (MetaScreenCastStreamSrc *src)
+update_color_state (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session =
-    meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterContext *clutter_context =
     meta_backend_get_clutter_context (backend);
   ClutterColorspace colorspace;
@@ -2201,13 +2183,12 @@ update_color_state (MetaScreenCastStreamSrc *src)
 }
 
 static void
-on_format_param_changed (MetaScreenCastStreamSrc *src,
+on_format_param_changed (MetaStreamSource *source,
                          const struct spa_pod    *format)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
   struct spa_video_info_raw video_format = {};
   struct spa_pod_dynamic_builder pod_builder;
   struct spa_pod_frame pod_frame;
@@ -2223,7 +2204,7 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
   spa_format_video_raw_parse (format, &video_format);
 
   if (meta_is_topic_enabled (META_DEBUG_SCREEN_CAST) &&
-      did_video_format_changed_for_log (src, &video_format))
+      did_video_format_changed_for_log (source, &video_format))
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Video format changed to %dx%d (framerate: %d/%d (max: %d/%d))",
@@ -2252,7 +2233,7 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
               spa_debug_type_find_name (spa_type_video_transfer_function,
                                         priv->video_format.transfer_function));
 
-  update_color_state (src);
+  update_color_state (source);
 
   prop_modifier = spa_pod_find_prop (format, NULL, SPA_FORMAT_VIDEO_modifier);
 
@@ -2261,17 +2242,13 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
   else
     buffer_types = 1 << SPA_DATA_MemFd;
 
-  if ((buffer_types == (1 << SPA_DATA_DmaBuf)) && explicit_sync_supported (src))
+  if ((buffer_types == (1 << SPA_DATA_DmaBuf)) && explicit_sync_supported (source))
     use_explicit_sync = TRUE;
 
   if (prop_modifier && (prop_modifier->flags & SPA_POD_PROP_FLAG_DONT_FIXATE))
     {
-      MetaScreenCastStream *stream =
-        meta_screen_cast_stream_src_get_stream (src);
-      MetaScreenCastSession *session =
-        meta_screen_cast_stream_get_session (stream);
-      MetaScreenCast *screen_cast =
-        meta_screen_cast_session_get_screen_cast (session);
+      MetaStream *stream =
+        meta_stream_source_get_stream (source);
       CoglPixelFormat cogl_format;
       const struct spa_pod *pod_modifier = &prop_modifier->value;
       uint64_t *negotiated_modifiers = SPA_POD_CHOICE_VALUES (pod_modifier);
@@ -2306,12 +2283,12 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
             g_array_append_vals (supported_modifiers, &modifier, 1);
         }
 
-      if (meta_screen_cast_get_preferred_modifier (screen_cast,
-                                                   cogl_format,
-                                                   supported_modifiers,
-                                                   priv->video_format.size.width,
-                                                   priv->video_format.size.height,
-                                                   &preferred_modifier))
+      if (meta_stream_get_preferred_modifier (stream,
+                                              cogl_format,
+                                              supported_modifiers,
+                                              priv->video_format.size.width,
+                                              priv->video_format.size.height,
+                                              &preferred_modifier))
         {
           MetaSpaFractionRange max_framerate = {
             .def = priv->video_format.max_framerate,
@@ -2320,10 +2297,10 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
           };
           dev_t device_id;
 
-          device_id = meta_screen_cast_get_device_id (screen_cast);
+          device_id = meta_stream_source_get_device_id (source);
 
           push_format_object (
-            src,
+            source,
             &pod_builder.b,
             pod_offsets,
             device_id,
@@ -2336,7 +2313,7 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
             0);
         }
 
-      build_stream_params (src, &pod_builder.b, pod_offsets);
+      build_stream_params (source, &pod_builder.b, pod_offsets);
 
       params = finish_params (&pod_builder.b, pod_offsets);
       pw_stream_update_params (priv->pipewire_stream,
@@ -2362,7 +2339,9 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
         SPA_PARAM_BUFFERS_align, SPA_POD_Int (16),
         SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int (buffer_types),
         0);
-      spa_pod_builder_prop (&pod_builder.b, SPA_PARAM_BUFFERS_metaType, SPA_POD_PROP_FLAG_MANDATORY);
+      spa_pod_builder_prop (&pod_builder.b,
+                            SPA_PARAM_BUFFERS_metaType,
+                            SPA_POD_PROP_FLAG_MANDATORY);
       spa_pod_builder_int (&pod_builder.b, 1 << SPA_META_SyncTimeline);
       spa_pod_builder_pop (&pod_builder.b, &pod_frame);
     }
@@ -2427,23 +2406,22 @@ on_format_param_changed (MetaScreenCastStreamSrc *src,
   spa_pod_dynamic_builder_clean (&pod_builder);
 
   if (klass->notify_params_updated)
-    klass->notify_params_updated (src, &priv->video_format);
+    klass->notify_params_updated (source, &priv->video_format);
 }
 
 static void
-on_tag_changed (MetaScreenCastStreamSrc *src,
-                const char              *key,
-                const char              *value)
+on_tag_changed (MetaStreamSource *source,
+                const char       *key,
+                const char       *value)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
   if (klass->tag_changed)
-    klass->tag_changed (src, key, value);
+    klass->tag_changed (source, key, value);
 }
 
 static void
-on_tag_param_changed (MetaScreenCastStreamSrc *src,
+on_tag_param_changed (MetaStreamSource *source,
                       const struct spa_pod    *tag)
 {
   struct spa_tag_info tag_info;
@@ -2463,16 +2441,16 @@ on_tag_param_changed (MetaScreenCastStreamSrc *src,
         return;
 
       for (int i = 0; i < dict.n_items; i++)
-        on_tag_changed (src, items[i].key, items[i].value);
+        on_tag_changed (source, items[i].key, items[i].value);
     }
 }
 
 static void
 negotiate_with_device_cb (gpointer user_data)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = META_STREAM_SOURCE (user_data);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_pod_dynamic_builder pod_builder;
   g_autoptr (GArray) pod_offsets = NULL;
   g_autoptr (GPtrArray) params = NULL;
@@ -2484,13 +2462,7 @@ negotiate_with_device_cb (gpointer user_data)
 
   if (meta_is_topic_enabled (META_DEBUG_SCREEN_CAST))
     {
-      MetaScreenCastStream *stream =
-        meta_screen_cast_stream_src_get_stream (src);
-      MetaScreenCastSession *session =
-        meta_screen_cast_stream_get_session (stream);
-      MetaScreenCast *screen_cast =
-        meta_screen_cast_session_get_screen_cast (session);
-      dev_t device_id = meta_screen_cast_get_device_id (screen_cast);
+      dev_t device_id = meta_stream_source_get_device_id (source);
 
       meta_topic (META_DEBUG_SCREEN_CAST,
                   "Negotiating with device ID %u:%u",
@@ -2500,7 +2472,7 @@ negotiate_with_device_cb (gpointer user_data)
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
   pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
 
-  build_format_params (src, &pod_builder.b, pod_offsets);
+  build_format_params (source, &pod_builder.b, pod_offsets);
   params = finish_params (&pod_builder.b, pod_offsets);
 
   pw_stream_update_params (priv->pipewire_stream,
@@ -2510,11 +2482,11 @@ negotiate_with_device_cb (gpointer user_data)
 }
 
 static void
-on_peer_capability_param_changed (MetaScreenCastStreamSrc *src,
-                                  const struct spa_pod    *param)
+on_peer_capability_param_changed (MetaStreamSource     *source,
+                                  const struct spa_pod *param)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_peer_param_info peer_info;
   void *state = NULL;
 
@@ -2555,7 +2527,7 @@ on_peer_capability_param_changed (MetaScreenCastStreamSrc *src,
       !priv->negotiate_with_device_handle_id)
     {
       priv->negotiate_with_device_handle_id =
-        g_idle_add_once (negotiate_with_device_cb, src);
+        g_idle_add_once (negotiate_with_device_cb, source);
     }
 }
 
@@ -2564,7 +2536,7 @@ on_stream_param_changed (void                 *data,
                          uint32_t              id,
                          const struct spa_pod *param)
 {
-  MetaScreenCastStreamSrc *src = data;
+  MetaStreamSource *source = data;
 
   if (!param)
     return;
@@ -2572,28 +2544,25 @@ on_stream_param_changed (void                 *data,
   switch (id)
     {
     case SPA_PARAM_Format:
-      on_format_param_changed (src, param);
+      on_format_param_changed (source, param);
       break;
     case SPA_PARAM_Tag:
-      on_tag_param_changed (src, param);
+      on_tag_param_changed (source, param);
       break;
     case SPA_PARAM_PeerCapability:
-      on_peer_capability_param_changed (src, param);
+      on_peer_capability_param_changed (source, param);
       break;
     }
 }
 
 static void
-maybe_create_syncobj (MetaScreenCastStreamSrc *src,
-                      struct spa_buffer       *spa_buffer)
+maybe_create_syncobj (MetaStreamSource  *source,
+                      struct spa_buffer *spa_buffer)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
@@ -2627,7 +2596,8 @@ maybe_create_syncobj (MetaScreenCastStreamSrc *src,
       return;
     }
 
-  timeline = meta_drm_timeline_import_syncobj (drm_fd, syncobj_fd, &local_error);
+  timeline = meta_drm_timeline_import_syncobj (drm_fd, syncobj_fd,
+                                               &local_error);
   if (!timeline)
     {
       g_warning_once ("meta_drm_timeline_import_syncobj failed: %s",
@@ -2655,9 +2625,9 @@ static void
 on_stream_add_buffer (void             *data,
                       struct pw_buffer *buffer)
 {
-  MetaScreenCastStreamSrc *src = data;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = data;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   CoglDmaBufHandle *dmabuf_handle;
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
@@ -2668,12 +2638,7 @@ on_stream_add_buffer (void             *data,
 
   if (spa_data->type & (1 << SPA_DATA_DmaBuf))
     {
-      MetaScreenCastStream *stream =
-        meta_screen_cast_stream_src_get_stream (src);
-      MetaScreenCastSession *session =
-        meta_screen_cast_stream_get_session (stream);
-      MetaScreenCast *screen_cast =
-        meta_screen_cast_session_get_screen_cast (session);
+      MetaStream *stream = meta_stream_source_get_stream (source);
       CoglPixelFormat cogl_format;
 
       if (!cogl_pixel_format_from_spa_video_format (priv->video_format.format,
@@ -2681,11 +2646,11 @@ on_stream_add_buffer (void             *data,
         g_assert_not_reached ();
 
       dmabuf_handle =
-        meta_screen_cast_create_dma_buf_handle (screen_cast,
-                                                cogl_format,
-                                                priv->video_format.modifier,
-                                                priv->video_format.size.width,
-                                                priv->video_format.size.height);
+        meta_stream_create_dma_buf_handle (stream,
+                                           cogl_format,
+                                           priv->video_format.modifier,
+                                           priv->video_format.size.width,
+                                           priv->video_format.size.height);
       if (!dmabuf_handle)
         {
           GArray *modifiers;
@@ -2695,10 +2660,11 @@ on_stream_add_buffer (void             *data,
                                            GINT_TO_POINTER (cogl_format));
           for (i = 0; i < modifiers->len; i++)
             {
-              if (g_array_index (modifiers, uint64_t, i) == priv->video_format.modifier)
+              if (g_array_index (modifiers, uint64_t, i) ==
+                  priv->video_format.modifier)
                 {
                   g_array_remove_index (modifiers, i);
-                  meta_screen_cast_stream_src_renegotiate (src);
+                  meta_stream_source_renegotiate (source);
                   break;
                 }
             }
@@ -2720,10 +2686,10 @@ on_stream_add_buffer (void             *data,
                            GINT_TO_POINTER (spa_data->fd),
                            dmabuf_handle);
 
-      stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
+      stride = meta_stream_source_calculate_stride (source, spa_data);
       spa_data->maxsize = stride * priv->video_format.size.height;
 
-      maybe_create_syncobj (src, spa_buffer);
+      maybe_create_syncobj (source, spa_buffer);
     }
   else
     {
@@ -2745,7 +2711,7 @@ on_stream_add_buffer (void             *data,
       /* Fallback to a memfd buffer */
       spa_data->type = SPA_DATA_MemFd;
       spa_data->flags = SPA_DATA_FLAG_READABLE | SPA_DATA_FLAG_MAPPABLE;
-      spa_data->fd = memfd_create ("mutter-screen-cast-memfd",
+      spa_data->fd = memfd_create ("mutter-stream-source-memfd",
                                    MFD_CLOEXEC | MFD_ALLOW_SEALING);
       if (spa_data->fd == -1)
         {
@@ -2753,7 +2719,7 @@ on_stream_add_buffer (void             *data,
           return;
         }
 
-      stride = meta_screen_cast_stream_src_calculate_stride (src, spa_data);
+      stride = meta_stream_source_calculate_stride (source, spa_data);
       spa_data->maxsize = stride * priv->video_format.size.height;
 
       if (ftruncate (spa_data->fd, spa_data->maxsize) < 0)
@@ -2786,11 +2752,11 @@ on_stream_add_buffer (void             *data,
 }
 
 static void
-maybe_remove_syncobj (MetaScreenCastStreamSrc *src,
-                      struct pw_buffer        *buffer)
+maybe_remove_syncobj (MetaStreamSource *source,
+                      struct pw_buffer *buffer)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_meta_sync_timeline *sync_timeline;
   int acquire_fd;
@@ -2815,9 +2781,9 @@ static void
 on_stream_remove_buffer (void             *data,
                          struct pw_buffer *buffer)
 {
-  MetaScreenCastStreamSrc *src = data;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = data;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct spa_buffer *spa_buffer = buffer->buffer;
   struct spa_data *spa_data = &spa_buffer->datas[0];
 
@@ -2825,9 +2791,10 @@ on_stream_remove_buffer (void             *data,
 
   if (spa_data->type == SPA_DATA_DmaBuf)
     {
-      maybe_remove_syncobj (src, buffer);
+      maybe_remove_syncobj (source, buffer);
 
-      if (!g_hash_table_remove (priv->dmabuf_handles, GINT_TO_POINTER (spa_data->fd)))
+      if (!g_hash_table_remove (priv->dmabuf_handles,
+                                GINT_TO_POINTER (spa_data->fd)))
         g_critical ("Failed to remove non-exported DMA buffer");
     }
   else if (spa_data->type == SPA_DATA_MemFd)
@@ -2852,11 +2819,11 @@ static const struct pw_stream_events stream_events = {
 };
 
 static struct pw_stream *
-create_pipewire_stream (MetaScreenCastStreamSrc  *src,
-                        GError                  **error)
+create_pipewire_stream (MetaStreamSource  *source,
+                        GError           **error)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct pw_properties *pipewire_props;
   struct pw_stream *pipewire_stream;
   g_autoptr (GArray) pod_offsets = NULL;
@@ -2876,7 +2843,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
                        NULL);
 
   pipewire_stream = pw_stream_new (priv->pipewire_core,
-                                   "meta-screen-cast-src",
+                                   "meta-stream-source-source",
                                    pipewire_props);
   if (!pipewire_stream)
     {
@@ -2889,13 +2856,13 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
   spa_pod_dynamic_builder_init (&pod_builder, NULL, 0, PARAMS_BUFFER_SIZE);
   pod_offsets = g_array_new (FALSE, FALSE, sizeof (uint32_t));
 
-  build_stream_params (src, &pod_builder.b, pod_offsets);
+  build_stream_params (source, &pod_builder.b, pod_offsets);
   params = finish_params (&pod_builder.b, pod_offsets);
 
   pw_stream_add_listener (pipewire_stream,
                           &priv->pipewire_stream_listener,
                           &stream_events,
-                          src);
+                          source);
 
   result = pw_stream_connect (pipewire_stream,
                               PW_DIRECTION_OUTPUT,
@@ -2924,23 +2891,23 @@ on_core_error (void       *data,
 	       int         res,
 	       const char *message)
 {
-  MetaScreenCastStreamSrc *src = data;
+  MetaStreamSource *source = data;
 
   g_warning ("pipewire remote error: id:%u %s", id, message);
 
   if (id == PW_ID_CORE && res == -EPIPE)
-    meta_screen_cast_stream_src_close (src);
+    meta_stream_source_close (source);
 }
 
 static gboolean
-pipewire_loop_source_dispatch (GSource     *source,
+pipewire_loop_source_dispatch (GSource     *base_source,
                                GSourceFunc  callback,
                                gpointer     user_data)
 {
-  MetaPipeWireSource *pipewire_source = (MetaPipeWireSource *) source;
-  MetaScreenCastStreamSrc *src = pipewire_source->src;
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaPipeWireSource *pipewire_source = (MetaPipeWireSource *) base_source;
+  MetaStreamSource *source = pipewire_source->source;
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   int result;
 
   result = pw_loop_iterate (pipewire_source->pipewire_loop, 0);
@@ -2948,15 +2915,15 @@ pipewire_loop_source_dispatch (GSource     *source,
     g_warning ("pipewire_loop_iterate failed: %s", spa_strerror (result));
 
   if (priv->emit_closed_after_dispatch)
-    g_signal_emit (src, signals[CLOSED], 0);
+    g_signal_emit (source, signals[CLOSED], 0);
 
   return G_SOURCE_CONTINUE;
 }
 
 static void
-pipewire_loop_source_finalize (GSource *source)
+pipewire_loop_source_finalize (GSource *base_source)
 {
-  MetaPipeWireSource *pipewire_source = (MetaPipeWireSource *) source;
+  MetaPipeWireSource *pipewire_source = (MetaPipeWireSource *) base_source;
 
   pw_loop_leave (pipewire_source->pipewire_loop);
   pw_loop_destroy (pipewire_source->pipewire_loop);
@@ -2969,28 +2936,29 @@ static GSourceFuncs pipewire_source_funcs =
 };
 
 static GSource *
-create_pipewire_source (MetaScreenCastStreamSrc *src,
-                        struct pw_loop          *pipewire_loop)
+create_pipewire_source (MetaStreamSource *source,
+                        struct pw_loop   *pipewire_loop)
 {
-  GSource *source;
+  GSource *base_source;
   MetaPipeWireSource *pipewire_source;
 
-  source = g_source_new (&pipewire_source_funcs, sizeof (MetaPipeWireSource));
-  g_source_set_name (source, "[mutter] PipeWire");
+  base_source = g_source_new (&pipewire_source_funcs,
+                              sizeof (MetaPipeWireSource));
+  g_source_set_name (base_source, "[mutter] PipeWire");
 
-  pipewire_source = (MetaPipeWireSource *) source;
-  pipewire_source->src = src;
+  pipewire_source = (MetaPipeWireSource *) base_source;
+  pipewire_source->source = source;
   pipewire_source->pipewire_loop = pipewire_loop;
 
-  g_source_add_unix_fd (source,
+  g_source_add_unix_fd (base_source,
                         pw_loop_get_fd (pipewire_source->pipewire_loop),
                         G_IO_IN | G_IO_ERR);
 
   pw_loop_enter (pipewire_source->pipewire_loop);
-  g_source_attach (source, NULL);
-  g_source_unref (source);
+  g_source_attach (base_source, NULL);
+  g_source_unref (base_source);
 
-  return source;
+  return base_source;
 }
 
 static const struct pw_core_events core_events = {
@@ -2999,13 +2967,13 @@ static const struct pw_core_events core_events = {
 };
 
 static gboolean
-meta_screen_cast_stream_src_initable_init (GInitable     *initable,
-                                           GCancellable  *cancellable,
-                                           GError       **error)
+meta_stream_source_initable_init (GInitable     *initable,
+                                  GCancellable  *cancellable,
+                                  GError       **error)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (initable);
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = META_STREAM_SOURCE (initable);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   struct pw_loop *pipewire_loop;
 
   priv->pending_process = TRUE;
@@ -3018,7 +2986,7 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
       return FALSE;
     }
 
-  priv->pipewire_source = create_pipewire_source (src, pipewire_loop);
+  priv->pipewire_source = create_pipewire_source (source, pipewire_loop);
   if (!priv->pipewire_source)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -3046,9 +3014,9 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
   pw_core_add_listener (priv->pipewire_core,
                         &priv->pipewire_core_listener,
                         &core_events,
-                        src);
+                        source);
 
-  priv->pipewire_stream = create_pipewire_stream (src, error);
+  priv->pipewire_stream = create_pipewire_stream (source, error);
   if (!priv->pipewire_stream)
     return FALSE;
 
@@ -3057,24 +3025,24 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
 }
 
 static void
-meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface)
+meta_stream_source_init_initable_iface (GInitableIface *iface)
 {
-  iface->init = meta_screen_cast_stream_src_initable_init;
+  iface->init = meta_stream_source_initable_init;
 }
 
-MetaScreenCastStream *
-meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src)
+MetaStream *
+meta_stream_source_get_stream (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   return priv->stream;
 }
 
-static const MetaScreenCastFormat *
-meta_screen_cast_stream_src_default_get_formats (MetaScreenCastStreamSrc *src)
+static const MetaStreamFormat *
+meta_stream_source_default_get_formats (MetaStreamSource *source)
 {
-  static MetaScreenCastFormat formats[] = {
+  static MetaStreamFormat formats[] = {
     {
       .format = COGL_PIXEL_FORMAT_BGRX_8888,
     },
@@ -3087,17 +3055,49 @@ meta_screen_cast_stream_src_default_get_formats (MetaScreenCastStreamSrc *src)
   return formats;
 }
 
-static void
-meta_screen_cast_stream_src_dispose (GObject *object)
+static MetaRenderDevice *
+get_render_device (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (object);
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStream *stream = meta_stream_source_get_stream (source);
+  MetaBackend *backend = meta_stream_get_backend (stream);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  MetaRendererNativeGpuData *renderer_gpu_data =
+    meta_renderer_egl_get_renderer_gpu_data (META_RENDERER_EGL (cogl_renderer));
+  MetaRenderDevice *render_device;
+
+  render_device = renderer_gpu_data->render_device;
+  if (meta_render_device_is_hardware_accelerated (render_device))
+    return render_device;
+  else
+    return NULL;
+}
+
+static void
+meta_stream_source_constructed (GObject *object)
+{
+  MetaStreamSource *source = META_STREAM_SOURCE (object);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+
+  priv->render_device = get_render_device (source);
+
+  G_OBJECT_CLASS (meta_stream_source_parent_class)->constructed (object);
+}
+
+static void
+meta_stream_source_dispose (GObject *object)
+{
+  MetaStreamSource *source = META_STREAM_SOURCE (object);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   GHashTableIter modifierIter;
   gpointer key, value;
 
-  if (meta_screen_cast_stream_src_is_enabled (src))
-    meta_screen_cast_stream_src_disable (src);
+  if (meta_stream_source_is_enabled (source))
+    meta_stream_source_disable (source);
 
   g_hash_table_iter_init (&modifierIter,
                           priv->modifiers);
@@ -3120,18 +3120,18 @@ meta_screen_cast_stream_src_dispose (GObject *object)
 
   g_warn_if_fail (!priv->dequeued_buffers);
 
-  G_OBJECT_CLASS (meta_screen_cast_stream_src_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_stream_source_parent_class)->dispose (object);
 }
 
 static void
-meta_screen_cast_stream_src_set_property (GObject      *object,
-                                          guint         prop_id,
-                                          const GValue *value,
-                                          GParamSpec   *pspec)
+meta_stream_source_set_property (GObject      *object,
+                                 guint         prop_id,
+                                 const GValue *value,
+                                 GParamSpec   *pspec)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (object);
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = META_STREAM_SOURCE (object);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   MtkRectangle *layout;
 
   switch (prop_id)
@@ -3146,12 +3146,12 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
       layout = g_value_get_boxed (value);
       if (!mtk_rectangle_equal (&priv->layout, layout))
         {
-          MetaScreenCastRecordFlag flag = META_SCREEN_CAST_RECORD_FLAG_NONE;
+          MetaStreamRecordFlag flag = META_STREAM_RECORD_FLAG_NONE;
           g_autoptr (MtkRegion) region = NULL;
 
           priv->layout = *layout;
           region = mtk_region_create_rectangle (layout);
-          meta_screen_cast_stream_src_accumulate_damage (src, flag, region);
+          meta_stream_source_accumulate_damage (source, flag, region);
           g_clear_object (&priv->framebuffer);
         }
       break;
@@ -3161,14 +3161,14 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
 }
 
 static void
-meta_screen_cast_stream_src_get_property (GObject    *object,
-                                          guint       prop_id,
-                                          GValue     *value,
-                                          GParamSpec *pspec)
+meta_stream_source_get_property (GObject    *object,
+                                 guint       prop_id,
+                                 GValue     *value,
+                                 GParamSpec *pspec)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (object);
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSource *source = META_STREAM_SOURCE (object);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   switch (prop_id)
     {
@@ -3189,10 +3189,10 @@ close_fd (gpointer key)
 }
 
 static void
-meta_screen_cast_stream_src_init (MetaScreenCastStreamSrc *src)
+meta_stream_source_init (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   priv->dmabuf_handles =
     g_hash_table_new_full (NULL, NULL, NULL,
@@ -3205,20 +3205,21 @@ meta_screen_cast_stream_src_init (MetaScreenCastStreamSrc *src)
 }
 
 static void
-meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
+meta_stream_source_class_init (MetaStreamSourceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->dispose = meta_screen_cast_stream_src_dispose;
-  object_class->set_property = meta_screen_cast_stream_src_set_property;
-  object_class->get_property = meta_screen_cast_stream_src_get_property;
+  object_class->constructed = meta_stream_source_constructed;
+  object_class->dispose = meta_stream_source_dispose;
+  object_class->set_property = meta_stream_source_set_property;
+  object_class->get_property = meta_stream_source_get_property;
 
   klass->get_formats =
-    meta_screen_cast_stream_src_default_get_formats;
+    meta_stream_source_default_get_formats;
 
   obj_props[PROP_STREAM] =
     g_param_spec_object ("stream", NULL, NULL,
-                         META_TYPE_SCREEN_CAST_STREAM,
+                         META_TYPE_STREAM,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -3242,8 +3243,7 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
                                  G_SIGNAL_RUN_LAST,
                                  0,
                                  NULL, NULL, NULL,
-                                 G_TYPE_NONE, 1,
-                                 G_TYPE_UINT);
+                                 G_TYPE_NONE, 0);
   signals[CLOSED] = g_signal_new ("closed",
                                   G_TYPE_FROM_CLASS (klass),
                                   G_SIGNAL_RUN_LAST,
@@ -3253,35 +3253,34 @@ meta_screen_cast_stream_src_class_init (MetaScreenCastStreamSrcClass *klass)
 }
 
 gboolean
-meta_screen_cast_stream_src_uses_dma_bufs (MetaScreenCastStreamSrc *src)
+meta_stream_source_uses_dma_bufs (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   return priv->uses_dma_bufs;
 }
 
-const MetaScreenCastFormat *
-meta_screen_cast_stream_src_get_formats (MetaScreenCastStreamSrc *src)
+const MetaStreamFormat *
+meta_stream_source_get_formats (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcClass *klass =
-    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+  MetaStreamSourceClass *klass = META_STREAM_SOURCE_GET_CLASS (source);
 
-  return klass->get_formats (src);
+  return klass->get_formats (source);
 }
 
 void
-meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src)
+meta_stream_source_queue_empty_buffer (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
   g_autoptr (GError) error = NULL;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
   struct spa_data *spa_data;
   struct spa_meta_header *header;
 
-  buffer = dequeue_pw_buffer (src, &error);
+  buffer = dequeue_pw_buffer (source, &error);
   if (!buffer)
     {
       meta_topic (META_DEBUG_SCREEN_CAST,
@@ -3308,14 +3307,23 @@ meta_screen_cast_stream_src_queue_empty_buffer (MetaScreenCastStreamSrc *src)
                   buffer->buffer);
     }
 
-  queue_pw_buffer (src, buffer);
+  queue_pw_buffer (source, buffer);
 }
 
 ClutterColorState *
-meta_screen_cast_stream_src_get_color_state (MetaScreenCastStreamSrc *src)
+meta_stream_source_get_color_state (MetaStreamSource *source)
 {
-  MetaScreenCastStreamSrcPrivate *priv =
-    meta_screen_cast_stream_src_get_instance_private (src);
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
 
   return priv->color_state;
+}
+
+uint32_t
+meta_stream_source_get_node_id (MetaStreamSource *source)
+{
+  MetaStreamSourcePrivate *priv =
+    meta_stream_source_get_instance_private (source);
+
+  return priv->node_id;
 }

@@ -61,6 +61,9 @@ typedef struct _MetaTileInfo MetaTileInfo;
 typedef struct _MetaRenderer MetaRenderer;
 typedef struct _MetaRendererView MetaRendererView;
 
+typedef struct _MetaStream MetaStream;
+typedef struct _MetaStreamSource MetaStreamSource;
+
 typedef struct _MetaRemoteDesktop MetaRemoteDesktop;
 typedef struct _MetaRemoteDesktopSession MetaRemoteDesktopSession;
 typedef struct _MetaScreenCast MetaScreenCast;

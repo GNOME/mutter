@@ -421,4 +421,4 @@ meta_screen_cast_get_device_id (MetaScreenCast *screen_cast)
     return meta_device_file_get_device_id (device_file);
   else
     return DEVICE_ID_INVALID;
-  }
+}
