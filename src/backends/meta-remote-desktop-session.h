@@ -43,10 +43,5 @@ gboolean meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSess
                                                            MetaScreenCastSession     *screen_cast_session,
                                                            GError                   **error);
 
-const char * meta_remote_desktop_session_acquire_mapping_id (MetaRemoteDesktopSession *session);
-
-void meta_remote_desktop_session_release_mapping_id (MetaRemoteDesktopSession *session,
-                                                     const char               *mapping_id);
-
 META_EXPORT_TEST
 MetaEis * meta_remote_desktop_session_get_eis (MetaRemoteDesktopSession *session);

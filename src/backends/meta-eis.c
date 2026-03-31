@@ -63,6 +63,8 @@ struct _MetaEis
 
   GList *viewports;
 
+  GHashTable *mapping_ids;
+
   gulong monitors_changed_handler_id;
 
   GHashTable *eis_clients; /* eis_client => MetaEisClient */
@@ -318,25 +320,40 @@ meta_eis_add_client_get_fd (MetaEis *eis)
 }
 
 MetaEis *
-meta_eis_new (MetaBackend        *backend,
-              MetaEisDeviceTypes  device_types)
+meta_eis_new (MetaBackend *backend)
 {
   MetaEis *eis;
-  int fd;
 
   eis = g_object_new (META_TYPE_EIS, NULL);
   eis->backend = backend;
-  eis->device_types = device_types;
 
   eis->eis = eis_new (eis);
   eis_log_set_handler (eis->eis, eis_logger);
   eis_log_set_priority (eis->eis, EIS_LOG_PRIORITY_DEBUG);
+
+  return eis;
+}
+
+void
+meta_eis_enable (MetaEis            *eis,
+                 MetaEisDeviceTypes  device_types)
+{
+  int fd;
+
+  g_assert (!eis->event_source);
+
+  eis->device_types = device_types;
+
   eis_setup_backend_fd (eis->eis);
 
   fd = eis_get_fd (eis->eis);
   eis->event_source = meta_event_source_new (eis, fd, &eis_event_funcs);
+}
 
-  return eis;
+gboolean
+meta_eis_is_enabled (MetaEis *eis)
+{
+  return !!eis->event_source;
 }
 
 static void
@@ -346,6 +363,7 @@ meta_eis_init (MetaEis *eis)
                                             (GDestroyNotify) eis_client_unref,
                                             (GDestroyNotify) g_object_unref);
   eis->cancellable = g_cancellable_new ();
+  eis->mapping_ids = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 }
 
 static void
@@ -357,6 +375,7 @@ meta_eis_dispose (GObject *object)
 
   g_cancellable_cancel (eis->cancellable);
   g_clear_object (&eis->cancellable);
+  g_clear_pointer (&eis->mapping_ids, g_hash_table_unref);
   g_clear_pointer (&eis->viewports, g_list_free);
   g_clear_pointer (&eis->event_source, meta_event_source_free);
   g_clear_pointer (&eis->eis_clients, g_hash_table_destroy);
@@ -501,4 +520,27 @@ meta_eis_enable_monitor_viewports (MetaEis *eis)
   eis->monitors_changed_handler_id =
     g_signal_connect (monitor_manager, "monitors-changed",
                       G_CALLBACK (on_monitors_changed), eis);
+}
+
+const char *
+meta_eis_acquire_mapping_id (MetaEis *eis)
+{
+  char *mapping_id;
+
+  mapping_id = g_uuid_string_random ();
+  while (g_hash_table_contains (eis->mapping_ids, mapping_id))
+    {
+      g_free (mapping_id);
+      mapping_id = g_uuid_string_random ();
+    }
+
+  g_hash_table_add (eis->mapping_ids, mapping_id);
+  return mapping_id;
+}
+
+void
+meta_eis_release_mapping_id (MetaEis    *eis,
+                             const char *mapping_id)
+{
+  g_hash_table_remove (eis->mapping_ids, mapping_id);
 }

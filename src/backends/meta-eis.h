@@ -37,8 +37,12 @@ typedef enum _MetaEisDeviceTypes
 G_DECLARE_FINAL_TYPE (MetaEis, meta_eis,
                       META, EIS, GObject)
 
-MetaEis * meta_eis_new (MetaBackend        *backend,
-                        MetaEisDeviceTypes  device_types);
+MetaEis * meta_eis_new (MetaBackend *backend);
+
+void meta_eis_enable (MetaEis            *eis,
+                      MetaEisDeviceTypes  device_types);
+
+gboolean meta_eis_is_enabled (MetaEis *eis);
 
 MetaBackend * meta_eis_get_backend (MetaEis *eis);
 
@@ -60,3 +64,8 @@ GList * meta_eis_peek_viewports (MetaEis *eis);
 void meta_eis_enable_monitor_viewports (MetaEis *eis);
 
 MetaEisDeviceTypes meta_eis_get_device_types (MetaEis *eis);
+
+const char * meta_eis_acquire_mapping_id (MetaEis *eis);
+
+void meta_eis_release_mapping_id (MetaEis    *eis,
+                                  const char *mapping_id);

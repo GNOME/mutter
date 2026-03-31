@@ -103,8 +103,6 @@ struct _MetaRemoteDesktopSession
 
   MetaClipboardSession *clipboard;
 
-  GHashTable *mapping_ids;
-
   gulong keymap_changed_handler_id;
   gulong keymap_layout_group_changed_handler_id;
   gulong keymap_state_changed_handler_id;
@@ -399,32 +397,6 @@ meta_remote_desktop_session_register_screen_cast (MetaRemoteDesktopSession  *ses
                       session);
 
   return TRUE;
-}
-
-const char *
-meta_remote_desktop_session_acquire_mapping_id (MetaRemoteDesktopSession *session)
-{
-  while (TRUE)
-    {
-      char *mapping_id;
-
-      mapping_id = g_uuid_string_random ();
-      if (g_hash_table_contains (session->mapping_ids, mapping_id))
-        {
-          g_free (mapping_id);
-          continue;
-        }
-
-      g_hash_table_add (session->mapping_ids, mapping_id);
-      return mapping_id;
-    }
-}
-
-void
-meta_remote_desktop_session_release_mapping_id (MetaRemoteDesktopSession *session,
-                                                const char               *mapping_id)
-{
-  g_hash_table_remove (session->mapping_ids, mapping_id);
 }
 
 static gboolean
@@ -1293,15 +1265,13 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
                        GVariant                     *arg_options)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  MetaBackend *backend =
-    meta_dbus_session_manager_get_backend (session->session_manager);
   g_autoptr (GUnixFDList) fd_list = NULL;
   g_autoptr (GError) error = NULL;
   int fd_idx;
   GVariant *fd_variant;
   g_autofd int fd = -1;
 
-  if (!session->eis)
+  if (!meta_eis_is_enabled (session->eis))
     {
       MetaRemoteDesktopDeviceTypes device_types = META_REMOTE_DESKTOP_DEVICE_TYPE_NONE;
       MetaEisDeviceTypes eis_device_types;
@@ -1320,7 +1290,7 @@ handle_connect_to_eis (MetaDBusRemoteDesktopSession *skeleton,
         }
 
       eis_device_types = device_types_to_eis_device_types (device_types);
-      session->eis = meta_eis_new (backend, eis_device_types);
+      meta_eis_enable (session->eis, eis_device_types);
 
       if (session->started)
         initialize_viewports (session);
@@ -1644,6 +1614,8 @@ meta_remote_desktop_session_initable_init (GInitable     *initable,
 
   meta_dbus_remote_desktop_session_set_session_id (skeleton, session->session_id);
 
+  session->eis = meta_eis_new (backend);
+
   session->connection =
     meta_dbus_session_manager_get_connection (session->session_manager);
   if (!g_dbus_interface_skeleton_export (interface_skeleton,
@@ -1682,8 +1654,6 @@ meta_remote_desktop_session_initable_init (GInitable     *initable,
     g_signal_connect_swapped (keymap, "state-changed",
                               G_CALLBACK (update_current_keymap), session);
   update_current_keymap (session);
-
-  session->mapping_ids = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
   return TRUE;
 }
@@ -1737,7 +1707,6 @@ meta_remote_desktop_session_finalize (GObject *object)
   g_clear_object (&session->cancellable);
 
   g_clear_object (&session->clipboard);
-  g_clear_pointer (&session->mapping_ids, g_hash_table_unref);
 
   g_clear_pointer (&session->keymap_description, meta_keymap_description_unref);
   g_clear_pointer (&session->keymap_owner, meta_keymap_description_owner_unref);
