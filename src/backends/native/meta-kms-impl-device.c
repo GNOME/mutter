@@ -1599,7 +1599,7 @@ do_process (MetaKmsImplDevice *impl_device,
 
   if (!update || meta_kms_update_is_empty (update))
     {
-      GError *error;
+      GError *error = NULL;
 
       error = g_error_new (META_KMS_ERROR,
                            META_KMS_ERROR_EMPTY_UPDATE,
@@ -2263,7 +2263,7 @@ discard_update (MetaKmsImplDevice  *impl_device,
                 MetaKmsUpdate     **update)
 {
   MetaKmsFeedback *feedback = NULL;
-  GError *error;
+  GError *error = NULL;
 
   if (!*update)
     return;

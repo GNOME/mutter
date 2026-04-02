@@ -1843,7 +1843,7 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
       float poly[16];
       CoglFramebuffer *framebuffer = journal->framebuffer;
       uint8_t *pixel;
-      GError *ignore_error;
+      GError *ignore_error = NULL;
 
       entry_to_screen_polygon (framebuffer, entry, vertices, poly);
 

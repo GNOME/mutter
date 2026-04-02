@@ -51,7 +51,7 @@ command_exited_cb (GPid     command_pid,
 
   if (status)
     {
-      GError *error;
+      GError *error = NULL;
 
       error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED,
                            "The command exited with a nonzero status: %d\n",

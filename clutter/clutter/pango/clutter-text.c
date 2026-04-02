@@ -1457,14 +1457,13 @@ clutter_text_set_markup_internal (ClutterText *self,
                                   const gchar *str)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  GError *error;
+  GError *error = NULL;
   gchar *text = NULL;
   PangoAttrList *attrs = NULL;
   gboolean res;
 
   g_assert (str != NULL);
 
-  error = NULL;
   res = pango_parse_markup (str, -1, 0,
                             &attrs,
                             &text,

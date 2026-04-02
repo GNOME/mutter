@@ -487,7 +487,7 @@ x_io_error_exit (Display *display,
 
   if (x11_display_policy == META_X11_DISPLAY_POLICY_MANDATORY)
     {
-      GError *error;
+      GError *error = NULL;
 
       g_warning ("Xwayland terminated, exiting since it was mandatory");
       error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED,

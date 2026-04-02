@@ -264,7 +264,7 @@ run_tests_idle (gpointer user_data)
 
   if (ret != 0)
     {
-      GError *error;
+      GError *error = NULL;
 
       error = g_error_new (G_IO_ERROR, G_IO_ERROR_FAILED,
                            "One or more tests failed");

@@ -104,23 +104,22 @@ ensure_logfile (void)
       char *filename = NULL;
       char *tmpl;
       int fd;
-      GError *err;
+      GError *error = NULL;
 
       tmpl = g_strdup_printf ("mutter-%d-debug-log-XXXXXX",
                               (int) getpid ());
 
-      err = NULL;
       fd = g_file_open_tmp (tmpl,
                             &filename,
-                            &err);
+                            &error);
 
       g_free (tmpl);
 
-      if (err != NULL)
+      if (error != NULL)
         {
           g_warning ("Failed to open debug log: %s",
-                     err->message);
-          g_error_free (err);
+                     error->message);
+          g_error_free (error);
           return;
         }
 
