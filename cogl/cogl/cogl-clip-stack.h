@@ -153,16 +153,6 @@ _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
                                  CoglMatrixEntry *projection_entry,
                                  const float *viewport);
 
-COGL_EXPORT CoglClipStack *
-_cogl_clip_stack_push_primitive (CoglClipStack *stack,
-                                 CoglPrimitive *primitive,
-                                 float bounds_x1,
-                                 float bounds_y1,
-                                 float bounds_x2,
-                                 float bounds_y2,
-                                 CoglMatrixEntry *modelview_entry,
-                                 CoglMatrixEntry *projection_entry,
-                                 const float *viewport);
 CoglClipStack *
 cogl_clip_stack_push_region (CoglClipStack *stack,
                              MtkRegion     *region);

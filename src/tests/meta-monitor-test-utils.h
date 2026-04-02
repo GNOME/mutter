@@ -244,10 +244,5 @@ META_EXPORT
 const char * meta_orientation_to_string (MetaOrientation orientation);
 
 META_EXPORT
-void meta_wait_for_orientation (MetaOrientationManager *orientation_manager,
-                                MetaOrientation         orientation,
-                                unsigned int           *times_signalled_out);
-
-META_EXPORT
 void meta_wait_for_possible_orientation_change (MetaOrientationManager *orientation_manager,
                                                 unsigned int           *times_signalled_out);

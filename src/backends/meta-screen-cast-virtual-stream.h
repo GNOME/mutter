@@ -31,5 +31,3 @@ MetaScreenCastVirtualStream * meta_screen_cast_virtual_stream_new (MetaScreenCas
                                                                    MetaScreenCastCursorMode   cursor_mode,
                                                                    MetaScreenCastFlag         flags,
                                                                    GError                   **error);
-
-MetaVirtualMonitor * meta_screen_cast_virtual_stream_get_virtual_monitor (MetaScreenCastVirtualStream *virtual_stream);

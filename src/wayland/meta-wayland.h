@@ -49,8 +49,6 @@ void                    meta_wayland_compositor_update_key_state (MetaWaylandCom
 void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
                                                                  MetaWindow            *window);
 
-void                    meta_wayland_compositor_paint_finished  (MetaWaylandCompositor *compositor);
-
 void                    meta_wayland_compositor_add_frame_callback_surface (MetaWaylandCompositor *compositor,
                                                                             MetaWaylandSurface    *surface);
 
