@@ -1871,6 +1871,8 @@ meta_wayland_color_manager_dispose (GObject *object)
 
   g_clear_pointer (&color_manager->outputs, g_hash_table_destroy);
   g_clear_pointer (&color_manager->surfaces, g_hash_table_destroy);
+
+  G_OBJECT_CLASS (meta_wayland_color_manager_parent_class)->dispose (object);
 }
 
 static void
