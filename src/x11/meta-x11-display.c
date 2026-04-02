@@ -316,14 +316,8 @@ meta_x11_display_dispose (GObject *object)
       x11_display->group_prop_hooks = NULL;
     }
 
-  if (x11_display->xids)
-    {
-      /* Must be after all calls to meta_window_unmanage() since they
-       * unregister windows
-       */
-      g_hash_table_destroy (x11_display->xids);
-      x11_display->xids = NULL;
-    }
+  /* Must be after all calls to meta_window_unmanage() since they unregister windows */
+  g_clear_pointer (&x11_display->xids, g_hash_table_destroy);
 
   g_clear_pointer (&x11_display->alarms, g_hash_table_unref);
 

@@ -171,11 +171,7 @@ validate_or_free_results (GetPropertyResults *results,
   meta_XFree (expected_name);
   meta_XFree (prop_name);
 
-  if (results->prop)
-    {
-      g_free (results->prop);
-      results->prop = NULL;
-    }
+  g_clear_pointer (&results->prop, g_free);
 
   return FALSE;
 }

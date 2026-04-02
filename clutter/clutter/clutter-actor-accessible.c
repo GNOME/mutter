@@ -258,11 +258,7 @@ clutter_actor_accessible_finalize (GObject *obj)
   ClutterActorAccessiblePrivate *priv =
     clutter_actor_accessible_get_instance_private (actor_accessible);
 
-  if (priv->children)
-    {
-      g_list_free (priv->children);
-      priv->children = NULL;
-    }
+  g_clear_pointer (&priv->children, g_list_free);
 
   G_OBJECT_CLASS (clutter_actor_accessible_parent_class)->finalize (obj);
 }

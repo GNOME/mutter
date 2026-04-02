@@ -799,11 +799,7 @@ _cogl_shader_compile_real (CoglShader   *shader,
       GE (driver, glDeleteShader (shader->gl_handle));
       shader->gl_handle = 0;
 
-      if (shader->compilation_pipeline)
-        {
-          g_object_unref (shader->compilation_pipeline);
-          shader->compilation_pipeline = NULL;
-        }
+      g_clear_object (&shader->compilation_pipeline);
     }
 
   hooks_source = g_string_new ("");

@@ -778,8 +778,7 @@ reload_mutter_hints (MetaWindow    *window,
     }
   else if (window->mutter_hints)
     {
-      g_free (window->mutter_hints);
-      window->mutter_hints = NULL;
+      g_clear_pointer (&window->mutter_hints, g_free);
 
       g_object_notify (G_OBJECT (window), "mutter-hints");
     }

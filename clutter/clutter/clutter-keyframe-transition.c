@@ -23,7 +23,7 @@
 
 /**
  * ClutterKeyframeTransition:
- * 
+ *
  * Keyframe property transition
  *
  * #ClutterKeyframeTransition allows animating a property by defining
@@ -613,11 +613,8 @@ clutter_keyframe_transition_clear (ClutterKeyframeTransition *transition)
   g_return_if_fail (CLUTTER_IS_KEYFRAME_TRANSITION (transition));
 
   priv = clutter_keyframe_transition_get_instance_private (transition);
-  if (priv->frames != NULL)
-    {
-      g_array_unref (priv->frames);
-      priv->frames = NULL;
-    }
+
+  g_clear_pointer (&priv->frames, g_array_unref);
 }
 
 /**

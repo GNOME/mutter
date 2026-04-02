@@ -1336,8 +1336,7 @@ clutter_stage_dispose (GObject *object)
       if (clutter_actor_is_realized (CLUTTER_ACTOR (object)))
         _clutter_stage_window_unrealize (priv->impl);
 
-      g_object_unref (priv->impl);
-      priv->impl = NULL;
+      g_clear_object (&priv->impl);
     }
 
   clutter_actor_destroy_all_children (CLUTTER_ACTOR (object));

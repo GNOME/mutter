@@ -842,11 +842,7 @@ clutter_text_dirty_cache (ClutterText *text)
   /* Delete the cached layouts so they will be recreated the next time
      they are needed */
   for (i = 0; i < N_CACHED_LAYOUTS; i++)
-    if (priv->cached_layouts[i].layout)
-      {
-        g_object_unref (priv->cached_layouts[i].layout);
-        priv->cached_layouts[i].layout = NULL;
-      }
+    g_clear_object (&priv->cached_layouts[i].layout);
 
   clutter_actor_invalidate_paint_volume (CLUTTER_ACTOR (text));
 }

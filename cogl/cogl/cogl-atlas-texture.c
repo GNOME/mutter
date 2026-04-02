@@ -59,8 +59,7 @@ _cogl_atlas_texture_remove_from_atlas (CoglAtlasTexture *atlas_tex)
       _cogl_atlas_remove (atlas_tex->atlas,
                           &atlas_tex->rectangle);
 
-      g_object_unref (atlas_tex->atlas);
-      atlas_tex->atlas = NULL;
+      g_clear_object (&atlas_tex->atlas);
     }
 }
 
