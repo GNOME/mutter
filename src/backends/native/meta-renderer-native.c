@@ -133,7 +133,7 @@ struct _MetaWinsysEgl
 
 enum
 {
-  PROP_WINSYS_EGL_0,
+  PROP_0,
   PROP_WINSYS_EGL_RENDERER,
   N_WINSYS_EGL_PROPS
 };
