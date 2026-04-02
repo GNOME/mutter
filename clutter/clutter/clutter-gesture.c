@@ -1287,9 +1287,7 @@ clutter_gesture_class_init (ClutterGestureClass *klass)
    * The current state of the gesture.
    */
   obj_props[PROP_STATE] =
-    g_param_spec_enum ("state",
-                       "state",
-                       "state",
+    g_param_spec_enum ("state", NULL, NULL,
                        CLUTTER_TYPE_GESTURE_STATE,
                        CLUTTER_GESTURE_STATE_WAITING,
                        G_PARAM_READABLE |
