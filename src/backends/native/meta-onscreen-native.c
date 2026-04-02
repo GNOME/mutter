@@ -1781,7 +1781,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Meta::OnscreenNative::swap_buffers_with_damage()");
 
-  if (onscreen_native->next_frame != NULL)
+  if (onscreen_native->render_source && onscreen_native->next_frame != NULL)
     {
       /* This is needed to make sure we lock the correct front buffer for the
        * new frame, as eglSwapBuffers() swaps what is the active front buffer.
