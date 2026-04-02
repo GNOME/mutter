@@ -140,10 +140,6 @@ void            clutter_stage_get_perspective                   (ClutterStage   
 			                                         ClutterPerspective    *perspective);
 
 CLUTTER_EXPORT
-void            clutter_stage_set_minimum_size                  (ClutterStage          *stage,
-                                                                 guint                  width,
-                                                                 guint                  height);
-CLUTTER_EXPORT
 void            clutter_stage_set_key_focus                     (ClutterStage          *stage,
                                                                  ClutterActor          *actor);
 CLUTTER_EXPORT

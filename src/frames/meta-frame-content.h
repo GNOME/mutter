@@ -30,5 +30,3 @@ G_DECLARE_FINAL_TYPE (MetaFrameContent, meta_frame_content,
 GtkWidget * meta_frame_content_new (Window window);
 
 Window meta_frame_content_get_window (MetaFrameContent *content);
-
-GtkBorder meta_frame_content_get_border (MetaFrameContent *content);

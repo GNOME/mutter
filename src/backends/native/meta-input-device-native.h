@@ -117,9 +117,6 @@ ClutterInputDevice *      meta_input_device_native_new_virtual_in_impl (MetaSeat
 void                      meta_input_device_native_update_leds_in_impl (MetaInputDeviceNative   *device,
                                                                         enum libinput_led        leds);
 
-ClutterInputDeviceType    meta_input_device_native_determine_type_in_impl  (struct libinput_device  *libinput_device);
-
-
 void                      meta_input_device_native_translate_coordinates_in_impl (ClutterInputDevice *device,
                                                                                   MetaViewportInfo   *viewports,
                                                                                   float              *x,

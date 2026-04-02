@@ -31,8 +31,6 @@
 #define META_TYPE_GPU_KMS (meta_gpu_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaGpuKms, meta_gpu_kms, META, GPU_KMS, MetaGpu)
 
-typedef struct _MetaGpuKmsFlipClosureContainer MetaGpuKmsFlipClosureContainer;
-
 MetaGpuKms * meta_gpu_kms_new (MetaBackendNative  *backend_native,
                                MetaKmsDevice      *kms_device,
                                GError            **error);
@@ -51,16 +49,6 @@ uint32_t meta_gpu_kms_get_id (MetaGpuKms *gpu_kms);
 
 const char * meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms);
 
-void meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
-                                       uint64_t       state,
-                                       MetaKmsUpdate *kms_update);
-
 MetaCrtcMode * meta_gpu_kms_get_mode_from_kms_mode (MetaGpuKms              *gpu_kms,
                                                     MetaKmsMode             *kms_mode,
                                                     MetaCrtcRefreshRateMode  refresh_rate_mode);
-
-MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
-                                                                 MetaCrtc   *crtc,
-                                                                 GClosure   *flip_closure);
-
-void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);

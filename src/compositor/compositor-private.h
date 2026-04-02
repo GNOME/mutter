@@ -107,10 +107,6 @@ gboolean meta_compositor_drag_window (MetaCompositor      *compositor,
 META_EXPORT_TEST
 MetaWindowDrag * meta_compositor_get_current_window_drag (MetaCompositor *compositor);
 
-void meta_compositor_grab_begin (MetaCompositor *compositor);
-
-void meta_compositor_grab_end (MetaCompositor *compositor);
-
 void meta_compositor_destroy (MetaCompositor *compositor);
 
 gboolean meta_compositor_manage (MetaCompositor  *compositor,

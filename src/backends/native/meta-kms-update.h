@@ -144,9 +144,6 @@ void meta_kms_update_set_broadcast_rgb (MetaKmsUpdate      *update,
                                         MetaOutputRGBRange  rgb_range);
 
 META_EXPORT_TEST
-void meta_kms_update_set_power_save (MetaKmsUpdate *update);
-
-META_EXPORT_TEST
 void meta_kms_update_mode_set (MetaKmsUpdate *update,
                                MetaKmsCrtc   *crtc,
                                GList         *connectors,

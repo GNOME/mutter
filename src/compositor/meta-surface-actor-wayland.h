@@ -39,7 +39,6 @@ G_DECLARE_FINAL_TYPE (MetaSurfaceActorWayland,
 
 MetaSurfaceActor * meta_surface_actor_wayland_new (MetaWaylandSurface *surface);
 MetaWaylandSurface * meta_surface_actor_wayland_get_surface (MetaSurfaceActorWayland *self);
-void meta_surface_actor_wayland_surface_destroyed (MetaSurfaceActorWayland *self);
 
 gboolean meta_surface_actor_wayland_is_view_primary (MetaSurfaceActor *actor,
                                                      ClutterStageView *stage_view);

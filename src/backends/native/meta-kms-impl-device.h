@@ -187,13 +187,6 @@ void meta_kms_impl_device_update_prop_table (MetaKmsImplDevice *impl_device,
                                              MetaKmsProp       *props,
                                              int                n_props);
 
-void meta_kms_impl_device_reload_prop_values (MetaKmsImplDevice *impl_device,
-                                              uint32_t          *drm_props,
-                                              uint64_t          *drm_prop_values,
-                                              int                n_drm_props,
-                                              gpointer           user_data,
-                                              ...);
-
 MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                                        MetaKmsUpdate     *update,
                                                        MetaKmsUpdateFlag  flags)

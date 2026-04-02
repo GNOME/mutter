@@ -209,9 +209,6 @@ META_EXPORT
 int         meta_prefs_get_cursor_size       (void);
 
 META_EXPORT
-gboolean    meta_prefs_get_compositing_manager (void);
-
-META_EXPORT
 gboolean    meta_prefs_get_force_fullscreen  (void);
 
 META_EXPORT

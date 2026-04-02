@@ -30,12 +30,6 @@ G_DECLARE_FINAL_TYPE (MetaVirtualMonitorNative, meta_virtual_monitor_native,
 
 uint64_t meta_virtual_monitor_native_get_id (MetaVirtualMonitorNative *virtual_monitor_native);
 
-MetaCrtcMode * meta_virtual_monitor_native_get_crtc_mode (MetaVirtualMonitorNative *virtual_monitor_native);
-
-MetaCrtc * meta_virtual_monitor_native_get_crtc (MetaVirtualMonitorNative *virtual_monitor_native);
-
-MetaOutput * meta_virtual_monitor_native_get_output (MetaVirtualMonitorNative *virtual_monitor_native);
-
 MetaVirtualMonitorNative * meta_virtual_monitor_native_new (MetaBackend                  *backend,
                                                             uint64_t                      id,
                                                             const MetaVirtualMonitorInfo *info);

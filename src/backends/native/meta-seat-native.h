@@ -71,11 +71,6 @@ G_DECLARE_FINAL_TYPE (MetaSeatNative, meta_seat_native,
 
 void meta_seat_native_start (MetaSeatNative *seat_native);
 
-void meta_seat_native_set_libinput_seat (MetaSeatNative       *seat,
-                                         struct libinput_seat *libinput_seat);
-
-void meta_seat_native_sync_leds (MetaSeatNative *seat);
-
 /**
  * MetaOpenDeviceCallback:
  * @path: the device path
@@ -91,10 +86,6 @@ typedef int (* MetaOpenDeviceCallback) (const char  *path,
                                         GError     **error);
 typedef void (* MetaCloseDeviceCallback) (int          fd,
                                           gpointer     user_data);
-
-void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
-                                             MetaCloseDeviceCallback close_callback,
-                                             gpointer                user_data);
 
 void  meta_seat_native_release_devices (MetaSeatNative *seat);
 void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
@@ -116,11 +107,6 @@ struct xkb_keymap * meta_seat_native_get_xkb_keymap (MetaSeatNative *seat);
 MetaKeymapDescription * meta_seat_native_get_keymap_description (MetaSeatNative *seat_native);
 
 xkb_layout_index_t meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat);
-
-void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
-                                           gboolean        repeat,
-                                           uint32_t        delay,
-                                           uint32_t        interval);
 
 void meta_seat_native_release_touch_slots (MetaSeatNative *seat,
                                            guint           base_slot);

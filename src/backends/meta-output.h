@@ -168,8 +168,6 @@ META_EXPORT_TEST
 gboolean meta_output_hdr_metadata_equal (MetaOutputHdrMetadata *metadata,
                                          MetaOutputHdrMetadata *other_metadata);
 
-const char * meta_output_colorspace_get_name (MetaOutputColorspace color_space);
-
 #define META_TYPE_OUTPUT_INFO (meta_output_info_get_type ())
 META_EXPORT_TEST
 GType meta_output_info_get_type (void);

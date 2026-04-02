@@ -64,12 +64,6 @@ META_EXPORT
 void meta_remove_verbose_topic (MetaDebugTopic topic);
 
 META_EXPORT
-void meta_push_no_msg_prefix (void);
-
-META_EXPORT
-void meta_pop_no_msg_prefix  (void);
-
-META_EXPORT
 gint  meta_unsigned_long_equal (gconstpointer v1,
                                 gconstpointer v2);
 
