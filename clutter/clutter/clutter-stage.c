@@ -1206,7 +1206,7 @@ clutter_stage_constructed (GObject *gobject)
   ClutterStagePrivate *priv;
   ClutterStageWindow *impl;
   ClutterSeat *seat;
-  GError *error;
+  GError *error = NULL;
 
   /* a stage is a top-level object */
   CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IS_TOPLEVEL);
@@ -1215,7 +1215,6 @@ clutter_stage_constructed (GObject *gobject)
 
   CLUTTER_NOTE (BACKEND, "Creating stage from the default backend");
 
-  error = NULL;
   impl = _clutter_backend_create_stage (backend, self, &error);
 
   if (G_LIKELY (impl != NULL))

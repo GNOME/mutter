@@ -1677,7 +1677,7 @@ perform_update_test (MetaKmsImplDevice *impl_device,
 
   if (failed_planes)
     {
-      GError *error;
+      GError *error = NULL;
 
       error = g_error_new_literal (G_IO_ERROR,
                                    G_IO_ERROR_FAILED,

@@ -1404,7 +1404,7 @@ swap_buffer_result_feedback (const MetaKmsFeedback *kms_feedback,
                              gpointer               user_data)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
-  const GError *error;
+  const GError *error = NULL;
   CoglFrameInfo *frame_info;
 
   /*
@@ -1812,7 +1812,7 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
 {
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (user_data);
   CoglOnscreen *onscreen = COGL_ONSCREEN (onscreen_native);
-  const GError *error;
+  const GError *error = NULL;
   CoglFrameInfo *frame_info;
 
   error = meta_kms_feedback_get_error (kms_feedback);
@@ -2046,7 +2046,7 @@ finish_frame_result_feedback (const MetaKmsFeedback *kms_feedback,
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (user_data);
   MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
-  const GError *error;
+  const GError *error = NULL;
   CoglFrameInfo *frame_info;
 
   error = meta_kms_feedback_get_error (kms_feedback);
