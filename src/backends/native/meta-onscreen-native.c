@@ -330,9 +330,6 @@ maybe_init_render_source (MetaOnscreenNative *onscreen_native)
             g_strcmp0 (egl_vendor, "NVIDIA") == 0;
         }
 
-      /* TODO: When the secondary GPU path is wired up with working sync_fd's
-       *       this can change to: use_render_source = output_gpu_is_nvidia;
-       */
       use_render_source = output_gpu_is_nvidia && !secondary_gpu_state;
     }
 
