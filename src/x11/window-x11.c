@@ -2826,10 +2826,16 @@ meta_window_move_resize_request (MetaWindow  *window,
 		  window->type);
     }
 
+  width = window->size_hints.width;
+  height = window->size_hints.height;
+
   if (window->decorated && !meta_window_x11_is_ssd (window))
     {
-      width = new_width;
-      height = new_height;
+      if (value_mask & CWWidth)
+        width = new_width;
+
+      if (value_mask & CWHeight)
+        height = new_height;
     }
   else
     {
