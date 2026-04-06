@@ -311,7 +311,7 @@ meta_wayland_data_offer_update_action (MetaWaylandDataOffer *offer)
   current_action = meta_wayland_data_source_get_current_action (source);
   action = data_offer_choose_action (offer);
 
-  if (current_action == action)
+  if (offer->action_sent && current_action == action)
     return;
 
   meta_wayland_data_source_set_current_action (source, action);
