@@ -583,7 +583,7 @@ _cogl_texture_2d_sliced_upload_bitmap (CoglTexture2DSliced *tex_2ds,
   CoglSpan *y_span;
   CoglTexture2D *slice_tex;
   int x, y;
-  uint8_t *waste_buf;
+  g_autofree uint8_t *waste_buf = NULL;
   CoglPixelFormat bmp_format;
 
   bmp_format = cogl_bitmap_get_format (bmp);
@@ -620,11 +620,7 @@ _cogl_texture_2d_sliced_upload_bitmap (CoglTexture2DSliced *tex_2ds,
                                                      0, /* dst y */
                                                      0, /* level */
                                                      error))
-            {
-              if (waste_buf)
-                g_free (waste_buf);
-              return FALSE;
-            }
+            return FALSE;
 
           /* Set up a fake iterator that covers the whole slice */
           x_iter.intersect_start = x_span->start;
@@ -650,16 +646,9 @@ _cogl_texture_2d_sliced_upload_bitmap (CoglTexture2DSliced *tex_2ds,
                                                   0, /* dst_x */
                                                   0,
                                                   error)) /* dst_y */
-            {
-              if (waste_buf)
-                g_free (waste_buf);
-              return FALSE;
-            }
+            return FALSE;
         }
     }
-
-  if (waste_buf)
-    g_free (waste_buf);
 
   return TRUE;
 }
@@ -963,7 +952,7 @@ _cogl_texture_2d_sliced_upload_subregion (CoglTexture2DSliced *tex_2ds,
   int source_x = 0, source_y = 0;
   int inter_w = 0, inter_h = 0;
   int local_x = 0, local_y = 0;
-  uint8_t *waste_buf;
+  g_autofree uint8_t *waste_buf = NULL;
   CoglPixelFormat source_format;
 
   source_format = cogl_bitmap_get_format (source_bmp);
@@ -1033,11 +1022,7 @@ _cogl_texture_2d_sliced_upload_subregion (CoglTexture2DSliced *tex_2ds,
                                                      local_y, /* dst y */
                                                      0, /* level */
                                                      error))
-            {
-              if (waste_buf)
-                g_free (waste_buf);
-              return FALSE;
-            }
+            return FALSE;
 
           if (!_cogl_texture_2d_sliced_set_waste (tex_2ds,
                                                   source_bmp,
@@ -1048,16 +1033,9 @@ _cogl_texture_2d_sliced_upload_subregion (CoglTexture2DSliced *tex_2ds,
                                                   src_x, src_y,
                                                   dst_x, dst_y,
                                                   error))
-            {
-              if (waste_buf)
-                g_free (waste_buf);
-              return FALSE;
-            }
+            return FALSE;
         }
     }
-
-  if (waste_buf)
-    g_free (waste_buf);
 
   return TRUE;
 }
