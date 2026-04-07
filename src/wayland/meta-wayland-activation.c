@@ -90,8 +90,7 @@ token_set_app_id (struct wl_client   *client,
 {
   MetaXdgActivationToken *token = wl_resource_get_user_data (resource);
 
-  g_clear_pointer (&token->app_id, g_free);
-  token->app_id = g_strdup (app_id);
+  g_set_str (&token->app_id, app_id);
 }
 
 static void

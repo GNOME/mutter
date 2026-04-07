@@ -1566,7 +1566,6 @@ iso_next_group_handler (GVariant *value,
 {
   const char **xkb_options, **p;
   const char *option = NULL;
-  gboolean changed = FALSE;
 
   *result = NULL; /* ignored */
   xkb_options = g_variant_get_strv (value, NULL);
@@ -1578,14 +1577,8 @@ iso_next_group_handler (GVariant *value,
         break;
       }
 
-  changed = (g_strcmp0 (option, iso_next_group_option) != 0);
-
-  if (changed)
-    {
-      g_free (iso_next_group_option);
-      iso_next_group_option = g_strdup (option);
-      queue_changed (META_PREF_KEYBINDINGS);
-    }
+  if (g_set_str (&iso_next_group_option, option))
+    queue_changed (META_PREF_KEYBINDINGS);
 
   g_free (xkb_options);
 

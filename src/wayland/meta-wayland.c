@@ -905,8 +905,7 @@ meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
 void
 meta_wayland_override_display_name (const char *display_name)
 {
-  g_clear_pointer (&_display_name_override, g_free);
-  _display_name_override = g_strdup (display_name);
+  g_set_str (&_display_name_override, display_name);
 }
 
 static void
