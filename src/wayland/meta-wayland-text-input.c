@@ -302,8 +302,7 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
 
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
 
-  g_clear_pointer (&text_input->preedit.string, g_free);
-  text_input->preedit.string = g_strdup (text);
+  g_set_str (&text_input->preedit.string, text);
 
   if (text)
     {
@@ -535,8 +534,7 @@ text_input_set_surrounding_text (struct wl_client   *client,
       return;
     }
 
-  g_free (text_input->pending_surrounding.text);
-  text_input->pending_surrounding.text = g_strdup (text);
+  g_set_str (&text_input->pending_surrounding.text, text);
   text_input->pending_surrounding.cursor = cursor;
   text_input->pending_surrounding.anchor = anchor;
   text_input->pending_state |= META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT;

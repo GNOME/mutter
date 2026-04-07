@@ -198,8 +198,7 @@ meta_context_set_gnome_wm_keybindings (MetaContext *context,
 
   g_return_if_fail (priv->state <= META_CONTEXT_STATE_CONFIGURED);
 
-  g_clear_pointer (&priv->gnome_wm_keybindings, g_free);
-  priv->gnome_wm_keybindings = g_strdup (wm_keybindings);
+  g_set_str (&priv->gnome_wm_keybindings, wm_keybindings);
 }
 
 const char *

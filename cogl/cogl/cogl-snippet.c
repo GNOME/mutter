@@ -114,8 +114,7 @@ cogl_snippet_set_declarations (CoglSnippet *snippet,
   if (!_cogl_snippet_modify (snippet))
     return;
 
-  g_free (snippet->declarations);
-  snippet->declarations = declarations ? g_strdup (declarations) : NULL;
+  g_set_str (&snippet->declarations, declarations);
 }
 
 const char *
@@ -135,8 +134,7 @@ cogl_snippet_set_pre (CoglSnippet *snippet,
   if (!_cogl_snippet_modify (snippet))
     return;
 
-  g_free (snippet->pre);
-  snippet->pre = pre ? g_strdup (pre) : NULL;
+  g_set_str (&snippet->pre, pre);
 }
 
 const char *
@@ -156,8 +154,7 @@ cogl_snippet_set_replace (CoglSnippet *snippet,
   if (!_cogl_snippet_modify (snippet))
     return;
 
-  g_free (snippet->replace);
-  snippet->replace = replace ? g_strdup (replace) : NULL;
+  g_set_str (&snippet->replace, replace);
 }
 
 const char *
@@ -177,8 +174,7 @@ cogl_snippet_set_post (CoglSnippet *snippet,
   if (!_cogl_snippet_modify (snippet))
     return;
 
-  g_free (snippet->post);
-  snippet->post = post ? g_strdup (post) : NULL;
+  g_set_str (&snippet->post, post);
 }
 
 const char *

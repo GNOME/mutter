@@ -237,8 +237,7 @@ clutter_input_focus_process_event (ClutterInputFocus  *focus,
     {
       int32_t offset, anchor;
 
-      g_clear_pointer (&priv->preedit, g_free);
-      priv->preedit = g_strdup (clutter_event_get_im_text (event));
+      g_set_str (&priv->preedit, clutter_event_get_im_text (event));
       priv->mode = clutter_event_get_im_preedit_reset_mode (event);
       clutter_event_get_im_location (event, &offset, &anchor);
       clutter_input_focus_set_preedit_text (focus,

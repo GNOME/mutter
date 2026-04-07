@@ -7464,12 +7464,12 @@ void
 meta_window_set_title (MetaWindow *window,
                        const char *title)
 {
-  g_free (window->title);
-  window->title = g_strdup (title);
+  if (g_set_str (&window->title, title))
+    {
+      meta_window_update_desc (window);
 
-  meta_window_update_desc (window);
-
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TITLE]);
+      g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_TITLE]);
+    }
 }
 
 void
@@ -7477,13 +7477,8 @@ meta_window_set_wm_class (MetaWindow *window,
                           const char *wm_class,
                           const char *wm_instance)
 {
-  g_free (window->res_class);
-  g_free (window->res_name);
-
-  window->res_name = g_strdup (wm_instance);
-  window->res_class = g_strdup (wm_class);
-
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_WM_CLASS]);
+  if (g_set_str (&window->res_class, wm_class) || g_set_str (&window->res_name, wm_instance))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_WM_CLASS]);
 }
 
 void
@@ -7497,29 +7492,23 @@ meta_window_set_gtk_dbus_properties (MetaWindow *window,
 {
   g_object_freeze_notify (G_OBJECT (window));
 
-  g_free (window->gtk_application_id);
-  window->gtk_application_id = g_strdup (application_id);
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_APPLICATION_ID]);
+  if (g_set_str (&window->gtk_application_id, application_id))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_APPLICATION_ID]);
 
-  g_free (window->gtk_unique_bus_name);
-  window->gtk_unique_bus_name = g_strdup (unique_bus_name);
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_UNIQUE_BUS_NAME]);
+  if (g_set_str (&window->gtk_unique_bus_name, unique_bus_name))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_UNIQUE_BUS_NAME]);
 
-  g_free (window->gtk_app_menu_object_path);
-  window->gtk_app_menu_object_path = g_strdup (appmenu_path);
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_APP_MENU_OBJECT_PATH]);
+  if (g_set_str (&window->gtk_app_menu_object_path, appmenu_path))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_APP_MENU_OBJECT_PATH]);
 
-  g_free (window->gtk_menubar_object_path);
-  window->gtk_menubar_object_path = g_strdup (menubar_path);
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_MENUBAR_OBJECT_PATH]);
+  if (g_set_str (&window->gtk_menubar_object_path, menubar_path))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_MENUBAR_OBJECT_PATH]);
 
-  g_free (window->gtk_application_object_path);
-  window->gtk_application_object_path = g_strdup (application_object_path);
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_APPLICATION_OBJECT_PATH]);
+  if (g_set_str (&window->gtk_application_object_path, application_object_path))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_APPLICATION_OBJECT_PATH]);
 
-  g_free (window->gtk_window_object_path);
-  window->gtk_window_object_path = g_strdup (window_object_path);
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_WINDOW_OBJECT_PATH]);
+  if (g_set_str (&window->gtk_window_object_path, window_object_path))
+    g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_GTK_WINDOW_OBJECT_PATH]);
 
   g_object_thaw_notify (G_OBJECT (window));
 }

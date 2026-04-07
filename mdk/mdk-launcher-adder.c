@@ -250,21 +250,21 @@ text_changed_idle (gpointer user_data)
 
   text = gtk_editable_get_text (GTK_EDITABLE (launcher_adder->entry));
 
-  g_free (launcher_adder->search);
-  launcher_adder->search = g_strdup (text);
+  if (g_set_str (&launcher_adder->search, text))
+    {
+      gtk_image_set_from_icon_name (GTK_IMAGE (launcher_adder->icon),
+                                    "application-x-executable-symbolic");
+      g_clear_object (&launcher_adder->selected_app_info);
 
-  gtk_image_set_from_icon_name (GTK_IMAGE (launcher_adder->icon),
-                                "application-x-executable-symbolic");
-  g_clear_object (&launcher_adder->selected_app_info);
+      if (adw_entry_row_get_text_length (entry_row) == 0)
+        gtk_popover_popdown (GTK_POPOVER (launcher_adder->popup));
+      else if (launcher_adder->launcher_type == MDK_LAUNCHER_TYPE_DESKTOP)
+        gtk_popover_popup (GTK_POPOVER (launcher_adder->popup));
 
-  if (adw_entry_row_get_text_length (entry_row) == 0)
-    gtk_popover_popdown (GTK_POPOVER (launcher_adder->popup));
-  else if (launcher_adder->launcher_type == MDK_LAUNCHER_TYPE_DESKTOP)
-    gtk_popover_popup (GTK_POPOVER (launcher_adder->popup));
+      update_add_button (launcher_adder);
 
-  update_add_button (launcher_adder);
-
-  gtk_filter_changed (launcher_adder->filter, GTK_FILTER_CHANGE_DIFFERENT);
+      gtk_filter_changed (launcher_adder->filter, GTK_FILTER_CHANGE_DIFFERENT);
+    }
 }
 
 static void

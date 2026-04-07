@@ -2663,8 +2663,7 @@ meta_kms_impl_device_initable_init (GInitable     *initable,
 
   ensure_latched_fd_hold (impl_device);
 
-  g_clear_pointer (&priv->path, g_free);
-  priv->path = g_strdup (meta_device_file_get_path (priv->device_file));
+  g_set_str (&priv->path, meta_device_file_get_path (priv->device_file));
 
   fd = meta_device_file_get_fd (priv->device_file);
   if (!get_driver_info (fd, &priv->driver_name, &priv->driver_description))
