@@ -749,32 +749,8 @@ reload_mutter_hints (MetaWindow    *window,
 {
   if (value->type != META_PROP_VALUE_INVALID)
     {
-      char     *new_hints = value->v.str;
-      char     *old_hints = window->mutter_hints;
-      gboolean  changed   = FALSE;
-
-      if (new_hints)
-        {
-          if (!old_hints || strcmp (new_hints, old_hints))
-            changed = TRUE;
-        }
-      else
-        {
-          if (old_hints)
-            changed = TRUE;
-        }
-
-      if (changed)
-        {
-          g_free (old_hints);
-
-          if (new_hints)
-            window->mutter_hints = g_strdup (new_hints);
-          else
-            window->mutter_hints = NULL;
-
-          g_object_notify (G_OBJECT (window), "mutter-hints");
-        }
+      if (g_set_str (&window->mutter_hints, value->v.str))
+        g_object_notify (G_OBJECT (window), "mutter-hints");
     }
   else if (window->mutter_hints)
     {
