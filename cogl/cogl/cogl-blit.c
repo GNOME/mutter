@@ -149,7 +149,8 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
 {
   CoglContext *ctx = cogl_texture_get_context (data->src_tex);
   CoglDriver *driver = cogl_context_get_driver (ctx);
-  CoglOffscreen *dst_offscreen = NULL, *src_offscreen = NULL;
+  g_autoptr (CoglOffscreen) dst_offscreen = NULL;
+  g_autoptr (CoglOffscreen) src_offscreen = NULL;
   CoglFramebuffer *dst_fb, *src_fb;
   g_autoptr (GError) ignore_error = NULL;
 
@@ -166,7 +167,7 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
 
   dst_fb = COGL_FRAMEBUFFER (dst_offscreen);
   if (!cogl_framebuffer_allocate (dst_fb, &ignore_error))
-    goto error;
+    return FALSE;
 
   src_offscreen= _cogl_offscreen_new_with_texture_full
     (data->src_tex,
@@ -175,19 +176,12 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
 
   src_fb = COGL_FRAMEBUFFER (src_offscreen);
   if (!cogl_framebuffer_allocate (src_fb, &ignore_error))
-    goto error;
+    return FALSE;
 
-  data->src_fb = src_fb;
-  data->dest_fb = dst_fb;
+  data->src_fb = g_steal_pointer (&src_fb);
+  data->dest_fb = g_steal_pointer (&dst_fb);
 
   return TRUE;
-
-error:
-
-  g_clear_object (&dst_offscreen);
-  g_clear_object (&src_offscreen);
-
-  return FALSE;
 }
 
 static void

@@ -131,10 +131,11 @@ CoglAttributeNameState *
 _cogl_attribute_register_attribute_name (CoglContext *context,
                                          const char *name)
 {
-  CoglAttributeNameState *name_state = g_new (CoglAttributeNameState, 1);
+  g_autofree CoglAttributeNameState *name_state = NULL;
   int name_index = context->n_attribute_names++;
   char *name_copy = g_strdup (name);
 
+  name_state = g_new (CoglAttributeNameState, 1);
   name_state->name = NULL;
   name_state->name_index = name_index;
   if (strncmp (name, "cogl_", 5) == 0)
@@ -144,7 +145,7 @@ _cogl_attribute_register_attribute_name (CoglContext *context,
                                          &name_state->name_id,
                                          &name_state->normalized_default,
                                          &name_state->layer_number))
-        goto error;
+        return NULL;
     }
   else
     {
@@ -168,11 +169,7 @@ _cogl_attribute_register_attribute_name (CoglContext *context,
   g_array_index (context->attribute_name_index_map,
                  CoglAttributeNameState *, name_index) = name_state;
 
-  return name_state;
-
-error:
-  g_free (name_state);
-  return NULL;
+  return g_steal_pointer (&name_state);
 }
 
 static gboolean
@@ -208,10 +205,11 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
                     int n_components,
                     CoglAttributeType type)
 {
-  CoglAttribute *attribute = g_object_new (COGL_TYPE_ATTRIBUTE, NULL);
+  g_autoptr (CoglAttribute) attribute = NULL;
   CoglBuffer *buffer = COGL_BUFFER (attribute_buffer);
   CoglContext *ctx = buffer->context;
 
+  attribute = g_object_new (COGL_TYPE_ATTRIBUTE, NULL);
   attribute->name_state =
     g_hash_table_lookup (ctx->attribute_name_states_hash, name);
   if (!attribute->name_state)
@@ -219,7 +217,7 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
       CoglAttributeNameState *name_state =
         _cogl_attribute_register_attribute_name (ctx, name);
       if (!name_state)
-        goto error;
+        return NULL;
       attribute->name_state = name_state;
     }
 
@@ -239,11 +237,7 @@ cogl_attribute_new (CoglAttributeBuffer *attribute_buffer,
   else
     attribute->normalized = FALSE;
 
-  return attribute;
-
-error:
-  g_object_unref (attribute);
-  return NULL;
+  return g_steal_pointer (&attribute);
 }
 
 void
