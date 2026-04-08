@@ -427,7 +427,7 @@ meta_thread_impl_fd_source_dispatch (GSource     *source,
   MetaThreadImplFdSource *impl_fd_source = (MetaThreadImplFdSource *) source;
   MetaThreadImpl *thread_impl = impl_fd_source->thread_impl;
   gpointer retval;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   retval = dispatch_task_func (thread_impl,
                                impl_fd_source->dispatch,
@@ -435,10 +435,7 @@ meta_thread_impl_fd_source_dispatch (GSource     *source,
                                &error);
 
   if (!GPOINTER_TO_INT (retval))
-    {
-      g_warning ("Failed to dispatch fd source: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Failed to dispatch fd source: %s", error->message);
 
   return G_SOURCE_CONTINUE;
 }

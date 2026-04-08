@@ -70,7 +70,7 @@ test_text_main (gint    argc,
 
   if (argv[1])
     {
-      GError *error = NULL;
+      g_autoptr (GError) error = NULL;
       gchar *utf8;
 
       g_file_get_contents (argv[1], &utf8, NULL, &error);
@@ -79,7 +79,6 @@ test_text_main (gint    argc,
           utf8 = g_strconcat ("Unable to open '", argv[1], "':\n",
                               error->message,
                               NULL);
-          g_error_free (error);
         }
 
       clutter_text_set_text (CLUTTER_TEXT (text), utf8);

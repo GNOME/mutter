@@ -1268,7 +1268,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
       y < priv->clear_clip_y1)
     {
       uint8_t *pixel;
-      GError *ignore_error = NULL;
+      g_autoptr (GError) ignore_error = NULL;
 
       /* we currently only care about cases where the premultiplied or
        * unpremultipled colors are equivalent... */
@@ -1280,10 +1280,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
                                 COGL_BUFFER_MAP_HINT_DISCARD,
                                 &ignore_error);
       if (pixel == NULL)
-        {
-          g_error_free (ignore_error);
-          return FALSE;
-        }
+        return FALSE;
 
       pixel[0] = (uint8_t) (priv->clear_color_red * 255.0f);
       pixel[1] = (uint8_t) (priv->clear_color_green * 255.0f);
@@ -1354,12 +1351,11 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                           CoglReadPixelsFlags source,
                                           CoglBitmap *bitmap)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   gboolean status =
     _cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                                x, y, source, bitmap,
                                                &ignore_error);
-  g_clear_error (&ignore_error);
   return status;
 }
 

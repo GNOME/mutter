@@ -133,7 +133,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   graphene_point_t relative_cursor_position;
   cairo_surface_t *cursor_surface;
   uint8_t *cursor_surface_data;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   cairo_surface_t *stream_surface;
   int width, height;
   int texture_width, texture_height;
@@ -216,7 +216,6 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
                                                      &error))
     {
       g_warning ("Failed to draw cursor: %s", error->message);
-      g_error_free (error);
       cairo_surface_destroy (cursor_surface);
       return;
     }

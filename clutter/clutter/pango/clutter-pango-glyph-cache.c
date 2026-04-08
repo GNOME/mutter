@@ -197,16 +197,13 @@ clutter_pango_glyph_cache_add_to_global_atlas (ClutterPangoGlyphCache  *cache,
                                                PangoGlyphCacheValue    *value)
 {
   CoglTexture *texture;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   texture = cogl_atlas_texture_new_with_size (cache->ctx,
                                               value->draw_width,
                                               value->draw_height);
   if (!cogl_texture_allocate (texture, &ignore_error))
-    {
-      g_error_free (ignore_error);
-      return FALSE;
-    }
+    return FALSE;
 
   value->texture = texture;
   value->tx1 = 0;

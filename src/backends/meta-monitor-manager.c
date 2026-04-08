@@ -889,7 +889,7 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   MetaOrientation orientation;
   MtkMonitorTransform transform;
   MtkMonitorTransform panel_transform;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   MetaMonitorsConfig *config;
   MetaMonitor *builtin_monitor;
   MetaLogicalMonitor *builtin_logical_monitor;
@@ -930,8 +930,8 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
     {
       g_warning ("Failed to use orientation monitor configuration: %s",
                  error->message);
-      g_error_free (error);
     }
+
   g_object_unref (config);
 }
 
@@ -1985,7 +1985,7 @@ static void
 restore_previous_config (MetaMonitorManager *manager)
 {
   MetaMonitorsConfig *previous_config;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   previous_config =
     meta_monitor_config_manager_pop_previous (manager->config_manager);
@@ -2020,7 +2020,6 @@ restore_previous_config (MetaMonitorManager *manager)
           g_object_unref (previous_config);
           g_warning ("Failed to restore previous configuration: %s",
                      error->message);
-          g_error_free (error);
         }
     }
 
@@ -4239,7 +4238,7 @@ meta_monitor_manager_get_is_builtin_display_on (MetaMonitorManager *manager)
 void
 meta_monitor_manager_rotate_monitor (MetaMonitorManager *manager)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   MetaMonitorsConfig *config =
     meta_monitor_config_manager_create_for_rotate_monitor (manager->config_manager);
 
@@ -4253,7 +4252,6 @@ meta_monitor_manager_rotate_monitor (MetaMonitorManager *manager)
     {
       g_warning ("Failed to use rotate monitor configuration: %s",
                  error->message);
-      g_error_free (error);
     }
   g_object_unref (config);
 }

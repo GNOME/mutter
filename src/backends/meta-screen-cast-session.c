@@ -323,7 +323,7 @@ handle_start (MetaDBusScreenCastSession *skeleton,
               GDBusMethodInvocation     *invocation)
 {
   MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (!check_permission (session, invocation))
     {
@@ -350,7 +350,6 @@ handle_start (MetaDBusScreenCastSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to start screen cast: %s",
                                              error->message);
-      g_error_free (error);
 
       return TRUE;
     }
@@ -452,7 +451,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
   gboolean is_recording;
   MetaScreenCastFlag flags;
   ClutterStage *stage;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   MetaScreenCastMonitorStream *monitor_stream;
   MetaScreenCastStream *stream;
   char *stream_path;
@@ -519,7 +518,6 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to record monitor: %s",
                                              error->message);
-      g_error_free (error);
       return TRUE;
     }
 
@@ -551,7 +549,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   MetaScreenCastCursorMode cursor_mode;
   gboolean is_recording;
   MetaScreenCastFlag flags;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   GVariant *window_id_variant = NULL;
   MetaScreenCastWindowStream *window_stream;
   MetaScreenCastStream *stream;
@@ -627,7 +625,6 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to record window: %s",
                                              error->message);
-      g_error_free (error);
       return TRUE;
     }
 

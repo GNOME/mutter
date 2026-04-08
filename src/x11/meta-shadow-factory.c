@@ -822,7 +822,7 @@ make_shadow (MetaShadow  *shadow,
              CoglContext *cogl_context,
              MtkRegion   *region)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   int d = get_box_filter_size (shadow->key.radius);
   int spread = get_shadow_spread (shadow->key.radius);
   MtkRectangle extents;
@@ -923,10 +923,7 @@ make_shadow (MetaShadow  *shadow,
                                                    &error);
 
   if (error)
-    {
-      g_warning ("Failed to allocate shadow texture: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Failed to allocate shadow texture: %s", error->message);
 
   g_free (buffer);
 

@@ -76,13 +76,10 @@ transfer_cb (MetaSelection *selection,
              GAsyncResult  *res,
              GOutputStream *stream)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (!meta_selection_transfer_finish (selection, res, &error))
-    {
-      g_warning ("Could not fetch selection data: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Could not fetch selection data: %s", error->message);
 
   g_output_stream_close (stream, NULL, NULL);
   g_object_unref (stream);

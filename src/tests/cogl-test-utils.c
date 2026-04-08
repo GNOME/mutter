@@ -203,7 +203,7 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
                                   CoglTextureComponents  components)
 {
   CoglTexture *tex;
-  GError *skip_error = NULL;
+  g_autoptr (GError) skip_error = NULL;
 
   /* First try creating a fast-path non-sliced texture */
   tex = cogl_texture_2d_new_with_size (ctx, width, height);
@@ -211,10 +211,7 @@ test_utils_texture_new_with_size (CoglContext           *ctx,
   cogl_texture_set_components (tex, components);
 
   if (!cogl_texture_allocate (tex, &skip_error))
-    {
-      g_error_free (skip_error);
-      g_clear_object (&tex);
-    }
+    g_clear_object (&tex);
 
   if (!tex)
     {

@@ -680,7 +680,7 @@ upower_ready_cb (GObject      *source_object,
   MetaBackend *backend;
   MetaBackendPrivate *priv;
   GDBusProxy *proxy;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   GVariant *v;
 
   proxy = g_dbus_proxy_new_finish (res, &error);
@@ -688,7 +688,6 @@ upower_ready_cb (GObject      *source_object,
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
         g_warning ("Failed to create UPower proxy: %s", error->message);
-      g_error_free (error);
       return;
     }
 

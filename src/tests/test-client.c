@@ -443,7 +443,7 @@ process_line (const char       *line,
               GDataInputStream *in)
 {
   GdkDisplay *display = gdk_display_get_default ();
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   int argc;
   char **argv;
   static int line_count = 0;
@@ -453,7 +453,6 @@ process_line (const char       *line,
   if (!g_shell_parse_argv (line, &argc, &argv, &error))
     {
       g_print ("error parsing command: %s\n", error->message);
-      g_error_free (error);
       return;
     }
 

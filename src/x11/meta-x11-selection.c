@@ -148,17 +148,14 @@ write_mimetypes_cb (GOutputStream *stream,
                     GAsyncResult  *res,
                     gpointer       user_data)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   g_output_stream_write_bytes_finish (stream, res, &error);
   g_output_stream_close (stream, NULL, NULL);
   g_object_unref (stream);
 
   if (error)
-    {
-      g_warning ("Could not fetch selection mimetypes: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Could not fetch selection mimetypes: %s", error->message);
 }
 
 static void
@@ -166,13 +163,10 @@ transfer_cb (MetaSelection *selection,
              GAsyncResult  *res,
              GOutputStream *output)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (!meta_selection_transfer_finish (selection, res, &error))
-    {
-      g_warning ("Error writing data to X11 selection: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Error writing data to X11 selection: %s", error->message);
 
   g_output_stream_close (output, NULL, NULL);
   g_object_unref (output);
