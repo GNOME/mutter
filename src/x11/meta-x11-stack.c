@@ -241,12 +241,11 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
   GList *tmp;
   GList *sorted;
 
-  meta_topic (META_DEBUG_STACK, "Syncing window stack to server");
+  meta_topic (META_DEBUG_STACK, "Syncing window stack to X server");
 
-  /* Create stacked xwindow arrays, in bottom-to-top order
-   */
+  /* Create stacked xwindow array, in bottom-to-top order */
+
   x11_stacked = g_array_new (FALSE, FALSE, sizeof (Window));
-
   sorted = meta_stack_list_windows (stack, NULL);
 
   for (tmp = sorted; tmp; tmp = tmp->next)
@@ -262,6 +261,9 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
     }
 
   /* Sync _NET_CLIENT_LIST and _NET_CLIENT_LIST_STACKING */
+
+  meta_topic (META_DEBUG_STACK, "Syncing %u stacked X windows",
+              x11_stacked->len);
 
   XChangeProperty (x11_stack->x11_display->xdisplay,
                    x11_stack->x11_display->xroot,
