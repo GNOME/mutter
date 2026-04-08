@@ -299,7 +299,7 @@ try_create_context (CoglWinsysEGL  *winsys,
   EGLConfig config;
   EGLint attribs[11];
   EGLint cfg_attribs[COGL_MAX_EGL_CONFIG_ATTRIBS];
-  GError *config_error = NULL;
+  g_autoptr (GError) config_error = NULL;
   const char *error_message;
   int i = 0;
 
@@ -325,7 +325,6 @@ try_create_context (CoglWinsysEGL  *winsys,
           g_set_error (error, COGL_WINSYS_ERROR,
                        COGL_WINSYS_ERROR_CREATE_CONTEXT,
                        "Couldn't choose config: %s", config_error->message);
-          g_error_free (config_error);
           goto err;
         }
 

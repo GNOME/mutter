@@ -2488,7 +2488,7 @@ saved_cb (GObject      *object,
           gpointer      user_data)
 {
   SaveData *data = user_data;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (!g_file_replace_contents_finish (G_FILE (object), result, NULL, &error))
     {
@@ -2498,7 +2498,6 @@ saved_cb (GObject      *object,
           g_clear_object (&data->config_store->save_cancellable);
         }
 
-      g_error_free (error);
     }
   else
     {
@@ -2513,7 +2512,7 @@ saved_cb (GObject      *object,
 static void
 meta_monitor_config_store_save_sync (MetaMonitorConfigStore *config_store)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   GFile *file;
   GString *buffer;
 
@@ -2532,11 +2531,8 @@ meta_monitor_config_store_save_sync (MetaMonitorConfigStore *config_store)
                                 NULL,
                                 NULL,
                                 &error))
-    {
-      g_warning ("Saving monitor configuration failed: %s",
-                 error->message);
-      g_error_free (error);
-    }
+    g_warning ("Saving monitor configuration failed: %s",
+                error->message);
 
   g_string_free (buffer, TRUE);
 }
@@ -2816,7 +2812,7 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
   g_autoptr (GHashTable) user_configs = NULL;
   const char * const *system_dirs;
   char *user_file_path;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   gboolean should_save_configs = FALSE;
 
   g_clear_object (&config_store->user_file);
@@ -2880,7 +2876,6 @@ meta_monitor_config_store_reset (MetaMonitorConfigStore *config_store)
         {
           g_warning ("Failed to read monitors config file '%s': %s",
                      user_file_path, error->message);
-          g_error_free (error);
         }
     }
 

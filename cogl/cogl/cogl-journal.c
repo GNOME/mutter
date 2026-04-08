@@ -1843,7 +1843,7 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
       float poly[16];
       CoglFramebuffer *framebuffer = journal->framebuffer;
       uint8_t *pixel;
-      GError *ignore_error = NULL;
+      g_autoptr (GError) ignore_error = NULL;
 
       entry_to_screen_polygon (framebuffer, entry, vertices, poly);
 
@@ -1886,10 +1886,7 @@ _cogl_journal_try_read_pixel (CoglJournal *journal,
                                 COGL_BUFFER_MAP_HINT_DISCARD,
                                 &ignore_error);
       if (pixel == NULL)
-        {
-          g_error_free (ignore_error);
-          return FALSE;
-        }
+        return FALSE;
 
       pixel[0] = color[0];
       pixel[1] = color[1];

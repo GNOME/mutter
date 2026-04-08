@@ -600,7 +600,7 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
   MtkMonitorTransform cursor_transform;
   const graphene_rect_t *src_rect;
   graphene_matrix_t matrix;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   cursor_texture = clutter_cursor_get_texture (cursor, &hotspot_x, &hotspot_y);
   if (!cursor_texture)
@@ -706,7 +706,6 @@ meta_screen_cast_stream_src_set_cursor_sprite_metadata (MetaScreenCastStreamSrc 
                                                      &error))
     {
       g_warning ("Failed to draw cursor: %s", error->message);
-      g_error_free (error);
       spa_meta_cursor->id = 0;
     }
 }

@@ -52,7 +52,7 @@ _cogl_blit_texture_render_begin (CoglBlitData *data)
   CoglFramebuffer *fb;
   CoglPipeline *pipeline;
   unsigned int dst_width, dst_height;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   offscreen = _cogl_offscreen_new_with_texture_full
     (data->dst_tex, COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL, 0 /* level */);
@@ -60,7 +60,6 @@ _cogl_blit_texture_render_begin (CoglBlitData *data)
   fb = COGL_FRAMEBUFFER (offscreen);
   if (!cogl_framebuffer_allocate (fb, &ignore_error))
     {
-      g_error_free (ignore_error);
       g_object_unref (fb);
       return FALSE;
     }
@@ -152,7 +151,7 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
   CoglDriver *driver = cogl_context_get_driver (ctx);
   CoglOffscreen *dst_offscreen = NULL, *src_offscreen = NULL;
   CoglFramebuffer *dst_fb, *src_fb;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   /* We can only blit between FBOs if both textures have the same
      premult convention and the blit framebuffer extension is
@@ -167,10 +166,7 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
 
   dst_fb = COGL_FRAMEBUFFER (dst_offscreen);
   if (!cogl_framebuffer_allocate (dst_fb, &ignore_error))
-    {
-      g_error_free (ignore_error);
-      goto error;
-    }
+    goto error;
 
   src_offscreen= _cogl_offscreen_new_with_texture_full
     (data->src_tex,
@@ -179,10 +175,7 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
 
   src_fb = COGL_FRAMEBUFFER (src_offscreen);
   if (!cogl_framebuffer_allocate (src_fb, &ignore_error))
-    {
-      g_error_free (ignore_error);
-      goto error;
-    }
+    goto error;
 
   data->src_fb = src_fb;
   data->dest_fb = dst_fb;
@@ -226,7 +219,7 @@ _cogl_blit_copy_tex_sub_image_begin (CoglBlitData *data)
 {
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   /* This will only work if the target texture is a CoglTexture2D */
   if (!COGL_IS_TEXTURE_2D (data->dst_tex))
@@ -238,7 +231,6 @@ _cogl_blit_copy_tex_sub_image_begin (CoglBlitData *data)
   fb = COGL_FRAMEBUFFER (offscreen);
   if (!cogl_framebuffer_allocate (fb, &ignore_error))
     {
-      g_error_free (ignore_error);
       g_object_unref (fb);
       return FALSE;
     }

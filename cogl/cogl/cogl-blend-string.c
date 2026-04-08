@@ -940,10 +940,11 @@ _cogl_blend_string_test (void)
   };
   int i;
 
-  GError *error = NULL;
   for (i = 0; strings[i].string; i++)
     {
       CoglBlendStringStatement statements[2];
+      g_autoptr (GError) error = NULL;
+
       int count = _cogl_blend_string_compile (strings[i].string,
                                               strings[i].context,
                                               statements,
@@ -953,8 +954,6 @@ _cogl_blend_string_test (void)
           g_print ("Failed to parse string:\n%s\n%s\n",
                    strings[i].string,
                    error->message);
-          g_error_free (error);
-          error = NULL;
           continue;
         }
       g_print ("Original:\n");

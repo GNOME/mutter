@@ -2032,14 +2032,13 @@ out:
 static void
 init_secondary_gpu_data (MetaRendererNativeGpuData *renderer_gpu_data)
 {
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (init_secondary_gpu_data_gpu (renderer_gpu_data, &error))
     return;
 
   g_message ("Failed to initialize accelerated iGPU/dGPU framebuffer sharing: %s",
              error->message);
-  g_error_free (error);
 
   /* First try ZERO, it automatically falls back to PRIMARY as needed */
   set_copy_mode (renderer_gpu_data,

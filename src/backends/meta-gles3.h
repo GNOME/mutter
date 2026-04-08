@@ -49,20 +49,19 @@ MetaGles3 * meta_gles3_new (MetaEgl *egl);
 
 #define GLBAS(gles3, func, args)                                               \
 {                                                                              \
-  GError *_error = NULL;                                                       \
+  g_autoptr (GError) _error = NULL;                                                       \
                                                                                \
   func args;                                                                   \
                                                                                \
   if (!meta_gles3_validate (gles3, &_error))                                   \
     {                                                                          \
       g_warning ("%s %s failed: %s", #func, #args, _error->message);           \
-      g_error_free (_error);                                                   \
     }                                                                          \
 }
 
 #define GLEXT(gles3, func, args)                                               \
 {                                                                              \
-  GError *_error = NULL;                                                       \
+  g_autoptr (GError) _error = NULL;                                                       \
   MetaGles3Table *table;                                                       \
                                                                                \
   table = meta_gles3_get_table (gles3);                                        \
@@ -73,6 +72,5 @@ MetaGles3 * meta_gles3_new (MetaEgl *egl);
   if (!meta_gles3_validate (gles3, &_error))                                   \
     {                                                                          \
       g_warning ("%s %s failed: %s", #func, #args, _error->message);           \
-      g_error_free (_error);                                                   \
     }                                                                          \
 }

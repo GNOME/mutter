@@ -741,7 +741,7 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
   int stride;
   cairo_t *cr;
   cairo_surface_t *image;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   stex = meta_surface_actor_get_texture (surface);
   g_return_if_fail (stex);
@@ -821,10 +821,7 @@ build_and_scan_frame_mask (MetaWindowActorX11 *actor_x11,
                                                 stride, mask_data, &error);
 
   if (error)
-    {
-      g_warning ("Failed to allocate mask texture: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Failed to allocate mask texture: %s", error->message);
 
   if (mask_texture)
     {

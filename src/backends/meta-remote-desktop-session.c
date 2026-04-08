@@ -651,7 +651,7 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
               GDBusMethodInvocation        *invocation)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   if (session->started)
     {
@@ -675,7 +675,6 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
                                              G_DBUS_ERROR_FAILED,
                                              "Failed to start remote desktop: %s",
                                              error->message);
-      g_error_free (error);
 
       meta_dbus_session_close (META_DBUS_SESSION (session));
 

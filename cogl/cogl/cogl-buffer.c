@@ -280,11 +280,10 @@ cogl_buffer_map (CoglBuffer *buffer,
                  CoglBufferAccess access,
                  CoglBufferMapHint hints)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   void *ptr =
     cogl_buffer_map_range (buffer, 0, buffer->size, access, hints,
                            &ignore_error);
-  g_clear_error (&ignore_error);
   return ptr;
 }
 
@@ -351,7 +350,7 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
 {
   CoglContext *ctx = buffer->context;
   void *ret;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   g_return_val_if_fail (!ctx->buffer_map_fallback_in_use, NULL);
 
@@ -366,8 +365,6 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
 
   if (ret)
     return ret;
-
-  g_error_free (ignore_error);
 
   /* If the map fails then we'll use a temporary buffer to fill
      the data and then upload it using cogl_buffer_set_data when
@@ -422,7 +419,7 @@ cogl_buffer_set_data (CoglBuffer *buffer,
                       const void *data,
                       size_t      size)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   gboolean status;
 
   g_return_val_if_fail (COGL_IS_BUFFER (buffer), FALSE);
@@ -444,6 +441,5 @@ cogl_buffer_set_data (CoglBuffer *buffer,
                                      &ignore_error);
     }
 
-  g_clear_error (&ignore_error);
   return status;
 }
