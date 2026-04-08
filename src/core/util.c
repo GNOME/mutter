@@ -104,7 +104,7 @@ ensure_logfile (void)
       char *filename = NULL;
       char *tmpl;
       int fd;
-      GError *error = NULL;
+      g_autoptr (GError) error = NULL;
 
       tmpl = g_strdup_printf ("mutter-%d-debug-log-XXXXXX",
                               (int) getpid ());
@@ -119,7 +119,6 @@ ensure_logfile (void)
         {
           g_warning ("Failed to open debug log: %s",
                      error->message);
-          g_error_free (error);
           return;
         }
 

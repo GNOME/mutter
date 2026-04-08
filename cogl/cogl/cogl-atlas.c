@@ -308,7 +308,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
                             int height)
 {
   CoglTexture *tex;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   g_return_val_if_fail (
     cogl_pixel_format_get_n_planes (atlas->texture_format) == 1,
@@ -337,7 +337,6 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
 
       if (!cogl_texture_allocate (tex, &ignore_error))
         {
-          g_error_free (ignore_error);
           g_object_unref (tex);
           tex = NULL;
         }
@@ -355,7 +354,6 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
 
       if (!cogl_texture_allocate (tex, &ignore_error))
         {
-          g_error_free (ignore_error);
           g_object_unref (tex);
           tex = NULL;
         }
@@ -590,7 +588,7 @@ create_migration_texture (CoglContext *ctx,
                           CoglPixelFormat internal_format)
 {
   CoglTexture *tex;
-  GError *skip_error = NULL;
+  g_autoptr (GError) skip_error = NULL;
 
   /* First try creating a fast-path non-sliced texture */
   tex = cogl_texture_2d_new_with_size (ctx, width, height);
@@ -603,7 +601,6 @@ create_migration_texture (CoglContext *ctx,
    * lazily when uploading data. */
   if (!cogl_texture_allocate (tex, &skip_error))
     {
-      g_error_free (skip_error);
       g_object_unref (tex);
       tex = NULL;
     }
@@ -632,13 +629,12 @@ _cogl_atlas_copy_rectangle (CoglAtlas *atlas,
 {
   CoglTexture *tex;
   CoglBlitData blit_data;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
 
   /* Create a new texture at the right size */
   tex = create_migration_texture (atlas->context, width, height, internal_format);
   if (!cogl_texture_allocate (tex, &ignore_error))
     {
-      g_error_free (ignore_error);
       g_object_unref (tex);
       return NULL;
     }

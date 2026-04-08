@@ -867,7 +867,7 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
                                     MtkRegion         *region)
 {
   gboolean res = FALSE;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   switch (buffer->type)
     {
@@ -891,10 +891,7 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
     }
 
   if (!res)
-    {
-      g_warning ("Failed to process Wayland buffer damage: %s", error->message);
-      g_error_free (error);
-    }
+    g_warning ("Failed to process Wayland buffer damage: %s", error->message);
 }
 
 static CoglScanout *

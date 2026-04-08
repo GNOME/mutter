@@ -336,7 +336,7 @@ update_outputs (MetaGpuKms *gpu_kms)
       MetaKmsConnector *kms_connector = l->data;
       MetaOutputKms *output_kms;
       MetaOutput *old_output;
-      GError *error = NULL;
+      g_autoptr (GError) error = NULL;
 
       meta_unlink_kms_connector (kms_connector);
 
@@ -354,14 +354,9 @@ update_outputs (MetaGpuKms *gpu_kms)
                                         old_output,
                                         &error);
       if (!output_kms)
-        {
-          g_warning ("Failed to create KMS output: %s", error->message);
-          g_error_free (error);
-        }
+        g_warning ("Failed to create KMS output: %s", error->message);
       else
-        {
-          outputs = g_list_prepend (outputs, output_kms);
-        }
+        outputs = g_list_prepend (outputs, output_kms);
     }
 
   g_list_foreach (old_outputs, (GFunc) g_object_run_dispose, NULL);

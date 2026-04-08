@@ -475,7 +475,7 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                      unsigned int dst_height,
                                      CoglBitmap *bitmap)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   gboolean status;
 
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), FALSE);
@@ -488,7 +488,6 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                                  0, /* level */
                                                  &ignore_error);
 
-  g_clear_error (&ignore_error);
   return status;
 }
 
@@ -549,7 +548,7 @@ cogl_texture_set_region (CoglTexture *texture,
 			 unsigned int rowstride,
 			 const uint8_t *data)
 {
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   const uint8_t *first_pixel;
   int bytes_per_pixel;
   gboolean status;
@@ -575,7 +574,6 @@ cogl_texture_set_region (CoglTexture *texture,
                                      dst_y,
                                      0,
                                      &ignore_error);
-  g_clear_error (&ignore_error);
   return status;
 }
 
@@ -625,7 +623,7 @@ get_texture_bits_via_offscreen (CoglTexture *meta_texture,
   CoglFramebuffer *framebuffer;
   CoglBitmap *bitmap;
   gboolean ret;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   CoglPixelFormat real_format;
 
   offscreen = _cogl_offscreen_new_with_texture_full
@@ -635,10 +633,7 @@ get_texture_bits_via_offscreen (CoglTexture *meta_texture,
 
   framebuffer = COGL_FRAMEBUFFER (offscreen);
   if (!cogl_framebuffer_allocate (framebuffer, &ignore_error))
-    {
-      g_error_free (ignore_error);
-      return FALSE;
-    }
+    return FALSE;
 
   /* Currently the framebuffer's internal format corresponds to the
    * internal format of @sub_texture but in the case of atlas textures
@@ -664,8 +659,6 @@ get_texture_bits_via_offscreen (CoglTexture *meta_texture,
                                                    COGL_READ_PIXELS_COLOR_BUFFER,
                                                    bitmap,
                                                    &ignore_error);
-
-  g_clear_error (&ignore_error);
 
   g_object_unref (bitmap);
 
@@ -825,7 +818,7 @@ cogl_texture_get_data (CoglTexture *texture,
   int tex_width;
   int tex_height;
   CoglPixelFormat texture_format;
-  GError *ignore_error = NULL;
+  g_autoptr (GError) ignore_error = NULL;
   CoglTextureGetData tg_data;
 
   g_return_val_if_fail (COGL_IS_TEXTURE (texture), 0);
@@ -909,10 +902,7 @@ cogl_texture_get_data (CoglTexture *texture,
                                                         closest_format,
                                                         &ignore_error);
       if (!target_bmp)
-        {
-          g_error_free (ignore_error);
-          return 0;
-        }
+        return 0;
     }
 
   tg_data.target_bits = _cogl_bitmap_map (target_bmp, COGL_BUFFER_ACCESS_WRITE,
@@ -947,7 +937,6 @@ cogl_texture_get_data (CoglTexture *texture,
     }
   else
     {
-      g_error_free (ignore_error);
       tg_data.success = FALSE;
     }
 
@@ -965,7 +954,7 @@ cogl_texture_get_data (CoglTexture *texture,
     {
       CoglBitmap *new_bmp;
       gboolean result;
-      GError *error = NULL;
+      g_autoptr (GError) error = NULL;
 
       /* Convert to requested format directly into the user's buffer */
       new_bmp = cogl_bitmap_new_for_data (ctx,
@@ -977,7 +966,6 @@ cogl_texture_get_data (CoglTexture *texture,
 
       if (!result)
         {
-          g_error_free (error);
           /* Return failure after cleaning up */
           byte_size = 0;
         }

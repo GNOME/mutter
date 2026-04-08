@@ -553,7 +553,7 @@ ensure_color_texture (MetaBackground *self)
       MetaBackend *backend = meta_context_get_backend (context);
       ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
       CoglContext *ctx = clutter_backend_get_cogl_context (clutter_backend);
-      GError *error = NULL;
+      g_autoptr (GError) error = NULL;
       uint8_t pixels[6];
       int width, height;
 
@@ -597,10 +597,7 @@ ensure_color_texture (MetaBackground *self)
                                                            &error);
 
       if (error != NULL)
-        {
-          g_warning ("Failed to allocate color texture: %s", error->message);
-          g_error_free (error);
-        }
+        g_warning ("Failed to allocate color texture: %s", error->message);
     }
 }
 
@@ -669,7 +666,7 @@ ensure_wallpaper_texture (MetaBackground *self,
         cogl_texture_get_context (texture);
       CoglOffscreen *offscreen;
       CoglFramebuffer *fbo;
-      GError *catch_error = NULL;
+      g_autoptr (GError) catch_error = NULL;
       CoglPipeline *pipeline;
 
       self->wallpaper_texture = meta_create_texture (width, height, cogl_context,
@@ -684,8 +681,6 @@ ensure_wallpaper_texture (MetaBackground *self,
            * than the maximum texture size; we treat it as permanent until the
            * background is changed again.
            */
-          g_error_free (catch_error);
-
           g_clear_object (&self->wallpaper_texture);
           g_object_unref (fbo);
 
@@ -810,7 +805,7 @@ meta_background_get_texture (MetaBackground       *self,
 
   if (monitor->dirty)
     {
-      GError *catch_error = NULL;
+      g_autoptr (GError) catch_error = NULL;
       gboolean bare_region_visible = FALSE;
       int texture_width, texture_height;
 
@@ -855,7 +850,6 @@ meta_background_get_texture (MetaBackground       *self,
           g_clear_object (&monitor->texture);
           g_clear_object (&monitor->fbo);
 
-          g_error_free (catch_error);
           return NULL;
         }
 

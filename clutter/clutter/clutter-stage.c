@@ -1211,7 +1211,7 @@ clutter_stage_constructed (GObject *gobject)
   ClutterStagePrivate *priv;
   ClutterStageWindow *impl;
   ClutterSeat *seat;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   /* a stage is a top-level object */
   CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IS_TOPLEVEL);
@@ -1233,7 +1233,6 @@ clutter_stage_constructed (GObject *gobject)
         {
           g_critical ("Unable to create a new stage implementation: %s",
                       error->message);
-          g_error_free (error);
         }
       else
         g_critical ("Unable to create a new stage implementation.");

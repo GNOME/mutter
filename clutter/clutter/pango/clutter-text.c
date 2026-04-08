@@ -1561,7 +1561,7 @@ clutter_text_set_markup_internal (ClutterText *self,
                                   const gchar *str)
 {
   ClutterTextPrivate *priv = clutter_text_get_instance_private (self);
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
   gchar *text = NULL;
   PangoAttrList *attrs = NULL;
   gboolean res;
@@ -1579,9 +1579,8 @@ clutter_text_set_markup_internal (ClutterText *self,
       if (G_LIKELY (error != NULL))
         {
           g_warning ("Failed to set the markup of the actor '%s': %s",
-                     _clutter_actor_get_debug_name (CLUTTER_ACTOR (self)),
-                     error->message);
-          g_error_free (error);
+                      _clutter_actor_get_debug_name (CLUTTER_ACTOR (self)),
+                      error->message);
         }
       else
         g_warning ("Failed to set the markup of the actor '%s'",
