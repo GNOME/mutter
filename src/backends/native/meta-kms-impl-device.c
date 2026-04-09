@@ -92,6 +92,7 @@ typedef enum _MetaDeadlineTimerState
 {
   META_DEADLINE_TIMER_STATE_ENABLED,
   META_DEADLINE_TIMER_STATE_DISABLED,
+  META_DEADLINE_TIMER_STATE_INHIBITED,
 } MetaDeadlineTimerState;
 
 typedef struct _MetaKmsImplDevicePrivate
@@ -1415,9 +1416,21 @@ ensure_deadline_timer_armed (MetaKmsImplDevice *impl_device,
                                          &next_presentation_us,
                                          &local_error))
     {
-      meta_topic (META_DEBUG_KMS_DEADLINE,
-                  "Could not determine deadline: %s",
-                  local_error->message);
+      MetaKmsImplDevicePrivate *priv =
+        meta_kms_impl_device_get_instance_private (impl_device);
+
+      if (g_error_matches (local_error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+        {
+          meta_topic (META_DEBUG_KMS, "Could not determine deadline: %s",
+                      local_error->message);
+
+          priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_INHIBITED;
+        }
+      else
+        {
+          g_warning ("Failed to determine deadline: %s", local_error->message);
+          priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_DISABLED;
+        }
 
       return FALSE;
     }
@@ -2592,6 +2605,16 @@ meta_kms_impl_device_init_mode_setting (MetaKmsImplDevice  *impl_device,
   drmModeFreeResources (drm_resources);
 
   return TRUE;
+}
+
+void
+meta_kms_impl_device_resume (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  if (priv->deadline_timer_state == META_DEADLINE_TIMER_STATE_INHIBITED)
+    priv->deadline_timer_state = META_DEADLINE_TIMER_STATE_ENABLED;
 }
 
 void

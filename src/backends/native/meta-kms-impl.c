@@ -85,6 +85,20 @@ meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl)
 }
 
 void
+meta_kms_impl_resume (MetaKmsImpl *impl)
+{
+  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
+  GList *l;
+
+  for (l = priv->impl_devices; l; l = l->next)
+    {
+      MetaKmsImplDevice *impl_device = l->data;
+
+      meta_kms_impl_device_resume (impl_device);
+    }
+}
+
+void
 meta_kms_impl_prepare_shutdown (MetaKmsImpl *impl)
 {
   MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
