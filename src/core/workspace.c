@@ -1441,13 +1441,26 @@ is_focusable (MetaWindow    *window,
          meta_window_should_be_showing_on_workspace (window, workspace);
 }
 
-static gboolean
-is_valid_focus_candidate (MetaWindow    *window,
-                          MetaWorkspace *workspace,
-                          MetaWindow    *not_this_one)
+typedef enum _MetaFocusCandidatePriority
 {
-  return window != not_this_one &&
-         is_focusable (window, workspace);
+  META_FOCUS_CANDIDATE_INVALID,
+  META_FOCUS_CANDIDATE_PRIMARY,
+  META_FOCUS_CANDIDATE_FALLBACK,
+} MetaFocusCandidatePriority;
+
+static MetaFocusCandidatePriority
+get_focus_candidate_priority (MetaWindow    *window,
+                              MetaWorkspace *workspace,
+                              MetaWindow    *not_this_one)
+{
+  if (window == not_this_one ||
+      !is_focusable (window, workspace))
+    return META_FOCUS_CANDIDATE_INVALID;
+
+  if (window->type == META_WINDOW_DESKTOP)
+    return META_FOCUS_CANDIDATE_FALLBACK;
+
+  return META_FOCUS_CANDIDATE_PRIMARY;
 }
 
 static gboolean
@@ -1469,21 +1482,28 @@ GList *
 meta_workspace_get_default_focus_candidates (MetaWorkspace *workspace)
 {
   GList *l;
-  GList *candidates = NULL;
+  GList *fallback_candidates = NULL;
+  GList *primary_candidates = NULL;
 
   for (l = workspace->mru_list; l; l = l->next)
     {
       MetaWindow *window = l->data;
+      MetaFocusCandidatePriority priority;
 
       g_assert (window);
 
-      if (!is_valid_focus_candidate (window, workspace, NULL))
+      priority = get_focus_candidate_priority (window, workspace, NULL);
+      if (priority == META_FOCUS_CANDIDATE_INVALID)
         continue;
 
-      candidates = g_list_prepend (candidates, window);
+      if (priority == META_FOCUS_CANDIDATE_FALLBACK)
+        fallback_candidates = g_list_prepend (fallback_candidates, window);
+      else
+        primary_candidates = g_list_prepend (primary_candidates, window);
     }
 
-  return candidates;
+  /* Keep fallback before primary: candidates are built in reverse order */
+  return g_list_concat (fallback_candidates, primary_candidates);
 }
 
 static gboolean
@@ -1507,6 +1527,7 @@ meta_workspace_get_default_focus_window_at_point (MetaWorkspace *workspace,
   g_autoptr (GList) sorted = NULL;
   GList *l;
   MetaStack *stack;
+  MetaWindow *fallback_window = NULL;
 
   g_return_val_if_fail (META_IS_WORKSPACE (workspace), NULL);
   g_return_val_if_fail (!not_this_one || META_IS_WINDOW (not_this_one), NULL);
@@ -1524,19 +1545,28 @@ meta_workspace_get_default_focus_window_at_point (MetaWorkspace *workspace,
   for (l = sorted; l != NULL; l = l->next)
     {
       MetaWindow *window = l->data;
+      MetaFocusCandidatePriority priority;
 
       g_assert (window);
 
-      if (!is_valid_focus_candidate (window, workspace, not_this_one))
+      priority = get_focus_candidate_priority (window, workspace, not_this_one);
+      if (priority == META_FOCUS_CANDIDATE_INVALID)
         continue;
 
       if (!window_contains_point (window, root_x, root_y))
         continue;
 
+      if (priority == META_FOCUS_CANDIDATE_FALLBACK)
+        {
+          if (!fallback_window)
+            fallback_window = window;
+          continue;
+        }
+
       return window;
     }
 
-  return NULL;
+  return fallback_window;
 }
 
 MetaWindow *
@@ -1544,6 +1574,7 @@ meta_workspace_get_default_focus_window (MetaWorkspace *workspace,
                                          MetaWindow    *not_this_one)
 {
   GList *l;
+  MetaWindow *fallback_window = NULL;
 
   g_return_val_if_fail (META_IS_WORKSPACE (workspace), NULL);
   g_return_val_if_fail (!not_this_one || META_IS_WINDOW (not_this_one), NULL);
@@ -1551,16 +1582,21 @@ meta_workspace_get_default_focus_window (MetaWorkspace *workspace,
   for (l = workspace->mru_list; l; l = l->next)
     {
       MetaWindow *window = l->data;
+      MetaFocusCandidatePriority priority;
 
       g_assert (window);
 
-      if (!is_valid_focus_candidate (window, workspace, not_this_one))
-        continue;
+      priority = get_focus_candidate_priority (window, workspace, not_this_one);
+      if (priority == META_FOCUS_CANDIDATE_PRIMARY)
+        return window;
 
-      return window;
+      if (priority == META_FOCUS_CANDIDATE_FALLBACK && !fallback_window)
+        fallback_window = window;
+
+      continue;
     }
 
-  return NULL;
+  return fallback_window;
 }
 
 static MetaWindow *
