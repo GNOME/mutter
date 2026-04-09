@@ -36,7 +36,6 @@
  * might decide they need to launch it again.
  */
 #define STARTUP_TIMEOUT_MS 15000
-#define UPDATE_CURSOR_TIMEOUT_MS 20
 
 enum
 {
@@ -91,8 +90,6 @@ struct _MetaStartupNotification
 
   GSList *startup_sequences;
   guint startup_sequence_timeout_id;
-  guint update_cursor_timeout_id;
-  ClutterCursorType cursor;
 };
 
 typedef struct
@@ -597,7 +594,6 @@ meta_startup_notification_finalize (GObject *object)
   MetaStartupNotification *sn = META_STARTUP_NOTIFICATION (object);
 
   g_clear_handle_id (&sn->startup_sequence_timeout_id, g_source_remove);
-  g_clear_handle_id (&sn->update_cursor_timeout_id, g_source_remove);
 
   g_slist_free_full (sn->startup_sequences, g_object_unref);
   sn->startup_sequences = NULL;
