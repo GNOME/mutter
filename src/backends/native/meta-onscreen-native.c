@@ -3091,22 +3091,54 @@ all_crtcs_support_format (MetaGpuKms *gpu_kms,
 }
 
 static MetaDrmBufferGbm *
-create_secondary_gpu_buffer (struct gbm_device   *gbm_device,
+create_secondary_gpu_buffer (CoglOnscreen        *onscreen,
+                             struct gbm_device   *gbm_device,
                              MetaDeviceFile      *device_file,
                              int                  width,
                              int                  height,
                              uint32_t             format,
-                             MetaDrmBufferFlags   flags,
                              GError             **error)
 {
+  MetaOnscreenNative *onscreen_native = META_ONSCREEN_NATIVE (onscreen);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
+  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  const char *kms_modifiers_debug_env;
+  MetaKmsDeviceFlag kms_device_flags;
+  MetaDrmBufferFlags drm_buffer_flags;
   struct gbm_bo *gbm_bo;
   MetaDrmBufferGbm *buffer_gbm;
+  g_autoptr (GArray) modifiers = NULL;
 
-  gbm_bo = gbm_bo_create (gbm_device,
-                          width,
-                          height,
-                          format,
-                          GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+  kms_modifiers_debug_env = g_getenv ("MUTTER_DEBUG_USE_KMS_MODIFIERS");
+  kms_device_flags = meta_kms_device_get_flags (kms_device);
+  if (kms_device_flags & META_KMS_DEVICE_FLAG_HAS_ADDFB2 &&
+      (kms_modifiers_debug_env ?
+       g_strcmp0 (kms_modifiers_debug_env, "1") == 0 :
+       !(kms_device_flags & META_KMS_DEVICE_FLAG_DISABLE_MODIFIERS)))
+    modifiers = get_supported_kms_modifiers (crtc_kms, format);
+
+  if (modifiers)
+    {
+      gbm_bo = gbm_bo_create_with_modifiers2 (gbm_device,
+                                              width,
+                                              height,
+                                              format,
+                                              (uint64_t *) modifiers->data,
+                                              modifiers->len,
+                                              GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+      drm_buffer_flags = META_DRM_BUFFER_FLAG_NONE;
+    }
+  else
+    {
+      gbm_bo = gbm_bo_create (gbm_device,
+                              width,
+                              height,
+                              format,
+                              GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+      drm_buffer_flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
+    }
+
   if (!gbm_bo)
     {
       g_set_error (error,  G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -3115,7 +3147,10 @@ create_secondary_gpu_buffer (struct gbm_device   *gbm_device,
       return NULL;
     }
 
-  buffer_gbm = meta_drm_buffer_gbm_new_take (device_file, gbm_bo, flags, error);
+  buffer_gbm = meta_drm_buffer_gbm_new_take (device_file,
+                                             gbm_bo,
+                                             drm_buffer_flags,
+                                             error);
   if (!buffer_gbm)
     {
       gbm_bo_destroy (gbm_bo);
@@ -3127,14 +3162,13 @@ create_secondary_gpu_buffer (struct gbm_device   *gbm_device,
 }
 
 static gboolean
-create_secondary_gpu_buffers (MetaRendererNative                   *renderer_native,
+create_secondary_gpu_buffers (CoglOnscreen                         *onscreen,
                               MetaRendererNativeGpuData            *renderer_gpu_data,
                               MetaOnscreenNativeSecondaryGpuState  *secondary_gpu_state,
                               int                                   width,
                               int                                   height,
                               GError                              **error)
 {
-  MetaDrmBufferFlags flags = META_DRM_BUFFER_FLAG_NONE;
   MetaRenderDevice *render_device = renderer_gpu_data->render_device;
   MetaRenderDeviceGbm *render_device_gbm =
     META_RENDER_DEVICE_GBM (render_device);
@@ -3154,9 +3188,6 @@ create_secondary_gpu_buffers (MetaRendererNative                   *renderer_nat
   gbm_device = meta_render_device_gbm_get_gbm_device (render_device_gbm);
   device_file = meta_render_device_get_device_file (render_device);
 
-  if (!meta_renderer_native_use_modifiers (renderer_native))
-    flags = META_DRM_BUFFER_FLAG_DISABLE_MODIFIERS;
-
   for (i = 0; i < G_N_ELEMENTS (gles3_formats); i++)
     {
       format = gles3_formats[i];
@@ -3170,15 +3201,15 @@ create_secondary_gpu_buffers (MetaRendererNative                   *renderer_nat
         }
 
       secondary_gpu_state->gbm.buffer_gbm[0] =
-        create_secondary_gpu_buffer (gbm_device, device_file,
-                                     width, height, format, flags,
+        create_secondary_gpu_buffer (onscreen, gbm_device, device_file,
+                                     width, height, format,
                                      error);
       if (!secondary_gpu_state->gbm.buffer_gbm[0])
         continue;
 
       secondary_gpu_state->gbm.buffer_gbm[1] =
-        create_secondary_gpu_buffer (gbm_device, device_file,
-                                     width, height, format, flags,
+        create_secondary_gpu_buffer (onscreen, gbm_device, device_file,
+                                     width, height, format,
                                      error);
       if (secondary_gpu_state->gbm.buffer_gbm[1])
         break;
@@ -3190,8 +3221,7 @@ create_secondary_gpu_buffers (MetaRendererNative                   *renderer_nat
 }
 
 static gboolean
-init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_native,
-                                        CoglOnscreen               *onscreen,
+init_secondary_gpu_state_gpu_copy_mode (CoglOnscreen               *onscreen,
                                         MetaRendererNativeGpuData  *renderer_gpu_data,
                                         GError                    **error)
 {
@@ -3207,7 +3237,7 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
   secondary_gpu_state->gbm.buffer_index = -2;
 
-  if (!create_secondary_gpu_buffers (renderer_native,
+  if (!create_secondary_gpu_buffers (onscreen,
                                      renderer_gpu_data,
                                      secondary_gpu_state,
                                      cogl_framebuffer_get_width (framebuffer),
@@ -3367,8 +3397,7 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
   switch (renderer_gpu_data->secondary.copy_mode)
     {
     case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
-      if (init_secondary_gpu_state_gpu_copy_mode (renderer_native,
-                                                  onscreen,
+      if (init_secondary_gpu_state_gpu_copy_mode (onscreen,
                                                   renderer_gpu_data,
                                                   &local_error))
         return TRUE;
