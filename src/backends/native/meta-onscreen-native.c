@@ -1740,11 +1740,20 @@ assign_next_frame (MetaOnscreenNative *onscreen_native,
 
   if (onscreen_native->next_frame != NULL)
     {
-      render_source_remove_frame (onscreen_native->render_source,
-                                  onscreen_native->next_frame);
-      clear_superseded_frame (onscreen);
-      onscreen_native->superseded_frame =
-        g_steal_pointer (&onscreen_native->next_frame);
+      if (!onscreen_native->render_source)
+        g_warning_once ("Unexpected non-NULL onscreen_native->next_frame");
+
+      /* This is needed to make sure we lock the correct front buffer for the
+       * new frame, as eglSwapBuffers() swaps what is the active front buffer.
+       *
+       * On Nvidia this will result in potentially synchronously waiting for
+       * pending GPU work.
+       */
+      cogl_framebuffer_flush (COGL_FRAMEBUFFER (onscreen));
+      maybe_post_next_frame (onscreen);
+
+      if (onscreen_native->next_frame != NULL)
+        g_warning_once ("maybe_post_next_frame didn't clear next frame");
     }
 
   onscreen_native->next_frame = clutter_frame_ref (frame);
@@ -1780,24 +1789,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Meta::OnscreenNative::swap_buffers_with_damage()");
-
-  if (onscreen_native->next_frame != NULL)
-    {
-      if (!onscreen_native->render_source)
-        g_warning_once ("Unexpected non-NULL onscreen_native->next_frame");
-
-      /* This is needed to make sure we lock the correct front buffer for the
-       * new frame, as eglSwapBuffers() swaps what is the active front buffer.
-       *
-       * On Nvidia this will result in potentially synchronously waiting for
-       * pending GPU work.
-       */
-      cogl_framebuffer_flush (framebuffer);
-      maybe_post_next_frame (onscreen);
-
-      if (onscreen_native->next_frame != NULL)
-        goto swap_failed;
-    }
 
   assign_next_frame (onscreen_native, frame);
 
@@ -1837,11 +1828,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
     {
       maybe_post_next_frame (onscreen);
     }
-
-  return;
-
-swap_failed:
-  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
 }
 
 static void
