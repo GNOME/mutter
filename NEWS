@@ -1,3 +1,30 @@
+50.1
+====
+* Allow setting paint debug flags from environment [Jonas; !4973]
+* Fix applying pango scale attributes to text [AnonymouX47; !4964]
+* Fix moving minimized maximized windows to a different monitor [Jonas; !4958]
+* Configure primary GPU in headless mode if it does't support KMS [Vivek; !4561]
+* Use fewer buffers for screencast streams [Georges; !4983]
+* Only queue clipped redraws when mapped [Sebastian; !4990]
+* Fix XReconfigureWMWindow() resizing window when not requested [Robert; !5010]
+* Fix DND sometimes failing with reused data sources [Sebastian; !5009]
+* Fix performance regression with some nvidia driver versions [Michel; !5018]
+* Use modifiers for secondary GPU FBOs [Michel; !5019]
+* Fix freeze with nvidia driver [Michel; !5021]
+* Fixed crash [Jonas; !4982]
+* Misc. bug fixes and cleanups [Carlos, Daniel, Jonas, Florian, Bilal, Naveen,
+  Sebastian; !4976, !4985, !4979, !4978, !4987, !5004, !5005, !5006, !5003,
+  !5017]
+
+Contributors:
+  AnonymouX47, Georges Basile Stavracas Neto, Robert Brown, Michel Dänzer,
+  Bilal Elmoussaoui, Carlos Garnacho, Vivek Kasireddy, Sebastian Keller,
+  Naveen Kumar, Florian Müllner, Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Марко Костић [sr], Baptiste Darthenay [eo], Artur S0 [ru],
+  Christian Kirbach [de]
+
 50.0
 ====
 * Ensure DnD cursor offset is applied correctly [Carlos; !4947]
