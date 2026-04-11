@@ -1799,6 +1799,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
         goto swap_failed;
     }
 
+  assign_next_frame (onscreen_native, frame);
+
   secondary_gpu_fb =
     update_secondary_gpu_state_pre_swap_buffers (onscreen, region);
 
@@ -1817,8 +1819,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                           user_data);
 
   sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
-
-  assign_next_frame (onscreen_native, frame);
 
   clutter_frame_set_result (frame,
                             CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
