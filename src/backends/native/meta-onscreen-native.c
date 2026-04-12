@@ -1781,8 +1781,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Meta::OnscreenNative::swap_buffers_with_damage()");
 
-  if (onscreen_native->render_source && onscreen_native->next_frame != NULL)
+  if (onscreen_native->next_frame != NULL)
     {
+      if (!onscreen_native->render_source)
+        g_warning_once ("Unexpected non-NULL onscreen_native->next_frame");
+
       /* This is needed to make sure we lock the correct front buffer for the
        * new frame, as eglSwapBuffers() swaps what is the active front buffer.
        *
@@ -1894,24 +1897,11 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       meta_kms_is_shutting_down (kms))
     return;
 
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-  if (power_save_mode != META_POWER_SAVE_ON)
-    {
-      meta_renderer_native_queue_power_save_page_flip (renderer_native,
-                                                       onscreen);
-      return;
-    }
-
   frame = g_steal_pointer (&onscreen_native->next_frame);
   frame_native = meta_frame_native_from_frame (frame);
   region = meta_frame_native_get_damage (frame_native);
 
   clear_superseded_frame (onscreen);
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-  kms_update = meta_frame_native_ensure_kms_update (frame_native,
-                                                    kms_device);
 
   is_direct_scanout = meta_frame_native_get_scanout (frame_native) != NULL;
   is_swap_buffers = region != NULL;
@@ -2006,6 +1996,20 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
       listener = &swap_buffer_result_listener_vtable;
       flip_flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
     }
+
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+  if (power_save_mode != META_POWER_SAVE_ON)
+    {
+      meta_renderer_native_queue_power_save_page_flip (renderer_native,
+                                                       onscreen);
+      onscreen_native->superseded_frame = g_steal_pointer (&frame);
+      return;
+    }
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  kms_update = meta_frame_native_ensure_kms_update (frame_native,
+                                                    kms_device);
 
   meta_kms_update_add_result_listener (kms_update,
                                        listener,
