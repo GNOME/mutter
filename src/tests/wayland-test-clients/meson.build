@@ -14,6 +14,16 @@ wayland_test_client_utils = [
   test_driver_protocol_code,
 ]
 
+wayland_test_client_utils_deps = [
+  glib_dep,
+  gobject_dep,
+  wayland_client_dep,
+  libdrm_dep,
+  libgbm_dep,
+  m_dep,
+  xkbcommon_dep,
+]
+
 wayland_test_clients = [
   {
     'name': 'buffer-transform',
@@ -166,14 +176,7 @@ test_client_executables = {}
 
 foreach test : wayland_test_clients
   test_name = test['name']
-  deps = [
-    glib_dep,
-    gobject_dep,
-    wayland_client_dep,
-    libdrm_dep,
-    libgbm_dep,
-    m_dep,
-  ]
+  deps = wayland_test_client_utils_deps
   if test.has_key('extra_deps')
     deps += test['extra_deps']
   endif
