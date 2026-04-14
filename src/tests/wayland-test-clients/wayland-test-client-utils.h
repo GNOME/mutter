@@ -63,9 +63,11 @@ typedef struct _WaylandDisplay
   struct wl_pointer *wl_pointer;
   struct wl_keyboard *wl_keyboard;
   struct test_driver *test_driver;
+  struct wl_data_device_manager *data_device_manager;
 
   WaylandSurface *pointer_focus;
   WaylandSurface *keyboard_focus;
+  uint32_t last_input_serial;
 
   gboolean needs_roundtrip;
 
@@ -82,6 +84,11 @@ typedef struct _WaylandDisplay
 
   gpointer test_state;
   GDestroyNotify destroy_test_state;
+
+  GHashTable *selection;
+  struct wl_data_device *data_device;
+  struct wl_data_source *selection_source;
+  struct wl_data_offer  *offer;
 } WaylandDisplay;
 
 #define WAYLAND_TYPE_DISPLAY (wayland_display_get_type ())
@@ -201,3 +208,9 @@ void wayland_buffer_draw_pixel (WaylandBuffer *buffer,
 void * wayland_buffer_mmap_plane (WaylandBuffer *buffer,
                                   int            plane,
                                   size_t        *stride_out);
+
+void wayland_display_set_selection (WaylandDisplay *display,
+                                    ...);
+
+char * wayland_display_read_selection (WaylandDisplay *display,
+                                       const char     *mime_type);

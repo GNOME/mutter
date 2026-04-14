@@ -28,6 +28,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <gio/gio.h>
+#include <gio/gunixinputstream.h>
+#include <gio/gunixoutputstream.h>
 #include <glib/gstdio.h>
 #include <sys/mman.h>
 #include <glib.h>
@@ -39,6 +41,7 @@ enum
 {
   SYNC_EVENT,
   SURFACE_PAINTED,
+  SELECTION_OWNER_CHANGED,
   N_SIGNALS
 };
 
@@ -326,6 +329,7 @@ wl_keyboard_enter (void               *user_data,
   WaylandDisplay *display = user_data;
   WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
 
+  display->last_input_serial = serial;
   display->keyboard_focus = surface;
 
   g_signal_emit (surface, surface_signals[SURFACE_KEYBOARD_ENTER],
@@ -527,6 +531,252 @@ static const struct zwp_linux_dmabuf_v1_listener dmabuf_listener = {
 };
 
 static void
+data_offer_offer (void                 *user_data,
+                  struct wl_data_offer *offer,
+                  const char           *mime_type)
+{
+  GHashTable *mime_types = user_data;
+
+  g_hash_table_add (mime_types, g_strdup (mime_type));
+}
+
+static void
+data_offer_source_actions (void                 *user_data,
+                           struct wl_data_offer *offer,
+                           uint32_t              source_actions)
+{
+}
+
+static void
+data_offer_action (void                 *user_data,
+                   struct wl_data_offer *offer,
+                   uint32_t              action)
+{
+}
+
+static const struct wl_data_offer_listener data_offer_listener = {
+  data_offer_offer,
+  data_offer_source_actions,
+  data_offer_action
+};
+
+static void
+data_device_data_offer (void                  *user_data,
+                        struct wl_data_device *data_device,
+                        struct wl_data_offer  *offer)
+{
+  GHashTable *mime_types;
+
+  mime_types = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                      g_free, NULL);
+  wl_data_offer_add_listener (offer,
+                              &data_offer_listener,
+                              mime_types);
+}
+
+static void
+data_device_enter (void                  *user_data,
+                   struct wl_data_device *data_device,
+                   uint32_t               serial,
+                   struct wl_surface     *surface,
+                   wl_fixed_t             x,
+                   wl_fixed_t             y,
+                   struct wl_data_offer  *offer)
+{
+}
+
+static void
+data_device_leave (void                  *user_data,
+                   struct wl_data_device *data_device)
+{
+}
+
+static void
+data_device_motion (void                  *user_data,
+                    struct wl_data_device *data_device,
+                    uint32_t               time,
+                    wl_fixed_t             x,
+                    wl_fixed_t             y)
+{
+}
+
+static void
+data_device_drop (void                  *user_data,
+                  struct wl_data_device *data_device)
+{
+}
+
+static void
+data_device_selection (void                  *user_data,
+                       struct wl_data_device *wl_data_device,
+                       struct wl_data_offer  *offer)
+{
+  WaylandDisplay *display = user_data;
+
+  if (display->offer)
+    {
+      g_hash_table_unref (wl_data_offer_get_user_data (display->offer));
+      wl_data_offer_destroy (display->offer);
+    }
+  display->offer = offer;
+
+  g_signal_emit (display, signals[SELECTION_OWNER_CHANGED], 0);
+}
+
+static const struct wl_data_device_listener data_device_listener = {
+  data_device_data_offer,
+  data_device_enter,
+  data_device_leave,
+  data_device_motion,
+  data_device_drop,
+  data_device_selection
+};
+
+static void
+data_source_target (void                  *user_data,
+                    struct wl_data_source *source,
+                    const char            *mime_type)
+{
+}
+
+static void
+data_source_send (void                  *user_data,
+                  struct wl_data_source *source,
+                  const char            *mime_type,
+                  int32_t                fd)
+{
+  WaylandDisplay *display = user_data;
+  g_autoptr (GOutputStream) output_stream = NULL;
+  const char *value;
+  GError *error = NULL;
+
+  value = g_hash_table_lookup (display->selection, mime_type);
+  g_assert_nonnull (value);
+
+  g_debug ("Writing '%s'", value);
+  output_stream = g_unix_output_stream_new (fd, TRUE);
+  g_output_stream_write_all (output_stream,
+                             value,
+                             strlen (value) + 1,
+                             NULL, NULL, &error);
+  g_assert_no_error (error);
+}
+
+static void
+data_source_cancelled (void                  *user_data,
+                       struct wl_data_source *source)
+{
+  wl_data_source_destroy(source);
+}
+
+static void
+data_source_dnd_drop_performed (void                  *user_data,
+                                struct wl_data_source *source)
+{
+}
+
+static void
+data_source_dnd_finished (void                  *user_data,
+                          struct wl_data_source *source)
+{
+}
+
+static void
+data_source_action (void                  *user_data,
+		    struct wl_data_source *source,
+                    uint32_t               dnd_action)
+{
+}
+
+static const struct wl_data_source_listener data_source_listener = {
+  data_source_target,
+  data_source_send,
+  data_source_cancelled,
+  data_source_dnd_drop_performed,
+  data_source_dnd_finished,
+  data_source_action
+};
+
+void
+wayland_display_set_selection (WaylandDisplay *display,
+                               ...)
+{
+  struct wl_data_source *source;
+  va_list va_args;
+  GHashTableIter iter;
+  char *mime_type;
+
+  g_hash_table_remove_all (display->selection);
+
+  va_start (va_args, display);
+  while ((mime_type = va_arg (va_args, char *)))
+    {
+      char *value = va_arg (va_args, char *);
+
+      g_hash_table_insert (display->selection,
+                           g_strdup (mime_type),
+                           g_strdup (value));
+    }
+  va_end (va_args);
+
+  source =
+    wl_data_device_manager_create_data_source (display->data_device_manager);
+  wl_data_source_add_listener (source, &data_source_listener, display);
+
+  g_clear_pointer (&display->selection_source, wl_data_source_destroy);
+  display->selection_source = source;
+
+  g_hash_table_iter_init (&iter, display->selection);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &mime_type, NULL))
+    wl_data_source_offer (source, mime_type);
+
+  wl_data_device_set_selection (display->data_device, source,
+                                display->last_input_serial);
+}
+
+static void
+read_bytes_cb (GObject      *source_object,
+               GAsyncResult *result,
+               gpointer      user_data)
+{
+  GInputStream *input_stream = G_INPUT_STREAM (source_object);
+  GBytes **bytes = user_data;
+  GError *error = NULL;
+
+  *bytes = g_input_stream_read_bytes_finish (input_stream, result, &error);
+  g_assert_no_error (error);
+}
+
+char *
+wayland_display_read_selection (WaylandDisplay *display,
+                                const char     *mime_type)
+{
+  struct wl_data_offer *offer = display->offer;
+  int p[2];
+  g_autoptr (GInputStream) input_stream = NULL;
+  GBytes *bytes = NULL;
+  size_t size;
+
+  g_assert_nonnull (offer);
+  g_assert_true (g_hash_table_contains (wl_data_offer_get_user_data (offer),
+                                        mime_type));
+
+  if (pipe2 (p, O_CLOEXEC) == -1)
+    g_assert_not_reached ();
+
+  wl_data_offer_receive (display->offer, mime_type, p[1]);
+  close (p[1]);
+
+  input_stream = g_unix_input_stream_new (p[0], TRUE);
+  g_input_stream_read_bytes_async (input_stream, 8192, G_PRIORITY_DEFAULT,
+                                   NULL, read_bytes_cb, &bytes);
+  while (!bytes)
+    g_main_context_iteration (NULL, TRUE);
+
+  return g_bytes_unref_to_data (bytes, &size);
+}
+
+static void
 handle_registry_global (void               *user_data,
                         struct wl_registry *registry,
                         uint32_t            id,
@@ -640,6 +890,13 @@ handle_registry_global (void               *user_data,
       display->xdg_activation =
         wl_registry_bind (registry, id,
                           &xdg_activation_v1_interface, 1);
+    }
+  else if (strcmp (interface, wl_data_device_manager_interface.name) == 0)
+    {
+      display->data_device_manager =
+        wl_registry_bind (registry, id,
+                          &wl_data_device_manager_interface,
+                          MIN (4, version));
     }
 
   if (display->capabilities & WAYLAND_DISPLAY_CAPABILITY_TEST_DRIVER)
@@ -802,6 +1059,14 @@ wayland_display_new_full (WaylandDisplayCapabilities  capabilities,
       wl_display_roundtrip (display->display);
     }
 
+  display->data_device =
+    wl_data_device_manager_get_data_device (display->data_device_manager,
+                                            display->wl_seat);
+  wl_data_device_add_listener (display->data_device,
+                               &data_device_listener, display);
+  display->selection = g_hash_table_new_full (g_str_hash, g_str_equal,
+                                              g_free, g_free);
+
   g_assert_nonnull (display->compositor);
   g_assert_nonnull (display->subcompositor);
   g_assert_nonnull (display->shm);
@@ -875,6 +1140,7 @@ wayland_display_finalize (GObject *object)
   wl_display_disconnect (display->display);
   g_clear_pointer (&display->properties, g_hash_table_unref);
   g_clear_pointer (&display->formats, g_hash_table_unref);
+  g_clear_pointer (&display->selection, g_hash_table_unref);
 
   G_OBJECT_CLASS (wayland_display_parent_class)->finalize (object);
 }
@@ -906,6 +1172,15 @@ wayland_display_class_init (WaylandDisplayClass *klass)
                   G_TYPE_NONE,
                   1,
                   WAYLAND_TYPE_SURFACE);
+
+  signals[SELECTION_OWNER_CHANGED] =
+    g_signal_new ("selection-owner-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  0);
 }
 
 static void
