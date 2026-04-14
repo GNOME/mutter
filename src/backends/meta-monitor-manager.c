@@ -2474,11 +2474,10 @@ meta_monitor_manager_is_config_applicable (MetaMonitorManager *manager,
               return FALSE;
             }
 
-          if (meta_monitor_is_builtin (monitor) &&
-              meta_backend_is_lid_closed (manager->backend))
+          if (!meta_monitor_is_available (monitor))
             {
               g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                           "Refusing to activate a closed laptop panel");
+                           "Refusing to activate unavailable monitor");
               return FALSE;
             }
         }
@@ -4322,10 +4321,20 @@ meta_monitor_manager_switch_config (MetaMonitorManager          *manager,
 gboolean
 meta_monitor_manager_can_switch_config (MetaMonitorManager *manager)
 {
+  GList *l;
+  int n_available_monitors = 0;
+
   g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager), FALSE);
 
-  return (!meta_backend_is_lid_closed (manager->backend) &&
-          g_list_length (manager->monitors) > 1);
+  for (l = manager->monitors; l; l = l->next)
+    {
+      MetaMonitor *monitor = META_MONITOR (l->data);
+
+      if (meta_monitor_is_available (monitor))
+        n_available_monitors++;
+    }
+
+  return n_available_monitors > 1;
 }
 
 MetaMonitorSwitchConfigType

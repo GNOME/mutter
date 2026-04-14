@@ -173,6 +173,7 @@ void meta_backend_reset_keymap_async (MetaBackend                *backend,
                                       GAsyncReadyCallback         callback,
                                       gpointer                    user_data);
 
+META_EXPORT_TEST
 gboolean meta_backend_is_lid_closed (MetaBackend *backend);
 
 void meta_backend_set_client_pointer_constraint (MetaBackend *backend,

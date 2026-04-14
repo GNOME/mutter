@@ -501,6 +501,12 @@ meta_check_monitor_configuration (MetaContext           *context,
       else
         g_assert_false (meta_monitor_is_active (monitor));
 
+      if (meta_monitor_is_builtin (monitor) &&
+          meta_backend_is_lid_closed (backend))
+        g_assert_false (meta_monitor_is_available (monitor));
+      else
+        g_assert_true (meta_monitor_is_available (monitor));
+
       if (current_mode)
         {
           CheckMonitorModeData data;

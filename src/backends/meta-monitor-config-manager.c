@@ -445,15 +445,6 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
   return TRUE;
 }
 
-static gboolean
-is_lid_closed (MetaMonitorManager *monitor_manager)
-{
-    MetaBackend *backend;
-
-    backend = meta_monitor_manager_get_backend (monitor_manager);
-    return meta_backend_is_lid_closed (backend);
-}
-
 MetaMonitorsConfigKey *
 meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_manager)
 {
@@ -469,13 +460,11 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
 
-      if (meta_monitor_is_builtin (monitor))
-        {
-          laptop_monitor_spec = meta_monitor_get_spec (monitor);
+      if (!meta_monitor_is_available (monitor))
+        continue;
 
-          if (is_lid_closed (monitor_manager))
-            continue;
-        }
+      if (meta_monitor_is_builtin (monitor))
+        laptop_monitor_spec = meta_monitor_get_spec (monitor);
 
       monitor_spec = meta_monitor_spec_clone (meta_monitor_get_spec (monitor));
       monitor_specs = g_list_prepend (monitor_specs, monitor_spec);
@@ -526,7 +515,7 @@ typedef enum _MonitorMatchRule
   MONITOR_MATCH_ALL = 0,
   MONITOR_MATCH_EXTERNAL = (1 << 0),
   MONITOR_MATCH_BUILTIN = (1 << 1),
-  MONITOR_MATCH_VISIBLE = (1 << 2),
+  MONITOR_MATCH_AVAILABLE = (1 << 2),
   MONITOR_MATCH_WITH_SUGGESTED_POSITION = (1 << 3),
   MONITOR_MATCH_PRIMARY = (1 << 4),
   MONITOR_MATCH_ALLOW_FALLBACK = (1 << 5),
@@ -551,10 +540,9 @@ monitor_matches_rule (MetaMonitor        *monitor,
         return FALSE;
     }
 
-  if (match_rule & MONITOR_MATCH_VISIBLE)
+  if (match_rule & MONITOR_MATCH_AVAILABLE)
     {
-      if (meta_monitor_is_builtin (monitor) &&
-          is_lid_closed (monitor_manager))
+      if (!meta_monitor_is_available (monitor))
         return FALSE;
     }
 
@@ -925,7 +913,7 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
   int x, y;
 
   primary_monitor = find_primary_monitor (monitor_manager,
-                                          match_rule | MONITOR_MATCH_VISIBLE);
+                                          match_rule | MONITOR_MATCH_AVAILABLE);
   if (!primary_monitor)
     return NULL;
 
@@ -997,7 +985,7 @@ MetaMonitorsConfig *
 meta_monitor_config_manager_create_linear (MetaMonitorConfigManager *config_manager)
 {
   return create_monitors_config (config_manager,
-                                 MONITOR_MATCH_VISIBLE |
+                                 MONITOR_MATCH_AVAILABLE |
                                  MONITOR_MATCH_ALLOW_FALLBACK,
                                  MONITOR_POSITIONING_LINEAR,
                                  META_MONITORS_CONFIG_FLAG_NONE);
@@ -1919,7 +1907,7 @@ meta_logical_monitor_configs_have_visible_monitor (MetaMonitorManager *monitor_m
 {
   MetaMonitorSpec *monitor_spec;
 
-  if (!monitor_matches_rule (monitor, monitor_manager, MONITOR_MATCH_VISIBLE))
+  if (!monitor_matches_rule (monitor, monitor_manager, MONITOR_MATCH_AVAILABLE))
     return TRUE;
 
   monitor_spec = meta_monitor_get_spec (monitor);

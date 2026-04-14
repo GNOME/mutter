@@ -372,6 +372,18 @@ meta_monitor_is_active (MetaMonitor *monitor)
   return !!priv->current_mode;
 }
 
+gboolean
+meta_monitor_is_available (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  if (meta_monitor_is_builtin (monitor) &&
+      meta_backend_is_lid_closed (priv->backend))
+    return FALSE;
+
+  return TRUE;
+}
+
 /**
  * meta_monitor_is_primary:
  * @monitor: A #MetaMonitor object

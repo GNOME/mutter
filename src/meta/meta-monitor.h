@@ -29,6 +29,9 @@ META_EXPORT
 gboolean meta_monitor_is_active (MetaMonitor *monitor);
 
 META_EXPORT
+gboolean meta_monitor_is_available (MetaMonitor *monitor);
+
+META_EXPORT
 const char * meta_monitor_get_display_name (MetaMonitor *monitor);
 
 META_EXPORT
