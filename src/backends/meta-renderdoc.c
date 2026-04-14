@@ -86,7 +86,8 @@ capture_onscreen_end (MetaRenderdoc    *renderdoc,
   meta_topic (META_DEBUG_BACKEND, "Renderdoc is ending capture of %p %p",
               device, window);
 
-  renderdoc->api->EndFrameCapture (device, window);
+  if (renderdoc->api->EndFrameCapture (device, window) == 0)
+    g_warning ("Renderdoc capture failed");
 }
 
 static void
