@@ -15,6 +15,7 @@ wayland_test_client_utils = [
 ]
 
 wayland_test_client_utils_deps = [
+  gio_unix_dep,
   glib_dep,
   gobject_dep,
   wayland_client_dep,
