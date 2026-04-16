@@ -1347,6 +1347,7 @@ stacking_tests = [
   'fullscreen-after-tiled',
   'shake-loose-and-insta-maximize',
   'move-maximized-to-monitor',
+  'unmaximize-headless',
 ]
 
 foreach stacking_test: stacking_tests

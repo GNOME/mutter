@@ -166,19 +166,29 @@ test_case_dispatch (TestCase *test,
   MetaDisplay *display = meta_context_get_display (test->context);
   MetaCompositor *compositor = meta_display_get_compositor (display);
   MetaLaters *laters = meta_compositor_get_laters (compositor);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
-  /* Wait until we've done any outstanding queued up work.
-   * Though we add this as BEFORE_REDRAW, the iteration that runs the
-   * BEFORE_REDRAW idles will proceed on and do the redraw, so we're
-   * waiting until after *all* frame processing.
-   */
-  meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
-                   test_case_loop_quit,
-                   test,
-                   NULL);
+  if (meta_monitor_manager_is_headless (monitor_manager))
+    {
+      while (g_main_context_iteration (NULL, FALSE))
+        ;
+    }
+  else
+    {
+      /* Wait until we've done any outstanding queued up work.
+       * Though we add this as BEFORE_REDRAW, the iteration that runs the
+       * BEFORE_REDRAW idles will proceed on and do the redraw, so we're
+       * waiting until after *all* frame processing.
+       */
+      meta_laters_add (laters, META_LATER_BEFORE_REDRAW,
+                       test_case_loop_quit,
+                       test,
+                       NULL);
 
-  clutter_stage_schedule_update (CLUTTER_STAGE (stage));
-  g_main_loop_run (test->loop);
+      clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+      g_main_loop_run (test->loop);
+    }
 
   return TRUE;
 }
