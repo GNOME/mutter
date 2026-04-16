@@ -34,6 +34,10 @@
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "backends/meta-input-settings-private.h"
 
+#ifdef HAVE_XWAYLAND
+#include "wayland/meta-xwayland.h"
+#endif
+
 #include "tablet-v2-server-protocol.h"
 
 #define TABLET_AXIS_MAX 65535
@@ -497,6 +501,8 @@ tool_set_cursor (struct wl_client   *client,
       MetaBackend *backend = backend_from_tool (tool);
       MetaWaylandCursorSurface *cursor_surface;
       MetaCursorRenderer *cursor_renderer;
+      int32_t hot_x = hotspot_x;
+      int32_t hot_y = hotspot_y;
 
       cursor_renderer =
         meta_backend_get_cursor_renderer_for_sprite (backend, tablet->sprite);
@@ -504,8 +510,22 @@ tool_set_cursor (struct wl_client   *client,
       cursor_surface = META_WAYLAND_CURSOR_SURFACE (surface->role);
       meta_wayland_cursor_surface_set_renderer (cursor_surface,
                                                 cursor_renderer);
+
+#ifdef HAVE_XWAYLAND
+      if (meta_wayland_surface_is_xwayland (surface))
+        {
+          MetaXWaylandManager *xwayland_manager =
+            &surface->compositor->xwayland_manager;
+          int scale;
+
+          scale = meta_xwayland_get_effective_scale (xwayland_manager);
+          hot_x = (int32_t) round (hot_x / (double) scale);
+          hot_y = (int32_t) round (hot_y / (double) scale);
+        }
+#endif
+
       meta_wayland_cursor_surface_set_hotspot (cursor_surface,
-                                               hotspot_x, hotspot_y);
+                                               hot_x, hot_y);
     }
 
   tool->cursor_shape = CLUTTER_CURSOR_INHERIT;
