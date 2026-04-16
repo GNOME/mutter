@@ -1407,6 +1407,7 @@ stacking_tests = [
   'shake-loose-and-insta-maximize',
   'move-maximized-to-monitor',
   'barrier-race',
+  'unmaximize-headless',
 ]
 
 foreach stacking_test: stacking_tests
