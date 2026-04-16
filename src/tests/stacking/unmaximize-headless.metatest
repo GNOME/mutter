@@ -1,0 +1,61 @@
+set_pref center-new-windows true
+
+# Test unmaximizing when there is no monitor to place on
+
+new_client w wayland
+create w/1 csd
+resize w/1 200 200
+maximize w/1
+show w/1
+wait
+
+remove_monitor default
+
+unmaximize w/1
+wait_reconfigure w/1
+
+add_monitor default 800 600
+wait_reconfigure w/1
+assert_size w/1 200 200
+# Incorrect placement expected.
+#assert_position w/1 300 200
+
+remove_monitor default
+
+maximize w/1
+wait_reconfigure w/1
+
+add_monitor default 1024 768
+wait_reconfigure w/1
+assert_size w/1 1024 768
+assert_position w/1 0 0
+
+# Same test with an X11 client
+
+new_client x x11
+create x/1 csd
+resize x/1 200 200
+maximize x/1
+show x/1
+wait
+
+remove_monitor default
+
+unmaximize x/1
+wait_reconfigure x/1
+
+add_monitor default 800 600
+wait_reconfigure x/1
+assert_size x/1 200 200
+# Incorrect placement expected.
+#assert_position x/1 300 200
+
+remove_monitor default
+
+maximize x/1
+wait_reconfigure x/1
+
+add_monitor default 1024 768
+wait_reconfigure x/1
+assert_size x/1 1024 768
+assert_position x/1 0 0
