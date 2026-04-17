@@ -3451,6 +3451,7 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
       gboolean has_desired_rect = FALSE;
       MtkRectangle target_rect;
       MtkRectangle work_area;
+      gboolean has_work_area = FALSE;
       MtkRectangle old_frame_rect, old_buffer_rect;
       gboolean has_target_size;
       MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
@@ -3460,7 +3461,11 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
 
       reset_pending_auto_maximize (window);
 
-      meta_window_get_work_area_current_monitor (window, &work_area);
+      if (window->monitor)
+        {
+          meta_window_get_work_area_current_monitor (window, &work_area);
+          has_work_area = TRUE;
+        }
       meta_window_get_frame_rect (window, &old_frame_rect);
       meta_window_get_buffer_rect (window, &old_buffer_rect);
 
@@ -3516,6 +3521,7 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
        */
       if (unmaximize_horizontally && unmaximize_vertically &&
           has_desired_rect &&
+          has_work_area &&
           desired_rect.width * desired_rect.height >
           work_area.width * work_area.height * MAX_UNMAXIMIZED_WINDOW_AREA)
         {
@@ -3580,7 +3586,7 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
 
       meta_window_recalc_features (window);
       set_net_wm_state (window);
-      if (!window->monitor->in_fullscreen)
+      if (window->monitor && !window->monitor->in_fullscreen)
         meta_display_queue_check_fullscreen (window->display);
     }
 
