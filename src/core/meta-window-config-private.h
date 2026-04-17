@@ -29,8 +29,6 @@ typedef enum
   META_TILE_MAXIMIZED
 } MetaTileMode;
 
-MetaWindowConfig * meta_window_config_initial_new (void);
-
 MetaWindowConfig * meta_window_config_new_from (MetaWindowConfig *other_config);
 
 void meta_window_config_set_initial (MetaWindowConfig *config);
@@ -88,3 +86,6 @@ void meta_window_config_set_saved_rect (MetaWindowConfig *config,
                                         MtkRectangle      saved_rect);
 
 const MtkRectangle * meta_window_config_get_saved_rect (MetaWindowConfig *config);
+
+void meta_window_config_set_from (MetaWindowConfig *config,
+                                  MetaWindowConfig *other);

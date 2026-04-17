@@ -447,14 +447,15 @@ meta_wayland_xdg_session_state_restore_window (MetaSessionState *state,
     case WINDOW_STATE_NONE:
       break;
     case WINDOW_STATE_FLOATING:
-      window->placed = TRUE;
+      {
+        g_autoptr (MetaWindowConfig) config = NULL;
 
-      meta_window_move_resize (window,
-                               (META_MOVE_RESIZE_MOVE_ACTION |
-                                META_MOVE_RESIZE_RESIZE_ACTION |
-                                META_MOVE_RESIZE_CONSTRAIN),
-                               *rect);
-      break;
+        config = meta_window_config_new_from (window->config);
+        meta_window_config_set_position (config, rect->x, rect->y);
+        meta_window_config_set_size (config, rect->width, rect->height);
+        meta_window_process_config (window, config);
+        break;
+      }
     case WINDOW_STATE_TILED_LEFT:
       meta_window_tile (window, META_TILE_LEFT);
       break;

@@ -917,6 +917,8 @@ void meta_window_update_tile_fraction (MetaWindow *window,
                                        int         new_w,
                                        int         new_h);
 
+MetaWindowConfig * meta_window_take_pending_config (MetaWindow *window);
+
 void meta_window_process_config (MetaWindow       *window,
                                  MetaWindowConfig *config);
 
@@ -950,3 +952,7 @@ void meta_window_set_target_monitor (MetaWindow         *window,
 
 void meta_window_set_target_monitor_from_number (MetaWindow *window,
                                                  int         number);
+
+void meta_window_notify_ready (MetaWindow *window);
+
+gboolean meta_window_is_ready (MetaWindow *window);

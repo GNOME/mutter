@@ -768,6 +768,7 @@ reload_net_wm_state (MetaWindow    *window,
   MetaX11Display *x11_display = window->display->x11_display;
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
+  g_autoptr (MetaWindowConfig) config = NULL;
   gboolean maximize_horizontally = FALSE;
   gboolean maximize_vertically = FALSE;
   int i;
@@ -780,8 +781,20 @@ reload_net_wm_state (MetaWindow    *window,
       return;
     }
 
-  meta_window_config_set_maximized_directions (window->config, FALSE, FALSE);
-  meta_window_config_set_is_fullscreen (window->config, FALSE);
+  if (meta_window_is_ready (window))
+    {
+      config = meta_window_config_new_from (window->config);
+    }
+  else
+    {
+      if (!priv->wm_state_config)
+        priv->wm_state_config = meta_window_config_new_from (window->config);
+      config = g_object_ref (priv->wm_state_config);
+    }
+
+  meta_window_config_set_maximized_directions (config, FALSE, FALSE);
+  meta_window_config_set_is_fullscreen (config, FALSE);
+
   priv->wm_state_modal = FALSE;
   priv->wm_state_skip_taskbar = FALSE;
   priv->wm_state_skip_pager = FALSE;
@@ -809,7 +822,7 @@ reload_net_wm_state (MetaWindow    *window,
         priv->wm_state_skip_pager = TRUE;
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_FULLSCREEN)
         {
-          meta_window_config_set_is_fullscreen (window->config, TRUE);
+          meta_window_config_set_is_fullscreen (config, TRUE);
           g_object_notify (G_OBJECT (window), "fullscreen");
         }
       else if (value->v.atom_list.atoms[i] == x11_display->atom__NET_WM_STATE_ABOVE)
@@ -824,9 +837,12 @@ reload_net_wm_state (MetaWindow    *window,
       ++i;
     }
 
-  meta_window_config_set_maximized_directions (window->config,
+  meta_window_config_set_maximized_directions (config,
                                                maximize_horizontally,
                                                maximize_vertically);
+
+  if (meta_window_is_ready (window))
+    meta_window_config_set_from (window->config, config);
 
   meta_topic (META_DEBUG_X11,
               "Reloaded _NET_WM_STATE for %s",

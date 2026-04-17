@@ -407,17 +407,6 @@ meta_window_config_new (void)
 }
 
 MetaWindowConfig *
-meta_window_config_initial_new (void)
-{
-  MetaWindowConfig *window_config;
-
-  window_config = meta_window_config_new ();
-  window_config->is_initial = TRUE;
-
-  return window_config;
-}
-
-MetaWindowConfig *
 meta_window_config_new_from (MetaWindowConfig *other_config)
 {
   MetaWindowConfig *config;
@@ -490,4 +479,21 @@ meta_window_config_get_saved_rect (MetaWindowConfig *config)
     return &config->saved_rect;
   else
     return NULL;
+}
+
+void
+meta_window_config_set_from (MetaWindowConfig *config,
+                             MetaWindowConfig *other)
+{
+  config->rect = other->rect;
+  config->has_position = other->has_position;
+
+  config->is_fullscreen = other->is_fullscreen;
+  config->maximize_flags = other->maximize_flags;
+  config->tile_mode = other->tile_mode;
+  config->tile_monitor_number = other->tile_monitor_number;
+  config->tile_hfraction = other->tile_hfraction;
+  config->tile_match = other->tile_match;
+  config->saved_rect = other->saved_rect;
+  config->has_saved_rect = other->has_saved_rect;
 }

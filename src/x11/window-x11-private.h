@@ -107,6 +107,8 @@ struct _MetaWindowX11Private
 
   char *wm_client_machine;
   char *sm_client_id;
+
+  MetaWindowConfig *wm_state_config;
 };
 
 MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);

@@ -548,6 +548,11 @@ meta_window_x11_initialize_state (MetaWindow *window)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+  MetaWindowConfig *config;
+
+  config = priv->wm_state_config;
+  if (!config)
+    config = window->config;
 
   /* For override-redirect windows, save the client rect
    * directly. window->config->rect was assigned from the XWindowAttributes
@@ -556,36 +561,30 @@ meta_window_x11_initialize_state (MetaWindow *window)
    * For normal windows, do a full ConfigureRequest based on the
    * window hints, as that's what the ICCCM says to do.
    */
-  priv->client_rect = meta_window_config_get_rect (window->config);
-  window->buffer_rect = meta_window_config_get_rect (window->config);
 
-  if (!window->override_redirect)
+  if (window->override_redirect)
+    {
+      priv->client_rect = meta_window_config_get_rect (config);
+      window->buffer_rect = meta_window_config_get_rect (config);
+    }
+  else
     {
       MtkRectangle rect;
-      MetaMoveResizeFlags flags;
-      MetaSizeHintsFlags size_hints_flags;
       MetaGravity gravity = window->size_hints.win_gravity;
-      MetaPlaceFlag place_flags = META_PLACE_FLAG_NONE;
 
       rect.x = window->size_hints.x;
       rect.y = window->size_hints.y;
       rect.width = window->size_hints.width;
       rect.height = window->size_hints.height;
 
-      flags = (META_MOVE_RESIZE_CONFIGURE_REQUEST |
-               META_MOVE_RESIZE_MOVE_ACTION |
-               META_MOVE_RESIZE_RESIZE_ACTION |
-               META_MOVE_RESIZE_CONSTRAIN);
-
-      size_hints_flags = window->size_hints.flags;
-      if (!(size_hints_flags & META_SIZE_HINTS_USER_POSITION) &&
-          !meta_window_config_get_is_fullscreen (window->config))
-        flags |= META_MOVE_RESIZE_RECT_INVALID;
-
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
 
-      meta_window_move_resize_internal (window, flags, place_flags, rect, NULL);
+      meta_window_config_set_size (config, rect.width, rect.height);
+
+      if (window->size_hints.flags & META_SIZE_HINTS_USER_POSITION ||
+          meta_window_config_get_is_fullscreen (config))
+        meta_window_config_set_position (config, rect.x, rect.y);
     }
 
   meta_window_x11_update_shape_region (window);
@@ -2197,6 +2196,7 @@ meta_window_x11_finalize (GObject *object)
   MetaWindowX11 *win = META_WINDOW_X11 (object);
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (win);
 
+  g_clear_object (&priv->wm_state_config);
   g_clear_pointer (&priv->shape_region, mtk_region_unref);
   g_clear_pointer (&priv->input_region, mtk_region_unref);
   g_clear_pointer (&priv->opaque_region, mtk_region_unref);
@@ -2907,6 +2907,7 @@ meta_window_move_resize_request (MetaWindow  *window,
 
       adjust_for_gravity (window, TRUE, gravity, &rect);
       meta_window_client_rect_to_frame_rect (window, &rect, &rect);
+      meta_window_notify_ready (window);
       meta_window_move_resize (window, flags, rect);
     }
 }
@@ -4671,12 +4672,22 @@ meta_window_x11_shutdown_group (MetaWindow *window)
 void
 meta_window_x11_configure (MetaWindow *window)
 {
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_private (window_x11);
   g_autoptr (MetaWindowConfig) window_config = NULL;
   MtkRectangle new_rect;
 
-  window_config = meta_window_config_new_from (window->config);
+  window_config = meta_window_take_pending_config (window);
+  if (!window_config)
+    window_config = meta_window_config_new_from (window->config);
   if (window->showing_for_first_time)
     meta_window_config_set_initial (window_config);
+
+  if (priv->wm_state_config)
+    {
+      meta_window_config_set_from (window_config, priv->wm_state_config);
+      g_clear_object (&priv->wm_state_config);
+    }
   meta_window_emit_configure (window, window_config);
 
   new_rect = meta_window_config_get_rect (window_config);
@@ -4687,12 +4698,26 @@ meta_window_x11_configure (MetaWindow *window)
 
   if (meta_window_config_has_position (window_config))
     {
+      MetaDisplay *display = meta_window_get_display (window);
+      MetaContext *context = meta_display_get_context (display);
+      MetaBackend *backend = meta_context_get_backend (context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      MetaLogicalMonitor *logical_monitor;
+
       window->size_hints.x = new_rect.x;
       window->size_hints.y = new_rect.y;
       window->size_hints.width = new_rect.width;
       window->size_hints.height = new_rect.height;
+
+      logical_monitor =
+        meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                            &new_rect);
+      if (logical_monitor)
+        meta_window_set_target_monitor (window, logical_monitor);
     }
 
-  meta_window_apply_config (window, window_config,
-                            META_WINDOW_APPLY_FLAG_NONE);
+  meta_window_notify_ready (window);
+  if (!window->override_redirect)
+    meta_window_process_config (window, window_config);
 }

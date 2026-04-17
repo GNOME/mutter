@@ -191,6 +191,8 @@ typedef struct _MetaWindowPrivate
   GHashTable *external_constraints;
 
   MetaWindowConfig *pending_config;
+
+  gboolean is_ready;
 } MetaWindowPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindow, meta_window, G_TYPE_OBJECT,
@@ -4327,6 +4329,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
    * to the client.
    */
 
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -4345,6 +4348,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
   MetaGravity gravity;
 
   g_return_if_fail (!window->override_redirect);
+
+  g_warn_if_fail (priv->is_ready);
 
   /* The action has to be a move, a resize or the wayland client
    * acking our choice of size.
@@ -4786,6 +4791,9 @@ meta_window_idle_move_resize (MetaWindow *window)
   meta_window_unqueue (window, META_QUEUE_MOVE_RESIZE);
 
   if (meta_monitor_manager_is_headless (monitor_manager))
+    return;
+
+  if (!meta_window_is_ready (window))
     return;
 
   if (priv->pending_config)
@@ -8809,31 +8817,74 @@ meta_window_queue_config (MetaWindow       *window,
   g_set_object (&priv->pending_config, config);
 }
 
+MetaWindowConfig *
+meta_window_take_pending_config (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  return g_steal_pointer (&priv->pending_config);
+}
+
 void
 meta_window_process_config (MetaWindow       *window,
                             MetaWindowConfig *config)
 {
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
   MetaBackend *backend = backend_from_window (window);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  gboolean did_apply = FALSE;
 
-  g_return_if_fail (!meta_window_config_has_position (config));
-
-  if (meta_monitor_manager_is_headless (monitor_manager))
+  if (meta_monitor_manager_is_headless (monitor_manager) ||
+      !priv->is_ready)
     {
       meta_window_queue_config (window, config);
       return;
     }
 
   if (tile_config_changed (window, config))
-    apply_tile_config (window, config);
+    {
+      apply_tile_config (window, config);
+      did_apply = TRUE;
+    }
   else if (meta_window_config_get_maximize_flags (config) !=
            meta_window_config_get_maximize_flags (window->config))
-    apply_maximize_config (window, config);
+    {
+      apply_maximize_config (window, config);
+      did_apply = TRUE;
+    }
 
   if (meta_window_config_get_is_fullscreen (config) !=
       meta_window_config_get_is_fullscreen (window->config))
-    apply_fullscreen_config (window, config);
+    {
+      apply_fullscreen_config (window, config);
+      did_apply = TRUE;
+    }
+
+  if (!did_apply &&
+      meta_window_config_is_floating (config) &&
+      !window->override_redirect)
+    {
+      MtkRectangle rect = meta_window_config_get_rect (config);
+
+      if (meta_window_config_has_position (config))
+        {
+          window->placed = TRUE;
+
+          meta_window_move_resize (window,
+                                   (META_MOVE_RESIZE_MOVE_ACTION |
+                                    META_MOVE_RESIZE_RESIZE_ACTION |
+                                    META_MOVE_RESIZE_CONSTRAIN),
+                                   rect);
+        }
+      else
+        {
+          meta_window_move_resize (window,
+                                   (META_MOVE_RESIZE_RESIZE_ACTION |
+                                    META_MOVE_RESIZE_CONSTRAIN),
+                                   rect);
+        }
+    }
 }
 
 MetaGravity
@@ -9165,4 +9216,20 @@ meta_window_set_target_monitor_from_number (MetaWindow *window,
     meta_monitor_manager_get_logical_monitor_from_number (monitor_manager,
                                                           number);
   meta_window_set_target_monitor (window, logical_monitor);
+}
+
+void
+meta_window_notify_ready (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  priv->is_ready = TRUE;
+}
+
+gboolean
+meta_window_is_ready (MetaWindow *window)
+{
+  MetaWindowPrivate *priv = meta_window_get_instance_private (window);
+
+  return priv->is_ready;
 }
