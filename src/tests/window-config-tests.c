@@ -195,8 +195,8 @@ on_configure_position_size (MetaWindow       *window,
       return;
     }
 
-  /* Set the window to be not fullscreen in the initial configuration */
   meta_window_config_set_is_fullscreen (window_config, FALSE);
+  meta_window_config_unset_maximize_flags (window_config, META_MAXIMIZE_BOTH);
 
   /* Set specific position and size for the window */
   meta_window_config_set_position (window_config, 50, 75);
@@ -212,6 +212,7 @@ test_meta_window_config_position_and_size (MetaWindowClientType client_type)
   g_autoptr (GError) error = NULL;
   MetaTestClient *test_client;
   MetaWindow *window;
+  MetaWindowConfig *window_config;
   MtkRectangle rect;
   int surface_width;
   int surface_height;
@@ -241,8 +242,10 @@ test_meta_window_config_position_and_size (MetaWindowClientType client_type)
 
   wait_for_window_added (window);
 
-  /* Verify the window is not fullscreen */
   g_assert_false (meta_window_is_fullscreen (window));
+
+  window_config = window->config;
+  g_assert_false (meta_window_config_is_any_maximized (window_config));
 
   /* Verify the window has the correct position and size */
   meta_window_get_buffer_rect (window, &rect);
@@ -283,6 +286,82 @@ test_meta_window_config_position_and_size_x11 (void)
 }
 
 static void
+test_meta_window_config_override_initial_client_config (MetaWindowClientType client_type)
+{
+  MetaDisplay *display = meta_context_get_display (test_context);
+  g_autoptr (GError) error = NULL;
+  MetaTestClient *test_client;
+  MetaWindow *window;
+  MtkRectangle rect;
+  int surface_width;
+  int surface_height;
+
+  g_signal_connect (display, "window-created",
+                    G_CALLBACK (on_window_created),
+                    on_configure_position_size);
+
+  test_client = meta_test_client_new (test_context,
+                                      "window-config-test-client",
+                                      client_type,
+                                      &error);
+  g_assert_no_error (error);
+
+  meta_test_client_run (test_client,
+                        "create " TEST_CLIENT_TITLE " csd\n"
+                        "maximize " TEST_CLIENT_TITLE "\n"
+                        "show " TEST_CLIENT_TITLE "\n");
+
+  /* Wait for the window to be created */
+  while (!(window = meta_test_client_find_window (test_client,
+                                                  TEST_CLIENT_TITLE,
+                                                  NULL)))
+    g_main_context_iteration (NULL, TRUE);
+  g_object_add_weak_pointer (G_OBJECT (window), (gpointer *) &window);
+
+  wait_for_window_added (window);
+
+  /* Verify the window is not fullscreen */
+  g_assert_false (meta_window_is_fullscreen (window));
+
+  /* Verify the window has the correct position and size */
+  meta_window_get_buffer_rect (window, &rect);
+  g_assert_cmpint (rect.x, ==, 50);
+  g_assert_cmpint (rect.y, ==, 75);
+  g_assert_cmpint (rect.width, ==, 300);
+  g_assert_cmpint (rect.height, ==, 200);
+
+  /* Verify the surface size matches the expected size */
+  get_window_surface_size (window, &surface_width, &surface_height);
+  g_assert_cmpint (surface_width, ==, 300);
+  g_assert_cmpint (surface_height, ==, 200);
+
+  g_debug ("Position/size test passed - window has correct position (%d, %d) and size (%d, %d)",
+           rect.x, rect.y, rect.width, rect.height);
+
+  meta_test_client_destroy (test_client);
+
+  /* Wait for the window to be removed */
+  while (window)
+    g_main_context_iteration (NULL, TRUE);
+}
+
+static void
+test_meta_window_config_override_initial_client_config_wayland (void)
+{
+  test_meta_window_config_override_initial_client_config (META_WINDOW_CLIENT_TYPE_WAYLAND);
+}
+
+static void
+test_meta_window_config_override_initial_client_config_x11 (void)
+{
+#ifdef MUTTER_PRIVILEGED_TEST
+  g_test_skip ("Running Xwayland in CI KVM doesn't work currently");
+#else
+  test_meta_window_config_override_initial_client_config (META_WINDOW_CLIENT_TYPE_X11);
+#endif
+}
+
+static void
 on_before_tests (void)
 {
   MetaWaylandCompositor *compositor =
@@ -311,6 +390,10 @@ init_tests (void)
                    test_meta_window_config_position_and_size_wayland);
   g_test_add_func ("/wm/window/window-config/position-and-size/x11",
                    test_meta_window_config_position_and_size_x11);
+  g_test_add_func ("/wm/window/window-config/override-initial-client-config/wayland",
+                   test_meta_window_config_override_initial_client_config_wayland);
+  g_test_add_func ("/wm/window/window-config/override-initial-client-config/x11",
+                   test_meta_window_config_override_initial_client_config_x11);
 }
 
 int
