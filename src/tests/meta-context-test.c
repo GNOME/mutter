@@ -284,6 +284,7 @@ meta_context_test_run_tests (MetaContextTest  *context_test,
   MetaPluginManager *plugin_manager;
   MetaPlugin *plugin;
   g_autoptr (GError) error = NULL;
+  g_autoptr (MetaVirtualMonitor) virtual_monitor = NULL;
 
   if (!meta_context_setup (context, &error))
     {
@@ -322,6 +323,29 @@ meta_context_test_run_tests (MetaContextTest  *context_test,
 
   if (priv->flags & META_CONTEXT_TEST_FLAG_NO_ANIMATIONS)
     meta_test_shell_disable_animations (META_TEST_SHELL (plugin));
+
+  if (priv->flags & META_CONTEXT_TEST_FLAG_ADD_MONITOR)
+    {
+      MetaBackend *backend = meta_context_get_backend (context);
+      MetaMonitorManager *monitor_manager =
+        meta_backend_get_monitor_manager (backend);
+      g_autoptr (MetaVirtualMonitorInfo) info = NULL;
+
+      info = meta_virtual_monitor_info_new_simple (800, 600, 60.0f,
+                                                   "Test vendor",
+                                                   "Test monitor",
+                                                   "0x7357");
+      virtual_monitor =
+        meta_monitor_manager_create_virtual_monitor (monitor_manager,
+                                                     info,
+                                                     &error);
+      if (!virtual_monitor)
+        {
+          g_printerr ("Failed to create test monitor: %s", error->message);
+          return EXIT_FAILURE;
+        }
+      meta_monitor_manager_reload (monitor_manager);
+    }
 
   g_idle_add (run_tests_idle, context_test);
 
