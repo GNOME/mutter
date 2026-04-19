@@ -23,7 +23,8 @@
 #include "tests/meta-wayland-test-utils.h"
 
 static void
-data_device_dnd_feedback_request_order (void)
+click_on_client_window (const char *test_client,
+                        const char *window_title)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
   ClutterSeat *seat = meta_backend_get_default_seat (backend);
@@ -36,12 +37,13 @@ data_device_dnd_feedback_request_order (void)
   virtual_pointer = clutter_seat_create_virtual_device (seat,
                                                         CLUTTER_POINTER_DEVICE);
 
-  wayland_test_client = meta_wayland_test_client_new (test_context, "dnd-order");
+  wayland_test_client = meta_wayland_test_client_new (test_context,
+                                                      test_client);
 
   while (!window)
     {
       g_main_context_iteration (NULL, TRUE);
-      window = meta_find_window_from_title (test_context, "dnd");
+      window = meta_find_window_from_title (test_context, window_title);
     }
   while (meta_window_is_hidden (window))
     g_main_context_iteration (NULL, TRUE);
@@ -63,10 +65,24 @@ data_device_dnd_feedback_request_order (void)
 }
 
 static void
+data_device_dnd_feedback_request_order (void)
+{
+  click_on_client_window ("dnd-order", "dnd");
+}
+
+static void
+data_device_dnd_feedback_reuse_icon (void)
+{
+  click_on_client_window ("dnd-reuse-icon", "dnd");
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/data-device/dnd/feedback/request-order",
                    data_device_dnd_feedback_request_order);
+  g_test_add_func ("/wayland/data-device/dnd/feedback/reuse-icon",
+                   data_device_dnd_feedback_reuse_icon);
 }
 
 int

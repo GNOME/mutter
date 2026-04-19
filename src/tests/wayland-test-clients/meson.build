@@ -168,6 +168,9 @@ wayland_test_clients = [
   {
     'name': 'dnd-order',
   },
+  {
+    'name': 'dnd-reuse-icon',
+  },
 ]
 
 test_client_executables = {}

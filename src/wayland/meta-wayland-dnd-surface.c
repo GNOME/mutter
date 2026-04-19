@@ -199,19 +199,21 @@ dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 {
   MetaSurfaceActor *surface_actor =
     meta_wayland_actor_surface_get_actor (actor_surface);
-  MetaFeedbackActor *feedback_actor =
-    META_FEEDBACK_ACTOR (clutter_actor_get_parent (CLUTTER_ACTOR (surface_actor)));
   MetaWaylandSurfaceRole *surface_role =
     META_WAYLAND_SURFACE_ROLE (actor_surface);
   MetaWaylandSurfaceRoleDND *surface_role_dnd =
     META_WAYLAND_SURFACE_ROLE_DND (surface_role);
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_surface_role_dnd_parent_class);
+  MetaFeedbackActor *feedback_actor;
   int geometry_scale;
   float anchor_x;
   float anchor_y;
 
-  g_return_if_fail (META_IS_FEEDBACK_ACTOR (feedback_actor));
+  feedback_actor =
+    META_FEEDBACK_ACTOR (clutter_actor_get_parent (CLUTTER_ACTOR (surface_actor)));
+  if (!feedback_actor)
+    return;
 
   geometry_scale =
     meta_wayland_actor_surface_get_geometry_scale (actor_surface);
@@ -253,7 +255,7 @@ meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
   props[PROP_SPRITE] =
     g_param_spec_object ("sprite", NULL, NULL,
                          CLUTTER_TYPE_SPRITE,
-                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_CONSTRUCT |
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS);
 

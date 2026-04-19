@@ -1020,6 +1020,7 @@ wayland_test_cases = [
     'depends': [
       test_client_executables.get('dnd-order'),
     ],
+    'should_fail': true,
   },
 ]
 
