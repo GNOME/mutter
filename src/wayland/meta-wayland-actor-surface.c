@@ -94,12 +94,14 @@ meta_wayland_actor_surface_dispose (GObject *object)
 static void
 meta_wayland_actor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 {
+  MetaWaylandActorSurface *actor_surface =
+    META_WAYLAND_ACTOR_SURFACE (surface_role);
   MetaWaylandActorSurfacePrivate *priv =
-    meta_wayland_actor_surface_get_instance_private (META_WAYLAND_ACTOR_SURFACE (surface_role));
+    meta_wayland_actor_surface_get_instance_private (actor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
 
-  meta_wayland_actor_surface_reset_actor (META_WAYLAND_ACTOR_SURFACE (surface_role));
+  meta_wayland_actor_surface_reset_actor (actor_surface);
 
   if (wl_list_empty (&surface->unassigned.pending_frame_callback_list))
     return;
