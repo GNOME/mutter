@@ -818,6 +818,7 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
   if (icon_surface)
     {
       ClutterActor *drag_surface_actor;
+      MetaWaylandActorSurface *icon_actor_surface;
 
       drag_grab->drag_surface = icon_surface;
 
@@ -838,6 +839,9 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
       clutter_actor_add_child (drag_grab->feedback_actor, drag_surface_actor);
 
       data_device_update_position (drag_grab, &pos);
+
+      icon_actor_surface = META_WAYLAND_ACTOR_SURFACE (icon_surface->role);
+      meta_wayland_actor_surface_sync_actor_state (icon_actor_surface);
     }
 
   input = meta_wayland_seat_get_input (seat);

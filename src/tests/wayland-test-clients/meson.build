@@ -171,6 +171,9 @@ wayland_test_clients = [
   {
     'name': 'invalid-geometry',
   },
+  {
+    'name': 'dnd-order',
+  },
 ]
 
 test_client_executables = {}
