@@ -1210,6 +1210,7 @@ draw_surface (WaylandDisplay    *display,
   wayland_buffer_fill_color (buffer, color);
 
   wl_surface_attach (surface, wayland_buffer_get_wl_buffer (buffer), 0, 0);
+  wl_surface_damage_buffer (surface, 0, 0, width, height);
 }
 
 static void
