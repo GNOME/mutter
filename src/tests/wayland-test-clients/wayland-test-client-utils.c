@@ -1323,6 +1323,17 @@ handle_xdg_surface_configure (void               *data,
                 surface->wl_surface,
                 surface->width, surface->height,
                 surface->color);
+
+  if (surface->set_input_region)
+    {
+      struct wl_region *region;
+
+      region = wl_compositor_create_region (surface->display->compositor);
+      wl_region_add (region, 0, 0, surface->width, surface->height);
+      wl_surface_set_input_region (surface->wl_surface, region);
+      wl_region_destroy (region);
+    }
+
   wayland_surface_commit (surface);
 }
 
@@ -2380,4 +2391,10 @@ wayland_buffer_dmabuf_init (WaylandBufferDmabuf *dmabuf)
 
   for (i = 0; i < 4; i++)
     dmabuf->fd[i] = -1;
+}
+
+void
+wayland_surface_set_input_region (WaylandSurface *surface)
+{
+  surface->set_input_region = TRUE;
 }

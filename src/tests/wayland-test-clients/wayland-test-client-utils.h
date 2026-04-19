@@ -123,6 +123,7 @@ struct _WaylandSurface
 
   gboolean manual_paint;
   gboolean has_alpha;
+  gboolean set_input_region;
 };
 
 #define WAYLAND_TYPE_SURFACE (wayland_surface_get_type ())
@@ -214,3 +215,5 @@ void wayland_display_set_selection (WaylandDisplay *display,
 
 char * wayland_display_read_selection (WaylandDisplay *display,
                                        const char     *mime_type);
+
+void wayland_surface_set_input_region (WaylandSurface *surface);
