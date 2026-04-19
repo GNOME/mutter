@@ -1010,6 +1010,17 @@ wayland_test_cases = [
       test_client_executables.get('ycbcr'),
     ],
   },
+  {
+    'name': 'dnd-tests',
+    'suite': 'wayland',
+    'sources': [
+      'dnd-tests.c',
+      wayland_test_utils,
+    ],
+    'depends': [
+      test_client_executables.get('dnd-order'),
+    ],
+  },
 ]
 
 test_cases += wayland_test_cases
