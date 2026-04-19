@@ -21,6 +21,9 @@
 
 #include <glib-object.h>
 
+#include "meta/common.h"
+#include "meta/types.h"
+
 typedef enum
 {
   META_MONITOR_SWITCH_CONFIG_ALL_MIRROR,
