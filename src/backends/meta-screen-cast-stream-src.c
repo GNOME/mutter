@@ -545,12 +545,14 @@ static gboolean
 meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
                                                    MetaScreenCastPaintPhase   paint_phase,
                                                    CoglFramebuffer           *framebuffer,
+                                                   MtkRegion                 *damage,
                                                    GError                   **error)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_to_framebuffer (src, paint_phase, framebuffer, error);
+  return klass->record_to_framebuffer (src, paint_phase,
+                                       framebuffer, damage, error);
 }
 
 static void
@@ -1010,6 +1012,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
       result = meta_screen_cast_stream_src_record_to_framebuffer (src,
                                                                   paint_phase,
                                                                   dmabuf_fbo,
+                                                                  NULL,
                                                                   error);
 
       if (result)

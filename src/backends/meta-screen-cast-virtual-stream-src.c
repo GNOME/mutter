@@ -451,6 +451,7 @@ static gboolean
 meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
                                                            MetaScreenCastPaintPhase   paint_phase,
                                                            CoglFramebuffer           *framebuffer,
+                                                           MtkRegion                 *damage,
                                                            GError                   **error)
 {
   ClutterStageView *view;
@@ -458,7 +459,13 @@ meta_screen_cast_virtual_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 
   view = view_from_src (src);
   view_framebuffer = clutter_stage_view_get_framebuffer (view);
-  if (!cogl_framebuffer_blit (view_framebuffer,
+  if (damage ?
+      !cogl_framebuffer_blit_region (view_framebuffer,
+                                     framebuffer,
+                                     damage,
+                                     0, 0,
+                                     error) :
+      !cogl_framebuffer_blit (view_framebuffer,
                               framebuffer,
                               0, 0,
                               0, 0,

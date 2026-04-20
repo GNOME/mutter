@@ -491,6 +491,7 @@ static gboolean
 meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
                                                         MetaScreenCastPaintPhase   paint_phase,
                                                         CoglFramebuffer           *framebuffer,
+                                                        MtkRegion                 *damage,
                                                         GError                   **error)
 {
   MetaScreenCastAreaStreamSrc *area_src =
@@ -517,10 +518,11 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
       paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
       break;
     }
-  clutter_stage_paint_to_framebuffer (stage, framebuffer,
-                                      area, scale,
-                                      NULL,
-                                      paint_flags);
+  clutter_stage_paint_to_framebuffer_clipped (stage, framebuffer,
+                                              area, scale,
+                                              NULL,
+                                              damage,
+                                              paint_flags);
 
   return TRUE;
 }

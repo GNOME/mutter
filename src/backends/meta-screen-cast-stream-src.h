@@ -95,6 +95,7 @@ struct _MetaScreenCastStreamSrcClass
   gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc   *src,
                                       MetaScreenCastPaintPhase   paint_phase,
                                       CoglFramebuffer           *framebuffer,
+                                      MtkRegion                 *damage,
                                       GError                   **error);
   void (* queue_follow_up) (MetaScreenCastStreamSrc  *src,
                             MetaScreenCastRecordFlag  flags);

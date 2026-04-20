@@ -646,6 +646,7 @@ static gboolean
 meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
                                                           MetaScreenCastPaintPhase   paint_phase,
                                                           CoglFramebuffer           *framebuffer,
+                                                          MtkRegion                 *damage,
                                                           GError                   **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =

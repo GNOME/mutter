@@ -697,6 +697,7 @@ static gboolean
 meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc   *src,
                                                            MetaScreenCastPaintPhase   paint_phase,
                                                            CoglFramebuffer           *framebuffer,
+                                                           MtkRegion                 *damage,
                                                            GError                   **error)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
@@ -789,7 +790,13 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
           {
             g_autoptr (GError) local_error = NULL;
 
-            if (cogl_framebuffer_blit (view_framebuffer,
+            if (damage ?
+                cogl_framebuffer_blit_region (view_framebuffer,
+                                              framebuffer,
+                                              damage,
+                                              0, 0,
+                                              &local_error) :
+                cogl_framebuffer_blit (view_framebuffer,
                                        framebuffer,
                                        0, 0,
                                        0, 0,
@@ -853,12 +860,13 @@ stage_paint:
                                          error))
             return FALSE;
 
-          clutter_stage_paint_to_framebuffer (stage,
-                                              blending_framebuffer,
-                                              &logical_monitor_layout,
-                                              view_scale,
-                                              blending_color_state,
-                                              paint_flags);
+          clutter_stage_paint_to_framebuffer_clipped (stage,
+                                                      blending_framebuffer,
+                                                      &logical_monitor_layout,
+                                                      view_scale,
+                                                      blending_color_state,
+                                                      damage,
+                                                      paint_flags);
           cogl_framebuffer_draw_textured_rectangle (framebuffer,
                                                     blending_pipeline,
                                                     -1, 1, 1, -1,
@@ -867,12 +875,13 @@ stage_paint:
         }
       else
         {
-          clutter_stage_paint_to_framebuffer (stage,
-                                              framebuffer,
-                                              &logical_monitor_layout,
-                                              view_scale,
-                                              target_color_state,
-                                              paint_flags);
+          clutter_stage_paint_to_framebuffer_clipped (stage,
+                                                      framebuffer,
+                                                      &logical_monitor_layout,
+                                                      view_scale,
+                                                      target_color_state,
+                                                      damage,
+                                                      paint_flags);
         }
     }
 
