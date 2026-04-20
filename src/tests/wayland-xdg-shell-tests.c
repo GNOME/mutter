@@ -206,6 +206,10 @@ toplevel_invalid_geometry_subsurface (void)
 
   g_assert_true (g_settings_set_boolean (settings, "center-new-windows", TRUE));
 
+  /* Map an additional arbitrary window. Combined with the below test client,
+   * a SIGFPE was triggered in window_would_mostly_be_covered_by_always_above_window()
+   * because the resulting window area used in calculations ended up being 0x0.
+   */
   test_client = meta_test_client_new (test_context,
                                       "1",
                                       META_WINDOW_CLIENT_TYPE_WAYLAND,
