@@ -90,6 +90,7 @@ struct _MetaScreenCastStreamSrcClass
                                  int                       height,
                                  int                       stride,
                                  uint8_t                  *data,
+                                 MtkRegion                *damage,
                                  GError                  **error);
   gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc   *src,
                                       MetaScreenCastPaintPhase   paint_phase,

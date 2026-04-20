@@ -462,6 +462,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *sr
                                                    int                        height,
                                                    int                        stride,
                                                    uint8_t                   *data,
+                                                   MtkRegion                 *damage,
                                                    GError                   **error)
 {
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
@@ -482,7 +483,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *sr
                                                       stride,
                                                       data,
                                                       COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                                      NULL,
+                                                      damage,
                                                       error);
 }
 

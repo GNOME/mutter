@@ -531,13 +531,14 @@ meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
                                               int                        height,
                                               int                        stride,
                                               uint8_t                   *data,
+                                              MtkRegion                 *damage,
                                               GError                   **error)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
   return klass->record_to_buffer (src, flags, paint_phase,
-                                  width, height, stride, data, error);
+                                  width, height, stride, data, damage, error);
 }
 
 static gboolean
@@ -991,6 +992,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
                                                            height,
                                                            stride,
                                                            spa_data->data,
+                                                           NULL,
                                                            error);
     }
   else if (spa_data->type == SPA_DATA_DmaBuf)

@@ -629,6 +629,7 @@ meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *
                                                      int                        height,
                                                      int                        stride,
                                                      uint8_t                   *data,
+                                                     MtkRegion                 *damage,
                                                      GError                   **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =
