@@ -1120,6 +1120,9 @@ wayland_test_cases = [
       'window-config-tests.c',
       wayland_test_utils,
     ],
+    'depends': [
+      test_client,
+    ],
   },
   {
     'name': 'external-constraint',
@@ -1128,6 +1131,9 @@ wayland_test_cases = [
       'external-constraint-tests.c',
       wayland_test_utils,
     ],
+    'depends': [
+      test_client,
+    ],
   },
   {
     'name': 'window-mapped-inhibit',
@@ -1135,6 +1141,9 @@ wayland_test_cases = [
     'sources': [
       'window-mapped-inhibit-tests.c',
       wayland_test_utils,
+    ],
+    'depends': [
+      test_client,
     ],
   },
   {
