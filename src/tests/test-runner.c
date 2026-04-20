@@ -65,6 +65,9 @@ typedef struct {
   ClutterVirtualInputDevice *keyboard;
   GHashTable *cloned_windows;
   GHashTable *popups;
+
+  ClutterGrab *grab;
+  ClutterActor *overlay;
 } TestCase;
 
 #define META_SIDE_TEST_CASE_NONE G_MAXINT32
@@ -3092,6 +3095,39 @@ test_case_do (TestCase    *test,
       if (!test_case_wait (test, error))
         return FALSE;
     }
+  else if (strcmp (argv[0], "map_overlay") == 0)
+    {
+      MetaBackend *backend = meta_context_get_backend (test->context);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterActor *actor;
+
+      if (argc != 1)
+        BAD_COMMAND ("usage: %s", argv[0]);
+
+      if (test->overlay)
+        BAD_COMMAND ("Overlay already mapped");
+
+      actor = clutter_actor_new ();
+      g_object_bind_property (G_OBJECT (stage), "size",
+                              G_OBJECT (actor), "size",
+                              G_BINDING_SYNC_CREATE);
+      clutter_actor_set_reactive (actor, TRUE);
+      clutter_actor_insert_child_at_index (CLUTTER_ACTOR (stage), actor, -1);
+
+      test->grab = clutter_stage_grab (stage, actor);
+      test->overlay = actor;
+    }
+  else if (strcmp (argv[0], "unmap_overlay") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND ("usage: %s", argv[0]);
+
+      if (!test->overlay)
+        BAD_COMMAND ("Overlay not mapped");
+
+      g_clear_pointer (&test->grab, clutter_grab_dismiss);
+      g_clear_pointer (&test->overlay, clutter_actor_destroy);
+    }
   else
     {
       BAD_COMMAND ("Unknown command %s", argv[0]);
@@ -3111,6 +3147,8 @@ test_case_destroy (TestCase *test,
   GHashTableIter iter;
   gpointer key, value;
   MetaDisplay *display;
+
+  g_clear_pointer (&test->overlay, clutter_actor_destroy);
 
   if (test->cloned_windows)
     {
