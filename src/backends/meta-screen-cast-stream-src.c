@@ -1041,62 +1041,49 @@ meta_screen_cast_stream_src_is_driving (MetaScreenCastStreamSrc *src)
 
 static void
 maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
-                                    struct spa_buffer       *spa_buffer)
+                                    struct spa_buffer       *spa_buffer,
+                                    MtkRegion               *damage)
 {
-  MetaScreenCastStreamSrcPrivate *priv;
   struct spa_meta *spa_meta_video_damage;
   struct spa_meta_region *meta_region;
+  int num_buffers_available = 0;
+  int n_rectangles;
+  int i = 0;
 
   spa_meta_video_damage =
     spa_buffer_find_meta (spa_buffer, SPA_META_VideoDamage);
   if (!spa_meta_video_damage)
     return;
 
-  priv = meta_screen_cast_stream_src_get_instance_private (src);
-  if (!priv->damage)
+  n_rectangles = mtk_region_num_rectangles (damage);
+
+  spa_meta_for_each (meta_region, spa_meta_video_damage)
+    ++num_buffers_available;
+
+  if (num_buffers_available < n_rectangles)
     {
+      MtkRectangle extents;
+
+      meta_topic (META_DEBUG_SCREEN_CAST,
+                  "Not enough buffers (%d) to accommodate damaged regions (%d)",
+                  num_buffers_available, n_rectangles);
+      extents = mtk_region_get_extents (damage);
       meta_region = spa_meta_first (spa_meta_video_damage);
-      meta_region->region = SPA_REGION (0, 0, priv->video_format.size.width,
-                                        priv->video_format.size.height);
+      meta_region->region = SPA_REGION (extents.x, extents.y,
+                                        extents.width, extents.height);
     }
   else
     {
-      int i;
-      int n_rectangles;
-      int num_buffers_available;
-
-      i = 0;
-      n_rectangles = mtk_region_num_rectangles (priv->damage);
-      num_buffers_available = 0;
-
       spa_meta_for_each (meta_region, spa_meta_video_damage)
-        ++num_buffers_available;
-
-      if (num_buffers_available < n_rectangles)
         {
-          MtkRectangle extents;
+          MtkRectangle rect;
 
-          meta_topic (META_DEBUG_SCREEN_CAST,
-                      "Not enough buffers (%d) to accommodate damaged "
-                      "regions (%d)", num_buffers_available, n_rectangles);
-          extents = mtk_region_get_extents (priv->damage);
-          meta_region = spa_meta_first (spa_meta_video_damage);
-          meta_region->region = SPA_REGION (extents.x, extents.y,
-                                            extents.width, extents.height);
-        }
-      else
-        {
-          spa_meta_for_each (meta_region, spa_meta_video_damage)
-            {
-              MtkRectangle rect;
+          rect = mtk_region_get_rectangle (damage, i);
+          meta_region->region = SPA_REGION (rect.x, rect.y,
+                                            rect.width, rect.height);
 
-              rect = mtk_region_get_rectangle (priv->damage, i);
-              meta_region->region = SPA_REGION (rect.x, rect.y,
-                                                rect.width, rect.height);
-
-              if (++i == n_rectangles)
-                break;
-            }
+          if (++i == n_rectangles)
+            break;
         }
     }
 
@@ -1104,8 +1091,6 @@ maybe_add_damaged_regions_metadata (MetaScreenCastStreamSrc *src,
   meta_region++;
   if (spa_meta_check (meta_region, spa_meta_video_damage))
     meta_region->region = SPA_REGION (0, 0, 0, 0);
-
-  g_clear_pointer (&priv->damage, mtk_region_unref);
 }
 
 MetaScreenCastRecordResult
@@ -1328,6 +1313,7 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
   struct spa_buffer *spa_buffer;
   struct spa_meta_header *header;
   struct spa_data *spa_data;
+  g_autoptr (MtkRegion) damage = NULL;
   g_autoptr (GError) error = NULL;
 
   g_return_val_if_fail (priv->pipewire_stream,
@@ -1374,8 +1360,24 @@ meta_screen_cast_stream_src_record_frame_with_timestamp (MetaScreenCastStreamSrc
     {
       if (do_record_frame (src, flags, paint_phase, spa_buffer, &error))
         {
-          maybe_add_damaged_regions_metadata (src, spa_buffer);
           struct spa_meta_region *spa_meta_video_crop;
+
+          if (priv->damage)
+            {
+              damage = mtk_region_ref (priv->damage);
+              g_clear_pointer (&priv->damage, mtk_region_unref);
+            }
+          else
+            {
+              MtkRectangle full_rect;
+
+              full_rect.x = full_rect.y = 0;
+              full_rect.width = priv->video_format.size.width;
+              full_rect.height = priv->video_format.size.height;
+              damage = mtk_region_create_rectangle (&full_rect);
+            }
+
+          maybe_add_damaged_regions_metadata (src, spa_buffer, damage);
 
           spa_data->chunk->size = spa_data->maxsize;
           spa_data->chunk->flags = SPA_CHUNK_FLAG_NONE;
