@@ -128,6 +128,9 @@ typedef struct _MetaDisplayPrivate
 
   gboolean enable_input_capture;
 
+  MetaWindow *pointer_window;
+  gulong pointer_window_unmanaging_handler_id;
+
   struct {
     MetaWindow *window;
     gulong unmanaging_handler_id;
@@ -3557,6 +3560,18 @@ queue_pointer_rest_callback (MetaDisplay *display,
                            "[mutter] focus_on_pointer_rest_callback");
 }
 
+static void
+on_pointer_window_unmanaging (MetaWindow  *window,
+                              MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_clear_signal_handler (&priv->pointer_window_unmanaging_handler_id,
+                          priv->pointer_window);
+  priv->pointer_window_unmanaging_handler_id = 0;
+  priv->pointer_window = NULL;
+}
+
 void
 meta_display_handle_window_enter (MetaDisplay *display,
                                   MetaWindow  *window,
@@ -3564,6 +3579,19 @@ meta_display_handle_window_enter (MetaDisplay *display,
                                   int          root_x,
                                   int          root_y)
 {
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_clear_signal_handler (&priv->pointer_window_unmanaging_handler_id,
+                          priv->pointer_window);
+  priv->pointer_window = window;
+  if (window)
+    {
+      priv->pointer_window_unmanaging_handler_id =
+        g_signal_connect (window, "unmanaging",
+                          G_CALLBACK (on_pointer_window_unmanaging),
+                          display);
+    }
+
   switch (meta_prefs_get_focus_mode ())
     {
     case G_DESKTOP_FOCUS_MODE_SLOPPY:
