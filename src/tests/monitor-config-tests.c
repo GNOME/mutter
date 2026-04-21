@@ -3774,6 +3774,260 @@ meta_test_monitor_remember_scale_hotplug (void)
 }
 
 static void
+meta_test_monitor_duplicate_serial_hotplug (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        },
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .serial = "SAME-SERIAL",
+        },
+        {
+          .crtc = 1,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 1 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .serial = "SAME-SERIAL",
+        },
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0
+        },
+        {
+          .current_mode = 0
+        },
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            },
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        },
+        {
+          .outputs = { 1 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 1,
+                  .crtc_mode = 0
+                }
+              },
+            },
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        },
+      },
+      .n_monitors = 2,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        },
+        {
+          .monitors = { 1 },
+          .n_monitors = 1,
+          .layout = { .x = 1024, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        },
+      },
+      .n_logical_monitors = 2,
+      .primary_logical_monitor = 0,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        },
+        {
+          .current_mode = 0,
+          .x = 1024,
+        },
+      },
+      .n_crtcs = 2,
+      .screen_width = 1024 * 2,
+      .screen_height = 768
+    }
+  };
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  MetaMonitorTestSetup *test_setup;
+  const char *expected_message =
+    "*Failed to create colord device for "
+    "'xrandr-MetaProduct's Inc.-MetaMonitor-SAME-SERIAL': device id "
+    "'xrandr-MetaProduct's Inc.-MetaMonitor-SAME-SERIAL' already exists";
+
+  g_test_bug ("https://gitlab.gnome.org/GNOME/mutter/-/issues/4736");
+
+  /* First hotplug: adding multiple monitors with the same serial. */
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         expected_message);
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+  g_test_assert_expected_messages ();
+
+  /*
+   * Second hotplug with the same monitors: meta_logical_monitor_update() is
+   * now called for the existing logical monitors.
+   * We need to ensure that meta_logical_monitor_update() correctly matches the
+   * "old" logical monitors to the "new" monitors by connector, not just by
+   * serial, to avoid both logical monitors being matched to the same monitor
+   * and leaving the other with a NULL logical_monitor pointer.
+   */
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking monitor configuration after re-hotplug",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+
+  /*
+   * Now extend to three monitors sharing the same serial, to verify that
+   * meta_monitor_manager_find_monitor() is equally safe when more than two
+   * identical monitors are present.
+   */
+  test_case.setup.outputs[2] = (MonitorTestCaseOutput) {
+    .crtc = 2,
+    .modes = { 0 },
+    .n_modes = 1,
+    .preferred_mode = 0,
+    .possible_crtcs = { 2 },
+    .n_possible_crtcs = 1,
+    .width_mm = 222,
+    .height_mm = 125,
+    .serial = "SAME-SERIAL",
+  };
+  test_case.setup.n_outputs = 3;
+  test_case.setup.crtcs[2] = (MonitorTestCaseCrtc) { .current_mode = 0 };
+  test_case.setup.n_crtcs = 3;
+
+  test_case.expect.monitors[2] = (MonitorTestCaseMonitor) {
+    .outputs = { 2 },
+    .n_outputs = 1,
+    .modes = {
+      {
+        .width = 1024,
+        .height = 768,
+        .refresh_rate = 60.0,
+        .crtc_modes = {
+          {
+            .output = 2,
+            .crtc_mode = 0
+          },
+        },
+      },
+    },
+    .n_modes = 1,
+    .current_mode = 0,
+    .width_mm = 222,
+    .height_mm = 125
+  };
+  test_case.expect.n_monitors = 3;
+  test_case.expect.logical_monitors[2] = (MonitorTestCaseLogicalMonitor) {
+    .monitors = { 2 },
+    .n_monitors = 1,
+    .layout = { .x = 2048, .y = 0, .width = 1024, .height = 768 },
+    .scale = 1
+  };
+  test_case.expect.n_logical_monitors = 3;
+  test_case.expect.n_outputs = 3;
+  test_case.expect.crtcs[2] = (MonitorTestCaseCrtcExpect) {
+    .current_mode = 0,
+    .x = 2048,
+  };
+  test_case.expect.n_crtcs = 3;
+  test_case.expect.screen_width = 1024 * 3;
+
+  /* First hotplug: adding three monitors with the same serial. */
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+
+  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
+                         expected_message);
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking three-monitor configuration",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+  g_test_assert_expected_messages ();
+
+  /*
+   * Second hotplug: ensure all three logical monitors are correctly updated,
+   * i.e. none of the three logical monitors ends up matched to the same
+   * underlying monitor.
+   */
+  test_setup = meta_create_monitor_test_setup (backend,
+                                               &test_case.setup,
+                                               MONITOR_TEST_FLAG_NO_STORED);
+
+  meta_emulate_hotplug (test_setup);
+  META_TEST_LOG_CALL ("Checking three-monitor configuration after re-hotplug",
+                      meta_check_monitor_configuration (test_context,
+                                                        &test_case.expect));
+  meta_check_monitor_test_clients_state ();
+}
+
+static void
 init_config_tests (void)
 {
   meta_add_monitor_test ("/backends/monitor/initial-linear-config",
@@ -3832,6 +4086,8 @@ init_config_tests (void)
                          meta_test_monitor_switch_config_remember_scale);
   meta_add_monitor_test ("/backends/monitor/remember-scale-hotplug",
                          meta_test_monitor_remember_scale_hotplug);
+  meta_add_monitor_test ("/backends/monitor/duplicate-serial-hotplug",
+                         meta_test_monitor_duplicate_serial_hotplug);
 }
 
 int

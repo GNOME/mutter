@@ -4459,15 +4459,27 @@ MetaMonitor *
 meta_monitor_manager_find_monitor (MetaMonitorManager *monitor_manager,
                                    MetaMonitor        *old_monitor)
 {
+  MetaMonitor *found_monitor = NULL;
   GList *l;
 
   for (l = monitor_manager->monitors; l; l = l->next)
     {
       MetaMonitor *monitor = META_MONITOR (l->data);
 
-      if (meta_monitor_is_same_as (monitor, old_monitor))
-        return monitor;
+      if (!meta_monitor_is_same_as (monitor, old_monitor))
+        continue;
+
+      if (found_monitor)
+        {
+          MetaMonitorSpec *old_monitor_spec;
+
+          old_monitor_spec = meta_monitor_get_spec (old_monitor);
+          return meta_monitor_manager_get_monitor_from_spec (monitor_manager,
+                                                             old_monitor_spec);
+        }
+
+      found_monitor = monitor;
     }
 
-  return NULL;
+  return found_monitor;
 }
