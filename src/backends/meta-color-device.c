@@ -94,6 +94,9 @@ G_DEFINE_TYPE (MetaColorDevice, meta_color_device,
 
 static const char *efivar_test_path = NULL;
 
+static void setup_created_cd_device (MetaColorDevice *color_device,
+                                     CdDevice        *cd_device);
+
 /*
  * Generate a colord DeviceId according to
  * `device-and-profiling-naming-spec.txt`.
@@ -502,8 +505,6 @@ on_cd_device_created (GObject      *object,
 {
   CdClient *cd_client = CD_CLIENT (object);
   MetaColorDevice *color_device = user_data;
-  MetaColorManager *color_manager;
-  MetaColorStore *color_store;
   CdDevice *cd_device;
   g_autoptr (GError) error = NULL;
 
@@ -519,6 +520,16 @@ on_cd_device_created (GObject      *object,
       meta_color_device_notify_ready (color_device, FALSE);
       return;
     }
+
+  setup_created_cd_device (color_device, cd_device);
+}
+
+static void
+setup_created_cd_device (MetaColorDevice *color_device,
+                         CdDevice        *cd_device)
+{
+  MetaColorManager *color_manager;
+  MetaColorStore *color_store;
 
   color_device->cd_device = cd_device;
 
