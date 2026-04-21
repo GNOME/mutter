@@ -170,6 +170,10 @@ meta_display_handle_event (MetaDisplay        *display,
       meta_wayland_text_input_update (wayland_text_input, event))
     return CLUTTER_EVENT_STOP;
 
+  if (event_type == CLUTTER_MOTION &&
+      !clutter_event_get_device_tool (event))
+    meta_display_handle_sticky_mouse_focus_event (display, event);
+
   meta_wayland_compositor_update (wayland_compositor, event);
 
   if (event_type == CLUTTER_PAD_BUTTON_PRESS ||

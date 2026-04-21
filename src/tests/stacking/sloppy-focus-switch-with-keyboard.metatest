@@ -1,0 +1,52 @@
+resize_monitor default 800 600
+set_pref focus-mode sloppy
+set_pref focus-change-on-pointer-rest false
+
+move_cursor_to 150 50
+
+new_client w wayland
+
+create w/0 csd
+resize w/0 100 100
+show w/0
+move w/0 10 10
+
+create w/1 csd
+resize w/1 100 100
+show w/1
+move w/1 200 200
+
+wait_for_effects w/0
+wait_for_effects w/1
+
+assert_position w/0 10 10
+assert_size w/0 100 100
+assert_position w/1 200 200
+assert_size w/1 100 100
+assert_focused w/1
+
+# Basic sanity checking
+move_cursor_to 20 20
+assert_focused w/0
+move_cursor_to 210 210
+assert_focused w/1
+
+# Emulate the scene & input graph changes happening when alt-tab:ing in GNOME
+# Shell, which is to show an alt-tab overlay that is reactive thus receives
+# pointer focus. This should "stick" the focus until the pointer moves.
+map_overlay
+local_activate w/0
+wait
+assert_focused w/0
+unmap_overlay
+assert_focused w/0
+
+# Moving the pointer to "unstick" the focus
+move_cursor_to 265 210
+assert_focused w/1
+local_activate w/0
+assert_focused w/0
+
+destroy w/0
+wait
+assert_focused w/1

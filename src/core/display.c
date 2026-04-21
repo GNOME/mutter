@@ -84,6 +84,8 @@
 #include "backends/native/meta-backend-native.h"
 #endif
 
+#define STICKY_FOCUS_UNSTICK_DISTANCE 50.0f
+
 /*
  * Sometimes we want to see whether a window is responding,
  * so we send it a "ping" message and see whether it sends us back a "pong"
@@ -135,6 +137,14 @@ typedef struct _MetaDisplayPrivate
     MetaWindow *window;
     gulong unmanaging_handler_id;
   } focus_on_grab_dismissed;
+
+  struct {
+    MetaWindow *sticky_focus;
+    graphene_point_t sticky_focus_last_position;
+    float sticky_focus_distance;
+    gulong sticky_focus_unmanaging_handler_id;
+    guint idle_handle_id;
+  } mouse_focus;
 } MetaDisplayPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaDisplay, meta_display, G_TYPE_OBJECT)
@@ -211,6 +221,8 @@ meta_display_show_osd (MetaDisplay *display,
 static void on_is_grabbed_changed (ClutterStage *stage,
                                    GParamSpec   *pspec,
                                    MetaDisplay  *display);
+
+static void clear_sticky_mouse_focus (MetaDisplay *display);
 
 static MetaBackend *
 backend_from_display (MetaDisplay *display)
@@ -1382,8 +1394,12 @@ meta_display_set_input_focus (MetaDisplay *display,
                               MetaWindow  *window,
                               guint32      timestamp)
 {
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
   if (meta_display_timestamp_too_old (display, &timestamp))
     return;
+
+  g_clear_handle_id (&priv->mouse_focus.idle_handle_id, g_source_remove);
 
   g_signal_emit (display, display_signals[FOCUS_WINDOW], 0, window, ms2us (timestamp));
 
@@ -2153,6 +2169,17 @@ prefs_changed_callback (MetaPreference pref,
     {
     case META_PREF_DRAGGABLE_BORDER_WIDTH:
       meta_display_queue_retheme_all_windows (display);
+      break;
+    case META_PREF_FOCUS_MODE:
+      switch (meta_prefs_get_focus_mode ())
+        {
+        case G_DESKTOP_FOCUS_MODE_SLOPPY:
+        case G_DESKTOP_FOCUS_MODE_MOUSE:
+          break;
+        case G_DESKTOP_FOCUS_MODE_CLICK:
+          clear_sticky_mouse_focus (display);
+          break;
+        }
       break;
     default:
       break;
@@ -3581,15 +3608,18 @@ meta_display_handle_window_enter (MetaDisplay *display,
 {
   MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
 
-  g_clear_signal_handler (&priv->pointer_window_unmanaging_handler_id,
-                          priv->pointer_window);
-  priv->pointer_window = window;
-  if (window)
+  if (priv->pointer_window != window)
     {
-      priv->pointer_window_unmanaging_handler_id =
-        g_signal_connect (window, "unmanaging",
-                          G_CALLBACK (on_pointer_window_unmanaging),
-                          display);
+      g_clear_signal_handler (&priv->pointer_window_unmanaging_handler_id,
+                              priv->pointer_window);
+      priv->pointer_window = window;
+      if (window)
+        {
+          priv->pointer_window_unmanaging_handler_id =
+            g_signal_connect (window, "unmanaging",
+                              G_CALLBACK (on_pointer_window_unmanaging),
+                              display);
+        }
     }
 
   switch (meta_prefs_get_focus_mode ())
@@ -3597,7 +3627,9 @@ meta_display_handle_window_enter (MetaDisplay *display,
     case G_DESKTOP_FOCUS_MODE_SLOPPY:
     case G_DESKTOP_FOCUS_MODE_MOUSE:
       display->mouse_mode = TRUE;
-      if (!window || window->type != META_WINDOW_DOCK)
+      if ((!priv->mouse_focus.sticky_focus ||
+           priv->mouse_focus.sticky_focus_distance > 0.0f) &&
+          (!window || window->type != META_WINDOW_DOCK))
         {
           if (meta_prefs_get_focus_change_on_pointer_rest ())
             queue_pointer_rest_callback (display, window, root_x, root_y);
@@ -3611,4 +3643,108 @@ meta_display_handle_window_enter (MetaDisplay *display,
 
   if (window && window->type == META_WINDOW_DOCK)
     meta_window_raise (window);
+}
+
+static void
+clear_sticky_mouse_focus (MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  g_clear_signal_handler (&priv->mouse_focus.sticky_focus_unmanaging_handler_id,
+                          priv->mouse_focus.sticky_focus);
+  priv->mouse_focus.sticky_focus = NULL;
+}
+
+static void
+invalidate_mouse_focus_cb (gpointer user_data)
+{
+  MetaDisplay *display = META_DISPLAY (user_data);
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  focus_mouse_mode (display, priv->pointer_window, META_CURRENT_TIME);
+  priv->mouse_focus.idle_handle_id = 0;
+}
+
+static void
+invalidate_sticky_mouse_focus (MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  if (priv->mouse_focus.sticky_focus &&
+      !priv->mouse_focus.idle_handle_id)
+    {
+      priv->mouse_focus.idle_handle_id =
+        g_idle_add_once (invalidate_mouse_focus_cb, display);
+    }
+
+  clear_sticky_mouse_focus (display);
+}
+
+static void
+on_mouse_focus_sticky_focus_unmanaged (MetaWindow  *window,
+                                       MetaDisplay *display)
+{
+  clear_sticky_mouse_focus (display);
+}
+
+void
+meta_display_maybe_update_sticky_mouse_focus (MetaDisplay *display)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+
+  switch (meta_prefs_get_focus_mode ())
+    {
+    case G_DESKTOP_FOCUS_MODE_SLOPPY:
+    case G_DESKTOP_FOCUS_MODE_MOUSE:
+      break;
+    case G_DESKTOP_FOCUS_MODE_CLICK:
+      return;
+    }
+
+  clear_sticky_mouse_focus (display);
+
+  if (priv->mouse_focus.sticky_focus == display->focus_window)
+    return;
+
+  priv->mouse_focus.sticky_focus = display->focus_window;
+  if (priv->mouse_focus.sticky_focus)
+    {
+      MetaBackend *backend = backend_from_display (display);
+      ClutterBackend *clutter_backend =
+        meta_backend_get_clutter_backend (backend);
+      ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+      ClutterSprite *sprite =
+        clutter_backend_get_pointer_sprite (clutter_backend, stage);
+
+      priv->mouse_focus.sticky_focus_unmanaging_handler_id =
+        g_signal_connect (priv->mouse_focus.sticky_focus,
+                          "unmanaging",
+                          G_CALLBACK (on_mouse_focus_sticky_focus_unmanaged),
+                          display);
+      clutter_sprite_get_coords (sprite,
+                                 &priv->mouse_focus.sticky_focus_last_position);
+      priv->mouse_focus.sticky_focus_distance = 0.0f;
+    }
+}
+
+void
+meta_display_handle_sticky_mouse_focus_event (MetaDisplay        *display,
+                                              const ClutterEvent *event)
+{
+  MetaDisplayPrivate *priv = meta_display_get_instance_private (display);
+  graphene_point_t pointer_position;
+
+  if (!priv->mouse_focus.sticky_focus)
+    return;
+
+  clutter_event_get_position (event, &pointer_position);
+  priv->mouse_focus.sticky_focus_distance +=
+    graphene_point_distance (&pointer_position,
+                             &priv->mouse_focus.sticky_focus_last_position,
+                             NULL, NULL);
+  priv->mouse_focus.sticky_focus_last_position = pointer_position;
+
+  if (priv->mouse_focus.sticky_focus_distance >
+      STICKY_FOCUS_UNSTICK_DISTANCE)
+    invalidate_sticky_mouse_focus (display);
 }

@@ -1310,6 +1310,7 @@ stacking_tests = [
   'sloppy-focus',
   'sloppy-focus-pointer-rest',
   'sloppy-focus-auto-raise',
+  'sloppy-focus-switch-with-keyboard',
   'sticky',
   'sticky-modals',
   'sticky-transients',

@@ -3903,6 +3903,8 @@ meta_window_activate_full (MetaWindow     *window,
   else
     meta_workspace_activate_with_focus (window->workspace, window, timestamp);
 
+  meta_display_maybe_update_sticky_mouse_focus (window->display);
+
   meta_window_check_alive (window, timestamp);
 }
 

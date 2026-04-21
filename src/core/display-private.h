@@ -324,3 +324,8 @@ void meta_display_handle_window_enter (MetaDisplay *display,
                                        uint32_t     timestamp_ms,
                                        int          root_x,
                                        int          root_y);
+
+void meta_display_maybe_update_sticky_mouse_focus (MetaDisplay *display);
+
+void meta_display_handle_sticky_mouse_focus_event (MetaDisplay        *display,
+                                                   const ClutterEvent *event);
