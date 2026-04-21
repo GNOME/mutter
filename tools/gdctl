@@ -350,6 +350,9 @@ class DisplayConfig:
 
     def get_backlight(self, monitor) -> tuple[int, Any]:
         variant = self._proxy.get_cached_property("Backlight")
+        if not variant:
+            return (0, None)
+
         [serial, backlights] = variant
 
         try:
