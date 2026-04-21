@@ -3642,10 +3642,6 @@ meta_test_monitor_duplicate_serial_hotplug (void)
   };
   MetaBackend *backend = meta_context_get_backend (test_context);
   MetaMonitorTestSetup *test_setup;
-  const char *expected_message =
-    "*Failed to create colord device for "
-    "'xrandr-MetaProduct's Inc.-MetaMonitor-SAME-SERIAL': device id "
-    "'xrandr-MetaProduct's Inc.-MetaMonitor-SAME-SERIAL' already exists";
 
   g_test_bug ("https://gitlab.gnome.org/GNOME/mutter/-/issues/4736");
 
@@ -3654,14 +3650,11 @@ meta_test_monitor_duplicate_serial_hotplug (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
 
-  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
-                         expected_message);
   meta_emulate_hotplug (test_setup);
   META_TEST_LOG_CALL ("Checking monitor configuration",
                       meta_check_monitor_configuration (test_context,
                                                         &test_case.expect));
   meta_check_monitor_test_clients_state ();
-  g_test_assert_expected_messages ();
 
   /*
    * Second hotplug with the same monitors: meta_logical_monitor_update() is
@@ -3743,8 +3736,6 @@ meta_test_monitor_duplicate_serial_hotplug (void)
                                                &test_case.setup,
                                                MONITOR_TEST_FLAG_NO_STORED);
 
-  g_test_expect_message ("libmutter", G_LOG_LEVEL_WARNING,
-                         expected_message);
   meta_emulate_hotplug (test_setup);
   META_TEST_LOG_CALL ("Checking three-monitor configuration",
                       meta_check_monitor_configuration (test_context,
