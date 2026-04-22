@@ -263,8 +263,10 @@ meta_stage_skipped_paint (ClutterStage     *stage,
                           ClutterFrame     *frame)
 {
   MetaStage *meta_stage = META_STAGE (stage);
+  g_autoptr (MtkRegion) redraw_clip = NULL;
 
-  notify_watchers_for_mode (meta_stage, view, NULL, frame,
+  redraw_clip = mtk_region_create ();
+  notify_watchers_for_mode (meta_stage, view, redraw_clip, frame,
                             META_STAGE_WATCH_SKIPPED_PAINT);
 }
 
