@@ -1879,8 +1879,7 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
                               onscreen_native->next_frame);
 
   if (onscreen_native->posted_frame != NULL ||
-      onscreen_native->view == NULL ||
-      meta_kms_is_shutting_down (kms))
+      onscreen_native->view == NULL)
     return;
 
   frame = g_steal_pointer (&onscreen_native->next_frame);
@@ -1988,6 +1987,11 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
     {
       meta_renderer_native_queue_power_save_page_flip (renderer_native,
                                                        onscreen);
+    }
+
+  if (power_save_mode != META_POWER_SAVE_ON ||
+      meta_kms_is_shutting_down (kms))
+    {
       onscreen_native->superseded_frame = g_steal_pointer (&frame);
       return;
     }
