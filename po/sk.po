@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2025-05-20 21:59+0000\n"
-"PO-Revision-Date: 2025-05-24 22:44+0200\n"
+"POT-Creation-Date: 2026-04-02 12:00+0000\n"
+"PO-Revision-Date: 2026-04-23 22:26+0200\n"
 "Last-Translator: Peter Mráz <etkinator@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
 "Language: sk\n"
@@ -308,22 +308,22 @@ msgid "Maximize window horizontally"
 msgstr "Maximalizovať okno vodorovne"
 
 # Description
-#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:166
 msgid "View split on left"
 msgstr "Zobraziť rozdelenie naľavo"
 
 # Description
-#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:171
 msgid "View split on right"
 msgstr "Zobraziť rozdelenie napravo"
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:16
+#: data/org.gnome.mutter.gschema.xml.in:15
 msgid "Modifier to use for extended window management operations"
 msgstr "Modifikátor pre rozšírené operácie správcu okien"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:17
+#: data/org.gnome.mutter.gschema.xml.in:16
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -336,28 +336,28 @@ msgstr ""
 "nastavenie na prázdny reťazec."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:29
+#: data/org.gnome.mutter.gschema.xml.in:28
 msgid "Attach modal dialogs"
 msgstr "Pripojiť modálne dialógové okná"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:30
+#: data/org.gnome.mutter.gschema.xml.in:29
 msgid ""
 "When true, instead of having independent titlebars, modal dialogs appear "
 "attached to the titlebar of the parent window and are moved together with "
 "the parent window."
 msgstr ""
-"Ak je nastavené na true, namiesto nezávislých titulkov okien sa modálnym "
-"dialógovým oknám pripojí titulok z okna rodiča. Súčasne budú aj presúvané "
-"spolu s oknom rodiča."
+"Ak je nastavené na true, namiesto nezávislých titulkov okien sa modálne "
+"dialógové okná budú javiť ako pripojené k titulku okna rodiča. Súčasne budú spolu "
+"s oknom rodiča aj presúvané."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:39
+#: data/org.gnome.mutter.gschema.xml.in:38
 msgid "Enable edge tiling when dropping windows on screen edges"
 msgstr "Povoliť natiahnutie k okraju pri pustení okien na okrajoch obrazovky"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:40
+#: data/org.gnome.mutter.gschema.xml.in:39
 msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
@@ -368,12 +368,12 @@ msgstr ""
 "Upustenie okien pri vrchnom okraji obrazovky ich maximalizuje úplne."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:49
+#: data/org.gnome.mutter.gschema.xml.in:48
 msgid "Workspaces are managed dynamically"
 msgstr "Pracovné priestory sú spravované dynamicky"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:50
+#: data/org.gnome.mutter.gschema.xml.in:49
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in "
@@ -383,12 +383,12 @@ msgstr ""
 "pevný (určený kľúčom num-workspaces v org.gnome.desktop.wm.preferences)."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:59
+#: data/org.gnome.mutter.gschema.xml.in:58
 msgid "Workspaces only on primary"
 msgstr "Pracovné priestory len na hlavnom monitore"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:60
+#: data/org.gnome.mutter.gschema.xml.in:59
 msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
@@ -397,28 +397,28 @@ msgstr ""
 "monitoroch alebo iba medzi oknami na hlavnom monitore."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:68
+#: data/org.gnome.mutter.gschema.xml.in:67
 msgid "Delay focus changes until the pointer stops moving"
 msgstr "Odložiť zmeny zamerania až po zastavení pohybu ukazovateľa"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:69
+#: data/org.gnome.mutter.gschema.xml.in:68
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
 msgstr ""
-"Ak je nastavené na true, a režim aktivácie okien je buď „sloppy“ (nedbalý) "
-"alebo „mouse“ (myš), potom sa záber nezmení okamžite ale až po vstupe do "
+"Ak je nastavené na true a režim aktivácie okien je buď „sloppy“ (nedbalý) "
+"alebo „mouse“ (myš), potom sa zameranie nezmení okamžite, ale až po vstupe do "
 "okna a zastavení ukazovateľa."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:79
+#: data/org.gnome.mutter.gschema.xml.in:78
 msgid "Draggable border width"
 msgstr "Šírka posúvateľného okraja"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:80
+#: data/org.gnome.mutter.gschema.xml.in:79
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -427,12 +427,12 @@ msgstr ""
 "nastavené témou, budú pridané neviditeľné okraje až do požadovanej hodnoty."
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:89
+#: data/org.gnome.mutter.gschema.xml.in:88
 msgid "Auto maximize nearly monitor sized windows"
 msgstr "Automaticky maximalizovať okná podobnej veľkosti ako je monitor"
 
 # description
-#: data/org.gnome.mutter.gschema.xml.in:90
+#: data/org.gnome.mutter.gschema.xml.in:89
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
@@ -440,11 +440,11 @@ msgstr ""
 "Ak je povolené, nové okná inicializované na veľkosť monitora budú "
 "automaticky maximalizované."
 
-#: data/org.gnome.mutter.gschema.xml.in:98
+#: data/org.gnome.mutter.gschema.xml.in:97
 msgid "Place new windows in the center"
 msgstr "Umiestniť nové okná do stredu"
 
-#: data/org.gnome.mutter.gschema.xml.in:99
+#: data/org.gnome.mutter.gschema.xml.in:98
 msgid ""
 "When true, the new windows will always be put in the center of the active "
 "screen of the monitor."
@@ -452,64 +452,63 @@ msgstr ""
 "Ak je nastavené na true, budú nové okná vždy umiestnené v strede aktívnej "
 "obrazovky monitoru."
 
-#: data/org.gnome.mutter.gschema.xml.in:108
+#: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
 msgstr "Povoliť experimentálne funkcie"
 
-#: data/org.gnome.mutter.gschema.xml.in:109
+#: data/org.gnome.mutter.gschema.xml.in:108
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
+#| "with explicit modifiers, if supported by the driver. Requires a restart. "
+#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
+#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
+#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
+#| "when applicable if supported by the monitor, GPU and DRM driver. "
+#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
+#| "— lets Xwayland clients use their native scaling support. If scaling is "
+#| "not supported by client, the client will be unscaled. Setting only takes "
+#| "effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
 "feature. Any experimental feature is not required to still be available, or "
 "configurable. Don’t expect adding anything in this setting to be future "
-"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
-"mutter default to layout logical monitors in a logical pixel coordinate "
-"space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
-"mutter always allocate scanout buffers with explicit modifiers, if supported "
-"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
-"terminates Xwayland if all relevant X11 clients are gone. Requires a "
-"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
-"refresh rate of the monitor when applicable if supported by the monitor, GPU "
-"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
-"native-scaling” — lets Xwayland clients use their native scaling support. If "
-"scaling is not supported by client, the client will be unscaled. Setting "
-"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+"proof. Currently possible keywords: • “kms-modifiers” — makes mutter always "
+"allocate scanout buffers with explicit modifiers, if supported by the "
+"driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a restart."
 msgstr ""
-"Na povolenie experimentálnych funkcionalít pridajte do zoznamu ich kľúčové "
-"slová. To, či funkcionalita vyžaduje reštart kompozitora, závisí od danej "
-"funkcionality. Žiadna experimentálna funkcionalita nemusí byť zaručene "
+"Na povolenie experimentálnych funkcií pridajte do zoznamu ich kľúčové "
+"slová. To, či funkcia vyžaduje reštart kompozitora, závisí od konkrétnej "
+"funkcie. Žiadna experimentálna funkcia nemusí byť zaručene "
 "dostupná alebo konfigurovateľná aj v budúcnosti. Neočakávajte, že čokoľvek "
 "pridáte do tohto nastavenia, bude odolné voči budúcim zmenám. Momentálne "
-"dostupné kľúčové slová: • „scale-monitor-framebuffer“ — spôsobí, že Mutter "
-"bude predvolene rozmiestňovať logické monitory v logickom pixelovom "
-"súradnicovom priestore, pričom bude škálovať framebuffery monitorov namiesto "
-"obsahu okien. Slúži na správu HiDPI monitorov. Nevyžaduje reštart. \n"
-"    „kms-modifiers“ — spôsobí, že Mutter bude vždy alokovať výstupné buffery "
+"dostupné kľúčové slová: • „kms-modifiers“ — spôsobí, že Mutter bude vždy alokovať výstupné buffery "
 "s explicitnými modifikátormi, ak to ovládač podporuje. Vyžaduje reštart. • "
 "„autoclose-xwayland“ — automaticky ukončí Xwayland, ak sú všetky príslušné "
-"aplikácie využívajúce systém X11 zatvorené. Vyžaduje reštart. • „variable-"
-"refresh-rate“ — umožňuje Mutteru dynamicky prispôsobovať obnovovaciu "
-"frekvenciu monitora, ak to podporuje monitor, GPU a ovládač DRM. Je to "
-"konfigurovateľné v nastaveniach. Vyžaduje reštart. • „xwayland-native-"
-"scaling“ — umožňuje klientom systému Xwayland používať ich vlastnú podporu "
-"škálovania. Ak klient škálovanie nepodporuje, nebude škálovaný. Toto "
-"nastavenie má účinok len vtedy, ak je zároveň povolené „scale-monitor-"
-"framebuffer“."
+"aplikácie využívajúce systém X11 zatvorené. Vyžaduje reštart."
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
 msgstr "Modifikátor použitý na lokalizovanie ukazovateľa"
 
-#: data/org.gnome.mutter.gschema.xml.in:152
+#: data/org.gnome.mutter.gschema.xml.in:131
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Tento kláves spustí akciu „zisti polohu ukazovateľa“."
 
-#: data/org.gnome.mutter.gschema.xml.in:159
+#: data/org.gnome.mutter.gschema.xml.in:138
 msgid "Timeout for check-alive ping"
 msgstr "Časový limit pre check-alive ping"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:139
 msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
@@ -519,11 +518,11 @@ msgstr ""
 
 #. TRANSLATORS: Luminance is different from brightness.
 #. See https://en.wikipedia.org/wiki/Luminance
-#: data/org.gnome.mutter.gschema.xml.in:171
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Per output luminance settings"
 msgstr "Individuálne nastavenia jasu výstupov"
 
-#: data/org.gnome.mutter.gschema.xml.in:172
+#: data/org.gnome.mutter.gschema.xml.in:151
 msgid ""
 "Per output and color mode luminance setting. Each entry consists of a tuple "
 "with connector, vendor, product, serial, and a color mode, as well as an "
@@ -537,17 +536,17 @@ msgstr ""
 
 # PK: predpokladam ze to prepisane medzi tlacidlami
 # description
-#: data/org.gnome.mutter.gschema.xml.in:197
+#: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
 msgstr "Prepnúť nastavenia monitorov"
 
-#: data/org.gnome.mutter.gschema.xml.in:202
+#: data/org.gnome.mutter.gschema.xml.in:181
 msgid "Rotates the built-in monitor configuration"
 msgstr "Otočí nastavenie vstavaného monitora"
 
-#: data/org.gnome.mutter.gschema.xml.in:207
+#: data/org.gnome.mutter.gschema.xml.in:186
 msgid "Cancel any active input capture session"
-msgstr "Zrušiť akúkoľvel aktívnu reláciu zachytávania vstupu"
+msgstr "Zrušiť akúkoľvek aktívnu reláciu zachytávania vstupu"
 
 # description
 #: data/org.gnome.mutter.wayland.gschema.xml.in:12
@@ -685,7 +684,9 @@ msgstr ""
 #: data/org.gnome.mutter.wayland.gschema.xml.in:130
 msgid "Allow X11 clients with a different endianness to connect to Xwayland"
 msgstr ""
-"Povoliť pripojenie X11 aplikácií, ktoré používajú endianness k Xwaylandu"
+"Povoliť pripojenie k Xwaylandu X11 klientom používajúcim iné poradie bajtov "
+"(endianness)"
+
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:131
 msgid ""
@@ -701,70 +702,161 @@ msgid ""
 msgstr ""
 "Povoliť pripojenia od aplikácií s iným poradím bajtov (tzv endianness), než "
 "používa Xwayland. Kód v X serveri, ktorý sa stará o výmenu bajtov "
-"predstavuje veľkú ppriestor pre potenciálne útoky. Využitie výmeny bajtov "
+"predstavuje veľký priestor pre potenciálne útoky. Využitie výmeny bajtov "
 "klientskymi aplikáciami je veľmi zriedkavé a je preto v predvolenom stave v "
-"Xwaylande zakázané. Povolením tejto voľby dáte pokyn pre Xwayland aby "
+"Xwaylande zakázané. Povolením tejto voľby dáte pokyn pre Xwayland, aby "
 "prijímal spojenia od klientov s rozdielnym poradím bajtov. Táto voľba nemá "
-"žiadny efekt ak Xwayland nepodporuje voľbu príkazového riadka "
+"žiadny efekt, ak Xwayland nepodporuje voľbu príkazového riadka "
 "+byteswappedclients/-byteswappedclients, ktorou sa ovláda toto nastavenie.  "
 "Aby sa zmena prejavila, je potrebné reštartovať Xwayland."
 
-#: mdk/mdk-devkit.ui:7
+#: data/org.gnome.mutter.wayland.gschema.xml.in:154
+msgid "Configure the Xwayland scaling factor"
+msgstr "Nastaviť faktor zmeny veľkosti Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:155
+msgid ""
+"Scale the Xwayland coordinate space according to this factor. This will "
+"affect what scale HiDPI capable X11 clients will present themselves as, and "
+"how the compositor scales X11 client windows. Setting the scale to 0 means "
+"the scale will be automatically calculated. The scale will as of now be "
+"rounded to the closest integer."
+msgstr "Zmeniť mierku súradnicového priestoru Xwaylandu podľa tohto faktora. To bude mať vplyv na to, ako sa budú prezentovať X11 klienti podporujúci HiDPI a ako bude kompozitor meniť veľkosť okien klientov X11. Nastavenie mierky na 0 znamená, že sa vypočíta automaticky. Mierka sa v súčasnosti zaokrúhľuje na najbližšie celé číslo."
+
+# description
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+#| msgid "Switch applications"
+msgid "Application"
+msgstr "Aplikácia"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "Spustiteľný súbor"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "Pridať spúšťač"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "Spúšťač"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "Typ"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "Pridať"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "Spustiť"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "Odstrániť"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "Akcia"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "Upraviť spúšťače"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "Spúšťače"
+
+#: mdk/mdk-main-window.ui:7
 msgid "_Input"
 msgstr "_Vstup"
 
-#: mdk/mdk-devkit.ui:9
+#: mdk/mdk-main-window.ui:9
 msgid "_Emulate touch"
 msgstr "_Emulovať dotyk"
 
-#: mdk/mdk-devkit.ui:15
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_Potlačiť systémové skratky"
+
+#: mdk/mdk-main-window.ui:17
+msgid "Use host _keymap"
+msgstr "Použiť _klávesovú mapu hostiteľa"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Monitors"
+msgstr "_Monitory"
+
+# PK: predpokladam ze to prepisane medzi tlacidlami
+# description
+#: mdk/mdk-main-window.ui:26
+#| msgid "Switch monitor"
+msgid "_Add monitor"
+msgstr "_Pridať monitor"
+
+#: mdk/mdk-main-window.ui:30
+#| msgid "_Emulate touch"
+msgid "_Emulate monitor modes"
+msgstr "_Emulovať režimy monitora"
+
+#: mdk/mdk-main-window.ui:37
+msgid "_Launchers"
+msgstr "_Spúšťače"
+
+#: mdk/mdk-main-window.ui:41
+msgid "_Edit launchers"
+msgstr "_Upraviť spúšťače"
+
+#: mdk/mdk-main-window.ui:48
 msgid "_About Mutter Development Kit"
 msgstr "_O vývojovej sade pre Mutter"
 
-#: mdk/mdk-devkit.ui:21 mdk/mdk-main.c:84 mdk/mdk-main.c:99
+#: mdk/mdk-main-window.ui:54 mdk/mdk-main.c:56
 msgid "Mutter Development Kit"
 msgstr "Vývojová sada pre Mutter"
 
-#: mdk/mdk-devkit.ui:31
+#: mdk/mdk-main-window.ui:64
 msgid "Main Menu"
 msgstr "Hlavná ponuka"
 
-#: mdk/mdk-main.c:68
+#: mdk/mdk-main.c:49
 msgid "The Mutter Team"
 msgstr "Tím Mutteru"
 
-#: mdk/mdk-main.c:90 mdk/mdk-main.c:104
+#: mdk/mdk-main.c:62
 msgid "Mutter software development kit"
 msgstr "Softvérová vývojová sada pre Mutter"
 
-#: mdk/mdk-main.c:93 mdk/mdk-main.c:107
+#: mdk/mdk-main.c:65
 msgid "About Mutter Development Kit"
 msgstr "O vývojovej sade pre Mutter"
 
-#: mdk/mdk-monitor.c:672
+#: mdk/mdk-monitor.c:557
 msgid "Failed to create monitor"
 msgstr "Zlyhalo vytvorenie monitora"
 
-#: src/backends/meta-monitor.c:272
+#: src/backends/meta-monitor.c:285
 msgid "Built-in display"
 msgstr "Vstavaný displej"
 
-#: src/backends/meta-monitor.c:299
+#: src/backends/meta-monitor.c:312
 msgid "Unknown"
 msgstr "Neznámy"
 
-#: src/backends/meta-monitor.c:301
+#: src/backends/meta-monitor.c:314
 msgid "Unknown Display"
 msgstr "Neznámy displej"
 
-#: src/backends/meta-monitor.c:309
+#: src/backends/meta-monitor.c:322
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:317
+#: src/backends/meta-monitor.c:330
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -772,82 +864,59 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/core/bell.c:193
+#: src/core/bell.c:237
 msgid "Bell event"
 msgstr "Udalosť zvončeka"
 
-#: src/core/display.c:741
+#: src/core/display.c:608
 msgid "Privacy Screen Enabled"
 msgstr "Súkromná obrazovka povolená"
 
-#: src/core/display.c:742
+#: src/core/display.c:609
 msgid "Privacy Screen Disabled"
 msgstr "Súkromná obrazovka zakázaná"
 
 # cmd desc
-#: src/core/meta-context-main.c:632
-msgid "Replace the running window manager"
-msgstr "Nahradí bežiaceho správcu okien"
-
-#: src/core/meta-context-main.c:638
-msgid "X Display to use"
-msgstr "X displej, ktorý bude použitý"
-
-# cmd desc
-#: src/core/meta-context-main.c:644
-msgid "Make X calls synchronous"
-msgstr "Použije synchrónne volania X"
-
-# cmd desc
-#: src/core/meta-context-main.c:652
+#: src/core/meta-context-main.c:356
 msgid "Run as a wayland compositor"
 msgstr "Spustí ako kompozitor protokolu wayland"
 
-# cmd desc
-#: src/core/meta-context-main.c:659
-msgid "Run as a nested compositor"
-msgstr "Spustí ako kompozitor s vnoreným režimom"
-
-#: src/core/meta-context-main.c:665
+#: src/core/meta-context-main.c:363
 msgid "Run wayland compositor without starting Xwayland"
-msgstr "Spustí kompozitor waland bez spustenia Xwayland"
+msgstr "Spustí kompozitor wayland bez spustenia Xwayland"
 
-#: src/core/meta-context-main.c:672
+#: src/core/meta-context-main.c:370
 msgid "Specify Wayland display name to use"
 msgstr "Určuje názov displeja Wayland, ktorý sa má použiť"
 
-#: src/core/meta-context-main.c:680
+#: src/core/meta-context-main.c:377
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustí ako plnohodnotný zobrazovací server, namiesto vnoreného režimu"
 
-#: src/core/meta-context-main.c:685
+#: src/core/meta-context-main.c:382
 msgid "Run as a headless display server"
 msgstr "Spustí ako zobrazovací server bez monitora (headless)"
 
-#: src/core/meta-context-main.c:690
+#: src/core/meta-context-main.c:387
 msgid "Add persistent virtual monitor (WxH or WxH@R)"
 msgstr "Pridá trvalý virtuálny monitor (ŠxV alebo ŠxV@F)"
 
-#: src/core/meta-context-main.c:697
+#: src/core/meta-context-main.c:394
 msgid "Run development kit"
 msgstr "Spustí vývojársku sadu"
 
-#: src/core/meta-context-main.c:709
-msgid "Run with X11 backend"
-msgstr "Spustí s obslužným programom X11"
-
-#: src/core/meta-context-main.c:715
+#: src/core/meta-context-main.c:405
 msgid "Profile performance using trace instrumentation"
 msgstr "Premeria výkon pomocou techniky trasovania"
 
-#: src/core/meta-context-main.c:721
+#: src/core/meta-context-main.c:411
 msgid "Enable debug control D-Bus interface"
 msgstr "Povolí rozhranie zbernice D-Bus kvôli ovládaniu ladenia"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes in that button group.
 #.
-#: src/core/meta-pad-action-mapper.c:615
+#: src/core/meta-pad-action-mapper.c:617
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Prepínač režimu (skupina č. %d)"
@@ -855,7 +924,7 @@ msgstr "Prepínač režimu (skupina č. %d)"
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/core/meta-pad-action-mapper.c:622
+#: src/core/meta-pad-action-mapper.c:624
 #, c-format
 msgid "Mode Switch"
 msgstr "Prepínač režimu"
@@ -865,11 +934,11 @@ msgstr "Prepínač režimu"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/core/meta-pad-action-mapper.c:645
+#: src/core/meta-pad-action-mapper.c:647
 msgid "Switch monitor"
 msgstr "Prepnúť monitor"
 
-#: src/core/meta-pad-action-mapper.c:647
+#: src/core/meta-pad-action-mapper.c:649
 msgid "Show on-screen help"
 msgstr "Zobraziť pomocníka na obrazovke"
 
@@ -879,25 +948,25 @@ msgid "Compositor"
 msgstr "Kompozítor"
 
 # cmd desc
-#: src/core/mutter.c:74
+#: src/core/mutter.c:75
 msgid "Print version"
 msgstr "Zobrazí verziu"
 
 # cmd desc
-#: src/core/mutter.c:80
+#: src/core/mutter.c:81
 msgid "Mutter plugin to use"
 msgstr "Použije zásuvný modul Mutter"
 
-#: src/core/prefs.c:1869
+#: src/core/prefs.c:1874
 #, c-format
 msgid "Workspace %d"
 msgstr "Pracovný priestor č. %d"
 
-#: src/core/util.c:140
+#: src/core/util.c:155
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu"
 
-#: src/core/workspace.c:508
+#: src/core/workspace.c:510
 msgid "Workspace switched"
 msgstr "Pracovný priestor prepnutý"
 
@@ -906,29 +975,26 @@ msgstr "Pracovný priestor prepnutý"
 msgid "Mode Switch: Mode %d"
 msgstr "Prepínač režimu: Režim č. %d"
 
-#: src/x11/meta-x11-display.c:855
+#: src/x11/meta-x11-display.c:770
 #, c-format
-msgid ""
-"Display “%s” already has a window manager; try using the --replace option to "
-"replace the current window manager."
-msgstr ""
-"Displej „%s“ už má správcu okien. Skúste použiť prepínač --replace, aby sa "
-"aktuálny správca nahradil."
+#| msgid "Screen %d on display \"%s\" already has a window manager\n"
+msgid "Display “%s” already has a window manager"
+msgstr "Obrazovka „%s“ už správcu okien má"
 
 # X window system preloz, napr. system na spravu okien X
-#: src/x11/meta-x11-display.c:1240
+#: src/x11/meta-x11-display.c:1133
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“"
 
-#: src/x11/meta-x11-display.c:1473
+#: src/x11/meta-x11-display.c:1278
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Obrazovka č. %d na displeji „%s“ nie je platná"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2793
+#: src/x11/meta-x11-display.c:2463
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -941,10 +1007,36 @@ msgid "Format %s not supported"
 msgstr "Formát %s nie je podporovaný"
 
 # window title; wm_client_machine
-#: src/x11/window-props.c:564
+#: src/x11/window-props.c:562
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
+
+# cmd desc
+#~ msgid "Replace the running window manager"
+#~ msgstr "Nahradí bežiaceho správcu okien"
+
+#~ msgid "X Display to use"
+#~ msgstr "X displej, ktorý bude použitý"
+
+# cmd desc
+#~ msgid "Make X calls synchronous"
+#~ msgstr "Použije synchrónne volania X"
+
+# cmd desc
+#~ msgid "Run as a nested compositor"
+#~ msgstr "Spustí ako kompozitor s vnoreným režimom"
+
+#~ msgid "Run with X11 backend"
+#~ msgstr "Spustí s obslužným programom X11"
+
+#, c-format
+#~ msgid ""
+#~ "Display “%s” already has a window manager; try using the --replace option "
+#~ "to replace the current window manager."
+#~ msgstr ""
+#~ "Displej „%s“ už má správcu okien. Skúste použiť prepínač --replace, aby "
+#~ "sa aktuálny správca nahradil."
 
 # cmd desc
 #~ msgid "Disable connection to session manager"
@@ -1094,9 +1186,6 @@ msgstr "%s (na %s)"
 #~ msgstr ""
 #~ "Nepodarilo sa získať výber správcu okien pre obrazovku č. %d na displeji "
 #~ "„%s“\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr "Obrazovka č. %d na displeji „%s“ už má správcu okien\n"
 
 #~ msgid "Could not release screen %d on display \"%s\"\n"
 #~ msgstr "Nepodarilo sa uvoľniť obrazovku č. %d na displeji „%s“\n"
