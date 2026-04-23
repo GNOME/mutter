@@ -153,6 +153,18 @@ void meta_screen_cast_stream_src_request_process (MetaScreenCastStreamSrc *src);
 
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
 
+gboolean meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
+                                                      ClutterColorState         *color_state,
+                                                      MtkRectangle              *area,
+                                                      float                      scale,
+                                                      int                        width,
+                                                      int                        height,
+                                                      int                        stride,
+                                                      uint8_t                   *data,
+                                                      CoglPixelFormat            format,
+                                                      MtkRegion                 *damage,
+                                                      GError                   **error);
+
 gboolean meta_screen_cast_stream_src_draw_cursor_into (MetaScreenCastStreamSrc  *src,
                                                        CoglTexture              *cursor_texture,
                                                        int                       width,

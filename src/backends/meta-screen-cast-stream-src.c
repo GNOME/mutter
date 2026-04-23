@@ -153,6 +153,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
    */
   GList *dequeued_buffers;
 
+  CoglFramebuffer *framebuffer;
   MtkRectangle layout;
   MtkRegion *damage;
 
@@ -398,6 +399,107 @@ meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
     return klass->get_videocrop (src, crop_rect);
 
   return FALSE;
+}
+
+static CoglFramebuffer *
+ensure_framebuffer (MetaScreenCastStreamSrc *src,
+                    CoglContext             *cogl_context,
+                    int                      width,
+                    int                      height,
+                    GError                 **error)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (!priv->framebuffer)
+    {
+      CoglTexture *texture;
+      CoglOffscreen *offscreen;
+
+      texture = cogl_texture_2d_new_with_size (cogl_context,
+                                               width,
+                                               height);
+      if (!texture)
+        {
+          g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                       "Failed to create %dx%d texture",
+                       width, height);
+          return NULL;
+        }
+
+      offscreen = cogl_offscreen_new_with_texture (texture);
+      priv->framebuffer = COGL_FRAMEBUFFER (offscreen);
+
+      if (!cogl_framebuffer_allocate (priv->framebuffer, error))
+        g_clear_object (&priv->framebuffer);
+    }
+
+  return priv->framebuffer;
+}
+
+gboolean
+meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
+                                             ClutterColorState         *color_state,
+                                             MtkRectangle              *area,
+                                             float                      scale,
+                                             int                        width,
+                                             int                        height,
+                                             int                        stride,
+                                             uint8_t                   *data,
+                                             CoglPixelFormat            format,
+                                             MtkRegion                 *damage,
+                                             GError                   **error)
+{
+  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
+  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
+  MetaScreenCast *screen_cast =
+    meta_screen_cast_session_get_screen_cast (session);
+  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  ClutterContext *context =
+    clutter_actor_get_context (CLUTTER_ACTOR (stage));
+  ClutterBackend *clutter_backend = clutter_context_get_backend (context);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  g_autoptr (CoglBitmap) bitmap = NULL;
+  CoglFramebuffer *framebuffer;
+  ClutterPaintFlag paint_flags;
+
+  paint_flags = CLUTTER_PAINT_FLAG_NONE;
+  switch (meta_screen_cast_stream_get_cursor_mode (stream))
+    {
+    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
+    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
+      break;
+    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
+      paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
+      break;
+    }
+
+  framebuffer = ensure_framebuffer (src, cogl_context, width, height, error);
+  if (!framebuffer)
+    return FALSE;
+
+  clutter_stage_paint_to_framebuffer_clipped (stage,
+                                              framebuffer,
+                                              area,
+                                              scale,
+                                              color_state,
+                                              damage,
+                                              paint_flags);
+
+  bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                     width, height,
+                                     format,
+                                     stride,
+                                     data);
+
+  cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
+                                            0, 0,
+                                            COGL_READ_PIXELS_COLOR_BUFFER,
+                                            bitmap);
+  return TRUE;
 }
 
 static gboolean
@@ -2847,6 +2949,7 @@ meta_screen_cast_stream_src_dispose (GObject *object)
   g_clear_pointer (&priv->pipewire_source, g_source_destroy);
   g_clear_pointer (&priv->damage, mtk_region_unref);
   g_clear_object (&priv->color_state);
+  g_clear_object (&priv->framebuffer);
 
   g_clear_handle_id (&priv->negotiate_with_device_handle_id, g_source_remove);
 
@@ -2884,6 +2987,7 @@ meta_screen_cast_stream_src_set_property (GObject      *object,
           priv->layout = *layout;
           region = mtk_region_create_rectangle (layout);
           meta_screen_cast_stream_src_accumulate_damage (src, flag, region);
+          g_clear_object (&priv->framebuffer);
         }
       break;
     default:

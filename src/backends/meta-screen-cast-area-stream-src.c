@@ -463,40 +463,25 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *sr
                                                    uint8_t                   *data,
                                                    GError                   **error)
 {
-  MetaScreenCastAreaStreamSrc *area_src =
-    META_SCREEN_CAST_AREA_STREAM_SRC (src);
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaScreenCastAreaStream *area_stream = META_SCREEN_CAST_AREA_STREAM (stream);
-  ClutterStage *stage;
   MtkRectangle *area;
   float scale;
-  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
-  stage = get_stage (area_src);
   area = meta_screen_cast_area_stream_get_area (area_stream);
   scale = meta_screen_cast_area_stream_get_scale (area_stream);
 
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
-    {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
-      break;
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
-      break;
-    }
-
-  if (!clutter_stage_paint_to_buffer (stage, area, scale,
-                                      data,
-                                      stride,
-                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                      NULL,
-                                      paint_flags,
-                                      error))
-    return FALSE;
-
-  return TRUE;
+  return meta_screen_cast_stream_src_paint_to_buffer (src,
+                                                      NULL,
+                                                      area,
+                                                      scale,
+                                                      width,
+                                                      height,
+                                                      stride,
+                                                      data,
+                                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                                      NULL,
+                                                      error);
 }
 
 static gboolean

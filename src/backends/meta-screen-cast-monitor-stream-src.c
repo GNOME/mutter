@@ -573,47 +573,33 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
   MetaBackend *backend = get_backend (monitor_src);
-  ClutterStage *stage;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   float scale;
-  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
   ClutterColorState *color_state;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
-  stage = get_stage (monitor_src);
 
   if (meta_backend_is_stage_views_scaled (backend))
     scale = meta_logical_monitor_get_scale (logical_monitor);
   else
     scale = 1.0;
 
-  switch (meta_screen_cast_stream_get_cursor_mode (stream))
-    {
-    case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-    case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      paint_flags |= CLUTTER_PAINT_FLAG_NO_CURSORS;
-      break;
-    case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
-      paint_flags |= CLUTTER_PAINT_FLAG_FORCE_CURSORS;
-      break;
-    }
-
   color_state = meta_screen_cast_stream_src_get_color_state (src);
 
-  if (!clutter_stage_paint_to_buffer (stage, &logical_monitor->rect, scale,
-                                      data,
-                                      stride,
-                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                      color_state,
-                                      paint_flags,
-                                      error))
-    return FALSE;
-
-  return TRUE;
+  return meta_screen_cast_stream_src_paint_to_buffer (src,
+                                                      color_state,
+                                                      &logical_monitor->rect,
+                                                      scale,
+                                                      width,
+                                                      height,
+                                                      stride,
+                                                      data,
+                                                      COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
+                                                      NULL,
+                                                      error);
 }
 
 static gboolean
