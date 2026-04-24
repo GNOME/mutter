@@ -423,15 +423,18 @@ meta_screen_cast_virtual_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
                                                       GError                   **error)
 {
   ClutterStageView *view;
+  CoglFramebuffer *framebuffer;
   MtkRectangle view_rect;
   float scale;
 
   view = view_from_src (src);
+  framebuffer = clutter_stage_view_get_onscreen (view);
   scale = clutter_stage_view_get_scale (view);
   clutter_stage_view_get_layout (view, &view_rect);
 
   return meta_screen_cast_stream_src_paint_to_buffer (src,
                                                       NULL,
+                                                      framebuffer,
                                                       &view_rect,
                                                       scale,
                                                       width,

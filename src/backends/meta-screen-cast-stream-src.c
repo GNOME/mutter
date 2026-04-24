@@ -440,6 +440,7 @@ ensure_framebuffer (MetaScreenCastStreamSrc *src,
 gboolean
 meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
                                              ClutterColorState         *color_state,
+                                             CoglFramebuffer           *framebuffer,
                                              MtkRectangle              *area,
                                              float                      scale,
                                              int                        width,
@@ -462,7 +463,6 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
   CoglContext *cogl_context =
     clutter_backend_get_cogl_context (clutter_backend);
   g_autoptr (CoglBitmap) bitmap = NULL;
-  CoglFramebuffer *framebuffer;
   ClutterPaintFlag paint_flags;
 
   paint_flags = CLUTTER_PAINT_FLAG_NONE;
@@ -477,17 +477,20 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
       break;
     }
 
-  framebuffer = ensure_framebuffer (src, cogl_context, width, height, error);
   if (!framebuffer)
-    return FALSE;
+    {
+      framebuffer = ensure_framebuffer (src, cogl_context, width, height, error);
+      if (!framebuffer)
+        return FALSE;
 
-  clutter_stage_paint_to_framebuffer_clipped (stage,
-                                              framebuffer,
-                                              area,
-                                              scale,
-                                              color_state,
-                                              damage,
-                                              paint_flags);
+      clutter_stage_paint_to_framebuffer_clipped (stage,
+                                                  framebuffer,
+                                                  area,
+                                                  scale,
+                                                  color_state,
+                                                  damage,
+                                                  paint_flags);
+    }
 
   bitmap = cogl_bitmap_new_for_data (cogl_context,
                                      width, height,

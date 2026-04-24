@@ -474,6 +474,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *sr
 
   return meta_screen_cast_stream_src_paint_to_buffer (src,
                                                       NULL,
+                                                      NULL,
                                                       area,
                                                       scale,
                                                       width,

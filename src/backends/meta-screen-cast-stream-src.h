@@ -156,6 +156,7 @@ MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStr
 
 gboolean meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
                                                       ClutterColorState         *color_state,
+                                                      CoglFramebuffer           *framebuffer,
                                                       MtkRectangle              *area,
                                                       float                      scale,
                                                       int                        width,

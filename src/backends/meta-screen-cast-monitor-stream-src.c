@@ -575,12 +575,15 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaBackend *backend = get_backend (monitor_src);
+  CoglFramebuffer *framebuffer = NULL;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
+  GList *outputs;
   float scale;
   ClutterColorState *color_state;
 
   monitor = get_monitor (monitor_src);
+  outputs = meta_monitor_get_outputs (monitor);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
 
   if (meta_backend_is_stage_views_scaled (backend))
@@ -588,10 +591,26 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc   
   else
     scale = 1.0;
 
+  if (!outputs->next &&
+      (paint_phase != META_SCREEN_CAST_PAINT_PHASE_DETACHED ||
+       flags == META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
+    {
+      MetaRenderer *renderer = meta_backend_get_renderer (backend);
+      MetaRendererView *renderer_view;
+      ClutterStageView *stage_view;
+      MetaCrtc *crtc;
+
+      crtc = meta_output_get_assigned_crtc (outputs->data);
+      renderer_view = meta_renderer_get_view_for_crtc (renderer, crtc);
+      stage_view = CLUTTER_STAGE_VIEW (renderer_view);
+      framebuffer = clutter_stage_view_get_framebuffer (stage_view);
+    }
+
   color_state = meta_screen_cast_stream_src_get_color_state (src);
 
   return meta_screen_cast_stream_src_paint_to_buffer (src,
                                                       color_state,
+                                                      framebuffer,
                                                       &logical_monitor->rect,
                                                       scale,
                                                       width,
