@@ -88,6 +88,9 @@ gboolean meta_wayland_tablet_seat_get_grab_info (MetaWaylandTabletSeat *tablet_s
 MetaWaylandSurface * meta_wayland_tablet_seat_get_current_surface (MetaWaylandTabletSeat *tablet_seat,
                                                                    ClutterInputDevice    *device);
 
+MetaWaylandSurface * meta_wayland_tablet_seat_get_implicit_grab_surface (MetaWaylandTabletSeat *tablet_seat,
+                                                                         ClutterInputDevice    *device);
+
 void meta_wayland_tablet_seat_focus_surface (MetaWaylandTabletSeat *tablet_seat,
                                              ClutterInputDevice    *device,
                                              MetaWaylandSurface    *surface);
