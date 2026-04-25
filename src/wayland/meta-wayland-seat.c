@@ -202,6 +202,14 @@ default_get_focus_surface (MetaWaylandEventHandler *handler,
         {
           surface = meta_wayland_pointer_get_implicit_grab_surface (seat->pointer);
         }
+      else if (role == CLUTTER_SPRITE_ROLE_TABLET)
+        {
+          ClutterInputDevice *device;
+
+          device = clutter_sprite_get_sprite_device (CLUTTER_SPRITE (focus));
+          surface = meta_wayland_tablet_seat_get_implicit_grab_surface (seat->tablet_seat,
+                                                                        device);
+        }
       else if (role == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
         {
           ClutterEventSequence *sequence;
