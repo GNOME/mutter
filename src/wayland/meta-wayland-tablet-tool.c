@@ -935,8 +935,7 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
       meta_wayland_tablet_tool_account_button (tool, event);
       break;
     case CLUTTER_MOTION:
-      if (!tool->pressed_buttons)
-        repick_for_event (tool, event);
+      repick_for_event (tool, event);
       break;
     case CLUTTER_PROXIMITY_IN:
       tool->current_tablet =
