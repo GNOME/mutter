@@ -66,6 +66,7 @@ struct _MetaWaylandTabletTool
   ClutterCursor *cursor;
 
   MetaWaylandSurface *current;
+  MetaWaylandSurface *implicit_grab_surface;
   guint32 pressed_buttons;
   guint32 button_count;
 
@@ -76,6 +77,7 @@ struct _MetaWaylandTabletTool
   float grab_x, grab_y;
 
   gulong current_surface_destroyed_handler_id;
+  gulong implicit_grab_surface_destroyed_handler_id;
   CursorSource cursor_source;
 
   MetaWaylandTablet *current_tablet;
@@ -83,6 +85,9 @@ struct _MetaWaylandTabletTool
 
 static void meta_wayland_tablet_tool_set_current_surface (MetaWaylandTabletTool *tool,
 							  MetaWaylandSurface    *surface);
+
+static void meta_wayland_tablet_tool_set_implicit_grab_surface (MetaWaylandTabletTool *tool,
+                                                                MetaWaylandSurface    *surface);
 
 static MetaBackend *
 backend_from_tool (MetaWaylandTabletTool *tool)
@@ -454,6 +459,7 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
   meta_wayland_tablet_tool_set_current_surface (tool, NULL);
   meta_wayland_tablet_tool_set_focus (tool, NULL, NULL);
   meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
+  meta_wayland_tablet_tool_set_implicit_grab_surface (tool, NULL);
 
   wl_resource_for_each_safe (resource, next, &tool->resource_list)
     {
@@ -600,6 +606,9 @@ meta_wayland_tablet_tool_account_button (MetaWaylandTabletTool *tool,
 
   if (event_type == CLUTTER_BUTTON_PRESS)
     {
+      if (tool->pressed_buttons == 0)
+        meta_wayland_tablet_tool_set_implicit_grab_surface (tool, tool->current);
+
       tool->pressed_buttons |= 1 << (button - 1);
       tool->button_count++;
     }
@@ -607,6 +616,9 @@ meta_wayland_tablet_tool_account_button (MetaWaylandTabletTool *tool,
     {
       tool->pressed_buttons &= ~(1 << (button - 1));
       tool->button_count--;
+
+      if (tool->pressed_buttons == 0)
+        meta_wayland_tablet_tool_set_implicit_grab_surface (tool, NULL);
     }
 }
 
@@ -944,6 +956,37 @@ meta_wayland_tablet_tool_update (MetaWaylandTabletTool *tool,
     }
 }
 
+static void
+implicit_grab_surface_destroyed (MetaWaylandSurface    *surface,
+                                 MetaWaylandTabletTool *tool)
+{
+  meta_wayland_tablet_tool_set_implicit_grab_surface (tool, NULL);
+}
+
+static void
+meta_wayland_tablet_tool_set_implicit_grab_surface (MetaWaylandTabletTool *tool,
+                                                    MetaWaylandSurface    *surface)
+{
+  if (tool->implicit_grab_surface == surface)
+    return;
+
+  if (tool->implicit_grab_surface)
+    {
+      g_clear_signal_handler (&tool->implicit_grab_surface_destroyed_handler_id,
+                              tool->implicit_grab_surface);
+      tool->implicit_grab_surface = NULL;
+    }
+
+  if (surface)
+    {
+      tool->implicit_grab_surface = surface;
+      tool->implicit_grab_surface_destroyed_handler_id =
+        g_signal_connect (surface, "destroy",
+                          G_CALLBACK (implicit_grab_surface_destroyed),
+                          tool);
+    }
+}
+
 gboolean
 meta_wayland_tablet_tool_handle_event (MetaWaylandTabletTool *tool,
                                        const ClutterEvent    *event)
@@ -1051,6 +1094,12 @@ MetaWaylandSurface *
 meta_wayland_tablet_tool_get_current_surface (MetaWaylandTabletTool *tool)
 {
   return tool->current;
+}
+
+MetaWaylandSurface *
+meta_wayland_tablet_tool_get_implicit_grab_surface (MetaWaylandTabletTool *tool)
+{
+  return tool->implicit_grab_surface;
 }
 
 void
