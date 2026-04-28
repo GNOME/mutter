@@ -1,0 +1,814 @@
+# Lao translation for mutter.
+# Copyright (C) 2025 mutter's COPYRIGHT HOLDER
+# This file is distributed under the same license as the mutter package.
+# bone NI <bounkirdni@gmail.com>,  2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mutter main\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
+"POT-Creation-Date: 2025-09-19 08:20+0000\n"
+"PO-Revision-Date: 2025-09-19 08:20+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Lao <lo@li.org>\n"
+"Language: lo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: data/50-mutter-navigation.xml:6
+msgid "Navigation"
+msgstr "ການນຳທາງ"
+
+#: data/50-mutter-navigation.xml:9
+msgid "Move window to workspace 1"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປທີ່ພື້ນທີ່ເຮັດວຽກ 1"
+
+#: data/50-mutter-navigation.xml:12
+msgid "Move window to workspace 2"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປທີ່ພື້ນທີ່ເຮັດວຽກ 2"
+
+#: data/50-mutter-navigation.xml:15
+msgid "Move window to workspace 3"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປທີ່ພື້ນທີ່ເຮັດວຽກ 3"
+
+#: data/50-mutter-navigation.xml:18
+msgid "Move window to workspace 4"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປທີ່ພື້ນທີ່ເຮັດວຽກ 4"
+
+#: data/50-mutter-navigation.xml:21
+msgid "Move window to last workspace"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປທີ່ພື້ນທີ່ເຮັດວຽກສຸດທ້າຍ"
+
+#: data/50-mutter-navigation.xml:24
+msgid "Move window one workspace to the left"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງພື້ນທີ່ເຮັດວຽກທາງຊ້າຍ"
+
+#: data/50-mutter-navigation.xml:27
+msgid "Move window one workspace to the right"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງພື້ນທີ່ເຮັດວຽກທາງຂວາ"
+
+#: data/50-mutter-navigation.xml:31
+msgid "Move window one workspace up"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງພື້ນທີ່ເຮັດວຽກດ້ານເທິງ"
+
+#: data/50-mutter-navigation.xml:35
+msgid "Move window one workspace down"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງພື້ນທີ່ເຮັດວຽກດ້ານລຸ່ມ"
+
+#: data/50-mutter-navigation.xml:38
+msgid "Move window one monitor to the left"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງຈໍພາບທາງຊ້າຍ"
+
+#: data/50-mutter-navigation.xml:41
+msgid "Move window one monitor to the right"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງຈໍພາບທາງຂວາ"
+
+#: data/50-mutter-navigation.xml:44
+msgid "Move window one monitor up"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງຈໍພາບດ້ານເທິງ"
+
+#: data/50-mutter-navigation.xml:47
+msgid "Move window one monitor down"
+msgstr "ຍ້າຍໜ້າຕ່າງໄປໜຶ່ງຈໍພາບດ້ານລຸ່ມ"
+
+#: data/50-mutter-navigation.xml:51
+msgid "Switch applications"
+msgstr "ສັບປ່ຽນແອັບພລິເຄຊັນ"
+
+#: data/50-mutter-navigation.xml:56
+msgid "Switch to previous application"
+msgstr "ສັບປ່ຽນໄປທີ່ແອັບພລິເຄຊັນກ່ອນໜ້າ"
+
+#: data/50-mutter-navigation.xml:60
+msgid "Switch windows"
+msgstr "ສັບປ່ຽນໜ້າຕ່າງ"
+
+#: data/50-mutter-navigation.xml:65
+msgid "Switch to previous window"
+msgstr "ສັບປ່ຽນໄປທີ່ໜ້າຕ່າງກ່ອນໜ້າ"
+
+#: data/50-mutter-navigation.xml:69
+msgid "Switch windows of an application"
+msgstr "ສັບປ່ຽນໜ້າຕ່າງຂອງແອັບພລິເຄຊັນ"
+
+#: data/50-mutter-navigation.xml:74
+msgid "Switch to previous window of an application"
+msgstr "ສັບປ່ຽນໄປທີ່ໜ້າຕ່າງກ່ອນໜ້າຂອງແອັບພລິເຄຊັນ"
+
+#: data/50-mutter-navigation.xml:78
+msgid "Switch system controls"
+msgstr "ສັບປ່ຽນສ່ວນຄວບຄຸມລະບົບ"
+
+#: data/50-mutter-navigation.xml:83
+msgid "Switch to previous system control"
+msgstr "ສັບປ່ຽນໄປທີ່ສ່ວນຄວບຄຸມລະບົບກ່ອນໜ້າ"
+
+#: data/50-mutter-navigation.xml:87
+msgid "Switch windows directly"
+msgstr "ສັບປ່ຽນໜ້າຕ່າງໂດຍກົງ"
+
+#: data/50-mutter-navigation.xml:92
+msgid "Switch directly to previous window"
+msgstr "ສັບປ່ຽນໄປທີ່ໜ້າຕ່າງກ່ອນໜ້າໂດຍກົງ"
+
+#: data/50-mutter-navigation.xml:96
+msgid "Switch windows of an app directly"
+msgstr "ສັບປ່ຽນໜ້າຕ່າງຂອງແອັບໂດຍກົງ"
+
+#: data/50-mutter-navigation.xml:101
+msgid "Switch directly to previous window of an app"
+msgstr "ສັບປ່ຽນໄປທີ່ໜ້າຕ່າງກ່ອນໜ້າຂອງແອັບໂດຍກົງ"
+
+#: data/50-mutter-navigation.xml:105
+msgid "Switch system controls directly"
+msgstr "ສັບປ່ຽນສ່ວນຄວບຄຸມລະບົບໂດຍກົງ"
+
+#: data/50-mutter-navigation.xml:110
+msgid "Switch directly to previous system control"
+msgstr "ສັບປ່ຽນໄປທີ່ສ່ວນຄວບຄຸມລະບົບກ່ອນໜ້າໂດຍກົງ"
+
+#: data/50-mutter-navigation.xml:113
+msgid "Hide all normal windows"
+msgstr "ເຊື່ອງໜ້າຕ່າງປົກກະຕິທັງໝົດ"
+
+#: data/50-mutter-navigation.xml:116
+msgid "Switch to workspace 1"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກ 1"
+
+#: data/50-mutter-navigation.xml:119
+msgid "Switch to workspace 2"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກ 2"
+
+#: data/50-mutter-navigation.xml:122
+msgid "Switch to workspace 3"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກ 3"
+
+#: data/50-mutter-navigation.xml:125
+msgid "Switch to workspace 4"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກ 4"
+
+#: data/50-mutter-navigation.xml:128
+msgid "Switch to last workspace"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກສຸດທ້າຍ"
+
+#: data/50-mutter-navigation.xml:131
+msgid "Switch to workspace on the left"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກທາງຊ້າຍ"
+
+#: data/50-mutter-navigation.xml:134
+msgid "Switch to workspace on the right"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກທາງຂວາ"
+
+#: data/50-mutter-navigation.xml:138
+msgid "Switch to workspace above"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກດ້ານເທິງ"
+
+#: data/50-mutter-navigation.xml:142
+msgid "Switch to workspace below"
+msgstr "ສັບປ່ຽນໄປທີ່ພື້ນທີ່ເຮັດວຽກດ້ານລຸ່ມ"
+
+#: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
+msgid "System"
+msgstr "ລະບົບ"
+
+#: data/50-mutter-system.xml:8
+msgid "Show the run command prompt"
+msgstr "ສະແດງກ່ອງຄຳສັ່ງ"
+
+#: data/50-mutter-wayland.xml:8
+msgid "Restore the keyboard shortcuts"
+msgstr "ກູ້ຄືນປຸ່ມລັດ"
+
+#: data/50-mutter-windows.xml:6
+msgid "Windows"
+msgstr "ໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:8
+msgid "Activate the window menu"
+msgstr "ເປີດໃຊ້ເມນູໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:10
+msgid "Toggle fullscreen mode"
+msgstr "ສະຫຼັບໂໝດເຕັມຈໍ"
+
+#: data/50-mutter-windows.xml:12
+msgid "Toggle maximization state"
+msgstr "ສະຫຼັບສະຖານະຂະຫຍາຍໃຫຍ່ສຸດ"
+
+#: data/50-mutter-windows.xml:14
+msgid "Maximize window"
+msgstr "ຂະຫຍາຍໜ້າຕ່າງໃຫຍ່ສຸດ"
+
+#: data/50-mutter-windows.xml:16
+msgid "Restore window"
+msgstr "ກູ້ຄືນໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:18
+msgid "Close window"
+msgstr "ປິດໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:20
+msgid "Hide window"
+msgstr "ເຊື່ອງໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:22
+msgid "Move window"
+msgstr "ຍ້າຍໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:24
+msgid "Resize window"
+msgstr "ປັບຂະໜາດໜ້າຕ່າງ"
+
+#: data/50-mutter-windows.xml:27
+msgid "Toggle window on all workspaces or one"
+msgstr "ສະຫຼັບໜ້າຕ່າງໃນທຸກພື້ນທີ່ເຮັດວຽກ ຫຼື ໜຶ່ງດຽວ"
+
+#: data/50-mutter-windows.xml:29
+msgid "Raise window if covered, otherwise lower it"
+msgstr "ຍົກໜ້າຕ່າງຂຶ້ນຖ້າຖືກບັງ, ຖ້າບໍ່ດັ່ງນັ້ນໃຫ້ຫຼຸດລົງ"
+
+#: data/50-mutter-windows.xml:31
+msgid "Raise window above other windows"
+msgstr "ຍົກໜ້າຕ່າງຂຶ້ນເທິງໜ້າຕ່າງອື່ນ"
+
+#: data/50-mutter-windows.xml:33
+msgid "Lower window below other windows"
+msgstr "ຫຼຸດໜ້າຕ່າງລົງລຸ່ມໜ້າຕ່າງອື່ນ"
+
+#: data/50-mutter-windows.xml:35
+msgid "Maximize window vertically"
+msgstr "ຂະຫຍາຍໜ້າຕ່າງໃຫຍ່ສຸດຕາມແນວຕັ້ງ"
+
+#: data/50-mutter-windows.xml:37
+msgid "Maximize window horizontally"
+msgstr "ຂະຫຍາຍໜ້າຕ່າງໃຫຍ່ສຸດຕາມແນວນອນ"
+
+#: data/50-mutter-windows.xml:41 data/org.gnome.mutter.gschema.xml.in:187
+msgid "View split on left"
+msgstr "ເບິ່ງແບບແບ່ງຊ້າຍ"
+
+#: data/50-mutter-windows.xml:45 data/org.gnome.mutter.gschema.xml.in:192
+msgid "View split on right"
+msgstr "ເບິ່ງແບບແບ່ງຂວາ"
+
+#: data/org.gnome.mutter.gschema.xml.in:16
+msgid "Modifier to use for extended window management operations"
+msgstr "ປຸ່ມດັດແປງທີ່ຈະໃຊ້ສຳລັບການດຳເນີນການຈັດການໜ້າຕ່າງແບບຂະຫຍາຍ"
+
+#: data/org.gnome.mutter.gschema.xml.in:17
+msgid ""
+"This key will initiate the “overlay”, which is a combination window overview "
+"and application launching system. The default is intended to be the “Windows "
+"key” on PC hardware. It’s expected that this binding either the default or "
+"set to the empty string."
+msgstr "ປຸ່ມນີ້ຈະເລີ່ມ “ໂອເວີເລ”, ເຊິ່ງເປັນການລວມກັນລະຫວ່າງພາບລວມຂອງໜ້າຕ່າງ ແລະ ລະບົບເປີດແອັບພລິເຄຊັນ. ຄ່າເລີ່ມຕົ້ນຕັ້ງໃຈໃຫ້ເປັນ “ປຸ່ມ Windows” ເທິງຮາດແວຂອງ PC. ຄາດວ່າການກຳນົດຄ່ານີ້ຈະເປັນຄ່າເລີ່ມຕົ້ນ ຫຼື ຕັ້ງເປັນຄ່າວ່າງ."
+
+#: data/org.gnome.mutter.gschema.xml.in:29
+msgid "Attach modal dialogs"
+msgstr "ຕິດກ່ອງໂຕ້ຕອບໂມດໍ"
+
+#: data/org.gnome.mutter.gschema.xml.in:30
+msgid ""
+"When true, instead of having independent titlebars, modal dialogs appear "
+"attached to the titlebar of the parent window and are moved together with "
+"the parent window."
+msgstr "ເມື່ອເປັນຈິງ, ແທນທີ່ຈະມີແຖບຫົວເລື່ອງທີ່ເປັນເອກະລາດ, ກ່ອງໂຕ້ຕອບໂມດໍຈະປະກົດຕິດຢູ່ກັບແຖບຫົວເລື່ອງຂອງໜ້າຕ່າງຫຼັກ ແລະ ຖືກຍ້າຍໄປພ້ອມກັບໜ້າຕ່າງຫຼັກ."
+
+#: data/org.gnome.mutter.gschema.xml.in:39
+msgid "Enable edge tiling when dropping windows on screen edges"
+msgstr "ເປີດໃຊ້ການຈັດລຽນຕາມຂອບ ເມື່ອລາກໜ້າຕ່າງໃສ່ຂອບຈໍ"
+
+#: data/org.gnome.mutter.gschema.xml.in:40
+msgid ""
+"If enabled, dropping windows on vertical screen edges maximizes them "
+"vertically and resizes them horizontally to cover half of the available "
+"area. Dropping windows on the top screen edge maximizes them completely."
+msgstr "ຖ້າເປີດໃຊ້, ການລາກໜ້າຕ່າງມາໃສ່ຂອບຈໍແນວຕັ້ງຈະຂະຫຍາຍພວກມັນໃຫຍ່ສຸດຕາມແນວຕັ້ງ ແລະ ປັບຂະໜາດຕາມແນວນອນເພື່ອໃຫ້ກວມເອົາເຄິ່ງໜຶ່ງຂອງພື້ນທີ່ທີ່ມີຢູ່. ການລາກໜ້າຕ່າງມາໃສ່ຂອບຈໍດ້ານເທິງຈະຂະຫຍາຍພວກມັນໃຫຍ່ສຸດເຕັມຈໍ."
+
+#: data/org.gnome.mutter.gschema.xml.in:49
+msgid "Workspaces are managed dynamically"
+msgstr "ພື້ນທີ່ເຮັດວຽກຖືກຈັດການແບບໄດນາມິກ"
+
+#: data/org.gnome.mutter.gschema.xml.in:50
+msgid ""
+"Determines whether workspaces are managed dynamically or whether there’s a "
+"static number of workspaces (determined by the num-workspaces key in "
+"org.gnome.desktop.wm.preferences)."
+msgstr "ກຳນົດວ່າພື້ນທີ່ເຮັດວຽກຈະຖືກຈັດການແບບໄດນາມິກ ຫຼື ຈະມີຈຳນວນພື້ນທີ່ເຮັດວຽກຄົງທີ່ (ກຳນົດໂດຍຄີ num-workspaces ໃນ org.gnome.desktop.wm.preferences)."
+
+#: data/org.gnome.mutter.gschema.xml.in:59
+msgid "Workspaces only on primary"
+msgstr "ພື້ນທີ່ເຮັດວຽກສະເພາະໃນຈໍຫຼັກ"
+
+#: data/org.gnome.mutter.gschema.xml.in:60
+msgid ""
+"Determines whether workspace switching should happen for windows on all "
+"monitors or only for windows on the primary monitor."
+msgstr "ກຳນົດວ່າການສັບປ່ຽນພື້ນທີ່ເຮັດວຽກຄວນເກີດຂຶ້ນສຳລັບໜ້າຕ່າງໃນທຸກຈໍພາບ ຫຼື ສະເພາະໜ້າຕ່າງໃນຈໍພາບຫຼັກເທົ່ານັ້ນ."
+
+#: data/org.gnome.mutter.gschema.xml.in:68
+msgid "Delay focus changes until the pointer stops moving"
+msgstr "ຊັກຊ້າການປ່ຽນໂຟກັສຈົນກວ່າຕົວຊີ້ຈະຢຸດເຄື່ອນທີ່"
+
+#: data/org.gnome.mutter.gschema.xml.in:69
+msgid ""
+"If set to true, and the focus mode is either “sloppy” or “mouse” then the "
+"focus will not be changed immediately when entering a window, but only after "
+"the pointer stops moving."
+msgstr "ຖ້າຕັ້ງເປັນຈິງ, ແລະ ໂໝດໂຟກັສເປັນ “sloppy” ຫຼື “mouse” ໂຟກັສຈະບໍ່ຖືກປ່ຽນທັນທີເມື່ອເຂົ້າສູ່ໜ້າຕ່າງ, ແຕ່ຈະປ່ຽນຫຼັງຈາກຕົວຊີ້ຢຸດເຄື່ອນທີ່ເທົ່ານັ້ນ."
+
+#: data/org.gnome.mutter.gschema.xml.in:79
+msgid "Draggable border width"
+msgstr "ຄວາມກວ້າງຂອງຂອບທີ່ລາກໄດ້"
+
+#: data/org.gnome.mutter.gschema.xml.in:80
+msgid ""
+"The amount of total draggable borders. If the theme’s visible borders are "
+"not enough, invisible borders will be added to meet this value."
+msgstr "ປະລິມານຂອງຂອບທັງໝົດທີ່ລາກໄດ້. ຖ້າຂອບທີ່ເຫັນໄດ້ຂອງທີມບໍ່ພຽງພໍ, ຂອບທີ່ເບິ່ງບໍ່ເຫັນຈະຖືກເພີ່ມເຂົ້າເພື່ອໃຫ້ໄດ້ຄ່ານີ້."
+
+#: data/org.gnome.mutter.gschema.xml.in:89
+msgid "Auto maximize nearly monitor sized windows"
+msgstr "ຂະຫຍາຍໜ້າຕ່າງຂະໜາດເກືອບເທົ່າຈໍພາບໃຫຍ່ສຸດໂດຍອັດຕະໂນມັດ"
+
+#: data/org.gnome.mutter.gschema.xml.in:90
+msgid ""
+"If enabled, new windows that are initially the size of the monitor "
+"automatically get maximized."
+msgstr "ຖ້າເປີດໃຊ້, ໜ້າຕ່າງໃໝ່ທີ່ມີຂະໜາດເທົ່າກັບຈໍພາບໃນເບື້ອງຕົ້ນຈະຖືກຂະຫຍາຍໃຫຍ່ສຸດໂດຍອັດຕະໂນມັດ."
+
+#: data/org.gnome.mutter.gschema.xml.in:98
+msgid "Place new windows in the center"
+msgstr "ວາງໜ້າຕ່າງໃໝ່ໄວ້ກາງຈໍ"
+
+#: data/org.gnome.mutter.gschema.xml.in:99
+msgid ""
+"When true, the new windows will always be put in the center of the active "
+"screen of the monitor."
+msgstr "ເມື່ອເປັນຈິງ, ໜ້າຕ່າງໃໝ່ຈະຖືກວາງໄວ້ກາງຈໍທີ່ໃຊ້ງານຢູ່ສະເໝີ."
+
+#: data/org.gnome.mutter.gschema.xml.in:108
+msgid "Enable experimental features"
+msgstr "ເປີດໃຊ້ຄຸນສົມບັດທົດລອງ"
+
+#: data/org.gnome.mutter.gschema.xml.in:109
+msgid ""
+"To enable experimental features, add the feature keyword to the list. "
+"Whether the feature requires restarting the compositor depends on the given "
+"feature. Any experimental feature is not required to still be available, or "
+"configurable. Don’t expect adding anything in this setting to be future "
+"proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
+"mutter default to layout logical monitors in a logical pixel coordinate "
+"space, while scaling monitor framebuffers instead of window content, to "
+"manage HiDPI monitors. Does not require a restart. • “kms-modifiers” — makes "
+"mutter always allocate scanout buffers with explicit modifiers, if supported "
+"by the driver. Requires a restart. • “autoclose-xwayland” — automatically "
+"terminates Xwayland if all relevant X11 clients are gone. Requires a "
+"restart. • “variable-refresh-rate” — makes mutter dynamically adjust the "
+"refresh rate of the monitor when applicable if supported by the monitor, GPU "
+"and DRM driver. Configurable in Settings. Requires a restart. • “xwayland-"
+"native-scaling” — lets Xwayland clients use their native scaling support. If "
+"scaling is not supported by client, the client will be unscaled. Setting "
+"only takes effect when “scale-monitor-framebuffer” is enabled as well."
+msgstr "ເພື່ອເປີດໃຊ້ຄຸນສົມບັດທົດລອງ, ໃຫ້ເພີ່ມຄີເວີດຄຸນສົມບັດເຂົ້າໃນລາຍການ. ການທີ່ຄຸນສົມບັດຈະຕ້ອງການເປີດຄອມໂພສິເຕີຄືນໃໝ່ຫຼືບໍ່ນັ້ນ ຂຶ້ນຢູ່ກັບຄຸນສົມບັດທີ່ໃຫ້ມາ. ຄຸນສົມບັດທົດລອງໃດໆກໍຕາມບໍ່ຈຳເປັນຕ້ອງມີໃຫ້ໃຊ້ຕໍ່ໄປ, ຫຼື ສາມາດກຳນົດຄ່າໄດ້. ຢ່າຄາດຫວັງວ່າການເພີ່ມສິ່ງໃດໃນການຕັ້ງຄ່ານີ້ຈະປອດໄພໃນອະນາຄົດ. ຄີເວີດທີ່ເປັນໄປໄດ້ໃນປັດຈຸບັນ: • “scale-monitor-framebuffer” — ເຮັດໃຫ້ mutter ຈັດວາງຈໍພາບຕາມເຫດຜົນໃນພື້ນທີ່ພິກັດພິກເຊວຕາມເຫດຜົນເປັນຄ່າເລີ່ມຕົ້ນ, ໃນຂະນະທີ່ຂະຫຍາຍເຟຣມບັບເຟີຂອງຈໍພາບແທນເນື້ອຫາຂອງໜ້າຕ່າງ, ເພື່ອຈັດການຈໍພາບ HiDPI. ບໍ່ຕ້ອງການການເປີດຄືນໃໝ່. • “kms-modifiers” — ເຮັດໃຫ້ mutter ຈັດສັນບັບເຟີສະແກນເອົາດ້ວຍໂຕດັດແປງທີ່ຊັດເຈນສະເໝີ, ຖ້າໄດຣເວີຮອງຮັບ. ຕ້ອງການການເປີດຄືນໃໝ່. • “autoclose-xwayland” — ຢຸດການເຮັດວຽກຂອງ Xwayland ໂດຍອັດຕະໂນມັດຖ້າໄຄລເອັນ X11 ທີ່ກ່ຽວຂ້ອງທັງໝົດໝົດໄປ. ຕ້ອງການການເປີດຄືນໃໝ່. • “variable-refresh-rate” — ເຮັດໃຫ້ mutter ປັບອັດຕາການໂຫຼດໜ້າຈໍຂອງຈໍພາບແບບໄດນາມິກເມື່ອເໝາະສົມ ຖ້າຈໍພາບ, GPU ແລະ ໄດຣເວີ DRM ຮອງຮັບ. ສາມາດກຳນົດຄ່າໄດ້ໃນການຕັ້ງຄ່າ. ຕ້ອງການການເປີດຄືນໃໝ່. • “xwayland-native-scaling” — ໃຫ້ໄຄລເອັນ Xwayland ໃຊ້ການຮອງຮັບການຂະຫຍາຍແບບດັ້ງເດີມຂອງພວກເຂົາ. ຖ້າໄຄລເອັນບໍ່ຮອງຮັບການຂະຫຍາຍ, ໄຄລເອັນຈະບໍ່ຖືກຂະຫຍາຍ. ການຕັ້ງຄ່ານີ້ມີຜົນກະທົບເມື່ອເປີດໃຊ້ “scale-monitor-framebuffer” ເທົ່ານັ້ນ."
+
+#: data/org.gnome.mutter.gschema.xml.in:151
+msgid "Modifier to use to locate the pointer"
+msgstr "ປຸ່ມດັດແປງທີ່ຈະໃຊ້ເພື່ອຊອກຫາຕົວຊີ້"
+
+#: data/org.gnome.mutter.gschema.xml.in:152
+msgid "This key will initiate the “locate pointer” action."
+msgstr "ປຸ່ມນີ້ຈະເລີ່ມການກະທຳ “ຊອກຫາຕົວຊີ້”."
+
+#: data/org.gnome.mutter.gschema.xml.in:159
+msgid "Timeout for check-alive ping"
+msgstr "ໝົດເວລາສຳລັບການພິງເພື່ອກວດສອບການໃຊ້ງານ"
+
+#: data/org.gnome.mutter.gschema.xml.in:160
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr "ຈຳນວນມິນລິວິນາທີທີ່ໄຄລເອັນຕ້ອງຕອບສະໜອງຕໍ່ຄຳຂໍພິງເພື່ອບໍ່ໃຫ້ຖືກກວດພົບວ່າຄ້າງ. ການໃຊ້ 0 ຈະປິດການກວດສອບການໃຊ້ງານທັງໝົດ."
+
+#. TRANSLATORS: Luminance is different from brightness.
+#. See https://en.wikipedia.org/wiki/Luminance
+#: data/org.gnome.mutter.gschema.xml.in:171
+msgid "Per output luminance settings"
+msgstr "ການຕັ້ງຄ່າຄວາມສະຫວ່າງຕໍ່ເອົາພຸດ"
+
+#: data/org.gnome.mutter.gschema.xml.in:172
+msgid ""
+"Per output and color mode luminance setting. Each entry consists of a tuple "
+"with connector, vendor, product, serial, and a color mode, as well as an "
+"associated floating point value representing the output luminance in percent "
+"(%). The default when not specified is 100%."
+msgstr "ການຕັ້ງຄ່າຄວາມສະຫວ່າງຕໍ່ເອົາພຸດ ແລະ ໂໝດສີ. ແຕ່ລະລາຍການປະກອບດ້ວຍທູເປິລທີ່ມີຕົວເຊື່ອມຕໍ່, ຜູ້ຜະລິດ, ຜະລິດຕະພັນ, ເລກລຳດັບ, ແລະ ໂໝດສີ, ພ້ອມທັງຄ່າຈຸດລອຍທີ່ກ່ຽວຂ້ອງທີ່ສະແດງເຖິງຄວາມສະຫວ່າງຂອງເອົາພຸດເປັນເປີເຊັນ (%). ຄ່າເລີ່ມຕົ້ນເມື່ອບໍ່ໄດ້ລະບຸແມ່ນ 100%."
+
+#: data/org.gnome.mutter.gschema.xml.in:197
+msgid "Switch monitor configurations"
+msgstr "ສັບປ່ຽນການຕັ້ງຄ່າຈໍພາບ"
+
+#: data/org.gnome.mutter.gschema.xml.in:202
+msgid "Rotates the built-in monitor configuration"
+msgstr "ໝູນການຕັ້ງຄ່າຈໍພາບໃນໂຕ"
+
+#: data/org.gnome.mutter.gschema.xml.in:207
+msgid "Cancel any active input capture session"
+msgstr "ຍົກເລີກເຊດຊັນການຈັບພາບຂາເຂົ້າທີ່ໃຊ້ງານຢູ່"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
+msgid "Switch to VT 1"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 1"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
+msgid "Switch to VT 2"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 2"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
+msgid "Switch to VT 3"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 3"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
+msgid "Switch to VT 4"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 4"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
+msgid "Switch to VT 5"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 5"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
+msgid "Switch to VT 6"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 6"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
+msgid "Switch to VT 7"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 7"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
+msgid "Switch to VT 8"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 8"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
+msgid "Switch to VT 9"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 9"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
+msgid "Switch to VT 10"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 10"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
+msgid "Switch to VT 11"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 11"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
+msgid "Switch to VT 12"
+msgstr "ສັບປ່ຽນໄປທີ່ VT 12"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
+msgid "Re-enable shortcuts"
+msgstr "ເປີດໃຊ້ປຸ່ມລັດຄືນໃໝ່"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "ອະນຸຍາດໃຫ້ການຈັບ X11 ລັອກໂຟກັສແປ້ນພິມດ້ວຍ Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+msgid ""
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"allowed in key “xwayland-grab-access-rules”."
+msgstr "ອະນຸຍາດໃຫ້ເຫດການແປ້ນພິມທັງໝົດຖືກສົ່ງໄປທີ່ໜ້າຕ່າງ “override redirect” ຂອງ X11 ດ້ວຍການຈັບເມື່ອແລ່ນໃນ Xwayland. ຕົວເລືອກນີ້ແມ່ນເພື່ອຮອງຮັບໄຄລເອັນ X11 ທີ່ແມັບໜ້າຕ່າງ “override redirect” (ເຊິ່ງບໍ່ໄດ້ຮັບໂຟກັສແປ້ນພິມ) ແລະອອກຄຳສັ່ງຈັບແປ້ນພິມເພື່ອບັງຄັບໃຫ້ເຫດການແປ້ນພິມທັງໝົດໄປທີ່ໜ້າຕ່າງນັ້ນ. ຕົວເລືອກນີ້ບໍ່ຄ່ອຍໄດ້ໃຊ້ ແລະ ບໍ່ມີຜົນກະທົບຕໍ່ໜ້າຕ່າງ X11 ປົກກະຕິທີ່ສາມາດຮັບໂຟກັສແປ້ນພິມພາຍໃຕ້ສະຖານະການປົກກະຕິ. ເພື່ອໃຫ້ການຈັບ X11 ຖືກພິຈາລະນາພາຍໃຕ້ Wayland, ໄຄລເອັນຍັງຕ້ອງສົ່ງ X11 ClientMessage ສະເພາະໄປທີ່ໜ້າຕ່າງຮາກ ຫຼື ເປັນໜຶ່ງໃນແອັບພລິເຄຊັນທີ່ໄດ້ຮັບອະນຸຍາດໃນຄີ “xwayland-grab-access-rules”."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
+msgid "Xwayland applications allowed to issue keyboard grabs"
+msgstr "ແອັບພລິເຄຊັນ Xwayland ທີ່ອະນຸຍາດໃຫ້ອອກຄຳສັ່ງຈັບແປ້ນພິມ"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+msgid ""
+"List the resource names or resource class of X11 windows either allowed or "
+"not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
+"resource class of a given X11 window can be obtained using the command "
+"“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
+"“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
+"using the specific keyboard shortcut defined by the keybinding key “restore-"
+"shortcuts”."
+msgstr "ລາຍການຊື່ຊັບພະຍາກອນ ຫຼື ຄລາດຊັບພະຍາກອນຂອງໜ້າຕ່າງ X11 ທີ່ອະນຸຍາດ ຫຼື ບໍ່ອະນຸຍາດໃຫ້ອອກຄຳສັ່ງຈັບແປ້ນພິມ X11 ພາຍໃຕ້ Xwayland. ຊື່ຊັບພະຍາກອນ ຫຼື ຄລາດຊັບພະຍາກອນຂອງໜ້າຕ່າງ X11 ໃດໜຶ່ງສາມາດເອົາມາໄດ້ໂດຍໃຊ້ຄຳສັ່ງ “xprop WM_CLASS”. ຮອງຮັບຕົວແທນ “*” ແລະ “?” ໃນຄ່າຕ່າງໆ. ຄ່າທີ່ເລີ່ມຕົ້ນດ້ວຍ “!” ຈະຖືກປະຕິເສດ, ເຊິ່ງມີຄວາມສຳຄັນກວ່າລາຍການຄ່າທີ່ອະນຸຍາດ, ເພື່ອຖອນແອັບພລິເຄຊັນອອກຈາກລາຍການເລີ່ມຕົ້ນຂອງລະບົບ. ລາຍການເລີ່ມຕົ້ນຂອງລະບົບລວມມີແອັບພລິເຄຊັນຕໍ່ໄປນີ້: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” ຜູ້ໃຊ້ສາມາດທຳລາຍການຈັບທີ່ມີຢູ່ໄດ້ໂດຍໃຊ້ປຸ່ມລັດສະເພາະທີ່ກຳນົດໂດຍຄີບາຍດິງ “restore-shortcuts”."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "ປິດໃຊ້ສ່ວນຂະຫຍາຍ X ທີ່ເລືອກໃນ Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr "ຕົວເລືອກນີ້ປິດໃຊ້ສ່ວນຂະຫຍາຍ X ທີ່ເລືອກໃນ Xwayland ຖ້າ Xwayland ຖືກສ້າງຂຶ້ນມາພ້ອມກັບການຮອງຮັບສ່ວນຂະຫຍາຍ X ເຫຼົ່ານັ້ນ. ຕົວເລືອກນີ້ບໍ່ມີຜົນກະທົບຖ້າ Xwayland ຖືກສ້າງຂຶ້ນມາໂດຍບໍ່ມີການຮອງຮັບສ່ວນຂະຫຍາຍທີ່ເລືອກ. ຕ້ອງເປີດ Xwayland ຄືນໃໝ່ເພື່ອໃຫ້ການຕັ້ງຄ່ານີ້ມີຜົນ."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:130
+msgid "Allow X11 clients with a different endianness to connect to Xwayland"
+msgstr "ອະນຸຍາດໃຫ້ໄຄລເອັນ X11 ທີ່ມີ endianness ຕ່າງກັນເຊື່ອມຕໍ່ກັບ Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:131
+msgid ""
+"Allow connections from clients with an endianness different to that of "
+"Xwayland. The X server byte-swapping code is a huge attack surface, much of "
+"that code in Xwayland is prone to security issues. The use-case of byte-"
+"swapped clients is very niche, and disabled by default in Xwayland. Enable "
+"this option to instruct Xwayland to accept connections from X11 clients with "
+"a different endianness. This option has no effect if Xwayland does not "
+"support the command line option +byteswappedclients/-byteswappedclients to "
+"control that setting. Xwayland needs to be restarted for this setting to "
+"take effect."
+msgstr "ອະນຸຍາດການເຊື່ອມຕໍ່ຈາກໄຄລເອັນທີ່ມີ endianness ຕ່າງຈາກຂອງ Xwayland. ໂຄດ byte-swapping ຂອງເຊີບເວີ X ເປັນພື້ນຜິວການໂຈມຕີຂະໜາດໃຫຍ່, ໂຄດສ່ວນໃຫຍ່ໃນ Xwayland ມີຄວາມສ່ຽງຕໍ່ບັນຫາຄວາມປອດໄພ. ກໍລະນີການໃຊ້ໄຄລເອັນ byte-swapped ແມ່ນຫາຍາກຫຼາຍ, ແລະ ຖືກປິດໂດຍຄ່າເລີ່ມຕົ້ນໃນ Xwayland. ເປີດໃຊ້ຕົວເລືອກນີ້ເພື່ອສັ່ງໃຫ້ Xwayland ຍອມຮັບການເຊື່ອມຕໍ່ຈາກໄຄລເອັນ X11 ທີ່ມີ endianness ຕ່າງກັນ. ຕົວເລືອກນີ້ບໍ່ມີຜົນກະທົບຖ້າ Xwayland ບໍ່ຮອງຮັບຕົວເລືອກເສັ້ນຄຳສັ່ງ +byteswappedclients/-byteswappedclients ເພື່ອຄວບຄຸມການຕັ້ງຄ່ານັ້ນ. ຕ້ອງເປີດ Xwayland ຄືນໃໝ່ເພື່ອໃຫ້ການຕັ້ງຄ່ານີ້ມີຜົນ."
+
+#: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
+msgid "Application"
+msgstr "ແອັບພລິເຄຊັນ"
+
+#: mdk/mdk-launcher-adder.c:456 mdk/mdk-launcher-adder.ui:23
+msgid "Executable"
+msgstr "ໄຟລ໌ປະຕິບັດງານ"
+
+#: mdk/mdk-launcher-adder.ui:3
+msgid "Add Launcher"
+msgstr "ເພີ່ມຕົວເປີດ"
+
+#: mdk/mdk-launcher-adder.ui:15
+msgid "Launcher"
+msgstr "ຕົວເປີດ"
+
+#: mdk/mdk-launcher-adder.ui:18
+msgid "Type"
+msgstr "ປະເພດ"
+
+#: mdk/mdk-launcher-adder.ui:38 mdk/mdk-launchers-editor.ui:22
+msgid "Add"
+msgstr "ເພີ່ມ"
+
+#: mdk/mdk-launcher-entry.c:198
+msgid "Run"
+msgstr "ແລ່ນ"
+
+#: mdk/mdk-launcher-entry.ui:12
+msgid "Delete"
+msgstr "ລຶບ"
+
+#: mdk/mdk-launcher-entry.ui:20
+msgid "Action"
+msgstr "ຄຳສັ່ງ"
+
+#: mdk/mdk-launchers-editor.ui:3
+msgid "Edit Launchers"
+msgstr "ແກ້ໄຂຕົວເປີດ"
+
+#: mdk/mdk-launchers-editor.ui:16
+msgid "Launchers"
+msgstr "ຕົວເປີດ"
+
+#: mdk/mdk-main-window.ui:7
+msgid "_Input"
+msgstr "_ການປ້ອນຂໍ້ມູນ"
+
+#: mdk/mdk-main-window.ui:9
+msgid "_Emulate touch"
+msgstr "_ຈຳລອງການສຳຜັດ"
+
+#: mdk/mdk-main-window.ui:13
+msgid "_Inhibit system shortcuts"
+msgstr "_ຢັບຢັ້ງປຸ່ມລັດຂອງລະບົບ"
+
+#: mdk/mdk-main-window.ui:20
+msgid "_Launchers"
+msgstr "_ຕົວເປີດ"
+
+#: mdk/mdk-main-window.ui:24
+msgid "_Edit launchers"
+msgstr "_ແກ້ໄຂຕົວເປີດ"
+
+#: mdk/mdk-main-window.ui:31
+msgid "_About Mutter Development Kit"
+msgstr "_ກ່ຽວກັບຊຸດພັດທະນາ Mutter"
+
+#: mdk/mdk-main-window.ui:37 mdk/mdk-main.c:56
+msgid "Mutter Development Kit"
+msgstr "ຊຸດພັດທະນາ Mutter"
+
+#: mdk/mdk-main-window.ui:47
+msgid "Main Menu"
+msgstr "ເມນູຫຼັກ"
+
+#: mdk/mdk-main.c:49
+msgid "The Mutter Team"
+msgstr "ທີມງານ Mutter"
+
+#: mdk/mdk-main.c:62
+msgid "Mutter software development kit"
+msgstr "ຊຸດພັດທະນາຊັອບແວ Mutter"
+
+#: mdk/mdk-main.c:65
+msgid "About Mutter Development Kit"
+msgstr "ກ່ຽວກັບຊຸດພັດທະນາ Mutter"
+
+#: mdk/mdk-monitor.c:674
+msgid "Failed to create monitor"
+msgstr "ສ້າງຈໍພາບບໍ່ສຳເລັດ"
+
+#: src/backends/meta-monitor.c:274
+msgid "Built-in display"
+msgstr "ຈໍສະແດງຜົນໃນໂຕ"
+
+#: src/backends/meta-monitor.c:301
+msgid "Unknown"
+msgstr "ບໍ່ຮູ້ຈັກ"
+
+#: src/backends/meta-monitor.c:303
+msgid "Unknown Display"
+msgstr "ຈໍສະແດງຜົນບໍ່ຮູ້ຈັກ"
+
+#: src/backends/meta-monitor.c:311
+#, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/backends/meta-monitor.c:319
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#: src/core/bell.c:237
+msgid "Bell event"
+msgstr "ເຫດການສຽງເຕືອນ"
+
+#: src/core/display.c:742
+msgid "Privacy Screen Enabled"
+msgstr "ເປີດໃຊ້ໜ້າຈໍຄວາມເປັນສ່ວນໂຕ"
+
+#: src/core/display.c:743
+msgid "Privacy Screen Disabled"
+msgstr "ປິດໃຊ້ໜ້າຈໍຄວາມເປັນສ່ວນໂຕ"
+
+#: src/core/meta-context-main.c:630
+msgid "Replace the running window manager"
+msgstr "ແທນທີ່ຕົວຈັດການໜ້າຕ່າງທີ່ແລ່ນຢູ່"
+
+#: src/core/meta-context-main.c:636
+msgid "X Display to use"
+msgstr "ຈໍສະແດງຜົນ X ທີ່ຈະໃຊ້"
+
+#: src/core/meta-context-main.c:642
+msgid "Make X calls synchronous"
+msgstr "ເຮັດໃຫ້ການເອີ້ນ X ເປັນແບບຊິງໂຄຣນັສ"
+
+#: src/core/meta-context-main.c:650
+msgid "Run as a wayland compositor"
+msgstr "ແລ່ນເປັນຄອມໂພສິເຕີ Wayland"
+
+#: src/core/meta-context-main.c:657
+msgid "Run as a nested compositor"
+msgstr "ແລ່ນເປັນຄອມໂພສິເຕີຊ້ອນ"
+
+#: src/core/meta-context-main.c:665
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "ແລ່ນຄອມໂພສິເຕີ Wayland ໂດຍບໍ່ເລີ່ມ Xwayland"
+
+#: src/core/meta-context-main.c:672
+msgid "Specify Wayland display name to use"
+msgstr "ລະບຸຊື່ຈໍສະແດງຜົນ Wayland ທີ່ຈະໃຊ້"
+
+#: src/core/meta-context-main.c:680
+msgid "Run as a full display server, rather than nested"
+msgstr "ແລ່ນເປັນເຊີບເວີສະແດງຜົນເຕັມຮູບແບບ, ແທນທີ່ຈະເປັນແບບຊ້ອນ"
+
+#: src/core/meta-context-main.c:685
+msgid "Run as a headless display server"
+msgstr "ແລ່ນເປັນເຊີບເວີສະແດງຜົນແບບບໍ່ມີຫົວ"
+
+#: src/core/meta-context-main.c:690
+msgid "Add persistent virtual monitor (WxH or WxH@R)"
+msgstr "ເພີ່ມຈໍພາບສະເໝືອນແບບຖາວອນ (WxH ຫຼື WxH@R)"
+
+#: src/core/meta-context-main.c:697
+msgid "Run development kit"
+msgstr "ແລ່ນຊຸດພັດທະນາ"
+
+#: src/core/meta-context-main.c:709
+msgid "Run with X11 backend"
+msgstr "ແລ່ນດ້ວຍຫຼັງບ້ານ X11"
+
+#: src/core/meta-context-main.c:715
+msgid "Profile performance using trace instrumentation"
+msgstr "ປະເມີນປະສິດທິພາບໂດຍໃຊ້ການຕິດຕາມເຄື່ອງມື"
+
+#: src/core/meta-context-main.c:721
+msgid "Enable debug control D-Bus interface"
+msgstr "ເປີດໃຊ້ອິນເຕີເຟດຄວບຄຸມການດີບັກ D-Bus"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes in that button group.
+#.
+#: src/core/meta-pad-action-mapper.c:615
+#, c-format
+msgid "Mode Switch (Group %d)"
+msgstr "ສະຫຼັບໂໝດ (ກຸ່ມ %d)"
+
+#. TRANSLATORS: This string refers to a button that switches between
+#. * different modes.
+#.
+#: src/core/meta-pad-action-mapper.c:622
+#, c-format
+msgid "Mode Switch"
+msgstr "ສະຫຼັບໂໝດ"
+
+#. TRANSLATORS: This string refers to an action, cycles drawing tablets'
+#. * mapping through the available outputs.
+#.
+#: src/core/meta-pad-action-mapper.c:645
+msgid "Switch monitor"
+msgstr "ສະຫຼັບຈໍພາບ"
+
+#: src/core/meta-pad-action-mapper.c:647
+msgid "Show on-screen help"
+msgstr "ສະແດງຄວາມຊ່ວຍເຫຼືອເທິງໜ້າຈໍ"
+
+#. Translators: this string will appear in Sysprof
+#: src/core/meta-profiler.c:109 src/core/meta-profiler.c:299
+msgid "Compositor"
+msgstr "ຄອມໂພສິເຕີ"
+
+#: src/core/mutter.c:74
+msgid "Print version"
+msgstr "ພິມເວີຊັນ"
+
+#: src/core/mutter.c:80
+msgid "Mutter plugin to use"
+msgstr "ປລັກອິນ Mutter ທີ່ຈະໃຊ້"
+
+#: src/core/prefs.c:1869
+#, c-format
+msgid "Workspace %d"
+msgstr "ພື້ນທີ່ເຮັດວຽກ %d"
+
+#: src/core/util.c:150
+msgid "Mutter was compiled without support for verbose mode"
+msgstr "Mutter ຖືກຄອມໄພລ໌ໂດຍບໍ່ຮອງຮັບໂໝດລະອຽດ"
+
+#: src/core/workspace.c:508
+msgid "Workspace switched"
+msgstr "ສະຫຼັບພື້ນທີ່ເຮັດວຽກແລ້ວ"
+
+#: src/wayland/meta-wayland-tablet-pad.c:558
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "ສະຫຼັບໂໝດ: ໂໝດ %d"
+
+#: src/x11/meta-x11-display.c:855
+#, c-format
+msgid ""
+"Display “%s” already has a window manager; try using the --replace option to "
+"replace the current window manager."
+msgstr "ຈໍສະແດງຜົນ “%s” ມີຕົວຈັດການໜ້າຕ່າງຢູ່ແລ້ວ; ລອງໃຊ້ຕົວເລືອກ --replace ເພື່ອແທນທີ່ຕົວຈັດການໜ້າຕ່າງປັດຈຸບັນ."
+
+#: src/x11/meta-x11-display.c:1240
+#, c-format
+msgid "Failed to open X Window System display “%s”"
+msgstr "ເປີດຈໍສະແດງຜົນລະບົບ X Window “%s” ບໍ່ສຳເລັດ"
+
+#: src/x11/meta-x11-display.c:1473
+#, c-format
+msgid "Screen %d on display “%s” is invalid"
+msgstr "ໜ້າຈໍ %d ເທິງຈໍສະແດງຜົນ “%s” ບໍ່ຖືກຕ້ອງ"
+
+#. This probably means that a non-WM compositor like xcompmgr is running;
+#. * we have no way to get it to exit
+#: src/x11/meta-x11-display.c:2801
+#, c-format
+msgid ""
+"Another compositing manager is already running on screen %i on display “%s”."
+msgstr "ມີຕົວຈັດການຄອມໂພສິດອື່ນແລ່ນຢູ່ແລ້ວໃນໜ້າຈໍ %i ເທິງຈໍສະແດງຜົນ “%s”."
+
+#: src/x11/meta-x11-selection-input-stream.c:475
+#, c-format
+msgid "Format %s not supported"
+msgstr "ບໍ່ຮອງຮັບຮູບແບບ %s"
+
+#: src/x11/window-props.c:564
+#, c-format
+msgid "%s (on %s)"
+msgstr "%s (ເທິງ %s)"
