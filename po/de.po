@@ -17,8 +17,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues/\n"
-"POT-Creation-Date: 2026-03-15 22:32+0000\n"
-"PO-Revision-Date: 2026-03-29 23:09+0200\n"
+"POT-Creation-Date: 2026-04-02 12:00+0000\n"
+"PO-Revision-Date: 2026-04-14 21:55+0200\n"
 "Last-Translator: Christian Kirbach <christian.kirbach@gmail.com>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -399,26 +399,6 @@ msgid "Enable experimental features"
 msgstr "Experimentelle Funktionen aktivieren"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart. • “kms-modifiers” — makes mutter always allocate scanout buffers "
-#| "with explicit modifiers, if supported by the driver. Requires a restart. "
-#| "• “autoclose-xwayland” — automatically terminates Xwayland if all "
-#| "relevant X11 clients are gone. Requires a restart. • “variable-refresh-"
-#| "rate” — makes mutter dynamically adjust the refresh rate of the monitor "
-#| "when applicable if supported by the monitor, GPU and DRM driver. "
-#| "Configurable in Settings. Requires a restart. • “xwayland-native-scaling” "
-#| "— lets Xwayland clients use their native scaling support. If scaling is "
-#| "not supported by client, the client will be unscaled. Setting only takes "
-#| "effect when “scale-monitor-framebuffer” is enabled as well."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -434,22 +414,11 @@ msgstr ""
 "Compositor neu gestartet werden muss. Eine experimentelle Funktionen ist "
 "nicht zwingend dauerhaft verfügbar oder in den Einstellungen vorhanden. "
 "Gehen Sie nicht davon aus, dass Funktionen auch in Zukunft funktionieren "
-"werden. Derzeit mögliche Schlüsselwörter sind: • »scale-monitor-framebuffer« "
-"— weist Mutter an, in der Voreinstellung logische Bildschirme in einem "
-"logischen Pixel-Koordinatensystem anzuordnen, wobei die Bildschirm-"
-"Framebuffer anstelle der Fensterinhalte skaliert werden, um HiDPI-"
-"Bildschirme besser versorgen zu können. Erfordert keinen Neustart. • »kms-"
-"modifiers« — weist Mutter an, immer Scanout-Puffer mit expliziten "
-"Modifikatoren zuzuweisen, sofern dies von den Treibern unterstützt wird. "
-"Erfordert einen Neustart. • »autoclose-xwayland« — beendet Xwayland "
-"automatisch, wenn alle relevanten X11-Clients beendet wurden. Erfordert "
-"einen Neustart. • »variable-refresh-rate« — Mutter passt dynamisch die "
-"Bildwiederholrate des Bildschirms an, sofern von Bildschirm, GPU und DRM-"
-"Treiber unterstützt. Anpassbar in den Einstellungen. Erfordert einen "
-"Neustart. • »xwayland-native-scaling« — Xwayland-Clients nutzen ihren eigene "
-"Skalierung. Wenn der Client keine Skalierung unterstützt, so wird der Client "
-"nicht skaliert. Die Einstellung greift nur, wenn »scale-monitor-framebuffer« "
-"ebenfalls aktiviert ist."
+"werden. Derzeit mögliche Schlüsselwörter sind: • »kms-modifiers« — weist "
+"Mutter an, immer Scanout-Puffer mit expliziten Modifikatoren zuzuweisen, "
+"sofern dies von den Treibern unterstützt wird. Erfordert einen Neustart. • "
+"»autoclose-xwayland« — beendet Xwayland automatisch, wenn alle relevanten "
+"X11-Clients beendet wurden. Erfordert einen Neustart."
 
 #: data/org.gnome.mutter.gschema.xml.in:130
 msgid "Modifier to use to locate the pointer"
@@ -488,7 +457,7 @@ msgstr ""
 "Leuchtdichteeinstellungen pro Ausgabe und Farbmodus. Jeder Eintrag besteht "
 "aus einem Tupel mit Anschluss, Produkt, Seriennummer und einem Farbmodus, "
 "als auch einem zugehörigen Gleitkommawert, der die Ausgabe-Leuchtdichte in "
-"Prozent (%) darstellt. Die Voreinstellung ist 100%, sofern nicht angegeben. "
+"Prozent (%) darstellt. Die Voreinstellung ist 100%, sofern nicht angegeben."
 
 #: data/org.gnome.mutter.gschema.xml.in:176
 msgid "Switch monitor configurations"
@@ -666,7 +635,7 @@ msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:154
 msgid "Configure the Xwayland scaling factor"
-msgstr ""
+msgstr "Den Skalierungsfaktor von Xwayland einstellen"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:155
 msgid ""
@@ -676,6 +645,11 @@ msgid ""
 "the scale will be automatically calculated. The scale will as of now be "
 "rounded to the closest integer."
 msgstr ""
+"Den Koordinatenraum von Xwayland entsprechend diesem Faktor skalieren. Dies "
+"hat Einfluß darauf, wie HiDPI-fähige X11-Clients sich darstellen, und wie "
+"der Compositor X11 Client-Fenster skaliert. Skalierung 0 bedeutet, dass sie "
+"automatisch berechnet wird. Die Skalierung wird Stand heute auf die naheste "
+"Ganzzahl gerundet."
 
 #: mdk/mdk-launcher-adder.c:451 mdk/mdk-launcher-adder.ui:22
 msgid "Application"
@@ -735,7 +709,7 @@ msgstr "System-Tastenkombinationen _unterdrücken"
 
 #: mdk/mdk-main-window.ui:17
 msgid "Use host _keymap"
-msgstr ""
+msgstr "_Tastaturbelegung des Wirts verwenden"
 
 #: mdk/mdk-main-window.ui:24
 msgid "_Monitors"
@@ -747,7 +721,7 @@ msgstr "Bildschirm _hinzufügen"
 
 #: mdk/mdk-main-window.ui:30
 msgid "_Emulate monitor modes"
-msgstr ""
+msgstr "Monitor-Modi _emulieren"
 
 #: mdk/mdk-main-window.ui:37
 msgid "_Launchers"
@@ -907,7 +881,7 @@ msgstr "Zu benutzendes Mutter-Plugin"
 msgid "Workspace %d"
 msgstr "Arbeitsfläche %d"
 
-#: src/core/util.c:156
+#: src/core/util.c:155
 msgid "Mutter was compiled without support for verbose mode"
 msgstr "Mutter wurde ohne Unterstützung für den ausführlichen Modus kompiliert"
 
@@ -920,24 +894,24 @@ msgstr "Arbeitsfläche gewechselt"
 msgid "Mode Switch: Mode %d"
 msgstr "Moduswechsel: Modus %d"
 
-#: src/x11/meta-x11-display.c:776
+#: src/x11/meta-x11-display.c:770
 #, c-format
 msgid "Display “%s” already has a window manager"
 msgstr "Die Anzeige »%s« hat schon eine Fensterverwaltung"
 
-#: src/x11/meta-x11-display.c:1139
+#: src/x11/meta-x11-display.c:1133
 #, c-format
 msgid "Failed to open X Window System display “%s”"
 msgstr "X-Window-Systemanzeige »%s« konnte nicht geöffnet werden"
 
-#: src/x11/meta-x11-display.c:1284
+#: src/x11/meta-x11-display.c:1278
 #, c-format
 msgid "Screen %d on display “%s” is invalid"
 msgstr "Bildschirm %d auf Anzeige »%s« ist ungültig"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/x11/meta-x11-display.c:2469
+#: src/x11/meta-x11-display.c:2463
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
