@@ -464,6 +464,8 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
     clutter_backend_get_cogl_context (clutter_backend);
   g_autoptr (CoglBitmap) bitmap = NULL;
   ClutterPaintFlag paint_flags;
+  MtkRectangle extents;
+  int bpp;
 
   paint_flags = CLUTTER_PAINT_FLAG_NONE;
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
@@ -492,14 +494,30 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
                                                   paint_flags);
     }
 
+  if (damage)
+    {
+      extents = mtk_region_get_extents (damage);
+    }
+  else
+    {
+      extents.x = extents.y = 0;
+      extents.width = width;
+      extents.height = height;
+    }
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
   bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                     width, height,
+                                     extents.width,
+                                     extents.height,
                                      format,
                                      stride,
-                                     data);
+                                     data +
+                                     extents.y * stride +
+                                     extents.x * bpp);
 
   cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            0, 0,
+                                            extents.x,
+                                            extents.y,
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
   return TRUE;
