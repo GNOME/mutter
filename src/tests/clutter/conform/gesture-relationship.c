@@ -9,7 +9,6 @@ G_BEGIN_DECLS
 
 #define TEST_TYPE_GESTURE test_gesture_get_type()
 
-static
 G_DECLARE_FINAL_TYPE (TestGesture, test_gesture, TEST, GESTURE, ClutterGesture)
 
 struct _TestGesture
@@ -43,7 +42,6 @@ test_gesture_class_init (TestGestureClass *klass)
 
 #define TEST_TYPE_RECOGNIZE_ON_PRESS_GESTURE test_recognize_on_press_gesture_get_type()
 
-static
 G_DECLARE_FINAL_TYPE (TestRecognizeOnPressGesture, test_recognize_on_press_gesture, TEST, RECOGNIZE_ON_PRESS_GESTURE, ClutterGesture)
 
 struct _TestRecognizeOnPressGesture
