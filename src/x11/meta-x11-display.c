@@ -491,30 +491,6 @@ query_xcomposite_extension (MetaX11Display *x11_display)
 }
 
 static void
-query_xdamage_extension (MetaX11Display *x11_display)
-{
-  x11_display->have_damage = FALSE;
-
-  x11_display->damage_error_base = 0;
-  x11_display->damage_event_base = 0;
-
-  if (!XDamageQueryExtension (x11_display->xdisplay,
-                              &x11_display->damage_event_base,
-                              &x11_display->damage_error_base))
-    {
-      x11_display->damage_error_base = 0;
-      x11_display->damage_event_base = 0;
-    }
-  else
-    x11_display->have_damage = TRUE;
-
-  meta_topic (META_DEBUG_X11,
-              "Attempted to init Damage, found error base %d event base %d",
-              x11_display->damage_error_base,
-              x11_display->damage_event_base);
-}
-
-static void
 query_xfixes_extension (MetaX11Display *x11_display)
 {
   x11_display->xfixes_error_base = 0;
@@ -1317,7 +1293,6 @@ meta_x11_display_new (MetaDisplay  *display,
   query_xsync_extension (x11_display);
   query_xshape_extension (x11_display);
   query_xcomposite_extension (x11_display);
-  query_xdamage_extension (x11_display);
   query_xfixes_extension (x11_display);
   query_xi_extension (x11_display);
 
@@ -1570,12 +1545,6 @@ Window
 meta_x11_display_get_xroot (MetaX11Display *x11_display)
 {
   return x11_display->xroot;
-}
-
-int
-meta_x11_display_get_damage_event_base (MetaX11Display *x11_display)
-{
-  return x11_display->damage_event_base;
 }
 
 Window
