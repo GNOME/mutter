@@ -466,7 +466,7 @@ clutter_interval_class_init (ClutterIntervalClass *klass)
   klass->validate = clutter_interval_real_validate;
   klass->compute_value = clutter_interval_real_compute_value;
 
-  gobject_class->set_property = clutter_interval_set_property,
+  gobject_class->set_property = clutter_interval_set_property;
   gobject_class->get_property = clutter_interval_get_property;
   gobject_class->finalize = clutter_interval_finalize;
 
