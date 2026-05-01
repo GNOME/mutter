@@ -152,6 +152,9 @@
         - "app-dbus-name" (type: s): Application D-Bus name in the a11y D-Bus
         - "toplevel-object-path" (type: o): Object path to the toplevel, in the
           given D-Bus name.
+        - "pid" (type: i): The process identifier of the application containing
+          window with the pointer. This may be provided if the the AT-SPI
+          bus name and object path cannot be obtained.
 
         If this data is not provided, the focused client will be considered to
         be the desktop environment itself, and the provided coordinates will be
@@ -181,5 +184,111 @@
         a following "QueryPointer" method call.
     -->
     <signal name="PointerPositionChanged"/>
+  </interface>
+
+  <interface name="org.freedesktop.a11y.TouchScreenHandler">
+
+    <!--
+        Start:
+
+        Indicates that the caller is interested in receiving touch events.
+    -->
+    <method name="Start"/>
+
+    <!--
+        Stop:
+
+        Indicates that the caller is no longer interested in receiving touch
+        events.
+    -->
+    <method name="Stop"/>
+
+    <!--
+        Grab:
+
+        Starts a grab on the touch screen.
+    -->
+    <method name="Grab">
+      <arg type="b" name="success" direction="out"/>
+    </method>
+
+    <!--
+        Ungrab:
+
+        Stops any existing grab on the touch screen.
+    -->
+    <method name="Ungrab"/>
+
+    <!--
+        TouchBegin:
+
+        @x: The x-coordinate of the press.
+        @y: The y-coordinate of the press.
+        @app_data: Additional properties.
+
+        This signal is emitted when a new touch event sequence is started.
+
+        The "app_data" argument is a generic container, so far the only handled keys
+        are relevant to AT-SPI:
+
+        - "app-dbus-name" (type: s): Application D-Bus name in the a11y D-Bus
+        - "toplevel-object-path" (type: o): Object path to the toplevel, in the
+          given D-Bus name.
+        - "rel-x" (type: d): X coordinate relative to the specified object.
+        - "rel-y" (type: d): Y coordinate relative to the specified object.
+        - "pid" (type: i): The process identifier of the application containing
+          window with the pointer. This may be provided if the the AT-SPI
+          bus name and object path cannot be obtained.
+
+        If this data is not provided, the focused client will be considered to
+        be the desktop environment itself, and the provided coordinates will be
+        relative to its origin point.
+        - "app-dbus-name" (type: s): Application D-Bus name in the a11y D-Bus
+        - "toplevel-object-path" (type: o): Object path to the toplevel, in the
+          given D-Bus name.
+    -->
+    <signal name="TouchBegin">
+      <arg type="d" name="x" direction="out" />
+      <arg type="d" name="y" direction="out" />
+      <arg type="a{sv}" name="app_data" direction="out" />
+    </signal>
+
+    <!--
+        TouchUpdate:
+
+        @x: The x-coordinate of the press.
+        @y: The y-coordinate of the press.
+        @app_data: Additional properties.
+
+        This signal is emitted when a touch event sequence is being updated.
+        The "app_data" container has the same properties as for the TouchBegin
+        signal.
+        The "app_data" container has the same properties as for the TouchBegin
+        signal.
+    -->
+    <signal name="TouchUpdate">
+      <arg type="d" name="x" direction="out" />
+      <arg type="d" name="y" direction="out" />
+      <arg type="a{sv}" name="app_data" direction="out" />
+    </signal>
+
+    <!--
+        TouchEnd:
+
+        @x: The x-coordinate of the press.
+        @y: The y-coordinate of the press.
+        @app_data: Additional properties.
+
+        This signal is emitted when a touch event sequence has finished.
+        The "app_data" container has the same properties as for the TouchBegin
+        signal.
+        The "app_data" container has the same properties as for the TouchBegin
+        signal.
+    -->
+    <signal name="TouchEnd">
+      <arg type="d" name="x" direction="out" />
+      <arg type="d" name="y" direction="out" />
+      <arg type="a{sv}" name="app_data" direction="out" />
+    </signal>
   </interface>
 </node>
