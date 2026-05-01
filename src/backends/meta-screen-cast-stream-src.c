@@ -504,6 +504,7 @@ meta_screen_cast_stream_src_paint_to_buffer (MetaScreenCastStreamSrc   *src,
 
 static gboolean
 meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                              MetaScreenCastRecordFlag   flags,
                                               MetaScreenCastPaintPhase   paint_phase,
                                               int                        width,
                                               int                        height,
@@ -514,7 +515,7 @@ meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_to_buffer (src, paint_phase,
+  return klass->record_to_buffer (src, flags, paint_phase,
                                   width, height, stride, data, error);
 }
 
@@ -963,6 +964,7 @@ do_record_frame (MetaScreenCastStreamSrc   *src,
                                "Meta::ScreenCastStreamSrc::record_to_buffer()");
 
       return meta_screen_cast_stream_src_record_to_buffer (src,
+                                                           flags,
                                                            paint_phase,
                                                            width,
                                                            height,

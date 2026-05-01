@@ -564,6 +564,7 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
 
 static gboolean
 meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc   *src,
+                                                      MetaScreenCastRecordFlag   flags,
                                                       MetaScreenCastPaintPhase   paint_phase,
                                                       int                        width,
                                                       int                        height,

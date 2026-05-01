@@ -84,6 +84,7 @@ struct _MetaScreenCastStreamSrcClass
   void (* enable) (MetaScreenCastStreamSrc *src);
   void (* disable) (MetaScreenCastStreamSrc *src);
   gboolean (* record_to_buffer) (MetaScreenCastStreamSrc  *src,
+                                 MetaScreenCastRecordFlag  flags,
                                  MetaScreenCastPaintPhase  paint_phase,
                                  int                       width,
                                  int                       height,
