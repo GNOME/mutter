@@ -79,14 +79,23 @@ typedef struct _MetaA11yKeyGrabber
   GArray *keystrokes;
 } MetaA11yKeyGrabber;
 
+typedef struct
+{
+  gchar *bus_name;
+  guint bus_name_watcher_id;
+  gboolean grabbed;
+} MetaA11yTouchEntry;
+
 typedef struct _MetaA11yManager
 {
   GObject parent;
   MetaBackend *backend;
   guint dbus_name_id;
   GHashTable *query_pointer_requesters;
+  GList *touch_screen_listeners;
   MetaDBusKeyboardMonitor *keyboard_monitor_skeleton;
   MetaDBusPointerLocator *pointer_locator_skeleton;
+  MetaDBusTouchScreenHandler *touch_screen_handler_skeleton;
   GDBusConnection *connection;
 
   GList *key_grabbers;
@@ -341,7 +350,7 @@ handle_query_pointer (MetaDBusPointerLocator *skeleton,
     meta_backend_get_context (a11y_manager->backend);
   MetaDisplay *display = meta_context_get_display (context);
   MetaCompositor *compositor = meta_display_get_compositor (display);
-  GVariant *app_data;
+  GVariantBuilder *app_data;
   graphene_point_t rel_coords;
   const char *sender;
 
@@ -359,8 +368,156 @@ handle_query_pointer (MetaDBusPointerLocator *skeleton,
     }
 
   meta_dbus_pointer_locator_complete_query_pointer (skeleton, invocation,
-                                                    app_data,
+                                                    g_variant_builder_end (app_data),
                                                     rel_coords.x, rel_coords.y);
+  g_variant_builder_unref (app_data);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static MetaA11yTouchEntry *
+get_touch_entry (MetaA11yManager *a11y_manager,
+                 const char      *sender)
+{
+  GList *l;
+
+  for (l = a11y_manager->touch_screen_listeners; l; l = l->next)
+    {
+      MetaA11yTouchEntry *entry = l->data;
+      if (!strcmp (entry->bus_name, sender))
+        return entry;
+    }
+
+  return NULL;
+}
+
+static void
+touch_entry_free (MetaA11yTouchEntry *entry)
+{
+  if (entry->bus_name_watcher_id)
+    {
+      g_bus_unwatch_name (entry->bus_name_watcher_id);
+      entry->bus_name_watcher_id = 0;
+    }
+
+  g_clear_pointer (&entry->bus_name, g_free);
+
+  g_free (entry);
+}
+
+static void
+touch_entry_bus_name_vanished_callback (GDBusConnection *connection,
+                                        const char      *name,
+                                        gpointer         user_data)
+{
+  MetaA11yManager *a11y_manager = user_data;
+  GList *l;
+
+  for (l = a11y_manager->touch_screen_listeners; l; l = l->next)
+    {
+      MetaA11yTouchEntry *entry = l->data;
+      if (!strcmp (entry->bus_name, name))
+        {
+          a11y_manager->touch_screen_listeners = g_list_remove (a11y_manager->touch_screen_listeners, entry);
+          touch_entry_free (entry);
+          return;
+        }
+    }
+}
+
+static gboolean
+handle_touch_start (MetaDBusTouchScreenHandler *skeleton,
+                    GDBusMethodInvocation      *invocation,
+                    MetaA11yManager            *a11y_manager)
+{
+  GDBusConnection *connection =
+    g_dbus_method_invocation_get_connection (invocation);
+  const char *sender = g_dbus_method_invocation_get_sender (invocation);
+  MetaA11yTouchEntry *entry = get_touch_entry (a11y_manager, sender);
+
+  if (!entry)
+    {
+      entry = g_new0 (MetaA11yTouchEntry, 1);
+      entry->bus_name = g_strdup (sender);
+      entry->bus_name_watcher_id =
+        g_bus_watch_name_on_connection (connection,
+                                        entry->bus_name,
+                                        G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                        NULL,
+                                        touch_entry_bus_name_vanished_callback,
+                                        a11y_manager,
+                                        NULL);
+      a11y_manager->touch_screen_listeners = g_list_append (a11y_manager->touch_screen_listeners, entry);
+    }
+
+  meta_dbus_touch_screen_handler_complete_start (skeleton, invocation);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
+handle_touch_stop (MetaDBusTouchScreenHandler *skeleton,
+                   GDBusMethodInvocation      *invocation,
+                   MetaA11yManager            *a11y_manager)
+{
+  const char *sender = g_dbus_method_invocation_get_sender (invocation);
+  MetaA11yTouchEntry *entry = get_touch_entry (a11y_manager, sender);
+
+  if (entry)
+    {
+      a11y_manager->touch_screen_listeners = g_list_remove (a11y_manager->touch_screen_listeners, entry);
+      touch_entry_free (entry);
+    }
+
+  meta_dbus_touch_screen_handler_complete_stop (skeleton, invocation);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
+touch_grab_is_active (MetaA11yManager *a11y_manager)
+{
+  GList *l;
+
+  for (l = a11y_manager->touch_screen_listeners; l; l = l->next)
+    {
+      MetaA11yTouchEntry *entry = l->data;
+      if (entry->grabbed)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+handle_touch_grab (MetaDBusTouchScreenHandler *skeleton,
+                   GDBusMethodInvocation      *invocation,
+                   MetaA11yManager            *a11y_manager)
+{
+  const char *sender = g_dbus_method_invocation_get_sender (invocation);
+  MetaA11yTouchEntry *entry = get_touch_entry (a11y_manager, sender);
+  gboolean ret = FALSE;
+  gboolean already_grabbed = touch_grab_is_active (a11y_manager);
+
+  if (entry && !already_grabbed)
+    {
+      entry->grabbed = TRUE;
+      ret = TRUE;
+    }
+
+  meta_dbus_touch_screen_handler_complete_grab (skeleton, invocation, ret);
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
+}
+
+static gboolean
+handle_touch_ungrab (MetaDBusTouchScreenHandler *skeleton,
+                     GDBusMethodInvocation      *invocation,
+                     MetaA11yManager            *a11y_manager)
+{
+  const char *sender = g_dbus_method_invocation_get_sender (invocation);
+  MetaA11yTouchEntry *entry = get_touch_entry (a11y_manager, sender);
+
+  if (entry)
+    entry->grabbed = FALSE;
+
+  meta_dbus_touch_screen_handler_complete_ungrab (skeleton, invocation);
   return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
@@ -406,6 +563,24 @@ on_bus_acquired (GDBusConnection *connection,
                                     "/org/freedesktop/a11y/Manager",
                                     NULL);
 
+  manager->touch_screen_handler_skeleton = meta_dbus_touch_screen_handler_skeleton_new ();
+
+  g_signal_connect (manager->touch_screen_handler_skeleton, "g-authorize-method",
+                    G_CALLBACK (check_access), manager);
+  g_signal_connect (manager->touch_screen_handler_skeleton, "handle-start",
+                    G_CALLBACK (handle_touch_start), manager);
+  g_signal_connect (manager->touch_screen_handler_skeleton, "handle-stop",
+                    G_CALLBACK (handle_touch_stop), manager);
+  g_signal_connect (manager->touch_screen_handler_skeleton, "handle-grab",
+                    G_CALLBACK (handle_touch_grab), manager);
+  g_signal_connect (manager->touch_screen_handler_skeleton, "handle-ungrab",
+                    G_CALLBACK (handle_touch_ungrab), manager);
+
+  g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (manager->touch_screen_handler_skeleton),
+                                    connection,
+                                    "/org/freedesktop/a11y/Manager",
+                                    NULL);
+
   manager->access_checker = meta_dbus_access_checker_new (connection, context);
   meta_dbus_access_checker_allow_sender (manager->access_checker,
                                          "org.gnome.Orca.KeyboardMonitor");
@@ -436,10 +611,14 @@ meta_a11y_manager_finalize (GObject *object)
   g_list_free_full (a11y_manager->key_grabbers,
                     (GDestroyNotify) key_grabber_free);
   g_clear_object (&a11y_manager->keyboard_monitor_skeleton);
+  g_clear_object (&a11y_manager->pointer_locator_skeleton);
+  g_clear_object (&a11y_manager->touch_screen_handler_skeleton);
   g_clear_object (&a11y_manager->access_checker);
   g_clear_pointer (&a11y_manager->grabbed_keypresses, g_hash_table_destroy);
   g_clear_pointer (&a11y_manager->all_grabbed_modifiers, g_hash_table_destroy);
   g_clear_pointer (&a11y_manager->query_pointer_requesters, g_hash_table_destroy);
+  g_list_free_full (a11y_manager->touch_screen_listeners,
+                    (GDestroyNotify) touch_entry_free);
   g_bus_unown_name (a11y_manager->dbus_name_id);
 
   G_OBJECT_CLASS (meta_a11y_manager_parent_class)->finalize (object);
@@ -612,9 +791,9 @@ notify_client (MetaA11yManager     *a11y_manager,
     g_warning ("Could not emit a11y KeyEvent: %s", error->message);
 }
 
-gboolean
-meta_a11y_manager_notify_clients (MetaA11yManager    *a11y_manager,
-                                  const ClutterEvent *event)
+static gboolean
+notify_key_event (MetaA11yManager    *a11y_manager,
+                  const ClutterEvent *event)
 {
   gboolean a11y_grabbed = FALSE;
   gboolean released = clutter_event_type (event) == CLUTTER_KEY_RELEASE;
@@ -679,8 +858,8 @@ meta_a11y_manager_notify_clients (MetaA11yManager    *a11y_manager,
   return a11y_grabbed;
 }
 
-void
-meta_a11y_manager_maybe_notify_motion (MetaA11yManager *a11y_manager)
+static void
+maybe_notify_motion (MetaA11yManager *a11y_manager)
 {
   g_autoptr (GDBusConnection) connection = NULL;
   GHashTableIter iter;
@@ -705,6 +884,83 @@ meta_a11y_manager_maybe_notify_motion (MetaA11yManager *a11y_manager)
         g_warning ("Could not emit a11y PointerPositionChanged: %s", error->message);
 
       g_hash_table_iter_remove (&iter);
+    }
+}
+
+static gboolean
+notify_touch_event (MetaA11yManager    *a11y_manager,
+                    const ClutterEvent *event)
+{
+  MetaContext *context =
+    meta_backend_get_context (a11y_manager->backend);
+  MetaDisplay *display = meta_context_get_display (context);
+  MetaCompositor *compositor = meta_display_get_compositor (display);
+  g_autoptr (GDBusConnection) connection = NULL;
+  GList *l;
+  const char *signal_name = NULL;
+  GVariantBuilder *app_data;
+  graphene_point_t position;
+
+  if (!a11y_manager->connection || !a11y_manager->touch_screen_listeners)
+    return FALSE;
+
+  switch (clutter_event_type (event))
+    {
+    case CLUTTER_TOUCH_BEGIN: signal_name = "TouchBegin"; break;
+    case CLUTTER_TOUCH_UPDATE: signal_name = "TouchUpdate"; break;
+    case CLUTTER_TOUCH_END: signal_name = "TouchEnd"; break;
+    default:
+      break;
+    }
+
+  clutter_event_get_position (event, &position);
+
+  for (l = a11y_manager->touch_screen_listeners; l; l = l->next)
+    {
+      MetaA11yTouchEntry *entry = l->data;
+      g_autoptr (GError) error = NULL;
+
+      if (!meta_compositor_query_a11y_info_for_event (compositor, event, &app_data, NULL))
+        {
+          g_warning ("Could not get a11y information for touch event");
+          break;
+        }
+
+      if (!g_dbus_connection_emit_signal (a11y_manager->connection,
+                                          entry->bus_name,
+                                          "/org/freedesktop/a11y/Manager",
+                                          "org.freedesktop.a11y.TouchScreenHandler",
+                                          signal_name,
+                                          g_variant_new ("(dda{sv})", position.x, position.y, app_data),
+                                          &error))
+        g_warning ("Could not emit a11y %s: %s", signal_name, error->message);
+    }
+
+  if (app_data)
+    g_variant_builder_unref (app_data);
+
+  return touch_grab_is_active (a11y_manager);
+}
+
+gboolean
+meta_a11y_manager_maybe_notify_clients (MetaA11yManager    *a11y_manager,
+                                        const ClutterEvent *event)
+{
+  switch (clutter_event_type (event))
+    {
+    case CLUTTER_KEY_PRESS:
+    case CLUTTER_KEY_RELEASE:
+      return notify_key_event (a11y_manager, event);
+    case CLUTTER_MOTION:
+      if (!clutter_event_get_device_tool (event))
+        maybe_notify_motion (a11y_manager);
+      return FALSE;
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_UPDATE:
+    case CLUTTER_TOUCH_END:
+      return notify_touch_event (a11y_manager, event);
+    default:
+      return FALSE;
     }
 }
 

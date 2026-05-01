@@ -150,17 +150,9 @@ meta_display_handle_event (MetaDisplay        *display,
   if (meta_display_process_captured_input (display, event))
     return CLUTTER_EVENT_STOP;
 
-  if (IS_KEY_EVENT (event_type))
-    {
-      a11y_grabbed = meta_a11y_manager_notify_clients (a11y_manager, event);
-      if (a11y_grabbed)
-        return CLUTTER_EVENT_STOP;
-    }
-  else if (event_type == CLUTTER_MOTION &&
-           !clutter_event_get_device_tool (event))
-    {
-      meta_a11y_manager_maybe_notify_motion (a11y_manager);
-    }
+  a11y_grabbed = meta_a11y_manager_maybe_notify_clients (a11y_manager, event);
+  if (a11y_grabbed)
+    return CLUTTER_EVENT_STOP;
 
   source_device = clutter_event_get_source_device (event);
   clutter_seat_a11y_update (seat, event);

@@ -1686,31 +1686,26 @@ meta_compositor_notify_mapping_change (MetaCompositor   *compositor,
   return klass->notify_mapping_change (compositor, type, state);
 }
 
-gboolean
-meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
-                                    GVariant         **data_out,
-                                    graphene_point_t  *rel_coords_out)
+static gboolean
+query_a11y_info_for_sprite (MetaCompositor           *compositor,
+                            ClutterSprite            *sprite,
+                            GVariantBuilder         **data_out,
+                            graphene_point_t         *rel_coords_out)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   MetaContext *context = meta_backend_get_context (priv->backend);
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (context);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
-  ClutterBackend *clutter_backend =
-    meta_backend_get_clutter_backend (priv->backend);
-  ClutterSprite *sprite;
   g_autoptr (GSList) windows = NULL;
-  GVariantBuilder app_data_builder;
+  GVariantBuilder *app_data_builder;
   graphene_point_t rel_coords;
   MetaWindow *window;
-
-  sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
 
   window = meta_wayland_compositor_get_current_window (wayland_compositor,
                                                        sprite, &rel_coords);
 
-  g_variant_builder_init (&app_data_builder, G_VARIANT_TYPE ("a{sv}"));
+  app_data_builder = g_variant_builder_new (G_VARIANT_TYPE ("a{sv}"));
 
   if (window)
     {
@@ -1731,43 +1726,99 @@ meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
         {
           if (dbus_name)
             {
-              g_variant_builder_add (&app_data_builder, "{sv}",
+              g_variant_builder_add (app_data_builder, "{sv}",
                                      "app-dbus-name",
                                      g_variant_new_string (dbus_name));
             }
 
           if (object_path)
             {
-              g_variant_builder_add (&app_data_builder, "{sv}",
+              g_variant_builder_add (app_data_builder, "{sv}",
                                      "toplevel-object-path",
                                      g_variant_new_object_path (object_path));
             }
 
-          *data_out = g_variant_builder_end (&app_data_builder);
-          *rel_coords_out = GRAPHENE_POINT_INIT (rel_x, rel_y);
+          if (rel_coords_out)
+            *rel_coords_out = GRAPHENE_POINT_INIT (rel_x, rel_y);
+          else
+            {
+              g_variant_builder_add (app_data_builder, "{sv}",
+                                     "rel-x",
+                                     g_variant_new_double (rel_x));
+              g_variant_builder_add (app_data_builder, "{sv}",
+                                     "rel-y",
+                                     g_variant_new_double (rel_y));
+            }
+          *data_out = app_data_builder;
           return TRUE;
         }
       else if (pid != 0)
         {
-          g_variant_builder_add (&app_data_builder, "{sv}",
+          g_variant_builder_add (app_data_builder, "{sv}",
                                  "pid",
                                  g_variant_new_int32 (pid));
 
-          *data_out = g_variant_builder_end (&app_data_builder);
-          *rel_coords_out = GRAPHENE_POINT_INIT (rel_x, rel_y);
+          if (rel_coords_out)
+            *rel_coords_out = GRAPHENE_POINT_INIT (rel_x, rel_y);
+          else
+            {
+              g_variant_builder_add (app_data_builder, "{sv}",
+                                     "rel-x",
+                                     g_variant_new_double (rel_x));
+              g_variant_builder_add (app_data_builder, "{sv}",
+                                     "rel-y",
+                                     g_variant_new_double (rel_y));
+            }
+          *data_out = app_data_builder;
 
           return pid != 0;
         }
       else
         {
-          g_variant_builder_clear (&app_data_builder);
+          g_variant_builder_unref (app_data_builder);
           *data_out = NULL;
           return FALSE;
         }
     }
 
   /* Respond for our own chrome */
-  *data_out = g_variant_builder_end (&app_data_builder);
-  clutter_sprite_get_coords (sprite, rel_coords_out);
+  *data_out = app_data_builder;
+  if (rel_coords_out)
+    clutter_sprite_get_coords (sprite, rel_coords_out);
   return TRUE;
+}
+
+gboolean
+meta_compositor_query_pointer_a11y (MetaCompositor    *compositor,
+                                    GVariantBuilder  **data_out,
+                                    graphene_point_t  *rel_coords_out)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (priv->backend);
+  ClutterSprite *sprite;
+
+  sprite = clutter_backend_get_pointer_sprite (clutter_backend, stage);
+
+  return query_a11y_info_for_sprite (compositor, sprite, data_out, rel_coords_out);
+}
+
+gboolean
+meta_compositor_query_a11y_info_for_event (MetaCompositor     *compositor,
+                                           const ClutterEvent *event,
+                                           GVariantBuilder   **data_out,
+                                           graphene_point_t   *rel_coords_out)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (priv->backend));
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (priv->backend);
+  ClutterSprite *sprite;
+
+  sprite = clutter_backend_get_sprite (clutter_backend, stage, event);
+
+  return query_a11y_info_for_sprite (compositor, sprite, data_out, rel_coords_out);
 }
