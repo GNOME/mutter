@@ -25,8 +25,6 @@
 #include "core/window-private.h"
 #include "meta/meta-inhibit-shortcuts-dialog.h"
 
-typedef struct _MetaInhibitShortcutsDialogDefaultPrivate MetaInhibitShortcutsDialogDefaultPrivate;
-
 struct _MetaInhibitShortcutsDialogDefault
 {
   GObject parent_instance;

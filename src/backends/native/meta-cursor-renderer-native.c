@@ -107,17 +107,6 @@ typedef struct _KmsCursorData
   ClutterSprite *sprite;
 } KmsCursorData;
 
-typedef struct _MetaCursorNativePrivate
-{
-  GHashTable *gpu_states;
-
-  struct {
-    gboolean can_preprocess;
-    float current_relative_scale;
-    MtkMonitorTransform current_relative_transform;
-  } preprocess_state;
-} MetaCursorNativePrivate;
-
 static GQuark quark_cursor_renderer_native_gpu_data = 0;
 static GQuark quark_cursor_stage_view = 0;
 
@@ -1447,12 +1436,6 @@ on_gpu_added_for_cursor (MetaBackend *backend,
   if (META_IS_GPU_KMS (gpu))
     init_hw_cursor_support_for_gpu (META_GPU_KMS (gpu));
 }
-
-typedef struct _CursorKmsImplState
-{
-  graphene_point_t sprite_hotspot;
-  graphene_rect_t sprite_rect;
-} CursorKmsImplState;
 
 static void
 on_pointer_position_changed_in_input_impl (MetaSeatImpl           *seat_impl,

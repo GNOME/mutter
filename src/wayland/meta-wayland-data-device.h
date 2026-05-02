@@ -33,7 +33,6 @@
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandDragGrab MetaWaylandDragGrab;
-typedef struct _MetaWaylandDataSourceFuncs MetaWaylandDataSourceFuncs;
 
 struct _MetaWaylandDataDevice
 {

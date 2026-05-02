@@ -43,8 +43,6 @@
 #include "meta/meta-window-config.h"
 #include "wayland/meta-wayland-types.h"
 
-typedef struct _MetaWindowQueue MetaWindowQueue;
-
 #define META_WINDOW_TITLEBAR_HEIGHT 50
 
 typedef enum

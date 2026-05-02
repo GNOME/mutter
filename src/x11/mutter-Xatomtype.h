@@ -81,24 +81,6 @@ typedef struct {
 #define NumPropSizeElements 18		/* ICCCM version 1 */
 
 /* this structure may be extended, but do not change the order */
-/* RGB properties */
-typedef struct {
-	RESOURCEID colormap;
-	UNSIGNEDINT red_max;
-	UNSIGNEDINT red_mult;
-	UNSIGNEDINT green_max;
-	UNSIGNEDINT green_mult;
-	UNSIGNEDINT blue_max;
-	UNSIGNEDINT blue_mult;
-	UNSIGNEDINT base_pixel;
-	RESOURCEID visualid;		/* ICCCM version 1 */
-	RESOURCEID killid;		/* ICCCM version 1 */
-} xPropStandardColormap;
-#define OldNumPropStandardColormapElements 8  /* pre-ICCCM */
-#define NumPropStandardColormapElements 10  /* ICCCM version 1 */
-
-
-/* this structure may be extended, but do not change the order */
 typedef struct {
     UNSIGNEDINT flags;
     BOOL input;				/* need to convert */
@@ -111,21 +93,6 @@ typedef struct {
     UNSIGNEDINT windowGroup;
   } xPropWMHints;
 #define NumPropWMHintsElements 9 /* number of elements in this structure */
-
-/* this structure defines the icon size hints information */
-typedef struct {
-    SIGNEDINT minWidth, minHeight;	/* need to cvt */
-    SIGNEDINT maxWidth, maxHeight;	/* need to cvt */
-    SIGNEDINT widthInc, heightInc;	/* need to cvt */
-  } xPropIconSize;
-#define NumPropIconSizeElements 6 /* number of elements in this structure */
-
-/* this structure defines the window manager state information */
-typedef struct {
-    SIGNEDINT state;			/* need to cvt */
-    RESOURCEID iconWindow;
-} xPropWMState;
-#define NumPropWMStateElements 2	/* number of elements in struct */
 
 #undef BOOL
 #undef SIGNEDINT

@@ -189,8 +189,6 @@ typedef enum
 "                                                                         \n"\
 "cogl_color_out *= rounded_rect_coverage (texture_coord);                 \n"
 
-typedef struct _MetaBackgroundLayer MetaBackgroundLayer;
-
 typedef enum
 {
   PIPELINE_VIGNETTE = (1 << 0),

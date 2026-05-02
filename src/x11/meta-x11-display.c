@@ -580,21 +580,6 @@ init_x11_bell (MetaX11Display *x11_display)
                             0);
 }
 
-/*
- * \bug This is never called! If we had XkbSetAutoResetControls
- * enabled in meta_x11_bell_init(), this wouldn't be a problem,
- * but we don't.
- */
-G_GNUC_UNUSED static void
-shutdown_x11_bell (MetaX11Display *x11_display)
-{
-  /* TODO: persist initial bell state in display, reset here */
-  XkbChangeEnabledControls (x11_display->xdisplay,
-                            XkbUseCoreKbd,
-                            XkbAudibleBellMask,
-                            XkbAudibleBellMask);
-}
-
 static void
 set_desktop_geometry_hint (MetaX11Display *x11_display)
 {

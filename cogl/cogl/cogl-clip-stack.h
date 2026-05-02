@@ -44,7 +44,6 @@
 
 typedef struct _CoglClipStack CoglClipStack;
 typedef struct _CoglClipStackRect CoglClipStackRect;
-typedef struct _CoglClipStackWindowRect CoglClipStackWindowRect;
 typedef struct _CoglClipStackRegion CoglClipStackRegion;
 
 typedef enum

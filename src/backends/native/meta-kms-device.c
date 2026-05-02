@@ -485,12 +485,6 @@ meta_kms_device_lease_objects (MetaKmsDevice  *device,
   return TRUE;
 }
 
-typedef struct
-{
-  MetaKmsDevice *device;
-  uint32_t lessee_id;
-} RevokeLeaseData;
-
 static gpointer
 revoke_lease_in_impl (MetaThreadImpl  *thread_impl,
                       gpointer         user_data,

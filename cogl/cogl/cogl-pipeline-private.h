@@ -218,12 +218,6 @@ typedef struct
   CoglPipelineSnippetList fragment_snippets;
 } CoglPipelineBigState;
 
-typedef struct
-{
-  CoglPipeline *owner;
-  CoglPipelineLayer *layer;
-} CoglPipelineLayerCacheEntry;
-
 typedef struct _CoglPipelineHashState
 {
   unsigned long layer_differences;
