@@ -780,17 +780,9 @@ mdk_monitor_get_property (GObject    *object,
 }
 
 static void
-mdk_monitor_dispose (GObject *object)
+mdk_monitor_unrealize (GtkWidget *widget)
 {
-  gtk_widget_dispose_template (GTK_WIDGET (object), MDK_TYPE_MONITOR);
-
-  G_OBJECT_CLASS (mdk_monitor_parent_class)->dispose (object);
-}
-
-static void
-mdk_monitor_finalize (GObject *object)
-{
-  MdkMonitor *monitor = MDK_MONITOR (object);
+  MdkMonitor *monitor = MDK_MONITOR (widget);
   GtkNative *native = gtk_widget_get_native (GTK_WIDGET (monitor));
   GdkSurface *surface = gtk_native_get_surface (native);
 
@@ -801,7 +793,15 @@ mdk_monitor_finalize (GObject *object)
   g_clear_signal_handler (&monitor->surface_scale_changed_handler_id,
                           surface);
 
-  G_OBJECT_CLASS (mdk_monitor_parent_class)->finalize (object);
+  GTK_WIDGET_CLASS (mdk_monitor_parent_class)->unrealize (widget);
+}
+
+static void
+mdk_monitor_dispose (GObject *object)
+{
+  gtk_widget_dispose_template (GTK_WIDGET (object), MDK_TYPE_MONITOR);
+
+  G_OBJECT_CLASS (mdk_monitor_parent_class)->dispose (object);
 }
 
 static void
@@ -811,7 +811,6 @@ mdk_monitor_class_init (MdkMonitorClass *klass)
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
 
   object_class->dispose = mdk_monitor_dispose;
-  object_class->finalize = mdk_monitor_finalize;
   object_class->set_property = mdk_monitor_set_property;
   object_class->get_property = mdk_monitor_get_property;
 
@@ -820,6 +819,7 @@ mdk_monitor_class_init (MdkMonitorClass *klass)
   widget_class->unmap = mdk_monitor_unmap;
   widget_class->measure = mdk_monitor_measure;
   widget_class->size_allocate = mdk_monitor_size_allocate;
+  widget_class->unrealize = mdk_monitor_unrealize;
 
   gtk_widget_class_set_template_from_resource (widget_class,
                                                "/ui/mdk-monitor.ui");
