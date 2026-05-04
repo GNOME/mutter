@@ -1207,10 +1207,15 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
 
   actor_x11->repaint_scheduled = FALSE;
 
+  window = meta_window_actor_get_meta_window (actor);
+  if (meta_window_x11_should_thaw_after_paint (window))
+    {
+      meta_window_x11_thaw_commits (window);
+      meta_window_x11_set_thaw_after_paint (window, FALSE);
+    }
+
   if (meta_window_actor_is_destroyed (actor))
     return;
-
-  window = meta_window_actor_get_meta_window (actor);
 
   /* If the window had damage, but wasn't actually redrawn because
    * it is obscured, we should wait until timer expiration before
@@ -1226,13 +1231,6 @@ meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
           sync_counter = meta_frame_get_sync_counter (window_frame);
           meta_sync_counter_send_frame_drawn (sync_counter);
         }
-    }
-
-  /* This is for Xwayland, and a no-op on plain Xorg */
-  if (meta_window_x11_should_thaw_after_paint (window))
-    {
-      meta_window_x11_thaw_commits (window);
-      meta_window_x11_set_thaw_after_paint (window, FALSE);
     }
 
   window_drag = meta_compositor_get_current_window_drag (window->display->compositor);
