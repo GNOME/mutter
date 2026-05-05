@@ -79,3 +79,6 @@ gboolean meta_wayland_touch_can_popup        (MetaWaylandTouch *touch,
 
 MetaWaylandSurface * meta_wayland_touch_get_focus_surface (MetaWaylandTouch     *touch,
                                                            ClutterEventSequence *sequence);
+
+MetaWaylandSurface * meta_wayland_touch_get_current_surface (MetaWaylandTouch     *touch,
+                                                             ClutterEventSequence *sequence);
