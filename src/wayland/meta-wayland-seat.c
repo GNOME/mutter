@@ -241,7 +241,7 @@ default_focus (MetaWaylandEventHandler *handler,
 
         sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
 
-        if (surface != meta_wayland_touch_get_surface (seat->touch, sequence))
+        if (surface != meta_wayland_touch_get_focus_surface (seat->touch, sequence))
           meta_wayland_touch_cancel (seat->touch);
 
         break;
@@ -695,7 +695,7 @@ meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
 
         sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
 
-        return meta_wayland_touch_get_surface (seat->touch, sequence);
+        return meta_wayland_touch_get_focus_surface (seat->touch, sequence);
       }
     case CLUTTER_SPRITE_ROLE_TABLET:
       {
