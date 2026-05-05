@@ -42,6 +42,8 @@ struct _MetaWaylandTouchSurface
 struct _MetaWaylandTouchInfo
 {
   MetaWaylandTouchSurface *focus_surface;
+  MetaWaylandSurface *current_surface;
+  gulong current_surface_destroyed_handler_id;
   ClutterSprite *sprite;
   guint32 slot_serial;
   gint32 slot;
@@ -52,6 +54,10 @@ struct _MetaWaylandTouchInfo
   guint updated : 1;
   guint begin_delivered : 1;
 };
+
+static void
+meta_wayland_touch_info_set_current_surface (MetaWaylandTouchInfo *touch_info,
+                                             MetaWaylandSurface   *surface);
 
 static MetaBackend *
 backend_from_touch (MetaWaylandTouch *touch)
@@ -218,6 +224,34 @@ touch_get_relative_coordinates (MetaWaylandTouch   *touch,
                                                         x, y);
 }
 
+static void
+current_surface_destroyed (MetaWaylandSurface   *surface,
+                           MetaWaylandTouchInfo *touch_info)
+{
+  meta_wayland_touch_info_set_current_surface (touch_info, NULL);
+}
+
+static void
+meta_wayland_touch_info_set_current_surface (MetaWaylandTouchInfo *touch_info,
+                                             MetaWaylandSurface   *surface)
+{
+  if (touch_info->current_surface == surface)
+    return;
+
+  g_clear_signal_handler (&touch_info->current_surface_destroyed_handler_id,
+                          touch_info->current_surface);
+
+  touch_info->current_surface = surface;
+
+  if (touch_info->current_surface)
+    {
+      touch_info->current_surface_destroyed_handler_id =
+        g_signal_connect (touch_info->current_surface, "destroy",
+                          G_CALLBACK (current_surface_destroyed),
+                          touch_info);
+    }
+}
+
 void
 meta_wayland_touch_update (MetaWaylandTouch   *touch,
                            const ClutterEvent *event)
@@ -231,9 +265,8 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
 
   touch_info = touch_get_info (touch, sequence, FALSE);
 
-  if (event_type == CLUTTER_ENTER &&
-      !touch_info &&
-      (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) == 0)
+  if (event_type == CLUTTER_ENTER ||
+      event_type == CLUTTER_LEAVE)
     {
       MetaWaylandSurface *surface = NULL;
       MetaBackend *backend;
@@ -254,13 +287,20 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
       if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
         surface = meta_surface_actor_wayland_get_surface (META_SURFACE_ACTOR_WAYLAND (actor));
 
-      if (!surface || !surface->resource)
-        return;
+      if (touch_info)
+        meta_wayland_touch_info_set_current_surface (touch_info, surface);
 
-      touch_info = touch_get_info (touch, sequence, TRUE);
-      touch_info->focus_surface = touch_surface_get (touch, surface);
-      touch_info->sprite = sprite;
-      clutter_event_get_coords (event, &touch_info->start_x, &touch_info->start_y);
+      if (event_type == CLUTTER_ENTER &&
+          !touch_info &&
+          (clutter_event_get_flags (event) & CLUTTER_EVENT_FLAG_GRAB_NOTIFY) == 0 &&
+          surface && surface->resource)
+        {
+          touch_info = touch_get_info (touch, sequence, TRUE);
+          touch_info->current_surface = surface;
+          touch_info->focus_surface = touch_surface_get (touch, surface);
+          touch_info->sprite = sprite;
+          clutter_event_get_coords (event, &touch_info->start_x, &touch_info->start_y);
+        }
     }
 
   if (!touch_info)
@@ -270,6 +310,13 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
        event_type == CLUTTER_TOUCH_END ||
        event_type == CLUTTER_LEAVE) &&
       !touch_info->begin_delivered)
+    {
+      g_hash_table_remove (touch->touches, sequence);
+      return;
+    }
+
+  if (event_type == CLUTTER_TOUCH_END &&
+      !touch_info->focus_surface)
     {
       g_hash_table_remove (touch->touches, sequence);
       return;
@@ -287,8 +334,10 @@ meta_wayland_touch_update (MetaWaylandTouch   *touch,
         touch->latest_touch_down_serial = touch_info->slot_serial;
     }
 
-  touch_get_relative_coordinates (touch, touch_info->focus_surface->surface,
-                                  event, &touch_info->x, &touch_info->y);
+  if (touch_info->focus_surface)
+    touch_get_relative_coordinates (touch, touch_info->focus_surface->surface,
+                                    event, &touch_info->x, &touch_info->y);
+
   touch_info->updated = TRUE;
 }
 
@@ -304,7 +353,7 @@ handle_touch_begin (MetaWaylandTouch   *touch,
   sequence = clutter_event_get_event_sequence (event);
   touch_info = touch_get_info (touch, sequence, FALSE);
 
-  if (!touch_info)
+  if (!touch_info || !touch_info->focus_surface)
     return;
 
   l = &touch_info->focus_surface->resource_list;
@@ -333,7 +382,7 @@ handle_touch_update (MetaWaylandTouch   *touch,
   sequence = clutter_event_get_event_sequence (event);
   touch_info = touch_get_info (touch, sequence, FALSE);
 
-  if (!touch_info)
+  if (!touch_info || !touch_info->focus_surface)
     return;
 
   l = &touch_info->focus_surface->resource_list;
@@ -353,8 +402,6 @@ handle_touch_end (MetaWaylandTouch   *touch,
 {
   MetaWaylandTouchInfo *touch_info;
   ClutterEventSequence *sequence;
-  struct wl_resource *resource;
-  struct wl_list *l;
 
   sequence = clutter_event_get_event_sequence (event);
   touch_info = touch_get_info (touch, sequence, FALSE);
@@ -362,12 +409,18 @@ handle_touch_end (MetaWaylandTouch   *touch,
   if (!touch_info)
     return;
 
-  l = &touch_info->focus_surface->resource_list;
-  wl_resource_for_each (resource, l)
+  if (touch_info->focus_surface)
     {
-      wl_touch_send_up (resource, touch_info->slot_serial,
-                        clutter_event_get_time (event),
-                        touch_info->slot);
+      struct wl_resource *resource;
+      struct wl_list *l;
+
+      l = &touch_info->focus_surface->resource_list;
+      wl_resource_for_each (resource, l)
+        {
+          wl_touch_send_up (resource, touch_info->slot_serial,
+                            clutter_event_get_time (event),
+                            touch_info->slot);
+        }
     }
 
   g_hash_table_remove (touch->touches, sequence);
@@ -385,6 +438,8 @@ touch_get_surfaces (MetaWaylandTouch *touch,
 
   while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &touch_info))
     {
+      if (!touch_info->focus_surface)
+        continue;
       if (only_updated && !touch_info->updated)
         continue;
       if (g_list_find (surfaces, touch_info->focus_surface))
@@ -500,7 +555,8 @@ static const struct wl_touch_interface touch_interface = {
 static void
 touch_info_free (MetaWaylandTouchInfo *touch_info)
 {
-  touch_surface_decrement_touch (touch_info->focus_surface);
+  meta_wayland_touch_info_set_current_surface (touch_info, NULL);
+  g_clear_pointer (&touch_info->focus_surface, touch_surface_decrement_touch);
   g_free (touch_info);
 }
 
@@ -510,6 +566,8 @@ meta_wayland_touch_cancel (MetaWaylandTouch *touch)
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (touch);
   MetaWaylandSeat *seat = meta_wayland_input_device_get_seat (input_device);
   GList *surfaces, *s;
+  MetaWaylandTouchInfo *touch_info;
+  GHashTableIter iter;
 
   if (!meta_wayland_seat_has_touch (seat))
     return;
@@ -527,7 +585,9 @@ meta_wayland_touch_cancel (MetaWaylandTouch *touch)
         wl_touch_send_cancel (resource);
     }
 
-  g_hash_table_remove_all (touch->touches);
+  g_hash_table_iter_init (&iter, touch->touches);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer*) &touch_info))
+    g_clear_pointer (&touch_info->focus_surface, touch_surface_decrement_touch);
   g_list_free (surfaces);
 }
 
@@ -677,6 +737,22 @@ meta_wayland_touch_get_focus_surface (MetaWaylandTouch     *touch,
     return NULL;
 
   return touch_info->focus_surface->surface;
+}
+
+MetaWaylandSurface *
+meta_wayland_touch_get_current_surface (MetaWaylandTouch     *touch,
+                                        ClutterEventSequence *sequence)
+{
+  MetaWaylandTouchInfo *touch_info;
+
+  if (!touch->touches)
+    return NULL;
+
+  touch_info = touch_get_info (touch, sequence, FALSE);
+  if (!touch_info)
+    return NULL;
+
+  return touch_info->current_surface;
 }
 
 static void
