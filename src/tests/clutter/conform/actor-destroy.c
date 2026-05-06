@@ -13,8 +13,6 @@ struct _TestDestroy
 
   ClutterActor *bg;
   ClutterActor *label;
-
-  GList *children;
 };
 
 G_DEFINE_TYPE (TestDestroy, test_destroy, CLUTTER_TYPE_ACTOR)

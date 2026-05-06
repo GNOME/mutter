@@ -33,8 +33,6 @@ typedef struct {
     uint32_t flags;
     uint32_t functions;
     uint32_t decorations;
-    uint32_t input_mode;
-    uint32_t status;
 } MotifWmHints, MwmHints;
 
 #define MWM_HINTS_FUNCTIONS     (1L << 0)

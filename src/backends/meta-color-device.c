@@ -74,7 +74,6 @@ struct _MetaColorDevice
   gulong device_profile_ready_handler_id;
 
   MetaColorProfile *assigned_profile;
-  gulong assigned_profile_ready_handler_id;
   GCancellable *assigned_profile_cancellable;
 
   GCancellable *cancellable;

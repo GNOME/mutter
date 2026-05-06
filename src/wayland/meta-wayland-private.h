@@ -64,7 +64,6 @@ struct _MetaXWaylandManager
 
   struct wl_display *wayland_display;
   struct wl_client *client;
-  struct wl_resource *xserver_resource;
   char *auth_file;
 
   GCancellable *xserver_died_cancellable;

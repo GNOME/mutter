@@ -66,8 +66,6 @@ struct _MetaCursorRendererPrivate
   MetaOverlay *stage_overlay;
   gboolean needs_overlay;
   gulong after_paint_handler_id;
-
-  GList *hw_cursor_inhibitors;
 };
 typedef struct _MetaCursorRendererPrivate MetaCursorRendererPrivate;
 

@@ -65,8 +65,6 @@ struct _MetaSeatImpl
   GSList *devices;
   GHashTable *tools;
 
-  GHashTable *cursor_renderers;
-
   struct xkb_state *xkb;
   xkb_layout_index_t layout_idx;
   uint32_t button_state;

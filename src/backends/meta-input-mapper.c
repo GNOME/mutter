@@ -79,7 +79,6 @@ struct _MetaMapperInputInfo
   MetaInputMapper *mapper;
   MetaMapperOutputInfo *output;
   GSettings *settings;
-  guint builtin : 1;
 };
 
 struct _MetaMapperOutputInfo

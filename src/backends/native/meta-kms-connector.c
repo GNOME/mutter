@@ -82,9 +82,6 @@ struct _MetaKmsConnector
 
   MetaKmsConnectorPropTable prop_table;
 
-  uint32_t edid_blob_id;
-  uint32_t tile_blob_id;
-
   gboolean fd_held;
 };
 

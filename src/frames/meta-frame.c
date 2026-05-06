@@ -48,8 +48,6 @@ typedef struct
   unsigned long flags;
   unsigned long functions;
   unsigned long decorations;
-  long input_mode;
-  unsigned long status;
 } MotifWmHints;
 
 #define MWM_HINTS_FUNCTIONS (1L << 0)

@@ -59,8 +59,6 @@ typedef struct _MetaCursorTrackerPrivate
 
   ClutterCursor *current_cursor;
 
-  gboolean pointer_focus;
-
   int cursor_visibility_inhibitors;
 
   float x;

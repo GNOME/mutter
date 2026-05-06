@@ -70,12 +70,6 @@ struct _MetaStack
   int freeze_count;
 
   /**
-   * The last-known stack of all windows, bottom to top.  We cache it here
-   * so that subsequent times we'll be able to do incremental moves.
-   */
-  GArray *last_all_root_children_stacked;
-
-  /**
    * Number of stack positions; same as the length of added, but
    * kept for quick reference.
    */

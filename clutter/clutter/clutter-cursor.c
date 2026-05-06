@@ -52,7 +52,6 @@ typedef struct _ClutterCursorPrivate
   gboolean has_viewport_dst_size;
   int viewport_dst_width;
   int viewport_dst_height;
-  int hot_x, hot_y;
 
   ClutterColorState *color_state;
 } ClutterCursorPrivate;

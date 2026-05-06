@@ -163,7 +163,6 @@ struct _MetaX11Display
   int composite_major_version;
   int composite_minor_version;
   int damage_event_base;
-  int damage_error_base;
   int xfixes_event_base;
   int xfixes_error_base;
   int xinput_error_base;

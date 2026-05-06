@@ -34,8 +34,6 @@ struct _MetaKmsUpdate
 {
   MetaKmsDevice *device;
 
-  gboolean is_sealed;
-
   gboolean is_latchable;
   MetaKmsCrtc *latch_crtc;
 
