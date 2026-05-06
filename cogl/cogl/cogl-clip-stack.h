@@ -113,7 +113,7 @@ struct _CoglClipStack
 
 struct _CoglClipStackRect
 {
-  CoglClipStack _parent_data;
+  CoglClipStack parent;
 
   /* The rectangle for this clip */
   float x0;
@@ -137,7 +137,7 @@ struct _CoglClipStackRect
 
 struct _CoglClipStackRegion
 {
-  CoglClipStack _parent_data;
+  CoglClipStack parent;
 
   MtkRegion *region;
 };

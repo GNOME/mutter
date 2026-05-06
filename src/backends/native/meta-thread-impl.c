@@ -48,7 +48,7 @@ static GParamSpec *obj_props[N_PROPS];
 
 typedef struct _MetaThreadImplSource
 {
-  GSource base;
+  GSource parent;
   MetaThreadImpl *thread_impl;
 } MetaThreadImplSource;
 

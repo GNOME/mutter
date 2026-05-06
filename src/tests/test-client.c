@@ -71,7 +71,7 @@ lookup_window (const char *window_id)
 }
 
 typedef struct {
-  GSource base;
+  GSource parent;
   GSource **self_ref;
   GPollFD event_poll_fd;
   Display *xdisplay;
