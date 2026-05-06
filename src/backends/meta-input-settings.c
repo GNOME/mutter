@@ -80,7 +80,6 @@ struct _MetaInputSettingsPrivate
   MetaBackend *backend;
 
   ClutterSeat *seat;
-  gulong monitors_changed_id;
 
   GSettings *mouse_settings;
   GSettings *touchpad_settings;

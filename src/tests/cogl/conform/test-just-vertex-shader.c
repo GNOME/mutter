@@ -6,11 +6,6 @@
 
 #include "tests/cogl-test-utils.h"
 
-typedef struct _TestState
-{
-  int paddiing;
-} TestState;
-
 static CoglTexture *
 create_dummy_texture (void)
 {
@@ -27,7 +22,7 @@ create_dummy_texture (void)
 }
 
 static void
-paint (TestState *state)
+paint ()
 {
   CoglPipeline *pipeline = cogl_pipeline_new (test_ctx);
   CoglTexture *tex;
@@ -103,8 +98,6 @@ validate_result (CoglFramebuffer *framebuffer)
 static void
 test_just_vertex_shader (void)
 {
-  TestState state;
-
   cogl_framebuffer_orthographic (test_fb,
                                  0, 0,
                                  cogl_framebuffer_get_width (test_fb),
@@ -112,7 +105,7 @@ test_just_vertex_shader (void)
                                  -1,
                                  100);
 
-  paint (&state);
+  paint ();
   validate_result (test_fb);
 
   if (cogl_test_verbose ())

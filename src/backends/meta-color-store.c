@@ -578,8 +578,6 @@ typedef struct
 {
   MetaColorStore *color_store;
   CdProfile *cd_profile;
-
-  MetaColorProfile *created_profile;
 } EnsureColordProfileData;
 
 static void

@@ -30,7 +30,6 @@
 struct _MetaWaylandTabletPadGroup
 {
   MetaWaylandTabletPad *pad;
-  GArray *buttons;
   uint32_t n_modes;
   uint32_t current_mode;
 

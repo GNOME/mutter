@@ -57,7 +57,6 @@ typedef struct {
   GHashTable *clients;
   MetaX11AlarmFilter *alarm_filter;
   MetaAsyncWaiter *waiter;
-  GString *warning_messages;
   GMainLoop *loop;
   gulong x11_display_opened_handler_id;
   GHashTable *virtual_monitors;

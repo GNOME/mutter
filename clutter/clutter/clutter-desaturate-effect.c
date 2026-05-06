@@ -52,9 +52,6 @@ typedef struct _ClutterDesaturateEffectPrivate
 
   gint factor_uniform;
 
-  gint tex_width;
-  gint tex_height;
-
   CoglPipeline *pipeline;
 } ClutterDesaturateEffectPrivate;
 

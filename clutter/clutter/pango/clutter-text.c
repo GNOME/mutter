@@ -163,10 +163,6 @@ typedef struct _ClutterTextPrivate
   CoglColor cursor_color;
   guint cursor_size;
 
-  /* Box representing the paint volume. The box is lazily calculated
-     and cached */
-  ClutterPaintVolume paint_volume;
-
   guint preedit_cursor_pos;
   gint preedit_n_chars;
 
@@ -211,7 +207,6 @@ typedef struct _ClutterTextPrivate
   guint is_default_font         : 1;
   guint has_focus               : 1;
   guint selected_text_color_set : 1;
-  guint paint_volume_valid      : 1;
   guint show_password_hint      : 1;
   guint password_hint_visible   : 1;
   guint resolved_direction      : 4;

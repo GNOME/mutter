@@ -56,7 +56,6 @@ struct _MetaSeatNative
   GHashTable *reserved_virtual_slots;
 
   MetaKeymapNative *keymap;
-  ClutterSprite *native_cursor_owner;
   MetaCursorRenderer *cursor_renderer;
   GHashTable *secondary_cursor_renderers;
 

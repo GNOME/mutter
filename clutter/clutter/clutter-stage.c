@@ -79,15 +79,12 @@
 
 typedef struct _PickRecord
 {
-  graphene_point_t vertex[4];
   ClutterActor *actor;
-  int clip_stack_top;
 } PickRecord;
 
 typedef struct _PickClipRecord
 {
   int prev;
-  graphene_point_t vertex[4];
 } PickClipRecord;
 
 typedef struct _ClutterStagePrivate
@@ -106,8 +103,6 @@ typedef struct _ClutterStagePrivate
   GQueue *event_queue;
 
   GSList *pending_relayouts;
-
-  int update_freeze_count;
 
   gboolean update_scheduled;
 

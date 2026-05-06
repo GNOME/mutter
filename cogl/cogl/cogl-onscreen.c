@@ -45,9 +45,7 @@ typedef struct _CoglOnscreenPrivate
   CoglList frame_closures;
 
   int64_t frame_counter;
-  int64_t swap_frame_counter; /* frame counter at last all to
-                               * cogl_onscreen_swap_region() or
-                               * cogl_onscreen_swap_buffers() */
+
   GQueue pending_frame_infos;
 } CoglOnscreenPrivate;
 

@@ -32,7 +32,6 @@ struct _MetaWaylandDataOffer
 
   struct wl_resource *resource;
   MetaWaylandDataSource *source;
-  struct wl_listener source_destroy_listener;
   gboolean accepted;
   gboolean action_sent;
   uint32_t dnd_actions;
