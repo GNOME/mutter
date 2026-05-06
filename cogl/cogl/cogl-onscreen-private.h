@@ -38,15 +38,6 @@
 
 #include <glib.h>
 
-typedef struct _CoglOnscreenEvent
-{
-  CoglList link;
-
-  CoglOnscreen *onscreen;
-  CoglFrameInfo *info;
-  CoglFrameEvent type;
-} CoglOnscreenEvent;
-
 COGL_EXPORT void
 _cogl_onscreen_notify_frame_sync (CoglOnscreen *onscreen, CoglFrameInfo *info);
 

@@ -135,12 +135,8 @@ struct _MetaDisplay
 
   MetaStartupNotification *startup_notification;
 
-  ClutterCursorType current_cursor;
-
   MetaStack *stack;
   MetaStackTracker *stack_tracker;
-
-  GSList *startup_sequences;
 
   guint work_area_later;
   guint check_fullscreen_later;

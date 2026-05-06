@@ -104,14 +104,12 @@ typedef struct _CoglJournalFlushState
 
   CoglAttributeBuffer *attribute_buffer;
   GArray *attributes;
-  int current_attribute;
 
   size_t stride;
   size_t array_offset;
   GLuint current_vertex;
 
   CoglIndices *indices;
-  size_t indices_type_size;
 
   CoglPipeline *pipeline;
 } CoglJournalFlushState;

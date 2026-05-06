@@ -107,10 +107,7 @@ typedef struct _MetaCompositorPrivate
   gulong window_visibility_updated_id;
   gulong monitors_changed_internal_id;
 
-  int64_t server_time_query_time;
-  int64_t server_time_offset;
 
-  gboolean server_time_is_monotonic_time;
   ClutterCursorType global_cursor;
 
   ClutterActor *window_group;

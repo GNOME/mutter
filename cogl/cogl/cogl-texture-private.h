@@ -75,13 +75,11 @@ typedef struct _CoglTextureLoader
     struct {
       int width;
       int height;
-      int depth; /* for 3d textures */
       CoglPixelFormat format;
     } sized;
     struct {
       CoglBitmap *bitmap;
       int height; /* for 3d textures */
-      int depth; /* for 3d textures */
     } bitmap;
 #if defined (HAVE_EGL) && defined (EGL_KHR_image_base)
     struct {
@@ -95,7 +93,6 @@ typedef struct _CoglTextureLoader
     struct {
       int width;
       int height;
-      unsigned int gl_handle;
       CoglPixelFormat format;
     } gl_foreign;
   } src;

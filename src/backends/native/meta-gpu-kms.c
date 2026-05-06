@@ -53,8 +53,6 @@ struct _MetaGpuKms
 
   uint32_t id;
   int fd;
-
-  gboolean resources_init_failed_before;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)

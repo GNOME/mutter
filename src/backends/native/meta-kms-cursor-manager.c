@@ -54,10 +54,8 @@ typedef struct _CrtcStateImpl
   graphene_point_t hotspot;
 
   gboolean cursor_invalidated;
-  gboolean force_update;
   gboolean has_cursor;
 
-  graphene_point_t pending_hotspot;
   MetaDrmBuffer *pending_buffer;
   MetaDrmBuffer *active_buffer;
   MetaDrmBuffer *presenting_buffer;
