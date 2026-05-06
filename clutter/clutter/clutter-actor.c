@@ -3166,9 +3166,6 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
         case CLUTTER_CULL_RESULT_OUT:
           color = COGL_COLOR_INIT (0, 0, 255, 255);
           break;
-        default:
-          color = COGL_COLOR_INIT (0, 255, 255, 255);
-          break;
         }
     }
   else
