@@ -47,12 +47,6 @@ COGL_EXPORT
 float cogl_half_to_float_slow (uint16_t val);
 
 COGL_EXPORT
-uint8_t cogl_half_to_unorm8 (uint16_t v);
-
-COGL_EXPORT
-uint16_t cogl_uint16_div_64k_to_half (uint16_t v);
-
-COGL_EXPORT
 uint16_t cogl_float_to_float16_rtz_slow (float val);
 
 static inline uint16_t
