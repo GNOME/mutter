@@ -98,7 +98,6 @@ typedef struct _CoglFramebufferPrivate
   float viewport_width;
   float viewport_height;
   int viewport_age;
-  int viewport_age_for_scissor_workaround;
 
   CoglClipStack *clip_stack;
 
@@ -221,7 +220,6 @@ cogl_framebuffer_constructed (GObject *object)
   priv->viewport_width = priv->width;
   priv->viewport_height = priv->height;
   priv->viewport_age = 0;
-  priv->viewport_age_for_scissor_workaround = -1;
   priv->dither_enabled = TRUE;
   priv->depth_writing_enabled = TRUE;
   priv->depth_buffer_clear_needed = TRUE;

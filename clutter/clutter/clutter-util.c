@@ -110,7 +110,6 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
 
 typedef struct
 {
-  GType value_type;
   ClutterProgressFunc func;
 } ProgressData;
 
@@ -242,7 +241,6 @@ clutter_interval_register_progress_func (GType               value_type,
   else
     {
       progress_func = g_new0 (ProgressData, 1);
-      progress_func->value_type = value_type;
       progress_func->func = func;
 
       g_hash_table_replace (progress_funcs,

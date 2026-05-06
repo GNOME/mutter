@@ -101,8 +101,6 @@ struct _MetaMonitorTiled
 
   MetaMonitorManager *monitor_manager;
 
-  uint32_t tile_group_id;
-
   /* The tile (0, 0) output. */
   MetaOutput *origin_output;
 
@@ -1884,7 +1882,6 @@ meta_monitor_tiled_new (MetaMonitorManager  *monitor_manager,
                         MetaOutput          *output,
                         GError             **error)
 {
-  const MetaOutputInfo *output_info = meta_output_get_info (output);
   g_autolist (MetaOutput) outputs = NULL;
   MetaMonitorTiled *monitor_tiled;
   MetaMonitor *monitor;
@@ -1898,8 +1895,6 @@ meta_monitor_tiled_new (MetaMonitorManager  *monitor_manager,
 
   monitor_priv->backend = meta_monitor_manager_get_backend (monitor_manager);
   monitor_tiled->monitor_manager = monitor_manager;
-
-  monitor_tiled->tile_group_id = output_info->tile_info.group_id;
 
   origin_output = output;
   outputs = find_tiled_monitor_outputs (meta_output_get_gpu (output),
