@@ -99,12 +99,6 @@ meta_kms_device_get_driver_name (MetaKmsDevice *device)
   return device->driver_name;
 }
 
-const char *
-meta_kms_device_get_driver_description (MetaKmsDevice *device)
-{
-  return device->driver_description;
-}
-
 MetaKmsDeviceFlag
 meta_kms_device_get_flags (MetaKmsDevice *device)
 {

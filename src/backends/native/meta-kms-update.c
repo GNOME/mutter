@@ -155,12 +155,6 @@ meta_kms_feedback_did_pass (const MetaKmsFeedback *feedback)
   return feedback->result == META_KMS_FEEDBACK_PASSED;
 }
 
-GList *
-meta_kms_feedback_get_failed_planes (const MetaKmsFeedback *feedback)
-{
-  return feedback->failed_planes;
-}
-
 const GError *
 meta_kms_feedback_get_error (const MetaKmsFeedback *feedback)
 {
@@ -178,23 +172,6 @@ meta_kms_feedback_set_ready_time_us (MetaKmsFeedback *feedback,
                                      int64_t          ready_time_us)
 {
   feedback->ready_time_us = ready_time_us;
-}
-
-void
-meta_kms_feedback_dispatch_result (MetaKmsFeedback *feedback,
-                                   MetaKms         *kms,
-                                   GList           *result_listeners)
-{
-  GList *l;
-
-  for (l = result_listeners; l; l = l->next)
-    {
-      MetaKmsResultListener *listener = l->data;
-
-      meta_kms_result_listener_set_feedback (listener, feedback);
-      meta_kms_queue_result_callback (kms, listener);
-    }
-  g_list_free (result_listeners);
 }
 
 static void
@@ -561,50 +538,6 @@ ensure_color_update (MetaKmsUpdate *update,
                                                color_update);
 
   return color_update;
-}
-
-void
-meta_kms_update_set_crtc_degamma (MetaKmsUpdate      *update,
-                                  MetaKmsCrtc        *crtc,
-                                  const MetaGammaLut *degamma)
-{
-  MetaKmsCrtcColorUpdate *color_update;
-  MetaGammaLut *degamma_update = NULL;
-  const MetaKmsCrtcState *crtc_state = meta_kms_crtc_get_current_state (crtc);
-
-  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
-
-  if (degamma)
-    {
-      degamma_update = meta_gamma_lut_copy_to_size (degamma,
-                                                    crtc_state->degamma.size);
-    }
-
-  color_update = ensure_color_update (update, crtc);
-  color_update->degamma.state = degamma_update;
-  color_update->degamma.has_update = TRUE;
-
-  update_latch_crtc (update, crtc);
-}
-
-void
-meta_kms_update_set_crtc_ctm (MetaKmsUpdate *update,
-                              MetaKmsCrtc   *crtc,
-                              const MetaCtm *ctm)
-{
-  MetaKmsCrtcColorUpdate *color_update;
-  MetaCtm *ctm_update = NULL;
-
-  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
-
-  if (ctm)
-    ctm_update = meta_ctm_copy (ctm);
-
-  color_update = ensure_color_update (update, crtc);
-  color_update->ctm.state = ctm_update;
-  color_update->ctm.has_update = TRUE;
-
-  update_latch_crtc (update, crtc);
 }
 
 void
