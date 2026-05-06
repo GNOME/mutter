@@ -15383,31 +15383,6 @@ _clutter_actor_foreach_child (ClutterActor           *self,
   return cont;
 }
 
-#if 0
-/* For debugging purposes this gives us a simple way to print out
- * the scenegraph e.g in gdb using:
- * [|
- *   _clutter_actor_traverse (stage,
- *                            0,
- *                            clutter_debug_print_actor_cb,
- *                            NULL,
- *                            NULL);
- * |]
- */
-static ClutterActorTraverseVisitFlags
-clutter_debug_print_actor_cb (ClutterActor *actor,
-                              int depth,
-                              void *user_data)
-{
-  g_print ("%*s%s:%p\n",
-           depth * 2, "",
-           _clutter_actor_get_debug_name (actor),
-           actor);
-
-  return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
-}
-#endif
-
 static void
 _clutter_actor_traverse_breadth (ClutterActor           *actor,
                                  ClutterTraverseCallback callback,

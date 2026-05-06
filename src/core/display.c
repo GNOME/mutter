@@ -602,15 +602,6 @@ meta_display_init (MetaDisplay *display)
    * but it doesn't really matter. */
 }
 
-void
-meta_display_cancel_touch (MetaDisplay *display)
-{
-  MetaWaylandCompositor *compositor;
-
-  compositor = wayland_compositor_from_display (display);
-  meta_wayland_touch_cancel (compositor->seat->touch);
-}
-
 static void
 on_monitor_privacy_screen_changed (MetaDisplay        *display,
                                    MetaLogicalMonitor *logical_monitor,
@@ -1100,12 +1091,6 @@ gboolean
 meta_grab_op_is_mouse (MetaGrabOp op)
 {
   return (op & META_GRAB_OP_WINDOW_FLAG_KEYBOARD) == 0;
-}
-
-gboolean
-meta_grab_op_is_keyboard (MetaGrabOp op)
-{
-  return (op & META_GRAB_OP_WINDOW_FLAG_KEYBOARD) != 0;
 }
 
 gboolean

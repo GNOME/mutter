@@ -168,12 +168,3 @@ meta_input_device_get_wacom_device (MetaInputDevice *input_device)
   return priv->wacom_device;
 }
 #endif /* HAVE_LIBWACOM */
-
-MetaBackend *
-meta_input_device_get_backend (MetaInputDevice *input_device)
-{
-  MetaInputDevicePrivate *priv =
-    meta_input_device_get_instance_private (input_device);
-
-  return priv->backend;
-}

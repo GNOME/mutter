@@ -40,9 +40,6 @@ void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
                                             gboolean           is_y_inverted);
 void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
                                       CoglSnippet       *snippet);
-void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
-                                            int                fallback_width,
-                                            int                fallback_height);
 MtkRegion * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 gboolean meta_shaped_texture_is_opaque (MetaShapedTexture *stex);
 gboolean meta_shaped_texture_has_alpha (MetaShapedTexture *stex);

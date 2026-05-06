@@ -318,32 +318,6 @@ meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream)
   return g_object_ref (stream->snippet);
 }
 
-gboolean
-meta_wayland_is_egl_stream_buffer (MetaWaylandBuffer *buffer)
-{
-  MetaContext *context =
-    meta_wayland_compositor_get_context (buffer->compositor);
-  MetaBackend *backend = meta_context_get_backend (context);
-  MetaEgl *egl = meta_backend_get_egl (backend);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
-  EGLDisplay egl_display = cogl_context_get_egl_display (cogl_context);
-  int stream_fd;
-
-  if (!meta_egl_has_extensions (egl, egl_display, NULL,
-                                "EGL_KHR_stream_consumer_gltexture",
-                                "EGL_KHR_stream_cross_process_fd",
-                                NULL))
-    return FALSE;
-
-  if (!meta_egl_query_wayland_buffer (egl, egl_display, buffer->resource,
-                                      EGL_WAYLAND_BUFFER_WL, &stream_fd,
-                                      NULL))
-    return FALSE;
-
-  return TRUE;
-}
-
 static void
 meta_wayland_egl_stream_finalize (GObject *object)
 {

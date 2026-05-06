@@ -345,25 +345,6 @@ meta_color_profile_new_from_cd_profile (MetaColorManager     *color_manager,
   return color_profile;
 }
 
-gboolean
-meta_color_profile_equals_bytes (MetaColorProfile *color_profile,
-                                 GBytes           *bytes)
-{
-  return g_bytes_equal (color_profile->bytes, bytes);
-}
-
-const uint8_t *
-meta_color_profile_get_data (MetaColorProfile *color_profile)
-{
-  return g_bytes_get_data (color_profile->bytes, NULL);
-}
-
-size_t
-meta_color_profile_get_data_size (MetaColorProfile *color_profile)
-{
-  return g_bytes_get_size (color_profile->bytes);
-}
-
 CdIcc *
 meta_color_profile_get_cd_icc (MetaColorProfile *color_profile)
 {

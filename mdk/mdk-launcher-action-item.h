@@ -28,6 +28,4 @@ G_DECLARE_FINAL_TYPE (MdkLauncherActionItem, mdk_launcher_action_item,
 MdkLauncherActionItem * mdk_launcher_action_item_new (const char        *name,
                                                       MdkLauncherAction *action);
 
-const char * mdk_launcher_action_item_get_name (MdkLauncherActionItem *item);
-
 MdkLauncherAction * mdk_launcher_action_item_get_action (MdkLauncherActionItem *item);

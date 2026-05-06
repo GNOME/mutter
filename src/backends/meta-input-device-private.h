@@ -45,5 +45,3 @@ G_DECLARE_DERIVABLE_TYPE (MetaInputDevice,
 #ifdef HAVE_LIBWACOM
 WacomDevice * meta_input_device_get_wacom_device (MetaInputDevice *input_device);
 #endif
-
-MetaBackend * meta_input_device_get_backend (MetaInputDevice *input_device);

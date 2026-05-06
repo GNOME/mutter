@@ -340,13 +340,6 @@ meta_wayland_tablet_seat_lookup_tablet (MetaWaylandTabletSeat *tablet_seat,
   return g_hash_table_lookup (tablet_seat->tablets, device);
 }
 
-MetaWaylandTabletTool *
-meta_wayland_tablet_seat_lookup_tool (MetaWaylandTabletSeat  *tablet_seat,
-                                      ClutterInputDeviceTool *tool)
-{
-  return g_hash_table_lookup (tablet_seat->tools, tool);
-}
-
 MetaWaylandTabletPad *
 meta_wayland_tablet_seat_lookup_pad (MetaWaylandTabletSeat *tablet_seat,
                                      ClutterInputDevice    *device)

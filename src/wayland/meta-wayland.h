@@ -41,11 +41,6 @@ void                    meta_wayland_compositor_update          (MetaWaylandComp
 gboolean                meta_wayland_compositor_handle_event    (MetaWaylandCompositor *compositor,
                                                                  const ClutterEvent    *event);
 
-void                    meta_wayland_compositor_update_key_state (MetaWaylandCompositor *compositor,
-                                                                 char                  *key_vector,
-                                                                  int                    key_vector_len,
-                                                                  int                    offset);
-
 void                    meta_wayland_compositor_set_input_focus (MetaWaylandCompositor *compositor,
                                                                  MetaWindow            *window);
 
@@ -64,8 +59,6 @@ void                    meta_wayland_compositor_remove_presentation_feedback_sur
 void                    meta_wayland_compositor_add_timed_transaction (MetaWaylandCompositor  *compositor,
                                                                        MetaWaylandTransaction *transaction);
 
-void                    meta_wayland_compositor_remove_timed_transaction (MetaWaylandCompositor  *compositor,
-                                                                          MetaWaylandTransaction *transaction);
 void                    meta_wayland_compositor_add_barrier_surface (MetaWaylandCompositor *compositor,
                                                                      MetaWaylandSurface    *surface);
 

@@ -2409,27 +2409,6 @@ meta_window_set_input_region (MetaWindow *window,
   meta_compositor_window_shape_changed (window->display->compositor, window);
 }
 
-#if 0
-/* Print out a region; useful for debugging */
-static void
-print_region (MtkRegion *region)
-{
-  int n_rects;
-  int i;
-
-  n_rects = mtk_region_num_rectangles (region);
-  g_print ("[");
-  for (i = 0; i < n_rects; i++)
-    {
-      MtkRectangle rect;
-      rect = mtk_region_get_rectangle (region, i);
-      g_print ("+%d+%dx%dx%d ",
-               rect.x, rect.y, rect.width, rect.height);
-    }
-  g_print ("]\n");
-}
-#endif
-
 void
 meta_window_x11_update_input_region (MetaWindow *window)
 {

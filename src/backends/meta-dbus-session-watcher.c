@@ -311,26 +311,6 @@ meta_dbus_session_queue_close (MetaDbusSession *session)
   closure->callback_id = g_idle_add_once (close_cb, closure);
 }
 
-MetaDbusSessionManager *
-meta_dbus_session_manager (MetaDbusSessionManager *session)
-{
-  MetaDbusSessionManager *manager;
-
-  g_object_get (session, "session-manager", &manager, NULL);
-
-  return manager;
-}
-
-char *
-meta_dbus_session_get_peer_name (MetaDbusSession *session)
-{
-  char *peer_name;
-
-  g_object_get (session, "peer-name", &peer_name, NULL);
-
-  return peer_name;
-}
-
 char *
 meta_dbus_session_get_id (MetaDbusSession *session)
 {

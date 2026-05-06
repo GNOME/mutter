@@ -1372,12 +1372,6 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
   meta_topic (META_DEBUG_KMS, "Queue mode set");
 }
 
-void
-meta_renderer_native_notify_mode_sets_reset (MetaRendererNative *renderer_native)
-{
-  renderer_native->pending_mode_set = FALSE;
-}
-
 gboolean
 meta_renderer_native_pop_pending_mode_set (MetaRendererNative *renderer_native,
                                            MetaRendererView   *view)

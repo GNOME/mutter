@@ -726,9 +726,6 @@ _cogl_pipeline_set_static_breadcrumb (CoglPipeline *pipeline,
                                       const char *breadcrumb);
 #endif
 
-unsigned long
-_cogl_pipeline_get_age (CoglPipeline *pipeline);
-
 void
 _cogl_pipeline_add_layer_difference (CoglPipeline *pipeline,
                                      CoglPipelineLayer *layer,

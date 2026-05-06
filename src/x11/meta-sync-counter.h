@@ -63,8 +63,6 @@ void meta_sync_counter_create_sync_alarm (MetaSyncCounter *sync_counter);
 
 void meta_sync_counter_destroy_sync_alarm (MetaSyncCounter *sync_counter);
 
-gboolean meta_sync_counter_has_sync_alarm (MetaSyncCounter *sync_counter);
-
 void meta_sync_counter_send_request (MetaSyncCounter *sync_counter);
 
 void meta_sync_counter_update (MetaSyncCounter *sync_counter,

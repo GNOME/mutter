@@ -105,10 +105,7 @@ void            clutter_test_quit               (void);
 CLUTTER_EXPORT
 void            clutter_test_add                (const char     *test_path,
                                                  GTestFunc       test_func);
-CLUTTER_EXPORT
-void            clutter_test_add_data           (const char     *test_path,
-                                                 GTestDataFunc   test_func,
-                                                 gpointer        test_data);
+
 CLUTTER_EXPORT
 void            clutter_test_add_data_full      (const char     *test_path,
                                                  GTestDataFunc   test_func,

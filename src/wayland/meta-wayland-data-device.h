@@ -69,7 +69,6 @@ void meta_wayland_data_device_set_dnd_source     (MetaWaylandDataDevice *data_de
 void meta_wayland_data_device_set_selection      (MetaWaylandDataDevice *data_device,
                                                   MetaWaylandDataSource *source,
                                                   guint32 serial);
-void     meta_wayland_data_device_unset_dnd_selection (MetaWaylandDataDevice *data_device);
 
 const MetaWaylandDragDestFuncs *
          meta_wayland_data_device_get_drag_dest_funcs (void);

@@ -508,26 +508,6 @@ meta_rectangle_get_minimal_spanning_set_for_region (
 }
 
 /**
- * meta_rectangle_expand_region: (skip)
- *
- */
-GList*
-meta_rectangle_expand_region (GList     *region,
-                              const int  left_expand,
-                              const int  right_expand,
-                              const int  top_expand,
-                              const int  bottom_expand)
-{
-  return meta_rectangle_expand_region_conditionally (region,
-                                                     left_expand,
-                                                     right_expand,
-                                                     top_expand,
-                                                     bottom_expand,
-                                                     0,
-                                                     0);
-}
-
-/**
  * meta_rectangle_expand_region_conditionally: (skip)
  *
  */

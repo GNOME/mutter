@@ -2062,12 +2062,6 @@ meta_prefs_get_locate_pointer_bindings (MetaKeyCombo combos[2])
   combos[1] = locate_pointer_key_combos[1];
 }
 
-gboolean
-meta_prefs_is_locate_pointer_enabled (void)
-{
-  return locate_pointer_is_enabled;
-}
-
 unsigned int
 meta_prefs_get_check_alive_timeout (void)
 {

@@ -49,9 +49,6 @@ META_EXPORT_TEST
 void meta_monitor_config_store_add (MetaMonitorConfigStore *config_store,
                                     MetaMonitorsConfig     *config);
 
-META_EXPORT_TEST
-void meta_monitor_config_store_remove (MetaMonitorConfigStore *config_store,
-                                       MetaMonitorsConfig     *config);
 
 META_EXPORT_TEST
 gboolean meta_monitor_config_store_set_custom (MetaMonitorConfigStore  *config_store,

@@ -34,8 +34,6 @@ gboolean meta_wayland_eglstream_controller_init (MetaWaylandCompositor *composit
 G_DECLARE_FINAL_TYPE (MetaWaylandEglStream, meta_wayland_egl_stream,
                       META, WAYLAND_EGL_STREAM, GObject);
 
-gboolean meta_wayland_is_egl_stream_buffer (MetaWaylandBuffer *buffer);
-
 MetaWaylandEglStream * meta_wayland_egl_stream_new (MetaWaylandBuffer *buffer,
                                                     GError           **error);
 

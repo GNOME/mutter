@@ -59,14 +59,8 @@ gboolean meta_wayland_client_matches (MetaWaylandClient      *wayland_client,
                                       const struct wl_client *wl_client);
 
 META_EXPORT_TEST
-MetaWaylandClientKind meta_wayland_client_get_kind (MetaWaylandClient *wayland_client);
-
-META_EXPORT_TEST
 void meta_wayland_client_set_caps (MetaWaylandClient     *wayland_client,
                                    MetaWaylandClientCaps  caps);
-
-META_EXPORT_TEST
-MetaWaylandClientCaps meta_wayland_client_get_caps (MetaWaylandClient *wayland_client);
 
 META_EXPORT_TEST
 gboolean meta_wayland_client_has_caps (MetaWaylandClient     *wayland_client,

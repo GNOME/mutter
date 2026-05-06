@@ -2617,16 +2617,6 @@ meta_monitor_config_store_add (MetaMonitorConfigStore *config_store,
     maybe_save_configs (config_store);
 }
 
-void
-meta_monitor_config_store_remove (MetaMonitorConfigStore *config_store,
-                                  MetaMonitorsConfig     *config)
-{
-  g_hash_table_remove (config_store->configs, config->key);
-
-  if (!is_system_config (config))
-    maybe_save_configs (config_store);
-}
-
 gboolean
 meta_monitor_config_store_set_custom (MetaMonitorConfigStore  *config_store,
                                       const char              *read_path,

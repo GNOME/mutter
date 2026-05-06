@@ -52,13 +52,6 @@ MetaColorProfile * meta_color_profile_new_from_cd_profile (MetaColorManager     
                                                            GBytes               *raw_bytes,
                                                            MetaColorCalibration *color_calibration);
 
-gboolean meta_color_profile_equals_bytes (MetaColorProfile *color_profile,
-                                          GBytes           *bytes);
-
-const uint8_t * meta_color_profile_get_data (MetaColorProfile *color_profile);
-
-size_t meta_color_profile_get_data_size (MetaColorProfile *color_profile);
-
 META_EXPORT_TEST
 CdIcc * meta_color_profile_get_cd_icc (MetaColorProfile *color_profile);
 

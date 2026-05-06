@@ -2281,14 +2281,6 @@ _cogl_pipeline_update_authority (CoglPipeline *pipeline,
     }
 }
 
-unsigned long
-_cogl_pipeline_get_age (CoglPipeline *pipeline)
-{
-  g_return_val_if_fail (COGL_IS_PIPELINE (pipeline), 0);
-
-  return pipeline->age;
-}
-
 void
 cogl_pipeline_remove_layer (CoglPipeline *pipeline, int layer_index)
 {

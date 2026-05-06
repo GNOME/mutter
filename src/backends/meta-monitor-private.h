@@ -138,9 +138,6 @@ void meta_monitor_get_current_resolution (MetaMonitor *monitor,
                                           int           *width,
                                           int           *height);
 
-void meta_monitor_derive_layout (MetaMonitor  *monitor,
-                                 MtkRectangle *layout);
-
 META_EXPORT_TEST
 void meta_monitor_get_physical_dimensions (MetaMonitor *monitor,
                                            int         *width_mm,
@@ -168,9 +165,6 @@ MtkMonitorTransform meta_monitor_logical_to_crtc_transform (MetaMonitor         
 META_EXPORT_TEST
 MtkMonitorTransform meta_monitor_crtc_to_logical_transform (MetaMonitor         *monitor,
                                                             MtkMonitorTransform  transform);
-
-META_EXPORT_TEST
-uint32_t meta_monitor_tiled_get_tile_group_id (MetaMonitorTiled *monitor_tiled);
 
 META_EXPORT_TEST
 gboolean meta_monitor_get_suggested_position (MetaMonitor *monitor,

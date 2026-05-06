@@ -538,9 +538,3 @@ meta_launcher_get_session_proxy (MetaLauncher *launcher)
 {
   return launcher->session_proxy;
 }
-
-MetaBackend *
-meta_launcher_get_backend (MetaLauncher *launcher)
-{
-  return launcher->backend;
-}

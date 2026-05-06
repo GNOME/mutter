@@ -366,20 +366,6 @@ meta_wayland_cursor_surface_set_hotspot (MetaWaylandCursorSurface *cursor_surfac
   update_cursor_sprite_texture (cursor_surface);
 }
 
-void
-meta_wayland_cursor_surface_get_hotspot (MetaWaylandCursorSurface *cursor_surface,
-                                         int                      *hotspot_x,
-                                         int                      *hotspot_y)
-{
-  MetaWaylandCursorSurfacePrivate *priv =
-    meta_wayland_cursor_surface_get_instance_private (cursor_surface);
-
-  if (hotspot_x)
-    *hotspot_x = priv->hot_x;
-  if (hotspot_y)
-    *hotspot_y = priv->hot_y;
-}
-
 static void
 on_cursor_painted (MetaCursorRenderer       *renderer,
                    ClutterCursor            *displayed_cursor,
@@ -448,13 +434,4 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
   priv->cursor_renderer = renderer;
   update_cursor_sprite_texture (cursor_surface);
   meta_wayland_surface_notify_preferred_scale_monitor (surface);
-}
-
-MetaCursorRenderer *
-meta_wayland_cursor_surface_get_renderer (MetaWaylandCursorSurface *cursor_surface)
-{
-  MetaWaylandCursorSurfacePrivate *priv =
-    meta_wayland_cursor_surface_get_instance_private (cursor_surface);
-
-  return priv->cursor_renderer;
 }

@@ -82,8 +82,6 @@ gboolean meta_renderer_native_has_pending_mode_sets (MetaRendererNative *rendere
 
 gboolean meta_renderer_native_has_pending_mode_set (MetaRendererNative *renderer_native);
 
-void meta_renderer_native_notify_mode_sets_reset (MetaRendererNative *renderer_native);
-
 void meta_renderer_native_post_mode_set_updates (MetaRendererNative *renderer_native);
 
 void meta_renderer_native_queue_mode_set_update (MetaRendererNative *renderer_native,

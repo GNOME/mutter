@@ -4679,15 +4679,6 @@ meta_window_idle_move_resize (MetaWindow *window)
   meta_window_move_resize (window, flags, window->unconstrained_rect);
 }
 
-gboolean
-meta_window_geometry_contains_rect (MetaWindow   *window,
-                                    MtkRectangle *rect)
-{
-  MtkRectangle frame_rect = meta_window_config_get_rect (window->config);
-
-  return mtk_rectangle_contains_rect (&frame_rect, rect);
-}
-
 /**
  * meta_window_get_buffer_rect:
  * @window: a #MetaWindow

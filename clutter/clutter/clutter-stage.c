@@ -2805,57 +2805,6 @@ clutter_stage_paint_to_content (ClutterStage        *stage,
                                                    NULL);
 }
 
-void
-clutter_stage_capture_view_into (ClutterStage     *stage,
-                                 ClutterStageView *view,
-                                 MtkRectangle     *rect,
-                                 uint8_t          *data,
-                                 int               stride)
-{
-  CoglFramebuffer *framebuffer;
-  ClutterBackend *backend;
-  ClutterContext *clutter_context;
-  CoglContext *context;
-  CoglBitmap *bitmap;
-  MtkRectangle view_layout;
-  float view_scale;
-  float texture_width;
-  float texture_height;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  framebuffer = clutter_stage_view_get_framebuffer (view);
-
-  clutter_stage_view_get_layout (view, &view_layout);
-
-  if (!rect)
-    rect = &view_layout;
-
-  view_scale = clutter_stage_view_get_scale (view);
-  texture_width = roundf (rect->width * view_scale);
-  texture_height = roundf (rect->height * view_scale);
-
-  clutter_context = clutter_actor_get_context (CLUTTER_ACTOR (stage));
-  backend = clutter_context_get_backend (clutter_context);
-  context = clutter_backend_get_cogl_context (backend);
-  bitmap = cogl_bitmap_new_for_data (context,
-                                     (int) texture_width,
-                                     (int) texture_height,
-                                     COGL_PIXEL_FORMAT_CAIRO_ARGB32_COMPAT,
-                                     stride,
-                                     data);
-
-  cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            (int) roundf ((rect->x -
-                                                           view_layout.x) * view_scale),
-                                            (int) roundf ((rect->y -
-                                                           view_layout.y) * view_scale),
-                                            COGL_READ_PIXELS_COLOR_BUFFER,
-                                            bitmap);
-
-  g_object_unref (bitmap);
-}
-
 /**
  * clutter_stage_peek_stage_views: (skip)
  */

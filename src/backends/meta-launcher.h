@@ -46,5 +46,3 @@ const char * meta_launcher_get_seat_id (MetaLauncher *launcher);
 
 META_EXPORT_TEST
 MetaDBusLogin1Session * meta_launcher_get_session_proxy (MetaLauncher *launcher);
-
-MetaBackend * meta_launcher_get_backend (MetaLauncher *launcher);

@@ -134,12 +134,6 @@ mdk_launcher_action_item_new (const char        *name,
                        NULL);
 }
 
-const char *
-mdk_launcher_action_item_get_name (MdkLauncherActionItem *item)
-{
-  return item->name;
-}
-
 MdkLauncherAction *
 mdk_launcher_action_item_get_action (MdkLauncherActionItem *item)
 {

@@ -109,11 +109,6 @@ _cogl_pipeline_layer_hash_point_sprite_state (CoglPipelineLayer *authority,
                                               CoglPipelineHashState *state);
 
 void
-_cogl_pipeline_layer_hash_vertex_snippets_state (CoglPipelineLayer *authority,
-                                                 CoglPipelineLayer **authorities,
-                                                 CoglPipelineHashState *state);
-
-void
 _cogl_pipeline_layer_hash_fragment_snippets_state (CoglPipelineLayer *authority,
                                                    CoglPipelineLayer **authorities,
                                                    CoglPipelineHashState *state);

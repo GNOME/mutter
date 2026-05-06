@@ -179,13 +179,6 @@ meta_sync_counter_destroy_sync_alarm (MetaSyncCounter *sync_counter)
   sync_counter->sync_request_alarm = None;
 }
 
-gboolean
-meta_sync_counter_has_sync_alarm (MetaSyncCounter *sync_counter)
-{
-  return (!sync_counter->disabled &&
-          sync_counter->sync_request_alarm != None);
-}
-
 static void
 sync_request_timeout (gpointer data)
 {

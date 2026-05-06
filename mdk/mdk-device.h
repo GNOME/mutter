@@ -30,8 +30,6 @@ struct _MdkDeviceClass
   GObjectClass parent_class;
 };
 
-MdkSeat * mdk_device_get_seat (MdkDevice *device);
-
 struct ei_device * mdk_device_get_ei_device (MdkDevice *device);
 
 void mdk_device_process_event (MdkDevice       *device,

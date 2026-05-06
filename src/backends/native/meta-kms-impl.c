@@ -147,14 +147,6 @@ meta_kms_impl_filter_update (MetaKmsImpl       *impl,
   return update;
 }
 
-MetaKmsImpl *
-meta_kms_impl_new (MetaKms *kms)
-{
-  return g_object_new (META_TYPE_KMS_IMPL,
-                       "kms", kms,
-                       NULL);
-}
-
 static void
 meta_kms_impl_init (MetaKmsImpl *impl)
 {

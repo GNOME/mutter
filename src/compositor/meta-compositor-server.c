@@ -48,16 +48,6 @@ meta_compositor_server_create_view (MetaCompositor   *compositor,
   return meta_compositor_view_new (stage_view);
 }
 
-MetaCompositorServer *
-meta_compositor_server_new (MetaDisplay *display,
-                            MetaBackend *backend)
-{
-  return g_object_new (META_TYPE_COMPOSITOR_SERVER,
-                       "display", display,
-                       "backend", backend,
-                       NULL);
-}
-
 static void
 meta_compositor_server_init (MetaCompositorServer *compositor_server)
 {

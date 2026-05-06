@@ -237,20 +237,6 @@ mdk_ei_new (MdkSession  *session,
   return ei;
 }
 
-void
-mdk_ei_dispatch (MdkEi *ei)
-{
-  if (ei_peek_event (ei->ei))
-    {
-      process_events (ei);
-    }
-  else
-    {
-      ei_dispatch (ei->ei);
-      process_events (ei);
-    }
-}
-
 MdkSeat *
 mdk_ei_get_default_seat (MdkEi *ei)
 {

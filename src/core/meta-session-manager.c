@@ -265,12 +265,6 @@ meta_session_manager_new_for_fd (const gchar  *name,
                          NULL);
 }
 
-int
-meta_session_manager_get_fd (MetaSessionManager *manager)
-{
-  return manager->fd;
-}
-
 gboolean
 meta_session_manager_get_session_exists (MetaSessionManager *manager,
                                          const char         *name)

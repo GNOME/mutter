@@ -129,14 +129,6 @@ mdk_device_init (MdkDevice *device)
 {
 }
 
-MdkSeat *
-mdk_device_get_seat (MdkDevice *device)
-{
-  MdkDevicePrivate *priv = mdk_device_get_instance_private (device);
-
-  return priv->seat;
-}
-
 struct ei_device *
 mdk_device_get_ei_device (MdkDevice *device)
 {

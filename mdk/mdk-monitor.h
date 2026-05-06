@@ -29,5 +29,3 @@ G_DECLARE_FINAL_TYPE (MdkMonitor, mdk_monitor,
                       GtkWidget)
 
 MdkMonitor * mdk_monitor_new (MdkContext *context);
-
-MdkStream * mdk_monitor_get_stream (MdkMonitor *monitor);

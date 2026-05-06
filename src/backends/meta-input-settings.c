@@ -1967,15 +1967,6 @@ meta_input_settings_get_kbd_a11y_settings (MetaInputSettings   *input_settings,
   *a11y_settings = priv->kbd_a11y_settings;
 }
 
-MetaBackend *
-meta_input_settings_get_backend (MetaInputSettings *settings)
-{
-  MetaInputSettingsPrivate *priv =
-    meta_input_settings_get_instance_private (settings);
-
-  return priv->backend;
-}
-
 GDesktopStylusButtonAction
 meta_input_settings_get_tool_button_action (MetaInputSettings       *input_settings,
                                             ClutterInputDevice      *device,

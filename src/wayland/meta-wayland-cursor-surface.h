@@ -38,9 +38,5 @@ ClutterCursor * meta_wayland_cursor_surface_get_cursor (MetaWaylandCursorSurface
 void                 meta_wayland_cursor_surface_set_hotspot  (MetaWaylandCursorSurface *cursor_surface,
                                                                int                       hotspot_x,
                                                                int                       hotspot_y);
-void                 meta_wayland_cursor_surface_get_hotspot  (MetaWaylandCursorSurface *cursor_surface,
-                                                               int                       *hotspot_x,
-                                                               int                       *hotspot_y);
 void                 meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surface,
                                                                MetaCursorRenderer       *renderer);
-MetaCursorRenderer * meta_wayland_cursor_surface_get_renderer (MetaWaylandCursorSurface *cursor_surface);

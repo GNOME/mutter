@@ -530,13 +530,6 @@ meta_monitor_get_current_resolution (MetaMonitor *monitor,
 }
 
 void
-meta_monitor_derive_layout (MetaMonitor  *monitor,
-                            MtkRectangle *layout)
-{
-  META_MONITOR_GET_CLASS (monitor)->derive_layout (monitor, layout);
-}
-
-void
 meta_monitor_get_physical_dimensions (MetaMonitor *monitor,
                                       int         *width_mm,
                                       int         *height_mm)
@@ -1158,12 +1151,6 @@ meta_monitor_normal_class_init (MetaMonitorNormalClass *klass)
   monitor_class->calculate_crtc_pos = meta_monitor_normal_calculate_crtc_pos;
   monitor_class->get_suggested_position = meta_monitor_normal_get_suggested_position;
   monitor_class->update_outputs = meta_monitor_normal_update_outputs;
-}
-
-uint32_t
-meta_monitor_tiled_get_tile_group_id (MetaMonitorTiled *monitor_tiled)
-{
-  return monitor_tiled->tile_group_id;
 }
 
 gboolean

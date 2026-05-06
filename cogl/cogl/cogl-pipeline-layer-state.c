@@ -1465,15 +1465,6 @@ _cogl_pipeline_layer_hash_point_sprite_state (CoglPipelineLayer *authority,
 }
 
 void
-_cogl_pipeline_layer_hash_vertex_snippets_state (CoglPipelineLayer *authority,
-                                                 CoglPipelineLayer **authorities,
-                                                 CoglPipelineHashState *state)
-{
-  _cogl_pipeline_snippet_list_hash (&authority->big_state->vertex_snippets,
-                                    &state->hash);
-}
-
-void
 _cogl_pipeline_layer_hash_fragment_snippets_state (CoglPipelineLayer *authority,
                                                    CoglPipelineLayer **authorities,
                                                    CoglPipelineHashState *state)
