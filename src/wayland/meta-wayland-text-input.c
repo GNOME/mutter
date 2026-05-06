@@ -38,10 +38,9 @@ typedef enum
   META_WAYLAND_PENDING_STATE_INPUT_RECT       = 1 << 0,
   META_WAYLAND_PENDING_STATE_CONTENT_TYPE     = 1 << 1,
   META_WAYLAND_PENDING_STATE_SURROUNDING_TEXT = 1 << 2,
-  META_WAYLAND_PENDING_STATE_CHANGE_CAUSE     = 1 << 3,
-  META_WAYLAND_PENDING_STATE_ENABLED          = 1 << 4,
-  META_WAYLAND_PENDING_STATE_ACTIONS          = 1 << 5,
-  META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY = 1 << 6,
+  META_WAYLAND_PENDING_STATE_ENABLED          = 1 << 3,
+  META_WAYLAND_PENDING_STATE_ACTIONS          = 1 << 4,
+  META_WAYLAND_PENDING_STATE_PANEL_VISIBILITY = 1 << 5,
 } MetaWaylandTextInputPendingState;
 
 typedef struct _PreeditStyleHint PreeditStyleHint;
@@ -94,7 +93,7 @@ struct _MetaWaylandTextInput
 
   uint32_t content_type_hint;
   uint32_t content_type_purpose;
-  uint32_t text_change_cause;
+
   uint32_t enable_serial;
   ClutterInputActionFlags available_actions;
   gboolean show_panel;
@@ -699,13 +698,6 @@ text_input_set_text_change_cause (struct wl_client   *client,
                                   struct wl_resource *resource,
                                   uint32_t            cause)
 {
-  MetaWaylandTextInput *text_input = wl_resource_get_user_data (resource);
-
-  if (!client_matches_focus (text_input, client))
-    return;
-
-  text_input->text_change_cause = cause;
-  text_input->pending_state |= META_WAYLAND_PENDING_STATE_CHANGE_CAUSE;
 }
 
 static ClutterInputContentHintFlags
@@ -817,7 +809,6 @@ meta_wayland_text_input_reset (MetaWaylandTextInput *text_input)
   g_clear_pointer (&text_input->pending_surrounding.text, g_free);
   text_input->content_type_hint = ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE;
   text_input->content_type_purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL;
-  text_input->text_change_cause = ZWP_TEXT_INPUT_V3_CHANGE_CAUSE_INPUT_METHOD;
   text_input->cursor_rect = (MtkRectangle) { 0, 0, 0, 0 };
   text_input->enable_serial = 0;
   text_input->pending_state = META_WAYLAND_PENDING_STATE_NONE;

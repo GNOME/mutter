@@ -58,10 +58,6 @@ typedef struct _CoglTextureUnit
    * glActiveTexture () */
   int                index;
 
-  /* The GL target currently glEnabled or 0 if nothing is
-   * enabled. This is only used by the fixed pipeline fragend */
-  GLenum             enabled_gl_target;
-
   /* The raw GL texture object name for which we called glBindTexture when
    * we flushed the last layer. (NB: The CoglTexture associated
    * with a layer may represent more than one GL texture) */

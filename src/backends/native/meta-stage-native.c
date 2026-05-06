@@ -38,9 +38,6 @@ static GQuark quark_view_frame_closure  = 0;
 struct _MetaStageNative
 {
   MetaStageImpl parent;
-
-  int64_t presented_frame_counter_sync;
-  int64_t presented_frame_counter_complete;
 };
 
 G_DEFINE_FINAL_TYPE (MetaStageNative, meta_stage_native, META_TYPE_STAGE_IMPL)
@@ -165,8 +162,6 @@ meta_stage_native_finish_frame (ClutterStageWindow *stage_window,
 static void
 meta_stage_native_init (MetaStageNative *stage_native)
 {
-  stage_native->presented_frame_counter_sync = -1;
-  stage_native->presented_frame_counter_complete = -1;
 }
 
 static void

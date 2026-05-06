@@ -193,7 +193,6 @@ typedef struct _ClutterTextPrivate
   /* bitfields */
   guint alignment               : 2;
   guint wrap                    : 1;
-  guint use_underline           : 1;
   guint use_markup              : 1;
   guint ellipsize               : 3;
   guint single_line_mode        : 1;
@@ -4519,7 +4518,6 @@ clutter_text_init (ClutterText *self)
   priv->wrap = FALSE;
   priv->wrap_mode = PANGO_WRAP_WORD;
   priv->ellipsize = PANGO_ELLIPSIZE_NONE;
-  priv->use_underline = FALSE;
   priv->use_markup = FALSE;
   priv->justify = FALSE;
 
