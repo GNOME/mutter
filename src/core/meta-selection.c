@@ -33,7 +33,6 @@ struct _MetaSelection
 
 struct TransferRequest
 {
-  MetaSelectionType selection_type;
   GInputStream  *istream;
   GOutputStream *ostream;
   gssize len;
@@ -211,7 +210,6 @@ on_external_cancellable_cancelled (GCancellable    *external_cancellable,
 
 static TransferRequest *
 transfer_request_new (GOutputStream     *ostream,
-                      MetaSelectionType  selection_type,
                       ssize_t            len,
                       GCancellable      *external_cancellable)
 {
@@ -219,7 +217,6 @@ transfer_request_new (GOutputStream     *ostream,
 
   request = g_new0 (TransferRequest, 1);
   request->ostream = g_object_ref (ostream);
-  request->selection_type = selection_type;
   request->len = len;
   request->cancellable = g_cancellable_new ();
   request->timeout_source = g_timeout_source_new_seconds (15);
@@ -447,8 +444,7 @@ meta_selection_transfer_async (MetaSelection        *selection,
       return;
     }
 
-  transfer_request = transfer_request_new (output, selection_type, size,
-                                           cancellable);
+  transfer_request = transfer_request_new (output, size, cancellable);
 
   g_task_set_task_data (task, transfer_request,
                         (GDestroyNotify) transfer_request_free);

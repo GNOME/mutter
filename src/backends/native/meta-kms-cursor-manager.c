@@ -43,8 +43,6 @@ typedef struct _CrtcStateImpl
 {
   gatomicrefcount ref_count;
 
-  MetaKmsCursorManagerImpl *cursor_manager_impl;
-
   MetaKmsCrtc *crtc;
   MetaKmsPlane *cursor_plane;
   graphene_rect_t layout;
@@ -106,7 +104,6 @@ crtc_state_impl_new (MetaKmsCursorManagerImpl *cursor_manager_impl,
 
   crtc_state_impl = g_new0 (CrtcStateImpl, 1);
   g_atomic_ref_count_init (&crtc_state_impl->ref_count);
-  crtc_state_impl->cursor_manager_impl = cursor_manager_impl;
   crtc_state_impl->crtc = crtc;
   crtc_state_impl->cursor_plane = cursor_plane;
   crtc_state_impl->layout = layout;

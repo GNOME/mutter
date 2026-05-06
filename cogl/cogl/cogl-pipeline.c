@@ -2595,7 +2595,6 @@ _cogl_pipeline_hash (CoglPipeline *pipeline,
 typedef struct
 {
   CoglContext *context;
-  CoglPipeline *src_pipeline;
   CoglPipeline *dst_pipeline;
   unsigned int layer_differences;
 } DeepCopyData;
@@ -2670,7 +2669,6 @@ _cogl_pipeline_deep_copy (CoglPipeline *pipeline,
       layer_differences &= ~COGL_PIPELINE_LAYER_STATE_UNIT;
 
       data.context = ctx;
-      data.src_pipeline = pipeline;
       data.dst_pipeline = new;
       data.layer_differences = layer_differences;
 

@@ -63,8 +63,6 @@ struct _MetaX11Display
 
   Display *xdisplay;
   Window xroot;
-  int default_depth;
-  Visual *default_xvisual;
 
   guint32 timestamp;
 

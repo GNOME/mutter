@@ -242,7 +242,6 @@ struct _MetaWindow
   MetaLogicalMonitor *highest_scale_monitor;
   MetaWorkspace *workspace;
   MetaWindowClientType client_type;
-  int depth;
   char *desc; /* used in debug spew */
   char *title;
 

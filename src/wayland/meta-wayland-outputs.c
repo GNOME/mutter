@@ -62,7 +62,6 @@ struct _MetaWaylandOutput
 
   /* Protocol state */
   MtkRectangle layout;
-  MetaSubpixelOrder subpixel_order;
   MtkMonitorTransform transform;
   MetaMonitorMode *mode;
   MetaMonitorMode *preferred_mode;
@@ -447,7 +446,6 @@ meta_wayland_output_set_monitor (MetaWaylandOutput *wayland_output,
 
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
   wayland_output->layout = meta_logical_monitor_get_layout (logical_monitor);
-  wayland_output->subpixel_order = meta_monitor_get_subpixel_order (monitor);
   wayland_output->transform =
     meta_logical_monitor_get_transform (logical_monitor);
   g_set_object (&wayland_output->mode, meta_monitor_get_current_mode (monitor));
