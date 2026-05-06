@@ -43,7 +43,7 @@ static guint signals[N_SIGNALS];
 
 typedef struct _MdkPipeWireSource
 {
-  GSource base;
+  GSource parent;
 
   MdkPipewire *pipewire;
 } MdkPipeWireSource;
@@ -92,7 +92,7 @@ create_pipewire_source (MdkPipewire *pipewire)
     (MdkPipeWireSource *) g_source_new (&pipewire_source_funcs,
                                         sizeof (MdkPipeWireSource));
   pipewire_source->pipewire = pipewire;
-  g_source_add_unix_fd (&pipewire_source->base,
+  g_source_add_unix_fd (&pipewire_source->parent,
                         pw_loop_get_fd (pipewire->pipewire_loop),
                         G_IO_IN | G_IO_ERR);
 

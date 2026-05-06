@@ -944,7 +944,7 @@ meta_wayland_dma_buf_from_buffer (MetaWaylandBuffer *buffer)
 
 typedef struct _MetaWaylandDmaBufSource
 {
-  GSource base;
+  GSource parent;
 
   MetaWaylandDmaBufSourceDispatch dispatch;
   MetaWaylandBuffer *buffer;
@@ -1001,7 +1001,7 @@ meta_wayland_dma_buf_source_dispatch (GSource     *base,
           continue;
         }
 
-      g_source_remove_unix_fd (&source->base, fd_tag);
+      g_source_remove_unix_fd (&source->parent, fd_tag);
       source->fd_tags[i] = NULL;
       g_clear_fd (&source->owned_sync_fd[i], NULL);
     }
@@ -1028,7 +1028,7 @@ meta_wayland_dma_buf_source_finalize (GSource *base)
 
       if (fd_tag)
         {
-          g_source_remove_unix_fd (&source->base, fd_tag);
+          g_source_remove_unix_fd (&source->parent, fd_tag);
           source->fd_tags[i] = NULL;
           g_clear_fd (&source->owned_sync_fd[i], NULL);
         }
@@ -1126,13 +1126,13 @@ meta_wayland_dma_buf_create_source (MetaWaylandBuffer               *buffer,
       if (source->owned_sync_fd[i] >= 0)
         fd = source->owned_sync_fd[i];
 
-      source->fd_tags[i] = g_source_add_unix_fd (&source->base, fd, G_IO_IN);
+      source->fd_tags[i] = g_source_add_unix_fd (&source->parent, fd, G_IO_IN);
     }
 
   if (!source)
     return NULL;
 
-  return &source->base;
+  return &source->parent;
 }
 
 GSource *
@@ -1162,10 +1162,10 @@ meta_wayland_drm_syncobj_create_source (MetaWaylandBuffer                *buffer
   if (!source)
     return NULL;
 
-  source->fd_tags[0] = g_source_add_unix_fd (&source->base, sync_fd, G_IO_IN);
+  source->fd_tags[0] = g_source_add_unix_fd (&source->parent, sync_fd, G_IO_IN);
   source->owned_sync_fd[0] = g_steal_fd (&sync_fd);
 
-  return &source->base;
+  return &source->parent;
 }
 
 static void

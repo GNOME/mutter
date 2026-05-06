@@ -52,7 +52,7 @@ typedef struct _MetaThreadCallbackData
 
 typedef struct _MetaThreadCallbackSource
 {
-  GSource base;
+  GSource parent;
 
   GMutex mutex;
   GCond cond;
@@ -566,7 +566,7 @@ thread_impl_func (gpointer user_data)
 
 typedef struct _WrapperSource
 {
-  GSource base;
+  GSource parent;
 
   GMainContext *thread_main_context;
 
@@ -1100,7 +1100,7 @@ meta_thread_register_callback_context (MetaThread   *thread,
   callback_source->thread = thread;
   callback_source->main_context = main_context;
 
-  g_source_set_ready_time (&callback_source->base, -1);
+  g_source_set_ready_time (&callback_source->parent, -1);
   g_source_set_priority (source, G_PRIORITY_HIGH + 1);
   g_source_attach (source, main_context);
   g_source_unref (source);
@@ -1156,7 +1156,7 @@ meta_thread_queue_callback (MetaThread         *thread,
   callback_source->needs_flush = TRUE;
   callback_source->callbacks = g_list_append (callback_source->callbacks,
                                               callback_data);
-  g_source_set_ready_time (&callback_source->base, 0);
+  g_source_set_ready_time (&callback_source->parent, 0);
   g_mutex_unlock (&callback_source->mutex);
 }
 

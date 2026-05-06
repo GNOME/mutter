@@ -27,7 +27,7 @@
 
 struct _MetaFrameNative
 {
-  ClutterFrame base;
+  ClutterFrame parent;
 
   MetaDrmBuffer *buffer;
   CoglScanout *scanout;
@@ -67,7 +67,7 @@ meta_frame_native_new (void)
 MetaFrameNative *
 meta_frame_native_from_frame (ClutterFrame *frame)
 {
-  return META_CONTAINER_OF (frame, MetaFrameNative, base);
+  return META_CONTAINER_OF (frame, MetaFrameNative, parent);
 }
 
 MetaKmsUpdate *

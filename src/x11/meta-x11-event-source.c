@@ -20,7 +20,7 @@
 #include "meta-x11-event-source.h"
 
 typedef struct {
-  GSource base;
+  GSource parent;
   GPollFD event_poll_fd;
   Display *xdisplay;
 } MetaX11EventSource;

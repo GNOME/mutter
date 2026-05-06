@@ -63,7 +63,7 @@ struct _CoglMatrixEntry
 
 typedef struct _CoglMatrixEntryTranslate
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   graphene_point3d_t translate;
 
@@ -71,7 +71,7 @@ typedef struct _CoglMatrixEntryTranslate
 
 typedef struct _CoglMatrixEntryRotate
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   float angle;
   graphene_vec3_t axis;
@@ -80,14 +80,14 @@ typedef struct _CoglMatrixEntryRotate
 
 typedef struct _CoglMatrixEntryRotateEuler
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   graphene_euler_t euler;
 } CoglMatrixEntryRotateEuler;
 
 typedef struct _CoglMatrixEntryScale
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   float x;
   float y;
@@ -97,7 +97,7 @@ typedef struct _CoglMatrixEntryScale
 
 typedef struct _CoglMatrixEntryMultiply
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   graphene_matrix_t matrix;
 
@@ -105,7 +105,7 @@ typedef struct _CoglMatrixEntryMultiply
 
 typedef struct _CoglMatrixEntryLoad
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   graphene_matrix_t matrix;
 
@@ -113,7 +113,7 @@ typedef struct _CoglMatrixEntryLoad
 
 typedef struct _CoglMatrixEntrySave
 {
-  CoglMatrixEntry _parent_data;
+  CoglMatrixEntry parent;
 
   graphene_matrix_t cache;
   gboolean cache_valid;

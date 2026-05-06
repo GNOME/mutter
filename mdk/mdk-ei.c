@@ -40,7 +40,7 @@ struct _MdkEi
 
 typedef struct _MdkEiSource
 {
-  GSource base;
+  GSource parent;
 
   MdkEi *ei;
 } MdkEiSource;
