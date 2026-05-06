@@ -127,7 +127,6 @@ static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
 enum
 {
-  DELETE_EVENT,
   BEFORE_UPDATE,
   PREPARE_FRAME,
   BEFORE_PAINT,

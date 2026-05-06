@@ -30,11 +30,6 @@
 #define META_INPUT_CAPTURE_DBUS_SERVICE "org.gnome.Mutter.InputCapture"
 #define META_INPUT_CAPTURE_DBUS_PATH "/org/gnome/Mutter/InputCapture"
 
-enum
-{
-  CANCELLED,
-};
-
 typedef enum _MetaInputCaptureCapabilities
 {
   META_INPUT_CAPTURE_CAPABILITY_NONE = 1 << 0,
