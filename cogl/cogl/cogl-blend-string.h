@@ -139,8 +139,6 @@ typedef struct _CoglBlendStringStatement
  * @COGL_BLEND_STRING_ERROR_PARSE_ERROR: Generic parse error
  * @COGL_BLEND_STRING_ERROR_ARGUMENT_PARSE_ERROR: Argument parse error
  * @COGL_BLEND_STRING_ERROR_INVALID_ERROR: Internal parser error
- * @COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR: Blend string not
- *   supported by the GPU
  *
  * Error enumeration for the blend strings parser
  */
@@ -149,7 +147,6 @@ typedef enum /*< prefix=COGL_BLEND_STRING_ERROR >*/
   COGL_BLEND_STRING_ERROR_PARSE_ERROR,
   COGL_BLEND_STRING_ERROR_ARGUMENT_PARSE_ERROR,
   COGL_BLEND_STRING_ERROR_INVALID_ERROR,
-  COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR
 } CoglBlendStringError;
 
 uint32_t

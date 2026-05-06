@@ -70,12 +70,6 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
-typedef enum
-{
-  IN_STAGE_PERSPECTIVE,
-  IN_ACTOR_PERSPECTIVE
-} ScalePerspectiveType;
-
 static MtkRegion *
 effective_unobscured_region (MetaSurfaceActor *surface_actor)
 {

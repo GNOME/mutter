@@ -521,15 +521,12 @@ _cogl_pipeline_pre_paint_for_layer (CoglPipeline *pipeline,
  *      textures where you will need to point to each of the texture slices in
  *      turn when drawing your geometry.  Passing a value of 0 is the same as
  *      not passing the option at all.
- * @COGL_PIPELINE_FLUSH_SKIP_GL_COLOR: When flushing the GL state for the
- *      pipeline don't call glColor.
  */
 typedef enum _CoglPipelineFlushFlag
 {
   COGL_PIPELINE_FLUSH_FALLBACK_MASK       = 1L<<0,
   COGL_PIPELINE_FLUSH_DISABLE_MASK        = 1L<<1,
   COGL_PIPELINE_FLUSH_LAYER0_OVERRIDE     = 1L<<2,
-  COGL_PIPELINE_FLUSH_SKIP_GL_COLOR       = 1L<<3
 } CoglPipelineFlushFlag;
 
 /*

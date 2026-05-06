@@ -36,12 +36,6 @@ struct _MetaThreadImplClass
   void (* setup) (MetaThreadImpl *thread_impl);
 };
 
-typedef enum _MetaThreadTaskFeedbackType
-{
-  META_THREAD_TASK_FEEDBACK_TYPE_CALLBACK,
-  META_THREAD_TASK_FEEDBACK_TYPE_IMPL,
-} MetaThreadTaskFeedbackType;
-
 typedef struct _MetaThreadTask MetaThreadTask;
 
 META_EXPORT_TEST

@@ -160,7 +160,6 @@ endif
 mutter_sources = [
   'backends/edid.h',
   'backends/edid-parse.c',
-  'backends/gsm-inhibitor-flag.h',
   'backends/meta-a11y-manager.c',
   'backends/meta-a11y-manager.h',
   'backends/meta-backend.c',

@@ -123,7 +123,6 @@ void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelvie
 
 typedef enum _ClutterCullResult
 {
-  CLUTTER_CULL_RESULT_UNKNOWN,
   CLUTTER_CULL_RESULT_IN,
   CLUTTER_CULL_RESULT_OUT,
 } ClutterCullResult;

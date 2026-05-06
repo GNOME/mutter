@@ -103,7 +103,6 @@ typedef struct _MetaWaylandColorManagementSurface
 
 typedef enum _MetaWaylandImageDescriptionState
 {
-  META_WAYLAND_IMAGE_DESCRIPTION_STATE_PENDING,
   META_WAYLAND_IMAGE_DESCRIPTION_STATE_READY,
   META_WAYLAND_IMAGE_DESCRIPTION_STATE_FAILED,
 } MetaWaylandImageDescriptionState;

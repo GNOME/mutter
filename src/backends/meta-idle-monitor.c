@@ -30,7 +30,6 @@
 
 #include <string.h>
 
-#include "backends/gsm-inhibitor-flag.h"
 #include "backends/meta-backend-private.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "clutter/clutter.h"
@@ -52,6 +51,8 @@ struct _MetaIdleMonitor
 };
 
 G_DEFINE_TYPE (MetaIdleMonitor, meta_idle_monitor, G_TYPE_OBJECT)
+
+#define GSM_INHIBITOR_FLAG_IDLE 1 << 3
 
 static void
 meta_idle_monitor_watch_fire (MetaIdleMonitorWatch *watch)

@@ -212,7 +212,6 @@ on_scanout_presented (ClutterStage     *stage,
 typedef enum
 {
   SCANOUT_WINDOW_STATE_NONE,
-  SCANOUT_WINDOW_STATE_FULLSCREEN,
 } ScanoutWindowState;
 
 static void
