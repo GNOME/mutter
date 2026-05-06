@@ -2114,7 +2114,6 @@ meta_window_x11_constructed (GObject *object)
   window->size_hints.width = rect.width;
   window->size_hints.height = rect.height;
 
-  window->depth = attrs.depth;
   priv->xvisual = attrs.visual;
   window->mapped = attrs.map_state != IsUnmapped;
 

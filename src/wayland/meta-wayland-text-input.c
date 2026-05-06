@@ -83,7 +83,6 @@ struct _MetaWaylandTextInput
 
   uint32_t content_type_hint;
   uint32_t content_type_purpose;
-  uint32_t text_change_cause;
   gboolean enabled;
 
   struct
@@ -552,7 +551,6 @@ text_input_set_text_change_cause (struct wl_client   *client,
   if (!client_matches_focus (text_input, client))
     return;
 
-  text_input->text_change_cause = cause;
   text_input->pending_state |= META_WAYLAND_PENDING_STATE_CHANGE_CAUSE;
 }
 
@@ -661,7 +659,6 @@ meta_wayland_text_input_reset (MetaWaylandTextInput *text_input)
   g_clear_pointer (&text_input->pending_surrounding.text, g_free);
   text_input->content_type_hint = ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE;
   text_input->content_type_purpose = ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL;
-  text_input->text_change_cause = ZWP_TEXT_INPUT_V3_CHANGE_CAUSE_INPUT_METHOD;
   text_input->cursor_rect = (MtkRectangle) { 0, 0, 0, 0 };
   text_input->pending_state = META_WAYLAND_PENDING_STATE_NONE;
 }

@@ -166,7 +166,6 @@ struct _MetaWaylandDragGrab {
   struct wl_listener      drag_origin_listener;
 
   int                     drag_start_x, drag_start_y;
-  ClutterModifierType     buttons;
 
   guint                   need_initial_focus : 1;
 };
@@ -806,9 +805,6 @@ meta_wayland_data_device_start_drag (MetaWaylandDataDevice           *data_devic
 
   clutter_seat_query_state (seat->clutter_seat, sprite,
                             &pos, &modifiers);
-  drag_grab->buttons = modifiers &
-    (CLUTTER_BUTTON1_MASK | CLUTTER_BUTTON2_MASK | CLUTTER_BUTTON3_MASK |
-     CLUTTER_BUTTON4_MASK | CLUTTER_BUTTON5_MASK);
 
   meta_wayland_drag_grab_set_source (drag_grab, source);
   meta_wayland_data_device_set_dnd_source (data_device,

@@ -113,9 +113,8 @@ struct _MetaWaylandPointer
   ClutterCursorType cursor_shape;
   ClutterCursor *cursor;
 
-  guint32 grab_button;
   guint32 grab_serial;
-  guint32 grab_time;
+
   float grab_x, grab_y;
   float last_rel_x, last_rel_y;
 
@@ -759,11 +758,7 @@ handle_button_event (MetaWaylandPointer *pointer,
 
   implicit_grab = (clutter_event_type (event) == CLUTTER_BUTTON_PRESS) && (count_buttons (event) == 1);
   if (implicit_grab)
-    {
-      pointer->grab_button = clutter_event_get_button (event);
-      pointer->grab_time = clutter_event_get_time (event);
-      clutter_event_get_coords (event, &pointer->grab_x, &pointer->grab_y);
-    }
+    clutter_event_get_coords (event, &pointer->grab_x, &pointer->grab_y);
 
   meta_wayland_pointer_send_button (pointer, event);
 

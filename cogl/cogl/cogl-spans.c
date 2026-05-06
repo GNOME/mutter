@@ -49,11 +49,8 @@ _cogl_span_iter_update (CoglSpanIter *iter)
       iter->pos >= iter->cover_end)
     {
       /* Intersection undefined */
-      iter->intersects = FALSE;
       return;
     }
-
-  iter->intersects = TRUE;
 
   /* Clip start position to coverage area */
   if (iter->pos < iter->cover_start)
@@ -177,5 +174,3 @@ _cogl_span_iter_end (CoglSpanIter *iter)
   /* End reached when whole area covered */
   return iter->pos >= iter->cover_end;
 }
-
-

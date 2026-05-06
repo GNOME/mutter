@@ -43,8 +43,6 @@ typedef enum _WindowState
 
 struct _MetaWaylandXdgToplevelState
 {
-  MetaWaylandXdgSessionState *session_state;
-
   WindowState window_state;
   struct {
     MtkRectangle rect;
@@ -161,7 +159,6 @@ meta_wayland_xdg_session_state_ensure_toplevel (MetaWaylandXdgSessionState *sess
   if (!toplevel_state)
     {
       toplevel_state = g_new0 (MetaWaylandXdgToplevelState, 1);
-      toplevel_state->session_state = session_state;
       g_hash_table_insert (session_state->toplevels,
                            g_strdup (name), toplevel_state);
     }

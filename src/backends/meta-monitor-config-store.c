@@ -201,7 +201,6 @@ typedef struct
   MetaConfigStore pending_store;
   GList *stores;
 
-  gboolean enable_dbus_set;
   gboolean enable_dbus;
 
   ParserState unknown_state_root;
@@ -1667,7 +1666,6 @@ handle_end_element (GMarkupParseContext  *context,
           {
             parser->config_store->has_dbus_policy = TRUE;
             parser->config_store->policy.enable_dbus = parser->enable_dbus;
-            parser->enable_dbus_set = FALSE;
           }
         else
           {
@@ -2122,7 +2120,6 @@ handle_text (GMarkupParseContext *context,
 
     case STATE_DBUS:
       {
-        parser->enable_dbus_set = TRUE;
         read_bool (text, text_len,
                    &parser->enable_dbus,
                    error);

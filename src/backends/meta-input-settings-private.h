@@ -47,7 +47,6 @@ typedef struct _MetaKbdA11ySettings
   MetaKeyboardA11yFlags controls;
   int slowkeys_delay;
   int debounce_delay;
-  int timeout_delay;
   int mousekeys_init_delay;
   int mousekeys_max_speed;
   int mousekeys_accel_time;

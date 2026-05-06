@@ -45,7 +45,6 @@ typedef struct _MetaRenderDevicePrivate
   MetaDeviceFile *device_file;
 
   EGLDisplay egl_display;
-  EGLConfig egl_config;
 
   gboolean is_hardware_rendering;
 } MetaRenderDevicePrivate;
@@ -290,7 +289,6 @@ meta_render_device_init (MetaRenderDevice *render_device)
     meta_render_device_get_instance_private (render_device);
 
   priv->egl_display = EGL_NO_DISPLAY;
-  priv->egl_config = EGL_NO_CONFIG_KHR;
 }
 
 MetaBackend *

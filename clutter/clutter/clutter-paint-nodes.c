@@ -946,8 +946,6 @@ clutter_actor_node_new (ClutterActor *actor,
 struct _ClutterEffectNode
 {
   ClutterPaintNode parent_instance;
-
-  ClutterEffect *effect;
 };
 
 struct _ClutterEffectNodeClass
@@ -984,7 +982,6 @@ clutter_effect_node_new (ClutterEffect *effect)
   g_assert (CLUTTER_IS_EFFECT (effect));
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_EFFECT_NODE);
-  res->effect = effect;
 
   return (ClutterPaintNode *) res;
 }
@@ -996,9 +993,6 @@ clutter_effect_node_new (ClutterEffect *effect)
 struct _ClutterLayerNode
 {
   ClutterPaintNode parent_instance;
-
-  float fbo_width;
-  float fbo_height;
 
   CoglPipeline *pipeline;
   CoglFramebuffer *offscreen;
@@ -1185,8 +1179,6 @@ clutter_layer_node_new_to_framebuffer (CoglFramebuffer *framebuffer,
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
 
-  res->fbo_width = cogl_framebuffer_get_width (framebuffer);
-  res->fbo_height = cogl_framebuffer_get_height (framebuffer);
   res->offscreen = g_object_ref (framebuffer);
   res->pipeline = cogl_pipeline_copy (pipeline);
 

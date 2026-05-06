@@ -70,7 +70,6 @@ texture_unit_init (CoglContext *ctx,
                    int index_)
 {
   unit->index = index_;
-  unit->enabled_gl_target = 0;
   unit->gl_texture = 0;
   unit->gl_target = 0;
   unit->dirty_gl_texture = FALSE;
@@ -665,7 +664,6 @@ typedef struct
   CoglPipeline *pipeline;
   unsigned long *layer_differences;
   gboolean error_adding_layer;
-  gboolean added_layer;
 } CoglPipelineAddLayerState;
 
 static gboolean
@@ -679,12 +677,10 @@ vertend_add_layer_cb (CoglPipelineLayer *layer,
 
   /* Either generate per layer code snippets or setup the
    * fixed function glTexEnv for each layer... */
-  if (G_LIKELY (vertend->add_layer (pipeline,
+  if (!G_LIKELY (vertend->add_layer (pipeline,
                                     layer,
                                     state->layer_differences[unit_index],
                                     state->framebuffer)))
-    state->added_layer = TRUE;
-  else
     {
       state->error_adding_layer = TRUE;
       return FALSE;
@@ -704,11 +700,9 @@ fragend_add_layer_cb (CoglPipelineLayer *layer,
 
   /* Either generate per layer code snippets or setup the
    * fixed function glTexEnv for each layer... */
-  if (G_LIKELY (fragend->add_layer (pipeline,
+  if (!G_LIKELY (fragend->add_layer (pipeline,
                                     layer,
                                     state->layer_differences[unit_index])))
-    state->added_layer = TRUE;
-  else
     {
       state->error_adding_layer = TRUE;
       return FALSE;
@@ -925,7 +919,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
       state.pipeline = pipeline;
       state.layer_differences = layer_differences;
       state.error_adding_layer = FALSE;
-      state.added_layer = FALSE;
 
       _cogl_pipeline_foreach_layer_internal (pipeline,
                                              vertend_add_layer_cb,

@@ -1321,8 +1321,6 @@ load_keyboard_a11y_settings (MetaInputSettings *input_settings)
         kbd_a11y_settings.controls |= keyboard_a11y_settings_flags_pair[i].flag;
     }
 
-  kbd_a11y_settings.timeout_delay = g_settings_get_int (priv->keyboard_a11y_settings,
-                                                        "disable-timeout");
   kbd_a11y_settings.slowkeys_delay = g_settings_get_int (priv->keyboard_a11y_settings,
                                                          "slowkeys-delay");
   kbd_a11y_settings.debounce_delay = g_settings_get_int (priv->keyboard_a11y_settings,

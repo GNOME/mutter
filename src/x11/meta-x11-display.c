@@ -1201,7 +1201,6 @@ meta_x11_display_new (MetaDisplay  *display,
     meta_context_get_wayland_compositor (context);
   g_autoptr (MetaX11Display) x11_display = NULL;
   Display *xdisplay;
-  Screen *xscreen;
   Window xroot;
   int i, number;
   Window new_wm_sn_owner;
@@ -1245,8 +1244,6 @@ meta_x11_display_new (MetaDisplay  *display,
       return NULL;
     }
 
-  xscreen = ScreenOfDisplay (xdisplay, number);
-
   x11_display = g_object_new (META_TYPE_X11_DISPLAY, NULL);
   x11_display->display = display;
 
@@ -1261,8 +1258,6 @@ meta_x11_display_new (MetaDisplay  *display,
 
   x11_display->name = g_strdup (XDisplayName (NULL));
   x11_display->screen_name = get_screen_name (xdisplay, number);
-  x11_display->default_xvisual = DefaultVisualOfScreen (xscreen);
-  x11_display->default_depth = DefaultDepthOfScreen (xscreen);
 
   meta_topic (META_DEBUG_X11, "Creating %d atoms", (int) G_N_ELEMENTS (atom_names));
   XInternAtoms (xdisplay, (char **)atom_names, G_N_ELEMENTS (atom_names),

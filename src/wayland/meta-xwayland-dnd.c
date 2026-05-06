@@ -50,7 +50,6 @@ struct _MetaWaylandDataSourceXWayland
 {
   MetaWaylandDataSource parent;
   MetaXWaylandDnd *dnd;
-  gboolean has_utf8_string_atom;
 };
 
 struct _MetaXWaylandDnd
@@ -58,7 +57,6 @@ struct _MetaXWaylandDnd
   MetaXWaylandManager *manager;
 
   Window owner;
-  Time client_message_timestamp;
   MetaWaylandDataSource *source; /* owned by MetaWaylandDataDevice */
   MetaWaylandSurface *focus_surface;
   Window dnd_window[2]; /* Mutter-internal windows, act as peer on wayland drop sites */
@@ -767,7 +765,6 @@ meta_xwayland_data_source_fetch_mimetype_list (MetaWaylandDataSource *source,
         {
           meta_wayland_data_source_add_mime_type (source,
                                                   "text/plain;charset=utf-8");
-          source_xwayland->has_utf8_string_atom = TRUE;
         }
 
       mime_type = XGetAtomName (xdisplay, atoms[i]);
@@ -1083,8 +1080,6 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
           graphene_point_t pos;
           uint32_t action = 0;
 
-          dnd->client_message_timestamp = event->data.l[3];
-
           sprite = meta_wayland_drag_grab_get_sprite (drag_grab);
 
           clutter_seat_query_state (seat->clutter_seat, sprite, &pos, NULL);
@@ -1106,7 +1101,6 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
         }
       else if (event->message_type == xdnd_atoms[ATOM_DND_DROP])
         {
-          dnd->client_message_timestamp = event->data.l[2];
           meta_wayland_surface_drag_dest_drop (drag_focus);
           meta_xwayland_end_dnd_grab (&seat->data_device, TRUE);
           return TRUE;

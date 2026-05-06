@@ -61,7 +61,6 @@ struct _MetaWaylandXdgExported
 
 struct _MetaWaylandXdgImported
 {
-  MetaWaylandXdgForeign *foreign;
   struct wl_resource *resource;
   MetaWaylandResourceFunc send_destroyed_func;
 
@@ -412,7 +411,6 @@ meta_wayland_xdg_foreign_import (MetaWaylandXdgForeign   *foreign,
     return NULL;
 
   imported = g_new0 (MetaWaylandXdgImported, 1);
-  imported->foreign = foreign;
   imported->exported = exported;
   imported->resource = resource;
   imported->send_destroyed_func = send_destroyed_func;
