@@ -1111,10 +1111,10 @@ update_connector_in_impl (MetaThreadImpl  *thread_impl,
                           GError         **error)
 {
   MetaKmsConnector *connector = user_data;
+  MetaKmsDevice *device = meta_kms_connector_get_device (connector);
   MetaKmsResourceChanges changes;
 
-  changes = meta_kms_impl_device_update_states (connector->impl_device,
-                                                0, connector->id);
+  changes = meta_kms_device_update_states_in_impl (device, 0, connector->id);
 
   return GUINT_TO_POINTER (changes);
 }
