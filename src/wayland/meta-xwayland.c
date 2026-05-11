@@ -869,6 +869,8 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager,
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
 
+  g_subprocess_launcher_unsetenv (launcher, "DISPLAY");
+
   i = 0;
   args[i++] = XWAYLAND_PATH;
   args[i++] = manager->public_connection.name;
