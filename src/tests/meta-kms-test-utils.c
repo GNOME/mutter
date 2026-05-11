@@ -197,7 +197,7 @@ meta_get_test_udev_device (MetaUdev *udev)
 typedef struct
 {
   MetaKmsImplDevice *impl_device;
-  gboolean inhibited;
+  MetaKmsInhibitSubset inhibited_subset;
 } SetUpdatesInhibitedData;
 
 static gpointer
@@ -208,20 +208,20 @@ process_set_updates_inhibited_in_impl (MetaThreadImpl  *thread_impl,
   SetUpdatesInhibitedData *data = user_data;
 
   meta_kms_impl_device_set_updates_inhibited (data->impl_device,
-                                              data->inhibited);
+                                              data->inhibited_subset);
 
   return GINT_TO_POINTER (TRUE);
 }
 
 void
-meta_inhibit_kms_updates (MetaKmsDevice *device,
-                          gboolean       inhibited)
+meta_inhibit_kms_updates (MetaKmsDevice        *device,
+                          MetaKmsInhibitSubset  inhibited_subset)
 {
   MetaKms *kms = meta_kms_device_get_kms (device);
   SetUpdatesInhibitedData data;
 
   data.impl_device = meta_kms_device_get_impl_device (device);
-  data.inhibited = inhibited;
+  data.inhibited_subset = inhibited_subset;
 
   meta_kms_run_impl_task_sync (kms,
                                process_set_updates_inhibited_in_impl,

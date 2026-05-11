@@ -95,6 +95,12 @@ typedef enum _MetaDeadlineTimerState
   META_DEADLINE_TIMER_STATE_INHIBITED,
 } MetaDeadlineTimerState;
 
+typedef struct _InhibitedUpdate
+{
+  MetaKmsUpdate *update;
+  MetaKmsUpdateFlag flags;
+} InhibitedUpdate;
+
 typedef struct _MetaKmsImplDevicePrivate
 {
   MetaKmsDevice *device;
@@ -127,7 +133,8 @@ typedef struct _MetaKmsImplDevicePrivate
   gboolean sync_file_retrieved;
   int sync_file;
 
-  gboolean updates_inhibited;
+  MetaKmsInhibitSubset updates_inhibited_subset;
+  GList *inhibited_updates;
 } MetaKmsImplDevicePrivate;
 
 static void
@@ -2129,28 +2136,48 @@ do_handle_update (MetaKmsImplDevice *impl_device,
   return;
 }
 
+static void
+inhibited_update_free (InhibitedUpdate *inhibited_update)
+{
+  g_clear_pointer (&inhibited_update->update, meta_kms_update_free);
+  g_free (inhibited_update);
+}
+
 void
-meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice *impl_device,
-                                            gboolean           inhibited)
+meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice    *impl_device,
+                                            MetaKmsInhibitSubset  inhibited_subset)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
-  GHashTableIter iter;
-  CrtcFrame *crtc_frame;
+  GList *l;
 
-  if (priv->updates_inhibited == inhibited)
+  if (priv->updates_inhibited_subset == inhibited_subset)
     return;
 
-  priv->updates_inhibited = inhibited;
+  priv->updates_inhibited_subset = inhibited_subset;
 
-  if (inhibited || !priv->crtc_frames)
+  if (inhibited_subset == META_KMS_INHIBIT_ALL)
     return;
 
-  g_hash_table_iter_init (&iter, priv->crtc_frames);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
+  l = priv->inhibited_updates;
+  while (l)
     {
-      if (crtc_frame->submitted_update.kms_update)
-        do_handle_update (impl_device, crtc_frame);
+      GList *l_next = l->next;
+      InhibitedUpdate *inhibited_update = l->data;
+      MetaKmsUpdate *update = g_steal_pointer (&inhibited_update->update);
+
+      if ((inhibited_update->flags & META_KMS_UPDATE_FLAG_TEST_ONLY &&
+           inhibited_subset == META_KMS_INHIBIT_NON_TEST_ONLY) ||
+          inhibited_subset == META_KMS_INHIBIT_NONE)
+        {
+          meta_kms_impl_device_handle_update (impl_device,
+                                              update,
+                                              inhibited_update->flags);
+          priv->inhibited_updates =
+            g_list_delete_link (priv->inhibited_updates, l);
+        }
+
+      l = l_next;
     }
 }
 
@@ -2167,6 +2194,20 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
   MetaKmsFeedback *feedback;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
+
+  if (priv->updates_inhibited_subset == META_KMS_INHIBIT_ALL ||
+      (priv->updates_inhibited_subset == META_KMS_INHIBIT_NON_TEST_ONLY &&
+      !(flags & META_KMS_UPDATE_FLAG_TEST_ONLY)))
+    {
+      InhibitedUpdate *inhibited_update;
+
+      inhibited_update = g_new0 (InhibitedUpdate, 1);
+      inhibited_update->update = update;
+      inhibited_update->flags = flags;
+      priv->inhibited_updates = g_list_append (priv->inhibited_updates,
+                                               inhibited_update);
+      return;
+    }
 
   latch_crtc = meta_kms_update_get_latch_crtc (update);
   if (!latch_crtc)
@@ -2199,8 +2240,7 @@ meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
   crtc_frame->submitted_update.flags = flags;
   crtc_frame->submitted_update.latch_crtc = latch_crtc;
 
-  if (!priv->updates_inhibited)
-    do_handle_update (impl_device, crtc_frame);
+  do_handle_update (impl_device, crtc_frame);
 
   return;
 
@@ -2532,6 +2572,8 @@ meta_kms_impl_device_finalize (GObject *object)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
+  g_clear_list (&priv->inhibited_updates,
+                (GDestroyNotify) inhibited_update_free);
   g_clear_pointer (&priv->crtc_frames, g_hash_table_unref);
 
   if (priv->realtime_inhibited_pending_mode_set)

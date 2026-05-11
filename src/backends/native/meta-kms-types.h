@@ -89,3 +89,10 @@ typedef enum _MetaKmsPropType
   META_KMS_PROP_TYPE_RAW = 0,
   META_KMS_PROP_TYPE_FIXED_16,
 } MetaKmsPropType;
+
+typedef enum _MetaKmsInhibitSubset
+{
+  META_KMS_INHIBIT_NONE = 0,
+  META_KMS_INHIBIT_ALL,
+  META_KMS_INHIBIT_NON_TEST_ONLY,
+} MetaKmsInhibitSubset;
