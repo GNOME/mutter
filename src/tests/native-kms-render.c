@@ -499,7 +499,7 @@ set_updates_inhibited_before_paint (ClutterStage     *stage,
   backend = meta_context_get_backend (test_context);
   kms = meta_backend_native_get_kms (META_BACKEND_NATIVE (backend));
   kms_device = meta_kms_get_devices (kms)->data;
-  meta_inhibit_kms_updates (kms_device, TRUE);
+  meta_inhibit_kms_updates (kms_device, META_KMS_INHIBIT_ALL);
 }
 
 static void
@@ -551,7 +551,7 @@ meta_test_kms_render_client_scanout_inhibit (void)
 
   g_signal_handler_disconnect (stage, before_paint_handler_id);
   g_usleep (ms2us (100));
-  meta_inhibit_kms_updates (kms_device, FALSE);
+  meta_inhibit_kms_updates (kms_device, META_KMS_INHIBIT_NONE);
 
   presented = FALSE;
   presented_handler_id =
@@ -638,7 +638,7 @@ meta_test_kms_render_client_scanout_hotplug (void)
   g_assert_true (did_signal);
   g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
 
-  meta_inhibit_kms_updates (kms_device, FALSE);
+  meta_inhibit_kms_updates (kms_device, META_KMS_INHIBIT_NONE);
 
   did_signal = FALSE;
   presented_handler_id =

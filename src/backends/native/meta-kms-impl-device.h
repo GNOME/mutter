@@ -193,8 +193,8 @@ MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_d
   G_GNUC_WARN_UNUSED_RESULT;
 
 META_EXPORT_TEST
-void meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice *impl_device,
-                                                 gboolean           inhibited);
+void meta_kms_impl_device_set_updates_inhibited (MetaKmsImplDevice    *impl_device,
+                                                 MetaKmsInhibitSubset  inhibited_subset);
 
 void meta_kms_impl_device_handle_update (MetaKmsImplDevice *impl_device,
                                          MetaKmsUpdate     *update,

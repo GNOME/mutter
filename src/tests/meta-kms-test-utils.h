@@ -49,5 +49,5 @@ MtkRectangle meta_get_mode_rect (MetaKmsMode *mode);
 
 GUdevDevice * meta_get_test_udev_device (MetaUdev *udev);
 
-void meta_inhibit_kms_updates (MetaKmsDevice *device,
-                               gboolean       inhibited);
+void meta_inhibit_kms_updates (MetaKmsDevice        *device,
+                               MetaKmsInhibitSubset  inhibited_subset);
