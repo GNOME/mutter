@@ -2196,6 +2196,8 @@ scanout_result_feedback (const MetaKmsFeedback *kms_feedback,
 
   meta_onscreen_native_notify_frame_complete (onscreen);
   meta_onscreen_native_clear_posted_fb (onscreen);
+
+  maybe_post_next_frame (onscreen);
 }
 
 static gboolean
