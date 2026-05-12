@@ -602,7 +602,9 @@ on_scanout_failed (CoglScanout       *scanout,
   if (!buffer->tainted_scanout_onscreens)
     buffer->tainted_scanout_onscreens = g_hash_table_new (NULL, NULL);
 
-  g_hash_table_add (buffer->tainted_scanout_onscreens, onscreen);
+  if (!g_hash_table_add (buffer->tainted_scanout_onscreens, onscreen))
+    return;
+
   g_object_weak_ref (G_OBJECT (onscreen), on_onscreen_destroyed, buffer);
 }
 
