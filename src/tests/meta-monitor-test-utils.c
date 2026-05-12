@@ -1112,3 +1112,27 @@ meta_wait_for_possible_orientation_change (MetaOrientationManager *orientation_m
   if (times_signalled_out != NULL)
     *times_signalled_out = wfo.times_signalled;
 }
+
+static void
+mark_as_signalled (gboolean *did_signal)
+{
+  *did_signal = TRUE;
+}
+
+void
+meta_fake_hotplug (MetaContext *context)
+{
+  MetaBackend *backend = meta_context_get_backend (context);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  gboolean did_signal;
+  gulong monitors_changed_handler_id;
+
+  did_signal = FALSE;
+  monitors_changed_handler_id =
+    g_signal_connect_swapped (monitor_manager, "monitors-changed",
+                              G_CALLBACK (mark_as_signalled), &did_signal);
+  meta_monitor_manager_reload (monitor_manager);
+  g_assert_true (did_signal);
+  g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
+}
