@@ -35,6 +35,7 @@
 #include "meta/meta-backend.h"
 #include "meta-test/meta-context-test.h"
 #include "tests/drm-mock/drm-mock.h"
+#include "tests/meta-monitor-test-utils.h"
 #include "tests/meta-kms-test-utils.h"
 #include "tests/meta-test-utils.h"
 #include "tests/meta-wayland-test-driver.h"
@@ -571,8 +572,6 @@ static void
 meta_test_kms_render_client_scanout_hotplug (void)
 {
   MetaBackend *backend = meta_context_get_backend (test_context);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
   MetaWaylandCompositor *wayland_compositor =
     meta_context_get_wayland_compositor (test_context);
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
@@ -584,7 +583,6 @@ meta_test_kms_render_client_scanout_hotplug (void)
   gulong before_paint_handler_id;
   gulong presented_handler_id;
   MtkRectangle view_rect;
-  gulong monitors_changed_handler_id;
   gboolean did_signal;
 
   if (g_strcmp0 (getenv ("MUTTER_DEBUG_KMS_THREAD_TYPE"),
@@ -630,13 +628,7 @@ meta_test_kms_render_client_scanout_hotplug (void)
 
   g_signal_handler_disconnect (stage, before_paint_handler_id);
 
-  did_signal = FALSE;
-  monitors_changed_handler_id =
-    g_signal_connect_swapped (monitor_manager, "monitors-changed",
-                              G_CALLBACK (mark_as_signalled), &did_signal);
-  meta_monitor_manager_reload (monitor_manager);
-  g_assert_true (did_signal);
-  g_signal_handler_disconnect (monitor_manager, monitors_changed_handler_id);
+  meta_fake_hotplug (test_context);
 
   meta_inhibit_kms_updates (kms_device, META_KMS_INHIBIT_NONE);
 
