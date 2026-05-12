@@ -52,6 +52,7 @@ void clutter_stage_view_add_redraw_clip (ClutterStageView   *view,
 
 gboolean clutter_stage_view_has_full_redraw_clip (ClutterStageView *view);
 
+CLUTTER_EXPORT
 gboolean clutter_stage_view_has_redraw_clip (ClutterStageView *view);
 
 CLUTTER_EXPORT
