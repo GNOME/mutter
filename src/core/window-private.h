@@ -260,7 +260,6 @@ struct _MetaWindow
   char *startup_id;
   char *mutter_hints;
   char *sandboxed_app_id;
-  char *gtk_theme_variant;
   char *gtk_application_id;
   char *gtk_unique_bus_name;
   char *gtk_application_object_path;

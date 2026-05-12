@@ -402,7 +402,6 @@ meta_window_finalize (GObject *object)
   g_free (window->title);
   g_free (window->desc);
   g_free (window->sandboxed_app_id);
-  g_free (window->gtk_theme_variant);
   g_free (window->gtk_application_id);
   g_free (window->gtk_unique_bus_name);
   g_free (window->gtk_application_object_path);
@@ -6852,18 +6851,6 @@ meta_window_get_sandboxed_app_id (MetaWindow *window)
   /* We're abusing this API here not to break the gnome shell assumptions
    * or adding a new function, to be renamed to generic names in new versions */
   return window->sandboxed_app_id;
-}
-
-/**
- * meta_window_get_gtk_theme_variant:
- * @window: a #MetaWindow
- *
- * Returns: (transfer none) (nullable): the theme variant or %NULL
- **/
-const char *
-meta_window_get_gtk_theme_variant (MetaWindow *window)
-{
-  return window->gtk_theme_variant;
 }
 
 /**

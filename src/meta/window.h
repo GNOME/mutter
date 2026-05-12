@@ -183,9 +183,6 @@ META_EXPORT
 const char * meta_window_get_sandboxed_app_id (MetaWindow *window);
 
 META_EXPORT
-const char * meta_window_get_gtk_theme_variant (MetaWindow *window);
-
-META_EXPORT
 const char * meta_window_get_gtk_application_id (MetaWindow *window);
 
 META_EXPORT

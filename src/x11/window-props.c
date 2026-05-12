@@ -1549,30 +1549,6 @@ reload_transient_for (MetaWindow    *window,
 }
 
 static void
-reload_gtk_theme_variant (MetaWindow    *window,
-                          MetaPropValue *value,
-                          gboolean       initial)
-{
-  char     *requested_variant = NULL;
-  char     *current_variant   = window->gtk_theme_variant;
-
-  if (value->type != META_PROP_VALUE_INVALID)
-    {
-      requested_variant = value->v.str;
-      meta_topic (META_DEBUG_X11,
-                  "Requested \"%s\" theme variant for window %s.",
-                  requested_variant, window->desc);
-    }
-
-  if (g_strcmp0 (requested_variant, current_variant) != 0)
-    {
-      g_free (current_variant);
-
-      window->gtk_theme_variant = g_strdup (requested_variant);
-    }
-}
-
-static void
 reload_bypass_compositor (MetaWindow    *window,
                           MetaPropValue *value,
                           gboolean       initial)
@@ -1741,7 +1717,6 @@ meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display)
     { x11_display->atom__NET_WM_STATE,     META_PROP_VALUE_ATOM_LIST, reload_net_wm_state,     LOAD_INIT | INIT_ONLY },
     { x11_display->atom__MOTIF_WM_HINTS,   META_PROP_VALUE_MOTIF_HINTS, reload_mwm_hints,      LOAD_INIT },
     { XA_WM_TRANSIENT_FOR,                 META_PROP_VALUE_WINDOW,    reload_transient_for,    LOAD_INIT | INCLUDE_OR },
-    { x11_display->atom__GTK_THEME_VARIANT, META_PROP_VALUE_UTF8,     reload_gtk_theme_variant, LOAD_INIT },
     { x11_display->atom__GTK_APPLICATION_ID,               META_PROP_VALUE_UTF8,         reload_gtk_application_id,               LOAD_INIT },
     { x11_display->atom__GTK_UNIQUE_BUS_NAME,              META_PROP_VALUE_UTF8,         reload_gtk_unique_bus_name,              LOAD_INIT },
     { x11_display->atom__GTK_APPLICATION_OBJECT_PATH,      META_PROP_VALUE_UTF8,         reload_gtk_application_object_path,      LOAD_INIT },
