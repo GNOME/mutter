@@ -66,6 +66,9 @@ typedef struct
   xkb_mod_mask_t locked_mods;
 
   xkb_layout_index_t effective_layout_group;
+
+  int caps_lock_idx;
+  int num_lock_idx;
 } ModifierState;
 
 G_DEFINE_TYPE (MetaKeymapNative, meta_keymap_native,
@@ -154,7 +157,8 @@ meta_keymap_native_init (MetaKeymapNative *keymap)
 }
 
 static ModifierState
-calculate_modifier_state (struct xkb_state *xkb_state)
+calculate_modifier_state (struct xkb_keymap *xkb_keymap,
+                          struct xkb_state  *xkb_state)
 {
   return (ModifierState) {
     .depressed_mods =
@@ -165,6 +169,8 @@ calculate_modifier_state (struct xkb_state *xkb_state)
       xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED),
     .effective_layout_group =
       xkb_state_serialize_layout (xkb_state, XKB_STATE_LAYOUT_EFFECTIVE),
+    .num_lock_idx = xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_NUM),
+    .caps_lock_idx = xkb_keymap_mod_get_index (xkb_keymap, XKB_MOD_NAME_CAPS),
   };
 }
 
@@ -178,12 +184,10 @@ update_state_from_modifier_state (MetaKeymapNative *keymap_native,
 
   num_lock_state =
     !!((modifier_state->latched_mods | modifier_state->locked_mods) &
-       (1 << xkb_keymap_mod_get_index (keymap_native->impl.keymap,
-                                       XKB_MOD_NAME_NUM)));
+       (1 << modifier_state->num_lock_idx));
   caps_lock_state =
     !!((modifier_state->latched_mods | modifier_state->locked_mods) &
-       (1 << xkb_keymap_mod_get_index (keymap_native->impl.keymap,
-                                       XKB_MOD_NAME_CAPS)));
+       (1 << modifier_state->caps_lock_idx));
 
   return clutter_keymap_update_state (CLUTTER_KEYMAP (keymap_native),
                                       caps_lock_state,
@@ -259,7 +263,8 @@ meta_keymap_native_set_keymap_in_impl (MetaKeymapNative      *keymap,
 
   data = g_new0 (UpdateKeymapData, 1);
   data->keymap_native = keymap;
-  data->modifier_state = calculate_modifier_state (xkb_state);
+  data->modifier_state =
+    calculate_modifier_state (keymap->impl.keymap, xkb_state);
   data->keymap_description = meta_keymap_description_ref (keymap_description);
   data->display_names = g_steal_pointer (&display_names);
   data->short_names = g_steal_pointer (&short_names);
@@ -301,7 +306,8 @@ meta_keymap_native_update_in_impl (MetaKeymapNative *keymap_native,
 
   data = g_new0 (UpdateLockedModifierStateData, 1);
   data->keymap_native = keymap_native;
-  data->modifier_state = calculate_modifier_state (xkb_state);
+  data->modifier_state =
+    calculate_modifier_state (keymap_native->impl.keymap, xkb_state);
 
   meta_seat_impl_queue_main_thread_idle (keymap_native->impl.seat_impl,
                                          update_state_in_main,
