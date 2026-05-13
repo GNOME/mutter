@@ -2454,6 +2454,14 @@ void
 meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
 {
   MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  GHashTableIter iter;
+  CrtcFrame *crtc_frame;
+
+  g_hash_table_iter_init (&iter, priv->crtc_frames);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &crtc_frame))
+    discard_update (impl_device, &crtc_frame->pending_update);
 
   klass->discard_pending_page_flips (impl_device);
 }
