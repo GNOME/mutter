@@ -123,6 +123,7 @@ typedef struct _MetaMonitorManagerPrivate
   uint32_t backlight_serial;
 
   gboolean power_save_inhibit_orientation_tracking;
+  gboolean orientation_unmanaged_inhibited;
 } MetaMonitorManagerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
@@ -979,6 +980,34 @@ handle_initial_orientation_change (MetaOrientationManager *orientation_manager,
   return TRUE;
 }
 
+/*
+ * Inhibit orientation tracking only when the panel orientation is unmanaged
+ * and the initial orientation has already been read. Before the initial read
+ * the sensor must be claimable so handle_initial_orientation_change() can run.
+ */
+static void
+sync_orientation_unmanaged_inhibit (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+  MetaOrientationManager *orientation_manager =
+    meta_backend_get_orientation_manager (manager->backend);
+  gboolean should_inhibit;
+
+  should_inhibit = !manager->panel_orientation_managed &&
+                   priv->initial_orient_change_done;
+
+  if (priv->orientation_unmanaged_inhibited == should_inhibit)
+    return;
+
+  priv->orientation_unmanaged_inhibited = should_inhibit;
+
+  if (should_inhibit)
+    meta_orientation_manager_inhibit_tracking (orientation_manager);
+  else
+    meta_orientation_manager_uninhibit_tracking (orientation_manager);
+}
+
 static void
 orientation_changed (MetaMonitorManager *manager)
 {
@@ -990,13 +1019,11 @@ orientation_changed (MetaMonitorManager *manager)
   if (!priv->initial_orient_change_done)
     {
       priv->initial_orient_change_done = TRUE;
-      if (handle_initial_orientation_change (orientation_manager, manager))
-        {
-          meta_orientation_manager_inhibit_tracking (orientation_manager);
-          return;
-        }
 
-      meta_orientation_manager_inhibit_tracking (orientation_manager);
+      sync_orientation_unmanaged_inhibit (manager);
+
+      if (handle_initial_orientation_change (orientation_manager, manager))
+        return;
     }
 
   if (!manager->panel_orientation_managed)
@@ -1120,23 +1147,18 @@ update_panel_orientation_managed (MetaMonitorManager *manager)
   meta_dbus_display_config_set_panel_orientation_managed (manager->display_config,
                                                           manager->panel_orientation_managed);
 
-  if (panel_orientation_managed)
-    {
-      meta_orientation_manager_uninhibit_tracking (orientation_manager);
+  sync_orientation_unmanaged_inhibit (manager);
 
-      /* Claiming the sensor is asynchronous. We listen to
-       * MetaOrientationManager::sensor-active to rotate to the current orientation
-       * once the sensor is claimed.
-       */
-    }
-  else
+  /* When transitioning to managed, claiming the sensor is asynchronous; we
+   * listen to MetaOrientationManager::sensor-active to rotate to the current
+   * orientation once it's claimed. When transitioning to unmanaged, rotate
+   * back to a normal transform.
+   */
+  if (!panel_orientation_managed)
     {
       MetaMonitorsConfig *current_config =
         meta_monitor_config_manager_get_current (manager->config_manager);
 
-      meta_orientation_manager_inhibit_tracking (orientation_manager);
-
-      /* Rotate back to normal transform when orientation goes unmanaged */
       if (current_config)
         {
           g_autoptr (MetaMonitorsConfig) config = NULL;
