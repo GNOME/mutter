@@ -3576,6 +3576,17 @@ meta_window_set_unmaximize_flags (MetaWindow        *window,
           flags |= META_MOVE_RESIZE_MOVE_ACTION;
         }
 
+      /* Unmaximizing a fullscreen window should keep the size fullscreen */
+      if (meta_window_is_fullscreen (window))
+        {
+          flags |= META_MOVE_RESIZE_CONSTRAIN;
+
+          /* When the fullscreen window gets restored, use the target_rect
+           * instead of the rect after maximization */
+          if (has_target_size)
+            window->saved_rect_fullscreen = target_rect;
+        }
+
       meta_compositor_size_change_window (window->display->compositor, window,
                                           META_SIZE_CHANGE_UNMAXIMIZE,
                                           &old_frame_rect, &old_buffer_rect);
