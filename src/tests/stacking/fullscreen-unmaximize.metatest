@@ -1,0 +1,50 @@
+# Tests that unmaximizing a fullscreen window should keep it fullscreen,
+# and that later unfullscreen restores the unmaximized size.
+
+new_client w wayland
+create w/1 csd
+
+resize w/1 500 400
+show w/1
+wait_reconfigure w/1
+assert_size w/1 500 400
+
+maximize w/1
+wait_reconfigure w/1
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+fullscreen w/1
+wait_reconfigure w/1
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize w/1
+wait_reconfigure w/1
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unfullscreen w/1
+wait_reconfigure w/1
+assert_size w/1 500 400
+
+new_client x x11
+create x/1 csd
+
+resize x/1 500 400
+show x/1
+wait_reconfigure x/1
+assert_size x/1 500 400
+
+maximize x/1
+wait_reconfigure x/1
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+fullscreen x/1
+wait_reconfigure x/1
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize x/1
+wait_reconfigure x/1
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unfullscreen x/1
+wait_reconfigure x/1
+assert_size x/1 500 400

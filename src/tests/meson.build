@@ -1297,6 +1297,7 @@ stacking_tests = [
   'restore-size',
   'unmaximize-new-size',
   'fullscreen-maximize',
+  'fullscreen-unmaximize',
   'unfullscreen-strut-change',
   'strut-changes',
   'restore-position',
