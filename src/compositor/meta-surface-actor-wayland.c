@@ -257,12 +257,18 @@ meta_surface_actor_wayland_get_cursor_for_sprite (ClutterActor  *actor,
                                                   ClutterSprite *sprite)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
-  MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (self);
-  MetaWaylandCompositor *wayland_compositor =
-    meta_wayland_surface_get_compositor (surface);
-  ClutterCursor *cursor;
+  MetaWaylandSurface *surface;
+  MetaWaylandCompositor *wayland_compositor = NULL;
+  ClutterCursor *cursor = NULL;
 
-  cursor = meta_wayland_compositor_get_cursor (wayland_compositor, sprite);
+  surface = meta_surface_actor_wayland_get_surface (self);
+
+  if (surface)
+    wayland_compositor = meta_wayland_surface_get_compositor (surface);
+
+  if (wayland_compositor)
+    cursor = meta_wayland_compositor_get_cursor (wayland_compositor, sprite);
+
   if (!cursor)
     return NULL;
 
