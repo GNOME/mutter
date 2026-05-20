@@ -225,6 +225,8 @@ meta_display_handle_event (MetaDisplay        *display,
     {
       mapper = META_TABLET_ACTION_MAPPER (display->pad_action_mapper);
       meta_tablet_action_mapper_handle_event (mapper, event);
+      mapper = META_TABLET_ACTION_MAPPER (display->tool_action_mapper);
+      meta_tablet_action_mapper_handle_event (mapper, event);
     }
 
   window = get_window_for_event (display, event, event_actor);
