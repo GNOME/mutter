@@ -134,10 +134,10 @@ OPTIONS+=( "${DESTDIRS[@]/#/--destdir=}" )
 
 SCRIPTS_DIR="$(dirname $0)"
 
-# if ! pkgconf --atleast-version 1.44 wayland-protocols
-# then
-#    ./$SCRIPTS_DIR/install-meson-project.sh \
-#      "${OPTIONS[@]}" \
-#      https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
-#      1.44
-#fi
+if ! pkgconf --atleast-version 1.48 wayland-protocols
+then
+  ./$SCRIPTS_DIR/install-meson-project.sh \
+     "${OPTIONS[@]}" \
+     https://gitlab.freedesktop.org/wayland/wayland-protocols.git \
+     1.48
+fi
