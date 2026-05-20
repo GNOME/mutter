@@ -524,9 +524,13 @@ query_xserver_stack (MetaDisplay      *display,
 
   tracker->xserver_serial = XNextRequest (x11_display->xdisplay);
 
-  XQueryTree (x11_display->xdisplay,
-              x11_display->xroot,
-              &ignored1, &ignored2, &children, &n_children);
+  if (!XQueryTree (x11_display->xdisplay,
+                   x11_display->xroot,
+                   &ignored1, &ignored2, &children, &n_children))
+    {
+      g_warning ("Failed to query X11 window tree");
+      return;
+    }
 
   old_len = tracker->verified_stack->len;
 
