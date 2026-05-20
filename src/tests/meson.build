@@ -1177,6 +1177,7 @@ wayland_test_cases = [
     ],
     'depends': [
       test_client_executables.get('dnd-order'),
+      test_client_executables.get('touch-dnd-same-surface'),
     ],
   },
 ]
