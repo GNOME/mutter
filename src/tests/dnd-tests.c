@@ -19,8 +19,21 @@
 
 #include "backends/meta-backend-private.h"
 #include "tests/meta-test-utils.h"
+#include "tests/meta-wayland-test-driver.h"
 #include "tests/meta-wayland-test-runner.h"
 #include "tests/meta-wayland-test-utils.h"
+
+static void
+wait_for_sync_point (unsigned int sync_point)
+{
+  meta_wayland_test_driver_wait_for_sync_point (test_driver, sync_point);
+}
+
+static void
+emit_sync_event (unsigned int sync_point)
+{
+  meta_wayland_test_driver_emit_sync_event (test_driver, sync_point);
+}
 
 static void
 click_on_client_window (const char *test_client,
@@ -77,12 +90,68 @@ data_device_dnd_feedback_reuse_icon (void)
 }
 
 static void
+data_device_dnd_touch_same_surface (void)
+{
+  MetaBackend *backend = meta_context_get_backend (test_context);
+  ClutterSeat *seat = meta_backend_get_default_seat (backend);
+  g_autoptr (ClutterVirtualInputDevice) virtual_touch = NULL;
+  MetaWaylandTestClient *wayland_test_client;
+  MetaWindow *window;
+  MtkRectangle rect;
+  int64_t time_us;
+
+  virtual_touch = clutter_seat_create_virtual_device (seat,
+                                                      CLUTTER_TOUCHSCREEN_DEVICE);
+
+  wayland_test_client = meta_wayland_test_client_new (test_context,
+                                                      "touch-dnd-same-surface");
+  wait_for_sync_point (0);
+
+  window = meta_wait_for_client_window (test_context, "touch-dnd");
+  g_assert_nonnull (window);
+  while (meta_window_is_hidden (window))
+    g_main_context_iteration (NULL, TRUE);
+  meta_wait_for_effects (window);
+
+  meta_window_get_frame_rect (window, &rect);
+
+  time_us = g_get_monotonic_time ();
+  clutter_virtual_input_device_notify_touch_down (virtual_touch,
+                                                  time_us,
+                                                  0,
+                                                  rect.x + 10,
+                                                  rect.y + 10);
+  meta_flush_input (test_context);
+
+  wait_for_sync_point (1);
+
+  time_us = g_get_monotonic_time ();
+  clutter_virtual_input_device_notify_touch_motion (virtual_touch,
+                                                    time_us,
+                                                    0,
+                                                    rect.x + 20,
+                                                    rect.y + 20);
+  meta_flush_input (test_context);
+
+  emit_sync_event (0);
+
+  time_us = g_get_monotonic_time ();
+  clutter_virtual_input_device_notify_touch_up (virtual_touch, time_us, 0);
+  meta_flush_input (test_context);
+
+  emit_sync_event (1);
+  meta_wayland_test_client_finish (wayland_test_client);
+}
+
+static void
 init_tests (void)
 {
   g_test_add_func ("/wayland/data-device/dnd/feedback/request-order",
                    data_device_dnd_feedback_request_order);
   g_test_add_func ("/wayland/data-device/dnd/feedback/reuse-icon",
                    data_device_dnd_feedback_reuse_icon);
+  g_test_add_func ("/wayland/data-device/dnd/touch/same-surface",
+                   data_device_dnd_touch_same_surface);
 }
 
 int

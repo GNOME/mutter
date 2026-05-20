@@ -177,6 +177,9 @@ wayland_test_clients = [
   {
     'name': 'dnd-reuse-icon',
   },
+  {
+    'name': 'touch-dnd-same-surface',
+  },
 ]
 
 test_client_executables = {}
