@@ -199,7 +199,16 @@ default_get_focus_surface (MetaWaylandEventHandler *handler,
       role = clutter_sprite_get_role (CLUTTER_SPRITE (focus));
 
       if (role == CLUTTER_SPRITE_ROLE_POINTER)
-        surface = meta_wayland_pointer_get_implicit_grab_surface (seat->pointer);
+        {
+          surface = meta_wayland_pointer_get_implicit_grab_surface (seat->pointer);
+        }
+      else if (role == CLUTTER_SPRITE_ROLE_TOUCHPOINT)
+        {
+          ClutterEventSequence *sequence;
+
+          sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
+          surface = meta_wayland_touch_get_focus_surface (seat->touch, sequence);
+        }
     }
 
   if (!surface)
@@ -695,7 +704,7 @@ meta_wayland_seat_get_current_surface (MetaWaylandSeat *seat,
 
         sequence = clutter_sprite_get_sequence (CLUTTER_SPRITE (focus));
 
-        return meta_wayland_touch_get_focus_surface (seat->touch, sequence);
+        return meta_wayland_touch_get_current_surface (seat->touch, sequence);
       }
     case CLUTTER_SPRITE_ROLE_TABLET:
       {
