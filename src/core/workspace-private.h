@@ -85,6 +85,8 @@ void meta_workspace_get_work_area_for_logical_monitor (MetaWorkspace      *works
                                                        MetaLogicalMonitor *logical_monitor,
                                                        MtkRectangle       *area);
 
+void meta_workspace_ensure_work_areas_validated (MetaWorkspace *workspace);
+
 void meta_workspace_invalidate_work_area (MetaWorkspace *workspace);
 
 GList* meta_workspace_get_onscreen_region       (MetaWorkspace *workspace);
