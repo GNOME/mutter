@@ -2300,7 +2300,7 @@ meta_display_manage_all_xwindows (MetaDisplay *display)
 }
 #endif
 
-void
+static void
 meta_display_unmanage_windows (MetaDisplay *display,
                                guint32      timestamp)
 {
