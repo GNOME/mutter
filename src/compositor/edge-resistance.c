@@ -905,6 +905,7 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
   MetaWindow *window = meta_window_drag_get_window (window_drag);
   MetaDisplay *display = window->display;
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
+  MetaWorkspace *active_workspace = workspace_manager->active_workspace;
 
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Computing edges to resist-movement or snap-to for %s.",
@@ -913,9 +914,7 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
   /*
    * 1st: Get the list of relevant windows, from bottom to top
    */
-  stacked_windows =
-    meta_stack_list_windows (display->stack,
-                             workspace_manager->active_workspace);
+  stacked_windows = meta_stack_list_windows (display->stack, active_workspace);
 
   /*
    * 2nd: we need to separate that stacked list into a list of windows that
@@ -1060,8 +1059,8 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
    */
   edge_data = cache_edges (display,
                            edges,
-                           workspace_manager->active_workspace->monitor_edges,
-                           workspace_manager->active_workspace->screen_edges);
+                           active_workspace->monitor_edges,
+                           active_workspace->screen_edges);
 
   return edge_data;
 }
