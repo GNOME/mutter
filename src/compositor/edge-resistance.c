@@ -911,6 +911,11 @@ compute_resistance_and_snapping_edges (MetaWindowDrag *window_drag)
               "Computing edges to resist-movement or snap-to for %s.",
               meta_window_drag_get_window (window_drag)->desc);
 
+  /* Ensure workspace edge caches are rebuilt if workareas were invalidated
+   * during the ongoing drag.
+   */
+  meta_workspace_ensure_work_areas_validated (active_workspace);
+
   /*
    * 1st: Get the list of relevant windows, from bottom to top
    */
