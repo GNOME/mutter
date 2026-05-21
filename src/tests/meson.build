@@ -1343,6 +1343,7 @@ stacking_tests = [
   'auto-maximize-dialog',
   'drag-restore-maximized',
   'drag-maximized-to-monitor',
+  'drag-workarea-invalidation',
   'drag-then-unmaximize',
   'drag-cancel',
   'drag-restore-initial',

@@ -1,0 +1,28 @@
+resize_monitor default 800 600
+set_pref center-new-windows true
+set_pref edge-tiling false
+
+new_client w wayland
+
+create w/1 csd
+resize w/1 200 200
+show w/1
+wait
+maximize w/1
+wait_reconfigure w/1
+wait_for_effects w/1
+
+# Start a move drag by shaking loose from maximized, then invalidate
+# workarea data by adding a strut while the drag operation is still
+# active. Move once more to force edge resistance recomputation.
+move_cursor_to 400 10
+click_and_hold
+move_cursor_to 500 300 500ms
+wait_reconfigure w/1
+add_strut 0 0 1 1 left async
+recompute_drag_position w/1
+move_cursor_to 501 300 50ms
+release_click
+wait
+
+assert_size w/1 200 200
