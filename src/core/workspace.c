@@ -850,8 +850,8 @@ copy_strut_list(GSList *original)
   return g_slist_reverse (result);
 }
 
-static void
-ensure_work_areas_validated (MetaWorkspace *workspace)
+void
+meta_workspace_ensure_work_areas_validated (MetaWorkspace *workspace)
 {
   MetaContext *context = meta_display_get_context (workspace->display);
   MetaBackend *backend = meta_context_get_backend (context);
@@ -1186,7 +1186,7 @@ meta_workspace_get_work_area_for_monitor (MetaWorkspace *workspace,
                                                           which_monitor);
   g_return_if_fail (logical_monitor != NULL);
 
-  ensure_work_areas_validated (workspace);
+  meta_workspace_ensure_work_areas_validated (workspace);
   data = meta_workspace_get_logical_monitor_data (workspace, logical_monitor);
 
   g_return_if_fail (data != NULL);
@@ -1205,7 +1205,7 @@ void
 meta_workspace_get_work_area_all_monitors (MetaWorkspace *workspace,
                                            MtkRectangle  *area)
 {
-  ensure_work_areas_validated (workspace);
+  meta_workspace_ensure_work_areas_validated (workspace);
 
   *area = workspace->work_area_screen;
 }
@@ -1213,7 +1213,7 @@ meta_workspace_get_work_area_all_monitors (MetaWorkspace *workspace,
 GList*
 meta_workspace_get_onscreen_region (MetaWorkspace *workspace)
 {
-  ensure_work_areas_validated (workspace);
+  meta_workspace_ensure_work_areas_validated (workspace);
 
   return workspace->screen_region;
 }
@@ -1224,7 +1224,7 @@ meta_workspace_get_onmonitor_region (MetaWorkspace      *workspace,
 {
   MetaWorkspaceLogicalMonitorData *data;
 
-  ensure_work_areas_validated (workspace);
+  meta_workspace_ensure_work_areas_validated (workspace);
 
   data = meta_workspace_get_logical_monitor_data (workspace, logical_monitor);
 
