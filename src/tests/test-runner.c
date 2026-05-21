@@ -722,13 +722,14 @@ str_to_side (const char *str,
 }
 
 static gboolean
-test_case_add_strut (TestCase    *test,
-                     int          x,
-                     int          y,
-                     int          width,
-                     int          height,
-                     MetaSide     side,
-                     GError     **error)
+test_case_add_strut_common (TestCase    *test,
+                            int          x,
+                            int          y,
+                            int          width,
+                            int          height,
+                            MetaSide     side,
+                            gboolean     async,
+                            GError     **error)
 {
   MetaDisplay *display = meta_context_get_display (test->context);
   MetaWorkspaceManager *workspace_manager =
@@ -751,9 +752,24 @@ test_case_add_strut (TestCase    *test,
       meta_workspace_set_builtin_struts (workspace, struts);
     }
 
-  wait_for_signal_emission (display, "workareas-changed");
+  if (!async)
+    wait_for_signal_emission (display, "workareas-changed");
 
   return TRUE;
+}
+
+static gboolean
+test_case_add_strut (TestCase    *test,
+                     int          x,
+                     int          y,
+                     int          width,
+                     int          height,
+                     MetaSide     side,
+                     gboolean     async,
+                     GError     **error)
+{
+  return test_case_add_strut_common (test, x, y, width, height, side,
+                                     async, error);
 }
 
 static gboolean
@@ -1510,6 +1526,37 @@ test_case_do (TestCase    *test,
 
       meta_window_drag_end (window_drag);
     }
+  else if (strcmp (argv[0], "recompute_drag_position") == 0)
+    {
+      MetaTestClient *client;
+      const char *window_id;
+      MetaWindow *window;
+      MetaWindowDrag *window_drag;
+      MtkRectangle frame_rect;
+      int new_x, new_y;
+
+      if (argc != 2)
+        BAD_COMMAND ("usage: %s <client-id>/<window-id>", argv[0]);
+
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      window = meta_test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      window_drag =
+        meta_compositor_get_current_window_drag (window->display->compositor);
+      g_assert_nonnull (window_drag);
+      g_assert_true (meta_window_drag_get_window (window_drag) == window);
+
+      meta_window_get_frame_rect (window, &frame_rect);
+      meta_window_drag_calculate_window_position (window_drag,
+                                                  frame_rect.width,
+                                                  frame_rect.height,
+                                                  &new_x,
+                                                  &new_y);
+    }
   else if (strcmp (argv[0], "move") == 0)
     {
       MetaWindow *window;
@@ -1869,20 +1916,38 @@ test_case_do (TestCase    *test,
   else if (g_str_equal (argv[0], "add_strut") ||
            g_str_equal (argv[0], "set_strut"))
     {
-      if (argc < 6 || argc > 7)
+      gboolean is_set_strut;
+      gboolean async = FALSE;
+      const char *monitor_id = NULL;
+      int i;
+
+      if (argc < 6 || argc > 8)
         {
-          BAD_COMMAND ("usage: %s <x> <y> <width> <height> <side> [monitor-id]",
+          BAD_COMMAND ("usage: %s <x> <y> <width> <height> <side> [monitor-id] [async]",
                        argv[0]);
         }
 
-      MetaLogicalMonitor *logical_monitor;
-      const char *monitor_id = argc > 6 ? argv[6] : NULL;
+      for (i = 6; i < argc; i++)
+        {
+          if (g_str_equal (argv[i], "async"))
+            async = TRUE;
+          else if (!monitor_id)
+            monitor_id = argv[i];
+          else
+            {
+              BAD_COMMAND ("usage: %s <x> <y> <width> <height> <side> [monitor-id] [async]",
+                           argv[0]);
+            }
+        }
 
+      MetaLogicalMonitor *logical_monitor;
       logical_monitor = get_logical_monitor (test, monitor_id, error);
       if (!logical_monitor)
         return FALSE;
 
-      if (g_str_equal (argv[0], "set_strut"))
+      is_set_strut = g_str_equal (argv[0], "set_strut");
+
+      if (is_set_strut)
         {
           if (!test_case_clear_struts (test, META_SIDE_TEST_CASE_NONE, error))
             return FALSE;
@@ -1900,7 +1965,7 @@ test_case_do (TestCase    *test,
       if (!str_to_side (argv[5], &side))
         BAD_COMMAND ("Invalid side: %s", argv[5]);
 
-      if (!test_case_add_strut (test, x, y, width, height, side, error))
+      if (!test_case_add_strut (test, x, y, width, height, side, async, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "clear_struts") == 0)

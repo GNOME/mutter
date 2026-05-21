@@ -48,6 +48,7 @@ void meta_window_drag_end (MetaWindowDrag *drag);
 
 void meta_window_drag_update_resize (MetaWindowDrag *drag);
 
+META_EXPORT_TEST
 void meta_window_drag_calculate_window_position (MetaWindowDrag *window_drag,
                                                  int             window_width,
                                                  int             window_height,
