@@ -58,15 +58,15 @@ struct _CoglOnscreenClass
 
   void (* bind) (CoglOnscreen *onscreen);
 
-  void (* swap_buffers_with_damage) (CoglOnscreen    *onscreen,
-                                     const MtkRegion *region,
-                                     CoglFrameInfo   *info,
-                                     gpointer         user_data);
+  gboolean (* swap_buffers_with_damage) (CoglOnscreen    *onscreen,
+                                         const MtkRegion *region,
+                                         CoglFrameInfo   *info,
+                                         gpointer         user_data);
 
-  void (* swap_region) (CoglOnscreen    *onscreen,
-                        const MtkRegion *region,
-                        CoglFrameInfo   *info,
-                        gpointer         user_data);
+  gboolean (* swap_region) (CoglOnscreen    *onscreen,
+                            const MtkRegion *region,
+                            CoglFrameInfo   *info,
+                            gpointer         user_data);
 
   void (* queue_damage_region) (CoglOnscreen    *onscreen,
                                 const MtkRegion *region);

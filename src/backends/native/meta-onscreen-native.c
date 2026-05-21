@@ -1771,7 +1771,7 @@ static const MetaKmsResultListenerVtable scanout_result_listener_vtable = {
   .feedback = scanout_result_feedback,
 };
 
-static void
+static gboolean
 meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                                const MtkRegion *region,
                                                CoglFrameInfo   *frame_info,
@@ -1805,10 +1805,16 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
     }
 
   parent_class = COGL_ONSCREEN_CLASS (meta_onscreen_native_parent_class);
-  parent_class->swap_buffers_with_damage (onscreen,
-                                          region,
-                                          frame_info,
-                                          user_data);
+  if (!parent_class->swap_buffers_with_damage (onscreen,
+                                               region,
+                                               frame_info,
+                                               user_data))
+    {
+      g_warning ("%s failed. Frame aborted.", __func__);
+      g_clear_pointer (&onscreen_native->next_frame, clutter_frame_unref);
+      clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
+      return FALSE;
+    }
 
   sync_fd = cogl_renderer_get_latest_sync_fd (cogl_renderer);
 
@@ -1829,6 +1835,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
     {
       maybe_post_next_frame (onscreen);
     }
+
+  return TRUE;
 }
 
 static void

@@ -183,7 +183,7 @@ cogl_onscreen_egl_get_buffer_age (CoglOnscreen *onscreen)
   return age;
 }
 
-static void
+static gboolean
 cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
                                const MtkRegion *region,
                                CoglFrameInfo   *info,
@@ -221,10 +221,16 @@ cogl_onscreen_egl_swap_region (CoglOnscreen    *onscreen,
                                               priv->egl_surface,
                                               n_rectangles,
                                               egl_rectangles) == EGL_FALSE)
-    g_warning ("Error reported by eglSwapBuffersRegion");
+    {
+      g_warning ("Error 0x%x reported by eglSwapBuffersRegion",
+                 (unsigned int) eglGetError ());
+      return FALSE;
+    }
 
   /* Update latest sync object after buffer swap */
   cogl_framebuffer_flush (framebuffer);
+
+  return TRUE;
 }
 
 static void
@@ -264,7 +270,7 @@ cogl_onscreen_egl_queue_damage_region (CoglOnscreen    *onscreen,
     g_warning ("Error reported by eglSetDamageRegion");
 }
 
-static void
+static gboolean
 cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                             const MtkRegion *region,
                                             CoglFrameInfo   *info,
@@ -307,13 +313,23 @@ cogl_onscreen_egl_swap_buffers_with_damage (CoglOnscreen    *onscreen,
                                              priv->egl_surface,
                                              egl_rectangles,
                                              n_rectangles) == EGL_FALSE)
-        g_warning ("Error reported by eglSwapBuffersWithDamage");
+        {
+          g_warning ("Error 0x%x reported by eglSwapBuffersWithDamage",
+                     (unsigned int) eglGetError ());
+          return FALSE;
+        }
     }
-  else
-    eglSwapBuffers (egl_display, priv->egl_surface);
+  else if (eglSwapBuffers (egl_display, priv->egl_surface) == EGL_FALSE)
+    {
+      g_warning ("Error 0x%x reported by eglSwapBuffers",
+                 (unsigned int) eglGetError ());
+      return FALSE;
+    }
 
   /* Update latest sync object after buffer swap */
   cogl_framebuffer_flush (framebuffer);
+
+  return TRUE;
 }
 
 void
