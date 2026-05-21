@@ -62,6 +62,7 @@ typedef struct _WaylandDisplay
   struct wl_seat *wl_seat;
   struct wl_pointer *wl_pointer;
   struct wl_keyboard *wl_keyboard;
+  struct wl_touch *wl_touch;
   struct test_driver *test_driver;
   struct wl_data_device_manager *data_device_manager;
 
