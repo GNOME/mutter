@@ -419,6 +419,15 @@ handle_wl_seat_capabilities (void           *user_data,
     {
       g_clear_pointer (&display->wl_keyboard, wl_keyboard_release);
     }
+
+  if ((capabilities & WL_SEAT_CAPABILITY_TOUCH) && !display->wl_touch)
+    {
+      display->wl_touch = wl_seat_get_touch (wl_seat);
+    }
+  else if (!(capabilities & WL_SEAT_CAPABILITY_TOUCH) && display->wl_touch)
+    {
+      g_clear_pointer (&display->wl_touch, wl_touch_destroy);
+    }
 }
 
 static void
