@@ -1627,9 +1627,11 @@ meta_window_actor_notify_damaged (MetaWindowActor *window_actor)
 }
 
 static CoglFramebuffer *
-create_framebuffer_from_window_actor (MetaWindowActor  *self,
-                                      MtkRectangle     *clip,
-                                      GError          **error)
+create_framebuffer_from_window_actor (MetaWindowActor    *self,
+                                      MtkRectangle       *clip,
+                                      CoglPixelFormat     format,
+                                      ClutterColorState  *color_state,
+                                      GError            **error)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
@@ -1645,12 +1647,24 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
   CoglColor clear_color;
   ClutterPaintContext *paint_context;
   float resource_scale;
+  int tex_width, tex_height;
 
   resource_scale = clutter_actor_get_resource_scale (actor);
 
-  texture = cogl_texture_2d_new_with_size (cogl_context,
-                                           (int) (clip->width * resource_scale),
-                                           (int) (clip->height * resource_scale));
+  tex_width = (int) (clip->width * resource_scale);
+  tex_height = (int) (clip->height * resource_scale);
+
+  if (format != COGL_PIXEL_FORMAT_ANY)
+    {
+      texture = cogl_texture_2d_new_with_format (cogl_context,
+                                                 tex_width, tex_height,
+                                                 format);
+    }
+  else
+    {
+      texture = cogl_texture_2d_new_with_size (cogl_context,
+                                               tex_width, tex_height);
+    }
   if (!texture)
     return NULL;
 
@@ -1673,10 +1687,13 @@ create_framebuffer_from_window_actor (MetaWindowActor  *self,
                                  0, 1.0);
   cogl_framebuffer_translate (framebuffer, -clip->x, -clip->y, 0);
 
+  if (!color_state)
+    color_state = clutter_actor_get_color_state (actor);
+
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
                                                CLUTTER_PAINT_FLAG_NONE,
-                                               clutter_actor_get_color_state (actor));
+                                               color_state);
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
 
@@ -1775,6 +1792,8 @@ meta_window_actor_get_image (MetaWindowActor *self,
 
   framebuffer = create_framebuffer_from_window_actor (self,
                                                       &framebuffer_clip,
+                                                      COGL_PIXEL_FORMAT_ANY,
+                                                      NULL,
                                                       NULL);
   if (!framebuffer)
     goto out;
@@ -1802,20 +1821,27 @@ out:
 }
 
 /**
- * meta_window_actor_paint_to_content:
+ * meta_window_actor_paint_to_content_full:
  * @self: A #MetaWindowActor
  * @clip: (nullable): A clipping rectangle, in actor coordinates, to help
  * prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the actor, the rectangle will be clipped.
+ * @format: pixel format for the offscreen texture, or %COGL_PIXEL_FORMAT_ANY
+ *   to keep the default (8-bit RGBA).
+ * @color_state: (nullable): destination color state for the paint, or %NULL
+ *   to inherit the actor's color state. Pass a BT.2020 / PQ #ClutterColorState
+ *   together with %COGL_PIXEL_FORMAT_RGBA_FP_16161616 to retain HDR data.
  * @error: A #GError to catch exceptional errors or %NULL.
  *
  * Returns: (nullable) (transfer full): a new #ClutterContent
  */
 ClutterContent *
-meta_window_actor_paint_to_content (MetaWindowActor  *self,
-                                    MtkRectangle     *clip,
-                                    GError          **error)
+meta_window_actor_paint_to_content_full (MetaWindowActor    *self,
+                                         MtkRectangle       *clip,
+                                         CoglPixelFormat     format,
+                                         ClutterColorState  *color_state,
+                                         GError            **error)
 {
   MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
   ClutterActor *actor = CLUTTER_ACTOR (self);
@@ -1855,6 +1881,8 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
 
   framebuffer = create_framebuffer_from_window_actor (self,
                                                       &framebuffer_clip,
+                                                      format,
+                                                      color_state,
                                                       error);
   if (!framebuffer)
     goto out;
@@ -1867,6 +1895,28 @@ meta_window_actor_paint_to_content (MetaWindowActor  *self,
 out:
   clutter_actor_uninhibit_culling (actor);
   return content;
+}
+
+/**
+ * meta_window_actor_paint_to_content:
+ * @self: A #MetaWindowActor
+ * @clip: (nullable): A clipping rectangle, in actor coordinates, to help
+ * prevent extra processing.
+ * In the case that the clipping rectangle is partially or fully
+ * outside the bounds of the actor, the rectangle will be clipped.
+ * @error: A #GError to catch exceptional errors or %NULL.
+ *
+ * Returns: (nullable) (transfer full): a new #ClutterContent
+ */
+ClutterContent *
+meta_window_actor_paint_to_content (MetaWindowActor  *self,
+                                    MtkRectangle     *clip,
+                                    GError          **error)
+{
+  return meta_window_actor_paint_to_content_full (self, clip,
+                                                  COGL_PIXEL_FORMAT_ANY,
+                                                  NULL,
+                                                  error);
 }
 
 void

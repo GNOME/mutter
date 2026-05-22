@@ -56,6 +56,13 @@ ClutterContent * meta_window_actor_paint_to_content (MetaWindowActor  *self,
                                                      GError          **error);
 
 META_EXPORT
+ClutterContent * meta_window_actor_paint_to_content_full (MetaWindowActor    *self,
+                                                          MtkRectangle       *clip,
+                                                          CoglPixelFormat     format,
+                                                          ClutterColorState  *color_state,
+                                                          GError            **error);
+
+META_EXPORT
 void meta_window_actor_freeze (MetaWindowActor *self);
 
 META_EXPORT
