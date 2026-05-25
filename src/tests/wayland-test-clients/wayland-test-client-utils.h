@@ -68,6 +68,7 @@ typedef struct _WaylandDisplay
 
   WaylandSurface *pointer_focus;
   WaylandSurface *keyboard_focus;
+  WaylandSurface *data_focus;
   uint32_t last_input_serial;
 
   gboolean needs_roundtrip;
