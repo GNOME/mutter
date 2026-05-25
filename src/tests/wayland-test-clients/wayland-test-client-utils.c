@@ -52,6 +52,8 @@ enum
   SURFACE_CONFIGURE,
   SURFACE_POINTER_ENTER,
   SURFACE_KEYBOARD_ENTER,
+  SURFACE_DATA_ENTER,
+  SURFACE_DATA_LEAVE,
   SURFACE_BUTTON_EVENT,
   SURFACE_KEY_EVENT,
   N_SURFACE_SIGNALS
@@ -587,17 +589,29 @@ static void
 data_device_enter (void                  *user_data,
                    struct wl_data_device *data_device,
                    uint32_t               serial,
-                   struct wl_surface     *surface,
+                   struct wl_surface     *surface_resource,
                    wl_fixed_t             x,
                    wl_fixed_t             y,
                    struct wl_data_offer  *offer)
 {
+  WaylandDisplay *display = user_data;
+  WaylandSurface *surface = wl_surface_get_user_data (surface_resource);
+
+  display->data_focus = surface;
+
+  g_signal_emit (surface, surface_signals[SURFACE_DATA_ENTER],
+                 0, data_device, serial);
 }
 
 static void
 data_device_leave (void                  *user_data,
                    struct wl_data_device *data_device)
 {
+  WaylandDisplay *display = user_data;
+  WaylandSurface *surface = display->data_focus;
+
+  g_signal_emit (surface, surface_signals[SURFACE_DATA_LEAVE],
+                 0, data_device);
 }
 
 static void
@@ -1399,6 +1413,26 @@ wayland_surface_class_init (WaylandSurfaceClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_POINTER,
                   G_TYPE_UINT);
+
+  surface_signals[SURFACE_DATA_ENTER] =
+    g_signal_new ("data-enter",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_POINTER,
+                  G_TYPE_UINT);
+
+  surface_signals[SURFACE_DATA_LEAVE] =
+    g_signal_new ("data-leave",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_POINTER);
+
   surface_signals[SURFACE_BUTTON_EVENT] =
     g_signal_new ("button-event",
                   G_TYPE_FROM_CLASS (klass),
