@@ -634,8 +634,6 @@ meta_create_kms_impl_device (MetaKmsDevice      *device,
     {
       if (flags & META_KMS_DEVICE_FLAG_NO_MODE_SETTING)
         kms_mode = KMS_MODE_HEADLESS;
-      else if (flags & META_KMS_DEVICE_FLAG_FORCE_LEGACY)
-        kms_mode = KMS_MODE_SIMPLE;
       else
         kms_mode = KMS_MODE_AUTO;
     }
