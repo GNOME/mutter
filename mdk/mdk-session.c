@@ -202,7 +202,7 @@ maybe_sync_keymap (MdkSession *session)
           return;
         }
 
-      strcpy (keymap_mem, keymap_serialized);
+      memcpy (keymap_mem, keymap_serialized, keymap_size);
 
       if (munmap (keymap_mem, keymap_size) == -1)
         {
