@@ -486,10 +486,10 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
                          (internal_format & COGL_PREMULT_BIT));
         }
 
-      tmp_bmp = _cogl_bitmap_new_with_malloc_buffer (ctx,
-                                                     width, height,
-                                                     read_format,
-                                                     error);
+      tmp_bmp = cogl_bitmap_new_with_malloc_buffer (ctx,
+                                                    width, height,
+                                                    read_format,
+                                                    error);
       if (!tmp_bmp)
         goto EXIT;
 
@@ -608,11 +608,11 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
       uint8_t *pixels;
 
       rowstride = cogl_bitmap_get_rowstride (bitmap);
-      pixels = _cogl_bitmap_map (bitmap,
-                                 COGL_BUFFER_ACCESS_READ |
-                                 COGL_BUFFER_ACCESS_WRITE,
-                                 0, /* hints */
-                                 error);
+      pixels = cogl_bitmap_map (bitmap,
+                                COGL_BUFFER_ACCESS_READ |
+                                COGL_BUFFER_ACCESS_WRITE,
+                                0, /* hints */
+                                error);
 
       if (pixels == NULL)
         goto EXIT;
@@ -634,7 +634,7 @@ cogl_gl_framebuffer_read_pixels_into_bitmap (CoglFramebufferDriver  *fb_driver,
             }
         }
 
-      _cogl_bitmap_unmap (bitmap);
+      cogl_bitmap_unmap (bitmap);
     }
 
   status = TRUE;
