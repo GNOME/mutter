@@ -640,21 +640,6 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
   return FALSE;
 }
 
-/**
- * meta_wayland_buffer_create_snippet:
- * @buffer: A #MetaWaylandBuffer object
- *
- * If needed, this method creates a #CoglSnippet to make sure the buffer can be
- * dealt with appropriately in a #CoglPipeline that renders it.
- *
- * Returns: (transfer full) (nullable): A new #CoglSnippet, or %NULL.
- */
-CoglSnippet *
-meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
-{
-  return NULL;
-}
-
 void
 meta_wayland_buffer_inc_use_count (MetaWaylandBuffer *buffer)
 {
