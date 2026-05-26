@@ -623,16 +623,16 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
       return TRUE;
     }
 
-  src_data = _cogl_bitmap_map (src_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
+  src_data = cogl_bitmap_map (src_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
   if (src_data == NULL)
     return FALSE;
-  dst_data = _cogl_bitmap_map (dst_bmp,
-                               COGL_BUFFER_ACCESS_WRITE,
-                               COGL_BUFFER_MAP_HINT_DISCARD,
-                               error);
+  dst_data = cogl_bitmap_map (dst_bmp,
+                              COGL_BUFFER_ACCESS_WRITE,
+                              COGL_BUFFER_MAP_HINT_DISCARD,
+                              error);
   if (dst_data == NULL)
     {
-      _cogl_bitmap_unmap (src_bmp);
+      cogl_bitmap_unmap (src_bmp);
       return FALSE;
     }
 
@@ -709,8 +709,8 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
         }
     }
 
-  _cogl_bitmap_unmap (src_bmp);
-  _cogl_bitmap_unmap (dst_bmp);
+  cogl_bitmap_unmap (src_bmp);
+  cogl_bitmap_unmap (dst_bmp);
 
   g_free (tmp_row);
 
@@ -730,10 +730,10 @@ _cogl_bitmap_convert (CoglBitmap *src_bmp,
   width = cogl_bitmap_get_width (src_bmp);
   height = cogl_bitmap_get_height (src_bmp);
 
-  dst_bmp = _cogl_bitmap_new_with_malloc_buffer (ctx,
-                                                 width, height,
-                                                 dst_format,
-                                                 error);
+  dst_bmp = cogl_bitmap_new_with_malloc_buffer (ctx,
+                                                width, height,
+                                                dst_format,
+                                                error);
   if (!dst_bmp)
     return NULL;
 
@@ -849,11 +849,11 @@ _cogl_bitmap_unpremult (CoglBitmap *bmp,
   height = cogl_bitmap_get_height (bmp);
   rowstride = cogl_bitmap_get_rowstride (bmp);
 
-  if ((data = _cogl_bitmap_map (bmp,
-                                COGL_BUFFER_ACCESS_READ |
-                                COGL_BUFFER_ACCESS_WRITE,
-                                0,
-                                error)) == NULL)
+  if ((data = cogl_bitmap_map (bmp,
+                               COGL_BUFFER_ACCESS_READ |
+                               COGL_BUFFER_ACCESS_WRITE,
+                               0,
+                               error)) == NULL)
     return FALSE;
 
   /* If we can't directly unpremult the data inline then we'll
@@ -894,7 +894,7 @@ _cogl_bitmap_unpremult (CoglBitmap *bmp,
 
   g_free (tmp_row);
 
-  _cogl_bitmap_unmap (bmp);
+  cogl_bitmap_unmap (bmp);
 
   _cogl_bitmap_set_format (bmp, format & ~COGL_PREMULT_BIT);
 
@@ -917,11 +917,11 @@ _cogl_bitmap_premult (CoglBitmap *bmp,
   height = cogl_bitmap_get_height (bmp);
   rowstride = cogl_bitmap_get_rowstride (bmp);
 
-  if ((data = _cogl_bitmap_map (bmp,
-                                COGL_BUFFER_ACCESS_READ |
-                                COGL_BUFFER_ACCESS_WRITE,
-                                0,
-                                error)) == NULL)
+  if ((data = cogl_bitmap_map (bmp,
+                               COGL_BUFFER_ACCESS_READ |
+                               COGL_BUFFER_ACCESS_WRITE,
+                               0,
+                               error)) == NULL)
     return FALSE;
 
   /* If we can't directly premult the data inline then we'll allocate
@@ -958,7 +958,7 @@ _cogl_bitmap_premult (CoglBitmap *bmp,
 
   g_free (tmp_row);
 
-  _cogl_bitmap_unmap (bmp);
+  cogl_bitmap_unmap (bmp);
 
   _cogl_bitmap_set_format (bmp, format | COGL_PREMULT_BIT);
 

@@ -228,10 +228,10 @@ cogl_texture_driver_gles2_upload_subregion_to_gl (CoglTextureDriverGL *tex_drive
        height != cogl_bitmap_get_height (source_bmp)))
     {
       slice_bmp =
-        _cogl_bitmap_new_with_malloc_buffer (ctx,
-                                             width, height,
-                                             source_format,
-                                             error);
+        cogl_bitmap_new_with_malloc_buffer (ctx,
+                                            width, height,
+                                            source_format,
+                                            error);
       if (!slice_bmp)
         return FALSE;
 

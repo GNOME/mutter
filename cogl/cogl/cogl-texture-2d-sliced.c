@@ -450,7 +450,7 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
       if (cogl_pixel_format_get_n_planes (source_format) == 1)
         return FALSE;
 
-      bmp_data = _cogl_bitmap_map (source_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
+      bmp_data = cogl_bitmap_map (source_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
       if (bmp_data == NULL)
         return FALSE;
 
@@ -501,7 +501,7 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
                                                      error))
             {
               g_object_unref (waste_bmp);
-              _cogl_bitmap_unmap (source_bmp);
+              cogl_bitmap_unmap (source_bmp);
               return FALSE;
             }
 
@@ -561,14 +561,14 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
                                                      error))
             {
               g_object_unref (waste_bmp);
-              _cogl_bitmap_unmap (source_bmp);
+              cogl_bitmap_unmap (source_bmp);
               return FALSE;
             }
 
           g_object_unref (waste_bmp);
         }
 
-      _cogl_bitmap_unmap (source_bmp);
+      cogl_bitmap_unmap (source_bmp);
     }
 
   return TRUE;

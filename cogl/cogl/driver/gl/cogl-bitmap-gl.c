@@ -63,7 +63,7 @@ _cogl_bitmap_gl_bind (CoglBitmap *bitmap,
      implementation of bind is the same as map */
   if (bitmap->buffer == NULL)
     {
-      uint8_t *data = _cogl_bitmap_map (bitmap, access, hints, error);
+      uint8_t *data = cogl_bitmap_map (bitmap, access, hints, error);
       if (data)
         bitmap->bound = TRUE;
       return data;
@@ -117,5 +117,5 @@ _cogl_bitmap_gl_unbind (CoglBitmap *bitmap)
   if (bitmap->buffer)
     _cogl_buffer_gl_unbind (bitmap->buffer);
   else
-    _cogl_bitmap_unmap (bitmap);
+    cogl_bitmap_unmap (bitmap);
 }
