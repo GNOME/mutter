@@ -285,14 +285,6 @@ have_drm_plane_size_hint = cc.has_type('struct drm_plane_size_hint',
 
 have_egl_device = get_option('egl_device')
 
-have_wayland_eglstream = get_option('wayland_eglstream')
-if have_wayland_eglstream
-  wayland_eglstream_protocols_dep = dependency('wayland-eglstream-protocols')
-  dl_dep = cc.find_library('dl', required: true)
-
-endif
-
-
 have_libwacom = get_option('libwacom')
 if have_libwacom
   libwacom_dep = dependency('libwacom', version: libwacom_req)
@@ -565,7 +557,6 @@ cdata.set('HAVE_DEVKIT', have_devkit)
 cdata.set('HAVE_GNOME_DESKTOP', have_gnome_desktop)
 cdata.set('HAVE_SOUND_PLAYER', have_sound_player)
 cdata.set('HAVE_EGL_DEVICE', have_egl_device)
-cdata.set('HAVE_WAYLAND_EGLSTREAM', have_wayland_eglstream)
 cdata.set('HAVE_LIBGUDEV', have_libgudev)
 cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_LIBWACOM_GET_NUM_RINGS', have_libwacom_get_num_rings)
@@ -746,7 +737,6 @@ summary('OpenGL', have_gl, section: 'Rendering APIs')
 summary('GLES2', have_gles2, section: 'Rendering APIs')
 summary('EGL', have_egl, section: 'Rendering APIs')
 
-summary('Wayland EGLStream', have_wayland_eglstream, section: 'Options')
 summary('XWayland', have_xwayland, section: 'Options')
 summary('Native Backend', have_native_backend, section: 'Options')
 summary('EGL Device', have_egl_device, section: 'Options')

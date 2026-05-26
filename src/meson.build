@@ -129,16 +129,6 @@ if have_native_backend
   ]
 endif
 
-
-if have_wayland_eglstream
-  mutter_lib_deps += [
-    dl_dep,
-  ]
-  mutter_pkg_private_deps += [
-    wayland_eglstream_protocols_dep,
-  ]
-endif
-
 mutter_deps = [
   mutter_pkg_deps,
   mutter_pkg_private_deps,
@@ -837,13 +827,6 @@ if have_devkit
   ]
 endif
 
-if have_wayland_eglstream
-  mutter_sources += [
-    'wayland/meta-wayland-egl-stream.c',
-    'wayland/meta-wayland-egl-stream.h',
-  ]
-endif
-
 if have_libgudev
   mutter_sources += [
     'backends/meta-backlight-sysfs.c',
@@ -1059,10 +1042,9 @@ wayland_protocol_sources = []
 
 # Format:
 #  - protocol name
-#  - protocol type ('stable', 'staging', 'unstable', 'private', 'eglstreams')
+#  - protocol type ('stable', 'staging', 'unstable', 'private')
 #    * 'stable', 'staging' and 'unstable' are from wayland-protocols
 #    * 'private' are shipped in this repo
-#    * 'eglstreams' are from wayland-eglstream-protocols
 #  - protocol version (optional for 'stable', 'staging' and 'unstable')
 wayland_protocols = [
   ['color-management', 'staging', 1, ],
@@ -1105,12 +1087,6 @@ if have_xwayland
     ['xwayland-keyboard-grab', 'unstable', 1, ],
   ]
 endif
-if have_wayland_eglstream
-  wayland_protocols += [
-    ['wayland-eglstream-controller', 'eglstreams', ],
-  ]
-  wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_variable('pkgdatadir')
-endif
 
 protocol_xmls = files()
 
@@ -1121,10 +1097,6 @@ foreach p: wayland_protocols
   if protocol_type == 'private'
     protocol_xmls += files(
       'wayland/protocol/@0@.xml'.format(protocol_name)
-    )
-  elif protocol_type == 'eglstreams'
-    protocol_xmls += files(
-      '@0@/@1@.xml'.format(wayland_eglstream_protocols_dir, protocol_name)
     )
   else
     if p.length() > 2

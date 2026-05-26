@@ -47,7 +47,6 @@
 #include "wayland/meta-wayland-fifo.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
-#include "wayland/meta-wayland-egl-stream.h"
 #include "wayland/meta-wayland-filter-manager.h"
 #include "wayland/meta-wayland-fixes.h"
 #include "wayland/meta-wayland-idle-inhibit.h"
@@ -1049,27 +1048,6 @@ meta_wayland_compositor_new (MetaContext *context)
   meta_wayland_init_cursor_shape (compositor);
   meta_wayland_init_color_representation (compositor);
   meta_wayland_init_fixes (compositor);
-
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  {
-    gboolean should_enable_eglstream_controller = TRUE;
-#if defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND)
-    MetaRenderer *renderer = meta_backend_get_renderer (backend);
-
-    if (META_IS_RENDERER_NATIVE (renderer))
-      {
-        MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-
-        if (meta_renderer_native_get_mode (renderer_native) ==
-            META_RENDERER_NATIVE_MODE_GBM)
-          should_enable_eglstream_controller = FALSE;
-      }
-#endif /* defined(HAVE_EGL_DEVICE) && defined(HAVE_NATIVE_BACKEND) */
-
-    if (should_enable_eglstream_controller)
-      meta_wayland_eglstream_controller_init (compositor);
-  }
-#endif /* HAVE_WAYLAND_EGLSTREAM */
 
 #ifdef HAVE_XWAYLAND
   meta_wayland_x11_interop_init (compositor);

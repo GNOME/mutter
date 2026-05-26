@@ -36,7 +36,6 @@
  * @META_WAYLAND_BUFFER_TYPE_UNKNOWN: Unknown type.
  * @META_WAYLAND_BUFFER_TYPE_SHM: wl_buffer backed by shared memory
  * @META_WAYLAND_BUFFER_TYPE_EGL_IMAGE: wl_buffer backed by an EGLImage
- * @META_WAYLAND_BUFFER_TYPE_EGL_STREAM: wl_buffer backed by an EGLStream (NVIDIA-specific)
  * @META_WAYLAND_BUFFER_TYPE_DMA_BUF: wl_buffer backed by a Linux DMA-BUF
  *
  * Specifies the backing memory for a #MetaWaylandBuffer. Depending on the type
@@ -142,9 +141,6 @@ meta_wayland_buffer_is_realized (MetaWaylandBuffer *buffer)
 gboolean
 meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
 {
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  MetaWaylandEglStream *stream;
-#endif
   MetaWaylandDmaBufBuffer *dma_buf;
   MetaWaylandSinglePixelBuffer *single_pixel_buffer;
 
@@ -153,25 +149,6 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
       buffer->type = META_WAYLAND_BUFFER_TYPE_SHM;
       return TRUE;
     }
-
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  stream = meta_wayland_egl_stream_new (buffer, NULL);
-  if (stream)
-    {
-      CoglTexture *texture;
-
-      texture = meta_wayland_egl_stream_create_texture (stream, NULL);
-      if (!texture)
-        return FALSE;
-
-      buffer->egl_stream.stream = stream;
-      buffer->type = META_WAYLAND_BUFFER_TYPE_EGL_STREAM;
-      buffer->egl_stream.texture = meta_multi_texture_new_simple (texture);
-      buffer->is_y_inverted = meta_wayland_egl_stream_is_y_inverted (stream);
-
-      return TRUE;
-    }
-#endif /* HAVE_WAYLAND_EGLSTREAM */
 
   if (meta_wayland_compositor_is_egl_display_bound (buffer->compositor))
     {
@@ -564,26 +541,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   return TRUE;
 }
 
-#ifdef HAVE_WAYLAND_EGLSTREAM
-static gboolean
-egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
-                          MetaMultiTexture  **texture,
-                          GError            **error)
-{
-  MetaWaylandEglStream *stream = buffer->egl_stream.stream;
-
-  g_assert (stream);
-
-  if (!meta_wayland_egl_stream_attach (stream, error))
-    return FALSE;
-
-  g_clear_object (texture);
-  *texture = g_object_ref (buffer->egl_stream.texture);
-
-  return TRUE;
-}
-#endif /* HAVE_WAYLAND_EGLSTREAM */
-
 static void
 on_onscreen_destroyed (gpointer  user_data,
                        GObject  *where_the_onscreen_was)
@@ -666,10 +623,6 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
       return shm_buffer_attach (buffer, texture, error);
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
       return egl_image_buffer_attach (buffer, texture, error);
-#ifdef HAVE_WAYLAND_EGLSTREAM
-    case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
-      return egl_stream_buffer_attach (buffer, texture, error);
-#endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       return meta_wayland_dma_buf_buffer_attach (buffer,
                                                  texture,
@@ -699,14 +652,7 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
 CoglSnippet *
 meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
 {
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  if (!buffer->egl_stream.stream)
-    return NULL;
-
-  return meta_wayland_egl_stream_create_snippet (buffer->egl_stream.stream);
-#else
   return NULL;
-#endif /* HAVE_WAYLAND_EGLSTREAM */
 }
 
 void
@@ -875,9 +821,6 @@ meta_wayland_buffer_process_damage (MetaWaylandBuffer *buffer,
       res = process_shm_buffer_damage (buffer, texture, region, &error);
       break;
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
-#ifdef HAVE_WAYLAND_EGLSTREAM
-    case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
-#endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
     case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
       res = TRUE;
@@ -988,9 +931,6 @@ meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
     case META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL:
-#ifdef HAVE_WAYLAND_EGLSTREAM
-    case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
-#endif
       meta_topic (META_DEBUG_RENDER,
                   "Buffer type not scanout compatible");
       return NULL;
@@ -1045,10 +985,6 @@ meta_wayland_buffer_finalize (GObject *object)
   g_clear_pointer (&buffer->release_points, g_ptr_array_unref);
 
   g_clear_object (&buffer->egl_image.texture);
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  g_clear_object (&buffer->egl_stream.texture);
-  g_clear_object (&buffer->egl_stream.stream);
-#endif
   g_clear_object (&buffer->dma_buf.texture);
   g_clear_object (&buffer->dma_buf.dma_buf);
   g_clear_pointer (&buffer->single_pixel.single_pixel_buffer,

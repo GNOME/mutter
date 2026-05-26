@@ -27,7 +27,6 @@
 #include "cogl/cogl.h"
 #include "meta/meta-multi-texture.h"
 #include "wayland/meta-wayland-types.h"
-#include "wayland/meta-wayland-egl-stream.h"
 #include "wayland/meta-wayland-dma-buf.h"
 #include "wayland/meta-wayland-single-pixel-buffer.h"
 
@@ -36,9 +35,6 @@ typedef enum _MetaWaylandBufferType
   META_WAYLAND_BUFFER_TYPE_UNKNOWN,
   META_WAYLAND_BUFFER_TYPE_SHM,
   META_WAYLAND_BUFFER_TYPE_EGL_IMAGE,
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  META_WAYLAND_BUFFER_TYPE_EGL_STREAM,
-#endif
   META_WAYLAND_BUFFER_TYPE_DMA_BUF,
   META_WAYLAND_BUFFER_TYPE_SINGLE_PIXEL,
 } MetaWaylandBufferType;
@@ -60,13 +56,6 @@ struct _MetaWaylandBuffer
   struct {
     MetaMultiTexture *texture;
   } egl_image;
-
-#ifdef HAVE_WAYLAND_EGLSTREAM
-  struct {
-    MetaWaylandEglStream *stream;
-    MetaMultiTexture *texture;
-  } egl_stream;
-#endif
 
   struct {
     MetaWaylandDmaBufBuffer *dma_buf;

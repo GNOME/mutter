@@ -64,12 +64,6 @@ option('egl_device',
   description: 'Enable EGLDevice and EGLStream renderer support'
 )
 
-option('wayland_eglstream',
-  type: 'boolean',
-  value: false,
-  description: 'Enable Wayland EGLStream support client support'
-)
-
 option('udev',
   type: 'boolean',
   value: true,

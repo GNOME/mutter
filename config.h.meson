@@ -34,9 +34,6 @@
 /* Have GLES 2.0 for rendering */
 #mesondefine HAVE_GLES2
 
-/* Defined if EGLStream support is enabled */
-#mesondefine HAVE_WAYLAND_EGLSTREAM
-
 /* Building with gudev for device type detection */
 #mesondefine HAVE_LIBGUDEV
 

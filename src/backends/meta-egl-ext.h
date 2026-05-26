@@ -93,8 +93,3 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLQUERYSTREAMATTRIBNVPROC) (EGLDisplay dpy,
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLSTREAMCONSUMERACQUIREATTRIBNVPROC) (EGLDisplay dpy, EGLStreamKHR stream, const EGLAttrib *attrib_list);
 typedef EGLBoolean (EGLAPIENTRYP PFNEGLSTREAMCONSUMERRELEASEATTRIBNVPROC) (EGLDisplay dpy, EGLStreamKHR stream, const EGLAttrib *attrib_list);
 #endif /* EGL_NV_stream_attrib */
-
-#ifndef EGL_WL_wayland_eglstream
-#define EGL_WL_wayland_eglstream 1
-#define EGL_WAYLAND_EGLSTREAM_WL              0x334B
-#endif /* EGL_WL_wayland_eglstream */
