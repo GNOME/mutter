@@ -85,36 +85,6 @@ struct _CoglDisplayClass
 };
 
 /**
- * cogl_display_new:
- * @renderer: A #CoglRenderer
- *
- * Explicitly allocates a new #CoglDisplay object to encapsulate the
- * common state of the display pipeline that applies to the whole
- * application.
- *
- * A @display can only be made for a specific choice of renderer which
- * is why this takes the @renderer argument.
- *
- * When a display is first allocated via cogl_display_new() it is in a
- * mutable configuration mode. It's designed this way so we can
- * extend the apis available for configuring a display without
- * requiring huge numbers of constructor arguments.
- *
- * When you have finished configuring a display object you can
- * optionally call cogl_display_setup() to explicitly apply the
- * configuration and check for errors. Alternaitvely you can pass the
- * display to cogl_context_new() and Cogl will implicitly apply your
- * configuration but if there are errors then the application will
- * abort with a message. For simple applications with no fallback
- * options then relying on the implicit setup can be fine.
- *
- * Return value: (transfer full): A newly allocated #CoglDisplay
- *               object in a mutable configuration mode.
- */
-COGL_EXPORT CoglDisplay *
-cogl_display_new (CoglRenderer *renderer);
-
-/**
  * cogl_display_get_renderer:
  * @display: a #CoglDisplay
  *
@@ -134,11 +104,6 @@ cogl_display_get_renderer (CoglDisplay *display);
  * Explicitly sets up the given @display object. Use of this api is
  * optional since Cogl will internally setup the display if not done
  * explicitly.
- *
- * When a display is first allocated via cogl_display_new() it is in a
- * mutable configuration mode. This allows us to extend the apis
- * available for configuring a display without requiring huge numbers
- * of constructor arguments.
  *
  * Its possible to request a configuration that might not be
  * supportable on the current system and so this api provides a means

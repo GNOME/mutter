@@ -57,9 +57,6 @@ G_BEGIN_DECLS
  * be tried if necessary. Applications that don't support any
  * fallbacks though can skip using cogl_renderer_connect() and leave
  * Cogl to automatically connect the renderer.
- *
- * Once you have a configured #CoglRenderer it can be used to create a
- * #CoglDisplay object using cogl_display_new().
  */
 
 

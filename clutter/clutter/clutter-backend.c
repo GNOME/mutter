@@ -188,10 +188,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     goto error;
 
   CLUTTER_NOTE (BACKEND, "Creating Cogl display");
-  if (klass->get_display)
-    backend->cogl_display = klass->get_display (backend, backend->cogl_renderer, error);
-  else
-    backend->cogl_display = cogl_display_new (backend->cogl_renderer);
+  backend->cogl_display = klass->get_display (backend, backend->cogl_renderer, error);
 
   if (backend->cogl_display == NULL)
     goto error;

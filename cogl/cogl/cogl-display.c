@@ -56,7 +56,7 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-G_DEFINE_TYPE_WITH_PRIVATE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (CoglDisplay, cogl_display, G_TYPE_OBJECT);
 
 
 static void
@@ -145,20 +145,6 @@ cogl_display_class_init (CoglDisplayClass *class)
                          G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
-}
-
-CoglDisplay *
-cogl_display_new (CoglRenderer *renderer)
-{
-  CoglDisplay *display;
-
-  g_return_val_if_fail (renderer != NULL, NULL);
-
-  display = g_object_new (COGL_TYPE_DISPLAY,
-                          "renderer", renderer,
-                          NULL);
-
-  return display;
 }
 
 CoglRenderer *
